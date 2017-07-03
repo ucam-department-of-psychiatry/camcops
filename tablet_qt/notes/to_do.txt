@@ -7,7 +7,7 @@ TO DO NOW
 
 TESTING IS AT:
     last one done:
-        Distress Thermometer
+        HAM-A
 
 
 
@@ -23,7 +23,7 @@ SERVER
 - cross-platform, Pyramid/SQLAlchemy/Mako
 
 TASKS
-- CIS-R, and the new SequentialQuestionnaire class (or whatever I called it)
+- CIS-R, using the new DynamicQuestionnaire class
 
 BUILDS/DISTRIBUTION
 - Windows build

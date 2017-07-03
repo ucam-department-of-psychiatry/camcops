@@ -45,6 +45,8 @@ public:
     // ------------------------------------------------------------------------
     // Ancillary management
     // ------------------------------------------------------------------------
+    virtual QStringList ancillaryTables() const override;
+    virtual QString ancillaryTableFKToTaskFieldname() const override;
     virtual void loadAllAncillary(int pk) override;
     virtual QVector<DatabaseObjectPtr> getAncillarySpecimens() const override;
     // ------------------------------------------------------------------------

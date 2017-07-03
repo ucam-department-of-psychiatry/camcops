@@ -22,6 +22,7 @@
 #define SAVE_UPDATE_BACKGROUND  // .. this is the main point of multithreading
     // databases; to improve GUI response speed while still being able to
     // save at each touch to avoid data loss through user error.
+#define ALLOW_SAVE_INSERT_BACKGROUND
 
 #include "databaseobject.h"
 #include <iostream>
@@ -578,6 +579,24 @@ bool DatabaseObject::save()
 }
 
 
+void DatabaseObject::saveWithoutKeepingPk()
+{
+    // As for save(), but we give this function a separate name because it
+    // is dangerous. It saves new objects without storing their PK back.
+    // Only used for rapid background saves of things like ExtraString.
+    touch(true);
+    if (!anyDirty()) {
+        return;
+    }
+    if (isPkNull()) {
+        saveInsert(false);
+    } else {
+        saveUpdate();
+    }
+    clearAllDirty();
+}
+
+
 void DatabaseObject::nullify()
 {
     MapIteratorType i(m_record);
@@ -772,6 +791,7 @@ QString DatabaseObject::sqlCreateTable() const
     return dbfunc::sqlCreateTable(m_tablename, fieldsOrdered());
 }
 
+
 QString DatabaseObject::tablename() const
 {
     return m_tablename;
@@ -845,7 +865,7 @@ QVector<DatabaseObjectPtr> DatabaseObject::getAncillarySpecimens() const
 // Additional protected
 // ========================================================================
 
-bool DatabaseObject::saveInsert()
+bool DatabaseObject::saveInsert(bool read_pk_from_database)
 {
     ArgList args;
     QStringList fieldnames;
@@ -873,6 +893,32 @@ bool DatabaseObject::saveInsert()
         placeholders.join(", ") +
         ")"
     );
+#ifdef ALLOW_SAVE_INSERT_BACKGROUND
+    if (read_pk_from_database) {
+        QueryResult result = m_db.query(sql, args,
+                                        QueryResult::FetchMode::NoFetch);
+        if (!result.succeeded()) {
+            qCritical() << Q_FUNC_INFO << "Failed to INSERT record into table"
+                        << m_tablename;
+            return false;
+        }
+        if (read_pk_from_database) {
+            QVariant new_pk = result.lastInsertId();
+            setValue(pkname(), new_pk);
+#ifdef DEBUG_SAVES
+            qDebug().nospace() << "Save/insert: " << qUtf8Printable(m_tablename)
+                               << ", " << pkname() << "=" << new_pk;
+#endif
+        }
+    } else {
+        m_db.execNoAnswer(sql, args);
+#ifdef DEBUG_SAVES
+            qDebug() << "Background save/insert for table:"
+                     << qUtf8Printable(m_tablename);
+#endif
+    }
+#else
+    Q_UNUSED(read_pk_from_database);
     QueryResult result = m_db.query(sql, args,
                                     QueryResult::FetchMode::NoFetch);
     if (!result.succeeded()) {
@@ -885,6 +931,7 @@ bool DatabaseObject::saveInsert()
 #ifdef DEBUG_SAVES
     qDebug().nospace() << "Save/insert: " << qUtf8Printable(m_tablename)
                        << ", " << pkname() << "=" << new_pk;
+#endif
 #endif
     return true;
 }

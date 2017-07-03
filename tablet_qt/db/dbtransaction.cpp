@@ -25,7 +25,7 @@ DbTransaction::DbTransaction(DatabaseManager& db) :
     m_db(db),
     m_fail(false)
 {
-    m_db.execNoAnswer("BEGIN TRANSACTION");
+    m_db.beginTransaction();
 }
 
 

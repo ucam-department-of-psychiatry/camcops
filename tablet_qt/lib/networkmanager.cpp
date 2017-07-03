@@ -20,6 +20,7 @@
 // #define DEBUG_NETWORK_REQUESTS
 // #define DEBUG_NETWORK_REPLIES
 // #define DEBUG_ACTIVITY
+#define USE_BACKGROUND_DATABASE
 
 #include "networkmanager.h"
 #include <functional>
@@ -948,10 +949,14 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
                          delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
                          delimit(Task::PATIENT_FK_FIELDNAME),
                          pt_paramholders);
+#ifdef USE_BACKGROUND_DATABASE
+            m_db.execNoAnswer(sql, pt_args);
+#else
             if (!m_db.exec(sql, pt_args)) {
                 queryFail(sql);
                 return false;
             }
+#endif
             // (b) ancillary tables
             QStringList ancillary_tables = specimen->ancillaryTables();
             if (ancillary_tables.isEmpty()) {
@@ -981,10 +986,14 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
                              delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
                              delimit(fk_task_fieldname),
                              task_paramholders);
+#ifdef USE_BACKGROUND_DATABASE
+                m_db.execNoAnswer(sql, task_args);
+#else
                 if (!m_db.exec(sql, task_args)) {
                     queryFail(sql);
                     return false;
                 }
+#endif
             }
         }
     }
@@ -1026,10 +1035,14 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
                          delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
                          delimit(fk_task_fieldname),
                          task_paramholders);
+#ifdef USE_BACKGROUND_DATABASE
+            m_db.execNoAnswer(sql, task_args);
+#else
             if (!m_db.exec(sql, task_args)) {
                 queryFail(sql);
                 return false;
             }
+#endif
         }
     }
 
@@ -1093,10 +1106,14 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         WhereConditions sub2_where;
         sub2_where.add(dbconst::PK_FIELDNAME, blob_pk);
         sub2_where.appendWhereClause(sub2_sqlargs);
+#ifdef USE_BACKGROUND_DATABASE
+        m_db.execNoAnswer(sub2_sqlargs);
+#else
         if (!m_db.exec(sub2_sqlargs)) {
             queryFail(sub2_sqlargs.sql);
             return false;
         }
+#endif
     }
     return true;
 }
@@ -1118,10 +1135,14 @@ bool NetworkManager::writeIdDescriptionsToPatientTable()
     QString sql = QString("UPDATE %1 SET %2")
             .arg(delimit(Patient::TABLENAME),
                  assignments.join(", "));
+#ifdef USE_BACKGROUND_DATABASE
+    m_db.execNoAnswer(sql, args);
+#else
     if (!m_db.exec(sql, args)) {
         queryFail(sql);
         return false;
     }
+#endif
     return true;
 }
 
@@ -1523,7 +1544,12 @@ bool NetworkManager::clearMoveOffTabletFlag(const QString& tablename)
     QString sql = QString("UPDATE %1 SET %2 = 0")
             .arg(delimit(tablename),
                  delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME));
+#ifdef USE_BACKGROUND_DATABASE
+    m_db.execNoAnswer(sql);
+    return true;
+#else
     return m_db.exec(sql);
+#endif
 }
 
 
@@ -1572,10 +1598,14 @@ bool NetworkManager::pruneDeadBlobs()
                  delimit(dbconst::PK_FIELDNAME),
                  paramholders);
     ArgList args = dbfunc::argListFromIntList(bad_blob_pks);
+#ifdef USE_BACKGROUND_DATABASE
+    m_db.execNoAnswer(sql, args);
+#else
     if (!m_db.exec(sql, args)) {
         queryFail(sql);
         return false;
     }
+#endif
     return true;
 }
 

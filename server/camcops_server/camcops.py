@@ -595,7 +595,8 @@ def make_tables(drop_superfluous_columns: bool = False) -> None:
 
     print(SEPARATOR_EQUALS)
     print("Checking +/- modifying database structure.")
-    print("If this pauses, run 'sudo apachectl restart' in another terminal.")
+    print("If this pauses, and you are running CamCOPS via Apache/mod_wsgi,"
+          "run 'sudo apachectl restart' in another terminal.")
     if drop_superfluous_columns:
         print("DROPPING SUPERFLUOUS COLUMNS")
     print(SEPARATOR_EQUALS)

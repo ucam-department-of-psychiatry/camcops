@@ -65,20 +65,16 @@ ExtraString::ExtraString(CamcopsApp& app,
                    true, false, false)
 {
     commonConstructor();
-    if (!task.isEmpty() && !name.isEmpty()) {
-        // Not a specimen; load, or set defaults and save
-        WhereConditions where;
-        where.add(EXTRASTRINGS_TASK_FIELD, task);
-        where.add(EXTRASTRINGS_NAME_FIELD, name);
-        bool success = load(where);
-        if (!success) {
-            setValue(EXTRASTRINGS_TASK_FIELD, task);
-            setValue(EXTRASTRINGS_NAME_FIELD, name);
-            setValue(EXTRASTRINGS_VALUE_FIELD, value);
-            save();
-        }
-        m_exists = true;
+    if (task.isEmpty() || name.isEmpty()) {
+        qWarning() << Q_FUNC_INFO << "Using the save-blindly constructor "
+                                     "without a name or task!";
+        return;
     }
+    setValue(EXTRASTRINGS_TASK_FIELD, task);
+    setValue(EXTRASTRINGS_NAME_FIELD, name);
+    setValue(EXTRASTRINGS_VALUE_FIELD, value);
+    save();
+    m_exists = true;
 }
 
 
@@ -120,8 +116,7 @@ bool ExtraString::anyExist(const QString& task) const
 
 void ExtraString::deleteAllExtraStrings()
 {
-    QString sql = QString("DELETE FROM %1").arg(EXTRASTRINGS_TABLENAME);
-    m_db.execNoAnswer(sql);
+    m_db.deleteFrom(EXTRASTRINGS_TABLENAME);
 }
 
 

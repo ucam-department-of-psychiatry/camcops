@@ -31,7 +31,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -137,17 +137,17 @@ class Dast(Task):
         exceeds_cutoff_2 = score >= 11
         main_dict = {
             None: None,
-            "Y": WSTRING("Yes"),
-            "N": WSTRING("No")
+            "Y": wappstring("yes"),
+            "N": wappstring("no")
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 28")
-        h += tr_qa(WSTRING("dast_exceeds_standard_cutoff_1"),
+        h += tr(wappstring("total_score"), answer(score) + " / 28")
+        h += tr_qa(self.wxstring("exceeds_standard_cutoff_1"),
                    get_yes_no(exceeds_cutoff_1))
-        h += tr_qa(WSTRING("dast_exceeds_standard_cutoff_2"),
+        h += tr_qa(self.wxstring("exceeds_standard_cutoff_2"),
                    get_yes_no(exceeds_cutoff_2))
         h += """
                 </table>
@@ -160,7 +160,7 @@ class Dast(Task):
         """
         for q in range(1, Dast.NQUESTIONS + 1):
             h += tr(
-                WSTRING("dast_q" + str(q)),
+                self.wxstring("q" + str(q)),
                 answer(get_from_dict(main_dict, getattr(self, "q" + str(q)))) +
                 " — " + answer(str(self.get_score(q)))
             )

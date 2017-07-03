@@ -27,7 +27,7 @@ from typing import List
 from ..cc_modules.cc_constants import NO_CHAR, YES_CHAR
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
@@ -113,7 +113,7 @@ class Gds15(Task):
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 15")
+        h += tr(wappstring("total_score"), answer(score) + " / 15")
         h += """
                 </table>
             </div>
@@ -129,7 +129,7 @@ class Gds15(Task):
         for q in range(1, self.NQUESTIONS + 1):
             suffix = " †" if q in self.SCORE_IF_YES else " *"
             h += tr_qa(
-                str(q) + ". " + WSTRING("gds15_q" + str(q)) + suffix,
+                str(q) + ". " + self.wxstring("q" + str(q)) + suffix,
                 getattr(self, "q" + str(q))
             )
         h += """

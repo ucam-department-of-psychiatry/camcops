@@ -85,6 +85,18 @@ QString PhotoSequence::infoFilenameStem() const
 // Ancillary management
 // ============================================================================
 
+QStringList PhotoSequence::ancillaryTables() const
+{
+    return QStringList{PhotoSequencePhoto::PHOTOSEQUENCEPHOTO_TABLENAME};
+}
+
+
+QString PhotoSequence::ancillaryTableFKToTaskFieldname() const
+{
+    return PhotoSequencePhoto::FK_NAME;
+}
+
+
 void PhotoSequence::loadAllAncillary(int pk)
 {
     OrderBy order_by{{PhotoSequencePhoto::SEQNUM, true}};

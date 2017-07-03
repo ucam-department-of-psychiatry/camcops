@@ -48,7 +48,7 @@ void initializeFast(TaskFactory& factory)
 
 
 Fast::Fast(CamcopsApp& app, DatabaseManager& db, int load_pk) :
-    Task(app, db, FAST_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, FAST_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 

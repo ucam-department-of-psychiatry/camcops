@@ -19,7 +19,7 @@
 
 #include "diagnosisicd9cmitem.h"
 
-const QString DIAGNOSIS_ICD9CM_ITEM_TABLENAME("diagnosis_icd9cm_item");
+const QString DiagnosisIcd9CMItem::DIAGNOSIS_ICD9CM_ITEM_TABLENAME("diagnosis_icd9cm_item");
 const QString DiagnosisIcd9CMItem::FK_NAME("diagnosis_icd9cm_id");  // FK to diagnosis_icd9cm.id
 
 

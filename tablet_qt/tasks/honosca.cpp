@@ -44,8 +44,6 @@ const QString Honosca::HONOSCA_TABLENAME("honosca");
 
 const QString PERIOD_RATED("period_rated");
 const QString Q8("q8");
-const QString Q8_PROBLEM_TYPE("q8problemtype");
-const QString Q8_OTHER_PROBLEM("q8otherproblem");
 const QString VALUE_OTHER("J");
 
 
@@ -60,8 +58,6 @@ Honosca::Honosca(CamcopsApp& app, DatabaseManager& db, int load_pk) :
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
     addField(PERIOD_RATED, QVariant::String);
-    addField(Q8_PROBLEM_TYPE, QVariant::String);
-    addField(Q8_OTHER_PROBLEM, QVariant::String);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

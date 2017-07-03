@@ -26,7 +26,7 @@ from typing import List, Optional
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
 from ..cc_modules.cc_html import answer, tr
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
@@ -80,7 +80,7 @@ class Gaf(Task):
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("gaf_score"), answer(self.score))
+        h += tr(wappstring("gaf_score"), answer(self.score))
         h += """
                 </table>
             </div>

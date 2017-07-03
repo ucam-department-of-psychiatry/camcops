@@ -21,9 +21,9 @@
 #define FULL_LOG_FORMAT
 #define DISABLE_ANDROID_NATIVE_DIALOGS
 
-#include <QApplication>  // for minimal_qt_app
-#include <QDebug>  // for qSetMessagePattern
-#include <QPushButton>  // for minimal_qt_app
+#include <QApplication>
+#include <QDebug>
+#include <QPushButton>
 #include <QStyleFactory>
 #include "common/camcopsapp.h"
 
@@ -42,7 +42,7 @@ const QString message_pattern("camcops: %{type}: %{message}");
 #endif
 
 
-int runMinimalQtAapp(int& argc, char *argv[])
+int runMinimalQtApp(int& argc, char *argv[])
 {
     QApplication app(argc, argv);
     QPushButton button("Hello, world!");
@@ -53,31 +53,33 @@ int runMinimalQtAapp(int& argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    // NOTE: argc must be passed as a REFERENCE to int, or the app will
-    // crash. See
-    // https://bugreports.qt.io/browse/QTBUG-5637
-    // http://doc.qt.io/qt-5/qapplication.html
+    /*
+    NOTE: argc must be passed to the QApplication as a REFERENCE to int, or the
+    app will crash. See
+    - https://bugreports.qt.io/browse/QTBUG-5637
+    - http://doc.qt.io/qt-5/qapplication.html
+    */
 
 #ifdef TEST_BASIC_QT_ONLY
     // For when it all breaks!
-    return runMinimalQtAapp(argc, argv);
+    return runMinimalQtApp(argc, argv);
 #else
-    // - The VERY FIRST THING we do is to create a QApplication, and that
-    //   requires one bit of preamble.
-    //   http://stackoverflow.com/questions/27963697
-    // - Prevent native styling, which makes (for example) QListWidget colours
-    //   not work from the stylsheet. This must be done before the app is
-    //   created. See https://bugreports.qt.io/browse/QTBUG-45517
+    /*
+    -   The VERY FIRST THING we do is to create a QApplication, and that
+        requires one bit of preamble.
+        http://stackoverflow.com/questions/27963697
+    -   Prevent native styling, which makes (for example) QListWidget colours
+        not work from the stylsheet. This must be done before the app is
+        created. See https://bugreports.qt.io/browse/QTBUG-45517
+    */
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
     // ... https://stackoverflow.com/questions/41184723/i-want-qt-app-to-look-like-qt-app-rather-than-android-native
 
 #ifdef DISABLE_ANDROID_NATIVE_DIALOGS
-    // To fix a message box bug:
-    // https://bugreports.qt.io/browse/QTBUG-35313
+    // To fix a message box bug: https://bugreports.qt.io/browse/QTBUG-35313
     qputenv("QT_USE_ANDROID_NATIVE_DIALOGS", "0");
-    // ... read by QAndroidPlatformTheme::usePlatformNativeDialog in
-    //     qandroidplatformtheme.cpp
+    // ... read by QAndroidPlatformTheme::usePlatformNativeDialog in qandroidplatformtheme.cpp
 #endif
 
     qSetMessagePattern(message_pattern);

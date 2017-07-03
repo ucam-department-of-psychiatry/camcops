@@ -26,7 +26,7 @@ from typing import List
 
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -71,10 +71,10 @@ class Gad7(Task):
             axis_max=21.5,
             horizontal_lines=[14.5, 9.5, 4.5],
             horizontal_labels=[
-                TrackerLabel(17, WSTRING("severe")),
-                TrackerLabel(12, WSTRING("moderate")),
-                TrackerLabel(7, WSTRING("mild")),
-                TrackerLabel(2.25, WSTRING("none")),
+                TrackerLabel(17, wappstring("severe")),
+                TrackerLabel(12, wappstring("moderate")),
+                TrackerLabel(7, wappstring("mild")),
+                TrackerLabel(2.25, wappstring("none")),
             ]
         )]
 
@@ -107,13 +107,13 @@ class Gad7(Task):
     def severity(self) -> str:
         score = self.total_score()
         if score >= 15:
-            severity = WSTRING("severe")
+            severity = wappstring("severe")
         elif score >= 10:
-            severity = WSTRING("moderate")
+            severity = wappstring("moderate")
         elif score >= 5:
-            severity = WSTRING("mild")
+            severity = wappstring("mild")
         else:
-            severity = WSTRING("none")
+            severity = wappstring("none")
         return severity
 
     def get_task_html(self) -> str:
@@ -122,14 +122,14 @@ class Gad7(Task):
         answer_dict = {None: None}
         for option in range(0, 4):
             answer_dict[option] = (
-                str(option) + " — " + WSTRING("gad7_a" + str(option))
+                str(option) + " — " + self.wxstring("a" + str(option))
             )
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 21")
-        h += tr(WSTRING("gad7_anxiety_severity") + " <sup>[1]</sup>",
+        h += tr(wappstring("total_score"), answer(score) + " / 21")
+        h += tr(self.wxstring("anxiety_severity") + " <sup>[1]</sup>",
                 severity)
         h += """
                 </table>
@@ -145,7 +145,7 @@ class Gad7(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                WSTRING("gad7_q" + str(q)),
+                self.wxstring("q" + str(q)),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """

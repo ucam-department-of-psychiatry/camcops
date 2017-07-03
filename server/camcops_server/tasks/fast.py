@@ -26,7 +26,7 @@ from typing import List
 
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -102,24 +102,24 @@ class Fast(Task):
     def get_task_html(self) -> str:
         main_dict = {
             None: None,
-            0: "0 — " + WSTRING("fast_q1to3_option0"),
-            1: "1 — " + WSTRING("fast_q1to3_option1"),
-            2: "2 — " + WSTRING("fast_q1to3_option2"),
-            3: "3 — " + WSTRING("fast_q1to3_option3"),
-            4: "4 — " + WSTRING("fast_q1to3_option4"),
+            0: "0 — " + self.wxstring("q1to3_option0"),
+            1: "1 — " + self.wxstring("q1to3_option1"),
+            2: "2 — " + self.wxstring("q1to3_option2"),
+            3: "3 — " + self.wxstring("q1to3_option3"),
+            4: "4 — " + self.wxstring("q1to3_option4"),
         }
         q4_dict = {
             None: None,
-            0: "0 — " + WSTRING("fast_q4_option0"),
-            2: "2 — " + WSTRING("fast_q4_option2"),
-            4: "4 — " + WSTRING("fast_q4_option4"),
+            0: "0 — " + self.wxstring("q4_option0"),
+            2: "2 — " + self.wxstring("q4_option2"),
+            4: "4 — " + self.wxstring("q4_option4"),
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(self.total_score()) + " / 16")
-        h += tr_qa(WSTRING("fast_positive") + " <sup>[1]</sup>",
+        h += tr(wappstring("total_score"), answer(self.total_score()) + " / 16")
+        h += tr_qa(self.wxstring("positive") + " <sup>[1]</sup>",
                    get_yes_no(self.is_positive()))
         h += """
                 </table>
@@ -130,10 +130,10 @@ class Fast(Task):
                     <th width="40%">Answer</th>
                 </tr>
         """
-        h += tr_qa(WSTRING("fast_q1"), get_from_dict(main_dict, self.q1))
-        h += tr_qa(WSTRING("fast_q2"), get_from_dict(main_dict, self.q2))
-        h += tr_qa(WSTRING("fast_q3"), get_from_dict(main_dict, self.q3))
-        h += tr_qa(WSTRING("fast_q4"), get_from_dict(q4_dict, self.q4))
+        h += tr_qa(self.wxstring("q1"), get_from_dict(main_dict, self.q1))
+        h += tr_qa(self.wxstring("q2"), get_from_dict(main_dict, self.q2))
+        h += tr_qa(self.wxstring("q3"), get_from_dict(main_dict, self.q3))
+        h += tr_qa(self.wxstring("q4"), get_from_dict(q4_dict, self.q4))
         h += """
             </table>
             <div class="footnotes">

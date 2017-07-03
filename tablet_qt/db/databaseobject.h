@@ -179,6 +179,7 @@ public:
                               int row,
                               bool order_matches_fetchquery = false);
     virtual bool save();
+    void saveWithoutKeepingPk();  // special shortcut for background INSERT
     void nullify();  // set all fields to null values
     bool isPkNull() const;
     void touch(bool only_if_unset = false);
@@ -237,7 +238,7 @@ protected:
     // Internals: saving, etc.
     // ========================================================================
 protected:
-    bool saveInsert();
+    bool saveInsert(bool read_pk_from_database = true);
     bool saveUpdate();
     void clearAllDirty();
     bool anyDirty() const;

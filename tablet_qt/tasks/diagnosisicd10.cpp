@@ -81,6 +81,18 @@ QString DiagnosisIcd10::xstringTaskname() const
 // Ancillary management
 // ============================================================================
 
+QStringList DiagnosisIcd10::ancillaryTables() const
+{
+    return QStringList{DiagnosisIcd10Item::DIAGNOSIS_ICD10_ITEM_TABLENAME};
+}
+
+
+QString DiagnosisIcd10::ancillaryTableFKToTaskFieldname() const
+{
+    return DiagnosisIcd10Item::FK_NAME;
+}
+
+
 void DiagnosisIcd10::loadAllAncillary(int pk)
 {
     OrderBy order_by{{DiagnosisIcd10Item::SEQNUM, true}};

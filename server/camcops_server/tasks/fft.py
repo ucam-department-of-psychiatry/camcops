@@ -25,7 +25,7 @@
 from typing import List
 
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import get_from_dict, Task
 
 
@@ -53,12 +53,12 @@ class Fft(Task):
     def get_rating_text(self) -> str:
         ratingdict = {
             None: None,
-            1: WSTRING("fft_a1"),
-            2: WSTRING("fft_a2"),
-            3: WSTRING("fft_a3"),
-            4: WSTRING("fft_a4"),
-            5: WSTRING("fft_a5"),
-            6: WSTRING("fft_a6"),
+            1: self.wxstring("a1"),
+            2: self.wxstring("a2"),
+            3: self.wxstring("a3"),
+            4: self.wxstring("a4"),
+            5: self.wxstring("a5"),
+            6: self.wxstring("a6"),
         }
         return get_from_dict(ratingdict, self.rating)
 
@@ -79,8 +79,8 @@ class Fft(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(WSTRING("service_being_rated"), self.service)
-        h += tr_qa(WSTRING("fft_q"), r)
+        h += tr_qa(wappstring("satis_service_being_rated"), self.service)
+        h += tr_qa(self.wxstring("q"), r)
         h += """
             </table>
         """

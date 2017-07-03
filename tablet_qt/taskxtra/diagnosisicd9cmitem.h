@@ -28,5 +28,6 @@ public:
                         int load_pk = dbconst::NONEXISTENT_PK);
     DiagnosisIcd9CMItem(int owner_fk, CamcopsApp& app, DatabaseManager& db);
 public:
+    static const QString DIAGNOSIS_ICD9CM_ITEM_TABLENAME;
     static const QString FK_NAME;
 };

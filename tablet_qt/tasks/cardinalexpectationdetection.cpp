@@ -47,7 +47,7 @@
 #include "taskxtra/cardinalexpdettrial.h"
 #include "taskxtra/cardinalexpdettrialgroupspec.h"
 using namespace cardinalexpdetcommon;  // lots...
-using containers::rotateVectorInPlace;
+using containers::rotateSequenceInPlace;
 using datetime::msToSec;
 using datetime::secToIntMs;
 using datetime::secToMin;
@@ -277,6 +277,20 @@ QString CardinalExpectationDetection::menusubtitle() const
 // ============================================================================
 // Ancillary management
 // ============================================================================
+
+QStringList CardinalExpectationDetection::ancillaryTables() const
+{
+    return QStringList{CardinalExpDetTrialGroupSpec::GROUPSPEC_TABLENAME,
+                       CardinalExpDetTrial::TRIAL_TABLENAME};
+}
+
+
+QString CardinalExpectationDetection::ancillaryTableFKToTaskFieldname() const
+{
+    Q_ASSERT(CardinalExpDetTrialGroupSpec::FN_FK_TO_TASK == CardinalExpDetTrialGroupSpec::FN_FK_TO_TASK);
+    return CardinalExpDetTrial::FN_FK_TO_TASK;
+}
+
 
 void CardinalExpectationDetection::loadAllAncillary(int pk)
 {
@@ -538,7 +552,7 @@ void CardinalExpectationDetection::doCounterbalancing()
         m_raw_cue_indices.append(i);
     }
     // Then rotate it by the counterbalancing number:
-    rotateVectorInPlace(m_raw_cue_indices, valueInt(FN_STIMULUS_COUNTERBALANCING));
+    rotateSequenceInPlace(m_raw_cue_indices, valueInt(FN_STIMULUS_COUNTERBALANCING));
 }
 
 

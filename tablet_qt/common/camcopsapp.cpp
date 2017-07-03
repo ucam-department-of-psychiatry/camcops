@@ -21,6 +21,7 @@
 // #define DANGER_DEBUG_WIPE_PASSWORDS
 // #define DEBUG_EMIT
 // #define DEBUG_SCREEN_STACK
+#define DEBUG_DROP_TABLES_NOT_EXPLICITLY_CREATED
 
 #include "camcopsapp.h"
 #include <QApplication>
@@ -140,6 +141,18 @@ int CamcopsApp::run()
     makeOtherSystemTables();
     registerTasks();  // AFTER storedvar creation, so tasks can read them
     makeTaskTables();
+    // Should we drop tables we're unaware of? Clearly we should never do this
+    // on the server. Doing so on the client prevents the client trying to
+    // upload duff tables to the server (giving an error that will confuse the
+    // user). How could we get superfluous tables? Two situations are: (a)
+    // users fiddling, and (b) me adding a task, running the client, disabling
+    // the task... Consider also the situation of a DOWNGRADE in client; should
+    // we destroy "newer" data we're ignorant of? Probably not.
+#ifdef DEBUG_DROP_TABLES_NOT_EXPLICITLY_CREATED
+    m_datadb->dropTablesNotExplicitlyCreatedByUs();
+    m_sysdb->dropTablesNotExplicitlyCreatedByUs();
+#endif
+
     initGuiTwo();  // AFTER storedvar creation
     openMainWindow();
     if (!hasAgreedTerms()) {
@@ -160,9 +173,10 @@ void CamcopsApp::announceStartup()
     // Announce startup
     // ------------------------------------------------------------------------
     QDateTime dt = datetime::now();
-    qInfo() << "CamCOPS starting at:"
-            << qUtf8Printable(datetime::datetimeToIsoMs(dt))
-            << "=" << qUtf8Printable(datetime::datetimeToIsoMsUtc(dt));
+    qInfo() << "CamCOPS starting at local time:"
+            << qUtf8Printable(datetime::datetimeToIsoMs(dt));
+    qInfo() << "CamCOPS starting at UTC time:"
+            << qUtf8Printable(datetime::datetimeToIsoMsUtc(dt));
     qInfo() << "CamCOPS version:" << camcopsversion::CAMCOPS_VERSION;
 }
 
@@ -1257,9 +1271,12 @@ void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
             trans.fail();
             return;
         }
-        ExtraString es(*this, *m_sysdb, task, name, value);
-        es.save();
+        ExtraString extrastring(*this, *m_sysdb, task, name, value);
+        // ... special constructor that doesn't attempt to load
+        extrastring.saveWithoutKeepingPk();
     }
+    // Took e.g. a shade under 10 s to save whilst keeping PK, down to ~1s
+    // using a save-blindly-in-background method like this.
 }
 
 

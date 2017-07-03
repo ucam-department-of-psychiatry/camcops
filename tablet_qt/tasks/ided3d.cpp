@@ -319,6 +319,20 @@ QString IDED3D::menusubtitle() const
 // Ancillary management
 // ============================================================================
 
+QStringList IDED3D::ancillaryTables() const
+{
+    return QStringList{IDED3DStage::STAGE_TABLENAME,
+                       IDED3DTrial::TRIAL_TABLENAME};
+}
+
+
+QString IDED3D::ancillaryTableFKToTaskFieldname() const
+{
+    Q_ASSERT(IDED3DStage::FN_FK_TO_TASK == IDED3DTrial::FN_FK_TO_TASK);
+    return IDED3DStage::FN_FK_TO_TASK;
+}
+
+
 void IDED3D::loadAllAncillary(int pk)
 {
     OrderBy stage_order_by{{IDED3DStage::FN_STAGE, true}};

@@ -33,6 +33,7 @@ public:
     int seqnum() const;
     QString description() const;
 public:
+    static const QString PHOTOSEQUENCEPHOTO_TABLENAME;
     static const QString FK_NAME;
     static const QString SEQNUM;
     static const QString DESCRIPTION;

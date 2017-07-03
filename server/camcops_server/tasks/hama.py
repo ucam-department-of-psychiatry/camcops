@@ -26,7 +26,7 @@ from typing import List
 
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -70,10 +70,10 @@ class Hama(Task):
             axis_max=56.5,
             horizontal_lines=[30.5, 24.5, 17.5],
             horizontal_labels=[
-                TrackerLabel(33, WSTRING("very_severe")),
-                TrackerLabel(27.5, WSTRING("moderate_to_severe")),
-                TrackerLabel(21, WSTRING("mild_to_moderate")),
-                TrackerLabel(8.75, WSTRING("mild")),
+                TrackerLabel(33, wappstring("very_severe")),
+                TrackerLabel(27.5, wappstring("moderate_to_severe")),
+                TrackerLabel(21, wappstring("mild_to_moderate")),
+                TrackerLabel(8.75, wappstring("mild")),
             ]
         )]
 
@@ -106,13 +106,13 @@ class Hama(Task):
     def severity(self) -> str:
         score = self.total_score()
         if score >= 31:
-            return WSTRING("very_severe")
+            return wappstring("very_severe")
         elif score >= 25:
-            return WSTRING("moderate_to_severe")
+            return wappstring("moderate_to_severe")
         elif score >= 18:
-            return WSTRING("mild_to_moderate")
+            return wappstring("mild_to_moderate")
         else:
-            return WSTRING("mild")
+            return wappstring("mild")
 
     def get_task_html(self) -> str:
         score = self.total_score()
@@ -120,16 +120,16 @@ class Hama(Task):
         answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
             d = {None: None}
-            for option in range(0, 4):
-                d[option] = WSTRING("hama_q" + str(q) + "_option" +
-                                    str(option))
+            for option in range(0, 4 + 1):
+                d[option] = self.wxstring("q" + str(q) + "_option" +
+                                          str(option))
             answer_dicts.append(d)
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 56")
-        h += tr_qa(WSTRING("hama_symptom_severity") + " <sup>[1]</sup>",
+        h += tr(wappstring("total_score"), answer(score) + " / 56")
+        h += tr_qa(self.wxstring("symptom_severity") + " <sup>[1]</sup>",
                    severity)
         h += """
                 </table>
@@ -142,8 +142,8 @@ class Hama(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                WSTRING("hama_q" + str(q) + "_s") + " " + WSTRING(
-                    "hama_q" + str(q) + "_question"),
+                self.wxstring("q" + str(q) + "_s") + " " +
+                self.wxstring("q" + str(q) + "_question"),
                 get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
         h += """

@@ -234,6 +234,9 @@ public:
     void createTable(const QString& tablename,
                      const QVector<Field>& fieldlist,
                      const QString& tempsuffix = dbfunc::TABLE_TEMP_SUFFIX);
+    void dropTable(const QString& tablename);
+    void dropTablesNotIn(const QStringList& good_tables);
+    void dropTablesNotExplicitlyCreatedByUs();
 
     // ------------------------------------------------------------------------
     // Performance tweaks
@@ -298,6 +301,8 @@ protected:
     QWaitCondition m_open_db_complete;
     QWaitCondition m_requests_waiting;
     QWaitCondition m_queries_are_complete;
+
+    QStringList m_created_tables;  // trivial internal helper; accessed only by GUI thread
 
     friend class HelpMenu;  // for driver() access
 };

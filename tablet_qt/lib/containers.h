@@ -24,6 +24,9 @@
 namespace containers
 {
 
+// ============================================================================
+// Force container size
+// ============================================================================
 
 template<typename T>
 void forceVectorSize(QVector<T>& vec,
@@ -42,12 +45,16 @@ void forceVectorSize(QVector<T>& vec,
 }
 
 
-// first vector minus second vector
-template<typename T>
-QVector<T> subtract(const QVector<T>& first, const QVector<T>& second)
+// ============================================================================
+// subtract(a, b) -> items in a, in order, that are not in b
+// ============================================================================
+// - works for QVector, QList
+
+template<typename ContainerType>
+ContainerType subtract(const ContainerType& first, const ContainerType& second)
 {
-    QVector<T> difference;
-    for (const T& first_item : first) {
+    ContainerType difference;
+    for (auto first_item : first) {
         if (!second.contains(first_item)) {
             difference.append(first_item);
         }
@@ -56,23 +63,53 @@ QVector<T> subtract(const QVector<T>& first, const QVector<T>& second)
 }
 
 
+// ============================================================================
+// setSubtract(a, b) -> items in a, in order, that are not in b, eliminating
+//                      duplicates in a
+// ============================================================================
+// - works for QVector, QList
+
+template<typename ContainerType>
+ContainerType setSubtract(const ContainerType& first,
+                          const ContainerType& second)
+{
+    ContainerType difference;
+    for (auto first_item : first) {
+        if (!second.contains(first_item) && !difference.contains(first_item)) {
+            difference.append(first_item);
+        }
+    }
+    return difference;
+}
+
+
+
+// ============================================================================
+// at(a, indices) -> container of items in "a" at locations "indices"
+//                 = generalization of "at" for multiple indices
+// ============================================================================
 /*
-generalization of "at" for multiple indices:
+Example:
 
     QVector<QString> v{"zero", "one", "two", "three", "four"};
     QVector<QString> v2 = at(v, {1, 3});
     assert(v2 == QVector<QString>{"one", "three"});
 */
-template<typename T>
-QVector<T> at(const QVector<T>& vec, const QVector<int>& indices)
+
+template<typename ContainerType>
+ContainerType at(const ContainerType& vec, const QVector<int>& indices)
 {
-    const QVector<T>& subset;
+    ContainerType subset;
     for (int index : indices) {
         subset.append(vec.at(index));
     }
-    return vec;
+    return subset;
 }
 
+
+// ============================================================================
+// containsAll(a, b) -> does a contain all elements of b?
+// ============================================================================
 
 template<typename ContainerType>
 bool containsAll(const ContainerType& a, const ContainerType& b)
@@ -87,8 +124,13 @@ bool containsAll(const ContainerType& a, const ContainerType& b)
 }
 
 
+// ============================================================================
+// rotateSequence(a, n) -> container of elements of a, rotated
+// ... e.g. if a is {1, 2, 3, 4}, then rotateSequence(a, 2) is {3, 4, 1, 2}
+// ============================================================================
+
 template<typename ContainerType>
-ContainerType rotateVector(const ContainerType& v, int n_rotate)
+ContainerType rotateSequence(const ContainerType& v, int n_rotate)
 {
     int size = v.size();
     n_rotate = n_rotate % size;  // don't do unnecessary work
@@ -105,10 +147,14 @@ ContainerType rotateVector(const ContainerType& v, int n_rotate)
 }
 
 
+// ============================================================================
+// rotateSequenceInPlace(a, n) -> in-place version of rotateSequence()
+// ============================================================================
+
 template<typename ContainerType>
-void rotateVectorInPlace(ContainerType& v, int n_rotate)
+void rotateSequenceInPlace(ContainerType& v, int n_rotate)
 {
-    v = rotateVector(v, n_rotate);
+    v = rotateSequence(v, n_rotate);
 }
 
 

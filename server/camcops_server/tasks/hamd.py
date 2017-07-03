@@ -26,7 +26,7 @@ from typing import List
 
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -114,11 +114,11 @@ class Hamd(Task):
             axis_max=MAX_SCORE + 0.5,
             horizontal_lines=[22.5, 19.5, 14.5, 7.5],
             horizontal_labels=[
-                TrackerLabel(25, WSTRING("hamd_severity_verysevere")),
-                TrackerLabel(21, WSTRING("hamd_severity_severe")),
-                TrackerLabel(17, WSTRING("hamd_severity_moderate")),
-                TrackerLabel(11, WSTRING("hamd_severity_mild")),
-                TrackerLabel(3.75, WSTRING("hamd_severity_none")),
+                TrackerLabel(25, self.wxstring("severity_verysevere")),
+                TrackerLabel(21, self.wxstring("severity_severe")),
+                TrackerLabel(17, self.wxstring("severity_moderate")),
+                TrackerLabel(11, self.wxstring("severity_mild")),
+                TrackerLabel(3.75, self.wxstring("severity_none")),
             ]
         )]
 
@@ -179,15 +179,15 @@ class Hamd(Task):
     def severity(self) -> str:
         score = self.total_score()
         if score >= 23:
-            return WSTRING("hamd_severity_verysevere")
+            return self.wxstring("severity_verysevere")
         elif score >= 19:
-            return WSTRING("hamd_severity_severe")
+            return self.wxstring("severity_severe")
         elif score >= 14:
-            return WSTRING("hamd_severity_moderate")
+            return self.wxstring("severity_moderate")
         elif score >= 8:
-            return WSTRING("hamd_severity_mild")
+            return self.wxstring("severity_mild")
         else:
-            return WSTRING("hamd_severity_none")
+            return self.wxstring("severity_none")
 
     def get_task_html(self) -> str:
         score = self.total_score()
@@ -211,15 +211,15 @@ class Hamd(Task):
                         q == "q13" or q == "q14" or q == "q17" or
                         q == "q18" or q == "q21") and option > 2:
                     continue
-                d[option] = WSTRING("hamd_" + q + "_option" + str(option))
+                d[option] = self.wxstring("" + q + "_option" + str(option))
             answer_dicts_dict[q] = d
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score") + " <sup>[1]</sup>",
+        h += tr(wappstring("total_score") + " <sup>[1]</sup>",
                 answer(score) + " / {}".format(MAX_SCORE))
-        h += tr_qa(WSTRING("hamd_severity") + " <sup>[2]</sup>", severity)
+        h += tr_qa(self.wxstring("severity") + " <sup>[2]</sup>", severity)
         h += """
                 </table>
             </div>
@@ -231,7 +231,7 @@ class Hamd(Task):
         """
         for q in task_field_list_for_display:
             if q == "whichq16":
-                qstr = WSTRING("hamd_whichq16_title")
+                qstr = self.wxstring("whichq16_title")
             else:
                 if q == "q16a" or q == "q16b":
                     rangestr = " <sup>range 0–2; ‘3’ not scored</sup>"
@@ -244,7 +244,7 @@ class Hamd(Task):
                         if item["name"] == q
                     ), "")
                     # http://stackoverflow.com/questions/8653516
-                qstr = WSTRING("hamd_" + q + "_s") + rangestr
+                qstr = self.wxstring("" + q + "_s") + rangestr
             h += tr_qa(qstr, get_from_dict(answer_dicts_dict[q],
                                            getattr(self, q)))
         h += """

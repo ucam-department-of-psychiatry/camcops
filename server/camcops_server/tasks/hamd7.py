@@ -26,7 +26,7 @@ from typing import List
 
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -72,10 +72,10 @@ class Hamd7(Task):
             axis_max=26.5,
             horizontal_lines=[19.5, 11.5, 3.5],
             horizontal_labels=[
-                TrackerLabel(23, WSTRING("hamd7_severity_severe")),
-                TrackerLabel(15.5, WSTRING("hamd7_severity_moderate")),
-                TrackerLabel(7.5, WSTRING("hamd7_severity_mild")),
-                TrackerLabel(1.75, WSTRING("hamd7_severity_none")),
+                TrackerLabel(23, self.wxstring("severity_severe")),
+                TrackerLabel(15.5, self.wxstring("severity_moderate")),
+                TrackerLabel(7.5, self.wxstring("severity_mild")),
+                TrackerLabel(1.75, self.wxstring("severity_none")),
             ]
         )]
 
@@ -108,13 +108,13 @@ class Hamd7(Task):
     def severity(self) -> str:
         score = self.total_score()
         if score >= 20:
-            return WSTRING("hamd7_severity_severe")
+            return self.wxstring("severity_severe")
         elif score >= 12:
-            return WSTRING("hamd7_severity_moderate")
+            return self.wxstring("severity_moderate")
         elif score >= 4:
-            return WSTRING("hamd7_severity_mild")
+            return self.wxstring("severity_mild")
         else:
-            return WSTRING("hamd7_severity_none")
+            return self.wxstring("severity_none")
 
     def get_task_html(self) -> str:
         score = self.total_score()
@@ -125,15 +125,15 @@ class Hamd7(Task):
             for option in range(0, 5):
                 if q == 6 and option > 2:
                     continue
-                d[option] = WSTRING("hamd7_q" + str(q) + "_option" +
+                d[option] = self.wxstring("q" + str(q) + "_option" +
                                     str(option))
             answer_dicts.append(d)
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 26")
-        h += tr_qa(WSTRING("hamd7_severity") + " <sup>[1]</sup>", severity)
+        h += tr(wappstring("total_score"), answer(score) + " / 26")
+        h += tr_qa(self.wxstring("severity") + " <sup>[1]</sup>", severity)
         h += """
                 </table>
             </div>
@@ -145,7 +145,7 @@ class Hamd7(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                WSTRING("hamd7_q" + str(q) + "_s"),
+                self.wxstring("q" + str(q) + "_s"),
                 get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
         h += """

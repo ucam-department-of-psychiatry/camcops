@@ -33,6 +33,7 @@
 #include "db/field.h"
 #include "db/fieldcreationplan.h"
 #include "db/whereconditions.h"
+#include "lib/containers.h"
 #include "lib/convert.h"
 #include "lib/uifunc.h"
 using dbfunc::delimit;
@@ -194,6 +195,9 @@ void DatabaseManager::closeDatabaseActual()
             vacuum();
         }
         m_db.close();
+        qInfo()<< "Qt will give a warning next (... \"all queries will cease "
+                  "to work\") as we're about to call removeDatabase(); "
+                  "this is OK";
         QSqlDatabase::removeDatabase(m_connection_name);
     }
     m_db = QSqlDatabase();
@@ -239,7 +243,7 @@ QueryResult DatabaseManager::query(const SqlArgs& sqlargs,
     if (m_threaded) {
         // 1. Queue the query
         ThreadedQueryRequest request(sqlargs, fetch_mode, store_column_names,
-                             suppress_errors);
+                                     suppress_errors);
         pushRequest(request);
 
         // 2. Wait for all queries to finish
@@ -399,9 +403,11 @@ void DatabaseManager::execute(const ThreadedQueryRequest& request)
 
     // 2. Execute query
 #ifdef DEBUG_BACKGROUND_QUERY
-    qDebug() << "Executing background query";
+    qDebug() << "Executing background query:" << request;
 #endif
-    bool success = dbfunc::execQuery(query, request.sqlargs);
+    bool success = dbfunc::execQuery(query,
+                                     request.sqlargs,
+                                     request.suppress_errors);
 
     // 3. Deal with results.
     //    NOTE that even if the query fails, we must push a (blank) result,
@@ -771,7 +777,7 @@ void DatabaseManager::renameColumns(
              old_fieldnames.join(","),
              delimited_dummytable));
     // Drop the temporary table:
-    execNoAnswer(QString("DROP TABLE %1").arg(delimited_dummytable));
+    dropTable(dummytable);
     commit();
 }
 
@@ -845,7 +851,7 @@ void DatabaseManager::changeColumnTypes(
          fieldnames,
          fieldnames,
          delimited_dummytable));
-    execNoAnswer(QString("DROP TABLE %1").arg(delimited_dummytable));
+    dropTable(dummytable);
     commit();
 }
 
@@ -854,9 +860,15 @@ void DatabaseManager::createTable(const QString& tablename,
                                   const QVector<Field>& fieldlist,
                                   const QString& tempsuffix)
 {
+    // Record the created table name. If we ever use
+    // dropTablesNotExplicitlyCreatedByUs(), it is vital that ALL table
+    // creation calls come through this function.
+    m_created_tables.append(tablename);
+
     QString creation_sql = dbfunc::sqlCreateTable(tablename, fieldlist);
     if (!tableExists(tablename)) {
         // Create table from scratch.
+        qInfo() << "Creating table" << tablename;
         execNoAnswer(creation_sql);
         return;
     }
@@ -974,6 +986,7 @@ void DatabaseManager::createTable(const QString& tablename,
     QString delimited_tablename = delimit(tablename);
     QString delimited_dummytable = delimit(dummytable);
     QString goodfieldstring = goodfieldlist.join(",");
+    qInfo() << "Modifying structure of table:" << tablename;
     beginTransaction();
     execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2").arg(
                      delimited_tablename, delimited_dummytable));
@@ -983,9 +996,34 @@ void DatabaseManager::createTable(const QString& tablename,
          goodfieldstring,
          goodfieldstring,
          delimited_dummytable));
-    execNoAnswer(QString("DROP TABLE %1").arg(delimited_dummytable));
+    dropTable(dummytable);
     commit();
 }
+
+
+void DatabaseManager::dropTable(const QString& tablename)
+{
+    qInfo() << "Dropping table:" << tablename;
+    execNoAnswer(QString("DROP TABLE %1").arg(delimit(tablename)));
+}
+
+
+void DatabaseManager::dropTablesNotIn(const QStringList& good_tables)
+{
+    QStringList existing = getAllTables();
+    QStringList superfluous = containers::setSubtract(existing, good_tables);
+    for (const QString& tablename : superfluous) {
+        dropTable(tablename);
+    }
+}
+
+
+void DatabaseManager::dropTablesNotExplicitlyCreatedByUs()
+{
+    // See createTable(), which writes m_created_tables
+    dropTablesNotIn(m_created_tables);
+}
+
 
 
 // ----------------------------------------------------------------------------
