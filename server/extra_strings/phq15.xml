@@ -38,7 +38,7 @@
     <string name="q13_s">Q13 (nausea/indigestion):</string>
     <string name="q14_s">Q14 (energy):</string>
     <string name="q15_s">Q15 (sleep):</string>
-    <string name="n_severe_symptoms">Number of severe symptoms:</string>
+    <string name="n_severe_symptoms">Number of severe symptoms</string>
     <string name="exceeds_somatoform_cutoff">Exceeds standard somatoform disorder cutoff?</string>
     <string name="symptom_severity">PHQ15 symptom severity:</string>
 

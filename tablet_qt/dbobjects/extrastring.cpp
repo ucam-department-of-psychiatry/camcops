@@ -18,7 +18,7 @@
 */
 
 #include "extrastring.h"
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 
 const QString EXTRASTRINGS_TABLENAME("extrastrings");

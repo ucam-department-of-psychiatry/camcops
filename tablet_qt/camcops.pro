@@ -182,8 +182,8 @@ RESOURCES += \
 
 SOURCES += main.cpp \
     common/appstrings.cpp \
-    common/camcopsapp.cpp \
-    common/camcopsversion.cpp \
+    core/camcopsapp.cpp \
+    core/camcopsversion.cpp \
     common/cssconst.cpp \
     common/dbconstants.cpp \
     common/globals.cpp \
@@ -191,7 +191,7 @@ SOURCES += main.cpp \
     common/textconst.cpp \
     common/uiconst.cpp \
     common/varconst.cpp \
-    common/version.cpp \
+    lib/version.cpp \
     common/widgetconst.cpp \
     crypto/cryptofunc.cpp \
     crypto/secureqbytearray.cpp \
@@ -249,7 +249,7 @@ SOURCES += main.cpp \
     lib/flagguard.cpp \
     lib/idpolicy.cpp \
     lib/layoutdumper.cpp \
-    lib/networkmanager.cpp \
+    core/networkmanager.cpp \
     lib/nhs.cpp \
     lib/numericfunc.cpp \
     lib/reentrydepthguard.cpp \
@@ -527,8 +527,8 @@ HEADERS += \
     common/aliases_camcops.h \
     common/aliases_qt.h \
     common/appstrings.h \
-    common/camcopsapp.h \
-    common/camcopsversion.h \
+    core/camcopsapp.h \
+    core/camcopsversion.h \
     common/cssconst.h \
     common/dbconstants.h \
     common/globals.h \
@@ -538,7 +538,7 @@ HEADERS += \
     common/textconst.h \
     common/uiconst.h \
     common/varconst.h \
-    common/version.h \
+    lib/version.h \
     common/widgetconst.h \
     crypto/cryptofunc.h \
     crypto/secureqbytearray.h \
@@ -598,7 +598,7 @@ HEADERS += \
     lib/flagguard.h \
     lib/idpolicy.h \
     lib/layoutdumper.h \
-    lib/networkmanager.h \
+    core/networkmanager.h \
     lib/nhs.h \
     lib/numericfunc.h \
     lib/reentrydepthguard.h \

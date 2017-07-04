@@ -25,7 +25,7 @@
 #include <QDebug>
 #include <QPushButton>
 #include <QStyleFactory>
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 
 #ifdef FULL_LOG_FORMAT
 #ifdef QT_DEBUG

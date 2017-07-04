@@ -18,7 +18,7 @@
 */
 
 #include "fft.h"
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "common/varconst.h"
 #include "lib/stringfunc.h"

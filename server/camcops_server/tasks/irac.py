@@ -25,7 +25,6 @@
 import cardinal_pythonlib.rnc_web as ws
 
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import get_from_dict, Task
 
 
@@ -53,9 +52,9 @@ class Irac(Task):
     def get_achieved_text(self) -> str:
         achieveddict = {
             None: None,
-            0: WSTRING("irac_achieved_0"),
-            1: WSTRING("irac_achieved_1"),
-            2: WSTRING("irac_achieved_2"),
+            0: self.wxstring("achieved_0"),
+            1: self.wxstring("achieved_1"),
+            2: self.wxstring("achieved_2"),
         }
         return get_from_dict(achieveddict, self.achieved)
 
@@ -77,8 +76,8 @@ class Irac(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(WSTRING("irac_q_aim"), ws.webify(self.aim))
-        h += tr_qa(WSTRING("irac_q_achieved"), achieved)
+        h += tr_qa(self.wxstring("q_aim"), ws.webify(self.aim))
+        h += tr_qa(self.wxstring("q_achieved"), achieved)
         h += """
             </table>
         """

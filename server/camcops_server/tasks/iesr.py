@@ -27,7 +27,7 @@ from typing import List
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -181,7 +181,7 @@ class Iesr(Task):
     def get_task_html(self) -> str:
         option_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            option_dict[a] = WSTRING("iesr_a" + str(a))
+            option_dict[a] = wappstring("iesr_a" + str(a))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -218,7 +218,7 @@ class Iesr(Task):
             avoidance=answer(self.avoidance_score()),
             intrusion=answer(self.intrusion_score()),
             hyperarousal=answer(self.hyperarousal_score()),
-            tr_event=tr_qa(WSTRING("iesr_event"), self.event),
+            tr_event=tr_qa(wappstring("event"), self.event),
         )
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))

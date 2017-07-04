@@ -20,7 +20,7 @@
 #pragma once
 
 #include <QPointer>
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "qupage.h"
 #include "widgets/basewidget.h"
 

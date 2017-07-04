@@ -25,7 +25,7 @@
 #include <QtSql/QtSqlVersion>
 #include "common/textconst.h"
 #include "common/uiconst.h"
-#include "common/camcopsversion.h"
+#include "core/camcopsversion.h"
 #include "db/databasemanager.h"
 #include "db/dbfunc.h"
 #include "db/whichdb.h"

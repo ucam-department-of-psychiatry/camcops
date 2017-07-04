@@ -20,14 +20,14 @@
 #include "task.h"
 #include <QObject>
 #include <QVariant>
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
-#include "common/version.h"
 #include "db/databasemanager.h"
 #include "dbobjects/patient.h"
 #include "lib/datetime.h"
+#include "lib/version.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"

@@ -18,7 +18,7 @@
 */
 
 #pragma once
-#include "version.h"
+#include "lib/version.h"
 
 
 namespace camcopsversion {

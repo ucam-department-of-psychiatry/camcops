@@ -28,7 +28,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QVBoxLayout>
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/cssconst.h"
 #include "dialogs/pagepickerdialog.h"
 #include "lib/filefunc.h"

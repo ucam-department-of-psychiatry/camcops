@@ -21,7 +21,7 @@
 #include <QLabel>
 #include <QTextBrowser>
 #include <QVBoxLayout>
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/cssconst.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"

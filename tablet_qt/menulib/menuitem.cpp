@@ -26,7 +26,7 @@
 #include <QScopedPointer>
 #include <QSize>
 #include <QUrl>
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/cssconst.h"
 #include "common/layouts.h"
 #include "common/uiconst.h"

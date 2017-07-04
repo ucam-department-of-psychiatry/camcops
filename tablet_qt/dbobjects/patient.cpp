@@ -20,7 +20,7 @@
 #include "patient.h"
 #include <limits>
 #include <QDebug>
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/dbconstants.h"
 #include "db/dbfunc.h"
 #include "db/dbtransaction.h"

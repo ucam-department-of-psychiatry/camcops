@@ -118,10 +118,11 @@ void ChoosePatientMenu::deletePatient()
         uifunc::alert("Bug: null patient pointer in ChoosePatientMenu::editPatient");
         return;
     }
-    QString patient_details = QString("%1, %2 (%3, DOB %4)\n%5")
+    QString patient_details = QString("%1, %2 (%3, %4, DOB %5)\n%6")
             .arg(patient->surname().toUpper(),
                  patient->forename(),
                  QString("%1 y").arg(patient->ageYears()),
+                 patient->sex(),
                  patient->dobText(),
                  patient->shortIdnumSummary());
 

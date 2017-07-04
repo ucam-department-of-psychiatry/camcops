@@ -20,7 +20,7 @@
 // This task doesn't bother with XML downloads or translation; it's hard-coded.
 
 #include "deakin1healthreview.h"
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"

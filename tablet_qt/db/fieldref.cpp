@@ -21,7 +21,7 @@
 // #define DEBUG_SIGNALS
 #define DEBUG_CHECK_VALID  // may be sensible to leave this on
 
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/globals.h"
 #include "db/fieldref.h"
 #include "dbobjects/blob.h"

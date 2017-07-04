@@ -55,6 +55,12 @@
     <string name="hads_anxiety_score">Anxiety score</string>
     <string name="hads_depression_score">Depression score</string>
 
+    <string name="iesr_a0">Not at all</string>
+    <string name="iesr_a1">A little bit</string>
+    <string name="iesr_a2">Moderately</string>
+    <string name="iesr_a3">Quite a bit</string>
+    <string name="iesr_a4">Extremely</string>
+
     <string name="wsas_a0">0: Not at all</string>
     <string name="wsas_a1">1</string>
     <string name="wsas_a2">2: Slightly</string>
@@ -77,12 +83,15 @@
     ===========================================================================
     -->
 
+    <string name="abnormal">Abnormal</string>
     <string name="absent_or_mild">Absent or mild</string>
     <string name="auditory">Auditory</string>
 
     <string name="category">Category</string>
 
     <string name="date_pertains_to">Date this assessment pertains to</string>
+
+    <string name="event">Event</string>
 
     <string name="icd10_symptomatic_disclaimer">These criteria are the SYMPTOMATIC criteria and IGNORE CAUSAL criteria (such as “episode not attributable to psychoactive substance use or organic mental disorder” or history of prior episodes).</string>
 
@@ -95,6 +104,7 @@
 
     <string name="no">No</string>
     <string name="none">None</string>
+    <string name="normal">Normal</string>
 
     <string name="question">Question</string>
 

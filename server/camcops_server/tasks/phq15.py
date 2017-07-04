@@ -26,7 +26,7 @@ from typing import List
 
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -93,10 +93,10 @@ class Phq15(Task):
             axis_max=30.5,
             horizontal_lines=[14.5, 9.5, 4.5],
             horizontal_labels=[
-                TrackerLabel(22, WSTRING("severe")),
-                TrackerLabel(12, WSTRING("moderate")),
-                TrackerLabel(7, WSTRING("mild")),
-                TrackerLabel(2.25, WSTRING("none")),
+                TrackerLabel(22, wappstring("severe")),
+                TrackerLabel(12, wappstring("moderate")),
+                TrackerLabel(7, wappstring("mild")),
+                TrackerLabel(2.25, wappstring("none")),
             ]
         )]
 
@@ -131,13 +131,13 @@ class Phq15(Task):
     def severity(self) -> str:
         score = self.total_score()
         if score >= 15:
-            return WSTRING("severe")
+            return wappstring("severe")
         elif score >= 10:
-            return WSTRING("moderate")
+            return wappstring("moderate")
         elif score >= 5:
-            return WSTRING("mild")
+            return wappstring("mild")
         else:
-            return WSTRING("none")
+            return wappstring("none")
 
     def get_task_html(self) -> str:
         score = self.total_score()
@@ -147,20 +147,20 @@ class Phq15(Task):
         answer_dict = {None: None}
         for option in range(0, 3):
             answer_dict[option] = str(option) + " – " + \
-                WSTRING("phq15_a" + str(option))
+                self.wxstring("a" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(WSTRING("total_score") + " <sup>[1]</sup>",
+        h += tr(wappstring("total_score") + " <sup>[1]</sup>",
                 answer(score) + " / 30")
-        h += tr_qa(WSTRING("phq15_n_severe_symptoms") + " <sup>[2]</sup>",
+        h += tr_qa(self.wxstring("n_severe_symptoms") + " <sup>[2]</sup>",
                    nsevere)
         h += tr_qa(
-            WSTRING("phq15_exceeds_somatoform_cutoff") + " <sup>[3]</sup>",
+            self.wxstring("exceeds_somatoform_cutoff") + " <sup>[3]</sup>",
             get_yes_no(somatoform_likely))
-        h += tr_qa(WSTRING("phq15_symptom_severity") + " <sup>[4]</sup>",
+        h += tr_qa(self.wxstring("symptom_severity") + " <sup>[4]</sup>",
                    severity)
         h += """
                 </table>
@@ -173,7 +173,7 @@ class Phq15(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                WSTRING("phq15_q" + str(q)),
+                self.wxstring("q" + str(q)),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """

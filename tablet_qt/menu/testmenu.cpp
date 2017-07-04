@@ -25,11 +25,11 @@
 #include <QProgressDialog>
 #include <QThread>
 #include "common/platform.h"
+#include "core/networkmanager.h"
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
 #include "lib/convert.h"
 #include "lib/filefunc.h"
-#include "lib/networkmanager.h"
 #include "lib/uifunc.h"
 #include "lib/slownonguifunctioncaller.h"
 #include "lib/soundfunc.h"

@@ -22,7 +22,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "lib/slowguiguard.h"

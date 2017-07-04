@@ -21,8 +21,8 @@
 
 #include "taskfactory.h"
 #include <algorithm>
-#include "common/camcopsapp.h"
-#include "common/version.h"
+#include "core/camcopsapp.h"
+#include "lib/version.h"
 #include "tasklib/task.h"
 #include "tasklib/tasksorter.h"
 #include "qobjects/comparers.h"

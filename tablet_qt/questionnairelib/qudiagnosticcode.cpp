@@ -23,7 +23,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/cssconst.h"
 #include "diagnosis/diagnosticcodeset.h"
 #include "lib/slowguiguard.h"

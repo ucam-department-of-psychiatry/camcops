@@ -31,7 +31,7 @@
 #include <QSqlField>
 #include <QSqlQuery>
 #include <QStringList>
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "db/dbfunc.h"
 #include "db/fieldref.h"

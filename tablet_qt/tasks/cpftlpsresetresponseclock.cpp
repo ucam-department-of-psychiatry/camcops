@@ -18,7 +18,7 @@
 */
 
 #include "cpftlpsresetresponseclock.h"
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/datetime.h"

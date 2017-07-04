@@ -34,7 +34,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -144,8 +144,8 @@ class Moca(Task):
             axis_max=(self.MAX_SCORE + 0.5),
             horizontal_lines=[25.5],
             horizontal_labels=[
-                TrackerLabel(26, WSTRING("normal"), LabelAlignment.bottom),
-                TrackerLabel(25, WSTRING("abnormal"), LabelAlignment.top),
+                TrackerLabel(26, wappstring("normal"), LabelAlignment.bottom),
+                TrackerLabel(25, wappstring("abnormal"), LabelAlignment.top),
             ]
         )]
 
@@ -207,7 +207,8 @@ class Moca(Task):
 
     def category(self) -> str:
         totalscore = self.total_score()
-        return WSTRING("normal") if totalscore >= 26 else WSTRING("abnormal")
+        return (wappstring("normal") if totalscore >= 26 
+                else wappstring("abnormal"))
 
     def get_task_html(self) -> str:
         vsp = self.score_vsp()
@@ -224,9 +225,9 @@ class Moca(Task):
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"),
+        h += tr(wappstring("total_score"),
                 answer(totalscore) + " / {}".format(self.MAX_SCORE))
-        h += tr_qa(WSTRING("moca_category") + " <sup>[1]</sup>",
+        h += tr_qa(self.wxstring("category") + " <sup>[1]</sup>",
                    category)
         h += """
                 </table>
@@ -238,20 +239,20 @@ class Moca(Task):
                 </tr>
         """
 
-        h += tr(WSTRING("moca_subscore_visuospatial"),
+        h += tr(self.wxstring("subscore_visuospatial"),
                 answer(vsp) + " / 5",
                 tr_class="subheading")
         h += tr("Path, cube, clock/contour, clock/numbers, clock/hands",
                 ", ".join([answer(x) for x in [self.q1, self.q2, self.q3,
                                                self.q4, self.q5]]))
 
-        h += tr(WSTRING("moca_subscore_naming"),
+        h += tr(self.wxstring("subscore_naming"),
                 answer(naming) + " / 3",
                 tr_class="subheading")
         h += tr("Lion, rhino, camel",
                 ", ".join([answer(x) for x in [self.q6, self.q7, self.q8]]))
 
-        h += tr(WSTRING("moca_subscore_attention"),
+        h += tr(self.wxstring("subscore_attention"),
                 answer(attention) + " / 6",
                 tr_class="subheading")
         h += tr("5 digits forwards, 3 digits backwards, tapping, serial 7s "
@@ -259,19 +260,19 @@ class Moca(Task):
                 ", ".join([answer(x) for x in [self.q9, self.q10, self.q11,
                                                self.q12]]))
 
-        h += tr(WSTRING("moca_subscore_language"),
+        h += tr(self.wxstring("subscore_language"),
                 answer(language) + " / 3",
                 tr_class="subheading")
         h += tr("Repeat sentence 1, repeat sentence 2, fluency to letter ‘F’",
                 ", ".join([answer(x) for x in [self.q13, self.q14, self.q15]]))
 
-        h += tr(WSTRING("moca_subscore_abstraction"),
+        h += tr(self.wxstring("subscore_abstraction"),
                 answer(abstraction) + " / 2",
                 tr_class="subheading")
         h += tr("Means of transportation, measuring instruments",
                 ", ".join([answer(x) for x in [self.q16, self.q17]]))
 
-        h += tr(WSTRING("moca_subscore_memory"),
+        h += tr(self.wxstring("subscore_memory"),
                 answer(memory) + " / 5",
                 tr_class="subheading")
         h += tr(
@@ -335,7 +336,7 @@ class Moca(Task):
             ])
         )
 
-        h += tr(WSTRING("moca_subscore_orientation"),
+        h += tr(self.wxstring("subscore_orientation"),
                 answer(orientation) + " / 6",
                 tr_class="subheading")
         h += tr(
@@ -347,7 +348,7 @@ class Moca(Task):
             ])
         )
 
-        h += subheading_spanning_two_columns(WSTRING("moca_education_s"))
+        h += subheading_spanning_two_columns(self.wxstring("education_s"))
         h += tr_qa("≤12 years’ education?", self.education12y_or_less)
         h += """
             </table>

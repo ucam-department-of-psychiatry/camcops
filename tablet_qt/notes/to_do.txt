@@ -6,8 +6,9 @@ TO DO NOW
 - fix server, quick'n'dirty
 
 TESTING IS AT:
-    next to do: IFS
+    next to do: PSWQ
 
+... at end of server testing, check for absence of WSTRING(
 
 
 ===============================================================================

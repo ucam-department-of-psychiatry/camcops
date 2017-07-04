@@ -25,7 +25,7 @@
 #include <QSharedPointer>
 #include <QVector>
 #include "common/aliases_camcops.h"
-#include "common/camcopsapp.h"  // for LockState
+#include "core/camcopsapp.h"  // for LockState
 #include "menulib/menuitem.h"
 #ifdef MENUWINDOW_USE_HFW_LISTWIDGET
 #include "widgets/heightforwidthlistwidget.h"

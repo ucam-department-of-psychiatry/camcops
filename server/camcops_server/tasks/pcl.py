@@ -32,7 +32,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -80,6 +80,7 @@ class PclCommon(object):
     )
     TASK_FIELDS = []
     TASK_TYPE = "?"
+    extrastring_taskname = "pcl"
 
     def is_complete(self) -> bool:
         return (
@@ -169,20 +170,20 @@ class PclCommon(object):
         answer_dict = {None: None}
         for option in range(1, 6):
             answer_dict[option] = str(option) + " – " + \
-                WSTRING("pcl_option" + str(option))
+                self.wxstring("option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr_qa("{} (17–85)".format(WSTRING("total_score")),
+        h += tr_qa("{} (17–85)".format(wappstring("total_score")),
                    score)
         h += tr("Number symptomatic <sup>[1]</sup>: B, C, D (total)",
                 answer(num_symptomatic_b) + ", " +
                 answer(num_symptomatic_c) + ", " +
                 answer(num_symptomatic_d) +
                 " (" + answer(num_symptomatic) + ")")
-        h += tr_qa(WSTRING("pcl_dsm_criteria_met") + " <sup>[2]</sup>",
+        h += tr_qa(self.wxstring("dsm_criteria_met") + " <sup>[2]</sup>",
                    get_yes_no(ptsd))
         h += """
                 </table>
@@ -194,8 +195,8 @@ class PclCommon(object):
                 </tr>
         """
         if tasktype == "S":
-            h += tr_qa(WSTRING("pcl_s_event_s"), self.event)
-            h += tr_qa(WSTRING("pcl_s_eventdate_s"), self.eventdate)
+            h += tr_qa(self.wxstring("s_event_s"), self.event)
+            h += tr_qa(self.wxstring("s_eventdate_s"), self.eventdate)
         for q in range(1, self.NQUESTIONS + 1):
             if q == 1 or q == 6 or q == 13:
                 section = "B" if q == 1 else ("C" if q == 6 else "D")
@@ -203,7 +204,7 @@ class PclCommon(object):
                     "DSM section {}".format(section)
                 )
             h += tr_qa(
-                WSTRING("pcl_q" + str(q) + "_s"),
+                self.wxstring("q" + str(q) + "_s"),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """

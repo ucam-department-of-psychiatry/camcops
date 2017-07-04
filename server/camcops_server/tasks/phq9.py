@@ -26,7 +26,7 @@ from typing import List
 
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -100,11 +100,11 @@ class Phq9(Task):
                 4.5
             ],
             horizontal_labels=[
-                TrackerLabel(23, WSTRING("severe")),
-                TrackerLabel(17, WSTRING("moderately_severe")),
-                TrackerLabel(12, WSTRING("moderate")),
-                TrackerLabel(7, WSTRING("mild")),
-                TrackerLabel(2.25, WSTRING("none")),
+                TrackerLabel(23, wappstring("severe")),
+                TrackerLabel(17, wappstring("moderately_severe")),
+                TrackerLabel(12, wappstring("moderate")),
+                TrackerLabel(7, wappstring("mild")),
+                TrackerLabel(2.25, wappstring("none")),
             ]
         )]
 
@@ -168,15 +168,15 @@ class Phq9(Task):
     def severity(self) -> str:
         total = self.total_score()
         if total >= 20:
-            return WSTRING("severe")
+            return wappstring("severe")
         elif total >= 15:
-            return WSTRING("moderately_severe")
+            return wappstring("moderately_severe")
         elif total >= 10:
-            return WSTRING("moderate")
+            return wappstring("moderate")
         elif total >= 5:
-            return WSTRING("mild")
+            return wappstring("mild")
         else:
-            return WSTRING("none")
+            return wappstring("none")
 
     def get_task_html(self) -> str:
         main_dict = {
@@ -197,7 +197,7 @@ class Phq9(Task):
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score") + " <sup>[1]</sup>",
+        h += tr(wappstring("total_score") + " <sup>[1]</sup>",
                 answer(self.total_score()) + " / 27")
         h += tr_qa(self.wxstring("depression_severity") + " <sup>[2]</sup>",
                    self.severity())

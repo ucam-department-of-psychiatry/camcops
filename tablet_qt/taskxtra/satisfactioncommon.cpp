@@ -19,7 +19,7 @@
 
 #include "satisfactioncommon.h"
 #include "common/appstrings.h"
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "common/varconst.h"
 #include "maths/mathfunc.h"

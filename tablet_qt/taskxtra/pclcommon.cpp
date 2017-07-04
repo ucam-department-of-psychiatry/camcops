@@ -18,7 +18,7 @@
 */
 
 #include "pclcommon.h"
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "common/varconst.h"
 #include "maths/mathfunc.h"
@@ -95,7 +95,11 @@ QString PclCommon::xstringTaskname() const
 
 bool PclCommon::isComplete() const
 {
-    return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+    return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS))) &&
+            (!m_specific_event || (
+                 !valueIsNullOrEmpty(EVENT) &&
+                 !valueIsNull(EVENT_DATE)
+            ));
 }
 
 
@@ -150,7 +154,7 @@ OpenableWidget* PclCommon::editor(bool read_only)
     };
     auto addedit = [this, &elements](const QString& fieldname,
                                      const QString& xstringname,
-                                     bool mandatory = false) -> void {
+                                     bool mandatory = true) -> void {
         elements.append((new QuTextEdit(fieldRef(fieldname, mandatory)))
                      ->setHint(xstring(xstringname)));
     };

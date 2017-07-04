@@ -18,7 +18,7 @@
 */
 
 #include "gmcpq.h"
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"

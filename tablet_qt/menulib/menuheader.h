@@ -20,7 +20,7 @@
 #pragma once
 #include <QPointer>
 #include <QWidget>
-#include "common/camcopsapp.h"  // for LockState
+#include "core/camcopsapp.h"  // for LockState
 
 class BaseWidget;
 class LabelWordWrapWide;

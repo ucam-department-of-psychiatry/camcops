@@ -20,7 +20,7 @@
 // #define DEBUG_SET_VALUE
 
 #include "storedvar.h"
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "lib/uifunc.h"
 

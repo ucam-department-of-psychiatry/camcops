@@ -25,7 +25,7 @@
 from typing import Optional
 
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import get_from_dict, Task
 
 
@@ -53,11 +53,11 @@ class AbstractSatisfaction(object):
     def get_rating_text(self) -> Optional[str]:
         ratingdict = {
             None: None,
-            0: WSTRING("service_satis_rating_a0"),
-            1: WSTRING("service_satis_rating_a1"),
-            2: WSTRING("service_satis_rating_a2"),
-            3: WSTRING("service_satis_rating_a3"),
-            4: WSTRING("service_satis_rating_a4"),
+            0: wappstring("satis_rating_a0"),
+            1: wappstring("satis_rating_a1"),
+            2: wappstring("satis_rating_a2"),
+            3: wappstring("satis_rating_a3"),
+            4: wappstring("satis_rating_a4"),
         }
         return get_from_dict(ratingdict, self.rating)
 
@@ -81,7 +81,7 @@ class AbstractSatisfaction(object):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(WSTRING("service_being_rated"), self.service)
+        h += tr_qa(wappstring("satis_service_being_rated"), self.service)
         h += tr_qa("{} {}?".format(rating_q, self.service), r)
         h += tr_qa(good_q, self.good)
         h += tr_qa(bad_q, self.bad)
@@ -102,9 +102,9 @@ class PatientSatisfaction(AbstractSatisfaction, Task):
 
     def get_task_html(self) -> str:
         return self.get_common_task_html(
-            WSTRING("pt_satis_rating_q"),
-            WSTRING("pt_satis_good_q"),
-            WSTRING("pt_satis_bad_q")
+            wappstring("satis_pt_rating_q"),
+            wappstring("satis_good_q"),
+            wappstring("satis_bad_q")
         )
 
 
@@ -120,9 +120,9 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
 
     def get_task_html(self) -> str:
         return self.get_common_task_html(
-            WSTRING("ref_satis_rating_gen_q"),
-            WSTRING("ref_satis_good_q"),
-            WSTRING("ref_satis_bad_q")
+            wappstring("satis_ref_rating_gen_q"),
+            wappstring("satis_good_q"),
+            wappstring("satis_bad_q")
         )
 
 
@@ -137,7 +137,7 @@ class ReferrerSatisfactionSpec(AbstractSatisfaction, Task):
 
     def get_task_html(self) -> str:
         return self.get_common_task_html(
-            WSTRING("ref_satis_rating_spec_q"),
-            WSTRING("ref_satis_good_q"),
-            WSTRING("ref_satis_bad_q")
+            wappstring("satis_ref_rating_spec_q"),
+            wappstring("satis_good_q"),
+            wappstring("satis_bad_q")
         )

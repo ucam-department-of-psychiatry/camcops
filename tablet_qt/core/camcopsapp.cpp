@@ -36,11 +36,11 @@
 #include <QStackedWidget>
 #include <QUuid>
 #include "common/appstrings.h"
-#include "common/camcopsversion.h"
 #include "common/dbconstants.h"  // for NONEXISTENT_PK
 #include "common/textconst.h"
 #include "common/varconst.h"
-#include "common/version.h"
+#include "core/camcopsversion.h"
+#include "core/networkmanager.h"
 #include "crypto/cryptofunc.h"
 #include "db/databasemanager.h"
 #include "db/dbfunc.h"
@@ -57,10 +57,10 @@
 #include "lib/datetime.h"
 #include "lib/filefunc.h"
 #include "lib/idpolicy.h"
-#include "lib/networkmanager.h"
 #include "lib/slowguiguard.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "lib/version.h"
 #include "menu/mainmenu.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"

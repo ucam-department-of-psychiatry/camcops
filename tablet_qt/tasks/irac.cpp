@@ -93,7 +93,7 @@ QStringList Irac::summary() const
 {
     return QStringList{
         fieldSummary(AIM, xstring("q_aim")) + ".",
-        standardResult(xstring("irac_q_achieved"), getAchievedText()),
+        standardResult(xstring("q_achieved"), getAchievedText()),
     };
 }
 
@@ -141,5 +141,5 @@ QString Irac::getAchievedText() const
     if (v.isNull() || i < 0 || i > 2) {
         return "?";
     }
-    return xstring(strnum("irac_achieved_", i));
+    return xstring(strnum("achieved_", i));
 }

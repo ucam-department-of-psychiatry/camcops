@@ -21,7 +21,7 @@
 #include <QDebug>
 #include <QSharedPointer>
 #include "common/uiconst.h"
-#include "lib/networkmanager.h"
+#include "core/networkmanager.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "menulib/menuproxy.h"

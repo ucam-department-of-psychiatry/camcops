@@ -20,7 +20,7 @@
 #pragma once
 #include <QSqlDatabase>
 #include <QSqlQuery>
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "db/sqlargs.h"
 

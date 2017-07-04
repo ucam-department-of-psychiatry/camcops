@@ -26,7 +26,7 @@ from typing import List
 
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -149,15 +149,15 @@ class Mast(Task):
         exceeds_threshold = self.exceeds_ross_threshold()
         main_dict = {
             None: None,
-            "Y": WSTRING("Yes"),
-            "N": WSTRING("No")
+            "Y": wappstring("yes"),
+            "N": wappstring("no")
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 53")
-        h += tr_qa(WSTRING("mast_exceeds_threshold"),
+        h += tr(wappstring("total_score"), answer(score) + " / 53")
+        h += tr_qa(self.wxstring("exceeds_threshold"),
                    get_yes_no(exceeds_threshold))
         h += """
                 </table>
@@ -170,7 +170,7 @@ class Mast(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr(
-                WSTRING("mast_q" + str(q)),
+                self.wxstring("q" + str(q)),
                 (
                     answer(get_from_dict(main_dict,
                                          getattr(self, "q" + str(q)))) +

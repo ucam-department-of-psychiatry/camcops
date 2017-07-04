@@ -32,9 +32,9 @@
 #include <QtNetwork/QSslConfiguration>
 #include <QUrl>
 #include <QUrlQuery>
-#include "common/camcopsapp.h"
-#include "common/camcopsversion.h"
 #include "common/varconst.h"
+#include "core/camcopsapp.h"
+#include "core/camcopsversion.h"
 #include "db/dbtransaction.h"
 #include "dialogs/passwordentrydialog.h"
 #include "dialogs/logbox.h"

@@ -18,7 +18,7 @@
 */
 
 #include "diagnosticcodeset.h"
-#include "common/camcopsapp.h"
+#include "core/camcopsapp.h"
 
 const QString BAD_STRING("[bad_string]");
 
