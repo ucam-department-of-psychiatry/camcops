@@ -27,7 +27,7 @@ from typing import List
 from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -193,24 +193,24 @@ class Panss(Task):
         total = p + n + g
         answers = {
             None: None,
-            1: WSTRING("panss_option1"),
-            2: WSTRING("panss_option2"),
-            3: WSTRING("panss_option3"),
-            4: WSTRING("panss_option4"),
-            5: WSTRING("panss_option5"),
-            6: WSTRING("panss_option6"),
-            7: WSTRING("panss_option7"),
+            1: self.wxstring("option1"),
+            2: self.wxstring("option2"),
+            3: self.wxstring("option3"),
+            4: self.wxstring("option4"),
+            5: self.wxstring("option5"),
+            6: self.wxstring("option6"),
+            7: self.wxstring("option7"),
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr_qa("{} (30–210)".format(WSTRING("total_score")), total)
-        h += tr_qa("{} (7–49)".format(WSTRING("panss_p")), p)
-        h += tr_qa("{} (7–49)".format(WSTRING("panss_n")), n)
-        h += tr_qa("{} (16–112)".format(WSTRING("panss_g")), g)
-        h += tr_qa(WSTRING("panss_composite"), composite)
+        h += tr_qa("{} (30–210)".format(wappstring("total_score")), total)
+        h += tr_qa("{} (7–49)".format(self.wxstring("p")), p)
+        h += tr_qa("{} (7–49)".format(self.wxstring("n")), n)
+        h += tr_qa("{} (16–112)".format(self.wxstring("g")), g)
+        h += tr_qa(self.wxstring("composite"), composite)
         h += """
                 </table>
             </div>
@@ -222,7 +222,7 @@ class Panss(Task):
         """
         for q in self.TASK_FIELDS:
             h += tr_qa(
-                WSTRING("panss_" + q + "_s"),
+                self.wxstring("" + q + "_s"),
                 get_from_dict(answers, getattr(self, q))
             )
         h += """

@@ -28,7 +28,6 @@ import cardinal_pythonlib.rnc_web as ws
 
 from ..cc_modules.cc_html import answer, identity, tr
 from ..cc_modules.cc_lang import mean
-from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
@@ -139,11 +138,11 @@ class QolBasic(Task):
                     <td width="33%">Implied QoL</th>
                 </tr>
         """
-        h += tr(WSTRING("qolbasic_tto_q_s"),
+        h += tr(self.wxstring("tto_q_s"),
                 answer(ws.number_to_dp(self.tto, DP, default=None)),
                 answer(ws.number_to_dp(tto_qol, DP, default=None),
                        formatter_answer=identity))
-        h += tr(WSTRING("qolbasic_rs_q_s"),
+        h += tr(self.wxstring("rs_q_s"),
                 answer(ws.number_to_dp(self.rs, DP, default=None)),
                 answer(ws.number_to_dp(rs_qol, DP, default=None),
                        formatter_answer=identity))

@@ -98,7 +98,7 @@ bool PclCommon::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS))) &&
             (!m_specific_event || (
                  !valueIsNullOrEmpty(EVENT) &&
-                 !valueIsNull(EVENT_DATE)
+                 !valueIsNull(EVENTDATE)
             ));
 }
 

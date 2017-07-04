@@ -95,6 +95,8 @@
 
     <string name="icd10_symptomatic_disclaimer">These criteria are the SYMPTOMATIC criteria and IGNORE CAUSAL criteria (such as “episode not attributable to psychoactive substance use or organic mental disorder” or history of prior episodes).</string>
 
+    <string name="location">Location</string>
+
     <string name="meets_criteria">Meets criteria?</string>
     <string name="mild">Mild</string>
     <string name="mild_to_moderate">Mild to moderate</string>
@@ -105,6 +107,7 @@
     <string name="no">No</string>
     <string name="none">None</string>
     <string name="normal">Normal</string>
+    <string name="note">Note</string>
 
     <string name="question">Question</string>
 

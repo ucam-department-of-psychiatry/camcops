@@ -27,7 +27,7 @@ from typing import List
 import cardinal_pythonlib.rnc_web as ws
 
 from ..cc_modules.cc_html import answer
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, Task
 
 
@@ -67,10 +67,10 @@ class ProgressNote(Task):
                 {note}
             </div>
         """.format(
-            heading_location=WSTRING("location"),
+            heading_location=wappstring("location"),
             location=answer(ws.webify(self.location),
                             default_for_blank_strings=True),
-            heading_note=WSTRING("progressnote_note"),
-            note=answer(ws.webify(self.note), default_for_blank_strings=True),
+            heading_note=wappstring("note"),
+            note=answer(self.note, default_for_blank_strings=True),
         )
         return h

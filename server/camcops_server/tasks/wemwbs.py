@@ -26,7 +26,7 @@ from typing import List
 
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -115,18 +115,18 @@ class Wemwbs(Task):
     def get_task_html(self) -> str:
         main_dict = {
             None: None,
-            1: "1 — " + WSTRING("wemwbs_a1"),
-            2: "2 — " + WSTRING("wemwbs_a2"),
-            3: "3 — " + WSTRING("wemwbs_a3"),
-            4: "4 — " + WSTRING("wemwbs_a4"),
-            5: "5 — " + WSTRING("wemwbs_a5")
+            1: "1 — " + self.wxstring("wemwbs_a1"),
+            2: "2 — " + self.wxstring("wemwbs_a2"),
+            3: "3 — " + self.wxstring("wemwbs_a3"),
+            4: "4 — " + self.wxstring("wemwbs_a4"),
+            5: "5 — " + self.wxstring("wemwbs_a5")
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(
-            WSTRING("total_score"),
+            wappstring("total_score"),
             answer(self.total_score()) + " (range {}–{})".format(
                 self.MINTOTALSCORE,
                 self.MAXTOTALSCORE
@@ -146,7 +146,7 @@ class Wemwbs(Task):
         """
         for i in range(1, self.N_QUESTIONS + 1):
             nstr = str(i)
-            h += tr_qa(WSTRING("wemwbs_q" + nstr),
+            h += tr_qa(self.wxstring("wemwbs_q" + nstr),
                        get_from_dict(main_dict, getattr(self, "q" + nstr)))
         h += """
             </table>
@@ -174,6 +174,7 @@ class Swemwbs(Task):
     tablename = "swemwbs"
     shortname = "SWEMWBS"
     longname = "Short Warwick–Edinburgh Mental Well-Being Scale"
+    extrastring_taskname = "wemwbs"  # shares
     fieldspecs = repeat_fieldspec(
         "q", 1, N_QUESTIONS, min=1, max=5,
         comment_fmt="Q{n} ({s}) (1 none of the time - 5 all of the time)",
@@ -239,18 +240,18 @@ class Swemwbs(Task):
     def get_task_html(self) -> str:
         main_dict = {
             None: None,
-            1: "1 — " + WSTRING("wemwbs_a1"),
-            2: "2 — " + WSTRING("wemwbs_a2"),
-            3: "3 — " + WSTRING("wemwbs_a3"),
-            4: "4 — " + WSTRING("wemwbs_a4"),
-            5: "5 — " + WSTRING("wemwbs_a5")
+            1: "1 — " + self.wxstring("wemwbs_a1"),
+            2: "2 — " + self.wxstring("wemwbs_a2"),
+            3: "3 — " + self.wxstring("wemwbs_a3"),
+            4: "4 — " + self.wxstring("wemwbs_a4"),
+            5: "5 — " + self.wxstring("wemwbs_a5")
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(
-            WSTRING("total_score"),
+            wappstring("total_score"),
             answer(self.total_score()) + " (range {}–{})".format(
                 self.MINTOTALSCORE,
                 self.MAXTOTALSCORE
@@ -270,7 +271,7 @@ class Swemwbs(Task):
         """
         for i in range(1, self.N_QUESTIONS + 1):
             nstr = str(i)
-            h += tr_qa(WSTRING("swemwbs_q" + nstr),
+            h += tr_qa(self.wxstring("swemwbs_q" + nstr),
                        get_from_dict(main_dict, getattr(self, "q" + nstr)))
         h += """
             </table>

@@ -120,7 +120,7 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
 
     def get_task_html(self) -> str:
         return self.get_common_task_html(
-            wappstring("satis_ref_rating_gen_q"),
+            wappstring("satis_ref_gen_rating_q"),
             wappstring("satis_good_q"),
             wappstring("satis_bad_q")
         )
@@ -137,7 +137,7 @@ class ReferrerSatisfactionSpec(AbstractSatisfaction, Task):
 
     def get_task_html(self) -> str:
         return self.get_common_task_html(
-            wappstring("satis_ref_rating_spec_q"),
+            wappstring("satis_ref_spec_rating_q"),
             wappstring("satis_good_q"),
             wappstring("satis_bad_q")
         )

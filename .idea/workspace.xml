@@ -9,59 +9,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d507af95-9eb5-49a8-90aa-7921b1aee6f4" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.cpp" afterPath="$PROJECT_DIR$/tablet_qt/core/camcopsapp.cpp" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsapp.h" afterPath="$PROJECT_DIR$/tablet_qt/core/camcopsapp.h" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsversion.cpp" afterPath="$PROJECT_DIR$/tablet_qt/core/camcopsversion.cpp" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/common/camcopsversion.h" afterPath="$PROJECT_DIR$/tablet_qt/core/camcopsversion.h" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/common/version.cpp" afterPath="$PROJECT_DIR$/tablet_qt/lib/version.cpp" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/common/version.h" afterPath="$PROJECT_DIR$/tablet_qt/lib/version.h" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/lib/networkmanager.cpp" afterPath="$PROJECT_DIR$/tablet_qt/core/networkmanager.cpp" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/tablet_qt/lib/networkmanager.h" afterPath="$PROJECT_DIR$/tablet_qt/core/networkmanager.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/iesr.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/iesr.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/irac.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/irac.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/mast.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/mast.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/moca.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/moca.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/pcl.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/pcl.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/phq15.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/phq15.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/phq9.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/phq9.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/panss.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/panss.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/progressnote.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/progressnote.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/qolbasic.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/qolbasic.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/rand36.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/rand36.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/service_satisfaction.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/service_satisfaction.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/smast.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/smast.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/camcops_server/tasks/wemwbs.py" afterPath="$PROJECT_DIR$/server/camcops_server/tasks/wemwbs.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/extra_strings/camcops.xml" afterPath="$PROJECT_DIR$/server/extra_strings/camcops.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/extra_strings/phq15.xml" afterPath="$PROJECT_DIR$/server/extra_strings/phq15.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/camcops.pro" afterPath="$PROJECT_DIR$/tablet_qt/camcops.pro" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/ancillaryfunc.h" afterPath="$PROJECT_DIR$/tablet_qt/db/ancillaryfunc.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/databaseobject.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/databaseobject.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/db/fieldref.cpp" afterPath="$PROJECT_DIR$/tablet_qt/db/fieldref.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/extrastring.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/extrastring.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/patient.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/patient.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/dbobjects/storedvar.cpp" afterPath="$PROJECT_DIR$/tablet_qt/dbobjects/storedvar.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcode.cpp" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcode.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcodeset.cpp" afterPath="$PROJECT_DIR$/tablet_qt/diagnosis/diagnosticcodeset.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/main.cpp" afterPath="$PROJECT_DIR$/tablet_qt/main.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/helpmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/helpmenu.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/mainmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/mainmenu.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/settingsmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/settingsmenu.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menu/testmenu.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menu/testmenu.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/htmlinfowindow.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/htmlinfowindow.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuheader.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuheader.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuitem.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuitem.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.h" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuwindow.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/menulib/menuheader.cpp" afterPath="$PROJECT_DIR$/tablet_qt/menulib/menuheader.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/notes/to_do.txt" afterPath="$PROJECT_DIR$/tablet_qt/notes/to_do.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudiagnosticcode.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/qudiagnosticcode.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaire.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaireheader.h" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/questionnaireheader.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/questionnairelib/quphoto.cpp" afterPath="$PROJECT_DIR$/tablet_qt/questionnairelib/quphoto.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/task.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/task.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasklib/taskfactory.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasklib/taskfactory.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/cpftlpsreferral.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/cpftlpsreferral.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/cpftlpsresetresponseclock.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/cpftlpsresetresponseclock.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/deakin1healthreview.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/deakin1healthreview.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/demoquestionnaire.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/demoquestionnaire.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/fft.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/fft.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/gmcpq.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/gmcpq.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/tasks/irac.cpp" afterPath="$PROJECT_DIR$/tablet_qt/tasks/irac.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/taskxtra/pclcommon.cpp" afterPath="$PROJECT_DIR$/tablet_qt/taskxtra/pclcommon.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tablet_qt/taskxtra/satisfactioncommon.cpp" afterPath="$PROJECT_DIR$/tablet_qt/taskxtra/satisfactioncommon.cpp" />
     </list>
     <ignored path="camcops.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -90,59 +48,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="iesr.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/iesr.py">
+      <file leaf-file-name="service_satisfaction.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/service_satisfaction.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3120">
-              <caret line="220" column="38" lean-forward="false" selection-start-line="220" selection-start-column="38" selection-end-line="220" selection-end-column="38" />
+            <state relative-caret-position="756">
+              <caret line="139" column="47" lean-forward="false" selection-start-line="139" selection-start-column="47" selection-end-line="139" selection-end-column="47" />
               <folding>
-                <element signature="e#937#960#0" expanded="true" />
+                <element signature="e#953#980#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mast.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/mast.py">
+      <file leaf-file-name="smast.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/smast.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2175">
-              <caret line="158" column="26" lean-forward="false" selection-start-line="158" selection-start-column="26" selection-end-line="158" selection-end-column="26" />
-              <folding>
-                <element signature="e#937#960#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="moca.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/moca.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="364">
-              <caret line="212" column="35" lean-forward="false" selection-start-line="212" selection-start-column="35" selection-end-line="212" selection-end-column="35" />
-              <folding>
-                <element signature="e#937#960#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="pcl.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/pcl.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="816">
-              <caret line="265" column="0" lean-forward="true" selection-start-line="265" selection-start-column="0" selection-end-line="265" selection-end-column="0" />
-              <folding>
-                <element signature="e#936#959#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="phq15.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/phq15.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="319">
-              <caret line="133" column="20" lean-forward="false" selection-start-line="133" selection-start-column="20" selection-end-line="133" selection-end-column="20" />
+            <state relative-caret-position="441">
+              <caret line="151" column="47" lean-forward="false" selection-start-line="151" selection-start-column="47" selection-end-line="151" selection-end-column="47" />
               <folding>
                 <element signature="e#938#961#0" expanded="true" />
               </folding>
@@ -150,11 +72,43 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="wemwbs.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/wemwbs.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="469">
+              <caret line="176" column="45" lean-forward="false" selection-start-line="176" selection-start-column="45" selection-end-line="176" selection-end-column="45" />
+              <folding>
+                <element signature="e#939#962#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="slums.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/slums.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="400">
+              <caret line="55" column="40" lean-forward="true" selection-start-line="55" selection-start-column="40" selection-end-line="55" selection-end-column="40" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="wemwbs.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/extra_strings/wemwbs.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="816">
+              <caret line="85" column="0" lean-forward="true" selection-start-line="85" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="cc_task.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="293">
-              <caret line="740" column="28" lean-forward="false" selection-start-line="740" selection-start-column="23" selection-end-line="740" selection-end-column="28" />
+            <state relative-caret-position="317">
+              <caret line="3001" column="20" lean-forward="true" selection-start-line="3001" selection-start-column="20" selection-end-line="3001" selection-end-column="40" />
               <folding>
                 <marker date="1498778586449" expanded="true" signature="46829:47039" ph="UPDATE missi... " />
                 <marker date="1498778586449" expanded="true" signature="51605:51918" ph="SELECT missi... " />
@@ -171,36 +125,32 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="phq15.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/extra_strings/phq15.xml">
+      <file leaf-file-name="qolbasic.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/qolbasic.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="600">
-              <caret line="40" column="62" lean-forward="true" selection-start-line="40" selection-start-column="62" selection-end-line="40" selection-end-column="62" />
+            <state relative-caret-position="319">
+              <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="phq9.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/phq9.py">
+      <file leaf-file-name="rand36.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/rand36.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="319">
-              <caret line="200" column="20" lean-forward="false" selection-start-line="200" selection-start-column="20" selection-end-line="200" selection-end-column="20" />
-              <folding>
-                <element signature="e#937#960#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="711">
+              <caret line="86" column="51" lean-forward="false" selection-start-line="86" selection-start-column="51" selection-end-line="86" selection-end-column="51" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="service_satisfaction.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/service_satisfaction.py">
+      <file leaf-file-name="rand36.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/extra_strings/rand36.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="465">
-              <caret line="59" column="27" lean-forward="false" selection-start-line="59" selection-start-column="27" selection-end-line="59" selection-end-column="27" />
-              <folding>
-                <element signature="e#953#980#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="15">
+              <caret line="48" column="33" lean-forward="false" selection-start-line="48" selection-start-column="33" selection-end-line="48" selection-end-column="33" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -208,8 +158,8 @@
       <file leaf-file-name="camcops.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/extra_strings/camcops.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="293">
-              <caret line="101" column="39" lean-forward="false" selection-start-line="101" selection-start-column="37" selection-end-line="101" selection-end-column="39" />
+            <state relative-caret-position="488">
+              <caret line="114" column="41" lean-forward="false" selection-start-line="114" selection-start-column="18" selection-end-line="114" selection-end-column="41" />
               <folding />
             </state>
           </provider>
@@ -226,36 +176,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>normal</find>
-      <find>WSTRING(&quot;moca_</find>
-      <find>wxstring</find>
-      <find>extrastring_taskname</find>
-      <find>pcls</find>
-      <find>is_comp</find>
-      <find>class pcl</find>
+      <find>WSTRING(&quot;qolbasic_</find>
+      <find>class qol</find>
+      <find>cla</find>
+      <find>class r</find>
+      <find>class ra</find>
+      <find>WSTRING(&quot;rand36_</find>
+      <find>answer_dict</find>
+      <find>class ran</find>
+      <find>s</find>
+      <find>sa</find>
+      <find>sat</find>
+      <find>satis</find>
+      <find>satis_</find>
+      <find>satis_re</find>
+      <find>satis_ref</find>
+      <find>class sm</find>
+      <find>class smas</find>
+      <find>class w</find>
+      <find>wstring`</find>
+      <find>wstring</find>
+      <find>def wx</find>
+      <find>class s</find>
+      <find>class sw</find>
+      <find>l</find>
       <find>c</find>
-      <find>class</find>
-      <find>class phq15</find>
-      <find>WSTRING(&quot;phq15_</find>
-      <find>se</find>
-      <find>sever</find>
-      <find>severe</find>
-      <find>valid</find>
-      <find>severe_sy</find>
-      <find>class ph</find>
-      <find>class phq</find>
-      <find>wapp</find>
-      <find>string</find>
-      <find>class phq9</find>
       <find>cl</find>
       <find>clas</find>
       <find>class</find>
-      <find>class pa</find>
-      <find>class pat</find>
-      <find>class pati</find>
-      <find>st</find>
-      <find>wstring</find>
-      <find>mo</find>
+      <find>class</find>
+      <find>class sl</find>
     </findStrings>
     <replaceStrings>
       <replace>runs multiple queries where one would do</replace>
@@ -282,12 +232,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/server/camcops_server/tasks/cbir.py" />
-        <option value="$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expdetthreshold.py" />
-        <option value="$PROJECT_DIR$/server/camcops_server/tasks/cardinal_expectationdetection.py" />
-        <option value="$PROJECT_DIR$/server/camcops_server/tasks/ceca.py" />
-        <option value="$PROJECT_DIR$/server/camcops_server/tasks/psychiatricclerking.py" />
-        <option value="$PROJECT_DIR$/server/camcops_server/tasks/cgisch.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/cgi_task.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/ciwa.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/contactlog.py" />
@@ -326,13 +270,19 @@
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/irac.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/iesr.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/mast.py" />
-        <option value="$PROJECT_DIR$/server/extra_strings/camcops.xml" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/moca.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/pcl.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/phq15.py" />
         <option value="$PROJECT_DIR$/server/extra_strings/phq15.xml" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/phq9.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/panss.py" />
+        <option value="$PROJECT_DIR$/server/extra_strings/camcops.xml" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/progressnote.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/qolbasic.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/rand36.py" />
         <option value="$PROJECT_DIR$/server/camcops_server/tasks/service_satisfaction.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/smast.py" />
+        <option value="$PROJECT_DIR$/server/camcops_server/tasks/wemwbs.py" />
       </list>
     </option>
   </component>
@@ -382,6 +332,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -490,8 +442,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -752,20 +702,19 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="25" width="1922" height="1056" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26666668" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32943144" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.34202296" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="-2" y="594" width="1204" height="475" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -845,78 +794,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_lang.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1560">
-          <caret line="106" column="0" lean-forward="false" selection-start-line="106" selection-start-column="0" selection-end-line="106" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/demoquestionnaire.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="600">
-          <caret line="44" column="33" lean-forward="false" selection-start-line="44" selection-start-column="33" selection-end-line="44" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tools/launch_cherrypy_server.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1500">
-          <caret line="107" column="0" lean-forward="false" selection-start-line="107" selection-start-column="0" selection-end-line="107" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/frs.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="24" column="24" lean-forward="false" selection-start-line="24" selection-start-column="24" selection-end-line="24" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/extra_strings/demqol.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/demqol.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2070">
-          <caret line="156" column="0" lean-forward="false" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/distressthermometer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="672">
-          <caret line="119" column="66" lean-forward="false" selection-start-line="119" selection-start-column="66" selection-end-line="119" selection-end-column="66" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_version.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="36" column="40" lean-forward="false" selection-start-line="36" selection-start-column="40" selection-end-line="36" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_version_string.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="465">
-          <caret line="31" column="38" lean-forward="false" selection-start-line="31" selection-start-column="38" selection-end-line="31" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_user.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="846">
-          <caret line="310" column="47" lean-forward="false" selection-start-line="310" selection-start-column="47" selection-end-line="310" selection-end-column="47" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/camcops.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="304">
@@ -1043,9 +920,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="334">
           <caret line="453" column="16" lean-forward="false" selection-start-line="453" selection-start-column="16" selection-end-line="453" selection-end-column="16" />
-          <folding>
-            <element signature="e#938#961#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1191,7 +1065,7 @@
         <state relative-caret-position="3120">
           <caret line="220" column="38" lean-forward="false" selection-start-line="220" selection-start-column="38" selection-end-line="220" selection-end-column="38" />
           <folding>
-            <element signature="e#937#960#0" expanded="true" />
+            <element signature="e#937#960#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1201,35 +1075,143 @@
         <state relative-caret-position="2175">
           <caret line="158" column="26" lean-forward="false" selection-start-line="158" selection-start-column="26" selection-end-line="158" selection-end-column="26" />
           <folding>
-            <element signature="e#937#960#0" expanded="true" />
+            <element signature="e#937#960#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/moca.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
+        <state relative-caret-position="2880">
           <caret line="212" column="35" lean-forward="false" selection-start-line="212" selection-start-column="35" selection-end-line="212" selection-end-column="35" />
           <folding>
-            <element signature="e#937#960#0" expanded="true" />
+            <element signature="e#937#960#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/pcl.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="816">
-          <caret line="265" column="0" lean-forward="true" selection-start-line="265" selection-start-column="0" selection-end-line="265" selection-end-column="0" />
+        <state relative-caret-position="3720">
+          <caret line="265" column="0" lean-forward="false" selection-start-line="265" selection-start-column="0" selection-end-line="265" selection-end-column="0" />
           <folding>
             <element signature="e#936#959#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/server/extra_strings/phq15.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="600">
+          <caret line="40" column="62" lean-forward="false" selection-start-line="40" selection-start-column="62" selection-end-line="40" selection-end-column="62" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/phq15.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1815">
+          <caret line="133" column="20" lean-forward="false" selection-start-line="133" selection-start-column="20" selection-end-line="133" selection-end-column="20" />
+          <folding>
+            <element signature="e#938#961#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/phq9.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2805">
+          <caret line="200" column="20" lean-forward="false" selection-start-line="200" selection-start-column="20" selection-end-line="200" selection-end-column="20" />
+          <folding>
+            <element signature="e#937#960#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/pswq.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="319">
+          <caret line="35" column="9" lean-forward="false" selection-start-line="35" selection-start-column="9" selection-end-line="35" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/panss.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="497">
+          <caret line="208" column="50" lean-forward="false" selection-start-line="208" selection-start-column="50" selection-end-line="208" selection-end-column="50" />
+          <folding>
+            <element signature="e#938#961#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/progressnote.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="756">
+          <caret line="72" column="35" lean-forward="false" selection-start-line="72" selection-start-column="35" selection-end-line="72" selection-end-column="35" />
+          <folding>
+            <element signature="e#945#968#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/qolbasic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="319">
+          <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/rand36.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="711">
+          <caret line="86" column="51" lean-forward="false" selection-start-line="86" selection-start-column="51" selection-end-line="86" selection-end-column="51" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/extra_strings/rand36.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="48" column="33" lean-forward="false" selection-start-line="48" selection-start-column="33" selection-end-line="48" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/extra_strings/camcops.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="488">
+          <caret line="114" column="41" lean-forward="false" selection-start-line="114" selection-start-column="18" selection-end-line="114" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/service_satisfaction.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="756">
+          <caret line="139" column="47" lean-forward="false" selection-start-line="139" selection-start-column="47" selection-end-line="139" selection-end-column="47" />
+          <folding>
+            <element signature="e#953#980#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/smast.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="441">
+          <caret line="151" column="47" lean-forward="false" selection-start-line="151" selection-start-column="47" selection-end-line="151" selection-end-column="47" />
+          <folding>
+            <element signature="e#938#961#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/server/camcops_server/cc_modules/cc_task.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="293">
-          <caret line="740" column="28" lean-forward="false" selection-start-line="740" selection-start-column="23" selection-end-line="740" selection-end-column="28" />
+        <state relative-caret-position="317">
+          <caret line="3001" column="20" lean-forward="true" selection-start-line="3001" selection-start-column="20" selection-end-line="3001" selection-end-column="40" />
           <folding>
             <marker date="1498778586449" expanded="true" signature="46829:47039" ph="UPDATE missi... " />
             <marker date="1498778586449" expanded="true" signature="51605:51918" ph="SELECT missi... " />
@@ -1245,49 +1227,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/extra_strings/phq15.xml">
+    <entry file="file://$PROJECT_DIR$/server/extra_strings/wemwbs.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="600">
-          <caret line="40" column="62" lean-forward="true" selection-start-line="40" selection-start-column="62" selection-end-line="40" selection-end-column="62" />
+        <state relative-caret-position="816">
+          <caret line="85" column="0" lean-forward="true" selection-start-line="85" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/phq15.py">
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/wemwbs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="319">
-          <caret line="133" column="20" lean-forward="false" selection-start-line="133" selection-start-column="20" selection-end-line="133" selection-end-column="20" />
+        <state relative-caret-position="469">
+          <caret line="176" column="45" lean-forward="false" selection-start-line="176" selection-start-column="45" selection-end-line="176" selection-end-column="45" />
           <folding>
-            <element signature="e#938#961#0" expanded="true" />
+            <element signature="e#939#962#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/phq9.py">
+    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/slums.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="319">
-          <caret line="200" column="20" lean-forward="false" selection-start-line="200" selection-start-column="20" selection-end-line="200" selection-end-column="20" />
-          <folding>
-            <element signature="e#937#960#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/extra_strings/camcops.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="293">
-          <caret line="101" column="39" lean-forward="false" selection-start-line="101" selection-start-column="37" selection-end-line="101" selection-end-column="39" />
+        <state relative-caret-position="400">
+          <caret line="55" column="40" lean-forward="true" selection-start-line="55" selection-start-column="40" selection-end-line="55" selection-end-column="40" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/camcops_server/tasks/service_satisfaction.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="465">
-          <caret line="59" column="27" lean-forward="false" selection-start-line="59" selection-start-column="27" selection-end-line="59" selection-end-column="27" />
-          <folding>
-            <element signature="e#953#980#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>

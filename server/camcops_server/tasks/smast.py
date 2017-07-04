@@ -26,7 +26,7 @@ from typing import List
 
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -81,9 +81,9 @@ class Smast(Task):
                 1.5,
             ],
             horizontal_labels=[
-                TrackerLabel(4, WSTRING("smast_problem_probable")),
-                TrackerLabel(2, WSTRING("smast_problem_possible")),
-                TrackerLabel(0.75, WSTRING("smast_problem_unlikely")),
+                TrackerLabel(4, self.wxstring("problem_probable")),
+                TrackerLabel(2, self.wxstring("problem_possible")),
+                TrackerLabel(0.75, self.wxstring("problem_unlikely")),
             ]
         )]
 
@@ -130,27 +130,27 @@ class Smast(Task):
     def likelihood(self) -> str:
         score = self.total_score()
         if score >= 3:
-            return WSTRING("smast_problem_probable")
+            return self.wxstring("problem_probable")
         elif score >= 2:
-            return WSTRING("smast_problem_possible")
+            return self.wxstring("problem_possible")
         else:
-            return WSTRING("smast_problem_unlikely")
+            return self.wxstring("problem_unlikely")
 
     def get_task_html(self) -> str:
         score = self.total_score()
         likelihood = self.likelihood()
         main_dict = {
             None: None,
-            "Y": WSTRING("Yes"),
-            "N": WSTRING("No")
+            "Y": wappstring("yes"),
+            "N": wappstring("no")
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 13")
-        h += tr_qa(WSTRING("smast_problem_likelihood") + " <sup>[1]</sup>",
+        h += tr(wappstring("total_score"), answer(score) + " / 13")
+        h += tr_qa(self.wxstring("problem_likelihood") + " <sup>[1]</sup>",
                    likelihood)
         h += """
                 </table>
@@ -163,7 +163,7 @@ class Smast(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr(
-                WSTRING("smast_q" + str(q)),
+                self.wxstring("q" + str(q)),
                 answer(get_from_dict(main_dict, getattr(self, "q" + str(q)))) +
                 " — " + str(self.get_score(q))
             )

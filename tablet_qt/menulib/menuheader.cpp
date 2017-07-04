@@ -262,10 +262,11 @@ void MenuHeader::setPatientDetails(const Patient* patient)
     QString info;
 
     if (selected) {
-        info = QString("<b>%1, %2</b> (%3, DOB %4); %5")
+        info = QString("<b>%1, %2</b> (%3, %4, DOB %5); %6")
                 .arg(patient->surname().toUpper(),
                      patient->forename(),
                      QString("%1 y").arg(patient->ageYears()),
+                     patient->sex(),
                      patient->dobText(),
                      patient->shortIdnumSummary());
     }

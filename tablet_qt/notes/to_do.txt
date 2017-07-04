@@ -6,7 +6,9 @@ TO DO NOW
 - fix server, quick'n'dirty
 
 TESTING IS AT:
-    next to do: PSWQ
+    next to do: SLUMS
+TO TEST:
+    photosequence
 
 ... at end of server testing, check for absence of WSTRING(
 
