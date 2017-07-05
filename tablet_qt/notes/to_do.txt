@@ -6,11 +6,9 @@ TO DO NOW
 - fix server, quick'n'dirty
 
 TESTING IS AT:
-    next to do: SLUMS
-TO TEST:
-    photosequence
+    next to do: WEMWBS
 
-... at end of server testing, check for absence of WSTRING(
+... at end of server testing, check for absence of WSTRING in server code
 
 
 ===============================================================================

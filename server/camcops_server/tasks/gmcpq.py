@@ -31,7 +31,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import get_from_dict, Task
 
 
@@ -148,16 +148,16 @@ class GMCPQ(Task):
         dict_q11 = {None: None}
         dict_q12 = {None: None}
         for option in range(1, 5):
-            dict_q1[option] = WSTRING("gmcpq_q1_option" + str(option))
+            dict_q1[option] = self.wxstring("q1_option" + str(option))
         for option in range(1, 6):
-            dict_q3[option] = WSTRING("gmcpq_q3_option" + str(option))
-            dict_q11[option] = WSTRING("gmcpq_q11_option" + str(option))
+            dict_q3[option] = self.wxstring("q3_option" + str(option))
+            dict_q11[option] = self.wxstring("q11_option" + str(option))
         for option in range(0, 6):
             prefix = str(option) + " – " if option > 0 else ""
-            dict_q4[option] = prefix + WSTRING("gmcpq_q4_option" + str(option))
-            dict_q5[option] = prefix + WSTRING("gmcpq_q5_option" + str(option))
+            dict_q4[option] = prefix + self.wxstring("q4_option" + str(option))
+            dict_q5[option] = prefix + self.wxstring("q5_option" + str(option))
         for option in range(1, 17):
-            dict_q12[option] = WSTRING("gmcpq_ethnicity_option" + str(option))
+            dict_q12[option] = self.wxstring("ethnicity_option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -171,50 +171,56 @@ class GMCPQ(Task):
                 </tr>
         """.format(self.get_is_complete_tr())
         ell = "&hellip; "  # horizontal ellipsis
-        sep_row = subheading_spanning_two_columns("")
+        sep_row = subheading_spanning_two_columns("<br>")
         blank_cell = td("", td_class="subheading")
-        h += tr_qa(WSTRING("gmcpq_q_doctor"), ws.webify(self.doctor))
+        h += tr_qa(self.wxstring("q_doctor"), ws.webify(self.doctor))
         h += sep_row
-        h += tr_qa(WSTRING("gmcpq_q1"), get_from_dict(dict_q1, self.q1))
-        h += tr(td(WSTRING("gmcpq_q2")), blank_cell, literal=True)
-        h += tr_qa(ell + WSTRING("gmcpq_q2_a"), get_yes_no_none(self.q2a))
-        h += tr_qa(ell + WSTRING("gmcpq_q2_b"), get_yes_no_none(self.q2b))
-        h += tr_qa(ell + WSTRING("gmcpq_q2_c"), get_yes_no_none(self.q2c))
-        h += tr_qa(ell + WSTRING("gmcpq_q2_d"), get_yes_no_none(self.q2d))
-        h += tr_qa(ell + WSTRING("gmcpq_q2_e"), get_yes_no_none(self.q2e))
-        h += tr_qa(ell + WSTRING("gmcpq_q2_f"), get_yes_no_none(self.q2f))
-        h += tr_qa(ell + ell + WSTRING("gmcpq_q2f_s"),
+        h += tr_qa(self.wxstring("q1"), get_from_dict(dict_q1, self.q1))
+        h += tr(td(self.wxstring("q2")), blank_cell, literal=True)
+        h += tr_qa(ell + self.wxstring("q2_a"), get_yes_no_none(self.q2a),
+                   default="")
+        h += tr_qa(ell + self.wxstring("q2_b"), get_yes_no_none(self.q2b),
+                   default="")
+        h += tr_qa(ell + self.wxstring("q2_c"), get_yes_no_none(self.q2c),
+                   default="")
+        h += tr_qa(ell + self.wxstring("q2_d"), get_yes_no_none(self.q2d),
+                   default="")
+        h += tr_qa(ell + self.wxstring("q2_e"), get_yes_no_none(self.q2e),
+                   default="")
+        h += tr_qa(ell + self.wxstring("q2_f"), get_yes_no_none(self.q2f),
+                   default="")
+        h += tr_qa(ell + ell + self.wxstring("q2f_s"),
                    ws.webify(self.q2f_details))
-        h += tr_qa(WSTRING("gmcpq_q3"), get_from_dict(dict_q3, self.q3))
-        h += tr(td(WSTRING("gmcpq_q4")), blank_cell, literal=True)
-        h += tr_qa(ell + WSTRING("gmcpq_q4_a"),
+        h += tr_qa(self.wxstring("q3"), get_from_dict(dict_q3, self.q3))
+        h += tr(td(self.wxstring("q4")), blank_cell, literal=True)
+        h += tr_qa(ell + self.wxstring("q4_a"),
                    get_from_dict(dict_q4, self.q4a))
-        h += tr_qa(ell + WSTRING("gmcpq_q4_b"),
+        h += tr_qa(ell + self.wxstring("q4_b"),
                    get_from_dict(dict_q4, self.q4b))
-        h += tr_qa(ell + WSTRING("gmcpq_q4_c"),
+        h += tr_qa(ell + self.wxstring("q4_c"),
                    get_from_dict(dict_q4, self.q4c))
-        h += tr_qa(ell + WSTRING("gmcpq_q4_d"),
+        h += tr_qa(ell + self.wxstring("q4_d"),
                    get_from_dict(dict_q4, self.q4d))
-        h += tr_qa(ell + WSTRING("gmcpq_q4_e"),
+        h += tr_qa(ell + self.wxstring("q4_e"),
                    get_from_dict(dict_q4, self.q4e))
-        h += tr_qa(ell + WSTRING("gmcpq_q4_f"),
+        h += tr_qa(ell + self.wxstring("q4_f"),
                    get_from_dict(dict_q4, self.q4f))
-        h += tr_qa(ell + WSTRING("gmcpq_q4_g"),
+        h += tr_qa(ell + self.wxstring("q4_g"),
                    get_from_dict(dict_q4, self.q4g))
-        h += tr(td(WSTRING("gmcpq_q5")), blank_cell, literal=True)
-        h += tr_qa(ell + WSTRING("gmcpq_q5_a"),
+        h += tr(td(self.wxstring("q5")), blank_cell, literal=True)
+        h += tr_qa(ell + self.wxstring("q5_a"),
                    get_from_dict(dict_q5, self.q5a))
-        h += tr_qa(ell + WSTRING("gmcpq_q5_b"),
+        h += tr_qa(ell + self.wxstring("q5_b"),
                    get_from_dict(dict_q5, self.q5b))
-        h += tr_qa(WSTRING("gmcpq_q6"), get_yes_no_none(self.q6))
-        h += tr_qa(WSTRING("gmcpq_q7"), get_yes_no_none(self.q7))
-        h += tr_qa(WSTRING("gmcpq_q8"), get_yes_no_none(self.q8))
-        h += tr_qa(WSTRING("gmcpq_q9_s"), ws.webify(self.q9))
+        h += tr_qa(self.wxstring("q6"), get_yes_no_none(self.q6))
+        h += tr_qa(self.wxstring("q7"), get_yes_no_none(self.q7))
+        h += tr_qa(self.wxstring("q8"), get_yes_no_none(self.q8))
+        h += tr_qa(self.wxstring("q9_s"), ws.webify(self.q9))
         h += sep_row
-        h += tr_qa(WSTRING("sex"), ws.webify(self.q10))
-        h += tr_qa(WSTRING("gmcpq_q11"), get_from_dict(dict_q11, self.q11))
-        h += tr_qa(WSTRING("gmcpq_q12"), get_from_dict(dict_q12, self.q12))
-        h += tr_qa(ell + WSTRING("gmcpq_ethnicity_other_s"),
+        h += tr_qa(wappstring("sex"), ws.webify(self.q10))
+        h += tr_qa(self.wxstring("q11"), get_from_dict(dict_q11, self.q11))
+        h += tr_qa(self.wxstring("q12"), get_from_dict(dict_q12, self.q12))
+        h += tr_qa(ell + self.wxstring("ethnicity_other_s"),
                    ws.webify(self.q12_details))
         h += """
             </table>

@@ -41,11 +41,14 @@ public:
     int nCols() const;
     int nRows() const;
     bool isEmpty() const;
-    QVector<QVariant> row(int row) const;
+    QVector<QVariant> row(int row) const;  // efficient
+    QVector<QVariant> col(int col) const;  // inefficient
     QVariant at(int row, int col) const;
     QVariant at(int row, const QString& colname) const;
     QVariant firstValue() const;
+    QVector<int> columnAsIntList(int col) const;
     QVector<int> firstColumnAsIntList() const;
+    QStringList columnAsStringList(int col) const;
     QStringList firstColumnAsStringList() const;
     QVariant lastInsertId() const;
     QString csvHeader(const char sep = ',') const;

@@ -269,6 +269,7 @@ void PhotoSequence::rebuildPage(QuPage* page, int page_index)
                    .arg(m_photos.length()));
 }
 
+
 void PhotoSequence::renumberPhotos()
 {
     // Fine to reset the number to something that doesn't change; the save()
@@ -300,7 +301,9 @@ void PhotoSequence::addPhoto()
     photo->setSeqnum(m_photos.size());
     photo->save();
     m_photos.append(photo);
-    addPage(m_photos.size() - 1);
+    if (m_photos.size() > 1) {
+        addPage(m_photos.size() - 1);
+    }
     // Makes UI sense to go the one we've just added.
     m_questionnaire->goToPage(m_photos.size() - 1);
     refreshQuestionnaire();

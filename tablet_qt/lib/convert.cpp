@@ -639,6 +639,12 @@ QMap<QString, QString> getReplyDict(const QByteArray& data)
 }
 
 
+QString getReplyString(const QByteArray& data)
+{
+    return QString::fromUtf8(data);
+}
+
+
 QUrlQuery getPostDataAsUrlQuery(const QMap<QString, QString>& dict)
 {
     // http://stackoverflow.com/questions/2599423/how-can-i-post-data-to-a-url-using-qnetworkaccessmanager
@@ -752,8 +758,11 @@ QString intVectorToCsvString(const QVector<int>& vec)
 
 QVector<int> csvStringToIntVector(const QString& str)
 {
-    QStringList strings = str.split(COMMA);
     QVector<int> vec;
+    if (str.isEmpty()) {
+        return vec;
+    }
+    QStringList strings = str.split(COMMA);
     for (const QString& s : strings) {
         vec.append(s.toInt());
     }

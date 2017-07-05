@@ -148,6 +148,8 @@ protected:
     void sendEmptyTables(const QStringList& tablenames);
     void sendTableWhole(const QString& tablename);
     void sendTableRecordwise(const QString& tablename);
+    void requestRecordwisePkPrune();
+    void pruneRecordwisePks();
     void sendNextRecord();
     void endUpload();
     void wipeTables();
@@ -208,8 +210,9 @@ protected:
     QStringList m_upload_tables_to_send_recordwise;
     QString m_upload_recordwise_table_in_progress;
     QStringList m_upload_recordwise_fieldnames;
-    int m_upload_n_records;
     int m_upload_current_record_index;
+    bool m_recordwise_prune_req_sent;
+    bool m_recordwise_pks_pruned;
     QVector<int> m_upload_recordwise_pks_to_send;
     QStringList m_upload_tables_to_wipe;
 };

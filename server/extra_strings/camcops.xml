@@ -125,13 +125,15 @@
     <string name="satis_rating_a3">Good</string>
     <string name="satis_rating_a4">Excellent</string>
     <string name="severe">Severe</string>
+    <string name="sex">Sex</string>
 
     <string name="total_score">Total score</string>
 
     <string name="unknown">Unknown</string>
 
-    <string name="visual">Visual</string>
     <string name="very_severe">Very severe</string>
+    <string name="visual">Visual</string>
+    <string name="volume_0_to_1">Volume (0–1)</string>
 
     <string name="yes">Yes</string>
 

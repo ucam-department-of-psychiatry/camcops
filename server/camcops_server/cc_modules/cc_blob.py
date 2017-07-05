@@ -171,6 +171,22 @@ def get_contemporaneous_blob_by_client_info(
     serverpk = cc_db.get_contemporaneous_server_pk_by_client_info(
         Blob.TABLENAME, device_id, clientpk, era,
         referrer_added_utc, referrer_removed_utc)
+    log.critical(
+        "get_contemporaneous_blob_by_client_info: "
+        "device_id = {}, "
+        "clientpk = {}, "
+        "era = {}, "
+        "serverpk = {},"
+        "referrer_added_utc = {}, "
+        "referrer_removed_utc = {}".format(
+            device_id,
+            clientpk,
+            era,
+            serverpk,
+            referrer_added_utc,
+            referrer_removed_utc,
+        )
+    )
     if serverpk is None:
         log.debug("FAILED TO FIND BLOB: " + str(clientpk))
         return None

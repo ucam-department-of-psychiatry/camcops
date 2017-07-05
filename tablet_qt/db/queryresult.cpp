@@ -108,6 +108,17 @@ QVector<QVariant> QueryResult::row(int row) const
 }
 
 
+QVector<QVariant> QueryResult::col(int col) const
+{
+    Q_ASSERT(col >= 0 && col <= m_n_cols);
+    QVector<QVariant> values;
+    for (int row = 0; row < m_n_rows; ++row) {
+        values.append(at(row, col));
+    }
+    return values;
+}
+
+
 QVariant QueryResult::at(int row, int col) const
 {
     Q_ASSERT(row >= 0 && row <= m_n_rows);
@@ -132,12 +143,28 @@ QVariant QueryResult::firstValue() const
 }
 
 
+QVector<int> QueryResult::columnAsIntList(int col) const
+{
+    Q_ASSERT(col >= 0 && col <= m_n_cols);
+    QVector<int> values;
+    for (int row = 0; row < m_n_rows; ++row) {
+        values.append(at(row, col).toInt());
+    }
+    return values;
+}
+
+
 QVector<int> QueryResult::firstColumnAsIntList() const
 {
-    int nrows = nRows();
-    QVector<int> values;
-    for (int row = 0; row < nrows; ++row) {
-        values.append(at(row, 0).toInt());
+    return columnAsIntList(0);
+}
+
+
+QStringList QueryResult::columnAsStringList(int col) const
+{
+    QStringList values;
+    for (int row = 0; row < m_n_rows; ++row) {
+        values.append(at(row, col).toString());
     }
     return values;
 }
@@ -145,12 +172,7 @@ QVector<int> QueryResult::firstColumnAsIntList() const
 
 QStringList QueryResult::firstColumnAsStringList() const
 {
-    int nrows = nRows();
-    QStringList values;
-    for (int row = 0; row < nrows; ++row) {
-        values.append(at(row, 0).toString());
-    }
-    return values;
+    return columnAsStringList(0);
 }
 
 

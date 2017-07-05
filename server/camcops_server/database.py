@@ -187,6 +187,12 @@ def fail_user_error(msg: str) -> None:
     raise UserErrorException(msg)
 
 
+def require_keys(dict: Dict[Any, Any], keys: List[Any]) -> None:
+    for k in keys:
+        if k not in dict:
+            fail_user_error("Field {} missing in client input".format(repr(k)))
+
+
 def fail_user_error_from_exception(e: Exception) -> None:
     fail_user_error(exception_description(e))
 
@@ -718,6 +724,8 @@ def upload_record_core(sm: SessionManager,
                        valuedict: Dict,
                        recordnum: int) -> Tuple[int, int]:
     """Uploads a record. Deals with IDENTICAL, NEW, and MODIFIED records."""
+    require_keys(valuedict, [clientpk_name, CLIENT_DATE_FIELD,
+                             MOVE_OFF_TABLET_FIELD])
     clientpk_value = valuedict[clientpk_name]
     found, oldserverpk = record_exists(sm, table, clientpk_name,
                                        clientpk_value)
@@ -1382,9 +1390,7 @@ def upload_record(sm: SessionManager) -> str:
     table = get_table_from_post_var(sm.form, PARAM.TABLE)
     clientpk_name = get_single_field_from_post_var(sm.form, PARAM.PKNAME)
     valuedict = get_fields_and_values(sm.form, PARAM.FIELDS, PARAM.VALUES)
-
-    if clientpk_name not in valuedict:
-        fail_user_error("PK ({}) not in field list".format(clientpk_name))
+    require_keys(valuedict, [clientpk_name, CLIENT_DATE_FIELD])
     clientpk_value = valuedict[clientpk_name]
     wheredict = {clientpk_name: clientpk_value}
 
@@ -1397,11 +1403,17 @@ def upload_record(sm: SessionManager) -> str:
     else:
         # Update
         oldserverpk = serverpks[0]
-        newserverpk = duplicate_record(sm, table, oldserverpk)
-        flag_modified(sm, table, oldserverpk, newserverpk)
-        update_new_copy_of_record(sm, table, newserverpk, valuedict,
-                                  oldserverpk)
-        log.info("upload-update")
+        client_date_value = valuedict[CLIENT_DATE_FIELD]
+        exists = record_identical_by_date(table, oldserverpk,
+                                          client_date_value)
+        if exists:
+            log.info("upload-update: skipping existing record")
+        else:
+            newserverpk = duplicate_record(sm, table, oldserverpk)
+            flag_modified(sm, table, oldserverpk, newserverpk)
+            update_new_copy_of_record(sm, table, newserverpk, valuedict,
+                                      oldserverpk)
+            log.info("upload-update")
         return "UPLOAD-UPDATE"
     # Auditing occurs at commit_all.
 

@@ -100,6 +100,7 @@ QString prettyPointer(const void* pointer);
 
 QUrlQuery getPostDataAsUrlQuery(const QMap<QString, QString>& dict);
 QMap<QString, QString> getReplyDict(const QByteArray& data);
+QString getReplyString(const QByteArray& data);
 
 extern const QString SSLPROTODESC_SSLV3;
 extern const QString SSLPROTODESC_SSLV2;

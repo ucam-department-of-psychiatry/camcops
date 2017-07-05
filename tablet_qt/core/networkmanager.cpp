@@ -51,6 +51,7 @@ using dbfunc::delimit;
 // Keys used by server or client (S server, C client, B bidirectional)
 const QString KEY_CAMCOPS_VERSION("camcops_version");  // C->S
 const QString KEY_DATABASE_TITLE("databaseTitle");  // S->C
+const QString KEY_DATEVALUES("datevalues");  // C->S
 const QString KEY_DEVICE("device");  // C->S
 const QString KEY_DEVICE_FRIENDLY_NAME("devicefriendlyname");  // C->S
 const QString KEY_ERROR("error");  // S->C
@@ -537,7 +538,6 @@ void NetworkManager::cleanup()
     m_upload_tables_to_send_recordwise.clear();
     m_upload_recordwise_table_in_progress = "";
     m_upload_recordwise_fieldnames.clear();
-    m_upload_n_records = 0;
     m_upload_current_record_index = -1;
     m_upload_recordwise_pks_to_send.clear();
     m_upload_tables_to_wipe.clear();
@@ -1195,8 +1195,11 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
     // This function imposes an order on the upload sequence, which makes
     // everything else work.
 
-    if (!processServerReply(reply) ||
-            m_upload_next_stage == NextUploadStage::Invalid) {
+    // The option for reply to be nullptr is so we can do a no-op.
+    if (reply && !processServerReply(reply)) {
+        return;
+    }
+    if (m_upload_next_stage == NextUploadStage::Invalid) {
         // stage might be Invalid if user hit cancel while messages still
         // inbound
         return;
@@ -1249,7 +1252,23 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
 
         } else if (!m_upload_recordwise_pks_to_send.isEmpty()) {
 
-            sendNextRecord();
+            if (!m_recordwise_prune_req_sent) {
+                requestRecordwisePkPrune();
+            } else {
+                if (!m_recordwise_pks_pruned) {
+                    pruneRecordwisePks();
+                    if (m_upload_recordwise_pks_to_send.isEmpty()) {
+                        // Quasi-recursive way of saying "do whatever you would
+                        // have done otherwise", since the server had said "I'm
+                        // not interested in any records from that table".
+                        statusMessage("... server doesn't want anything from "
+                                      "this table");
+                        uploadNext(nullptr);
+                        return;
+                    }
+                }
+                sendNextRecord();
+            }
 
         } else if (!m_upload_tables_to_send_recordwise.isEmpty()) {
 
@@ -1426,26 +1445,51 @@ void NetworkManager::sendTableRecordwise(const QString& tablename)
 
     m_upload_recordwise_table_in_progress = tablename;
     m_upload_recordwise_fieldnames = m_db.getFieldNames(tablename);
+    m_recordwise_prune_req_sent = false;
+    m_recordwise_pks_pruned = false;
     m_upload_recordwise_pks_to_send = m_db.getPKs(tablename,
                                                   dbconst::PK_FIELDNAME);
-    m_upload_n_records = m_upload_recordwise_pks_to_send.length();
     m_upload_current_record_index = 0;
 
     // First, DELETE WHERE pk NOT...
-    QString pkvalues;
-    for (int i = 0; i < m_upload_recordwise_pks_to_send.length(); ++i) {
-        if (i > 0) {
-            pkvalues += ",";
-        }
-        pkvalues += QString::number(m_upload_recordwise_pks_to_send.at(i));
-    }
+    QString pkvalues = convert::intVectorToCsvString(m_upload_recordwise_pks_to_send);
     Dict dict;
     dict[KEY_OPERATION] = OP_DELETE_WHERE_KEY_NOT;
     dict[KEY_TABLE] = tablename;
     dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;
     dict[KEY_PKVALUES] = pkvalues;
-    statusMessage("Sending delete-where-key-not message");
+    statusMessage("Sending message: " + OP_DELETE_WHERE_KEY_NOT);
     serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::requestRecordwisePkPrune()
+{
+    QString sql = QString("SELECT %1, %2 FROM %3")
+            .arg(delimit(dbconst::PK_FIELDNAME),
+                 delimit(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME),
+                 delimit(m_upload_recordwise_table_in_progress));
+    QueryResult result = m_db.query(sql);
+    QStringList pkvalues = result.columnAsStringList(0);
+    QStringList datevalues = result.columnAsStringList(1);
+    Dict dict;
+    dict[KEY_OPERATION] = OP_WHICH_KEYS_TO_SEND;
+    dict[KEY_TABLE] = m_upload_recordwise_table_in_progress;
+    dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;
+    dict[KEY_PKVALUES] = pkvalues.join(",");
+    dict[KEY_DATEVALUES] = datevalues.join(",");
+    m_recordwise_prune_req_sent = true;
+    statusMessage("Sending message: " + OP_WHICH_KEYS_TO_SEND);
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::pruneRecordwisePks()
+{
+    QString reply = m_reply_dict[KEY_RESULT];
+    statusMessage("Server requests only PKs: " + reply);
+    m_upload_recordwise_pks_to_send = convert::csvStringToIntVector(reply);
+    m_recordwise_pks_pruned = true;
 }
 
 
@@ -1455,7 +1499,7 @@ void NetworkManager::sendNextRecord()
     statusMessage(QString("Uploading table %1, record %2/%3")
                   .arg(m_upload_recordwise_table_in_progress)
                   .arg(m_upload_current_record_index)
-                  .arg(m_upload_n_records));
+                  .arg(m_upload_recordwise_pks_to_send.size()));
     int pk = m_upload_recordwise_pks_to_send.front();
     m_upload_recordwise_pks_to_send.pop_front();
 

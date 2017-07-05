@@ -34,7 +34,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import Ancillary, Task
 
 
@@ -288,7 +288,7 @@ class IDED3D(Task):
     dependent_classes = [IDED3DTrial, IDED3DStage]
 
     def is_complete(self) -> bool:
-        return bool(self.finished)
+        return bool(self.debug_display_stimuli_only) or bool(self.finished)
 
     @staticmethod
     def get_stage_html(stagearray: List[IDED3DStage]) -> str:
@@ -343,24 +343,24 @@ class IDED3D(Task):
         """.format(
             self.get_is_complete_tr(),
         )
-        h += tr_qa(WSTRING("ided3d_last_stage"), self.last_stage)
-        h += tr_qa(WSTRING("ided3d_max_trials_per_stage"),
+        h += tr_qa(self.wxstring("last_stage"), self.last_stage)
+        h += tr_qa(self.wxstring("max_trials_per_stage"),
                    self.max_trials_per_stage)
-        h += tr_qa(WSTRING("ided3d_progress_criterion_x"),
+        h += tr_qa(self.wxstring("progress_criterion_x"),
                    self.progress_criterion_x)
-        h += tr_qa(WSTRING("ided3d_progress_criterion_y"),
+        h += tr_qa(self.wxstring("progress_criterion_y"),
                    self.progress_criterion_y)
-        h += tr_qa(WSTRING("ided3d_min_number"), self.min_number)
-        h += tr_qa(WSTRING("ided3d_max_number"), self.max_number)
-        h += tr_qa(WSTRING("ided3d_pause_after_beep_ms"),
+        h += tr_qa(self.wxstring("min_number"), self.min_number)
+        h += tr_qa(self.wxstring("max_number"), self.max_number)
+        h += tr_qa(self.wxstring("pause_after_beep_ms"),
                    self.pause_after_beep_ms)
-        h += tr_qa(WSTRING("ided3d_iti_ms"), self.iti_ms)
+        h += tr_qa(self.wxstring("iti_ms"), self.iti_ms)
         h += tr_qa(
-            WSTRING("ided3d_counterbalance_dimensions") + "<sup>[1]</sup>",
+            self.wxstring("counterbalance_dimensions") + "<sup>[1]</sup>",
             self.counterbalance_dimensions)
-        h += tr_qa(WSTRING("volume"), self.volume)
-        h += tr_qa(WSTRING("ided3d_offer_abort"), self.offer_abort)
-        h += tr_qa(WSTRING("ided3d_debug_display_stimuli_only"),
+        h += tr_qa(wappstring("volume_0_to_1"), self.volume)
+        h += tr_qa(self.wxstring("offer_abort"), self.offer_abort)
+        h += tr_qa(self.wxstring("debug_display_stimuli_only"),
                    self.debug_display_stimuli_only)
         h += tr_qa("Shapes (as a JSON-encoded array of SVG "
                    "definitions; X and Y range both –60 to +60)",

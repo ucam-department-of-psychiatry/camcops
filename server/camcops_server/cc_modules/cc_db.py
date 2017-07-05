@@ -251,6 +251,8 @@ def get_contemporaneous_server_pk_by_client_info(
         args.append(referrer_removed_utc)
     else:
         sql += "_when_removed_batch_utc IS NULL"
+    log.critical(sql)
+    log.critical(str(args))
     row = pls.db.fetchone(sql, *args)
     if row is None:
         return None

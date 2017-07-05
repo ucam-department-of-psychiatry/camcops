@@ -33,7 +33,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -141,9 +141,9 @@ class Slums(Task):
             axis_max=30.5,
             horizontal_lines=hlines,
             horizontal_labels=[
-                TrackerLabel(y_upper, WSTRING("normal")),
-                TrackerLabel(y_middle, WSTRING("slums_category_mci")),
-                TrackerLabel(17, WSTRING("slums_category_dementia")),
+                TrackerLabel(y_upper, wappstring("normal")),
+                TrackerLabel(y_middle, self.wxstring("category_mci")),
+                TrackerLabel(17, self.wxstring("category_dementia")),
             ]
         )]
 
@@ -178,18 +178,18 @@ class Slums(Task):
         score = self.total_score()
         if self.highschooleducation == 1:
             if score >= 27:
-                return WSTRING("normal")
+                return wappstring("normal")
             elif score >= 21:
-                return WSTRING("slums_category_mci")
+                return self.wxstring("category_mci")
             else:
-                return WSTRING("slums_category_dementia")
+                return self.wxstring("category_dementia")
         else:
             if score >= 25:
-                return WSTRING("normal")
+                return wappstring("normal")
             elif score >= 20:
-                return WSTRING("slums_category_mci")
+                return self.wxstring("category_mci")
             else:
-                return WSTRING("slums_category_dementia")
+                return self.wxstring("category_dementia")
 
     def get_task_html(self) -> str:
         score = self.total_score()
@@ -198,8 +198,8 @@ class Slums(Task):
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 30")
-        h += tr_qa(WSTRING("category") + " <sup>[1]</sup>", category)
+        h += tr(wappstring("total_score"), answer(score) + " / 30")
+        h += tr_qa(wappstring("category") + " <sup>[1]</sup>", category)
         h += """
                 </table>
             </div>
@@ -209,12 +209,12 @@ class Slums(Task):
                     <th width="20%">Score</th>
                 </tr>
         """
-        h += tr_qa(WSTRING("slums_alert_s"), get_yes_no_none(self.alert))
-        h += tr_qa(WSTRING("slums_highschool_s"),
+        h += tr_qa(self.wxstring("alert_s"), get_yes_no_none(self.alert))
+        h += tr_qa(self.wxstring("highschool_s"),
                    get_yes_no_none(self.highschooleducation))
-        h += tr_qa(WSTRING("slums_q1_s"), self.q1)
-        h += tr_qa(WSTRING("slums_q2_s"), self.q2)
-        h += tr_qa(WSTRING("slums_q3_s"), self.q3)
+        h += tr_qa(self.wxstring("q1_s"), self.q1)
+        h += tr_qa(self.wxstring("q2_s"), self.q2)
+        h += tr_qa(self.wxstring("q3_s"), self.q3)
         h += tr("Q5 <sup>[2]</sup> (money spent, money left "
                 "[<i>scores 2</i>]",
                 ", ".join([answer(x) for x in [self.q5a, self.q5b]]))
