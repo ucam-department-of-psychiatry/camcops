@@ -27,7 +27,6 @@ from typing import Any, List, Optional
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, identity, tr, tr_span_col
 from ..cc_modules.cc_lang import mean
-from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 

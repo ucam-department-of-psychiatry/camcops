@@ -20,13 +20,13 @@
 #include "qumultipleresponse.h"
 #include "common/cssconst.h"
 #include "common/layouts.h"
+#include "layouts/flowlayouthfw.h"
 #include "lib/uifunc.h"
 #include "maths/ccrandom.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/clickablelabelwordwrapwide.h"
-#include "widgets/flowlayouthfw.h"
 #include "widgets/labelwordwrapwide.h"
 
 

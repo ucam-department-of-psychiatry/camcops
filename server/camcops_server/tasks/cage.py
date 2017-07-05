@@ -32,7 +32,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
@@ -97,7 +97,7 @@ class Cage(Task):
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 4")
+        h += tr(wappstring("total_score"), answer(score) + " / 4")
         h += tr_qa(self.wxstring("over_threshold"), get_yes_no(exceeds_cutoff))
         h += """
                 </table>

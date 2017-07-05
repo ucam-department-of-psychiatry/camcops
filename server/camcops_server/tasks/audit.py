@@ -31,7 +31,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -126,7 +126,7 @@ class Audit(Task):
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 40")
+        h += tr(wappstring("total_score"), answer(score) + " / 40")
         h += tr_qa(self.wxstring("exceeds_standard_cutoff"),
                    get_yes_no(exceeds_cutoff))
         h += """
@@ -232,7 +232,7 @@ class AuditC(Task):
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 12")
+        h += tr(wappstring("total_score"), answer(score) + " / 12")
         h += """
                 </table>
             </div>

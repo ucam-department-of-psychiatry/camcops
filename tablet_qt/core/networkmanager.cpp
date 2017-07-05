@@ -540,6 +540,7 @@ void NetworkManager::cleanup()
     m_upload_recordwise_fieldnames.clear();
     m_upload_current_record_index = -1;
     m_upload_recordwise_pks_to_send.clear();
+    m_upload_n_records = 0;
     m_upload_tables_to_wipe.clear();
 }
 
@@ -1449,6 +1450,7 @@ void NetworkManager::sendTableRecordwise(const QString& tablename)
     m_recordwise_pks_pruned = false;
     m_upload_recordwise_pks_to_send = m_db.getPKs(tablename,
                                                   dbconst::PK_FIELDNAME);
+    m_upload_n_records = m_upload_recordwise_pks_to_send.size();
     m_upload_current_record_index = 0;
 
     // First, DELETE WHERE pk NOT...
@@ -1489,6 +1491,7 @@ void NetworkManager::pruneRecordwisePks()
     QString reply = m_reply_dict[KEY_RESULT];
     statusMessage("Server requests only PKs: " + reply);
     m_upload_recordwise_pks_to_send = convert::csvStringToIntVector(reply);
+    m_upload_n_records = m_upload_recordwise_pks_to_send.size();
     m_recordwise_pks_pruned = true;
 }
 
@@ -1499,7 +1502,9 @@ void NetworkManager::sendNextRecord()
     statusMessage(QString("Uploading table %1, record %2/%3")
                   .arg(m_upload_recordwise_table_in_progress)
                   .arg(m_upload_current_record_index)
-                  .arg(m_upload_recordwise_pks_to_send.size()));
+                  .arg(m_upload_n_records));
+    // Don't use m_upload_recordwise_pks_to_send.size() as the count, as that
+    // changes during upload.
     int pk = m_upload_recordwise_pks_to_send.front();
     m_upload_recordwise_pks_to_send.pop_front();
 

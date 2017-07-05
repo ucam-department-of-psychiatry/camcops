@@ -45,12 +45,12 @@
 #include "common/layouts.h"
 #include "common/widgetconst.h"
 #include "lib/layoutdumper.h"
+#include "lib/margins.h"
 #include "lib/reentrydepthguard.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
+#include "qobjects/flickcharm.h"
 #include "widgets/basewidget.h"
-#include "widgets/flickcharm.h"
-#include "widgets/margins.h"
 #include "widgets/verticalscrollareaviewport.h"
 
 

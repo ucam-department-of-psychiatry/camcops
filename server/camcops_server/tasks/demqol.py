@@ -33,7 +33,6 @@ from ..cc_modules.cc_html import (
     subheading_spanning_two_columns,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,

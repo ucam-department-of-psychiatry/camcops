@@ -22,10 +22,10 @@
 #include "quflowcontainer.h"
 #include <QWidget>
 #include "common/cssconst.h"
+#include "layouts/flowlayouthfw.h"
 #include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
-#include "widgets/flowlayouthfw.h"
 
 
 const Qt::Alignment QuFlowContainer::DefaultWidgetAlignment = Qt::AlignLeft | Qt::AlignVCenter;

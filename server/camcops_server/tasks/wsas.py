@@ -27,7 +27,7 @@ from typing import List
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, get_true_false, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -107,7 +107,7 @@ class Wsas(Task):
     def get_task_html(self) -> str:
         option_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            option_dict[a] = WSTRING("wsas_a" + str(a))
+            option_dict[a] = wappstring("wsas_a" + str(a))
         h = """
             <div class="summary">
                 <table class="summary">

@@ -253,10 +253,10 @@ void QuPhoto::resetFieldToNull()
         return;
     }
 
-    qInfo() << "QuPhoto: setting field value to NULL...";
+    qDebug() << "QuPhoto: setting field value to NULL...";
     bool changed = m_fieldref->setValue(QVariant());
     // ... skip originator; will call fieldValueChanged
-    qInfo() << "QuPhoto: ... field value set to NULL.";
+    qDebug() << "QuPhoto: ... field value set to NULL.";
     if (changed) {
         emit elementValueChanged();
     }
@@ -289,9 +289,9 @@ void QuPhoto::imageCaptured(const QImage& image)
         SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard(
                     tr("Saving image..."),
                     tr("Saving"));
-        qInfo() << "QuPhoto: setting field value to image...";
+        qDebug() << "QuPhoto: setting field value to image...";
         changed = m_fieldref->setValue(image);
-        qInfo() << "QuPhoto: ... field value set to image.";
+        qDebug() << "QuPhoto: ... field value set to image.";
         m_camera->finish();  // close the camera
     }
     if (changed) {
@@ -305,12 +305,12 @@ void QuPhoto::rotate(qreal angle_degrees)
     if (m_fieldref->isNull()) {
         return;
     }
-    qInfo() << "QuPhoto: rotating...";
+    qDebug() << "QuPhoto: rotating...";
     SlowNonGuiFunctionCaller(
                 std::bind(&QuPhoto::rotateWorker, this, angle_degrees),
                 m_main_widget,
                 "Rotating...");
-    qInfo() << "QuPhoto: ... rotation finished.";
+    qDebug() << "QuPhoto: ... rotation finished.";
 }
 
 

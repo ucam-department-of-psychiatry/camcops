@@ -65,8 +65,8 @@
 #include <QHash>
 #include <QVector>
 // #include <limits.h>
-#include "margins.h"
-#include "qtlayouthelpers.h"
+#include "layouts/qtlayouthelpers.h"
+#include "lib/margins.h"
 
 class BoxLayoutHfwItem;
 

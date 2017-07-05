@@ -72,9 +72,9 @@
 #include <QVector>
 #include <QWidget>
 #include "common/widgetconst.h"
+#include "layouts/qtlayouthelpers.h"
 #include "lib/reentrydepthguard.h"
 #include "lib/sizehelpers.h"
-#include "widgets/qtlayouthelpers.h"
 
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
 #include "common/globals.h"  // for qHash(const QRect&)

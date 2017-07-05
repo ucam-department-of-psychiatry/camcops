@@ -41,6 +41,7 @@
 **
 */
 
+#define USE_FILE
 
 #include "camera.h"
 #include <QCameraInfo>
@@ -82,12 +83,14 @@ Camera::Camera(const QCameraInfo& camera_info, const QString& stylesheet,
 
 Camera::~Camera()
 {
+#ifndef CAMERA_LOAD_FROM_DISK_PROMPTLY
     // Remove anything that we've saved to disk
     for (auto filename : m_filenames_for_deletion) {
         bool success = QFile::remove(filename);
-        qDebug() << "Deleting " << filename
-                 << (success ? "... success" : "... FAILED!");
+        qInfo() << "Deleting temporary camera file " << filename
+                << (success ? "... success" : "... FAILED!");
     }
+#endif
 }
 
 
@@ -98,7 +101,9 @@ void Camera::commonConstructor(const QString& stylesheet)
     m_ready = false;
     m_capturing_image = false;
     m_exiting = false;
+#ifndef CAMERA_LOAD_FROM_DISK_PROMPTLY
     m_captured_state = CapturedState::Nothing;
+#endif
 
     Qt::Alignment align = Qt::AlignLeft | Qt::AlignTop;
 
@@ -203,14 +208,24 @@ void Camera::setCamera(const QCameraInfo& cameraInfo)
     connect(m_capture.data(), capture_error,
             this, &Camera::displayCaptureError);
 
-    bool use_buffer = m_capture->isCaptureDestinationSupported(
+#ifdef USE_FILE
+    bool use_buffer = false;
+#else
+    bool buffer_supported = m_capture->isCaptureDestinationSupported(
                 QCameraImageCapture::CaptureToBuffer);
-    // use_buffer = false;
+    bool use_buffer = buffer_supported;
+#endif
     if (use_buffer) {
-        qDebug() << Q_FUNC_INFO << "Capturing to buffer";
+        qInfo() << Q_FUNC_INFO << "Capturing to buffer";
         m_capture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
+        // BUT... it saves a file anyway, to ~/Pictures/IMG_xxx.jpg.
+        // Are we better off using explicit files, to avoid nasty leftovers?
+        // Yes, we are. QCameraImageCapture::capture() appears always to write
+        // to a file (implied by docs, too), and we do NOT want "leftovers".
+        // https://stackoverflow.com/questions/43522004/qcameraimagecapture-saves-to-file-instead-of-buffer
+        // http://php.wekeepcoding.com/article/10431109/Why+is+QCameraImageCapture+saving+an+image+to+the+hard+drive%3F
     } else {
-        qDebug() << Q_FUNC_INFO << "Capturing to file";
+        qInfo() << Q_FUNC_INFO << "Capturing to file";
         m_capture->setCaptureDestination(QCameraImageCapture::CaptureToFile);
     }
 
@@ -384,9 +399,18 @@ void Camera::imageSaved(int id, const QString& filename)
 {
     // Image has arrived via a disk file.
     Q_UNUSED(id);
+    qDebug() << "Camera image has arrived via temporary file" << filename;
+#ifdef CAMERA_LOAD_FROM_DISK_PROMPTLY
+    m_most_recent_image.load(filename);
+    qDebug() << "Camera image loaded";
+    bool success = QFile::remove(filename);
+    qDebug() << "Deleting temporary camera file " << filename
+             << (success ? "... success" : "... FAILED!");
+#else
     m_filenames_for_deletion.insert(filename);
     m_most_recent_filename = filename;
     m_captured_state = CapturedState::File;
+#endif
     m_capturing_image = false;
     emit imageCaptured(image());
     if (m_exiting) {
@@ -408,7 +432,9 @@ void Camera::imageAvailable(int id, const QVideoFrame& buffer)
     qInfo() << "Camera::imageAvailable: fetching image from buffer...";
     m_most_recent_image = imagefunc::imageFromVideoFrame(buffer);
     qInfo() << "Camera::imageAvailable: ... fetched.";
+#ifndef CAMERA_LOAD_FROM_DISK_PROMPTLY
     m_captured_state = CapturedState::Buffer;
+#endif
     m_capturing_image = false;
     emit imageCaptured(image());
     if (m_exiting) {
@@ -493,6 +519,8 @@ void Camera::finish()
 
 QImage Camera::image() const
 {
+    return m_most_recent_image;
+#ifndef CAMERA_LOAD_FROM_DISK_PROMPTLY
     QImage img;
     switch (m_captured_state) {
     case CapturedState::Nothing:
@@ -510,4 +538,5 @@ QImage Camera::image() const
         break;
     }
     return img;
+#endif
 }

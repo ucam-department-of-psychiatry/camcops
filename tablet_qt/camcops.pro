@@ -301,7 +301,7 @@ SOURCES += main.cpp \
     menu/testmenu.cpp \
     menu/whiskermenu.cpp \
     menu/widgettestmenu.cpp \
-    qobjects/comparers.cpp \
+    lib/comparers.cpp \
     qobjects/focuswatcher.cpp \
     qobjects/keypresswatcher.cpp \
     qobjects/shootabug.cpp \
@@ -476,31 +476,31 @@ SOURCES += main.cpp \
     widgets/aspectratiopixmap.cpp \
     widgets/basewidget.cpp \
     widgets/booleanwidget.cpp \
-    widgets/boxlayouthfw.cpp \
+    layouts/boxlayouthfw.cpp \
     widgets/camera.cpp \
     widgets/canvaswidget.cpp \
     widgets/clickablelabelnowrap.cpp \
     widgets/clickablelabelwordwrapwide.cpp \
     widgets/diagnosticcodeselector.cpp \
     widgets/fixedareahfwtestwidget.cpp \
-    widgets/flickcharm.cpp \
-    widgets/flowlayouthfw.cpp \
+    qobjects/flickcharm.cpp \
+    layouts/flowlayouthfw.cpp \
     widgets/graphicsrectitemclickable.cpp \
-    widgets/gridlayouthfw.cpp \
+    layouts/gridlayouthfw.cpp \
     widgets/growingtextedit.cpp \
-    widgets/hboxlayouthfw.cpp \
+    layouts/hboxlayouthfw.cpp \
     widgets/heightforwidthlistwidget.cpp \
     widgets/horizontalline.cpp \
     widgets/imagebutton.cpp \
     widgets/labelwordwrapwide.cpp \
-    widgets/margins.cpp \
+    lib/margins.cpp \
     widgets/openablewidget.cpp \
-    widgets/qtlayouthelpers.cpp \
+    layouts/qtlayouthelpers.cpp \
     widgets/screenlikegraphicsview.cpp \
     widgets/spacer.cpp \
     widgets/svgwidgetclickable.cpp \
     widgets/tickslider.cpp \
-    widgets/vboxlayouthfw.cpp \
+    layouts/vboxlayouthfw.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
     widgets/verticalscrollareaviewport.cpp \
@@ -651,7 +651,7 @@ HEADERS += \
     menu/testmenu.h \
     menu/whiskermenu.h \
     menu/widgettestmenu.h \
-    qobjects/comparers.h \
+    lib/comparers.h \
     qobjects/focuswatcher.h \
     qobjects/keypresswatcher.h \
     qobjects/shootabug.h \
@@ -826,31 +826,31 @@ HEADERS += \
     widgets/aspectratiopixmap.h \
     widgets/basewidget.h \
     widgets/booleanwidget.h \
-    widgets/boxlayouthfw.h \
+    layouts/boxlayouthfw.h \
     widgets/camera.h \
     widgets/canvaswidget.h \
     widgets/clickablelabelnowrap.h \
     widgets/clickablelabelwordwrapwide.h \
     widgets/diagnosticcodeselector.h \
     widgets/fixedareahfwtestwidget.h \
-    widgets/flickcharm.h \
-    widgets/flowlayouthfw.h \
+    qobjects/flickcharm.h \
+    layouts/flowlayouthfw.h \
     widgets/graphicsrectitemclickable.h \
-    widgets/gridlayouthfw.h \
+    layouts/gridlayouthfw.h \
     widgets/growingtextedit.h \
-    widgets/hboxlayouthfw.h \
+    layouts/hboxlayouthfw.h \
     widgets/heightforwidthlistwidget.h \
     widgets/horizontalline.h \
     widgets/imagebutton.h \
     widgets/labelwordwrapwide.h \
-    widgets/margins.h \
+    lib/margins.h \
     widgets/openablewidget.h \
-    widgets/qtlayouthelpers.h \
+    layouts/qtlayouthelpers.h \
     widgets/screenlikegraphicsview.h \
     widgets/spacer.h \
     widgets/svgwidgetclickable.h \
     widgets/tickslider.h \
-    widgets/vboxlayouthfw.h \
+    layouts/vboxlayouthfw.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
     widgets/verticalscrollareaviewport.h \

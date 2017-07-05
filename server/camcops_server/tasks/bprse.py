@@ -26,7 +26,7 @@ from typing import List
 
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import WSTRING, WXSTRING
+from ..cc_modules.cc_string import wappstring, WXSTRING
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -113,7 +113,7 @@ class Bprse(Task):
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(WSTRING("total_score") +
+        h += tr(wappstring("total_score") +
                 " (0–168; 24–168 if all rated)",
                 answer(self.total_score()))
         h += """

@@ -20,10 +20,10 @@
 #include "quhorizontalcontainer.h"
 #include <QWidget>
 #include "common/layouts.h"
+#include "layouts/flowlayouthfw.h"
 #include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
-#include "widgets/flowlayouthfw.h"
 
 
 const Qt::Alignment QuHorizontalContainer::DefaultWidgetAlignment = Qt::AlignLeft | Qt::AlignVCenter;

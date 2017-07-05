@@ -60,20 +60,20 @@ Files that make up a complete set of classes:
     widgets/basewidget.h    } widget class that'll act as a parent widget
     widgets/basewidget.cpp  }   for a height-for-width widget (*)
 
-    widgets/boxlayouthfw.h      } replacements for QBoxLayout, QHBoxLayout,
-    widgets/boxlayouthfw.cpp    }   QVBoxLayout, so you can leave your widget
-    widgets/hboxlayouthfw.h     }   classes alone except for implementing
-    widgets/hboxlayouthfw.cpp   }   hasHeightForWidth() and heightForWidth(),
-    widgets/vboxlayouthfw.h     }   and have them sized properly for you
-    widgets/vboxlayouthfw.cpp   }
+    layouts/boxlayouthfw.h      } replacements for QBoxLayout, QHBoxLayout,
+    layouts/boxlayouthfw.cpp    }   QVBoxLayout, so you can leave your widget
+    layouts/hboxlayouthfw.h     }   classes alone except for implementing
+    layouts/hboxlayouthfw.cpp   }   hasHeightForWidth() and heightForWidth(),
+    layouts/vboxlayouthfw.h     }   and have them sized properly for you
+    layouts/vboxlayouthfw.cpp   }
 
-    widgets/gridlayouthfw.h     } similar replacement for QGridLayout
-    widgets/gridlayouthfw.cpp   }
+    layouts/gridlayouthfw.h     } similar replacement for QGridLayout
+    layouts/gridlayouthfw.cpp   }
 
-    widgets/flowlayouthfw.h     } replacement for the Qt FlowLayout example
-    widgets/flowlayouthfw.cpp   }   that handles height-for-width better
+    layouts/flowlayouthfw.h     } replacement for the Qt FlowLayout example
+    layouts/flowlayouthfw.cpp   }   that handles height-for-width better
 
-    widgets/qtlayouthelpers.h   - reimplemented (and re-namespaced) private Qt
+    layouts/qtlayouthelpers.h   - reimplemented (and re-namespaced) private Qt
                                     layout functions, used by the new layouts
 
     widgets/verticalscrollarea.h    } vertical scroll area that also implements

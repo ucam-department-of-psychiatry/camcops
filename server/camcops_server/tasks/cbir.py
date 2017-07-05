@@ -35,7 +35,6 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
 from ..cc_modules.cc_task import get_from_dict, Task
 
 

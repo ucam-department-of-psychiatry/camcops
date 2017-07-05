@@ -78,7 +78,7 @@ class Ybocs(Task):
         ('14', 4, "overvalued responsibility"),
         ('15', 4, "slowness"),
         ('16', 4, "doubting"),
-        ('17', 4, "global severity"),
+        ('17', 6, "global severity"),
         ('18', 6, "global improvement"),
         ('19', 3, "reliability"),
     ]

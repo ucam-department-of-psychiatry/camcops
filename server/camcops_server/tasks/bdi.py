@@ -28,7 +28,7 @@ import cardinal_pythonlib.rnc_web as ws
 from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import wappstring, WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 
 
@@ -101,7 +101,7 @@ class Bdi(Task):
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(WSTRING("total_score"), answer(score) + " / 63")
+        h += tr(wappstring("total_score"), answer(score) + " / 63")
         h += """
                 </table>
             </div>

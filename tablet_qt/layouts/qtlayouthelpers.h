@@ -63,7 +63,7 @@
 #include <QLayout>
 #include <QStyle>
 #include <QVector>
-#include "margins.h"
+#include "lib/margins.h"
 
 class QLayoutItem;
 class QSpacerItem;

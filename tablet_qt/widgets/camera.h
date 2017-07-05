@@ -36,6 +36,8 @@ class QVideoFrame;
 
 // See http://doc.qt.io/qt-5/qtmultimedia-multimediawidgets-camera-example.html
 
+#define CAMERA_LOAD_FROM_DISK_PROMPTLY
+
 
 class Camera : public OpenableWidget
 {
@@ -99,13 +101,15 @@ protected:
     bool m_ready;
     bool m_capturing_image;
     bool m_exiting;
+    QImage m_most_recent_image;
+#ifndef CAMERA_LOAD_FROM_DISK_PROMPTLY
     QSet<QString> m_filenames_for_deletion;
     QString m_most_recent_filename;
-    QImage m_most_recent_image;
     enum class CapturedState {
         Nothing,
         File,
         Buffer,
     };
     CapturedState m_captured_state;
+#endif
 };

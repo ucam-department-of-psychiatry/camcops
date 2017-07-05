@@ -32,7 +32,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import Task, TrackerInfo
 
 
@@ -167,8 +167,9 @@ class Caps(Task):
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr_qa("{} <sup>[1]</sup> (0–32)".format(WSTRING("total_score")),
-                   total)
+        h += tr_qa(
+            "{} <sup>[1]</sup> (0–32)".format(wappstring("total_score")),
+            total)
         h += tr_qa("{} (0–160)".format(self.wxstring("distress")),
                    distress)
         h += tr_qa("{} (0–160)".format(self.wxstring("intrusiveness")),

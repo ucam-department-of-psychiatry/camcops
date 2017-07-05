@@ -22,9 +22,9 @@
 #include "common/gui_defines.h"
 
 #ifdef GUI_USE_HFW_LAYOUT
-#include "widgets/gridlayouthfw.h"
-#include "widgets/hboxlayouthfw.h"
-#include "widgets/vboxlayouthfw.h"
+#include "layouts/gridlayouthfw.h"
+#include "layouts/hboxlayouthfw.h"
+#include "layouts/vboxlayouthfw.h"
 using GridLayout = GridLayoutHfw;
 using HBoxLayout = HBoxLayoutHfw;
 using VBoxLayout = VBoxLayoutHfw;

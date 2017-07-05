@@ -24,8 +24,8 @@
 #include <QLayout>
 #include <QHash>
 #include <QVector>
-#include "margins.h"
-#include "qtlayouthelpers.h"
+#include "lib/margins.h"
+#include "layouts/qtlayouthelpers.h"
 class QQGridBox;
 class QQGridLayoutSizeTriple;
 

@@ -102,7 +102,7 @@ QStringList Zbi12::summary() const
 
 QStringList Zbi12::detail() const
 {
-    return completenessInfo() + summary();
+    return completenessInfo() + recordSummaryLines();
 }
 
 
