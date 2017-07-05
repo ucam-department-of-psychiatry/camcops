@@ -21,7 +21,7 @@
 #include <QThread>
 #include "common/textconst.h"
 #include "dialogs/waitbox.h"
-#include "threadworker.h"
+#include "qobjects/threadworker.h"
 
 
 class SlowNonGuiFunctionCaller : public QObject

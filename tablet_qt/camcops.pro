@@ -256,9 +256,9 @@ SOURCES += main.cpp \
     lib/roman.cpp \
     lib/sizehelpers.cpp \
     lib/slowguiguard.cpp \
-    lib/slownonguifunctioncaller.cpp \
+    qobjects/slownonguifunctioncaller.cpp \
     lib/stringfunc.cpp \
-    lib/threadworker.cpp \
+    qobjects/threadworker.cpp \
     lib/uifunc.cpp \
     maths/eigenfunc.cpp \
     maths/glm.cpp \
@@ -605,9 +605,9 @@ HEADERS += \
     lib/roman.h \
     lib/sizehelpers.h \
     lib/slowguiguard.h \
-    lib/slownonguifunctioncaller.h \
+    qobjects/slownonguifunctioncaller.h \
     lib/stringfunc.h \
-    lib/threadworker.h \
+    qobjects/threadworker.h \
     lib/uifunc.h \
     maths/eigenfunc.h \
     maths/glm.h \

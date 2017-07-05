@@ -24,7 +24,7 @@
 
 class ThreadWorker : public QObject
 {
-    // Helper object for
+    // Helper object for SlowNonGuiFunctionCaller.
     // Encapsulates the call to the expensive function.
     // The controller sets the ThreadWorker up in a separate thread.
 

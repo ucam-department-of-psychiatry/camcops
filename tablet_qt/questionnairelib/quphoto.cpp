@@ -26,7 +26,7 @@
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "lib/slowguiguard.h"
-#include "lib/slownonguifunctioncaller.h"
+#include "qobjects/slownonguifunctioncaller.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/aspectratiopixmap.h"
 #include "widgets/camera.h"

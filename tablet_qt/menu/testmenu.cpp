@@ -31,7 +31,6 @@
 #include "lib/convert.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
-#include "lib/slownonguifunctioncaller.h"
 #include "lib/soundfunc.h"
 #include "maths/ccrandom.h"
 #include "maths/eigenfunc.h"
@@ -40,6 +39,7 @@
 #include "maths/mathfunc.h"
 #include "menulib/menuitem.h"
 #include "menu/widgettestmenu.h"
+#include "qobjects/slownonguifunctioncaller.h"
 #include "tasklib/taskfactory.h"  // for TaskPtr
 #include "tasks/demoquestionnaire.h"
 #include "tasks/phq9.h"
