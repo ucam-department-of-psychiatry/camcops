@@ -177,9 +177,9 @@ void HelpMenu::showDeviceIdAndDbDetails() const
     QStringList lines{
         QString("<b>Device ID:</b> %1").arg(m_app.deviceId()),
         QString("<b>Main database:</b> %1").arg(
-            dbfunc::dbFullPath(dbfunc::DATA_DATABASE_FILENAME)),
+            m_app.dbFullPath(dbfunc::DATA_DATABASE_FILENAME)),
         QString("<b>System database:</b> %1").arg(
-            dbfunc::dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME)),
+            m_app.dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME)),
     };
     uifunc::alert(stringfunc::joinHtmlLines(lines),
                   tr("Device/installation ID; databases"));

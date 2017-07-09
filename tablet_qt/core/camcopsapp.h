@@ -91,7 +91,12 @@ public:
     // ------------------------------------------------------------------------
     // Initialization
     // ------------------------------------------------------------------------
+public:
+    QString dbFullPath(const QString& filename);
 protected:
+    QString defaultDatabaseDir() const;
+    bool processCommandLineArguments(const QStringList& args);
+    void commandLineHelp();
     void announceStartup();
     void registerDatabaseDrivers();
     void openOrCreateDatabases();
@@ -166,6 +171,8 @@ public:
     NetworkManager* networkManager() const;
     bool needsUpload() const;
     void setNeedsUpload(bool needs_upload);
+protected:
+    void makeNetManager();
 signals:
     void needsUploadChanged(bool needs_upload);
 
@@ -286,6 +293,7 @@ public:
     // Internal data
     // ------------------------------------------------------------------------
 protected:
+    QString m_database_path;
     DatabaseManagerPtr m_datadb;
     DatabaseManagerPtr m_sysdb;
     TaskFactoryPtr m_p_task_factory;

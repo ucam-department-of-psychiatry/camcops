@@ -27,5 +27,7 @@ QString textfileContents(const QString& filename);
 QString taskHtmlFilename(const QString& stem);
 bool deleteFile(const QString& filename);
 bool renameFile(const QString& from, const QString& to);
+bool ensureDirectoryExists(const QString& dir);
+void ensureDirectoryExistsOrDie(const QString& dir);
 
 }  // namespace filefunc

@@ -24,16 +24,21 @@
 #define DEBUG_DROP_TABLES_NOT_EXPLICITLY_CREATED
 
 #include "camcopsapp.h"
+#include <iostream>
 #include <QApplication>
 #include <QDateTime>
 #include <QDebug>
+#include <QDir>
 #include <QIcon>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QProcessEnvironment>
 #include <QPushButton>
 #include <QSqlDatabase>
 #include <QSqlDriverCreator>
 #include <QStackedWidget>
+#include <QStandardPaths>
+#include <QTextStream>
 #include <QUuid>
 #include "common/appstrings.h"
 #include "common/dbconstants.h"  // for NONEXISTENT_PK
@@ -72,11 +77,15 @@
 #endif
 
 const QString APPSTRING_TASKNAME("camcops");  // task name used for generic but downloaded tablet strings
+const QString ARG_DB_DIR("--dbdir");
+const QString ARG_HELP("--help");
+const QString ARG_VERSION("--version");
 const QString CONNECTION_DATA("data");
 const QString CONNECTION_SYS("sys");
+const QString ENVVAR_DB_DIR("CAMCOPS_DATABASE_DIRECTORY");
 
 
-CamcopsApp::CamcopsApp(int& argc, char *argv[]) :
+CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     QApplication(argc, argv),
     m_p_task_factory(nullptr),
     m_lockstate(LockState::Locked),  // default unless we get in via encryption password
@@ -99,6 +108,11 @@ CamcopsApp::~CamcopsApp()
 
 int CamcopsApp::run()
 {
+    // Command-line arguments
+    if (!processCommandLineArguments(arguments())) {
+        return 1;  // exit with failure
+    }
+
     // Say hello
     announceStartup();
 
@@ -155,7 +169,8 @@ int CamcopsApp::run()
 #endif
 
     initGuiTwo();  // AFTER storedvar creation
-    openMainWindow();  // Also creates m_netmgr
+    openMainWindow();
+    makeNetManager();  // needs to be after main window created
 #ifdef ALLOW_SEND_ANALYTICS
     networkManager()->sendAnalytics();
 #endif
@@ -170,6 +185,90 @@ int CamcopsApp::run()
 // ============================================================================
 // Initialization
 // ============================================================================
+
+QString CamcopsApp::defaultDatabaseDir() const
+{
+    return QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first();
+    // Under Linux: ~/.local/share/camcops/
+}
+
+
+bool CamcopsApp::processCommandLineArguments(const QStringList& args)
+{
+    QTextStream out(stdout);
+    QTextStream err(stderr);
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+    // Defaults
+    m_database_path = env.value(ENVVAR_DB_DIR, defaultDatabaseDir());
+
+    // Arguments
+    auto argfailInsufficient = [&err](const QString& arg) -> bool {
+        err << "Insufficient arguments while processing " << arg << "\n"
+            << QString("Use %1 for help\n").arg(ARG_HELP);
+        return false;
+    };
+    int nargs = args.length();
+    for (int i = 1; i < nargs; ++i) {  // skip argument 0 (the program name)
+        int nleft = nargs - 1 - i;
+        const QString& arg = args.at(i);
+
+        if (arg == ARG_DB_DIR) {
+
+            if (nleft < 1) return argfailInsufficient(arg);
+            m_database_path = args[++i];
+
+        } else if (arg == ARG_HELP) {
+
+            commandLineHelp();
+            return false;  // exit
+
+        } else if (arg == ARG_VERSION) {
+
+            out << camcopsversion::CAMCOPS_VERSION.toString() << "\n";
+            return false;
+
+        } else {
+
+            err << "Unknown argument: " << arg << "\n"
+                << QString("Use %1 for help\n").arg(ARG_HELP);
+            return false;
+
+        }
+    }
+    return true;  // happy
+}
+
+
+void CamcopsApp::commandLineHelp()
+{
+    // https://stackoverflow.com/questions/3886105/how-to-print-to-console-when-using-qt
+    QTextStream out(stdout);
+    out << "CamCOPS, version " << camcopsversion::CAMCOPS_VERSION.toString()
+        << "\n\n"
+        << "Syntax:\n"
+        << QString("    camcops [%1 DATABASE_DIR] [%2] [%3]\n\n").arg(
+               ARG_DB_DIR,
+               ARG_HELP,
+               ARG_VERSION)
+        << QString(
+               "%1\n"
+               "    Specify the database directory, in which the databases\n"
+               "    %2 and %3\n"
+               "    are used or created. Order of precedence (highest to lowest)\n"
+               "    is (1) this argument, (2) the %4 environment\n"
+               "    variable, and (3) the default of %5.\n\n").arg(
+               ARG_DB_DIR,
+               convert::stringToCppLiteral(dbfunc::DATA_DATABASE_FILENAME),
+               convert::stringToCppLiteral(dbfunc::SYSTEM_DATABASE_FILENAME),
+               ENVVAR_DB_DIR,
+               convert::stringToCppLiteral(defaultDatabaseDir()))
+        << QString("%1\n"
+                   "    Print this help message and exit\n\n").arg(ARG_HELP)
+        << QString("%1\n"
+                   "    Print version number and exit\n\n").arg(ARG_VERSION);
+}
+
 
 void CamcopsApp::announceStartup()
 {
@@ -197,6 +296,14 @@ void CamcopsApp::registerDatabaseDrivers()
 }
 
 
+QString CamcopsApp::dbFullPath(const QString& filename)
+{
+    filefunc::ensureDirectoryExistsOrDie(m_database_path);
+    // http://stackoverflow.com/questions/3541529/is-there-qpathcombine-in-qt4
+    return QDir::cleanPath(m_database_path + "/" + filename);
+}
+
+
 void CamcopsApp::openOrCreateDatabases()
 {
     // ------------------------------------------------------------------------
@@ -207,8 +314,8 @@ void CamcopsApp::openOrCreateDatabases()
     // Database lifetime:
     // http://stackoverflow.com/questions/7669987/what-is-the-correct-way-of-qsqldatabase-qsqlquery
 
-    QString data_filename = dbfunc::dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
-    QString sys_filename = dbfunc::dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
+    QString data_filename = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
+    QString sys_filename = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
     m_datadb = DatabaseManagerPtr(new DatabaseManager(data_filename, CONNECTION_DATA));
     m_sysdb = DatabaseManagerPtr(new DatabaseManager(sys_filename, CONNECTION_SYS));
 }
@@ -356,12 +463,12 @@ bool CamcopsApp::encryptExistingPlaintextDatabases(const QString& passphrase)
     using filefunc::fileExists;
     qInfo() << "... closing databases";
     closeDatabases();
-    QString sys_main = dbfunc::dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
-    QString sys_temp = dbfunc::dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME +
-                                          dbfunc::DATABASE_FILENAME_TEMP_SUFFIX);
-    QString data_main = dbfunc::dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
-    QString data_temp = dbfunc::dbFullPath(dbfunc::DATA_DATABASE_FILENAME +
-                                           dbfunc::DATABASE_FILENAME_TEMP_SUFFIX);
+    QString sys_main = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
+    QString sys_temp = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME +
+                                  dbfunc::DATABASE_FILENAME_TEMP_SUFFIX);
+    QString data_main = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
+    QString data_temp = dbFullPath(dbfunc::DATA_DATABASE_FILENAME +
+                                   dbfunc::DATABASE_FILENAME_TEMP_SUFFIX);
     qInfo() << "... encrypting";
     dbfunc::encryptPlainDatabaseInPlace(sys_main, sys_temp, passphrase);
     dbfunc::encryptPlainDatabaseInPlace(data_main, data_temp, passphrase);
@@ -588,12 +695,17 @@ void CamcopsApp::openMainWindow()
     m_p_window_stack = new QStackedWidget(m_p_main_window);
     m_p_main_window->setCentralWidget(m_p_window_stack);
 
+    MainMenu* menu = new MainMenu(*this);
+    open(menu);
+}
+
+
+void CamcopsApp::makeNetManager()
+{
+    Q_ASSERT(m_p_main_window.data());
     m_netmgr = QSharedPointer<NetworkManager>(
                 new NetworkManager(*this, *m_datadb, m_p_task_factory,
                                    m_p_main_window.data()));
-
-    MainMenu* menu = new MainMenu(*this);
-    open(menu);
 }
 
 

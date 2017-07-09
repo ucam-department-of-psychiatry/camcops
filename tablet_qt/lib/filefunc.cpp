@@ -22,10 +22,12 @@
 
 #include "filefunc.h"
 #include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QString>
 #include <QTextStream>
+#include "lib/uifunc.h"
 
 
 namespace filefunc {
@@ -78,6 +80,29 @@ bool renameFile(const QString& from, const QString& to)
     QFile file(from);
     return file.rename(to);
 }
+
+
+bool ensureDirectoryExists(const QString& dir)
+{
+    if (!QDir(dir).exists()) {
+        if (QDir().mkdir(dir)) {
+            qDebug() << "Made directory:" << dir;
+        } else {
+            qDebug() << "Failed to make directory:" << dir;
+            return false;
+        }
+    }
+    return true;
+}
+
+
+void ensureDirectoryExistsOrDie(const QString& dir)
+{
+    if (!ensureDirectoryExists(dir)) {
+        uifunc::stopApp("dbFullPath: Failed to make directory: " + dir);
+    }
+}
+
 
 
 }  // namespace filefunc

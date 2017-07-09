@@ -6,6 +6,13 @@ TO DO NOW
 - fix server, quick'n'dirty
 
 
+- TEST .APK (including threaded database writes)
+- UPLOAD .APK TO GOOGLE PLAY
+
+- THEN get on with
+    (a) server -> SQLAlchemy + Pyramid
+    (b) CISR implementation
+
 ===============================================================================
 REQUIRED, BUT NOT IMMEDIATELY, OR TO THINK ABOUT
 ===============================================================================
@@ -30,16 +37,16 @@ BUILDS/DISTRIBUTION
     ... or is that pointless relative to a "set of tasks" concept?
 - *** concept of "set of tasks" as well as "chain of tasks"
 
-- *** upgrade function - multistep and single-step - per task?
-
 - *** "single patient" mode, cf. "researcher" mode? Tied to a specific
   server?
 
-
+- *** some sort of "group" concept, e.g. "affective disorder research database"
+  plus "clinical" (or sometimes "all"), ?cf. Unix.
 
 
 - as per Julia's problem: >1 patient on tablet, need to have same RID (because
   extra one created by mistake) - option to merge
+  ... NB the tablet will restrict this at present (no patients with same ID)
 
 - Note for SERVER side: is ZIP generation inefficient with >1 SQL query per
   task fetched (e.g. generate PKs, filter PKs, fetch...)
@@ -63,13 +70,11 @@ QT BUG?
 MAYBE IN THE FUTURE
 ===============================================================================
 
-- extra strings: ?add field for ISO-639-1 two-letter language code (e.g. "en" English)
+- extra strings: ?add field for ISO-639-1 two-letter language code (e.g. "en"
+  English)
     ... though different servers can distribute whichever language they want;
         this is only relevant for "simultaneously multilingual" environments
     ... defer for now
-
-- command-line option to select different directory for "tablet" databases,
-  e.g. to run multiple instances on a desktop.
 
 - VerticalScrollArea: *Nearly* perfect. Unclear if residual minor error relates
   to VerticalScrollArea itself, or to misreporting of ideal height by e.g.
@@ -77,3 +82,4 @@ MAYBE IN THE FUTURE
   (Example: PDSS [with no task strings]?)
   (Note: sometimes worth trying to un-maximize then maximize the window; error
   can sometimes go away.)
+  2017-07-09: I think this is fixed now.

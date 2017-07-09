@@ -25,12 +25,10 @@
 
 #include "dbfunc.h"
 #include <QDateTime>
-#include <QDir>
 #include <QObject>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
-#include <QStandardPaths>
 #include "db/databasemanager.h"
 #include "db/sqlitepragmainfofield.h"
 #include "db/whichdb.h"
@@ -53,28 +51,6 @@ const QString TABLE_TEMP_SUFFIX("_temp");
 
 // Private to this file:
 const QString CONNECTION_ENCRYPTION_TEMP_PLAIN("encryption_temp_plain");
-
-
-// ============================================================================
-// Database filenames
-// ============================================================================
-
-QString dbFullPath(const QString &filename)
-{
-    // Opens a database.
-    QString dir = QStandardPaths::standardLocations(
-        QStandardPaths::AppDataLocation).first();
-    // Under Linux: ~/.local/share/camcops/
-    if (!QDir(dir).exists()) {
-        if (QDir().mkdir(dir)) {
-            qDebug() << "Made directory:" << dir;
-        } else {
-            uifunc::stopApp("dbFullPath: Failed to make directory: " + dir);
-        }
-    }
-    // http://stackoverflow.com/questions/3541529/is-there-qpathcombine-in-qt4
-    return QDir::cleanPath(dir + "/" + filename);
-}
 
 
 // ============================================================================

@@ -39,10 +39,6 @@ extern const QString SYSTEM_DATABASE_FILENAME;
 extern const QString DATABASE_FILENAME_TEMP_SUFFIX;
 extern const QString TABLE_TEMP_SUFFIX;
 
-// Database filenames
-
-QString dbFullPath(const QString& filename);
-
 // SQL fragments
 
 QString delimit(const QString& identifier);
