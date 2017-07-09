@@ -262,17 +262,17 @@ IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, int load_pk) :
 
     if (load_pk == dbconst::NONEXISTENT_PK) {
         // Default values:
-        setValue(FN_LAST_STAGE, MAX_STAGES);
-        setValue(FN_MAX_TRIALS_PER_STAGE, DEFAULT_MAX_TRIALS_PER_STAGE);
-        setValue(FN_PROGRESS_CRITERION_X, DEFAULT_PROGRESS_CRITERION_X);
-        setValue(FN_PROGRESS_CRITERION_Y, DEFAULT_PROGRESS_CRITERION_Y);
-        setValue(FN_MIN_NUMBER, 1);
-        setValue(FN_MAX_NUMBER, MAX_NUMBER);
-        setValue(FN_PAUSE_AFTER_BEEP_MS, DEFAULT_PAUSE_AFTER_BEEP_MS);
-        setValue(FN_ITI_MS, DEFAULT_ITI_MS);
-        setValue(FN_VOLUME, DEFAULT_VOLUME);
-        setValue(FN_OFFER_ABORT, DEFAULT_OFFER_ABORT);
-        setValue(FN_DEBUG_DISPLAY_STIMULI_ONLY, false);
+        setValue(FN_LAST_STAGE, MAX_STAGES, false);
+        setValue(FN_MAX_TRIALS_PER_STAGE, DEFAULT_MAX_TRIALS_PER_STAGE, false);
+        setValue(FN_PROGRESS_CRITERION_X, DEFAULT_PROGRESS_CRITERION_X, false);
+        setValue(FN_PROGRESS_CRITERION_Y, DEFAULT_PROGRESS_CRITERION_Y, false);
+        setValue(FN_MIN_NUMBER, 1, false);
+        setValue(FN_MAX_NUMBER, MAX_NUMBER, false);
+        setValue(FN_PAUSE_AFTER_BEEP_MS, DEFAULT_PAUSE_AFTER_BEEP_MS, false);
+        setValue(FN_ITI_MS, DEFAULT_ITI_MS, false);
+        setValue(FN_VOLUME, DEFAULT_VOLUME, false);
+        setValue(FN_OFFER_ABORT, DEFAULT_OFFER_ABORT, false);
+        setValue(FN_DEBUG_DISPLAY_STIMULI_ONLY, false, false);
     }
 
     // Internal data

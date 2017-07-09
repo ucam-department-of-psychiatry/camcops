@@ -34,7 +34,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import (
     CtvInfo,
     CTV_INCOMPLETE,
@@ -117,7 +117,7 @@ class Aims(Task):
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(WSTRING("total_score") + " <sup>[1]</sup>",
+        h += tr(wappstring("total_score") + " <sup>[1]</sup>",
                 answer(score) + " / 40")
         h += """
                 </table>

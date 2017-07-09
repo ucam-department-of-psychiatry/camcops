@@ -392,25 +392,81 @@ class Patient:
             return None
         return getattr(self, "idshortdesc" + str(n))
 
+    # @staticmethod
+    # def get_id_generic(longform: bool,
+    #                    idnum: int,
+    #                    desc: str,
+    #                    shortdesc: str,
+    #                    serverdesc: str,
+    #                    servershortdesc: str,
+    #                    idnumtext: str,
+    #                    label_id_numbers: bool = False) -> Tuple[bool, str]:
+    #     """Returns (conflict, description).
+    #
+    #     Gets ID description/number in HTML format, or "", plus conflict
+    #     information.
+    #
+    #     Args:
+    #         longform: verbose (for most HTML) or not (for PDF headers)
+    #         idnum: value of ID number
+    #         desc: description
+    #         shortdesc: short description:
+    #         serverdesc: server's description
+    #         servershortdesc: server's short description
+    #         idnumtext: string used as a prefix if label_id_numbers
+    #         label_id_numbers: whether to use prefix
+    #
+    #     In practice:
+    #         longform=False: used in PDF headers
+    #         longform=True, label_id_numbers=True: used in trackers
+    #         longform=True, label_id_numbers=False: used in tasks
+    #
+    #     Returns (conflict, description).
+    #         conflict: Boolean; server's description doesn't match patient's
+    #         description: HTML
+    #     """
+    #     if idnum is None:
+    #         return False, ""  # no conflict if no number!
+    #     prefix = "<i>(" + idnumtext + ")</i> " if label_id_numbers else ""
+    #     if longform:
+    #         conflict = (desc != serverdesc)
+    #         if conflict:
+    #             finaldesc = "{} [server] or {} [tablet]".format(serverdesc,
+    #                                                             desc)
+    #         else:
+    #             finaldesc = ws.webify(desc)
+    #         return conflict, "<br>{}{}: <b>{}</b>".format(
+    #             prefix,
+    #             finaldesc,
+    #             idnum
+    #         )
+    #     else:
+    #         conflict = (shortdesc != servershortdesc)
+    #         if conflict:
+    #             finaldesc = "{} [server] or {} [tablet]".format(
+    #                 servershortdesc, shortdesc)
+    #         else:
+    #             finaldesc = ws.webify(shortdesc)
+    #         return conflict, "{}{}: {}.".format(
+    #             prefix,
+    #             finaldesc,
+    #             idnum
+    #         )
+
     @staticmethod
     def get_id_generic(longform: bool,
                        idnum: int,
-                       desc: str,
-                       shortdesc: str,
                        serverdesc: str,
                        servershortdesc: str,
                        idnumtext: str,
-                       label_id_numbers: bool = False) -> Tuple[bool, str]:
-        """Returns (conflict, description).
+                       label_id_numbers: bool = False) -> str:
+        """Returns description.
 
-        Gets ID description/number in HTML format, or "", plus conflict
-        information.
+        Gets ID description/number in HTML format, or "".
 
         Args:
             longform: verbose (for most HTML) or not (for PDF headers)
             idnum: value of ID number
-            desc: description
-            shortdesc: short description:
             serverdesc: server's description
             servershortdesc: server's short description
             idnumtext: string used as a prefix if label_id_numbers
@@ -421,44 +477,55 @@ class Patient:
             longform=True, label_id_numbers=True: used in trackers
             longform=True, label_id_numbers=False: used in tasks
 
-        Returns (conflict, description).
-            conflict: Boolean; server's description doesn't match patient's
-            description: HTML
+        Returns HTML description.
         """
         if idnum is None:
-            return False, ""  # no conflict if no number!
+            return ""
         prefix = "<i>(" + idnumtext + ")</i> " if label_id_numbers else ""
         if longform:
-            conflict = (desc != serverdesc)
-            if conflict:
-                finaldesc = "{} [server] or {} [tablet]".format(serverdesc,
-                                                                desc)
-            else:
-                finaldesc = ws.webify(desc)
-            return conflict, "<br>{}{}: <b>{}</b>".format(
+            return "<br>{}{}: <b>{}</b>".format(
                 prefix,
-                finaldesc,
+                ws.webify(serverdesc),
                 idnum
             )
         else:
-            conflict = (shortdesc != servershortdesc)
-            if conflict:
-                finaldesc = "{} [server] or {} [tablet]".format(
-                    servershortdesc, shortdesc)
-            else:
-                finaldesc = ws.webify(shortdesc)
-            return conflict, "{}{}: {}.".format(
+            return "{}{}: {}.".format(
                 prefix,
-                finaldesc,
+                ws.webify(servershortdesc),
                 idnum
             )
 
-    def get_idnum_conflict_and_html(self,
-                                    n: int,
-                                    longform: bool,
-                                    label_id_numbers: bool = False) \
-            -> Tuple[bool, str]:
-        """Returns (conflict, description HTML).
+    # def get_idnum_conflict_and_html(self,
+    #                                 n: int,
+    #                                 longform: bool,
+    #                                 label_id_numbers: bool = False) \
+    #         -> Tuple[bool, str]:
+    #     """Returns (conflict, description HTML).
+    #
+    #     Args:
+    #         n: which ID number? From 1 to NUMBER_OF_IDNUMS inclusive.
+    #         longform: see get_id_generic
+    #         label_id_numbers: whether to use prefix
+    #     """
+    #     if n < 1 or n > NUMBER_OF_IDNUMS:
+    #         return False, "Invalid ID number: {}".format(n)
+    #     nstr = str(n)  # which ID number?
+    #     return self.get_id_generic(
+    #         longform,
+    #         getattr(self, "idnum" + nstr),
+    #         getattr(self, "iddesc" + nstr),
+    #         getattr(self, "idshortdesc" + nstr),
+    #         pls.get_id_desc(n),
+    #         pls.get_id_shortdesc(n),
+    #         "idnum" + nstr,
+    #         label_id_numbers
+    #     )
+
+    def get_idnum_html(self,
+                       n: int,
+                       longform: bool,
+                       label_id_numbers: bool = False) -> str:
+        """Returns description HTML.
 
         Args:
             n: which ID number? From 1 to NUMBER_OF_IDNUMS inclusive.
@@ -466,13 +533,11 @@ class Patient:
             label_id_numbers: whether to use prefix
         """
         if n < 1 or n > NUMBER_OF_IDNUMS:
-            return False, "Invalid ID number: {}".format(n)
+            return "Invalid ID number: {}".format(n)
         nstr = str(n)  # which ID number?
         return self.get_id_generic(
             longform,
             getattr(self, "idnum" + nstr),
-            getattr(self, "iddesc" + nstr),
-            getattr(self, "idshortdesc" + nstr),
             pls.get_id_desc(n),
             pls.get_id_shortdesc(n),
             "idnum" + nstr,
@@ -511,7 +576,8 @@ class Patient:
             self.get_dob_html(False),
         )
         for n in range(1, NUMBER_OF_IDNUMS + 1):
-            conflict, msg = self.get_idnum_conflict_and_html(n, False)
+            # conflict, msg = self.get_idnum_conflict_and_html(n, False)
+            msg = self.get_idnum_html(n, False)
             h += " " + msg
         h += " " + self.get_idother_html(False)
         return h
@@ -528,8 +594,9 @@ class Patient:
             dob=self.get_dob_html(True),
         )
         for n in range(1, NUMBER_OF_IDNUMS + 1):
-            conflict, msg = self.get_idnum_conflict_and_html(n, True,
-                                                             label_id_numbers)
+            # conflict, msg = self.get_idnum_conflict_and_html(
+            #     n, True, label_id_numbers)
+            msg = self.get_idnum_html(n, True, label_id_numbers)
             h += """
                 {} <!-- ID{} -->
             """.format(
@@ -561,17 +628,25 @@ class Patient:
             self.get_age(default="?"),
         )
 
-    def get_conflict_html_for_id_col(self) -> Tuple[bool, str]:
-        """Returns (conflict, html) used for patient ID column in task summary
-        view."""
-        h = ""
-        conflict = False
+    # def get_conflict_html_for_id_col(self) -> Tuple[bool, str]:
+    #     """Returns (conflict, html) used for patient ID column in task summary
+    #     view."""
+    #     h = ""
+    #     conflict = False
+    #     for n in range(1, NUMBER_OF_IDNUMS + 1):
+    #         c, msg = self.get_idnum_conflict_and_html(n, False)
+    #         conflict = conflict or c
+    #         h += " " + msg
+    #     h += " " + self.get_idother_html(False)
+    #     return conflict, h
+
+    def get_html_for_id_col(self) -> str:
+        """Returns HTML used for patient ID column in task summary view."""
+        hlist = []
         for n in range(1, NUMBER_OF_IDNUMS + 1):
-            c, msg = self.get_idnum_conflict_and_html(n, False)
-            conflict = conflict or c
-            h += " " + msg
-        h += " " + self.get_idother_html(False)
-        return conflict, h
+            hlist.append(self.get_idnum_html(n, False))
+        hlist.append(self.get_idother_html(False))
+        return " ".join(hlist)
 
     def get_url_edit_patient(self) -> str:
         url = cc_html.get_generic_action_url(ACTION.EDIT_PATIENT)
@@ -663,6 +738,7 @@ def get_current_version_of_patient_by_client_info(device_id: int,
     serverpk = cc_db.get_current_server_pk_by_client_info(
         Patient.TABLENAME, device_id, clientpk, era)
     if serverpk is None:
+        log.critical("NO PATIENT") # ***
         return Patient()
     return Patient(serverpk)
 
@@ -674,6 +750,9 @@ def get_current_version_of_patient_by_client_info(device_id: int,
 # let's have the tablet store its current ID descriptors in the patient
 # record at the point of upload, and then it's available here directly.
 # Thus, always complete and contemporaneous.
+#
+# ... DECISION CHANGED 2017-07-08; see justification in tablet
+#     overall_design.txt
 
 
 def get_patient_server_pks_by_idnum(

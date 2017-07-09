@@ -22,6 +22,7 @@
 #include <QDebug>
 #include "core/camcopsapp.h"
 #include "common/dbconstants.h"
+#include "common/design_defines.h"
 #include "db/dbfunc.h"
 #include "db/dbtransaction.h"
 #include "lib/datetime.h"
@@ -86,10 +87,12 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     addField(OTHER_FIELD, QVariant::String);
     for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         addField(IDNUM_FIELD_FORMAT.arg(n), QVariant::LongLong);
+#ifdef DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
         // Information for these two comes from the server, and is ONLY stored
         // here at the moment of upload (copied from the CamcopsApp's info).
         addField(dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n), QVariant::String);
         addField(dbconst::IDDESC_FIELD_FORMAT.arg(n), QVariant::String);
+#endif
     }
 
     // ------------------------------------------------------------------------

@@ -150,7 +150,7 @@ Icd10Schizophrenia::Icd10Schizophrenia(CamcopsApp& app, DatabaseManager& db, int
 
     // Extra initialization:
     if (load_pk == dbconst::NONEXISTENT_PK) {
-        setValue(DATE_PERTAINS_TO, datetime::nowDate());
+        setValue(DATE_PERTAINS_TO, datetime::nowDate(), false);
     }
 }
 

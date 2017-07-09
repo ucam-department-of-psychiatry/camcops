@@ -30,6 +30,7 @@
 #include <QString>
 #include <QUrl>
 #include "common/aliases_camcops.h"
+#include "common/design_defines.h"
 
 class CamcopsApp;
 class LogBox;
@@ -134,7 +135,9 @@ public:
 protected:
     bool isPatientInfoComplete();
     bool applyPatientMoveOffTabletFlagsToTasks();
+#ifdef DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
     bool writeIdDescriptionsToPatientTable();
+#endif
     void catalogueTablesForUpload();
     void checkDeviceRegistered();
     void uploadNext(QNetworkReply* reply);
@@ -161,7 +164,9 @@ protected:
     // ------------------------------------------------------------------------
     // Analytics
     // ------------------------------------------------------------------------
+#ifdef ALLOW_SEND_ANALYTICS
     void sendAnalytics();
+#endif
 
     // ------------------------------------------------------------------------
     // Signals

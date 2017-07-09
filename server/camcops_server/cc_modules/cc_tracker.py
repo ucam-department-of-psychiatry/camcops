@@ -173,7 +173,7 @@ class ConsistencyInfo(object):
             [task.get_patient_surname() for task in flattasklist],
             servervalue=None, case_sensitive=False)
         self.consistent_dob, self.msg_dob = consistency(
-            [task.get_patient_dob_first10chars() for task in flattasklist])
+            [task.get_patient_dob_first11chars() for task in flattasklist])
         self.consistent_sex, self.msg_sex = consistency(
             [task.get_patient_sex() for task in flattasklist])
         self.consistent_idnums = []
@@ -212,7 +212,7 @@ class ConsistencyInfo(object):
         """Is all the ID information consistent?"""
         return self.all_consistent
 
-    def get_description_list(self) -> str:
+    def get_description_list(self) -> List[str]:
         """Textual representation of ID information, indicating consistency or
         lack of it."""
         cons = [
@@ -223,8 +223,8 @@ class ConsistencyInfo(object):
         ]
         for n in range(1, NUMBER_OF_IDNUMS + 1):
             i = n - 1
-            if self.msg_iddescs[i]:
-                cons.append("""iddesc{}: {}""".format(n, self.msg_iddescs[i]))
+            # if self.msg_iddescs[i]:
+            #     cons.append("""iddesc{}: {}""".format(n, self.msg_iddescs[i]))  # noqa
             if self.msg_idnums[i]:
                 cons.append("""idnum{}: {}""".format(n, self.msg_idnums[i]))
         return cons

@@ -6,3 +6,5 @@ build-*/
 tablet_qt/camcops_tablet.pro.user
 .idea/*
 server/camcops_server.egg-info
+working/*
+

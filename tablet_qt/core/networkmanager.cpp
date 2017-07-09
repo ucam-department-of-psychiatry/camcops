@@ -788,21 +788,31 @@ void NetworkManager::upload(UploadMethod method)
         return;
     }
     m_app.processEvents();
+
+    statusMessage("Removing any defunct binary large objects");
     if (!pruneDeadBlobs()) {
         fail();
         return;
     }
+    statusMessage("... done");
     m_app.processEvents();
+
+    statusMessage("Setting move-off flags for tasks, where applicable");
     if (!applyPatientMoveOffTabletFlagsToTasks()) {
         fail();
         return;
     }
+    statusMessage("... done");
     m_app.processEvents();
+
+#ifdef DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
     if (!writeIdDescriptionsToPatientTable()) {
         fail();
         return;
     }
+#endif
     m_app.processEvents();
+
     catalogueTablesForUpload();
     m_app.processEvents();
 
@@ -890,10 +900,9 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
     if (m_upload_method != UploadMethod::Copy) {
         // if we're not using UploadMethod::Copy, everything is going to be
         // moved anyway, by virtue of startPreservation()
-        return false;
+        statusMessage("... not applicable; all tasks will be moved");
+        return true;
     }
-
-    statusMessage("Setting move-off flags for tasks, where applicable");
 
     DbTransaction trans(m_db);
 
@@ -1120,6 +1129,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
 }
 
 
+#ifdef DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
 bool NetworkManager::writeIdDescriptionsToPatientTable()
 {
     statusMessage("Writing ID descriptions to patient table for upload");
@@ -1146,6 +1156,7 @@ bool NetworkManager::writeIdDescriptionsToPatientTable()
 #endif
     return true;
 }
+#endif
 
 
 void NetworkManager::catalogueTablesForUpload()
@@ -1290,6 +1301,9 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
         wipeTables();
         statusMessage("Finished");
         m_app.setNeedsUpload(false);
+        if (m_upload_method != UploadMethod::Copy) {
+            m_app.deselectPatient();
+        }
         succeed();
         break;
 
@@ -1546,6 +1560,8 @@ void NetworkManager::wipeTables()
 
     // Plain wipes
     for (auto wipe_table : m_upload_tables_to_wipe) {
+        // Note: m_upload_tables_to_wipe will contain the patient table if
+        // we're moving everything; see catalogueTablesForUpload()
         statusMessage(tr("Wiping table: ") + wipe_table);
         if (!m_db.deleteFrom(wipe_table)) {
             statusMessage(tr("... failed to delete!"));
@@ -1605,7 +1621,6 @@ bool NetworkManager::clearMoveOffTabletFlag(const QString& tablename)
 bool NetworkManager::pruneDeadBlobs()
 {
     using dbfunc::delimit;
-    statusMessage("Removing any defunct binary large objects");
 
     QStringList all_tables = m_db.getAllTables();
     QVector<int> bad_blob_pks;
@@ -1636,6 +1651,7 @@ bool NetworkManager::pruneDeadBlobs()
     }
 
     int n_bad_blobs = bad_blob_pks.length();
+    statusMessage(QString("... %1 defunct BLOBs").arg(n_bad_blobs));
     if (n_bad_blobs == 0) {
         return true;
     }
@@ -1663,7 +1679,9 @@ bool NetworkManager::pruneDeadBlobs()
 // Analytics
 // ============================================================================
 
+#ifdef ALLOW_SEND_ANALYTICS
 void NetworkManager::sendAnalytics()
 {
-    // ***
+#error NetworkManager::sendAnalytics() not implemented
 }
+#endif

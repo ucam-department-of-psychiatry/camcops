@@ -30,7 +30,7 @@ from .cc_string import wappstring
 # Permitted values in fields and corresponding dictionaries
 # =============================================================================
 
-# Do not use WSTRING in the module-level code; the strings file is only
+# Do not use wappstring in the module-level code; the strings file is only
 # initialized later. However, PV* fields are used at table creation.
 
 PV_NHS_MARITAL_STATUS = ['S', 'M', 'D', 'W', 'P', 'N']

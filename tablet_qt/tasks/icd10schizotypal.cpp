@@ -68,7 +68,7 @@ Icd10Schizotypal::Icd10Schizotypal(CamcopsApp& app, DatabaseManager& db, int loa
 
     // Extra initialization:
     if (load_pk == dbconst::NONEXISTENT_PK) {
-        setValue(DATE_PERTAINS_TO, datetime::nowDate());
+        setValue(DATE_PERTAINS_TO, datetime::nowDate(), false);
     }
 }
 

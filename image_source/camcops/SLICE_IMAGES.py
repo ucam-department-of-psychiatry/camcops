@@ -295,7 +295,9 @@ def crop_pdf(src_filename: str,
                                           l=img_left_px,
                                           t=img_top_px),
         '+repage',
-        '-resize', '{w}x{h}'.format(w=dest_width_px, h=dest_height_px),
+        '-resize', '{w}x{h}!'.format(w=dest_width_px, h=dest_height_px),
+        # ... the ! forces it to ignore aspect ratio:
+        #     http://www.imagemagick.org/Usage/resize/
         dest_filename
     ])
     logger.debug(args)
@@ -408,6 +410,17 @@ def make_appicon(filename: str, side_px: int) -> None:
     )
 
 
+def make_feature_graphic(filename: str, width_px: int, height_px: int) -> None:
+    crop_pdf(
+        src_filename=SPLASHSCREEN_PDF,
+        img_lr=ProportionPair(0.26, 0.74),
+        img_tb=ProportionPair(0.4, 0.6),
+        dest_filename=filename,
+        dest_width_px=width_px,
+        dest_height_px=height_px
+    )
+
+
 def make_splashscreen(filename: str,
                       width_px: int,
                       height_px: int,
@@ -453,6 +466,8 @@ def main() -> None:
                         help="Process iOS icons/splashscreens")
     parser.add_argument("--android", action='store_true',
                         help="Process Android icons/splashscreens")
+    parser.add_argument("--googleplay", action='store_true',
+                        help="Process Google Play Store icons/splashscreens")
     parser.add_argument("--windows", action='store_true',
                         help="Process Windows icons/splashscreens")
     parser.add_argument("--tablet", action='store_true',
@@ -465,29 +480,31 @@ def main() -> None:
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
     if args.all:
         args.android = True
+        args.googleplay = True
         args.ios = True
         args.server = True
         args.tablet = True
         args.windows = True
     logger.info("Using base directory: {}".format(args.base_dir))
-    if not any([args.ios, args.android, args.tablet, args.server]):
-        logger.info("Nothing to do. Missing flags? Try --help for help.")
-        sys.exit(0)
 
-    ios_dir = join(args.base_dir, "tablet", "Resources", "iphone")
-    windows_dir = join(args.base_dir, "tablet", "Resources", "windows")
-    android_res_dir = join(args.base_dir, "tablet", "Resources", "android")
+    google_play_dir = join(args.base_dir, "working", "google_play_images")
 
     qt_version = True
     if qt_version:
-        android_plt_res = join(args.base_dir, "tablet_qt", "android", "res")
         tablet_icon_dir = join(args.base_dir, "tablet_qt", "resources",
                                "camcops", "images")
+        android_res_dir = join(args.base_dir, "working", "dummy_image_android_res_dir")  # *** # noqa
+        android_plt_res = join(args.base_dir, "tablet_qt", "android", "res")
+        ios_dir = join(args.base_dir, "working", "dummy_image_ios_dir")  # *** # noqa
+        windows_dir = join(args.base_dir, "working", "dummy_image_windows_dir")  # *** # noqa
     else:
-        android_plt_res = join(args.base_dir,
-                               "tablet", "platform", "android", "res")
         tablet_icon_dir = join(args.base_dir, "tablet_qt", "Resources",
                                "images", "camcops")
+        android_res_dir = join(args.base_dir, "tablet", "Resources", "android")
+        android_plt_res = join(args.base_dir,
+                               "tablet", "platform", "android", "res")
+        ios_dir = join(args.base_dir, "tablet", "Resources", "iphone")
+        windows_dir = join(args.base_dir, "tablet", "Resources", "windows")
 
     server_static_dir = join(args.base_dir, "server", "static")
     web_image_dir = join(args.base_dir, "website", "images")
@@ -555,6 +572,18 @@ def main() -> None:
         make_splashscreen(
             join(android_res_dir, "images", "res-port", "default.png"),
             480, 800)
+
+    if args.googleplay:
+        logger.info("--- Google Play Store")
+        make_appicon(join(google_play_dir, "hi_res_icon.png"), 512)
+        make_feature_graphic(join(google_play_dir, "feature_graphic.png"),
+                             1024, 500)
+        # ALSO NEED:
+        # - 7" tablet screenshot, meaning 1024x600
+        # - 10" tablet screenshot, meaning 1280x800
+        # Use:
+        # - wmctrl -l
+        # - wmctrl -i -r ID_FROM_LIST -e 0,100,100,1024,600
 
     # =============================================================================
     # Windows

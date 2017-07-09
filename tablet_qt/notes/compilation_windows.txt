@@ -1,0 +1,19 @@
+===============================================================================
+Cross-compiling from Linux to Windows
+===============================================================================
+
+- MXE
+    - http://mxe.cc/build-matrix.html
+    - https://stackoverflow.com/questions/14170590/building-qt-5-on-linux-for-windows
+    - https://stackoverflow.com/questions/10934683/how-do-i-configure-qt-for-cross-compilation-from-linux-to-windows-target/
+- Other/direct to mingw
+    - http://forums.codeblocks.org/index.php?topic=3343.0
+- http://wiki.qt.io/MinGW-64-bit
+
+===============================================================================
+Compiling for Windows (under Windows)
+===============================================================================
+
+- Qt instructions
+    - https://wiki.qt.io/Building_Qt_Desktop_for_Windows_with_MinGW
+- http://silmor.de/qtstuff.qt5mingw.php

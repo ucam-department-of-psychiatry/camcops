@@ -29,9 +29,12 @@ We're trying to satisfy quite a few constraints...
 - General principle of approaching a normalized database where possible, but
   with some exceptions:
     - the {device, era} server fields;
-    - the _current field (history within the same table as data);
+    - the _current field and related linking (history within the same table as
+      data);
     - some extra copying of ID descriptions to "patient" record at upload, so
       that ID is absolutely secured if someone changes the ID descriptions.
+      ... changed; this is a protection against administrator error, which is
+          a pretty thin reason for some considerable de-normalization
 
 - ALTERNATIVE HISTORY MODELS:
     - table with "current" field and history information
@@ -204,9 +207,20 @@ SERVER ORM AND WEB FRAMEWORK
   allows an additional cross-check during development, for this particular,
   in principle more safety-critical thing.)
 
+- Other comparisons:
+  - https://www.airpair.com/python/posts/django-flask-pyramid
+  - https://www.codementor.io/sheena/django-vs-pyramid-python-framework-comparison-du107yb1c
+
 - DECISION:
         SQLAlchemy
+            - with a custom Column-derived type to check "permitted values" in
+              a non-obligatory way
+            - migrations: Alembic
         Pyramid
+            - forms: Deform
+
+- Pyramid tutorials of note
+  - https://docs.pylonsproject.org/projects/pyramid-cookbook/en/latest/database/sqlalchemy.html
 
 
 ===============================================================================

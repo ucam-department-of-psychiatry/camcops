@@ -112,7 +112,7 @@ from .cc_recipdef import RecipientDefinition
 from .cc_report import Report, REPORT_RESULT_TYPE
 from .cc_session import Session
 from . import cc_specialnote
-from .cc_string import task_extrastrings_exist, WSTRING, WXSTRING
+from .cc_string import task_extrastrings_exist, wappstring, WXSTRING
 from .cc_unittest import (
     get_object_name,
     unit_test_ignore,
@@ -1170,13 +1170,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             return None
         return self._patient.get_dob()
 
-    def get_patient_dob_first10chars(self) -> Optional[str]:
+    def get_patient_dob_first11chars(self) -> Optional[str]:
+        """For example: '29 Dec 1999'."""
         if not self._patient:
             return None
         dob_str = self._patient.get_dob_str()
         if not dob_str:
             return None
-        return dob_str[:10]
+        return dob_str[:11]
 
     def get_patient_sex(self) -> str:
         """Get the patient's sex, or ""."""
@@ -1509,10 +1510,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         live_on_tablet = self.is_live_on_tablet()
 
         if anonymous:
-            conflict = False
+            # conflict = False
             idmsg = "—"
         else:
-            conflict, idmsg = self._patient.get_conflict_html_for_id_col()
+            # conflict, idmsg = self._patient.get_conflict_html_for_id_col()
+            idmsg = self._patient.get_html_for_id_col()
 
         if satisfies_upload and satisfies_finalize:
             colour_policy = ''
@@ -1524,7 +1526,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return """
             <tr>
                 <td{colour_policy}>{patient_id}</td>
-                <td{colour_conflict}>{idmsg}</td>
+                <td>{idmsg}</td>
                 <td{colour_not_current}><b>{tasktype}</b></td>
                 <td>{adding_user}</td>
                 <td{colour_live}>{created}</td>
@@ -1534,7 +1536,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """.format(
             colour_policy=colour_policy,
             patient_id=patient_id,
-            colour_conflict=' class="warning"' if conflict else '',
+            # colour_conflict=' class="warning"' if conflict else '',
             idmsg=idmsg,
             colour_not_current=' class="warning"' if not self._current else '',
             tasktype=self.shortname,
@@ -2448,7 +2450,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     def get_anonymous_page_header_html(self) -> str:
         """Page header for anonymous tasks. Goes in the page margins for PDFs.
         """
-        return WSTRING("anonymous_task")
+        return wappstring("anonymous_task")
 
     # noinspection PyMethodMayBeStatic
     def get_anonymous_task_header_html(self) -> str:
@@ -2459,7 +2461,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 {}
             </div>
         """.format(
-            WSTRING("anonymous_task")
+            wappstring("anonymous_task")
         )
 
     def get_task_header_html(self) -> str:

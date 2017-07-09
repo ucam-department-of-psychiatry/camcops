@@ -29,7 +29,7 @@ import cardinal_pythonlib.rnc_web as ws
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_lang import BetweenDict
 # from ..cc_modules.cc_math import safe_logit
-from ..cc_modules.cc_string import WSTRING
+from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 
 
@@ -281,7 +281,7 @@ class Frs(Task):
         if value == NA:
             if q in SPECIAL_NA_TEXT_QUESTIONS:
                 return self.wxstring(prefix + "na")
-            return WSTRING("NA")
+            return wappstring("NA")
         return None
 
     def get_task_html(self) -> str:

@@ -26,9 +26,9 @@
 #include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconst.h"
+#include "layouts/vboxlayouthfw.h"
 #include "qobjects/keypresswatcher.h"
 #include "qobjects/showwatcher.h"
-#include "widgets/vboxlayouthfw.h"
 
 namespace debugfunc {
 

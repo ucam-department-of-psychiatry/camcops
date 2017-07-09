@@ -37,6 +37,7 @@
 #include <QUuid>
 #include "common/appstrings.h"
 #include "common/dbconstants.h"  // for NONEXISTENT_PK
+#include "common/design_defines.h"
 #include "common/textconst.h"
 #include "common/varconst.h"
 #include "core/camcopsversion.h"
@@ -154,7 +155,10 @@ int CamcopsApp::run()
 #endif
 
     initGuiTwo();  // AFTER storedvar creation
-    openMainWindow();
+    openMainWindow();  // Also creates m_netmgr
+#ifdef ALLOW_SEND_ANALYTICS
+    networkManager()->sendAnalytics();
+#endif
     if (!hasAgreedTerms()) {
         offerTerms();
     }
@@ -416,7 +420,9 @@ void CamcopsApp::createStoredVars()
               convert::SSLPROTODESC_SECUREPROTOCOLS);
     createVar(varconst::DEBUG_USE_HTTPS_TO_SERVER, QVariant::Bool, true);
     createVar(varconst::STORE_SERVER_PASSWORD, QVariant::Bool, true);
+#ifdef ALLOW_SEND_ANALYTICS
     createVar(varconst::SEND_ANALYTICS, QVariant::Bool, true);
+#endif
 
     // Uploading "dirty" flag
     createVar(varconst::NEEDS_UPLOAD, QVariant::Bool, false);
@@ -589,6 +595,7 @@ void CamcopsApp::openMainWindow()
     MainMenu* menu = new MainMenu(*this);
     open(menu);
 }
+
 
 // ============================================================================
 // Core

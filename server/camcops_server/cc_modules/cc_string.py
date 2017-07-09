@@ -44,44 +44,45 @@ APPSTRING_TASKNAME = "camcops"
 # Localization strings
 # =============================================================================
 
-def cache_strings() -> None:
-    """
-    Caches strings from the main XML string file.
-    The string file looks like this:
-        <?xml version="1.0" encoding="UTF-8"?>
-        <resources>
-            <string name="NAME">VALUE</string>
-            <!-- ... -->
-        </resources>
-    """
-    if cc_pls.pls.stringDict is not None:
-        return
-    if cc_pls.pls.MAIN_STRING_FILE is None:
-        raise AssertionError(
-            "pls.MAIN_STRING_FILE is None -- likely use of "
-            "LSTRING/WSTRING in classmethod, before initialization via "
-            "the WSGI application entry point")
-    log.info("Loading XML file: " + cc_pls.pls.MAIN_STRING_FILE)
-    parser = ElementTree.XMLParser(encoding="UTF-8")
-    tree = ElementTree.parse(cc_pls.pls.MAIN_STRING_FILE, parser=parser)
-    cc_pls.pls.stringDict = {}
-    # find all children of the root with tag "string" and attribute "name"
-    for e in tree.findall("./string[@name]"):
-        cc_pls.pls.stringDict[e.attrib.get("name")] = unescape_newlines(e.text)
+# def cache_strings() -> None:
+#     """
+#     Caches strings from the main XML string file.
+#     The string file looks like this:
+#         <?xml version="1.0" encoding="UTF-8"?>
+#         <resources>
+#             <string name="NAME">VALUE</string>
+#             <!-- ... -->
+#         </resources>
+#     """
+#     if cc_pls.pls.stringDict is not None:
+#         return
+#     if cc_pls.pls.MAIN_STRING_FILE is None:
+#         raise AssertionError(
+#             "pls.MAIN_STRING_FILE is None -- likely use of "
+#             "LSTRING/WSTRING/wappstring/wxstring in classmethod, before "
+#             "initialization via "
+#             "the WSGI application entry point")
+#     log.info("Loading XML file: " + cc_pls.pls.MAIN_STRING_FILE)
+#     parser = ElementTree.XMLParser(encoding="UTF-8")
+#     tree = ElementTree.parse(cc_pls.pls.MAIN_STRING_FILE, parser=parser)
+#     cc_pls.pls.stringDict = {}
+#     # find all children of the root with tag "string" and attribute "name"
+#     for e in tree.findall("./string[@name]"):
+#         cc_pls.pls.stringDict[e.attrib.get("name")] = unescape_newlines(e.text)  # noqa
 
 
-# noinspection PyPep8Naming
-def LSTRING(stringname: str) -> str:  # equivalent of Titanium's L()
-    """Looks up a string from the XML string file."""
-    cache_strings()
-    return cc_pls.pls.stringDict.get(stringname,
-                                     "XML_STRING_NOT_FOUND_" + stringname)
+# # noinspection PyPep8Naming
+# def LSTRING(stringname: str) -> str:  # equivalent of Titanium's L()
+#     """Looks up a string from the XML string file."""
+#     cache_strings()
+#     return cc_pls.pls.stringDict.get(stringname,
+#                                      "XML_STRING_NOT_FOUND_" + stringname)
 
 
-# noinspection PyPep8Naming
-def WSTRING(stringname: str) -> str:
-    """Returns a web-safe version of a string from the XML string file."""
-    return ws.webify(LSTRING(stringname))
+# # noinspection PyPep8Naming
+# def WSTRING(stringname: str) -> str:
+#     """Returns a web-safe version of a string from the XML string file."""
+#     return ws.webify(LSTRING(stringname))
 
 
 def cache_extra_strings() -> None:
@@ -147,7 +148,7 @@ def XSTRING(taskname: str,
 def WXSTRING(taskname: str,
              stringname: str,
              default: str = None,
-             provide_default_if_none: bool = True) -> str:
+             provide_default_if_none: bool = True) -> Optional[str]:
     """Returns a web-safe version of an XSTRING (see above)."""
     value = XSTRING(taskname, stringname, default,
                     provide_default_if_none=provide_default_if_none)
@@ -174,7 +175,7 @@ def task_extrastrings_exist(taskname: str) -> bool:
 
 def wappstring(stringname: str,
                default: str = None,
-               provide_default_if_none: bool = True) -> str:
+               provide_default_if_none: bool = True) -> Optional[str]:
     value = XSTRING(APPSTRING_TASKNAME, stringname, default,
                     provide_default_if_none=provide_default_if_none)
     if value is None and not provide_default_if_none:

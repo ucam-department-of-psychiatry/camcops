@@ -30,8 +30,8 @@
 #include <QStyle>
 #include <QStyleOption>
 #include "common/uiconst.h"
+#include "lib/margins.h"
 #include "lib/sizehelpers.h"
-#include "widgets/margins.h"
 
 const QPoint INVALID_POINT(-1, -1);
 

@@ -28,7 +28,7 @@ QT_BASE_DIR = $$(CAMCOPS_QT_BASE_DIR)  # value at time of qmake ("now")
 isEmpty(QT_BASE_DIR) {
     error("Environment variable CAMCOPS_QT_BASE_DIR is undefined")
 }
-message("Using base directory: $${QT_BASE_DIR}")
+message("Using custom Qt/library base directory: $${QT_BASE_DIR}")
 
 # AVOID # CAMCOPS_SOURCE_ROOT = ${PWD}  # at time of make
 CAMCOPS_SOURCE_ROOT = $${PWD}  # at time of qmake ("now")
@@ -873,7 +873,8 @@ HEADERS += \
     db/databaseworkerthread.h \
     db/queryresult.h \
     db/whereconditions.h \
-    db/threadedqueryrequest.h
+    db/threadedqueryrequest.h \
+    common/design_defines.h
 
 DISTFILES += \
     android/AndroidManifest.xml \
@@ -925,4 +926,5 @@ DISTFILES += \
     tools/decrypt_sqlcipher.py \
     notes/compilation_android.txt \
     notes/compilation_linux.txt \
-    notes/database_performance.txt
+    notes/database_performance.txt \
+    notes/compilation_windows.txt

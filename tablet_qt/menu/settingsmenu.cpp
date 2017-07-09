@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QTextStream>
+#include "common/design_defines.h"
 #include "common/platform.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
@@ -223,6 +224,7 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
     QString storepw_t = tr("Store user’s server password?");
     QString storepw_h = tr("NO = more secure, YES = more convenient/less secure.");
 
+#ifdef ALLOW_SEND_ANALYTICS
     FieldRefPtr analytics_fr = app.storedVarFieldRef(varconst::SEND_ANALYTICS);
     QString analytics_t = tr("Send analytics to CamCOPS base?");
     QString analytics_h = tr(
@@ -230,6 +232,7 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
         "users better. No patient-identifiable information, per-patient "
         "information, or task details are sent. See the documentation for "
         "details.");
+#endif
 
     NameValueOptions options_ssl_protocol{
         // http://doc.qt.io/qt-5/qssl.html#SslProtocol-enum
@@ -296,12 +299,14 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
                        ->setHorizontal(true)
                        ->setAsTextButton(true),
 
+#ifdef ALLOW_SEND_ANALYTICS
         new QuHorizontalLine(),
 
         new QuText(makeTitle(analytics_t, analytics_h)),
         (new QuMcq(analytics_fr, CommonOptions::yesNoBoolean()))
                        ->setHorizontal(true)
                        ->setAsTextButton(true),
+#endif
     });
     page->setTitle(tr("Configure server settings"));
     page->setType(QuPage::PageType::Config);

@@ -134,7 +134,7 @@ Icd10Manic::Icd10Manic(CamcopsApp& app, DatabaseManager& db, int load_pk) :
 
     // Extra initialization:
     if (load_pk == dbconst::NONEXISTENT_PK) {
-        setValue(DATE_PERTAINS_TO, datetime::nowDate());
+        setValue(DATE_PERTAINS_TO, datetime::nowDate(), false);
     }
 }
 

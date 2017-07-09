@@ -7,13 +7,18 @@ For CentOS, you need to get Python 3 installed. For Centos 6, 64-bit:
     # http://stackoverflow.com/questions/8087184/installing-python3-on-rhel
 
     sudo yum install https://centos6.iuscommunity.org/ius-release.rpm
+
+then for Python 3.4:
     sudo yum install python34u
+
+or for Python 3.5 (with some other helpful things):
+    sudo yum install python35u python35u-pip libxml2-devel libxslt-devel python35u-devel gcc
 
 Note that you can get CentOS version/architecture with:
 
     cat /etc/centos-release
     uname -a
-"""
+"""  # noqa
 
 # We could use a temporary directory for the Debian build,
 # but it's helpful to be able to see what it's doing as well.
@@ -29,7 +34,7 @@ import io
 import logging
 import os
 from os.path import join
-import re
+# import re
 import shutil
 import string
 import subprocess

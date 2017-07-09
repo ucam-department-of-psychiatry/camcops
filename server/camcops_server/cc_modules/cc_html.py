@@ -39,7 +39,7 @@ from .cc_constants import (
     WKHTMLTOPDF_CSS,
 )
 from . import cc_pls
-from .cc_string import WSTRING
+from .cc_string import wappstring
 
 
 # =============================================================================
@@ -414,7 +414,7 @@ def get_html_sex_picker(param: str = PARAM.SEX,
 
 def get_yes_no(x: Any) -> str:
     """'Yes' if x else 'No'"""
-    return WSTRING("Yes") if x else WSTRING("No")
+    return wappstring("yes") if x else wappstring("no")
 
 
 def get_yes_no_none(x: Any) -> Optional[str]:
@@ -433,7 +433,7 @@ def get_yes_no_unknown(x: Any) -> str:
 
 def get_true_false(x: Any) -> str:
     """'True' if x else 'False'"""
-    return WSTRING("True") if x else WSTRING("False")
+    return wappstring("true") if x else wappstring("false")
 
 
 def get_true_false_none(x: Any) -> Optional[str]:
@@ -452,7 +452,7 @@ def get_true_false_unknown(x: Any) -> str:
 
 def get_present_absent(x: Any) -> str:
     """'Present' if x else 'Absent'"""
-    return WSTRING("Present") if x else WSTRING("Absent")
+    return wappstring("present") if x else wappstring("absent")
 
 
 def get_present_absent_none(x: Any) -> Optional[str]:

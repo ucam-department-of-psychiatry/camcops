@@ -52,7 +52,7 @@
 
 #include "flowlayouthfw.h"
 #include <QtWidgets>
-#include "widgets/margins.h"
+#include "lib/margins.h"
 
 #ifdef DEBUG_LAYOUT
 #include <QDebug>  // RNC

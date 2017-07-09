@@ -53,7 +53,8 @@ Fft::Fft(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     // Extra initialization:
     if (load_pk == dbconst::NONEXISTENT_PK) {
         setValue(SERVICE,
-                 m_app.varString(varconst::DEFAULT_CLINICIAN_SERVICE));
+                 m_app.varString(varconst::DEFAULT_CLINICIAN_SERVICE),
+                 false);
     }
 }
 

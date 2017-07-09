@@ -565,6 +565,11 @@ def upgrade_database(old_version: Version) -> None:
         modify_column("cpft_lps_referral", "ethnic_category_code",
                       "VARCHAR(1) NULL")  # was erroneously INT; single-char code  # noqa
 
+        # NOTE: from client version 2.0.0, "iddesc{n}" and "idshortdesc{n}"
+        # fields are no longer uploaded - they are just duplicates of the
+        # server's own values - DUE FOR REMOVAL FROM SERVER *** (plus handling
+        # of old clients).
+
 
 # =============================================================================
 # Command-line debugging

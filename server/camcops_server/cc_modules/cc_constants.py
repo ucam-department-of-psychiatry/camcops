@@ -1233,8 +1233,6 @@ TASK_LIST_FOOTER = """
     <div class="footnotes">
         Colour in the Patient column means
             that an ID policy is not yet satisfied.
-        Colour in the Identifiers column means
-            a conflict between the server’s and the tablet’s ID descriptions.
         Colour in the Task Type column means
             the record is not current.
         Colour in the Created column means
@@ -1244,6 +1242,8 @@ TASK_LIST_FOOTER = """
             the task is incomplete.
     </div>
 """
+#        Colour in the Identifiers column means
+#            a conflict between the server’s and the tablet’s ID descriptions.
 TSV_PATIENT_FIELD_PREFIX = "_patient_"
 CRIS_PATIENT_COMMENT_PREFIX = "(PATIENT) "
 CRIS_SUMMARY_COMMENT_PREFIX = "(SUMMARY) "

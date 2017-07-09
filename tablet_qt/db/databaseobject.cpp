@@ -159,6 +159,9 @@ QStringList DatabaseObject::fieldnames() const
 bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value,
                               bool touch_record)
 {
+    // In general, extra "default" initialization done in a constructor should
+    // probably set touch_record = false, as otherwise creating a prototype
+    // task makes the app think it needs to upload something.
     requireField(fieldname);
     bool dirty = m_record[fieldname].setValue(value);
     if (dirty && touch_record) {

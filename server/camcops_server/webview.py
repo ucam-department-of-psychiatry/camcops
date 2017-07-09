@@ -96,7 +96,7 @@ from .cc_modules import cc_session
 from .cc_modules.cc_session import Session
 from .cc_modules.cc_specialnote import forcibly_preserve_special_notes
 from .cc_modules.cc_storedvar import DeviceStoredVar
-from .cc_modules.cc_string import WSTRING
+from .cc_modules.cc_string import wappstring
 from .cc_modules import cc_task
 from .cc_modules.cc_task import Task
 from .cc_modules.cc_tracker import ClinicalTextView, Tracker
@@ -428,13 +428,13 @@ def offer_terms(session: Session, form: cgi.FieldStorage) -> str:
         </form>
     """.format(
         user=session.get_current_user_html(),
-        title=WSTRING("disclaimer_title"),
-        subtitle=WSTRING("disclaimer_subtitle"),
-        content=WSTRING("disclaimer_content"),
+        title=wappstring("disclaimer_title"),
+        subtitle=wappstring("disclaimer_subtitle"),
+        content=wappstring("disclaimer_content"),
         script=pls.SCRIPT_NAME,
         PARAM=PARAM,
         ACTION=ACTION,
-        agree=WSTRING("disclaimer_agree"),
+        agree=wappstring("disclaimer_agree"),
     ) + WEBEND
     return html
 
@@ -445,7 +445,7 @@ def view_policies(session: Session, form: cgi.FieldStorage) -> str:
 
     html = pls.WEBSTART + """
         {user}
-        <h1>CamCOPS: current server identification policies</h1>
+        <h1>CamCOPS: this database’s identification policies</h1>
         <h2>Identification (ID) numbers</h2>
         <table>
             <tr>

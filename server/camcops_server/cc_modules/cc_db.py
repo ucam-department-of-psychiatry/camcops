@@ -214,15 +214,11 @@ def get_current_server_pk_by_client_info(table: str,
                                          clientpk: int,
                                          era: str):
     """Looks up the current server's PK given a device/clientpk/era triplet."""
-    row = pls.db.fetchone(
-        (
-            "SELECT _pk FROM " + table +
-            " WHERE _current AND _device_id=? AND id=? AND _era=?"
-        ),
-        device_id,
-        clientpk,
-        era
-    )
+    sql = ("SELECT _pk FROM " + table +
+           " WHERE _current AND _device_id=? AND id=? AND _era=?")
+    args = (device_id, clientpk, era)
+    log.critical("sql: {}, args: {}".format(repr(sql), repr(args)))
+    row = pls.db.fetchone(sql, *args)
     if row is None:
         return None
     return row[0]
