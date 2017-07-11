@@ -149,7 +149,7 @@ QString CPFTLPSReferral::menusubtitle() const
 
 QString CPFTLPSReferral::infoFilenameStem() const
 {
-    return "clinical";  // *** no specific info HTML yet
+    return "clinical";
 }
 
 

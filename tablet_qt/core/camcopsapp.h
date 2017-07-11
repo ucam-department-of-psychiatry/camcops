@@ -84,6 +84,7 @@ public:
     CamcopsApp(int& argc, char *argv[]);
     ~CamcopsApp();
     int run();
+    void backgroundStartup();
     DatabaseManager& db();
     DatabaseManager& sysdb();
     TaskFactory* taskFactory();
@@ -112,8 +113,8 @@ protected:
     void makeOtherSystemTables();
     void registerTasks();
     void makeTaskTables();
-    void initGuiOne();
-    void initGuiTwo();
+    void initGuiOneWindowIcon();
+    void initGuiTwoStylesheet();
     void openMainWindow();
 
     // ------------------------------------------------------------------------

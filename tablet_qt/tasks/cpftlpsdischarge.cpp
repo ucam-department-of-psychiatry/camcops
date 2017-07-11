@@ -239,7 +239,7 @@ QString CPFTLPSDischarge::menusubtitle() const
 
 QString CPFTLPSDischarge::infoFilenameStem() const
 {
-    return "clinical";  // *** no specific info HTML yet
+    return "clinical";
 }
 
 

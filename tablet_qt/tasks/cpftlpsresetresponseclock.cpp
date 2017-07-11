@@ -90,7 +90,7 @@ QString CPFTLPSResetResponseClock::menusubtitle() const
 
 QString CPFTLPSResetResponseClock::infoFilenameStem() const
 {
-    return "clinical";  // *** no specific info HTML yet
+    return "clinical";
 }
 
 

@@ -23,12 +23,11 @@
 
 
 ShowWatcher::ShowWatcher(QObject* parent, bool debug_layout) :
-    QObject(parent),
+    QObject(parent),  // owned by parent henceforth
     m_debug_layout(debug_layout)
 {
-    if (parent) {
-        parent->installEventFilter(this);
-    }
+    Q_ASSERT(parent);
+    parent->installEventFilter(this);
 }
 
 

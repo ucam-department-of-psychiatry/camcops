@@ -150,7 +150,7 @@ i.e.
     - ... anywhere else?
 
 Could we cope with that using setViewport(), using an HFW
-widget rather than a plain widget? ***
+widget rather than a plain widget?
 Alternative would be to rewrite QScrollArea (and several parent classes)...
 Specifically:
     - QScrollArea / QScrollAreaPrivate

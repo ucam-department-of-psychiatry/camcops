@@ -18,8 +18,10 @@
 */
 
 // #define DEBUG_ICON_LOAD
+// #define DEBUG_SCROLL_GESTURES
 
 #include "uifunc.h"
+#include <QAbstractItemView>
 #include <QApplication>
 #include <QBrush>
 #include <QDebug>
@@ -51,6 +53,7 @@
 #include "lib/convert.h"
 #include "lib/layoutdumper.h"
 #include "lib/stringfunc.h"
+#include "qobjects/debugeventwatcher.h"
 
 
 namespace uifunc {
@@ -669,6 +672,12 @@ QString trueFalseUnknown(const QVariant& value)
 // Scrolling
 // ============================================================================
 
+static void debugScrollerStateChanged(QScroller::State new_state)
+{
+    qDebug() << new_state;
+}
+
+
 void applyScrollGestures(QWidget* widget)
 {
     // This method works well, except that if the widget is also handling
@@ -678,14 +687,57 @@ void applyScrollGestures(QWidget* widget)
         stopApp("Null pointer to applyScrollGestures");
     }
 
-    // Unsure if this is necessary:
-    widget->setAttribute(Qt::WA_AcceptTouchEvents);
-
     // 1. Grab the relevant gesture. Only one gesture can be grabbed.
-    QScroller::ScrollerGestureType gesture_type = platform::PLATFORM_TABLET
+    //    - Tried: TouchGesture on tablets, LeftMouseButtonGesture on desktops
+    //      ... fine for e.g. ScrollMessageBox, but QListView goes funny on
+    //      Android (in that scroll gestures also leak through as clicks).
+    //    - Tried: LeftMouseButtonGesture throughout.
+    //      Fine for QListView on Android, but scrolling then doesn't work
+    //      for ScrollMessageBox.
+    //    - Others have noticed this too:
+    //      https://forum.qt.io/topic/37930/solved-qt-5-2-android-qscroller-on-qtablewidget-clicks
+    //    - So:
+    bool widget_is_itemview = (
+                dynamic_cast<QAbstractItemView*>(widget) ||
+                dynamic_cast<QAbstractItemView*>(widget->parent()));
+    // It makes little difference which of these two we choose:
+    // bool use_touch = platform::PLATFORM_ANDROID && !widget_is_itemview;
+    bool use_touch = false;
+
+    QScroller::ScrollerGestureType gesture_type = use_touch
             ? QScroller::TouchGesture
             : QScroller::LeftMouseButtonGesture;
-    QScroller::grabGesture(widget, gesture_type);
+    /*
+    if (platform::PLATFORM_ANDROID) {
+        // Some widgets automatically take a two-finger swipe, a PanGesture.
+        widget->ungrabGesture(Qt::PanGesture);
+        // ... but ungrabbing this just stops them responding; doesn't seem to
+        //     help us to respond to something else
+    }
+    */
+    QScroller::grabGesture(widget, gesture_type);  // will ungrab any other
+
+    // Still a problem: scroller not responding for ScrollMessageBox on Android.
+    // Yet everything else is working.
+    // VerticalScrollArea versus QScrollArea? No.
+
+#ifdef DEBUG_SCROLL_GESTURES
+    qDebug().nospace()
+            << Q_FUNC_INFO
+            << ": widget_is_itemview == " << widget_is_itemview
+            << ", use_touch == " << use_touch
+            << ", widget->isWidgetType() == " << widget->isWidgetType()
+            << ", widget->testAttribute(Qt::WA_AcceptTouchEvents) == "
+            << widget->testAttribute(Qt::WA_AcceptTouchEvents);
+    new DebugEventWatcher(widget, DebugEventWatcher::All);  // owned by widget henceforth
+#endif
+
+    /* UNNECESSARY: done by QScroller::grabGesture if TouchGesture is used:
+    if (use_touch) {
+        // Unsure if this is necessary:
+        widget->setAttribute(Qt::WA_AcceptTouchEvents);
+    }
+    */
 
     // 2. Disable overshoot.
     QScroller* scroller = QScroller::scroller(widget);
@@ -699,12 +751,42 @@ void applyScrollGestures(QWidget* widget)
         prop.setScrollMetric(QScrollerProperties::VerticalOvershootPolicy,
                              overshoot_policy);
         scroller->setScrollerProperties(prop);
+#ifdef DEBUG_SCROLL_GESTURES
+        QObject::connect(scroller, &QScroller::stateChanged,
+                         std::bind(&debugScrollerStateChanged, std::placeholders::_1));
+#endif
+    } else {
+        qWarning() << Q_FUNC_INFO << "Couldn't make scroller!";
+    }
+
+    // Slightly nasty hacks:
+    if (widget_is_itemview) {
+        makeItemViewScrollSmoothly(widget);
+        // ... and since we often apply scroll gestures to the viewport() of
+        //     a list view, try its parent too:
+        makeItemViewScrollSmoothly(widget->parent());
     }
 
     // Other discussions about this:
     // - https://forum.qt.io/topic/30546/kinetic-scrolling-on-qscrollarea-on-android-device/5
     // - http://falsinsoft.blogspot.co.uk/2015/09/qt-snippet-use-qscroller-with.html
     // - http://nootka-app.blogspot.co.uk/2015/11/story-of-porting-complex-qt-application_18.html
+}
+
+
+void makeItemViewScrollSmoothly(QObject* object)
+{
+    // Nasty hacks:
+    QAbstractItemView* itemview = dynamic_cast<QAbstractItemView*>(object);
+    if (itemview) {
+#ifdef DEBUG_SCROLL_GESTURES
+        qDebug() << Q_FUNC_INFO
+                 << "Calling setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel)"
+                    " and setVerticalScrollMode(QAbstractItemView::ScrollPerPixel)";
+#endif
+        itemview->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+        itemview->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    }
 }
 
 

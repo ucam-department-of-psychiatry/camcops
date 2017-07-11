@@ -38,6 +38,11 @@ const int MCQGRID_VSPACING = 5;
 const int MCQGRID_HSPACING = 5;
 const int DEFAULT_COLSPAN_Q = 1;
 const int DEFAULT_COLSPAN_A = 2;
+const int MIN_SPINBOX_HEIGHT = 48;
+const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS = QAbstractSpinBox::UpDownArrows;
+        // QAbstractSpinBox::PlusMinus works but vertically stretched "+"
+        // QAbstractSpinBox::UpDownArrows -- just looks blank on Linux and Android
+        // ... missing actually looks slightly better than distorted!
 
 const QMargins NO_MARGINS(0, 0, 0, 0);
 

@@ -306,7 +306,7 @@ QUrl NetworkManager::serverUrl(bool& success) const
 
 QString NetworkManager::serverUrlDisplayString() const
 {
-    bool success;
+    bool success = false;  // we don't care about the result
     QUrl url = serverUrl(success);
     QString str = url.toDisplayString();
     return str;

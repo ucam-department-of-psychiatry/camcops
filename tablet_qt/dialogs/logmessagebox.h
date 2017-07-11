@@ -34,7 +34,7 @@ class LogMessageBox : public QDialog
     Q_OBJECT
 public:
     LogMessageBox(QWidget* parent, const QString& title, const QString& text,
-                  bool as_html = false);
+                  bool as_html = false, bool word_wrap = true);
 protected slots:
     void copyClicked();
 protected:

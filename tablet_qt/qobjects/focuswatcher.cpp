@@ -20,32 +20,30 @@
 // #define DEBUG_FOCUS
 
 #include "focuswatcher.h"
-#ifdef DEBUG_FOCUS
 #include <QDebug>
-#endif
 #include <QEvent>
 
 
 FocusWatcher::FocusWatcher(QObject* parent) :
-    QObject(parent)
+    QObject(parent)  // owned by parent henceforth
 {
-    if (parent) {
-        parent->installEventFilter(this);
-    }
+    Q_ASSERT(parent);
+    parent->installEventFilter(this);
 }
 
 
 bool FocusWatcher::eventFilter(QObject* obj, QEvent* event)
 {
     Q_UNUSED(obj);
-    if (event->type() == QEvent::FocusIn) {
+    QEvent::Type type = event->type();
+    if (type == QEvent::FocusIn) {
 
 #ifdef DEBUG_FOCUS
         qDebug() << obj->objectName() << "FocusIn";
 #endif
         emit focusChanged(true);
 
-    } else if (event->type() == QEvent::FocusOut) {
+    } else if (type == QEvent::FocusOut) {
 
 #ifdef DEBUG_FOCUS
         qDebug() << obj->objectName() << "FocusOut";

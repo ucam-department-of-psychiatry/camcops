@@ -29,6 +29,7 @@ class NvpChoiceDialog : public QDialog
 {
     // Dialog to choose between a set of name/value pairs (offering the names,
     // returning the chosen value via a pointer).
+    // MODAL and BLOCKING.
 
     Q_OBJECT
 public:

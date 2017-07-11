@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define INCLUDE_CATATONIA_EXAMINATION
+
 #include "catatoniaepsemenu.h"
 #include "common/uiconst.h"
 #include "lib/filefunc.h"
@@ -38,14 +40,11 @@ CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
         MAKE_TASK_MENU_ITEM(Aims::AIMS_TABLENAME, app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("bars", app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("bfcrs", app),
-
         MenuItem(examtitle,
                  HtmlMenuItem(examtitle,
                               filefunc::taskHtmlFilename("catatoniaexam")),
                  "",
                  examsubtitle),
-        // *** COPYRIGHT PROBLEM? CATATONIA EXAMINATION. GONE FROM UKPPG SITE. REMOVE ***
-
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("csi", app), // == bfcsi
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("gass", app),
         // PERMISSION REFUSED: MAKE_TASK_MENU_ITEM("lunsers", app),

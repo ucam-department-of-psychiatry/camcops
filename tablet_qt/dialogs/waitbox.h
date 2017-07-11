@@ -23,9 +23,13 @@
 
 class WaitBox : public QProgressDialog
 {
+    // MODAL dialogue to show an animated sliding progress bar.
+    // Used by SlowGuiGuard, SlowNonGuiFunctionCaller.
+
     Q_OBJECT
 public:
     WaitBox(QWidget* parent, const QString& text, const QString& title,
             int minimum_duration_ms = 0);
     virtual ~WaitBox();
+    virtual void keyPressEvent(QKeyEvent* event);
 };

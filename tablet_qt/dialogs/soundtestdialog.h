@@ -24,6 +24,9 @@
 
 class SoundTestDialog : public LogBox
 {
+    // LogBox that tests a sound. MODAL and BLOCKING.
+    // Starts playing upon creation; user should call exec().
+
     Q_OBJECT
 public:
     SoundTestDialog(const QUrl& url, int volume_percent = 50,

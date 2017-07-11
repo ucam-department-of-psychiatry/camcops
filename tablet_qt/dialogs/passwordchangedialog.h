@@ -25,6 +25,11 @@ class QLineEdit;
 
 class PasswordChangeDialog : public QDialog
 {
+    // Dialogue to request old and new passwords, and check that they
+    // match and are not blank.
+    // MODAL and BLOCKING: call exec() then check oldPassword() and
+    // newPassword() if it succeeds.
+
     Q_OBJECT
 public:
     PasswordChangeDialog(const QString& text, const QString& title,

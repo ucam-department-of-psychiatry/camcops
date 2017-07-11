@@ -303,7 +303,7 @@ QValidator::State numeric::validateInteger(QString& s, const QLocale& locale,
         return QValidator::Intermediate;
     }
 
-    bool ok;
+    bool ok = true;
     T type_dummy = 0;
     T i = localeStrToNumber(s, ok, locale, type_dummy);  // NB: ok modified
     if (!ok) {  // Not an integer.

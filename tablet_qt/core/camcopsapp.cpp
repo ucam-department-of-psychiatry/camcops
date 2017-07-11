@@ -17,14 +17,16 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define DANGER_DEBUG_PASSWORD_DECRYPTION
-// #define DANGER_DEBUG_WIPE_PASSWORDS
-// #define DEBUG_EMIT
-// #define DEBUG_SCREEN_STACK
 #define DEBUG_DROP_TABLES_NOT_EXPLICITLY_CREATED
 
+// #define DANGER_DEBUG_PASSWORD_DECRYPTION
+// #define DANGER_DEBUG_WIPE_PASSWORDS
+
+// #define DEBUG_EMIT
+// #define DEBUG_SCREEN_STACK
+// #define DEBUG_ALL_APPLICATION_EVENTS
+
 #include "camcopsapp.h"
-#include <iostream>
 #include <QApplication>
 #include <QDateTime>
 #include <QDebug>
@@ -59,6 +61,7 @@
 #include "dbobjects/extrastring.h"
 #include "dbobjects/patientsorter.h"
 #include "dbobjects/storedvar.h"
+#include "dialogs/scrollmessagebox.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"
 #include "lib/filefunc.h"
@@ -68,6 +71,8 @@
 #include "lib/uifunc.h"
 #include "lib/version.h"
 #include "menu/mainmenu.h"
+#include "qobjects/debugeventwatcher.h"
+#include "qobjects/slownonguifunctioncaller.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "tasklib/inittasks.h"
@@ -95,6 +100,9 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_patient(nullptr),
     m_netmgr(nullptr)
 {
+#ifdef DEBUG_ALL_APPLICATION_EVENTS
+    new DebugEventWatcher(this, DebugEventWatcher::All);
+#endif
 }
 
 
@@ -108,33 +116,43 @@ CamcopsApp::~CamcopsApp()
 
 int CamcopsApp::run()
 {
+    // We do the minimum possible; then we fire up the GUI; then we run
+    // everything that we can in a different thread through backgroundStartup.
+    // This makes the GUI startup more responsive.
+
     // Command-line arguments
     if (!processCommandLineArguments(arguments())) {
         return 1;  // exit with failure
     }
 
-    // Say hello
+    // Say hello to the console
     announceStartup();
 
     // Baseline C++ things
     seedRng();
     convert::registerQVectorTypesForQVariant();
 
-    // CamCOPS core
-    initGuiOne();
+    // Set window icon
+    initGuiOneWindowIcon();
+
+    // Connect to our database
     registerDatabaseDrivers();
     openOrCreateDatabases();
     QString new_user_password;
-    bool user_cancelled_please_quit;
+    bool user_cancelled_please_quit = false;
     bool changed_user_password = connectDatabaseEncryption(
                 new_user_password, user_cancelled_please_quit);
     if (user_cancelled_please_quit) {
         qCritical() << "User cancelled attempt";
         return 0;  // will quit
     }
+
+    // Make storedvar table (used by menus for font size etc.)
     makeStoredVarTable();
     createStoredVars();
 
+    // Set the tablet internal password to match the database password, if
+    // we've just changed it. Uses a storedvar.
 #ifdef DANGER_DEBUG_WIPE_PASSWORDS
 #ifndef SQLCIPHER_ENCRYPTION_ON
     // Can't mess around with the user password when it's also the database p/w
@@ -152,6 +170,34 @@ int CamcopsApp::run()
     Q_UNUSED(changed_user_password);
 #endif
 
+    // Set the stylesheet.
+    initGuiTwoStylesheet();  // AFTER storedvar creation
+
+    // Do the rest of the database configuration, task registration, etc.,
+    // with a "please wait" dialog.
+    SlowNonGuiFunctionCaller(
+        std::bind(&CamcopsApp::backgroundStartup, this),
+        m_p_main_window,
+        "Configuring internal database",
+        "Please wait");
+
+    openMainWindow();  // uses HelpMenu etc. and so must be AFTER TASK REGISTRATION
+    makeNetManager();  // needs to be after main window created, and on GUI thread
+#ifdef ALLOW_SEND_ANALYTICS
+    networkManager()->sendAnalytics();
+#endif
+
+    if (!hasAgreedTerms()) {
+        offerTerms();
+    }
+    qInfo() << "Starting Qt event processor...";
+    return exec();  // Main Qt event loop
+}
+
+
+void CamcopsApp::backgroundStartup()
+{
+    // WORKER THREAD. BEWARE.
     upgradeDatabase();
     makeOtherSystemTables();
     registerTasks();  // AFTER storedvar creation, so tasks can read them
@@ -167,18 +213,6 @@ int CamcopsApp::run()
     m_datadb->dropTablesNotExplicitlyCreatedByUs();
     m_sysdb->dropTablesNotExplicitlyCreatedByUs();
 #endif
-
-    initGuiTwo();  // AFTER storedvar creation
-    openMainWindow();
-    makeNetManager();  // needs to be after main window created
-#ifdef ALLOW_SEND_ANALYTICS
-    networkManager()->sendAnalytics();
-#endif
-    if (!hasAgreedTerms()) {
-        offerTerms();
-    }
-    qInfo() << "Starting Qt event processor...";
-    return exec();  // Main Qt event loop
 }
 
 
@@ -357,6 +391,7 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
     //
     // https://www.zetetic.net/sqlcipher/sqlcipher-api/
 
+    user_cancelled_please_quit = false;
     bool encryption_happy = false;
     bool changed_user_password = false;
     QString new_pw_text(tr("Enter a new password for the CamCOPS application"));
@@ -661,7 +696,6 @@ void CamcopsApp::registerTasks()
     InitTasks(*m_p_task_factory);  // ensures all tasks are registered
     m_p_task_factory->finishRegistration();
     qInfo() << "Registered tasks:" << m_p_task_factory->tablenames();
-
 }
 
 
@@ -672,7 +706,7 @@ void CamcopsApp::makeTaskTables()
 }
 
 
-void CamcopsApp::initGuiOne()
+void CamcopsApp::initGuiOneWindowIcon()
 {
     // Qt stuff: before storedvars accessible
 
@@ -681,7 +715,7 @@ void CamcopsApp::initGuiOne()
 }
 
 
-void CamcopsApp::initGuiTwo()
+void CamcopsApp::initGuiTwoStylesheet()
 {
     // Qt stuff: after storedvars accessible
     setStyleSheet(getSubstitutedCss(uiconst::CSS_CAMCOPS_MAIN));
@@ -1543,10 +1577,10 @@ QDateTime CamcopsApp::agreedTermsAt() const
 
 void CamcopsApp::offerTerms()
 {
-    QMessageBox msgbox(m_p_main_window);
-    msgbox.setIcon(QMessageBox::Question);
-    msgbox.setWindowTitle(tr("View terms and conditions of use"));
-    msgbox.setText(textconst::TERMS_CONDITIONS);
+    ScrollMessageBox msgbox(QMessageBox::Question,
+                            tr("View terms and conditions of use"),
+                            textconst::TERMS_CONDITIONS,
+                            m_p_main_window);
     QAbstractButton* yes = msgbox.addButton(
                 tr("I AGREE to these terms and conditions"),
                 QMessageBox::YesRole);

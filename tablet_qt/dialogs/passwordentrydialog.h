@@ -25,6 +25,9 @@ class QLineEdit;
 
 class PasswordEntryDialog : public QDialog
 {
+    // Dialogue to read a password from the user.
+    // MODAL and BLOCKING: call exec() and read password() if it succeeds.
+
     Q_OBJECT
 public:
     PasswordEntryDialog(const QString& text, const QString& title,

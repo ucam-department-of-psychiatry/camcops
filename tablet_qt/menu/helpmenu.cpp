@@ -29,6 +29,7 @@
 #include "db/databasemanager.h"
 #include "db/dbfunc.h"
 #include "db/whichdb.h"
+#include "dialogs/scrollmessagebox.h"
 #include "lib/datetime.h"
 #include "lib/filefunc.h"
 #include "lib/stringfunc.h"
@@ -186,9 +187,13 @@ void HelpMenu::showDeviceIdAndDbDetails() const
 }
 
 
-void HelpMenu::viewTermsConditions() const
+void HelpMenu::viewTermsConditions()
 {
     QString title = QString("You agreed to these terms and conditions at: %1")
             .arg(datetime::shortDateTime(m_app.agreedTermsAt()));
-    uifunc::alert(textconst::TERMS_CONDITIONS, title);
+    ScrollMessageBox msgbox(QMessageBox::Information,
+                            title,
+                            textconst::TERMS_CONDITIONS,
+                            this);
+    msgbox.exec();
 }

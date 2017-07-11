@@ -20,6 +20,8 @@
 // http://www.qtforum.org/article/18183/messagebox-with-qscrollbar.html
 // ... modified a bit
 
+// #define USE_CUSTOM_VERTICAL_SCROLL_AREA  // made no difference; test for uifunc::applyScrollGestures()
+
 #include "scrollmessagebox.h"
 #include <QApplication>
 #include <QDebug>
@@ -31,61 +33,59 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSize>
-// #include <QSpacerItem>
 #include <QStyle>
 #include "lib/uifunc.h"
+#include "widgets/verticalscrollarea.h"
 
 const QSize MIN_SIZE(600, 600);
 // const QSize MAX_SIZE(1024, 1500);
 
 
+// ============================================================================
+// Constructor
+// ============================================================================
+
 ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
                                    const QString& title,
                                    const QString& text,
-                                   QDialogButtonBox::StandardButtons buttons,
                                    QWidget* parent) :
     QDialog(parent,
             Qt::Dialog | Qt::WindowTitleHint |
-            Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
+            Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint),
+    m_clicked_button(nullptr)
 {
     setWindowTitle(title);
     setMinimumSize(MIN_SIZE);
 
-    QLabel* icon_label = nullptr;
-    QScrollArea* scroll = nullptr;
+    m_text_label = new QLabel(text);
+    m_text_label->setWordWrap(true);
+    m_text_label->setTextInteractionFlags(Qt::NoTextInteraction);
+    // m_text_label->setTextInteractionFlags(Qt::TextInteractionFlags(
+    //         style()->styleHint(
+    //                 QStyle::SH_MessageBox_TextInteractionFlags, 0, this)));
+    m_text_label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    m_text_label->setOpenExternalLinks(true);
 
-    m_label = new QLabel(text);
-    m_label->setTextInteractionFlags(Qt::TextInteractionFlags(style()->styleHint(
-                    QStyle::SH_MessageBox_TextInteractionFlags, 0, this)));
-    m_label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-    m_label->setOpenExternalLinks(true);
-    // m_label->setContentsMargins(2, 0, 0, 0);
-    // m_label->setIndent(9);
-
-    scroll = new QScrollArea(this);
-    // scroll->setGeometry(QRect(10, 20, 560, 430));
-    scroll->setWidget(m_label);
+#ifdef USE_CUSTOM_VERTICAL_SCROLL_AREA
+    VerticalScrollArea* scroll = new VerticalScrollArea(this);
+#else
+    QScrollArea* scroll = new QScrollArea(this);
+#endif
+    scroll->setWidget(m_text_label);
     scroll->setWidgetResizable(true);
-
     uifunc::applyScrollGestures(scroll->viewport());
 
-    if (icon != QMessageBox::NoIcon) {
-        icon_label = new QLabel();
-        icon_label->setPixmap(standardIcon((QMessageBox::Icon)icon));
-        icon_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    }
+    m_icon_label = new QLabel();
+    setIcon(icon);
 
-    m_button_box = new QDialogButtonBox(buttons);
+    m_button_box = new QDialogButtonBox();
     m_button_box->setCenterButtons(style()->styleHint(
                                 QStyle::SH_MessageBox_CenterButtons, 0, this));
     QObject::connect(m_button_box, &QDialogButtonBox::clicked,
-                     this, &ScrollMessageBox::handle_buttonClicked);
+                     this, &ScrollMessageBox::handleButtonClicked);
 
-    QGridLayout *grid = new QGridLayout();  // not GridLayoutHfw/GridLayout
-
-    if (icon != QMessageBox::NoIcon) {
-        grid->addWidget(icon_label, 0, 0, 2, 1, Qt::AlignTop);
-    }
+    QGridLayout* grid = new QGridLayout();  // not GridLayoutHfw/GridLayout
+    grid->addWidget(m_icon_label, 0, 0, 2, 1, Qt::AlignTop);
     grid->addWidget(scroll, 0, 1, 1, 1);
     grid->addWidget(m_button_box, 1, 0, 1, 2);
     // grid->addItem(new QSpacerItem(0, 0), 2, 1);  // in case box bigger than text
@@ -93,6 +93,73 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     setLayout(grid);
 
     setModal(true);
+}
+
+
+// ============================================================================
+// Public interface
+// ============================================================================
+
+void ScrollMessageBox::addButton(QAbstractButton* button,
+                                 QDialogButtonBox::ButtonRole role)
+{
+    m_button_box->addButton(button, role);
+    // The button box TAKES OWNERSHIP:
+    // http://doc.qt.io/qt-4.8/qdialogbuttonbox.html#addButton
+    update();
+}
+
+
+void ScrollMessageBox::addButton(QAbstractButton* button,
+                                 QMessageBox::ButtonRole role)
+{
+    addButton(button, forceEnumMD(role));
+}
+
+
+QPushButton* ScrollMessageBox::addButton(const QString& text,
+                                         QDialogButtonBox::ButtonRole role)
+{
+    QPushButton* pushbutton = new QPushButton(text);
+    addButton(pushbutton, role);
+    return pushbutton;
+}
+
+
+QPushButton* ScrollMessageBox::addButton(const QString& text,
+                                         QMessageBox::ButtonRole role)
+{
+    return addButton(text, forceEnumMD(role));
+}
+
+
+void ScrollMessageBox::setDefaultButton(QPushButton* button)
+{
+    if (!m_button_box->buttons().contains(button)) {
+        return;
+    }
+    // The button box's buttons() is a QList<QAbstractButton*>.
+    button->setDefault(true);
+    button->setFocus();
+}
+
+
+QAbstractButton* ScrollMessageBox::clickedButton() const
+{
+    return m_clicked_button;
+}
+
+
+// ============================================================================
+// Internals
+// ============================================================================
+
+void ScrollMessageBox::setIcon(QMessageBox::Icon icon)
+{
+    QPixmap px = standardIcon(icon);
+    m_icon_label->setPixmap(px);
+    m_icon_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    update();
 }
 
 
@@ -113,6 +180,7 @@ QPixmap ScrollMessageBox::standardIcon(QMessageBox::Icon icon)
         break;
     case QMessageBox::Question:
         tmp_icon = style->standardIcon(QStyle::SP_MessageBoxQuestion, 0, this);
+    case QMessageBox::NoIcon:
     default:
         break;
     }
@@ -123,72 +191,42 @@ QPixmap ScrollMessageBox::standardIcon(QMessageBox::Icon icon)
 }
 
 
-void ScrollMessageBox::handle_buttonClicked(QAbstractButton* button)
+void ScrollMessageBox::handleButtonClicked(QAbstractButton* button)
 {
+    m_clicked_button = button;
     int ret = m_button_box->standardButton(button);
     done(ret);
 }
 
 
-void ScrollMessageBox::setDefaultButton(QPushButton *button)
+QDialogButtonBox::ButtonRole ScrollMessageBox::forceEnumMD(
+        QMessageBox::ButtonRole role)
 {
-    if (!m_button_box->buttons().contains(button)) {
-        return;
-    }
-    button->setDefault(true);
-    button->setFocus();
+    // They are numerically identical:
+    // - http://doc.qt.io/qt-4.8/qdialogbuttonbox.html#ButtonRole-enum
+    // - http://doc.qt.io/qt-4.8/qmessagebox.html#ButtonRole-enum
+    return static_cast<QDialogButtonBox::ButtonRole>(role);
 }
 
 
-void ScrollMessageBox::setDefaultButton(QDialogButtonBox::StandardButton button)
+QMessageBox::ButtonRole ScrollMessageBox::forceEnumDM(
+        QDialogButtonBox::ButtonRole role)
 {
-    setDefaultButton(m_button_box->button(button));
+    return static_cast<QMessageBox::ButtonRole>(role);
 }
 
-/*
-void ScrollMessageBox::showEvent(QShowEvent *e)
-{
-      updateSize();
-      QDialog::showEvent(e);
-}
-*/
 
-// Qt does a better job than this function or its predecessor...
-/*
-void ScrollMessageBox::updateSize()
-{
-    if (!isVisible()) {
-        return;
-    }
-
-    QSize screen_size = QApplication::desktop()->availableGeometry(QCursor::pos()).size();
-    QSize hard_limit = MAX_SIZE.boundedTo(screen_size);
-
-    layout()->activate();
-    QSize layout_size = layout()->sizeHint();
-
-    QFontMetrics fmt(QApplication::font("QWorkspaceTitleBar"));
-    int window_title_width = fmt.width(windowTitle()) + 50;
-
-    QSize desired_size(
-                qMin(layout_size.width(), window_title_width),
-                layout_size.height() + 100);  // ??? some sort of extra
-    QSize final_size = desired_size.boundedTo(hard_limit);
-
-    resize(final_size);
-}
-*/
-
+// ============================================================================
+// Static helper functions
+// ============================================================================
 
 QDialogButtonBox::StandardButton ScrollMessageBox::critical(
         QWidget* parent,
         const QString& title,
-        const QString& text,
-        QDialogButtonBox::StandardButtons buttons,
-        StandardButton defaultButton)
+        const QString& text)
 {
-    ScrollMessageBox box(QMessageBox::Critical, title, text, buttons, parent);
-    box.setDefaultButton(defaultButton);
+    ScrollMessageBox box(QMessageBox::Critical, title, text, parent);
+    box.addButton(tr("OK"), QDialogButtonBox::YesRole);
     return static_cast<QDialogButtonBox::StandardButton>(box.exec());
 }
 
@@ -196,12 +234,10 @@ QDialogButtonBox::StandardButton ScrollMessageBox::critical(
 QDialogButtonBox::StandardButton ScrollMessageBox::information(
         QWidget* parent,
         const QString& title,
-        const QString& text,
-        QDialogButtonBox::StandardButtons buttons,
-        StandardButton defaultButton)
+        const QString& text)
 {
-    ScrollMessageBox box(QMessageBox::Information, title, text, buttons, parent);
-    box.setDefaultButton(defaultButton);
+    ScrollMessageBox box(QMessageBox::Information, title, text, parent);
+    box.addButton(tr("OK"), QDialogButtonBox::YesRole);
     return static_cast<QDialogButtonBox::StandardButton>(box.exec());
 }
 
@@ -209,12 +245,10 @@ QDialogButtonBox::StandardButton ScrollMessageBox::information(
 QDialogButtonBox::StandardButton ScrollMessageBox::question(
         QWidget* parent,
         const QString& title,
-        const QString& text,
-        QDialogButtonBox::StandardButtons buttons,
-        StandardButton defaultButton)
+        const QString& text)
 {
-    ScrollMessageBox box(QMessageBox::Question, title, text, buttons, parent);
-    box.setDefaultButton(defaultButton);
+    ScrollMessageBox box(QMessageBox::Question, title, text, parent);
+    box.addButton(tr("OK"), QDialogButtonBox::YesRole);
     return static_cast<QDialogButtonBox::StandardButton>(box.exec());
 }
 
@@ -222,12 +256,10 @@ QDialogButtonBox::StandardButton ScrollMessageBox::question(
 QDialogButtonBox::StandardButton ScrollMessageBox::warning(
         QWidget* parent,
         const QString& title,
-        const QString& text,
-        QDialogButtonBox::StandardButtons buttons,
-        StandardButton defaultButton)
+        const QString& text)
 {
-    ScrollMessageBox box(QMessageBox::Warning, title, text, buttons, parent);
-    box.setDefaultButton(defaultButton);
+    ScrollMessageBox box(QMessageBox::Warning, title, text, parent);
+    box.addButton(tr("OK"), QDialogButtonBox::YesRole);
     return static_cast<QDialogButtonBox::StandardButton>(box.exec());
 }
 
@@ -235,11 +267,9 @@ QDialogButtonBox::StandardButton ScrollMessageBox::warning(
 QDialogButtonBox::StandardButton ScrollMessageBox::plain(
         QWidget* parent,
         const QString& title,
-        const QString& text,
-        QDialogButtonBox::StandardButtons buttons,
-        StandardButton defaultButton)
+        const QString& text)
 {
-    ScrollMessageBox box(QMessageBox::NoIcon, title, text, buttons, parent);
-    box.setDefaultButton(defaultButton);
+    ScrollMessageBox box(QMessageBox::NoIcon, title, text, parent);
+    box.addButton(tr("OK"), QDialogButtonBox::YesRole);
     return static_cast<QDialogButtonBox::StandardButton>(box.exec());
 }

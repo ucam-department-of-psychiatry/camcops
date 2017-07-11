@@ -18,11 +18,14 @@
 */
 
 #include "qudatetime.h"
+#include <QCalendarWidget>
 #include <QDateTimeEdit>
+#include <QFont>
 #include <QHBoxLayout>
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/imagebutton.h"
+#include "widgets/spacer.h"
 
 // http://doc.qt.io/qt-5/qdatetime.html#toString
 const QString DEFAULT_DATETIME_FORMAT("dd MMM yyyy HH:mm");
@@ -39,7 +42,8 @@ QuDateTime::QuDateTime(FieldRefPtr fieldref) :
     m_mode(Mode::DefaultDateTime),
     m_offer_now_button(false),
     m_offer_null_button(false),
-    m_editor(nullptr)
+    m_editor(nullptr),
+    m_calendar_widget(nullptr)
 {
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
@@ -100,7 +104,7 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     widget->setLayout(layout);
 
     QString format;
-    bool calendar = true;
+    bool use_calendar = true;
     switch (m_mode) {
     case DefaultDateTime:
         format = DEFAULT_DATETIME_FORMAT;
@@ -110,7 +114,7 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
         break;
     case DefaultTime:
         format = DEFAULT_TIME_FORMAT;
-        calendar = false;
+        use_calendar = false;
         break;
     case CustomDateTime:
     case CustomDate:
@@ -118,26 +122,64 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
         break;
     case CustomTime:
         format = m_custom_format;
-        calendar = false;
+        use_calendar = false;
         break;
     }
 
     m_editor = new QDateTimeEdit();
     m_editor->setDisplayFormat(format);
 
-    m_editor->setCalendarPopup(calendar);
-    // *** TO THINK ABOUT: QuDateTime time picker
-    // - Qt only supplies a date (calendar) popup.
-    // - It is possible to write ones to do times as well.
-    // - http://doc.qt.io/qt-5/qdatetimeedit.html#using-a-pop-up-calendar-widget
-    // - http://doc.qt.io/qt-5/qtwidgets-widgets-calendarwidget-example.html
-    // - https://forum.qt.io/topic/71670/qdatetimeedit-with-date-and-time-picker/6
+    m_editor->setCalendarPopup(use_calendar);
+    /*
+    TO THINK ABOUT: QuDateTime time picker
+    - Qt only supplies a date (calendar) popup.
+      You can explore its features using the "calendarwidget" demo.
+    - It is possible to write ones to do times as well.
+    - http://doc.qt.io/qt-5/qdatetimeedit.html#using-a-pop-up-calendar-widget
+    - http://doc.qt.io/qt-5/qtwidgets-widgets-calendarwidget-example.html
+    - https://forum.qt.io/topic/71670/qdatetimeedit-with-date-and-time-picker/6
+    - Looking at the various bits of source:
+
+        void QDateTimeEditPrivate::initCalendarPopup(QCalendarWidget *cw)
+        {
+            Q_Q(QDateTimeEdit);
+            if (!monthCalendar) {
+                monthCalendar = new QCalendarPopup(q, cw);
+                monthCalendar->setObjectName(QLatin1String("qt_datetimedit_calendar"));
+                QObject::connect(monthCalendar, SIGNAL(newDateSelected(QDate)), q, SLOT(setDate(QDate)));
+                QObject::connect(monthCalendar, SIGNAL(hidingCalendar(QDate)), q, SLOT(setDate(QDate)));
+                QObject::connect(monthCalendar, SIGNAL(activated(QDate)), q, SLOT(setDate(QDate)));
+                QObject::connect(monthCalendar, SIGNAL(activated(QDate)), monthCalendar, SLOT(close()));
+                QObject::connect(monthCalendar, SIGNAL(resetButton()), q, SLOT(_q_resetButton()));
+            } else if (cw) {
+                monthCalendar->setCalendarWidget(cw);
+            }
+            syncCalendarWidget();
+        }
+
+    - Alternatively, for dates: alter the stylesheet to make the
+      QCalendarWidget big enough to use on tablets.
+
+    */
+    if (use_calendar) {
+        // Editor does NOT take ownership, so we should:
+        // http://doc.qt.io/qt-5/qdatetimeedit.html#setCalendarWidget
+        m_calendar_widget = QSharedPointer<QCalendarWidget>(new QCalendarWidget());
+        // QFont font;
+        // font.setBold(true);  // works!
+        // font.setPixelSize(60);  // Does NOT work!
+        // m_calendar_widget->setFont(font);
+        m_editor->setCalendarWidget(m_calendar_widget.data());
+    }
 
     m_editor->setEnabled(!read_only);
     m_editor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     // Fixed horizontal keeps the drop-down button close to the text.
     // Expanding vertical makes the drop-down button and spin buttons a
     // reasonable size (not too small).
+    m_editor->setMinimumHeight(uiconst::MIN_SPINBOX_HEIGHT);
+    // Also, the QDateTimeEdit *is* a QAbstractSpinBox, so:
+    m_editor->setButtonSymbols(uiconst::SPINBOX_SYMBOLS);
     if (!read_only) {
         connect(m_editor.data(), &QDateTimeEdit::dateTimeChanged,
                 this, &QuDateTime::widgetValueChanged);

@@ -85,7 +85,7 @@ const QString FN_ITI_MIN_S("iti_min_s");
 const QString FN_ITI_MAX_S("iti_max_s");
 const QString FN_ABORTED("aborted");
 const QString FN_FINISHED("finished");
-const QString FN_LAST_TRIAL_COMPLETED("last_trial_completed"); // *** NOT BEING SET
+const QString FN_LAST_TRIAL_COMPLETED("last_trial_completed");
 
 // Text for user
 const QString TX_CONFIG_TITLE("Configure Expectation–Detection task");
@@ -1078,13 +1078,3 @@ void CardinalExpectationDetection::finish()
     editFinishedProperly();
     emit m_widget->finished();
 }
-
-/*
-
-***
-
-TEST THIS:
-
-
-
-*/

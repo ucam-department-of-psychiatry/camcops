@@ -34,6 +34,8 @@ public:
     static constexpr int COLUMN_FULLNAME = 0;
     static constexpr int COLUMN_CODE = 1;
     static constexpr int COLUMN_DESCRIPTION = 2;
+    static constexpr int COLUMN_SELECTABLE = 3;
+    static constexpr int N_COLUMNS = 4;
     // http://stackoverflow.com/questions/22318787/const-int-variable-cannot-appear-in-a-constant-expression
 
 public:

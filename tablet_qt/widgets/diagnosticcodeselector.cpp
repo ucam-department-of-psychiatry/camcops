@@ -194,6 +194,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_treeview->setColumnHidden(DiagnosticCode::COLUMN_CODE, true);
     m_treeview->setColumnHidden(DiagnosticCode::COLUMN_DESCRIPTION, true);
     m_treeview->setColumnHidden(DiagnosticCode::COLUMN_FULLNAME, false);
+    m_treeview->setColumnHidden(DiagnosticCode::COLUMN_SELECTABLE, true);
     m_treeview->setSortingEnabled(false);
     m_treeview->scrollTo(selected);
     uifunc::applyScrollGestures(m_treeview->viewport());
@@ -326,10 +327,18 @@ void DiagnosticCodeSelector::itemChosen(const QModelIndex& index)
     // To get a different column, we go via the parent back to the child:
     // http://doc.qt.io/qt-5/qmodelindex.html#details
     QModelIndex parent = index.parent();
+    int row = index.row();
+    QModelIndex selectable_index = parent.child(
+                row, DiagnosticCode::COLUMN_SELECTABLE);
+    bool selectable = selectable_index.data().toBool();
+    if (!selectable) {
+        // qDebug() << Q_FUNC_INFO << "Unselectable";
+        return;
+    }
     QModelIndex code_index = parent.child(
-                index.row(), DiagnosticCode::COLUMN_CODE);
+                row, DiagnosticCode::COLUMN_CODE);
     QModelIndex description_index = parent.child(
-                index.row(), DiagnosticCode::COLUMN_DESCRIPTION);
+                row, DiagnosticCode::COLUMN_DESCRIPTION);
     QString code = code_index.data().toString();
     QString description = description_index.data().toString();
 

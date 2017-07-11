@@ -222,7 +222,9 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
 
     FieldRefPtr storepw_fr = app.storedVarFieldRef(varconst::STORE_SERVER_PASSWORD);
     QString storepw_t = tr("Store user’s server password?");
-    QString storepw_h = tr("NO = more secure, YES = more convenient/less secure.");
+    QString storepw_h = tr(
+                "NO = fractionally more secure, YES = more convenient/"
+                "fractionally less secure (but still AES-256-encrypted).");
 
 #ifdef ALLOW_SEND_ANALYTICS
     FieldRefPtr analytics_fr = app.storedVarFieldRef(varconst::SEND_ANALYTICS);
@@ -344,8 +346,9 @@ OpenableWidget* SettingsMenu::configureIntellectualProperty(CamcopsApp& app)
             Qt::UniqueConnection);
 
     // I tried putting these in a grid, but when you have just QuMCQ/horizontal
-    // on the right, it expands too much vertically. *** Layout problem,
+    // on the right, it expands too much vertically. Layout problem,
     // likely to do with FlowLayout (which is Qt code).
+    // Probably fixed now; anyway, this is fine.
     QuPagePtr page(new QuPage{
         (new QuText(label_ip_warning))->setBold(true),
         (new QuText(label_ip_disclaimer))->setItalic(true),
@@ -353,7 +356,7 @@ OpenableWidget* SettingsMenu::configureIntellectualProperty(CamcopsApp& app)
 
         (new QuText(tr("Clinical use?")))->setBold(true),
         (new QuMcq(m_ip_clinical_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
-        (new QuText(tr("WARNING: NOT FOR CLINICAL USE; not a Medical Device; "
+        (new QuText(tr("WARNING: NOT FOR GENERAL CLINICAL USE; not a Medical Device; "
                        "see Terms and Conditions")))
                        ->setWarning(true)
                        ->addTag(TAG_IP_CLINICAL_WARNING),

@@ -173,5 +173,6 @@ QString trueFalseUnknown(const QVariant& value);
 // ============================================================================
 
 void applyScrollGestures(QWidget* widget);
+void makeItemViewScrollSmoothly(QObject* object);
 
 }  // namespace uifunc

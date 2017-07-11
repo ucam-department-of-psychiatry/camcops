@@ -42,6 +42,7 @@ protected:
     void doneSeeConsole();
     void testProgress();
     void testWait();
+    void testScrollMessageBox();
     void expensiveFunction();
     void testSizeFormatter();
     void testConversions();

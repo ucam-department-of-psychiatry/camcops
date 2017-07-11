@@ -32,5 +32,5 @@ protected:
     void softwareVersions() const;
     void aboutQt();
     void showDeviceIdAndDbDetails() const;
-    void viewTermsConditions() const;
+    void viewTermsConditions();
 };

@@ -20,14 +20,17 @@
 // #define DEBUG_OPTIONS
 
 #include "testmenu.h"
+#include <QAbstractButton>
 #include <QCoreApplication>
 #include <QMediaPlayer>
 #include <QProgressDialog>
+#include <QPushButton>
 #include <QThread>
 #include "common/platform.h"
 #include "core/networkmanager.h"
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
+#include "dialogs/scrollmessagebox.h"
 #include "lib/convert.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
@@ -44,7 +47,7 @@
 #include "tasks/demoquestionnaire.h"
 #include "tasks/phq9.h"
 
-const int EXPENSIVE_FUNCTION_DURATION_MS = 10000;
+const int EXPENSIVE_FUNCTION_DURATION_MS = 5000;
 
 
 TestMenu::TestMenu(CamcopsApp& app)
@@ -98,6 +101,10 @@ TestMenu::TestMenu(CamcopsApp& app)
         MenuItem(
             tr("Test wait dialog"),
             std::bind(&TestMenu::testWait, this)
+        ),
+        MenuItem(
+            tr("Test scrolling message dialog"),
+            std::bind(&TestMenu::testScrollMessageBox, this)
         ),
         MenuItem(
             tr("Test size formatter"),
@@ -251,8 +258,8 @@ void TestMenu::testWait()
     SlowNonGuiFunctionCaller(
         std::bind(&TestMenu::expensiveFunction, this),
         this,
-        QString("Running expensive function in worker thread (for %1 "
-                "ms)").arg(EXPENSIVE_FUNCTION_DURATION_MS),
+        QString("Running uninterruptible expensive function in worker thread "
+                "(for %1 ms)").arg(EXPENSIVE_FUNCTION_DURATION_MS),
         "Please wait");
 }
 
@@ -262,6 +269,35 @@ void TestMenu::expensiveFunction()
     qDebug() << Q_FUNC_INFO << "start: sleep time (ms)" << EXPENSIVE_FUNCTION_DURATION_MS;
     QThread::msleep(EXPENSIVE_FUNCTION_DURATION_MS);
     qDebug() << Q_FUNC_INFO << "finish";
+}
+
+
+void TestMenu::testScrollMessageBox()
+{
+    ScrollMessageBox msgbox(QMessageBox::Question,
+                            "ScrollMessageBox, with some lengthy text",
+                            textconst::TERMS_CONDITIONS,
+                            this);
+    QAbstractButton* one = msgbox.addButton("Response One (Yes role)",
+                                            QMessageBox::YesRole);
+    QAbstractButton* two = msgbox.addButton("Response Two (No role)",
+                                            QMessageBox::NoRole);
+    QAbstractButton* three = msgbox.addButton("Response Three (Reject role)",
+                                              QMessageBox::RejectRole);
+    int ret = msgbox.exec();
+    qInfo() << "exec() returned" << ret;
+    QAbstractButton* response = msgbox.clickedButton();
+    if (response == one) {
+        qInfo() << "Response: one";
+    } else if (response == two) {
+        qInfo() << "Response: two";
+    } else if (response == three) {
+        qInfo() << "Response: three";
+    } else if (response == nullptr) {
+        qInfo() << "Response nullptr (cancelled)";
+    } else {
+        qInfo() << "Response UNKNOWN";
+    }
 }
 
 
@@ -539,7 +575,8 @@ points(x=d2$intensity, y=d2$yes)
 The R function is doing it better, although the IRLS-SVD-Newton one isn't dreadful.
 To see R's actual GLM method, type "glm.fit".
 See also https://www.r-bloggers.com/even-faster-linear-model-fits-with-r-using-rcppeigen/
-// *** Implement the full method used by R, or RcppEigen
+
+Implement the full method used by R, or RcppEigen:
 
 https://github.com/RcppCore/RcppEigen/blob/master/src/fastLm.cpp
 https://github.com/yixuan/RcppNumerical/blob/master/src/fastLR.cpp

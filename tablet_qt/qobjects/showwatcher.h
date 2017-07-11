@@ -29,8 +29,7 @@ class ShowWatcher : public QObject
     // The ShowWatcher is OWNED BY and WATCHES the same thing.
     Q_OBJECT
 public:
-    explicit ShowWatcher(QObject* parent = nullptr,
-                         bool debug_layout = false);
+    explicit ShowWatcher(QObject* parent, bool debug_layout = false);
     virtual bool eventFilter(QObject* obj, QEvent* event) override;
 signals:
     void showing();

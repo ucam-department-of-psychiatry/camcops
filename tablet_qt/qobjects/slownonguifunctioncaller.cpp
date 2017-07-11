@@ -21,10 +21,11 @@
 #include "dialogs/waitbox.h"
 
 
-SlowNonGuiFunctionCaller::SlowNonGuiFunctionCaller(ThreadWorker::PlainWorkerFunction func,
-                               QWidget* parent,
-                               const QString& text,
-                               const QString& title) :
+SlowNonGuiFunctionCaller::SlowNonGuiFunctionCaller(
+        ThreadWorker::PlainWorkerFunction func,
+        QWidget* parent,
+        const QString& text,
+        const QString& title) :
     m_worker_thread(),
     m_worker(new ThreadWorker(func)),
     m_waitbox(parent, text, title)

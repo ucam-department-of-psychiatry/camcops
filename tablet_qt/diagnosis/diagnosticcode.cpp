@@ -77,7 +77,7 @@ int DiagnosticCode::descendantCount() const
 
 int DiagnosticCode::columnCount() const
 {
-    return 3;
+    return N_COLUMNS;
 }
 
 
@@ -93,14 +93,19 @@ int DiagnosticCode::row() const
 
 QVariant DiagnosticCode::data(int column) const
 {
+    qDebug() << Q_FUNC_INFO << "column" << column;
     switch (column) {
     case COLUMN_CODE:
-    default:
         return code();
     case COLUMN_DESCRIPTION:
         return description();
     case COLUMN_FULLNAME:
         return fullname();
+    case COLUMN_SELECTABLE:
+        return selectable();
+    default:
+        Q_ASSERT(false);
+        return code();
     }
 }
 

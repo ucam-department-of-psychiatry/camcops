@@ -5,6 +5,9 @@ TO DO NOW
 
 - fix server, quick'n'dirty
 
+ANDROID
+- camera is very slow
+- no camera preview
 
 - TEST .APK (including threaded database writes)
 - UPLOAD .APK TO GOOGLE PLAY
@@ -16,10 +19,6 @@ TO DO NOW
 ===============================================================================
 REQUIRED, BUT NOT IMMEDIATELY, OR TO THINK ABOUT
 ===============================================================================
-
-ANDROID
-- camera is slow
-- no camera preview
 
 SERVER
 - cross-platform, Pyramid/SQLAlchemy/Mako
@@ -54,8 +53,16 @@ BUILDS/DISTRIBUTION
 
 
 ===============================================================================
-QT BUG?
+QT BUGS?
 ===============================================================================
+
+- Under Android, ScrollMessageBox scrolls with multi-finger gestures but not
+  with single-finger swipes, even though the single-finger gestures work fine
+  elsewhere.
+  See my thoughts in uifunc::applyScrollGestures().
+  See also:
+  - https://forum.qt.io/topic/62385/one-finger-swipe-gestures
+  - https://bugreports.qt.io/browse/QTBUG-40461
 
 - Sometimes there is a delay after clicking on a QuBoolean with an image, like
   the picture-naming in the ACE-III. The delay occurs whether you click the
@@ -64,7 +71,9 @@ QT BUG?
   The delay is in calling AspectRatioPixmap::mousePressEvent, for example.
   Using "#define DEBUG_CLICK_TIMING" shows that the delay is NOT because the
   widget's overridden sizeHint (etc.) code is being called.
-  Not sure that this is a problem in my code.
+  - Not sure that this is a problem in my code.
+  - Not retested recently; other things have also improved performance (e.g.
+    threaded database writes).
 
 ===============================================================================
 MAYBE IN THE FUTURE

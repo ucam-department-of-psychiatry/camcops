@@ -75,6 +75,8 @@ bool nearlyEqual(qreal x, qreal y);
 QVariant mean(const QVector<QVariant>& values, bool ignore_null = false);
 qreal mean(qreal a, qreal b);
 
+int centile(qreal x, qreal minimum, qreal maximum);
+
 // ============================================================================
 // QVariant operations, and QVariant collections
 // ============================================================================

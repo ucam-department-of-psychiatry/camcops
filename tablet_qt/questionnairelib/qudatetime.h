@@ -23,6 +23,7 @@
 #include "quelement.h"
 
 class QDateTimeEdit;
+class QCalendarWidget;
 
 
 class QuDateTime : public QuElement
@@ -65,4 +66,5 @@ protected:
     bool m_offer_null_button;
 
     QPointer<QDateTimeEdit> m_editor;
+    QSharedPointer<QCalendarWidget> m_calendar_widget;
 };

@@ -26,7 +26,7 @@ class QPushButton;
 
 class LogBox : public QDialog
 {
-    // Modal (but non-blocking) dialogue with a textual log window, used for
+    // Modal (but NON-BLOCKING) dialogue with a textual log window, used for
     // displaying progress, e.g. during network operations (see
     // NetworkManager).
     //
@@ -36,7 +36,7 @@ class LogBox : public QDialog
 public:
     LogBox(QWidget* parent, const QString& title, bool offer_cancel = true,
            bool offer_ok_at_end = true, int maximum_block_count = 1000,
-           bool scroll_to_end_on_insert = true);
+           bool scroll_to_end_on_insert = true, bool word_wrap = false);
     ~LogBox();
     void statusMessage(const QString& msg, bool as_html = false);
     void finish(bool success = true);

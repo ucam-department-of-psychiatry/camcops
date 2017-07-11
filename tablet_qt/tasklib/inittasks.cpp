@@ -146,8 +146,8 @@ void InitTasks(TaskFactory& factory)
     initializeCage(factory);
     initializeCape42(factory);
     initializeCaps(factory);
-    initializeCardinalExpDetThreshold(factory); // *** IMPLEMENT!
-    initializeCardinalExpectationDetection(factory); // *** IMPLEMENT!
+    initializeCardinalExpDetThreshold(factory);
+    initializeCardinalExpectationDetection(factory);
     initializeCbiR(factory);
     initializeCecaQ3(factory);
     initializeCgi(factory);

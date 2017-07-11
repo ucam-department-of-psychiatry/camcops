@@ -18,19 +18,28 @@
 */
 
 #pragma once
-#include <QProgressDialog>
+#include <QObject>
+
+class QEvent;
 
 
-// Prototypical use: modal, as per
-// http://doc.qt.io/qt-5.7/qprogressdialog.html#details
-
-class ProgressBox : public QProgressDialog
+class DebugEventWatcher : public QObject
 {
-    // Progress dialogue.
-    // MODAL.
-    // NOT CURRENTLY USED.
-
+    // Object to watch, and debug-log, all mouse/touch events on an object.
     Q_OBJECT
 public:
-    ProgressBox(const QString& label, int n_steps, QWidget* parent);
+    enum EventCategory {  // http://doc.qt.io/qt-5.9/qflags.html#details
+        All = (1 << 0),
+        MouseTouch = (1 << 1),
+    };
+    Q_DECLARE_FLAGS(EventCategories, EventCategory)
+public:
+    explicit DebugEventWatcher(QObject* parent, EventCategories categories);
+    virtual bool eventFilter(QObject* obj, QEvent* event) override;
+private:
+    void report(QObject* obj, QEvent* event) const;
+private:
+    EventCategories m_categories;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(DebugEventWatcher::EventCategories)

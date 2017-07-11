@@ -90,6 +90,17 @@ qreal mean(qreal a, qreal b)
 }
 
 
+int centile(qreal x, qreal minimum, qreal maximum)
+{
+    qreal fraction = (x - minimum) / (maximum - minimum);
+    qreal centile = 100 * fraction;
+    if (!qIsFinite(centile)) {
+        return -1;
+    }
+    return centile;  // truncates to int, which is what we want
+}
+
+
 // ============================================================================
 // QVariant operations, and QVariant collections
 // ============================================================================

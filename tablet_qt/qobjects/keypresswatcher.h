@@ -30,7 +30,7 @@ class KeyPressWatcher : public QObject
 public:
     using CallbackFunction = std::function<void()>;
 public:
-    explicit KeyPressWatcher(QDialog* parent = nullptr);
+    explicit KeyPressWatcher(QDialog* parent);
     virtual bool eventFilter(QObject* obj, QEvent* event) override;
     void addKeyEvent(int key, const CallbackFunction& callback);
 signals:

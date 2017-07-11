@@ -23,6 +23,7 @@
 #include <QMultiMap>
 #include "maths/countingcontainer.h"
 #include "maths/floatbits.h"
+#include "maths/mathfunc.h"
 
 namespace ccrandom {
 
@@ -183,13 +184,13 @@ QStringList testRandom()
             qreal draw_exc = randomRealExcUpper(range_min, range_max);
             exc_min = qMin(exc_min, draw_exc);
             exc_max = qMax(exc_max, draw_exc);
-            int exc_centile = draw_exc * 100;
+            int exc_centile = mathfunc::centile(draw_exc, range_min, range_max);
             exc_centiles.add(exc_centile);
 
             qreal draw_inc = randomRealIncUpper(range_min, range_max);
             inc_min = qMin(inc_min, draw_inc);
             inc_max = qMax(inc_max, draw_inc);
-            int inc_centile = draw_inc * 100;
+            int inc_centile = mathfunc::centile(draw_inc, range_min, range_max);
             inc_centiles.add(inc_centile);
         }
         lines.append(QString("Draw from upper-exclusive range [%1–%2): "

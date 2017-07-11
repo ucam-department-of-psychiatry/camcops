@@ -30,7 +30,7 @@ const int MIN_HEIGHT = 600;
 
 
 LogMessageBox::LogMessageBox(QWidget* parent, const QString& title,
-                             const QString& text, bool as_html) :
+                             const QString& text, bool as_html, bool word_wrap) :
     QDialog(parent)
 {
     setWindowTitle(title);
@@ -42,7 +42,9 @@ LogMessageBox::LogMessageBox(QWidget* parent, const QString& title,
 
     m_editor = new QPlainTextEdit();
     m_editor->setReadOnly(true);
-    m_editor->setLineWrapMode(QPlainTextEdit::NoWrap);
+    m_editor->setTextInteractionFlags(Qt::NoTextInteraction);
+    m_editor->setLineWrapMode(word_wrap ? QPlainTextEdit::WidgetWidth
+                                        : QPlainTextEdit::NoWrap);
     mainlayout->addWidget(m_editor);
     uifunc::applyScrollGestures(m_editor->viewport());
 

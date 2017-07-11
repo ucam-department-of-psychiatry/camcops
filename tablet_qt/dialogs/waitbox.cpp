@@ -20,6 +20,7 @@
 #include "waitbox.h"
 #include <QApplication>
 #include <QDebug>
+#include <QKeyEvent>
 #include <QThread>
 
 /*
@@ -68,8 +69,6 @@
 */
 
 
-
-
 WaitBox::WaitBox(QWidget* parent, const QString& text, const QString& title,
                  int minimum_duration_ms) :
     QProgressDialog(text, "", 0, 0, parent)
@@ -79,8 +78,21 @@ WaitBox::WaitBox(QWidget* parent, const QString& text, const QString& title,
     // qDebug() << Q_FUNC_INFO;
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setWindowTitle(title);
+
+    // Prevent user interaction with what's behind:
     setWindowModality(Qt::WindowModal);
+
+    // Remove the cancel button:
     setCancelButton(nullptr);
+
+    // Prevent the user from closing via the close button:
+    // - https://stackoverflow.com/questions/16920412/qprogressdialog-without-close-button
+    // - PLAY WITH THE QT EXAMPLE in qt5/qtbase/tests/manual/windowflags
+    // - Under Linux/XFCE, it seems that you have to have FramelessWindowHint
+    //   set in order to remove the "close" button.
+    // - Ah, no! You have to have CustomizeWindowHint set to manipulate the
+    //   individual properties. We'd like a title, too.
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     // Without the setMinimumDuration() call, you never see the dialog.
     setMinimumDuration(minimum_duration_ms);
@@ -92,4 +104,13 @@ WaitBox::~WaitBox()
     // qDebug() << Q_FUNC_INFO;
     QApplication::restoreOverrideCursor();
     // qDebug() << Q_FUNC_INFO << "done";
+}
+
+
+void WaitBox::keyPressEvent(QKeyEvent* event)
+{
+    // Ignore the Escape key
+    if (event->key() != Qt::Key_Escape) {
+        QProgressDialog::keyPressEvent(event);
+    }
 }

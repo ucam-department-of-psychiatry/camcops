@@ -31,7 +31,7 @@ const QSize MIN_SIZE(600, 600);
 
 LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
                bool offer_ok_at_end, int maximum_block_count,
-               bool scroll_to_end_on_insert) :
+               bool scroll_to_end_on_insert, bool word_wrap) :
     QDialog(parent),
     m_editor(nullptr),
     m_ok(nullptr),
@@ -51,7 +51,9 @@ LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
     // maximumBlockCount while still allowing HTML (via appendHtml,
     // not insertHtml).
     m_editor->setReadOnly(true);
-    m_editor->setLineWrapMode(QPlainTextEdit::NoWrap);
+    m_editor->setTextInteractionFlags(Qt::NoTextInteraction);
+    m_editor->setLineWrapMode(word_wrap ? QPlainTextEdit::WidgetWidth
+                                        : QPlainTextEdit::NoWrap);
     m_editor->setMaximumBlockCount(maximum_block_count);
     mainlayout->addWidget(m_editor);
     uifunc::applyScrollGestures(m_editor->viewport());

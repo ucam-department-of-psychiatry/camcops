@@ -182,8 +182,6 @@ RESOURCES += \
 
 SOURCES += main.cpp \
     common/appstrings.cpp \
-    core/camcopsapp.cpp \
-    core/camcopsversion.cpp \
     common/cssconst.cpp \
     common/dbconstants.cpp \
     common/globals.cpp \
@@ -191,13 +189,17 @@ SOURCES += main.cpp \
     common/textconst.cpp \
     common/uiconst.cpp \
     common/varconst.cpp \
-    lib/version.cpp \
     common/widgetconst.cpp \
+    core/camcopsapp.cpp \
+    core/camcopsversion.cpp \
+    core/networkmanager.cpp \
     crypto/cryptofunc.cpp \
     crypto/secureqbytearray.cpp \
     crypto/secureqstring.cpp \
     db/ancillaryfunc.cpp \
+    db/databasemanager.cpp \
     db/databaseobject.cpp \
+    db/databaseworkerthread.cpp \
     db/dbfunc.cpp \
     db/dbnestabletransaction.cpp \
     db/dbtransaction.cpp \
@@ -210,12 +212,15 @@ SOURCES += main.cpp \
     dbobjects/patient.cpp \
     dbobjects/patientsorter.cpp \
     dbobjects/storedvar.cpp \
+    db/queryresult.cpp \
     db/sqlargs.cpp \
     db/sqlcachedresult.cpp \
     db/sqlcipherdriver.cpp \
     db/sqlcipherhelpers.cpp \
     db/sqlcipherresult.cpp \
     db/sqlitepragmainfofield.cpp \
+    db/threadedqueryrequest.cpp \
+    db/whereconditions.cpp \
     db/whichdb.cpp \
     diagnosis/diagnosissortfiltermodel.cpp \
     diagnosis/diagnosticcode.cpp \
@@ -233,13 +238,22 @@ SOURCES += main.cpp \
     dialogs/scrollmessagebox.cpp \
     dialogs/soundtestdialog.cpp \
     dialogs/waitbox.cpp \
+    graphics/buttonconfig.cpp \
     graphics/geometry.cpp \
     graphics/graphicsfunc.cpp \
+    graphics/graphicspixmapitemwithopacity.cpp \
     graphics/imagefunc.cpp \
     graphics/linesegment.cpp \
     graphics/paintertranslaterotatecontext.cpp \
     graphics/penbrush.cpp \
-    maths/ccrandom.cpp \
+    graphics/textconfig.cpp \
+    layouts/boxlayouthfw.cpp \
+    layouts/flowlayouthfw.cpp \
+    layouts/gridlayouthfw.cpp \
+    layouts/hboxlayouthfw.cpp \
+    layouts/qtlayouthelpers.cpp \
+    layouts/vboxlayouthfw.cpp \
+    lib/comparers.cpp \
     lib/containers.cpp \
     lib/convert.cpp \
     lib/css.cpp \
@@ -249,20 +263,26 @@ SOURCES += main.cpp \
     lib/flagguard.cpp \
     lib/idpolicy.cpp \
     lib/layoutdumper.cpp \
-    core/networkmanager.cpp \
+    lib/margins.cpp \
     lib/nhs.cpp \
     lib/numericfunc.cpp \
     lib/reentrydepthguard.cpp \
     lib/roman.cpp \
     lib/sizehelpers.cpp \
     lib/slowguiguard.cpp \
-    qobjects/slownonguifunctioncaller.cpp \
+    lib/soundfunc.cpp \
     lib/stringfunc.cpp \
-    qobjects/threadworker.cpp \
+    lib/timerfunc.cpp \
     lib/uifunc.cpp \
+    lib/version.cpp \
+    maths/ccrandom.cpp \
+    maths/countingcontainer.cpp \
+    maths/dqrls.cpp \
     maths/eigenfunc.cpp \
+    maths/endian.cpp \
     maths/glm.cpp \
     maths/linkfunctionfamily.cpp \
+    maths/logisticdescriptives.cpp \
     maths/logisticregression.cpp \
     maths/mathfunc.cpp \
     maths/mlpackfunc.cpp \
@@ -301,17 +321,20 @@ SOURCES += main.cpp \
     menu/testmenu.cpp \
     menu/whiskermenu.cpp \
     menu/widgettestmenu.cpp \
-    lib/comparers.cpp \
+    qobjects/flickcharm.cpp \
     qobjects/focuswatcher.cpp \
     qobjects/keypresswatcher.cpp \
     qobjects/shootabug.cpp \
     qobjects/showwatcher.cpp \
+    qobjects/slownonguifunctioncaller.cpp \
     qobjects/strictdoublevalidator.cpp \
     qobjects/strictint64validator.cpp \
     qobjects/strictintvalidator.cpp \
     qobjects/strictuint64validator.cpp \
     qobjects/stylenofocusrect.cpp \
+    qobjects/threadworker.cpp \
     questionnairelib/commonoptions.cpp \
+    questionnairelib/dynamicquestionnaire.cpp \
     questionnairelib/mcqfunc.cpp \
     questionnairelib/mcqgridsubtitle.cpp \
     questionnairelib/namevalueoptions.cpp \
@@ -461,7 +484,10 @@ SOURCES += main.cpp \
     tasks/ybocssc.cpp \
     tasks/zbi12.cpp \
     taskxtra/cardinalexpdetcommon.cpp \
+    taskxtra/cardinalexpdetrating.cpp \
     taskxtra/cardinalexpdetthresholdtrial.cpp \
+    taskxtra/cardinalexpdettrial.cpp \
+    taskxtra/cardinalexpdettrialgroupspec.cpp \
     taskxtra/diagnosisicd10item.cpp \
     taskxtra/diagnosisicd9cmitem.cpp \
     taskxtra/diagnosisitembase.cpp \
@@ -476,61 +502,35 @@ SOURCES += main.cpp \
     widgets/aspectratiopixmap.cpp \
     widgets/basewidget.cpp \
     widgets/booleanwidget.cpp \
-    layouts/boxlayouthfw.cpp \
     widgets/camera.cpp \
     widgets/canvaswidget.cpp \
     widgets/clickablelabelnowrap.cpp \
     widgets/clickablelabelwordwrapwide.cpp \
     widgets/diagnosticcodeselector.cpp \
     widgets/fixedareahfwtestwidget.cpp \
-    qobjects/flickcharm.cpp \
-    layouts/flowlayouthfw.cpp \
     widgets/graphicsrectitemclickable.cpp \
-    layouts/gridlayouthfw.cpp \
     widgets/growingtextedit.cpp \
-    layouts/hboxlayouthfw.cpp \
     widgets/heightforwidthlistwidget.cpp \
     widgets/horizontalline.cpp \
     widgets/imagebutton.cpp \
     widgets/labelwordwrapwide.cpp \
-    lib/margins.cpp \
     widgets/openablewidget.cpp \
-    layouts/qtlayouthelpers.cpp \
     widgets/screenlikegraphicsview.cpp \
     widgets/spacer.cpp \
     widgets/svgwidgetclickable.cpp \
     widgets/tickslider.cpp \
-    layouts/vboxlayouthfw.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
     widgets/verticalscrollareaviewport.cpp \
-    graphics/textconfig.cpp \
-    graphics/buttonconfig.cpp \
-    graphics/graphicspixmapitemwithopacity.cpp \
-    maths/logisticdescriptives.cpp \
-    taskxtra/cardinalexpdettrialgroupspec.cpp \
-    taskxtra/cardinalexpdettrial.cpp \
-    taskxtra/cardinalexpdetrating.cpp \
-    lib/soundfunc.cpp \
-    lib/timerfunc.cpp \
-    maths/dqrls.cpp \
-    maths/endian.cpp \
-    maths/countingcontainer.cpp \
-    questionnairelib/dynamicquestionnaire.cpp \
-    db/databasemanager.cpp \
-    db/databaseworkerthread.cpp \
-    db/queryresult.cpp \
-    db/whereconditions.cpp \
-    db/threadedqueryrequest.cpp
+    qobjects/debugeventwatcher.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
     common/aliases_qt.h \
     common/appstrings.h \
-    core/camcopsapp.h \
-    core/camcopsversion.h \
     common/cssconst.h \
     common/dbconstants.h \
+    common/design_defines.h \
     common/globals.h \
     common/gui_defines.h \
     common/layouts.h \
@@ -538,14 +538,18 @@ HEADERS += \
     common/textconst.h \
     common/uiconst.h \
     common/varconst.h \
-    lib/version.h \
     common/widgetconst.h \
+    core/camcopsapp.h \
+    core/camcopsversion.h \
+    core/networkmanager.h \
     crypto/cryptofunc.h \
     crypto/secureqbytearray.h \
     crypto/secureqstring.h \
     crypto/zallocator.h \
     db/ancillaryfunc.h \
+    db/databasemanager.h \
     db/databaseobject.h \
+    db/databaseworkerthread.h \
     db/dbfunc.h \
     db/dbnestabletransaction.h \
     db/dbtransaction.h \
@@ -558,12 +562,15 @@ HEADERS += \
     dbobjects/patient.h \
     dbobjects/patientsorter.h \
     dbobjects/storedvar.h \
+    db/queryresult.h \
     db/sqlargs.h \
     db/sqlcachedresult.h \
     db/sqlcipherdriver.h \
     db/sqlcipherhelpers.h \
     db/sqlcipherresult.h \
     db/sqlitepragmainfofield.h \
+    db/threadedqueryrequest.h \
+    db/whereconditions.h \
     db/whichdb.h \
     diagnosis/diagnosissortfiltermodel.h \
     diagnosis/diagnosticcode.h \
@@ -581,14 +588,23 @@ HEADERS += \
     dialogs/scrollmessagebox.h \
     dialogs/soundtestdialog.h \
     dialogs/waitbox.h \
+    graphics/buttonconfig.h \
     graphics/geometry.h \
     graphics/graphicsfunc.h \
+    graphics/graphicspixmapitemwithopacity.h \
     graphics/imagefunc.h \
     graphics/linesegment.h \
     graphics/paintertranslaterotatecontext.h \
     graphics/penbrush.h \
-    maths/ccrandom.h \
+    graphics/textconfig.h \
+    layouts/boxlayouthfw.h \
+    layouts/flowlayouthfw.h \
+    layouts/gridlayouthfw.h \
+    layouts/hboxlayouthfw.h \
+    layouts/qtlayouthelpers.h \
+    layouts/vboxlayouthfw.h \
     lib/cloneable.h \
+    lib/comparers.h \
     lib/containers.h \
     lib/convert.h \
     lib/css.h \
@@ -598,20 +614,28 @@ HEADERS += \
     lib/flagguard.h \
     lib/idpolicy.h \
     lib/layoutdumper.h \
-    core/networkmanager.h \
+    lib/margins.h \
     lib/nhs.h \
     lib/numericfunc.h \
     lib/reentrydepthguard.h \
     lib/roman.h \
     lib/sizehelpers.h \
     lib/slowguiguard.h \
-    qobjects/slownonguifunctioncaller.h \
+    lib/soundfunc.h \
     lib/stringfunc.h \
-    qobjects/threadworker.h \
+    lib/timerfunc.h \
     lib/uifunc.h \
+    lib/version.h \
+    maths/ccrandom.h \
+    maths/countingcontainer.h \
+    maths/dqrls.h \
     maths/eigenfunc.h \
+    maths/endian.h \
+    maths/floatbits.h \
     maths/glm.h \
+    maths/ieee754.h \
     maths/linkfunctionfamily.h \
+    maths/logisticdescriptives.h \
     maths/logisticregression.h \
     maths/mathfunc.h \
     maths/mlpackfunc.h \
@@ -651,17 +675,20 @@ HEADERS += \
     menu/testmenu.h \
     menu/whiskermenu.h \
     menu/widgettestmenu.h \
-    lib/comparers.h \
+    qobjects/flickcharm.h \
     qobjects/focuswatcher.h \
     qobjects/keypresswatcher.h \
     qobjects/shootabug.h \
     qobjects/showwatcher.h \
+    qobjects/slownonguifunctioncaller.h \
     qobjects/strictdoublevalidator.h \
     qobjects/strictint64validator.h \
     qobjects/strictintvalidator.h \
     qobjects/strictuint64validator.h \
     qobjects/stylenofocusrect.h \
+    qobjects/threadworker.h \
     questionnairelib/commonoptions.h \
+    questionnairelib/dynamicquestionnaire.h \
     questionnairelib/mcqfunc.h \
     questionnairelib/mcqgridsubtitle.h \
     questionnairelib/namevalueoptions.h \
@@ -811,7 +838,10 @@ HEADERS += \
     tasks/ybocssc.h \
     tasks/zbi12.h \
     taskxtra/cardinalexpdetcommon.h \
+    taskxtra/cardinalexpdetrating.h \
     taskxtra/cardinalexpdetthresholdtrial.h \
+    taskxtra/cardinalexpdettrialgroupspec.h \
+    taskxtra/cardinalexpdettrial.h \
     taskxtra/diagnosisicd10item.h \
     taskxtra/diagnosisicd9cmitem.h \
     taskxtra/diagnosisitembase.h \
@@ -826,55 +856,27 @@ HEADERS += \
     widgets/aspectratiopixmap.h \
     widgets/basewidget.h \
     widgets/booleanwidget.h \
-    layouts/boxlayouthfw.h \
     widgets/camera.h \
     widgets/canvaswidget.h \
     widgets/clickablelabelnowrap.h \
     widgets/clickablelabelwordwrapwide.h \
     widgets/diagnosticcodeselector.h \
     widgets/fixedareahfwtestwidget.h \
-    qobjects/flickcharm.h \
-    layouts/flowlayouthfw.h \
     widgets/graphicsrectitemclickable.h \
-    layouts/gridlayouthfw.h \
     widgets/growingtextedit.h \
-    layouts/hboxlayouthfw.h \
     widgets/heightforwidthlistwidget.h \
     widgets/horizontalline.h \
     widgets/imagebutton.h \
     widgets/labelwordwrapwide.h \
-    lib/margins.h \
     widgets/openablewidget.h \
-    layouts/qtlayouthelpers.h \
     widgets/screenlikegraphicsview.h \
     widgets/spacer.h \
     widgets/svgwidgetclickable.h \
     widgets/tickslider.h \
-    layouts/vboxlayouthfw.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
     widgets/verticalscrollareaviewport.h \
-    graphics/textconfig.h \
-    graphics/buttonconfig.h \
-    graphics/graphicspixmapitemwithopacity.h \
-    maths/logisticdescriptives.h \
-    taskxtra/cardinalexpdettrialgroupspec.h \
-    taskxtra/cardinalexpdettrial.h \
-    taskxtra/cardinalexpdetrating.h \
-    lib/soundfunc.h \
-    lib/timerfunc.h \
-    maths/dqrls.h \
-    maths/floatbits.h \
-    maths/ieee754.h \
-    maths/endian.h \
-    maths/countingcontainer.h \
-    questionnairelib/dynamicquestionnaire.h \
-    db/databasemanager.h \
-    db/databaseworkerthread.h \
-    db/queryresult.h \
-    db/whereconditions.h \
-    db/threadedqueryrequest.h \
-    common/design_defines.h
+    qobjects/debugeventwatcher.h
 
 DISTFILES += \
     android/AndroidManifest.xml \
@@ -909,6 +911,10 @@ DISTFILES += \
     images/dt/dt_unsel_9.png \
     LICENSE.txt \
     notes/coding_conventions.txt \
+    notes/compilation_android.txt \
+    notes/compilation_linux.txt \
+    notes/compilation_windows.txt \
+    notes/database_performance.txt \
     notes/known_problems.txt \
     notes/layout_notes.txt \
     notes/overall_design.txt \
@@ -923,8 +929,4 @@ DISTFILES += \
     tools/build_qt.py \
     tools/chord.py \
     tools/cppclean_all.sh \
-    tools/decrypt_sqlcipher.py \
-    notes/compilation_android.txt \
-    notes/compilation_linux.txt \
-    notes/database_performance.txt \
-    notes/compilation_windows.txt
+    tools/decrypt_sqlcipher.py

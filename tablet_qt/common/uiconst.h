@@ -18,6 +18,7 @@
 */
 
 #pragma once
+#include <QAbstractSpinBox>
 #include <QColor>
 #include <QMargins>
 #include <QSize>
@@ -42,6 +43,8 @@ extern const int MCQGRID_VSPACING;
 extern const int MCQGRID_HSPACING;
 extern const int DEFAULT_COLSPAN_Q;
 extern const int DEFAULT_COLSPAN_A;
+extern const int MIN_SPINBOX_HEIGHT;
+extern const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS;
 
 extern const QMargins NO_MARGINS;
 

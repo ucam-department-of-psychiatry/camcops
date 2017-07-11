@@ -26,6 +26,7 @@ class PagePickerDialog : public QDialog
 {
     // Choose pages for a Questionnaire.
     // Displays pages that you may be unable to choose, as well.
+    // MODAL and BLOCKING.
 
     Q_OBJECT
 
