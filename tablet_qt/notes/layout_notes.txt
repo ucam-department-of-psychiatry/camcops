@@ -476,3 +476,28 @@ See also
 - http://stackoverflow.com/questions/452333/how-to-maintain-widgets-aspect-ratio-in-qt/1160476#1160476
 - http://thread.gmane.org/gmane.comp.lib.qt.general/18281
 
+
+===============================================================================
+July 2017: questionnaire overflowing to right on small phone screens
+===============================================================================
+
+- very hard to work out!
+- the window containing a questionnaire wouldn't shrink properly in the
+  DemoQuestionnaire, but would do so from the widget test screen
+- turns out the problem is (I think) in QStacketLayout::minimumSize(), which
+  asks *all the invisible widgets* for their minimum sizes; so the proximal
+  cause was that the DemoQuestionnaire screen selection window (SingleTaskMenu),
+  which has lots of edit buttons, was constraining the subsequent opened
+  Questionnaire itself to be too wide.
+- Potential solutions:
+    - write a replacement for QStackedLayout +/- QStackedWidget
+      ... not too hard as minimumSize() is virtual and we have our own public
+          implementation of qSmartMinSize()
+      ... use an alternative stack, e.g.
+            - internal non-display stack of "off-screen" stuff
+            - CamcopsApp uses QMainWindow::setCentralWidget()
+            - the tricky part is then ownership; the QMainWindow takes
+              ownership when setCentralWidget is used.
+      ... use current QStackedLayout but also maintain a hidden stack
+      An advantage of not just altering QStackedLayout is potentially some
+      efficiency, if QStackedLayout keeps asking invisible children stuff.

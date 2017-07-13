@@ -19,8 +19,8 @@
 
 #include "qupage.h"
 #include <QWidget>
-#include "common/layouts.h"
 #include "db/fieldref.h"
+#include "layouts/layouts.h"
 #include "widgets/basewidget.h"
 
 

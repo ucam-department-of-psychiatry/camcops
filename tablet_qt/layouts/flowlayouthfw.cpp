@@ -51,13 +51,10 @@
 // #define DEBUG_LAYOUT
 
 #include "flowlayouthfw.h"
+#include <QDebug>
 #include <QtWidgets>
-#include "lib/margins.h"
-
-#ifdef DEBUG_LAYOUT
-#include <QDebug>  // RNC
 #include "lib/layoutdumper.h"
-#endif
+#include "lib/margins.h"
 
 
 FlowLayoutHfw::FlowLayoutHfw(QWidget* parent, int margin,

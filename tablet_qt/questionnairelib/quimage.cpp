@@ -18,6 +18,7 @@
 */
 
 #include "quimage.h"
+#include "lib/convert.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/aspectratiopixmap.h"
@@ -26,23 +27,36 @@
 QuImage::QuImage(const QString& filename, const QSize& size) :
     m_filename(filename),
     m_fieldref(nullptr),
-    m_label(nullptr),
-    m_size(size),
-    m_allow_shrink(true)
+    m_size(size)
 {
+    commonConstructor();
 }
 
 
 QuImage::QuImage(FieldRefPtr fieldref, const QSize& size) :
     m_filename(""),
     m_fieldref(fieldref),
-    m_label(nullptr),
-    m_size(size),
-    m_allow_shrink(true)
+    m_size(size)
 {
     Q_ASSERT(m_fieldref);
+    commonConstructor();
     connect(m_fieldref.data(), &FieldRef::valueChanged,
             this, &QuImage::valueChanged);
+}
+
+
+void QuImage::commonConstructor()
+{
+    m_label = nullptr;
+    m_adjust_for_dpi = true;
+    m_allow_shrink = true;
+}
+
+
+QuImage* QuImage::setAdjustForDpi(bool adjust_for_dpi)
+{
+    m_adjust_for_dpi = adjust_for_dpi;
+    return this;
 }
 
 
@@ -72,8 +86,11 @@ QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
     } else {
         image = uifunc::getPixmap(m_filename);
     }
-    if (m_size.isValid()) {
-        image = image.scaled(m_size);
+    QSize size = m_adjust_for_dpi
+            ? convert::convertSizeByDpi(m_size, uiconst::DPI, uiconst::DEFAULT_DPI)
+            : m_size;
+    if (size.isValid()) {
+        image = image.scaled(size);
     }
 
     // Create widget

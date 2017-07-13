@@ -19,7 +19,7 @@
 
 #pragma once
 #include "db/fieldref.h"
-#include "quelement.h"
+#include "questionnairelib/quelement.h"
 
 class AspectRatioPixmap;
 
@@ -35,16 +35,19 @@ public:
     QuImage(FieldRefPtr fieldref, const QSize& size = QSize());
     // ... field provides raw image data
     // The default value of size takes the image's own size.
+    QuImage* setAdjustForDpi(bool adjust_for_dpi);  // default is true
     QuImage* setSize(const QSize& size);
     QuImage* setAllowShrink(bool allow_shrink);
 protected slots:
     void valueChanged(const FieldRef* fieldref);
 protected:
+    void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 protected:
     QString m_filename;
     FieldRefPtr m_fieldref;
     QPointer<AspectRatioPixmap> m_label;
     QSize m_size;
+    bool m_adjust_for_dpi;
     bool m_allow_shrink;
 };

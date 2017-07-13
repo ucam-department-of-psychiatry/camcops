@@ -28,9 +28,9 @@
 #include <QUrl>
 #include "core/camcopsapp.h"
 #include "common/cssconst.h"
-#include "common/layouts.h"
 #include "common/uiconst.h"
 #include "dbobjects/patient.h"
+#include "layouts/layouts.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"  // for SHORT_DATETIME_FORMAT
 #include "lib/idpolicy.h"

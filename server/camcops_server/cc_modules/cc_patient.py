@@ -37,6 +37,9 @@ from .cc_constants import (
     ACTION,
     DATEFORMAT,
     ERA_NOW,
+    FP_ID_DESC,
+    FP_ID_NUM,
+    FP_ID_SHORT_DESC,
     NUMBER_OF_IDNUMS,
     PARAM,
     STANDARD_GENERIC_FIELDSPECS,
@@ -95,17 +98,17 @@ class Patient:
     ]
     for n in range(1, NUMBER_OF_IDNUMS + 1):
         nstr = str(n)
-        FIELDSPECS.append(dict(name="idnum" + nstr,
+        FIELDSPECS.append(dict(name=FP_ID_NUM + nstr,
                                cctype="BIGINT_UNSIGNED",
                                indexed=True,
                                comment="ID number " + nstr,
                                cris_include=True))
-        FIELDSPECS.append(dict(name="iddesc" + nstr,
+        FIELDSPECS.append(dict(name=FP_ID_DESC + nstr,
                                cctype="IDDESCRIPTOR",
                                comment="ID description " + nstr,
                                anon=True,
                                cris_include=True))
-        FIELDSPECS.append(dict(name="idshortdesc" + nstr,
+        FIELDSPECS.append(dict(name=FP_ID_SHORT_DESC + nstr,
                                cctype="IDDESCRIPTOR",
                                comment="ID short description " + nstr,
                                anon=True,
@@ -370,7 +373,7 @@ class Patient:
         if idnum < 1 or idnum > NUMBER_OF_IDNUMS:
             return None
         nstr = str(idnum)
-        return getattr(self, "idnum" + nstr)
+        return getattr(self, FP_ID_NUM + nstr)
 
     def get_iddesc(self, n: int) -> Optional[str]:
         """Get value of a specific ID description.
@@ -380,7 +383,7 @@ class Patient:
         """
         if n < 1 or n > NUMBER_OF_IDNUMS:
             return None
-        return getattr(self, "iddesc" + str(n))
+        return getattr(self, FP_ID_DESC + str(n))
 
     def get_idshortdesc(self, n: int) -> Optional[str]:
         """Get value of a specific ID short description.
@@ -390,7 +393,7 @@ class Patient:
         """
         if n < 1 or n > NUMBER_OF_IDNUMS:
             return None
-        return getattr(self, "idshortdesc" + str(n))
+        return getattr(self, FP_ID_SHORT_DESC + str(n))
 
     # @staticmethod
     # def get_id_generic(longform: bool,
@@ -537,10 +540,10 @@ class Patient:
         nstr = str(n)  # which ID number?
         return self.get_id_generic(
             longform,
-            getattr(self, "idnum" + nstr),
+            getattr(self, FP_ID_NUM + nstr),
             pls.get_id_desc(n),
             pls.get_id_shortdesc(n),
-            "idnum" + nstr,
+            FP_ID_NUM + nstr,
             label_id_numbers
         )
 

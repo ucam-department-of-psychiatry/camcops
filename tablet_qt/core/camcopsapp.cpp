@@ -36,6 +36,7 @@
 #include <QMessageBox>
 #include <QProcessEnvironment>
 #include <QPushButton>
+#include <QScreen>
 #include <QSqlDatabase>
 #include <QSqlDriverCreator>
 #include <QStackedWidget>
@@ -46,6 +47,7 @@
 #include "common/dbconstants.h"  // for NONEXISTENT_PK
 #include "common/design_defines.h"
 #include "common/textconst.h"
+#include "common/uiconst.h"
 #include "common/varconst.h"
 #include "core/camcopsversion.h"
 #include "core/networkmanager.h"
@@ -62,6 +64,7 @@
 #include "dbobjects/patientsorter.h"
 #include "dbobjects/storedvar.h"
 #include "dialogs/scrollmessagebox.h"
+#include "layouts/layouts.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"
 #include "lib/filefunc.h"
@@ -97,8 +100,10 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_whisker_connected(false),
     m_p_main_window(nullptr),
     m_p_window_stack(nullptr),
+    m_p_hidden_stack(nullptr),
     m_patient(nullptr),
-    m_netmgr(nullptr)
+    m_netmgr(nullptr),
+    m_dpi(uiconst::DEFAULT_DPI)
 {
 #ifdef DEBUG_ALL_APPLICATION_EVENTS
     new DebugEventWatcher(this, DebugEventWatcher::All);
@@ -133,7 +138,7 @@ int CamcopsApp::run()
     convert::registerQVectorTypesForQVariant();
 
     // Set window icon
-    initGuiOneWindowIcon();
+    initGuiOne();
 
     // Connect to our database
     registerDatabaseDrivers();
@@ -706,12 +711,42 @@ void CamcopsApp::makeTaskTables()
 }
 
 
-void CamcopsApp::initGuiOneWindowIcon()
+void CamcopsApp::initGuiOne()
 {
     // Qt stuff: before storedvars accessible
 
     // Special for top-level window:
     setWindowIcon(QIcon(uifunc::iconFilename(uiconst::ICON_CAMCOPS)));
+
+    QList<QScreen*> all_screens = screens();
+    if (all_screens.isEmpty()) {
+        m_dpi = uiconst::DEFAULT_DPI;
+    } else {
+        QScreen* screen = all_screens.at(0);
+        m_dpi = screen->logicalDotsPerInch();
+    }
+
+    // This is slightly nasty, but it saves a great deal of things referring
+    // to the CamcopsApp that otherwise wouldn't need to.
+    qInfo() << "Resizing icons for" << m_dpi << "dpi display";
+    uiconst::DPI = m_dpi;
+
+    auto cvSize = [this](const QSize& size) -> QSize {
+        return convert::convertSizeByDpi(size, m_dpi, uiconst::DEFAULT_DPI);
+    };
+    auto cvLength = [this](int length) -> int {
+        return convert::convertLengthByDpi(length, m_dpi, uiconst::DEFAULT_DPI);
+    };
+
+    uiconst::ICONSIZE = cvSize(uiconst::ICONSIZE_FOR_DEFAULT_DPI);
+    uiconst::SMALL_ICONSIZE = cvSize(uiconst::SMALL_ICONSIZE_FOR_DEFAULT_DPI);
+    uiconst::MIN_SPINBOX_HEIGHT = cvLength(uiconst::MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI);
+}
+
+
+qreal CamcopsApp::dotsPerInch() const
+{
+    return m_dpi;
 }
 
 
@@ -727,7 +762,15 @@ void CamcopsApp::openMainWindow()
     m_p_main_window = new QMainWindow();
     m_p_main_window->showMaximized();
     m_p_window_stack = new QStackedWidget(m_p_main_window);
+    m_p_hidden_stack = QSharedPointer<QStackedWidget>(new QStackedWidget());
+#if 0  // doesn't work
+    // We want to stay height-for-width all the way to the top:
+    VBoxLayout* master_layout = new VBoxLayout();
+    m_p_main_window->setLayout(master_layout);
+    master_layout->addWidget(m_p_window_stack);
+#else
     m_p_main_window->setCentralWidget(m_p_window_stack);
+#endif
 
     MainMenu* menu = new MainMenu(*this);
     open(menu);
@@ -794,17 +837,43 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
 #ifdef DEBUG_SCREEN_STACK
     qDebug() << Q_FUNC_INFO << "Pushing screen";
 #endif
+
+    // ------------------------------------------------------------------------
+    // Transfer any visible items (should be 0 or 1!) to hidden stack
+    // ------------------------------------------------------------------------
+    while (m_p_window_stack->count() > 0) {
+        QWidget* w = m_p_window_stack->widget(m_p_window_stack->count() - 1);
+        if (w) {
+            m_p_window_stack->removeWidget(w);  // m_p_window_stack still owns w
+            m_p_hidden_stack->addWidget(w);  // m_p_hidden_stack now owns w
+        }
+    }
+
+
+    // ------------------------------------------------------------------------
+    // Add new thing to visible (one-item) "stack"
+    // ------------------------------------------------------------------------
     int index = m_p_window_stack->addWidget(widget);  // will show the widget
     // The stack takes over ownership.
+
+    // ------------------------------------------------------------------------
+    // Build, if the OpenableWidget wants to be built
+    // ------------------------------------------------------------------------
     // qDebug() << Q_FUNC_INFO << "About to build";
     widget->build();
     // qDebug() << Q_FUNC_INFO << "Build complete, about to show";
+
+    // ------------------------------------------------------------------------
+    // Make it visible; set the fullscreen state
+    // ------------------------------------------------------------------------
     m_p_window_stack->setCurrentIndex(index);
     if (widget->wantsFullscreen()) {
         enterFullscreen();
     }
 
-    // 3. Signals
+    // ------------------------------------------------------------------------
+    // Signals
+    // ------------------------------------------------------------------------
     connect(widget, &OpenableWidget::enterFullscreen,
             this, &CamcopsApp::enterFullscreen);
     connect(widget, &OpenableWidget::leaveFullscreen,
@@ -812,6 +881,9 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
     connect(widget, &OpenableWidget::finished,
             this, &CamcopsApp::close);
 
+    // ------------------------------------------------------------------------
+    // Save information and manage ownership of associated things
+    // ------------------------------------------------------------------------
     m_info_stack.push(OpenableInfo(guarded_widget, task, prev_window_state,
                                    may_alter_task, patient));
     // This stores a QSharedPointer to the task (if supplied), so keeping that
@@ -822,28 +894,67 @@ void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
 
 void CamcopsApp::close()
 {
+    // ------------------------------------------------------------------------
+    // All done?
+    // ------------------------------------------------------------------------
     if (m_info_stack.isEmpty()) {
         uifunc::stopApp("CamcopsApp::close: No more windows; closing");
     }
+
+    // ------------------------------------------------------------------------
+    // Get saved info (and, at the end of this function, release ownerships)
+    // ------------------------------------------------------------------------
     OpenableInfo info = m_info_stack.pop();
     // on function exit, will delete the task if it's the last pointer to it
     // (... and similarly any patient)
 
+    // ------------------------------------------------------------------------
+    // Get rid of the widget that's closing from the visible stack
+    // ------------------------------------------------------------------------
     QWidget* top = m_p_window_stack->currentWidget();
 #ifdef DEBUG_SCREEN_STACK
     qDebug() << Q_FUNC_INFO << "Popping screen";
 #endif
     m_p_window_stack->removeWidget(top);
     // Ownership is returned to the application, so...
+    // - AH, NO. OWNERSHIP IS CONFUSING AND THE DOCS ARE DIFFERENT IN QT 4.8
+    //   AND 5.9
+    // - From http://doc.qt.io/qt-4.8/qstackedwidget.html#removeWidget :
+    //      Removes widget from the QStackedWidget. i.e., widget is not deleted
+    //      but simply removed from the stacked layout, causing it to be hidden.
+    //      Note: Ownership of widget reverts to the application.
+    // - From http://doc.qt.io/qt-5/qstackedwidget.html#removeWidget :
+    //      Removes widget from the QStackedWidget. i.e., widget is not deleted
+    //      but simply removed from the stacked layout, causing it to be hidden.
+    //      Note: Parent object and parent widget of widget will remain the
+    //      QStackedWidget. If the application wants to reuse the removed
+    //      widget, then it is recommended to re-parent it.
+    // - Also:
+    //   https://stackoverflow.com/questions/2506625/how-to-delete-a-widget-from-a-stacked-widget-in-qt
+    // But this should work regardless:
     top->deleteLater();  // later, in case it was this object that called us
 
+    // ------------------------------------------------------------------------
+    // Restore the widget from the top of the hidden stack
+    // ------------------------------------------------------------------------
+    Q_ASSERT(m_p_hidden_stack->count() > 0);  // the m_info_stack.isEmpty() check should exclude this
+    QWidget* w = m_p_hidden_stack->widget(m_p_hidden_stack->count() - 1);
+    m_p_hidden_stack->removeWidget(w);  // m_p_hidden_stack still owns w
+    int index = m_p_window_stack->addWidget(w);  // m_p_window_stack now owns w
+    m_p_window_stack->setCurrentIndex(index);
+
+    // ------------------------------------------------------------------------
+    // Restore fullscreen state
+    // ------------------------------------------------------------------------
     m_p_main_window->setWindowState(info.prev_window_state);
 
+    // ------------------------------------------------------------------------
+    // Update objects that care as to changes that may have been wrought
+    // ------------------------------------------------------------------------
     if (info.may_alter_task) {
 #ifdef DEBUG_EMIT
         qDebug() << Q_FUNC_INFO << "Emitting taskAlterationFinished";
 #endif
-
         emit taskAlterationFinished(info.task);
 
         if (varBool(varconst::OFFER_UPLOAD_AFTER_EDIT) &&
@@ -1581,11 +1692,9 @@ void CamcopsApp::offerTerms()
                             tr("View terms and conditions of use"),
                             textconst::TERMS_CONDITIONS,
                             m_p_main_window);
-    QAbstractButton* yes = msgbox.addButton(
-                tr("I AGREE to these terms and conditions"),
-                QMessageBox::YesRole);
-    msgbox.addButton(tr("I DO NOT AGREE to these terms and conditions"),
-                     QMessageBox::NoRole);
+    // Keep agree/disagree message short, for phones:
+    QAbstractButton* yes = msgbox.addButton(tr("I AGREE"), QMessageBox::YesRole);
+    msgbox.addButton(tr("I DO NOT AGREE"), QMessageBox::NoRole);
     // It's hard work to remove the Close button from the dialog, but that is
     // interpreted as rejection, so that's OK.
     // - http://www.qtcentre.org/threads/41269-disable-close-button-in-QMessageBox

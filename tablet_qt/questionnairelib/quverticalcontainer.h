@@ -18,7 +18,7 @@
 */
 
 #pragma once
-#include "quelement.h"
+#include "questionnairelib/quelement.h"
 
 
 class QuVerticalContainer : public QuElement

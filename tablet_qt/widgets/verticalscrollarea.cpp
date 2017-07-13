@@ -42,8 +42,8 @@
 #include <QLayout>
 #include <QScrollBar>
 #include <QScroller>
-#include "common/layouts.h"
 #include "common/widgetconst.h"
+#include "layouts/layouts.h"
 #include "lib/layoutdumper.h"
 #include "lib/margins.h"
 #include "lib/reentrydepthguard.h"

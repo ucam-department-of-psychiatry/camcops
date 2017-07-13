@@ -136,7 +136,7 @@ public:
     };
 
 public:
-    explicit BoxLayoutHfw(Direction, QWidget *parent = Q_NULLPTR);
+    explicit BoxLayoutHfw(Direction, QWidget* parent = nullptr);
 
     ~BoxLayoutHfw();
 

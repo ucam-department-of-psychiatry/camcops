@@ -26,8 +26,12 @@ namespace uiconst {
 // Sizes
 // ============================================================================
 
-const QSize ICONSIZE(48, 48);
-const QSize SMALL_ICONSIZE(24, 24);
+const qreal DEFAULT_DPI = 96;  // standard for monitors
+qreal DPI = DEFAULT_DPI;
+const QSize ICONSIZE_FOR_DEFAULT_DPI(48, 48);
+const QSize SMALL_ICONSIZE_FOR_DEFAULT_DPI(48, 48);
+QSize ICONSIZE = ICONSIZE_FOR_DEFAULT_DPI;
+QSize SMALL_ICONSIZE = SMALL_ICONSIZE_FOR_DEFAULT_DPI;
 const int SPACE = 4;
 const int BIGSPACE = 16;
 const int MEDIUMSPACE = 8;
@@ -38,7 +42,8 @@ const int MCQGRID_VSPACING = 5;
 const int MCQGRID_HSPACING = 5;
 const int DEFAULT_COLSPAN_Q = 1;
 const int DEFAULT_COLSPAN_A = 2;
-const int MIN_SPINBOX_HEIGHT = 48;
+const int MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI = 48;
+int MIN_SPINBOX_HEIGHT = MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI;
 const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS = QAbstractSpinBox::UpDownArrows;
         // QAbstractSpinBox::PlusMinus works but vertically stretched "+"
         // QAbstractSpinBox::UpDownArrows -- just looks blank on Linux and Android

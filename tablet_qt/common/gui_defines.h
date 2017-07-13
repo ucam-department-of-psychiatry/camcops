@@ -47,7 +47,7 @@ and (2) GUI_USE_HFW_LAYOUT
 Files that make up a complete set of classes:
 
     common/gui_defines.h    - this master switch, for testing
-    common/layouts.h        - choose Qt or custom layouts via master switch;
+    layouts/layouts.h        - choose Qt or custom layouts via master switch;
                               refer to them as VBoxLayout, HBoxLayout, etc.
                               and this file will choose the actual
                               implementation (*)

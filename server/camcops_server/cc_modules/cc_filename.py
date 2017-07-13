@@ -28,7 +28,12 @@ from typing import List, Optional, Union
 
 from . import cc_dt
 from . import cc_lang
-from .cc_constants import DATEFORMAT, NUMBER_OF_IDNUMS
+from .cc_constants import (
+    DATEFORMAT,
+    FP_ID_NUM,
+    FP_ID_SHORT_DESC,
+    NUMBER_OF_IDNUMS,
+)
 
 
 # =============================================================================
@@ -46,8 +51,8 @@ def patient_spec_for_filename_is_valid(patient_spec: str) -> bool:
     )
     for n in range(1, NUMBER_OF_IDNUMS + 1):
         nstr = str(n)
-        testdict["idshortdesc"+nstr] = "idshortdesc"+nstr
-        testdict["idnum"+nstr] = "idnum"+nstr
+        testdict[FP_ID_SHORT_DESC + nstr] = FP_ID_SHORT_DESC + nstr
+        testdict[FP_ID_NUM + nstr] = FP_ID_NUM + nstr
     # noinspection PyBroadException
     try:
         # Legal substitutions only?
@@ -77,8 +82,8 @@ def filename_spec_is_valid(filename_spec: str) -> bool:
     )
     for n in range(1, NUMBER_OF_IDNUMS + 1):
         nstr = str(n)
-        testdict["idshortdesc"+nstr] = "idshortdesc"+nstr
-        testdict["idnum"+nstr] = "idnum"+nstr
+        testdict[FP_ID_SHORT_DESC + nstr] = FP_ID_SHORT_DESC + nstr
+        testdict[FP_ID_NUM + nstr] = FP_ID_NUM + nstr
     # noinspection PyBroadException
     try:
         # Legal substitutions only?
@@ -122,8 +127,9 @@ def get_export_filename(patient_spec_if_anonymous: str,
         nstr = str(n)
         has_num = idnums[i] is not None
         has_desc = bool(idshortdescs[i])
-        d["idshortdesc"+nstr] = idshortdescs[i] if has_num and has_desc else ""
-        d["idnum"+nstr] = str(idnums[i]) if has_num else ""
+        d[FP_ID_SHORT_DESC + nstr] = (idshortdescs[i]
+                                      if has_num and has_desc else "")
+        d[FP_ID_NUM + nstr] = str(idnums[i]) if has_num else ""
         if has_num and has_desc:
             all_id_components.append(idshortdescs[i] + "-" + str(idnums[i]))
     d["allidnums"] = "_".join(all_id_components)

@@ -37,11 +37,11 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 #include "common/cssconst.h"
-#include "common/layouts.h"
 #include "common/uiconst.h"
 #include "diagnosis/diagnosticcodeset.h"
 #include "diagnosis/diagnosissortfiltermodel.h"
 #include "diagnosis/flatproxymodel.h"
+#include "layouts/layouts.h"
 #include "lib/layoutdumper.h"
 #include "lib/uifunc.h"
 #include "widgets/basewidget.h"

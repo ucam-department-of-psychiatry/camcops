@@ -23,6 +23,7 @@
 #include <QLabel>
 #include <QTimer>
 #include "common/uiconst.h"
+#include "lib/convert.h"
 #include "lib/timerfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -62,6 +63,7 @@ QuCanvas::QuCanvas(FieldRefPtr fieldref, const QString& template_filename,
 void QuCanvas::commonConstructor()
 {
     Q_ASSERT(m_fieldref);
+    m_adjust_for_dpi = true;
     m_border_width_px = 2;
     m_border_colour = uiconst::GREY_200;
     m_unused_space_colour = uiconst::TRANSPARENT;
@@ -78,6 +80,13 @@ void QuCanvas::commonConstructor()
             this, &QuCanvas::fieldValueChanged);
     connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
             this, &QuCanvas::fieldValueChanged);
+}
+
+
+QuCanvas* QuCanvas::setAdjustForDpi(bool adjust_for_dpi)
+{
+    m_adjust_for_dpi = adjust_for_dpi;
+    return this;
 }
 
 
@@ -270,9 +279,12 @@ void QuCanvas::resetWidget()
     QImage img;
     bool make_duff_image = !m_using_template;
     bool use_source_image_size = true;
+    QSize size = m_adjust_for_dpi
+            ? convert::convertSizeByDpi(m_size, uiconst::DPI, uiconst::DEFAULT_DPI)
+            : m_size;
     if (m_using_template) {
         if (img.load(m_template_filename)) {  // side effect!
-            use_source_image_size = !m_size.isValid();
+            use_source_image_size = !size.isValid();
         } else {
             // Failed to load
             qWarning() << Q_FUNC_INFO << "- failed to load:"
@@ -281,12 +293,13 @@ void QuCanvas::resetWidget()
         }
     }
     if (make_duff_image) {
-        img = QImage(m_size, m_format);
+        img = QImage(size, m_format);
         img.fill(m_background_colour);
     }
-    m_canvas->setImage(img, use_source_image_size);
-    if (!use_source_image_size) {
-        m_canvas->setSize(m_size);
+    bool resize = !use_source_image_size || m_adjust_for_dpi;
+    m_canvas->setImage(img, !resize);  // if we're going to resize, don't do it twice/wrong
+    if (resize) {
+        m_canvas->setSize(size);
     }
 }
 

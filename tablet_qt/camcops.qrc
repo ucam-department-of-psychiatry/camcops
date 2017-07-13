@@ -76,7 +76,6 @@
         <file>taskinfo/cape.html</file>
         <file>taskinfo/caps.html</file>
         <file>taskinfo/cardinal_expdetthreshold.html</file>
-        <file>taskinfo/catatoniaexam.html</file>
         <file>taskinfo/cbir.html</file>
         <file>taskinfo/cecaq3.html</file>
         <file>taskinfo/cgi.html</file>
@@ -217,5 +216,31 @@
         <file>resources/camcops/images/spanner.png</file>
         <file>resources/camcops/images/treeview.png</file>
         <file>resources/camcops/images/magnify.png</file>
+        <file>resources/camcops/camera_qml/camera.qml</file>
+        <file>resources/camcops/camera_qml/test_animation.qml</file>
+        <file>resources/camcops/camera_qml/CameraButton.qml</file>
+        <file>resources/camcops/camera_qml/CameraListButton.qml</file>
+        <file>resources/camcops/camera_qml/CameraListPopup.qml</file>
+        <file>resources/camcops/camera_qml/CameraPropertyButton.qml</file>
+        <file>resources/camcops/camera_qml/CameraPropertyPopup.qml</file>
+        <file>resources/camcops/camera_qml/FocusButton.qml</file>
+        <file>resources/camcops/camera_qml/PhotoCaptureControls.qml</file>
+        <file>resources/camcops/camera_qml/PhotoPreview.qml</file>
+        <file>resources/camcops/camera_qml/Popup.qml</file>
+        <file>resources/camcops/camera_qml/VideoCaptureControls.qml</file>
+        <file>resources/camcops/camera_qml/VideoPreview.qml</file>
+        <file>resources/camcops/camera_qml/ZoomControl.qml</file>
+        <file>resources/camcops/camera_qml/images/camera_auto_mode.png</file>
+        <file>resources/camcops/camera_qml/images/camera_camera_setting.png</file>
+        <file>resources/camcops/camera_qml/images/camera_flash_auto.png</file>
+        <file>resources/camcops/camera_qml/images/camera_flash_fill.png</file>
+        <file>resources/camcops/camera_qml/images/camera_flash_off.png</file>
+        <file>resources/camcops/camera_qml/images/camera_flash_redeye.png</file>
+        <file>resources/camcops/camera_qml/images/camera_white_balance_cloudy.png</file>
+        <file>resources/camcops/camera_qml/images/camera_white_balance_fluorescent.png</file>
+        <file>resources/camcops/camera_qml/images/camera_white_balance_incandescent.png</file>
+        <file>resources/camcops/camera_qml/images/camera_white_balance_sunny.png</file>
+        <file>resources/camcops/camera_qml/images/toolbutton.png</file>
+        <file>resources/camcops/camera_qml/images/toolbutton.sci</file>
     </qresource>
 </RCC>

@@ -26,11 +26,11 @@
 #include <QListWidgetItem>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "db/dbtransaction.h"
 #include "dbobjects/patient.h"
+#include "layouts/layouts.h"
 #include "lib/filefunc.h"
 #include "lib/layoutdumper.h"
 #include "lib/slowguiguard.h"
@@ -52,7 +52,11 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     m_subtitle(""),
     m_icon(icon),
     m_top(top),
-    m_mainlayout(new QVBoxLayout()),  // not HFW: will contain scroll area
+#ifdef MENUWINDOW_USE_HFW_LAYOUT
+    m_mainlayout(new VBoxLayout()),
+#else
+    m_mainlayout(new QVBoxLayout()),
+#endif
     m_p_header(nullptr),
     m_p_listwidget(nullptr)
 {
@@ -84,7 +88,11 @@ MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
     loadStyleSheet();
     setObjectName(cssconst::MENU_WINDOW_OUTER_OBJECT);
 
+#ifdef MENUWINDOW_USE_HFW_LAYOUT
+    VBoxLayout* dummy_layout = new VBoxLayout();
+#else
     QVBoxLayout* dummy_layout = new QVBoxLayout();
+#endif
     dummy_layout->setContentsMargins(uiconst::NO_MARGINS);
     setLayout(dummy_layout);
     QWidget* dummy_widget = new QWidget();  // doesn't need to be BaseWidget; contains scrolling list

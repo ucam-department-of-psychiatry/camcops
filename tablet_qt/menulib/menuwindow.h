@@ -19,24 +19,23 @@
 
 #pragma once
 
-#define MENUWINDOW_USE_HFW_LISTWIDGET
+#define MENUWINDOW_USE_HFW_LISTWIDGET  // good
+// #define MENUWINDOW_USE_HFW_LAYOUT  // bad; window contains scroll area, which gets too short
 
 #include <QPointer>
 #include <QSharedPointer>
 #include <QVector>
 #include "common/aliases_camcops.h"
 #include "core/camcopsapp.h"  // for LockState
+#include "layouts/layouts.h"
 #include "menulib/menuitem.h"
-#ifdef MENUWINDOW_USE_HFW_LISTWIDGET
 #include "widgets/heightforwidthlistwidget.h"
-#endif
 #include "widgets/openablewidget.h"
 
 class MenuHeader;
 class Questionnaire;
 class QListWidget;
 class QListWidgetItem;
-class QVBoxLayout;
 
 
 class MenuWindow : public OpenableWidget
@@ -107,7 +106,11 @@ protected:
     QString m_icon;
     bool m_top;
     QVector<MenuItem> m_items;
+#ifdef MENUWINDOW_USE_HFW_LAYOUT
+    QPointer<VBoxLayout> m_mainlayout;
+#else
     QPointer<QVBoxLayout> m_mainlayout;
+#endif
     QPointer<MenuHeader> m_p_header;
 #ifdef MENUWINDOW_USE_HFW_LISTWIDGET
     QPointer<HeightForWidthListWidget> m_p_listwidget;

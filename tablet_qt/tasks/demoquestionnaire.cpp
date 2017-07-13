@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define DEBUG_BIG_HEADER_ONLY_PAGE
+
 #include "demoquestionnaire.h"
 #include "core/camcopsapp.h"
 #include "common/textconst.h"
@@ -190,6 +192,12 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     page_text->addElement(
         (new QuText("... was that enough to scroll vertically?"))->setBold()
     );
+
+#ifdef DEBUG_BIG_HEADER_ONLY_PAGE
+    QuPagePtr page_text_header_only((new QuPage{
+        new QuText("Very long title, to check sizing."),
+    })->setTitle(textconst::LOREM_IPSUM_1));
+#endif
 
     // ------------------------------------------------------------------------
     // Image
@@ -810,7 +818,11 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // ------------------------------------------------------------------------
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {
-        page_text, page_image, page_headings_layout,
+        page_text,
+#ifdef DEBUG_BIG_HEADER_ONLY_PAGE
+        page_text_header_only,
+#endif
+        page_image, page_headings_layout,
         page_audio_countdown, page_boolean,
         page_mcq, page_mcq_variants, page_multiple_response, page_pickers,
         page_sliders, page_vars, page_diag, page_canvas, page_buttons,

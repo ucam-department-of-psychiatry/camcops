@@ -19,7 +19,7 @@
 
 #pragma once
 #include "db/fieldref.h"
-#include "quelement.h"
+#include "questionnairelib/quelement.h"
 
 class FocusWatcher;
 class GrowingTextEdit;

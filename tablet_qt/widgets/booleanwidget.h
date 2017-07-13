@@ -20,7 +20,7 @@
 #pragma once
 
 #include <QAbstractButton>
-#include "common/layouts.h"
+#include "layouts/layouts.h"
 class ClickableLabelWordWrapWide;
 class ImageButton;
 

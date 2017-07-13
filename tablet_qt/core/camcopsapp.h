@@ -113,7 +113,7 @@ protected:
     void makeOtherSystemTables();
     void registerTasks();
     void makeTaskTables();
-    void initGuiOneWindowIcon();
+    void initGuiOne();
     void initGuiTwoStylesheet();
     void openMainWindow();
 
@@ -213,6 +213,7 @@ signals:
 public:
     QString getSubstitutedCss(const QString& filename) const;
     int fontSizePt(uiconst::FontSize fontsize, double factor_pct = -1) const;
+    qreal dotsPerInch() const;
 signals:
     void fontSizeChanged();
 
@@ -303,9 +304,11 @@ protected:
     bool m_whisker_connected;
     QPointer<QMainWindow> m_p_main_window;
     QPointer<QStackedWidget> m_p_window_stack;
+    QSharedPointer<QStackedWidget> m_p_hidden_stack;  // we own it entirely, so QSharedPointer
     PatientPtr m_patient;
     QStack<OpenableInfo> m_info_stack;
     QMap<QString, StoredVarPtr> m_storedvars;
     QSharedPointer<NetworkManager> m_netmgr;
     mutable QMap<QString, QVariant> m_cachedvars;
+    qreal m_dpi;
 };

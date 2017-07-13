@@ -21,7 +21,7 @@
 
 #include <QPushButton>
 #include "common/gui_defines.h"
-#include "common/layouts.h"
+#include "layouts/layouts.h"
 class LabelWordWrapWide;
 
 

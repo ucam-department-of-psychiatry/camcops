@@ -276,10 +276,14 @@ Phase 4: running but behaviour not matching Linux version
 -------------------------------------------------------------------------------
 
 - Scrolling
+  ... mostly fixed with QScroller; residual problem is that a few widgets
+      respond to two-finger swipes but not one-finger swipes; see
+      uifunc::applyScrollGestures().
 - Camera viewfinder
 - QMessageBox::setButtonText not working
   ... obsolete; use addButton instead
   ... see https://stackoverflow.com/questions/25101171/what-do-the-different-qmessagebox-roles-mean
+- Alter icon size based on screen DPI (e.g. my phone is 216 dpi, cf. monitor 96).
 
 -------------------------------------------------------------------------------
 Phase 5: getting the right certificate

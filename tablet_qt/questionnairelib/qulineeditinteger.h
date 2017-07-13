@@ -18,7 +18,7 @@
 */
 
 #pragma once
-#include "qulineedit.h"
+#include "questionnairelib/qulineedit.h"
 
 
 class QuLineEditInteger : public QuLineEdit

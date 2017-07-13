@@ -24,7 +24,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include "common/aliases_camcops.h"
-#include "quelement.h"
+#include "questionnairelib/quelement.h"
 
 class QWidget;
 class Questionnaire;

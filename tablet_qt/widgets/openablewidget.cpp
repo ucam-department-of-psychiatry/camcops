@@ -19,19 +19,18 @@
 
 // #define DEBUG_OPENABLE_WIDGET_LAYOUT  // Dumps layout when widget shown
 // #define DEBUG_PRESS_D_TO_DUMP
+// #define DEBUG_RESIZE
 
 #include "openablewidget.h"
 #include <QGraphicsView>
 #include <QKeyEvent>
+#include <QResizeEvent>
 #include <QVBoxLayout>
-#include "lib/uifunc.h"
-#include "lib/sizehelpers.h"
-#ifdef DEBUG_OPENABLE_WIDGET_LAYOUT
-#include "qobjects/showwatcher.h"
-#endif
-#ifdef DEBUG_PRESS_D_TO_DUMP
+#include "layouts/qtlayouthelpers.h"
 #include "lib/layoutdumper.h"
-#endif
+#include "lib/sizehelpers.h"
+#include "lib/uifunc.h"
+#include "qobjects/showwatcher.h"
 
 
 OpenableWidget::OpenableWidget(QWidget* parent) :
@@ -112,6 +111,20 @@ void OpenableWidget::setEscapeKeyCanAbort(bool esc_can_abort,
 {
     m_escape_key_can_abort = esc_can_abort;
     m_escape_aborts_without_confirmation = without_confirmation;
+}
+
+
+void OpenableWidget::resizeEvent(QResizeEvent* event)
+{
+#ifdef DEBUG_RESIZE
+    qDebug().nospace()
+            << Q_FUNC_INFO
+            << ": resized to " << event->size()
+            << "; minimumSizeHint() " << minimumSizeHint()
+            << "; qSmartMinSize(this) " << qtlayouthelpers::qSmartMinSize(this);
+#else
+    Q_UNUSED(event)
+#endif
 }
 
 

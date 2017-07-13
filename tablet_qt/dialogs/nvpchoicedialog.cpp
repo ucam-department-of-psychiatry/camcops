@@ -22,7 +22,7 @@
 #include <QDialogButtonBox>
 #include <QEvent>
 #include <QVariant>
-#include "common/layouts.h"
+#include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/verticalscrollarea.h"

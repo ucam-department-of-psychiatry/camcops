@@ -33,6 +33,7 @@
 #include <QRegularExpression>
 #include <QtMath>
 #include <QUrl>
+#include "common/uiconst.h"
 #include "lib/datetime.h"
 #include "lib/uifunc.h"
 #include "lib/stringfunc.h"
@@ -41,7 +42,7 @@
 namespace convert {
 
 // ============================================================================
-// Constants used in several places
+// Constants used in several places internally
 // ============================================================================
 
 const QChar COMMA(',');
@@ -486,10 +487,12 @@ QByteArray imageToByteArray(const QImage& image, const char* format)
     //     http://doc.qt.io/qt-5/qimage.html#operator-QVariant
     // ... but it doesn't.
     // So: http://stackoverflow.com/questions/27343576
+    qDebug() << "imageToByteArray(): starting...";
     QByteArray arr;
     QBuffer buffer(&arr);
     buffer.open(QIODevice::WriteOnly);
     image.save(&buffer, format);
+    qDebug() << "imageToByteArray(): ... done";
     return arr;
 }
 
@@ -503,8 +506,31 @@ QVariant imageToVariant(const QImage& image, const char* format)
 QImage byteArrayToImage(const QByteArray& array, const char* format)
 {
     QImage image;
+    qDebug() << "byteArrayToImage(): starting...";
     image.loadFromData(array, format);
+    qDebug() << "byteArrayToImage(): ... done";
     return image;
+}
+
+
+int convertLengthByDpi(int old_length, qreal to_dpi, qreal from_dpi)
+{
+    // For example: 48 pixels (old_length) on a 96 dpi monitor (from_dpi)
+    // should become 96 pixels on a 192-dpi screen
+    if (to_dpi == from_dpi) {
+        return old_length;
+    }
+    return qRound(old_length * to_dpi / from_dpi);
+}
+
+
+QSize convertSizeByDpi(const QSize& old_size,  qreal to_dpi, qreal from_dpi)
+{
+    if (!old_size.isValid()) {
+        return old_size;
+    }
+    return QSize(convertLengthByDpi(old_size.width(), to_dpi, from_dpi),
+                 convertLengthByDpi(old_size.height(), to_dpi, from_dpi));
 }
 
 

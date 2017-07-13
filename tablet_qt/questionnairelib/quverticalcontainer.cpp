@@ -19,7 +19,7 @@
 
 #include "quverticalcontainer.h"
 #include <QWidget>
-#include "common/layouts.h"
+#include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"

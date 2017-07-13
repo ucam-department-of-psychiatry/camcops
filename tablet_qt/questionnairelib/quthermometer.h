@@ -20,8 +20,8 @@
 #pragma once
 #include <QList>
 #include "db/fieldref.h"
-#include "quelement.h"
-#include "quthermometeritem.h"
+#include "questionnairelib/quelement.h"
+#include "questionnairelib/quthermometeritem.h"
 
 class ImageButton;
 

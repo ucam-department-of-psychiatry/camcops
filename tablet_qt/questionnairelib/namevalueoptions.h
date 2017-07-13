@@ -18,8 +18,8 @@
 */
 
 #pragma once
-#include "namevaluepair.h"
 #include <QVector>
+#include "questionnairelib/namevaluepair.h"
 
 
 class NameValueOptions

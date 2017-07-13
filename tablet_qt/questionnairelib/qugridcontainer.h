@@ -19,8 +19,8 @@
 
 #pragma once
 #include <QMap>
-#include "quelement.h"
-#include "qugridcell.h"
+#include "questionnairelib/quelement.h"
+#include "questionnairelib/qugridcell.h"
 
 
 class QuGridContainer : public QuElement

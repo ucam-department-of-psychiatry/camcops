@@ -58,8 +58,8 @@ DEFAULT_MYSQL = "/usr/bin/mysql"
 DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
 
 # SERVER_BASE_DIRECTORY = os.path.join(PROJECT_BASE_DIRECTORY, "server")
-DEFAULT_STRING_FILE = os.path.join(
-    TABLET_SOURCE_COPY_DIR, "tablet_titanium", "i18n", "en", "strings.xml")
+# DEFAULT_STRING_FILE = os.path.join(
+#     TABLET_SOURCE_COPY_DIR, "tablet_titanium", "i18n", "en", "strings.xml")
 # DEFAULT_EXTRA_STRING_SPEC = os.path.join(
 #     PROJECT_BASE_DIRECTORY, "server", "extra_strings", "*")
 DEFAULT_TIMEOUT_MINUTES = 30
@@ -317,6 +317,11 @@ ISO8601_STRING_LENGTH = 32
 PKNAME = "_pk"
 MOVE_OFF_TABLET_FIELD = "_move_off_tablet"
 CLIENT_DATE_FIELD = "when_last_modified"
+
+# Field prefixes, for Patient table (here to avoid circular imports)
+FP_ID_NUM = "idnum"
+FP_ID_DESC = "iddesc"
+FP_ID_SHORT_DESC = "idshortdesc"
 
 # VALID KEYS FOR FIELDSPECS:
 # - all those listed in rnc_db.py

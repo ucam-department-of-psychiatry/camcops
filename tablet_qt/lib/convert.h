@@ -75,6 +75,8 @@ QByteArray imageToByteArray(const QImage& image,
 QVariant imageToVariant(const QImage& image, const char* format = "png");
 QImage byteArrayToImage(const QByteArray& array,
                         const char* format = nullptr);
+int convertLengthByDpi(int old_length, qreal to_dpi, qreal from_dpi);
+QSize convertSizeByDpi(const QSize& old_size, qreal to_dpi, qreal from_dpi);
 
 // ============================================================================
 // Cryptography

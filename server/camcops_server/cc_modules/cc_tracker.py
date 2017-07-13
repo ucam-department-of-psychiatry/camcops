@@ -33,6 +33,7 @@ from .cc_constants import (
     ACTION,
     CSS_PAGED_MEDIA,
     DATEFORMAT,
+    FP_ID_NUM,
     FULLWIDTH_PLOT_WIDTH,
     NUMBER_OF_IDNUMS,
     PARAM,
@@ -526,8 +527,8 @@ class Tracker(object):
             n = i + 1
             nstr = str(n)
             if self.idnumarray[i] is not None:
-                conditions.append(
-                    "idnum" + nstr + " = {}".format(self.idnumarray[i]))
+                conditions.append(FP_ID_NUM + nstr +
+                                  " = {}".format(self.idnumarray[i]))
         cons = self.consistency_info.get_description_list()
         if self.consistency_info.are_all_consistent():
             cons_class = "tracker_all_consistent"
@@ -1069,9 +1070,8 @@ class ClinicalTextView(object):
             n = i + 1
             nstr = str(n)
             if self.idnumarray[i] is not None:
-                conditions.append(
-                    "idnum" + nstr + " = {}".format(self.idnumarray[i])
-                )
+                conditions.append(FP_ID_NUM + nstr +
+                                  " = {}".format(self.idnumarray[i]))
 
         cons = self.consistency_info.get_description_list()
         if self.consistency_info.are_all_consistent():

@@ -20,7 +20,7 @@
 #pragma once
 #include <QSize>
 #include "db/fieldref.h"
-#include "quelement.h"
+#include "questionnairelib/quelement.h"
 
 class BooleanWidget;
 

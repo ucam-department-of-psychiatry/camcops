@@ -20,6 +20,7 @@
 #pragma once
 #include <QPointer>
 #include <QWidget>
+#include "widgets/basewidget.h"
 class QGraphicsView;
 
 
@@ -47,6 +48,7 @@ public:
     bool escapeKeyCanAbort() const;
     void setEscapeKeyCanAbort(bool esc_can_abort,
                               bool without_confirmation = false);
+    virtual void resizeEvent(QResizeEvent* event) override;
     virtual void keyPressEvent(QKeyEvent* event) override;
 signals:
     void aborting();

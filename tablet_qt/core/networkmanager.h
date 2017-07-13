@@ -152,7 +152,7 @@ protected:
     void sendTableWhole(const QString& tablename);
     void sendTableRecordwise(const QString& tablename);
     void requestRecordwisePkPrune();
-    void pruneRecordwisePks();
+    bool pruneRecordwisePks();
     void sendNextRecord();
     void endUpload();
     void wipeTables();

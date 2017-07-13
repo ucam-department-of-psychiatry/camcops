@@ -22,10 +22,10 @@
 #include "qugridcontainer.h"
 #include <QDebug>
 #include <QWidget>
-#include "common/layouts.h"
-#include "questionnairelib/questionnaire.h"
+#include "layouts/layouts.h"
 #include "lib/layoutdumper.h"
 #include "lib/sizehelpers.h"
+#include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 
 #ifdef DEBUG_GRID_CREATION

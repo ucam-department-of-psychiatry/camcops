@@ -22,8 +22,8 @@
 #include <QDebug>
 #include <QPushButton>
 #include "common/cssconst.h"
-#include "common/layouts.h"
 #include "common/uiconst.h"
+#include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #include "widgets/horizontalline.h"

@@ -163,7 +163,7 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
                     .arg(geom.height()));
     elements.append(QString("hasHeightForWidth()[UP] %1")
                     .arg(w->hasHeightForWidth() ? "true" : "false"));
-    elements.append(QString("heightForWidth(%1)[UP] %2")
+    elements.append(QString("heightForWidth(%1[DOWN])[UP] %2")
                     .arg(geom.width())
                     .arg(w->heightForWidth(geom.width())));
     elements.append(QString("minimumSize (%1 x %2)")
@@ -451,10 +451,10 @@ QString getLayoutInfo(const QLayout* layout)
     if (parent) {
         QSize parent_size = parent->size();
         int parent_width = parent_size.width();
-        elements.append(QString("heightForWidth(%1)[UP] %2")
+        elements.append(QString("heightForWidth(%1[parent_width])[UP] %2")
                         .arg(parent_width)
                         .arg(layout->heightForWidth(parent_width)));
-        elements.append(QString("minimumHeightForWidth(%1)[UP] %2")
+        elements.append(QString("minimumHeightForWidth(%1[parent_width])[UP] %2")
                         .arg(parent_width)
                         .arg(layout->minimumHeightForWidth(parent_width)));
         if (parent_width < minsize.width()) {
@@ -605,7 +605,19 @@ void dumpWidgetHierarchy(const QWidget* w, const DumperConfig& config)
 {
     QDebug os = qDebug().noquote().nospace();
     os << "WIDGET HIERARCHY:\n";
+    if (config.use_ultimate_parent) {
+        w = ultimateParentWidget(w);
+    }
     dumpWidgetAndChildren(os, w, 0, "", config);
+}
+
+
+const QWidget* ultimateParentWidget(const QWidget* w)
+{
+    while (const QWidget* parent = w->parentWidget()) {
+        w = parent;
+    }
+    return w;
 }
 
 

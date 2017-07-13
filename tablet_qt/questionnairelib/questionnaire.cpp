@@ -27,12 +27,12 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QLabel>
-#include <QVBoxLayout>
 #include "core/camcopsapp.h"
 #include "common/cssconst.h"
 #include "dialogs/pagepickerdialog.h"
 #include "lib/filefunc.h"
 #include "lib/layoutdumper.h"
+#include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #ifdef DEBUG_PAGE_LAYOUT_ON_OPEN
 #include "qobjects/showwatcher.h"
@@ -81,7 +81,11 @@ void Questionnaire::commonConstructor()
 
     setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
 
-    m_outer_layout = new QVBoxLayout();  // not HFW; will contain a scroll area (+/- spacer) filling all space
+#ifdef QUESTIONAIRE_USE_HFW_LAYOUT
+    m_outer_layout = new VBoxLayout();
+#else
+    m_outer_layout = new QVBoxLayout();
+#endif
     setLayout(m_outer_layout);
     // You can't reset the outer layout for a widget, I think. You get:
     //      QWidget::setLayout: Attempting to set QLayout "" on Questionnaire
@@ -151,9 +155,9 @@ void Questionnaire::build()
     // OVERVIEW OF WIDGET/LAYOUT STRUCTURE:
     //
     // W this = OpenableWidget (inherits from QWidget)
-    //      L m_outer_layout = QVBoxLayout
+    //      L m_outer_layout = VBoxLayout
     //          W m_background_widget = QWidget
-    //              L m_mainlayout = QVBoxLayout
+    //              L m_mainlayout = VBoxLayout
     //                  W m_p_header = QuestionnaireHeader
     //                  W scroll = VerticalScrollArea
     //                      W pagewidget = QWidget
@@ -238,7 +242,11 @@ void Questionnaire::build()
             Qt::UniqueConnection);
 
     // Main layout: header and scrollable content
-    m_mainlayout = new QVBoxLayout();  // not HFW
+#ifdef QUESTIONAIRE_USE_HFW_LAYOUT
+    m_mainlayout = new VBoxLayout();
+#else
+    m_mainlayout = new QVBoxLayout();
+#endif
     m_mainlayout->setContentsMargins(uiconst::NO_MARGINS);
     m_mainlayout->addWidget(m_p_header);
 
@@ -258,8 +266,19 @@ void Questionnaire::build()
 
     // Background
     m_background_widget = new QWidget();
+    /*
+#ifdef QUESTIONAIRE_USE_HFW_LAYOUT
+    setSizePolicy(sizehelpers::expandingExpandingHFWPolicy());
+    m_background_widget->setSizePolicy(sizehelpers::expandingExpandingHFWPolicy());
+#else
     m_background_widget->setSizePolicy(QSizePolicy::Expanding,
                                        QSizePolicy::Expanding);
+#endif
+    */
+    setSizePolicy(sizehelpers::expandingExpandingHFWPolicy());
+    m_background_widget->setSizePolicy(QSizePolicy::Expanding,
+                                       QSizePolicy::Expanding);
+
     m_background_widget->setObjectName(background_css_name);
     m_background_widget->setLayout(m_mainlayout);
 

@@ -20,7 +20,7 @@
 #pragma once
 #include <QString>
 #include <QWidget>
-#include "qutext.h"
+#include "questionnairelib/qutext.h"
 
 
 class QuHeading : public QuText

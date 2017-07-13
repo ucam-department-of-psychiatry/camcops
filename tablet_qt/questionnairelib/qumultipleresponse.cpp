@@ -19,7 +19,7 @@
 
 #include "qumultipleresponse.h"
 #include "common/cssconst.h"
-#include "common/layouts.h"
+#include "layouts/layouts.h"
 #include "layouts/flowlayouthfw.h"
 #include "lib/uifunc.h"
 #include "maths/ccrandom.h"
@@ -172,12 +172,11 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
 
     bool read_only = questionnaire->readOnly();
 
-    QPointer<QWidget> mainwidget = new QWidget();  // BaseWidget()
+    QPointer<QWidget> mainwidget = new BaseWidget();
     QLayout* mainlayout;
     if (m_horizontal) {
         mainlayout = new FlowLayoutHfw();
     } else {
-        mainwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         mainlayout = new VBoxLayout();
     }
     mainlayout->setContentsMargins(uiconst::NO_MARGINS);
@@ -270,7 +269,6 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
     } else {
         final_widget = mainwidget;
     }
-    final_widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     setFromFields();
 

@@ -7,10 +7,18 @@ import shutil
 import subprocess
 import sys
 
+try:
+    import distro
+except ImportError:
+    distro = None
+
 if sys.version_info[0] < 3:
     raise AssertionError("Need Python 3")
 LINUX = platform.system() == 'Linux'
-LINUX_DIST = platform.linux_distribution()[0].lower()
+if distro:
+    LINUX_DIST = distro.linux_distribution()[0].lower()
+else:
+    LINUX_DIST = ''
 DEB = LINUX_DIST in ['ubuntu', 'debian']
 RPM = LINUX_DIST in ['fedora', 'rhel', 'centos']
 

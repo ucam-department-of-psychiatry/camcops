@@ -18,11 +18,11 @@
 */
 
 #pragma once
-#include "common/layouts.h"
-#include "namevalueoptions.h"
-#include "mcqgridsubtitle.h"
-#include "quelement.h"
-#include "questionwithtwofields.h"
+#include "layouts/layouts.h"
+#include "questionnairelib/mcqgridsubtitle.h"
+#include "questionnairelib/namevalueoptions.h"
+#include "questionnairelib/quelement.h"
+#include "questionnairelib/questionwithtwofields.h"
 
 class BooleanWidget;
 class QuMcqGridSingleBooleanSignaller;

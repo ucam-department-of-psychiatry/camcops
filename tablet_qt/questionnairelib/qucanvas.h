@@ -20,7 +20,7 @@
 #pragma once
 #include <QImage>
 #include "db/fieldref.h"
-#include "quelement.h"
+#include "questionnairelib/quelement.h"
 
 class CanvasWidget;
 class QLabel;
@@ -44,6 +44,7 @@ public:
              const QString& template_filename,
              const QSize& size = QSize(),  // = take template's size
              bool allow_shrink = true);
+    QuCanvas* setAdjustForDpi(bool adjust_for_dpi);  // default is true
     QuCanvas* setBackgroundColour(const QColor& colour);
     QuCanvas* setBorderWidth(int width);
     QuCanvas* setBorderColour(const QColor& colour);
@@ -69,6 +70,7 @@ protected:
     QSize m_size;
     bool m_allow_shrink;
     QImage::Format m_format;
+    bool m_adjust_for_dpi;
     QColor m_background_colour;
     int m_border_width_px;
     QColor m_border_colour;

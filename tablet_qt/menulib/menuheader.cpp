@@ -23,9 +23,9 @@
 #include <QAbstractButton>
 #include <QLabel>
 #include "common/cssconst.h"
-#include "common/layouts.h"
 #include "common/uiconst.h"
 #include "dbobjects/patient.h"
+#include "layouts/layouts.h"
 #include "lib/uifunc.h"
 #include "widgets/basewidget.h"
 #include "widgets/horizontalline.h"

@@ -62,7 +62,8 @@ protected:
     // GrowingTextEdit: see QuTextEdit
     void testHorizontalLine();
     void testImageButton();
-    void testLabelWordWrapWide(bool long_text, bool use_hfw_layout);
+    void testLabelWordWrapWide(bool long_text, bool use_hfw_layout,
+                               bool with_icons = false);
     // OpenableWidget: part of main app framework instead
     // Spacer: see QuSpacer instead
     void testSvgWidgetClickable();
@@ -77,7 +78,7 @@ protected:
     // ========================================================================
     // Layouts and the like
     // ========================================================================
-    void testFlowLayout(int n_icons);
+    void testFlowLayout(int n, bool text);
     void testBaseWidget(bool long_text);
     void testVBoxLayout(bool long_text);
     void testGridLayoutHfw(int example);
@@ -87,7 +88,7 @@ protected:
     // ========================================================================
     void testMenuItem();
     void testQuestionnaireHeader();
-    void testQuestionnaire();
+    void testQuestionnaire(bool long_title, bool as_openable_widget);
     // void testAce3();
 
     // ========================================================================

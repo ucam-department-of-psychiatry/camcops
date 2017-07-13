@@ -22,8 +22,8 @@
 #include <QSharedPointer>
 #include <QVariant>
 #include "db/fieldref.h"
-#include "quelement.h"
-#include "questionwithonefield.h"
+#include "questionnairelib/quelement.h"
+#include "questionnairelib/questionwithonefield.h"
 
 class BooleanWidget;
 class LabelWordWrapWide;

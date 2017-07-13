@@ -18,11 +18,15 @@
 */
 
 #pragma once
+
+#define QUPHOTO_USE_CAMERA_QML
+
 #include "db/fieldref.h"
-#include "quelement.h"
+#include "questionnairelib/quelement.h"
 
 class AspectRatioPixmap;
-class Camera;
+class CameraQCamera;
+class CameraQml;
 class QLabel;
 class QWidget;
 
@@ -59,6 +63,10 @@ protected:
     QPointer<QLabel> m_incomplete_mandatory;
     QPointer<QLabel> m_field_problem;
     QPointer<AspectRatioPixmap> m_image;
-    QPointer<Camera> m_camera;
+#ifdef QUPHOTO_USE_CAMERA_QML
+    QPointer<CameraQml> m_camera;
+#else
+    QPointer<CameraQCamera> m_camera;
+#endif
     QPointer<QWidget> m_main_widget;
 };

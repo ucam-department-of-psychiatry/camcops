@@ -69,7 +69,7 @@ from .cc_constants import (
     DEFAULT_MYSQLDUMP,
     DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS,
     DEFAULT_PLOT_FONTSIZE,
-    DEFAULT_STRING_FILE,
+    # DEFAULT_STRING_FILE,
     DEFAULT_TIMEOUT_MINUTES,
     ENVVAR_CONFIG_FILE,
     INTROSPECTION_BASE_DIRECTORY,
@@ -137,7 +137,7 @@ class LocalStorage(object):
             DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES
         )
         self.LOCKOUT_THRESHOLD = DEFAULT_LOCKOUT_THRESHOLD
-        self.MAIN_STRING_FILE = DEFAULT_STRING_FILE
+        # self.MAIN_STRING_FILE = DEFAULT_STRING_FILE
         self.MYSQL = DEFAULT_MYSQL
         self.MYSQLDUMP = DEFAULT_MYSQLDUMP
         self.NOW_LOCAL_TZ_ISO8601 = ""
@@ -357,8 +357,8 @@ class LocalStorage(object):
             config, section, "LOCKOUT_DURATION_INCREMENT_MINUTES",
             int, DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)
 
-        self.MAIN_STRING_FILE = get_config_parameter(
-            config, section, "MAIN_STRING_FILE", str, DEFAULT_STRING_FILE)
+        # self.MAIN_STRING_FILE = get_config_parameter(
+        #     config, section, "MAIN_STRING_FILE", str, DEFAULT_STRING_FILE)
         self.MYSQL = get_config_parameter(
             config, section, "MYSQL", str, DEFAULT_MYSQL)
         self.MYSQLDUMP = get_config_parameter(

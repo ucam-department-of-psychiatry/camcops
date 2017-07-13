@@ -21,7 +21,7 @@
 #include <QList>
 #include <QPair>
 #include <QSharedPointer>
-#include <common/aliases_camcops.h>
+#include "common/aliases_camcops.h"
 
 class Questionnaire;
 class QuGridCell;

@@ -1268,7 +1268,10 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
                 requestRecordwisePkPrune();
             } else {
                 if (!m_recordwise_pks_pruned) {
-                    pruneRecordwisePks();
+                    if (!pruneRecordwisePks()) {
+                        fail();
+                        return;
+                    }
                     if (m_upload_recordwise_pks_to_send.isEmpty()) {
                         // Quasi-recursive way of saying "do whatever you would
                         // have done otherwise", since the server had said "I'm
@@ -1500,13 +1503,18 @@ void NetworkManager::requestRecordwisePkPrune()
 }
 
 
-void NetworkManager::pruneRecordwisePks()
+bool NetworkManager::pruneRecordwisePks()
 {
+    if (!m_reply_dict.contains(KEY_RESULT)) {
+        statusMessage("Server's reply was missing the key: " + KEY_RESULT);
+        return false;
+    }
     QString reply = m_reply_dict[KEY_RESULT];
     statusMessage("Server requests only PKs: " + reply);
     m_upload_recordwise_pks_to_send = convert::csvStringToIntVector(reply);
     m_upload_n_records = m_upload_recordwise_pks_to_send.size();
     m_recordwise_pks_pruned = true;
+    return true;
 }
 
 

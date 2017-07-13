@@ -55,6 +55,8 @@ QT += gui  # included by default; QtGui module
 QT += multimedia  # or: undefined reference to QMedia*::*
 QT += multimediawidgets
 QT += network  # required to #include <QtNetwork/...>
+QT += quick  # for QML, e.g. for camera
+QT += quickwidgets  # for QQuickWidget
 QT += sql  # required to #include <QSqlDatabase>
 QT += svg  # required to #include <QGraphicsSvgItem> or <QSvgRenderer>
 # QT += webkit  # for QWebView -- no, not used
@@ -502,7 +504,6 @@ SOURCES += main.cpp \
     widgets/aspectratiopixmap.cpp \
     widgets/basewidget.cpp \
     widgets/booleanwidget.cpp \
-    widgets/camera.cpp \
     widgets/canvaswidget.cpp \
     widgets/clickablelabelnowrap.cpp \
     widgets/clickablelabelwordwrapwide.cpp \
@@ -522,7 +523,10 @@ SOURCES += main.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
     widgets/verticalscrollareaviewport.cpp \
-    qobjects/debugeventwatcher.cpp
+    qobjects/debugeventwatcher.cpp \
+    qobjects/cameraframegrabber.cpp \
+    widgets/cameraqcamera.cpp \
+    widgets/cameraqml.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -533,7 +537,7 @@ HEADERS += \
     common/design_defines.h \
     common/globals.h \
     common/gui_defines.h \
-    common/layouts.h \
+    layouts/layouts.h \
     common/platform.h \
     common/textconst.h \
     common/uiconst.h \
@@ -856,7 +860,6 @@ HEADERS += \
     widgets/aspectratiopixmap.h \
     widgets/basewidget.h \
     widgets/booleanwidget.h \
-    widgets/camera.h \
     widgets/canvaswidget.h \
     widgets/clickablelabelnowrap.h \
     widgets/clickablelabelwordwrapwide.h \
@@ -876,7 +879,10 @@ HEADERS += \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
     widgets/verticalscrollareaviewport.h \
-    qobjects/debugeventwatcher.h
+    qobjects/debugeventwatcher.h \
+    qobjects/cameraframegrabber.h \
+    widgets/cameraqcamera.h \
+    widgets/cameraqml.h
 
 DISTFILES += \
     android/AndroidManifest.xml \

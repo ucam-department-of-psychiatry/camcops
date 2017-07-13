@@ -29,7 +29,8 @@
 #include "qobjects/slownonguifunctioncaller.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/aspectratiopixmap.h"
-#include "widgets/camera.h"
+#include "widgets/cameraqcamera.h"
+#include "widgets/cameraqml.h"
 #include "widgets/imagebutton.h"
 
 
@@ -227,14 +228,19 @@ void QuPhoto::takePhoto()
 
     SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
 
+#ifdef QUPHOTO_USE_CAMERA_QML
+    m_camera = new CameraQml();
+    connect(m_camera, &CameraQml::imageCaptured, this, &QuPhoto::imageCaptured);
+    connect(m_camera, &CameraQml::cancelled, this, &QuPhoto::cameraCancelled);
+#else
     QString stylesheet = m_questionnaire->getSubstitutedCss(
                 uiconst::CSS_CAMCOPS_CAMERA);
-    m_camera = new Camera(stylesheet);
-
-    connect(m_camera, &Camera::imageCaptured,
+    m_camera = new CameraQCamera(stylesheet);
+    connect(m_camera, &CameraQCamera::imageCaptured,
             this, &QuPhoto::imageCaptured);
-    connect(m_camera, &Camera::cancelled,
+    connect(m_camera, &CameraQCamera::cancelled,
             this, &QuPhoto::cameraCancelled);
+#endif
 
     m_questionnaire->openSubWidget(m_camera);
 }

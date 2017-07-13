@@ -21,8 +21,8 @@
 #include <QList>
 #include <QPointer>
 #include "db/fieldref.h"
-#include "namevalueoptions.h"
-#include "quelement.h"
+#include "questionnairelib/namevalueoptions.h"
+#include "questionnairelib/quelement.h"
 
 class BooleanWidget;
 

@@ -19,8 +19,8 @@
 
 #include "quhorizontalcontainer.h"
 #include <QWidget>
-#include "common/layouts.h"
 #include "layouts/flowlayouthfw.h"
+#include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"

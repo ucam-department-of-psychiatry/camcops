@@ -19,8 +19,8 @@
 
 #pragma once
 #include "db/fieldref.h"
-#include "quelement.h"
 #include "common/uiconst.h"
+#include "questionnairelib/quelement.h"
 
 class LabelWordWrapWide;
 

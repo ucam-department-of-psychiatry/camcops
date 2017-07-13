@@ -20,8 +20,8 @@
 #include "qumcq.h"
 #include <QWidget>
 #include "common/cssconst.h"
-#include "common/layouts.h"
 #include "layouts/flowlayouthfw.h"
+#include "layouts/layouts.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"

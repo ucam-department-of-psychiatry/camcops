@@ -672,10 +672,12 @@ QString trueFalseUnknown(const QVariant& value)
 // Scrolling
 // ============================================================================
 
+#ifdef DEBUG_SCROLL_GESTURES
 static void debugScrollerStateChanged(QScroller::State new_state)
 {
     qDebug() << new_state;
 }
+#endif
 
 
 void applyScrollGestures(QWidget* widget)

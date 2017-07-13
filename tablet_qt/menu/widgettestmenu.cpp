@@ -206,11 +206,13 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
         MenuItem("ImageButton",
                  std::bind(&WidgetTestMenu::testImageButton, this)),
         MenuItem("LabelWordWrapWide (short text)",
-                 std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, false, true)),
+                 std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, false, true, false)),
         MenuItem("LabelWordWrapWide (long text) (within QVBoxLayout)",
-                 std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true, false)),
+                 std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true, false, false)),
         MenuItem("LabelWordWrapWide (long text) (within VBoxLayoutHfw)",
-                 std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true, true)),
+                 std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true, true, false)),
+        MenuItem("LabelWordWrapWide (long text) (within VBoxLayoutHfw + icons)",
+                 std::bind(&WidgetTestMenu::testLabelWordWrapWide, this, true, true, true)),
         MenuItem("SvgWidgetClickable",
                  std::bind(&WidgetTestMenu::testSvgWidgetClickable, this)),
         MenuItem("VerticalLine",
@@ -232,7 +234,9 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
         MenuItem("Layouts and the like").setLabelOnly(),
         // --------------------------------------------------------------------
         MenuItem("FlowLayout (containing fixed-size icons)",
-                 std::bind(&WidgetTestMenu::testFlowLayout, this, 5)),
+                 std::bind(&WidgetTestMenu::testFlowLayout, this, 5, false)),
+        MenuItem("FlowLayout (containing word-wrapped text)",
+                 std::bind(&WidgetTestMenu::testFlowLayout, this, 5, true)),
         MenuItem("BaseWidget (with short text)",
                  std::bind(&WidgetTestMenu::testBaseWidget, this, false)),
         MenuItem("BaseWidget (with long text)",
@@ -259,8 +263,12 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testMenuItem, this)),
         MenuItem("QuestionnaireHeader",
                  std::bind(&WidgetTestMenu::testQuestionnaireHeader, this)),
-        MenuItem("Empty questionnaire",
-                 std::bind(&WidgetTestMenu::testQuestionnaire, this)),
+        MenuItem("Empty questionnaire (short title)",
+                 std::bind(&WidgetTestMenu::testQuestionnaire, this, false, false)),
+        MenuItem("Empty questionnaire (long title)",
+                 std::bind(&WidgetTestMenu::testQuestionnaire, this, true, false)),
+        MenuItem("Empty questionnaire (long title + as OpenableWidget)",
+                 std::bind(&WidgetTestMenu::testQuestionnaire, this, true, true)),
         /*
         MenuItem("Dummy ACE-III [will CRASH as no patient; layout testing only]"),
                  std::bind(&WidgetTestMenu::testAce3, this)),
@@ -541,9 +549,20 @@ void WidgetTestMenu::testImageButton()
 }
 
 
-void WidgetTestMenu::testLabelWordWrapWide(bool long_text, bool use_hfw_layout)
+void WidgetTestMenu::testLabelWordWrapWide(bool long_text, bool use_hfw_layout,
+                                           bool with_icons)
 {
-    LabelWordWrapWide* widget = new LabelWordWrapWide(sampleText(long_text));
+    LabelWordWrapWide* label = new LabelWordWrapWide(sampleText(long_text));
+    QWidget* widget;
+    if (with_icons) {
+        widget = new QWidget();
+        HBoxLayout* layout = new HBoxLayout(widget);
+        layout->addWidget(new ImageButton(uiconst::CBS_ADD));
+        layout->addWidget(label);
+        layout->addWidget(new ImageButton(uiconst::CBS_ADD));
+    } else {
+        widget = label;
+    }
     bool set_background_by_name = false;
     bool set_background_by_stylesheet = true;
     layoutdumper::DumperConfig config;
@@ -726,14 +745,18 @@ void WidgetTestMenu::testVerticalScrollGridLayout()
 // Layouts and the like
 // ============================================================================
 
-void WidgetTestMenu::testFlowLayout(int n_icons)
+void WidgetTestMenu::testFlowLayout(int n_icons, bool text)
 {
     QWidget* widget = new QWidget();
     FlowLayoutHfw* layout = new FlowLayoutHfw();
     widget->setLayout(layout);
     for (int i = 0; i < n_icons; ++i) {
-        QLabel* icon = uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD));
-        layout->addWidget(icon);
+        if (text) {
+            layout->addWidget(new LabelWordWrapWide("A few words"));
+        } else {
+            QLabel* icon = uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD));
+            layout->addWidget(icon);
+        }
     }
     debugfunc::debugWidget(widget);
 }
@@ -768,21 +791,27 @@ void WidgetTestMenu::testMenuItem()
 void WidgetTestMenu::testQuestionnaireHeader()
 {
     QuestionnaireHeader* widget = new QuestionnaireHeader(
-                nullptr, "Title text, quite long: " + textconst::LOREM_IPSUM_3,
+                nullptr, textconst::LOREM_IPSUM_1,
                 false, true, false, cssconst::QUESTIONNAIRE_BACKGROUND_CONFIG);
     widget->setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
     debugfunc::debugWidget(widget);
 }
 
 
-void WidgetTestMenu::testQuestionnaire()
+void WidgetTestMenu::testQuestionnaire(bool long_title,
+                                       bool as_openable_widget)
 {
     QuPagePtr page(new QuPage());
     page->addElement(new QuText(textconst::LOREM_IPSUM_1));
-    page->setTitle("Reasonably long title with several words");
+    page->setTitle(long_title ? textconst::LOREM_IPSUM_1
+                              : "Reasonably long title with several words");
     Questionnaire* widget = new Questionnaire(m_app, {page});
-    widget->build();
-    debugfunc::debugWidget(widget, false, false);
+    if (as_openable_widget) {
+        m_app.open(widget);
+    } else {
+        widget->build();
+        debugfunc::debugWidget(widget, false, false);
+    }
 }
 
 

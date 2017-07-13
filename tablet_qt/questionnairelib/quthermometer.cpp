@@ -19,7 +19,7 @@
 
 #include "quthermometer.h"
 #include <QLabel>
-#include "common/layouts.h"
+#include "layouts/layouts.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/imagebutton.h"

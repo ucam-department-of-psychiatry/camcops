@@ -21,7 +21,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include "db/fieldref.h"
-#include "quelement.h"
+#include "questionnairelib/quelement.h"
 
 class DiagnosticCodeSet;
 class LabelWordWrapWide;

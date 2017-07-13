@@ -3,13 +3,19 @@
 TO DO NOW
 ===============================================================================
 
-- fix server, quick'n'dirty
+INSTALL NEW SERVER
+
+CLIENT
+- as per Julia's problem: >1 patient on tablet, need to have same RID (because
+  extra one created by mistake) - option to merge
+  ... NB the tablet will restrict this at present (no patients with same ID)
+  ... easiest way:
+    - only permit merges where information is complete/equal
+    - permit assignment of two patients to the same ID but prohibit uploads
+      until the clash is resolved
 
 ANDROID
-- camera is very slow
-- no camera preview
-
-- TEST .APK (including threaded database writes)
+- RETEST .APK
 - UPLOAD .APK TO GOOGLE PLAY
 
 - THEN get on with
@@ -25,6 +31,10 @@ SERVER
 
 TASKS
 - CIS-R, using the new DynamicQuestionnaire class
+
+CLIENT
+- Width requirements of QuPickerInline are a bit much, but then it's also a bit
+  duff visually compared to QuPickerPopup.
 
 BUILDS/DISTRIBUTION
 - Windows build
@@ -42,10 +52,42 @@ BUILDS/DISTRIBUTION
 - *** some sort of "group" concept, e.g. "affective disorder research database"
   plus "clinical" (or sometimes "all"), ?cf. Unix.
 
+    - a group has one or more users
+    - a user is in ONE OR MORE GROUPS
 
-- as per Julia's problem: >1 patient on tablet, need to have same RID (because
-  extra one created by mistake) - option to merge
-  ... NB the tablet will restrict this at present (no patients with same ID)
+        e.g. 0 = Affective Disorders Research Database
+             1 = Clinicians
+             2 = O'Brien clinical lab
+
+    - patient ID policy remains consistent across the server
+    - tasks have a group ID (on the server, to keep the client simple)
+      ... editable on the server, if required
+    - a user chooses (on the web site) which group they upload to
+      ... shouldn't be something that they need to change often
+
+    - a group can see ITS OWN records +/- THOSE OF OTHER SPECIFIC GROUPS
+        e.g. - members of the Clinicians group can see everything
+             - members of the ADRD group can see their things only
+        ... with a shortcut for "can see all"
+
+    This allows various concepts:
+    - a superset of "see your own +/- everyone's"
+        = e.g. one group per user / one user per group, plus a "root" group
+    - multiple experiments, with a group for each
+        ... some users on individual experiments
+        ... some on several
+        ... lab head can see all
+    - that in a clinical research context, where clinicians see everything
+      from multiple research groups
+
+    Fairly simple. The only question is how much the client should know.
+    - If "nothing", which is the simplest:
+        - users use web site if they want to switch groups
+        - "does task exist" is tested by server within the context of the
+          user's current group
+        - ... which just means that users need to be aware that IF data has
+          been copied to the server, it should probably be moved to the server
+          prior to changing groups.
 
 - Note for SERVER side: is ZIP generation inefficient with >1 SQL query per
   task fetched (e.g. generate PKs, filter PKs, fetch...)
@@ -59,10 +101,16 @@ QT BUGS?
 - Under Android, ScrollMessageBox scrolls with multi-finger gestures but not
   with single-finger swipes, even though the single-finger gestures work fine
   elsewhere.
+  This also varies with device, e.g. Asus Transformer Prime TF201 requires
+  two-finger swipe in ScrollMessageBox, whereas Samsung Galaxy S5 (?) provides
+  one-finger swipe.
   See my thoughts in uifunc::applyScrollGestures().
   See also:
   - https://forum.qt.io/topic/62385/one-finger-swipe-gestures
   - https://bugreports.qt.io/browse/QTBUG-40461
+
+- Qt Android bug: sometimes selection cursors don't match the position of a
+  line edit (e.g. in initial password dialog).
 
 - Sometimes there is a delay after clicking on a QuBoolean with an image, like
   the picture-naming in the ACE-III. The delay occurs whether you click the

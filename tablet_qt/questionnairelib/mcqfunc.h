@@ -20,7 +20,7 @@
 #pragma once
 #include <QList>
 #include <QPointer>
-#include "common/layouts.h"
+#include "layouts/layouts.h"
 
 class BooleanWidget;
 class FieldRef;

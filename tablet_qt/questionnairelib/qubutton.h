@@ -22,7 +22,7 @@
 #include <QMap>
 #include <QString>
 #include <QVariant>
-#include "quelement.h"
+#include "questionnairelib/quelement.h"
 
 
 class QuButton : public QuElement

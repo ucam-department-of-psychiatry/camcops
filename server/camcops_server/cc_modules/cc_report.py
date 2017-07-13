@@ -33,6 +33,7 @@ from cardinal_pythonlib.rnc_web import WSGI_TUPLE_TYPE
 from .cc_constants import (
     ACTION,
     DATEFORMAT,
+    FP_ID_NUM,
     NUMBER_OF_IDNUMS,
     PARAM,
     VALUE,
@@ -345,8 +346,8 @@ def expand_id_descriptions(fieldnames: Iterable[str]) -> List[str]:
     for n in range(1, NUMBER_OF_IDNUMS + 1):
         fieldnames = [
             f.replace(
-                "idnum" + str(n),
-                "idnum" + str(n) + " (" + pls.get_id_desc(n) + ")"
+                FP_ID_NUM + str(n),
+                FP_ID_NUM + str(n) + " (" + pls.get_id_desc(n) + ")"
             )
             for f in fieldnames
         ]

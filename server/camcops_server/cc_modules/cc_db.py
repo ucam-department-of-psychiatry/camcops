@@ -217,7 +217,7 @@ def get_current_server_pk_by_client_info(table: str,
     sql = ("SELECT _pk FROM " + table +
            " WHERE _current AND _device_id=? AND id=? AND _era=?")
     args = (device_id, clientpk, era)
-    log.critical("sql: {}, args: {}".format(repr(sql), repr(args)))
+    # log.critical("sql: {}, args: {}".format(repr(sql), repr(args)))
     row = pls.db.fetchone(sql, *args)
     if row is None:
         return None
@@ -247,8 +247,7 @@ def get_contemporaneous_server_pk_by_client_info(
         args.append(referrer_removed_utc)
     else:
         sql += "_when_removed_batch_utc IS NULL"
-    log.critical(sql)
-    log.critical(str(args))
+    # log.critical("sql: {}, args: {}".format(repr(sql), repr(args)))
     row = pls.db.fetchone(sql, *args)
     if row is None:
         return None

@@ -170,28 +170,28 @@ sys.argv[1:] = leftover_args
 EXTRA_FILES = []
 
 if getattr(our_args, EXTRAS_ARG):
-    src_tablet_ti = os.path.join(here, '..', 'tablet')
+    # src_tablet_ti = os.path.join(here, '..', 'tablet')
     src_tablet_qt = os.path.join(here, '..', 'tablet_qt')
+    required_dirs = [src_tablet_qt]
 
-    if not os.path.isdir(src_tablet_ti) or not os.path.isdir(src_tablet_qt):
-        print(
-            "You have used the --{} argument, but one of {} or {} is missing."
-            " That argument is only for use in development, to create a "
-            "Python package.".format(
-                repr(EXTRAS_ARG),
-                repr(src_tablet_ti),
-                repr(src_tablet_qt)))
-        sys.exit(1)
+    for d in required_dirs:
+        if not os.path.isdir(d):
+            print("You have used the --{} argument, but {} is missing. "
+                  "That argument is only for use in development, to create a "
+                  "Python package.".format(repr(EXTRAS_ARG), repr(d)))
+            sys.exit(1)
 
     dst_tablet = TABLET_SOURCE_COPY_DIR
     print("Creating copy of tablet source files in {}".format(dst_tablet))
 
-    dst_tablet_ti = os.path.join(dst_tablet, 'tablet_titanium')
+    # dst_tablet_ti = os.path.join(dst_tablet, 'tablet_titanium')
     dst_tablet_qt = os.path.join(dst_tablet, 'tablet_qt')
+
+    deltree(dst_tablet)
     mkdir_p(dst_tablet)
-    deltree(dst_tablet_ti)
+    # deltree(dst_tablet_ti)
     deltree(dst_tablet_qt)
-    shutil.copytree(src=src_tablet_ti, dst=dst_tablet_ti, copy_function=copier)
+    # shutil.copytree(src=src_tablet_ti, dst=dst_tablet_ti, copy_function=copier)  # noqa
     shutil.copytree(src=src_tablet_qt, dst=dst_tablet_qt, copy_function=copier)
     delete_empty_directories(dst_tablet)
 
@@ -298,6 +298,7 @@ camcops_server
 
     install_requires=[
         'colorlog==2.6.1',  # colour in logs
+        'distro==1.0.4',  # detecting Linux distribution
         'gunicorn==19.3.0',  # 'Internal' web server
         'hl7==0.3.3',  # For HL7 export
         'lockfile==0.12.2',  # File locking for background tasks

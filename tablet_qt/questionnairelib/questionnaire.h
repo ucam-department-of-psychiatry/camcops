@@ -19,14 +19,17 @@
 
 #pragma once
 
+// #define QUESTIONAIRE_USE_HFW_LAYOUT  // bad; contained scroll area gets too short
+
 #include <initializer_list>
 #include <QList>
 #include <QPointer>
 #include <QSharedPointer>
 #include "common/aliases_camcops.h"
 #include "common/uiconst.h"  // for FontSize
+#include "layouts/layouts.h"
+#include "questionnairelib/qupage.h"
 #include "widgets/openablewidget.h"
-#include "qupage.h"
 
 class CamcopsApp;
 class QuestionnaireHeader;
@@ -140,9 +143,14 @@ protected:
     bool m_within_chain;
 
     bool m_built;
+#ifdef QUESTIONAIRE_USE_HFW_LAYOUT
+    QPointer<VBoxLayout> m_outer_layout;
+    QPointer<VBoxLayout> m_mainlayout;
+#else
     QPointer<QVBoxLayout> m_outer_layout;
-    QPointer<QWidget> m_background_widget;
     QPointer<QVBoxLayout> m_mainlayout;
+#endif
+    QPointer<QWidget> m_background_widget;
     QPointer<QuestionnaireHeader> m_p_header;
     int m_current_page_index;
     QString m_finish_button_icon_base_filename;

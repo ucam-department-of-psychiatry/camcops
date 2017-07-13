@@ -64,6 +64,9 @@ from .cc_modules.cc_constants import (
     CAMCOPS_URL,
     COMMON_HEAD,
     DATEFORMAT,
+    FP_ID_DESC,
+    FP_ID_NUM,
+    FP_ID_SHORT_DESC,
     NUMBER_OF_IDNUMS,
     PARAM,
     RESTRICTED_WARNING,
@@ -72,7 +75,7 @@ from .cc_modules.cc_constants import (
     VALUE,
     WEBEND,
 )
-from .cc_modules import cc_blob
+from .cc_modules.cc_blob import Blob
 from .cc_modules import cc_db
 from .cc_modules.cc_device import (
     Device,
@@ -88,6 +91,7 @@ from .cc_modules import cc_hl7
 from .cc_modules import cc_html
 from .cc_modules.cc_logger import log
 from .cc_modules import cc_patient
+from .cc_modules.cc_patient import Patient
 from .cc_modules import cc_plot
 from .cc_modules.cc_pls import pls
 from .cc_modules import cc_policy
@@ -1361,7 +1365,7 @@ def offer_table_dump(session: Session, form: cgi.FieldStorage) -> str:
     )
 
     for x in cc_dump.get_permitted_tables_views_sorted_labelled():
-        if x["name"] == cc_blob.Blob.TABLENAME:
+        if x["name"] == Blob.TABLENAME:
             name = PARAM.TABLES_BLOB
             checked = ""
         else:
@@ -2254,19 +2258,19 @@ def edit_patient(session: Session, form: cgi.FieldStorage) -> str:
         if val is None:
             val = ""
         nstr = str(n)
-        changes["idnum" + nstr] = val
+        changes[FP_ID_NUM + nstr] = val
         # We will also write the server's ID descriptions, if the ID number is
         # changing.
         if val != "":
-            changes["iddesc" + nstr] = pls.get_id_desc(n)
-            changes["idshortdesc" + nstr] = pls.get_id_shortdesc(n)
+            changes[FP_ID_DESC + nstr] = pls.get_id_desc(n)
+            changes[FP_ID_SHORT_DESC + nstr] = pls.get_id_shortdesc(n)
     # Calculations
     n_confirmations = 2
     if (confirmation_sequence is None or
             confirmation_sequence < 0 or
             confirmation_sequence > n_confirmations):
         confirmation_sequence = 0
-    patient = cc_patient.Patient(patient_server_pk)
+    patient = Patient(patient_server_pk)
     if patient.get_pk() is None:
         return cc_html.fail_with_error_stay_logged_in(
             "No such patient found.")
@@ -2314,9 +2318,9 @@ def edit_patient(session: Session, form: cgi.FieldStorage) -> str:
                 desc = pls.get_id_desc(n)
                 details += info_html_for_patient_edit(
                     "ID number {} ({})".format(n, desc),
-                    changes["idnum" + str(n)],
+                    changes[FP_ID_NUM + str(n)],
                     PARAM.IDNUM_PREFIX + str(n),
-                    changes["idnum" + str(n)],
+                    changes[FP_ID_NUM + str(n)],
                     patient.get_idnum(n))
         else:
             warning = ""
@@ -2531,8 +2535,8 @@ def forcibly_finalize(session: Session, form: cgi.FieldStorage) -> str:
     # Force-finalize tasks (with subtables)
     tables = [
         # non-task but tablet-based tables
-        cc_patient.Patient.TABLENAME,
-        cc_blob.Blob.TABLENAME,
+        Patient.TABLENAME,
+        Blob.TABLENAME,
         DeviceStoredVar.TABLENAME,
     ]
     for cls in cc_task.get_all_task_classes():

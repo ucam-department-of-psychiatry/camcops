@@ -18,10 +18,17 @@ import sys
 import tempfile
 import urllib.request
 
+try:
+    import distro
+except ImportError:
+    distro = None
+
 if sys.version_info[0] < 3:
     raise AssertionError("Need Python 3")
 if not platform.system() == 'Linux':
     raise AssertionError("Need Linux")
+if not distro:
+    raise AssertionError("Please install the 'distro' package with 'pip install distro' first")  # noqa
 
 # =============================================================================
 # What version do we have/need?
@@ -48,7 +55,10 @@ if existing_cmd:
 # Basic distro rules
 # =============================================================================
 
-LINUX_DIST, LINUX_VERSION, LINUX_ID = platform.linux_distribution()
+if distro:
+    LINUX_DIST, LINUX_VERSION, LINUX_ID = distro.linux_distribution()
+else:
+    LINUX_DIST, LINUX_VERSION, LINUX_ID = ('', '', '')
 LINUX_DIST = LINUX_DIST.lower()
 
 BITS_64 = platform.architecture()[0] == '64bit'

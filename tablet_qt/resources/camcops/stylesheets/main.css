@@ -15,7 +15,8 @@ QMainWindow {
 
 QStackedWidget {
     /* the stack of menus; thus, the background of all menus */
-    background-color: red;
+    /* background-color: red; */
+    background-color: black;
 }
 
 LogBox QPlainTextEdit {

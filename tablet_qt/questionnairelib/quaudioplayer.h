@@ -18,8 +18,8 @@
 */
 
 #pragma once
-#include "quelement.h"
 #include <QMediaPlayer>
+#include "questionnairelib/quelement.h"
 
 class QAbstractButton;
 class QWidget;

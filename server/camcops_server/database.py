@@ -36,7 +36,6 @@ from typing import (Any, Callable, Dict, Iterable, List,
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE
-from semantic_version import Version
 
 from .cc_modules.cc_dt import format_datetime
 from .cc_modules import cc_audit
@@ -65,6 +64,7 @@ from .cc_modules.cc_convert import (
 from .cc_modules.cc_device import Device, get_device_by_name
 from .cc_modules.cc_hl7 import HL7Run
 from .cc_modules.cc_logger import dblog as log
+from .cc_modules.cc_patient import Patient
 from .cc_modules.cc_pls import pls
 from .cc_modules.cc_session import Session
 from .cc_modules.cc_specialnote import SpecialNote
@@ -93,6 +93,13 @@ PROFILE = False
 # =============================================================================
 # Constants
 # =============================================================================
+
+COPE_WITH_DELETED_PATIENT_DESCRIPTIONS = True
+# ... as of client 2.0.0, ID descriptions are no longer duplicated.
+# As of server 2.0.0, the fields still exist in the database, but the reporting
+# and consistency check has been removed. In the next version of the server,
+# the fields will be removed, and then the server should cope with old clients,
+# at least for a while.
 
 CONTENTTYPE = 'text/plain; charset=utf-8'
 DUPLICATE_FAILED = "Failed to duplicate record"
@@ -754,6 +761,15 @@ def upload_record_core(sm: SessionManager,
                 )
         else:
             # MODIFIED
+            if COPE_WITH_DELETED_PATIENT_DESCRIPTIONS:
+                if table == Patient.TABLENAME:
+                    for n in range(1, NUMBER_OF_IDNUMS + 1):
+                        i = n - 1
+                        nstr = str(n)
+                        reply["idDescription" + nstr] = pls.IDDESC[i]
+                        reply["idShortDescription" + nstr] = pls.IDSHORTDESC[i]
+
+                    XXX
             newserverpk = insert_record(sm, table, valuedict, oldserverpk)
             flag_modified(sm, table, oldserverpk, newserverpk)
             log.debug("Table {table}, record {recordnum}: modified".format(

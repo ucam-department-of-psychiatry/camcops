@@ -156,7 +156,7 @@ class DeviceReport(Report):
             SELECT
                 id,
                 name,
-                registered_by_user,
+                registered_by_user_id,
                 when_registered_utc,
                 friendly_name,
                 camcops_version,

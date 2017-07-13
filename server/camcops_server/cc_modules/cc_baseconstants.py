@@ -35,4 +35,4 @@ TABLET_SOURCE_COPY_DIR = os.path.join(CAMCOPS_SERVER_DIRECTORY,
                                       "tablet_source_copy")
 
 INTROSPECTABLE_EXTENSIONS = [".cpp", ".h", ".html", ".js", ".jsx",
-                             ".py", ".pl", ".xml"]
+                             ".py", ".pl", ".qml", ".xml"]

@@ -545,7 +545,7 @@ QSize qtlayouthelpers::qSmartMinSize(
         s.setHeight(minSize.height());
     }
 
-    return s.expandedTo(QSize(0,0));
+    return s.expandedTo(QSize(0, 0));
 }
 
 

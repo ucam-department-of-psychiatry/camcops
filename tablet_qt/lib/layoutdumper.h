@@ -44,7 +44,7 @@ public:
     {}
 
 public:
-    bool show_widget_properties = true;
+    bool show_widget_properties = false;
     // ... e.g.:
     // [_q_styleSheetWidgetFont="Sans Serif,9,-1,5,50,0,0,0,0,0"]
 
@@ -53,14 +53,17 @@ public:
     // [WA_NoSystemBackground 0, WA_OpaquePaintEvent 0, WA_SetStyle 0,
     //  WA_StyleSheet 1, WA_TranslucentBackground 0, WA_StyledBackground 0]
 
-    bool show_set_widget_attributes = true;
+    bool show_set_widget_attributes = false;
     // ... e.g.:
     // [WA_StyleSheet]
 
-    bool show_widget_stylesheets = true;
+    bool show_widget_stylesheets = false;
     // ... the CSS attached by the user
 
     int spaces_per_level = 4;
+
+    bool use_ultimate_parent = false;
+    // ... travel up to the ultimate parent before travelling down
 };
 
 QString toString(const QSizePolicy::Policy& policy);
@@ -85,6 +88,7 @@ QVector<const QWidget*> dumpWidgetAndChildren(
         const QString& alignment, const DumperConfig& config);
 void dumpWidgetHierarchy(const QWidget* w,
                          const DumperConfig& config = DumperConfig());
+const QWidget* ultimateParentWidget(const QWidget* w);
 
 }  // namespace layoutdumper
 

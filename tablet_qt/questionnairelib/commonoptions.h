@@ -20,7 +20,7 @@
 #pragma once
 #include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QString>
-#include "namevalueoptions.h"
+#include "questionnairelib/namevalueoptions.h"
 
 
 // Translation doesn't work for static variables, because static variables

@@ -21,7 +21,7 @@
 
 #include <QPointer>
 #include "core/camcopsapp.h"
-#include "qupage.h"
+#include "questionnairelib/qupage.h"
 #include "widgets/basewidget.h"
 
 class ImageButton;

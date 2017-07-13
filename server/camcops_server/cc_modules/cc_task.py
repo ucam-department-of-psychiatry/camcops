@@ -71,6 +71,7 @@ from .cc_constants import (
     CSS_PAGED_MEDIA,
     DATEFORMAT,
     ERA_NOW,
+    FP_ID_NUM,
     HL7MESSAGE_TABLENAME,
     INVALID_VALUE,
     NUMBER_OF_IDNUMS,
@@ -106,6 +107,7 @@ from .cc_lang import all_subclasses, Min, MinType
 from .cc_logger import log
 from .cc_namedtuples import XmlElementTuple
 from . import cc_patient
+from .cc_patient import Patient
 from . import cc_plot
 from .cc_pls import pls
 from .cc_recipdef import RecipientDefinition
@@ -1148,7 +1150,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             return None
         return self._patient.get_pk()
 
-    def get_patient(self) -> Optional[cc_patient.Patient]:
+    def get_patient(self) -> Optional[Patient]:
         """Get the associated Patient() object."""
         return self._patient
 
@@ -1714,7 +1716,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         for n in range(1, NUMBER_OF_IDNUMS + 1):
             nstr = str(n)
             f = getattr(session, "filter_idnum" + nstr)
-            if f is not None and f != getattr(self._patient, "idnum" + nstr):
+            if f is not None and f != getattr(self._patient, FP_ID_NUM + nstr):
                 return False
 
         # 4. Slow:
@@ -2022,7 +2024,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         clusterpk_fs["value"] = self._pk
         fieldspecs = [clusterpk_fs]
         # Store a subset of patient info in all linked records
-        patientfs = copy.deepcopy(cc_patient.Patient.FIELDSPECS)
+        patientfs = copy.deepcopy(Patient.FIELDSPECS)
         for fs in patientfs:
             if fs.get("cris_include", False):
                 fs["value"] = getattr(self._patient, fs["name"])
@@ -3755,7 +3757,7 @@ def task_instance_unit_test(name: str, instance: Task) -> None:
                              "names")
 
     field_and_summary_names = field_names + summary_names
-    for f in cc_patient.Patient.FIELDS:
+    for f in Patient.FIELDS:
         test_field = TSV_PATIENT_FIELD_PREFIX + f
         if test_field in field_and_summary_names:
             raise AssertionError(

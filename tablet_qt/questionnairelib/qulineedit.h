@@ -20,7 +20,7 @@
 #pragma once
 #include <QLineEdit>  // for EchoMode
 #include "db/fieldref.h"
-#include "quelement.h"
+#include "questionnairelib/quelement.h"
 
 class FocusWatcher;
 class QLineEdit;

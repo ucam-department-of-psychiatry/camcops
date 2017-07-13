@@ -185,7 +185,7 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
     case FieldRefMethod::DatabaseObjectBlobField:
         changed = m_blob->setBlob(value, true);
         if (changed) {
-            m_blob->save();  // ensure it has a PK
+            // it will ALREADY have saved (see setBlob); don't save it twice!
             m_p_dbobject->setValue(m_fieldname, m_blob->pkvalue(), true);
         }
         // ... (a) sets the BLOB, and (b) if the BLOB has changed or is being
