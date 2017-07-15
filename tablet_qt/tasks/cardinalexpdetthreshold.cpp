@@ -27,7 +27,7 @@
 #include <QTimer>
 #include "common/uiconst.h"
 #include "db/ancillaryfunc.h"
-#include "db/dbtransaction.h"
+#include "db/dbnestabletransaction.h"
 #include "graphics/graphicsfunc.h"
 #include "lib/convert.h"
 #include "lib/soundfunc.h"
@@ -700,7 +700,7 @@ void CardinalExpDetThreshold::reset()
 void CardinalExpDetThreshold::labelTrialsForAnalysis()
 {
     // Trial numbers in the calculation sequence start from 1.
-    DbTransaction trans(m_db);
+    DbNestableTransaction trans(m_db);
     int tnum = 1;
     for (int i = 0; i < m_trials.size(); ++i) {
         const CardinalExpDetThresholdTrialPtr& t = m_trials.at(i);

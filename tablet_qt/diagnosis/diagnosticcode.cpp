@@ -93,7 +93,7 @@ int DiagnosticCode::row() const
 
 QVariant DiagnosticCode::data(int column) const
 {
-    qDebug() << Q_FUNC_INFO << "column" << column;
+    // qDebug() << Q_FUNC_INFO << "column" << column;
     switch (column) {
     case COLUMN_CODE:
         return code();

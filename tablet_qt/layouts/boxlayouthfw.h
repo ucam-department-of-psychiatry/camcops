@@ -178,8 +178,8 @@ public:
 
     Qt::Orientations expandingDirections() const override;
     void invalidate() override;
-    QLayoutItem *itemAt(int index) const override;
-    QLayoutItem *takeAt(int index) override;
+    QLayoutItem* itemAt(int index) const override;
+    QLayoutItem* takeAt(int index) override;
     int count() const override;
     void setGeometry(const QRect& rect) override;
 

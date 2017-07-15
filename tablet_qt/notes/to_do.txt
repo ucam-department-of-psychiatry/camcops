@@ -5,15 +5,6 @@ TO DO NOW
 
 INSTALL NEW SERVER
 
-CLIENT
-- as per Julia's problem: >1 patient on tablet, need to have same RID (because
-  extra one created by mistake) - option to merge
-  ... NB the tablet will restrict this at present (no patients with same ID)
-  ... easiest way:
-    - only permit merges where information is complete/equal
-    - permit assignment of two patients to the same ID but prohibit uploads
-      until the clash is resolved
-
 ANDROID
 - RETEST .APK
 - UPLOAD .APK TO GOOGLE PLAY
@@ -111,6 +102,7 @@ QT BUGS?
 
 - Qt Android bug: sometimes selection cursors don't match the position of a
   line edit (e.g. in initial password dialog).
+  https://bugreports.qt.io/browse/QTBUG-58503
 
 - Sometimes there is a delay after clicking on a QuBoolean with an image, like
   the picture-naming in the ACE-III. The delay occurs whether you click the

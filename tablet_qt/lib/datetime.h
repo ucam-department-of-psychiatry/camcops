@@ -31,8 +31,10 @@ extern const QString TEXT_DATE_FORMAT;
 extern const QString TEXT_DATETIME_FORMAT;
 extern const QString UNKNOWN;
 
+QString dateToIso(const QDate& d);
 QString datetimeToIsoMs(const QDateTime& dt, bool use_z_timezone = false);
 QString datetimeToIsoMsUtc(const QDateTime& dt, bool use_z_timezone = false);
+QDate isoToDate(const QString& iso);
 QDateTime isoToDateTime(const QString& iso);
 
 QDateTime now();

@@ -37,8 +37,8 @@ class TickSlider : public QSlider
 
     Q_OBJECT
 public:
-    TickSlider(QWidget *parent = nullptr);
-    TickSlider(Qt::Orientation orientation, QWidget *parent = nullptr);
+    TickSlider(QWidget* parent = nullptr);
+    TickSlider(Qt::Orientation orientation, QWidget* parent = nullptr);
     virtual void setTickColor(const QColor& colour);
     virtual void setTickThickness(int thickness);
     virtual void setTickLength(int length);
@@ -47,7 +47,7 @@ public:
     virtual void setGapToSlider(int gap);
     virtual void setEdgeInExtremeLabels(bool edge_in_extreme_labels);
 
-    virtual void paintEvent(QPaintEvent *ev) override;
+    virtual void paintEvent(QPaintEvent* ev) override;
     virtual QSize sizeHint() const override;
 
     virtual void setTickLabelPosition(QSlider::TickPosition position);

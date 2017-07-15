@@ -25,6 +25,7 @@
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "dbobjects/patient.h"
+#include "layouts/flowlayouthfw.h"
 #include "layouts/layouts.h"
 #include "lib/uifunc.h"
 #include "widgets/basewidget.h"
@@ -93,13 +94,16 @@ MenuHeader::MenuHeader(QWidget* parent,
     toprowlayout->addStretch();
 
     // Right-hand icons
+    FlowLayoutHfw* rh_icons = new FlowLayoutHfw();
+    toprowlayout->addLayout(rh_icons);
+    rh_icons->setHorizontalAlignmentOfContents(Qt::AlignRight);
 
     // - Debug
     if (debug_allowed) {
         m_button_debug = new QPushButton("Dump layout");
         connect(m_button_debug, &QAbstractButton::clicked,
                 this, &MenuHeader::debugLayout);
-        toprowlayout->addWidget(m_button_debug, 0, text_align);
+        rh_icons->addWidget(m_button_debug, text_align);
     }
 
     // - Task verb buttons
@@ -108,11 +112,11 @@ MenuHeader::MenuHeader(QWidget* parent,
     m_button_edit = new ImageButton(uiconst::CBS_EDIT);
     m_button_delete = new ImageButton(uiconst::CBS_DELETE);
     m_button_add = new ImageButton(uiconst::CBS_ADD);
-    toprowlayout->addWidget(m_button_finish_flag, 0, button_align);
-    toprowlayout->addWidget(m_button_view, 0, button_align);
-    toprowlayout->addWidget(m_button_edit, 0, button_align);
-    toprowlayout->addWidget(m_button_delete, 0, button_align);
-    toprowlayout->addWidget(m_button_add, 0, button_align);
+    rh_icons->addWidget(m_button_finish_flag, button_align);
+    rh_icons->addWidget(m_button_view, button_align);
+    rh_icons->addWidget(m_button_edit, button_align);
+    rh_icons->addWidget(m_button_delete, button_align);
+    rh_icons->addWidget(m_button_add, button_align);
     offerFinishFlag();
     offerView();
     offerEditDelete();
@@ -131,13 +135,13 @@ MenuHeader::MenuHeader(QWidget* parent,
     // - Whisker
     m_icon_whisker_connected = uifunc::iconWidget(
         uifunc::iconFilename(uiconst::ICON_WHISKER), this);
-    toprowlayout->addWidget(m_icon_whisker_connected);
-    toprowlayout->setAlignment(m_icon_whisker_connected, button_align);
+    rh_icons->addWidget(m_icon_whisker_connected);
+    rh_icons->setAlignment(m_icon_whisker_connected, button_align);
     whiskerConnectionStateChanged(m_app.whiskerConnected());
 
     // - Needs upload
     m_button_needs_upload = new ImageButton(uiconst::ICON_UPLOAD);
-    toprowlayout->addWidget(m_button_needs_upload, 0, button_align);
+    rh_icons->addWidget(m_button_needs_upload, button_align);
     needsUploadChanged(m_app.needsUpload());
     connect(m_button_needs_upload, &QAbstractButton::clicked,
             &m_app, &CamcopsApp::upload);
@@ -146,9 +150,9 @@ MenuHeader::MenuHeader(QWidget* parent,
     m_button_locked = new ImageButton(uiconst::CBS_LOCKED);
     m_button_unlocked = new ImageButton(uiconst::CBS_UNLOCKED);
     m_button_privileged = new ImageButton(uiconst::CBS_PRIVILEGED);
-    toprowlayout->addWidget(m_button_locked, 0, button_align);
-    toprowlayout->addWidget(m_button_unlocked, 0, button_align);
-    toprowlayout->addWidget(m_button_privileged, 0, button_align);
+    rh_icons->addWidget(m_button_locked, button_align);
+    rh_icons->addWidget(m_button_unlocked, button_align);
+    rh_icons->addWidget(m_button_privileged, button_align);
     lockStateChanged(m_app.lockstate());
     connect(m_button_locked, &QAbstractButton::clicked,
             &m_app, &CamcopsApp::unlock);
@@ -262,13 +266,7 @@ void MenuHeader::setPatientDetails(const Patient* patient)
     QString info;
 
     if (selected) {
-        info = QString("<b>%1, %2</b> (%3, %4, DOB %5); %6")
-                .arg(patient->surname().toUpper(),
-                     patient->forename(),
-                     QString("%1 y").arg(patient->ageYears()),
-                     patient->sex(),
-                     patient->dobText(),
-                     patient->shortIdnumSummary());
+        info = patient->oneLineHtmlDetailString();
     }
 #ifdef DEBUG_SLOTS
     qDebug() << Q_FUNC_INFO << info << "[patient:" << patient << "]";

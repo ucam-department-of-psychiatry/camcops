@@ -27,6 +27,10 @@
 
 class ScrollMessageBox : public QDialog
 {
+    // A version of QMessageBox that scrolls its contents.
+    // Use this by default, because if you run CamCOPS on small phone screens,
+    // scrolling becomes vital.
+
     Q_OBJECT
 
     using StandardButton = QDialogButtonBox::StandardButton;

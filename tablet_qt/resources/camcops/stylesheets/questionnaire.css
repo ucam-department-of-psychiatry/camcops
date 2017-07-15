@@ -27,11 +27,13 @@
     We will do a replacement that uses Qt QString arg format, with percentages,
     with the following mapping:
 
-        %1      normal
-        %2      big
-        %3      heading
-        %4      title
-        %5      base menu font size
+        %1      normal font size (pt)
+        %2      big font size (pt)
+        %3      heading font size (pt)
+        %4      title font size (pt)
+        %5      base menu font size (pt)
+        %6      slider groove size (px)
+        %7      slider handle size (px)
 
     ALL CSS USING CamcopsApp::getSubstitutedCss MUST PROVIDE AT LEAST ONE
     PLACEHOLDER FOR EACH OF THESE, e.g. in a comment if not otherwise used
@@ -364,10 +366,10 @@ QSlider {
 }
 */
 QSlider:horizontal {
-    padding: 10px 0;
+    padding: %6px 0;
 }
 QSlider:vertical {
-    padding: 0 10px;
+    padding: 0 %6px;
 }
 
 QSlider::groove {
@@ -375,11 +377,11 @@ QSlider::groove {
     background: lightgray;
 }
 QSlider::groove:horizontal {
-    height: 10px;
+    height: %6px;
     margin: 2px 0;
 }
 QSlider::groove:vertical {
-    width: 10px;
+    width: %6px;
     margin: 0 2px;
 }
 
@@ -399,15 +401,15 @@ QSlider::sub-page:vertical {
 QSlider::handle {
     background: darkgray;
     border: 2px solid black;
-    border-radius: 10px;
+    border-radius: %6px;
 }
 QSlider::handle:horizontal {
-    width: 20px;
-    margin: -10px 0;
+    width: %7px;
+    margin: -%6px 0;
 }
 QSlider::handle:vertical {
-    height: 20px;
-    margin: 0 -10px;
+    height: %7px;
+    margin: 0 -%6px;
 }
 QSlider::handle:horizontal:hover,
 QSlider::handle:vertical:hover {

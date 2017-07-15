@@ -233,10 +233,14 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
         // --------------------------------------------------------------------
         MenuItem("Layouts and the like").setLabelOnly(),
         // --------------------------------------------------------------------
-        MenuItem("FlowLayout (containing fixed-size icons)",
-                 std::bind(&WidgetTestMenu::testFlowLayout, this, 5, false)),
+        MenuItem("FlowLayout (containing fixed-size icons, left-align)",
+                 std::bind(&WidgetTestMenu::testFlowLayout, this, 5, false, Qt::AlignLeft)),
+        MenuItem("FlowLayout (containing fixed-size icons, centre-align)",
+                 std::bind(&WidgetTestMenu::testFlowLayout, this, 5, false, Qt::AlignCenter)),
+        MenuItem("FlowLayout (containing fixed-size icons, right-align)",
+                 std::bind(&WidgetTestMenu::testFlowLayout, this, 5, false, Qt::AlignRight)),
         MenuItem("FlowLayout (containing word-wrapped text)",
-                 std::bind(&WidgetTestMenu::testFlowLayout, this, 5, true)),
+                 std::bind(&WidgetTestMenu::testFlowLayout, this, 5, true, Qt::AlignLeft)),
         MenuItem("BaseWidget (with short text)",
                  std::bind(&WidgetTestMenu::testBaseWidget, this, false)),
         MenuItem("BaseWidget (with long text)",
@@ -745,10 +749,12 @@ void WidgetTestMenu::testVerticalScrollGridLayout()
 // Layouts and the like
 // ============================================================================
 
-void WidgetTestMenu::testFlowLayout(int n_icons, bool text)
+void WidgetTestMenu::testFlowLayout(int n_icons, bool text,
+                                    Qt::Alignment halign)
 {
     QWidget* widget = new QWidget();
     FlowLayoutHfw* layout = new FlowLayoutHfw();
+    layout->setHorizontalAlignmentOfContents(halign);
     widget->setLayout(layout);
     for (int i = 0; i < n_icons; ++i) {
         if (text) {

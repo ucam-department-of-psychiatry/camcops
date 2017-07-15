@@ -21,6 +21,7 @@
 // ... modified a bit
 
 // #define USE_CUSTOM_VERTICAL_SCROLL_AREA  // made no difference; test for uifunc::applyScrollGestures()
+// #define ENFORCE_MINIMUM
 
 #include "scrollmessagebox.h"
 #include <QApplication>
@@ -37,8 +38,10 @@
 #include "lib/uifunc.h"
 #include "widgets/verticalscrollarea.h"
 
+#ifdef ENFORCE_MINIMUM
 const QSize MIN_SIZE(600, 600);
 // const QSize MAX_SIZE(1024, 1500);
+#endif
 
 
 // ============================================================================
@@ -54,8 +57,8 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
             Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint),
     m_clicked_button(nullptr)
 {
+    // Note: the default scroll area border is removed by main.css
     setWindowTitle(title);
-    setMinimumSize(MIN_SIZE);
 
     m_text_label = new QLabel(text);
     m_text_label->setWordWrap(true);
@@ -73,6 +76,12 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
 #endif
     scroll->setWidget(m_text_label);
     scroll->setWidgetResizable(true);
+#ifdef ENFORCE_MINIMUM
+    setMinimumSize(MIN_SIZE);
+#else
+    scroll->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    // ... will shrink for small contents
+#endif
     uifunc::applyScrollGestures(scroll->viewport());
 
     m_icon_label = new QLabel();
@@ -165,7 +174,7 @@ void ScrollMessageBox::setIcon(QMessageBox::Icon icon)
 
 QPixmap ScrollMessageBox::standardIcon(QMessageBox::Icon icon)
 {
-    QStyle *style = this->style();
+    QStyle* style = this->style();
     int icon_size = style->pixelMetric(QStyle::PM_MessageBoxIconSize, 0, this);
     QIcon tmp_icon;
     switch (icon) {

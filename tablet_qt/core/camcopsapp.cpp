@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_DROP_TABLES_NOT_EXPLICITLY_CREATED
+// #define DEBUG_DROP_TABLES_NOT_EXPLICITLY_CREATED
 
 // #define DANGER_DEBUG_PASSWORD_DECRYPTION
 // #define DANGER_DEBUG_WIPE_PASSWORDS
@@ -33,7 +33,6 @@
 #include <QDir>
 #include <QIcon>
 #include <QMainWindow>
-#include <QMessageBox>
 #include <QProcessEnvironment>
 #include <QPushButton>
 #include <QScreen>
@@ -55,7 +54,6 @@
 #include "db/databasemanager.h"
 #include "db/dbfunc.h"
 #include "db/dbnestabletransaction.h"
-#include "db/dbtransaction.h"
 #include "db/dumpsql.h"
 #include "db/whereconditions.h"
 #include "db/whichdb.h"
@@ -548,7 +546,7 @@ void CamcopsApp::createStoredVars()
     // ------------------------------------------------------------------------
     // Create stored variables: name, type, default
     // ------------------------------------------------------------------------
-    DbTransaction trans(*m_sysdb);  // https://www.sqlite.org/faq.html#q19
+    DbNestableTransaction trans(*m_sysdb);  // https://www.sqlite.org/faq.html#q19
 
     // Version
     createVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, QVariant::String,
@@ -959,10 +957,11 @@ void CamcopsApp::close()
 
         if (varBool(varconst::OFFER_UPLOAD_AFTER_EDIT) &&
                 varBool(varconst::NEEDS_UPLOAD)) {
-            QMessageBox msgbox(m_p_main_window);  // parent
-            msgbox.setIcon(QMessageBox::Question);
-            msgbox.setWindowTitle(tr("Upload?"));
-            msgbox.setText(tr("Task finished. Upload data to server now?"));
+            ScrollMessageBox msgbox(
+                        QMessageBox::Question,
+                        tr("Upload?"),
+                        tr("Task finished. Upload data to server now?"),
+                        m_p_main_window);  // parent
             QAbstractButton* yes = msgbox.addButton(tr("Yes, upload"),
                                                     QMessageBox::YesRole);
             msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
@@ -1339,7 +1338,7 @@ void CamcopsApp::patientHasBeenEdited(int patient_id)
 }
 
 
-const Patient* CamcopsApp::selectedPatient() const
+Patient* CamcopsApp::selectedPatient() const
 {
     return m_patient.data();
 }
@@ -1424,6 +1423,8 @@ QString CamcopsApp::getSubstitutedCss(const QString& filename) const
             .arg(fontSizePt(uiconst::FontSize::Heading))    // %3
             .arg(fontSizePt(uiconst::FontSize::Title))      // %4
             .arg(fontSizePt(uiconst::FontSize::Menus))      // %5
+            .arg(uiconst::SLIDER_HANDLE_SIZE_PX / 2)        // %6: groove
+            .arg(uiconst::SLIDER_HANDLE_SIZE_PX)            // %7: handle
     );
 }
 
@@ -1516,7 +1517,7 @@ void CamcopsApp::deleteAllExtraStrings()
 
 void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
 {
-    DbTransaction trans(*m_sysdb);
+    DbNestableTransaction trans(*m_sysdb);
     deleteAllExtraStrings();
     for (auto record : recordlist) {
         if (!record.contains(ExtraString::EXTRASTRINGS_TASK_FIELD) ||
@@ -1689,7 +1690,7 @@ QDateTime CamcopsApp::agreedTermsAt() const
 void CamcopsApp::offerTerms()
 {
     ScrollMessageBox msgbox(QMessageBox::Question,
-                            tr("View terms and conditions of use"),
+                            tr("Terms and conditions of use"),
                             textconst::TERMS_CONDITIONS,
                             m_p_main_window);
     // Keep agree/disagree message short, for phones:
@@ -1737,17 +1738,17 @@ void CamcopsApp::upload()
             "\n"
             "COPY: copies unfinished patients, moves finished patients.\n"
             "MOVE: moves all patients and their data.\n"
-            "MOVE, KEEPING PATIENTS: moves all task data, keeps only basic "
-            "patient details for unfinished patients.\n"
+            "KEEP PATIENTS AND MOVE: moves all task data, keeps only basic "
+            "patient details (for adding more tasks later).\n"
             "\n"
             "Please MOVE whenever possible; this reduces the amount of "
             "patient-identifiable information stored on this device.";
-    QMessageBox msgbox(m_p_main_window);
-    msgbox.setIcon(QMessageBox::Question);
-    msgbox.setWindowTitle(tr("Upload to server"));
-    msgbox.setText(text);
+    ScrollMessageBox msgbox(QMessageBox::Question,
+                            tr("Upload to server"),
+                            text,
+                            m_p_main_window);
     QAbstractButton* copy = msgbox.addButton(tr("Copy"), QMessageBox::YesRole);
-    QAbstractButton* move_keep = msgbox.addButton(tr("Move, keeping patients"), QMessageBox::NoRole);
+    QAbstractButton* move_keep = msgbox.addButton(tr("Keep patients and move"), QMessageBox::NoRole);
     QAbstractButton* move = msgbox.addButton(tr("Move"), QMessageBox::AcceptRole);  // e.g. OK
     msgbox.addButton(tr("Cancel"), QMessageBox::RejectRole);  // e.g. Cancel
     msgbox.exec();

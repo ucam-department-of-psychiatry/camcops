@@ -64,7 +64,8 @@ using QuestionnairePtr = QSharedPointer<Questionnaire>;
 class QuPage;
 using QuPagePtr = QSharedPointer<QuPage>;
 
-using RecordList = QVector<QMap<QString, QVariant>>;
+using Record = QMap<QString, QVariant>;
+using RecordList = QVector<Record>;
 
 class StoredVar;
 using StoredVarPtr = QSharedPointer<StoredVar>;

@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_STEP_DETAIL
+// #define DEBUG_STEP_DETAIL
 
 #include "cardinalexpectationdetection.h"
 #include <QDebug>
@@ -26,7 +26,7 @@
 #include <QTimer>
 #include "common/textconst.h"
 #include "db/ancillaryfunc.h"
-#include "db/dbtransaction.h"
+#include "db/dbnestabletransaction.h"
 #include "lib/containers.h"
 #include "lib/datetime.h"
 #include "lib/soundfunc.h"
@@ -507,7 +507,7 @@ OpenableWidget* CardinalExpectationDetection::editor(bool read_only)
 
 void CardinalExpectationDetection::makeTrialGroupSpecs()
 {
-    DbTransaction trans(m_db);
+    DbNestableTransaction trans(m_db);
     m_groups.clear();  // should be clear anyway
     for (int i = 0; i < N_TRIAL_GROUPS; ++i) {
         int group_num = i;
@@ -678,7 +678,7 @@ QVector<CardinalExpDetTrialPtr> CardinalExpectationDetection::makeTrialGroup(
 
 void CardinalExpectationDetection::createTrials()
 {
-    DbTransaction trans(m_db);
+    DbNestableTransaction trans(m_db);
     m_trials.clear();  // should be clear anyway
     const int num_blocks = valueInt(FN_NUM_BLOCKS);
     for (int b = 0; b < num_blocks; ++b) {

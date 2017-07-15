@@ -21,8 +21,8 @@
 
 
 void StyleNoFocusRect::drawPrimitive(
-        PrimitiveElement element, const QStyleOption *option,
-        QPainter *painter, const QWidget *widget) const
+        PrimitiveElement element, const QStyleOption* option,
+        QPainter* painter, const QWidget* widget) const
 {
     /* do not draw focus rectangles */
     if (element == QStyle::PE_FrameFocusRect) {

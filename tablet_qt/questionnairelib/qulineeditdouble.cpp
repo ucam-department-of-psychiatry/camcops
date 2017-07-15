@@ -70,4 +70,5 @@ void QuLineEditDouble::extraLineEditCreation(QLineEdit* editor)
         editor->setValidator(new QDoubleValidator(
             m_minimum, m_maximum, m_decimals, this));
     }
+    editor->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
 }

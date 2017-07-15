@@ -346,7 +346,7 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain, int start,
 
         // first give to the fixed ones:
         for (i = start; i < start + count; i++) {
-            QQLayoutStruct *data = &chain[i];  // RNC: extra q
+            QQLayoutStruct* data = &chain[i];  // RNC: extra q
             if (!data->done && data->minimum_size >= data->smartSizeHint()) {
                 data->size = data->smartSizeHint();
                 data->done = true;
@@ -488,7 +488,7 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain, int start,
     int extra = extraspace / (spacer_count + 2);
     int p = pos + extra;
     for (i = start; i < start + count; i++) {
-        QQLayoutStruct *data = &chain[i];  // RNC: extra Q
+        QQLayoutStruct* data = &chain[i];  // RNC: extra Q
         data->pos = p;
         p += data->size;
         if (!data->empty) {
@@ -682,7 +682,7 @@ QWidgetItem* qtlayouthelpers::createWidgetItem(const QLayout* layout,
     Q_UNUSED(layout);  // RNC
     /*  // RNC: removed
     if (widgetItemFactoryMethod)
-        if (QWidgetItem *wi = (*widgetItemFactoryMethod)(layout, widget))
+        if (QWidgetItem* wi = (*widgetItemFactoryMethod)(layout, widget))
             return wi;
     */
     if (use_hfw_capable_item) {
@@ -702,7 +702,7 @@ QSpacerItem* qtlayouthelpers::createSpacerItem(const QLayout* layout,
     Q_UNUSED(layout);  // RNC
     /*  // RNC: removed
     if (spacerItemFactoryMethod)
-        if (QSpacerItem *si = (*spacerItemFactoryMethod)(layout, w, h, hPolicy, vPolicy))
+        if (QSpacerItem* si = (*spacerItemFactoryMethod)(layout, w, h, hPolicy, vPolicy))
             return si;
     */
     return new QSpacerItem(w, h,  h_policy, v_policy);

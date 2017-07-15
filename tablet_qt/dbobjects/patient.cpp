@@ -24,7 +24,7 @@
 #include "common/dbconstants.h"
 #include "common/design_defines.h"
 #include "db/dbfunc.h"
-#include "db/dbtransaction.h"
+#include "db/dbnestabletransaction.h"
 #include "lib/datetime.h"
 #include "lib/idpolicy.h"
 #include "lib/uifunc.h"
@@ -81,7 +81,7 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     addField(FORENAME_FIELD, QVariant::String);
     addField(SURNAME_FIELD, QVariant::String);
     addField(SEX_FIELD, QVariant::String);
-    addField(DOB_FIELD, QVariant::String);
+    addField(DOB_FIELD, QVariant::Date);  // *** check this works! including NULL!
     addField(ADDRESS_FIELD, QVariant::String);
     addField(GP_FIELD, QVariant::String);
     addField(OTHER_FIELD, QVariant::String);
@@ -119,12 +119,6 @@ QString Patient::surname() const
 {
     QString surname = valueString(SURNAME_FIELD);
     return surname.isEmpty() ? "?" : surname;
-}
-
-
-QString Patient::surnameUpperForename() const
-{
-    return QString("%1, %2").arg(surname().toUpper()).arg(forename());
 }
 
 
@@ -274,7 +268,7 @@ OpenableWidget* Patient::editor(bool read_only)
                                   uiconst::ICONSIZE))
                      ->addTag(TAG_IDCLASH_FAIL));
 
-    for (auto fieldname : policyAttributes().keys()) {
+    for (const QString& fieldname : policyAttributes().keys()) {
         FieldRefPtr fr = fieldRef(fieldname);
         connect(fr.data(), &FieldRef::valueChanged,
                 this, &Patient::updateQuestionnaireIndicators);
@@ -414,6 +408,8 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
 
 bool Patient::othersClashOnIdnum(int which_idnum) const
 {
+    // Answers the question: do any other patients share the ID number whose
+    // *index* (e.g. 0-7) is which_idnum?
     using dbfunc::delimit;
     if (which_idnum < 1 || which_idnum > dbconst::NUMBER_OF_IDNUMS) {
         uifunc::stopApp("Bug: Bad which_idnum to Patient::othersClashOnIdnum");
@@ -439,7 +435,9 @@ bool Patient::othersClashOnIdnum(int which_idnum) const
 
 bool Patient::anyIdClash() const
 {
-    // Single SQL statement
+    // With a single SQL statement, answers the question: "Are there any other
+    // patients (that is, patients with a different PK) that share any ID
+    // numbers with this patient)?"
     using dbfunc::delimit;
     ArgList args;
     QStringList idnum_criteria;
@@ -488,11 +486,146 @@ void Patient::deleteFromDatabase()
     if (patient_id == dbconst::NONEXISTENT_PK) {
         return;
     }
-    DbTransaction trans(m_db);
+    DbNestableTransaction trans(m_db);
     TaskFactory* factory = m_app.taskFactory();
     for (auto p_task : factory->fetchAllForPatient(patient_id)) {
         p_task->deleteFromDatabase();
     }
     // Delete ourself
     DatabaseObject::deleteFromDatabase();
+}
+
+
+bool Patient::matchesForMerge(const Patient* other) const
+{
+    Q_ASSERT(other);
+    auto sameOrOneNull = [this, &other](const QString& fieldname) -> bool {
+        QVariant a = value(fieldname);
+        QVariant b = other->value(fieldname);
+        return a.isNull() || b.isNull() || a == b;
+    };
+    auto sameOrOneBlank = [this, &other](const QString& fieldname) -> bool {
+        QString a = valueString(fieldname);
+        QString b = other->valueString(fieldname);
+        return a.isEmpty() || b.isEmpty() || a == b;
+    };
+
+    if (id() == other->id()) {
+        qWarning() << Q_FUNC_INFO << "Asked to compare two patients with the "
+                                     "same PK for merge! Bug.";
+        return false;
+    }
+    // All ID numbers must match or be blank:
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
+        QString id_fieldname = IDNUM_FIELD_FORMAT.arg(n);
+        if (!sameOrOneNull(id_fieldname)) {
+            return false;
+        }
+    }
+    // Forename, surname, DOB, sex must match or be blank:
+    return sameOrOneBlank(FORENAME_FIELD) &&
+            sameOrOneBlank(SURNAME_FIELD) &&
+            sameOrOneNull(DOB_FIELD) &&
+            sameOrOneBlank(SEX_FIELD) &&
+            sameOrOneBlank(ADDRESS_FIELD) &&
+            sameOrOneBlank(GP_FIELD) &&
+            sameOrOneBlank(OTHER_FIELD);
+}
+
+
+void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
+{
+    DbNestableTransaction trans(m_db);
+
+    int this_pk = id();
+    int other_pk = other->id();
+
+    // Copy information from other to this
+    qInfo() << Q_FUNC_INFO << "Copying information from patient" << other_pk
+            << "to patient" << this_pk;
+    QStringList fields{
+        FORENAME_FIELD,
+        SURNAME_FIELD,
+        DOB_FIELD,
+        SEX_FIELD,
+        ADDRESS_FIELD,
+        GP_FIELD,
+        OTHER_FIELD,
+    };
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
+        fields.append(IDNUM_FIELD_FORMAT.arg(n));
+    }
+    for (const QString& fieldname : fields) {
+        QVariant this_value = value(fieldname);
+        QVariant other_value = other->value(fieldname);
+        if (this_value.isNull() || (this_value.toString().isEmpty() &&
+                                    !other_value.toString().isEmpty())) {
+            setValue(fieldname, other_value);
+        }
+    }
+    save();
+
+    // Move tasks from other to this
+    qInfo() << Q_FUNC_INFO << "Moving tasks from patient" << other_pk
+            << "to patient" << this_pk;
+    TaskFactory* factory = m_app.taskFactory();
+    for (TaskPtr p_task : factory->fetchAllForPatient(other_pk)) {
+        p_task->moveToPatient(this_pk);
+        p_task->save();
+    }
+
+    qInfo() << Q_FUNC_INFO << "Move complete";
+}
+
+
+QString Patient::descriptionForMerge() const
+{
+    return QString("<b>%1</b><br>%2<br>%3").arg(surnameUpperForename(),
+                                                ageSexDob(),
+                                                shortIdnumSummary());
+}
+
+
+QString Patient::forenameSurname() const
+{
+    return QString("%1 %2").arg(forename(), surname());
+}
+
+
+QString Patient::surnameUpperForename() const
+{
+    return QString("%1, %2").arg(surname().toUpper(), forename());
+}
+
+
+QString Patient::sexAgeDob() const
+{
+    return QString("%1, %2y, DOB %3").arg(sex(),
+                                          QString::number(ageYears()),
+                                          dobText());
+}
+
+
+QString Patient::ageSexDob() const
+{
+    // "A 37-year-old woman..."
+    return QString("%1, %2y, DOB %3").arg(sex(),
+                                          QString::number(ageYears()),
+                                          dobText());
+}
+
+
+QString Patient::twoLineDetailString() const
+{
+    return QString("%1 (%2)\n%3").arg(surnameUpperForename(),
+                                      ageSexDob(),
+                                      shortIdnumSummary());
+}
+
+
+QString Patient::oneLineHtmlDetailString() const
+{
+    return QString("<b>%1</b> (%2); %3").arg(surnameUpperForename(),
+                                             ageSexDob(),
+                                             shortIdnumSummary());
 }

@@ -17,6 +17,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define DEBUG_ROTATION
+#define DEBUG_CAMERA
+
 #include "quphoto.h"
 #include <QCameraInfo>
 #include <QHBoxLayout>
@@ -259,10 +262,14 @@ void QuPhoto::resetFieldToNull()
         return;
     }
 
+#ifdef DEBUG_CAMERA
     qDebug() << "QuPhoto: setting field value to NULL...";
+#endif
     bool changed = m_fieldref->setValue(QVariant());
     // ... skip originator; will call fieldValueChanged
+#ifdef DEBUG_CAMERA
     qDebug() << "QuPhoto: ... field value set to NULL.";
+#endif
     if (changed) {
         emit elementValueChanged();
     }
@@ -271,7 +278,9 @@ void QuPhoto::resetFieldToNull()
 
 void QuPhoto::cameraCancelled()
 {
+#ifdef DEBUG_CAMERA
     qDebug() << Q_FUNC_INFO;
+#endif
     if (!m_camera) {
         return;
     }
@@ -281,13 +290,15 @@ void QuPhoto::cameraCancelled()
 
 void QuPhoto::imageCaptured(const QImage& image)
 {
+#ifdef DEBUG_CAMERA
     qDebug() << Q_FUNC_INFO;
+#endif
     if (!m_camera) {
-        qDebug() << "... no camera!";
+        qWarning() << Q_FUNC_INFO << "... no camera!";
         return;
     }
     if (!m_questionnaire) {
-        qDebug() << "... no questionnaire!";
+        qWarning() << Q_FUNC_INFO << "... no questionnaire!";
         return;
     }
     bool changed = false;
@@ -295,9 +306,13 @@ void QuPhoto::imageCaptured(const QImage& image)
         SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard(
                     tr("Saving image..."),
                     tr("Saving"));
+#ifdef DEBUG_CAMERA
         qDebug() << "QuPhoto: setting field value to image...";
+#endif
         changed = m_fieldref->setValue(image);
+#ifdef DEBUG_CAMERA
         qDebug() << "QuPhoto: ... field value set to image.";
+#endif
         m_camera->finish();  // close the camera
     }
     if (changed) {
@@ -311,24 +326,47 @@ void QuPhoto::rotate(qreal angle_degrees)
     if (m_fieldref->isNull()) {
         return;
     }
+#ifdef DEBUG_ROTATION
     qDebug() << "QuPhoto: rotating...";
+#endif
     SlowNonGuiFunctionCaller(
                 std::bind(&QuPhoto::rotateWorker, this, angle_degrees),
                 m_main_widget,
                 "Rotating...");
+#ifdef DEBUG_ROTATION
     qDebug() << "QuPhoto: ... rotation finished.";
+#endif
 }
 
 
 void QuPhoto::rotateWorker(qreal angle_degrees)
 {
+#ifdef DEBUG_ROTATION
+    qDebug() << "rotateWorker: fetching image...";
+#endif
     QImage image = m_fieldref->valueImage();
+#ifdef DEBUG_ROTATION
+    qDebug() << "rotateWorker: ... fetched";
+#endif
     if (image.isNull()) {
         return;
     }
     QTransform matrix;
     matrix.rotate(angle_degrees);
-    m_fieldref->setValue(image.transformed(matrix));
+#ifdef DEBUG_ROTATION
+    qDebug().nospace() << "rotateWorker: rotating image of size "
+                       << image.size() << "...";
+#endif
+    QImage rotated_image = image.transformed(matrix);
+#ifdef DEBUG_ROTATION
+    qDebug() << "rotateWorker: ... rotated to image of size"
+             << rotated_image.size();
+    qDebug() << "rotateWorker: setting field value...";
+#endif
+    m_fieldref->setValue(rotated_image);
+#ifdef DEBUG_ROTATION
+    qDebug() << "rotateWorker: ... set";
+#endif
 }
 
 

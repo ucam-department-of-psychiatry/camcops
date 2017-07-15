@@ -96,7 +96,7 @@ public:
               int port,
               const QString& conn_opts) override;
     void close() override;
-    QSqlResult *createResult() const override;
+    QSqlResult* createResult() const override;
     bool beginTransaction() override;
     bool commitTransaction() override;
     bool rollbackTransaction() override;

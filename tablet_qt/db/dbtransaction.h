@@ -23,6 +23,12 @@ class DatabaseManager;
 
 class DbTransaction
 {
+    // In general, consider AVOIDING this and using DbNestableTransaction
+    // instead. DbTransaction uses BEGIN TRANSACTION/COMMIT/ROLLBACK, and so
+    // if you accidentally nest it, things go wrong.
+    // DbNestableTransaction uses SAVEPOINT x/RELEASE x/ROLLBACK TO SAVEPOINT x
+    // instead, which is safely nestable as long as x is transaction-specific,
+    // and RELEASE behaves like COMMIT when it reaches the top level.
 public:
     DbTransaction(DatabaseManager& db);
     ~DbTransaction();

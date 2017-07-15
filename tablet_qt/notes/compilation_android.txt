@@ -295,3 +295,41 @@ Point Qt Creator to the keystore, as per
 ... which, obviously, is not in the Git repository.
 
 Good for Qt; that was easy!
+
+
+-------------------------------------------------------------------------------
+Android screenshot:
+-------------------------------------------------------------------------------
+    adb shell screencap -p | perl -pe 's/\x0D\x0A/\x0A/g' > screen.png
+    ... https://blog.shvetsov.com/2013/02/grab-android-screenshot-to-computer-via.html
+
+-------------------------------------------------------------------------------
+Phone not connecting:
+-------------------------------------------------------------------------------
+
+watch adb devices
+watch lsusb
+dmesg
+
+If the phone keeps appearing and disappearing:
+
+Try editing /etc/udev/rules.d/51-android.rules to look like this:
+
+# RNC
+# After installing this file, run:
+#       sudo chmod a+r /etc/udev/rules.d/51-android.rules
+#       sudo udevadm control --reload-rules
+
+# RNC's Samsung Galaxy S5 Neo:
+SUBSYSTEM=="usb", SYSFS{idVendor}=="04e8", ATTR{idProduct}=="6860", MODE="0666"
+
+... and then do what it says.
+... but still problems on shrike.
+
+See also:
+- https://askubuntu.com/questions/854332/how-to-connect-android-7-1-to-ubuntu-linux-with-usb
+
+... but the dmesg/lsusb problem is before that.
+See:
+- https://android.stackexchange.com/questions/12491/adb-constantly-disconnects-shows-device-offline
+

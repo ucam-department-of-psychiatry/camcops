@@ -21,6 +21,7 @@
 #define ONE_SELECT_AT_A_TIME
 // #define DEBUG_BACKGROUND_QUERY
 // #define DEBUG_VERBOSE
+// #define DEBUG_REPORT_TABLE_STRUCTURE_OK
 
 #include "databasemanager.h"
 #include <QDateTime>
@@ -961,8 +962,10 @@ void DatabaseManager::createTable(const QString& tablename,
 #endif
 
     if (!drop_or_change_mods_required) {
+#ifdef DEBUG_REPORT_TABLE_STRUCTURE_OK
         qDebug() << "Table" << tablename
                  << "OK; no drop/change alteration required";
+#endif
         return;
     }
 

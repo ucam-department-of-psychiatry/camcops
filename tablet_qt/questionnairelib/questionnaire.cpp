@@ -19,14 +19,15 @@
 
 // #define OFFER_LAYOUT_DEBUG_BUTTON
 // #define DEBUG_PAGE_LAYOUT_ON_OPEN
+// #define DEBUG_REPORT_OPEN_SUBWIDGET
 
 #include "questionnaire.h"
 #include <functional>
 #include <QDebug>
 #include <QKeyEvent>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QLabel>
+#include <QMessageBox>
 #include "core/camcopsapp.h"
 #include "common/cssconst.h"
 #include "dialogs/pagepickerdialog.h"
@@ -613,7 +614,9 @@ void Questionnaire::doFinish()
 
 void Questionnaire::openSubWidget(OpenableWidget* widget)
 {
+#ifdef DEBUG_REPORT_OPEN_SUBWIDGET
     qDebug() << Q_FUNC_INFO;
+#endif
 
     // This is used to open major/complex editing widgets, such as the
     // camera control aspects used by QuPhoto, and the diagnostic code

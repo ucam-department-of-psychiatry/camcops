@@ -662,6 +662,19 @@ void Task::setPatient(int patient_id)
 }
 
 
+void Task::moveToPatient(int patient_id)
+{
+    // This is used for patient merges.
+    // It is therefore more liberal than setPatient().
+    if (isAnonymous()) {
+        qWarning() << "Attempt to set patient ID for an anonymous task";
+        return;
+    }
+    setValue(PATIENT_FK_FIELDNAME, patient_id);
+    m_patient.clear();
+}
+
+
 Patient* Task::patient() const
 {
     if (!m_patient && !isAnonymous()) {
@@ -682,7 +695,7 @@ QString Task::getPatientName() const
     if (!pt) {
         return "";
     }
-    return QString("%1 %2").arg(pt->forename()).arg(pt->surname());
+    return pt->forenameSurname();
 }
 
 

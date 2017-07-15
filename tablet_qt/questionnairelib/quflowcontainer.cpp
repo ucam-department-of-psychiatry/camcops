@@ -118,8 +118,7 @@ QPointer<QWidget> QuFlowContainer::makeWidget(
         auto e = m_elements.at(i);
         auto alignment = m_widget_alignments.at(i);
         QPointer<QWidget> w = e->widget(questionnaire);
-        layout->addWidget(w);  // uses QLayout::addWidget; no alignment option
-        layout->setAlignment(w, alignment);  // this is QLayout::setAlignment
+        layout->addWidget(w, alignment);  // this is QLayout::setAlignment
     }
     return widget;
 }

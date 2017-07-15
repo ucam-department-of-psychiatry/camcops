@@ -183,9 +183,12 @@ void CanvasWidget::clear(const QColor& background)
 }
 
 
-void CanvasWidget::setImage(const QImage &image, bool resize_widget)
+void CanvasWidget::setImage(const QImage& image, bool resize_widget)
 {
     // qDebug() << Q_FUNC_INFO;
+    if (image.isNull()) {
+        qWarning() << Q_FUNC_INFO << "Asked to set null image!";
+    }
     if (resize_widget || !m_size.isValid()) {
         m_image = image;
         setSize(image.size());  // calls update()

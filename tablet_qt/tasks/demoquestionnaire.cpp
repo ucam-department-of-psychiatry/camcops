@@ -17,7 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_BIG_HEADER_ONLY_PAGE
+// #define DEBUG_BIG_HEADER_ONLY_PAGE
+// #define DEBUG_DIAGNOSTIC_SET_CREATION_SPEED
 
 #include "demoquestionnaire.h"
 #include "core/camcopsapp.h"
@@ -736,8 +737,18 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // Diagnostic codes
     // ------------------------------------------------------------------------
 
+#ifdef DEBUG_DIAGNOSTIC_SET_CREATION_SPEED
+    qDebug() << Q_FUNC_INFO << "Making ICD-10 data set...";
+#endif
     QSharedPointer<Icd10> icd10 = QSharedPointer<Icd10>(new Icd10(m_app));
+#ifdef DEBUG_DIAGNOSTIC_SET_CREATION_SPEED
+    qDebug() << Q_FUNC_INFO << "... done";
+    qDebug() << Q_FUNC_INFO << "Making ICD-9-CM data set...";
+#endif
     QSharedPointer<Icd9cm> icd9cm = QSharedPointer<Icd9cm>(new Icd9cm(m_app));
+#ifdef DEBUG_DIAGNOSTIC_SET_CREATION_SPEED
+    qDebug() << Q_FUNC_INFO << "... done";
+#endif
     QuPagePtr page_diag((new QuPage{
         new QuHeading("Diagnostic code, ICD-10:"),
         new QuDiagnosticCode(icd10,

@@ -35,7 +35,7 @@ public:
     QuImage(FieldRefPtr fieldref, const QSize& size = QSize());
     // ... field provides raw image data
     // The default value of size takes the image's own size.
-    QuImage* setAdjustForDpi(bool adjust_for_dpi);  // default is true
+    QuImage* setAdjustForDpi(bool adjust_for_dpi);
     QuImage* setSize(const QSize& size);
     QuImage* setAllowShrink(bool allow_shrink);
 protected slots:
@@ -43,6 +43,8 @@ protected slots:
 protected:
     void commonConstructor();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    QPixmap getScaledImage(const FieldRef* fieldref = nullptr) const;
+    QSize dpiScaledSize(const QSize& size) const;
 protected:
     QString m_filename;
     FieldRefPtr m_fieldref;

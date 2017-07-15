@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_STEP_DETAIL
+// #define DEBUG_STEP_DETAIL
 
 #include "cardinalexpdetcommon.h"
 #include <QObject>

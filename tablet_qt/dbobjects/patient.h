@@ -48,7 +48,6 @@ public:
     int id() const;
     QString forename() const;
     QString surname() const;
-    QString surnameUpperForename() const;
     QString sex() const;
     bool isFemale() const;
     bool isMale() const;
@@ -72,6 +71,16 @@ public:
     bool anyIdClash() const;
     int numTasks() const;
     virtual void deleteFromDatabase() override;
+    bool matchesForMerge(const Patient* other) const;
+    void mergeInDetailsAndTakeTasksFrom(const Patient* other);
+    // Helper functions for various viewers:
+    QString descriptionForMerge() const;
+    QString forenameSurname() const;
+    QString surnameUpperForename() const;
+    QString sexAgeDob() const;
+    QString ageSexDob() const;
+    QString twoLineDetailString() const;
+    QString oneLineHtmlDetailString() const;
 public:
     static const QString TABLENAME;
 protected:

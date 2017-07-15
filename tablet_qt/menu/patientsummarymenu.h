@@ -30,4 +30,6 @@ public:
 public slots:
     void selectedPatientChanged(const Patient* patient);
     void taskFinished();
+protected:
+    void mergePatients();
 };

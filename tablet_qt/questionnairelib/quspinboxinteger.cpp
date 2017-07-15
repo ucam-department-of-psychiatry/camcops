@@ -54,6 +54,7 @@ QPointer<QWidget> QuSpinBoxInteger::makeWidget(Questionnaire* questionnaire)
     m_spinbox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     m_spinbox->setMinimumHeight(uiconst::MIN_SPINBOX_HEIGHT);  // room for spin arrows
     m_spinbox->setButtonSymbols(uiconst::SPINBOX_SYMBOLS);
+    m_spinbox->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
 
     // QSpinBox has two signals named valueChanged, differing only
     // in the parameter they pass (int versus QString&). You get

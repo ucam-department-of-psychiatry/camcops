@@ -303,10 +303,10 @@ void TestMenu::testScrollMessageBox()
 
 void TestMenu::testSizeFormatter()
 {
-    bool space = true;
-    bool longform = false;
-    QString suffix = longform ? "bytes" : "B";
-    QVector<double> nums{
+    const bool space = true;
+    const bool longform = false;
+    const QString suffix = longform ? "bytes" : "B";
+    const QVector<double> nums{
         3e0, 3e1, 3e2, 3e3, 3e4, 3e5, 3e6, 3e7, 3e8, 3e9,
         3e10, 3e11, 3e12, 3e13, 3e14, 3e15, 3e16, 3e17, 3e18, 3e19,
         3e20, 3e21, 3e22, 3e23, 3e24, 3e25, 3e26, 3e27, 3e28, 3e29,

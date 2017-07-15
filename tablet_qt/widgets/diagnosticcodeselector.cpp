@@ -178,6 +178,28 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ========================================================================
     // Tree view
     // ========================================================================
+    // - To set the expand/collapse ("disclosure"? "indicator"?) icons:
+    //   - https://stackoverflow.com/questions/2638974/qtreewidget-expand-sign
+    //   - http://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtreeview
+    //   - Probably not: QTreeView::drawBranches in qtreeview.cpp : uses styles
+    //     ... search for "has-children" gives gui/text/qcssparser.cpp
+    //     ... to PseudoClass_Children
+    //     ... to qstylesheetstyle.cpp
+    //     ... to State_Children
+    //     ... to (FOR EXAMPLE) qfusionstyle.cpp
+    //     ... where in QFusionStyle::drawPrimitive() we have a section for
+    //         PE_IndicatorBranch and draw things like PE_IndicatorArrowDown
+    //         and PE_IndicatorArrowRight.
+    //   - SE_TreeViewDisclosureItem
+    //   - QTreeView::drawRow
+    //          d->delegateForIndex(modelIndex)->paint(painter, opt, modelIndex);
+    //          -> QAbstractItemDelegate::paint()
+    //          -> as default delegate is QStyledItemDelegate...
+    //             [http://doc.qt.io/qt-4.8/model-view-programming.html]
+    //          -> QStyledItemDelegate::paint()
+    //   - https://superuser.com/questions/638139/whats-the-proper-name-of-that-symbol-to-collapse-expand-nodes-in-a-directory-tr
+    //   UPSHOT: fiddly. The trouble is that the CSS just lets us do
+    //   url(filename); see qcssparser.cpp and search for "url".
 
     m_heading_tree = new QLabel(
                 tr("Explore as tree [use icon at top right to search]:"));

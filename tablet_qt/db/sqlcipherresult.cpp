@@ -217,7 +217,7 @@ bool SQLCipherResult::fetchNext(SqlCachedResult::ValueCache& values,
         for (i = 0; i < m_r_inf.count(); ++i) {
             switch (sqlite3_column_type(m_stmt, i)) {
             case SQLITE_BLOB:
-                values[i + idx] = QByteArray(static_cast<const char *>(
+                values[i + idx] = QByteArray(static_cast<const char*>(
                             sqlite3_column_blob(m_stmt, i)),
                             sqlite3_column_bytes(m_stmt, i));
                 break;
@@ -243,7 +243,7 @@ bool SQLCipherResult::fetchNext(SqlCachedResult::ValueCache& values,
                 values[i + idx] = QVariant(QVariant::String);
                 break;
             default:
-                values[i + idx] = QString(reinterpret_cast<const QChar *>(
+                values[i + idx] = QString(reinterpret_cast<const QChar*>(
                             sqlite3_column_text16(m_stmt, i)),
                             sqlite3_column_bytes16(m_stmt, i) / sizeof(QChar));
                 break;
@@ -339,7 +339,7 @@ bool SQLCipherResult::prepare(const QString& query)
 
     setSelect(false);
 
-    const void *pzTail = NULL;
+    const void* pzTail = NULL;
 
 #if (SQLITE_VERSION_NUMBER >= 3003011)
     int res = sqlite3_prepare16_v2(
@@ -366,7 +366,7 @@ bool SQLCipherResult::prepare(const QString& query)
                          res));
         finalize();
         return false;
-    } else if (pzTail && !QString(reinterpret_cast<const QChar *>(pzTail)).trimmed().isEmpty()) {
+    } else if (pzTail && !QString(reinterpret_cast<const QChar*>(pzTail)).trimmed().isEmpty()) {
         setLastError(qMakeError(
                          cipherDriver()->m_access,
                          QCoreApplication::translate("SQLCipherResult",
@@ -413,7 +413,7 @@ bool SQLCipherResult::exec()
                 switch (value.type()) {
                 case QVariant::ByteArray:
                 {
-                    const QByteArray *ba = static_cast<const QByteArray*>(value.constData());
+                    const QByteArray* ba = static_cast<const QByteArray*>(value.constData());
                     res = sqlite3_bind_blob(m_stmt, i + 1, ba->constData(),
                                             ba->size(), SQLITE_STATIC);
                     break;

@@ -24,12 +24,12 @@
 #include <QDebug>
 #include <QListWidget>
 #include <QListWidgetItem>
-#include <QMessageBox>
 #include <QPushButton>
 #include "common/cssconst.h"
 #include "common/uiconst.h"
-#include "db/dbtransaction.h"
+#include "db/dbnestabletransaction.h"
 #include "dbobjects/patient.h"
+#include "dialogs/scrollmessagebox.h"
 #include "layouts/layouts.h"
 #include "lib/filefunc.h"
 #include "lib/layoutdumper.h"
@@ -330,7 +330,7 @@ void MenuWindow::menuItemSelectionChanged()
 }
 
 
-void MenuWindow::menuItemClicked(QListWidgetItem *item)
+void MenuWindow::menuItemClicked(QListWidgetItem* item)
 {
     // Act on a click
 
@@ -394,16 +394,11 @@ void MenuWindow::viewTask()
     }
     bool facsimile_available = task->isEditable();
     QString instance_title = task->instanceTitle();
-    QMessageBox::StandardButtons buttons = (QMessageBox::Yes |
-                                            QMessageBox::Ok |
-                                            QMessageBox::Cancel);
-    if (facsimile_available) {
-        buttons |= QMessageBox::Open;
-    }
-    QMessageBox msgbox(this);
-    msgbox.setIcon(QMessageBox::Question);
-    msgbox.setWindowTitle(tr("View task"));
-    msgbox.setText(tr("View in what format?"));
+    ScrollMessageBox msgbox(
+                QMessageBox::Question,
+                tr("View task"),
+                tr("View in what format?"),
+                this);
     QAbstractButton* summary = msgbox.addButton(tr("Summary"), QMessageBox::YesRole);
     QAbstractButton* detail = msgbox.addButton(tr("Detail"), QMessageBox::NoRole);
     msgbox.addButton(tr("Cancel"), QMessageBox::RejectRole);  // e.g. Cancel
@@ -429,7 +424,7 @@ void MenuWindow::viewTask()
         detail += QString("<br><br>Editing time: <b>%1</b> s")
                 .arg(task->editingTimeSeconds());
 #endif
-        uifunc::alert(detail, instance_title, true);  // with scrolling
+        uifunc::alert(detail, instance_title);
 
     } else if (reply == summary) {
         qInfo() << "View summary:" << instance_title;
@@ -452,10 +447,11 @@ void MenuWindow::editTask()
         return;
     }
     QString instance_title = task->instanceTitle();
-    QMessageBox msgbox(this);
-    msgbox.setIcon(QMessageBox::Question);
-    msgbox.setWindowTitle(tr("Edit"));
-    msgbox.setText(tr("Edit this task?") + "\n\n" +  instance_title);
+    ScrollMessageBox msgbox(
+                QMessageBox::Question,
+                tr("Edit"),
+                tr("Edit this task?") + "\n\n" +  instance_title,
+                this);
     QAbstractButton* yes = msgbox.addButton(tr("Yes, edit"),
                                             QMessageBox::YesRole);
     msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
@@ -516,10 +512,11 @@ void MenuWindow::deleteTask()
         return;
     }
     QString instance_title = task->instanceTitle();
-    QMessageBox msgbox(this);
-    msgbox.setIcon(QMessageBox::Warning);
-    msgbox.setWindowTitle(tr("Delete"));
-    msgbox.setText(tr("Delete this task?") + "\n\n" +  instance_title);
+    ScrollMessageBox msgbox(
+                QMessageBox::Warning,
+                tr("Delete"),
+                tr("Delete this task?") + "\n\n" +  instance_title,
+                this);
     QAbstractButton* yes = msgbox.addButton(tr("Yes, delete"),
                                             QMessageBox::YesRole);
     msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
@@ -531,7 +528,7 @@ void MenuWindow::deleteTask()
         SlowGuiGuard guard = m_app.getSlowGuiGuard(tr("Deleting task"),
                                                    textconst::PLEASE_WAIT);
         qInfo() << "Delete:" << instance_title;
-        DbTransaction trans(m_app.db());
+        DbNestableTransaction trans(m_app.db());
         task->deleteFromDatabase();
         build();
     }
@@ -543,7 +540,7 @@ void MenuWindow::toggleFinishFlag()
     TaskPtr task = currentTask();
     PatientPtr patient = currentPatient();
     if (task && task->isAnonymous()) {
-        DbTransaction trans(m_app.db());
+        DbNestableTransaction trans(m_app.db());
         task->toggleMoveOffTablet();
         build();
     } else if (patient) {

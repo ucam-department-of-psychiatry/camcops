@@ -70,7 +70,15 @@ public:
                            int h_spacing = -1, int v_spacing = -1);
     ~FlowLayoutHfw();
 
+    // QLayout supplies: void addWidget(QWidget* w);  // no alignment option
+    // QVBoxLayout/QHBoxLayout supply:
+    //    void addWidget(QWidget* widget, int stretch, Qt::Alignment alignment);
+    // Alignment does make sense, specifically top alignment.
+    void addWidget(QWidget* w);  // RNC: just routes to QLayout version (for disambiguating conversions)
+    void addWidget(QWidget* w, Qt::Alignment alignment);  // RNC
     virtual void addItem(QLayoutItem* item) override;
+
+    void setHorizontalAlignmentOfContents(Qt::Alignment halign);
     virtual int horizontalSpacing() const;
     virtual int verticalSpacing() const;
     virtual Qt::Orientations expandingDirections() const override;
@@ -89,13 +97,15 @@ protected:  // RNC (was private)
     virtual QSize doLayout(const QRect& rect, bool test_only) const;
     int smartSpacing(QStyle::PixelMetric pm) const;
     int itemTop(int row_top, int item_height, int row_height,
-                Qt::Alignment alignment) const;  // RNC
+                Qt::Alignment valignment) const;  // RNC
+    int rowShiftToRight(int layout_width, int width_of_all_items) const;  // RNC
 
     QVector<QLayoutItem*> m_item_list;
     int m_h_space;
     int m_v_space;
     mutable QSize m_size_hint;
     mutable QMap<int, int> m_width_to_height;  // RNC
+    Qt::Alignment m_halign;  // RNC
 
     struct ItemCalc {
         QLayoutItem* item;

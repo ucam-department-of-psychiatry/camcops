@@ -23,7 +23,7 @@
 #include "cameraframegrabber.h"
 #include <QDebug>
 
-#define DEBUG_FRAMEGRABBER
+// #define DEBUG_FRAMEGRABBER
 
 
 CameraFrameGrabber::CameraFrameGrabber(QObject* parent) :

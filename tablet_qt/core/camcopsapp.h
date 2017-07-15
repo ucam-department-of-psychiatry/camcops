@@ -81,7 +81,7 @@ public:
     // Core
     // ------------------------------------------------------------------------
 public:
-    CamcopsApp(int& argc, char *argv[]);
+    CamcopsApp(int& argc, char* argv[]);
     ~CamcopsApp();
     int run();
     void backgroundStartup();
@@ -194,7 +194,7 @@ public:
     void setSelectedPatient(int patient_id);
     void deselectPatient();
     void patientHasBeenEdited(int patient_id);
-    const Patient* selectedPatient() const;
+    Patient* selectedPatient() const;
     int selectedPatientId() const;
     PatientPtrList getAllPatients(bool sorted = true);
     QString idDescription(int which_idnum) const;

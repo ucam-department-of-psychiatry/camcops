@@ -304,9 +304,9 @@ QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
 
     // WIDTH: harder?
     // - For the internal Qt macros like Q_D, see qglobal.h:
-    //   #define Q_D(Class) Class##Private * const d = d_func()
+    //   #define Q_D(Class) Class##Private* const d = d_func()
     //      ... Q_D gives the class a pointer to its private-class member
-    //   #define Q_Q(Class) Class * const q = q_func()
+    //   #define Q_Q(Class) Class* const q = q_func()
     //      ... Q_Q gives the private class a pointer to its public-class member
     // Ah, not that much harder.
     // - http://stackoverflow.com/questions/1337523/measuring-text-width-in-qt

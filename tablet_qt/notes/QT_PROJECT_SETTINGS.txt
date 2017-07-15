@@ -1,0 +1,108 @@
+
+===============================================================================
+1. Qt versions
+===============================================================================
+
+Assuming you set your qt_local_build directory to ~/dev/qt_local_build :
+
+    LINUX: ~/dev/qt_local_build/qt_linux_x86_64_install/bin/qmake
+    ANDROID: ~/dev/qt_local_build/qt_android_armv7_install/bin/qmake
+    ANDROID EMULATOR: ...
+
+===============================================================================
+2. Qt kits
+===============================================================================
+
+CustomLinux
+    Name:                   CustomLinux
+    File system name:
+    Device type:            Desktop
+    Device:                 Local PC (default for Desktop)
+    Sysroot:
+    Compiler:               GCC (x86 64bit in /usr/bin)
+    Environment:            [not editable: "No changes to apply."]
+    Debugger:               System GDB at /usr/bin/gdb
+    Qt version:             THE "LINUX" ONE FROM QT VERSIONS, ABOVE
+    Qt mkspec:
+    CMake Tool:             System CMake at /usr/bin/cmake
+    CMake Generator:        CodeBlocks - Unix Makefiles
+    CMake Configuration:    [not editable]
+
+CustomAndroidARM
+    Name:                   CustomAndroidARM
+    File system name:
+    Device type:            Android Device
+    Device:                 Run on Android (default for Android)
+    Sysroot:
+    Compiler:               Android GCC (arm-4.9)
+    Environment:            [not editable: "No changes to apply."]
+    Debugger:               System GDB at /usr/bin/gdb
+    Android GDB server      [not editable]
+    Qt version:             THE "ANDROID" ONE FROM QT VERSIONS, ABOVE
+    Qt mkspec:
+    CMake Tool:             System CMake at /usr/bin/cmake
+    CMake Generator:        CodeBlocks - Unix Makefiles
+    CMake Configuration:    [not editable]
+
+CustomAndroidx86 -- NOT FULLY TESTED
+    Name:                   CustomAndroidx86
+    File system name:
+    Device type:            Android Device
+    Device:                 Run on Android (default for Android)
+    Sysroot:
+    Compiler:               Android GCC (i686-4.9)
+    Environment:            [not editable: "No changes to apply."]
+    Debugger:               System GDB at /usr/bin/gdb
+    Android GDB server      [not editable]
+    Qt version:             THE "ANDROID EMULATOR" ONE FROM QT VERSIONS, ABOVE
+    Qt mkspec:
+    CMake Tool:             System CMake at /usr/bin/cmake
+    CMake Generator:        CodeBlocks - Unix Makefiles
+    CMake Configuration:    [not editable]
+
+===============================================================================
+3. Build settings
+===============================================================================
+
+General:
+    Use defaults, except everywhere you see "make arguments", add "-j 8" for an
+    8-CPU machine to get it compiling in parallel.
+    ... but to save this effort, set
+        MAKEFLAGS="-j8"
+    to your user environment (e.g. to ~/.bashrc).
+
+    - https://stackoverflow.com/questions/8860712/setting-default-make-options-for-qt-creator
+
+    ... HOWEVER, Qt Creator doesn't seem to read that environment variable for me.
+    Not sure why!
+
+Android:
+    Under Build Settings / Android APK:
+        Android build SDK:      android-23 [= default]
+        Sign package:
+            Keystore:           ~/Documents/CamCOPS/android_keystore/CAMCOPS_ANDROID_KEYSTORE.keystore [NB not part of published code, obviously!]
+            Sign package:       Yes
+        Qt deployment:          Bundle Qt libraries in APK [= default]
+        Additional libraries:   ~/dev/qt_local_build/openssl_android_armv7_build/openssl-1.0.2.h/libcrypto.so
+                                ~/dev/qt_local_build/openssl_android_armv7_build/openssl-1.0.2.h/libssl.so
+                                [... both of which were automatically added]
+
+
+===============================================================================
+NOTE ALSO
+===============================================================================
+
+- Configure your Android SDK/NDK and Java JDK at:
+        Tools / Options / Android
+
+- DON'T FORGET to set up both Debug and Release (+/- Profile) builds.
+
+- Sometimes you have to restart Qt creator after creating new build settings;
+  it loses its .pro file and won't show the project, or complains of a missing
+  .pro file when you try to build.
+
+- The first build can be very slow as it compiles all the resources; this
+  usually looks like a process stuck compiling qrc_camcops.cpp to qrc_camcops.o
+
+- Phone USB debugging negotiation sometimes takes a while. On the Samsung
+  Galaxy phone, the alert light goes red when in Debug mode.

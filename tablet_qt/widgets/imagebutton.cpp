@@ -179,7 +179,7 @@ void ImageButton::setImageSize(const QSize &size, bool scale)
 }
 
 
-void ImageButton::paintEvent(QPaintEvent *e)
+void ImageButton::paintEvent(QPaintEvent* e)
 {
     Q_UNUSED(e);
     QPainter p(this);

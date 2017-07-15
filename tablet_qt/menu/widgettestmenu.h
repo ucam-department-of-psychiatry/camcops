@@ -78,7 +78,7 @@ protected:
     // ========================================================================
     // Layouts and the like
     // ========================================================================
-    void testFlowLayout(int n, bool text);
+    void testFlowLayout(int n, bool text, Qt::Alignment halign);
     void testBaseWidget(bool long_text);
     void testVBoxLayout(bool long_text);
     void testGridLayoutHfw(int example);

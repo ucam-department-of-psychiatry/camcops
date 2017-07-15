@@ -202,13 +202,13 @@ void Glm::fit(const MatrixXd& predictors,
     // Report any errors
     if (m_verbose && !m_info.isEmpty()) {
         qInfo() << "Info from GLM fit:";
-        for (auto info : m_info) {
+        for (const QString& info : m_info) {
             qInfo().noquote() << "-" << info;
         }
     }
     if (!m_calculation_errors.isEmpty()) {
         qWarning() << "Errors occurred during GLM fit:";
-        for (auto error : m_calculation_errors) {
+        for (const QString& error : m_calculation_errors) {
             qWarning().noquote() << "-" << error;
         }
     }

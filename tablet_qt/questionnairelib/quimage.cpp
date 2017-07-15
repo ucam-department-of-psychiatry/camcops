@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_SIZE
+
 #include "quimage.h"
 #include "lib/convert.h"
 #include "lib/uifunc.h"
@@ -48,7 +50,7 @@ QuImage::QuImage(FieldRefPtr fieldref, const QSize& size) :
 void QuImage::commonConstructor()
 {
     m_label = nullptr;
-    m_adjust_for_dpi = true;
+    m_adjust_for_dpi = false;
     m_allow_shrink = true;
 }
 
@@ -77,23 +79,7 @@ QuImage* QuImage::setAllowShrink(bool allow_shrink)
 QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
 {
     Q_UNUSED(questionnaire);
-
-    // Fetch image
-    QPixmap image;
-    if (m_fieldref && m_fieldref->valid()) {
-        QByteArray data = m_fieldref->valueByteArray();
-        image.loadFromData(data);
-    } else {
-        image = uifunc::getPixmap(m_filename);
-    }
-    QSize size = m_adjust_for_dpi
-            ? convert::convertSizeByDpi(m_size, uiconst::DPI, uiconst::DEFAULT_DPI)
-            : m_size;
-    if (size.isValid()) {
-        image = image.scaled(size);
-    }
-
-    // Create widget
+    QPixmap image = getScaledImage();
     m_label = new AspectRatioPixmap();
     if (!m_allow_shrink) {
         m_label->setFixedSize(image.size());
@@ -103,12 +89,50 @@ QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
 }
 
 
+QPixmap QuImage::getScaledImage(const FieldRef* fieldref) const
+{
+    // Fetch image
+    QPixmap image;
+    if (fieldref) {
+        image.loadFromData(fieldref->valueByteArray());
+    } else if (m_fieldref && m_fieldref->valid()) {
+        image.loadFromData(m_fieldref->valueByteArray());
+    } else {
+        image = uifunc::getPixmap(m_filename);
+    }
+
+    // Set size: (a) image size or m_size override; (b) +/- scale for DPI
+#ifdef DEBUG_SIZE
+    qDebug() << Q_FUNC_INFO << "Initial image size:" << image.size();
+#endif
+    QSize size = m_size.isValid() ? m_size : image.size();
+    if (m_adjust_for_dpi) {
+        size = dpiScaledSize(size);
+    }
+
+    // Scale image if required
+    if (size != image.size()) {
+        image = image.scaled(size);
+    }
+#ifdef DEBUG_SIZE
+    qDebug().nospace()
+            << Q_FUNC_INFO << " Final size (after m_size=" << m_size
+            << ", m_adjust_for_dpi=" << m_adjust_for_dpi << "): " << size;
+#endif
+    return image;
+}
+
+
 void QuImage::valueChanged(const FieldRef* fieldref)
 {
     if (!m_label) {
         return;
     }
-    QPixmap image;
-    image.loadFromData(fieldref->valueByteArray());
-    m_label->setPixmap(image);
+    m_label->setPixmap(getScaledImage(fieldref));
+}
+
+
+QSize QuImage::dpiScaledSize(const QSize& size) const
+{
+    return convert::convertSizeByDpi(size, uiconst::DPI, uiconst::DEFAULT_DPI);
 }

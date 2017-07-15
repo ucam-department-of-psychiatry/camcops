@@ -21,11 +21,16 @@
 
 #include "choosepatientmenu.h"
 #include <QDebug>
-#include <QMessageBox>
 #include <QPushButton>
 #include "dbobjects/patient.h"
+#include "dbobjects/patientsorter.h"
+#include "dialogs/nvpchoicedialog.h"
+#include "dialogs/scrollmessagebox.h"
+#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
+
+const QString MERGE_TITLE = QObject::tr("Merge patients");
 
 
 ChoosePatientMenu::ChoosePatientMenu(CamcopsApp& app) :
@@ -49,7 +54,16 @@ void ChoosePatientMenu::build()
 {
     // Patient
     PatientPtrList patients = m_app.getAllPatients();
-    m_items.clear();
+    m_items = {
+        MenuItem(tr("Special functions")).setLabelOnly(),
+        MenuItem(
+            MERGE_TITLE,
+            std::bind(&ChoosePatientMenu::mergePatients, this),
+            "",  // icon
+            tr("Choose one patient, then select this option to merge with another")  // subtitle
+        ).setNotIfLocked(),
+        MenuItem(tr("Patients")).setLabelOnly(),
+    };
     qDebug() << Q_FUNC_INFO << "-" << patients.size() << "patient(s)";
     for (auto patient : patients) {
         m_items.append(MenuItem(patient));
@@ -118,20 +132,15 @@ void ChoosePatientMenu::deletePatient()
         uifunc::alert("Bug: null patient pointer in ChoosePatientMenu::editPatient");
         return;
     }
-    QString patient_details = QString("%1, %2 (%3, %4, DOB %5)\n%6")
-            .arg(patient->surname().toUpper(),
-                 patient->forename(),
-                 QString("%1 y").arg(patient->ageYears()),
-                 patient->sex(),
-                 patient->dobText(),
-                 patient->shortIdnumSummary());
+    QString patient_details = patient->twoLineDetailString();
 
     // First check
     {
-        QMessageBox msgbox(this);
-        msgbox.setIcon(QMessageBox::Warning);
-        msgbox.setWindowTitle(tr("Delete patient"));
-        msgbox.setText(tr("Delete this patient?") + "\n\n" +  patient_details);
+        ScrollMessageBox msgbox(
+                    QMessageBox::Warning,
+                    tr("Delete patient"),
+                    tr("Delete this patient?") + "\n\n" +  patient_details,
+                    this);
         QAbstractButton* delete_button = msgbox.addButton(
                     tr("Yes, delete"), QMessageBox::YesRole);
         msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
@@ -144,12 +153,13 @@ void ChoosePatientMenu::deletePatient()
     // Second check
     int n_tasks = patient->numTasks();
     if (n_tasks > 0) {
-        QMessageBox msgbox(this);
-        msgbox.setIcon(QMessageBox::Warning);
-        msgbox.setWindowTitle(tr("Delete patient WITH TASKS"));
-        msgbox.setText(tr("Delete this patient?") + "\n\n" +  patient_details +
-                       QString("\n\n<b>THERE ARE %1 ASSOCIATED TASKS!</b>")
-                            .arg(n_tasks));
+        ScrollMessageBox msgbox(
+                    QMessageBox::Warning,
+                    tr("Delete patient WITH TASKS"),
+                    tr("Delete this patient?") + "\n\n" + patient_details +
+                        QString("\n\n<b>THERE ARE %1 ASSOCIATED TASKS!</b>")
+                            .arg(n_tasks),
+                    this);
         QAbstractButton* delete_button = msgbox.addButton(
                     tr("Yes, delete despite tasks"), QMessageBox::YesRole);
         msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
@@ -170,5 +180,91 @@ void ChoosePatientMenu::deletePatient()
 void ChoosePatientMenu::selectedPatientDetailsChanged(const Patient* patient)
 {
     Q_UNUSED(patient);
+    build();  // refresh patient list
+}
+
+
+void ChoosePatientMenu::mergePatients()
+{
+    auto reportFail = [this](const char* text) -> void {
+        ScrollMessageBox::warning(this, MERGE_TITLE, tr(text));
+    };
+
+    // Is one selected?
+    if (!m_app.isPatientSelected()) {
+        reportFail("Select a patient first, then choose this option to merge "
+                   "with another.");
+        return;
+    }
+
+    // Get all others
+    PatientPtrList all_patients = m_app.getAllPatients();
+    PatientPtrList other_patients;
+    Patient* selected_patient = m_app.selectedPatient();
+    for (const PatientPtr& other : all_patients) {
+        if (other->id() != selected_patient->id() &&
+                other->matchesForMerge(selected_patient)) {
+            other_patients.append(other);
+        }
+    }
+    if (other_patients.isEmpty()) {
+        reportFail("No other patients available that match the selected "
+                   "patient. (Information can be present in one patient and "
+                   "missing from the other, but where information is present, "
+                   "it must match.)");
+        return;
+    }
+
+    // Offer the user a choice of the others
+    qSort(other_patients.begin(), other_patients.end(), PatientSorter());
+    NameValueOptions options;
+    for (const PatientPtr& other : other_patients) {
+        options.append(NameValuePair(other->descriptionForMerge(),
+                                     other->pkvalue()));
+    }
+    NvpChoiceDialog dlg(this, options, tr("Choose other patient"));
+    QVariant chosen_other_pk;
+    if (dlg.choose(&chosen_other_pk) != QDialog::Accepted) {
+        return;  // user pressed cancel, or some such
+    }
+    PatientPtr chosen_other = nullptr;
+    for (PatientPtr& other : other_patients) {
+        if (other->pkvalue() == chosen_other_pk) {
+            chosen_other = other;
+            break;
+        }
+    }
+    Q_ASSERT(chosen_other);
+
+    // Confirm
+    QStringList confirm_lines{
+        stringfunc::bold(tr("Please confirm:")),
+        stringfunc::bold(tr("MERGE:")),
+        selected_patient->descriptionForMerge(),
+        stringfunc::bold(tr("WITH:")),
+        chosen_other->descriptionForMerge(),
+        stringfunc::bold("?"),
+    };
+    QString confirm_text = confirm_lines.join("<br><br>");
+    QString yes = tr("Yes, merge");
+    QString no = tr("No, cancel");
+    if (!uifunc::confirm(confirm_text, MERGE_TITLE, yes, no, this)) {
+        return;
+    }
+    confirm_lines.prepend(tr("ARE YOU SURE?"));
+    confirm_text = confirm_lines.join("<br><br>");
+    if (!uifunc::confirm(confirm_text, MERGE_TITLE, yes, no, this)) {
+        return;
+    }
+
+    // Perform the merge
+    qInfo() << Q_FUNC_INFO << "Copying patient information and moving tasks...";
+    selected_patient->mergeInDetailsAndTakeTasksFrom(chosen_other.data());
+    qInfo() << Q_FUNC_INFO << "Deleting other patient...";
+    chosen_other->deleteFromDatabase();
+    qInfo() << Q_FUNC_INFO << "Merge complete.";
+
+    // Refresh list, etc.
+    m_app.deselectPatient();
     build();  // refresh patient list
 }

@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define DEBUG_SQL_QUERY
+#define DEBUG_SQL_QUERY
 // #define DEBUG_QUERY_END
 // #define DEBUG_SQL_RESULT
 // #define DEBUG_VERBOSE_TABLE_CHANGE_PLANS

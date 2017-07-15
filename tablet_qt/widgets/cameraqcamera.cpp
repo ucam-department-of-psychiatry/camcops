@@ -60,7 +60,7 @@
 **
 */
 
-#define DEBUG_CAMERA
+// #define DEBUG_CAMERA
 
 #define USE_FILE
 
@@ -73,7 +73,6 @@
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
-#include <QMessageBox>
 #include <QPixmap>
 #include <QPushButton>
 #include <QStackedWidget>
@@ -86,6 +85,7 @@
 #include <QVideoFrame>
 #include "common/cssconst.h"
 #include "common/uiconst.h"
+#include "dialogs/scrollmessagebox.h"
 #include "graphics/imagefunc.h"
 #include "imagebutton.h"
 #include "lib/uifunc.h"
@@ -509,7 +509,7 @@ void CameraQCamera::displayCaptureError(int id, QCameraImageCapture::Error error
                                  const QString& error_string)
 {
     qWarning() << "Capture error:" << id << error << error_string;
-    QMessageBox::warning(this, tr("Image capture error"), error_string);
+    ScrollMessageBox::warning(this, tr("Image capture error"), error_string);
     m_capturing_image = false;
     updateButtons();
 }
@@ -519,7 +519,7 @@ void CameraQCamera::displayCameraError(QCamera::Error value)
 {
     QString err = m_camera->errorString();
     qWarning() << "Camera error:" << value << err;
-    QMessageBox::warning(this, tr("Camera error"), err);
+    ScrollMessageBox::warning(this, tr("Camera error"), err);
 }
 
 

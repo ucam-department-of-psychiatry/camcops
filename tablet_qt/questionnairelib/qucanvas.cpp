@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_SIZE
+
 #include "qucanvas.h"
 #include <QDebug>
 #include <QHBoxLayout>
@@ -257,7 +259,8 @@ void QuCanvas::fieldValueChanged(const FieldRef* fieldref,
             QImage img;
             bool success = img.loadFromData(fieldref->valueByteArray());
             if (success) {
-                m_canvas->setImage(img);
+                m_canvas->setSize(canvasSize(img.size()));
+                m_canvas->setImage(img, false);
             } else {
                 qWarning() << Q_FUNC_INFO
                            << "- bad image data in field; resetting";
@@ -277,30 +280,44 @@ FieldRefPtrList QuCanvas::fieldrefs() const
 void QuCanvas::resetWidget()
 {
     QImage img;
-    bool make_duff_image = !m_using_template;
-    bool use_source_image_size = true;
-    QSize size = m_adjust_for_dpi
-            ? convert::convertSizeByDpi(m_size, uiconst::DPI, uiconst::DEFAULT_DPI)
-            : m_size;
+
+    // If we're using a template, load it.
+    bool loaded_template = false;
     if (m_using_template) {
-        if (img.load(m_template_filename)) {  // side effect!
-            use_source_image_size = !size.isValid();
-        } else {
-            // Failed to load
-            qWarning() << Q_FUNC_INFO << "- failed to load:"
-                       << m_template_filename;
-            make_duff_image = true;
+        loaded_template = img.load(m_template_filename);
+        if (!loaded_template) {
+            qWarning() << Q_FUNC_INFO << "- failed to load:" << m_template_filename;
         }
     }
-    if (make_duff_image) {
+#ifdef DEBUG_SIZE
+    qDebug() << Q_FUNC_INFO << "Initial template image size:" << img.size();
+#endif
+
+    // Determine size. Size is the image's size unless overridden by m_size...
+    QSize size = m_size.isValid() ? m_size : img.size();
+    // Adjustment for DPI is done by the CanvasWidget, not here.
+
+#ifdef DEBUG_SIZE
+    qDebug().nospace()
+            << Q_FUNC_INFO << " Final internal image size (after m_size="
+            << m_size << "): " << size;
+#endif
+
+    // Now we know the final size. Either we make sure the template is that
+    // size, or if we don't have one, we make a background image.
+    if (loaded_template) {
+        if (img.size() != size) {
+            img = img.scaled(size);
+        }
+    } else {
+        // Make an image
         img = QImage(size, m_format);
         img.fill(m_background_colour);
     }
-    bool resize = !use_source_image_size || m_adjust_for_dpi;
-    m_canvas->setImage(img, !resize);  // if we're going to resize, don't do it twice/wrong
-    if (resize) {
-        m_canvas->setSize(size);
-    }
+
+    // All ready. Set the canvas.
+    m_canvas->setSize(canvasSize(img.size()));
+    m_canvas->setImage(img, false);
 }
 
 
@@ -309,4 +326,23 @@ void QuCanvas::resetFieldToNull()
     resetWidget();
     m_fieldref->setValue(QVariant(), this);
     emit elementValueChanged();
+}
+
+
+QSize QuCanvas::canvasSize(const QSize& image_size) const
+{
+    if (!m_adjust_for_dpi) {
+#ifdef DEBUG_SIZE
+        qDebug() << Q_FUNC_INFO <<
+                    "Canvas size same as image size at" << image_size;
+#endif
+        return image_size;
+    }
+    QSize canvas_size = convert::convertSizeByDpi(image_size, uiconst::DPI, uiconst::DEFAULT_DPI);
+#ifdef DEBUG_SIZE
+    qDebug()
+            << Q_FUNC_INFO << "Image size" << image_size
+            << "-> altering canvas size for display DPI -> canvas size" << canvas_size;
+#endif
+    return canvas_size;
 }

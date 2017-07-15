@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_CLASSIFICATION
+#define SHOW_CLASSIFICATION_WORKING
 
 #include "icd10manic.h"
 #include "common/appstrings.h"
@@ -203,7 +203,7 @@ QStringList Icd10Manic::detail() const
     lines += detailGroup(PSYCHOSIS_AND_SIMILAR_NAMES);
     lines.append("");
     lines.append(standardResult(textconst::CATEGORY, getDescription()));
-#ifdef DEBUG_CLASSIFICATION
+#ifdef SHOW_CLASSIFICATION_WORKING
     auto pv = [](const QVariant& v) -> QString {
         return bold(convert::prettyValue(v));
     };

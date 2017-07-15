@@ -36,6 +36,7 @@ class Task : public DatabaseObject
 {
     Q_OBJECT
     friend class SingleTaskMenu;  // so it can call setPatient
+    friend class Patient;  // so it can call setPatient
 public:
     Task(CamcopsApp& app,
          DatabaseManager& db,
@@ -155,7 +156,8 @@ public:
     bool isFemale() const;
     bool isMale() const;
 protected:
-    void setPatient(int patient_id);  // used by derived classes
+    void setPatient(int patient_id);  // used when tasks are being added
+    void moveToPatient(int patient_id);  // used for patient merges
 protected:
     mutable QSharedPointer<Patient> m_patient;
     bool m_editing;

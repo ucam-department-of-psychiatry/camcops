@@ -38,5 +38,5 @@ public slots:
     void addPatient();
     void selectedPatientDetailsChanged(const Patient* patient);
 protected:
-    PatientPtrList getAllPatients();
+    void mergePatients();
 };

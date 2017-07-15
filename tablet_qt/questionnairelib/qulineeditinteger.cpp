@@ -68,4 +68,5 @@ void QuLineEditInteger::extraLineEditCreation(QLineEdit* editor)
     } else {
         editor->setValidator(new QIntValidator(m_minimum, m_maximum, this));
     }
+    editor->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
 }

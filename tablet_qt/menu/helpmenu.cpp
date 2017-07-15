@@ -18,7 +18,6 @@
 */
 
 #include "helpmenu.h"
-#include <QMessageBox>
 #include <QTextStream>
 #include <QtNetwork/QSslSocket>
 #include <QSqlDriver>
@@ -169,7 +168,7 @@ void HelpMenu::softwareVersions() const
 
 void HelpMenu::aboutQt()
 {
-    QMessageBox::aboutQt(this, tr("About Qt"));
+    QMessageBox::aboutQt(this);
 }
 
 
@@ -191,9 +190,5 @@ void HelpMenu::viewTermsConditions()
 {
     QString title = QString("You agreed to these terms and conditions at: %1")
             .arg(datetime::shortDateTime(m_app.agreedTermsAt()));
-    ScrollMessageBox msgbox(QMessageBox::Information,
-                            title,
-                            textconst::TERMS_CONDITIONS,
-                            this);
-    msgbox.exec();
+    ScrollMessageBox::information(this, title, textconst::TERMS_CONDITIONS);
 }

@@ -306,6 +306,9 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
         // value when the convert() call is made below, so will appear as NULL.
         m_value = convert::toQCharVariant(db_value);
         break;
+    case QVariant::Date:
+        m_value = QVariant(datetime::isoToDate(db_value.toString()));
+        break;
     case QVariant::DateTime:
         m_value = QVariant(datetime::isoToDateTime(db_value.toString()));
         break;
@@ -339,7 +342,8 @@ QVariant Field::databaseValue() const
     switch (m_type) {
     case QVariant::Char:
         return m_value.toString();
-        break;
+    case QVariant::Date:
+        return QVariant(datetime::dateToIso(m_value.toDate()));
     case QVariant::DateTime:
         return QVariant(datetime::datetimeToIsoMs(m_value.toDateTime()));
     case QVariant::StringList:

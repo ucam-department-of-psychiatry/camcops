@@ -126,7 +126,7 @@ QuBoolean* QuBoolean::setAsTextButton(bool as_text_button)
 }
 
 
-QPointer<QWidget> QuBoolean::makeWidget(Questionnaire *questionnaire)
+QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
 {
     bool read_only = questionnaire->readOnly();
 

@@ -1,11 +1,13 @@
 /*
 - Font size mappings (see CamcopsApp::getSubstitutedCss):
 
-    %1      normal
-    %2      big
-    %3      heading
-    %4      title
-    %5      base menu font size
+    %1      normal font size (pt)
+    %2      big font size (pt)
+    %3      heading font size (pt)
+    %4      title font size (pt)
+    %5      base menu font size (pt)
+    %6      slider groove size (px)
+    %7      slider handle size (px)
 */
 
 QWidget,

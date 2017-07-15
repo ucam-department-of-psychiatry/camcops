@@ -45,6 +45,10 @@ public:
              const QSize& size = QSize(),  // = take template's size
              bool allow_shrink = true);
     QuCanvas* setAdjustForDpi(bool adjust_for_dpi);  // default is true
+    // ... adjustment for DPI is a little more complex, because we have the
+    //     back-end (database) image that should be independent of device
+    //     resolution; therefore, we work with that, and allow the CanvasWidget
+    //     to do the translation.
     QuCanvas* setBackgroundColour(const QColor& colour);
     QuCanvas* setBorderWidth(int width);
     QuCanvas* setBorderColour(const QColor& colour);
@@ -59,6 +63,7 @@ protected:
     virtual FieldRefPtrList fieldrefs() const override;
     virtual void closing() override;
     void resetWidget();
+    QSize canvasSize(const QSize& image_size) const;
 protected slots:
     void fieldValueChanged(const FieldRef* fieldref,
                            const QObject* originator);

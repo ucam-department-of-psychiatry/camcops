@@ -32,7 +32,7 @@ AllTasksMenu::AllTasksMenu(CamcopsApp& app) :
     // Sort by what you see:
     QStringList tablenames = factory->tablenames(
                 TaskFactory::TaskClassSortMethod::Longname);
-    for (auto tablename : tablenames) {
+    for (const QString& tablename : tablenames) {
         m_items.append(MAKE_TASK_MENU_ITEM(tablename, app));
     }
 }

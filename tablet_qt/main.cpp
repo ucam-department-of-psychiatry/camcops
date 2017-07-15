@@ -42,7 +42,7 @@ const QString message_pattern("camcops: %{type}: %{message}");
 #endif
 
 
-int runMinimalQtApp(int& argc, char *argv[])
+int runMinimalQtApp(int& argc, char* argv[])
 {
     QApplication app(argc, argv);
     QPushButton button("Hello, world!");
@@ -51,7 +51,7 @@ int runMinimalQtApp(int& argc, char *argv[])
 }
 
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     /*
     NOTE: argc must be passed to the QApplication as a REFERENCE to int, or the

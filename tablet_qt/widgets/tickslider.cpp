@@ -34,7 +34,7 @@ const int DEFAULT_INTERLABEL_GAP = 4;
 const int DEFAULT_GAP_TO_SLIDER = 6;
 
 
-TickSlider::TickSlider(QWidget *parent) :
+TickSlider::TickSlider(QWidget* parent) :
     QSlider(parent)
 {
     commonConstructor();
@@ -42,7 +42,7 @@ TickSlider::TickSlider(QWidget *parent) :
 
 
 TickSlider::TickSlider(Qt::Orientation orientation,
-                       QWidget *parent) :
+                       QWidget* parent) :
     QSlider(orientation, parent)
 {
     commonConstructor();
@@ -201,7 +201,7 @@ neither is perfect.
 
 */
 
-void TickSlider::paintEvent(QPaintEvent *ev)
+void TickSlider::paintEvent(QPaintEvent* ev)
 {
     Q_UNUSED(ev);
     QStylePainter p(this);

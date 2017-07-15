@@ -28,7 +28,6 @@
 #include <QDesktopServices>
 #include <QLabel>
 #include <QLayout>
-#include <QMessageBox>
 #include <QObject>
 #include <QPainter>
 #include <QPen>
@@ -443,11 +442,9 @@ void stopApp(const QString& error, const QString& title)
     // MODAL DIALOGUE, FOLLOWED BY HARD KILL,
     // so callers don't need to worry about what happens afterwards.
     if (amInGuiThread()) {
-        QMessageBox msgbox;
-        msgbox.setWindowTitle(title);
-        msgbox.setText(error);
-        msgbox.setStandardButtons(QMessageBox::Abort);
-        msgbox.exec();
+        ScrollMessageBox box(QMessageBox::Critical, title, error);
+        box.addButton(tr("Abort"), QDialogButtonBox::AcceptRole);
+        box.exec();
     }
     QString msg = "ABORTING: " + error;
     qFatal("%s", qPrintable(msg));
@@ -466,24 +463,16 @@ void stopApp(const QString& error, const QString& title)
 // Alerts
 // ============================================================================
 
-void alert(const QString& text, const QString& title, bool scroll)
+void alert(const QString& text, const QString& title)
 {
-    if (scroll) {
-        // Tasks may elect to show long text here
-        ScrollMessageBox::plain(nullptr, title, text);
-    } else {
-        QMessageBox msgbox;
-        msgbox.setWindowTitle(title);
-        msgbox.setText(text);
-        msgbox.setStandardButtons(QMessageBox::Ok);
-        msgbox.exec();
-    }
+    // Tasks may elect to show long text here
+    ScrollMessageBox::plain(nullptr, title, text);
 }
 
 
-void alert(const QStringList& lines, const QString& title, bool scroll)
+void alert(const QStringList& lines, const QString& title)
 {
-    alert(stringfunc::joinHtmlLines(lines), title, scroll);
+    alert(stringfunc::joinHtmlLines(lines), title);
 }
 
 
@@ -516,14 +505,11 @@ bool confirm(const QString& text, const QString& title,
     if (no.isEmpty()) {
         no = tr("No");
     }
-    QMessageBox msgbox(parent);
-    msgbox.setIcon(QMessageBox::Question);
-    msgbox.setWindowTitle(title);
-    msgbox.setText(text);
-    QAbstractButton* yes_button = msgbox.addButton(yes, QMessageBox::YesRole);
-    msgbox.addButton(no, QMessageBox::NoRole);
-    msgbox.exec();
-    return msgbox.clickedButton() == yes_button;
+    ScrollMessageBox box(QMessageBox::Question, title, text, parent);
+    QAbstractButton* yes_button = box.addButton(yes, QDialogButtonBox::YesRole);
+    box.addButton(no, QDialogButtonBox::NoRole);
+    box.exec();
+    return box.clickedButton() == yes_button;
 }
 
 

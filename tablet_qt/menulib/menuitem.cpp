@@ -366,9 +366,9 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // Patient (for patient-choosing menu)
         // --------------------------------------------------------------------
         //
-        // ICON | - SURNAME, Forename
-        // ICON | - Sex, age, DOB
-        // ICON | - ID numbers
+        // ICON | ICON | - SURNAME, Forename
+        // ICON | ICON | - Sex, age, DOB
+        // ICON | ICON | - ID numbers
 
         // Title/subtitle style
         VBoxLayout* textlayout = new VBoxLayout();
@@ -376,14 +376,9 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
         LabelWordWrapWide* title = new LabelWordWrapWide(
-                    QString("%1, %2")
-                    .arg(m_p_patient->surname().toUpper(),
-                         m_p_patient->forename()));
+                    m_p_patient->surnameUpperForename());
         LabelWordWrapWide* subtitle1 = new LabelWordWrapWide(
-                    QString("%1, %2y, DOB %3")
-                    .arg(m_p_patient->sex())
-                    .arg(m_p_patient->ageYears())
-                    .arg(m_p_patient->dobText()));
+                    m_p_patient->sexAgeDob());
         LabelWordWrapWide* subtitle2 = new LabelWordWrapWide(
                     m_p_patient->shortIdnumSummary());
 
@@ -400,18 +395,31 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         textlayout->addWidget(subtitle1);
         textlayout->addWidget(subtitle2);
 
-        // Patient icon
+        // Patient: stop/warning/finishflag/blank
+        // ... "stop" => can't upload => finishflag irrelevant
+        // ... "warning" => can't finalize => finishflag irrelevant
+        // However, it's confusing if you can press the "finishflag" button
+        // and nothing appears to happen (because your patient's in the "stop"
+        // or "warning" state). So... allow a slightly mis-aligned but more
+        // informative state if a patient has >1 relevant icon.
+        int n_icons = 0;
         if (!m_p_patient->compliesWith(app.uploadPolicy()) ||
                 m_p_patient->anyIdClash()) {
             rowlayout->addWidget(uifunc::iconWidget(
                     uifunc::iconFilename(uiconst::ICON_STOP)));
+            ++n_icons;
         } else if (!m_p_patient->compliesWith(app.finalizePolicy())) {
             rowlayout->addWidget(uifunc::iconWidget(
                     uifunc::iconFilename(uiconst::ICON_WARNING)));
-        } else if (m_p_patient->shouldMoveOffTablet()) {
+            ++n_icons;
+        }
+        if (m_p_patient->shouldMoveOffTablet()) {
             rowlayout->addWidget(uifunc::iconWidget(
                     uifunc::iconFilename(uiconst::CBS_FINISHFLAG)));
-        } else {
+            ++n_icons;
+        }
+        if (n_icons == 0) {
+            // For alignment, have at least one:
             rowlayout->addWidget(uifunc::blankIcon());
         }
 

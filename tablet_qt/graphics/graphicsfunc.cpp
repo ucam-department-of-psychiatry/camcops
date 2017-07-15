@@ -426,7 +426,7 @@ void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
 
 // http://falsinsoft.blogspot.co.uk/2015/11/qt-snippet-rounded-corners-qpushbutton.html
 /*
-QPushButton *pButtonWidget = new QPushButton();
+QPushButton* pButtonWidget = new QPushButton();
 pButtonWidget->setGeometry(QRect(0, 0, 150, 100));
 pButtonWidget->setText("Test");
 pButtonWidget->setFlat(true);
@@ -438,7 +438,7 @@ pButtonWidget->setStyleSheet(
     "color: lightGray; "
     "font-size: 25px;"
     );
-QGraphicsProxyWidget *pButtonProxyWidget = scene()->addWidget(pButtonWidget);
+QGraphicsProxyWidget* pButtonProxyWidget = scene()->addWidget(pButtonWidget);
 */
 
 // https://dzone.com/articles/returning-multiple-values-from-functions-in-c

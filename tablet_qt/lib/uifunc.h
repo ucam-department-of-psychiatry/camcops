@@ -115,11 +115,9 @@ void stopApp(const QString& error,
 // ============================================================================
 
 void alert(const QString& text,
-           const QString& title = QObject::tr("Alert"),
-           bool scroll = false);
+           const QString& title = QObject::tr("Alert"));
 void alert(const QStringList& lines,
-           const QString& title = QObject::tr("Alert"),
-           bool scroll = false);
+           const QString& title = QObject::tr("Alert"));
 void alertLogMessageBox(const QString& text, const QString& title,
                         bool as_html = true);
 void alertLogMessageBox(const QStringList& lines, const QString& title,

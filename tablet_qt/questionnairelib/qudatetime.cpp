@@ -140,7 +140,7 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     - https://forum.qt.io/topic/71670/qdatetimeedit-with-date-and-time-picker/6
     - Looking at the various bits of source:
 
-        void QDateTimeEditPrivate::initCalendarPopup(QCalendarWidget *cw)
+        void QDateTimeEditPrivate::initCalendarPopup(QCalendarWidget* cw)
         {
             Q_Q(QDateTimeEdit);
             if (!monthCalendar) {

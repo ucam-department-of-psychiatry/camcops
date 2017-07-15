@@ -17,7 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_UNIT_CONVERSION
+// #define DEBUG_UNIT_CONVERSION
+#define DEBUG_IMAGE_CONVERSION_TIMES
 
 #include "convert.h"
 #include <cmath>
@@ -487,13 +488,28 @@ QByteArray imageToByteArray(const QImage& image, const char* format)
     //     http://doc.qt.io/qt-5/qimage.html#operator-QVariant
     // ... but it doesn't.
     // So: http://stackoverflow.com/questions/27343576
+#ifdef DEBUG_IMAGE_CONVERSION_TIMES
     qDebug() << "imageToByteArray(): starting...";
+#endif
     QByteArray arr;
     QBuffer buffer(&arr);
     buffer.open(QIODevice::WriteOnly);
     image.save(&buffer, format);
-    qDebug() << "imageToByteArray(): ... done";
+#ifdef DEBUG_IMAGE_CONVERSION_TIMES
+    qDebug().nospace() << "imageToByteArray(): ... done ("
+                       << prettySize(buffer.size()) << ")";
+#endif
     return arr;
+
+    // This function is SLOW for large pictures.
+    // Still, not hugely important, and fixes are complex (e.g. offloading it
+    // to another thread +/- storing QImage objects in QVariant for database
+    // storage and converting them to QByteArray etc. at the time of database
+    // access).
+
+    // This does not work:
+    // QDataStream stream(&arr, QIODevice::WriteOnly);
+    // stream << image;
 }
 
 
@@ -506,9 +522,14 @@ QVariant imageToVariant(const QImage& image, const char* format)
 QImage byteArrayToImage(const QByteArray& array, const char* format)
 {
     QImage image;
+#ifdef DEBUG_IMAGE_CONVERSION_TIMES
     qDebug() << "byteArrayToImage(): starting...";
+#endif
     image.loadFromData(array, format);
-    qDebug() << "byteArrayToImage(): ... done";
+#ifdef DEBUG_IMAGE_CONVERSION_TIMES
+    qDebug().nospace() << "byteArrayToImage(): ... done ("
+                       << prettySize(array.size()) << ")";
+#endif
     return image;
 }
 
@@ -568,6 +589,10 @@ QString prettyValue(const QVariant& variant, int dp, QVariant::Type type)
     switch (type) {
     case QVariant::ByteArray:
         return "<binary>";
+    case QVariant::Date:
+        return datetime::dateToIso(variant.toDate());
+    case QVariant::DateTime:
+        return datetime::datetimeToIsoMs(variant.toDateTime());
     case QVariant::Double:
         if (dp < 0) {
             return variant.toString();
@@ -653,7 +678,7 @@ QMap<QString, QString> getReplyDict(const QByteArray& data)
     // For server replies looking like key1:value1\nkey2:value2 ...
     QList<QByteArray> lines = data.split('\n');
     QMap<QString, QString> dict;
-    for (auto line : lines) {
+    for (const QByteArray& line : lines) {
         QRegularExpressionMatch match = RECORD_RE.match(line);
         if (match.hasMatch()) {
             QString key = match.captured(1);

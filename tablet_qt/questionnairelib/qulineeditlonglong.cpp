@@ -55,4 +55,5 @@ void QuLineEditLongLong::extraLineEditCreation(QLineEdit* editor)
 {
     editor->setValidator(new StrictInt64Validator(m_minimum, m_maximum,
                                                   m_allow_empty, this));
+    editor->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
 }

@@ -11,6 +11,11 @@ DbNestableTransaction::DbNestableTransaction(DatabaseManager& db) :
     m_fail(false)
 {
     ++s_count;
+    if (s_count < 0) {
+        // in case we get wraparound after long use
+        // (don't want "-" in savepoint name)
+        s_count = 0;
+    }
     ++s_level;
     m_name = QString("svp_t%1_l%2").arg(s_count).arg(s_level);
     m_db.execNoAnswer(QString("SAVEPOINT %1").arg(m_name));

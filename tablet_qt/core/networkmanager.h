@@ -19,7 +19,7 @@
 
 #pragma once
 
-#define DEBUG_OFFER_HTTP_TO_SERVER  // should NOT be defined in production (which is HTTPS only)
+// #define DEBUG_OFFER_HTTP_TO_SERVER  // should NOT be defined in production (which is HTTPS only)
 
 #include <QNetworkRequest>
 #include <QMap>

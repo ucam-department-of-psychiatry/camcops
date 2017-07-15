@@ -50,6 +50,8 @@ extern const int DEFAULT_COLSPAN_A;
 extern const int MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI;
 extern int MIN_SPINBOX_HEIGHT;  // not const!
 extern const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS;
+extern const int SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI;
+extern int SLIDER_HANDLE_SIZE_PX;
 
 extern const QMargins NO_MARGINS;
 

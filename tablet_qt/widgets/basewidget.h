@@ -49,5 +49,5 @@ public:
 #endif
 
     // IF YOU WANT CLASSES DERIVED FROM QWidget TO SUPPORT STYLE SHEETS:
-    virtual void paintEvent(QPaintEvent *event) override;
+    virtual void paintEvent(QPaintEvent* event) override;
 };

@@ -83,14 +83,14 @@ QStringList TaskFactory::tablenames(TaskClassSortMethod sort_method) const
     using StringPair = QPair<QString, QString>;
     QVector<StringPair> pairs;
     bool use_shortname = sort_method == TaskClassSortMethod::Shortname;
-    for (auto tablename : m_tablenames) {
+    for (const QString& tablename : m_tablenames) {
         const TaskCache& cache = m_map[tablename];
         pairs.append(StringPair(tablename, use_shortname ? cache.shortname
                                                          : cache.longname));
     }
     qSort(pairs.begin(), pairs.end(), QPairSecondComparer());
     QStringList sorted_tablenames;
-    for (auto pair : pairs) {
+    for (const StringPair& pair : pairs) {
         sorted_tablenames.append(pair.first);
     }
     return sorted_tablenames;

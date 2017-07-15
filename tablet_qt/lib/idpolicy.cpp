@@ -91,7 +91,7 @@ void IdPolicy::initializeTokenDicts()
 }
 
 
-void IdPolicy::tokenize(const QString &policy_text)
+void IdPolicy::tokenize(const QString& policy_text)
 {
     m_valid = true;
 
@@ -106,7 +106,7 @@ void IdPolicy::tokenize(const QString &policy_text)
         QString word = match.captured(1);
         words << word;
     }
-    for (auto word : words) {
+    for (const QString& word : words) {
         QString element = word.toLower();
         if (!m_name_to_token.contains(element)) {
             reportSyntaxError(QString("unknown word: %1").arg(word));
@@ -116,7 +116,7 @@ void IdPolicy::tokenize(const QString &policy_text)
     }
     // check syntax:
     AttributesType blank_attributes;
-    for (auto name : m_name_to_token.keys()) {
+    for (const QString& name : m_name_to_token.keys()) {
         blank_attributes[name] = false;
     }
     if (idPolicyChunk(m_tokens, blank_attributes) == ChunkValue::SyntaxError) {

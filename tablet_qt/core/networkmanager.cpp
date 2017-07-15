@@ -35,7 +35,7 @@
 #include "common/varconst.h"
 #include "core/camcopsapp.h"
 #include "core/camcopsversion.h"
-#include "db/dbtransaction.h"
+#include "db/dbnestabletransaction.h"
 #include "dialogs/passwordentrydialog.h"
 #include "dialogs/logbox.h"
 #include "dbobjects/blob.h"
@@ -681,7 +681,7 @@ void NetworkManager::registerSub1(QNetworkReply* reply)
 }
 
 
-void NetworkManager::registerSub2(QNetworkReply *reply)
+void NetworkManager::registerSub2(QNetworkReply* reply)
 {
     if (!processServerReply(reply)) {
         return;
@@ -836,6 +836,7 @@ bool NetworkManager::isPatientInfoComplete()
     int nfailures_upload = 0;
     int nfailures_finalize = 0;
     int nfailures_clash = 0;
+    int nfailures_move_off = 0;
     int nrows = result.nRows();
     for (int row = 0; row < nrows; ++row) {
         Patient patient(m_app, m_db);
@@ -843,7 +844,8 @@ bool NetworkManager::isPatientInfoComplete()
         if (!patient.compliesWithUpload()) {
             ++nfailures_upload;
         }
-        if (!patient.compliesWithFinalize()) {
+        bool complies_with_finalize = patient.compliesWithFinalize();
+        if (!complies_with_finalize) {
             ++nfailures_finalize;
         }
         if (patient.anyIdClash()) {
@@ -853,13 +855,27 @@ bool NetworkManager::isPatientInfoComplete()
         }
         if (m_upload_method != UploadMethod::Move &&
                 patient.shouldMoveOffTablet()) {
-            m_upload_patient_ids_to_move_off.append(patient.pkvalue().toInt());
+            // To move a patient off, it must comply with the finalize policy.
+            if (!complies_with_finalize) {
+                ++nfailures_move_off;
+            } else {
+                m_upload_patient_ids_to_move_off.append(patient.pkvalue().toInt());
+            }
         }
     }
     if (nfailures_clash > 0) {
         statusMessage(QString("Failure: %1 patient(s) having clashing ID "
                               "numbers")
                       .arg(nfailures_clash));
+        return false;
+    }
+    if (nfailures_move_off > 0) {
+        statusMessage(QString(
+                "You are trying to move off %1 patient(s) using the "
+                "explicit per-patient move-off flag, but they do not "
+                "comply with the server's finalize ID policy [%2]")
+                      .arg(nfailures_move_off)
+                      .arg(m_app.finalizePolicy().pretty()));
         return false;
     }
     if (m_upload_method == UploadMethod::Copy && nfailures_upload > 0) {
@@ -904,7 +920,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         return true;
     }
 
-    DbTransaction trans(m_db);
+    DbNestableTransaction trans(m_db);
 
     // ========================================================================
     // Step 1: clear all move-off flags, except in the source tables (being:
@@ -913,7 +929,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
     for (auto specimen : m_p_task_factory->allSpecimens()) {
         if (specimen->isAnonymous()) {
             // anonymous task: clear the ancillary tables
-            for (auto tablename : specimen->ancillaryTables()) {
+            for (const QString& tablename : specimen->ancillaryTables()) {
                 if (!clearMoveOffTabletFlag(tablename)) {
                     queryFailClearingMoveOffFlag(tablename);
                     return false;
@@ -921,7 +937,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
             }
         } else {
             // task with patient: clear all tables
-            for (auto tablename : specimen->allTables()) {
+            for (const QString& tablename : specimen->allTables()) {
                 if (!clearMoveOffTabletFlag(tablename)) {
                     queryFailClearingMoveOffFlag(tablename);
                     return false;
@@ -990,7 +1006,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
             }
             QString task_paramholders = dbfunc::sqlParamHolders(task_pks.length());
             ArgList task_args = dbfunc::argListFromIntList(task_pks);
-            for (auto ancillary_table : ancillary_tables) {
+            for (const QString& ancillary_table : ancillary_tables) {
                 sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
                         .arg(delimit(ancillary_table),
                              delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
@@ -1039,7 +1055,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         }
         QString task_paramholders = dbfunc::sqlParamHolders(task_pks.length());
         ArgList task_args = dbfunc::argListFromIntList(task_pks);
-        for (auto ancillary_table : ancillary_tables) {
+        for (const QString& ancillary_table : ancillary_tables) {
             QString sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
                     .arg(delimit(ancillary_table),
                          delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
@@ -1165,7 +1181,7 @@ void NetworkManager::catalogueTablesForUpload()
     QStringList recordwise_tables{Blob::TABLENAME};
     QStringList patient_tables{Patient::TABLENAME};
     QStringList all_tables = m_db.getAllTables();
-    for (auto table : all_tables) {
+    for (const QString& table : all_tables) {
         // How to upload?
         if (m_db.count(table) == 0) {
             m_upload_empty_tables.append(table);
@@ -1564,10 +1580,10 @@ void NetworkManager::endUpload()
 
 void NetworkManager::wipeTables()
 {
-    DbTransaction trans(m_db);
+    DbNestableTransaction trans(m_db);
 
     // Plain wipes
-    for (auto wipe_table : m_upload_tables_to_wipe) {
+    for (const QString& wipe_table : m_upload_tables_to_wipe) {
         // Note: m_upload_tables_to_wipe will contain the patient table if
         // we're moving everything; see catalogueTablesForUpload()
         statusMessage(tr("Wiping table: ") + wipe_table);
@@ -1584,7 +1600,7 @@ void NetworkManager::wipeTables()
         where.add(dbconst::MOVE_OFF_TABLET_FIELDNAME, 1);
         // Selective wipes: tasks
         if (m_upload_method == UploadMethod::Copy) {
-            for (auto tablename : m_p_task_factory->allTablenames()) {
+            for (const QString& tablename : m_p_task_factory->allTablenames()) {
                 if (m_upload_tables_to_wipe.contains(tablename)) {
                     continue;  // already wiped
                 }

@@ -48,6 +48,8 @@ const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS = QAbstractSpinBox::UpDown
         // QAbstractSpinBox::PlusMinus works but vertically stretched "+"
         // QAbstractSpinBox::UpDownArrows -- just looks blank on Linux and Android
         // ... missing actually looks slightly better than distorted!
+const int SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI = 10;
+int SLIDER_HANDLE_SIZE_PX = SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI;
 
 const QMargins NO_MARGINS(0, 0, 0, 0);
 

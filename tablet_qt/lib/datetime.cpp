@@ -27,10 +27,17 @@ namespace datetime {
 const QString LONG_DATE_FORMAT("dddd d MMMM yyyy");  // Thursday 31 Dec 2000
 const QString TIMESTAMP_FORMAT("yyyy-MM-dd HH:mm:ss.zzz");  // 2000-12-31 23:59:59.999
 const QString SHORT_DATETIME_FORMAT("yyyy-MM-dd HH:mm");  // 2000-12-31 23:59
-const QString SHORT_DATE_FORMAT("yyyy-MM-dd");  // 2000-12-31
+const QString ISO_DATE_FORMAT("yyyy-MM-dd");  // 2000-12-31
+const QString SHORT_DATE_FORMAT(ISO_DATE_FORMAT);
 const QString TEXT_DATE_FORMAT("dd MMM yyyy");  // 31 Dec 2000
 const QString TEXT_DATETIME_FORMAT("ddd dd MMM yyyy, HH:mm");  // Thu 31 Dec 2000, 23:59
 const QString UNKNOWN("?");
+
+
+QString dateToIso(const QDate& d)
+{
+    return d.toString(ISO_DATE_FORMAT);
+}
 
 
 // http://stackoverflow.com/questions/21976264/qt-isodate-formatted-date-time-including-timezone
@@ -77,9 +84,28 @@ QString datetimeToIsoMsUtc(const QDateTime& dt, bool use_z_timezone)
 }
 
 
+QDate isoToDate(const QString& iso)
+{
+    // e.g. "2017-07-14"
+    return QDate::fromString(iso, Qt::ISODate);
+    // http://doc.qt.io/qt-5/qt.html#DateFormat-enum
+    // Qt::ISODate:
+    // ISO 8601 extended format: either YYYY-MM-DD for dates or
+    // YYYY-MM-DDTHH:mm:ss, YYYY-MM-DDTHH:mm:ssTZD (e.g.,
+    // 1997-07-16T19:20:30+01:00) for combined dates and times.
+}
+
+
 QDateTime isoToDateTime(const QString& iso)
 {
-    return QDateTime::fromString(iso, Qt::ISODate);
+    // e.g. "2017-07-14T"
+    return QDateTime::fromString(iso, Qt::ISODateWithMs);
+    // http://doc.qt.io/qt-5/qt.html#DateFormat-enum
+    // Qt::ISODateWithMs:
+    // ISO 8601 extended format, including milliseconds if applicable.
+
+    // HOWEVER, source is more accurate than documentation... note that in
+    // QDateTime::fromString (qdatetime.cpp), treated identically to ISODate!
 }
 
 

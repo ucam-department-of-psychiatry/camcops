@@ -17,7 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_DESIGN_MATRIX
+// #define DEBUG_DESIGN_MATRIX
+
 #include "logisticregression.h"
 #include <QDebug>
 #include "maths/eigenfunc.h"

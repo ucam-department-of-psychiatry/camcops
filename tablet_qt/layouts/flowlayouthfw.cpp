@@ -78,6 +78,7 @@ FlowLayoutHfw::FlowLayoutHfw(int margin, int h_spacing, int v_spacing) :
 void FlowLayoutHfw::commonConstructor(int margin)
 {
     setContentsMargins(margin, margin, margin, margin);
+    m_halign = Qt::AlignLeft;
 }
 
 
@@ -110,9 +111,29 @@ FlowLayoutHfw::~FlowLayoutHfw()
 }
 
 
+void FlowLayoutHfw::addWidget(QWidget* w)
+{
+    QLayout::addWidget(w);
+}
+
+
+void FlowLayoutHfw::addWidget(QWidget* w, Qt::Alignment alignment)
+{
+    addWidget(w);  // uses QLayout::addWidget; no alignment option
+    setAlignment(w, alignment);  // this is QLayout::setAlignment
+}
+
+
 void FlowLayoutHfw::addItem(QLayoutItem* item)
 {
     m_item_list.append(item);
+    invalidate();
+}
+
+
+void FlowLayoutHfw::setHorizontalAlignmentOfContents(Qt::Alignment halign)
+{
+    m_halign = halign;
     invalidate();
 }
 
@@ -277,7 +298,9 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, bool test_only) const
     int y = effective_rect.y();
 
     int row = 0;
+    int preceding_space_x = 0;
     QVector<int> line_heights{0};
+    QVector<int> row_total_widths{0};
     QVector<ItemCalc> itemcalcs;
 
     for (auto item : m_item_list) {
@@ -336,7 +359,9 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, bool test_only) const
             // that helps.
             x = effective_rect.x();
             y = y + line_heights.back() + space_y;
+            preceding_space_x = 0;
             line_heights.push_back(0);
+            row_total_widths.push_back(0);
             ++row;
 #ifdef DEBUG_LAYOUT
             qDebug().nospace() << "... start new line; item_width now "
@@ -361,16 +386,29 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, bool test_only) const
 
         int next_x = x + item_width + space_x;
         x = next_x;
+        row_total_widths.back() += preceding_space_x + item_width;
+        preceding_space_x = space_x;
         line_heights.back() = qMax(line_heights.back(), item_height);
 
         itemcalcs.append(calc);
     }
 
-    // Now apply any alignments, and set the actual widget position
+    // Now apply any vertical alignments of widgets within their row,
+    // or horizontal alignments of the whole row, and set the actual widget
+    // position
     if (!test_only) {
+        int nrows = row + 1;  // row is zero-based
+        // Collect offsets for each row
+        QVector<int> row_horiz_offsets(nrows);
+        for (int r = 0; r < nrows; ++r) {
+            row_horiz_offsets[r] = rowShiftToRight(layout_width,
+                                                   row_total_widths.at(r));
+        }
+        // Apply alignment adjustments
         for (auto calc : itemcalcs) {
             int row_height = line_heights.at(calc.layout_row);
             QPoint item_at = calc.layout_cell_top_left;
+            item_at.rx() += row_horiz_offsets.at(calc.layout_row);
             item_at.ry() = itemTop(item_at.y(), calc.item_size.height(),
                                    row_height, calc.item->alignment());
             QRect geometry(item_at, calc.item_size);
@@ -409,13 +447,26 @@ int FlowLayoutHfw::smartSpacing(QStyle::PixelMetric pm) const
 
 
 int FlowLayoutHfw::itemTop(int row_top, int item_height, int row_height,
-                        Qt::Alignment alignment) const
+                        Qt::Alignment valignment) const
 {
-    if (alignment & Qt::AlignVCenter) {
+    if (valignment & Qt::AlignVCenter) {
         return row_top + (row_height - item_height) / 2;
-    } else if (alignment & Qt::AlignBottom) {
+    } else if (valignment & Qt::AlignBottom) {
         return row_top + (row_height - item_height);
     } else {
         return row_top;
+    }
+}
+
+
+int FlowLayoutHfw::rowShiftToRight(int layout_width,
+                                   int width_of_all_items) const
+{
+    if (m_halign & Qt::AlignCenter) {
+        return (layout_width - width_of_all_items) / 2;
+    } else if (m_halign & Qt::AlignRight) {
+        return layout_width - width_of_all_items;
+    } else {
+        return 0;
     }
 }

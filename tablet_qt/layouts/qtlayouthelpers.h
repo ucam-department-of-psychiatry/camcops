@@ -216,7 +216,7 @@ QSpacerItem* createSpacerItem(
 // was QLayoutPrivate::checkWidget(QWidget* widget), from qlayout.cpp
 bool checkWidget(QWidget* widget, QLayout* from);
 
-// was QLayoutPrivate::checkLayout(QLayout *otherLayout), from qlayout.cpp
+// was QLayoutPrivate::checkLayout(QLayout* otherLayout), from qlayout.cpp
 bool checkLayout(QLayout* other_layout, QLayout* from);
 
 

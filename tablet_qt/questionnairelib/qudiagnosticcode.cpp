@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_DX_SELECTOR_SPEED
+
 #include "qudiagnosticcode.h"
 #include <QHBoxLayout>
 #include <QLabel>
@@ -149,11 +151,23 @@ void QuDiagnosticCode::setButtonClicked()
     QModelIndex selected = m_codeset->firstMatchCode(code);
     QString stylesheet = m_questionnaire->getSubstitutedCss(
                 uiconst::CSS_CAMCOPS_DIAGNOSTIC_CODE);
+#ifdef DEBUG_DX_SELECTOR_SPEED
+    qDebug() << Q_FUNC_INFO << "Making DiagnosticCodeSelector...";
+#endif
     DiagnosticCodeSelector* selector = new DiagnosticCodeSelector(
                 stylesheet, m_codeset, selected);
+#ifdef DEBUG_DX_SELECTOR_SPEED
+    qDebug() << Q_FUNC_INFO << "... done";
+#endif
     connect(selector, &DiagnosticCodeSelector::codeChanged,
             this, &QuDiagnosticCode::widgetChangedCode);
+#ifdef DEBUG_DX_SELECTOR_SPEED
+    qDebug() << Q_FUNC_INFO << "Opening DiagnosticCodeSelector widget...";
+#endif
     m_questionnaire->openSubWidget(selector);
+#ifdef DEBUG_DX_SELECTOR_SPEED
+    qDebug() << Q_FUNC_INFO << "... done";
+#endif
 }
 
 

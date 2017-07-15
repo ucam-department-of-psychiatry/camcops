@@ -442,7 +442,7 @@ QStringList DatabaseObject::recordSummaryLines(const QString& separator,
                                                const QString& suffix) const
 {
     QStringList list;
-    for (auto fieldname : m_ordered_fieldnames) {
+    for (const QString& fieldname : m_ordered_fieldnames) {
         const Field& field = m_record[fieldname];
         list.append(stringfunc::standardResult(field.name(), field.prettyValue(),
                                                separator, suffix));
@@ -1024,7 +1024,7 @@ QStringList DatabaseObject::fieldnamesMapOrder() const
 QVector<Field> DatabaseObject::fieldsOrdered() const
 {
     QVector<Field> ordered_fields;
-    for (auto fieldname : m_ordered_fieldnames) {
+    for (const QString& fieldname : m_ordered_fieldnames) {
         ordered_fields.append(m_record[fieldname]);
     }
     return ordered_fields;

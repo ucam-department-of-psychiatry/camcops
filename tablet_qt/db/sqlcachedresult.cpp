@@ -122,8 +122,8 @@ QString SqlCachedResult::holderAt(int index) const
 QString SqlCachedResult::fieldSerial(int i) const
 {
     ushort arr[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    ushort *end = &arr[(sizeof(arr)/sizeof(*arr))];
-    ushort *ptr = end;
+    ushort* end = &arr[(sizeof(arr)/sizeof(*arr))];
+    ushort* ptr = end;
 
     while (i > 0) {
         *(--ptr) = 'a' + i % 16;
