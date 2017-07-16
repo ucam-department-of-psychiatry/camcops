@@ -45,13 +45,10 @@ class Photo(Task):
         dict(name="photo_blobid", cctype="INT",
              comment="ID of the BLOB (foreign key to blobs.id, given "
              "matching device and current/frozen record status)"),
-        dict(name="rotation", cctype="INT",
-             comment="Rotation (clockwise, in degrees) to be applied for "
-             "viewing"),
     ]
     has_clinician = True
-    pngblob_name_idfield_rotationfield_list = [
-        ("photo_blob", "photo_blobid", "rotation")
+    pngblob_name_idfield_list = [
+        ("photo_blob", "photo_blobid")
     ]
 
     def is_complete(self) -> bool:
@@ -76,7 +73,7 @@ class Photo(Task):
             answer(ws.webify(self.description), default="(No description)",
                    default_for_blank_strings=True),
             # ... xhtml2pdf crashes if the contents are empty...
-            self.get_blob_png_html(self.photo_blobid, self.rotation)
+            self.get_blob_png_html(self.photo_blobid)
         )
 
 
@@ -97,13 +94,10 @@ class PhotoSequenceSinglePhoto(Ancillary):
         dict(name="photo_blobid", cctype="INT",
              comment="ID of the BLOB (foreign key to blobs.id, given "
              "matching device and current/frozen record status)"),
-        dict(name="rotation", cctype="INT",
-             comment="Rotation (clockwise, in degrees) to be applied for "
-             "viewing"),
     ]
     sortfield = "seqnum"
-    pngblob_name_idfield_rotationfield_list = [
-        ("photo_blob", "photo_blobid", "rotation")
+    pngblob_name_idfield_list = [
+        ("photo_blob", "photo_blobid")
     ]
 
     def get_html_table_rows(self) -> str:
@@ -124,7 +118,7 @@ class PhotoSequenceSinglePhoto(Ancillary):
         blob = self.get_blob()
         if blob is None:
             return "<i>(Missing picture)</i>"
-        return blob.get_png_img_html(self.rotation)
+        return blob.get_png_img_html()
 
 
 class PhotoSequence(Task):

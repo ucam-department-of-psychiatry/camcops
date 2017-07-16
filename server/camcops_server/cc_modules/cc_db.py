@@ -85,6 +85,7 @@ class SQLTYPE(object):
     IDDESCRIPTOR = "VARCHAR(255)"
     IPADDRESS = "VARCHAR(45)"  # http://stackoverflow.com/questions/166132
     LONGTEXT = "LONGTEXT"  # http://stackoverflow.com/questions/6766781
+    MIMETYPE = "VARCHAR(255)"  # https://stackoverflow.com/questions/643690
     PATIENTNAME = "VARCHAR(255)"
     SENDINGFORMAT = "VARCHAR(50)"
     SEX = "VARCHAR(1)"

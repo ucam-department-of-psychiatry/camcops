@@ -89,11 +89,10 @@ public:
              bool mandatory);
     FieldRef(CamcopsApp* app, const QString& storedvar_name,
              bool mandatory, bool cached);  // StoredVar
+
     bool valid() const;
     bool setValue(const QVariant& value, const QObject* originator = nullptr);
     // ... originator is optional and used as a performance hint (see QSlider)
-    bool setValue(const QImage& image, const QObject* originator = nullptr);
-    // ... convenience method for QImage
     void emitValueChanged(const QObject* originator = nullptr);  // for rare manual use
 
     QVariant value() const;
@@ -107,8 +106,14 @@ public:
     QString valueString() const;
     QStringList valueStringList() const;
     QByteArray valueByteArray() const;
-    QImage valueImage() const;  // convenience function
     QVector<int> valueVectorInt() const;
+
+    // For working more directly with BLOBs:
+    bool isBlob() const;
+    QImage blobImage(bool* loaded = nullptr) const;
+    void blobRotateImage(int angle_degrees_clockwise,
+                         const QObject* originator = nullptr);
+    bool blobSetImage(const QImage& image, const QObject* originator = nullptr);
 
     bool isNull() const;
 
@@ -120,8 +125,10 @@ public:
 
     void setHint(const QVariant& hint);
     QVariant getHint() const;
+
 protected:
     void commonConstructor();
+    bool signalSetValue(bool changed, const QObject* originator);
 
 signals:
     void valueChanged(const FieldRef* fieldref,

@@ -78,7 +78,6 @@ class DemoQuestionnaire(Task):
             dict(name="diagnosticcode2_code", cctype="TEXT"),  # v2
             dict(name="diagnosticcode2_description", cctype="TEXT"),  # v2
             dict(name="photo_blobid", cctype="INT"),
-            dict(name="photo_rotation", cctype="INT"),  # DEFUNCT as of v2 ***
             dict(name="canvas_blobid", cctype="INT"),
             dict(name="canvas2_blobid", cctype="INT"),  # v2
             dict(name="spinbox_int", cctype="INT"),  # v2
@@ -90,9 +89,9 @@ class DemoQuestionnaire(Task):
         if "comment" not in d:
             d["comment"] = d["name"]
     is_anonymous = True
-    pngblob_name_idfield_rotationfield_list = [
-        ("photo", "photo_blobid", "photo_rotation"),
-        ("canvas", "canvas_blobid", None),
+    pngblob_name_idfield_list = [
+        ("photo", "photo_blobid"),
+        ("canvas", "canvas_blobid"),
     ]
 
     # noinspection PyMethodOverriding
@@ -151,12 +150,9 @@ class DemoQuestionnaire(Task):
         h += self.get_twocol_string_row("diagnosticcode_description")
         h += self.get_twocol_string_row("diagnosticcode2_code")
         h += self.get_twocol_string_row("diagnosticcode2_description")
-        h += self.get_twocol_picture_row("photo_blobid",
-                                         rotationfieldname="photo_rotation")
-        h += self.get_twocol_picture_row("canvas_blobid",
-                                         rotationfieldname=None)
-        h += self.get_twocol_picture_row("canvas2_blobid",
-                                         rotationfieldname=None)
+        h += self.get_twocol_picture_row("photo_blobid")
+        h += self.get_twocol_picture_row("canvas_blobid")
+        h += self.get_twocol_picture_row("canvas2_blobid")
         h += """
             </table>
 

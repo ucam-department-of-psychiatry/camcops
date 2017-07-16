@@ -209,6 +209,12 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
         break;
     }
 
+    return signalSetValue(changed, originator);
+}
+
+
+bool FieldRef::signalSetValue(bool changed, const QObject* originator)
+{
     // Signal
     if (changed) {
 #ifdef DEBUG_SIGNALS
@@ -230,12 +236,6 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
     }
 
     return changed;
-}
-
-
-bool FieldRef::setValue(const QImage& image, const QObject* originator)
-{
-    return setValue(convert::imageToVariant(image), originator);
 }
 
 
@@ -338,10 +338,44 @@ QByteArray FieldRef::valueByteArray() const
 }
 
 
-QImage FieldRef::valueImage() const
+bool FieldRef::isBlob() const
 {
-    return convert::byteArrayToImage(valueByteArray());
+    return m_method == FieldRefMethod::DatabaseObjectBlobField;
 }
+
+
+QImage FieldRef::blobImage(bool* loaded) const
+{
+    if (m_method != FieldRefMethod::DatabaseObjectBlobField || !m_blob) {
+        qWarning() << Q_FUNC_INFO << "Called on non-BLOB field!";
+        return QImage();
+    }
+    return m_blob->image(loaded);
+}
+
+
+void FieldRef::blobRotateImage(int angle_degrees_clockwise,
+                               const QObject* originator)
+{
+    if (m_method != FieldRefMethod::DatabaseObjectBlobField || !m_blob) {
+        qWarning() << Q_FUNC_INFO << "Called on non-BLOB field!";
+        return;
+    }
+    m_blob->rotateImage(angle_degrees_clockwise, true);
+    signalSetValue(true, originator);
+}
+
+
+bool FieldRef::blobSetImage(const QImage& image, const QObject* originator)
+{
+    if (m_method != FieldRefMethod::DatabaseObjectBlobField || !m_blob) {
+        qWarning() << Q_FUNC_INFO << "Called on non-BLOB field!";
+        return false;
+    }
+    bool changed = m_blob->setImage(image, true);
+    return signalSetValue(changed, originator);
+}
+
 
 
 QVector<int> FieldRef::valueVectorInt() const

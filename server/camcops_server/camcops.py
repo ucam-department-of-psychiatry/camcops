@@ -371,6 +371,27 @@ def v2_0_0_alter_generic_table(tablename: str) -> None:
                   cc_db.SQLTYPE.SEMANTICVERSIONTYPE)
 
 
+def v2_0_0_move_png_rotation_field(tablename: str, blob_id_fieldname: str,
+                                   rotation_fieldname: str) -> None:
+    sql = """
+        UPDATE {blobtable} b
+        INNER JOIN {tablename} t ON
+            b.id = t.{blob_id_fieldname}
+            AND b._device_id = t._device_id
+            AND b._era = t._era
+            AND b._when_added_batch_utc <= t._when_added_batch_utc
+            AND (b._when_removed_batch_utc = t._when_removed_batch_utc
+                 OR (b._when_removed_batch_utc IS NULL
+                     AND t._when_removed_batch_utc IS NULL))
+        SET b.image_rotation_deg_cw = t.{rotation_fieldname}
+    """.format(
+        blobtable=Blob.TABLENAME,
+        tablename=tablename,
+        blob_id_fieldname=blob_id_fieldname,
+        rotation_fieldname=rotation_fieldname,
+    )
+
+
 def upgrade_database(old_version: Version) -> None:
     print("Old database version: {}. New version: {}.".format(
         old_version,
@@ -571,6 +592,16 @@ def upgrade_database(old_version: Version) -> None:
         # of old clients).
 
 
+def upgrade_database_second_phase(old_version: Version):
+    if old_version < Version("2.0.0"):
+        report_database_upgrade_step("2.0.0")
+        v2_0_0_move_png_rotation_field("ace3", "picture1_blobid", "picture1_rotation")  # noqa
+        v2_0_0_move_png_rotation_field("ace3", "picture2_blobid", "picture2_rotation")  # noqa
+        v2_0_0_move_png_rotation_field("photo", "photo_blobid", "rotation")
+        v2_0_0_move_png_rotation_field("demoquestionnaire", "photo_blobid", "photo_rotation")  # noqa
+        v2_0_0_move_png_rotation_field("photosequence_photos", "photo_blobid", "rotation")  # noqa
+
+
 # =============================================================================
 # Command-line debugging
 # =============================================================================
@@ -682,6 +713,8 @@ def make_tables(drop_superfluous_columns: bool = False) -> None:
     cc_db.create_or_update_table(
         SECURITY_AUDIT_TABLENAME, SECURITY_AUDIT_FIELDSPECS,
         drop_superfluous_columns=drop_superfluous_columns)
+
+    upgrade_database_second_phase(old_version)
 
     # Task tables
     print(SEPARATOR_HYPHENS)

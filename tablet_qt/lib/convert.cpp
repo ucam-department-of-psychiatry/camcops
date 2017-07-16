@@ -18,7 +18,7 @@
 */
 
 // #define DEBUG_UNIT_CONVERSION
-#define DEBUG_IMAGE_CONVERSION_TIMES
+// #define DEBUG_IMAGE_CONVERSION_TIMES
 
 #include "convert.h"
 #include <cmath>
@@ -496,8 +496,8 @@ QByteArray imageToByteArray(const QImage& image, const char* format)
     buffer.open(QIODevice::WriteOnly);
     image.save(&buffer, format);
 #ifdef DEBUG_IMAGE_CONVERSION_TIMES
-    qDebug().nospace() << "imageToByteArray(): ... done ("
-                       << prettySize(buffer.size()) << ")";
+    qDebug().nospace().noquote() << "imageToByteArray(): ... done ("
+                                 << prettySize(buffer.size()) << ")";
 #endif
     return arr;
 
@@ -519,17 +519,25 @@ QVariant imageToVariant(const QImage& image, const char* format)
 }
 
 
-QImage byteArrayToImage(const QByteArray& array, const char* format)
+QImage byteArrayToImage(const QByteArray& array, bool* successful,
+                        const char* format)
 {
     QImage image;
 #ifdef DEBUG_IMAGE_CONVERSION_TIMES
     qDebug() << "byteArrayToImage(): starting...";
 #endif
-    image.loadFromData(array, format);
+    bool success = image.loadFromData(array, format);
+    // When format is not specified, QImage tries to work it out from the data.
 #ifdef DEBUG_IMAGE_CONVERSION_TIMES
-    qDebug().nospace() << "byteArrayToImage(): ... done ("
-                       << prettySize(array.size()) << ")";
+    qDebug().nospace().noquote() << "byteArrayToImage(): ... done ("
+                                 << prettySize(array.size()) << ")";
 #endif
+    if (!success) {
+        qWarning() << Q_FUNC_INFO << "Failed to convert to image";
+    }
+    if (successful) {
+        *successful = success;
+    }
     return image;
 }
 

@@ -75,6 +75,11 @@ class Blob(object):
              comment="Filename of the BLOB on the source tablet device (on "
                      "the source device, BLOBs are stored in files, not in "
                      "the database)"),
+        dict(name="mimetype", cctype="MIMETYPE",
+             comment="MIME type of the BLOB"),
+        dict(name="image_rotation_deg_cw", cctype="INT",
+             comment="For images: rotation to be applied, clockwise, in "
+                     "degrees"),
     ]
     FIELDSPECS = FIELDSPECS_WITHOUT_BLOB + [
         dict(name="theblob", cctype="LONGBLOB",
@@ -105,30 +110,27 @@ class Blob(object):
         """Debugging option to dump the object."""
         rnc_db.dump_database_object(self, Blob.FIELDS_WITHOUT_BLOB)
 
-    def get_rotated_image(self,
-                          rotation_clockwise_deg: float = 0) -> Optional[bytes]:
+    def get_rotated_image(self) -> Optional[bytes]:
         """Returns a binary PNG image, having rotated if necessary, or None."""
         if not self.theblob:
             return None
-        if rotation_clockwise_deg is None or rotation_clockwise_deg % 360 == 0:
+        rotation = self.image_rotation_deg_cw
+        if rotation is None or rotation % 360 == 0:
             return self.theblob
         with wand.image.Image(blob=self.theblob) as img:
-            img.rotate(rotation_clockwise_deg)
+            img.rotate(rotation)
             return img.make_blob('png')
 
-    def get_png_img_html(self, rotation_clockwise_deg: float = 0) -> str:
+    def get_png_img_html(self) -> str:
         """Returns an HTML IMG tag encoding the PNG, or ''."""
-        image_bits = self.get_rotated_image(rotation_clockwise_deg)
+        image_bits = self.get_rotated_image()
         if not image_bits:
             return ""
         return ws.get_png_img_html(image_bits)
 
-    def get_png_xml_tuple(self,
-                          name: str,
-                          rotation_clockwise_deg: float = 0) \
-            -> XmlElementTuple:
+    def get_png_xml_tuple(self, name: str) -> XmlElementTuple:
         """Returns an XmlElementTuple for this object."""
-        image_bits = self.get_rotated_image(rotation_clockwise_deg)
+        image_bits = self.get_rotated_image()
         return cc_xml.get_xml_blob_tuple(name, image_bits)
 
     def get_png_data_url(self) -> str:
@@ -202,12 +204,8 @@ def unit_tests_blob(blob: Blob) -> None:
     # skip Blob.make_tables
     unit_test_ignore("", blob.dump)
     unit_test_ignore("", blob.get_rotated_image)
-    unit_test_ignore("", blob.get_rotated_image, rotation_clockwise_deg=90)
     unit_test_ignore("", blob.get_png_img_html)
-    unit_test_ignore("", blob.get_png_img_html, rotation_clockwise_deg=90)
     unit_test_ignore("", blob.get_png_xml_tuple, "name")
-    unit_test_ignore("", blob.get_png_xml_tuple, "name",
-                     rotation_clockwise_deg=90)
     unit_test_ignore("", blob.get_png_data_url)
     unit_test_ignore("", blob.is_valid_png)
 

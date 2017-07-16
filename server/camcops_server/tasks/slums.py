@@ -119,9 +119,9 @@ class Slums(Task):
         OTHER_FIELDSPECS
     )
     has_clinician = True
-    pngblob_name_idfield_rotationfield_list = [
-        ("clockpicture", "clockpicture_blobid", None),
-        ("shapespicture", "shapespicture_blobid", None),
+    pngblob_name_idfield_list = [
+        ("clockpicture", "clockpicture_blobid"),
+        ("shapespicture", "shapespicture_blobid"),
     ]
 
     def get_trackers(self) -> List[TrackerInfo]:

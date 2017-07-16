@@ -224,20 +224,16 @@ class Ace3(Task):
         [
             dict(name="picture1_blobid", cctype="INT",
                  comment="Photo 1/2 PNG BLOB ID"),
-            dict(name="picture1_rotation", cctype="INT",
-                 comment="Photo 1/2 rotation (degrees clockwise)"),
             dict(name="picture2_blobid", cctype="INT",
                  comment="Photo 2/2 PNG BLOB ID"),
-            dict(name="picture2_rotation", cctype="INT",
-                 comment="Photo 2/2 rotation (degrees clockwise)"),
             dict(name="comments", cctype="TEXT",
                  comment="Clinician's comments"),
         ]
     )
     has_clinician = True
-    pngblob_name_idfield_rotationfield_list = [
-        ("picture1", "picture1_blobid", "picture1_rotation"),
-        ("picture2", "picture2_blobid", "picture2_rotation"),
+    pngblob_name_idfield_list = [
+        ("picture1", "picture1_blobid"),
+        ("picture2", "picture2_blobid"),
     ]
 
     def get_trackers(self) -> List[TrackerInfo]:
@@ -655,11 +651,9 @@ class Ace3(Task):
                                    self.mem_recognize_address5)) +
 
             subheading_spanning_two_columns("Photos of test sheet") +
-            tr_span_col(self.get_blob_png_html(self.picture1_blobid,
-                                               self.picture1_rotation),
+            tr_span_col(self.get_blob_png_html(self.picture1_blobid),
                         td_class="photo") +
-            tr_span_col(self.get_blob_png_html(self.picture2_blobid,
-                                               self.picture2_rotation),
+            tr_span_col(self.get_blob_png_html(self.picture2_blobid),
                         td_class="photo") +
             """
                 </table>

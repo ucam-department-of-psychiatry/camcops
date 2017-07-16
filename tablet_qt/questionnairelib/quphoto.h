@@ -42,8 +42,8 @@ protected:
     void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
-    void rotate(qreal angle_degrees);
-    void rotateWorker(qreal angle_degrees);
+    void rotate(int angle_degrees_clockwise);
+    void rotateWorker(int angle_degrees_clockwise);
 protected slots:
     void fieldValueChanged(const FieldRef* fieldref);
     void takePhoto();
@@ -59,10 +59,10 @@ protected:
     bool m_have_camera;
 
     QPointer<Questionnaire> m_questionnaire;
-    QPointer<QLabel> m_incomplete_optional;
-    QPointer<QLabel> m_incomplete_mandatory;
-    QPointer<QLabel> m_field_problem;
-    QPointer<AspectRatioPixmap> m_image;
+    QPointer<QLabel> m_incomplete_optional_label;
+    QPointer<QLabel> m_incomplete_mandatory_label;
+    QPointer<QLabel> m_field_problem_label;
+    QPointer<AspectRatioPixmap> m_image_widget;
 #ifdef QUPHOTO_USE_CAMERA_QML
     QPointer<CameraQml> m_camera;
 #else

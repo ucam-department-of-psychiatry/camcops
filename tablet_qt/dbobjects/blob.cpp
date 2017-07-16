@@ -17,8 +17,12 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_ROTATION
+
 #include "blob.h"
+#include <QTransform>
 #include "db/databasemanager.h"
+#include "lib/convert.h"
 
 const QString Blob::TABLENAME("blobs");  // as per DBCONSTANTS.js
 
@@ -26,8 +30,12 @@ const QString Blob::SRC_TABLE_FIELDNAME("tablename");  // as per Blob.js
 const QString Blob::SRC_PK_FIELDNAME("tablepk");  // as per Blob.js
 const QString SRC_FIELD_FIELDNAME("fieldname");  // as per Blob.js
 const QString FILENAME_FIELDNAME("filename");  // as per Blob.js
+const QString MIMETYPE_FIELDNAME("mimetype");  // new in v2.0.0
 const QString BLOB_FIELDNAME("theblob"); // as per dbupload.js
 // ... was a "virtual" field under Titanium and file-based BLOBs.
+const QString ROTATION_FIELDNAME("image_rotation_deg_cw");
+// ... rotation is anticlockwise for "x up, y up", but clockwise for "y down",
+//     which is the computing norm.
 
 
 Blob::Blob(CamcopsApp& app,
@@ -48,8 +56,11 @@ Blob::Blob(CamcopsApp& app,
     addField(SRC_TABLE_FIELDNAME, QVariant::String, true);
     addField(SRC_PK_FIELDNAME, QVariant::Int, true);
     addField(SRC_FIELD_FIELDNAME, QVariant::String, true);
-    addField(FILENAME_FIELDNAME, QVariant::String, false);
-    addField(BLOB_FIELDNAME, QVariant::ByteArray, false);
+    addField(FILENAME_FIELDNAME, QVariant::String);
+    addField(MIMETYPE_FIELDNAME, QVariant::String);
+    // ... maximum length 255; https://stackoverflow.com/questions/643690
+    addField(BLOB_FIELDNAME, QVariant::ByteArray);
+    addField(ROTATION_FIELDNAME, QVariant::Int);
 
     // ------------------------------------------------------------------------
     // Load from database (or create/save), unless this is a specimen
@@ -83,6 +94,8 @@ Blob::Blob(CamcopsApp& app,
                                               .arg(src_pk)
                                               .arg(src_field);
     // ... as per Blob.js
+
+    m_image_loaded_from_data = false;
 }
 
 
@@ -91,16 +104,23 @@ Blob::~Blob()
 }
 
 
-bool Blob::setBlob(const QVariant& value, bool save_to_db,
-                   const QString& extension_without_dot)
+bool Blob::setBlob(const QVariant& value,
+                   bool save_to_db,
+                   const QString& extension_without_dot,
+                   const QString& mimetype)
 {
-    bool changed_contents = setValue(BLOB_FIELDNAME, value);
-    bool changed_filename = setValue(FILENAME_FIELDNAME,
-             QString("%1.%2").arg(m_filename_stem).arg(extension_without_dot));
+    bool changed = setValue(BLOB_FIELDNAME, value);
+    changed = setValue(FILENAME_FIELDNAME,
+                       QString("%1.%2").arg(m_filename_stem,
+                                            extension_without_dot)) || changed;
+    changed = setValue(MIMETYPE_FIELDNAME, mimetype) || changed;
+    changed = setValue(ROTATION_FIELDNAME, 0) || changed;
+
     if (save_to_db) {
         save();
     }
-    return changed_contents || changed_filename;
+    m_image = QImage();  // clear cached image
+    return changed;
 }
 
 
@@ -123,4 +143,62 @@ void Blob::makeIndexes()
                      {SRC_TABLE_FIELDNAME,
                       SRC_PK_FIELDNAME,
                       SRC_FIELD_FIELDNAME});
+}
+
+
+void Blob::rotateCachedImage(int angle_degrees_clockwise) const
+{
+    // http://doc.qt.io/qt-4.8/qtransform.html#rotate
+    if (angle_degrees_clockwise == 0 || m_image.isNull()) {
+        return;
+    }
+    QTransform matrix;
+    matrix.rotate(angle_degrees_clockwise);
+#ifdef DEBUG_ROTATION
+    qDebug().nospace() << "Blob::rotateImage: rotating image of size "
+                       << m_image.size() << "...";
+#endif
+    m_image = m_image.transformed(matrix);
+#ifdef DEBUG_ROTATION
+    qDebug() << "Blob::rotateImage: ... rotated to image of size"
+             << m_image.size();
+#endif
+}
+
+
+QImage Blob::image(bool* loaded) const
+{
+    if (m_image.isNull()) {
+        m_image = convert::byteArrayToImage(blobByteArray(),
+                                            &m_image_loaded_from_data);
+        int angle_deg_cw = valueInt(ROTATION_FIELDNAME);
+        rotateCachedImage(angle_deg_cw);
+    }
+    if (loaded) {
+        *loaded = m_image_loaded_from_data;
+    }
+    return m_image;
+}
+
+
+void Blob::rotateImage(int angle_degrees_clockwise, bool save_to_db)
+{
+    int rotation = valueInt(ROTATION_FIELDNAME);
+    rotation = (rotation + angle_degrees_clockwise) % 360;
+    setValue(ROTATION_FIELDNAME, rotation);
+    if (save_to_db) {
+        save();
+    }
+    // We may have cached an image, so rotate that too:
+    rotateCachedImage(angle_degrees_clockwise);
+}
+
+
+bool Blob::setImage(const QImage& image, bool save_to_db)
+{
+    m_image = image;
+    m_image_loaded_from_data = true;
+    QVariant value = convert::imageToVariant(image);
+    bool changed = setBlob(value, save_to_db, "png", "image/png");
+    return changed;
 }

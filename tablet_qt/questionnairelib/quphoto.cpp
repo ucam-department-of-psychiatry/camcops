@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_ROTATION
+// #define DEBUG_ROTATION
 #define DEBUG_CAMERA
 
 #include "quphoto.h"
@@ -40,10 +40,10 @@
 QuPhoto::QuPhoto(FieldRefPtr fieldref) :
     m_fieldref(fieldref),
     m_questionnaire(nullptr),
-    m_incomplete_optional(nullptr),
-    m_incomplete_mandatory(nullptr),
-    m_field_problem(nullptr),
-    m_image(nullptr),
+    m_incomplete_optional_label(nullptr),
+    m_incomplete_mandatory_label(nullptr),
+    m_field_problem_label(nullptr),
+    m_image_widget(nullptr),
     m_camera(nullptr),
     m_main_widget(nullptr)
 {
@@ -55,6 +55,9 @@ QuPhoto::QuPhoto(FieldRefPtr fieldref) :
     if (m_fieldref->mandatory()) {
         qWarning("You have set a QuPhoto to be mandatory, but not all devices "
                  "will support cameras!");
+    }
+    if (!m_fieldref->isBlob()) {
+        uifunc::stopApp("QuPhoto requires a FieldRef aimed at a BLOB");
     }
 
     connect(m_fieldref.data(), &FieldRef::valueChanged,
@@ -135,20 +138,20 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     QWidget* button_widget = new QWidget();
     button_widget->setLayout(button_layout);
 
-    m_incomplete_optional = uifunc::iconWidget(
+    m_incomplete_optional_label = uifunc::iconWidget(
                 uifunc::iconFilename(uiconst::ICON_FIELD_INCOMPLETE_OPTIONAL));
-    m_incomplete_mandatory = uifunc::iconWidget(
+    m_incomplete_mandatory_label = uifunc::iconWidget(
                 uifunc::iconFilename(uiconst::ICON_FIELD_INCOMPLETE_MANDATORY));
-    m_field_problem = uifunc::iconWidget(
+    m_field_problem_label = uifunc::iconWidget(
                 uifunc::iconFilename(uiconst::ICON_FIELD_PROBLEM));
-    m_image = new AspectRatioPixmap();
+    m_image_widget = new AspectRatioPixmap();
 
     QVBoxLayout* image_layout = new QVBoxLayout();
     image_layout->setContentsMargins(uiconst::NO_MARGINS);
-    image_layout->addWidget(m_incomplete_optional, 0, align);
-    image_layout->addWidget(m_incomplete_mandatory, 0, align);
-    image_layout->addWidget(m_field_problem, 0, align);
-    image_layout->addWidget(m_image, 0, align);
+    image_layout->addWidget(m_incomplete_optional_label, 0, align);
+    image_layout->addWidget(m_incomplete_mandatory_label, 0, align);
+    image_layout->addWidget(m_field_problem_label, 0, align);
+    image_layout->addWidget(m_image_widget, 0, align);
     // image_layout->addStretch();
 
     QWidget* image_and_marker_widget = new QWidget();
@@ -193,27 +196,24 @@ void QuPhoto::fieldValueChanged(const FieldRef* fieldref)
     bool missing = fieldref->missingInput();
     bool null = fieldref->isNull();
     bool loaded = false;
-    if (m_incomplete_mandatory) {
-        m_incomplete_mandatory->setVisible(missing);
+    if (m_incomplete_mandatory_label) {
+        m_incomplete_mandatory_label->setVisible(missing);
     }
-    if (m_incomplete_optional) {
-        m_incomplete_optional->setVisible(!missing && null);
+    if (m_incomplete_optional_label) {
+        m_incomplete_optional_label->setVisible(!missing && null);
     }
-    if (m_image) {
+    if (m_image_widget) {
         bool show_image = !missing && !null;
-        m_image->setVisible(show_image);
-        QImage img;
-        if (show_image) {
-            loaded = img.loadFromData(fieldref->valueByteArray());
-        }
-        if (loaded) {
-            m_image->setPixmap(QPixmap::fromImage(img));
+        m_image_widget->setVisible(show_image);
+        if (show_image && fieldref->isBlob()) {
+            QImage img = fieldref->blobImage(&loaded);
+            m_image_widget->setPixmap(QPixmap::fromImage(img));
         } else {
-            m_image->clear();
+            m_image_widget->clear();
         }
     }
-    if (m_field_problem) {
-        m_field_problem->setVisible(!missing && !null && !loaded);
+    if (m_field_problem_label) {
+        m_field_problem_label->setVisible(!missing && !null && !loaded);
     }
 }
 
@@ -309,7 +309,7 @@ void QuPhoto::imageCaptured(const QImage& image)
 #ifdef DEBUG_CAMERA
         qDebug() << "QuPhoto: setting field value to image...";
 #endif
-        changed = m_fieldref->setValue(image);
+        changed = m_fieldref->blobSetImage(image);
 #ifdef DEBUG_CAMERA
         qDebug() << "QuPhoto: ... field value set to image.";
 #endif
@@ -321,7 +321,7 @@ void QuPhoto::imageCaptured(const QImage& image)
 }
 
 
-void QuPhoto::rotate(qreal angle_degrees)
+void QuPhoto::rotate(int angle_degrees_clockwise)
 {
     if (m_fieldref->isNull()) {
         return;
@@ -330,43 +330,19 @@ void QuPhoto::rotate(qreal angle_degrees)
     qDebug() << "QuPhoto: rotating...";
 #endif
     SlowNonGuiFunctionCaller(
-                std::bind(&QuPhoto::rotateWorker, this, angle_degrees),
+                std::bind(&QuPhoto::rotateWorker, this, angle_degrees_clockwise),
                 m_main_widget,
                 "Rotating...");
 #ifdef DEBUG_ROTATION
     qDebug() << "QuPhoto: ... rotation finished.";
 #endif
+    emit elementValueChanged();
 }
 
 
-void QuPhoto::rotateWorker(qreal angle_degrees)
+void QuPhoto::rotateWorker(int angle_degrees_clockwise)
 {
-#ifdef DEBUG_ROTATION
-    qDebug() << "rotateWorker: fetching image...";
-#endif
-    QImage image = m_fieldref->valueImage();
-#ifdef DEBUG_ROTATION
-    qDebug() << "rotateWorker: ... fetched";
-#endif
-    if (image.isNull()) {
-        return;
-    }
-    QTransform matrix;
-    matrix.rotate(angle_degrees);
-#ifdef DEBUG_ROTATION
-    qDebug().nospace() << "rotateWorker: rotating image of size "
-                       << image.size() << "...";
-#endif
-    QImage rotated_image = image.transformed(matrix);
-#ifdef DEBUG_ROTATION
-    qDebug() << "rotateWorker: ... rotated to image of size"
-             << rotated_image.size();
-    qDebug() << "rotateWorker: setting field value...";
-#endif
-    m_fieldref->setValue(rotated_image);
-#ifdef DEBUG_ROTATION
-    qDebug() << "rotateWorker: ... set";
-#endif
+    m_fieldref->blobRotateImage(angle_degrees_clockwise);
 }
 
 

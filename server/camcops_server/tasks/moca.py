@@ -129,10 +129,10 @@ class Moca(Task):
         if item["name"] == "q12":
             item["max"] = 3
     has_clinician = True
-    pngblob_name_idfield_rotationfield_list = [
-        ("trailpicture", "trailpicture_blobid", None),
-        ("cubepicture", "cubepicture_blobid", None),
-        ("clockpicture", "clockpicture_blobid", None),
+    pngblob_name_idfield_list = [
+        ("trailpicture", "trailpicture_blobid"),
+        ("cubepicture", "cubepicture_blobid"),
+        ("clockpicture", "clockpicture_blobid"),
     ]
 
     def get_trackers(self) -> List[TrackerInfo]:
