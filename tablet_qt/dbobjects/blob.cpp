@@ -166,7 +166,7 @@ void Blob::rotateCachedImage(int angle_degrees_clockwise) const
 }
 
 
-QImage Blob::image(bool* loaded) const
+QImage Blob::image(bool* p_loaded) const
 {
     if (m_image.isNull()) {
         m_image = convert::byteArrayToImage(blobByteArray(),
@@ -174,8 +174,8 @@ QImage Blob::image(bool* loaded) const
         int angle_deg_cw = valueInt(ROTATION_FIELDNAME);
         rotateCachedImage(angle_deg_cw);
     }
-    if (loaded) {
-        *loaded = m_image_loaded_from_data;
+    if (p_loaded) {
+        *p_loaded = m_image_loaded_from_data;
     }
     return m_image;
 }
@@ -201,4 +201,14 @@ bool Blob::setImage(const QImage& image, bool save_to_db)
     QVariant value = convert::imageToVariant(image);
     bool changed = setBlob(value, save_to_db, "png", "image/png");
     return changed;
+}
+
+
+bool Blob::setRawImage(const QByteArray& data,
+                       bool save_to_db,
+                       const QString& extension_without_dot,
+                       const QString& mimetype)
+{
+    return setBlob(data,  // will autoconvert from QByteArray to QVariant
+                   save_to_db, extension_without_dot, mimetype);
 }

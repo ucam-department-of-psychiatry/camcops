@@ -34,6 +34,7 @@
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "db/dbfunc.h"
+#include "db/blobfieldref.h"
 #include "db/fieldref.h"
 #include "db/queryresult.h"
 #include "dbobjects/blob.h"
@@ -348,6 +349,22 @@ FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool mandatory,
             new FieldRef(this, fieldname, mandatory, autosave, blob, p_app));
     }
     return m_fieldrefs[fieldname];
+}
+
+
+BlobFieldRefPtr DatabaseObject::blobFieldRef(const QString& fieldname,
+                                             bool mandatory)
+{
+    requireField(fieldname);
+    if (!m_fieldrefs.contains(fieldname)) {
+        CamcopsApp* p_app = &m_app;
+        m_fieldrefs[fieldname] = FieldRefPtr(
+            new BlobFieldRef(this, fieldname, mandatory, p_app));
+    }
+    FieldRefPtr base_fr = m_fieldrefs[fieldname];
+    BlobFieldRefPtr blob_fr = qSharedPointerDynamicCast<BlobFieldRef>(base_fr);
+    Q_ASSERT(blob_fr.data());
+    return blob_fr;
 }
 
 

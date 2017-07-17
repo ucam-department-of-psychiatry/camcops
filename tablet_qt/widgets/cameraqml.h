@@ -71,14 +71,22 @@ public:
     // Constructor/destructor
     // ========================================================================
     CameraQml(QWidget* parent = nullptr);
+
     // ========================================================================
     // Public interface
     // ========================================================================
     void finish();
-    QImage image() const;
+
 signals:
+    // If possible, we will emit rawImageCaptured, because performance is
+    // better. Failing that, we will emit imageCaptured. ONE OR THE OTHER will
+    // be emitted.
+    void rawImageCaptured(QByteArray data,  // QByteArray is copy-on-write
+                          QString extension_without_dot,
+                          QString mimetype);
     void imageCaptured(QImage image);  // QImage is copy-on-write
     void cancelled();
+
     // ========================================================================
     // Internals
     // ========================================================================
@@ -92,5 +100,4 @@ protected slots:
 
 protected:
     QPointer<QQuickWidget> m_qml_view;
-    QImage m_most_recent_image;
 };

@@ -21,7 +21,7 @@
 
 #define QUPHOTO_USE_CAMERA_QML
 
-#include "db/fieldref.h"
+#include "db/blobfieldref.h"
 #include "questionnairelib/quelement.h"
 
 class AspectRatioPixmap;
@@ -37,7 +37,7 @@ class QuPhoto : public QuElement
 
     Q_OBJECT
 public:
-    QuPhoto(FieldRefPtr fieldref);
+    QuPhoto(BlobFieldRefPtr fieldref);
 protected:
     void setFromField();
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
@@ -52,10 +52,13 @@ protected slots:
     void rotateRight();
 
     void cameraCancelled();
+    void rawImageCaptured(const QByteArray& data,
+                          const QString& extension_without_dot,
+                          const QString& mimetype);
     void imageCaptured(const QImage& image);
 
 protected:
-    FieldRefPtr m_fieldref;
+    BlobFieldRefPtr m_fieldref;
     bool m_have_camera;
 
     QPointer<Questionnaire> m_questionnaire;

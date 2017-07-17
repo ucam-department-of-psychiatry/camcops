@@ -41,9 +41,13 @@ public:
     QByteArray blobByteArray() const;
 
     // Handling BLOBs as images:
-    QImage image(bool* loaded) const;
+    QImage image(bool* p_loaded) const;
     void rotateImage(int angle_degrees_clockwise, bool save_to_db);
     bool setImage(const QImage& image, bool save_to_db);  // returns: changed?
+    bool setRawImage(const QByteArray& data,
+                     bool save_to_db,
+                     const QString& extension_without_dot,
+                     const QString& mimetype);  // returns: changed?
 
     // Classmethod:
     void makeIndexes();

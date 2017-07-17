@@ -390,6 +390,7 @@ def v2_0_0_move_png_rotation_field(tablename: str, blob_id_fieldname: str,
         blob_id_fieldname=blob_id_fieldname,
         rotation_fieldname=rotation_fieldname,
     )
+    pls.db.db_exec_literal(sql)
 
 
 def upgrade_database(old_version: Version) -> None:
@@ -600,6 +601,9 @@ def upgrade_database_second_phase(old_version: Version):
         v2_0_0_move_png_rotation_field("photo", "photo_blobid", "rotation")
         v2_0_0_move_png_rotation_field("demoquestionnaire", "photo_blobid", "photo_rotation")  # noqa
         v2_0_0_move_png_rotation_field("photosequence_photos", "photo_blobid", "rotation")  # noqa
+        pls.db.db_exec_literal("""
+            UPDATE {blobtable} SET mimetype = 'image/png'
+        """.format(blobtable=Blob.TABLENAME))
 
 
 # =============================================================================

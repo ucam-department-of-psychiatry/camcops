@@ -108,7 +108,7 @@ OpenableWidget* Photo::editor(bool read_only)
         new QuText(textconst::PHOTO_Q),
         new QuText(textconst::DESCRIPTION),
         new QuTextEdit(fieldRef(DESCRIPTION)),
-        new QuPhoto(fieldRef(PHOTO_BLOBID, false, true, true)),
+        new QuPhoto(blobFieldRef(PHOTO_BLOBID, false)),
     })->setTitle(textconst::PHOTO_TITLE));
 
     Questionnaire* questionnaire = new Questionnaire(m_app, {page});

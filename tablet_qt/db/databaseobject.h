@@ -115,6 +115,8 @@ public:
                          bool mandatory = true,
                          bool autosave = true,
                          bool blob = false);
+    BlobFieldRefPtr blobFieldRef(const QString& fieldname, bool mandatory);
+
     // Low-level field access (for internal use only)
 protected:
     Field& getField(const QString& fieldname);

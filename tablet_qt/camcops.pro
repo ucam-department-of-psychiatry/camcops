@@ -526,7 +526,8 @@ SOURCES += main.cpp \
     qobjects/debugeventwatcher.cpp \
     qobjects/cameraframegrabber.cpp \
     widgets/cameraqcamera.cpp \
-    widgets/cameraqml.cpp
+    widgets/cameraqml.cpp \
+    db/blobfieldref.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -882,7 +883,8 @@ HEADERS += \
     qobjects/debugeventwatcher.h \
     qobjects/cameraframegrabber.h \
     widgets/cameraqcamera.h \
-    widgets/cameraqml.h
+    widgets/cameraqml.h \
+    db/blobfieldref.h
 
 DISTFILES += \
     android/AndroidManifest.xml \

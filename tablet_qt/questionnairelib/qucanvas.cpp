@@ -36,8 +36,9 @@
 const int WRITE_DELAY_MS = 200;
 
 
-QuCanvas::QuCanvas(FieldRefPtr fieldref, const QSize& size, bool allow_shrink,
-                   QImage::Format format, const QColor& background_colour) :
+QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QSize& size,
+                   bool allow_shrink, QImage::Format format,
+                   const QColor& background_colour) :
     m_fieldref(fieldref),
     m_size(size),
     m_allow_shrink(allow_shrink),
@@ -49,7 +50,7 @@ QuCanvas::QuCanvas(FieldRefPtr fieldref, const QSize& size, bool allow_shrink,
 }
 
 
-QuCanvas::QuCanvas(FieldRefPtr fieldref, const QString& template_filename,
+QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QString& template_filename,
                    const QSize& size, bool allow_shrink) :
     m_fieldref(fieldref),
     m_size(size),
@@ -208,7 +209,8 @@ void QuCanvas::completePendingFieldWrite()
         return;
     }
     QImage img = m_canvas->image();
-    bool changed = m_fieldref->setValue(img, this);
+    QByteArray data = convert::imageToByteArray(img);
+    bool changed = m_fieldref->setValue(data, this);
     m_field_write_pending = false;
     if (changed) {
         emit elementValueChanged();

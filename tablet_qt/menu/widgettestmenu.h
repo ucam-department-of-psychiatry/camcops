@@ -18,10 +18,12 @@
 */
 
 #pragma once
+#include <QSharedPointer>
 #include "menulib/menuwindow.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "widgets/booleanwidget.h"
 
+class Blob;
 class QSizePolicy;
 class QuElement;
 
@@ -128,9 +130,11 @@ protected:
 protected:
     FieldRefPtr m_fieldref_1;
     FieldRefPtr m_fieldref_2;
+    BlobFieldRefPtr m_fieldref_blob;
     QVariant m_dummy_value_1;
     QVariant m_dummy_value_2;
     NameValueOptions m_options_1;
     NameValueOptions m_options_2;
     NameValueOptions m_options_3;
+    QSharedPointer<Blob> m_blob;
 };

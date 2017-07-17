@@ -256,9 +256,8 @@ void PhotoSequence::rebuildPage(QuPage* page, int page_index)
         elements.append(new QuText(textconst::PHOTOSEQUENCE_PHOTO_DESCRIPTION));
         elements.append(new QuTextEdit(
                             photo->fieldRef(PhotoSequencePhoto::DESCRIPTION)));
-        elements.append(new QuPhoto(
-                            photo->fieldRef(PhotoSequencePhoto::PHOTO_BLOBID,
-                                            false, true, true)));
+        elements.append(new QuPhoto(photo->blobFieldRef(
+                                PhotoSequencePhoto::PHOTO_BLOBID, false)));
     }
     page->clearElements();
     page->addElements(elements);

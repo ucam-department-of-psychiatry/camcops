@@ -23,6 +23,7 @@
 #include "common/cssconst.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
+#include "dbobjects/blob.h"
 #include "diagnosis/icd10.h"
 #include "graphics/graphicsfunc.h"
 #include "layouts/flowlayouthfw.h"
@@ -90,8 +91,9 @@ const QString& sampleText(bool long_text)
 }
 
 
-WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
-    : MenuWindow(app, tr("Widget tests"), "")
+WidgetTestMenu::WidgetTestMenu(CamcopsApp& app) :
+    MenuWindow(app, tr("Widget tests"), "")
+
 {
     bool qutext_bold = false;
     bool mandatory = true;
@@ -106,6 +108,9 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                                                  this, std::placeholders::_1);
     m_fieldref_1 = FieldRefPtr(new FieldRef(getter1, setter1, mandatory));
     m_fieldref_2 = FieldRefPtr(new FieldRef(getter2, setter2, mandatory));
+
+    m_blob = QSharedPointer<Blob>(new Blob(app, app.db()));  // specimen BLOB
+    m_fieldref_blob = BlobFieldRefPtr(new BlobFieldRef(m_blob, true));
 
     m_options_1.append(NameValuePair("Option A1", 1));
     m_options_1.append(NameValuePair("Option A2", 2));
@@ -353,8 +358,12 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app)
                  std::bind(&WidgetTestMenu::testQuMultipleResponse, this, true, false)),
         MenuItem("QuMultipleResponse (horizontal=true, long text)",
                  std::bind(&WidgetTestMenu::testQuMultipleResponse, this, true, true)),
-        MenuItem("QuPhoto",
-                 std::bind(&WidgetTestMenu::testQuPhoto, this)),
+        // Not yet fixed:
+        // - widget pops up in modal window
+        // - camera then gets opened in window belonging to main window
+        //   ... but its UI input is blocked, so we get nowhere
+        //MenuItem("QuPhoto",
+        //         std::bind(&WidgetTestMenu::testQuPhoto, this)),
         MenuItem("QuPickerInline",
                  std::bind(&WidgetTestMenu::testQuPickerInline, this)),
         MenuItem("QuPickerPopup",
@@ -860,7 +869,7 @@ void WidgetTestMenu::testQuButton()
 
 void WidgetTestMenu::testQuCanvas()
 {
-    QuCanvas element(m_fieldref_1);
+    QuCanvas element(m_fieldref_blob);
     testQuestionnaireElement(&element);
 }
 
@@ -1018,7 +1027,7 @@ void WidgetTestMenu::testQuMultipleResponse(bool horizontal, bool long_text)
 
 void WidgetTestMenu::testQuPhoto()
 {
-    QuPhoto element(m_fieldref_1);
+    QuPhoto element(m_fieldref_blob);
     testQuestionnaireElement(&element);
 }
 

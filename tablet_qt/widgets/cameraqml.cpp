@@ -25,6 +25,9 @@
 
 #include "cameraqml.h"
 #include <QFile>
+#include <QFileInfo>
+#include <QMimeDatabase>
+#include <QMimeType>
 #include <QtQml/QQmlEngine>
 #include <QtQuick/QQuickItem>
 // #include <QtQuick/QQuickView>
@@ -136,12 +139,6 @@ void CameraQml::finish()
 }
 
 
-QImage CameraQml::image() const
-{
-    return m_most_recent_image;
-}
-
-
 // ============================================================================
 // Internals
 // ============================================================================
@@ -209,11 +206,42 @@ void CameraQml::cameraHasCapturedImage(const QString& filename)
     qDebug() << Q_FUNC_INFO;
     qDebug() << "Camera image has arrived via temporary file" << filename;
 #endif
-    m_most_recent_image.load(filename);
+
+    QFileInfo fileinfo(filename);
+    QString extension_without_dot = fileinfo.suffix();
+    QMimeDatabase mime_db;
+    QMimeType mime_type = mime_db.mimeTypeForFile(filename);
+    // ... default method is to use filename and contents
+    // ... it will ALWAYS BE VALID, but may be "application/octet-stream" if
+    //     Qt doesn't know what it is:
+    //     http://doc.qt.io/qt-5/qmimedatabase.html#mimeTypeForFile
+    QString mimetype_name = mime_type.name();
+
+    QFile file(filename);
+    if (mimetype_name != "application/octet-stream" &&
+            file.open(QIODevice::ReadOnly)) {
+
+        // We know the MIME type (and can read the file), so we can use the
+        // higher-performance method.
+        QByteArray data = file.readAll();
+        file.close();
+        deleteFile(filename);
 #ifdef DEBUG_CAMERA
-    qDebug() << "Camera image loaded";
+        qDebug() << "Camera image data loaded";
 #endif
-    deleteFile(filename);
-    emit imageCaptured(image());
+        emit rawImageCaptured(data, extension_without_dot, mimetype_name);
+
+    } else {
+
+#ifdef DEBUG_CAMERA
+        qDebug() << "Camera image loaded";
+#endif
+        QImage img;
+        img.load(filename);
+        deleteFile(filename);
+        emit imageCaptured(img);
+
+    }
+
     close();
 }

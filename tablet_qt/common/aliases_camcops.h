@@ -28,6 +28,9 @@ class QString;
 
 // Phase 1:
 
+class BlobFieldRef;
+using BlobFieldRefPtr = QSharedPointer<BlobFieldRef>;
+
 class CamcopsApp;
 
 class DatabaseManager;

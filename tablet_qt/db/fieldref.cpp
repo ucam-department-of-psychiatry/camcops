@@ -56,7 +56,6 @@ FieldRef::FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
     m_fieldname = fieldname;
     m_autosave = autosave;
 
-    m_blob_redirect = blob;
     if (blob) {
         if (p_app == nullptr) {
             uifunc::stopApp("Must pass p_app to FieldRef for BLOBs");
@@ -74,6 +73,16 @@ FieldRef::FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
             m_autosave = true;
         }
     }
+}
+
+
+FieldRef::FieldRef(QSharedPointer<Blob> blob, bool mandatory)  // for widget testing only; specimen BLOB
+{
+    commonConstructor();
+    m_method = FieldRefMethod::IsolatedBlobFieldForTesting;
+    m_blob = blob;
+    m_mandatory = mandatory;
+    qWarning() << "FieldRef constructed with reference to specimen BLOB; FOR TESTING ONLY";
 }
 
 
@@ -113,7 +122,6 @@ void FieldRef::commonConstructor()
     m_fieldname = "";
     m_autosave = false;
 
-    m_blob_redirect = false;
     m_blob.clear();
 
     m_getterfunc = nullptr;
@@ -127,19 +135,29 @@ void FieldRef::commonConstructor()
 bool FieldRef::valid() const
 {
     switch (m_method) {
+
     case FieldRefMethod::Invalid:
         return false;
+
     case FieldRefMethod::Field:
-        return m_p_field != nullptr;
+        return m_p_field;
+
     case FieldRefMethod::DatabaseObject:
-        return m_p_dbobject != nullptr;
+        return m_p_dbobject;
+
     case FieldRefMethod::DatabaseObjectBlobField:
-        return m_p_dbobject != nullptr && m_blob != nullptr;
+        return m_p_dbobject && m_blob;
+
+    case FieldRefMethod::IsolatedBlobFieldForTesting:
+        return m_blob;
+
     case FieldRefMethod::Functions:
-        return m_getterfunc != nullptr && m_setterfunc != nullptr;
+        return m_getterfunc && m_setterfunc;
+
     case FieldRefMethod::StoredVar:
     case FieldRefMethod::CachedStoredVar:
-        return m_app != nullptr && m_app->hasVar(m_storedvar_name);
+        return m_app && m_app->hasVar(m_storedvar_name);
+
     default:
         // Shouldn't get here
         qCritical() << Q_FUNC_INFO << "Bad method";
@@ -173,15 +191,19 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
 
     // Store value
     switch (m_method) {
+
     case FieldRefMethod::Invalid:
         qWarning() << Q_FUNC_INFO << "Attempt to set invalid field reference";
         return false;
+
     case FieldRefMethod::Field:
         changed = m_p_field->setValue(value);
         break;
+
     case FieldRefMethod::DatabaseObject:
         changed = m_p_dbobject->setValue(m_fieldname, value);
         break;
+
     case FieldRefMethod::DatabaseObjectBlobField:
         changed = m_blob->setBlob(value, true);
         if (changed) {
@@ -195,15 +217,23 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
         // record, on the basis that a task has changed if one of its BLOBs has
         // changed, even if the BLOB PK has not changed.
         break;
+
+    case FieldRefMethod::IsolatedBlobFieldForTesting:
+        changed = m_blob->setBlob(value);
+        break;
+
     case FieldRefMethod::Functions:
         changed = m_setterfunc(value);
         break;
+
     case FieldRefMethod::StoredVar:
         changed = m_app->setVar(m_storedvar_name, value);
         break;
+
     case FieldRefMethod::CachedStoredVar:
         changed = m_app->setCachedVar(m_storedvar_name, value);
         break;
+
     default:
         qCritical() << Q_FUNC_INFO << "Bad method";
         break;
@@ -256,18 +286,26 @@ QVariant FieldRef::value() const
     case FieldRefMethod::Invalid:
         qWarning() << Q_FUNC_INFO << "Attempt to get invalid field reference";
         return QVariant();
+
     case FieldRefMethod::Field:
         return m_p_field->value();
+
     case FieldRefMethod::DatabaseObject:
         return m_p_dbobject->value(m_fieldname);
+
     case FieldRefMethod::DatabaseObjectBlobField:
+    case FieldRefMethod::IsolatedBlobFieldForTesting:
         return m_blob->blobVariant();
+
     case FieldRefMethod::Functions:
         return m_getterfunc();
+
     case FieldRefMethod::StoredVar:
         return m_app->var(m_storedvar_name);
+
     case FieldRefMethod::CachedStoredVar:
         return m_app->getCachedVar(m_storedvar_name);
+
     default:  // to remove warning
         qCritical() << Q_FUNC_INFO << "Bad method";
         return QVariant();
@@ -340,42 +378,9 @@ QByteArray FieldRef::valueByteArray() const
 
 bool FieldRef::isBlob() const
 {
-    return m_method == FieldRefMethod::DatabaseObjectBlobField;
+    return (m_method == FieldRefMethod::DatabaseObjectBlobField ||
+            m_method == FieldRefMethod::IsolatedBlobFieldForTesting) && m_blob;
 }
-
-
-QImage FieldRef::blobImage(bool* loaded) const
-{
-    if (m_method != FieldRefMethod::DatabaseObjectBlobField || !m_blob) {
-        qWarning() << Q_FUNC_INFO << "Called on non-BLOB field!";
-        return QImage();
-    }
-    return m_blob->image(loaded);
-}
-
-
-void FieldRef::blobRotateImage(int angle_degrees_clockwise,
-                               const QObject* originator)
-{
-    if (m_method != FieldRefMethod::DatabaseObjectBlobField || !m_blob) {
-        qWarning() << Q_FUNC_INFO << "Called on non-BLOB field!";
-        return;
-    }
-    m_blob->rotateImage(angle_degrees_clockwise, true);
-    signalSetValue(true, originator);
-}
-
-
-bool FieldRef::blobSetImage(const QImage& image, const QObject* originator)
-{
-    if (m_method != FieldRefMethod::DatabaseObjectBlobField || !m_blob) {
-        qWarning() << Q_FUNC_INFO << "Called on non-BLOB field!";
-        return false;
-    }
-    bool changed = m_blob->setImage(image, true);
-    return signalSetValue(changed, originator);
-}
-
 
 
 QVector<int> FieldRef::valueVectorInt() const

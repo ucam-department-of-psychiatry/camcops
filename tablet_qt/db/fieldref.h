@@ -67,8 +67,10 @@ public:
             // PK of a BLOB record, and (b) a record in the BLOB table that
             // stores the actual blob, and references back to the
             // table/PK/field of the DatabaseObject in question.
+        IsolatedBlobFieldForTesting,
+            // As the name suggests.
         Functions,
-            // getter/setter functions, to allow the use e.g. of Questionnaires
+            // Getter/setter functions, to allow the use e.g. of Questionnaires
             // (which use FieldRefs) together with arbitrary C++ objects, e.g.
             // for setting StoredVar objects.
         StoredVar,
@@ -84,6 +86,7 @@ public:
     FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
              bool mandatory, bool autosave = true, bool blob = false,
              CamcopsApp* p_app = nullptr);
+    FieldRef(QSharedPointer<Blob> blob, bool mandatory);  // for widget testing only; specimen BLOB
     FieldRef(const GetterFunction& getterfunc,
              const SetterFunction& setterfunc,
              bool mandatory);
@@ -108,12 +111,7 @@ public:
     QByteArray valueByteArray() const;
     QVector<int> valueVectorInt() const;
 
-    // For working more directly with BLOBs:
     bool isBlob() const;
-    QImage blobImage(bool* loaded = nullptr) const;
-    void blobRotateImage(int angle_degrees_clockwise,
-                         const QObject* originator = nullptr);
-    bool blobSetImage(const QImage& image, const QObject* originator = nullptr);
 
     bool isNull() const;
 
@@ -150,7 +148,6 @@ protected:
     QString m_fieldname;
     bool m_autosave;
 
-    bool m_blob_redirect;
     QSharedPointer<Blob> m_blob;
 
     GetterFunction m_getterfunc;

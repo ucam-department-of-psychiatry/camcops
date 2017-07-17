@@ -19,7 +19,7 @@
 
 #pragma once
 #include <QImage>
-#include "db/fieldref.h"
+#include "db/blobfieldref.h"
 #include "questionnairelib/quelement.h"
 
 class CanvasWidget;
@@ -35,12 +35,12 @@ class QuCanvas : public QuElement
 
     Q_OBJECT
 public:
-    QuCanvas(FieldRefPtr fieldref,
+    QuCanvas(BlobFieldRefPtr fieldref,
              const QSize& size = QSize(100, 100),
              bool allow_shrink = true,
              QImage::Format format = QImage::Format_RGB32,
              const QColor& background_colour = Qt::white);
-    QuCanvas(FieldRefPtr fieldref,
+    QuCanvas(BlobFieldRefPtr fieldref,
              const QString& template_filename,
              const QSize& size = QSize(),  // = take template's size
              bool allow_shrink = true);
@@ -71,7 +71,7 @@ protected slots:
     void completePendingFieldWrite();
     void resetFieldToNull();
 protected:
-    FieldRefPtr m_fieldref;
+    BlobFieldRefPtr m_fieldref;
     QSize m_size;
     bool m_allow_shrink;
     QImage::Format m_format;

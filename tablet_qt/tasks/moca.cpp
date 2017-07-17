@@ -294,7 +294,7 @@ OpenableWidget* Moca::editor(bool read_only)
     auto canvas = [this](const QString& blob_id_fieldname,
                          const QString& image_filename) -> QuElement* {
         QuCanvas* c = new QuCanvas(
-                    fieldRef(blob_id_fieldname, true, true, true),  // BLOB
+                    blobFieldRef(blob_id_fieldname, true),
                     uifunc::resourceFilename(image_filename));
         c->setAllowShrink(true);
         return c;

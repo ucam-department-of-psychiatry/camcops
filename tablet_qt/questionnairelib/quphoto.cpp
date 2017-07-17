@@ -37,7 +37,7 @@
 #include "widgets/imagebutton.h"
 
 
-QuPhoto::QuPhoto(FieldRefPtr fieldref) :
+QuPhoto::QuPhoto(BlobFieldRefPtr fieldref) :
     m_fieldref(fieldref),
     m_questionnaire(nullptr),
     m_incomplete_optional_label(nullptr),
@@ -206,8 +206,14 @@ void QuPhoto::fieldValueChanged(const FieldRef* fieldref)
         bool show_image = !missing && !null;
         m_image_widget->setVisible(show_image);
         if (show_image && fieldref->isBlob()) {
-            QImage img = fieldref->blobImage(&loaded);
-            m_image_widget->setPixmap(QPixmap::fromImage(img));
+            const BlobFieldRef* blob_fr = dynamic_cast<const BlobFieldRef*>(fieldref);
+            if (blob_fr) {
+                QImage img = blob_fr->blobImage(&loaded);
+                m_image_widget->setPixmap(QPixmap::fromImage(img));
+            } else {
+                qWarning() << Q_FUNC_INFO
+                           << "Error: fieldref is not a BlobFieldRef* !";
+            }
         } else {
             m_image_widget->clear();
         }
@@ -233,8 +239,11 @@ void QuPhoto::takePhoto()
 
 #ifdef QUPHOTO_USE_CAMERA_QML
     m_camera = new CameraQml();
-    connect(m_camera, &CameraQml::imageCaptured, this, &QuPhoto::imageCaptured);
     connect(m_camera, &CameraQml::cancelled, this, &QuPhoto::cameraCancelled);
+    connect(m_camera, &CameraQml::rawImageCaptured,
+            this, &QuPhoto::rawImageCaptured);
+    connect(m_camera, &CameraQml::imageCaptured,
+            this, &QuPhoto::imageCaptured);
 #else
     QString stylesheet = m_questionnaire->getSubstitutedCss(
                 uiconst::CSS_CAMCOPS_CAMERA);
@@ -312,6 +321,43 @@ void QuPhoto::imageCaptured(const QImage& image)
         changed = m_fieldref->blobSetImage(image);
 #ifdef DEBUG_CAMERA
         qDebug() << "QuPhoto: ... field value set to image.";
+#endif
+        m_camera->finish();  // close the camera
+    }
+    if (changed) {
+        emit elementValueChanged();
+    }
+}
+
+
+void QuPhoto::rawImageCaptured(const QByteArray& data,
+                               const QString& extension_without_dot,
+                               const QString& mimetype)
+{
+#ifdef DEBUG_CAMERA
+    qDebug() << Q_FUNC_INFO;
+#endif
+    if (!m_camera) {
+        qWarning() << Q_FUNC_INFO << "... no camera!";
+        return;
+    }
+    if (!m_questionnaire) {
+        qWarning() << Q_FUNC_INFO << "... no questionnaire!";
+        return;
+    }
+    bool changed = false;
+    { // guard block
+        SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard(
+                    tr("Saving image..."),
+                    tr("Saving"));
+#ifdef DEBUG_CAMERA
+        qDebug() << "QuPhoto: setting field value to raw image...";
+#endif
+        changed = m_fieldref->blobSetRawImage(data,
+                                              extension_without_dot,
+                                              mimetype);
+#ifdef DEBUG_CAMERA
+        qDebug() << "QuPhoto: ... field value set to raw image.";
 #endif
         m_camera->finish();  // close the camera
     }

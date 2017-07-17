@@ -771,13 +771,13 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     QuPagePtr page_canvas((new QuPage{
         (new QuText("Page style: ClinicianWithPatient"))->setItalic(true),
         new QuHeading("Canvas, blank start:"),
-        new QuCanvas(fieldRef("canvas2_blobid", true, true, true)),
+        new QuCanvas(blobFieldRef("canvas2_blobid", true)),
         new QuHeading("Canvas, using files:"),
         new QuCanvas(
-            fieldRef("canvas_blobid", true, true, true),
+            blobFieldRef("canvas_blobid", true),
             uifunc::resourceFilename("ace3/rhinoceros.png")),
         new QuHeading("Canvas, clone of the first one:"),
-        new QuCanvas(fieldRef("canvas2_blobid", true, true, true)),
+        new QuCanvas(blobFieldRef("canvas2_blobid", true)),
     })
         ->setTitle("Canvas")
         ->setType(QuPage::PageType::ClinicianWithPatient));
@@ -813,7 +813,7 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
 
     QuPagePtr page_photo((new QuPage{
         new QuHeading("Photo:"),
-        new QuPhoto(fieldRef("photo_blobid", false, true, true)),
+        new QuPhoto(blobFieldRef("photo_blobid", false)),
     })->setTitle("Photo"));
 
     // ------------------------------------------------------------------------
