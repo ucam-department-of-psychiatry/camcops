@@ -598,8 +598,8 @@ def upgrade_database_second_phase(old_version: Version):
         report_database_upgrade_step("2.0.0")
         v2_0_0_move_png_rotation_field("ace3", "picture1_blobid", "picture1_rotation")  # noqa
         v2_0_0_move_png_rotation_field("ace3", "picture2_blobid", "picture2_rotation")  # noqa
-        v2_0_0_move_png_rotation_field("photo", "photo_blobid", "rotation")
         v2_0_0_move_png_rotation_field("demoquestionnaire", "photo_blobid", "photo_rotation")  # noqa
+        v2_0_0_move_png_rotation_field("photo", "photo_blobid", "rotation")
         v2_0_0_move_png_rotation_field("photosequence_photos", "photo_blobid", "rotation")  # noqa
         pls.db.db_exec_literal("""
             UPDATE {blobtable} SET mimetype = 'image/png'

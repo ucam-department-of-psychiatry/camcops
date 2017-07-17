@@ -209,8 +209,7 @@ void QuCanvas::completePendingFieldWrite()
         return;
     }
     QImage img = m_canvas->image();
-    QByteArray data = convert::imageToByteArray(img);
-    bool changed = m_fieldref->setValue(data, this);
+    bool changed = m_fieldref->setImage(img, this);
     m_field_write_pending = false;
     if (changed) {
         emit elementValueChanged();
@@ -258,8 +257,8 @@ void QuCanvas::fieldValueChanged(const FieldRef* fieldref,
         if (fieldref->isNull()) {
             resetWidget();
         } else {
-            QImage img;
-            bool success = img.loadFromData(fieldref->valueByteArray());
+            bool success;
+            QImage img = fieldref->image(&success);
             if (success) {
                 m_canvas->setSize(canvasSize(img.size()));
                 m_canvas->setImage(img, false);

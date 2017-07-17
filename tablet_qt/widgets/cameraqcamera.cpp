@@ -61,7 +61,6 @@
 */
 
 // #define DEBUG_CAMERA
-
 #define USE_FILE
 
 #include "cameraqcamera.h"
@@ -164,8 +163,8 @@ CameraQCamera::~CameraQCamera()
 
 void CameraQCamera::commonConstructor(const QString& stylesheet)
 {
-    m_resolution_preview = QSize(640, 480); // ***
-    m_resolution_main = QSize(1024, 768); // ***
+    m_resolution_preview = QSize(640, 480); // !!! Not implemented, but CameraQCamera superseded by CameraQml
+    m_resolution_main = QSize(1024, 768); // !!! Not implemented, but CameraQCamera superseded by CameraQml
 
     setStyleSheet(stylesheet);
 
@@ -496,7 +495,7 @@ void CameraQCamera::updateLockStatus(QCamera::LockStatus status,
 void CameraQCamera::takeImage()
 {
     m_capturing_image = true;
-    // *** CameraQCamera::takeImage implement some sort of wait message
+    // !!! CameraQCamera::takeImage: implement some sort of wait message -- but superseded by CameraQml
     updateButtons();
 #ifdef DEBUG_CAMERA
     qDebug() << Q_FUNC_INFO << "calling capture()";
@@ -525,7 +524,7 @@ void CameraQCamera::displayCameraError(QCamera::Error value)
 
 void CameraQCamera::updateCameraState(QCamera::State state)
 {
-    // *** CameraQCamera::updateCameraState
+    // !!! CameraQCamera::updateCameraState -- not implemented, but superseded by CameraQml
     // Update the UI to reflect the camera's state
     switch (state) {
     case QCamera::ActiveState:

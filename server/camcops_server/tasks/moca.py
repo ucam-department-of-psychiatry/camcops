@@ -129,7 +129,7 @@ class Moca(Task):
         if item["name"] == "q12":
             item["max"] = 3
     has_clinician = True
-    pngblob_name_idfield_list = [
+    blob_name_idfield_list = [
         ("trailpicture", "trailpicture_blobid"),
         ("cubepicture", "cubepicture_blobid"),
         ("clockpicture", "clockpicture_blobid"),
@@ -358,14 +358,14 @@ class Moca(Task):
             "Images of tests: trail, cube, clock",
             th_not_td=True)
         h += tr(
-            td(self.get_blob_png_html(self.trailpicture_blobid),
+            td(self.get_blob_img_html(self.trailpicture_blobid),
                td_class="photo", td_width="50%"),
-            td(self.get_blob_png_html(self.cubepicture_blobid),
+            td(self.get_blob_img_html(self.cubepicture_blobid),
                td_class="photo", td_width="50%"),
             literal=True,
         )
         h += tr(
-            td(self.get_blob_png_html(self.trailpicture_blobid),
+            td(self.get_blob_img_html(self.trailpicture_blobid),
                td_class="photo", td_width="50%"),
             td("", td_class="subheading"),
             literal=True,

@@ -1,4 +1,4 @@
-/****************************************************************************
+/*=============================================================================
 **
 ** Copyright (C) 2015 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
@@ -36,10 +36,11 @@
 **
 ** $QT_END_LICENSE$
 **
-****************************************************************************/
+=============================================================================*/
 
 // root object
-// May I just say in passing that QML is awful syntactically?
+// May I just say in passing that QML is horrible syntactically?
+// (Well designed, but still horrible.)
 
 import QtQuick 2.0
 import QtMultimedia 5.4

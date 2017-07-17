@@ -30,6 +30,10 @@
 #include "lib/uifunc.h"
 
 
+// ============================================================================
+// Constructors
+// ============================================================================
+
 FieldRef::FieldRef()
 {
     commonConstructor();
@@ -132,6 +136,10 @@ void FieldRef::commonConstructor()
 }
 
 
+// ============================================================================
+// Validity check
+// ============================================================================
+
 bool FieldRef::valid() const
 {
     switch (m_method) {
@@ -165,6 +173,10 @@ bool FieldRef::valid() const
     }
 }
 
+
+// ============================================================================
+// Setting the value
+// ============================================================================
 
 bool FieldRef::setValue(const QVariant& value, const QObject* originator)
 {
@@ -275,6 +287,10 @@ void FieldRef::emitValueChanged(const QObject* originator)
 }
 
 
+// ============================================================================
+// Retrieving the value
+// ============================================================================
+
 QVariant FieldRef::value() const
 {
 #ifdef DEBUG_CHECK_VALID
@@ -376,13 +392,6 @@ QByteArray FieldRef::valueByteArray() const
 }
 
 
-bool FieldRef::isBlob() const
-{
-    return (m_method == FieldRefMethod::DatabaseObjectBlobField ||
-            m_method == FieldRefMethod::IsolatedBlobFieldForTesting) && m_blob;
-}
-
-
 QVector<int> FieldRef::valueVectorInt() const
 {
     QVariant v = value();
@@ -396,6 +405,91 @@ bool FieldRef::isNull() const
     return v.isNull();
 }
 
+
+// ============================================================================
+// BLOB-related functions
+// ============================================================================
+
+bool FieldRef::isBlob() const
+{
+    return (m_method == FieldRefMethod::DatabaseObjectBlobField ||
+            m_method == FieldRefMethod::IsolatedBlobFieldForTesting) && m_blob;
+}
+
+// The following are LOW-PERFORMANCE versions for testing; real applications
+// should use BlobFieldRefPtr, which provides faster overrides.
+
+
+const char* LOW_PERFORMANCE("Use of low-performance function! Use BlobFieldRef instead");
+
+QImage FieldRef::image(bool* p_loaded) const
+{
+    qWarning() << Q_FUNC_INFO << LOW_PERFORMANCE;
+    QImage image;
+    bool success = image.loadFromData(valueByteArray());
+    if (p_loaded) {
+        *p_loaded = success;
+    }
+    return image;
+}
+
+
+QPixmap FieldRef::pixmap(bool* p_loaded) const
+{
+    QPixmap pm;
+    bool success = pm.loadFromData(valueByteArray());
+    if (p_loaded) {
+        *p_loaded = success;
+    }
+    return pm;
+}
+
+
+void FieldRef::rotateImage(int angle_degrees_clockwise,
+                           const QObject* originator)
+{
+    qWarning() << Q_FUNC_INFO << LOW_PERFORMANCE;
+    angle_degrees_clockwise %= 360;
+    if (angle_degrees_clockwise == 0) {
+        return;
+    }
+    QImage img = image();
+    QTransform matrix;
+    matrix.rotate(angle_degrees_clockwise);
+#ifdef DEBUG_ROTATION
+    qDebug().nospace() << "FieldRef::rotateImage: rotating image of size "
+                       << img.size() << "...";
+#endif
+    img = img.transformed(matrix);
+#ifdef DEBUG_ROTATION
+    qDebug() << "FieldRef::rotateImage: ... rotated to image of size"
+             << img.size();
+#endif
+    setImage(img, originator);
+}
+
+
+bool FieldRef::setImage(const QImage& image, const QObject* originator)
+{
+    qWarning() << Q_FUNC_INFO << LOW_PERFORMANCE;
+    return setValue(convert::imageToByteArray(image), originator);
+}
+
+
+bool FieldRef::setRawImage(const QByteArray& data,
+                           const QString& extension_without_dot,
+                           const QString& mimetype,
+                           const QObject* originator)
+{
+    Q_UNUSED(extension_without_dot);
+    Q_UNUSED(mimetype);
+    return setValue(data, originator);
+}
+
+
+// ============================================================================
+// Completeness of input
+// ============================================================================
 
 bool FieldRef::mandatory() const
 {
@@ -422,18 +516,6 @@ bool FieldRef::missingInput() const
 }
 
 
-void FieldRef::setHint(const QVariant& hint)
-{
-    m_hint = hint;
-}
-
-
-QVariant FieldRef::getHint() const
-{
-    return m_hint;
-}
-
-
 void FieldRef::setMandatory(bool mandatory, const QObject* originator)
 {
     if (mandatory == m_mandatory) {
@@ -445,4 +527,20 @@ void FieldRef::setMandatory(bool mandatory, const QObject* originator)
                        << this << ", mandatory=" << mandatory;
 #endif
     emit mandatoryChanged(this, originator);
+}
+
+
+// ============================================================================
+// Hints
+// ============================================================================
+
+void FieldRef::setHint(const QVariant& hint)
+{
+    m_hint = hint;
+}
+
+
+QVariant FieldRef::getHint() const
+{
+    return m_hint;
 }

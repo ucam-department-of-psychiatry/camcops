@@ -78,6 +78,8 @@ class DemoQuestionnaire(Task):
             dict(name="diagnosticcode2_code", cctype="TEXT"),  # v2
             dict(name="diagnosticcode2_description", cctype="TEXT"),  # v2
             dict(name="photo_blobid", cctype="INT"),
+            # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
+            dict(name="photo_rotation", cctype="INT"),  # *** DEFUNCT as of v2.0.0  # noqa
             dict(name="canvas_blobid", cctype="INT"),
             dict(name="canvas2_blobid", cctype="INT"),  # v2
             dict(name="spinbox_int", cctype="INT"),  # v2
@@ -89,7 +91,7 @@ class DemoQuestionnaire(Task):
         if "comment" not in d:
             d["comment"] = d["name"]
     is_anonymous = True
-    pngblob_name_idfield_list = [
+    blob_name_idfield_list = [
         ("photo", "photo_blobid"),
         ("canvas", "canvas_blobid"),
     ]

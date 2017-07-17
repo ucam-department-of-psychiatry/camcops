@@ -1349,7 +1349,7 @@ class CecaQ3(Task):
         html += (
             self.wstring_boolean("if_any_what_age", self.s2b_age_began) +
             self.wstring_string("is_there_more_you_want_to_say",
-                           self.s2b_extra) +
+                                self.s2b_extra) +
 
             subheading_from_string("3A: " + self.wxstring("3a_heading")) +
             self.wstring_dict("2a_which",
@@ -1379,7 +1379,7 @@ class CecaQ3(Task):
         html += (
             self.wstring_boolean("if_any_what_age", self.s3b_age_began) +
             self.wstring_string("is_there_more_you_want_to_say",
-                           self.s3b_extra) +
+                                self.s3b_extra) +
             subheading_from_string("3C: " + self.wxstring("3c_heading"))
         )
         for i in range(1, 18):

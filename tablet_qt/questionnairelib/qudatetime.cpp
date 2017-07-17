@@ -130,6 +130,8 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     m_editor->setDisplayFormat(format);
 
     m_editor->setCalendarPopup(use_calendar);
+    // ... need to call setCalendarPopup(true) BEFORE setCalendarWidget; QTBUG-12300
+
     /*
     TO THINK ABOUT: QuDateTime time picker
     - Qt only supplies a date (calendar) popup.
@@ -161,15 +163,71 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
       QCalendarWidget big enough to use on tablets.
 
     */
+
     if (use_calendar) {
         // Editor does NOT take ownership, so we should:
         // http://doc.qt.io/qt-5/qdatetimeedit.html#setCalendarWidget
-        m_calendar_widget = QSharedPointer<QCalendarWidget>(new QCalendarWidget());
+        delete m_calendar_widget;
+        m_calendar_widget = QPointer<QCalendarWidget>(new QCalendarWidget());
         // QFont font;
         // font.setBold(true);  // works!
         // font.setPixelSize(60);  // Does NOT work!
         // m_calendar_widget->setFont(font);
-        m_editor->setCalendarWidget(m_calendar_widget.data());
+        m_editor->setCalendarWidget(m_calendar_widget);
+
+        /*
+        2017-07-17: CRASH on Android; segfault. Stack trace:
+        1   QObject::~QObject()                                                                                                                                                  0xe12e0b46
+        2   QObject::~QObject()                                                                                                                                                  0xe12e0bcc
+        3   QtSharedPointer::CustomDeleter<QCalendarWidget, QtSharedPointer::NormalDeleter>::execute()                                                                           0xdf115fc0
+        4   QtSharedPointer::ExternalRefCountWithCustomDeleter<QCalendarWidget, QtSharedPointer::NormalDeleter>::deleter(QtSharedPointer::ExternalRefCountData *)                0xdf115b98
+        5   QtSharedPointer::ExternalRefCountData::destroy()                                                                                                                     0xdee92ab4
+        6   QSharedPointer<QCalendarWidget>::deref(QtSharedPointer::ExternalRefCountData *)                                                                                      0xdf0fca74
+        7   QSharedPointer<QCalendarWidget>::deref()                                                                                                                             0xdf0fc89c
+        8   QSharedPointer<QCalendarWidget>::~QSharedPointer()                                                                                                                   0xdf0fc75c
+        9   QSharedPointer<QCalendarWidget>::operator=(QSharedPointer<QCalendarWidget>&&)                                                                                        0xdf1154fc
+        10  QuDateTime::makeWidget(Questionnaire *)                                                                                                                              0xdf114584
+        11  QuElement::widget(Questionnaire *)                                                                                                                                   0xdf1188a0
+        12  QuPage::widget(Questionnaire *) const                                                                                                                                0xdf146e24
+        13  Questionnaire::build()                                                                                                                                               0xdf11c67c
+        14  Questionnaire::goToPage(int, bool)                                                                                                                                   0xdf11de00
+        15  Questionnaire::processNextClicked()                                                                                                                                  0xdf11d810
+        16  Questionnaire::nextClicked()                                                                                                                                         0xdf11d700
+        17  QtPrivate::FunctorCall<QtPrivate::IndexesList<>, QtPrivate::List<>, void, void (Questionnaire:: *)()>::call(void (Questionnaire:: *)(), Questionnaire *, void * *)   0xdf122008
+        18  void QtPrivate::FunctionPointer<void (Questionnaire:: *)()>::call<QtPrivate::List<>, void>(void (Questionnaire:: *)(), Questionnaire *, void * *)                    0xdf121edc
+        19  QtPrivate::QSlotObject<void (Questionnaire:: *)(), QtPrivate::List<>, void>::impl(int, QtPrivate::QSlotObjectBase *, QObject *, void * *, bool *)                    0xdf121868
+        20  QMetaObject::activate(QObject *, int, int, void * *)                                                                                                                 0xe12dd404
+        ... <More>
+
+        Now that strongly suggests to me that the QDateTime *had* taken
+        ownership, and had deleted the object, so when the QSharedPointer gets
+        reassigned, we attempt to double-delete and it crashes.
+
+        Is that the case? Sequence is
+            void QDateTimeEdit::setCalendarWidget(QCalendarWidget *calendarWidget)
+            void QDateTimeEditPrivate::initCalendarPopup(QCalendarWidget *cw)
+            ... then either:
+                QCalendarPopup::QCalendarPopup(QWidget * parent, QCalendarWidget *cw)
+                void QCalendarPopup::setCalendarWidget(QCalendarWidget *cw)
+            ... or just
+                void QCalendarPopup::setCalendarWidget(QCalendarWidget *cw)
+            and that does
+                delete calendar.data();
+                calendar = QWeakPointer<QCalendarWidget>(cw);
+                widgetLayout->addWidget(cw);
+            It also looks like someone tried to fix this:
+                https://git.qt.io/consulting-usa/qtbase-xcb-rendering/commit/7d28f7772cd8f5aad63359ed0b9c57c12923dc85
+            NO, IT DOESN'T DO THAT, THAT'S OLD CODE. THE FIX IS IN QT 5.9.1. IT DOES:
+                delete calendar.data();  // RNC: should be fine if already nullptr
+                calendar = QPointer<QCalendarWidget>(cw);  // RNC: ... and a QPointer is set to 0 when the referenced object is destroyed
+                widgetLayout->addWidget(cw);
+
+            SO, PROBABLY THE SOLUTION IS TO USE A QPOINTER, AND A MANUAL
+            DELETE CALL, NOT A QSHAREDPOINTER. If you delete the raw pointer,
+            the QPointer will go to nullptr. See:
+                - https://stackoverflow.com/questions/22304118/what-is-the-difference-between-qpointer-qsharedpointer-and-qweakpointer-classes
+        */
+
     }
 
     m_editor->setEnabled(!read_only);

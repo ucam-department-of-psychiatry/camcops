@@ -170,11 +170,11 @@ def write_zipped_text(basefilename: str, text: str) -> None:
                 tw.write(text)
 
 
-def preserve_cwd(function):
+def preserve_cwd(func):
     # http://stackoverflow.com/questions/169070/python-how-do-i-write-a-decorator-that-restores-the-cwd  # noqa
     def decorator(*args_, **kwargs):
         cwd = os.getcwd()
-        result = function(*args_, **kwargs)
+        result = func(*args_, **kwargs)
         os.chdir(cwd)
         return result
     return decorator

@@ -939,4 +939,5 @@ DISTFILES += \
     tools/cppclean_all.sh \
     tools/decrypt_sqlcipher.py \
     notes/QT_PROJECT_SETTINGS.txt \
-    notes/blob_handling.txt
+    notes/blob_handling.txt \
+    notes/hardware.txt

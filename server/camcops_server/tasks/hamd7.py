@@ -126,7 +126,7 @@ class Hamd7(Task):
                 if q == 6 and option > 2:
                     continue
                 d[option] = self.wxstring("q" + str(q) + "_option" +
-                                    str(option))
+                                          str(option))
             answer_dicts.append(d)
         h = """
             <div class="summary">

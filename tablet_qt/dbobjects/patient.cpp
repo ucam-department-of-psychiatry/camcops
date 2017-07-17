@@ -81,7 +81,7 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     addField(FORENAME_FIELD, QVariant::String);
     addField(SURNAME_FIELD, QVariant::String);
     addField(SEX_FIELD, QVariant::String);
-    addField(DOB_FIELD, QVariant::Date);  // *** check this works! including NULL!
+    addField(DOB_FIELD, QVariant::Date);
     addField(ADDRESS_FIELD, QVariant::String);
     addField(GP_FIELD, QVariant::String);
     addField(OTHER_FIELD, QVariant::String);

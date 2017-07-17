@@ -20,7 +20,6 @@
 #pragma once
 
 #define CAMERA_LOAD_FROM_DISK_PROMPTLY
-
 #define CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER  // required for viewfinder on Android
 
 /*

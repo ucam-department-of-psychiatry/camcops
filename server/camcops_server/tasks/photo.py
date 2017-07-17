@@ -45,9 +45,13 @@ class Photo(Task):
         dict(name="photo_blobid", cctype="INT",
              comment="ID of the BLOB (foreign key to blobs.id, given "
              "matching device and current/frozen record status)"),
+        # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
+        dict(name="rotation", cctype="INT",  # *** DEFUNCT as of v2.0.0  # noqa
+             comment="Rotation (clockwise, in degrees) to be applied for "
+                     "viewing"),
     ]
     has_clinician = True
-    pngblob_name_idfield_list = [
+    blob_name_idfield_list = [
         ("photo_blob", "photo_blobid")
     ]
 
@@ -73,7 +77,7 @@ class Photo(Task):
             answer(ws.webify(self.description), default="(No description)",
                    default_for_blank_strings=True),
             # ... xhtml2pdf crashes if the contents are empty...
-            self.get_blob_png_html(self.photo_blobid)
+            self.get_blob_img_html(self.photo_blobid)
         )
 
 
@@ -94,9 +98,13 @@ class PhotoSequenceSinglePhoto(Ancillary):
         dict(name="photo_blobid", cctype="INT",
              comment="ID of the BLOB (foreign key to blobs.id, given "
              "matching device and current/frozen record status)"),
+        # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
+        dict(name="rotation", cctype="INT",  # *** DEFUNCT as of v2.0.0  # noqa
+             comment="Rotation (clockwise, in degrees) to be applied for "
+                     "viewing"),
     ]
     sortfield = "seqnum"
-    pngblob_name_idfield_list = [
+    blob_name_idfield_list = [
         ("photo_blob", "photo_blobid")
     ]
 
@@ -106,19 +114,19 @@ class PhotoSequenceSinglePhoto(Ancillary):
             <tr><td>{}</td></tr>
         """.format(
             self.seqnum + 1, ws.webify(self.description),
-            self.get_blob_png_html(),
+            self.get_blob_html(),
         )
 
     def get_blob(self) -> Optional[Blob]:
         return self.get_blob_by_id(self.photo_blobid)
 
-    def get_blob_png_html(self) -> str:
+    def get_blob_html(self) -> str:
         if self.photo_blobid is None:
             return "<i>(No picture)</i>"
         blob = self.get_blob()
         if blob is None:
             return "<i>(Missing picture)</i>"
-        return blob.get_png_img_html()
+        return blob.get_img_html()
 
 
 class PhotoSequence(Task):

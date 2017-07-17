@@ -18,7 +18,7 @@
 */
 
 // #define DEBUG_ROTATION
-#define DEBUG_CAMERA
+// #define DEBUG_CAMERA
 
 #include "quphoto.h"
 #include <QCameraInfo>
@@ -55,9 +55,6 @@ QuPhoto::QuPhoto(BlobFieldRefPtr fieldref) :
     if (m_fieldref->mandatory()) {
         qWarning("You have set a QuPhoto to be mandatory, but not all devices "
                  "will support cameras!");
-    }
-    if (!m_fieldref->isBlob()) {
-        uifunc::stopApp("QuPhoto requires a FieldRef aimed at a BLOB");
     }
 
     connect(m_fieldref.data(), &FieldRef::valueChanged,
@@ -205,15 +202,9 @@ void QuPhoto::fieldValueChanged(const FieldRef* fieldref)
     if (m_image_widget) {
         bool show_image = !missing && !null;
         m_image_widget->setVisible(show_image);
-        if (show_image && fieldref->isBlob()) {
-            const BlobFieldRef* blob_fr = dynamic_cast<const BlobFieldRef*>(fieldref);
-            if (blob_fr) {
-                QImage img = blob_fr->blobImage(&loaded);
-                m_image_widget->setPixmap(QPixmap::fromImage(img));
-            } else {
-                qWarning() << Q_FUNC_INFO
-                           << "Error: fieldref is not a BlobFieldRef* !";
-            }
+        if (show_image) {
+            QPixmap pm = fieldref->pixmap(&loaded);
+            m_image_widget->setPixmap(pm);
         } else {
             m_image_widget->clear();
         }
@@ -318,7 +309,7 @@ void QuPhoto::imageCaptured(const QImage& image)
 #ifdef DEBUG_CAMERA
         qDebug() << "QuPhoto: setting field value to image...";
 #endif
-        changed = m_fieldref->blobSetImage(image);
+        changed = m_fieldref->setImage(image);
 #ifdef DEBUG_CAMERA
         qDebug() << "QuPhoto: ... field value set to image.";
 #endif
@@ -353,9 +344,9 @@ void QuPhoto::rawImageCaptured(const QByteArray& data,
 #ifdef DEBUG_CAMERA
         qDebug() << "QuPhoto: setting field value to raw image...";
 #endif
-        changed = m_fieldref->blobSetRawImage(data,
-                                              extension_without_dot,
-                                              mimetype);
+        changed = m_fieldref->setRawImage(data,
+                                          extension_without_dot,
+                                          mimetype);
 #ifdef DEBUG_CAMERA
         qDebug() << "QuPhoto: ... field value set to raw image.";
 #endif
@@ -388,7 +379,7 @@ void QuPhoto::rotate(int angle_degrees_clockwise)
 
 void QuPhoto::rotateWorker(int angle_degrees_clockwise)
 {
-    m_fieldref->blobRotateImage(angle_degrees_clockwise);
+    m_fieldref->rotateImage(angle_degrees_clockwise);
 }
 
 

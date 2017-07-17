@@ -311,6 +311,7 @@ OpenableWidget* Slums::editor(bool read_only)
         canvas(CLOCKPICTURE_BLOBID, IMAGE_CIRCLE),
     })
         ->setTitle(singular + " 9")
+        ->allowScroll(false)
         ->setType(QuPage::PageType::ClinicianWithPatient)));
 
     pages.append(QuPagePtr((new QuPage{
@@ -323,6 +324,7 @@ OpenableWidget* Slums::editor(bool read_only)
         text("q10_part2"),
     })
         ->setTitle(singular + " 10")
+        ->allowScroll(false)
         ->setType(QuPage::PageType::ClinicianWithPatient)));
 
     pages.append(QuPagePtr((new QuPage{

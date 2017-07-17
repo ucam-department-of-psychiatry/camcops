@@ -365,10 +365,10 @@ void GridLayoutHfw::add(QQGridBox* box, int row, int col)
 void GridLayoutHfw::add(QQGridBox* box, int row1, int row2, int col1, int col2)
 {
     if (Q_UNLIKELY(row2 >= 0 && row2 < row1)) {
-        qWarning("QGridLayout: Multi-cell fromRow greater than toRow");
+        qWarning("QGridLayout: Multi-cell from-row greater than to-row");
     }
     if (Q_UNLIKELY(col2 >= 0 && col2 < col1)) {
-        qWarning("QGridLayout: Multi-cell fromCol greater than toCol");
+        qWarning("QGridLayout: Multi-cell from-col greater than to-col");
     }
     if (row1 == row2 && col1 == col2) {
         add(box, row1, col1);
@@ -1067,7 +1067,7 @@ QLayoutItem* GridLayoutHfw::takeAt(int index)
 
 
 void GridLayoutHfw::getItemPosition(int index, int* row, int* column,
-                                    int* rowSpan, int* columnSpan) const
+                                    int* row_span, int* column_span) const
 {
     if (index < m_things.count()) {
         const QQGridBox* b =  m_things.at(index);
@@ -1075,8 +1075,8 @@ void GridLayoutHfw::getItemPosition(int index, int* row, int* column,
         int toCol = b->toCol(m_ncol);
         *row = b->row;
         *column = b->col;
-        *rowSpan = toRow - *row + 1;
-        *columnSpan = toCol - *column +1;
+        *row_span = toRow - *row + 1;
+        *column_span = toCol - *column +1;
     }
 }
 
@@ -1258,14 +1258,14 @@ void GridLayoutHfw::addItem(QLayoutItem* item)
 
 
 void GridLayoutHfw::addItem(QLayoutItem* item, int row, int column,
-                            int rowSpan, int columnSpan,
+                            int row_span, int column_span,
                             Qt::Alignment alignment)
 {
     QQGridBox* b = new QQGridBox(item);
     b->setAlignment(alignment);
     add(b,
-        row, (rowSpan < 0) ? -1 : row + rowSpan - 1,
-        column, (columnSpan < 0) ? -1 : column + columnSpan - 1);
+        row, (row_span < 0) ? -1 : row + row_span - 1,
+        column, (column_span < 0) ? -1 : column + column_span - 1);
     invalidate();
 }
 
@@ -1290,19 +1290,19 @@ void GridLayoutHfw::addWidget(QWidget* widget, int row, int column,
 }
 
 
-void GridLayoutHfw::addWidget(QWidget* widget, int fromRow, int fromColumn,
-                              int rowSpan, int columnSpan,
+void GridLayoutHfw::addWidget(QWidget* widget, int from_row, int from_column,
+                              int row_span, int column_span,
                               Qt::Alignment alignment)
 {
     if (!checkWidget(widget, this)) {
         return;
     }
-    int toRow = (rowSpan < 0) ? -1 : fromRow + rowSpan - 1;
-    int toColumn = (columnSpan < 0) ? -1 : fromColumn + columnSpan - 1;
+    int toRow = (row_span < 0) ? -1 : from_row + row_span - 1;
+    int toColumn = (column_span < 0) ? -1 : from_column + column_span - 1;
     addChildWidget(widget);
     QQGridBox* b = new QQGridBox(this, widget);
     b->setAlignment(alignment);
-    add(b, fromRow, toRow, fromColumn, toColumn);
+    add(b, from_row, toRow, from_column, toColumn);
     invalidate();
 }
 
@@ -1323,7 +1323,7 @@ void GridLayoutHfw::addLayout(QLayout* layout, int row, int column,
 
 
 void GridLayoutHfw::addLayout(QLayout* layout, int row, int column,
-                              int rowSpan, int columnSpan,
+                              int row_span, int column_span,
                               Qt::Alignment alignment)
 {
     if (!checkLayout(layout, this)) {
@@ -1335,8 +1335,8 @@ void GridLayoutHfw::addLayout(QLayout* layout, int row, int column,
     QQGridBox* b = new QQGridBox(layout);
     b->setAlignment(alignment);
     add(b,
-        row, (rowSpan < 0) ? -1 : row + rowSpan - 1,
-        column, (columnSpan < 0) ? -1 : column + columnSpan - 1);
+        row, (row_span < 0) ? -1 : row + row_span - 1,
+        column, (column_span < 0) ? -1 : column + column_span - 1);
 }
 
 
@@ -1374,10 +1374,10 @@ void GridLayoutHfw::expand(int rows, int cols)  // was in QGridLayoutPrivate
 }
 
 
-void GridLayoutHfw::setRowMinimumHeight(int row, int minSize)
+void GridLayoutHfw::setRowMinimumHeight(int row, int min_size)
 {
     expand(row + 1, 0);
-    m_r_min_heights[row] = minSize;
+    m_r_min_heights[row] = min_size;
     invalidate();
 }
 
@@ -1388,10 +1388,10 @@ int GridLayoutHfw::rowMinimumHeight(int row) const
 }
 
 
-void GridLayoutHfw::setColumnMinimumWidth(int column, int minSize)
+void GridLayoutHfw::setColumnMinimumWidth(int column, int min_size)
 {
     expand(0, column + 1);
-    m_c_min_widths[column] = minSize;
+    m_c_min_widths[column] = min_size;
     invalidate();
 }
 

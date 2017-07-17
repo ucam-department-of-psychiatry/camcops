@@ -753,7 +753,7 @@ Menu structure, class factories, ...
     - so we have setters that return *this
       https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Named_Parameter
 
-- *** webviews
+- webviews -- not needed, but:
     http://stackoverflow.com/questions/19282255/qwebview-on-qt4-and-qt5
     http://doc.qt.io/qt-5/qtwebenginewidgets-qtwebkitportingguide.html
     http://doc.qt.io/qt-4.8/qtwebkit-bridge.html -- old?

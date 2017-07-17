@@ -22,8 +22,9 @@
 ===============================================================================
 """
 
+import base64
 import string
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Optional, Union
 
 import cardinal_pythonlib.rnc_plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
@@ -406,6 +407,29 @@ def get_html_sex_picker(param: str = PARAM.SEX,
                m=ws.option_selected(selected, "M"),
                f=ws.option_selected(selected, "F"),
                x=ws.option_selected(selected, "X"))
+
+
+def get_data_url(mimetype: str, data: Union[bytes, memoryview]) -> str:
+    """
+    Takes data (in binary format) and returns a data URL as per RFC 2397:
+        https://tools.ietf.org/html/rfc2397
+    such as:
+        data:MIMETYPE;base64,B64_ENCODED_DATA
+    """
+    return "data:{mimetype};base64,{b64encdata}".format(
+        mimetype=mimetype,
+        b64encdata=base64.b64encode(data).decode('ascii'),
+    )
+
+
+def get_embedded_img_tag(mimetype: str, data: Union[bytes, memoryview]) -> str:
+    """
+    Takes a binary image and its MIME type, and produces an HTML tag of the
+    form:
+
+    <img src="DATA_URL">
+    """
+    return '<img src={}>'.format(get_data_url(mimetype, data))
 
 
 # =============================================================================

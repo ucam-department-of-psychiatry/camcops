@@ -33,62 +33,62 @@ from typing import Any, Tuple, Union
 FAILEDMSG = "Unit test failed"
 
 
-def unit_test(message: str, function, *args, **kwargs) -> Any:
+def unit_test(message: str, func, *args, **kwargs) -> Any:
     """Print message; return function(*args, **kwargs)."""
-    message = message or "Testing " + function.__name__
+    message = message or "Testing " + func.__name__
     print(message + "... ", end="")
     sys.stdout.flush()
-    return function(*args, **kwargs)
+    return func(*args, **kwargs)
 
 
-def unit_test_ignore(message: str, function, *args, **kwargs) -> None:
+def unit_test_ignore(message: str, func, *args, **kwargs) -> None:
     """Print message; call/ignore function(*args, **kwargs); print "OK"."""
-    unit_test(message, function, *args, **kwargs)
+    unit_test(message, func, *args, **kwargs)
     print("OK")
 
 
-def unit_test_show(message: str, function, *args, **kwargs) -> None:
+def unit_test_show(message: str, func, *args, **kwargs) -> None:
     """Print message; call function(*args, **kwargs); print "OK: <result>"."""
-    x = unit_test(message, function, *args, **kwargs)
+    x = unit_test(message, func, *args, **kwargs)
     print("OK: " + str(x))
 
 
-def unit_test_verify(message: str, function, intended_result: Any,
+def unit_test_verify(message: str, func, intended_result: Any,
                      *args, **kwargs) -> None:
     """Print message; call function(*args, **kwargs); raise an AssertionError
     if the result was not intended_result."""
-    x = unit_test(message, function, *args, **kwargs)
+    x = unit_test(message, func, *args, **kwargs)
     if x != intended_result:
         raise AssertionError(FAILEDMSG)
     print("OK")
 
 
-def unit_test_verify_not(message: str, function,
+def unit_test_verify_not(message: str, func,
                          must_not_return: Any, *args, **kwargs) -> None:
     """Print message; call function(*args, **kwargs); raise an AssertionError
     if the result was must_not_return."""
-    x = unit_test(message, function, *args, **kwargs)
+    x = unit_test(message, func, *args, **kwargs)
     if x == must_not_return:
         raise AssertionError(FAILEDMSG)
     print("OK")
 
 
 def unit_test_ignore_except(message: str,
-                            function,
+                            func,
                             allowed_asserts: Union[Exception,
                                                    Tuple[Exception]],
                             *args, **kwargs) -> None:
     """Print message; call function(*args, **kwargs); allow any exceptions
     passed in the tuple allowed_asserts."""
     try:
-        unit_test(message, function, *args, **kwargs)
+        unit_test(message, func, *args, **kwargs)
     except allowed_asserts:
         pass
     print("OK")
 
 
 def unit_test_verify_except(message: str,
-                            function,
+                            func,
                             intended_result: any,
                             allowed_asserts: Union[Exception,
                                                    Tuple[Exception]],
@@ -97,7 +97,7 @@ def unit_test_verify_except(message: str,
     if the result was not intended_result; allow any exceptions passed in
     the tuple allowed_asserts."""
     try:
-        x = unit_test(message, function, *args, **kwargs)
+        x = unit_test(message, func, *args, **kwargs)
         if x != intended_result:
             raise AssertionError(FAILEDMSG)
     except allowed_asserts:
@@ -106,7 +106,7 @@ def unit_test_verify_except(message: str,
 
 
 def unit_test_must_raise(message: str,
-                         function,
+                         func,
                          required_asserts: Union[Exception,
                                                  Tuple[Exception]],
                          *args, **kwargs) -> None:
@@ -114,7 +114,7 @@ def unit_test_must_raise(message: str,
     if the function does not raise an exception within the tuple
     required_asserts."""
     try:
-        unit_test(message, function, *args, **kwargs)
+        unit_test(message, func, *args, **kwargs)
         raise AssertionError(FAILEDMSG)
     except required_asserts:
         print("OK")

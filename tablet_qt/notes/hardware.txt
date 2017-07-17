@@ -1,0 +1,8 @@
+===============================================================================
+Asus Transformer Eee Prime
+===============================================================================
+
+- Its charger uses a non-standard USB specification that supplies 15V, rather
+  than the standard 5V:
+
+    http://www.transformerforums.com/forum/asus-transformer-tf101-help/23451-solved-transformer-not-charging.html

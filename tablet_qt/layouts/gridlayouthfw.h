@@ -83,8 +83,8 @@ public:
     int rowStretch(int row) const;
     int columnStretch(int column) const;
 
-    void setRowMinimumHeight(int row, int minSize);
-    void setColumnMinimumWidth(int column, int minSize);
+    void setRowMinimumHeight(int row, int min_size);
+    void setColumnMinimumWidth(int column, int min_size);
     int rowMinimumHeight(int row) const;
     int columnMinimumWidth(int column) const;
 
@@ -101,10 +101,16 @@ public:
     void invalidate() override;
 
     inline void addWidget(QWidget* w) { QLayout::addWidget(w); }
-    void addWidget(QWidget* w, int row, int column, Qt::Alignment = Qt::Alignment());
-    void addWidget(QWidget* w, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = Qt::Alignment());
-    void addLayout(QLayout* w, int row, int column, Qt::Alignment = Qt::Alignment());
-    void addLayout(QLayout* w, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = Qt::Alignment());
+    void addWidget(QWidget* w, int row, int column,
+                   Qt::Alignment = Qt::Alignment());
+    void addWidget(QWidget* w, int row, int column,
+                   int row_span, int column_span,
+                   Qt::Alignment = Qt::Alignment());
+    void addLayout(QLayout* w, int row, int column,
+                   Qt::Alignment = Qt::Alignment());
+    void addLayout(QLayout* w, int row, int column,
+                   int row_span, int column_span,
+                   Qt::Alignment = Qt::Alignment());
 
     void setOriginCorner(Qt::Corner);
     Qt::Corner originCorner() const;
@@ -115,11 +121,13 @@ public:
     int count() const override;
     void setGeometry(const QRect&) override;
 
-    void addItem(QLayoutItem* item, int row, int column, int rowSpan = 1, int columnSpan = 1, Qt::Alignment = Qt::Alignment());
+    void addItem(QLayoutItem* item, int row, int column,
+                 int row_span = 1, int column_span = 1,
+                 Qt::Alignment = Qt::Alignment());
 
     void setDefaultPositioning(int n, Qt::Orientation orient);
     void getItemPosition(int idx, int* row, int* column,
-                         int* rowSpan, int* columnSpan) const;
+                         int* row_span, int* column_span) const;
 
 protected:
     void addItem(QLayoutItem* item) override;

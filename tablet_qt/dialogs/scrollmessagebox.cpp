@@ -20,7 +20,7 @@
 // http://www.qtforum.org/article/18183/messagebox-with-qscrollbar.html
 // ... modified a bit
 
-// #define USE_CUSTOM_VERTICAL_SCROLL_AREA  // made no difference; test for uifunc::applyScrollGestures()
+#define USE_CUSTOM_HFW
 // #define ENFORCE_MINIMUM
 
 #include "scrollmessagebox.h"
@@ -35,6 +35,7 @@
 #include <QScrollArea>
 #include <QSize>
 #include <QStyle>
+#include "layouts/gridlayouthfw.h"
 #include "lib/uifunc.h"
 #include "widgets/verticalscrollarea.h"
 
@@ -69,7 +70,7 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     m_text_label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     m_text_label->setOpenExternalLinks(true);
 
-#ifdef USE_CUSTOM_VERTICAL_SCROLL_AREA
+#ifdef USE_CUSTOM_HFW
     VerticalScrollArea* scroll = new VerticalScrollArea(this);
 #else
     QScrollArea* scroll = new QScrollArea(this);
@@ -93,12 +94,29 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     QObject::connect(m_button_box, &QDialogButtonBox::clicked,
                      this, &ScrollMessageBox::handleButtonClicked);
 
-    QGridLayout* grid = new QGridLayout();  // not GridLayoutHfw/GridLayout
-    grid->addWidget(m_icon_label, 0, 0, 2, 1, Qt::AlignTop);
-    grid->addWidget(scroll, 0, 1, 1, 1);
+#ifdef USE_CUSTOM_HFW
+    GridLayoutHfw* grid = new GridLayoutHfw();
+#else
+    QGridLayout* grid = new QGridLayout();
+#endif
+
+    /*
+        ICON    { LABEL LABEL LABEL }
+        ICON    { LABEL LABEL LABEL } in scroller
+                { LABEL LABEL LABEL }
+
+        BUTTONS BUTTONS BUTTONS BUTTONS
+    */
+
+    // addWidget(widget, row, col, row_span, col_span, alignment)
+    grid->addWidget(m_icon_label, 0, 0, 1, 1, Qt::AlignTop);
+    grid->addWidget(scroll,       0, 1, 1, 1);
     grid->addWidget(m_button_box, 1, 0, 1, 2);
-    // grid->addItem(new QSpacerItem(0, 0), 2, 1);  // in case box bigger than text
+#ifndef USE_CUSTOM_HFW
     grid->setSizeConstraint(QLayout::SetNoConstraint);
+    // If you do this with a GridLayoutHfw, it's amusing, but not sensible;
+    // you can drag the buttons *over* the label, for example.
+#endif
     setLayout(grid);
 
     setModal(true);

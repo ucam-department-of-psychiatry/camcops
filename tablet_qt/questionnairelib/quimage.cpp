@@ -93,10 +93,11 @@ QPixmap QuImage::getScaledImage(const FieldRef* fieldref) const
 {
     // Fetch image
     QPixmap image;
-    if (fieldref) {
-        image.loadFromData(fieldref->valueByteArray());
-    } else if (m_fieldref && m_fieldref->valid()) {
-        image.loadFromData(m_fieldref->valueByteArray());
+    const FieldRef* fieldref_to_use = fieldref
+            ? fieldref
+            : (m_fieldref && m_fieldref->valid() ? m_fieldref.data() : nullptr);
+    if (fieldref_to_use) {
+        image = fieldref_to_use->pixmap();
     } else {
         image = uifunc::getPixmap(m_filename);
     }

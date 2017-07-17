@@ -36,7 +36,7 @@ CustomAndroidARM
     Sysroot:
     Compiler:               Android GCC (arm-4.9)
     Environment:            [not editable: "No changes to apply."]
-    Debugger:               System GDB at /usr/bin/gdb
+    Debugger:               Android Debugger for Android GCC (arm-4.9)
     Android GDB server      [not editable]
     Qt version:             THE "ANDROID" ONE FROM QT VERSIONS, ABOVE
     Qt mkspec:
@@ -52,7 +52,7 @@ CustomAndroidx86 -- NOT FULLY TESTED
     Sysroot:
     Compiler:               Android GCC (i686-4.9)
     Environment:            [not editable: "No changes to apply."]
-    Debugger:               System GDB at /usr/bin/gdb
+    Debugger:               Android Debugger for Android GCC (i686-4.9)
     Android GDB server      [not editable]
     Qt version:             THE "ANDROID EMULATOR" ONE FROM QT VERSIONS, ABOVE
     Qt mkspec:
@@ -106,3 +106,6 @@ NOTE ALSO
 
 - Phone USB debugging negotiation sometimes takes a while. On the Samsung
   Galaxy phone, the alert light goes red when in Debug mode.
+
+- If you lose the debugger windows in Qt Creator midway through a debug session,
+  press Ctrl-4.

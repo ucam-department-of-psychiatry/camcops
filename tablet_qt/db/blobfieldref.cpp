@@ -39,13 +39,19 @@ BlobFieldRef::BlobFieldRef(QSharedPointer<Blob> blob, bool mandatory) :
 }
 
 
-QImage BlobFieldRef::blobImage(bool* p_loaded) const
+QImage BlobFieldRef::image(bool* p_loaded) const
 {
     return m_blob->image(p_loaded);
 }
 
 
-void BlobFieldRef::blobRotateImage(int angle_degrees_clockwise,
+QPixmap BlobFieldRef::pixmap(bool* p_loaded) const
+{
+    return QPixmap::fromImage(image(p_loaded));
+}
+
+
+void BlobFieldRef::rotateImage(int angle_degrees_clockwise,
                                    const QObject* originator)
 {
     m_blob->rotateImage(angle_degrees_clockwise, true);
@@ -53,17 +59,17 @@ void BlobFieldRef::blobRotateImage(int angle_degrees_clockwise,
 }
 
 
-bool BlobFieldRef::blobSetImage(const QImage& image, const QObject* originator)
+bool BlobFieldRef::setImage(const QImage& image, const QObject* originator)
 {
     bool changed = m_blob->setImage(image, true);
     return signalSetValue(changed, originator);
 }
 
 
-bool BlobFieldRef::blobSetRawImage(const QByteArray& data,
-                                   const QString& extension_without_dot,
-                                   const QString& mimetype,
-                                   const QObject* originator)
+bool BlobFieldRef::setRawImage(const QByteArray& data,
+                               const QString& extension_without_dot,
+                               const QString& mimetype,
+                               const QObject* originator)
 {
     bool changed = m_blob->setRawImage(data, true,
                                        extension_without_dot, mimetype);

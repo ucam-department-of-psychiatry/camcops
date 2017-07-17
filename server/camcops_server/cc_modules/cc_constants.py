@@ -525,6 +525,8 @@ RESTRICTED_WARNING_SINGULAR = """
         may exist for the same patient, uploaded by others.
     </div>"""
 
+MIMETYPE_PNG = "image/png"
+
 # =============================================================================
 # CSS/HTML constants
 # =============================================================================

@@ -22,6 +22,7 @@
 // #define DANGER_DEBUG_PASSWORD_DECRYPTION
 // #define DANGER_DEBUG_WIPE_PASSWORDS
 
+// #define DEBUG_CSS_SIZES
 // #define DEBUG_EMIT
 // #define DEBUG_SCREEN_STACK
 // #define DEBUG_ALL_APPLICATION_EVENTS
@@ -739,6 +740,7 @@ void CamcopsApp::initGuiOne()
     uiconst::ICONSIZE = cvSize(uiconst::ICONSIZE_FOR_DEFAULT_DPI);
     uiconst::SMALL_ICONSIZE = cvSize(uiconst::SMALL_ICONSIZE_FOR_DEFAULT_DPI);
     uiconst::MIN_SPINBOX_HEIGHT = cvLength(uiconst::MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI);
+    uiconst::SLIDER_HANDLE_SIZE_PX = cvLength(uiconst::SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI);
 }
 
 
@@ -1416,15 +1418,36 @@ IdPolicy CamcopsApp::finalizePolicy() const
 
 QString CamcopsApp::getSubstitutedCss(const QString& filename) const
 {
+    int p1_normal_font_size_pt = fontSizePt(uiconst::FontSize::Normal);
+    int p2_big_font_size_pt = fontSizePt(uiconst::FontSize::Big);
+    int p3_heading_font_size_pt = fontSizePt(uiconst::FontSize::Heading);
+    int p4_title_font_size_pt = fontSizePt(uiconst::FontSize::Title);
+    int p5_menu_font_size_pt = fontSizePt(uiconst::FontSize::Menus);
+    int p6_slider_groove_size_px = uiconst::SLIDER_HANDLE_SIZE_PX / 2;
+    int p7_slider_handle_size_px = uiconst::SLIDER_HANDLE_SIZE_PX;
+
+#ifdef DEBUG_CSS_SIZES
+    qDebug().nospace()
+            << "CSS substituted sizes (for filename=" << filename
+            << ", DPI=" << m_dpi << "): "
+            << "p1_normal_font_size_pt = " << p1_normal_font_size_pt
+            << ", p2_big_font_size_pt = " << p2_big_font_size_pt
+            << ", p3_heading_font_size_pt = " << p3_heading_font_size_pt
+            << ", p4_title_font_size_pt = " << p4_title_font_size_pt
+            << ", p5_menu_font_size_pt = " << p5_menu_font_size_pt
+            << ", p6_slider_groove_size_px = " << p6_slider_groove_size_px
+            << ", p7_slider_handle_size_px = " << p7_slider_handle_size_px;
+#endif
+
     return (
         filefunc::textfileContents(filename)
-            .arg(fontSizePt(uiconst::FontSize::Normal))     // %1
-            .arg(fontSizePt(uiconst::FontSize::Big))        // %2
-            .arg(fontSizePt(uiconst::FontSize::Heading))    // %3
-            .arg(fontSizePt(uiconst::FontSize::Title))      // %4
-            .arg(fontSizePt(uiconst::FontSize::Menus))      // %5
-            .arg(uiconst::SLIDER_HANDLE_SIZE_PX / 2)        // %6: groove
-            .arg(uiconst::SLIDER_HANDLE_SIZE_PX)            // %7: handle
+            .arg(p1_normal_font_size_pt)     // %1
+            .arg(p2_big_font_size_pt)        // %2
+            .arg(p3_heading_font_size_pt)    // %3
+            .arg(p4_title_font_size_pt)      // %4
+            .arg(p5_menu_font_size_pt)       // %5
+            .arg(p6_slider_groove_size_px)   // %6: groove
+            .arg(p7_slider_handle_size_px)   // %7: handle
     );
 }
 

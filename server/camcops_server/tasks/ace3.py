@@ -224,14 +224,20 @@ class Ace3(Task):
         [
             dict(name="picture1_blobid", cctype="INT",
                  comment="Photo 1/2 PNG BLOB ID"),
+            # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
+            dict(name="picture1_rotation", cctype="INT",
+                 comment="Photo 1/2 rotation (degrees clockwise)"),  # *** DEFUNCT as of v2.0.0  # noqa
             dict(name="picture2_blobid", cctype="INT",
                  comment="Photo 2/2 PNG BLOB ID"),
+            # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
+            dict(name="picture2_rotation", cctype="INT",
+                 comment="Photo 2/2 rotation (degrees clockwise)"),  # *** DEFUNCT as of v2.0.0  # noqa
             dict(name="comments", cctype="TEXT",
                  comment="Clinician's comments"),
         ]
     )
     has_clinician = True
-    pngblob_name_idfield_list = [
+    blob_name_idfield_list = [
         ("picture1", "picture1_blobid"),
         ("picture2", "picture2_blobid"),
     ]
@@ -651,9 +657,9 @@ class Ace3(Task):
                                    self.mem_recognize_address5)) +
 
             subheading_spanning_two_columns("Photos of test sheet") +
-            tr_span_col(self.get_blob_png_html(self.picture1_blobid),
+            tr_span_col(self.get_blob_img_html(self.picture1_blobid),
                         td_class="photo") +
-            tr_span_col(self.get_blob_png_html(self.picture2_blobid),
+            tr_span_col(self.get_blob_img_html(self.picture2_blobid),
                         td_class="photo") +
             """
                 </table>

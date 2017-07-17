@@ -768,8 +768,10 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // Canvas
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_canvas((new QuPage{
+    QuPagePtr page_canvas_1((new QuPage{
         (new QuText("Page style: ClinicianWithPatient"))->setItalic(true),
+        (new QuText("WATCH OUT: scrolling enabled for this page; may conflict "
+                    "with canvas; see next page too"))->setWarning(true),
         new QuHeading("Canvas, blank start:"),
         new QuCanvas(blobFieldRef("canvas2_blobid", true)),
         new QuHeading("Canvas, using files:"),
@@ -779,7 +781,17 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         new QuHeading("Canvas, clone of the first one:"),
         new QuCanvas(blobFieldRef("canvas2_blobid", true)),
     })
-        ->setTitle("Canvas")
+        ->setTitle("Canvas (allowing scrolling)")
+        ->setType(QuPage::PageType::ClinicianWithPatient));
+
+    QuPagePtr page_canvas_2((new QuPage{
+        new QuHeading("As before, but with scrolling disabled:"),
+        new QuCanvas(
+            blobFieldRef("canvas_blobid", true),
+            uifunc::resourceFilename("ace3/rhinoceros.png")),
+    })
+        ->setTitle("Canvas (disabling scrolling)")
+        ->allowScroll(false)
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
@@ -836,7 +848,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         page_image, page_headings_layout,
         page_audio_countdown, page_boolean,
         page_mcq, page_mcq_variants, page_multiple_response, page_pickers,
-        page_sliders, page_vars, page_diag, page_canvas, page_buttons,
+        page_sliders, page_vars, page_diag,
+        page_canvas_1, page_canvas_2,
+        page_buttons,
         page_photo, page_minimal_layout,
     });
     questionnaire->setReadOnly(read_only);

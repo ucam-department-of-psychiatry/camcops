@@ -31,8 +31,9 @@ import wand.image
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 
-from .cc_constants import ERA_NOW, STANDARD_GENERIC_FIELDSPECS
+from .cc_constants import ERA_NOW, MIMETYPE_PNG, STANDARD_GENERIC_FIELDSPECS
 from . import cc_db
+from .cc_html import get_data_url, get_embedded_img_tag
 from .cc_logger import log
 from .cc_namedtuples import XmlElementTuple
 from .cc_pls import pls
@@ -111,7 +112,7 @@ class Blob(object):
         rnc_db.dump_database_object(self, Blob.FIELDS_WITHOUT_BLOB)
 
     def get_rotated_image(self) -> Optional[bytes]:
-        """Returns a binary PNG image, having rotated if necessary, or None."""
+        """Returns a binary image, having rotated if necessary, or None."""
         if not self.theblob:
             return None
         rotation = self.image_rotation_deg_cw
@@ -119,29 +120,27 @@ class Blob(object):
             return self.theblob
         with wand.image.Image(blob=self.theblob) as img:
             img.rotate(rotation)
-            return img.make_blob('png')
+            # return img.make_blob('png')
+            return img.make_blob()  # no parameter => return in same format as supplied  # noqa
 
-    def get_png_img_html(self) -> str:
-        """Returns an HTML IMG tag encoding the PNG, or ''."""
+    def get_img_html(self) -> str:
+        """Returns an HTML IMG tag encoding the BLOB, or ''."""
         image_bits = self.get_rotated_image()
         if not image_bits:
             return ""
-        return ws.get_png_img_html(image_bits)
+        return get_embedded_img_tag(self.mimetype or MIMETYPE_PNG, image_bits)
+        # Historically, CamCOPS supported only PNG, so add this as a default
 
-    def get_png_xml_tuple(self, name: str) -> XmlElementTuple:
+    def get_image_xml_tuple(self, name: str) -> XmlElementTuple:
         """Returns an XmlElementTuple for this object."""
         image_bits = self.get_rotated_image()
         return cc_xml.get_xml_blob_tuple(name, image_bits)
 
-    def get_png_data_url(self) -> str:
-        """Returns a data URL encapsulating the PNG, or ''."""
+    def get_data_url(self) -> str:
+        """Returns a data URL encapsulating the BLOB, or ''."""
         if not self.theblob:
             return ""
-        return ws.get_png_data_url(self.theblob)
-
-    def is_valid_png(self) -> bool:
-        """Checks to see if the BLOB appears to be a valid PNG."""
-        return ws.is_valid_png(self.theblob)
+        return get_data_url(self.mimetype or MIMETYPE_PNG, self.theblob)
 
 
 # =============================================================================
@@ -173,22 +172,22 @@ def get_contemporaneous_blob_by_client_info(
     serverpk = cc_db.get_contemporaneous_server_pk_by_client_info(
         Blob.TABLENAME, device_id, clientpk, era,
         referrer_added_utc, referrer_removed_utc)
-    log.critical(
-        "get_contemporaneous_blob_by_client_info: "
-        "device_id = {}, "
-        "clientpk = {}, "
-        "era = {}, "
-        "serverpk = {},"
-        "referrer_added_utc = {}, "
-        "referrer_removed_utc = {}".format(
-            device_id,
-            clientpk,
-            era,
-            serverpk,
-            referrer_added_utc,
-            referrer_removed_utc,
-        )
-    )
+    # log.critical(
+    #     "get_contemporaneous_blob_by_client_info: "
+    #     "device_id = {}, "
+    #     "clientpk = {}, "
+    #     "era = {}, "
+    #     "serverpk = {},"
+    #     "referrer_added_utc = {}, "
+    #     "referrer_removed_utc = {}".format(
+    #         device_id,
+    #         clientpk,
+    #         era,
+    #         serverpk,
+    #         referrer_added_utc,
+    #         referrer_removed_utc,
+    #     )
+    # )
     if serverpk is None:
         log.debug("FAILED TO FIND BLOB: " + str(clientpk))
         return None
@@ -204,10 +203,9 @@ def unit_tests_blob(blob: Blob) -> None:
     # skip Blob.make_tables
     unit_test_ignore("", blob.dump)
     unit_test_ignore("", blob.get_rotated_image)
-    unit_test_ignore("", blob.get_png_img_html)
-    unit_test_ignore("", blob.get_png_xml_tuple, "name")
-    unit_test_ignore("", blob.get_png_data_url)
-    unit_test_ignore("", blob.is_valid_png)
+    unit_test_ignore("", blob.get_img_html)
+    unit_test_ignore("", blob.get_image_xml_tuple, "name")
+    unit_test_ignore("", blob.get_data_url)
 
 
 def unit_tests() -> None:

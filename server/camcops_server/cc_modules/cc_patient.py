@@ -103,12 +103,13 @@ class Patient:
                                indexed=True,
                                comment="ID number " + nstr,
                                cris_include=True))
-        FIELDSPECS.append(dict(name=FP_ID_DESC + nstr,
+        # REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
+        FIELDSPECS.append(dict(name=FP_ID_DESC + nstr,  # *** DEFUNCT as of v2.0.0  # noqa
                                cctype="IDDESCRIPTOR",
                                comment="ID description " + nstr,
                                anon=True,
                                cris_include=True))
-        FIELDSPECS.append(dict(name=FP_ID_SHORT_DESC + nstr,
+        FIELDSPECS.append(dict(name=FP_ID_SHORT_DESC + nstr,  # *** DEFUNCT as of v2.0.0  # noqa
                                cctype="IDDESCRIPTOR",
                                comment="ID short description " + nstr,
                                anon=True,

@@ -407,7 +407,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             fieldspecs
             fkname  # FK to main task table
 
-    pngblob_name_idfield_list
+    blob_name_idfield_list
         Returns a list of (name, blobid_field) tuples, giving all
         the PNG BLOBs attached to the task. The blobid_field is a fieldname
         whose field contains a FK to the blob table.
@@ -448,7 +448,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     has_respondent = False  # Will add fields/HTML
     use_landscape_for_pdf = False
     dependent_classes = []
-    pngblob_name_idfield_list = []
+    blob_name_idfield_list = []
     extra_summary_table_info = []
 
     def __init__(self, serverpk: Optional[int]) -> None:
@@ -788,7 +788,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     @classmethod
     def get_blob_fields(cls) -> List[str]:
-        return [x[1] for x in cls.pngblob_name_idfield_list]
+        return [x[1] for x in cls.blob_name_idfield_list]
 
     # -------------------------------------------------------------------------
     # Server field calculations
@@ -2096,7 +2096,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             fieldspecs = depclass.get_full_fieldspecs()
             itembranches = []
             items = self.get_ancillary_items(depclass)
-            blobinfo = depclass.pngblob_name_idfield_list
+            blobinfo = depclass.blob_name_idfield_list
             for it in items:
                 # Simple fields for ancillary items
                 itembranches.append(XmlElementTuple(
@@ -2150,7 +2150,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             if self._patient:
                 branches.append(self._patient.get_xml_root())
         # BLOBs
-        blobinfo = self.pngblob_name_idfield_list
+        blobinfo = self.blob_name_idfield_list
         if include_blobs and blobinfo:
             branches.append(cc_xml.XML_COMMENT_BLOBS)
             branches.extend(self.make_xml_branches_for_blob_fields(
@@ -2164,11 +2164,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         skip_fields = skip_fields or []
         return make_xml_branches_for_blob_fields(self, skip_fields=skip_fields)
 
-    def get_blob_png_xml_tuple(self,
-                               blobid: int,
-                               name: str) -> XmlElementTuple:
+    def get_blob_xml_tuple(self,
+                           blobid: int,
+                           name: str) -> XmlElementTuple:
         """Get XmlElementTuple for a PNG BLOB."""
-        return get_blob_png_xml_tuple(self, blobid, name)
+        return get_blob_xml_tuple(self, blobid, name)
 
     # -------------------------------------------------------------------------
     # HTML view
@@ -2815,17 +2815,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         make it very obvious visually when it isn't."""
         return "<tr>" + self.get_is_complete_td_pair() + "</tr>"
 
-    def get_blob_png_html(self,
-                          blobid: Optional[int]) -> str:
-        """Get HTML IMG tag with embedded PNG, or HTML error message."""
+    def get_blob_img_html(self, blobid: Optional[int]) -> str:
+        """Get HTML IMG tag with embedded data, or HTML error message."""
         if blobid is None:
             return "<i>(No picture)</i>"
         blob = self.get_blob_by_id(blobid)
         if blob is None:
             return "<i>(Missing picture)</i>"
-        # if not blob.is_valid_png():
-        #    return "<i>Invalid PNG<i>"
-        return blob.get_png_img_html()
+        return blob.get_img_html()
 
     def get_twocol_val_row(self,
                            fieldname: str,
@@ -2884,7 +2881,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         if label is None:
             label = fieldname
         return cc_html.tr(label,
-                          self.get_blob_png_html(getattr(self, fieldname)))
+                          self.get_blob_img_html(getattr(self, fieldname)))
 
     # -------------------------------------------------------------------------
     # Field helper functions for subclasses
@@ -3027,7 +3024,7 @@ class Ancillary(object):
     # Attributes that can be overridden
     # -------------------------------------------------------------------------
     sortfield = None
-    pngblob_name_idfield_list = []
+    blob_name_idfield_list = []
 
     @classmethod
     def get_full_fieldspecs(cls) -> FIELDSPECLIST_TYPE:
@@ -3050,22 +3047,17 @@ class Ancillary(object):
                 self.get_fieldnames(),
                 serverpk)
 
-    @classmethod
-    def get_pngblob_name_idfield_list(cls) -> List[str]:
-        """As for Task. Override if the ancillary table implements BLOBs."""
-        return []
-
     def make_xml_branches_for_blob_fields(
             self, skip_fields: List[str] = None) -> List[XmlElementTuple]:
         """Returns list of XmlElementTuple elements for BLOB fields."""
         skip_fields = skip_fields or []
         return make_xml_branches_for_blob_fields(self, skip_fields=skip_fields)
 
-    def get_blob_png_xml_tuple(self,
-                               blobid: int,
-                               name: str) -> XmlElementTuple:
+    def get_blob_xml_tuple(self,
+                           blobid: int,
+                           name: str) -> XmlElementTuple:
         """Get XmlElementTuple for a PNG BLOB."""
-        return get_blob_png_xml_tuple(self, blobid, name)
+        return get_blob_xml_tuple(self, blobid, name)
 
     def get_blob_by_id(self, blobid: int) -> Optional[Blob]:
         """Get Blob() object from blob ID, or None."""
@@ -3107,26 +3099,26 @@ def make_xml_branches_for_blob_fields(
     """Returns list of XmlElementTuple elements for BLOB fields."""
     skip_fields = skip_fields or []
     branches = []
-    for t in obj.pngblob_name_idfield_list:
+    for t in obj.blob_name_idfield_list:
         name = t[0]
         blobid_field = t[1]
         if blobid_field in skip_fields:
             continue
         blobid = getattr(obj, blobid_field)
         branches.append(
-            obj.get_blob_png_xml_tuple(blobid, name)
+            obj.get_blob_xml_tuple(blobid, name)
         )
     return branches
 
 
-def get_blob_png_xml_tuple(obj: Union[Task, Ancillary],
-                           blobid: int, 
-                           name: str) -> XmlElementTuple:
+def get_blob_xml_tuple(obj: Union[Task, Ancillary],
+                       blobid: int,
+                       name: str) -> XmlElementTuple:
     """Get XmlElementTuple for a PNG BLOB."""
     blob = obj.get_blob_by_id(blobid)
     if blob is None:
         return cc_xml.get_xml_blob_tuple(name, None)
-    return blob.get_png_xml_tuple(name)
+    return blob.get_image_xml_tuple(name)
 
 
 def get_blob_by_id(obj: Union[Task, Ancillary],
@@ -3655,7 +3647,7 @@ def task_instance_unit_test(name: str, instance: Task) -> None:
                      instance.get_xml_core_branches)
     unit_test_ignore("Testing {}.make_xml_branches_for_blob_fields".format(
         name), instance.make_xml_branches_for_blob_fields)
-    # not tested: get_blob_png_xml_tuple
+    # not tested: get_blob_xml_tuple
 
     unit_test_verify_not("Testing {}.get_html".format(name),
                          instance.get_html,

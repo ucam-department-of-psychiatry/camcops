@@ -23,6 +23,7 @@
 #include <QDateTime>
 #include <QImage>
 #include <QObject>
+#include <QPixmap>
 #include <QSharedPointer>
 #include "field.h"
 #include "databaseobject.h"
@@ -81,6 +82,9 @@ public:
     using GetterFunction = std::function<QVariant()>;
     using SetterFunction = std::function<bool(const QVariant&)>;  // returns: changed?
 public:
+    // ========================================================================
+    // Constructors
+    // ========================================================================
     FieldRef();
     FieldRef(Field* p_field, bool mandatory);
     FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
@@ -93,13 +97,23 @@ public:
     FieldRef(CamcopsApp* app, const QString& storedvar_name,
              bool mandatory, bool cached);  // StoredVar
 
+    // ========================================================================
+    // Validity check
+    // ========================================================================
     bool valid() const;
+
+    // ========================================================================
+    // Setting the value
+    // ========================================================================
     bool setValue(const QVariant& value, const QObject* originator = nullptr);
     // ... originator is optional and used as a performance hint (see QSlider)
     void emitValueChanged(const QObject* originator = nullptr);  // for rare manual use
 
+    // ========================================================================
+    // Retrieving the value
+    // ========================================================================
     QVariant value() const;
-
+    bool isNull() const;
     bool valueBool() const;
     int valueInt() const;
     qlonglong valueLongLong() const;
@@ -111,16 +125,33 @@ public:
     QByteArray valueByteArray() const;
     QVector<int> valueVectorInt() const;
 
+    // ========================================================================
+    // BLOB-related functions, overridden by BlobFieldRef for higher performance
+    // ========================================================================
     bool isBlob() const;
+    virtual QImage image(bool* p_loaded = nullptr) const;
+    virtual QPixmap pixmap(bool* p_loaded = nullptr) const;
+    virtual void rotateImage(int angle_degrees_clockwise,
+                             const QObject* originator = nullptr);
+    virtual bool setImage(const QImage& image,
+                          const QObject* originator = nullptr);
+    virtual bool setRawImage(const QByteArray& data,
+                             const QString& extension_without_dot,
+                             const QString& mimetype,
+                             const QObject* originator = nullptr);
 
-    bool isNull() const;
-
+    // ========================================================================
+    // Completeness of input
+    // ========================================================================
     bool mandatory() const;
     void setMandatory(bool mandatory, const QObject* originator = nullptr);
     // ... originator is optional and used as a performance hint (see QSlider)
     bool complete() const;  // not null?
     bool missingInput() const;  // block progress because (mandatory() && !complete())?
 
+    // ========================================================================
+    // Hints
+    // ========================================================================
     void setHint(const QVariant& hint);
     QVariant getHint() const;
 

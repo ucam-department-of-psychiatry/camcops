@@ -47,6 +47,8 @@ from .cc_modules.cc_constants import (
     CLIENT_DATE_FIELD,
     DATEFORMAT,
     ERA_NOW,
+    FP_ID_DESC,
+    FP_ID_SHORT_DESC,
     HL7MESSAGE_TABLENAME,
     MOVE_OFF_TABLET_FIELD,
     NUMBER_OF_IDNUMS,
@@ -194,9 +196,9 @@ def fail_user_error(msg: str) -> None:
     raise UserErrorException(msg)
 
 
-def require_keys(dict: Dict[Any, Any], keys: List[Any]) -> None:
+def require_keys(dictionary: Dict[Any, Any], keys: List[Any]) -> None:
     for k in keys:
-        if k not in dict:
+        if k not in dictionary:
             fail_user_error("Field {} missing in client input".format(repr(k)))
 
 
@@ -762,14 +764,16 @@ def upload_record_core(sm: SessionManager,
         else:
             # MODIFIED
             if COPE_WITH_DELETED_PATIENT_DESCRIPTIONS:
+                # Old tablets (pre-2.0.0) will upload copies of the ID
+                # descriptions with the patient. To cope with that, we remove
+                # those here:
                 if table == Patient.TABLENAME:
                     for n in range(1, NUMBER_OF_IDNUMS + 1):
-                        i = n - 1
                         nstr = str(n)
-                        reply["idDescription" + nstr] = pls.IDDESC[i]
-                        reply["idShortDescription" + nstr] = pls.IDSHORTDESC[i]
-
-                    XXX
+                        fn_desc = FP_ID_DESC + nstr
+                        fn_shortdesc = FP_ID_SHORT_DESC + nstr
+                        valuedict.pop(fn_desc, None)  # remove item, if exists
+                        valuedict.pop(fn_shortdesc, None)
             newserverpk = insert_record(sm, table, valuedict, oldserverpk)
             flag_modified(sm, table, oldserverpk, newserverpk)
             log.debug("Table {table}, record {recordnum}: modified".format(

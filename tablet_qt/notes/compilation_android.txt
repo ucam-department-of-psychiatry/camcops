@@ -298,7 +298,7 @@ Good for Qt; that was easy!
 
 
 -------------------------------------------------------------------------------
-Android screenshot:
+To take an Android screenshot:
 -------------------------------------------------------------------------------
     adb shell screencap -p | perl -pe 's/\x0D\x0A/\x0A/g' > screen.png
     ... https://blog.shvetsov.com/2013/02/grab-android-screenshot-to-computer-via.html
@@ -333,3 +333,14 @@ See also:
 See:
 - https://android.stackexchange.com/questions/12491/adb-constantly-disconnects-shows-device-offline
 
+-------------------------------------------------------------------------------
+Remote debugger fails
+-------------------------------------------------------------------------------
+
+Q.  "Connecting to remote server failed:
+    Remote 'g' packet is too long: ..."
+A.  In the Qt kit, change debugger from "System GDB" to
+    "Android Debugger for Android GCC (arm-4.9)"
+
+    See also:
+    - https://stackoverflow.com/questions/4896316/gdb-remote-cross-debugging-fails-with-remote-g-packet-reply-is-too-long

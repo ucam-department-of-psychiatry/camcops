@@ -32,12 +32,14 @@ public:
                  bool mandatory, CamcopsApp* p_app);
     BlobFieldRef(QSharedPointer<Blob> blob, bool mandatory);
 
-    QImage blobImage(bool* p_loaded = nullptr) const;
-    void blobRotateImage(int angle_degrees_clockwise,
-                         const QObject* originator = nullptr);
-    bool blobSetImage(const QImage& image, const QObject* originator = nullptr);
-    bool blobSetRawImage(const QByteArray& data,
-                         const QString& extension_without_dot,
-                         const QString& mimetype,
-                         const QObject* originator = nullptr);
+    virtual QImage image(bool* p_loaded = nullptr) const override;
+    virtual QPixmap pixmap(bool* p_loaded = nullptr) const override;
+    virtual void rotateImage(int angle_degrees_clockwise,
+                             const QObject* originator = nullptr) override;
+    virtual bool setImage(const QImage& image,
+                          const QObject* originator = nullptr) override;
+    virtual bool setRawImage(const QByteArray& data,
+                             const QString& extension_without_dot,
+                             const QString& mimetype,
+                             const QObject* originator = nullptr) override;
 };

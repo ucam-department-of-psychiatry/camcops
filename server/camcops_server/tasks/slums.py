@@ -119,7 +119,7 @@ class Slums(Task):
         OTHER_FIELDSPECS
     )
     has_clinician = True
-    pngblob_name_idfield_list = [
+    blob_name_idfield_list = [
         ("clockpicture", "clockpicture_blobid"),
         ("shapespicture", "shapespicture_blobid"),
     ]
@@ -240,9 +240,9 @@ class Slums(Task):
         """
         h += subheading_spanning_two_columns("Images of tests: clock, shapes")
         h += tr(
-            td(self.get_blob_png_html(self.clockpicture_blobid),
+            td(self.get_blob_img_html(self.clockpicture_blobid),
                td_width="50%", td_class="photo"),
-            td(self.get_blob_png_html(self.shapespicture_blobid),
+            td(self.get_blob_img_html(self.shapespicture_blobid),
                td_width="50%", td_class="photo"),
             literal=True
         )
