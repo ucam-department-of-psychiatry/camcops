@@ -42,7 +42,7 @@ DynamicQuestionnaire::DynamicQuestionnaire(
 
 bool DynamicQuestionnaire::morePagesToGo() const
 {
-    int current_qnum = currentPageIndex();
+    const int current_qnum = currentPageIndex();
     return m_more_pages_to_go_fn(current_qnum);
 }
 
@@ -97,7 +97,7 @@ void DynamicQuestionnaire::processNextClicked()
 
     // Different:
     Q_ASSERT(m_current_page_index == m_pages.length() - 1);
-    int next_qnum = m_current_page_index + 1;
+    const int next_qnum = m_current_page_index + 1;
     QuPagePtr new_dynamic_page = m_make_page_fn(next_qnum);
     if (!new_dynamic_page) {
         qWarning()

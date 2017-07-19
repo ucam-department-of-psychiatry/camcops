@@ -111,7 +111,7 @@ QStringList Pswq::detail() const
 
 OpenableWidget* Pswq::editor(bool read_only)
 {
-    NameValueOptions options{
+    const NameValueOptions options{
         {"1: " + xstring("anchor1"), 1},
         {"2", 2},
         {"3", 3},
@@ -144,7 +144,7 @@ int Pswq::totalScore() const
 {
     int total = 0;
     for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
-        QVariant v = value(strnum(QPREFIX, q));
+        const QVariant v = value(strnum(QPREFIX, q));
         if (v.isNull()) {
             continue;
         }

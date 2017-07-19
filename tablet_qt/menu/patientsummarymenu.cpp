@@ -53,7 +53,7 @@ void PatientSummaryMenu::build()
     };
 
     // Task items
-    TaskPtrList tasklist = factory->fetch();
+    const TaskPtrList tasklist = factory->fetch();
     qDebug() << Q_FUNC_INFO << "-" << tasklist.size() << "task(s)";
     for (auto task : tasklist) {
         m_items.append(MenuItem(task, true, false));

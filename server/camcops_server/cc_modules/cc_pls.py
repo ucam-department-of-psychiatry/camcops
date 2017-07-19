@@ -42,7 +42,6 @@ import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_pdf as rnc_pdf
 
 from .cc_baseconstants import (
-    CAMCOPS_SERVER_DIRECTORY,
     INTROSPECTABLE_EXTENSIONS,
 )
 from .cc_configfile import (
@@ -484,7 +483,8 @@ class LocalStorage(object):
                 else:
                     pretty_dir = os.path.relpath(dir_, rootdir)
                 for filename in files:
-                    basename, ext = os.path.split(filename)
+                    log.critical("Testing: " + repr(filename))
+                    basename, ext = os.path.splitext(filename)
                     if ext not in INTROSPECTABLE_EXTENSIONS:
                         continue
                     fullpath = os.path.join(dir_, filename)

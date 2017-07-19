@@ -138,11 +138,11 @@ OpenableWidget* Fft::editor(bool read_only)
 
 QString Fft::ratingText() const
 {
-    QVariant rating_var = value(RATING);
+    const QVariant rating_var = value(RATING);
     if (rating_var.isNull()) {
         return "";
     }
-    int rating = rating_var.toInt();
+    const int rating = rating_var.toInt();
     if (rating < 1 || rating > 6) {
         return "";
     }

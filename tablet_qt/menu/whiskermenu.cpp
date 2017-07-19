@@ -51,16 +51,16 @@ OpenableWidget* WhiskerMenu::configureWhisker(CamcopsApp& app)
     app.clearCachedVars();  // ... in case any are left over
 
     FieldRefPtr address_fr = app.storedVarFieldRef(varconst::WHISKER_HOST);
-    QString address_t = tr("Whisker host");
-    QString address_h = tr("host name or IP address; default: localhost");
+    const QString address_t = tr("Whisker host");
+    const QString address_h = tr("host name or IP address; default: localhost");
 
     FieldRefPtr port_fr = app.storedVarFieldRef(varconst::WHISKER_PORT);
-    QString port_t = tr("Whisker port");
-    QString port_h = tr("default 3233");
+    const QString port_t = tr("Whisker port");
+    const QString port_h = tr("default 3233");
 
     FieldRefPtr timeout_fr = app.storedVarFieldRef(varconst::WHISKER_TIMEOUT_MS);
-    QString timeout_t = tr("Network timeout (ms)");
-    QString timeout_h = tr("e.g. 5000");
+    const QString timeout_t = tr("Network timeout (ms)");
+    const QString timeout_h = tr("e.g. 5000");
 
     QuPagePtr page(new QuPage{
         questionnairefunc::defaultGridRawPointer({

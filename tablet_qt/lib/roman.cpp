@@ -59,7 +59,7 @@ namespace roman
 QString romanize(int num)
 {
     QString roman;
-    int n_lookups = ENCODER.size();
+    const int n_lookups = ENCODER.size();
     // Traverse the Roman numerals (including the "one-before" ones) in
     // descending order, building up the string.
     for (int i = 0; i < n_lookups; ++i) {
@@ -98,7 +98,7 @@ int deromanize(const QString& roman)
 {
     int arabic = 0;
     int i = roman.length();
-    QString ru = roman.toUpper();
+    const QString ru = roman.toUpper();
     // We work from the right to the left of the string.
     int value_to_right = 0;
     while (i--) {

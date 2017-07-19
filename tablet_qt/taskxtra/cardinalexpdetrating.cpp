@@ -41,11 +41,11 @@ CardinalExpDetRating::CardinalExpDetRating(int rating,
     rating(rating)
 {
     Q_ASSERT(rating >= 0 && rating < N_RATINGS);
-    double rating_double = static_cast<double>(rating);
-    double centre_rating = (N_RATINGS - 1) / 2.0;
+    const double rating_double = static_cast<double>(rating);
+    const double centre_rating = (N_RATINGS - 1) / 2.0;
     // ... for 5 ratings, internal number 0-4, centre is 2;
     // ... for 6 ratings, internal number 0-5, centre is 2.5
-    int pos = detection_response_on_right ? rating : (N_RATINGS - 1 - rating);
+    const int pos = detection_response_on_right ? rating : (N_RATINGS - 1 - rating);
 
     rect = getRatingButtonRect(pos, N_RATINGS);
     label = TX_OPTIONS.at(rating);

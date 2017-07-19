@@ -118,7 +118,7 @@ QStringList NpiQ::detail() const
 {
     QStringList lines = completenessInfo();
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        QVariant endorsed = value(strnum(ENDORSED_PREFIX, i));
+        const QVariant endorsed = value(strnum(ENDORSED_PREFIX, i));
         QString msg = standardResult(xstring(strnum("t", i)),
                                      convert::prettyValue(endorsed),
                                      ": ", "");
@@ -138,13 +138,13 @@ QStringList NpiQ::detail() const
 
 OpenableWidget* NpiQ::editor(bool read_only)
 {
-    NameValueOptions options_yesno = CommonOptions::noYesBoolean();
-    NameValueOptions options_severity{
+    const NameValueOptions options_yesno = CommonOptions::noYesBoolean();
+    const NameValueOptions options_severity{
         {xstring("severity_1"), 1},
         {xstring("severity_2"), 2},
         {xstring("severity_3"), 3},
     };
-    NameValueOptions options_distress{
+    const NameValueOptions options_distress{
         {xstring("distress_0"), 0},
         {xstring("distress_1"), 1},
         {xstring("distress_2"), 2},
@@ -163,12 +163,12 @@ OpenableWidget* NpiQ::editor(bool read_only)
     auto addpage = [this, &pages,
                     &options_yesno, &options_severity, &options_distress,
                     &text, &boldtext](int q) -> void {
-        QString pagetitle = QString("NPI-Q (%1 / %2): %3")
+        const QString pagetitle = QString("NPI-Q (%1 / %2): %3")
                 .arg(q)
                 .arg(N_QUESTIONS)
                 .arg(xstring(strnum("t", q)));
-        QString pagetag = strnum(PAGE_TAG_PREFIX, q);
-        QString tag = strnum(ELEMENT_TAG_PREFIX, q);
+        const QString pagetag = strnum(PAGE_TAG_PREFIX, q);
+        const QString tag = strnum(ELEMENT_TAG_PREFIX, q);
         FieldRefPtr endorsed_fr = fieldRef(strnum(ENDORSED_PREFIX, q));
         QuPagePtr page((new QuPage{
             text(strnum("q", q)),
@@ -253,7 +253,7 @@ int NpiQ::severityScore() const
 
 bool NpiQ::questionComplete(int q) const
 {
-    QVariant endorsed = value(strnum(ENDORSED_PREFIX, q));
+    const QVariant endorsed = value(strnum(ENDORSED_PREFIX, q));
     if (endorsed.isNull()) {
         return false;
     }
@@ -273,13 +273,13 @@ bool NpiQ::questionComplete(int q) const
 
 void NpiQ::updateMandatory(int q)
 {
-    bool endorsed = valueBool(strnum(ENDORSED_PREFIX, q));
+    const bool endorsed = valueBool(strnum(ENDORSED_PREFIX, q));
     fieldRef(strnum(SEVERITY_PREFIX, q))->setMandatory(endorsed);
     fieldRef(strnum(DISTRESS_PREFIX, q))->setMandatory(endorsed);
     if (!m_questionnaire) {
         return;
     }
-    QString element_tag = strnum(ELEMENT_TAG_PREFIX, q);
-    QString page_tag = strnum(PAGE_TAG_PREFIX, q);
+    const QString element_tag = strnum(ELEMENT_TAG_PREFIX, q);
+    const QString page_tag = strnum(PAGE_TAG_PREFIX, q);
     m_questionnaire->setVisibleByTag(element_tag, endorsed, false, page_tag);
 }

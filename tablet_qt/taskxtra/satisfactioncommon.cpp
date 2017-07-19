@@ -130,7 +130,7 @@ OpenableWidget* SatisfactionCommon::satisfactionEditor(const QString& rating_q,
 
 QString SatisfactionCommon::getRatingText() const
 {
-    QVariant rating = value(RATING);
+    const QVariant rating = value(RATING);
     if (rating.isNull() || rating.toInt() < 0 || rating.toInt() > 4) {
         return "";
     }

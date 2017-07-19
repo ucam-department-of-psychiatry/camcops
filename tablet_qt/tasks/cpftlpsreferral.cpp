@@ -196,13 +196,13 @@ QStringList CPFTLPSReferral::detail() const
 
 OpenableWidget* CPFTLPSReferral::editor(bool read_only)
 {
-    NameValueOptions referral_pickup_options = CommonOptions::optionsCopyingDescriptions({
+    const NameValueOptions referral_pickup_options = CommonOptions::optionsCopyingDescriptions({
         "Direct",
         "Morning Report",
         "Ops centre",
         "Other",
     });
-    NameValueOptions specialty_options = CommonOptions::optionsCopyingDescriptions({
+    const NameValueOptions specialty_options = CommonOptions::optionsCopyingDescriptions({
         "Acute medicine",
         "Cardiology",
         "DME",
@@ -220,19 +220,19 @@ OpenableWidget* CPFTLPSReferral::editor(bool read_only)
         "Trauma",
         "Other",  // last (others are alphabetical)
     });
-    NameValueOptions priority_options{
+    const NameValueOptions priority_options{
         {xstring("priority_R"), "R"},
         {xstring("priority_U"), "U"},
         {xstring("priority_E"), "E"},
     };
-    NameValueOptions lps_division_options{
+    const NameValueOptions lps_division_options{
         {xstring("service_G"), "G"},
         {xstring("service_O"), "O"},
         {xstring("service_S"), "S"},
     };
-    NameValueOptions yesno_options = CommonOptions::noYesBoolean();
-    NameValueOptions marital_options = m_app.nhsPersonMaritalStatusCodeOptions();
-    NameValueOptions ethnic_options = m_app.nhsEthnicCategoryCodeOptions();
+    const NameValueOptions yesno_options = CommonOptions::noYesBoolean();
+    const NameValueOptions marital_options = m_app.nhsPersonMaritalStatusCodeOptions();
+    const NameValueOptions ethnic_options = m_app.nhsEthnicCategoryCodeOptions();
 
     auto boldtext = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setBold();

@@ -92,8 +92,8 @@ bool CgiSch::isComplete() const
 
 QStringList CgiSch::summary() const
 {
-    QString sep(": ");
-    QString suffix(".");
+    const QString sep(": ");
+    const QString suffix(".");
     return QStringList{
         fieldSummary(strnum(FP_SEVERITY, 5), xstring("summary_i_5"), sep, suffix),
         fieldSummary(strnum(FP_CHANGE, 5), xstring("summary_ii_5"), sep, suffix),
@@ -103,7 +103,7 @@ QStringList CgiSch::summary() const
 
 QStringList CgiSch::detail() const
 {
-    QString sep(": ");
+    const QString sep(": ");
     QStringList lines = completenessInfo();
     lines.append(xstring("i_title"));
     lines.append("");
@@ -136,7 +136,7 @@ OpenableWidget* CgiSch::editor(bool read_only)
     QVector<QuestionWithOneField> severity_qfields;
     QVector<QuestionWithOneField> change_qfields;
     for (int i = 1; i <= NQ_PER_SECTION; ++i) {
-        QString question = xstring(strnum("q", i));
+        const QString question = xstring(strnum("q", i));
         severity_qfields.append(QuestionWithOneField(
                                     question,
                                     fieldRef(strnum(FP_SEVERITY, i))));

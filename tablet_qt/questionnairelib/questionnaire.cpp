@@ -208,9 +208,9 @@ void Questionnaire::build()
         header_css_name = background_css_name;
     }
 #ifdef OFFER_LAYOUT_DEBUG_BUTTON
-    bool offer_debug_layout = true;
+    const bool offer_debug_layout = true;
 #else
-    bool offer_debug_layout = false;
+    const bool offer_debug_layout = false;
 #endif
     m_p_header = new QuestionnaireHeader(
         this, page->title(),
@@ -298,7 +298,7 @@ void Questionnaire::build()
 
 bool Questionnaire::event(QEvent* e)
 {
-    bool result = OpenableWidget::event(e);
+    const bool result = OpenableWidget::event(e);
     if (!m_read_only && e->type() == QEvent::Show) {
         emit editStarted();
     }
@@ -308,7 +308,7 @@ bool Questionnaire::event(QEvent* e)
 
 bool Questionnaire::morePagesToGo() const
 {
-    int lastpage = nPages() - 1;
+    const int lastpage = nPages() - 1;
     for (int i = m_current_page_index; i < lastpage; ++i) {
         if (m_pages.at(i)->skip()) {
             continue;
@@ -325,10 +325,10 @@ void Questionnaire::resetButtons()
     if (!page || !m_p_header) {
         return;
     }
-    bool allow_progression = readOnly() ||
+    const bool allow_progression = readOnly() ||
             (!page->progressBlocked() && !page->missingInput());
     // Optimization: calculate on_last_page only if necessary
-    bool on_last_page = allow_progression && !morePagesToGo();
+    const bool on_last_page = allow_progression && !morePagesToGo();
     m_p_header->setButtons(
         m_current_page_index > 0,  // previous
         !on_last_page && allow_progression,  // next
@@ -428,8 +428,8 @@ void Questionnaire::jumpClicked()
             continue;
             // Skipped pages don't block subsequent ones, either.
         }
-        QString text = page->title();
-        bool missing_input = page->progressBlocked() || page->missingInput();
+        const QString text = page->title();
+        const bool missing_input = page->progressBlocked() || page->missingInput();
         PagePickerItem::PagePickerItemType type = blocked
             ? PagePickerItem::PagePickerItemType::BlockedByPrevious
             : (missing_input ? PagePickerItem::PagePickerItemType::IncompleteSelectable
@@ -479,7 +479,7 @@ void Questionnaire::processNextClicked()
         // Can't progress
         return;
     }
-    int npages = nPages();
+    const int npages = nPages();
     for (int i = m_current_page_index + 1; i < npages; ++i) {
         if (m_pages.at(i)->skip()) {
             continue;
@@ -507,13 +507,12 @@ void Questionnaire::deletePage(int index)
     //         page.
     // Step 2: delete the page (now invisible).
 
-    bool deleting_current = index == m_current_page_index;
-    bool deleting_earlier = index < m_current_page_index;
+    const bool deleting_current = index == m_current_page_index;
+    const bool deleting_earlier = index < m_current_page_index;
     bool deleting_current_and_moving_forward = false;
     if (deleting_current) {
-        bool deleting_last = index == nPages() - 1;
-        int go_to_index = deleting_last ? index - 1
-                                        : index + 1;
+        const bool deleting_last = index == nPages() - 1;
+        const int go_to_index = deleting_last ? index - 1 : index + 1;
         deleting_current_and_moving_forward = !deleting_last;
         goToPage(go_to_index);  // alters m_current_pagenum_zero_based
     }
@@ -704,7 +703,7 @@ QVector<QuElement*> Questionnaire::getElementsByTag(const QString& tag,
                                                     bool current_page_only,
                                                     const QString& page_tag)
 {
-    QVector<QuPage*> pages = getPages(current_page_only, page_tag);
+    const QVector<QuPage*> pages = getPages(current_page_only, page_tag);
     QVector<QuElement*> elements;
     for (auto page : pages) {
         elements += page->elementsWithTag(tag);
@@ -717,8 +716,8 @@ QuElement* Questionnaire::getFirstElementByTag(const QString& tag,
                                                bool current_page_only,
                                                const QString& page_tag)
 {
-    QVector<QuElement*> elements = getElementsByTag(tag, current_page_only,
-                                                    page_tag);
+    const QVector<QuElement*> elements = getElementsByTag(
+                tag, current_page_only, page_tag);
     if (elements.isEmpty()) {
         return nullptr;
     }

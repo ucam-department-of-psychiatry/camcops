@@ -82,7 +82,7 @@ void VerticalScrollAreaViewport::checkChildSize() const
     qDebug() << Q_FUNC_INFO << "(3) Child widget after:"
              << layoutdumper::getWidgetInfo(child);
 #endif
-    QSize child_size = child->size();
+    const QSize child_size = child->size();
     if (child_size != desired_child_size) {
         qWarning()
                 << Q_FUNC_INFO

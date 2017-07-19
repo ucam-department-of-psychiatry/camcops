@@ -149,15 +149,16 @@ QStringList HamD::summary() const
 
 QStringList HamD::detail() const
 {
-    int score = totalScore();
-    QString severity = (score > 23
-                        ? xstring("severity_verysevere")
-                        : (score >= 19
-                           ? xstring("severity_severe")
-                           : (score >= 14
-                              ? xstring("severity_moderate")
-                              : score >= 8 ? xstring("severity_mild")
-                                           : xstring("severity_none"))));
+    const int score = totalScore();
+    const QString severity =
+            score > 23
+            ? xstring("severity_verysevere")
+            : (score >= 19
+               ? xstring("severity_severe")
+               : (score >= 14
+                  ? xstring("severity_moderate")
+                  : score >= 8 ? xstring("severity_mild")
+                               : xstring("severity_none")));
     QStringList lines = completenessInfo();
     for (auto info : QLIST) {
         lines.append(fieldSummary(info.name, xstring(info.name + "_s"), " "));
@@ -176,12 +177,12 @@ OpenableWidget* HamD::editor(bool read_only)
     auto addpage = [this, &pages](const HamdQInfo& info) -> void {
         NameValueOptions options;
         for (int i = 0; i < info.n_options; ++i) {
-            QString name = xstring(QString("%1_option%2").arg(info.name).arg(i));
+            const QString name = xstring(QString("%1_option%2").arg(info.name).arg(i));
             options.append(NameValuePair(name, i));
         }
-        QString pagetitle = xstring(QString("%1_title").arg(info.name));
-        QString question = xstring(QString("%1_question").arg(info.name));
-        QString fieldname = info.name;
+        const QString pagetitle = xstring(QString("%1_title").arg(info.name));
+        const QString question = xstring(QString("%1_question").arg(info.name));
+        const QString fieldname = info.name;
         QuPagePtr page((new QuPage{
             new QuText(question),
             new QuMcq(fieldRef(fieldname, info.mandatory), options),
@@ -224,7 +225,7 @@ int HamD::totalScore() const
     for (int i = 1; i <= N_SCORED_QUESTIONS; ++i) {
         if (i == 16) {
             // Special weight question
-            int rawscore = valueInt(whichWeightVar());
+            const int rawscore = valueInt(whichWeightVar());
             if (rawscore != 3) {
                 // For weight questions, '3' means 'not measured' and is
                 // not scored.
@@ -247,8 +248,8 @@ void HamD::chooseWeightPage()
     if (!m_questionnaire) {
         return;
     }
-    QString weightvar = whichWeightVar();
-    QString other = whichWeightVar(true);
+    const QString weightvar = whichWeightVar();
+    const QString other = whichWeightVar(true);
     m_questionnaire->setPageSkip(weightvar, false, false);
     m_questionnaire->setPageSkip(other, true);
 }

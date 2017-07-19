@@ -62,7 +62,7 @@ ArrayXb makeBoolArray(std::initializer_list<bool> vlist)
 
 IndexArray indexSeq(Index first, Index last, Index step)
 {
-    int n = (1 + last - first) / step;
+    const int n = (1 + last - first) / step;
     IndexArray indices(n);
     Index idx = 0;
     if (step > 0) {

@@ -261,7 +261,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // addStretch(), then stretch-multiply up those (which requires
         // encapsulating *those* in another QWidget...).
 
-        bool complete = m_p_task->isComplete();
+        const bool complete = m_p_task->isComplete();
         int timestamp_stretch = STRETCH_2COL_TIMESTAMP;
         int summary_stretch = STRETCH_2COL_SUMMARY;
 
@@ -373,7 +373,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // Title/subtitle style
         VBoxLayout* textlayout = new VBoxLayout();
 
-        QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        const QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
         LabelWordWrapWide* title = new LabelWordWrapWide(
                     m_p_patient->surnameUpperForename());

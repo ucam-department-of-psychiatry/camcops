@@ -40,7 +40,7 @@ const QString IDSHORTDESC_FIELD_FORMAT("idshortdesc%1");
 
 bool isValidWhichIdnum(int which_idnum)
 {
-    bool valid = which_idnum >= 1 && which_idnum <= NUMBER_OF_IDNUMS;
+    const bool valid = which_idnum >= 1 && which_idnum <= NUMBER_OF_IDNUMS;
     if (!valid) {
         qWarning() << Q_FUNC_INFO << "bad idnum" << which_idnum;
     }

@@ -145,8 +145,8 @@ OpenableWidget* Icd10Schizotypal::editor(bool read_only)
             qfields.append(QuestionWithOneField(xstring(fieldname),
                                                 fieldRef(fieldname, true)));
         }
-        int n = options.size();
-        QVector<int> v(n, 1);
+        const int n = options.size();
+        const QVector<int> v(n, 1);
         return (new QuMcqGrid(qfields, options))
                 ->setExpand(true)
                 ->setWidth(n, v);

@@ -44,7 +44,7 @@ bool HeightForWidthListWidget::event(QEvent* e)
         {
             // At this point, we have already been resized, so can use width();
             // http://doc.qt.io/qt-4.8/qwidget.html#resizeEvent
-            int n_items = count();
+            const int n_items = count();
             for (int row = 0; row < n_items; ++row) {
                 QListWidgetItem* lwi = item(row);
                 if (!lwi) {
@@ -56,7 +56,7 @@ bool HeightForWidthListWidget::event(QEvent* e)
                     qWarning() << Q_FUNC_INFO << "null itemWidget()";
                     continue;
                 }
-                QSize size_hint = widgetSizeHint(widget);
+                const QSize size_hint = widgetSizeHint(widget);
                 lwi->setSizeHint(size_hint);
 #ifdef DEBUG_LAYOUT
                 qDebug() << Q_FUNC_INFO << "resizing list widget to" << size()
@@ -82,15 +82,15 @@ QSize HeightForWidthListWidget::widgetSizeHint(QWidget* widget) const
     if (!widget->hasHeightForWidth()) {
         return widget->sizeHint();
     }
-    QRect list_contents_rect = contentsRect();
-    int list_width = list_contents_rect.width();
-    QSize widget_size_hint = widget->sizeHint();
+    const QRect list_contents_rect = contentsRect();
+    const int list_width = list_contents_rect.width();
+    const QSize widget_size_hint = widget->sizeHint();
     // Default implementation, QWidget::sizeHint, returns
     // its layout's totalSizeHint(), or an invalid size.
 
-    int widget_preferred_width = widget_size_hint.width();
-    int widget_new_width = qMin(widget_preferred_width, list_width);
-    int widget_new_height = widget->heightForWidth(widget_new_width);
+    const int widget_preferred_width = widget_size_hint.width();
+    const int widget_new_width = qMin(widget_preferred_width, list_width);
+    const int widget_new_height = widget->heightForWidth(widget_new_width);
     QSize result(widget_new_width, widget_new_height);
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << "widget"

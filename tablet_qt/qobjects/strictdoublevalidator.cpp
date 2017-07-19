@@ -53,7 +53,7 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
         return QValidator::Intermediate;
     }
 
-    QChar decimalPoint = locale().decimalPoint();
+    const QChar decimalPoint = locale().decimalPoint();
     int charsAfterPoint = -1;
     if (s.indexOf(decimalPoint) != -1) {
         charsAfterPoint = s.length() - s.indexOf(decimalPoint) - 1;
@@ -66,8 +66,8 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
         return QValidator::Invalid;
     }
 
-    double b = bottom();
-    double t = top();
+    const double b = bottom();
+    const double t = top();
     // Guaranteed that b < t
 
     if (s == "-") {
@@ -84,7 +84,7 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
     }
 
     bool ok;
-    double d = locale().toDouble(s, &ok);
+    const double d = locale().toDouble(s, &ok);
     if (!ok) {  // Not a double
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "not a double -> Invalid";

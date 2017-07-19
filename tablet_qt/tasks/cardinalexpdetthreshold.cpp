@@ -240,7 +240,7 @@ QString CardinalExpDetThreshold::menusubtitle() const
 
 void CardinalExpDetThreshold::loadAllAncillary(int pk)
 {
-    OrderBy order_by{{CardinalExpDetThresholdTrial::FN_TRIAL, true}};
+    const OrderBy order_by{{CardinalExpDetThresholdTrial::FN_TRIAL, true}};
     ancillaryfunc::loadAncillary<CardinalExpDetThresholdTrial,
                                  CardinalExpDetThresholdTrialPtr>(
                 m_trials, m_app, m_db,
@@ -318,15 +318,15 @@ OpenableWidget* CardinalExpDetThreshold::editor(bool read_only)
     // Configure the task using a Questionnaire
     // ------------------------------------------------------------------------
 
-    NameValueOptions modality_options{
+    const NameValueOptions modality_options{
         {TX_AUDITORY, MODALITY_AUDITORY},
         {TX_VISUAL, MODALITY_VISUAL},
     };
-    NameValueOptions target_options_auditory{
+    const NameValueOptions target_options_auditory{
         {TX_AUDITORY_TARGET_0, 0},
         {TX_AUDITORY_TARGET_1, 1},
     };
-    NameValueOptions target_options_visual{
+    const NameValueOptions target_options_visual{
         {TX_VISUAL_TARGET_0, 0},
         {TX_VISUAL_TARGET_1, 1},
     };
@@ -448,14 +448,14 @@ void CardinalExpDetThreshold::validateQuestionnaire()
     QVector<QuPage*> pages = m_questionnaire->getPages(false, TAG_P3);
     Q_ASSERT(pages.size() == 1);
     QuPage* page3 = pages.at(0);
-    bool duff_minmax = valueDouble(FN_START_INTENSITY_MAX) <
+    const bool duff_minmax = valueDouble(FN_START_INTENSITY_MAX) <
             valueDouble(FN_START_INTENSITY_MIN);
     m_questionnaire->setVisibleByTag(TAG_WARNING_MIN_MAX, duff_minmax,
                                      false, TAG_P3);
     page3->blockProgress(duff_minmax);
 
     // 2. Choice of target
-    bool auditory = isAuditory();
+    const bool auditory = isAuditory();
     m_questionnaire->setVisibleByTag(TAG_AUDITORY, auditory, false, TAG_P2);
     m_questionnaire->setVisibleByTag(TAG_VISUAL, !auditory, false, TAG_P2);
 }
@@ -485,7 +485,7 @@ void CardinalExpDetThreshold::validateQuestionnaire()
 
 QString CardinalExpDetThreshold::getDescriptiveModality() const
 {
-    QVariant modality = value(FN_MODALITY);
+    const QVariant modality = value(FN_MODALITY);
     // can't use external constants in a switch statement
     if (modality.isNull()) {
         return textconst::UNKNOWN;
@@ -500,8 +500,8 @@ QString CardinalExpDetThreshold::getDescriptiveModality() const
 
 QString CardinalExpDetThreshold::getTargetName() const
 {
-    QVariant modality = value(FN_MODALITY);
-    QVariant target_number = value(FN_TARGET_NUMBER);
+    const QVariant modality = value(FN_MODALITY);
+    const QVariant target_number = value(FN_TARGET_NUMBER);
     if (modality.isNull() || target_number.isNull()) {
         return textconst::UNKNOWN;
     }
@@ -529,8 +529,8 @@ QVariant CardinalExpDetThreshold::x(qreal p) const
     if (valueIsNull(FN_INTERCEPT) || valueIsNull(FN_SLOPE)) {
         return QVariant();
     }
-    qreal intercept = valueDouble(FN_INTERCEPT);
-    qreal slope = valueDouble(FN_SLOPE);
+    const qreal intercept = valueDouble(FN_INTERCEPT);
+    const qreal slope = valueDouble(FN_SLOPE);
     LogisticDescriptives ld(intercept, slope);  // coefficients already known
     return ld.x(p);
 }
@@ -544,7 +544,7 @@ QVariant CardinalExpDetThreshold::x75() const
 
 bool CardinalExpDetThreshold::haveWeJustReset() const
 {
-    int last_trial = m_current_trial - 1;
+    const int last_trial = m_current_trial - 1;
     if (last_trial < 0 || last_trial >= m_trials.size()) {
         return false;
     }
@@ -574,7 +574,7 @@ bool CardinalExpDetThreshold::lastTrialWasFirstNo() const
 int CardinalExpDetThreshold::getNBackNonCatchTrialIndex(int n, int start_index) const
 {
     Q_ASSERT(start_index >= 0 && start_index < m_trials.size());
-    int target = m_trials.at(start_index)->trialNumIgnoringCatchTrials() - n;
+    const int target = m_trials.at(start_index)->trialNumIgnoringCatchTrials() - n;
     for (int i = 0; i < m_trials.size(); ++i) {
         const CardinalExpDetThresholdTrialPtr& t = m_trials.at(i);
         if (t->targetPresented() && t->trialNumIgnoringCatchTrials() == target) {
@@ -598,14 +598,14 @@ qreal CardinalExpDetThreshold::getIntensity() const
         return randomRealIncUpper(valueDouble(FN_START_INTENSITY_MIN),
                                   valueDouble(FN_START_INTENSITY_MAX));
     }
-    int one_back = getNBackNonCatchTrialIndex(1, m_current_trial);
+    const int one_back = getNBackNonCatchTrialIndex(1, m_current_trial);
     Q_ASSERT(one_back >= 0);
     const CardinalExpDetThresholdTrialPtr& prev = m_trials.at(one_back);
     if (inInitialStepPhase()) {
         return prev->intensity() - valueDouble(FN_INITIAL_LARGE_INTENSITY_STEP);
     }
     if (lastTrialWasFirstNo()) {
-        int two_back = getNBackNonCatchTrialIndex(2, m_current_trial);
+        const int two_back = getNBackNonCatchTrialIndex(2, m_current_trial);
         Q_ASSERT(two_back >= 0);
         const CardinalExpDetThresholdTrialPtr& tb = m_trials.at(two_back);
         return mean(prev->intensity(), tb->intensity());
@@ -649,7 +649,7 @@ bool CardinalExpDetThreshold::timeToStop() const
     if (m_trial_last_y_b4_first_n < 0) {
         return false;
     }
-    int final_trial_ignoring_catch_trials =
+    const int final_trial_ignoring_catch_trials =
             m_trials[m_trial_last_y_b4_first_n]->trialNumIgnoringCatchTrials()
             + valueInt(FN_NUM_TRIALS_IN_MAIN_SEQUENCE) - 1;
     return m_trials[m_current_trial]->trialNumIgnoringCatchTrials() >=
@@ -737,7 +737,7 @@ LogisticDescriptives CardinalExpDetThreshold::calculateFit() const
 
 void CardinalExpDetThreshold::calculateAndStoreFit()
 {
-    LogisticDescriptives ld = calculateFit();
+    const LogisticDescriptives ld = calculateFit();
     qInfo().nospace() << "Coefficients: b0 (intercept) = " << ld.b0()
                       << ", b1 (slope) = " << ld.b1();
     setValue(FN_INTERCEPT, ld.intercept());
@@ -760,7 +760,7 @@ void CardinalExpDetThreshold::startTask()
     editStarted();  // will have been stopped by the end of the questionnaire?
 
     // Finalize the parameters
-    bool auditory = isAuditory();
+    const bool auditory = isAuditory();
     if (auditory) {
         setValue(FN_BACKGROUND_FILENAME, AUDITORY_BACKGROUND);
         if (valueInt(FN_TARGET_NUMBER) == 0) {
@@ -839,12 +839,12 @@ void CardinalExpDetThreshold::startTrial()
     // Increment trial numbers; determine if it's a catch trial (on which no
     // stimulus is presented); create trial record
     ++m_current_trial;
-    bool want_catch = wantCatchTrial(m_current_trial);
-    bool present_target = !want_catch;
+    const bool want_catch = wantCatchTrial(m_current_trial);
+    const bool present_target = !want_catch;
     if (!want_catch) {
         ++m_current_trial_ignoring_catch_trials;
     }
-    QVariant trial_ignoring_catch_trials = want_catch
+    const QVariant trial_ignoring_catch_trials = want_catch
             ? QVariant()  // NULL
             : m_current_trial_ignoring_catch_trials;
     CardinalExpDetThresholdTrialPtr tr(new CardinalExpDetThresholdTrial(
@@ -858,10 +858,10 @@ void CardinalExpDetThreshold::startTrial()
     qDebug() << tr->summary();
 
     // Display stimulus
-    bool auditory = isAuditory();
+    const bool auditory = isAuditory();
     if (present_target) {
         // Now we've put the new trial in the vector, we can calculate intensity:
-        qreal intensity = qBound(0.0, getIntensity(), 1.0);
+        const qreal intensity = qBound(0.0, getIntensity(), 1.0);
         // ... intensity is in the range [0, 1]
         tr->setIntensity(intensity);
         if (auditory) {

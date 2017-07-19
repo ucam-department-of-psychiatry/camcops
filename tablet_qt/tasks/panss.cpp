@@ -104,11 +104,11 @@ bool Panss::isComplete() const
 
 QStringList Panss::summary() const
 {
-    int p = getP();
-    int n = getN();
-    int g = getG();
-    int composite = p - n;
-    int total = p + g + n;
+    const int p = getP();
+    const int n = getN();
+    const int g = getG();
+    const int composite = p - n;
+    const int total = p + g + n;
     return QStringList{
         scorePhrase(xstring("p"), p, MAX_P),
         scorePhrase(xstring("n"), n, MAX_N),
@@ -133,7 +133,7 @@ QStringList Panss::detail() const
 
 OpenableWidget* Panss::editor(bool read_only)
 {
-    NameValueOptions panss_options{
+    const NameValueOptions panss_options{
         {xstring("option1"), 1},
         {xstring("option2"), 2},
         {xstring("option3"), 3},

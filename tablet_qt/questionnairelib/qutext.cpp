@@ -115,7 +115,7 @@ QPointer<QWidget> QuText::makeWidget(Questionnaire* questionnaire)
         text = m_text;
     }
     m_label = new LabelWordWrapWide(text);
-    int fontsize = questionnaire->fontSizePt(m_fontsize);
+    const int fontsize = questionnaire->fontSizePt(m_fontsize);
     setWidgetFontSize(m_forced_fontsize_pt > 0 ? m_forced_fontsize_pt
                                                : fontsize);
     m_label->setTextFormat(m_text_format);
@@ -160,8 +160,8 @@ void QuText::setWidgetFontSize(int fontsize_pt, bool repolish)
     if (!m_label) {
         return;
     }
-    QString colour = m_warning ? uiconst::WARNING_COLOUR : "";
-    QString css = uifunc::textCSS(fontsize_pt, m_bold, m_italic, colour);
+    const QString colour = m_warning ? uiconst::WARNING_COLOUR : "";
+    const QString css = uifunc::textCSS(fontsize_pt, m_bold, m_italic, colour);
     m_label->setStyleSheet(css);
     if (repolish) {
         repolishWidget();

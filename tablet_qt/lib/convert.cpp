@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define DEBUG_UNIT_CONVERSION
+#define DEBUG_UNIT_CONVERSION
 // #define DEBUG_IMAGE_CONVERSION_TIMES
 
 #include "convert.h"
@@ -38,6 +38,7 @@
 #include "lib/datetime.h"
 #include "lib/uifunc.h"
 #include "lib/stringfunc.h"
+#include "maths/floatingpoint.h"
 #include "maths/mathfunc.h"
 
 namespace convert {
@@ -63,6 +64,7 @@ const ushort UNICODE_CR = CR.unicode();
 const ushort UNICODE_TAB = TAB.unicode();
 const ushort UNICODE_BACKSLASH = BACKSLASH.unicode();
 const ushort UNICODE_SPACE = SPACE.unicode();
+const ushort UNICODE_ZERO = ZERO.unicode();
 
 
 // ============================================================================
@@ -97,9 +99,9 @@ QString unescapeNewlines(const QString& escaped)
     }
     QString result;
     bool in_escape = false;
-    int n = escaped.length();
+    const int n = escaped.length();
     for (int i = 0; i < n; ++i) {
-        QChar c = escaped.at(i);
+        const QChar c = escaped.at(i);
         if (in_escape) {
             // Can't use switch statement with a QChar
             if (c == 'r') {
@@ -111,7 +113,7 @@ QString unescapeNewlines(const QString& escaped)
             }
             in_escape = false;
         } else {
-            if (c == SQUOTE) {
+            if (c == BACKSLASH) {
                 in_escape = true;
             } else {
                 result += c;
@@ -137,7 +139,7 @@ QString sqlDequoteString(const QString& quoted)
     // Out: my name's Bob
 
     // Strip off outside quotes:
-    int n = quoted.length();
+    const int n = quoted.length();
     if (n < 2 || quoted.at(0) != SQUOTE || quoted.at(n - 1) != SQUOTE) {
         // Wrong format
         return QString();
@@ -159,12 +161,12 @@ QString blobToQuotedBase64(const QByteArray& blob)
 QByteArray quotedBase64ToBlob(const QString& quoted)
 {
     // Reverses blobToQuotedBase64()
-    int n = quoted.length();
+    const int n = quoted.length();
     if (n < 4 || !quoted.startsWith("64'") || !quoted.endsWith(SQUOTE)) {
         // Wrong format
         return QByteArray();
     }
-    QString b64data = quoted.mid(3, n - 4);
+    const QString b64data = quoted.mid(3, n - 4);
     return QByteArray::fromBase64(b64data.toLocal8Bit());
 }
 
@@ -186,12 +188,12 @@ QString blobToQuotedHex(const QByteArray& blob)
 QByteArray quotedHexToBlob(const QString& hex)
 {
     // Reverses blobToQuotedHex()
-    int n = hex.length();
+    const int n = hex.length();
     if (n < 3 || !hex.startsWith("X'") || !hex.endsWith(SQUOTE)) {
         // Wrong format
         return QByteArray();
     }
-    QString hexdata = hex.mid(2, n - 3);
+    const QString hexdata = hex.mid(2, n - 3);
     return QByteArray::fromHex(hexdata.toLocal8Bit());
 }
 
@@ -201,7 +203,7 @@ QString toSqlLiteral(const QVariant& value)
     if (value.isNull()) {
         return NULL_STR;
     }
-    QVariant::Type variant_type = value.type();
+    const QVariant::Type variant_type = value.type();
     switch (variant_type) {
     // Integer types
     case QVariant::Int:
@@ -272,7 +274,7 @@ QVariant fromSqlLiteral(const QString& literal)
         return QVariant();
     }
 
-    int n = literal.length();
+    const int n = literal.length();
 
     if (n >= 4 && literal.startsWith("64'") && literal.endsWith(SQUOTE)) {
         // Base 64-encoded BLOB
@@ -307,7 +309,7 @@ QVector<QVariant> csvSqlLiteralsToValues(const QString& csv)
     // In: 34, NULL, 'a string''s test, with commas', X'0FB2AA', 64'c3VyZS4='
     // Out: split by commas, dealing with quotes appropriately
     QVector<QVariant> values;
-    int n = csv.length();
+    const int n = csv.length();
     bool in_quotes = false;
     int startpos = 0;
     int pos = 0;
@@ -316,7 +318,7 @@ QVector<QVariant> csvSqlLiteralsToValues(const QString& csv)
         if (!in_quotes) {
             if (at_pos == COMMA) {
                 // end of chunk
-                QString chunk = csv.mid(startpos, pos - startpos).trimmed();
+                const QString chunk = csv.mid(startpos, pos - startpos).trimmed();
                 // ... will not include csv[pos]
                 startpos = pos + 1;  // one beyond the comma
 
@@ -346,7 +348,7 @@ QVector<QVariant> csvSqlLiteralsToValues(const QString& csv)
         pos += 1;
     }
     // Last chunk
-    QString chunk = csv.mid(startpos, n - startpos).trimmed();
+    const QString chunk = csv.mid(startpos, n - startpos).trimmed();
     // ------------------------------------------------------------------------
     // More SQL literal processing here
     // ------------------------------------------------------------------------
@@ -371,14 +373,17 @@ QString valuesToCsvSqlLiterals(const QVector<QVariant>& values)
 
 const int BASE_OCTAL = 8;
 const int OCTAL_NUM_DIGITS = 3;
+const int BASE_HEX = 16;
+const int HEX_NUM_DIGITS = 2;
 
+#define ENCODE_LOW_VALUES_AS_HEX
 
 QString stringToUnquotedCppLiteral(const QString& raw)
 {
     // https://stackoverflow.com/questions/10220401
     QString escaped;
     for (QChar c : raw) {
-        ushort u = c.unicode();
+        const ushort u = c.unicode();
         if (u == UNICODE_NL) {
             escaped += R"(\n)";
         } else if (u == UNICODE_CR) {
@@ -390,10 +395,17 @@ QString stringToUnquotedCppLiteral(const QString& raw)
         } else if (u == UNICODE_DQUOTE) {
             escaped += R"(\")";
         } else if (u < UNICODE_SPACE) {
-            QString octal = QString("\\%1").arg(u, OCTAL_NUM_DIGITS,
-                                                BASE_OCTAL, ZERO);
+#ifdef ENCODE_LOW_VALUES_AS_HEX
+            const QString hex = QString("\\x%1").arg(u, HEX_NUM_DIGITS,
+                                                     BASE_HEX, ZERO);
+            // ... number, fieldwidth (+ right align, - left align), base, fillchar
+            escaped += hex;
+#else
+            const QString octal = QString("\\%1").arg(u, OCTAL_NUM_DIGITS,
+                                                      BASE_OCTAL, ZERO);
             // ... number, fieldwidth (+ right align, - left align), base, fillchar
             escaped += octal;
+#endif
         } else {
             escaped += c;
         }
@@ -415,15 +427,18 @@ QString unquotedCppLiteralToString(const QString& escaped)
     QString escape_digits;
     bool in_escape = false;
     bool in_octal = false;
+    bool in_hex = false;
     for (QChar c : escaped) {
         ushort u = c.unicode();
         if (in_escape) {
+            // Currently in escape sequence:
+
             if (in_octal) {
                 bool ok = c.isDigit();
                 if (ok) {
                     escape_digits.append(c);
+                    // Octal numbers have a fixed number of digits.
                     if (escape_digits.length() >= OCTAL_NUM_DIGITS) {
-                        bool ok;
                         ushort code = escape_digits.toInt(&ok, BASE_OCTAL);
                         if (ok) {
                             // our octal code has finished
@@ -437,23 +452,52 @@ QString unquotedCppLiteralToString(const QString& escaped)
                     in_escape = false;
                 }
                 // otherwise, in_escape remains true
-            } else if (u == UNICODE_BACKSLASH) {
+            } else if (in_hex) {
+                bool ok = c.isDigit() || (c.toUpper() >= 'A' && c.toUpper() <= 'F');
+                if (ok) {
+                    escape_digits += c;
+                    if (escape_digits.length() >= HEX_NUM_DIGITS) {
+                        ushort code = escape_digits.toInt(&ok, BASE_HEX);
+                        if (ok) {
+                            raw += QChar(code);
+                            in_escape = false;
+                        }
+                    }
+                }
+            } else if (c.isDigit()) {
+                // An octal escape sequence is \nnn
                 in_octal = true;
+                escape_digits = c;
                 // in_escape remains true
+            } else if (c == 'x') {
+                // A hex sequence is \xnn
+                in_hex = true;
+                escape_digits = "";
             } else {
-                if (c == 'r') {
-                    raw += CR;
-                } else if (c == 'n') {
+                // All the following are two-character escape sequences
+                if (c == 'n') {
                     raw += NL;
+                } else if (c == 'r') {
+                    raw += CR;
+                } else if (c == 't') {
+                    raw += TAB;
+                } else if (c == BACKSLASH) {
+                    raw += BACKSLASH;
+                } else if (c == DQUOTE) {
+                    raw += DQUOTE;
                 } else {
                     qWarning() << Q_FUNC_INFO << "Unknown escape code:" << c;
                 }
                 in_escape = false;
             }
+
         } else {
+            // Not currently in escape sequence:
+
             if (u == UNICODE_BACKSLASH) {
                 in_escape = true;
                 in_octal = false;
+                in_hex = false;
                 escape_digits = "";
             } else {
                 raw += c;
@@ -467,7 +511,7 @@ QString unquotedCppLiteralToString(const QString& escaped)
 QString cppLiteralToString(const QString& escaped)
 {
     // reverses stringToCppLiteral()
-    int len = escaped.length();
+    const int len = escaped.length();
     if (len >= 2 && escaped.at(0) == DQUOTE && escaped.at(len - 1) == DQUOTE) {
         // quoted string
         return unquotedCppLiteralToString(escaped.mid(1, len - 2));
@@ -526,7 +570,7 @@ QImage byteArrayToImage(const QByteArray& array, bool* successful,
 #ifdef DEBUG_IMAGE_CONVERSION_TIMES
     qDebug() << "byteArrayToImage(): starting...";
 #endif
-    bool success = image.loadFromData(array, format);
+    const bool success = image.loadFromData(array, format);
     // When format is not specified, QImage tries to work it out from the data.
 #ifdef DEBUG_IMAGE_CONVERSION_TIMES
     qDebug().nospace().noquote() << "byteArrayToImage(): ... done ("
@@ -654,13 +698,13 @@ QString prettySize(double num, bool space, bool binary, bool longform,
     const QStringList& prefixes = binary
             ? (longform ? PREFIXES_LONG_BINARY : PREFIXES_SHORT_BINARY)
             : (longform ? PREFIXES_LONG_DECIMAL : PREFIXES_SHORT_DECIMAL);
-    QString optional_space = space ? " " : "";
-    double base = binary ? 1024 : 1000;
+    const QString optional_space = space ? " " : "";
+    const double base = binary ? 1024 : 1000;
     int exponent = (int)(qLn(num) / qLn(base));
     exponent = qBound(0, exponent, prefixes.length() - 1);
-    QString prefix = prefixes.at(exponent);
-    double converted_num = num / pow(base, exponent);
-    int precision = (exponent == 0) ? 0 : 1;  // decimals, for 'f'
+    const QString prefix = prefixes.at(exponent);
+    const double converted_num = num / pow(base, exponent);
+    const int precision = (exponent == 0) ? 0 : 1;  // decimals, for 'f'
     return QString("%1%2%3%4")
             .arg(converted_num, 0, 'f', precision)
             .arg(optional_space,
@@ -684,7 +728,7 @@ QString prettyPointer(const void* pointer)
 QMap<QString, QString> getReplyDict(const QByteArray& data)
 {
     // For server replies looking like key1:value1\nkey2:value2 ...
-    QList<QByteArray> lines = data.split('\n');
+    const QList<QByteArray> lines = data.split('\n');
     QMap<QString, QString> dict;
     for (const QByteArray& line : lines) {
         QRegularExpressionMatch match = RECORD_RE.match(line);
@@ -793,7 +837,7 @@ QVariant toQCharVariant(const QVariant& v)
     if (v.isNull() || !v.isValid()) {
         return QVariant();
     }
-    QString str = v.toString();
+    const QString str = v.toString();
     if (str.isEmpty()) {
         return QVariant();
     }
@@ -821,7 +865,7 @@ QVector<int> csvStringToIntVector(const QString& str)
     if (str.isEmpty()) {
         return vec;
     }
-    QStringList strings = str.split(COMMA);
+    const QStringList strings = str.split(COMMA);
     for (const QString& s : strings) {
         vec.append(s.toInt());
     }
@@ -846,7 +890,7 @@ QStringList csvStringToQStringList(const QString& str)
     bool in_quote = false;
     bool in_escape = false;
     for (QChar c : str) {
-        ushort u = c.unicode();
+        const ushort u = c.unicode();
         if (in_escape) {
             // We don't have to be concerned with sophisticated escaping.
             // We just want to make sure that \" isn't treated like it's an
@@ -921,8 +965,8 @@ QVector<int> qVariantToIntVector(const QVariant& v)
 
 QString stringListToJson(const QStringList& list, bool compact)
 {
-    QJsonArray ja(QJsonArray::fromStringList(list));
-    QJsonDocument jd(ja);
+    const QJsonArray ja(QJsonArray::fromStringList(list));
+    const QJsonDocument jd(ja);
     return jd.toJson(compact ? QJsonDocument::Compact
                              : QJsonDocument::Indented);
 }
@@ -936,20 +980,27 @@ QString stringListToJson(const QStringList& list, bool compact)
 #define UNIT_CONVERSION "Unit conversion: "
 #endif
 
-const double CM_PER_INCH = 2.54;
-const double CM_PER_M = 100;
-const double INCHES_PER_FOOT = 12;
+const double CM_PER_INCH = 2.54;  // exactly
+const int CM_PER_M = 100;
+const int INCHES_PER_FOOT = 12;
 
-const double POUNDS_PER_STONE = 14;
-const double OUNCES_PER_POUND = 16;
-const double GRAMS_PER_KG = 1000;
-const double GRAMS_PER_POUND = 453.592;
-const double POUNDS_PER_KG = 2.20462;
+const int POUNDS_PER_STONE = 14;
+const int OUNCES_PER_POUND = 16;
+const int GRAMS_PER_KG = 1000;
+// International pounds:
+// - https://en.wikipedia.org/wiki/Pound_(mass)#Relationship_to_the_kilogram
+const double GRAMS_PER_POUND = 453.59237;  // Weights and Measures Act 1963
+const double KG_PER_POUND = GRAMS_PER_POUND / GRAMS_PER_KG;
+const double GRAMS_PER_STONE = GRAMS_PER_POUND * POUNDS_PER_STONE;
+const double KG_PER_STONE = GRAMS_PER_STONE / GRAMS_PER_KG;
+const double GRAMS_PER_OUNCE = GRAMS_PER_POUND / OUNCES_PER_POUND;
+const double KG_PER_OUNCE = GRAMS_PER_OUNCE / GRAMS_PER_KG;
+const double POUNDS_PER_KG = GRAMS_PER_KG / GRAMS_PER_POUND;
 
 
 double metresFromFeetInches(double feet, double inches)
 {
-    double metres = (feet * INCHES_PER_FOOT + inches) * CM_PER_INCH / CM_PER_M;
+    const double metres = (feet * INCHES_PER_FOOT + inches) * CM_PER_INCH / CM_PER_M;
 #ifdef DEBUG_UNIT_CONVERSION
     qDebug() << UNIT_CONVERSION
              << feet << "ft" << inches << "in ->" << metres << "m";
@@ -960,7 +1011,7 @@ double metresFromFeetInches(double feet, double inches)
 
 void feetInchesFromMetres(double metres, int& feet, double& inches)
 {
-    double total_inches = metres * CM_PER_M / CM_PER_INCH;
+    const double total_inches = metres * CM_PER_M / CM_PER_INCH;
     feet = mathfunc::trunc(total_inches / INCHES_PER_FOOT);
     inches = std::fmod(total_inches, INCHES_PER_FOOT);
 #ifdef DEBUG_UNIT_CONVERSION
@@ -973,9 +1024,12 @@ void feetInchesFromMetres(double metres, int& feet, double& inches)
 double kilogramsFromStonesPoundsOunces(double stones, double pounds,
                                        double ounces)
 {
-    double kg = (stones * POUNDS_PER_STONE +
-                 pounds +
-                 ounces / OUNCES_PER_POUND) * GRAMS_PER_POUND / GRAMS_PER_KG;
+    const QVector<double> kg_parts{
+        stones * KG_PER_STONE,
+        pounds * KG_PER_POUND,
+        ounces * KG_PER_OUNCE,
+    };
+    const double kg = mathfunc::kahanSum(kg_parts);
 #ifdef DEBUG_UNIT_CONVERSION
     qDebug() << UNIT_CONVERSION
              << stones << "st" << pounds << "lb" << ounces << "oz ->"
@@ -988,7 +1042,7 @@ double kilogramsFromStonesPoundsOunces(double stones, double pounds,
 void stonesPoundsFromKilograms(double kilograms,
                                int& stones, double& pounds)
 {
-    double total_pounds = kilograms * POUNDS_PER_KG;
+    const double total_pounds = kilograms * POUNDS_PER_KG;
     stones = mathfunc::trunc(total_pounds / POUNDS_PER_STONE);
     pounds = std::fmod(total_pounds, POUNDS_PER_STONE);
 #ifdef DEBUG_UNIT_CONVERSION
@@ -1001,11 +1055,11 @@ void stonesPoundsFromKilograms(double kilograms,
 void stonesPoundsOuncesFromKilograms(double kilograms,
                                      int& stones, int& pounds, double& ounces)
 {
-    double total_pounds = kilograms * POUNDS_PER_KG;
+    const double total_pounds = kilograms * POUNDS_PER_KG;
     stones = mathfunc::trunc(total_pounds / POUNDS_PER_STONE);
-    double float_pounds = std::fmod(total_pounds, POUNDS_PER_STONE);
+    const double float_pounds = std::fmod(total_pounds, POUNDS_PER_STONE);
     pounds = mathfunc::trunc(float_pounds);
-    ounces = std::fmod(float_pounds, 1);
+    ounces = (float_pounds - pounds) * OUNCES_PER_POUND;
 #ifdef DEBUG_UNIT_CONVERSION
     qDebug() << UNIT_CONVERSION << kilograms << "kg ->"
              << stones << "st" << pounds << "lb" << ounces << "oz";
@@ -1023,14 +1077,71 @@ int msFromSec(qreal seconds)
 // Tests
 // ============================================================================
 
+// Specialization for double.
+// Template specializations are declared in .h files but defined in .cpp files.
+// https://stackoverflow.com/questions/4445654
+
+template<>
+void assert_eq(const double& a, const double& b)
+{
+    FloatingPoint<double> fa(a);
+    FloatingPoint<double> fb(b);
+    if (fa.AlmostEquals(fb)) {
+        qDebug() << "Conversion success:" << a << "==" << b;
+    } else {
+        qCritical() << "Conversion failure:" << a << "!=" << b;
+        Q_ASSERT(false);
+        qFatal("Stopping");
+    }
+}
+
+
 void testConversions()
 {
     qDebug() << "Testing conversions...";
 
-    QStringList stringlist{"a", "b", "c1\nc2"};
-    QString stringlist_to_str(R"("a","b","c1\nc2")");
+    const QStringList stringlist{"a", "b", "c1\nc2"};
+    const QString stringlist_to_str(R"("a","b","c1\nc2")");
+    QString test_string;
+    for (int i = 0; i < 1000; ++i) {
+        QChar c(i);
+        test_string += c;
+    }
+    const QVariant test_string_var(test_string);
+    const QByteArray blob(test_string.toUtf8());
+    const QVector<QVariant> varvec{test_string_var, QVariant(), QVariant(5),
+                             QVariant(7.26)};
+    const double kilograms = 35;
+    const double metres = 1.82;
+
+    assert_eq(test_string, unescapeNewlines(escapeNewlines(test_string)));
+
+    assert_eq(test_string, sqlDequoteString(sqlQuoteString(test_string)));
+
+    assert_eq(blob, quotedBase64ToBlob(blobToQuotedBase64(blob)));
+    assert_eq(blob, quotedHexToBlob(blobToQuotedHex(blob)));
+
+    assert_eq(test_string_var, fromSqlLiteral(toSqlLiteral(test_string_var)));
+    assert_eq(varvec, csvSqlLiteralsToValues(valuesToCsvSqlLiterals(varvec)));
+
+    assert_eq(test_string, cppLiteralToString(stringToCppLiteral(test_string)));
+
     assert_eq(qStringListToCsvString(stringlist), stringlist_to_str);
     assert_eq(csvStringToQStringList(stringlist_to_str), stringlist);
+
+    int feet = 0;
+    double inches = 0;
+    feetInchesFromMetres(metres, feet, inches);
+    assert_eq(metres, metresFromFeetInches(feet, inches));
+
+    int stones = 0;
+    double double_pounds = 0;  // for st, lb
+    int int_pounds = 0;  // for st, lb, oz
+    double ounces = 0;
+    stonesPoundsFromKilograms(kilograms, stones, double_pounds);
+    assert_eq(kilograms, kilogramsFromStonesPoundsOunces(stones, double_pounds));
+    stonesPoundsOuncesFromKilograms(kilograms, stones, int_pounds, ounces);
+    assert_eq(kilograms, kilogramsFromStonesPoundsOunces(stones, int_pounds, ounces));
 
     qDebug() << "... all conversions correct.";
 }

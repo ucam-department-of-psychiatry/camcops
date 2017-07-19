@@ -547,13 +547,14 @@ def create_standard_ancillary_table(
 
 def create_simple_current_view(table: str) -> None:
     """Create a current view for a table."""
-    sql = """
-        CREATE OR REPLACE VIEW {0}_current AS
-        SELECT *
-        FROM {0}
-        WHERE _current
-    """.format(table)
-    pls.db.db_exec_literal(sql)
+    pass
+    # sql = """
+    #     CREATE OR REPLACE VIEW {0}_current AS
+    #     SELECT *
+    #     FROM {0}
+    #     WHERE _current
+    # """.format(table)
+    # pls.db.db_exec_literal(sql)
 
 
 def create_task_current_view(tasktable: str) -> None:
@@ -562,65 +563,68 @@ def create_task_current_view(tasktable: str) -> None:
 
     Only to be used for non-anonymous tasks.
     """
+    pass
 
-    # Simple view
-    sql = """
-        CREATE OR REPLACE VIEW {0}_current AS
-        SELECT {0}.*, patient._pk AS _patient_server_pk
-        FROM {0}
-        INNER JOIN patient
-            ON {0}.patient_id = patient.id
-            AND {0}._device_id = patient._device_id
-            AND {0}._era = patient._era
-        WHERE
-            {0}._current
-            AND patient._current
-    """.format(tasktable)
-    pls.db.db_exec_literal(sql)
-
-    # View joined to patient info
-    sql = """
-        CREATE OR REPLACE VIEW {0}_current_withpt AS
-        SELECT
-            {0}_current.*
-            , patient_current.forename AS patient_forename
-            , patient_current.surname AS patient_surname
-            , patient_current.dob AS patient_dob
-            , patient_current.sex AS patient_sex
-    """.format(tasktable)
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
-        sql += """
-            , patient_current.idnum{0} AS patient_idnum{0}
-        """.format(n)
-    sql += """
-            , patient_current.address AS patient_address
-            , patient_current.gp AS patient_gp
-            , patient_current.other AS patient_other
-        FROM {0}_current
-        INNER JOIN patient_current
-            ON {0}_current._patient_server_pk = patient_current._pk
-    """.format(tasktable)
-    pls.db.db_exec_literal(sql)
-    # MySQL can't add comments to view columns.
+    # # Simple view
+    # sql = """
+    #     CREATE OR REPLACE VIEW {0}_current AS
+    #     SELECT {0}.*, patient._pk AS _patient_server_pk
+    #     FROM {0}
+    #     INNER JOIN patient
+    #         ON {0}.patient_id = patient.id
+    #         AND {0}._device_id = patient._device_id
+    #         AND {0}._era = patient._era
+    #     WHERE
+    #         {0}._current
+    #         AND patient._current
+    # """.format(tasktable)
+    # pls.db.db_exec_literal(sql)
+    #
+    # # View joined to patient info
+    # sql = """
+    #     CREATE OR REPLACE VIEW {0}_current_withpt AS
+    #     SELECT
+    #         {0}_current.*
+    #         , patient_current.forename AS patient_forename
+    #         , patient_current.surname AS patient_surname
+    #         , patient_current.dob AS patient_dob
+    #         , patient_current.sex AS patient_sex
+    # """.format(tasktable)
+    # for n in range(1, NUMBER_OF_IDNUMS + 1):
+    #     sql += """
+    #         , patient_current.idnum{0} AS patient_idnum{0}
+    #     """.format(n)
+    # sql += """
+    #         , patient_current.address AS patient_address
+    #         , patient_current.gp AS patient_gp
+    #         , patient_current.other AS patient_other
+    #     FROM {0}_current
+    #     INNER JOIN patient_current
+    #         ON {0}_current._patient_server_pk = patient_current._pk
+    # """.format(tasktable)
+    # pls.db.db_exec_literal(sql)
+    # # MySQL can't add comments to view columns.
 
 
 def create_ancillary_current_view(ancillarytable: str,
                                   ancillaryfk: str,
                                   tasktable: str) -> None:
     """Create an ancillary view that links to its task's table."""
-    sql = """
-        CREATE OR REPLACE VIEW {1}_current AS
-        SELECT {1}.*, {0}._pk AS _task_server_pk
-        FROM {1}
-        INNER JOIN {0}
-            ON {1}.{2} = {0}.id
-            AND {1}._device_id = {0}._device_id
-            AND {1}._era = {0}._era
-        WHERE
-            {1}._current
-            AND {0}._current
-    """.format(tasktable, ancillarytable, ancillaryfk)
-    pls.db.db_exec_literal(sql)
+    pass
+
+    # sql = """
+    #     CREATE OR REPLACE VIEW {1}_current AS
+    #     SELECT {1}.*, {0}._pk AS _task_server_pk
+    #     FROM {1}
+    #     INNER JOIN {0}
+    #         ON {1}.{2} = {0}.id
+    #         AND {1}._device_id = {0}._device_id
+    #         AND {1}._era = {0}._era
+    #     WHERE
+    #         {1}._current
+    #         AND {0}._current
+    # """.format(tasktable, ancillarytable, ancillaryfk)
+    # pls.db.db_exec_literal(sql)
 
 
 def create_summary_table_current_view_withpt(
@@ -632,43 +636,45 @@ def create_summary_table_current_view_withpt(
 
     Only to be used for non-anonymous tasks.
     """
-    # Current view with patient ID
-    sql = """
-        CREATE OR REPLACE VIEW {0}_current AS
-        SELECT {0}.*, patient._pk AS _patient_server_pk
-        FROM {0}
-        INNER JOIN {1}
-            ON {0}.{2} = {1}._pk
-        INNER JOIN patient
-            ON {1}.patient_id = patient.id
-            AND {1}._device_id = patient._device_id
-            AND {1}._era = patient._era
-        WHERE
-            {1}._current
-            AND patient._current
-    """.format(summarytable, basetable, summarytable_fkfieldname)
-    pls.db.db_exec_literal(sql)
+    pass
 
-    # Current view with patient info
-    sql = """
-        CREATE OR REPLACE VIEW {0}_current_withpt AS
-        SELECT
-            {0}_current.*
-            , patient_current.forename AS patient_forename
-            , patient_current.surname AS patient_surname
-            , patient_current.dob AS patient_dob
-            , patient_current.sex AS patient_sex
-    """.format(summarytable)
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
-        sql += """
-            , patient_current.idnum{0} AS patient_idnum{0}
-        """.format(n)
-    sql += """
-            , patient_current.address AS patient_address
-            , patient_current.gp AS patient_gp
-            , patient_current.other AS patient_other
-        FROM {0}_current
-        INNER JOIN patient_current
-            ON {0}_current._patient_server_pk = patient_current._pk
-    """.format(summarytable)
-    pls.db.db_exec_literal(sql)
+    # # Current view with patient ID
+    # sql = """
+    #     CREATE OR REPLACE VIEW {0}_current AS
+    #     SELECT {0}.*, patient._pk AS _patient_server_pk
+    #     FROM {0}
+    #     INNER JOIN {1}
+    #         ON {0}.{2} = {1}._pk
+    #     INNER JOIN patient
+    #         ON {1}.patient_id = patient.id
+    #         AND {1}._device_id = patient._device_id
+    #         AND {1}._era = patient._era
+    #     WHERE
+    #         {1}._current
+    #         AND patient._current
+    # """.format(summarytable, basetable, summarytable_fkfieldname)
+    # pls.db.db_exec_literal(sql)
+    #
+    # # Current view with patient info
+    # sql = """
+    #     CREATE OR REPLACE VIEW {0}_current_withpt AS
+    #     SELECT
+    #         {0}_current.*
+    #         , patient_current.forename AS patient_forename
+    #         , patient_current.surname AS patient_surname
+    #         , patient_current.dob AS patient_dob
+    #         , patient_current.sex AS patient_sex
+    # """.format(summarytable)
+    # for n in range(1, NUMBER_OF_IDNUMS + 1):
+    #     sql += """
+    #         , patient_current.idnum{0} AS patient_idnum{0}
+    #     """.format(n)
+    # sql += """
+    #         , patient_current.address AS patient_address
+    #         , patient_current.gp AS patient_gp
+    #         , patient_current.other AS patient_other
+    #     FROM {0}_current
+    #     INNER JOIN patient_current
+    #         ON {0}_current._patient_server_pk = patient_current._pk
+    # """.format(summarytable)
+    # pls.db.db_exec_literal(sql)

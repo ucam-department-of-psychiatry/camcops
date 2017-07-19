@@ -162,9 +162,9 @@ void setResponseWidgets(const NameValueOptions& options,
         qWarning() << Q_FUNC_INFO << "Bad fieldref!";
         return;
     }
-    QVariant value = fieldref->value();
-    bool null = value.isNull();
-    int index = options.indexFromValue(value);
+    const QVariant value = fieldref->value();
+    const bool null = value.isNull();
+    const int index = options.indexFromValue(value);
     if (!null && index == -1) {
         qWarning().nospace()
                 << Q_FUNC_INFO << " - unknown value " << value
@@ -197,7 +197,7 @@ void toggleBooleanField(FieldRef* fieldref, bool allow_unset)
         qWarning() << Q_FUNC_INFO << "bad pointer! Ignored";
         return;
     }
-    QVariant value = fieldref->value();
+    const QVariant value = fieldref->value();
     QVariant newvalue;
     if (value.isNull()) {  // NULL -> true
         newvalue = true;

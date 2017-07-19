@@ -110,8 +110,8 @@ QStringList Honosca::summary() const
 
 QStringList Honosca::detail() const
 {
-    int section_a = scoreSum(1, 13);
-    int section_b = scoreSum(14, 15);
+    const int section_a = scoreSum(1, 13);
+    const int section_b = scoreSum(14, 15);
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
@@ -131,7 +131,7 @@ OpenableWidget* Honosca::editor(bool read_only)
     auto getoptions = [this](int n) -> NameValueOptions {
         NameValueOptions options;
         for (int i = 0; i <= 4; ++i) {
-            QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
+            const QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
             options.append(NameValuePair(name, i));
         }
         options.append(NameValuePair(xstring("option9"), 9));
@@ -140,10 +140,10 @@ OpenableWidget* Honosca::editor(bool read_only)
 
     auto addpage = [this, &pages, &getoptions]
                    (int n, const QString& titleprefix) -> void {
-        NameValueOptions options = getoptions(n);
-        QString pagetitle = titleprefix + QString::number(n);
-        QString question = xstring(strnum("q", n));
-        QString fieldname = strnum(QPREFIX, n);
+        const NameValueOptions options = getoptions(n);
+        const QString pagetitle = titleprefix + QString::number(n);
+        const QString question = xstring(strnum("q", n));
+        const QString fieldname = strnum(QPREFIX, n);
         QVector<QuElement*> elements{
             new QuText(question),
             new QuMcq(fieldRef(fieldname), options),
@@ -195,7 +195,7 @@ int Honosca::scoreSum(int first, int last) const
 {
     int total = 0;
     for (int i = first; i <= last; ++i) {
-        int v = valueInt(strnum(QPREFIX, i));
+        const int v = valueInt(strnum(QPREFIX, i));
         if (v != 9) {  // 9 is "not known"
             total += v;
         }

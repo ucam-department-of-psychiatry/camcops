@@ -95,7 +95,7 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
         m_options.shuffle();
     }
 
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
 
     // Actual MCQ: widget containing {widget +/- label} for each option
     QPointer<QWidget> mainwidget = new BaseWidget();
@@ -141,9 +141,9 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
             ClickableLabelWordWrapWide* namelabel =
                     new ClickableLabelWordWrapWide(nvp.name());
             namelabel->setEnabled(!read_only);
-            int fontsize = questionnaire->fontSizePt(uiconst::FontSize::Normal);
-            bool italic = false;
-            QString css = uifunc::textCSS(fontsize, m_bold, italic);
+            const int fontsize = questionnaire->fontSizePt(uiconst::FontSize::Normal);
+            const bool italic = false;
+            const QString css = uifunc::textCSS(fontsize, m_bold, italic);
             namelabel->setStyleSheet(css);
 
             if (!read_only) {
@@ -195,8 +195,8 @@ void QuMcq::clicked(int index)
         qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
-    QVariant newvalue = m_options.value(index);
-    bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const QVariant newvalue = m_options.value(index);
+    const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }

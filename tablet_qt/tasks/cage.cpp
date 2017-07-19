@@ -100,7 +100,7 @@ QStringList Cage::summary() const
 
 QStringList Cage::detail() const
 {
-    int total = totalScore();
+    const int total = totalScore();
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
@@ -117,8 +117,8 @@ OpenableWidget* Cage::editor(bool read_only)
     NameValueOptions options = CommonOptions::yesNoChar();
     QVector<QuestionWithOneField> qfields;
     for (int n = FIRST_Q; n <= N_QUESTIONS; ++n) {
-        QString question = xstring(strnum("q", n));
-        QString fieldname = strnum(QPREFIX, n);
+        const QString question = xstring(strnum("q", n));
+        const QString fieldname = strnum(QPREFIX, n);
         qfields.append(QuestionWithOneField(question, fieldRef(fieldname)));
     }
     QuPagePtr page((new QuPage{

@@ -143,10 +143,10 @@ bool LabelWordWrapWide::hasHeightForWidth() const
 int LabelWordWrapWide::heightForWidth(int width) const
 {
 #ifdef ADD_EXTRA_FOR_LAYOUT_OR_CSS
-    QSize extra = extraSizeForCssOrLayout();
-    int text_width = width - extra.width();
-    int text_height = qlabelHeightForWidth(text_width);
-    int height = text_height + extra.height();
+    const QSize extra = extraSizeForCssOrLayout();
+    const int text_width = width - extra.width();
+    const int text_height = qlabelHeightForWidth(text_width);
+    const int height = text_height + extra.height();
 #ifdef DEBUG_CALCULATIONS
     qDebug().nospace()
             << Q_FUNC_INFO
@@ -157,7 +157,7 @@ int LabelWordWrapWide::heightForWidth(int width) const
 #endif
     return height;
 #else
-    int height = qlabelHeightForWidth(width);
+    const int height = qlabelHeightForWidth(width);
 #ifdef DEBUG_CALCULATIONS
     qDebug().nospace()
             << Q_FUNC_INFO
@@ -180,7 +180,7 @@ int LabelWordWrapWide::qlabelHeightForWidth(int width) const
     }
 #endif
 
-    int height = qMax(QLabel::heightForWidth(width), 0);
+    const int height = qMax(QLabel::heightForWidth(width), 0);
     // QLabel::heightForWidth(w) can give -1 with no text present
 
     // THERE MAY BE ANOTHER BUG in QLabel::heightForWidth, in that it may
@@ -231,8 +231,8 @@ void LabelWordWrapWide::forceHeight()
     setMaximumHeight(QWIDGETSIZE_MAX);
     // ... before defining minimum height:
 
-    int w = width();  // will give the label TEXT width, I think
-    int h = heightForWidth(w);
+    const int w = width();  // will give the label TEXT width, I think
+    const int h = heightForWidth(w);
 
     // The heightForWidth() function, in qlabel.cpp,
     // works out (for a text label) a size, using sizeForWidth(),
@@ -242,9 +242,9 @@ void LabelWordWrapWide::forceHeight()
 
 #ifdef ADD_EXTRA_FOR_LAYOUT_OR_CSS
 
-    QSize size_with_css = QSize(w, h) + extraSizeForCssOrLayout();
-    // int final_height = h;
-    int final_height = size_with_css.height();
+    const QSize size_with_css = QSize(w, h) + extraSizeForCssOrLayout();
+    // const int final_height = h;
+    const int final_height = size_with_css.height();
 #ifdef DEBUG_CALCULATIONS
     qDebug() << Q_FUNC_INFO << "w" << w << "h" << h
              << "size_with_css" << size_with_css
@@ -254,7 +254,7 @@ void LabelWordWrapWide::forceHeight()
 
 #else
 
-    int final_height = h;
+    const int final_height = h;
 #ifdef DEBUG_CALCULATIONS
     qDebug() << Q_FUNC_INFO << "w" << w << "h" << h
              << "... text:" << text();
@@ -262,7 +262,7 @@ void LabelWordWrapWide::forceHeight()
 
 #endif
 
-    bool change = !sizehelpers::fixedHeightEquals(this, final_height);
+    const bool change = !sizehelpers::fixedHeightEquals(this, final_height);
     if (change) {
         setFixedHeight(final_height);
         updateGeometry();
@@ -314,9 +314,9 @@ QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
     // - http://doc.qt.io/qt-5.7/qfontmetrics.html#width
     // - http://doc.qt.io/qt-5.7/qfontmetrics.html#boundingRect
     // - http://stackoverflow.com/questions/37671839/how-to-use-qfontmetrics-boundingrect-to-measure-size-of-multilne-message
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics fm = fontMetrics();
     // don't use fm.width(text()), that's something else (see Qt docs)
-    QString t = text();
+    const QString t = text();
 
     QRect br = fm.boundingRect(QRect(0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX),
                                0,  // definitely not Qt::TextWordWrap
@@ -443,8 +443,8 @@ QSize LabelWordWrapWide::sizeHint() const
 
 QSize LabelWordWrapWide::minimumSizeHint() const
 {
-    QSize w_smallest_word_h_unclear = QLabel::minimumSizeHint();
-    QSize unwrapped_size = sizeOfTextWithoutWrap();
+    const QSize w_smallest_word_h_unclear = QLabel::minimumSizeHint();
+    const QSize unwrapped_size = sizeOfTextWithoutWrap();
     QSize smallest_word = QSize(w_smallest_word_h_unclear.width(),
                                 unwrapped_size.height());
 #ifdef ADD_EXTRA_FOR_LAYOUT_OR_CSS

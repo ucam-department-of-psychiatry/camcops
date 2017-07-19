@@ -96,7 +96,7 @@ QStringList Aims::summary() const
 
 QStringList Aims::detail() const
 {
-    QString spacer = " ";
+    const QString spacer = " ";
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", spacer,
                             QPREFIX, FIRST_Q, LAST_SCORED_Q);
@@ -109,21 +109,21 @@ QStringList Aims::detail() const
 
 OpenableWidget* Aims::editor(bool read_only)
 {
-    NameValueOptions options_q1_8{
+    const NameValueOptions options_q1_8{
         {xstring("main_option0"), 0},
         {xstring("main_option1"), 1},
         {xstring("main_option2"), 2},
         {xstring("main_option3"), 3},
         {xstring("main_option4"), 4},
     };
-    NameValueOptions options_q9{
+    const NameValueOptions options_q9{
         {xstring("q9_option0"), 0},  // different
         {xstring("main_option1"), 1},
         {xstring("main_option2"), 2},
         {xstring("main_option3"), 3},
         {xstring("main_option4"), 4},
     };
-    NameValueOptions options_q10{
+    const NameValueOptions options_q10{
         {xstring("q10_option0"), 0},
         {xstring("q10_option1"), 1},
         {xstring("q10_option2"), 2},

@@ -32,15 +32,15 @@ bool TaskSorter::operator()(const TaskPtr& left, const TaskPtr& right) const
 {
     // Implements: LEFT < RIGHT ?
     // Sort by date/time (descending), then taskname (ascending)
-    QDateTime l_when = left->valueDateTime(
+    const QDateTime l_when = left->valueDateTime(
         dbconst::CREATION_TIMESTAMP_FIELDNAME);
-    QDateTime r_when = right->valueDateTime(
+    const QDateTime r_when = right->valueDateTime(
         dbconst::CREATION_TIMESTAMP_FIELDNAME);
     if (l_when != r_when) {
         return l_when > r_when;  // descending
     } else {
-        QString l_name = left->shortname();
-        QString r_name = right->shortname();
+        const QString l_name = left->shortname();
+        const QString r_name = right->shortname();
         return l_name < r_name; // ascending
     }
 }

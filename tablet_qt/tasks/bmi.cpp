@@ -116,7 +116,7 @@ QStringList Bmi::summary() const
                 .arg(tr("Comments:"),
                      valueString(FN_COMMENT));
     }
-    QString s = QString("%1 kg, %2 m; BMI = %3 kg/m^2; %4%5")
+    const QString s = QString("%1 kg, %2 m; BMI = %3 kg/m^2; %4%5")
             .arg(prettyValue(FN_MASS_KG),
                  prettyValue(FN_HEIGHT_M),
                  bmiString(),
@@ -161,7 +161,7 @@ OpenableWidget* Bmi::editor(bool read_only)
     // units kept.
 
     // Height
-    NameValueOptions options_height_units{
+    const NameValueOptions options_height_units{
         {xstring("metric_height"), METRIC},
         {xstring("imperial_height"), IMPERIAL},
         {xstring("units_both"), BOTH},
@@ -180,7 +180,7 @@ OpenableWidget* Bmi::editor(bool read_only)
     m_fr_height_in = FieldRefPtr(new FieldRef(get_in, set_in, true));
 
     // Mass
-    NameValueOptions options_mass_units{
+    const NameValueOptions options_mass_units{
         {xstring("metric_mass"), METRIC},
         {xstring("imperial_mass"), IMPERIAL},
         {xstring("units_both"), BOTH},
@@ -285,16 +285,16 @@ QVariant Bmi::bmiVariant() const
     if (!isComplete()) {
         return QVariant();
     }
-    double mass_kg = valueDouble(FN_MASS_KG);
-    double height_m = valueDouble(FN_HEIGHT_M);
-    double bmi = mass_kg / (height_m * height_m);
+    const double mass_kg = valueDouble(FN_MASS_KG);
+    const double height_m = valueDouble(FN_HEIGHT_M);
+    const double bmi = mass_kg / (height_m * height_m);
     return QVariant(bmi);
 }
 
 
 QString Bmi::bmiString(int dp) const
 {
-    QVariant bmi = bmiVariant();
+    const QVariant bmi = bmiVariant();
     if (bmi.isNull()) {
         return "?";
     }
@@ -304,11 +304,11 @@ QString Bmi::bmiString(int dp) const
 
 QString Bmi::category() const
 {
-    QVariant bmiv = bmiVariant();
+    const QVariant bmiv = bmiVariant();
     if (bmiv.isNull()) {
         return "?";
     }
-    double bmi = bmiv.toDouble();
+    const double bmi = bmiv.toDouble();
     if (bmi >= 40) {
         return xstring("obese_3");
     }
@@ -352,8 +352,8 @@ void Bmi::massUnitsChanged()
     if (!m_questionnaire) {
         return;
     }
-    bool imperial = m_mass_units == IMPERIAL || m_mass_units == BOTH;
-    bool metric = m_mass_units == METRIC || m_mass_units == BOTH;
+    const bool imperial = m_mass_units == IMPERIAL || m_mass_units == BOTH;
+    const bool metric = m_mass_units == METRIC || m_mass_units == BOTH;
     m_questionnaire->setVisibleByTag(TAG_MASS_IMPERIAL, imperial, false);
     m_questionnaire->setVisibleByTag(TAG_MASS_METRIC, metric, false);
 }
@@ -364,8 +364,8 @@ void Bmi::heightUnitsChanged()
     if (!m_questionnaire) {
         return;
     }
-    bool imperial = m_height_units == IMPERIAL || m_height_units == BOTH;
-    bool metric = m_height_units == METRIC || m_height_units == BOTH;
+    const bool imperial = m_height_units == IMPERIAL || m_height_units == BOTH;
+    const bool metric = m_height_units == METRIC || m_height_units == BOTH;
     Q_ASSERT(imperial || metric);
     m_questionnaire->setVisibleByTag(TAG_HEIGHT_IMPERIAL, imperial, false);
     m_questionnaire->setVisibleByTag(TAG_HEIGHT_METRIC, metric, false);
@@ -407,7 +407,7 @@ bool Bmi::setHeightUnits(const QVariant& value)  // returns: changed?
             height_units != BOTH) {
         height_units = METRIC;
     }
-    bool changed = height_units != m_height_units;
+    const bool changed = height_units != m_height_units;
     m_height_units = height_units;
     return changed;
 }
@@ -415,7 +415,7 @@ bool Bmi::setHeightUnits(const QVariant& value)  // returns: changed?
 
 bool Bmi::setHeightM(const QVariant& value)
 {
-    bool changed = setValue(FN_HEIGHT_M, value);
+    const bool changed = setValue(FN_HEIGHT_M, value);
     if (changed) {
         updateImperialHeight();
     }
@@ -426,7 +426,7 @@ bool Bmi::setHeightM(const QVariant& value)
 bool Bmi::setHeightFt(const QVariant& value)
 {
     Q_ASSERT(m_fr_height_m);
-    bool changed = value != m_height_ft;
+    const bool changed = value != m_height_ft;
     if (changed) {
         m_height_ft = value;
         updateMetricHeight();
@@ -438,7 +438,7 @@ bool Bmi::setHeightFt(const QVariant& value)
 bool Bmi::setHeightIn(const QVariant& value)
 {
     Q_ASSERT(m_fr_height_m);
-    bool changed = value != m_height_in;
+    const bool changed = value != m_height_in;
     if (changed) {
         m_height_in = value;
         updateMetricHeight();
@@ -453,8 +453,8 @@ void Bmi::updateMetricHeight()
     if (m_height_ft.isNull() && m_height_in.isNull()) {
         setValue(FN_HEIGHT_M, m_height_ft);
     } else {
-        int feet = m_height_ft.toInt();
-        double inches = m_height_in.toDouble();
+        const int feet = m_height_ft.toInt();
+        const double inches = m_height_in.toDouble();
         setValue(FN_HEIGHT_M, convert::metresFromFeetInches(feet, inches));
     }
     m_fr_height_m->emitValueChanged();
@@ -465,12 +465,12 @@ void Bmi::updateImperialHeight()
 {
     Q_ASSERT(m_fr_height_ft);
     Q_ASSERT(m_fr_height_in);
-    QVariant height_m_var = value(FN_HEIGHT_M);
+    const QVariant height_m_var = value(FN_HEIGHT_M);
     if (height_m_var.isNull()) {
         m_height_ft.clear();
         m_height_in.clear();
     } else {
-        double height_m = height_m_var.toDouble();
+        const double height_m = height_m_var.toDouble();
         int feet;
         double inches;
         convert::feetInchesFromMetres(height_m, feet, inches);
@@ -518,7 +518,7 @@ bool Bmi::setMassUnits(const QVariant& value)
     if (mass_units != METRIC && mass_units != IMPERIAL && mass_units != BOTH) {
         mass_units = METRIC;
     }
-    bool changed = mass_units != m_mass_units;
+    const bool changed = mass_units != m_mass_units;
     m_mass_units = mass_units;
     return changed;
 }
@@ -526,7 +526,7 @@ bool Bmi::setMassUnits(const QVariant& value)
 
 bool Bmi::setMassKg(const QVariant& value)
 {
-    bool changed = setValue(FN_MASS_KG, value);
+    const bool changed = setValue(FN_MASS_KG, value);
     if (changed) {
         updateImperialMass();
     }
@@ -536,7 +536,7 @@ bool Bmi::setMassKg(const QVariant& value)
 
 bool Bmi::setMassSt(const QVariant& value)
 {
-    bool changed = value != m_mass_st;
+    const bool changed = value != m_mass_st;
     if (changed) {
         m_mass_st = value;
         updateMetricMass();
@@ -548,7 +548,7 @@ bool Bmi::setMassSt(const QVariant& value)
 bool Bmi::setMassLb(const QVariant& value)
 {
     Q_ASSERT(m_fr_mass_kg);
-    bool changed = value != m_mass_lb;
+    const bool changed = value != m_mass_lb;
     if (changed) {
         m_mass_lb = value;
         updateMetricMass();
@@ -560,7 +560,7 @@ bool Bmi::setMassLb(const QVariant& value)
 bool Bmi::setMassOz(const QVariant& value)
 {
     Q_ASSERT(m_fr_mass_kg);
-    bool changed = value != m_mass_oz;
+    const bool changed = value != m_mass_oz;
     if (changed) {
         m_mass_oz = value;
         updateMetricMass();
@@ -575,9 +575,9 @@ void Bmi::updateMetricMass()
     if (m_mass_st.isNull() && m_mass_lb.isNull() && m_mass_oz.isNull()) {
         setValue(FN_MASS_KG, m_mass_st);
     } else {
-        int stones = m_mass_st.toInt();
-        int pounds = m_mass_lb.toInt();
-        double ounces = m_mass_oz.toDouble();
+        const int stones = m_mass_st.toInt();
+        const int pounds = m_mass_lb.toInt();
+        const double ounces = m_mass_oz.toDouble();
         setValue(FN_MASS_KG, convert::kilogramsFromStonesPoundsOunces(
                      stones, pounds, ounces));
     }
@@ -596,7 +596,7 @@ void Bmi::updateImperialMass()
         m_mass_lb.clear();
         m_mass_oz.clear();
     } else {
-        double mass_kg = mass_kg_var.toDouble();
+        const double mass_kg = mass_kg_var.toDouble();
         int stones, pounds;
         double ounces;
         convert::stonesPoundsOuncesFromKilograms(mass_kg, stones, pounds, ounces);

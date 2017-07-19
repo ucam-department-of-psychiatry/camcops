@@ -157,7 +157,7 @@ void QuMcqGridSingleBoolean::addOptions(GridLayout* grid, int row)
 
 QPointer<QWidget> QuMcqGridSingleBoolean::makeWidget(Questionnaire* questionnaire)
 {
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
     m_mcq_widgets.clear();
     m_boolean_widgets.clear();
 
@@ -166,12 +166,12 @@ QPointer<QWidget> QuMcqGridSingleBoolean::makeWidget(Questionnaire* questionnair
     grid->setHorizontalSpacing(uiconst::MCQGRID_HSPACING);
     grid->setVerticalSpacing(uiconst::MCQGRID_VSPACING);
 
-    int n_subtitles = m_subtitles.size();
-    int n_rows = 1 + n_subtitles + m_questions_with_fields.size();
-    int n_cols = m_mcq_options.size() + 4;
-    Qt::Alignment response_align = mcqfunc::response_widget_align;
+    const int n_subtitles = m_subtitles.size();
+    const int n_rows = 1 + n_subtitles + m_questions_with_fields.size();
+    const int n_cols = m_mcq_options.size() + 4;
+    const Qt::Alignment response_align = mcqfunc::response_widget_align;
+    const int n_options = m_mcq_options.size();
     int row = 0;
-    int n_options = m_mcq_options.size();
 
     // Title row
     mcqfunc::addOptionBackground(grid, row, 0, n_cols);
@@ -283,10 +283,10 @@ void QuMcqGridSingleBoolean::mcqClicked(int question_index, int value_index)
         qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
-    QVariant newvalue = m_mcq_options.value(value_index);
+    const QVariant newvalue = m_mcq_options.value(value_index);
     FieldRefPtr fieldref = m_questions_with_fields.at(question_index)
             .firstFieldRef();
-    bool changed = fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const bool changed = fieldref->setValue(newvalue);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }

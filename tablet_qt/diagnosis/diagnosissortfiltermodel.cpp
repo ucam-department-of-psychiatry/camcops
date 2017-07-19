@@ -31,7 +31,7 @@ bool DiagnosisSortFilterModel::filterAcceptsRow(
     // http://doc.qt.io/qt-5/qsortfilterproxymodel.html#filterAcceptsRow
     // http://www.qtcentre.org/threads/46471-QTreeView-Filter
 
-    QModelIndex index = sourceModel()->index(row, 0, parent);
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
 
     if (!index.isValid()) {
         return false;

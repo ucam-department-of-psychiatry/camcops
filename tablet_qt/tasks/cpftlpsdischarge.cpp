@@ -282,19 +282,19 @@ QStringList CPFTLPSDischarge::detail() const
 
 OpenableWidget* CPFTLPSDischarge::editor(bool read_only)
 {
-    NameValueOptions discharge_reason_code_options{
+    const NameValueOptions discharge_reason_code_options{
         {xstring("reason_code_F"), "F"},
         {xstring("reason_code_A"), "A"},
         {xstring("reason_code_O"), "O"},
         {xstring("reason_code_C"), "C"},
     };
-    NameValueOptions wanted_letter_options = CommonOptions::optionsCopyingDescriptions({
+    const NameValueOptions wanted_letter_options = CommonOptions::optionsCopyingDescriptions({
         "None done",
         "Yes",
         "No",
         "Not appropriate",
     });
-    NameValueOptions outcome_options = CommonOptions::optionsCopyingDescriptions({
+    const NameValueOptions outcome_options = CommonOptions::optionsCopyingDescriptions({
         "Outcome achieved/no follow-up",
         "CMHT (new)",
         "CMHT (ongoing)",
@@ -310,14 +310,14 @@ OpenableWidget* CPFTLPSDischarge::editor(bool read_only)
         "Patient died",
         "Other",
     });
-    NameValueOptions organ_options = CommonOptions::optionsCopyingDescriptions({
+    const NameValueOptions organ_options = CommonOptions::optionsCopyingDescriptions({
         "Liver",
         "Kidney",
         "Small bowel",
         "Other",
         "Multivisceral",
     });
-    NameValueOptions yesno_options = CommonOptions::noYesBoolean();
+    const NameValueOptions yesno_options = CommonOptions::noYesBoolean();
     DiagnosticCodeSetPtr icd10(new Icd10(m_app));
 
     auto boldtext = [this](const QString& xstringname) -> QuElement* {
@@ -344,8 +344,8 @@ OpenableWidget* CPFTLPSDischarge::editor(bool read_only)
                 ->setAsTextButton(true);
     };
 
-    QString dis_dx_psych = xstring("diagnosis_psych");
-    QString dis_dx_med = xstring("diagnosis_medical");
+    const QString dis_dx_psych = xstring("diagnosis_psych");
+    const QString dis_dx_med = xstring("diagnosis_medical");
 
     QuPagePtr page((new QuPage{
         getClinicianQuestionnaireBlockRawPointer(),

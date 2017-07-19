@@ -97,14 +97,14 @@ QStringList Dast::summary() const
 
 QStringList Dast::detail() const
 {
-    int total = totalScore();
-    bool exceeds_cutoff_1 = total >= 6;
-    bool exceeds_cutoff_2 = total >= 11;
-    QString scores = xstring("scores");
+    const int total = totalScore();
+    const bool exceeds_cutoff_1 = total >= 6;
+    const bool exceeds_cutoff_2 = total >= 11;
+    const QString scores = xstring("scores");
 
     QStringList lines = completenessInfo();
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        QVariant v = value(strnum(QPREFIX, i));
+        const QVariant v = value(strnum(QPREFIX, i));
         lines.append(QString("%1 <b>%2</b> (%3 <b>%4</b>)")
                      .arg(xstring(strnum("q", i, "_s")),  // contains colon
                           convert::prettyValue(v),
@@ -172,7 +172,7 @@ int Dast::score(const QVariant& value, int question) const
     if (value.isNull()) {
         return 0;
     }
-    QString yes = CommonOptions::YES_CHAR;
+    const QString yes = CommonOptions::YES_CHAR;
     if (question == 4 || question == 5 || question == 7) {
         return value == yes ? 0 : 1;
     }

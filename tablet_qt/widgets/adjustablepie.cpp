@@ -340,7 +340,7 @@ void AdjustablePie::setProportions(const QVector<qreal>& proportions)
             return;
         }
     }
-    int n = proportions.size();
+    const int n = proportions.size();
     QVector<qreal> props;
     if (n == m_n_sectors - 1) {
         // Set cursor proportions directly
@@ -371,8 +371,7 @@ void AdjustablePie::setProportionsCumulative(const QVector<qreal>& proportions)
             return;
         }
     }
-    int n = proportions.size();
-    QVector<qreal> props;
+    const int n = proportions.size();
     if (n == m_n_sectors - 1) {
         // Set cursor proportions directly
         m_cursor_props_cum = proportions;
@@ -414,8 +413,8 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
     Q_UNUSED(event);
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
-    QRect cr = contentsRect();
-    QPoint widget_centre = cr.center();
+    const QRect cr = contentsRect();
+    const QPoint widget_centre = cr.center();
 
     // Paint background
     p.setPen(QPen(Qt::PenStyle::NoPen));
@@ -434,15 +433,15 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
     // ------------------------------------------------------------------------
     // Draw them separately, in case they overlap (e.g. thick pens).
 
-    QPointF sector_tip = widget_centre;
-    qreal cursor_radius = m_cursor_outer_radius - m_cursor_inner_radius;
+    const QPointF sector_tip = widget_centre;
+    const qreal cursor_radius = m_cursor_outer_radius - m_cursor_inner_radius;
 
     qreal sector_start_angle;
     qreal sector_end_angle;
     auto startLoop = [this, &sector_start_angle, &sector_end_angle] (int i) -> void {
-        qreal prev_prop = i == 0 ? 0.0 : sectorProportionCumulative(i - 1);
+        const qreal prev_prop = i == 0 ? 0.0 : sectorProportionCumulative(i - 1);
         sector_start_angle = prev_prop * DEG_360;
-        qreal prop = sectorProportionCumulative(i);
+        const qreal prop = sectorProportionCumulative(i);
         sector_end_angle = prop * DEG_360;
     };
     auto endLoop = [this, &sector_start_angle, &sector_end_angle] () -> void {
@@ -476,10 +475,10 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
     for (int i = 0; i < m_n_sectors; ++i) {
         startLoop(i);
         if (i < m_n_sectors - 1) {
-            qreal cursor_half_angle = m_cursor_angle_degrees / 2.0;
-            qreal cursor_start_angle = sector_end_angle - cursor_half_angle;
-            qreal cursor_end_angle = sector_end_angle + cursor_half_angle;
-            QPointF cursor_tip = widget_centre +
+            const qreal cursor_half_angle = m_cursor_angle_degrees / 2.0;
+            const qreal cursor_start_angle = sector_end_angle - cursor_half_angle;
+            const qreal cursor_end_angle = sector_end_angle + cursor_half_angle;
+            const QPointF cursor_tip = widget_centre +
                     polarToCartesian(m_cursor_inner_radius,
                                      convertAngleToQt(sector_end_angle));
             const PenBrush& cpb = (
@@ -499,17 +498,17 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
     for (int i = 0; i < m_n_sectors; ++i) {
         // Label
         startLoop(i);
-        qreal sector_mid_angle = sector_end_angle - (sector_end_angle -
-                                                     sector_start_angle) / 2;
-        QPointF label_tip = widget_centre +
+        const qreal sector_mid_angle = sector_end_angle -
+                (sector_end_angle - sector_start_angle) / 2;
+        const QPointF label_tip = widget_centre +
                 polarToCartesian(m_label_start_radius,
                                  convertAngleToQt(sector_mid_angle));
-        QString label = m_labels.at(i);
+        const QString label = m_labels.at(i);
         if (!label.isEmpty()) {
-            qreal abs_heading = convertHeadingToTrueNorth(
+            const qreal abs_heading = convertHeadingToTrueNorth(
                         sector_mid_angle, m_base_compass_heading_deg);
             // 0 up, 90 right...
-            qreal rotation = abs_heading;
+            const qreal rotation = abs_heading;
             // Easiest way to think of it: something at 180 is at the top
             // and shouldn't be rotated.
             // Something at 90 is on the left and should be rotated
@@ -531,13 +530,13 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
             } else {
                 PainterTranslateRotateContext ptrc(p, label_tip, 0);
                 // ... relative to North = up
-                bool hcentre = headingNearlyEq(abs_heading, DEG_0) ||
+                const bool hcentre = headingNearlyEq(abs_heading, DEG_0) ||
                         headingNearlyEq(abs_heading, DEG_180);
-                bool left = !hcentre &&
+                const bool left = !hcentre &&
                         headingInRange(DEG_180, abs_heading, DEG_360);
-                bool vcentre = headingNearlyEq(abs_heading, DEG_90) ||
+                const bool vcentre = headingNearlyEq(abs_heading, DEG_90) ||
                         headingNearlyEq(abs_heading, DEG_270);
-                bool bottom = !vcentre &&
+                const bool bottom = !vcentre &&
                         headingInRange(DEG_90, abs_heading, DEG_270);
                 Qt::Alignment halign = hcentre ? Qt::AlignHCenter
                                                : (left ? Qt::AlignRight
@@ -578,7 +577,7 @@ void AdjustablePie::mousePressEvent(QMouseEvent* event)
 {
     // We draw the cursors from 0 upwards, so we detect their touching in the
     // reverse order, in case they're stacked.
-    QPoint pos = event->pos();
+    const QPoint pos = event->pos();
 #ifdef DEBUG_EVENTS
     qDebug() << Q_FUNC_INFO << pos;
 #endif
@@ -610,12 +609,12 @@ void AdjustablePie::mouseMoveEvent(QMouseEvent* event)
 #ifdef DEBUG_EVENTS
     qDebug() << Q_FUNC_INFO;
 #endif
-    QPoint newpos = event->pos();
-    QPoint oldpos = m_last_mouse_pos;
+    const QPoint newpos = event->pos();
+    const QPoint oldpos = m_last_mouse_pos;
     m_last_mouse_pos = newpos;
-    qreal mouse_angle = angleOfPos(newpos);
-    qreal new_cursor_angle = mouse_angle - m_angle_offset_from_cursor_centre;
-    qreal oldprop = m_cursor_props_cum.at(m_cursor_num_being_dragged);
+    const qreal mouse_angle = angleOfPos(newpos);
+    const qreal new_cursor_angle = mouse_angle - m_angle_offset_from_cursor_centre;
+    const qreal oldprop = m_cursor_props_cum.at(m_cursor_num_being_dragged);
     qreal target_prop = angleToProportion(new_cursor_angle);
     // Post-processing magic since target_prop will never be 1.0:
     if (target_prop <= 0.0 && oldprop > 0.5) {
@@ -631,15 +630,15 @@ void AdjustablePie::mouseMoveEvent(QMouseEvent* event)
     }
 
     qreal prop;
-    QPoint pie_centre = contentsRect().center();
-    LineSegment baseline = lineFromPointInHeadingWithRadius(
+    const QPoint pie_centre = contentsRect().center();
+    const LineSegment baseline = lineFromPointInHeadingWithRadius(
                 pie_centre,
                 DEG_0,
                 m_base_compass_heading_deg);
-    LineSegment movement(oldpos, newpos);
-    bool from_on = baseline.pointOn(oldpos);
-    bool to_on = baseline.pointOn(newpos);
-    bool crosses = movement.intersects(baseline) && !from_on && !to_on;
+    const LineSegment movement(oldpos, newpos);
+    const bool from_on = baseline.pointOn(oldpos);
+    const bool to_on = baseline.pointOn(newpos);
+    const bool crosses = movement.intersects(baseline) && !from_on && !to_on;
 
     if (oldprop < 0.5 && target_prop > 0.75 &&
             !(oldprop > 0.25 && !crosses)) {
@@ -753,11 +752,11 @@ qreal AdjustablePie::convertAngleToInternal(qreal degrees) const
 
 bool AdjustablePie::posInCursor(const QPoint& pos, int cursor_index) const
 {
-    qreal angle = angleOfPos(pos);
-    qreal cursor_angle_centre = cursorAngle(cursor_index);
-    qreal cursor_half_angle = m_cursor_angle_degrees / 2;
-    qreal cursor_min_angle = cursor_angle_centre - cursor_half_angle;
-    qreal cursor_max_angle = cursor_angle_centre + cursor_half_angle;
+    const qreal angle = angleOfPos(pos);
+    const qreal cursor_angle_centre = cursorAngle(cursor_index);
+    const qreal cursor_half_angle = m_cursor_angle_degrees / 2;
+    const qreal cursor_min_angle = cursor_angle_centre - cursor_half_angle;
+    const qreal cursor_max_angle = cursor_angle_centre + cursor_half_angle;
     if (!headingInRange(cursor_min_angle, angle, cursor_max_angle)) {
         return false;
     }
@@ -787,7 +786,7 @@ qreal AdjustablePie::proportionToAngle(qreal proportion) const
 
 qreal AdjustablePie::angleOfPos(const QPoint& pos) const
 {
-    QPoint pie_centre = contentsRect().center();
+    const QPoint pie_centre = contentsRect().center();
     return convertAngleToInternal(polarTheta(pie_centre, pos));
 }
 
@@ -800,7 +799,7 @@ qreal AdjustablePie::radiusOfPos(const QPoint& pos) const
 
 qreal AdjustablePie::cursorAngle(int cursor_index) const
 {
-    qreal prop = m_cursor_props_cum.at(cursor_index);
+    const qreal prop = m_cursor_props_cum.at(cursor_index);
     return proportionToAngle(prop);
 }
 

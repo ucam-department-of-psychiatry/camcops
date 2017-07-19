@@ -70,34 +70,34 @@ void FixedAreaHfwTestWidget::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
 
-    QSize s = size();
+    const QSize s = size();
     QRectF rect(QPoint(0, 0), s);
-    qreal penwidth = m_border_thickness;
-    qreal halfpen = penwidth / 2;
+    const qreal penwidth = m_border_thickness;
+    const qreal halfpen = penwidth / 2;
     rect.adjust(halfpen, halfpen, -halfpen, -halfpen);
 
-    int w = s.width();
-    int h = s.height();
-    int a = w * h;
-    int hfw = heightForWidth(w);
-    QString hfw_description = hfw == h
+    const int w = s.width();
+    const int h = s.height();
+    const int a = w * h;
+    const int hfw = heightForWidth(w);
+    const QString hfw_description = hfw == h
         ? "matches HFW"
         : QString("MISMATCH to HFW %1").arg(hfw);
     m_min_area = qMin(m_min_area, a);
     m_max_area = qMax(m_max_area, a);
-    QString description = QString("%1 w x %2 h (%3) = area %4 [range %5-%6]")
+    const QString description = QString("%1 w x %2 h (%3) = area %4 [range %5-%6]")
             .arg(w)
             .arg(h)
             .arg(hfw_description)
             .arg(w * h)
             .arg(m_min_area)
             .arg(m_max_area);
-    QPointF textpos(10, 10);
+    const QPointF textpos(10, 10);
 
     QPen border_pen(m_border_colour);
     border_pen.setWidth(m_border_thickness);
-    QPen text_pen(m_text_colour);
-    QBrush brush(m_background_colour, Qt::SolidPattern);
+    const QPen text_pen(m_text_colour);
+    const QBrush brush(m_background_colour, Qt::SolidPattern);
 
     QPainter painter(this);
     painter.setPen(border_pen);

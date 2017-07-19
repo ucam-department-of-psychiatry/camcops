@@ -46,13 +46,13 @@ void WhereConditions::add(const QString& column, const QString& op,
 }
 
 
-void WhereConditions::appendWhereClause(SqlArgs& sqlargs_altered) const
+void WhereConditions::appendWhereClauseTo(SqlArgs& sqlargs_altered) const
 {
     if (m_columns.isEmpty()) {
         return;
     }
     QStringList whereclauses;
-    int n = m_columns.size();
+    const int n = m_columns.size();
     Q_ASSERT(n == m_operators.size());
     Q_ASSERT(n == m_values.size());
     for (int i = 0; i < n; ++i) {
@@ -71,7 +71,7 @@ QString WhereConditions::whereLiteralForDebuggingOnly() const
         return "";
     }
     QStringList whereclauses;
-    int n = m_columns.size();
+    const int n = m_columns.size();
     Q_ASSERT(n == m_operators.size());
     Q_ASSERT(n == m_values.size());
     for (int i = 0; i < n; ++i) {

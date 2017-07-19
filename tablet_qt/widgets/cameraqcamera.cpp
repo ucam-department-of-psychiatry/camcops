@@ -353,11 +353,11 @@ void CameraQCamera::setCamera(const QCameraInfo& camera_info)
             this, &CameraQCamera::displayCaptureError);
 
 #ifdef USE_FILE
-    bool use_buffer = false;
+    const bool use_buffer = false;
 #else
-    bool buffer_supported = m_capture->isCaptureDestinationSupported(
+    const bool buffer_supported = m_capture->isCaptureDestinationSupported(
                 QCameraImageCapture::CaptureToBuffer);
-    bool use_buffer = buffer_supported;
+    const bool use_buffer = buffer_supported;
 #endif
     if (use_buffer) {
         qInfo() << Q_FUNC_INFO << "Capturing to buffer";
@@ -696,7 +696,7 @@ void CameraQCamera::handleFrame(QImage image)
     if (!m_label_viewfinder) {
         return;
     }
-    QPixmap pm = QPixmap::fromImage(image);
+    const QPixmap pm = QPixmap::fromImage(image);
     m_label_viewfinder->setPixmap(pm);
 }
 #endif

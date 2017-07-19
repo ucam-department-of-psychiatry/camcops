@@ -49,7 +49,7 @@ void GraphicsPixmapItemWithOpacity::paint(
         const QStyleOptionGraphicsItem* option,
         QWidget* widget)
 {
-    qreal old_opacity = painter->opacity();
+    const qreal old_opacity = painter->opacity();
     painter->setOpacity(m_opacity);
     QGraphicsPixmapItem::paint(painter, option, widget);
     painter->setOpacity(old_opacity);  // unsure if this is necessary

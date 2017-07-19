@@ -39,8 +39,8 @@ public:
     void setTop(quint64 top);
     virtual void setRange(quint64 bottom, quint64 top);
 
-    quint64 bottom() const { return b; }
-    quint64 top() const { return t; }
+    quint64 bottom() const { return m_b; }
+    quint64 top() const { return m_t; }
 
 signals:
     void bottomChanged(quint64 bottom);
@@ -50,7 +50,7 @@ private:
     Q_DISABLE_COPY(StrictUInt64Validator)
 
 private:
-    quint64 b;
-    quint64 t;
+    quint64 m_b;
+    quint64 m_t;
     bool m_allow_empty;
 };

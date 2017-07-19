@@ -167,7 +167,7 @@ bool SvgTransform::active() const
 QString xmlElement(const QString& tag, const QString& contents,
                    const QMap<QString, QString> attributes)
 {
-    QString attr = xmlAttributes(attributes);
+    const QString attr = xmlAttributes(attributes);
     if (contents.isEmpty()) {
         return QString("<%1%2 />").arg(tag, attr);
     } else {
@@ -326,14 +326,14 @@ void drawSector(QPainter& painter,
 #endif
     painter.setPen(pen);
     painter.setBrush(brush);
-    qreal diameter = radius * 2;
-    QRectF rect(tip - QPointF(radius, radius), QSizeF(diameter, diameter));
+    const qreal diameter = radius * 2;
+    const QRectF rect(tip - QPointF(radius, radius), QSizeF(diameter, diameter));
     if (!move_clockwise_from_start_to_end) {
         std::swap(start_angle_deg, end_angle_deg);
     }
     start_angle_deg = clockwiseToAnticlockwise(start_angle_deg);
     end_angle_deg = clockwiseToAnticlockwise(end_angle_deg);
-    qreal span_angle_deg = end_angle_deg - start_angle_deg;
+    const qreal span_angle_deg = end_angle_deg - start_angle_deg;
 #ifdef DEBUG_COORDS
     qDebug() << "... "
              << "tip" << tip
@@ -349,7 +349,7 @@ void drawSector(QPainter& painter,
 
 QRectF textRectF(const QString& text, const QFont& font)
 {
-    QFontMetrics fm(font);
+    const QFontMetrics fm(font);
     // return fm.boundingRect(text);
     return fm.tightBoundingRect(text);
 }
@@ -358,7 +358,7 @@ QRectF textRectF(const QString& text, const QFont& font)
 void drawText(QPainter& painter, const QPointF& point, const QString& text,
               const QFont& font, Qt::Alignment align)
 {
-    QRectF textrect = textRectF(text, font);
+    const QRectF textrect = textRectF(text, font);
 
     qreal x = point.x();
     if (align & Qt::AlignRight) {
@@ -403,7 +403,7 @@ void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
        flags |= Qt::AlignBottom;
    }
 
-   QRectF rect(corner, QSizeF(size, size));
+   const QRectF rect(corner, QSizeF(size, size));
    painter.drawText(rect, flags, text, boundingRect);
 }
 
@@ -508,7 +508,7 @@ ButtonAndProxy makeTextButton(QGraphicsScene* scene,  // button is added to scen
     // :focus
     // :hover
     // :pressed
-    QString label_css = labelCss(config.text_colour);
+    const QString label_css = labelCss(config.text_colour);
 #ifdef DEBUG_CSS
     qDebug() << "makeGraphicsTextButton: button CSS:" << button_css;
     qDebug() << "makeGraphicsTextButton: label CSS:" << label_css;
@@ -599,12 +599,12 @@ AdjustablePieAndProxy makeAdjustablePie(QGraphicsScene* scene,
                                         qreal diameter,
                                         QWidget* parent)
 {
-    qreal radius = diameter / 2.0;
-    QPointF top_left(centre - QPointF(radius, radius));
+    const qreal radius = diameter / 2.0;
+    const QPointF top_left(centre - QPointF(radius, radius));
     AdjustablePieAndProxy result;
     result.pie = new AdjustablePie(n_sectors, parent);
     result.pie->setOverallRadius(radius);
-    QRectF rect(top_left, QSizeF(diameter, diameter));
+    const QRectF rect(top_left, QSizeF(diameter, diameter));
     result.proxy = scene->addWidget(result.pie);
     result.proxy->setGeometry(rect);
     return result;
@@ -621,7 +621,7 @@ SvgWidgetAndProxy makeSvg(
         QWidget* parent)
 {
     SvgWidgetAndProxy result;
-    QByteArray contents = svg.toUtf8();
+    const QByteArray contents = svg.toUtf8();
 
     result.widget = new SvgWidgetClickable(parent);
     result.widget->load(contents);
@@ -629,10 +629,10 @@ SvgWidgetAndProxy makeSvg(
     result.widget->setPressedBackgroundColour(pressed_background_colour);
     result.widget->setTransparentForMouseEvents(transparent_for_mouse);  // irrelevant!
 
-    QSizeF size = result.widget->sizeHint();
-    QPointF top_left(centre.x() - size.width() / 2,
-                     centre.y() - size.height() / 2);
-    QRectF rect(top_left, size);
+    const QSizeF size = result.widget->sizeHint();
+    const QPointF top_left(centre.x() - size.width() / 2,
+                           centre.y() - size.height() / 2);
+    const QRectF rect(top_left, size);
 
     result.proxy = scene->addWidget(result.widget);
     result.proxy->setGeometry(rect);
@@ -648,10 +648,10 @@ QGraphicsRectItem* makeObscuringRect(QGraphicsScene* scene,
                                      const QRectF& rect, qreal opacity,
                                      const QColor& colour_ignoring_opacity)
 {
-    QPen pen(Qt::NoPen);
+    const QPen pen(Qt::NoPen);
     QColor colour(colour_ignoring_opacity);
     colour.setAlpha(alpha(opacity));
-    QBrush brush(colour);
+    const QBrush brush(colour);
     return scene->addRect(rect, pen, brush);
 }
 
@@ -666,11 +666,11 @@ QGraphicsPixmapItem* makeImage(
         Qt::TransformationMode transformation_mode_2)
 {
     // https://stackoverflow.com/questions/5960074/qimage-in-a-qgraphics-scene
-    QPointF top_left = rect.topLeft();
-    QSize size = QSize(qRound(rect.width()), qRound(rect.height()));  // convert float to int
-    QPixmap pixmap_raw = QPixmap(filename);
-    QPixmap pixmap_scaled = pixmap_raw.scaled(size, aspect_ratio_mode,
-                                              transformation_mode_1);
+    const QPointF top_left = rect.topLeft();
+    const QSize size = QSize(qRound(rect.width()), qRound(rect.height()));  // convert float to int
+    const QPixmap pixmap_raw = QPixmap(filename);
+    const QPixmap pixmap_scaled = pixmap_raw.scaled(size, aspect_ratio_mode,
+                                                    transformation_mode_1);
     QGraphicsPixmapItem* img;
     if (opacity < 1.0) {
         GraphicsPixmapItemWithOpacity* opacity_img =

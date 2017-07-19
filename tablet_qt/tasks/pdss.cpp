@@ -113,7 +113,7 @@ OpenableWidget* Pdss::editor(bool read_only)
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
         NameValueOptions options;
         for (int j = 0; j <= 4; ++j) {
-            QString xstringname = QString("q%1_option%2").arg(i).arg(j);
+            const QString xstringname = QString("q%1_option%2").arg(i).arg(j);
             options.append(NameValuePair(xstring(xstringname), j));
         }
         if (i > FIRST_Q) {
@@ -143,6 +143,6 @@ int Pdss::totalScore() const
 
 double Pdss::compositeScore() const
 {
-    QVariant m = mean(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)), true);
+    const QVariant m = mean(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)), true);
     return m.toDouble();
 }

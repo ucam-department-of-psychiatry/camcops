@@ -68,7 +68,7 @@ QPointer<QWidget> QuPickerPopup::makeWidget(Questionnaire* questionnaire)
     if (m_randomize) {
         m_options.shuffle();
     }
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
 
     m_label = new ClickableLabelWordWrapWide(true);
     m_label->setObjectName(cssconst::PICKER_POPUP);
@@ -94,7 +94,7 @@ void QuPickerPopup::clicked()
     if (dlg.choose(&newvalue) != QDialog::Accepted) {
         return;  // user pressed cancel, or some such
     }
-    bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
@@ -112,10 +112,10 @@ void QuPickerPopup::fieldValueChanged(const FieldRef* fieldref)
     if (!m_label) {
         return;
     }
-    int index = m_options.indexFromValue(fieldref->value());
-    bool missing = fieldref->missingInput();
+    const int index = m_options.indexFromValue(fieldref->value());
+    const bool missing = fieldref->missingInput();
     uifunc::setPropertyMissing(m_label, missing);
-    QString text = m_options.name(index);
+    const QString text = m_options.name(index);
     m_label->setText(text);
 }
 

@@ -113,8 +113,8 @@ void resizeEventForHFWParentWidget(QWidget* widget)
     if (!lay || !lay->hasHeightForWidth()) {
         return;
     }
-    int w = widget->width();
-    int h = lay->heightForWidth(w);
+    const int w = widget->width();
+    const int h = lay->heightForWidth(w);
 #ifdef DEBUG_HFW_RESIZE_EVENT
     qDebug() << Q_FUNC_INFO << "w" << w << "-> h" << h;
 #endif
@@ -129,7 +129,7 @@ void resizeEventForHFWParentWidget(QWidget* widget)
 QSize contentsMarginsAsSize(const QWidget* widget)
 {
     Q_ASSERT(widget);
-    QMargins margins = widget->contentsMargins();
+    const QMargins margins = widget->contentsMargins();
     return QSize(margins.left() + margins.right(),
                  margins.top() + margins.bottom());
 }
@@ -138,7 +138,7 @@ QSize contentsMarginsAsSize(const QWidget* widget)
 QSize contentsMarginsAsSize(const QLayout* layout)
 {
     Q_ASSERT(layout);
-    QMargins margins = layout->contentsMargins();
+    const QMargins margins = layout->contentsMargins();
     return QSize(margins.left() + margins.right(),
                  margins.top() + margins.bottom());
 }
@@ -147,7 +147,7 @@ QSize contentsMarginsAsSize(const QLayout* layout)
 QSize spacingAsSize(const QLayout* layout)
 {
     Q_ASSERT(layout);
-    int spacing = layout->spacing();
+    const int spacing = layout->spacing();
     return QSize(2 * spacing, 2 * spacing);
 }
 

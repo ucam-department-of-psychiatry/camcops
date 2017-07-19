@@ -57,17 +57,17 @@ QString datetimeToIsoMs(const QDateTime& dt, bool use_z_timezone)
     if (!dt.isValid()) {
         return "";
     }
-    QString localtime = dt.toString("yyyy-MM-ddTHH:mm:ss.zzz");
+    const QString localtime = dt.toString("yyyy-MM-ddTHH:mm:ss.zzz");
     int offset_from_utc_s = dt.offsetFromUtc();
     // FOR TESTING: offsetFromUtcSec = -(3600 * 2.5);
     QString tzinfo;
     if (use_z_timezone && offset_from_utc_s == 0) {
         tzinfo = "Z";
     } else {
-        QString sign = offset_from_utc_s < 0 ? "-" : "+";
+        const QString sign = offset_from_utc_s < 0 ? "-" : "+";
         offset_from_utc_s = abs(offset_from_utc_s);
-        int hours = offset_from_utc_s / 3600;
-        int minutes = (offset_from_utc_s % 3600) / 60;
+        const int hours = offset_from_utc_s / 3600;
+        const int minutes = (offset_from_utc_s % 3600) / 60;
         tzinfo += QString("%1%2:%3").arg(sign)
             .arg(hours, 2, 10, QChar('0'))
             .arg(minutes, 2, 10, QChar('0'));
@@ -79,7 +79,7 @@ QString datetimeToIsoMs(const QDateTime& dt, bool use_z_timezone)
 
 QString datetimeToIsoMsUtc(const QDateTime& dt, bool use_z_timezone)
 {
-    QDateTime utc_dt = dt.toTimeSpec(Qt::UTC);
+    const QDateTime utc_dt = dt.toTimeSpec(Qt::UTC);
     return datetimeToIsoMs(utc_dt, use_z_timezone);
 }
 

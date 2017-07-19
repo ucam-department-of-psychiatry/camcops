@@ -168,8 +168,8 @@ QStringList Slums::summary() const
 
 QStringList Slums::detail() const
 {
-    int score = totalScore();
-    QString category =
+    const int score = totalScore();
+    const QString category =
         valueBool(HIGHSCHOOLEDUCATION)
             ? (score >= NORMAL_IF_GEQ_HIGHSCHOOL
                ? textconst::NORMAL
@@ -247,24 +247,24 @@ OpenableWidget* Slums::editor(bool read_only)
     const QString plural = xstring("title_prefix_plural");
     const QString singular = xstring("title_prefix_singular");
     const QString scoring = xstring("scoring");
-    NameValueOptions incorrect_correct_options =
+    const NameValueOptions incorrect_correct_options =
             CommonOptions::incorrectCorrectInteger();
-    NameValueOptions incorr_0_corr_2_options{
+    const NameValueOptions incorr_0_corr_2_options{
         {CommonOptions::incorrect(), 0},
         {CommonOptions::correct(), 2},  // NB different scoring
     };
-    NameValueOptions q6_options{
+    const NameValueOptions q6_options{
         {xstring("q6_option0"), 0},
         {xstring("q6_option1"), 1},
         {xstring("q6_option2"), 2},
         {xstring("q6_option3"), 3},
     };
-    NameValueOptions q7_options{
+    const NameValueOptions q7_options{
         {textconst::NOT_RECALLED, 0},
         {textconst::RECALLED, 1},
     };
-    QDateTime now = datetime::now();
-    QString correct_date = "     " + now.toString("dddd d MMMM yyyy");
+    const QDateTime now = datetime::now();
+    const QString correct_date = "     " + now.toString("dddd d MMMM yyyy");
     QVector<QuPagePtr> pages;
 
     pages.append(QuPagePtr((new QuPage{

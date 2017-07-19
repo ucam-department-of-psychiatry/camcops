@@ -80,7 +80,7 @@ void QuDiagnosticCode::setFromField()
 QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
 {
     m_questionnaire = questionnaire;
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
 
     m_missing_indicator = uifunc::iconWidget(
                 uifunc::iconFilename(uiconst::ICON_WARNING));
@@ -147,9 +147,9 @@ void QuDiagnosticCode::setButtonClicked()
         return;
     }
     SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
-    QString code = m_fieldref_code->valueString();
-    QModelIndex selected = m_codeset->firstMatchCode(code);
-    QString stylesheet = m_questionnaire->getSubstitutedCss(
+    const QString code = m_fieldref_code->valueString();
+    const QModelIndex selected = m_codeset->firstMatchCode(code);
+    const QString stylesheet = m_questionnaire->getSubstitutedCss(
                 uiconst::CSS_CAMCOPS_DIAGNOSTIC_CODE);
 #ifdef DEBUG_DX_SELECTOR_SPEED
     qDebug() << Q_FUNC_INFO << "Making DiagnosticCodeSelector...";
@@ -173,7 +173,7 @@ void QuDiagnosticCode::setButtonClicked()
 
 void QuDiagnosticCode::nullButtonClicked()
 {
-    QVariant nullvalue;
+    const QVariant nullvalue;
     m_fieldref_description->setValue(nullvalue);  // BEFORE setting code, as:
     m_fieldref_code->setValue(nullvalue);  // ... will trigger valueChanged
     emit elementValueChanged();

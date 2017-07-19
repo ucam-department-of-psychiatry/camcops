@@ -156,7 +156,7 @@ void TickSlider::setEdgeInExtremeLabels(bool edge_in_extreme_labels)
 QSize TickSlider::biggestLabel() const
 {
     QSize maxsize;
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics fm = fontMetrics();
     for (const QString& label : m_tick_labels) {
         QSize labelsize = fm.size(Qt::TextSingleLine, label);
         maxsize = maxsize.expandedTo(labelsize);
@@ -208,8 +208,8 @@ void TickSlider::paintEvent(QPaintEvent* ev)
     QStyleOptionSlider opt;
     initStyleOption(&opt);
 
-    QRect handle = style()->subControlRect(QStyle::CC_Slider, &opt,
-                                           QStyle::SC_SliderHandle, this);
+    const QRect handle = style()->subControlRect(QStyle::CC_Slider, &opt,
+                                                 QStyle::SC_SliderHandle, this);
 
     // Draw the slider first
     opt.subControls = QStyle::SC_SliderGroove | QStyle::SC_SliderHandle;
@@ -226,8 +226,8 @@ void TickSlider::paintEvent(QPaintEvent* ev)
     // see http://doc.qt.io/qt-5.7/coordsys.html
     // ... positive is right and down
 
-    bool using_ticks = tickPosition() != NoTicks;
-    bool using_labels = tickLabelPosition() != NoTicks;
+    const bool using_ticks = tickPosition() != NoTicks;
+    const bool using_labels = tickLabelPosition() != NoTicks;
     if (!using_ticks && !using_labels) {
         return;
     }
@@ -235,41 +235,41 @@ void TickSlider::paintEvent(QPaintEvent* ev)
     pen.setColor(m_tick_colour);
     pen.setWidth(m_tick_thickness);
     p.setPen(pen);
-    bool horizontal = orientation() == Qt::Horizontal;
-    QSize biggest_label = biggestLabel();
-    int max_label_height = using_labels ? biggest_label.height() : 0;
-    int max_label_width = using_labels ? biggest_label.width() : 0;
+    const bool horizontal = orientation() == Qt::Horizontal;
+    const QSize biggest_label = biggestLabel();
+    const int max_label_height = using_labels ? biggest_label.height() : 0;
+    const int max_label_width = using_labels ? biggest_label.width() : 0;
     if (horizontal) {
         // --------------------------------------------------------------------
         // HORIZONTAL
         // --------------------------------------------------------------------
-        int move_tick_vertically_by = (max_label_height > 0)
+        const int move_tick_vertically_by = (max_label_height > 0)
                 ? (max_label_height + m_tick_label_gap)
                 : 0;
         // Top
-        int bounding_box_top = this->rect().top();
-        int top_label_top = bounding_box_top;
-        int top_tick_top = bounding_box_top + move_tick_vertically_by;
-        int top_tick_bottom = top_tick_top + m_tick_length;
+        const int bounding_box_top = this->rect().top();
+        const int top_label_top = bounding_box_top;
+        const int top_tick_top = bounding_box_top + move_tick_vertically_by;
+        const int top_tick_bottom = top_tick_top + m_tick_length;
         // Bottom, working up
-        int bounding_box_bottom = this->rect().bottom();
-        int bottom_label_bottom = bounding_box_bottom;
-        int bottom_tick_bottom = bounding_box_bottom - move_tick_vertically_by;
-        int bottom_tick_top = bottom_tick_bottom - m_tick_length;
+        const int bounding_box_bottom = this->rect().bottom();
+        const int bottom_label_bottom = bounding_box_bottom;
+        const int bottom_tick_bottom = bounding_box_bottom - move_tick_vertically_by;
+        const int bottom_tick_top = bottom_tick_bottom - m_tick_length;
         // OK:
         for (int i = minimum(); i <= maximum(); i += interval) {
             Qt::Alignment halign = Qt::AlignHCenter;
             if (m_edge_in_extreme_labels) {
-                bool leftmost = i == minimum();
-                bool rightmost = i == maximum();
+                const bool leftmost = i == minimum();
+                const bool rightmost = i == maximum();
                 if (leftmost) {
                     halign = Qt::AlignLeft;
                 } else if (rightmost) {
                     halign = Qt::AlignRight;
                 }
             }
-            int q = m_reverse_horizontal_labels ? (maximum() - i) : i;
-            int x = round(
+            const int q = m_reverse_horizontal_labels ? (maximum() - i) : i;
+            const int x = round(
                 (double)(
                     (double)(
                         (double)(q - this->minimum()) /
@@ -278,7 +278,7 @@ void TickSlider::paintEvent(QPaintEvent* ev)
                     (double)(handle.width() / 2.0)
                 )
             ) - 1;
-            bool has_label = m_tick_labels.contains(i);
+            const bool has_label = m_tick_labels.contains(i);
             QString label_text;
             if (has_label) {
                 label_text = m_tick_labels[i];
@@ -306,24 +306,24 @@ void TickSlider::paintEvent(QPaintEvent* ev)
         // --------------------------------------------------------------------
         // VERTICAL
         // --------------------------------------------------------------------
-        int move_tick_horizontally_by = (max_label_width > 0)
+        const int move_tick_horizontally_by = (max_label_width > 0)
                 ? (max_label_width + m_tick_label_gap)
                 : 0;
         // Left
-        int bounding_box_left = this->rect().left();
-        int left_label_right = bounding_box_left + max_label_width;
-        int left_tick_left = bounding_box_left + move_tick_horizontally_by;
-        int left_tick_right = left_tick_left + m_tick_length;
+        const int bounding_box_left = this->rect().left();
+        const int left_label_right = bounding_box_left + max_label_width;
+        const int left_tick_left = bounding_box_left + move_tick_horizontally_by;
+        const int left_tick_right = left_tick_left + m_tick_length;
         // Right, working leftwards
-        int bounding_box_right = this->rect().right();
-        int right_label_left = bounding_box_right - max_label_width;
-        int right_tick_right = bounding_box_right - move_tick_horizontally_by;
-        int right_tick_left = right_tick_right - m_tick_length;
+        const int bounding_box_right = this->rect().right();
+        const int right_label_left = bounding_box_right - max_label_width;
+        const int right_tick_right = bounding_box_right - move_tick_horizontally_by;
+        const int right_tick_left = right_tick_right - m_tick_length;
         // OK:
         for (int i = minimum(); i <= maximum(); i += interval) {
             Qt::Alignment valign = Qt::AlignVCenter;
-            int q = m_reverse_vertical_labels ? (maximum() - i) : i;
-            int y = round(
+            const int q = m_reverse_vertical_labels ? (maximum() - i) : i;
+            const int y = round(
                 (double)(
                     (double)(
                         (double)(q - this->minimum()) /
@@ -332,7 +332,7 @@ void TickSlider::paintEvent(QPaintEvent* ev)
                     (double)(handle.height() / 2.0)
                 )
             ) - 1;
-            bool has_label = m_tick_labels.contains(i);
+            const bool has_label = m_tick_labels.contains(i);
             QString label_text;
             if (has_label) {
                 label_text = m_tick_labels[i];
@@ -363,10 +363,10 @@ void TickSlider::paintEvent(QPaintEvent* ev)
 QSize TickSlider::sizeHint() const
 {
     QSize size = QSlider::sizeHint();
-    bool using_labels = tickLabelPosition() != NoTicks;
-    QSize label = using_labels ? biggestLabel() : QSize();
-    bool using_ticks = tickPosition() != NoTicks;
-    int n_potential_labels = (maximum() - minimum()) / tickInterval();
+    const bool using_labels = tickLabelPosition() != NoTicks;
+    const QSize label = using_labels ? biggestLabel() : QSize();
+    const bool using_ticks = tickPosition() != NoTicks;
+    const int n_potential_labels = (maximum() - minimum()) / tickInterval();
     if (orientation() == Qt::Horizontal) {
         // Horizontal
         if (using_labels) {
@@ -415,7 +415,7 @@ QStyle::SubControls TickSlider::getHoverControl() const
     // http://cep.xray.aps.anl.gov/software/qt4-x11-4.8.6-browser/de/dbb/class_q_slider_private.html
     // And see QSliderPrivate::newHoverControl (in qslider.cpp)
 
-    QPoint pos = mapFromGlobal(QCursor::pos());
+    const QPoint pos = mapFromGlobal(QCursor::pos());
     QStyle::SubControls hoverControl;
 
     // Then the rest of this is lightly modified from QSliderPrivate::newHoverControl
@@ -423,12 +423,12 @@ QStyle::SubControls TickSlider::getHoverControl() const
     QStyleOptionSlider opt;
     initStyleOption(&opt);
     opt.subControls = QStyle::SC_All;
-    QRect handleRect = style()->subControlRect(QStyle::CC_Slider, &opt,
-                                               QStyle::SC_SliderHandle, this);
-    QRect grooveRect = style()->subControlRect(QStyle::CC_Slider, &opt,
-                                               QStyle::SC_SliderGroove, this);
-    QRect tickmarksRect = style()->subControlRect(QStyle::CC_Slider, &opt,
-                                                  QStyle::SC_SliderTickmarks, this);
+    const QRect handleRect = style()->subControlRect(
+                QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, this);
+    const QRect grooveRect = style()->subControlRect(
+                QStyle::CC_Slider, &opt, QStyle::SC_SliderGroove, this);
+    const QRect tickmarksRect = style()->subControlRect(
+                QStyle::CC_Slider, &opt, QStyle::SC_SliderTickmarks, this);
     // These rectangles are in widget-relative space.
 
     if (handleRect.contains(pos)) {

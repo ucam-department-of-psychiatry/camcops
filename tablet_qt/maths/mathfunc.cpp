@@ -64,7 +64,7 @@ QVariant mean(const QVector<QVariant>& values, bool ignore_null)
     // ignore_null false: return the mean, or NULL if any are NULL.
     double total = 0;
     int n = 0;
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         if (v.isNull()) {
@@ -92,12 +92,28 @@ qreal mean(qreal a, qreal b)
 
 int centile(qreal x, qreal minimum, qreal maximum)
 {
-    qreal fraction = (x - minimum) / (maximum - minimum);
-    qreal centile = 100 * fraction;
+    const qreal fraction = (x - minimum) / (maximum - minimum);
+    const qreal centile = 100 * fraction;
     if (!qIsFinite(centile)) {
         return -1;
     }
     return centile;  // truncates to int, which is what we want
+}
+
+
+double kahanSum(const QVector<double>& vec)
+{
+    // https://en.wikipedia.org/wiki/Kahan_summation_algorithm
+    // https://codereview.stackexchange.com/questions/56532/kahan-summation
+    double sum = 0.0;
+    double c = 0.0;  // running compensation for lost low-order bits
+    for (const double value : vec) {
+        double y = value - c;
+        double t = sum + y;
+        c = (t - sum) - y;
+        sum = t;
+    }
+    return sum;
 }
 
 
@@ -108,7 +124,7 @@ int centile(qreal x, qreal minimum, qreal maximum)
 int sumInt(const QVector<QVariant>& values)
 {
     int total = 0;
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         total += v.toInt();  // gives 0 if it is NULL
@@ -120,7 +136,7 @@ int sumInt(const QVector<QVariant>& values)
 double sumDouble(const QVector<QVariant>& values)
 {
     double total = 0;
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         total += v.toDouble();  // gives 0 if it is NULL
@@ -140,7 +156,7 @@ bool falseNotNull(const QVariant& value)
 
 bool allTrue(const QVector<QVariant>& values)
 {
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         if (!v.toBool()) {
@@ -153,7 +169,7 @@ bool allTrue(const QVector<QVariant>& values)
 
 bool anyTrue(const QVector<QVariant>& values)
 {
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         if (v.toBool()) {
@@ -172,7 +188,7 @@ bool allFalseOrNull(const QVector<QVariant>& values)
 
 bool allFalse(const QVector<QVariant>& values)
 {
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         if (v.isNull() || v.toBool()) {  // null or true
@@ -185,7 +201,7 @@ bool allFalse(const QVector<QVariant>& values)
 
 bool anyFalse(const QVector<QVariant> &values)
 {
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         if (!v.isNull() && !v.toBool()) {  // not null and not true
@@ -198,7 +214,7 @@ bool anyFalse(const QVector<QVariant> &values)
 
 bool anyNull(const QVector<QVariant>& values)
 {
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         if (v.isNull()) {
@@ -217,7 +233,7 @@ bool noneNull(const QVector<QVariant>& values)
 
 bool anyNullOrEmpty(const QVector<QVariant>& values)
 {
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         if (v.isNull() || v.toString().isEmpty()) {
@@ -237,7 +253,7 @@ bool noneNullOrEmpty(const QVector<QVariant>& values)
 int countTrue(const QVector<QVariant>& values)
 {
     int n = 0;
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         if (v.toBool()) {
@@ -251,7 +267,7 @@ int countTrue(const QVector<QVariant>& values)
 int countFalse(const QVector<QVariant>& values)
 {
     int n = 0;
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         if (falseNotNull(v)) {
@@ -265,7 +281,7 @@ int countFalse(const QVector<QVariant>& values)
 int countNull(const QVector<QVariant>& values)
 {
     int n = 0;
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         if (v.isNull()) {
@@ -279,7 +295,7 @@ int countNull(const QVector<QVariant>& values)
 int countNotNull(const QVector<QVariant>& values)
 {
     int n = 0;
-    int length = values.length();
+    const int length = values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = values.at(i);
         if (!v.isNull()) {
@@ -320,7 +336,7 @@ int countWhere(const QVector<QVariant>& test_values,
                const QVector<QVariant>& where_values)
 {
     int n = 0;
-    int length = test_values.length();
+    const int length = test_values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = test_values.at(i);
         if (where_values.contains(v)) {
@@ -335,7 +351,7 @@ int countWhereNot(const QVector<QVariant>& test_values,
                   const QVector<QVariant>& where_not_values)
 {
     int n = 0;
-    int length = test_values.length();
+    const int length = test_values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = test_values.at(i);
         if (!where_not_values.contains(v)) {
@@ -352,7 +368,7 @@ int countWhereNot(const QVector<QVariant>& test_values,
 
 QString percent(double numerator, double denominator, int dp)
 {
-    double pct = 100 * numerator / denominator;
+    const double pct = 100 * numerator / denominator;
     return convert::toDp(pct, dp) + "%";
 }
 
@@ -481,11 +497,11 @@ QVector<qreal> distribute(int n, qreal minimum, qreal maximum)
     if (maximum < minimum) {
         std::swap(minimum, maximum);
     }
-    qreal extent = maximum - minimum;
-    qreal each = extent / n;
+    const qreal extent = maximum - minimum;
+    const qreal each = extent / n;
     // ... (double / int) gives double
     // https://stackoverflow.com/questions/5563000/implicit-type-conversion-rules-in-c-operators
-    qreal centre_offset = each / 2;
+    const qreal centre_offset = each / 2;
     for (int i = 0; i < n; ++i) {
         posts.append(minimum + i * each + centre_offset);
     }
@@ -501,8 +517,8 @@ QPair<int, int> gridDimensions(int n, qreal aspect)
     // ... for smallest x, y. Thus:
     //      x = aspect * y
     //      aspect * y * y >= n
-    int y = qCeil(qSqrt(n / aspect));
-    int x = qCeil(n / y);
+    const int y = qCeil(qSqrt(n / aspect));
+    const int x = qCeil(n / y);
     return QPair<int, int>(x, y);
 }
 
@@ -514,7 +530,7 @@ QPair<int, int> gridDimensions(int n, qreal aspect)
 int proportionToByte(qreal proportion)
 {
     // convert 0.0-1.0 to 0-255
-    int a = qRound(qBound(0.0, proportion, 1.0) * 255);
+    const int a = qRound(qBound(0.0, proportion, 1.0) * 255);
     return qBound(0, a, 255);
 }
 
@@ -529,7 +545,7 @@ qreal byteToProportion(int byte)
 int proportionToIntPercent(qreal proportion)
 {
     // convert 0.0-1.0 to 0-100
-    int a = qRound(qBound(0.0, proportion, 1.0) * 100);
+    const int a = qRound(qBound(0.0, proportion, 1.0) * 100);
     return qBound(0, a, 100);
 }
 

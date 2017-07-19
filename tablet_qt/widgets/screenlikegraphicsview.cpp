@@ -112,15 +112,15 @@ void ScreenLikeGraphicsView::fitInView2(
         return;
     }
     // self.last_scene_roi = rect
-    QRectF unity = transform().mapRect(QRectF(0, 0, 1, 1));
+    const QRectF unity = transform().mapRect(QRectF(0, 0, 1, 1));
     scale(1/unity.width(), 1/unity.height());
     QWidget* vp = viewport();
     if (!vp) {
         qWarning() << Q_FUNC_INFO << "No viewport!";
         return;
     }
-    QRect view_rect = vp->rect();
-    QRectF scene_rect = transform().mapRect(rect);
+    const QRect view_rect = vp->rect();
+    const QRectF scene_rect = transform().mapRect(rect);
     qreal xratio = view_rect.width() / scene_rect.width();
     qreal yratio = view_rect.height() / scene_rect.height();
     if (aspect_ratio_mode == Qt::KeepAspectRatio) {

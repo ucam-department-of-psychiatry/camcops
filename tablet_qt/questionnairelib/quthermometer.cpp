@@ -68,7 +68,7 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
 {
     m_active_widgets.clear();
     m_inactive_widgets.clear();
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
     m_main_widget = new QWidget();
     m_main_widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     GridLayout* grid = new GridLayout();
@@ -76,9 +76,9 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
     grid->setSpacing(0);
     m_main_widget->setLayout(grid);
     // In reverse order:
-    int n = m_items.size();
+    const int n = m_items.size();
     for (int i = n - 1; i >= 0; --i) {
-        int row = (n - 1) - i;
+        const int row = (n - 1) - i;
         const QuThermometerItem& item = m_items.at(i);
         QPointer<ImageButton> active = new ImageButton();
         active->setImages(item.activeFilename(),
@@ -123,8 +123,8 @@ void QuThermometer::clicked(int index)
         qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
-    QVariant newvalue = m_items.at(index).value();
-    bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const QVariant newvalue = m_items.at(index).value();
+    const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
@@ -160,9 +160,9 @@ void QuThermometer::fieldValueChanged(const FieldRef* fieldref)
         return;
     }
     uifunc::setPropertyMissing(m_main_widget, fieldref->missingInput());
-    int index = indexFromValue(fieldref->value());
-    int n = m_active_widgets.size();
-    int index_row = (n - 1) - index;  // operating in reverse
+    const int index = indexFromValue(fieldref->value());
+    const int n = m_active_widgets.size();
+    const int index_row = (n - 1) - index;  // operating in reverse
     for (int i = 0; i < m_active_widgets.size(); ++ i) {
         QPointer<ImageButton> active = m_active_widgets.at(i);
         QPointer<ImageButton> inactive = m_inactive_widgets.at(i);

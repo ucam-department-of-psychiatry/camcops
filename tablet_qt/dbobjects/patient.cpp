@@ -110,21 +110,21 @@ int Patient::id() const
 
 QString Patient::forename() const
 {
-    QString forename = valueString(FORENAME_FIELD);
+    const QString forename = valueString(FORENAME_FIELD);
     return forename.isEmpty() ? "?" : forename;
 }
 
 
 QString Patient::surname() const
 {
-    QString surname = valueString(SURNAME_FIELD);
+    const QString surname = valueString(SURNAME_FIELD);
     return surname.isEmpty() ? "?" : surname;
 }
 
 
 QString Patient::sex() const
 {
-    QString sex = valueString(SEX_FIELD);
+    const QString sex = valueString(SEX_FIELD);
     return sex.isEmpty() ? "?" : sex;
 }
 
@@ -192,7 +192,7 @@ OpenableWidget* Patient::editor(bool read_only)
     grid->setColumnStretch(0, 1);
     grid->setColumnStretch(1, 2);
     int row = 0;
-    Qt::Alignment align = Qt::AlignRight | Qt::AlignTop;
+    const Qt::Alignment align = Qt::AlignRight | Qt::AlignTop;
 
     grid->addCell(QuGridCell(new QuText(tr("Surname")), row, 0, 1, 1, align));
     grid->addCell(QuGridCell(new QuLineEdit(fieldRef(SURNAME_FIELD, false)),
@@ -365,22 +365,22 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
     }
     AttributesType attributes = policyAttributes();
 
-    bool app = TABLET_ID_POLICY.complies(attributes);
-    m_questionnaire->setVisibleByTag(TAG_POLICY_APP_OK, app);
-    m_questionnaire->setVisibleByTag(TAG_POLICY_APP_FAIL, !app);
-    fieldRef(SURNAME_FIELD)->setMandatory(!app);
-    fieldRef(FORENAME_FIELD)->setMandatory(!app);
-    fieldRef(SEX_FIELD)->setMandatory(!app);
-    fieldRef(DOB_FIELD)->setMandatory(!app);
+    const bool tablet = TABLET_ID_POLICY.complies(attributes);
+    m_questionnaire->setVisibleByTag(TAG_POLICY_APP_OK, tablet);
+    m_questionnaire->setVisibleByTag(TAG_POLICY_APP_FAIL, !tablet);
+    fieldRef(SURNAME_FIELD)->setMandatory(!tablet);
+    fieldRef(FORENAME_FIELD)->setMandatory(!tablet);
+    fieldRef(SEX_FIELD)->setMandatory(!tablet);
+    fieldRef(DOB_FIELD)->setMandatory(!tablet);
     for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
-        fieldRef(IDNUM_FIELD_FORMAT.arg(n))->setMandatory(!app);
+        fieldRef(IDNUM_FIELD_FORMAT.arg(n))->setMandatory(!tablet);
     }
 
-    bool upload = m_app.uploadPolicy().complies(attributes);
+    const bool upload = m_app.uploadPolicy().complies(attributes);
     m_questionnaire->setVisibleByTag(TAG_POLICY_UPLOAD_OK, upload);
     m_questionnaire->setVisibleByTag(TAG_POLICY_UPLOAD_FAIL, !upload);
 
-    bool finalize = m_app.finalizePolicy().complies(attributes);
+    const bool finalize = m_app.finalizePolicy().complies(attributes);
     m_questionnaire->setVisibleByTag(TAG_POLICY_FINALIZE_OK, finalize);
     m_questionnaire->setVisibleByTag(TAG_POLICY_FINALIZE_FAIL, !finalize);
 
@@ -392,7 +392,7 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
             id_ok = false;
         }
     }
-    QString idclash_text = id_ok
+    const QString idclash_text = id_ok
             ? "No clashes"
             : ("The following IDs clash: " + clashing_ids.join(", "));
     m_questionnaire->setVisibleByTag(TAG_IDCLASH_OK, id_ok);
@@ -414,21 +414,21 @@ bool Patient::othersClashOnIdnum(int which_idnum) const
     if (which_idnum < 1 || which_idnum > dbconst::NUMBER_OF_IDNUMS) {
         uifunc::stopApp("Bug: Bad which_idnum to Patient::othersClashOnIdnum");
     }
-    QString id_fieldname = IDNUM_FIELD_FORMAT.arg(which_idnum);
-    QVariant idvar = idnumVariant(which_idnum);
+    const QString id_fieldname = IDNUM_FIELD_FORMAT.arg(which_idnum);
+    const QVariant idvar = idnumVariant(which_idnum);
     if (idvar.isNull()) {
         return false;
     }
-    qlonglong idnum = idnumInteger(which_idnum);
-    int patient_pk = id();
-    SqlArgs sqlargs(
+    const qlonglong idnum = idnumInteger(which_idnum);
+    const int patient_pk = id();
+    const SqlArgs sqlargs(
         QString("SELECT COUNT(*) FROM %1 WHERE %2 = ? AND %3 <> ?")
             .arg(delimit(TABLENAME),
                  delimit(id_fieldname),
                  delimit(dbconst::PK_FIELDNAME)),
         ArgList{idnum, patient_pk}
     );
-    int c = m_db.fetchInt(sqlargs);
+    const int c = m_db.fetchInt(sqlargs);
     return c > 0;
 }
 
@@ -454,12 +454,12 @@ bool Patient::anyIdClash() const
         return false;
     }
     args.append(id());
-    QString sql = QString("SELECT COUNT(*) FROM %1 WHERE (%2) AND %3 <> ?")
+    const QString sql = QString("SELECT COUNT(*) FROM %1 WHERE (%2) AND %3 <> ?")
             .arg(delimit(TABLENAME),
                  idnum_criteria.join(" OR "),
                  delimit(dbconst::PK_FIELDNAME));
-    SqlArgs sqlargs(sql, args);
-    int c = m_db.fetchInt(sqlargs);
+    const SqlArgs sqlargs(sql, args);
+    const int c = m_db.fetchInt(sqlargs);
     return c > 0;
 }
 
@@ -467,7 +467,7 @@ bool Patient::anyIdClash() const
 int Patient::numTasks() const
 {
     int n = 0;
-    int patient_id = id();
+    const int patient_id = id();
     if (patient_id == dbconst::NONEXISTENT_PK) {
         return 0;
     }
@@ -482,7 +482,7 @@ int Patient::numTasks() const
 void Patient::deleteFromDatabase()
 {
     // Delete any associated tasks
-    int patient_id = id();
+    const int patient_id = id();
     if (patient_id == dbconst::NONEXISTENT_PK) {
         return;
     }
@@ -537,8 +537,8 @@ void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
 {
     DbNestableTransaction trans(m_db);
 
-    int this_pk = id();
-    int other_pk = other->id();
+    const int this_pk = id();
+    const int other_pk = other->id();
 
     // Copy information from other to this
     qInfo() << Q_FUNC_INFO << "Copying information from patient" << other_pk

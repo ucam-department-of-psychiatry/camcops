@@ -113,7 +113,7 @@ QStringList Badls::detail() const
 OpenableWidget* Badls::editor(bool read_only)
 {
     QVector<QuElementPtr> elements;
-    bool second_person = true;
+    const bool second_person = true;
 
     elements.append(getRespondentQuestionnaireBlockElementPtr(second_person));
     elements.append(QuElementPtr(new QuText(xstring("instruction_1"))));
@@ -149,7 +149,7 @@ OpenableWidget* Badls::editor(bool read_only)
 
 int Badls::score(int qnum) const
 {
-    QVariant v = value(QPREFIX + QString::number(qnum));
+    const QVariant v = value(QPREFIX + QString::number(qnum));
     return BADLS_SCORING[v.toString()];
     // If the key is not present, we will get a default-initialized int [1],
     // which will be 0 [2, 3].

@@ -69,7 +69,7 @@ bool headingInRange(qreal first_bound_deg,
     if (heading_deg == first_bound_deg || heading_deg == second_bound_deg) {
         return inclusive;
     }
-    bool range_increases = first_bound_deg < second_bound_deg;
+    const bool range_increases = first_bound_deg < second_bound_deg;
     qreal lower_bound;
     qreal upper_bound;
     if (range_increases) {
@@ -79,7 +79,7 @@ bool headingInRange(qreal first_bound_deg,
         lower_bound = second_bound_deg;
         upper_bound = first_bound_deg;
     }
-    bool within = lower_bound < heading_deg && heading_deg < upper_bound;
+    const bool within = lower_bound < heading_deg && heading_deg < upper_bound;
     // Second bound is clockwise ("right") from first.
     // If the second bound is numerically greater than the first, then
     // we have a simple range that doesn't cross "North" (0 = 360),
@@ -98,7 +98,7 @@ qreal convertHeadingFromTrueNorth(qreal true_north_heading_deg,
 {
     // Example: pseudo_north_deg is 30;
     // then 0 in true North is -30 in pseudo-North.
-    qreal h = true_north_heading_deg - pseudo_north_deg;
+    const qreal h = true_north_heading_deg - pseudo_north_deg;
     return normalize ? normalizeHeading(h) : h;
 }
 
@@ -108,7 +108,7 @@ qreal convertHeadingToTrueNorth(qreal pseudo_north_heading_deg,
                                 bool normalize)
 {
     // Inverts convertHeadingFromTrueNorth().
-    qreal h = pseudo_north_heading_deg + pseudo_north_deg;
+    const qreal h = pseudo_north_heading_deg + pseudo_north_deg;
     return normalize ? normalizeHeading(h) : h;
 }
 
@@ -116,15 +116,15 @@ qreal convertHeadingToTrueNorth(qreal pseudo_north_heading_deg,
 QPointF polarToCartesian(qreal r, qreal theta_deg)
 {
     // theta == 0 implies along the x axis in a positive direction (right).
-    qreal theta_rad = qDegreesToRadians(theta_deg);
+    const qreal theta_rad = qDegreesToRadians(theta_deg);
     return QPointF(r * qCos(theta_rad), r * qSin(theta_rad));
 }
 
 
 qreal distanceBetween(const QPointF& from, const QPointF& to)
 {
-    qreal dx = to.x() - from.x();
-    qreal dy = to.y() - from.y();
+    const qreal dx = to.x() - from.x();
+    const qreal dy = to.y() - from.y();
     // Pythagoras:
     return qSqrt(qPow(dx, 2) + qPow(dy, 2));
 }
@@ -138,7 +138,7 @@ qreal polarThetaToHeading(qreal theta_deg, qreal north_deg)
     // north_deg (e.g. specifying north_deg = 90 makes the heading 0 when
     // actually East), and positive clockwise.
     // - The first step converts to "clockwise, up is 0":
-    qreal true_north_heading = theta_deg + DEG_90;
+    const qreal true_north_heading = theta_deg + DEG_90;
     return convertHeadingFromTrueNorth(true_north_heading, north_deg);
 }
 
@@ -149,17 +149,17 @@ qreal headingToPolarTheta(qreal heading_deg, qreal north_deg, bool normalize)
     // anticlockwise. Compass headings have 0 == North, unless adjusted by
     // north_deg (e.g. specifying north_deg = 90 makes the heading 0 when
     // actually East), and positive clockwise.
-    qreal true_north_heading = convertHeadingToTrueNorth(
+    const qreal true_north_heading = convertHeadingToTrueNorth(
                 heading_deg, north_deg, normalize);
-    qreal theta = true_north_heading - DEG_90;
+    const qreal theta = true_north_heading - DEG_90;
     return normalize ? normalizeHeading(theta) : theta;
 }
 
 
 qreal polarTheta(const QPointF& from, const QPointF& to)
 {
-    qreal dx = to.x() - from.x();
-    qreal dy = to.y() - from.y();
+    const qreal dx = to.x() - from.x();
+    const qreal dy = to.y() - from.y();
     if (dx == 0 && dy == 0) {
         // Nonsensical; no movement.
         return 0.0;
@@ -185,8 +185,8 @@ qreal headingDegrees(const QPointF& from, const QPointF& to, qreal north_deg)
 bool lineSegmentsIntersect(const QPointF& first_from, const QPointF& first_to,
                            const QPointF& second_from, const QPointF& second_to)
 {
-    LineSegment s1(first_from, first_to);
-    LineSegment s2(second_from, second_to);
+    const LineSegment s1(first_from, first_to);
+    const LineSegment s2(second_from, second_to);
     return s1.intersects(s2);
 }
 
@@ -194,7 +194,7 @@ bool lineSegmentsIntersect(const QPointF& first_from, const QPointF& first_to,
 bool pointOnLineSegment(const QPointF& point,
                         const QPointF& line_start, const QPointF& line_end)
 {
-    LineSegment ls(line_start, line_end);
+    const LineSegment ls(line_start, line_end);
     return ls.pointOn(point);
 }
 
@@ -204,8 +204,8 @@ LineSegment lineFromPointInHeadingWithRadius(const QPointF& point,
                                              qreal north_deg,
                                              qreal radius)
 {
-    qreal theta = headingToPolarTheta(heading_deg, north_deg);
-    QPointF distant_point = point + polarToCartesian(radius, theta);
+    const qreal theta = headingToPolarTheta(heading_deg, north_deg);
+    const QPointF distant_point = point + polarToCartesian(radius, theta);
     return LineSegment(point, distant_point);
 }
 
@@ -222,9 +222,9 @@ bool lineCrossesHeadingWithinRadius(const QPointF& from, const QPointF& to,
     if (from == to) {
         return false;
     }
-    LineSegment ls_trajectory = lineFromPointInHeadingWithRadius(
+    const LineSegment ls_trajectory = lineFromPointInHeadingWithRadius(
                 point, heading_deg, radius, north_deg);
-    LineSegment from_to = LineSegment(from, to);
+    const LineSegment from_to = LineSegment(from, to);
     return from_to.intersects(ls_trajectory);
 }
 

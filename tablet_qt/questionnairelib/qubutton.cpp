@@ -55,7 +55,7 @@ QuButton* QuButton::setActive(bool active)
 
 QPointer<QWidget> QuButton::makeWidget(Questionnaire* questionnaire)
 {
-    bool read_only = !m_active || questionnaire->readOnly();
+    const bool read_only = !m_active || questionnaire->readOnly();
     QAbstractButton* button;
     if (!m_label.isEmpty()) {
         // Text

@@ -113,12 +113,12 @@ OpenableWidget* BprsE::editor(bool read_only)
     auto addpage = [this, &pages, &option0, &option1](int n) -> void {
         NameValueOptions options{option0, option1};
         for (int i = 2; i <= 7; ++i) {
-            QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
+            const QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
             options.append(NameValuePair(name, i));
         }
-        QString pagetitle = xstring(QString("q%1_title").arg(n));
-        QString question = xstring(QString("q%1_question").arg(n));
-        QString fieldname = strnum(QPREFIX, n);
+        const QString pagetitle = xstring(QString("q%1_title").arg(n));
+        const QString question = xstring(QString("q%1_question").arg(n));
+        const QString fieldname = strnum(QPREFIX, n);
         QuPagePtr page((new QuPage{
             new QuText(question),
             new QuMcq(fieldRef(fieldname), options),

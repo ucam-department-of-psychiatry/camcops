@@ -259,6 +259,15 @@ def rename_table(from_table: str, to_table: str) -> None:
     pls.db.rename_table(from_table, to_table)
 
 
+def drop_all_views_and_summary_tables() -> None:
+    for cls in cc_task.get_all_task_classes():
+        cls.drop_views()
+        cls.drop_summary_tables()
+    Blob.drop_views()
+    Patient.drop_views()
+    DeviceStoredVar.drop_views()
+
+
 def v1_5_alter_device_table() -> None:
     tablename = Device.TABLENAME
     if not pls.db.table_exists(tablename):
@@ -513,6 +522,9 @@ def upgrade_database(old_version: Version) -> None:
         # ---------------------------------------------------------------------
         # Note: OK to drop columns even if a view is looking at them,
         # though the view will then be invalid.
+
+        drop_all_views_and_summary_tables()
+
         v1_5_alter_device_table()
         v1_5_alter_user_table()
         v1_5_alter_generic_table_usercol(Device.TABLENAME,
@@ -522,19 +534,12 @@ def upgrade_database(old_version: Version) -> None:
                                          'uploading_user',
                                          'uploading_user_id')
         for cls in cc_task.get_all_task_classes():
-            cls.drop_views()
-            cls.drop_summary_tables()
             v1_5_alter_generic_table(cls.tablename)
             for tablename in cls.get_extra_table_names():
                 v1_5_alter_generic_table(tablename)
         # Special tables with device or patient references:
-        Blob.drop_views()
         v1_5_alter_generic_table(Blob.TABLENAME)
-
-        Patient.drop_views()
         v1_5_alter_generic_table(Patient.TABLENAME)
-
-        DeviceStoredVar.drop_views()
         v1_5_alter_generic_table(DeviceStoredVar.TABLENAME)
 
         v1_5_alter_generic_table_usercol(
@@ -560,6 +565,7 @@ def upgrade_database(old_version: Version) -> None:
         report_database_upgrade_step("2.0.0")
 
         # Server
+        drop_all_views_and_summary_tables()
         pls.db.db_exec_literal("""
             UPDATE {table}
             SET type = 'text',
@@ -575,8 +581,6 @@ def upgrade_database(old_version: Version) -> None:
         v2_0_0_alter_generic_table(DeviceStoredVar.TABLENAME)
         # Tasks
         for cls in cc_task.get_all_task_classes():
-            cls.drop_views()
-            cls.drop_summary_tables()
             v2_0_0_alter_generic_table(cls.tablename)
             for tablename in cls.get_extra_table_names():
                 v2_0_0_alter_generic_table(tablename)
@@ -593,7 +597,7 @@ def upgrade_database(old_version: Version) -> None:
         # of old clients).
 
 
-def upgrade_database_second_phase(old_version: Version):
+def upgrade_database_second_phase(old_version: Version) -> None:
     if old_version < Version("2.0.0"):
         report_database_upgrade_step("2.0.0")
         v2_0_0_move_png_rotation_field("ace3", "picture1_blobid", "picture1_rotation")  # noqa
@@ -683,8 +687,12 @@ def make_tables(drop_superfluous_columns: bool = False) -> None:
 
     # Read old version number, and perform any special version-specific
     # upgrade tasks
-    sv_version = ServerStoredVar("serverCamcopsVersion", "text")
-    old_version = make_version(sv_version.get_value())
+    sv_version = ServerStoredVar("serverCamcopsVersion",
+                                 ServerStoredVar.TYPE_TEXT)
+    sv_potential_old_version = ServerStoredVar("serverCamcopsVersion",
+                                               ServerStoredVar.TYPE_REAL)
+    old_version = make_version(sv_version.get_value() or
+                               sv_potential_old_version.get_value())
     upgrade_database(old_version)
     # Important that we write the new version now:
     sv_version.set_value(str(CAMCOPS_SERVER_VERSION))
@@ -1120,7 +1128,8 @@ Using database: {dbname} ({dbtitle}).
 10) Send all pending HL7 messages
 11) Show HL7 queue without sending
 12) Regenerate anonymisation staging database
-13) Exit
+13) Drop all views and summary tables
+14) Exit
 """.format(sep=SEPARATOR_EQUALS,
            version=CAMCOPS_SERVER_VERSION,
            dbname=pls.DB_NAME,
@@ -1160,6 +1169,8 @@ Using database: {dbname} ({dbtitle}).
         elif choice == 12:
             generate_anonymisation_staging_db()
         elif choice == 13:
+            drop_all_views_and_summary_tables()
+        elif choice == 14:
             sys.exit()
 
         # Must commit, or we may lock the database while watching the menu

@@ -172,10 +172,10 @@ bool SQLCipherDriver::open(const QString& db, const QString& user,
         close();
     }
 
-    int timeOut = 5000;
-    bool sharedCache = false;
-    bool openReadOnlyOption = false;
-    bool openUriOption = false;
+    int time_out = 5000;
+    bool shared_cache = false;
+    bool open_read_only_option = false;
+    bool open_uri_option = false;
 
     const auto opts = conn_opts.splitRef(QLatin1Char(';'));
     for (auto option : opts) {
@@ -186,28 +186,30 @@ bool SQLCipherDriver::open(const QString& db, const QString& user,
                 bool ok;
                 const int nt = option.mid(1).trimmed().toInt(&ok);
                 if (ok) {
-                    timeOut = nt;
+                    time_out = nt;
                 }
             }
         } else if (option == QLatin1String("QSQLITE_OPEN_READONLY")) {
-            openReadOnlyOption = true;
+            open_read_only_option = true;
         } else if (option == QLatin1String("QSQLITE_OPEN_URI")) {
-            openUriOption = true;
+            open_uri_option = true;
         } else if (option == QLatin1String("QSQLITE_ENABLE_SHARED_CACHE")) {
-            sharedCache = true;
+            shared_cache = true;
         }
     }
 
-    int openMode = (openReadOnlyOption ? SQLITE_OPEN_READONLY
-                                       : (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE));
-    if (openUriOption)
-        openMode |= SQLITE_OPEN_URI;
+    int open_mode = (open_read_only_option
+                     ? SQLITE_OPEN_READONLY
+                     : (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE));
+    if (open_uri_option) {
+        open_mode |= SQLITE_OPEN_URI;
+    }
 
-    sqlite3_enable_shared_cache(sharedCache);
+    sqlite3_enable_shared_cache(shared_cache);
 
-    if (sqlite3_open_v2(db.toUtf8().constData(), &m_access, openMode,
+    if (sqlite3_open_v2(db.toUtf8().constData(), &m_access, open_mode,
                         NULL) == SQLITE_OK) {
-        sqlite3_busy_timeout(m_access, timeOut);
+        sqlite3_busy_timeout(m_access, time_out);
         setOpen(true);
         setOpenError(false);
         return true;

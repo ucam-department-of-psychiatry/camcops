@@ -95,7 +95,7 @@ FieldRefPtrList QuDateTime::fieldrefs() const
 
 QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
 {
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
 
     QPointer<QWidget> widget = new QWidget();
     widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -299,7 +299,8 @@ void QuDateTime::setField(const QDateTime& datetime, bool reset_this_widget)
         newvalue.convert(QVariant::Time);
         break;
     }
-    bool changed = m_fieldref->setValue(newvalue, reset_this_widget ? nullptr : this);
+    const bool changed = m_fieldref->setValue(newvalue,
+                                              reset_this_widget ? nullptr : this);
     if (changed) {
         emit elementValueChanged();
     }

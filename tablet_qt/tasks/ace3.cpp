@@ -277,12 +277,12 @@ bool Ace3::isComplete() const
 
 QStringList Ace3::summary() const
 {
-    int a = getAttnScore();
-    int m = getMemScore();
-    int f = getFluencyScore();
-    int l = getLangScore();
-    int v = getVisuospatialScore();
-    int t = a + m + f + l + v;
+    const int a = getAttnScore();
+    const int m = getMemScore();
+    const int f = getFluencyScore();
+    const int l = getLangScore();
+    const int v = getVisuospatialScore();
+    const int t = a + m + f + l + v;
     auto scorelambda = [](int score, int out_of) -> QString {
         return ": " + scoreStringWithPercent(score, out_of) + ".";
     };
@@ -344,7 +344,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     // Preamble; age-leaving-full-time-education; handedness
     // ------------------------------------------------------------------------
 
-    NameValueOptions options_handedness{
+    const NameValueOptions options_handedness{
         {xstring("left_handed"), "L"},
         {xstring("right_handed"), "R"},
     };
@@ -368,7 +368,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     // Attention/orientation/three word recall
     // ------------------------------------------------------------------------
 
-    QDateTime now = datetime::now();
+    const QDateTime now = datetime::now();
     QString season;
     switch (datetime::now().date().month()) {
         // 1 = Jan, 12 = Dec
@@ -396,12 +396,12 @@ OpenableWidget* Ace3::editor(bool read_only)
         season = "?(season_bug)";
         break;
     }
-    QString correct_date = "     " + now.toString("dddd d MMMM yyyy") + "; " +
-            season;
+    const QString correct_date = "     " + now.toString("dddd d MMMM yyyy") +
+            "; " + season;
     // ... e.g. "Monday 2 January 2016; winter";
     // http://doc.qt.io/qt-5/qdate.html#toString
 
-    NameValueOptions options_registration{
+    const NameValueOptions options_registration{
         {"1", 1},
         {"2", 2},
         {"3", 3},
@@ -470,7 +470,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     // Fluency
     // ------------------------------------------------------------------------
 
-    NameValueOptions options_fluency_letters{
+    const NameValueOptions options_fluency_letters{
         {"0–1", 0},
         {"2–3", 1},
         {"4–5", 2},
@@ -481,7 +481,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         {"≥18", 7}
 
     };
-    NameValueOptions options_fluency_animals{
+    const NameValueOptions options_fluency_animals{
         {"0–4", 0},
         {"5–6", 1},
         {"7–8", 2},
@@ -705,7 +705,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     // Cube
     // ------------------------------------------------------------------------
 
-    NameValueOptions options_cube = NameValueOptions::makeNumbers(0, 2);
+    const NameValueOptions options_cube = NameValueOptions::makeNumbers(0, 2);
     QuPagePtr page_cube((new QuPage{
         instruction("vsp_q_cube"),
         new QuImage(uifunc::resourceFilename(IMAGE_CUBE)),
@@ -719,7 +719,7 @@ OpenableWidget* Ace3::editor(bool read_only)
     // Clock
     // ------------------------------------------------------------------------
 
-    NameValueOptions options_clock = NameValueOptions::makeNumbers(0, 5);
+    const NameValueOptions options_clock = NameValueOptions::makeNumbers(0, 5);
     QuPagePtr page_clock((new QuPage{
                               instruction("vsp_q_clock"),
                               explanation("vsp_instruction_clock"),
@@ -802,27 +802,27 @@ OpenableWidget* Ace3::editor(bool read_only)
     // Address recall: cued
     // ------------------------------------------------------------------------
 
-    NameValueOptions options_recall_name({
+    const NameValueOptions options_recall_name({
         {xstring("mem_recall_option1_line1"), CHOICE_A},
         {xstring("mem_recall_option2_line1"), CHOICE_B},  // correct
         {xstring("mem_recall_option3_line1"), CHOICE_C},
     });
-    NameValueOptions options_recall_number({
+    const NameValueOptions options_recall_number({
         {xstring("mem_recall_option1_line2"), CHOICE_A},
         {xstring("mem_recall_option2_line2"), CHOICE_B},  // correct
         {xstring("mem_recall_option3_line2"), CHOICE_C},
     });
-    NameValueOptions options_recall_street({
+    const NameValueOptions options_recall_street({
         {xstring("mem_recall_option1_line3"), CHOICE_A},
         {xstring("mem_recall_option2_line3"), CHOICE_B},
         {xstring("mem_recall_option3_line3"), CHOICE_C},  // correct
     });
-    NameValueOptions options_recall_town({
+    const NameValueOptions options_recall_town({
         {xstring("mem_recall_option1_line4"), CHOICE_A},
         {xstring("mem_recall_option2_line4"), CHOICE_B},  // correct
         {xstring("mem_recall_option3_line4"), CHOICE_C},
     });
-    NameValueOptions options_recall_county({
+    const NameValueOptions options_recall_county({
         {xstring("mem_recall_option1_line5"), CHOICE_A},  // correct
         {xstring("mem_recall_option2_line5"), CHOICE_B},
         {xstring("mem_recall_option3_line5"), CHOICE_C},
@@ -1015,7 +1015,7 @@ int Ace3::getFollowCommandScore() const
 
 int Ace3::getRepeatWordScore() const
 {
-    int n = sumInt(values(strseq(FP_LANG_REPEAT_WORD, 1, 4)));
+    const int n = sumInt(values(strseq(FP_LANG_REPEAT_WORD, 1, 4)));
     return n >= 4 ? 2 : (n == 3 ? 1 : 0);
 }
 
@@ -1086,9 +1086,9 @@ void Ace3::langPracticeChanged(const FieldRef* fieldref)
     if (!m_questionnaire) {
         return;
     }
-    QVariant value = fieldref->value();
-    bool visible = !eq(value, false);
-    bool mandatory = value.toBool();
+    const QVariant value = fieldref->value();
+    const bool visible = !eq(value, false);
+    const bool mandatory = value.toBool();
     for (int i = 1; i <= N_LANG_FOLLOW_CMD; ++i) {
         fieldRef(strnum(FP_LANG_FOLLOW_CMD, i))->setMandatory(mandatory);
     }

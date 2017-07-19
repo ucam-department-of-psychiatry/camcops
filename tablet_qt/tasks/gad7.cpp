@@ -97,8 +97,8 @@ QStringList Gad7::summary() const
 
 QStringList Gad7::detail() const
 {
-    int total = totalScore();
-    QString severity =
+    const int total = totalScore();
+    const QString severity =
             total >= 15 ? textconst::SEVERE
                         : (total >= 10 ? textconst::MODERATE
                                        : (total >= 5 ? textconst::MILD
@@ -116,7 +116,7 @@ QStringList Gad7::detail() const
 
 OpenableWidget* Gad7::editor(bool read_only)
 {
-    NameValueOptions options{
+    const NameValueOptions options{
         {xstring("a0"), 0},
         {xstring("a1"), 1},
         {xstring("a2"), 2},

@@ -183,7 +183,7 @@ QAbstractButton* ScrollMessageBox::clickedButton() const
 
 void ScrollMessageBox::setIcon(QMessageBox::Icon icon)
 {
-    QPixmap px = standardIcon(icon);
+    const QPixmap px = standardIcon(icon);
     m_icon_label->setPixmap(px);
     m_icon_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     update();
@@ -193,7 +193,7 @@ void ScrollMessageBox::setIcon(QMessageBox::Icon icon)
 QPixmap ScrollMessageBox::standardIcon(QMessageBox::Icon icon)
 {
     QStyle* style = this->style();
-    int icon_size = style->pixelMetric(QStyle::PM_MessageBoxIconSize, 0, this);
+    const int icon_size = style->pixelMetric(QStyle::PM_MessageBoxIconSize, 0, this);
     QIcon tmp_icon;
     switch (icon) {
     case QMessageBox::Information:
@@ -221,7 +221,7 @@ QPixmap ScrollMessageBox::standardIcon(QMessageBox::Icon icon)
 void ScrollMessageBox::handleButtonClicked(QAbstractButton* button)
 {
     m_clicked_button = button;
-    int ret = m_button_box->standardButton(button);
+    const int ret = m_button_box->standardButton(button);
     done(ret);
 }
 

@@ -172,7 +172,7 @@ QImage Blob::image(bool* p_loaded) const
     if (m_image.isNull()) {
         m_image = convert::byteArrayToImage(blobByteArray(),
                                             &m_image_loaded_from_data);
-        int angle_deg_cw = valueInt(ROTATION_FIELDNAME);
+        const int angle_deg_cw = valueInt(ROTATION_FIELDNAME);
         rotateCachedImage(angle_deg_cw);
     }
     if (p_loaded) {
@@ -199,7 +199,7 @@ bool Blob::setImage(const QImage& image, bool save_to_db)
 {
     m_image = image;
     m_image_loaded_from_data = true;
-    QVariant value = convert::imageToVariant(image);
+    const QVariant value = convert::imageToVariant(image);
     bool changed = setBlob(value, save_to_db, "png", "image/png");
     return changed;
 }

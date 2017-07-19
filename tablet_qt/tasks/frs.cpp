@@ -149,9 +149,9 @@ bool Frs::isComplete() const
 
 QStringList Frs::summary() const
 {
-    ScoreInfo si = getScore();
+    const ScoreInfo si = getScore();
     QStringList lines;
-    QString sep = " = ";
+    const QString sep = " = ";
     lines.append(standardResult("Total", convert::prettyValue(si.total), sep,
                                 " (0–n, higher better)."));
     lines.append(standardResult("n", convert::prettyValue(si.n), sep,
@@ -175,7 +175,7 @@ QStringList Frs::detail() const
 OpenableWidget* Frs::editor(bool read_only)
 {
     auto makeoptions = [this](int q) -> NameValueOptions {
-        QString prefix = strnum("q", q, "_a_");
+        const QString prefix = strnum("q", q, "_a_");
         NameValueOptions options{
             {xstring(prefix + "never"), NEVER},
         };
@@ -271,7 +271,7 @@ Frs::ScoreInfo Frs::getScore() const
 {
     ScoreInfo si;
     for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
-        QVariant v = value(strnum(QPREFIX, q));
+        const QVariant v = value(strnum(QPREFIX, q));
         if (!v.isNull() && v.toInt() != NA) {
             ++si.n;
             si.total += SCORE[v.toInt()];
@@ -288,7 +288,7 @@ Frs::ScoreInfo Frs::getScore() const
 
 QVariant Frs::getTabularLogit(double score) const
 {
-    double pct_score = 100 * score;
+    const double pct_score = 100 * score;
     for (auto a_b_result : TABULAR_LOGIT_RANGES) {
         const QPair<double, double>& a_b = a_b_result.first;
         const double& result = a_b_result.second;
@@ -309,7 +309,7 @@ QString Frs::getSeverity(const QVariant& logit) const
     if (logit.isNull()) {
         return "?";
     }
-    double l = logit.toDouble();
+    const double l = logit.toDouble();
     if (l >= 4.12) {
         return "very mild";
     }

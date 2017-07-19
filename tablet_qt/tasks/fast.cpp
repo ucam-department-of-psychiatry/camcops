@@ -110,14 +110,14 @@ QStringList Fast::detail() const
 
 OpenableWidget* Fast::editor(bool read_only)
 {
-    NameValueOptions main_options{
+    const NameValueOptions main_options{
         {xstring("q1to3_option0"), 0},
         {xstring("q1to3_option1"), 1},
         {xstring("q1to3_option2"), 2},
         {xstring("q1to3_option3"), 3},
         {xstring("q1to3_option4"), 4},
     };
-    NameValueOptions q4_options{
+    const NameValueOptions q4_options{
         {xstring("q4_option0"), 0},
         {xstring("q4_option2"), 2},
         {xstring("q4_option4"), 4},
@@ -165,7 +165,7 @@ int Fast::totalScore() const
 
 bool Fast::isPositive() const
 {
-    int q1 = valueInt(strnum(QPREFIX, 1));
+    const int q1 = valueInt(strnum(QPREFIX, 1));
     if (q1 == 0) {
         return false;  // "Never"
     }

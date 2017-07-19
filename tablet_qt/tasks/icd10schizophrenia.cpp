@@ -246,8 +246,8 @@ OpenableWidget* Icd10Schizophrenia::editor(bool read_only)
             qfields.append(QuestionWithOneField(xstring(fieldname),
                                                 fieldRef(fieldname, false)));
         }
-        int n = options.size();
-        QVector<int> v(n, 1);
+        const int n = options.size();
+        const QVector<int> v(n, 1);
         return (new QuMcqGrid(qfields, options))
                 ->setExpand(true)
                 ->setWidth(n, v);
@@ -300,13 +300,13 @@ OpenableWidget* Icd10Schizophrenia::editor(bool read_only)
 
 QVariant Icd10Schizophrenia::meetsGeneralCriteria() const
 {
-    QVector<QVariant> va = values(A_NAMES);
-    QVector<QVariant> vb = values(B_NAMES);
-    QVector<QVariant> vc = values(C_NAMES);
-    int t1 = countTrue(va);  // t for true
-    int u1 = countNull(va);  // u for unknown
-    int t2 = countTrue(vb) + countTrue(vc);
-    int u2 = countNull(vb) + countNull(vc);
+    const QVector<QVariant> va = values(A_NAMES);
+    const QVector<QVariant> vb = values(B_NAMES);
+    const QVector<QVariant> vc = values(C_NAMES);
+    const int t1 = countTrue(va);  // t for true
+    const int u1 = countNull(va);  // u for unknown
+    const int t2 = countTrue(vb) + countTrue(vc);
+    const int u2 = countNull(vb) + countNull(vc);
 
     if (t1 + u1 < 1 && t2 + u2 < 2) {
         // Not schizophrenia: insufficient symptoms
@@ -325,13 +325,13 @@ QVariant Icd10Schizophrenia::meetsGeneralCriteria() const
         // Not schizophrenia: organic or substance-induced, instead
         return false;
     }
-    bool symptoms = t1 >= 1 || t2 >= 2;
-    bool duration = valueBool(PRESENT_ONE_MONTH);
-    bool no_mood_exclusion = (falseNotNull(value(ALSO_MANIC)) &&
+    const bool symptoms = t1 >= 1 || t2 >= 2;
+    const bool duration = valueBool(PRESENT_ONE_MONTH);
+    const bool no_mood_exclusion = (falseNotNull(value(ALSO_MANIC)) &&
                               falseNotNull(value(ALSO_DEPRESSIVE))) ||
             valueBool(IF_MOOD_PSYCHOSIS_FIRST);
     // ... (not manic AND not depressed) OR (if mood, psychosis came first)
-    bool no_organic_substance_exclusion = valueBool(NOT_ORGANIC_OR_SUBSTANCE);
+    const bool no_organic_substance_exclusion = valueBool(NOT_ORGANIC_OR_SUBSTANCE);
     if (symptoms && duration && no_mood_exclusion &&
             no_organic_substance_exclusion) {
         // Positive diagnosis of schizophrenia
@@ -348,8 +348,8 @@ QVariant Icd10Schizophrenia::meetsGeneralCriteria() const
 
 void Icd10Schizophrenia::updateMandatory()
 {
-    bool known = !meetsGeneralCriteria().isNull();
-    bool need = !known;
+    const bool known = !meetsGeneralCriteria().isNull();
+    const bool need = !known;
     for (auto fieldname : INFORMATIVE) {
         fieldRef(fieldname)->setMandatory(need, this);
     }

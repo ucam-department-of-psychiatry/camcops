@@ -884,7 +884,8 @@ HEADERS += \
     qobjects/cameraframegrabber.h \
     widgets/cameraqcamera.h \
     widgets/cameraqml.h \
-    db/blobfieldref.h
+    db/blobfieldref.h \
+    maths/floatingpoint.h
 
 DISTFILES += \
     android/AndroidManifest.xml \

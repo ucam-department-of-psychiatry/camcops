@@ -78,13 +78,13 @@ void dumpsql::runTableDumpQuery(QTextStream& os,
                                 const QString& sql,
                                 const QString& firstrow)
 {
-    QueryResult result = db.query(sql);
+    const QueryResult result = db.query(sql);
     if (!result.succeeded()) {
         return;
     }
     os << firstrow;
-    int nrows = result.nRows();
-    int ncols = result.nCols();
+    const int nrows = result.nRows();
+    const int ncols = result.nCols();
     for (int row = 0; row < nrows; ++row) {
         for (int col = 0; col < ncols; ++col) {
             if (col > 0) {
@@ -105,16 +105,16 @@ bool dumpsql::runSchemaDumpQuery(QTextStream& os,
                                  const QString& schema_query_sql,
                                  bool writable_schema)
 {
-    QueryResult result = db.query(schema_query_sql);
+    const QueryResult result = db.query(schema_query_sql);
     if (!result.succeeded()) {
         return writable_schema;
     }
     bool firstline = true;
-    int nrows = result.nRows();
+    const int nrows = result.nRows();
     for (int row = 0; row < nrows; ++row) {
-        QString table = result.at(row, 0).toString();
-        QString type = result.at(row, 1).toString();
-        QString maketable_sql = result.at(row, 2).toString();
+        const QString table = result.at(row, 0).toString();
+        const QString type = result.at(row, 1).toString();
+        const QString maketable_sql = result.at(row, 2).toString();
         if (!firstline) {
             os << NL;
         } else {
@@ -152,14 +152,14 @@ bool dumpsql::runSchemaDumpQuery(QTextStream& os,
             QString select = DATASELECT_1_SELECT_INSERT_INTO_VALUES;
             replaceFirst(select, PLACEHOLDER, table);
             bool first = true;
-            int nrows2 = result2.nRows();
+            const int nrows2 = result2.nRows();
             for (int row2 = 0; row2 < nrows2; ++row2) {
                 if (!first) {
                     select += ",";
                 } else {
                     first = false;
                 }
-                QString text = result2.at(row, 1).toString();
+                const QString text = result2.at(row, 1).toString();
                 QString databit = DATASELECT_2_QUOTE;
                 replaceFirst(databit, PLACEHOLDER, text);
                 select += databit;

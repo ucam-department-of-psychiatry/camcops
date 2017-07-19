@@ -112,28 +112,28 @@ QStringList AuditC::detail() const
 
 OpenableWidget* AuditC::editor(bool read_only)
 {
-    NameValueOptions options1{
+    const NameValueOptions options1{
         {xstring("q1_option0"), 0},
         {xstring("q1_option1"), 1},
         {xstring("q1_option2"), 2},
         {xstring("q1_option3"), 3},
         {xstring("q1_option4"), 4},
     };
-    NameValueOptions options2{
+    const NameValueOptions options2{
         {xstring("c_q2_option0"), 0},  // NB different from AUDIT
         {xstring("q2_option1"), 1},
         {xstring("q2_option2"), 2},
         {xstring("q2_option3"), 3},
         {xstring("q2_option4"), 4},
     };
-    NameValueOptions options3{
+    const NameValueOptions options3{
         {xstring("q3to8_option0"), 0},
         {xstring("q3to8_option1"), 1},
         {xstring("q3to8_option2"), 2},
         {xstring("q3to8_option3"), 3},
         {xstring("q3to8_option4"), 4},
     };
-    QString qprefix = xstring("c_qprefix");
+    const QString qprefix = xstring("c_qprefix");
 
     QuPagePtr page1((new QuPage{
         new QuText(xstring("instructions_1")),

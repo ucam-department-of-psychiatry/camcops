@@ -296,8 +296,9 @@ static QPoint deaccelerate(const QPoint &speed, const int deltatime)
 
 bool FlickCharm::eventFilter(QObject* object, QEvent* event)
 {
-    if (!object->isWidgetType())
+    if (!object->isWidgetType()) {
         return false;
+    }
 
     const QEvent::Type type = event->type();
 

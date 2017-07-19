@@ -596,8 +596,8 @@ QStringList CecaQ3::detail() const
 OpenableWidget* CecaQ3::editor(bool read_only)
 {
     using CallbackFn = void (CecaQ3::*)();
-    NameValueOptions options_yesno = CommonOptions::noYesBoolean();
-    NameValueOptions options_separation{
+    const NameValueOptions options_yesno = CommonOptions::noYesBoolean();
+    const NameValueOptions options_separation{
         {xstring("1c_separation_reason1"), 1},
         {xstring("1c_separation_reason2"), 2},
         {xstring("1c_separation_reason3"), 3},
@@ -605,7 +605,7 @@ OpenableWidget* CecaQ3::editor(bool read_only)
         {xstring("1c_separation_reason5"), 5},
         {xstring("1c_separation_reason6"), 6},
     };
-    NameValueOptions options_2a_whichmotherfigure{
+    const NameValueOptions options_2a_whichmotherfigure{
         {xstring("2a_which_option1"), 1},
         {xstring("2a_which_option2"), 2},
         {xstring("2a_which_option3"), 3},
@@ -613,7 +613,7 @@ OpenableWidget* CecaQ3::editor(bool read_only)
         {xstring("2a_which_option5"), 5},
         {xstring("2a_which_option0"), 0},
     };
-    NameValueOptions options_3a_whichfatherfigure{
+    const NameValueOptions options_3a_whichfatherfigure{
         {xstring("3a_which_option1"), 1},
         {xstring("3a_which_option2"), 2},
         {xstring("3a_which_option3"), 3},
@@ -621,38 +621,38 @@ OpenableWidget* CecaQ3::editor(bool read_only)
         {xstring("3a_which_option5"), 5},
         {xstring("3a_which_option0"), 0},
     };
-    NameValueOptions options_5way_no_to_yes{  // presented in yes-to-no order
+    const NameValueOptions options_5way_no_to_yes{  // presented in yes-to-no order
         {xstring("options5way_notoyes_5"), 5},
         {"", 4},
         {xstring("options5way_notoyes_3"), 3},
         {"", 2},
         {xstring("options5way_notoyes_1"), 1},
     };
-    NameValueOptions options3way_no_to_yes{  // presented in yes-to-no order
+    const NameValueOptions options3way_no_to_yes{  // presented in yes-to-no order
         {xstring("options3way_noto_yes_2"), 2},
         {xstring("options3way_noto_yes_1"), 1},
         {xstring("options3way_noto_yes_0"), 0},
     };
-    NameValueOptions optionsfrequency{
+    const NameValueOptions optionsfrequency{
         {xstring("optionsfrequency0"), 0},
         {xstring("optionsfrequency1"), 1},
         {xstring("optionsfrequency2"), 2},
         {xstring("optionsfrequency3"), 3},
     };
-    NameValueOptions options_whichparentcaredfor{
+    const NameValueOptions options_whichparentcaredfor{
         {xstring("3c_whichparentcaredfor_option1"), 1},
         {xstring("3c_whichparentcaredfor_option2"), 2},
         {xstring("3c_whichparentcaredfor_option3"), 3},
         {xstring("3c_whichparentcaredfor_option4"), 4},
         {xstring("3c_whichparentcaredfor_option0"), 0},
     };
-    NameValueOptions options_hit{
+    const NameValueOptions options_hit{
         {xstring("5_hit_option_1"), 1},
         {xstring("5_hit_option_2"), 2},
         {xstring("5_hit_option_3"), 3},
         {xstring("5_hit_option_4"), 4},
     };
-    QVector<McqGridSubtitle> generic_subtitles{
+    const QVector<McqGridSubtitle> generic_subtitles{
         McqGridSubtitle(5, ""),
         McqGridSubtitle(10, ""),
         McqGridSubtitle(15, ""),
@@ -756,20 +756,20 @@ OpenableWidget* CecaQ3::editor(bool read_only)
     // ------------------------------------------------------------------------
     // Shorthand for callback functions
     // ------------------------------------------------------------------------
-    CallbackFn cb1a = &CecaQ3::dataChanged1A;
-    CallbackFn cb1b = &CecaQ3::dataChanged1B;
-    CallbackFn cb1c = &CecaQ3::dataChanged1C;
-    CallbackFn cb2a = &CecaQ3::dataChanged2A;
-    CallbackFn cb2b = &CecaQ3::dataChanged2B;
-    CallbackFn cb3a = &CecaQ3::dataChanged3A;
-    CallbackFn cb3b = &CecaQ3::dataChanged3B;
-    CallbackFn cb3c = &CecaQ3::dataChanged3C;
-    CallbackFn cb4a = &CecaQ3::dataChanged4A;
-    CallbackFn cb4b = &CecaQ3::dataChanged4B;
-    CallbackFn cb4c = &CecaQ3::dataChanged4C;
-    CallbackFn cb5 = &CecaQ3::dataChanged5;
-    CallbackFn cb6 = &CecaQ3::dataChanged6;
-    CallbackFn cbdummy = &CecaQ3::dataChangedDummy;
+    const CallbackFn cb1a = &CecaQ3::dataChanged1A;
+    const CallbackFn cb1b = &CecaQ3::dataChanged1B;
+    const CallbackFn cb1c = &CecaQ3::dataChanged1C;
+    const CallbackFn cb2a = &CecaQ3::dataChanged2A;
+    const CallbackFn cb2b = &CecaQ3::dataChanged2B;
+    const CallbackFn cb3a = &CecaQ3::dataChanged3A;
+    const CallbackFn cb3b = &CecaQ3::dataChanged3B;
+    const CallbackFn cb3c = &CecaQ3::dataChanged3C;
+    const CallbackFn cb4a = &CecaQ3::dataChanged4A;
+    const CallbackFn cb4b = &CecaQ3::dataChanged4B;
+    const CallbackFn cb4c = &CecaQ3::dataChanged4C;
+    const CallbackFn cb5 = &CecaQ3::dataChanged5;
+    const CallbackFn cb6 = &CecaQ3::dataChanged6;
+    const CallbackFn cbdummy = &CecaQ3::dataChangedDummy;
 
     // ------------------------------------------------------------------------
     // Preamble
@@ -1380,7 +1380,7 @@ bool CecaQ3::complete2B() const
         return true;
     }
     for (int i = 1; i <= 17; ++i) {
-        QString qstr = strnum(FP_S2B, i);
+        const QString qstr = strnum(FP_S2B, i);
         if (valueIsNull(qstr)) {
             return false;
         }
@@ -1428,7 +1428,7 @@ bool CecaQ3::complete3B() const
         return true;
     }
     for (int i = 1; i <= 17; ++i) {
-        QString qstr = strnum(FP_S3B, i);
+        const QString qstr = strnum(FP_S3B, i);
         if (valueIsNull(qstr)) {
             return false;
         }
@@ -1618,7 +1618,7 @@ void CecaQ3::dataChanged1A()
     }
     // 1. Do we need more people?
     // We want at least one overall.
-    int n_req = complete1ASomebodySelected() ? 0 : 1;
+    const int n_req = complete1ASomebodySelected() ? 0 : 1;
     setMultipleResponseMinAnswers(TAG_1A_PEOPLE, n_req);
     // 2. Simpler things
     fieldRef(S1A_MOTHERFIGURE_FEMALERELATIVE_DETAIL)->setMandatory(
@@ -1660,7 +1660,7 @@ void CecaQ3::dataChanged2A()
 {
     fieldRef(S2A_WHICH_MOTHER_FIGURE_OTHER_DETAIL)->setMandatory(
                 valueInt(S2A_WHICH_MOTHER_FIGURE) == 5);
-    bool needed = valueInt(S2A_WHICH_MOTHER_FIGURE) != 0;
+    const bool needed = valueInt(S2A_WHICH_MOTHER_FIGURE) != 0;
     for (int i = 1; i <= 15; ++i) {
         fieldRef(strnum(FP_S2A, i))->setMandatory(needed);
     }
@@ -1677,9 +1677,9 @@ void CecaQ3::dataChanged2B()
 {
     bool abuse = false;
     for (int i = 1; i <= 17; ++i) {
-        QString qstr = strnum(FP_S2B, i);
+        const QString qstr = strnum(FP_S2B, i);
         fieldRef(qstr)->setMandatory(true);
-        int v = valueInt(qstr);
+        const int v = valueInt(qstr);
         abuse = abuse || v;
         fieldRef(qstr + FS_FREQUENCY)->setMandatory(v);  // not null and not zero
     }
@@ -1691,7 +1691,7 @@ void CecaQ3::dataChanged3A()
 {
     fieldRef(S3A_WHICH_FATHER_FIGURE_OTHER_DETAIL)->setMandatory(
                 valueInt(S3A_WHICH_FATHER_FIGURE) == 5);
-    bool needed = valueInt(S3A_WHICH_FATHER_FIGURE) != 0;
+    const bool needed = valueInt(S3A_WHICH_FATHER_FIGURE) != 0;
     for (int i = 1; i <= 15; ++i) {
         fieldRef(strnum(FP_S3A, i))->setMandatory(needed);
     }
@@ -1708,9 +1708,9 @@ void CecaQ3::dataChanged3B()
 {
     bool abuse = false;
     for (int i = 1; i <= 17; ++i) {
-        QString qstr = strnum(FP_S3B, i);
+        const QString qstr = strnum(FP_S3B, i);
         fieldRef(qstr)->setMandatory(true);
-        int v = valueInt(qstr);
+        const int v = valueInt(qstr);
         abuse = abuse || v;
         fieldRef(qstr + FS_FREQUENCY)->setMandatory(v);  // not null and not zero
     }
@@ -1727,7 +1727,7 @@ void CecaQ3::dataChanged3C()
 void CecaQ3::dataChanged4A()
 {
     // 1. Multiple response
-    int n_req = valueBool(S4A_ADULTCONFIDANT) ? 1 : 0;
+    const int n_req = valueBool(S4A_ADULTCONFIDANT) ? 1 : 0;
     setMultipleResponseMinAnswers(TAG_4A_CHOSEN, n_req);
     // 2. Other
     fieldRef(S4A_ADULTCONFIDANT_OTHER_DETAIL)->setMandatory(
@@ -1738,7 +1738,7 @@ void CecaQ3::dataChanged4A()
 void CecaQ3::dataChanged4B()
 {
     // 1. Multiple response
-    int n_req = valueBool(S4B_CHILDCONFIDANT) ? 1 : 0;
+    const int n_req = valueBool(S4B_CHILDCONFIDANT) ? 1 : 0;
     setMultipleResponseMinAnswers(TAG_4B_CHOSEN, n_req);
     // 2. Other
     fieldRef(S4B_CHILDCONFIDANT_OTHER_DETAIL)->setMandatory(
@@ -1755,9 +1755,9 @@ void CecaQ3::dataChanged4C()
 
 void CecaQ3::dataChanged5()
 {
-    bool physical_abuse = valueBool(S5C_PHYSICALABUSE);
-    bool by_mother = physical_abuse && valueBool(S5C_ABUSED_BY_MOTHER);
-    bool by_father = physical_abuse && valueBool(S5C_ABUSED_BY_FATHER);
+    const bool physical_abuse = valueBool(S5C_PHYSICALABUSE);
+    const bool by_mother = physical_abuse && valueBool(S5C_ABUSED_BY_MOTHER);
+    const bool by_father = physical_abuse && valueBool(S5C_ABUSED_BY_FATHER);
     // Free-text descriptions should not be mandatory.
     setMandatory(physical_abuse, QStringList{
                      S5C_ABUSED_BY_MOTHER,
@@ -1782,7 +1782,7 @@ void CecaQ3::dataChanged5()
 
 void CecaQ3::dataChanged6()
 {
-    bool somesex = valueBool(S6_ANY_UNWANTED_SEXUAL_EXPERIENCE) ||
+    const bool somesex = valueBool(S6_ANY_UNWANTED_SEXUAL_EXPERIENCE) ||
             valueBool(S6_UNWANTED_INTERCOURSE) ||
             valueBool(S6_UPSETTING_SEXUAL_ADULT_AUTHORITY);
     setMandatory(somesex, QStringList{

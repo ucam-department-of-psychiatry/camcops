@@ -146,13 +146,13 @@ void AspectRatioPixmap::paintEvent(QPaintEvent* event)
     Q_UNUSED(event);
 
     QPainter painter(this);
-    QRect cr = contentsRect();
+    const QRect cr = contentsRect();
     if (cr.size() != m_pixmap.size()) {
         // Scale
         QSize displaysize = m_pixmap.size();
         displaysize.scale(cr.size(), Qt::KeepAspectRatio);
-        QRect dest_active_rect = QRect(cr.topLeft(), displaysize);
-        QRect source_all_image(QPoint(0, 0), m_pixmap.size());
+        const QRect dest_active_rect = QRect(cr.topLeft(), displaysize);
+        const QRect source_all_image(QPoint(0, 0), m_pixmap.size());
 #ifdef DEBUG_LAYOUT
         qDebug().nospace()
                 << Q_FUNC_INFO

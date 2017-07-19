@@ -879,9 +879,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """Drop and remake (temporary) summary tables."""
         now = cc_dt.get_now_utc()
         cls.drop_summary_tables()
-        cls.make_standard_summary_table(now)
-        cls.make_extra_summary_tables(now)
-        # ... in case the task wants to make extra tables
+
+        # DISABLED FOR NOW:
+        # cls.make_standard_summary_table(now)
+        # cls.make_extra_summary_tables(now)
+        # # ... in case the task wants to make extra tables
 
     @classmethod
     def make_standard_summary_table(cls, now: datetime.datetime) -> None:

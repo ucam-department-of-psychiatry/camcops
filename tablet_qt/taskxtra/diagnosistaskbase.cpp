@@ -204,7 +204,7 @@ bool DiagnosisTaskBase::setCode(int index, const QVariant& value)
         return false;
     }
     DiagnosisItemBasePtr item = m_items.at(index);
-    bool changed = item->setValue(DiagnosisItemBase::CODE, value);
+    const bool changed = item->setValue(DiagnosisItemBase::CODE, value);
     if (changed) {
         item->save();
     }
@@ -228,7 +228,7 @@ bool DiagnosisTaskBase::setDescription(int index, const QVariant& value)
         return false;
     }
     DiagnosisItemBasePtr item = m_items.at(index);
-    bool changed = item->setValue(DiagnosisItemBase::DESCRIPTION, value);
+    const bool changed = item->setValue(DiagnosisItemBase::DESCRIPTION, value);
     if (changed) {
         item->save();
     }
@@ -252,7 +252,7 @@ bool DiagnosisTaskBase::setComment(int index, const QVariant& value)
         return false;
     }
     DiagnosisItemBasePtr item = m_items.at(index);
-    bool changed = item->setValue(DiagnosisItemBase::COMMENT, value);
+    const bool changed = item->setValue(DiagnosisItemBase::COMMENT, value);
     if (changed) {
         item->save();
     }
@@ -273,12 +273,12 @@ void DiagnosisTaskBase::refreshQuestionnaire()
 
 void DiagnosisTaskBase::rebuildPage(QuPage* page)
 {
-    Qt::Alignment widget_align = Qt::AlignTop;
+    const Qt::Alignment widget_align = Qt::AlignTop;
     QVector<QuElement*> elements;
-    int n = m_items.size();
+    const int n = m_items.size();
     for (int i = 0; i < n; ++i) {
-        bool first = i == 0;
-        bool last = i == n - 1;
+        const bool first = i == 0;
+        const bool last = i == n - 1;
         elements.append(new QuHorizontalLine());
         elements.append((new QuText(textconst::DIAGNOSIS + " " +
                                     QString::number(i + 1)))->setBold());
@@ -348,7 +348,7 @@ void DiagnosisTaskBase::renumberItems()
 {
     // Fine to reset the number to something that doesn't change; the save()
     // call will do nothing.
-    int n = m_items.size();
+    const int n = m_items.size();
     for (int i = 0; i < n; ++i) {
         DiagnosisItemBasePtr item = m_items.at(i);
         item->setSeqnum(i + 1);

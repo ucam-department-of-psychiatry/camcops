@@ -31,7 +31,7 @@
 
 uint qHash(const QRect& key)
 {
-    QString s = QString("%1,%2,%3,%4")
+    const QString s = QString("%1,%2,%3,%4")
             .arg(key.left())
             .arg(key.top())
             .arg(key.right())

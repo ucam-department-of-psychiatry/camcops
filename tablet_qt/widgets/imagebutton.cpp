@@ -50,7 +50,7 @@ ImageButton::ImageButton(const QString& base_filename,
                          QWidget* parent) :
     QPushButton(parent)
 {
-    QSize size = uiconst::ICONSIZE;
+    const QSize size = uiconst::ICONSIZE;
     commonConstructor(size);
     setImages(base_filename, filename_is_camcops_stem, alter_unpressed_image,
               true, disabled);
@@ -70,24 +70,24 @@ void ImageButton::setImages(const QString& base_filename,
     // setPressedImage(UiFunc::iconTouchedPngFilename(stem), scale);
 
     // New way: use one image and apply the background(s) programmatically
-    QString filename = filename_is_camcops_stem
+    const QString filename = filename_is_camcops_stem
             ? uifunc::iconFilename(base_filename)
             : base_filename;
-    QPixmap base = uifunc::getPixmap(filename, m_image_size);
+    const QPixmap base = uifunc::getPixmap(filename, m_image_size);
     if (disabled) {
-        QPixmap img = uifunc::makeDisabledIcon(base);
+        const QPixmap img = uifunc::makeDisabledIcon(base);
         setNormalImage(img, false);
         setPressedImage(img, false);
     } else if (read_only) {
         setNormalImage(base, false);
         setPressedImage(base, false);
     } else {
-        QPixmap fore = alter_unpressed_image
+        const QPixmap fore = alter_unpressed_image
                 ? uifunc::addUnpressedBackground(base)
                 : base;
         setNormalImage(fore, false);
-        QPixmap pressed = uifunc::addPressedBackground(base,
-                                                       pressed_marker_behind);
+        const QPixmap pressed = uifunc::addPressedBackground(
+                    base, pressed_marker_behind);
         setPressedImage(pressed, false);
     }
     resizeIfNoSize();

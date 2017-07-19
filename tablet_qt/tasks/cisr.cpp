@@ -324,7 +324,7 @@ QuPagePtr Cisr::makePage(int current_qnum)
         return new QuText(text);
     };
     auto page = [this, &title, &rawtext](int qnum) -> QuPagePtr {
-        int pretty_qnum = qnum + 1;
+        const int pretty_qnum = qnum + 1;
         qDebug().nospace() << "Making page " << qnum
                            << " (pretty 1-based: page " << pretty_qnum << ")";
         QuPage* p = new QuPage();

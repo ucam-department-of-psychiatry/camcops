@@ -55,10 +55,10 @@ void Icd10::addIcd10Codes(const QStringList& codes)
     //   that is shorter than it. (And ensure that the root code is shorter
     //   than anything!)
     for (auto c : codes) {
-        QString desc = xstring(c);
-        int length = c.length();
+        const QString desc = xstring(c);
+        const int length = c.length();
 
-        bool show_code_in_full_name = length > 2;
+        const bool show_code_in_full_name = length > 2;
         addIndividualIcd10Code(c, desc, show_code_in_full_name);
 
         // Any special sub-codes?
@@ -111,7 +111,7 @@ void Icd10::addIndividualIcd10Code(const QString& code, const QString& desc,
         m_creation_stack.pop();
     }
     DiagnosticCode* parent = m_creation_stack.top().second;
-    bool selectable = code.length() > 2;
+    const bool selectable = code.length() > 2;
     DiagnosticCode* newchild = addCode(parent, code, desc, selectable,
                                        show_code_in_full_name);
     m_creation_stack.push(DepthItemPair(depth, newchild));
@@ -123,8 +123,8 @@ void Icd10::addSubcodes(const QString& basecode,
                         const QVector<CodeDescriptionPair>& level1)
 {
     for (auto extra1 : level1) {
-        QString code = QString("%1%2").arg(basecode).arg(extra1.first);
-        QString desc = QString("%1: %2").arg(basedesc)
+        const QString code = QString("%1%2").arg(basecode).arg(extra1.first);
+        const QString desc = QString("%1: %2").arg(basedesc)
                 .arg(xstring(extra1.second));
         addIndividualIcd10Code(code, desc);
     }
@@ -137,13 +137,13 @@ void Icd10::addSubcodes(const QString& basecode,
                         const QVector<CodeDescriptionPair>& level2)
 {
     for (auto extra1 : level1) {
-        QString l1code = QString("%1%2").arg(basecode).arg(extra1.first);
-        QString l1desc = QString("%1: %2").arg(basedesc)
+        const QString l1code = QString("%1%2").arg(basecode).arg(extra1.first);
+        const QString l1desc = QString("%1: %2").arg(basedesc)
                 .arg(xstring(extra1.second));
         addIndividualIcd10Code(l1code, l1desc);
         for (auto extra2 : level2) {
-            QString l2code = QString("%1%2").arg(l1code).arg(extra2.first);
-            QString l2desc = QString("%1: %2").arg(l1desc)
+            const QString l2code = QString("%1%2").arg(l1code).arg(extra2.first);
+            const QString l2desc = QString("%1: %2").arg(l1desc)
                     .arg(xstring(extra2.second));
             addIndividualIcd10Code(l2code, l2desc);
         }
@@ -235,9 +235,9 @@ const QVector<Icd10::CodeDescriptionPair> Icd10::SUBSTANCE_L1{
 
 void Icd10::addSubstance(const QString& basecode, const QString& basedesc)
 {
-    bool alcohol = basecode == "F10";
+    const bool alcohol = basecode == "F10";
     for (auto cdp : SUBSTANCE_L1) {
-        QString subcode = cdp.first;
+        const QString subcode = cdp.first;
         if (!alcohol && subcode == ".07") {
             continue;
         }
@@ -245,8 +245,8 @@ void Icd10::addSubstance(const QString& basecode, const QString& basedesc)
         if (alcohol && subcode == ".26") {
             subdesc += xstring("substance_26_alcohol_suffix");
         }
-        QString code = QString("%1%2").arg(basecode).arg(subcode);
-        QString desc = QString("%1: %2").arg(basedesc).arg(subdesc);
+        const QString code = QString("%1%2").arg(basecode).arg(subcode);
+        const QString desc = QString("%1: %2").arg(basedesc).arg(subdesc);
         addIndividualIcd10Code(code, desc);
     }
 }
@@ -312,8 +312,6 @@ void Icd10::addSelfHarm(const QString& basecode, const QString& basedesc)
 {
     addSubcodes(basecode, basedesc, SELFHARM_L1, SELFHARM_L2);
 }
-
-
 
 
 // ============================================================================

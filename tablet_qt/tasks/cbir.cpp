@@ -116,21 +116,21 @@ QStringList CbiR::detail() const
 
 OpenableWidget* CbiR::editor(bool read_only)
 {
-    NameValueOptions freq_options{
+    const NameValueOptions freq_options{
         {xstring("f0"), 0},
         {xstring("f1"), 1},
         {xstring("f2"), 2},
         {xstring("f3"), 3},
         {xstring("f4"), 4},
     };
-    NameValueOptions distress_options{
+    const NameValueOptions distress_options{
         {xstring("d0"), 0},
         {xstring("d1"), 1},
         {xstring("d2"), 2},
         {xstring("d3"), 3},
         {xstring("d4"), 4},
     };
-    QString basetitle = shortname();
+    const QString basetitle = shortname();
     m_data_frs.clear();
 
     auto addblock =
@@ -223,7 +223,7 @@ void CbiR::dataChanged()
 void CbiR::confirmationChanged()
 {
     Q_ASSERT(m_confirmation_fr);
-    bool need_data = !m_confirmation_fr->valueBool();
+    const bool need_data = !m_confirmation_fr->valueBool();
     for (auto fr : m_data_frs) {
         fr->setMandatory(need_data);
     }

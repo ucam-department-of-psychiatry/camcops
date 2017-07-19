@@ -58,7 +58,7 @@ void debugConcisely(QDebug debug, const QVector<QVariant>& values)
 {
     QDebug d = debug.nospace();
     d << "(";
-    int n = values.length();
+    const int n = values.length();
     for (int i = 0; i < n; ++i) {
         if (i > 0) {
             d << ", ";
@@ -110,8 +110,8 @@ void debugWidget(QWidget* widget, bool set_background_by_name,
         if (set_background_by_stylesheet) {
             widget->setStyleSheet("background: green;");
         }
-        // Qt::Alignment align = Qt::AlignTop;
-        Qt::Alignment align = 0;
+        // const Qt::Alignment align = Qt::AlignTop;
+        const Qt::Alignment align = 0;
         if (use_hfw_layout) {
             hfwlayout->addWidget(widget, 0, align);
         } else {

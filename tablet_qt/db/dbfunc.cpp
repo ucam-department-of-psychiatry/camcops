@@ -92,8 +92,8 @@ SqlArgs updateColumns(const UpdateValues& updatevalues, const QString& table)
         columns.append(QString("%1=?").arg(delimit(column)));
         args.append(value);
     }
-    QString sql = QString("UPDATE %1 SET %2").arg(delimit(table),
-                                                  columns.join(", "));
+    const QString sql = QString("UPDATE %1 SET %2").arg(delimit(table),
+                                                        columns.join(", "));
     return SqlArgs(sql, args);
 }
 
@@ -109,8 +109,8 @@ void addOrderByClause(const OrderBy& order_by, SqlArgs& sqlargs_altered)
     }
     QStringList order_by_clauses;
     for (QPair<QString, bool> pair : order_by) {
-        QString fieldname = pair.first;
-        bool ascending = pair.second;
+        const QString fieldname = pair.first;
+        const bool ascending = pair.second;
         order_by_clauses.append(QString("%1 %2").arg(
                                     delimit(fieldname),
                                     ascending ? "ASC" : "DESC"));
@@ -154,11 +154,11 @@ bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
 #endif
 
 #ifdef DEBUG_QUERY_TIMING
-    QDateTime start_time = QDateTime::currentDateTime();
+    const QDateTime start_time = QDateTime::currentDateTime();
 #endif
     bool success = query.exec();
 #ifdef DEBUG_QUERY_TIMING
-    QDateTime end_time = QDateTime::currentDateTime();
+    const QDateTime end_time = QDateTime::currentDateTime();
 #endif
 #ifdef DEBUG_QUERY_END
     qDebug() << "... query finished";
@@ -178,7 +178,7 @@ bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
         int row = 0;
         while (query.next()) {
             QDebug debug = qDebug().nospace();
-            QSqlRecord rec = query.record();
+            const QSqlRecord rec = query.record();
             int ncols = rec.count();
             debug << "... row " << row << ": ";
             for (int col = 0; col < ncols; ++col) {
@@ -285,10 +285,10 @@ QString sqlCreateTable(const QString& tablename, const QVector<Field>& fieldlist
     QStringList coldefs;
     for (int i = 0; i < fieldlist.size(); ++i) {
         const Field& field = fieldlist.at(i);
-        QString coltype = field.sqlColumnDef();
+        const QString coltype = field.sqlColumnDef();
         coldefs << QString("%1 %2").arg(delimit(field.name()), coltype);
     }
-    QString sql = QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(
+    const QString sql = QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(
         delimit(tablename), coldefs.join(", "));
     return sql;
 }
@@ -309,7 +309,7 @@ bool encryptPlainDatabaseInPlace(const QString& filename,
             << "Converting plain database ("
             << filename << ") to encrypted database (using temporary file: "
             << tempfilename << ")";
-    QString title(QObject::tr("Error encrypting databases"));
+    const QString title(QObject::tr("Error encrypting databases"));
 
     // 1. Check files exist/don't exist.
     if (!filefunc::fileExists(filename)) {

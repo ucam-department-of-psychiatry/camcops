@@ -154,7 +154,7 @@ OpenableWidget* Hads::editor(bool read_only)
         // --------------------------------------------------------------------
         // Succinct version without any task text
         // --------------------------------------------------------------------
-        NameValueOptions options{
+        const NameValueOptions options{
             {"0", 0},
             {"1", 1},
             {"2", 2},

@@ -114,7 +114,7 @@ QStringList Gds15::detail() const
 
 OpenableWidget* Gds15::editor(bool read_only)
 {
-    NameValueOptions options = CommonOptions::yesNoChar();
+    const NameValueOptions options = CommonOptions::yesNoChar();
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
         qfields.append(QuestionWithOneField(xstring(strnum("q", i)),

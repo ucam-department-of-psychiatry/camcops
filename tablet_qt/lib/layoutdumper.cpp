@@ -191,7 +191,7 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
     }
 
     if (config.show_widget_properties) {
-        QString properties = getDynamicProperties(w);
+        const QString properties = getDynamicProperties(w);
         if (!properties.isEmpty()) {
             elements.append(QString("properties: [%1]").arg(properties));
         }
@@ -282,7 +282,7 @@ QString getWidgetAttributeInfo(const QWidget* w, bool all)
     QStringList elements;
     auto add = [&all, &w, &elements](Qt::WidgetAttribute attr,
             const QString& desc) {
-        bool set = w->testAttribute(attr);
+        const bool set = w->testAttribute(attr);
         if (all) {
             elements.append(QString("%1 %2").arg(desc, set));
         } else {
@@ -387,11 +387,11 @@ QString getDynamicProperties(const QWidget* w)
         return NULL_WIDGET_STRING;
     }
     QStringList elements;
-    QList<QByteArray> property_names = w->dynamicPropertyNames();
+    const QList<QByteArray> property_names = w->dynamicPropertyNames();
     for (const QByteArray& arr : property_names) {
-        QString name(arr);
-        QVariant value = w->property(arr);
-        QString value_string = uifunc::escapeString(value.toString());
+        const QString name(arr);
+        const QVariant value = w->property(arr);
+        const QString value_string = uifunc::escapeString(value.toString());
         elements.append(QString("%1=%2").arg(name).arg(value_string));
     }
     return elements.join(", ");
@@ -403,11 +403,11 @@ QString getLayoutInfo(const QLayout* layout)
     if (!layout) {
         return "null_layout";
     }
-    QMargins margins = layout->contentsMargins();
-    QSize sizehint = layout->sizeHint();
-    QSize minsize = layout->minimumSize();
-    QSize maxsize = layout->maximumSize();
-    QString name = layout->metaObject()->className();
+    const QMargins margins = layout->contentsMargins();
+    const QSize sizehint = layout->sizeHint();
+    const QSize minsize = layout->minimumSize();
+    const QSize maxsize = layout->maximumSize();
+    const QString name = layout->metaObject()->className();
     QWidget* parent = layout->parentWidget();
     // usually unhelpful (blank): layout->objectName()
     QStringList elements;
@@ -449,8 +449,8 @@ QString getLayoutInfo(const QLayout* layout)
 
     // Check parent size is appropriate
     if (parent) {
-        QSize parent_size = parent->size();
-        int parent_width = parent_size.width();
+        const QSize parent_size = parent->size();
+        const int parent_width = parent_size.width();
         elements.append(QString("heightForWidth(%1[parent_width])[UP] %2")
                         .arg(parent_width)
                         .arg(layout->heightForWidth(parent_width)));
@@ -473,7 +473,7 @@ QString getLayoutInfo(const QLayout* layout)
 QString getSpacerInfo(QSpacerItem* si)
 {
     const QRect& geom = si->geometry();
-    QSize si_hint = si->sizeHint();
+    const QSize si_hint = si->sizeHint();
     const QLayout* si_layout = si->layout();
     QStringList elements;
     elements.append("QSpacerItem");
@@ -507,8 +507,8 @@ QVector<const QWidget*> dumpLayoutAndChildren(QDebug& os,
                                               int level,
                                               const DumperConfig& config)
 {
-    QString padding = paddingSpaces(level, config.spaces_per_level);
-    QString next_padding = paddingSpaces(level + 1, config.spaces_per_level);
+    const QString padding = paddingSpaces(level, config.spaces_per_level);
+    const QString next_padding = paddingSpaces(level + 1, config.spaces_per_level);
     QVector<const QWidget*> dumped_children;
 
     os << padding << "Layout: " << getLayoutInfo(layout);
@@ -522,7 +522,7 @@ QVector<const QWidget*> dumpLayoutAndChildren(QDebug& os,
     if (layout->isEmpty()) {
         os << padding << "... empty layout\n";
     } else {
-        int num_items = layout->count();
+        const int num_items = layout->count();
         for (int i = 0; i < num_items; i++) {
             QLayoutItem* layout_item = layout->itemAt(i);
             QLayout* child_layout = layout_item->layout();
@@ -555,7 +555,7 @@ QVector<const QWidget*> dumpWidgetAndChildren(QDebug& os,
                                               const QString& alignment,
                                               const DumperConfig& config)
 {
-    QString padding = paddingSpaces(level, config.spaces_per_level);
+    const QString padding = paddingSpaces(level, config.spaces_per_level);
 
     os << padding
        << getWidgetInfo(w, config)

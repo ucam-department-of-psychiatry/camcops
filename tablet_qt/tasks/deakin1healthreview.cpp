@@ -399,12 +399,12 @@ QStringList Deakin1HealthReview::detail() const
 
 OpenableWidget* Deakin1HealthReview::editor(bool read_only)
 {
-    NameValueOptions yn_options = CommonOptions::yesNoBoolean();
-    NameValueOptions handedness_options = NameValueOptions{
+    const NameValueOptions yn_options = CommonOptions::yesNoBoolean();
+    const NameValueOptions handedness_options = NameValueOptions{
         {"Left hand", "L"},
         {"Right hand", "R"},
     };
-    NameValueOptions education_options = NameValueOptions{
+    const NameValueOptions education_options = NameValueOptions{
         {"None", "none"},
         {"CSE", "cse"},
         {"GCSE", "gcse"},

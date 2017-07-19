@@ -137,7 +137,7 @@ void CardinalExpDetThresholdTrial::setCaughtOutReset()
 
 void CardinalExpDetThresholdTrial::recordChoiceTime()
 {
-    QDateTime now = datetime::now();
+    const QDateTime now = datetime::now();
     setValue(FN_CHOICE_TIME, now);
     save();
 }
@@ -145,7 +145,7 @@ void CardinalExpDetThresholdTrial::recordChoiceTime()
 
 void CardinalExpDetThresholdTrial::recordResponse(bool yes)
 {
-    QDateTime now = datetime::now();
+    const QDateTime now = datetime::now();
     setValue(FN_RESPONDED, true);
     setValue(FN_RESPONSE_TIME, now);
     setValue(FN_RESPONSE_LATENCY_MS,

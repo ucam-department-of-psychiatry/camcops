@@ -144,8 +144,8 @@ QuCanvas* QuCanvas::setAllowShrink(bool allow_shrink)
 
 QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
 {
-    bool read_only = questionnaire->readOnly();
-    Qt::Alignment align = Qt::AlignLeft | Qt::AlignTop;
+    const bool read_only = questionnaire->readOnly();
+    const Qt::Alignment align = Qt::AlignLeft | Qt::AlignTop;
 
     m_canvas = new CanvasWidget();
     QPen pen;
@@ -208,8 +208,8 @@ void QuCanvas::completePendingFieldWrite()
     if (!m_canvas || !m_field_write_pending) {
         return;
     }
-    QImage img = m_canvas->image();
-    bool changed = m_fieldref->setImage(img, this);
+    const QImage img = m_canvas->image();
+    const bool changed = m_fieldref->setImage(img, this);
     m_field_write_pending = false;
     if (changed) {
         emit elementValueChanged();
@@ -242,7 +242,7 @@ void QuCanvas::fieldValueChanged(const FieldRef* fieldref,
     // redraw the widget when the user changes it).
     // So we'll do it with an indicator widget.
 
-    bool missing_input = fieldref->missingInput();
+    const bool missing_input = fieldref->missingInput();
     if (m_missing_indicator) {
         m_missing_indicator->setVisible(missing_input);
     }
@@ -339,7 +339,8 @@ QSize QuCanvas::canvasSize(const QSize& image_size) const
 #endif
         return image_size;
     }
-    QSize canvas_size = convert::convertSizeByDpi(image_size, uiconst::DPI, uiconst::DEFAULT_DPI);
+    const QSize canvas_size = convert::convertSizeByDpi(
+                image_size, uiconst::DPI, uiconst::DEFAULT_DPI);
 #ifdef DEBUG_SIZE
     qDebug()
             << Q_FUNC_INFO << "Image size" << image_size

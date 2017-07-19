@@ -144,7 +144,7 @@ int CamcopsApp::run()
     openOrCreateDatabases();
     QString new_user_password;
     bool user_cancelled_please_quit = false;
-    bool changed_user_password = connectDatabaseEncryption(
+    const bool changed_user_password = connectDatabaseEncryption(
                 new_user_password, user_cancelled_please_quit);
     if (user_cancelled_please_quit) {
         qCritical() << "User cancelled attempt";
@@ -246,9 +246,9 @@ bool CamcopsApp::processCommandLineArguments(const QStringList& args)
             << QString("Use %1 for help\n").arg(ARG_HELP);
         return false;
     };
-    int nargs = args.length();
+    const int nargs = args.length();
     for (int i = 1; i < nargs; ++i) {  // skip argument 0 (the program name)
-        int nleft = nargs - 1 - i;
+        const int nleft = nargs - 1 - i;
         const QString& arg = args.at(i);
 
         if (arg == ARG_DB_DIR) {
@@ -313,7 +313,7 @@ void CamcopsApp::announceStartup()
     // ------------------------------------------------------------------------
     // Announce startup
     // ------------------------------------------------------------------------
-    QDateTime dt = datetime::now();
+    const QDateTime dt = datetime::now();
     qInfo() << "CamCOPS starting at local time:"
             << qUtf8Printable(datetime::datetimeToIsoMs(dt));
     qInfo() << "CamCOPS starting at UTC time:"
@@ -352,8 +352,8 @@ void CamcopsApp::openOrCreateDatabases()
     // Database lifetime:
     // http://stackoverflow.com/questions/7669987/what-is-the-correct-way-of-qsqldatabase-qsqlquery
 
-    QString data_filename = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
-    QString sys_filename = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
+    const QString data_filename = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
+    const QString sys_filename = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
     m_datadb = DatabaseManagerPtr(new DatabaseManager(data_filename, CONNECTION_DATA));
     m_sysdb = DatabaseManagerPtr(new DatabaseManager(sys_filename, CONNECTION_SYS));
 }
@@ -398,18 +398,18 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
     user_cancelled_please_quit = false;
     bool encryption_happy = false;
     bool changed_user_password = false;
-    QString new_pw_text(tr("Enter a new password for the CamCOPS application"));
-    QString new_pw_title(tr("Set CamCOPS password"));
-    QString enter_pw_text(tr("Enter the password to unlock CamCOPS"));
-    QString enter_pw_title(tr("Enter CamCOPS password"));
+    const QString new_pw_text(tr("Enter a new password for the CamCOPS application"));
+    const QString new_pw_title(tr("Set CamCOPS password"));
+    const QString enter_pw_text(tr("Enter the password to unlock CamCOPS"));
+    const QString enter_pw_title(tr("Enter CamCOPS password"));
 
     while (!encryption_happy) {
         changed_user_password = false;
-        bool no_password_sys = m_sysdb->canReadDatabase();
-        bool no_password_data = m_datadb->canReadDatabase();
+        const bool no_password_sys = m_sysdb->canReadDatabase();
+        const bool no_password_data = m_datadb->canReadDatabase();
 
         if (no_password_sys != no_password_data) {
-            QString msg = QString(
+            const QString msg = QString(
                         "CamCOPS uses a system and a data database; one has a "
                         "password and one doesn't (no_password_sys = %1, "
                         "no_password_data = %2); this is an incongruent state "
@@ -417,7 +417,7 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
                         "CamCOPS will not continue until this is fixed.")
                     .arg(no_password_sys)
                     .arg(no_password_data);
-            QString title = "Inconsistent database state";
+            const QString title = "Inconsistent database state";
             uifunc::stopApp(msg, title);
         }
 
@@ -502,12 +502,12 @@ bool CamcopsApp::encryptExistingPlaintextDatabases(const QString& passphrase)
     using filefunc::fileExists;
     qInfo() << "... closing databases";
     closeDatabases();
-    QString sys_main = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
-    QString sys_temp = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME +
-                                  dbfunc::DATABASE_FILENAME_TEMP_SUFFIX);
-    QString data_main = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
-    QString data_temp = dbFullPath(dbfunc::DATA_DATABASE_FILENAME +
-                                   dbfunc::DATABASE_FILENAME_TEMP_SUFFIX);
+    const QString sys_main = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
+    const QString sys_temp = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME +
+                                        dbfunc::DATABASE_FILENAME_TEMP_SUFFIX);
+    const QString data_main = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
+    const QString data_temp = dbFullPath(dbfunc::DATA_DATABASE_FILENAME +
+                                         dbfunc::DATABASE_FILENAME_TEMP_SUFFIX);
     qInfo() << "... encrypting";
     dbfunc::encryptPlainDatabaseInPlace(sys_main, sys_temp, passphrase);
     dbfunc::encryptPlainDatabaseInPlace(data_main, data_temp, passphrase);
@@ -641,8 +641,8 @@ void CamcopsApp::upgradeDatabase()
     // Any database upgrade required?
     // ------------------------------------------------------------------------
 
-    Version old_version(varString(varconst::CAMCOPS_TABLET_VERSION_AS_STRING));
-    Version new_version = camcopsversion::CAMCOPS_VERSION;
+    const Version old_version(varString(varconst::CAMCOPS_TABLET_VERSION_AS_STRING));
+    const Version new_version = camcopsversion::CAMCOPS_VERSION;
     upgradeDatabase(old_version, new_version);
     if (new_version != old_version) {
         setVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, new_version.toString());
@@ -717,11 +717,11 @@ void CamcopsApp::initGuiOne()
     // Special for top-level window:
     setWindowIcon(QIcon(uifunc::iconFilename(uiconst::ICON_CAMCOPS)));
 
-    QList<QScreen*> all_screens = screens();
+    const QList<QScreen*> all_screens = screens();
     if (all_screens.isEmpty()) {
         m_dpi = uiconst::DEFAULT_DPI;
     } else {
-        QScreen* screen = all_screens.at(0);
+        const QScreen* screen = all_screens.at(0);
         m_dpi = screen->logicalDotsPerInch();
     }
 
@@ -1027,7 +1027,7 @@ CamcopsApp::LockState CamcopsApp::lockstate() const
 
 void CamcopsApp::setLockState(LockState lockstate)
 {
-    bool changed = lockstate != m_lockstate;
+    const bool changed = lockstate != m_lockstate;
     m_lockstate = lockstate;
     if (changed) {
 #ifdef DEBUG_EMIT
@@ -1068,17 +1068,17 @@ void CamcopsApp::grantPrivilege()
 bool CamcopsApp::checkPassword(const QString& hashed_password_varname,
                                const QString& text, const QString& title)
 {
-    QString hashed_password = varString(hashed_password_varname);
+    const QString hashed_password = varString(hashed_password_varname);
     if (hashed_password.isEmpty()) {
         // If there's no password, we just allow the operation.
         return true;
     }
     QString password;
-    bool ok = uifunc::getPassword(text, title, password, m_p_main_window);
+    const bool ok = uifunc::getPassword(text, title, password, m_p_main_window);
     if (!ok) {
         return false;
     }
-    bool correct = cryptofunc::matchesHash(password, hashed_password);
+    const bool correct = cryptofunc::matchesHash(password, hashed_password);
     if (!correct) {
         uifunc::alert(tr("Wrong password"), title);
     }
@@ -1088,13 +1088,13 @@ bool CamcopsApp::checkPassword(const QString& hashed_password_varname,
 
 void CamcopsApp::changeAppPassword()
 {
-    QString title(tr("Change app password"));
+    const QString title(tr("Change app password"));
 #ifdef SQLCIPHER_ENCRYPTION_ON
     // We also use this password for database encryption, so we need to know
     // it briefly (in plaintext format) to reset the database encryption key.
     QString new_password;
-    bool changed = changePassword(varconst::USER_PASSWORD_HASH, title,
-                                  nullptr, &new_password);
+    const bool changed = changePassword(varconst::USER_PASSWORD_HASH, title,
+                                        nullptr, &new_password);
     if (changed) {
         SlowGuiGuard guard = getSlowGuiGuard(tr("Re-encrypting databases..."));
         qInfo() << "Re-encrypting system database...";
@@ -1122,13 +1122,14 @@ bool CamcopsApp::changePassword(const QString& hashed_password_varname,
                                 QString* p_new_password)
 {
     // Returns: changed?
-    QString old_password_hash = varString(hashed_password_varname);
-    bool old_password_exists = !old_password_hash.isEmpty();
+    const QString old_password_hash = varString(hashed_password_varname);
+    const bool old_password_exists = !old_password_hash.isEmpty();
     QString old_password_from_user;
     QString new_password;
-    bool ok = uifunc::getOldNewPasswords(text, text, old_password_exists,
-                                         old_password_from_user, new_password,
-                                         m_p_main_window);
+    const bool ok = uifunc::getOldNewPasswords(
+                text, text, old_password_exists,
+                old_password_from_user, new_password,
+                m_p_main_window);
     if (!ok) {
         return false;  // user cancelled
     }
@@ -1171,9 +1172,9 @@ void CamcopsApp::setEncryptedServerPassword(const QString& password)
     qDebug() << Q_FUNC_INFO;
     DbNestableTransaction trans(*m_sysdb);
     resetEncryptionKeyIfRequired();
-    QString iv_b64(cryptofunc::generateIVBase64());  // new one each time
+    const QString iv_b64(cryptofunc::generateIVBase64());  // new one each time
     setVar(varconst::OBSCURING_IV, iv_b64);
-    SecureQString key_b64(varString(varconst::OBSCURING_KEY));
+    const SecureQString key_b64(varString(varconst::OBSCURING_KEY));
     setVar(varconst::SERVER_USERPASSWORD_OBSCURED,
            cryptofunc::encryptToBase64(password, key_b64, iv_b64));
 }
@@ -1199,8 +1200,8 @@ SecureQString CamcopsApp::getPlaintextServerPassword() const
     if (encrypted_b64.isEmpty()) {
         return "";
     }
-    SecureQString key_b64(varString(varconst::OBSCURING_KEY));
-    QString iv_b64(varString(varconst::OBSCURING_IV));
+    const SecureQString key_b64(varString(varconst::OBSCURING_KEY));
+    const QString iv_b64(varString(varconst::OBSCURING_IV));
     if (!cryptofunc::isValidAesKey(key_b64)) {
         qWarning() << "Unable to decrypt password; key is bad";
         return "";
@@ -1209,7 +1210,8 @@ SecureQString CamcopsApp::getPlaintextServerPassword() const
         qWarning() << "Unable to decrypt password; IV is bad";
         return "";
     }
-    QString plaintext(cryptofunc::decryptFromBase64(encrypted_b64, key_b64, iv_b64));
+    const QString plaintext(cryptofunc::decryptFromBase64(
+                                encrypted_b64, key_b64, iv_b64));
 #ifdef DANGER_DEBUG_PASSWORD_DECRYPTION
     qDebug() << Q_FUNC_INFO << "plaintext:" << plaintext;
 #endif
@@ -1251,7 +1253,7 @@ bool CamcopsApp::needsUpload() const
 
 void CamcopsApp::setNeedsUpload(bool needs_upload)
 {
-    bool changed = setVar(varconst::NEEDS_UPLOAD, needs_upload);
+    const bool changed = setVar(varconst::NEEDS_UPLOAD, needs_upload);
     if (changed) {
 #ifdef DEBUG_EMIT
         qDebug() << "Emitting needsUploadChanged";
@@ -1273,7 +1275,7 @@ bool CamcopsApp::whiskerConnected() const
 
 void CamcopsApp::setWhiskerConnected(bool connected)
 {
-    bool changed = connected != m_whisker_connected;
+    const bool changed = connected != m_whisker_connected;
     m_whisker_connected = connected;
     if (changed) {
 #ifdef DEBUG_EMIT
@@ -1298,7 +1300,7 @@ void CamcopsApp::setSelectedPatient(int patient_id)
 {
     // We do this by ID so there's no confusion about who owns it; we own
     // our own private copy here.
-    bool changed = patient_id != selectedPatientId();
+    const bool changed = patient_id != selectedPatientId();
     if (changed) {
         reloadPatient(patient_id);
 #ifdef DEBUG_EMIT
@@ -1328,7 +1330,7 @@ void CamcopsApp::reloadPatient(int patient_id)
 
 void CamcopsApp::patientHasBeenEdited(int patient_id)
 {
-    int current_patient_id = selectedPatientId();
+    const int current_patient_id = selectedPatientId();
     if (patient_id == current_patient_id) {
         reloadPatient(patient_id);
 #ifdef DEBUG_EMIT
@@ -1356,10 +1358,10 @@ PatientPtrList CamcopsApp::getAllPatients(bool sorted)
 {
     PatientPtrList patients;
     Patient specimen(*this, *m_datadb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
-    WhereConditions where;  // but we don't specify any
-    SqlArgs sqlargs = specimen.fetchQuerySql(where);
-    QueryResult result = m_datadb->query(sqlargs);
-    int nrows = result.nRows();
+    const WhereConditions where;  // but we don't specify any
+    const SqlArgs sqlargs = specimen.fetchQuerySql(where);
+    const QueryResult result = m_datadb->query(sqlargs);
+    const int nrows = result.nRows();
     for (int row = 0; row < nrows; ++row) {
         PatientPtr p(new Patient(*this, *m_datadb, dbconst::NONEXISTENT_PK));
         p->setFromQuery(result, row, true);
@@ -1377,8 +1379,8 @@ QString CamcopsApp::idDescription(int which_idnum) const
     if (!dbconst::isValidWhichIdnum(which_idnum)) {
         return dbconst::BAD_IDNUM_DESC;
     }
-    QString field = dbconst::IDDESC_FIELD_FORMAT.arg(which_idnum);
-    QString desc_str = varString(field);
+    const QString field = dbconst::IDDESC_FIELD_FORMAT.arg(which_idnum);
+    const QString desc_str = varString(field);
     if (desc_str.isEmpty()) {
         return dbconst::UNKNOWN_IDNUM_DESC.arg(which_idnum);
     }
@@ -1391,8 +1393,8 @@ QString CamcopsApp::idShortDescription(int which_idnum) const
     if (!dbconst::isValidWhichIdnum(which_idnum)) {
         return dbconst::BAD_IDNUM_DESC;
     }
-    QString field = dbconst::IDSHORTDESC_FIELD_FORMAT.arg(which_idnum);
-    QString desc_str = varString(field);
+    const QString field = dbconst::IDSHORTDESC_FIELD_FORMAT.arg(which_idnum);
+    const QString desc_str = varString(field);
     if (desc_str.isEmpty()) {
         return dbconst::UNKNOWN_IDNUM_DESC.arg(which_idnum);
     }
@@ -1418,13 +1420,13 @@ IdPolicy CamcopsApp::finalizePolicy() const
 
 QString CamcopsApp::getSubstitutedCss(const QString& filename) const
 {
-    int p1_normal_font_size_pt = fontSizePt(uiconst::FontSize::Normal);
-    int p2_big_font_size_pt = fontSizePt(uiconst::FontSize::Big);
-    int p3_heading_font_size_pt = fontSizePt(uiconst::FontSize::Heading);
-    int p4_title_font_size_pt = fontSizePt(uiconst::FontSize::Title);
-    int p5_menu_font_size_pt = fontSizePt(uiconst::FontSize::Menus);
-    int p6_slider_groove_size_px = uiconst::SLIDER_HANDLE_SIZE_PX / 2;
-    int p7_slider_handle_size_px = uiconst::SLIDER_HANDLE_SIZE_PX;
+    const int p1_normal_font_size_pt = fontSizePt(uiconst::FontSize::Normal);
+    const int p2_big_font_size_pt = fontSizePt(uiconst::FontSize::Big);
+    const int p3_heading_font_size_pt = fontSizePt(uiconst::FontSize::Heading);
+    const int p4_title_font_size_pt = fontSizePt(uiconst::FontSize::Title);
+    const int p5_menu_font_size_pt = fontSizePt(uiconst::FontSize::Menus);
+    const int p6_slider_groove_size_px = uiconst::SLIDER_HANDLE_SIZE_PX / 2;
+    const int p7_slider_handle_size_px = uiconst::SLIDER_HANDLE_SIZE_PX;
 
 #ifdef DEBUG_CSS_SIZES
     qDebug().nospace()
@@ -1488,7 +1490,7 @@ QString CamcopsApp::xstringDirect(const QString& taskname,
                                   const QString& default_str)
 {
     ExtraString extrastring(*this, *m_sysdb, taskname, stringname);
-    bool found = extrastring.exists();
+    const bool found = extrastring.exists();
     if (found) {
         QString result = extrastring.value();
         stringfunc::toHtmlLinebreaks(result);
@@ -1508,7 +1510,7 @@ QString CamcopsApp::xstring(const QString& taskname,
                             const QString& stringname,
                             const QString& default_str)
 {
-    QPair<QString, QString> key(taskname, stringname);
+    const QPair<QString, QString> key(taskname, stringname);
     if (!m_extrastring_cache.contains(key)) {
         m_extrastring_cache[key] = xstringDirect(taskname, stringname,
                                                  default_str);
@@ -1550,9 +1552,9 @@ void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
             trans.fail();
             return;
         }
-        QString task = record[ExtraString::EXTRASTRINGS_TASK_FIELD].toString();
-        QString name = record[ExtraString::EXTRASTRINGS_NAME_FIELD].toString();
-        QString value = record[ExtraString::EXTRASTRINGS_VALUE_FIELD].toString();
+        const QString task = record[ExtraString::EXTRASTRINGS_TASK_FIELD].toString();
+        const QString name = record[ExtraString::EXTRASTRINGS_NAME_FIELD].toString();
+        const QString value = record[ExtraString::EXTRASTRINGS_VALUE_FIELD].toString();
         if (task.isEmpty() || name.isEmpty()) {
             qWarning() << Q_FUNC_INFO
                        << "Failing: extra string has blank task or name";
@@ -1679,7 +1681,7 @@ bool CamcopsApp::setCachedVar(const QString& name, const QVariant& value)
     if (!m_cachedvars.contains(name)) {
         m_cachedvars[name] = var(name);
     }
-    bool changed = value != m_cachedvars[name];
+    const bool changed = value != m_cachedvars[name];
     m_cachedvars[name] = value;
     return changed;
 }

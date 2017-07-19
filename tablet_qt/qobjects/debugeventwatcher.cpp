@@ -37,7 +37,7 @@ DebugEventWatcher::DebugEventWatcher(QObject* parent,
 
 bool DebugEventWatcher::eventFilter(QObject* obj, QEvent* event)
 {
-    QEvent::Type type = event->type();
+    const QEvent::Type type = event->type();
     if (m_categories & EventCategory::All) {
         report(obj, event);
     } else if (m_categories & EventCategory::MouseTouch && (

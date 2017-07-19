@@ -161,10 +161,10 @@ bool Task::hasRespondent() const
 
 bool Task::isTaskPermissible() const
 {
-    QVariant commercial = m_app.var(varconst::IP_USE_COMMERCIAL);
-    QVariant clinical = m_app.var(varconst::IP_USE_CLINICAL);
-    QVariant educational = m_app.var(varconst::IP_USE_EDUCATIONAL);
-    QVariant research = m_app.var(varconst::IP_USE_RESEARCH);
+    const QVariant commercial = m_app.var(varconst::IP_USE_COMMERCIAL);
+    const QVariant clinical = m_app.var(varconst::IP_USE_CLINICAL);
+    const QVariant educational = m_app.var(varconst::IP_USE_EDUCATIONAL);
+    const QVariant research = m_app.var(varconst::IP_USE_RESEARCH);
     if (prohibitsCommercial() && !mathfunc::eq(commercial, false)) {
         return false;
     }
@@ -197,10 +197,10 @@ QString Task::whyNotPermissible() const
                 "from the copyright holder (see Task Information).");
     const QString unknown = tr(" You have NOT SAID whether you are using this "
                                "software in that context (see Settings).");
-    QVariant commercial = m_app.var(varconst::IP_USE_COMMERCIAL);
-    QVariant clinical = m_app.var(varconst::IP_USE_CLINICAL);
-    QVariant educational = m_app.var(varconst::IP_USE_EDUCATIONAL);
-    QVariant research = m_app.var(varconst::IP_USE_RESEARCH);
+    const QVariant commercial = m_app.var(varconst::IP_USE_COMMERCIAL);
+    const QVariant clinical = m_app.var(varconst::IP_USE_CLINICAL);
+    const QVariant educational = m_app.var(varconst::IP_USE_EDUCATIONAL);
+    const QVariant research = m_app.var(varconst::IP_USE_RESEARCH);
 
     auto not_definitely_false = [](const QVariant& v) -> bool {
         return !mathfunc::eq(v, false);
@@ -364,13 +364,13 @@ QStringList Task::fieldSummaries(const QString& xstringprefix,
                                  const QString& suffix) const
 {
     using stringfunc::strseq;
-    QStringList xstringnames = strseq(xstringprefix, first, last,
-                                      xstringsuffix);
-    QStringList fieldnames = strseq(fieldprefix, first, last);
+    const QStringList xstringnames = strseq(xstringprefix, first, last,
+                                            xstringsuffix);
+    const QStringList fieldnames = strseq(fieldprefix, first, last);
     QStringList list;
     for (int i = 0; i < fieldnames.length(); ++i) {
-        QString fieldname = fieldnames.at(i);
-        QString xstringname = xstringnames.at(i);
+        const QString fieldname = fieldnames.at(i);
+        const QString xstringname = xstringnames.at(i);
         list.append(fieldSummary(fieldname, xstring(xstringname),
                                  spacer, suffix));
     }
@@ -387,13 +387,13 @@ QStringList Task::fieldSummariesYesNo(const QString& xstringprefix,
                                       const QString& suffix) const
 {
     using stringfunc::strseq;
-    QStringList xstringnames = strseq(xstringprefix, first, last,
-                                      xstringsuffix);
-    QStringList fieldnames = strseq(fieldprefix, first, last);
+    const QStringList xstringnames = strseq(xstringprefix, first, last,
+                                            xstringsuffix);
+    const QStringList fieldnames = strseq(fieldprefix, first, last);
     QStringList list;
     for (int i = 0; i < fieldnames.length(); ++i) {
-        QString fieldname = fieldnames.at(i);
-        QString xstringname = xstringnames.at(i);
+        const QString fieldname = fieldnames.at(i);
+        const QString xstringname = xstringnames.at(i);
         list.append(fieldSummaryYesNo(fieldname, xstring(xstringname),
                                       spacer, suffix));
     }
@@ -615,7 +615,7 @@ void Task::editFinished(bool aborted)
     }
     m_editing = false;
     // Time
-    QDateTime now = datetime::now();
+    const QDateTime now = datetime::now();
     double editing_time_s = valueDouble(EDITING_TIME_S_FIELDNAME);
     editing_time_s += datetime::doubleSecondsFrom(m_editing_started, now);
     setValue(EDITING_TIME_S_FIELDNAME, editing_time_s);
@@ -678,9 +678,9 @@ void Task::moveToPatient(int patient_id)
 Patient* Task::patient() const
 {
     if (!m_patient && !isAnonymous()) {
-        QVariant patient_id_var = value(PATIENT_FK_FIELDNAME);
+        const QVariant patient_id_var = value(PATIENT_FK_FIELDNAME);
         if (!patient_id_var.isNull()) {
-            int patient_id = patient_id_var.toInt();
+            const int patient_id = patient_id_var.toInt();
             m_patient = QSharedPointer<Patient>(
                     new Patient(m_app, m_db, patient_id));
         }

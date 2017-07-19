@@ -32,7 +32,7 @@ public:
     void add(const QString& column, const QVariant& value);  // op: "="
     void add(const QString& column, const QString& op,
              const QVariant& value);
-    void appendWhereClause(SqlArgs& sqlargs_altered) const;
+    void appendWhereClauseTo(SqlArgs& sqlargs_altered) const;
     QString whereLiteralForDebuggingOnly() const;
 protected:
     QVector<QString> m_columns;

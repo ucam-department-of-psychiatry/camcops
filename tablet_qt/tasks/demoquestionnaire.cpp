@@ -214,9 +214,9 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // Headings, containers, text alignment, lines
     // ------------------------------------------------------------------------
 
-    Qt::Alignment bottomleft = Qt::AlignLeft | Qt::AlignBottom;
-    Qt::Alignment centre = Qt::AlignHCenter | Qt::AlignVCenter;
-    Qt::Alignment topright = Qt::AlignRight | Qt::AlignTop;
+    const Qt::Alignment bottomleft = Qt::AlignLeft | Qt::AlignBottom;
+    const Qt::Alignment centre = Qt::AlignHCenter | Qt::AlignVCenter;
+    const Qt::Alignment topright = Qt::AlignRight | Qt::AlignTop;
 
     QuHorizontalContainer* horiz1 = new QuHorizontalContainer();
     horiz1->addElement((new QuText("Text 1 (right/top)"))->setAlignment(topright), topright);
@@ -422,12 +422,12 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
     // MCQ
     // ------------------------------------------------------------------------
 
-    NameValueOptions options_A{
+    const NameValueOptions options_A{
         {"option_1", 1},
         {"option_2", 2},
         {"option_3, with much longer text: " + longtext, 3},
     };
-    NameValueOptions options_B{
+    const NameValueOptions options_B{
         {"option_1", 1},
         {"option_2", 2},
         {"option_3", 3},
@@ -446,25 +446,25 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         {"option_16", 16},
         {"option_17", 17},
     };
-    NameValueOptions options_C{
+    const NameValueOptions options_C{
         {"option_1", 1},
         {"option_2", 2},
         // {"option_NULL", QVariant()},  // will assert
         {"option_99", 99},
     };
-    NameValueOptions options_D{
+    const NameValueOptions options_D{
         {"Not at all", 0},
         {"Several days", 1},
         {"More than half the days", 2},
         {"Nearly every day", 3},
     };
-    NameValueOptions options_E{
+    const NameValueOptions options_E{
         {"A", "A"},
         {"B", "B"},
         {"C", "C"},
         {"D", "D"},
     };
-    NameValueOptions options_F{
+    const NameValueOptions options_F{
         {"X", "X"},
         {"Y", "Y"},
         {"Z", "Z"},

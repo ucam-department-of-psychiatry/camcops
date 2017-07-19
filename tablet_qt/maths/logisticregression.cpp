@@ -173,7 +173,7 @@ void LogisticRegression::fit(const MatrixXd& X,  // predictors, EXCLUDING interc
 
 MatrixXd LogisticRegression::designMatrix(const MatrixXd& X) const
 {
-    MatrixXd X_design = eigenfunc::addOnesAsFirstColumn(X);
+    const MatrixXd X_design = eigenfunc::addOnesAsFirstColumn(X);
 #ifdef DEBUG_DESIGN_MATRIX
     addInfo("Design matrix: " +
             eigenfunc::qStringFromEigenMatrixOrArray(X_design));
@@ -197,8 +197,8 @@ VectorXd LogisticRegression::predictProb(const MatrixXd& X) const
 VectorXi LogisticRegression::binaryFromP(const VectorXd& p,
                                          double threshold) const
 {
-    ArrayXXd a = p.array();
-    Array<bool, Dynamic, Dynamic> b = a >= threshold;
+    const ArrayXXd a = p.array();
+    const Array<bool, Dynamic, Dynamic> b = a >= threshold;
     // Boundary conditions: if p == 0, should always return 0;
     // if p == 1, should always return 1
     return b.cast<int>().matrix();

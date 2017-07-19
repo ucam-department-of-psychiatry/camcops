@@ -199,7 +199,7 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
         // or this can create standalone windows!
     }
     // Propagate up events from *all* widgets, including those in grids etc.
-    QVector<QuElement*> elements = allElements();
+    const QVector<QuElement*> elements = allElements();
     for (QuElement* e : elements) {
         connect(e, &QuElement::elementValueChanged,
                 this, &QuPage::elementValueChanged,
@@ -236,7 +236,7 @@ QVector<QuElement*> QuPage::elementsWithTag(const QString& tag)
 
 bool QuPage::missingInput() const
 {
-    QVector<QuElement*> elements = allElements();
+    const QVector<QuElement*> elements = allElements();
     for (QuElement* e : elements) {
         // Not this:
         /*
@@ -273,7 +273,7 @@ bool QuPage::progressBlocked() const
 
 void QuPage::closing()
 {
-    QVector<QuElement*> elements = allElements();
+    const QVector<QuElement*> elements = allElements();
     for (auto e : elements) {
         e->closing();
     }

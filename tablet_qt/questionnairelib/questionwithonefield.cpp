@@ -43,7 +43,6 @@ QuestionWithOneField::QuestionWithOneField(FieldRefPtr fieldref,
 QuestionWithOneField::QuestionWithOneField() :
     m_fieldref(nullptr)
 {
-
 }
 
 

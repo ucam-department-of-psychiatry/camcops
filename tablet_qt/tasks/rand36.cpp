@@ -139,37 +139,37 @@ QStringList Rand36::detail() const
 
 OpenableWidget* Rand36::editor(bool read_only)
 {
-    NameValueOptions q1options{
+    const NameValueOptions q1options{
         {xstring("q1_option1"), 1},
         {xstring("q1_option2"), 2},
         {xstring("q1_option3"), 3},
         {xstring("q1_option4"), 4},
         {xstring("q1_option5"), 5},
     };
-    NameValueOptions q2options{
+    const NameValueOptions q2options{
         {xstring("q2_option1"), 1},
         {xstring("q2_option2"), 2},
         {xstring("q2_option3"), 3},
         {xstring("q2_option4"), 4},
         {xstring("q2_option5"), 5},
     };
-    NameValueOptions activities_options{
+    const NameValueOptions activities_options{
         {xstring("activities_option1"), 1},
         {xstring("activities_option2"), 2},
         {xstring("activities_option3"), 3},
     };
-    NameValueOptions yes_no_options{
+    const NameValueOptions yes_no_options{
         {xstring("yesno_option1"), 1},
         {xstring("yesno_option2"), 2},
     };
-    NameValueOptions q20options{
+    const NameValueOptions q20options{
         {xstring("q20_option1"), 1},
         {xstring("q20_option2"), 2},
         {xstring("q20_option3"), 3},
         {xstring("q20_option4"), 4},
         {xstring("q20_option5"), 5},
     };
-    NameValueOptions q21options{
+    const NameValueOptions q21options{
         {xstring("q21_option1"), 1},
         {xstring("q21_option2"), 2},
         {xstring("q21_option3"), 3},
@@ -177,14 +177,14 @@ OpenableWidget* Rand36::editor(bool read_only)
         {xstring("q21_option5"), 5},
         {xstring("q21_option6"), 6},
     };
-    NameValueOptions q22options{
+    const NameValueOptions q22options{
         {xstring("q22_option1"), 1},
         {xstring("q22_option2"), 2},
         {xstring("q22_option3"), 3},
         {xstring("q22_option4"), 4},
         {xstring("q22_option5"), 5},
     };
-    NameValueOptions last4weeks_options{
+    const NameValueOptions last4weeks_options{
         {xstring("last4weeks_option1"), 1},
         {xstring("last4weeks_option2"), 2},
         {xstring("last4weeks_option3"), 3},
@@ -192,14 +192,14 @@ OpenableWidget* Rand36::editor(bool read_only)
         {xstring("last4weeks_option5"), 5},
         {xstring("last4weeks_option6"), 6},
     };
-    NameValueOptions q32options{
+    const NameValueOptions q32options{
         {xstring("q32_option1"), 1},
         {xstring("q32_option2"), 2},
         {xstring("q32_option3"), 3},
         {xstring("q32_option4"), 4},
         {xstring("q32_option5"), 5},
     };
-    NameValueOptions q33to36_options{
+    const NameValueOptions q33to36_options{
         {xstring("q33to36_option1"), 1},
         {xstring("q33to36_option2"), 2},
         {xstring("q33to36_option3"), 3},
@@ -310,11 +310,11 @@ OpenableWidget* Rand36::editor(bool read_only)
 
 QVariant Rand36::recoded(int question) const
 {
-    QVariant v = value(strnum(QPREFIX, question));
+    const QVariant v = value(strnum(QPREFIX, question));
     if (v.isNull()) {
         return v;
     }
-    int x = v.toInt();
+    const int x = v.toInt();
     if (x < 1) {
         return QVariant();
     }

@@ -122,7 +122,7 @@ double randomRealIncUpper(double minimum, double maximum)
 {
     // [minimum, maximum] -- i.e. inclusive
     // http://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
-    double adjusted_max = nextDoubleAbove(maximum);
+    const double adjusted_max = nextDoubleAbove(maximum);
     return randomRealExcUpper(minimum, adjusted_max);
 }
 
@@ -140,9 +140,9 @@ QStringList testRandom()
     };
 
     auto testNextFloatAbove = [&fullFloat, &lines](float f) -> void {
-        float nf = nextFloatAbove(f);
-        BitRepresentationFloat brf(f);
-        BitRepresentationFloat brnf(nf);
+        const float nf = nextFloatAbove(f);
+        const BitRepresentationFloat brf(f);
+        const BitRepresentationFloat brnf(nf);
         lines.append(QString("nextFloatAbove(%1 [integer representation %2]) "
                              "-> %3 [integer representation %4]")
                      .arg(fullFloat(f),
@@ -151,11 +151,11 @@ QStringList testRandom()
                           QString::number(brnf.ui)));
     };
     auto testNextDoubleAbove = [&fullDouble, &lines](double d) -> void {
-        double dam = nextDoubleAboveManual(d);
-        double da = nextDoubleAbove(d);
-        BitRepresentationDouble brd(d);
-        BitRepresentationDouble brdam(dam);
-        BitRepresentationDouble brda(da);
+        const double dam = nextDoubleAboveManual(d);
+        const double da = nextDoubleAbove(d);
+        const BitRepresentationDouble brd(d);
+        const BitRepresentationDouble brdam(dam);
+        const BitRepresentationDouble brda(da);
         lines.append(
             QString("nextDoubleAboveManual(%1 [integer representation %2]) "
                     "-> %3 [integer representation %4]")

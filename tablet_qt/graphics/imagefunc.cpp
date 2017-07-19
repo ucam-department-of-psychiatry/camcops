@@ -29,7 +29,7 @@ QImage imageFromVideoFrame(const QVideoFrame& buffer)
     QImage img;
     QVideoFrame frame(buffer);  // make a copy we can call map (non-const) on
     frame.map(QAbstractVideoBuffer::ReadOnly);
-    QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(
+    const QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(
                 frame.pixelFormat());
     // BUT the frame.pixelFormat() is QVideoFrame::Format_Jpeg, and this is
     // mapped to QImage::Format_Invalid by

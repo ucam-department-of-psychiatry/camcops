@@ -183,21 +183,21 @@ OpenableWidget* QolBasic::editor(bool read_only)
 
 QVariant QolBasic::qolTto() const
 {
-    QVariant tto = value(TTO);
+    const QVariant tto = value(TTO);
     return tto.isNull() ? tto : tto.toDouble() / 10.0;
 }
 
 
 QVariant QolBasic::qolRs() const
 {
-    QVariant rs = value(RS);
+    const QVariant rs = value(RS);
     return rs.isNull() ? rs : rs.toDouble() / 100.0;
 }
 
 
 QVariant QolBasic::meanQol() const
 {
-    QVariant tto = qolTto();
-    QVariant rs = qolRs();
+    const QVariant tto = qolTto();
+    const QVariant rs = qolRs();
     return mean({tto, rs}, true);
 }

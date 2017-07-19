@@ -266,8 +266,8 @@ bool DatabaseManager::exec(const SqlArgs& sqlargs, bool suppress_errors)
 #ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO;
 #endif
-    QueryResult result = query(sqlargs, QueryResult::FetchMode::NoFetch,
-                               false, suppress_errors);
+    const QueryResult result = query(sqlargs, QueryResult::FetchMode::NoFetch,
+                                     false, suppress_errors);
     return result.succeeded();
 }
 
@@ -380,7 +380,7 @@ void DatabaseManager::work()
         // Now we can remove the request:
         m_mutex_requests.lock();
         m_requests.pop_front();
-        bool now_empty = m_requests.isEmpty();
+        const bool now_empty = m_requests.isEmpty();
         m_mutex_requests.unlock();
 
         // If that (even transiently) cleared the request queue, let anyone
@@ -406,9 +406,9 @@ void DatabaseManager::execute(const ThreadedQueryRequest& request)
 #ifdef DEBUG_BACKGROUND_QUERY
     qDebug() << "Executing background query:" << request;
 #endif
-    bool success = dbfunc::execQuery(query,
-                                     request.sqlargs,
-                                     request.suppress_errors);
+    const bool success = dbfunc::execQuery(query,
+                                           request.sqlargs,
+                                           request.suppress_errors);
 
     // 3. Deal with results.
     //    NOTE that even if the query fails, we must push a (blank) result,
@@ -447,7 +447,7 @@ void DatabaseManager::execNoAnswer(const QString& sql, const ArgList& args)
 #ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO;
 #endif
-    SqlArgs sqlargs(sql, args);
+    const SqlArgs sqlargs(sql, args);
     execNoAnswer(sqlargs);
 }
 
@@ -457,7 +457,7 @@ bool DatabaseManager::exec(const QString& sql, const ArgList& args)
 #ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO;
 #endif
-    SqlArgs sqlargs(sql, args);
+    const SqlArgs sqlargs(sql, args);
     return exec(sqlargs);
 }
 
@@ -471,7 +471,7 @@ QueryResult DatabaseManager::query(const QString& sql,
 #ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO;
 #endif
-    SqlArgs sqlargs(sql, args);
+    const SqlArgs sqlargs(sql, args);
     return query(sqlargs, fetch_mode, store_column_names, suppress_errors);
 }
 
@@ -484,7 +484,7 @@ QueryResult DatabaseManager::query(const QString& sql,
 #ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO;
 #endif
-    SqlArgs sqlargs(sql);
+    const SqlArgs sqlargs(sql);
     return query(sqlargs, fetch_mode, store_column_names, suppress_errors);
 }
 
@@ -536,7 +536,7 @@ int DatabaseManager::count(const QString& tablename,
                            const WhereConditions& where)
 {
     SqlArgs sqlargs("SELECT COUNT(*) FROM " + delimit(tablename));
-    where.appendWhereClause(sqlargs);
+    where.appendWhereClauseTo(sqlargs);
     return fetchInt(sqlargs, 0);
 }
 
@@ -548,8 +548,8 @@ QVector<int> DatabaseManager::getSingleFieldAsIntList(
 {
     SqlArgs sqlargs(QString("SELECT %1 FROM %2").arg(delimit(fieldname),
                                                      delimit(tablename)));
-    where.appendWhereClause(sqlargs);
-    QueryResult result = query(sqlargs);
+    where.appendWhereClauseTo(sqlargs);
+    const QueryResult result = query(sqlargs);
     return result.firstColumnAsIntList();
 }
 
@@ -565,7 +565,7 @@ QVector<int> DatabaseManager::getPKs(const QString& tablename,
 bool DatabaseManager::existsByPk(const QString& tablename,
                                  const QString& pkname, int pkvalue)
 {
-    SqlArgs sqlargs(
+    const SqlArgs sqlargs(
         QString("SELECT EXISTS(SELECT * FROM %1 WHERE %2 = ?)")
                 .arg(delimit(tablename),
                      delimit(pkname)),
@@ -610,7 +610,7 @@ bool DatabaseManager::deleteFrom(const QString& tablename,
                                  const WhereConditions& where)
 {
     SqlArgs sqlargs(QString("DELETE FROM %1").arg(delimit(tablename)));
-    where.appendWhereClause(sqlargs);
+    where.appendWhereClauseTo(sqlargs);
     return exec(sqlargs);
 }
 
@@ -625,20 +625,20 @@ QStringList DatabaseManager::getAllTables()
     // - https://www.sqlite.org/fileformat.html
     // An underscore is a wildcard for LIKE
     // - https://www.sqlite.org/lang_expr.html
-    QString sql = "SELECT name "
-                  "FROM sqlite_master "
-                  "WHERE sql NOT NULL "
-                  "AND type='table' "
-                  "AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' "
-                  "ORDER BY name";
-    QueryResult result = query(sql);
+    const QString sql = "SELECT name "
+                        "FROM sqlite_master "
+                        "WHERE sql NOT NULL "
+                        "AND type='table' "
+                        "AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' "
+                        "ORDER BY name";
+    const QueryResult result = query(sql);
     return result.firstColumnAsStringList();
 }
 
 
 bool DatabaseManager::tableExists(const QString& tablename)
 {
-    SqlArgs sqlargs(
+    const SqlArgs sqlargs(
         "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
         {tablename}
     );
@@ -649,14 +649,14 @@ bool DatabaseManager::tableExists(const QString& tablename)
 QVector<SqlitePragmaInfoField> DatabaseManager::getPragmaInfo(
         const QString& tablename)
 {
-    QString sql = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
-    QueryResult result = query(sql);
+    const QString sql = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
+    const QueryResult result = query(sql);
     if (!result.succeeded()) {
         uifunc::stopApp("getPragmaInfo: PRAGMA table_info failed for "
                         "table " + tablename);
     }
     QVector<SqlitePragmaInfoField> infolist;
-    int nrows = result.nRows();
+    const int nrows = result.nRows();
     for (int row = 0; row < nrows; ++row) {
         SqlitePragmaInfoField fieldinfo;
         fieldinfo.cid = result.at(row, 0).toInt();  // column ID
@@ -673,15 +673,15 @@ QVector<SqlitePragmaInfoField> DatabaseManager::getPragmaInfo(
 
 QStringList DatabaseManager::getFieldNames(const QString& tablename)
 {
-    QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(tablename);
+    const QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(tablename);
     return dbfunc::fieldNamesFromPragmaInfo(infolist);
 }
 
 
 QString DatabaseManager::dbTableDefinitionSql(const QString& tablename)
 {
-    QString sql = "SELECT sql FROM sqlite_master WHERE tbl_name=?";
-    ArgList args({tablename});
+    const QString sql = "SELECT sql FROM sqlite_master WHERE tbl_name=?";
+    const ArgList args({tablename});
     return fetchFirstValue(SqlArgs(sql, args)).toString();
 }
 
@@ -702,7 +702,7 @@ bool DatabaseManager::createIndex(const QString& indexname,
     for (int i = 0; i < fieldnames.size(); ++i) {
         fieldnames[i] = delimit(fieldnames.at(i));
     }
-    QString sql = QString("CREATE INDEX IF NOT EXISTS %1 ON %2 (%3)").arg(
+    const QString sql = QString("CREATE INDEX IF NOT EXISTS %1 ON %2 (%3)").arg(
         delimit(indexname), delimit(tablename), fieldnames.join(""));
     return exec(sql);
 }
@@ -721,15 +721,15 @@ void DatabaseManager::renameColumns(
     QString creation_sql = dbTableDefinitionSql(tablename);
     QStringList old_fieldnames = getFieldNames(tablename);
     QStringList new_fieldnames = old_fieldnames;
-    QString dummytable = tablename + tempsuffix;
+    const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
         uifunc::stopApp("renameColumns: temporary table exists: " +
                         dummytable);
     }
     int n_changes = 0;
     for (int i = 0; i < from_to.size(); ++i) {  // For each rename...
-        QString from = from_to.at(i).first;
-        QString to = from_to.at(i).second;
+        const QString from = from_to.at(i).first;
+        const QString to = from_to.at(i).second;
         if (from == to) {
             continue;
         }
@@ -760,8 +760,8 @@ void DatabaseManager::renameColumns(
     qDebug() << "- old_fieldnames:" << old_fieldnames;
     qDebug() << "- new_fieldnames:" << new_fieldnames;
     // Delimit everything
-    QString delimited_tablename = delimit(tablename);
-    QString delimited_dummytable = delimit(dummytable);
+    const QString delimited_tablename = delimit(tablename);
+    const QString delimited_dummytable = delimit(dummytable);
     for (int i = 0; i < old_fieldnames.size(); ++i) {
         old_fieldnames[i] = delimit(old_fieldnames.at(i));
         new_fieldnames[i] = delimit(new_fieldnames.at(i));
@@ -812,7 +812,7 @@ void DatabaseManager::changeColumnTypes(
                       "table:" << tablename;
         return;
     }
-    QString dummytable = tablename + tempsuffix;
+    const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
         uifunc::stopApp("changeColumnTypes: temporary table exists: " +
                         dummytable);
@@ -823,7 +823,7 @@ void DatabaseManager::changeColumnTypes(
     qDebug() << "- changes:" << changes;
     int n_changes = 0;
     for (int i = 0; i < changes.size(); ++i) {
-        QString changefield = changes.at(i).first;
+        const QString changefield = changes.at(i).first;
         for (int j = 0; i < infolist.size(); ++j) {
             SqlitePragmaInfoField& info = infolist[j];
             if (changefield.compare(info.name, Qt::CaseInsensitive) == 0) {
@@ -837,12 +837,12 @@ void DatabaseManager::changeColumnTypes(
         qDebug() << "... nothing to do";
         return;
     }
-    QString creation_sql = dbfunc::makeCreationSqlFromPragmaInfo(
+    const QString creation_sql = dbfunc::makeCreationSqlFromPragmaInfo(
                 tablename, infolist);
-    QString fieldnames = dbfunc::fieldNamesFromPragmaInfo(infolist,
-                                                          true).join(",");
-    QString delimited_tablename = delimit(tablename);
-    QString delimited_dummytable = delimit(dummytable);
+    const QString fieldnames = dbfunc::fieldNamesFromPragmaInfo(
+                infolist, true).join(",");
+    const QString delimited_tablename = delimit(tablename);
+    const QString delimited_dummytable = delimit(dummytable);
     beginTransaction();
     execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2").arg(
                      delimited_tablename, delimited_dummytable));
@@ -866,7 +866,7 @@ void DatabaseManager::createTable(const QString& tablename,
     // creation calls come through this function.
     m_created_tables.append(tablename);
 
-    QString creation_sql = dbfunc::sqlCreateTable(tablename, fieldlist);
+    const QString creation_sql = dbfunc::sqlCreateTable(tablename, fieldlist);
     if (!tableExists(tablename)) {
         // Create table from scratch.
         qInfo() << "Creating table" << tablename;
@@ -896,7 +896,7 @@ void DatabaseManager::createTable(const QString& tablename,
     //   to have a different type).
     // - If they're not in our "desired" list, then they're superfluous, so
     //   aim to drop them.
-    QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(tablename);
+    const QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(tablename);
     for (int i = 0; i < infolist.size(); ++i) {
         const SqlitePragmaInfoField& info = infolist.at(i);
         bool existing_is_superfluous = true;
@@ -982,13 +982,13 @@ void DatabaseManager::createTable(const QString& tablename,
     // conversion occurs as we SELECT back the values into the new, proper
     // fields). Not sure it really is important, though:
     // http://sqlite.org/datatype3.html
-    QString dummytable = tablename + tempsuffix;
+    const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
         uifunc::stopApp("createTable: temporary table exists: " + dummytable);
     }
-    QString delimited_tablename = delimit(tablename);
-    QString delimited_dummytable = delimit(dummytable);
-    QString goodfieldstring = goodfieldlist.join(",");
+    const QString delimited_tablename = delimit(tablename);
+    const QString delimited_dummytable = delimit(dummytable);
+    const QString goodfieldstring = goodfieldlist.join(",");
     qInfo() << "Modifying structure of table:" << tablename;
     beginTransaction();
     execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2").arg(
@@ -1013,8 +1013,8 @@ void DatabaseManager::dropTable(const QString& tablename)
 
 void DatabaseManager::dropTablesNotIn(const QStringList& good_tables)
 {
-    QStringList existing = getAllTables();
-    QStringList superfluous = containers::setSubtract(existing, good_tables);
+    const QStringList existing = getAllTables();
+    const QStringList superfluous = containers::setSubtract(existing, good_tables);
     for (const QString& tablename : superfluous) {
         dropTable(tablename);
     }
@@ -1046,10 +1046,10 @@ void DatabaseManager::vacuum()
 
 bool DatabaseManager::canReadDatabase()
 {
-    QueryResult result = query("SELECT COUNT(*) FROM sqlite_master",
-                               QueryResult::FetchMode::NoFetch,
-                               false,
-                               true);  // suppress errors
+    const QueryResult result = query("SELECT COUNT(*) FROM sqlite_master",
+                                     QueryResult::FetchMode::NoFetch,
+                                     false,
+                                     true);  // suppress errors
     return result.succeeded();
     // We suppress errors if this fails. It will fail if the database
     // is encrypted and we've not supplied the right key.
@@ -1059,7 +1059,7 @@ bool DatabaseManager::canReadDatabase()
 bool DatabaseManager::pragmaKey(const QString& passphase)
 {
     // "PRAGMA key" is specific to SQLCipher
-    QString sql = QString("PRAGMA key=%1")
+    const QString sql = QString("PRAGMA key=%1")
             .arg(convert::toSqlLiteral(passphase));
     return exec(sql);
 }
@@ -1068,7 +1068,7 @@ bool DatabaseManager::pragmaKey(const QString& passphase)
 bool DatabaseManager::pragmaRekey(const QString& passphase)
 {
     // "PRAGMA rekey" is specific to SQLCipher
-    QString sql = QString("PRAGMA rekey=%1")
+    const QString sql = QString("PRAGMA rekey=%1")
             .arg(convert::toSqlLiteral(passphase));
     return exec(sql);
 }

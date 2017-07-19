@@ -59,7 +59,7 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
         m_options.shuffle();
     }
 
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
     m_cbox = new QComboBox();
     m_cbox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     for (int i = 0; i < m_options.size(); ++i) {
@@ -90,8 +90,8 @@ void QuPickerInline::currentIndexChanged(int index)
     if (!m_options.validIndex(index)) {
         return;
     }
-    QVariant newvalue = m_options.at(index).value();
-    bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const QVariant newvalue = m_options.at(index).value();
+    const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
@@ -106,8 +106,8 @@ void QuPickerInline::setFromField()
 
 void QuPickerInline::fieldValueChanged(const FieldRef* fieldref)
 {
-    int index = m_options.indexFromValue(fieldref->value());
-    bool missing = fieldref->missingInput();
+    const int index = m_options.indexFromValue(fieldref->value());
+    const bool missing = fieldref->missingInput();
     if (m_cbox) {
         {
             const QSignalBlocker blocker(m_cbox);

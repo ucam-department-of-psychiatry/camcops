@@ -150,7 +150,7 @@ void TestMenu::testDebugConsole()
 void TestMenu::testSound()
 {
     soundfunc::makeMediaPlayer(m_player);
-    QUrl url(uiconst::DEMO_SOUND_URL_1);
+    const QUrl url(uiconst::DEMO_SOUND_URL_1);
     qDebug() << "Trying to play:" << url;
     m_player->setMedia(url);
     m_player->setVolume(50);
@@ -162,8 +162,8 @@ void TestMenu::testHttps()
 {
     // To find bad certificates, see
     // https://www.ssllabs.com/ssltest/analyze.html
-    QString url = "https://egret.psychol.cam.ac.uk/index.html";  // good cert
-    // QString url = "https://www.veltigroup.com/";  // bad cert (then Forbidden)
+    const QString url = "https://egret.psychol.cam.ac.uk/index.html";  // good cert
+    // const QString url = "https://www.veltigroup.com/";  // bad cert (then Forbidden)
 
     NetworkManager* netmgr = m_app.networkManager();
     netmgr->setTitle("Test HTTPS");
@@ -173,7 +173,7 @@ void TestMenu::testHttps()
 
 void TestMenu::testHttp()
 {
-    QString url = "http://egret.psychol.cam.ac.uk/index.html";
+    const QString url = "http://egret.psychol.cam.ac.uk/index.html";
     NetworkManager* netmgr = m_app.networkManager();
     netmgr->setTitle("Test HTTP");
     netmgr->testHttpGet(url);
@@ -183,7 +183,7 @@ void TestMenu::testHttp()
 void TestMenu::testPhq9Creation()
 {
 #ifdef DEBUG_OPTIONS
-    QString tablename = Phq9::PHQ9_TABLENAME;
+    const QString tablename = Phq9::PHQ9_TABLENAME;
     TaskPtr p_task = m_app.taskFactory()->create(tablename);
     if (!p_task) {
         qCritical() << Q_FUNC_INFO << "Failed to create task: "
@@ -199,7 +199,7 @@ void TestMenu::testPhq9Creation()
 void TestMenu::testIcd10CodeSetCreation()
 {
 #ifdef DEBUG_OPTIONS
-    Icd10 icd(m_app);
+    const Icd10 icd(m_app);
     qDebug() << icd;
     doneSeeConsole();
 #endif
@@ -209,7 +209,7 @@ void TestMenu::testIcd10CodeSetCreation()
 void TestMenu::testIcd9cmCodeSetCreation()
 {
 #ifdef DEBUG_OPTIONS
-    Icd9cm icd(m_app);
+    const Icd9cm icd(m_app);
     qDebug() << icd;
     doneSeeConsole();
 #endif
@@ -231,7 +231,7 @@ void TestMenu::testProgress()
     qDebug() << Q_FUNC_INFO << "start";
     // http://doc.qt.io/qt-4.8/qprogressdialog.html#details
     // http://stackoverflow.com/questions/3752742/how-do-i-create-a-pause-wait-function-using-qt
-    int num_things = 100;
+    const int num_things = 100;
     QProgressDialog progress(
         "Testing progress (but not doing anything; safe to abort)...",
         "Abort test", 0, num_things, this);
@@ -284,7 +284,7 @@ void TestMenu::testScrollMessageBox()
                                             QMessageBox::NoRole);
     QAbstractButton* three = msgbox.addButton("Response Three (Reject role)",
                                               QMessageBox::RejectRole);
-    int ret = msgbox.exec();
+    const int ret = msgbox.exec();
     qInfo() << "exec() returned" << ret;
     QAbstractButton* response = msgbox.clickedButton();
     if (response == one) {
@@ -333,7 +333,7 @@ void TestMenu::testConversions()
 
 void TestMenu::testEigenFunctions()
 {
-    QString text = eigenfunc::testEigenFunctions().join("\n");
+    const QString text = eigenfunc::testEigenFunctions().join("\n");
 
     uifunc::alertLogMessageBox(text, "Eigen functions successfully tested",
                                false);
@@ -342,7 +342,7 @@ void TestMenu::testEigenFunctions()
 
 void TestMenu::testRandom()
 {
-    QString text = ccrandom::testRandom().join("\n");
+    const QString text = ccrandom::testRandom().join("\n");
     uifunc::alertLogMessageBox(text,
                                "Random-number functions (and supporting "
                                "floating-point-delta functions): OK",
@@ -362,10 +362,10 @@ void TestMenu::testLogisticRegression()
 
     qInfo() << Q_FUNC_INFO
             << "1a. Our 'plain' method: LogisticDescriptives(x, y)";
-    QVector<double> x_q{0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 3.25, 3.50, 4.00, 4.25, 4.50, 4.75, 5.00, 5.50};
-    QVector<int> y_q{0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1};
-    LogisticDescriptives ld1(x_q, y_q, true);
-    QString result1 = QString(R"(
+    const QVector<double> x_q{0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 3.25, 3.50, 4.00, 4.25, 4.50, 4.75, 5.00, 5.50};
+    const QVector<int> y_q{0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1};
+    const LogisticDescriptives ld1(x_q, y_q, true);
+    const QString result1 = QString(R"(
 # Example from: https://en.wikipedia.org/wiki/Logistic_regression
 # R code:
 
@@ -386,21 +386,21 @@ Our results: intercept = %1, slope = %2)
 
     qInfo() << Q_FUNC_INFO
             << "1b. A more detailed look: LogisticRegression(), IRLS";
-    VectorXd x_e = eigenColumnVectorFromQVector<double>(x_q);
-    VectorXi y_e = eigenColumnVectorFromQVector<int>(y_q);
+    const VectorXd x_e = eigenColumnVectorFromQVector<double>(x_q);
+    const VectorXi y_e = eigenColumnVectorFromQVector<int>(y_q);
     LogisticRegression lr1a(Glm::SolveMethod::IRLS_KaneLewis);
     lr1a.setVerbose(true);
     lr1a.fit(x_e, y_e);
-    VectorXd coeffs1a = lr1a.coefficients();
-    VectorXd p = lr1a.predictProb();
-    VectorXi cat = lr1a.predictBinary();
+    const VectorXd coeffs1a = lr1a.coefficients();
+    const VectorXd p = lr1a.predictProb();
+    const VectorXi cat = lr1a.predictBinary();
 
     qInfo() << Q_FUNC_INFO
             << "1c. A more detailed look: LogisticRegression(), IRLS SVD Newton";
     LogisticRegression lr1c(Glm::SolveMethod::IRLS_SVDNewton_KaneLewis);
     lr1c.setVerbose(true);
     lr1c.fit(x_e, y_e);
-    VectorXd coeffs1c = lr1c.coefficients();
+    const VectorXd coeffs1c = lr1c.coefficients();
 
     results.append(QString(R"(
 With the same data:
@@ -431,13 +431,13 @@ OUT time to fit (ms): %10
             .arg(QString::number(lr1c.nIterations()))
             .arg(QString::number(lr1c.timeToFitMs())));
 
-    VectorXd test_x = eigenColumnVectorFromInitList<double>({0.8, 1.6, 2.4, 3.2});
-    VectorXd predicted_p = lr1a.predictProb(test_x);
-    VectorXd retrieved_x = lr1a.retrodictUnivariatePredictor(predicted_p);
-    LogisticDescriptives ld2(coeffs1a);
+    const VectorXd test_x = eigenColumnVectorFromInitList<double>({0.8, 1.6, 2.4, 3.2});
+    const VectorXd predicted_p = lr1a.predictProb(test_x);
+    const VectorXd retrieved_x = lr1a.retrodictUnivariatePredictor(predicted_p);
+    const LogisticDescriptives ld2(coeffs1a);
     VectorXd crosscheck_x(retrieved_x.size());
     for (int i = 0; i < crosscheck_x.size(); ++i) {
-        double p = predicted_p(i);
+        const double p = predicted_p(i);
         crosscheck_x(i) = ld2.x(p);
     }
 
@@ -447,7 +447,7 @@ OUT time to fit (ms): %10
     LogisticRegression lr1d(Glm::SolveMethod::IRLS_R_glmfit);
     lr1d.setVerbose(true);
     lr1d.fit(x_e, y_e);
-    VectorXd coeffs1d = lr1d.coefficients();
+    const VectorXd coeffs1d = lr1d.coefficients();
     results.append(QString("With our implementation of R's glm.fit IRLS: "
                            "%1").arg(qStringFromEigenMatrixOrArray(coeffs1d)));
 #endif
@@ -486,14 +486,14 @@ crosscheck_x (via LogisticDescriptives()) [SHOULD MATCH test_x]: %4
     LogisticRegression lr2a(Glm::SolveMethod::IRLS_KaneLewis);
     lr2a.setVerbose(true);
     lr2a.fit(x2, y2);
-    VectorXd coeffs2a = lr2a.coefficients();
+    const VectorXd coeffs2a = lr2a.coefficients();
 
     qInfo() << Q_FUNC_INFO
             << "2b. A more numerically complex example, via IRLS-SVD-Newton.";
     LogisticRegression lr2b(Glm::SolveMethod::IRLS_SVDNewton_KaneLewis);
     lr2b.setVerbose(true);
     lr2b.fit(x2, y2);
-    VectorXd coeffs2b = lr2b.coefficients();
+    const VectorXd coeffs2b = lr2b.coefficients();
 
     results.append(QString(R"(
 Another example, giving a warning in R:
@@ -527,7 +527,7 @@ CamCOPS: coefficients: IRLS-SVD-Newton: %2
     LogisticRegression lr2c(Glm::SolveMethod::IRLS_R_glmfit);
     lr2c.setVerbose(true);
     lr2c.fit(x2, y2);
-    VectorXd coeffs2c = lr2c.coefficients();
+    const VectorXd coeffs2c = lr2c.coefficients();
     results.append(QString(
            "CamCOPS: coefficients: RNC implementation of R's "
            "glm.fit IRLS: %1").arg(qStringFromEigenMatrixOrArray(coeffs2c)));

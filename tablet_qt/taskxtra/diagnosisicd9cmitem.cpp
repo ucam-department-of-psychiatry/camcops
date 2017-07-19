@@ -36,5 +36,4 @@ DiagnosisIcd9CMItem::DiagnosisIcd9CMItem(int owner_fk, CamcopsApp& app,
     DiagnosisItemBase(owner_fk, app, db,
                       DIAGNOSIS_ICD9CM_ITEM_TABLENAME, FK_NAME)  // delegating constructor
 {
-
 }

@@ -115,16 +115,16 @@ OpenableWidget* Bprs::editor(bool read_only)
     auto addpage = [this, &pages](int n, bool include_na) -> void {
         NameValueOptions options;
         for (int i = 1; i <= 7; ++i) {
-            QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
+            const QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
             options.append(NameValuePair(name, i));
         }
         if (include_na) {
-            QString name = xstring(QString("q%1_option0").arg(n));
+            const QString name = xstring(QString("q%1_option0").arg(n));
             options.append(NameValuePair(name, 0));
         }
-        QString pagetitle = xstring(QString("q%1_title").arg(n));
-        QString question = xstring(QString("q%1_question").arg(n));
-        QString fieldname = strnum(QPREFIX, n);
+        const QString pagetitle = xstring(QString("q%1_title").arg(n));
+        const QString question = xstring(QString("q%1_question").arg(n));
+        const QString fieldname = strnum(QPREFIX, n);
         QuPagePtr page((new QuPage{
             new QuText(question),
             new QuMcq(fieldRef(fieldname), options),
@@ -134,9 +134,10 @@ OpenableWidget* Bprs::editor(bool read_only)
 
     pages.append(getClinicianDetailsPage());
     for (int n = FIRST_Q; n <= N_QUESTIONS; ++n) {
-        bool include_na = (n == 1 || n == 2 || n == 5 || n == 8 || n == 9 ||
-                           n == 10 || n == 11 || n == 12 || n == 15 ||
-                           n == 18 || n == 20);
+        const bool include_na = (
+                    n == 1 || n == 2 || n == 5 || n == 8 || n == 9 ||
+                    n == 10 || n == 11 || n == 12 || n == 15 ||
+                    n == 18 || n == 20);
         addpage(n, include_na);
     }
 

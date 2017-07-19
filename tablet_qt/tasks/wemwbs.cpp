@@ -115,7 +115,7 @@ QStringList Wemwbs::detail() const
 
 OpenableWidget* Wemwbs::editor(bool read_only)
 {
-    NameValueOptions options{
+    const NameValueOptions options{
         {xstring("wemwbs_a1"), 1},
         {xstring("wemwbs_a2"), 2},
         {xstring("wemwbs_a3"), 3},

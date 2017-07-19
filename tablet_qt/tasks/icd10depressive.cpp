@@ -233,8 +233,8 @@ QStringList Icd10Depressive::detail() const
 
 OpenableWidget* Icd10Depressive::editor(bool read_only)
 {
-    NameValueOptions true_false_options = CommonOptions::falseTrueBoolean();
-    NameValueOptions present_absent_options = CommonOptions::absentPresentBoolean();
+    const NameValueOptions true_false_options = CommonOptions::falseTrueBoolean();
+    const NameValueOptions present_absent_options = CommonOptions::absentPresentBoolean();
 
     auto heading = [this](const QString& xstringname) -> QuElement* {
         return new QuHeading(xstring(xstringname));
@@ -249,8 +249,8 @@ OpenableWidget* Icd10Depressive::editor(bool read_only)
                         QuestionWithOneField(xstring(fieldname),
                                              fieldRef(fieldname, mandatory)));
         }
-        int n = options.size();
-        QVector<int> v(n, 1);
+        const int n = options.size();
+        const QVector<int> v(n, 1);
         return (new QuMcqGrid(qfields, options))
                 ->setExpand(true)
                 ->setWidth(n, v);
@@ -329,16 +329,16 @@ bool Icd10Depressive::mainComplete() const
         return true;  // depression absent; too short
     }
 
-    QVector<QVariant> core = values(CORE_NAMES);
-    int t_core = countTrue(core);
-    int u_core = countNull(core);
+    const QVector<QVariant> core = values(CORE_NAMES);
+    const int t_core = countTrue(core);
+    const int u_core = countNull(core);
     if (t_core + u_core < 2) {
         return true;  // depression absent; definitely <2 core symptoms
     }
 
-    QVector<QVariant> additional = values(ADDITIONAL_NAMES);
-    int t_additional = countTrue(additional);
-    int u_additional = countNull(additional);
+    const QVector<QVariant> additional = values(ADDITIONAL_NAMES);
+    const int t_additional = countTrue(additional);
+    const int u_additional = countNull(additional);
 
     if (t_core == 3 && (t_core + t_additional) >= 8) {
         return true;  // depression present and severe
@@ -355,7 +355,7 @@ bool Icd10Depressive::mainComplete() const
 
 QVariant Icd10Depressive::meetsCriteriaSeverePsychoticSchizophrenic() const
 {
-    QVariant severe = meetsCriteriaSevereIgnoringPsychosis();
+    const QVariant severe = meetsCriteriaSevereIgnoringPsychosis();
     if (!severe.toBool()) {
         return severe;  // might be false or NULL
     }
@@ -381,7 +381,7 @@ QVariant Icd10Depressive::meetsCriteriaSeverePsychoticSchizophrenic() const
 
 QVariant Icd10Depressive::meetsCriteriaSeverePsychoticIcd() const
 {
-    QVariant severe = meetsCriteriaSevereIgnoringPsychosis();
+    const QVariant severe = meetsCriteriaSevereIgnoringPsychosis();
     if (!severe.toBool()) {
         return severe;  // might be false or NULL
     }
@@ -402,7 +402,7 @@ QVariant Icd10Depressive::meetsCriteriaSeverePsychoticIcd() const
 
 QVariant Icd10Depressive::meetsCriteriaSevereNonpsychotic() const
 {
-    QVariant severe_ign_psy = meetsCriteriaSevereIgnoringPsychosis();
+    const QVariant severe_ign_psy = meetsCriteriaSevereIgnoringPsychosis();
     if (!severe_ign_psy.toBool()) {
         return severe_ign_psy;  // might be false or NULL
     }
@@ -487,8 +487,8 @@ QVariant Icd10Depressive::meetsCriteriaNone() const
 
 QVariant Icd10Depressive::meetsCriteriaSomatic() const
 {
-    int t = nSomatic();  // t for true
-    int u = countNull(values(SOMATIC_NAMES));  // u for unknown
+    const int t = nSomatic();  // t for true
+    const int u = countNull(values(SOMATIC_NAMES));  // u for unknown
     if (t >= 4) {
         return true;
     }
@@ -501,7 +501,7 @@ QVariant Icd10Depressive::meetsCriteriaSomatic() const
 
 QString Icd10Depressive::getSomaticDescription() const
 {
-    QVariant s = meetsCriteriaSomatic();
+    const QVariant s = meetsCriteriaSomatic();
     if (s.isNull()) {
         return xstring("category_somatic_unknown");
     }
@@ -544,7 +544,7 @@ QString Icd10Depressive::getFullDescription() const
     //   bool b = v;  // won't compile: cannot convert 'QVariant' to 'bool' in initialization
     //   bool b = true && v;  // won't compile: no match for 'operator&&' (operand types are 'bool' and 'QVariant')
     // ... which is good, as it means we can't forget the .toBool() part!
-    bool skip_somatic = mainComplete() && meetsCriteriaNone().toBool();
+    const bool skip_somatic = mainComplete() && meetsCriteriaNone().toBool();
     return getMainDescription() + (skip_somatic
                                    ? ""
                                    : " " + getSomaticDescription());
@@ -567,13 +567,13 @@ QStringList Icd10Depressive::detailGroup(const QStringList& fieldnames) const
 
 void Icd10Depressive::updateMandatory()
 {
-    bool known = meetsCriteriaNone().toBool() ||
+    const bool known = meetsCriteriaNone().toBool() ||
             meetsCriteriaMild().toBool() ||
             meetsCriteriaModerate().toBool() ||
             meetsCriteriaSevereNonpsychotic().toBool() ||
             meetsCriteriaSeverePsychoticIcd().toBool() ||
             meetsCriteriaSeverePsychoticSchizophrenic().toBool();
-    bool need = !known;
+    const bool need = !known;
     for (auto fieldname : INFORMATIVE) {
         fieldRef(fieldname)->setMandatory(need, this);
     }

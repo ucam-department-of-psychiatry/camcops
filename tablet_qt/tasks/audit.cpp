@@ -116,8 +116,8 @@ QStringList Audit::detail() const
 {
     using stringfunc::bold;
     using uifunc::yesNo;
-    bool exceeds_standard_cutoff = totalScore() >= STANDARD_CUTOFF;
-    QString spacer = " ";
+    const bool exceeds_standard_cutoff = totalScore() >= STANDARD_CUTOFF;
+    const QString spacer = " ";
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
@@ -131,28 +131,28 @@ QStringList Audit::detail() const
 
 OpenableWidget* Audit::editor(bool read_only)
 {
-    NameValueOptions options1{
+    const NameValueOptions options1{
         {xstring("q1_option0"), 0},
         {xstring("q1_option1"), 1},
         {xstring("q1_option2"), 2},
         {xstring("q1_option3"), 3},
         {xstring("q1_option4"), 4},
     };
-    NameValueOptions options2{
+    const NameValueOptions options2{
         {xstring("q2_option0"), 0},
         {xstring("q2_option1"), 1},
         {xstring("q2_option2"), 2},
         {xstring("q2_option3"), 3},
         {xstring("q2_option4"), 4},
     };
-    NameValueOptions options3to8{
+    const NameValueOptions options3to8{
         {xstring("q3to8_option0"), 0},
         {xstring("q3to8_option1"), 1},
         {xstring("q3to8_option2"), 2},
         {xstring("q3to8_option3"), 3},
         {xstring("q3to8_option4"), 4},
     };
-    NameValueOptions options9to10{
+    const NameValueOptions options9to10{
         {xstring("q9to10_option0"), 0},
         {xstring("q9to10_option2"), 2},
         {xstring("q9to10_option4"), 4},
@@ -171,9 +171,9 @@ OpenableWidget* Audit::editor(bool read_only)
     auto addPage = [this, &pages](int question,
                                   const NameValueOptions& options,
                                   const QString& tag = "") -> void {
-        QString titlename = QString("q%1_title").arg(question);
-        QString qname = QString("q%1_question").arg(question);
-        QString fieldname = QString("q%1").arg(question);
+        const QString titlename = QString("q%1_title").arg(question);
+        const QString qname = QString("q%1_question").arg(question);
+        const QString fieldname = QString("q%1").arg(question);
         QuPagePtr page((new QuPage{
                 new QuText(xstring(qname)),
                 new QuMcq(fieldRef(fieldname), options),
@@ -234,12 +234,14 @@ void Audit::setPageSkip()
     if (!m_questionnaire) {
         return;
     }
-    QVariant q1value = value("q1");
-    QVariant q2value = value("q2");
-    QVariant q3value = value("q3");
-    bool need2to3 = q1value.isNull() || q1value.toInt() != 0;
-    bool need4to8 = need2to3 && (q2value.isNull() || q3value.isNull() ||
-                                 q2value.toInt() != 0 || q3value.toInt() != 0);
+    const QVariant q1value = value("q1");
+    const QVariant q2value = value("q2");
+    const QVariant q3value = value("q3");
+    const bool need2to3 = q1value.isNull() || q1value.toInt() != 0;
+    const bool need4to8 = need2to3 && (q2value.isNull() ||
+                                       q3value.isNull() ||
+                                       q2value.toInt() != 0 ||
+                                       q3value.toInt() != 0);
     m_questionnaire->setPageSkip(TAG_Q2TO3, !need2to3, false);
     m_questionnaire->setPageSkip(TAG_Q4TO8, !need4to8, true);
 }

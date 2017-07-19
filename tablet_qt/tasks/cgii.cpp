@@ -116,7 +116,7 @@ OpenableWidget* CgiI::editor(bool read_only)
 
     NameValueOptions options;
     for (int i = 1; i <= 7; ++i) {  // we don't use 0 (not assessed)
-        QString name = xstring(QString("q2_option%1").arg(i));
+        const QString name = xstring(QString("q2_option%1").arg(i));
         options.append(NameValuePair(name, i));
     }
     pages.append(QuPagePtr((new QuPage{
@@ -137,7 +137,7 @@ OpenableWidget* CgiI::editor(bool read_only)
 
 QString CgiI::getRatingText() const
 {
-    QVariant v = value(Q);
+    const QVariant v = value(Q);
     if (v.isNull() || v.toInt() < 1 || v.toInt() > 7) {
         return "";
     }

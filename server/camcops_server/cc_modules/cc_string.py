@@ -136,12 +136,14 @@ def XSTRING(taskname: str,
             default: str = None,
             provide_default_if_none: bool = True) -> Optional[str]:
     """Looks up a string from one of the optional extra XML string files."""
+    # For speed, calculate default only if needed:
+    cache_extra_strings()
+    if taskname in cc_pls.pls.extraStringDicts:
+        if stringname in cc_pls.pls.extraStringDicts[taskname]:
+            return cc_pls.pls.extraStringDicts[taskname].get(stringname)
     if default is None and provide_default_if_none:
         default = "EXTRA_STRING_NOT_FOUND({}.{})".format(taskname, stringname)
-    cache_extra_strings()
-    if taskname not in cc_pls.pls.extraStringDicts:
-        return default
-    return cc_pls.pls.extraStringDicts[taskname].get(stringname, default)
+    return default
 
 
 # noinspection PyPep8Naming

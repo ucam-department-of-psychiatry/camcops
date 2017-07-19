@@ -121,7 +121,7 @@ void SQLCipherResult::finalize()
 
 void SQLCipherResult::initColumns(bool emptyResultset)
 {
-    int n_cols = sqlite3_column_count(m_stmt);
+    const int n_cols = sqlite3_column_count(m_stmt);
     if (n_cols <= 0) {
         return;
     }
@@ -129,7 +129,7 @@ void SQLCipherResult::initColumns(bool emptyResultset)
     init(n_cols);
 
     for (int i = 0; i < n_cols; ++i) {
-        QString col_name = QString(
+        const QString col_name = QString(
                     reinterpret_cast<const QChar*>(sqlite3_column_name16(m_stmt, i)))
                 .remove(QLatin1Char('"'));
 
@@ -182,7 +182,7 @@ bool SQLCipherResult::fetchNext(SqlCachedResult::ValueCache& values,
         // already fetched
         Q_ASSERT(!initial_fetch);
         m_skip_row = false;
-        for (int i=0; i < m_first_row.count(); i++) {
+        for (int i = 0; i < m_first_row.count(); i++) {
             values[i] = m_first_row[i];
         }
         return m_skipped_status;

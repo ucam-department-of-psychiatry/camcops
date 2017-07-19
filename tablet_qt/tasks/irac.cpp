@@ -108,12 +108,12 @@ OpenableWidget* Irac::editor(bool read_only)
 {
     NameValueOptions options_aim;
     for (int i = 1; i <= 10; ++i) {
-        QString s = xstring(strnum("aim_", i));
+        const QString s = xstring(strnum("aim_", i));
         options_aim.append(NameValuePair(s, s));
     }
     NameValueOptions options_achieved;
     for (int i = 0; i <= 2; ++i) {
-        QString s = xstring(strnum("achieved_", i));
+        const QString s = xstring(strnum("achieved_", i));
         options_achieved.append(NameValuePair(s, i));
     }
     QuPagePtr page((new QuPage{
@@ -136,8 +136,8 @@ OpenableWidget* Irac::editor(bool read_only)
 
 QString Irac::getAchievedText() const
 {
-    QVariant v = value(ACHIEVED);
-    int i = v.toInt();
+    const QVariant v = value(ACHIEVED);
+    const int i = v.toInt();
     if (v.isNull() || i < 0 || i > 2) {
         return "?";
     }

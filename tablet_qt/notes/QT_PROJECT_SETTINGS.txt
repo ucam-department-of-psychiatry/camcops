@@ -87,6 +87,25 @@ Android:
                                 ~/dev/qt_local_build/openssl_android_armv7_build/openssl-1.0.2.h/libssl.so
                                 [... both of which were automatically added]
 
+... with no keystore, produces QtApp-debug.apk
+... with a keystore, produces QtApp-release-signed.apk
+                              ========================
+    ... fixed APK name: https://forum.qt.io/topic/43329/qt-5-3-1-qtcreator-rename-qtapp-debug-apk-to-myapp
+... which one can rename and then upload to Google Play, distribute, etc.
+
+===============================================================================
+Google Play Store settings
+===============================================================================
+
+- App category: "Utility/other".
+
+- Content rating: by its definitions, it hits criteria for references to
+  illegal drugs (e.g. Deakin1HealthReview, and when strings are available,
+  the various drug abuse scoring scales). Did not meet Google Play's criteria
+  for sex, violence, etc.
+
+- Note that "Pending publication" means you're waiting for Google Play to sort
+  itself out, not that you hav to do anything.
 
 ===============================================================================
 NOTE ALSO
@@ -107,5 +126,12 @@ NOTE ALSO
 - Phone USB debugging negotiation sometimes takes a while. On the Samsung
   Galaxy phone, the alert light goes red when in Debug mode.
 
-- If you lose the debugger windows in Qt Creator midway through a debug session,
-  press Ctrl-4.
+- If you lose the debugger windows in Qt Creator midway through a debug
+  session, press Ctrl-4.
+
+- This error (with a variety of compiler names):
+    .../mkspecs/features/toolchain.prf(50): system(execute) requires one or two arguments.
+    Project ERROR: Cannot run compiler 'g++'. Maybe you forgot to setup the environment?
+  means that you need to re-run qmake manually. It usually occurs if you delete
+  your build* directories.
+

@@ -131,9 +131,9 @@ QStringList Cape42::summary() const
     QStringList lines;
     auto addbit = [this, &lines](const QVector<int>& questions,
                                  const QString& name) -> void {
-        int n = questions.length();
-        int min_score = MIN_SCORE_PER_Q * n;
-        int max_score = MAX_SCORE_PER_Q * n;
+        const int n = questions.length();
+        const int min_score = MIN_SCORE_PER_Q * n;
+        const int max_score = MAX_SCORE_PER_Q * n;
         lines.append(
             QString("%1: frequency %2 (%3–%4), distress %5 (%6–%7).")
                     .arg(name)
@@ -156,7 +156,7 @@ QStringList Cape42::detail() const
 {
     QStringList lines = completenessInfo();
     for (auto q : ALL) {
-        QVariant freq = value(strnum(FN_FREQ_PREFIX, q));
+        const QVariant freq = value(strnum(FN_FREQ_PREFIX, q));
         QString msg = QString("%1 F:%2")
                 .arg(xstring(strnum("q", q)),
                      bold(convert::prettyValue(freq)));
@@ -174,30 +174,30 @@ QStringList Cape42::detail() const
 
 OpenableWidget* Cape42::editor(bool read_only)
 {
-    NameValueOptions options_distress{
+    const NameValueOptions options_distress{
         {xstring("distress_option1"), 1},
         {xstring("distress_option2"), 2},
         {xstring("distress_option3"), 3},
         {xstring("distress_option4"), 4},
     };
-    NameValueOptions options_frequency{
+    const NameValueOptions options_frequency{
         {xstring("frequency_option1"), 1},
         {xstring("frequency_option2"), 2},
         {xstring("frequency_option3"), 3},
         {xstring("frequency_option4"), 4},
     };
     QVector<QuPagePtr> pages;
-    QString distress_stem = xstring("distress_stem");
+    const QString distress_stem = xstring("distress_stem");
     m_distress_fieldrefs.clear();
 
     auto addpage = [this, &pages, &options_distress, &options_frequency,
                     &distress_stem](int q) -> void {
-        QString pagetag = QString::number(q);
-        QString pagetitle = QString("CAPE-42 (%1 / %2)").arg(q).arg(N_QUESTIONS);
-        QString question = xstring(strnum("q", q));
-        bool need_distress = needDistress(q);
-        QString freq_fieldname = strnum(FN_FREQ_PREFIX, q);
-        QString distress_fieldname = strnum(FN_DISTRESS_PREFIX, q);
+        const QString pagetag = QString::number(q);
+        const QString pagetitle = QString("CAPE-42 (%1 / %2)").arg(q).arg(N_QUESTIONS);
+        const QString question = xstring(strnum("q", q));
+        const bool need_distress = needDistress(q);
+        const QString freq_fieldname = strnum(FN_FREQ_PREFIX, q);
+        const QString distress_fieldname = strnum(FN_DISTRESS_PREFIX, q);
         FieldRefPtr fr_freq = fieldRef(freq_fieldname);
         fr_freq->setHint(q);
         FieldRefPtr fr_distress = fieldRef(distress_fieldname, need_distress);
@@ -240,7 +240,7 @@ int Cape42::distressScore(const QVector<int>& questions) const
 {
     int score = 0;
     for (auto q : questions) {
-        int freq = valueInt(strnum(FN_FREQ_PREFIX, q));  // 0 for null
+        const int freq = valueInt(strnum(FN_FREQ_PREFIX, q));  // 0 for null
         if (freq > MIN_SCORE_PER_Q) {
             score += valueInt(strnum(FN_DISTRESS_PREFIX, q));  // 0 for null
         } else {
@@ -265,7 +265,7 @@ int Cape42::frequencyScore(const QVector<int>& questions) const
 
 bool Cape42::questionComplete(int q) const
 {
-    QVariant freq = value(strnum(FN_FREQ_PREFIX, q));
+    const QVariant freq = value(strnum(FN_FREQ_PREFIX, q));
     if (freq.isNull()) {
         return false;
     }
@@ -284,8 +284,8 @@ bool Cape42::questionComplete(int q) const
 void Cape42::frequencyChanged(const FieldRef* fieldref)
 {
     Q_ASSERT(fieldref);
-    QVariant hint = fieldref->getHint();
-    int q = hint.toInt();
+    const QVariant hint = fieldref->getHint();
+    const int q = hint.toInt();
     Q_ASSERT(q >= FIRST_Q && q <= N_QUESTIONS);
     setDistressItems(q);
 }
@@ -304,8 +304,8 @@ void Cape42::setDistressItems(int q)
     if (!m_questionnaire) {
         return;
     }
-    QString pagetag = QString::number(q);
-    bool need_distress = needDistress(q);
+    const QString pagetag = QString::number(q);
+    const bool need_distress = needDistress(q);
     m_questionnaire->setVisibleByTag(TAG_DISTRESS, need_distress, false, pagetag);
     Q_ASSERT(m_distress_fieldrefs.contains(q));
     FieldRefPtr distress_fieldref = m_distress_fieldrefs[q];

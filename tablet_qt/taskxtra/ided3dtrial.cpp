@@ -144,7 +144,7 @@ IDED3DTrial::IDED3DTrial(const IDED3DStage& stage, int trial_num_zero_based,
 
 void IDED3DTrial::recordTrialStart()
 {
-    QDateTime now = datetime::now();
+    const QDateTime now = datetime::now();
     setValue(FN_TRIAL_START_TIME, now);
     save();
 }
@@ -152,7 +152,7 @@ void IDED3DTrial::recordTrialStart()
 
 void IDED3DTrial::recordResponse(bool correct)
 {
-    QDateTime now = datetime::now();
+    const QDateTime now = datetime::now();
     setValue(FN_RESPONDED, true);
     setValue(FN_RESPONSE_TIME, now);
     setValue(FN_RESPONSE_LATENCY_MS,

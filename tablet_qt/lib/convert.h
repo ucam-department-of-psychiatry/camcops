@@ -26,6 +26,7 @@
 #include <QVariant>
 #include "crypto/secureqbytearray.h"
 #include "crypto/secureqstring.h"
+#include "maths/mathfunc.h"
 
 class QByteArray;
 class QImage;
@@ -157,12 +158,12 @@ QString stringListToJson(const QStringList& list, bool compact = true);
 // ============================================================================
 
 extern const double CM_PER_INCH;
-extern const double CM_PER_M;
-extern const double INCHES_PER_FOOT;
+extern const int CM_PER_M;
+extern const int INCHES_PER_FOOT;
 
-extern const double POUNDS_PER_STONE;
-extern const double OUNCES_PER_POUND;
-extern const double GRAMS_PER_KG;
+extern const int POUNDS_PER_STONE;
+extern const int OUNCES_PER_POUND;
+extern const int GRAMS_PER_KG;
 extern const double GRAMS_PER_POUND;
 extern const double POUNDS_PER_KG;
 
@@ -193,6 +194,9 @@ void assert_eq(const T& a, const T& b)
         qFatal("Stopping");
     }
 }
+
+template<>
+void assert_eq(const double& a, const double& b);
 
 void testConversions();
 

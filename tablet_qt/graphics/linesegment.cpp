@@ -33,10 +33,10 @@ LineSegment::LineSegment(const QPointF& from, const QPointF& to) :
     to(to)
 {
     // http://stackoverflow.com/questions/385305/efficient-maths-algorithm-to-calculate-intersections
-    qreal x0 = from.x();
-    qreal x1 = to.x();
-    qreal y0 = from.y();
-    qreal y1 = to.y();
+    const qreal x0 = from.x();
+    const qreal x1 = to.x();
+    const qreal y0 = from.y();
+    const qreal y1 = to.y();
 
     // Stash normalized coordinates:
     xlow = x0;
@@ -124,8 +124,8 @@ bool LineSegment::intersects(const LineSegment& other) const
 
 bool LineSegment::pointOn(const QPointF& point) const
 {
-    qreal x = point.x();
-    qreal y = point.y();
+    const qreal x = point.x();
+    const qreal y = point.y();
     if (x < xlow || x > xhigh || y < ylow || y > yhigh) {
         return false;
     }
@@ -135,15 +135,15 @@ bool LineSegment::pointOn(const QPointF& point) const
 
 qreal LineSegment::angleRad() const
 {
-    qreal dx = to.x() - from.x();
-    qreal dy = to.y() - from.y();
+    const qreal dx = to.x() - from.x();
+    const qreal dy = to.y() - from.y();
     return qAtan2(dy, dx);
 }
 
 
 QRectF LineSegment::rect() const
 {
-    QRectF r(from, to);
+    const QRectF r(from, to);
     return r.normalized();
 }
 
@@ -175,12 +175,12 @@ bool LineSegment::pointInPerpendicularArea(const QPointF& point) const
 
     */
 
-    qreal angle = angleRad();
+    const qreal angle = angleRad();
     QTransform tr;
     tr = tr.rotateRadians(angle);  // rotate ANTICLOCKWISE by angle
     // The direction should now be in the positive x direction.
-    QRectF rotated_rect = tr.mapRect(rect());
-    QPointF rotated_point = tr.map(point);
+    const QRectF rotated_rect = tr.mapRect(rect());
+    const QPointF rotated_point = tr.map(point);
 #ifdef DEBUG_TRANSFORM
     qDebug() << "pointInPerpendicularArea:"
              << "point" << point
@@ -189,6 +189,6 @@ bool LineSegment::pointInPerpendicularArea(const QPointF& point) const
              << "rotated_rect" << rotated_rect
              << "rotated_point" << rotated_point;
 #endif
-    qreal x = rotated_point.x();
+    const qreal x = rotated_point.x();
     return x >= rotated_rect.left() && x <= rotated_rect.right();
 }

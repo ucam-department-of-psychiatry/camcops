@@ -58,7 +58,7 @@ HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
 
     // HTML
     if (filefunc::fileExists(filename)) {
-        QString html = filefunc::textfileContents(filename);
+        const QString html = filefunc::textfileContents(filename);
         QTextBrowser* browser = new QTextBrowser();
         browser->setHtml(html);
         browser->setOpenExternalLinks(true);

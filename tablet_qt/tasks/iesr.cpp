@@ -129,7 +129,7 @@ QStringList Iesr::detail() const
 
 OpenableWidget* Iesr::editor(bool read_only)
 {
-    NameValueOptions options{
+    const NameValueOptions options{
         {A0, 0},
         {A1, 1},
         {A2, 2},
@@ -139,7 +139,7 @@ OpenableWidget* Iesr::editor(bool read_only)
 
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        QString qstr = strnum(QPREFIX, i);
+        const QString qstr = strnum(QPREFIX, i);
         qfields.append(QuestionWithOneField(xstring(qstr), fieldRef(qstr)));
     }
 

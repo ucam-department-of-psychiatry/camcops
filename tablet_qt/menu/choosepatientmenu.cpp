@@ -198,7 +198,7 @@ void ChoosePatientMenu::mergePatients()
     }
 
     // Get all others
-    PatientPtrList all_patients = m_app.getAllPatients();
+    const PatientPtrList all_patients = m_app.getAllPatients();
     PatientPtrList other_patients;
     Patient* selected_patient = m_app.selectedPatient();
     for (const PatientPtr& other : all_patients) {
@@ -246,8 +246,8 @@ void ChoosePatientMenu::mergePatients()
         stringfunc::bold("?"),
     };
     QString confirm_text = confirm_lines.join("<br><br>");
-    QString yes = tr("Yes, merge");
-    QString no = tr("No, cancel");
+    const QString yes = tr("Yes, merge");
+    const QString no = tr("No, cancel");
     if (!uifunc::confirm(confirm_text, MERGE_TITLE, yes, no, this)) {
         return;
     }

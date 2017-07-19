@@ -162,8 +162,8 @@ bool Ifs::isComplete() const
     // The sequences come in pairs. The task terminates when the patient
     // gets both items wrong within the pair (or we run out).
     for (int seqlen = 2; seqlen <= 7; ++seqlen) {
-        QVariant v1 = q4FirstVal(seqlen);
-        QVariant v2 = q4SecondVal(seqlen);
+        const QVariant v1 = q4FirstVal(seqlen);
+        const QVariant v2 = q4SecondVal(seqlen);
         if (v1.isNull() || v2.isNull()) {
             return false;
         }
@@ -177,7 +177,7 @@ bool Ifs::isComplete() const
 
 QStringList Ifs::summary() const
 {
-    IfsScore score = getScore();
+    const IfsScore score = getScore();
     return QStringList{
         totalScorePhrase(score.total, MAX_TOTAL),
         scorePhrase("Working memory index", score.wm, MAX_WM),
@@ -222,12 +222,12 @@ OpenableWidget* Ifs::editor(bool read_only)
         return new QuMcq(fieldRef(fieldname, mandatory), options);
     };
 
-    NameValueOptions proverb_options{
+    const NameValueOptions proverb_options{
         {xstring("q7_a_1"), 1},
         {xstring("q7_a_half"), 0.5},
         {xstring("q7_a_0"), 0},
     };
-    NameValueOptions inhibition_options{
+    const NameValueOptions inhibition_options{
         {xstring("q8_a2"), 2},
         {xstring("q8_a1"), 1},
         {xstring("q8_a0"), 0},
@@ -348,9 +348,9 @@ OpenableWidget* Ifs::editor(bool read_only)
 
 Ifs::IfsScore Ifs::getScore() const
 {
-    int q1 = valueInt(Q1);
-    int q2 = valueInt(Q2);
-    int q3 = valueInt(Q3);
+    const int q1 = valueInt(Q1);
+    const int q2 = valueInt(Q2);
+    const int q3 = valueInt(Q3);
     int q4 = 0;
     for (int seqlen = 2; seqlen <= 7; ++seqlen) {
         QVariant v1 = q4FirstVal(seqlen);
@@ -360,15 +360,15 @@ Ifs::IfsScore Ifs::getScore() const
             break;
         }
     }
-    int q5 = valueInt(Q5);
-    int q6 = valueInt(Q6_SEQ1) +
+    const int q5 = valueInt(Q5);
+    const int q6 = valueInt(Q6_SEQ1) +
             valueInt(Q6_SEQ2) +
             valueInt(Q6_SEQ3) +
             valueInt(Q6_SEQ4);
-    double q7 = valueDouble(Q7_PROVERB1) +
+    const double q7 = valueDouble(Q7_PROVERB1) +
             valueDouble(Q7_PROVERB2) +
             valueDouble(Q7_PROVERB3);
-    int q8 = valueInt(Q8_SENTENCE1) +
+    const int q8 = valueInt(Q8_SENTENCE1) +
             valueInt(Q8_SENTENCE2) +
             valueInt(Q8_SENTENCE3);
 
@@ -403,11 +403,11 @@ void Ifs::updateMandatory()
     // Q4
     bool required = true;
     for (int seqlen = 2; seqlen <= 7; ++seqlen) {
-        QString tag = strnum(Q4_TAG_PREFIX, seqlen);
+        const QString tag = strnum(Q4_TAG_PREFIX, seqlen);
         m_questionnaire->setVisibleByTag(tag, required, false);
         if (required) {
-            QVariant v1 = q4FirstVal(seqlen);
-            QVariant v2 = q4SecondVal(seqlen);
+            const QVariant v1 = q4FirstVal(seqlen);
+            const QVariant v2 = q4SecondVal(seqlen);
             if (falseNotNull(v1) && falseNotNull(v2)) {
                 required = false;  // for subsequent pairs
             }

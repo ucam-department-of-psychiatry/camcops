@@ -109,9 +109,9 @@ QStringList Ciwa::summary() const
 
 QStringList Ciwa::detail() const
 {
-    int total_score = totalScore();
-    QString severity = severityDescription(total_score);
-    QString sep(": ");
+    const int total_score = totalScore();
+    const QString severity = severityDescription(total_score);
+    const QString sep(": ");
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", " ",
                             QPREFIX, FIRST_Q, N_SCORED_QUESTIONS);
@@ -137,12 +137,12 @@ OpenableWidget* Ciwa::editor(bool read_only)
     auto addpage = [this, &pages](int n, int lastoption) -> void {
         NameValueOptions options;
         for (int i = 0; i <= lastoption; ++i) {
-            QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
+            const QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
             options.append(NameValuePair(name, i));
         }
-        QString pagetitle = xstring(QString("q%1_title").arg(n));
-        QString question = xstring(QString("q%1_question").arg(n));
-        QString fieldname = strnum(QPREFIX, n);
+        const QString pagetitle = xstring(QString("q%1_title").arg(n));
+        const QString question = xstring(QString("q%1_question").arg(n));
+        const QString fieldname = strnum(QPREFIX, n);
         QuPagePtr page((new QuPage{
             new QuText(question),
             new QuMcq(fieldRef(fieldname), options),

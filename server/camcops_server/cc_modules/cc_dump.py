@@ -85,10 +85,13 @@ def get_permitted_tables_views_sorted_labelled() -> List[Dict[str, bool]]:
     tables_that_exist = pls.db.get_all_table_names()
     valid_system_tables = list(set(tables_that_exist).intersection(
         POSSIBLE_SYSTEM_TABLES))
-    valid_system_views = list(set(tables_that_exist).intersection(
-        POSSIBLE_SYSTEM_VIEWS))
+    # VIEWS DISABLED FOR NOW ***
+    valid_system_views = []  # type: List[str]
+    # valid_system_views = list(set(tables_that_exist).intersection(
+    #     POSSIBLE_SYSTEM_VIEWS))
     valid_tasktables = list(set(tables_that_exist).intersection(tasktables))
-    valid_taskviews = list(set(tables_that_exist).intersection(taskviews))
+    valid_taskviews = []  # type: List[str]
+    # valid_taskviews = list(set(tables_that_exist).intersection(taskviews))
 
     system_list = (
         [{"view": False, "name": x} for x in valid_system_tables] +

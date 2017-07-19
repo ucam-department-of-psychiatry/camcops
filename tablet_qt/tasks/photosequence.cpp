@@ -99,7 +99,7 @@ QString PhotoSequence::ancillaryTableFKToTaskFieldname() const
 
 void PhotoSequence::loadAllAncillary(int pk)
 {
-    OrderBy order_by{{PhotoSequencePhoto::SEQNUM, true}};
+    const OrderBy order_by{{PhotoSequencePhoto::SEQNUM, true}};
     ancillaryfunc::loadAncillary<PhotoSequencePhoto, PhotoSequencePhotoPtr>(
                 m_photos, m_app, m_db,
                 PhotoSequencePhoto::FK_NAME, order_by, pk);
@@ -136,14 +136,14 @@ bool PhotoSequence::isComplete() const
 
 QStringList PhotoSequence::summary() const
 {
-    int n = numPhotos();
+    const int n = numPhotos();
     QStringList lines{stringfunc::abbreviate(valueString(SEQUENCE_DESCRIPTION))};
     lines.append(QString("[%1: <b>%2</b>]")
                  .arg(textconst::PHOTOS)
                  .arg(n));
     for (int i = 0; i < n; ++i) {
-        int human_num = i + 1;
-        QString description = m_photos.at(i)->description();
+        const int human_num = i + 1;
+        const QString description = m_photos.at(i)->description();
         if (!description.isEmpty()) {
             lines.append(QString("%1 %2: %3")
                          .arg(textconst::PHOTO)
@@ -202,7 +202,7 @@ void PhotoSequence::refreshQuestionnaire()
         return;
     }
     QuPage* page = m_questionnaire->currentPagePtr();
-    int page_index = m_questionnaire->currentPageIndex();
+    const int page_index = m_questionnaire->currentPageIndex();
     rebuildPage(page, page_index);
     m_questionnaire->refreshCurrentPage();
 }
@@ -239,8 +239,8 @@ void PhotoSequence::rebuildPage(QuPage* page, int page_index)
                 std::bind(&PhotoSequence::movePhotoBackwards, this, page_index);
         QuButton::CallbackFunction callback_fwd =
                 std::bind(&PhotoSequence::movePhotoForwards, this, page_index);
-        bool is_first = page_index == 0;
-        bool is_last = page_index == m_photos.length() - 1;
+        const bool is_first = page_index == 0;
+        const bool is_last = page_index == m_photos.length() - 1;
         QuButton* add = new QuButton(textconst::PHOTOSEQUENCE_ADD,
                                      callback_add);
         add->setActive(is_last);
@@ -273,7 +273,7 @@ void PhotoSequence::renumberPhotos()
 {
     // Fine to reset the number to something that doesn't change; the save()
     // call will do nothing.
-    int n = m_photos.size();
+    const int n = m_photos.size();
     for (int i = 0; i < n; ++i) {
         PhotoSequencePhotoPtr photo = m_photos.at(i);
         photo->setSeqnum(i + 1);

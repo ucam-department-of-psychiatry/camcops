@@ -180,13 +180,13 @@ OpenableWidget* Ybocs::editor(bool read_only)
             (const QString& q, int max_score) -> void {
         NameValueOptions options;
         for (int i = 0; i <= max_score; ++i) {
-            QString name = xstring(QString("q%1_a%2").arg(q).arg(i));
+            const QString name = xstring(QString("q%1_a%2").arg(q).arg(i));
             options.append(NameValuePair(name, i));
         }
-        QString pagetitle = xstring(QString("q%1_title").arg(q));
-        QString xquestion = QString("q%1_question").arg(q);
-        QString xexplanation = QString("q%1_explanation").arg(q);
-        QString fieldname = QPREFIX + q;
+        const QString pagetitle = xstring(QString("q%1_title").arg(q));
+        const QString xquestion = QString("q%1_question").arg(q);
+        const QString xexplanation = QString("q%1_explanation").arg(q);
+        const QString fieldname = QPREFIX + q;
         QuPagePtr page((new QuPage{
             boldtext(xquestion),
             text(xexplanation),
@@ -205,9 +205,9 @@ OpenableWidget* Ybocs::editor(bool read_only)
     pages.append(QuPagePtr((new QuPage(page1elements))->setTitle(longname())));
 
     // Target symptom page
-    QString obs = xstring("target_obsession_stem");
-    QString com = xstring("target_compulsion_stem");
-    QString avo = xstring("target_avoidance_stem");
+    const QString obs = xstring("target_obsession_stem");
+    const QString com = xstring("target_compulsion_stem");
+    const QString avo = xstring("target_avoidance_stem");
     pages.append(QuPagePtr((new QuPage{
         boldtextRaw(obs),
         questionnairefunc::defaultGridRawPointer({

@@ -117,7 +117,7 @@ void QuMcqGrid::addOptions(GridLayout* grid, int row)
 
 QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
 {
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
     m_widgets.clear();
 
     /*
@@ -134,11 +134,11 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
     grid->setHorizontalSpacing(uiconst::MCQGRID_HSPACING);
     grid->setVerticalSpacing(uiconst::MCQGRID_VSPACING);
 
-    int n_subtitles = m_subtitles.size();
-    int n_options = m_options.size();
-    int n_rows = 1 + n_subtitles + m_question_field_pairs.size();
-    int n_cols = m_options.size() + 2;
-    Qt::Alignment response_align = mcqfunc::response_widget_align;
+    const int n_subtitles = m_subtitles.size();
+    const int n_options = m_options.size();
+    const int n_rows = 1 + n_subtitles + m_question_field_pairs.size();
+    const int n_cols = m_options.size() + 2;
+    const Qt::Alignment response_align = mcqfunc::response_widget_align;
     int row = 0;
 
     // First column: titles, subtitles, questions
@@ -239,7 +239,7 @@ void QuMcqGrid::clicked(int question_index, int value_index)
         qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
-    QVariant newvalue = m_options.value(value_index);
+    const QVariant newvalue = m_options.value(value_index);
     FieldRefPtr fieldref = m_question_field_pairs.at(question_index).fieldref();
     fieldref->setValue(newvalue);  // Will trigger valueChanged
     emit elementValueChanged();

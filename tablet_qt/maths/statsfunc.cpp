@@ -104,8 +104,8 @@ double logistic(double x)
     // - Curiously, that does exp(x)/(1 + exp(x)), which is mathematically
     //   equivalent but maybe performs better; I shall trust R.
     //   It also checks for numerical limits, as follows.
-    double tmp = x < MTHRESH ? DOUBLE_EPS
-                             : (x > THRESH ? INVEPS : exp(x));
+    const double tmp = x < MTHRESH ? DOUBLE_EPS
+                                   : (x > THRESH ? INVEPS : exp(x));
     return x_d_opx(tmp);
 }
 
@@ -144,7 +144,7 @@ double derivativeOfLogistic(double x)
     if (x > THRESH || x < MTHRESH) {
         return DOUBLE_EPS;
     }
-    double opexp = 1 + std::exp(x);
+    const double opexp = 1 + std::exp(x);
     return std::exp(x) / (opexp * opexp);
 }
 
@@ -200,8 +200,8 @@ ArrayXd binomialDevResids(const ArrayXd& y,
     ArrayXd yly_y(n);
     ArrayXd yly_omy(n);
     for (Index i = 0; i < n; ++i) {
-        double y_i = y(i);
-        double mu_i = mu(i);
+        const double y_i = y(i);
+        const double mu_i = mu(i);
         yly_y(i)   = y_log_y(    y_i,     mu_i);
         yly_omy(i) = y_log_y(1 - y_i, 1 - mu_i);
     }
@@ -219,7 +219,7 @@ double gaussianAIC(const ArrayXd& y,
     // R: gaussian()$aic
     Q_UNUSED(n);
     Q_UNUSED(mu);
-    int nobs = y.size();
+    const int nobs = y.size();
     return nobs * (std::log(dev / nobs * 2 * PI) + 1) + 2 - wt.log().sum();
 }
 
@@ -236,7 +236,7 @@ ArrayXd dbinom(const ArrayXd& x, const ArrayXi& n, const ArrayXd& p, bool log)
     // R recycles arguments, I think; we'll ignore that for now.
     Q_ASSERT(n.size() == x.size());
     Q_ASSERT(p.size() == x.size());
-    int len = x.size();
+    const int len = x.size();
     ArrayXd d(len);
     for (int i = 0; i < len; ++i) {
         d[i] = dbinom(x[i], n[i], p[i], log);

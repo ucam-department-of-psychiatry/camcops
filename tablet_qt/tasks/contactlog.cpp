@@ -172,8 +172,8 @@ OpenableWidget* ContactLog::editor(bool read_only)
 
 int ContactLog::timeTakenMinutes() const
 {
-    QVariant start = value(START);
-    QVariant end = value(END);
+    const QVariant start = value(START);
+    const QVariant end = value(END);
     if (start.isNull() || end.isNull()) {
         return 0;
     }

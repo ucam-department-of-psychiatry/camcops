@@ -198,7 +198,7 @@ QString abbreviate(const QString& str, int max_len, bool stylize_newlines,
     if (str.length() <= max_len) {
         return stylizeNewlines(str, stylize_newlines);
     }
-    int fragment_len = max_len - suffix.length();
+    const int fragment_len = max_len - suffix.length();
     return stylizeNewlines(str.left(fragment_len) + suffix, stylize_newlines);
 }
 

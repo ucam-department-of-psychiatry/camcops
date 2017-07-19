@@ -164,7 +164,7 @@ bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value,
     // probably set touch_record = false, as otherwise creating a prototype
     // task makes the app think it needs to upload something.
     requireField(fieldname);
-    bool dirty = m_record[fieldname].setValue(value);
+    const bool dirty = m_record[fieldname].setValue(value);
     if (dirty && touch_record) {
         touch();
         if (m_triggers_need_upload) {
@@ -213,113 +213,113 @@ QString DatabaseObject::prettyValue(const QString &fieldname, int dp) const
 
 bool DatabaseObject::valueIsNull(const QString &fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.isNull();
 }
 
 
 bool DatabaseObject::valueIsFalseNotNull(const QString &fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return !v.isNull() && !v.toBool();
 }
 
 
 bool DatabaseObject::valueIsNullOrEmpty(const QString &fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.isNull() || v.toString() == "";
 }
 
 
 bool DatabaseObject::valueBool(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.toBool();
 }
 
 
 int DatabaseObject::valueInt(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.toInt();
 }
 
 
 qlonglong DatabaseObject::valueLongLong(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.toLongLong();
 }
 
 
 qulonglong DatabaseObject::valueULongLong(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.toULongLong();
 }
 
 
 double DatabaseObject::valueDouble(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.toDouble();
 }
 
 
 QDateTime DatabaseObject::valueDateTime(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.toDateTime();
 }
 
 
 QDate DatabaseObject::valueDate(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.toDate();
 }
 
 
 QByteArray DatabaseObject::valueByteArray(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.toByteArray();
 }
 
 
 QString DatabaseObject::valueString(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.toString();
 }
 
 
 QStringList DatabaseObject::valueStringList(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.toStringList();
 }
 
 
 QChar DatabaseObject::valueQChar(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.toChar();
 }
 
 
 char DatabaseObject::valueLatin1Char(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
-    QChar c = v.toChar();  // 16-bit char
+    const QVariant v = value(fieldname);
+    const QChar c = v.toChar();  // 16-bit char
     return c.toLatin1();  // 8-bit char
 }
 
 
 QVector<int> DatabaseObject::valueVectorInt(const QString& fieldname) const
 {
-    QVariant v = value(fieldname);
+    const QVariant v = value(fieldname);
     return v.value<QVector<int>>();
 }
 
@@ -385,7 +385,7 @@ QString DatabaseObject::fieldSummary(const QString& fieldname,
                                      const QString& separator,
                                      const QString& suffix) const
 {
-    QString name = altname.isEmpty() ? fieldname : altname;
+    const QString name = altname.isEmpty() ? fieldname : altname;
     return stringfunc::standardResult(name, prettyValue(fieldname),
                                       separator, suffix);
 }
@@ -396,7 +396,7 @@ QString DatabaseObject::fieldSummaryYesNo(const QString& fieldname,
                                           const QString& separator,
                                           const QString& suffix) const
 {
-    QString name = altname.isEmpty() ? fieldname : altname;
+    const QString name = altname.isEmpty() ? fieldname : altname;
     return stringfunc::standardResult(name,
                                       uifunc::yesNo(valueBool(fieldname)),
                                       separator, suffix);
@@ -408,7 +408,7 @@ QString DatabaseObject::fieldSummaryYesNoNull(const QString& fieldname,
                                               const QString& separator,
                                               const QString& suffix) const
 {
-    QString name = altname.isEmpty() ? fieldname : altname;
+    const QString name = altname.isEmpty() ? fieldname : altname;
     return stringfunc::standardResult(name,
                                       uifunc::yesNoNull(value(fieldname)),
                                       separator, suffix);
@@ -420,7 +420,7 @@ QString DatabaseObject::fieldSummaryYesNoUnknown(const QString& fieldname,
                                                  const QString& separator,
                                                  const QString& suffix) const
 {
-    QString name = altname.isEmpty() ? fieldname : altname;
+    const QString name = altname.isEmpty() ? fieldname : altname;
     return stringfunc::standardResult(name,
                                       uifunc::yesNoUnknown(value(fieldname)),
                                       separator, suffix);
@@ -433,7 +433,7 @@ QString DatabaseObject::fieldSummaryTrueFalseUnknown(
         const QString& separator,
         const QString& suffix) const
 {
-    QString name = altname.isEmpty() ? fieldname : altname;
+    const QString name = altname.isEmpty() ? fieldname : altname;
     return stringfunc::standardResult(name,
                                       uifunc::trueFalseUnknown(value(fieldname)),
                                       separator, suffix);
@@ -447,9 +447,9 @@ QString DatabaseObject::fieldSummaryNameValueOptions(
         const QString& separator,
         const QString& suffix) const
 {
-    QString name = altname.isEmpty() ? fieldname : altname;
-    QVariant v = value(fieldname);
-    QString pretty_value = options.nameFromValue(v);
+    const QString name = altname.isEmpty() ? fieldname : altname;
+    const QVariant v = value(fieldname);
+    const QString pretty_value = options.nameFromValue(v);
     return stringfunc::standardResult(name, pretty_value,
                                       separator, suffix);
 }
@@ -520,9 +520,9 @@ bool DatabaseObject::load(const QString& fieldname,
 
 bool DatabaseObject::load(const WhereConditions& where)
 {
-    SqlArgs sqlargs = fetchQuerySql(where);
-    QueryResult result = m_db.query(sqlargs, QueryResult::FetchMode::FetchFirst);
-    bool found = result.nRows() > 0;
+    const SqlArgs sqlargs = fetchQuerySql(where);
+    const QueryResult result = m_db.query(sqlargs, QueryResult::FetchMode::FetchFirst);
+    const bool found = result.nRows() > 0;
     if (found) {
         setFromQuery(result, 0, true);
         loadAllAncillary();
@@ -536,18 +536,18 @@ bool DatabaseObject::load(const WhereConditions& where)
 SqlArgs DatabaseObject::fetchQuerySql(const WhereConditions& where,
                                       const OrderBy& order_by)
 {
-    QStringList fields = fieldnamesMapOrder();
+    const QStringList fields = fieldnamesMapOrder();
     QStringList delimited_fieldnames;
     for (int i = 0; i < fields.size(); ++i) {
         delimited_fieldnames.append(dbfunc::delimit(fields.at(i)));
     }
-    QString sql = (
+    const QString sql = (
         "SELECT " + delimited_fieldnames.join(", ") + " FROM " +
         dbfunc::delimit(tablename())
     );
-    ArgList args;
+    const ArgList args;
     SqlArgs sqlargs(sql, args);
-    where.appendWhereClause(sqlargs);
+    where.appendWhereClauseTo(sqlargs);
     dbfunc::addOrderByClause(order_by, sqlargs);
     return sqlargs;
 }
@@ -630,7 +630,7 @@ void DatabaseObject::nullify()
 
 bool DatabaseObject::isPkNull() const
 {
-    QVariant v = pkvalue();
+    const QVariant v = pkvalue();
     return v.isNull();
 }
 
@@ -645,7 +645,7 @@ void DatabaseObject::touch(bool only_if_unset)
         return;
     }
     // Don't set the timestamp value with setValue()! Infinite loop.
-    QDateTime now = QDateTime::currentDateTime();
+    const QDateTime now = QDateTime::currentDateTime();
     m_record[dbconst::MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
 }
 
@@ -675,7 +675,7 @@ QVector<int> DatabaseObject::getAllPKs() const
 
 void DatabaseObject::deleteFromDatabase()
 {
-    QVariant pk = pkvalue();
+    const QVariant pk = pkvalue();
     if (pk.isNull()) {
         qWarning() << "Attempting to delete a DatabaseObject with a "
                       "NULL PK; ignored";
@@ -747,7 +747,7 @@ void DatabaseObject::deleteFromDatabase()
     // ------------------------------------------------------------------------
     WhereConditions where_self;
     where_self.add(pkname(), pk);
-    bool success = m_db.deleteFrom(m_tablename, where_self);
+    const bool success = m_db.deleteFrom(m_tablename, where_self);
     if (success) {
         nullify();
     } else {
@@ -832,7 +832,7 @@ QVariant DatabaseObject::pkvalue() const
 
 int DatabaseObject::pkvalueInt() const
 {
-    QVariant pk = pkvalue();
+    const QVariant pk = pkvalue();
     return pk.isNull() ? dbconst::NONEXISTENT_PK : pk.toInt();
 }
 
@@ -858,7 +858,7 @@ DatabaseManager& DatabaseObject::database() const
 
 void DatabaseObject::loadAllAncillary()
 {
-    int pk = pkvalueInt();
+    const int pk = pkvalueInt();
     loadAllAncillary(pk);
 }
 
@@ -893,8 +893,8 @@ bool DatabaseObject::saveInsert(bool read_pk_from_database)
     MapIteratorType i(m_record);
     while (i.hasNext()) {
         i.next();
-        QString fieldname = i.key();
-        Field field = i.value();
+        const QString fieldname = i.key();
+        const Field field = i.value();
         if (field.isPk()) {
             continue;
         }
@@ -905,7 +905,7 @@ bool DatabaseObject::saveInsert(bool read_pk_from_database)
             qWarning() << NOT_NULL_ERROR << fieldname;
         }
     }
-    QString sql = (
+    const QString sql = (
         "INSERT OR REPLACE INTO " + dbfunc::delimit(m_tablename) +
         " (" +
         fieldnames.join(", ") +
@@ -915,15 +915,15 @@ bool DatabaseObject::saveInsert(bool read_pk_from_database)
     );
 #ifdef ALLOW_SAVE_INSERT_BACKGROUND
     if (read_pk_from_database) {
-        QueryResult result = m_db.query(sql, args,
-                                        QueryResult::FetchMode::NoFetch);
+        const QueryResult result = m_db.query(sql, args,
+                                              QueryResult::FetchMode::NoFetch);
         if (!result.succeeded()) {
             qCritical() << Q_FUNC_INFO << "Failed to INSERT record into table"
                         << m_tablename;
             return false;
         }
         if (read_pk_from_database) {
-            QVariant new_pk = result.lastInsertId();
+            const QVariant new_pk = result.lastInsertId();
             setValue(pkname(), new_pk);
 #ifdef DEBUG_SAVES
             qDebug().nospace() << "Save/insert: " << qUtf8Printable(m_tablename)
@@ -968,8 +968,8 @@ bool DatabaseObject::saveUpdate()
     MapIteratorType i(m_record);
     while (i.hasNext()) {
         i.next();
-        QString fieldname = i.key();
-        Field field = i.value();
+        const QString fieldname = i.key();
+        const Field field = i.value();
         if (field.isDirty()) {
             fieldnames.append(dbfunc::delimit(fieldname) + "=?");
             args.append(field.databaseValue());  // not field.value()
@@ -984,7 +984,7 @@ bool DatabaseObject::saveUpdate()
 #endif
         return true;
     }
-    QString sql = (
+    const QString sql = (
         "UPDATE " + dbfunc::delimit(m_tablename) + " SET " +
         fieldnames.join(", ") +
         " WHERE " + dbfunc::delimit(pkname()) + "=?"

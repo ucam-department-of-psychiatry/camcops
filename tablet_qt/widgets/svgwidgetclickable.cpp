@@ -100,7 +100,7 @@ void SvgWidgetClickable::mousePressEvent(QMouseEvent* event)
 void SvgWidgetClickable::mouseMoveEvent(QMouseEvent* event)
 {
     if (m_pressed) {
-        bool was_pressing_inside = m_pressing_inside;
+        const bool was_pressing_inside = m_pressing_inside;
         m_pressing_inside = contentsRect().contains(event->pos());
         if (m_pressing_inside != was_pressing_inside) {
             update();
@@ -129,7 +129,7 @@ void SvgWidgetClickable::paintEvent(QPaintEvent* event)
         QPainter p(this);
         p.setPen(QPen(Qt::PenStyle::NoPen));
         p.setBrush(QBrush(bg));
-        QRect cr = contentsRect();
+        const QRect cr = contentsRect();
         p.drawRect(cr);
     }
 

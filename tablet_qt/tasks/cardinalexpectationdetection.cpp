@@ -294,11 +294,11 @@ QString CardinalExpectationDetection::ancillaryTableFKToTaskFieldname() const
 
 void CardinalExpectationDetection::loadAllAncillary(int pk)
 {
-    OrderBy group_order_by{{CardinalExpDetTrialGroupSpec::FN_GROUP_NUM, true}};
+    const OrderBy group_order_by{{CardinalExpDetTrialGroupSpec::FN_GROUP_NUM, true}};
     ancillaryfunc::loadAncillary<CardinalExpDetTrialGroupSpec, CardinalExpDetTrialGroupSpecPtr>(
                 m_groups, m_app, m_db,
                 CardinalExpDetTrialGroupSpec::FN_FK_TO_TASK, group_order_by, pk);
-    OrderBy trial_order_by{{CardinalExpDetTrial::FN_TRIAL, true}};
+    const OrderBy trial_order_by{{CardinalExpDetTrial::FN_TRIAL, true}};
     ancillaryfunc::loadAncillary<CardinalExpDetTrial, CardinalExpDetTrialPtr>(
                 m_trials, m_app, m_db,
                 CardinalExpDetTrial::FN_FK_TO_TASK, trial_order_by, pk);
@@ -340,7 +340,7 @@ bool CardinalExpectationDetection::isComplete() const
 QStringList CardinalExpectationDetection::summary() const
 {
     QStringList lines;
-    int n_trials = m_trials.length();
+    const int n_trials = m_trials.length();
     int completed_trials = 0;
     for (int i = 0; i < n_trials; ++i) {
         if (m_trials.at(i)->responded()) {
@@ -510,7 +510,7 @@ void CardinalExpectationDetection::makeTrialGroupSpecs()
     DbNestableTransaction trans(m_db);
     m_groups.clear();  // should be clear anyway
     for (int i = 0; i < N_TRIAL_GROUPS; ++i) {
-        int group_num = i;
+        const int group_num = i;
 
         // CUE             00 01 02 03 04 05 06 07
         // TARGET_MODALITY  0  0  0  0  1  1  1  1  } define the four target types
@@ -518,11 +518,11 @@ void CardinalExpectationDetection::makeTrialGroupSpecs()
         // N_TARGET         2  1  2  1  2  1  2  1    } define the high-/low-probability cues
         // N_NO_TARGET      1  2  1  2  1  2  1  2    }
 
-        int cue = i;
-        int target_modality = i / 4;
-        int target_number = (i / 2) % 2;
-        int n_target = (i % 2 == 0) ? 2 : 1;
-        int n_no_target = (i % 2 == 0) ? 1 : 2;
+        const int cue = i;
+        const int target_modality = i / 4;
+        const int target_number = (i / 2) % 2;
+        const int n_target = (i % 2 == 0) ? 2 : 1;
+        const int n_no_target = (i % 2 == 0) ? 1 : 2;
 
         CardinalExpDetTrialGroupSpecPtr g(new CardinalExpDetTrialGroupSpec(
                     pkvalueInt(), group_num,
@@ -536,7 +536,7 @@ void CardinalExpectationDetection::makeTrialGroupSpecs()
 
 void CardinalExpectationDetection::makeRatingButtonsAndPoints()
 {
-    bool detection_response_on_right = valueBool(
+    const bool detection_response_on_right = valueBool(
                 FN_IS_DETECTION_RESPONSE_ON_RIGHT);
     m_ratings.clear();
     for (int i = 0; i < CardinalExpDetRating::N_RATINGS; ++i) {
@@ -606,10 +606,10 @@ QString CardinalExpectationDetection::getVisualBackgroundFilename() const
 QString CardinalExpectationDetection::getPromptText(int modality,
                                                     int target_number) const
 {
-    bool auditory = modality == MODALITY_AUDITORY;
-    bool first = target_number == 0;
-    QString sense = auditory ? TX_DETECTION_Q_AUDITORY : TX_DETECTION_Q_VISUAL;
-    QString target = auditory
+    const bool auditory = modality == MODALITY_AUDITORY;
+    const bool first = target_number == 0;
+    const QString sense = auditory ? TX_DETECTION_Q_AUDITORY : TX_DETECTION_Q_VISUAL;
+    const QString target = auditory
             ? (first ? TX_AUDITORY_TARGET_0_SHORT : TX_AUDITORY_TARGET_1_SHORT)
             : (first ? TX_VISUAL_TARGET_0_SHORT : TX_VISUAL_TARGET_1_SHORT);
     return QString("%1 %2 %3?").arg(TX_DETECTION_Q_PREFIX, sense, target);
@@ -644,33 +644,20 @@ QVector<CardinalExpDetTrialPtr> CardinalExpectationDetection::makeTrialGroup(
 
     // Note: trial number is assigned later, by createTrials()
 
-    bool target_present = true;
-    for (int i = 0; i < groupspec->nTarget(); ++i) {
-        trials.append(CardinalExpDetTrialPtr(new CardinalExpDetTrial(
-                task_pk,
-                block,
-                groupnum,
-                cue,
-                raw_cue_number,
-                target_modality,
-                target_number,
-                target_present,
-                ccrandom::randomRealIncUpper(iti_min_s, iti_max_s),
-                m_app, m_db)));
-    }
-    target_present = false;
-    for (int i = 0; i < groupspec->nTarget(); ++i) {
-        trials.append(CardinalExpDetTrialPtr(new CardinalExpDetTrial(
-                task_pk,
-                block,
-                groupnum,
-                cue,
-                raw_cue_number,
-                target_modality,
-                target_number,
-                target_present,
-                ccrandom::randomRealIncUpper(iti_min_s, iti_max_s),
-                m_app, m_db)));
+    for (bool target_present : {true, false}) {
+        for (int i = 0; i < groupspec->nTarget(); ++i) {
+            trials.append(CardinalExpDetTrialPtr(new CardinalExpDetTrial(
+                    task_pk,
+                    block,
+                    groupnum,
+                    cue,
+                    raw_cue_number,
+                    target_modality,
+                    target_number,
+                    target_present,
+                    ccrandom::randomRealIncUpper(iti_min_s, iti_max_s),
+                    m_app, m_db)));
+        }
     }
     return trials;
 }
@@ -701,12 +688,12 @@ void CardinalExpectationDetection::createTrials()
 void CardinalExpectationDetection::estimateRemaining(int& n_trials_left,
                                                      double& time_min) const
 {
-    qint64 auditory_bg_ms = m_player_background->duration();
-    double auditory_bg_s = msToSec(auditory_bg_ms);
-    double visual_target_s = valueDouble(FN_VISUAL_TARGET_DURATION_S);
-    double min_iti_s = valueDouble(FN_ITI_MIN_S);
-    double max_iti_s = valueDouble(FN_ITI_MAX_S);
-    double avg_trial_s =
+    const qint64 auditory_bg_ms = m_player_background->duration();
+    const double auditory_bg_s = msToSec(auditory_bg_ms);
+    const double visual_target_s = valueDouble(FN_VISUAL_TARGET_DURATION_S);
+    const double min_iti_s = valueDouble(FN_ITI_MIN_S);
+    const double max_iti_s = valueDouble(FN_ITI_MAX_S);
+    const double avg_trial_s =
             mean(visual_target_s, auditory_bg_s) +
             1.0 +  // rough guess for user response time
             2.0 + // rough guess for user confirmation time
@@ -743,7 +730,7 @@ CardinalExpDetTrialPtr CardinalExpectationDetection::currentTrial() const
 void CardinalExpectationDetection::showVisualStimulus(
         const QString& filename_stem, qreal intensity)
 {
-    QString filename = cardinalexpdetcommon::filenameFromStem(filename_stem);
+    const QString filename = cardinalexpdetcommon::filenameFromStem(filename_stem);
     qDebug() << Q_FUNC_INFO << "Filename:" << filename;
     makeImage(m_scene, VISUAL_STIM_RECT, filename, intensity);
 }
@@ -814,8 +801,8 @@ void CardinalExpectationDetection::nextTrial()
         thanks();
         return;
     }
-    int pause_every_n = valueInt(FN_PAUSE_EVERY_N_TRIALS);
-    bool pause = pause_every_n > 0 && m_current_trial % pause_every_n == 0;
+    const int pause_every_n = valueInt(FN_PAUSE_EVERY_N_TRIALS);
+    const bool pause = pause_every_n > 0 && m_current_trial % pause_every_n == 0;
     currentTrial()->startPauseBeforeTrial(pause);
     if (pause) {
         // we allow a pause at the start of trial 0
@@ -835,8 +822,8 @@ void CardinalExpectationDetection::userPause()
     int n_trials_left;
     double time_min;
     estimateRemaining(n_trials_left, time_min);
-    QString msg_trials = TX_NUM_TRIALS_LEFT + " " + QString::number(n_trials_left);
-    QString msg_time = TX_TIME_LEFT + " " + QString::number(qRound(time_min));
+    const QString msg_trials = TX_NUM_TRIALS_LEFT + " " + QString::number(n_trials_left);
+    const QString msg_time = TX_TIME_LEFT + " " + QString::number(qRound(time_min));
     makeText(m_scene, PROMPT_1, BASE_TEXT_CONFIG, msg_trials);
     makeText(m_scene, PROMPT_2, BASE_TEXT_CONFIG, msg_time);
     ButtonAndProxy a = makeTextButton(
@@ -859,7 +846,7 @@ void CardinalExpectationDetection::startTrialProperWithCue()
     CardinalExpDetTrialPtr t = currentTrial();
     t->startTrialWithCue();
     // Cues are multimodal.
-    int cue = t->cue();
+    const int cue = t->cue();
     // (a) sound
     m_player_cue->setMedia(getAuditoryCueUrl(cue));
     m_player_cue->play();
@@ -893,7 +880,7 @@ void CardinalExpectationDetection::target()
     qDebug().nospace() << "Target present: " << t->targetPresent()
                        << ", target number: " << t->targetNumber();
     t->startTarget();
-    int target_number = t->targetNumber();
+    const int target_number = t->targetNumber();
 
     if (t->isTargetAuditory()) {
         // AUDITORY
@@ -982,11 +969,11 @@ void CardinalExpectationDetection::displayScore()
 #endif
     clearScene();
     CardinalExpDetTrialPtr t = currentTrial();
-    int points = t->points();
-    int cum_points = t->cumulativePoints();
-    QString points_msg = TX_POINTS + " " +
+    const int points = t->points();
+    const int cum_points = t->cumulativePoints();
+    const QString points_msg = TX_POINTS + " " +
             (points > 0 ? "+" : "") +  QString::number(points);
-    QString cumpoints_msg = TX_CUMULATIVE_POINTS + " " +
+    const QString cumpoints_msg = TX_CUMULATIVE_POINTS + " " +
             (cum_points > 0 ? "+" : "") + QString::number(cum_points);
     makeText(m_scene, PROMPT_1, BASE_TEXT_CONFIG, points_msg);
     makeText(m_scene, PROMPT_2, BASE_TEXT_CONFIG, cumpoints_msg);

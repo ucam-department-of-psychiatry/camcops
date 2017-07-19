@@ -97,8 +97,8 @@ QStringList HamA::summary() const
 
 QStringList HamA::detail() const
 {
-    int score = totalScore();
-    QString severity = score >= 31
+    const int score = totalScore();
+    const QString severity = score >= 31
             ? textconst::VERY_SEVERE
             : (score >= 25 ? textconst::MODERATE_TO_SEVERE
                            : score >= 18 ? textconst::MILD_TO_MODERATE
@@ -121,12 +121,12 @@ OpenableWidget* HamA::editor(bool read_only)
     auto addpage = [this, &pages](int n) -> void {
         NameValueOptions options;
         for (int i = 0; i <= 4; ++i) {
-            QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
+            const QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
             options.append(NameValuePair(name, i));
         }
-        QString pagetitle = xstring(QString("q%1_title").arg(n));
-        QString question = xstring(QString("q%1_question").arg(n));
-        QString fieldname = strnum(QPREFIX, n);
+        const QString pagetitle = xstring(QString("q%1_title").arg(n));
+        const QString question = xstring(QString("q%1_question").arg(n));
+        const QString fieldname = strnum(QPREFIX, n);
         QuPagePtr page((new QuPage{
             new QuText(question),
             new QuMcq(fieldRef(fieldname), options),

@@ -36,7 +36,7 @@ namespace filefunc {
 bool fileExists(const QString& filename)
 {
     // http://stackoverflow.com/questions/10273816/how-to-check-whether-file-exists-in-qt-in-c
-    QFileInfo check_file(filename);
+    const QFileInfo check_file(filename);
     return check_file.exists() && check_file.isFile();
 }
 
@@ -54,7 +54,7 @@ QString textfileContents(const QString& filename)
     }
     QTextStream in(&file);
     in.setCodec("UTF-8");
-    QString text = in.readAll();
+    const QString text = in.readAll();
 #ifdef DEBUG_READ_FILE_CONTENTS
     qDebug() << text;
 #endif

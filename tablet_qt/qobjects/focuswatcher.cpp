@@ -35,7 +35,7 @@ FocusWatcher::FocusWatcher(QObject* parent) :
 bool FocusWatcher::eventFilter(QObject* obj, QEvent* event)
 {
     Q_UNUSED(obj);
-    QEvent::Type type = event->type();
+    const QEvent::Type type = event->type();
     if (type == QEvent::FocusIn) {
 
 #ifdef DEBUG_FOCUS

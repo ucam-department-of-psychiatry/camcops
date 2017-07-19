@@ -112,7 +112,7 @@ QStringList Cgi::summary() const
 QStringList Cgi::detail() const
 {
     QStringList lines = completenessInfo();
-    QString separator(" ");
+    const QString separator(" ");
     lines.append(fieldSummary(Q1, xstring("q1_s"), separator));
     lines.append(fieldSummary(Q2, xstring("q2_s"), separator));
     lines.append(fieldSummary(Q3T, xstring("q3t_s"), separator));
@@ -135,8 +135,8 @@ OpenableWidget* Cgi::editor(bool read_only)
             QString name = xstring(QString("%1_option%2").arg(fieldname).arg(i));
             options.append(NameValuePair(name, i));
         }
-        QString pagetitle = xstring(QString("%1_title").arg(fieldname));
-        QString question = xstring(QString("%1_question").arg(fieldname));
+        const QString pagetitle = xstring(QString("%1_title").arg(fieldname));
+        const QString question = xstring(QString("%1_question").arg(fieldname));
         FieldRefPtr fr = fieldRef(fieldname);
         if (update_q3) {
             connect(fr.data(), &FieldRef::valueChanged,

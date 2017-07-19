@@ -34,6 +34,7 @@ from . import cc_version
 from .cc_constants import DATEFORMAT
 from .cc_logger import log
 from .cc_pls import pls
+from .cc_storedvar import ServerStoredVar
 from .cc_unittest import unit_test_ignore
 
 ANALYTICS_FREQUENCY_DAYS = 7  # send analytics weekly
@@ -58,8 +59,9 @@ def send_analytics_if_necessary() -> None:
     if not pls.SEND_ANALYTICS:
         # User has disabled analytics reporting.
         return
-    last_sent_var = cc_storedvar.ServerStoredVar("lastAnalyticsSentAt", "text",
-                                                 None)
+    last_sent_var = ServerStoredVar("lastAnalyticsSentAt",
+                                    ServerStoredVar.TYPE_TEXT,
+                                    None)
     last_sent_val = last_sent_var.get_value()
     if last_sent_val:
         elapsed = pls.NOW_UTC_WITH_TZ - cc_dt.get_datetime_from_string(

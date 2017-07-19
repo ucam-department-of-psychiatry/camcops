@@ -203,7 +203,7 @@ QStringList Dad::detail() const
 
 OpenableWidget* Dad::editor(bool read_only)
 {
-    NameValueOptions y_n_na_options{
+    const NameValueOptions y_n_na_options{
         {CommonOptions::yes(), YES},
         {CommonOptions::no(), NO},
         {textconst::NOT_APPLICABLE, NA},
@@ -251,7 +251,7 @@ OpenableWidget* Dad::editor(bool read_only)
 QStringList Dad::getItemsActivity(const QString& activity) const
 {
     QStringList activity_items;
-    for (QString item : ITEMS) {
+    for (const QString& item : ITEMS) {
         if (item.startsWith(activity)) {
             activity_items.append(item);
         }
@@ -263,8 +263,8 @@ QStringList Dad::getItemsActivity(const QString& activity) const
 QStringList Dad::getItemsActivities(const QStringList& activities) const
 {
     QStringList activity_items;
-    for (QString item : ITEMS) {
-        for (QString activity : activities) {
+    for (const QString& item : ITEMS) {
+        for (const QString& activity : activities) {
             if (item.startsWith(activity)) {
                 activity_items.append(item);
             }
@@ -277,7 +277,7 @@ QStringList Dad::getItemsActivities(const QStringList& activities) const
 QStringList Dad::getItemsPhase(const QString& phase) const
 {
     QStringList phase_items;
-    for (QString item : ITEMS) {
+    for (const QString& item : ITEMS) {
         if (item.contains(phase)) {
             phase_items.append(item);
         }
@@ -288,8 +288,8 @@ QStringList Dad::getItemsPhase(const QString& phase) const
 
 QString Dad::getScore(const QStringList& fieldnames) const
 {
-    QVector<QVariant> v = values(fieldnames);
-    int score = mathfunc::countWhere(v, QVector<QVariant>{YES});
-    int possible = mathfunc::countWhereNot(v, QVector<QVariant>{QVariant(), NA});
+    const QVector<QVariant> v = values(fieldnames);
+    const int score = mathfunc::countWhere(v, QVector<QVariant>{YES});
+    const int possible = mathfunc::countWhereNot(v, QVector<QVariant>{QVariant(), NA});
     return mathfunc::scoreString(score, possible);
 }

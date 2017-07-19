@@ -110,23 +110,23 @@ QStringList Bdi::detail() const
 
 OpenableWidget* Bdi::editor(bool read_only)
 {
-    NameValueOptions options{
+    const NameValueOptions options{
         {"0", 0},
         {"1", 1},
         {"2", 2},
         {"3", 3},
     };
-    NameValueOptions scale_options{
+    const NameValueOptions scale_options{
         {"BDI (1961; BDI-I)", SCALE_BDI_I},
         {"BDI-IA (1978)", SCALE_BDI_IA},
         {"BDI-II (1996)", SCALE_BDI_II},
     };
     QVector<QuestionWithOneField> fields;
-    QString question_prefix = textconst::QUESTION;
+    const QString& question_prefix = textconst::QUESTION;
     for (int n = FIRST_Q; n <= N_QUESTIONS; ++n) {
-        QString qstrnum = QString::number(n);
-        QString fieldname = QPREFIX + qstrnum;
-        QString question = question_prefix + " " + qstrnum;
+        const QString qstrnum = QString::number(n);
+        const QString fieldname = QPREFIX + qstrnum;
+        const QString question = question_prefix + " " + qstrnum;
         fields.append(QuestionWithOneField(fieldRef(fieldname), question));
     }
 

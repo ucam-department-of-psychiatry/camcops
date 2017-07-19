@@ -93,8 +93,8 @@ void NvpChoiceDialog::itemClicked(int index)
 
 bool NvpChoiceDialog::event(QEvent* e)
 {
-    bool result = QDialog::event(e);
-    QEvent::Type type = e->type();
+    const bool result = QDialog::event(e);
+    const QEvent::Type type = e->type();
     if (type == QEvent::Type::Show) {
         adjustSize();
     }

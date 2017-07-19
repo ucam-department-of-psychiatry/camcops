@@ -105,7 +105,7 @@ bool Honos65::isComplete() const
     if (anyNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)))) {
         return false;
     }
-    int q8 = valueInt(Q8);
+    const int q8 = valueInt(Q8);
     if (q8 != 0 && q8 != 9 && valueIsNullOrEmpty(Q8_PROBLEM_TYPE)) {
         return false;
     }
@@ -138,7 +138,7 @@ QStringList Honos65::detail() const
 
 OpenableWidget* Honos65::editor(bool read_only)
 {
-    NameValueOptions q8_problemtype_options{
+    const NameValueOptions q8_problemtype_options{
         {xstring("q8problemtype_option_a"), "A"},
         {xstring("q8problemtype_option_b"), "B"},
         {xstring("q8problemtype_option_c"), "C"},
@@ -155,7 +155,7 @@ OpenableWidget* Honos65::editor(bool read_only)
     auto getoptions = [this](int n) -> NameValueOptions {
         NameValueOptions options;
         for (int i = 0; i <= 4; ++i) {
-            QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
+            const QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
             options.append(NameValuePair(name, i));
         }
         options.append(NameValuePair(xstring("option9"), 9));
@@ -164,10 +164,10 @@ OpenableWidget* Honos65::editor(bool read_only)
 
     auto addpage = [this, &pages, &getoptions,
                     &q8_problemtype_options](int n) -> void {
-        NameValueOptions options = getoptions(n);
-        QString pagetitle = xstring("title_prefix") + QString::number(n);
-        QString question = xstring(strnum("q", n));
-        QString fieldname = strnum(QPREFIX, n);
+        const NameValueOptions options = getoptions(n);
+        const QString pagetitle = xstring("title_prefix") + QString::number(n);
+        const QString question = xstring(strnum("q", n));
+        const QString fieldname = strnum(QPREFIX, n);
         QVector<QuElement*> elements{
             new QuText(question),
             new QuMcq(fieldRef(fieldname), options),
@@ -216,7 +216,7 @@ int Honos65::totalScore() const
 {
     int total = 0;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        int v = valueInt(strnum(QPREFIX, i));
+        const int v = valueInt(strnum(QPREFIX, i));
         if (v != 9) {  // 9 is "not known"
             total += v;
         }
@@ -246,12 +246,12 @@ void Honos65::updateMandatory(const FieldRef* fieldref,
         return;  // or we will have an infinite loop crash
     }
 
-    QVariant q8var = value(Q8);
-    int q8int = q8var.toInt();
+    const QVariant q8var = value(Q8);
+    const int q8int = q8var.toInt();
 
 #ifdef PREVENT_Q8_PROBLEM_UNLESS_RATED
-    bool must_not_have_q8_problem_type = !q8var.isNull() && (q8int == 0 ||
-                                                             q8int == 9);
+    const bool must_not_have_q8_problem_type = !q8var.isNull() && (q8int == 0 ||
+                                                                   q8int == 9);
     if (must_not_have_q8_problem_type) {
         // Force the problem type to be blank.
         // WATCH OUT: potential for infinite loop if we let it signal back
@@ -260,7 +260,7 @@ void Honos65::updateMandatory(const FieldRef* fieldref,
     }
 #endif
 
-    bool need_q8_problem_type = !q8var.isNull() && q8int != 0 && q8int != 9;
+    const bool need_q8_problem_type = !q8var.isNull() && q8int != 0 && q8int != 9;
     fieldRef(Q8_PROBLEM_TYPE)->setMandatory(need_q8_problem_type, this);
     fieldRef(Q8_OTHER_PROBLEM)->setMandatory(
                 valueString(Q8_PROBLEM_TYPE) == VALUE_OTHER, this);

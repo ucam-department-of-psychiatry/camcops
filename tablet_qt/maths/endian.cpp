@@ -24,8 +24,8 @@
 
 Endian endianByteOrder()
 {
-    short int word = 0x0001;
-    char* byte = (char*)&word;
+    const short int word = 0x0001;
+    const char* byte = (char*)&word;
 
     // A big-endian machine stores 0x1234 as 0x12, 0x34.
     // A little-endian machine stores it as 0x34, 0x12.
@@ -85,8 +85,8 @@ Endian endianFloatWordOrder()
 
     Endian byte;
     Endian word;
-    BitRepresentationDouble br(1.0);
-    uint64_t expected_exponent = 0x3FF;
+    const BitRepresentationDouble br(1.0);
+    const uint64_t expected_exponent = 0x3FF;
     if (br.getExponent(Endian::BigEndian,
                        Endian::BigEndian) == expected_exponent) {
         byte = Endian::BigEndian;

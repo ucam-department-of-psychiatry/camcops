@@ -32,13 +32,13 @@ bool PatientSorter::operator()(const PatientPtr& left,
 {
     // Implements: LEFT < RIGHT ?
     // Sort by date/time (descending), then taskname (ascending)
-    QString l_surname = left->surname().toUpper();
-    QString r_surname = right->surname().toUpper();
+    const QString l_surname = left->surname().toUpper();
+    const QString r_surname = right->surname().toUpper();
     if (l_surname != r_surname) {
         return l_surname < r_surname;  // ascending
     } else {
-        QString l_forename = left->forename().toUpper();
-        QString r_forename = right->forename().toUpper();
+        const QString l_forename = left->forename().toUpper();
+        const QString r_forename = right->forename().toUpper();
         if (l_forename != r_forename) {
             return l_forename < r_forename;  // ascending
         } else {

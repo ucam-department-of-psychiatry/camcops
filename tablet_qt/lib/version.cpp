@@ -29,7 +29,7 @@ Version::Version(unsigned int major, unsigned int minor, unsigned int patch)
 
 Version::Version(const QString& version_string)
 {
-    QStringList parts = version_string.split(".");
+    const QStringList parts = version_string.split(".");
     if (parts.size() != 3) {
         setInvalid();
         return;

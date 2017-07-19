@@ -79,7 +79,7 @@ QString Gaf::menusubtitle() const
 
 bool Gaf::isComplete() const
 {
-    QVariant score = valueInt(SCORE);
+    const QVariant score = valueInt(SCORE);
     return score >= 1 && score <= 100;
 }
 

@@ -112,8 +112,8 @@ bool Caps::isComplete() const
 
 QStringList Caps::summary() const
 {
-    QString sep(": ");
-    QString suffix(".");
+    const QString sep(": ");
+    const QString suffix(".");
     return QStringList{
         totalScorePhrase(totalScore(), MAX_TOTAL_SCORE, sep, suffix),
         scorePhrase("Distress", distressScore(), MAX_SUBSCALE_SCORE, sep, suffix),
@@ -127,7 +127,7 @@ QStringList Caps::detail() const
 {
     QStringList lines = completenessInfo();
     for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
-        QVariant e = endorse(q);
+        const QVariant e = endorse(q);
         QString msg = QString("%1 %2")
                 .arg(xstring(strnum("q", q)),
                      bold(yesNoNull(e)));
@@ -147,29 +147,29 @@ QStringList Caps::detail() const
 
 OpenableWidget* Caps::editor(bool read_only)
 {
-    NameValueOptions options_endorse = CommonOptions::noYesInteger();
-    NameValueOptions options_distress{
+    const NameValueOptions options_endorse = CommonOptions::noYesInteger();
+    const NameValueOptions options_distress{
         {xstring("distress_option1"), 1},
         {"2", 2},
         {"3", 3},
         {"4", 4},
         {xstring("distress_option5"), 5},
     };
-    NameValueOptions options_intrusiveness{
+    const NameValueOptions options_intrusiveness{
         {xstring("intrusiveness_option1"), 1},
         {"2", 2},
         {"3", 3},
         {"4", 4},
         {xstring("intrusiveness_option5"), 5},
     };
-    NameValueOptions options_frequency{
+    const NameValueOptions options_frequency{
         {xstring("frequency_option1"), 1},
         {"2", 2},
         {"3", 3},
         {"4", 4},
         {xstring("frequency_option5"), 5},
     };
-    QString detail_prompt = xstring("if_yes_please_rate");
+    const QString detail_prompt = xstring("if_yes_please_rate");
     QVector<QuPagePtr> pages;
 
     m_fr_distress.clear();
@@ -179,14 +179,14 @@ OpenableWidget* Caps::editor(bool read_only)
     auto addpage = [this, &pages, &options_endorse, &options_distress,
                     &options_intrusiveness, &options_frequency,
                     &detail_prompt](int q) -> void {
-        bool need_detail = needsDetail(q);
-        QString pagetitle = QString("CAPS (%1 / %2)").arg(q).arg(N_QUESTIONS);
-        QString question = xstring(strnum("q", q));
-        QString pagetag = QString::number(q);
-        QString endorse_fieldname = strnum(FN_ENDORSE_PREFIX, q);
-        QString distress_fieldname = strnum(FN_DISTRESS_PREFIX, q);
-        QString intrusiveness_fieldname = strnum(FN_INTRUSIVE_PREFIX, q);
-        QString freq_fieldname = strnum(FN_FREQ_PREFIX, q);
+        const bool need_detail = needsDetail(q);
+        const QString pagetitle = QString("CAPS (%1 / %2)").arg(q).arg(N_QUESTIONS);
+        const QString question = xstring(strnum("q", q));
+        const QString pagetag = QString::number(q);
+        const QString endorse_fieldname = strnum(FN_ENDORSE_PREFIX, q);
+        const QString distress_fieldname = strnum(FN_DISTRESS_PREFIX, q);
+        const QString intrusiveness_fieldname = strnum(FN_INTRUSIVE_PREFIX, q);
+        const QString freq_fieldname = strnum(FN_FREQ_PREFIX, q);
         FieldRefPtr fr_endorse = fieldRef(endorse_fieldname);
         fr_endorse->setHint(q);
         FieldRefPtr fr_distress = fieldRef(distress_fieldname, need_detail);
@@ -285,7 +285,7 @@ int Caps::frequencyScore() const
 
 bool Caps::questionComplete(int q) const
 {
-    QVariant e = endorse(q);
+    const QVariant e = endorse(q);
     if (e.isNull()) {
         return false;
     }
@@ -331,12 +331,12 @@ void Caps::endorseChanged(const FieldRef* fieldref)
     if (!m_questionnaire) {
         return;
     }
-    QVariant hint = fieldref->getHint();
-    int q = hint.toInt();
+    const QVariant hint = fieldref->getHint();
+    const int q = hint.toInt();
     Q_ASSERT(q >= FIRST_Q && q <= N_QUESTIONS);
 
-    QString pagetag = QString::number(q);
-    bool need_detail = needsDetail(q);
+    const QString pagetag = QString::number(q);
+    const bool need_detail = needsDetail(q);
 
     m_questionnaire->setVisibleByTag(TAG_DETAIL, need_detail, false, pagetag);
     Q_ASSERT(m_fr_distress.contains(q));

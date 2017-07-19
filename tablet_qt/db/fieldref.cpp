@@ -331,77 +331,77 @@ QVariant FieldRef::value() const
 
 int FieldRef::valueInt() const
 {
-    QVariant v = value();
+    const QVariant v = value();
     return v.toInt();
 }
 
 
 qlonglong FieldRef::valueLongLong() const
 {
-    QVariant v = value();
+    const QVariant v = value();
     return v.toLongLong();
 }
 
 
 double FieldRef::valueDouble() const
 {
-    QVariant v = value();
+    const QVariant v = value();
     return v.toDouble();
 }
 
 
 bool FieldRef::valueBool() const
 {
-    QVariant v = value();
+    const QVariant v = value();
     return v.toBool();
 }
 
 
 QDateTime FieldRef::valueDateTime() const
 {
-    QVariant v = value();
+    const QVariant v = value();
     return v.toDateTime();
 }
 
 
 QDate FieldRef::valueDate() const
 {
-    QVariant v = value();
+    const QVariant v = value();
     return v.toDate();
 }
 
 
 QString FieldRef::valueString() const
 {
-    QVariant v = value();
+    const QVariant v = value();
     return v.toString();
 }
 
 
 QStringList FieldRef::valueStringList() const
 {
-    QVariant v = value();
+    const QVariant v = value();
     return v.toStringList();
 }
 
 
 QByteArray FieldRef::valueByteArray() const
 {
-    QVariant v = value();
+    const QVariant v = value();
     return v.toByteArray();
 }
 
 
 QVector<int> FieldRef::valueVectorInt() const
 {
-    QVariant v = value();
+    const QVariant v = value();
     return convert::qVariantToIntVector(v);
 }
 
 
 bool FieldRef::isNull() const
 {
-    QVariant v = value();
+    const QVariant v = value();
     return v.isNull();
 }
 
@@ -426,7 +426,7 @@ QImage FieldRef::image(bool* p_loaded) const
 {
     qWarning() << Q_FUNC_INFO << LOW_PERFORMANCE;
     QImage image;
-    bool success = image.loadFromData(valueByteArray());
+    const bool success = image.loadFromData(valueByteArray());
     if (p_loaded) {
         *p_loaded = success;
     }
@@ -437,7 +437,7 @@ QImage FieldRef::image(bool* p_loaded) const
 QPixmap FieldRef::pixmap(bool* p_loaded) const
 {
     QPixmap pm;
-    bool success = pm.loadFromData(valueByteArray());
+    const bool success = pm.loadFromData(valueByteArray());
     if (p_loaded) {
         *p_loaded = success;
     }

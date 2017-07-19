@@ -153,8 +153,8 @@ bool Nart::isComplete() const
 
 QStringList Nart::summary() const
 {
-    bool complete = isComplete();
-    int errors = numErrors();
+    const bool complete = isComplete();
+    const int errors = numErrors();
     return QStringList{
         result(nelsonFullScaleIQ(complete, errors), false),
         result(nelsonWillisonFullScaleIQ(complete, errors), false),
@@ -165,12 +165,12 @@ QStringList Nart::summary() const
 
 QStringList Nart::detail() const
 {
-    bool complete = isComplete();
-    int errors = numErrors();
+    const bool complete = isComplete();
+    const int errors = numErrors();
     QStringList wordresults{"Words correct?"};
     for (int i = 0; i < ACCENTED_WORDLIST.length(); ++i) {
-        QString fieldname = WORDLIST.at(i);
-        QString word = ACCENTED_WORDLIST.at(i);
+        const QString fieldname = WORDLIST.at(i);
+        const QString word = ACCENTED_WORDLIST.at(i);
         wordresults.append(stringfunc::standardResult(word,
                                                       prettyValue(fieldname)));
     }
@@ -196,7 +196,7 @@ QStringList Nart::detail() const
 
 OpenableWidget* Nart::editor(bool read_only)
 {
-    NameValueOptions options = CommonOptions::incorrectCorrectBoolean();
+    const NameValueOptions options = CommonOptions::incorrectCorrectBoolean();
 
     QVector<QuGridCell> cells;
     const int row_span = 1;
@@ -204,8 +204,8 @@ OpenableWidget* Nart::editor(bool read_only)
     const Qt::Alignment align = Qt::AlignLeft | Qt::AlignVCenter;
     int row = 0;
     for (int i = 0; i < ACCENTED_WORDLIST.length(); ++i) {
-        QString fieldname = WORDLIST.at(i);
-        QString word = ACCENTED_WORDLIST.at(i).toUpper();
+        const QString fieldname = WORDLIST.at(i);
+        const QString word = ACCENTED_WORDLIST.at(i).toUpper();
         QuText* el_word = new QuText(word);
         el_word->setBold();
         QuMcq* el_mcq = new QuMcq(fieldRef(fieldname), options);
@@ -343,9 +343,9 @@ Nart::NartIQ Nart::brightPerceptualSpeed(bool complete, int errors) const
 
 QString Nart::result(const NartIQ& iq, bool full) const
 {
-    QString name = full
+    const QString name = full
             ? QString("%1 (%2; %3)").arg(iq.quantity, iq.reference, iq.formula)
             : QString("%1").arg(iq.quantity);
-    QString value = convert::prettyValue(iq.iq, DP);
+    const QString value = convert::prettyValue(iq.iq, DP);
     return stringfunc::standardResult(name, value);
 }

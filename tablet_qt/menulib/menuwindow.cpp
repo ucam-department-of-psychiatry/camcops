@@ -221,7 +221,7 @@ void MenuWindow::build()
     // Size hints: https://forum.qt.io/topic/17481/easiest-way-to-have-a-simple-list-with-custom-items/4
     // Note that the widgets call setSizePolicy.
     bool preselected = false;
-    int app_selected_patient_id = m_app.selectedPatientId();
+    const int app_selected_patient_id = m_app.selectedPatientId();
     for (int i = 0; i < m_items.size(); ++i) {
         MenuItem item = m_items.at(i);
         QWidget* row = item.rowWidget(m_app);
@@ -295,8 +295,8 @@ void MenuWindow::menuItemSelectionChanged()
         return;
     }
     QListWidgetItem* item = selected_items.at(0);
-    QVariant v = item->data(Qt::UserRole);
-    int i = v.toInt();
+    const QVariant v = item->data(Qt::UserRole);
+    const int i = v.toInt();
     if (i < 0 || i >= m_items.size()) {
         qWarning() << Q_FUNC_INFO << "Selection out of range:" << i
                    << "(vector size:" << m_items.size() << ")";
@@ -334,8 +334,8 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
 {
     // Act on a click
 
-    QVariant v = item->data(Qt::UserRole);
-    int i = v.toInt();
+    const QVariant v = item->data(Qt::UserRole);
+    const int i = v.toInt();
     if (i < 0 || i >= m_items.size()) {
         qWarning() << Q_FUNC_INFO << "Selection out of range:" << i
                    << "(vector size:" << m_items.size() << ")";
@@ -392,8 +392,8 @@ void MenuWindow::viewTask()
     if (!task) {
         return;
     }
-    bool facsimile_available = task->isEditable();
-    QString instance_title = task->instanceTitle();
+    const bool facsimile_available = task->isEditable();
+    const QString instance_title = task->instanceTitle();
     ScrollMessageBox msgbox(
                 QMessageBox::Question,
                 tr("View task"),
@@ -446,7 +446,7 @@ void MenuWindow::editTask()
     if (!task || !task->isEditable()) {
         return;
     }
-    QString instance_title = task->instanceTitle();
+    const QString instance_title = task->instanceTitle();
     ScrollMessageBox msgbox(
                 QMessageBox::Question,
                 tr("Edit"),
@@ -465,7 +465,7 @@ void MenuWindow::editTask()
 
 void MenuWindow::editTaskConfirmed(const TaskPtr& task)
 {
-    QString instance_title = task->instanceTitle();
+    const QString instance_title = task->instanceTitle();
     qInfo() << "Edit:" << instance_title;
     OpenableWidget* widget = task->editor(false);
     if (!widget) {
@@ -511,7 +511,7 @@ void MenuWindow::deleteTask()
     if (!task) {
         return;
     }
-    QString instance_title = task->instanceTitle();
+    const QString instance_title = task->instanceTitle();
     ScrollMessageBox msgbox(
                 QMessageBox::Warning,
                 tr("Delete"),
@@ -556,8 +556,8 @@ int MenuWindow::currentIndex() const
     if (!item) {
         return BAD_INDEX;
     }
-    QVariant v = item->data(Qt::UserRole);
-    int i = v.toInt();
+    const QVariant v = item->data(Qt::UserRole);
+    const int i = v.toInt();
     if (i >= m_items.size() || i <= -1) {
         // Out of bounds; coerce to -1
         return BAD_INDEX;
@@ -568,7 +568,7 @@ int MenuWindow::currentIndex() const
 
 TaskPtr MenuWindow::currentTask() const
 {
-    int index = currentIndex();
+    const int index = currentIndex();
     if (index == BAD_INDEX) {
         return TaskPtr(nullptr);
     }
@@ -579,7 +579,7 @@ TaskPtr MenuWindow::currentTask() const
 
 PatientPtr MenuWindow::currentPatient() const
 {
-    int index = currentIndex();
+    const int index = currentIndex();
     qDebug() << Q_FUNC_INFO << "index =" << index;
     if (index == BAD_INDEX) {
         qDebug() << "... bad index";

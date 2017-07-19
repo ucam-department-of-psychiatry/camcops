@@ -109,7 +109,7 @@ QSize ClickableLabelNoWrap::sizeHint() const
     Q_ASSERT(m_label);
     QStyleOptionButton opt;
     initStyleOption(&opt);  // protected
-    QSize base_size = m_label->sizeHint();
+    const QSize base_size = m_label->sizeHint();
     return base_size + sizehelpers::pushButtonExtraSizeRequired(this, &opt,
                                                                 base_size);
 }

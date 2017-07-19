@@ -198,7 +198,7 @@ void CardinalExpDetTrial::startPauseBeforeTrial(bool pause)
 
 void CardinalExpDetTrial::startTrialWithCue()
 {
-    QDateTime now = datetime::now();
+    const QDateTime now = datetime::now();
     if (valueBool(FN_PAUSE_GIVEN_BEFORE_TRIAL)) {
         setValue(FN_PAUSE_END_TIME, now);
     }
@@ -225,11 +225,11 @@ void CardinalExpDetTrial::startDetection()
 void CardinalExpDetTrial::recordResponse(const CardinalExpDetRating& rating,
                                          int previous_points)
 {
-    QDateTime now = datetime::now();
-    bool correct = rating.means_dont_know
+    const QDateTime now = datetime::now();
+    const bool correct = rating.means_dont_know
             ? false
             : (rating.means_yes == targetPresent());
-    int points = (correct ? 1 : -1) * rating.points_multiplier;
+    const int points = (correct ? 1 : -1) * rating.points_multiplier;
     setValue(FN_RESPONDED, true);
     setValue(FN_RESPONSE_TIME, now);
     setValue(FN_RESPONSE_LATENCY_MS,
@@ -251,7 +251,7 @@ void CardinalExpDetTrial::startIti()
 
 void CardinalExpDetTrial::endTrial()
 {
-    QDateTime now = datetime::now();
+    const QDateTime now = datetime::now();
     setValue(FN_ITI_END_TIME, now);
     setValue(FN_TRIAL_END_TIME, now);
     save();

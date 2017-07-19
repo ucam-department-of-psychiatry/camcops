@@ -66,8 +66,8 @@ MenuHeader::MenuHeader(QWidget* parent,
     m_top_bar->setLayout(toprowlayout);
     mainlayout->addWidget(m_top_bar);
 
-    Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
-    Qt::Alignment text_align = Qt::AlignLeft | Qt::AlignVCenter;
+    const Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
+    const Qt::Alignment text_align = Qt::AlignLeft | Qt::AlignVCenter;
 
     // Back button (unless top)
     if (!top) {
@@ -262,7 +262,7 @@ void MenuHeader::selectedPatientDetailsChanged(const Patient* patient)
 
 void MenuHeader::setPatientDetails(const Patient* patient)
 {
-    bool selected = patient != nullptr;
+    const bool selected = patient != nullptr;
     QString info;
 
     if (selected) {

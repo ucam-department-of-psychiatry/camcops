@@ -191,52 +191,52 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
     app.clearCachedVars();  // ... in case any are left over
 
     FieldRefPtr address_fr = app.storedVarFieldRef(varconst::SERVER_ADDRESS);
-    QString address_t = tr("Server address");
-    QString address_h = tr("host name or IP address");
+    const QString address_t = tr("Server address");
+    const QString address_h = tr("host name or IP address");
 
     FieldRefPtr port_fr = app.storedVarFieldRef(varconst::SERVER_PORT);
-    QString port_t = tr("Server port for HTTPS");
-    QString port_h = tr("default 443");
+    const QString port_t = tr("Server port for HTTPS");
+    const QString port_h = tr("default 443");
 
     FieldRefPtr path_fr = app.storedVarFieldRef(varconst::SERVER_PATH);
-    QString path_t = tr("Path on server");
-    QString path_h = tr("no leading /; e.g. camcops/database");
+    const QString path_t = tr("Path on server");
+    const QString path_h = tr("no leading /; e.g. camcops/database");
 
     FieldRefPtr timeout_fr = app.storedVarFieldRef(varconst::SERVER_TIMEOUT_MS);
-    QString timeout_t = tr("Network timeout (ms)");
-    QString timeout_h = tr("e.g. 50000");
+    const QString timeout_t = tr("Network timeout (ms)");
+    const QString timeout_h = tr("e.g. 50000");
 
 #ifdef DEBUG_OFFER_HTTP_TO_SERVER
     FieldRefPtr https_fr = app.storedVarFieldRef(varconst::DEBUG_USE_HTTPS_TO_SERVER);
-    QString https_t = tr("Use HTTPS to server?");
-    QString https_h = tr("You should <b>only</b> disable this for debugging!");
+    const QString https_t = tr("Use HTTPS to server?");
+    const QString https_h = tr("You should <b>only</b> disable this for debugging!");
 #endif
 
     FieldRefPtr ssl_fr = app.storedVarFieldRef(varconst::VALIDATE_SSL_CERTIFICATES);
-    QString ssl_t = tr("Validate HTTPS (TLS/SSL) certificates?");
-    QString ssl_h = tr("Should always be YES for security-conscious systems.");
+    const QString ssl_t = tr("Validate HTTPS (TLS/SSL) certificates?");
+    const QString ssl_h = tr("Should always be YES for security-conscious systems.");
 
     FieldRefPtr ssl_proto_fr = app.storedVarFieldRef(varconst::SSL_PROTOCOL);
-    QString ssl_proto_t = tr("HTTPS (TLS/SSL) protocol?");
-    QString ssl_proto_h = tr("Stick with the default unless your server can’t cope with it.");
+    const QString ssl_proto_t = tr("HTTPS (TLS/SSL) protocol?");
+    const QString ssl_proto_h = tr("Stick with the default unless your server can’t cope with it.");
 
     FieldRefPtr storepw_fr = app.storedVarFieldRef(varconst::STORE_SERVER_PASSWORD);
-    QString storepw_t = tr("Store user’s server password?");
-    QString storepw_h = tr(
+    const QString storepw_t = tr("Store user’s server password?");
+    const QString storepw_h = tr(
                 "NO = fractionally more secure, YES = more convenient/"
                 "fractionally less secure (but still AES-256-encrypted).");
 
 #ifdef ALLOW_SEND_ANALYTICS
     FieldRefPtr analytics_fr = app.storedVarFieldRef(varconst::SEND_ANALYTICS);
-    QString analytics_t = tr("Send analytics to CamCOPS base?");
-    QString analytics_h = tr(
+    const QString analytics_t = tr("Send analytics to CamCOPS base?");
+    const QString analytics_h = tr(
         "We’d very much appreciate you saying yes; it allows us to support "
         "users better. No patient-identifiable information, per-patient "
         "information, or task details are sent. See the documentation for "
         "details.");
 #endif
 
-    NameValueOptions options_ssl_protocol{
+    const NameValueOptions options_ssl_protocol{
         // http://doc.qt.io/qt-5/qssl.html#SslProtocol-enum
         {"Known secure [default]", convert::SSLPROTODESC_SECUREPROTOCOLS},
         {"(†) SSL v3", convert::SSLPROTODESC_SSLV3},
@@ -250,7 +250,7 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
         {"(†) SSLv2, SSLv3, or TLSv1.0", convert::SSLPROTODESC_ANYPROTOCOL},
         {"(†) TLS v1.0 or SSL v3", convert::SSLPROTODESC_TLSV1_SSLV3},
     };
-    QString ssl_proto_explanation = "(†) Insecure, deprecated.";
+    const QString ssl_proto_explanation = "(†) Insecure, deprecated.";
 
     QuPagePtr page(new QuPage{
         questionnairefunc::defaultGridRawPointer({
@@ -327,15 +327,15 @@ OpenableWidget* SettingsMenu::configureIntellectualProperty(CamcopsApp& app)
 {
     app.clearCachedVars();  // ... in case any are left over
 
-    QString label_ip_warning = tr(
+    const QString label_ip_warning = tr(
         "WARNING. Providing incorrect information here may lead to you "
         "VIOLATING copyright law, by using a task for a purpose that is not "
         "permitted, and being subject to damages and/or prosecution.");
-    QString label_ip_disclaimer = tr(
+    const QString label_ip_disclaimer = tr(
         "The authors of CamCOPS cannot be held responsible or liable for any "
         "consequences of you misusing materials subject to copyright."
     );
-    QString label_ip_preamble = tr("Are you using this application for:");
+    const QString label_ip_preamble = tr("Are you using this application for:");
 
     FieldRefPtr commercial_fr = app.storedVarFieldRef(varconst::IP_USE_COMMERCIAL);
     FieldRefPtr educational_fr = app.storedVarFieldRef(varconst::IP_USE_EDUCATIONAL);
@@ -389,7 +389,7 @@ void SettingsMenu::ipClinicalChanged()
     if (!m_ip_questionnaire || !m_ip_clinical_fr) {
         return;
     }
-    bool show = m_ip_clinical_fr->value() != CommonOptions::NO_INT;
+    const bool show = m_ip_clinical_fr->value() != CommonOptions::NO_INT;
     m_ip_questionnaire->setVisibleByTag(TAG_IP_CLINICAL_WARNING, show);
 }
 
@@ -412,47 +412,47 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
 {
     app.clearCachedVars();  // ... in case any are left over
 
-    bool storing_password = app.storingServerPassword();
+    const bool storing_password = app.storingServerPassword();
 
-    QString label_server = tr("Interactions with the server");
+    const QString label_server = tr("Interactions with the server");
     FieldRefPtr devicename_fr = app.storedVarFieldRef(varconst::DEVICE_FRIENDLY_NAME);
-    QString devicename_t = tr("Device friendly name");
-    QString devicename_h = tr("e.g. “Research tablet 17 (Bob’s)”");
+    const QString devicename_t = tr("Device friendly name");
+    const QString devicename_h = tr("e.g. “Research tablet 17 (Bob’s)”");
     FieldRefPtr username_fr = app.storedVarFieldRef(varconst::SERVER_USERNAME);
-    QString username_t = tr("Username on server");
+    const QString username_t = tr("Username on server");
     // Safe object lifespan signal: can use std::bind
     FieldRef::GetterFunction getter = std::bind(&SettingsMenu::serverPasswordGetter, this);
     FieldRef::SetterFunction setter = std::bind(&SettingsMenu::serverPasswordSetter, this, std::placeholders::_1);
     FieldRefPtr password_fr = FieldRefPtr(new FieldRef(getter, setter, true));
-    QString password_t = tr("Password on server");
+    const QString password_t = tr("Password on server");
     FieldRefPtr upload_after_edit_fr = app.storedVarFieldRef(varconst::OFFER_UPLOAD_AFTER_EDIT);
-    QString upload_after_edit_t = tr("Offer to upload every time a task is edited?");
+    const QString upload_after_edit_t = tr("Offer to upload every time a task is edited?");
 
-    QString label_clinician = tr("Default clinician’s details (to save you typing)");
+    const QString label_clinician = tr("Default clinician’s details (to save you typing)");
     FieldRefPtr clin_specialty_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_SPECIALTY, false);
-    QString clin_specialty_t = tr("Default clinician’s specialty");
-    QString clin_specialty_h = tr("e.g. “Liaison Psychiatry”");
+    const QString clin_specialty_t = tr("Default clinician’s specialty");
+    const QString clin_specialty_h = tr("e.g. “Liaison Psychiatry”");
     FieldRefPtr clin_name_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_NAME, false);
-    QString clin_name_t = tr("Default clinician’s name");
-    QString clin_name_h = tr("e.g. “Dr Bob Smith”");
+    const QString clin_name_t = tr("Default clinician’s name");
+    const QString clin_name_h = tr("e.g. “Dr Bob Smith”");
     FieldRefPtr clin_profreg_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION, false);
-    QString clin_profreg_t = tr("Default clinician’s professional registration");
-    QString clin_profreg_h = tr("e.g. “GMC# 12345”");
+    const QString clin_profreg_t = tr("Default clinician’s professional registration");
+    const QString clin_profreg_h = tr("e.g. “GMC# 12345”");
     FieldRefPtr clin_post_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_POST, false);
-    QString clin_post_t = tr("Default clinician’s post");
-    QString clin_post_h = tr("e.g. “Specialist registrar");
+    const QString clin_post_t = tr("Default clinician’s post");
+    const QString clin_post_h = tr("e.g. “Specialist registrar");
     FieldRefPtr clin_service_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_SERVICE, false);
-    QString clin_service_t = tr("Default clinician’s service");
-    QString clin_service_h = tr("e.g. “Liaison Psychiatry Service”");
+    const QString clin_service_t = tr("Default clinician’s service");
+    const QString clin_service_h = tr("e.g. “Liaison Psychiatry Service”");
     FieldRefPtr clin_contact_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_CONTACT_DETAILS, false);
-    QString clin_contact_t = tr("Default clinician’s contact details");
-    QString clin_contact_h = tr("e.g. “x2167”");
+    const QString clin_contact_t = tr("Default clinician’s contact details");
+    const QString clin_contact_h = tr("e.g. “x2167”");
 
     QuGridContainer* g = new QuGridContainer();
     g->setColumnStretch(0, 1);
@@ -556,8 +556,8 @@ QString SettingsMenu::demoText(const QString& text,
     if (!m_fontsize_fr) {
         return "?";
     }
-    double current_pct = m_fontsize_fr->valueDouble();
-    int font_size_pt = m_app.fontSizePt(fontsize_type, current_pct);
+    const double current_pct = m_fontsize_fr->valueDouble();
+    const int font_size_pt = m_app.fontSizePt(fontsize_type, current_pct);
     return QString("%1 [%2 pt] %3")
             .arg(tr(qPrintable(text)))
             .arg(font_size_pt)
@@ -567,19 +567,19 @@ QString SettingsMenu::demoText(const QString& text,
 
 OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp &app)
 {
-    int fs_min = 70;
-    int fs_max = 300;
-    int fs_slider_step = 1;
-    int fs_slider_tick_interval = 10;
+    const int fs_min = 70;
+    const int fs_max = 300;
+    const int fs_slider_step = 1;
+    const int fs_slider_tick_interval = 10;
     QMap<int, QString> ticklabels;
     for (int i = fs_min; i <= fs_max; i += fs_slider_tick_interval) {
         ticklabels[i] = QString("%1").arg(i);
     }
 
-    QString prompt1(tr("Set the font size, as a percentage of the default."));
-    QString explan(tr("Changes take effect when a screen is reloaded."));
-    QString prompt2(tr("You can type it in:"));
-    QString prompt3(tr("... or set it with a slider:"));
+    const QString prompt1(tr("Set the font size, as a percentage of the default."));
+    const QString explan(tr("Changes take effect when a screen is reloaded."));
+    const QString prompt2(tr("You can type it in:"));
+    const QString prompt3(tr("... or set it with a slider:"));
     connect(m_fontsize_fr.data(), &FieldRef::valueChanged,
             this, &SettingsMenu::fontSizeChanged,
             Qt::UniqueConnection);
@@ -641,7 +641,7 @@ void SettingsMenu::fontSizeChanged()
     if (!page) {
         return;
     }
-    double current_pct = m_fontsize_fr->valueDouble();
+    const double current_pct = m_fontsize_fr->valueDouble();
     QMapIterator<QString, uiconst::FontSize> i(FONT_SIZE_MAP);
     while (i.hasNext()) {
         i.next();
@@ -723,7 +723,7 @@ QString SettingsMenu::makeHint(const QString& part1,
 void SettingsMenu::serverSettingsSaved()
 {
     // User has edited server settings and then clicked OK.
-    bool server_details_changed = (
+    const bool server_details_changed = (
         m_app.cachedVarChanged(varconst::SERVER_ADDRESS)
         || m_app.cachedVarChanged(varconst::SERVER_PORT)
         || m_app.cachedVarChanged(varconst::SERVER_PATH)
@@ -755,8 +755,8 @@ QVariant SettingsMenu::serverPasswordGetter()
 
 bool SettingsMenu::serverPasswordSetter(const QVariant& value)
 {
-    SecureQString value_str = value.toString();
-    bool changed = value_str != m_temp_plaintext_password;
+    const SecureQString value_str = value.toString();
+    const bool changed = value_str != m_temp_plaintext_password;
     m_temp_plaintext_password = value_str;
     m_plaintext_pw_live = true;
     return changed;
@@ -823,30 +823,30 @@ void SettingsMenu::fetchExtraStrings()
 
 OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
 {
-    QString label_server_address = tr("Server hostname/IP address:");
-    QString label_server_port = tr("Port for HTTPS:");
-    QString label_server_path = tr("Path on server:");
-    QString label_server_timeout = tr("Network timeout (ms):");
-    QString label_last_server_registration = tr("Last server registration/ID info acceptance:");
-    QString label_last_successful_upload = tr("Last successful upload:");
-    QString label_dbtitle = tr("Database title (from the server):");
-    QString label_policy_upload = tr("Server’s upload ID policy:");
-    QString label_policy_finalize = tr("Server’s finalizing ID policy:");
-    QString label_server_camcops_version = tr("Server CamCOPS version:");
+    const QString label_server_address = tr("Server hostname/IP address:");
+    const QString label_server_port = tr("Port for HTTPS:");
+    const QString label_server_path = tr("Path on server:");
+    const QString label_server_timeout = tr("Network timeout (ms):");
+    const QString label_last_server_registration = tr("Last server registration/ID info acceptance:");
+    const QString label_last_successful_upload = tr("Last successful upload:");
+    const QString label_dbtitle = tr("Database title (from the server):");
+    const QString label_policy_upload = tr("Server’s upload ID policy:");
+    const QString label_policy_finalize = tr("Server’s finalizing ID policy:");
+    const QString label_server_camcops_version = tr("Server CamCOPS version:");
 
-    QString data_server_address = convert::prettyValue(app.var(varconst::SERVER_ADDRESS));
-    QString data_server_port = convert::prettyValue(app.var(varconst::SERVER_PORT));
-    QString data_server_path = convert::prettyValue(app.var(varconst::SERVER_PATH));
-    QString data_server_timeout = convert::prettyValue(app.var(varconst::SERVER_TIMEOUT_MS));
-    QString data_last_server_registration = convert::prettyValue(app.var(varconst::LAST_SERVER_REGISTRATION));
-    QString data_last_successful_upload = convert::prettyValue(app.var(varconst::LAST_SUCCESSFUL_UPLOAD));
-    QString data_dbtitle = convert::prettyValue(app.var(varconst::SERVER_DATABASE_TITLE));
-    QString data_policy_upload = convert::prettyValue(app.var(varconst::ID_POLICY_UPLOAD));
-    QString data_policy_finalize = convert::prettyValue(app.var(varconst::ID_POLICY_FINALIZE));
-    QString data_server_camcops_version = convert::prettyValue(app.var(varconst::SERVER_CAMCOPS_VERSION));
+    const QString data_server_address = convert::prettyValue(app.var(varconst::SERVER_ADDRESS));
+    const QString data_server_port = convert::prettyValue(app.var(varconst::SERVER_PORT));
+    const QString data_server_path = convert::prettyValue(app.var(varconst::SERVER_PATH));
+    const QString data_server_timeout = convert::prettyValue(app.var(varconst::SERVER_TIMEOUT_MS));
+    const QString data_last_server_registration = convert::prettyValue(app.var(varconst::LAST_SERVER_REGISTRATION));
+    const QString data_last_successful_upload = convert::prettyValue(app.var(varconst::LAST_SUCCESSFUL_UPLOAD));
+    const QString data_dbtitle = convert::prettyValue(app.var(varconst::SERVER_DATABASE_TITLE));
+    const QString data_policy_upload = convert::prettyValue(app.var(varconst::ID_POLICY_UPLOAD));
+    const QString data_policy_finalize = convert::prettyValue(app.var(varconst::ID_POLICY_FINALIZE));
+    const QString data_server_camcops_version = convert::prettyValue(app.var(varconst::SERVER_CAMCOPS_VERSION));
 
-    Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
-    Qt::Alignment dataalign = Qt::AlignLeft | Qt::AlignTop;
+    const Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
+    const Qt::Alignment dataalign = Qt::AlignLeft | Qt::AlignTop;
 
     QuGridContainer* g1 = new QuGridContainer();
     g1->setColumnStretch(0, 1);
@@ -989,7 +989,7 @@ void SettingsMenu::debugSystemDbAsSql()
 
 void SettingsMenu::saveDataDbAsSql()
 {
-    QString filename = QFileDialog::getSaveFileName(
+    const QString filename = QFileDialog::getSaveFileName(
                 this, tr("Save data database as..."));
     if (filename.isEmpty()) {
         return;  // user cancelled
@@ -1008,7 +1008,7 @@ void SettingsMenu::saveDataDbAsSql()
 
 void SettingsMenu::saveSystemDbAsSql()
 {
-    QString filename = QFileDialog::getSaveFileName(
+    const QString filename = QFileDialog::getSaveFileName(
                 this, tr("Save system database as..."));
     if (filename.isEmpty()) {
         return;  // user cancelled

@@ -135,7 +135,7 @@ QStringList CopeBrief::detail() const
 
 OpenableWidget* CopeBrief::editor(bool read_only)
 {
-    NameValueOptions main_options{
+    const NameValueOptions main_options{
         {xstring("a0"), 0},
         {xstring("a1"), 1},
         {xstring("a2"), 2},
@@ -258,7 +258,7 @@ void CopeBrief::completedByPatientChanged()
     if (!m_questionnaire) {
         return;
     }
-    bool not_by_patient = valueIsFalseNotNull(COMPLETED_BY_PATIENT);
+    const bool not_by_patient = valueIsFalseNotNull(COMPLETED_BY_PATIENT);
     fieldRef(COMPLETED_BY)->setMandatory(not_by_patient);
     fieldRef(RELATIONSHIP_TO_PATIENT)->setMandatory(not_by_patient);
     m_questionnaire->setVisibleByTag(TAG_RELATIONSHIP, not_by_patient, false);
@@ -271,7 +271,7 @@ void CopeBrief::relationshipChanged()
     if (!m_questionnaire) {
         return;
     }
-    bool need_other = valueIsFalseNotNull(COMPLETED_BY_PATIENT) &&
+    const bool need_other = valueIsFalseNotNull(COMPLETED_BY_PATIENT) &&
             !valueIsNull(RELATIONSHIP_TO_PATIENT) &&
             valueInt(RELATIONSHIP_TO_PATIENT) == RELATIONSHIP_OTHER_CODE;
     fieldRef(RELATIONSHIP_TO_PATIENT_OTHER)->setMandatory(need_other);

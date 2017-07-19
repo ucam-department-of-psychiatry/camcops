@@ -104,11 +104,11 @@ QStringList Phq15::detail() const
 {
     using stringfunc::bold;
     using uifunc::yesNo;
-    QString spacer = " ";
-    int n_severe = nSevereSymptoms();
-    bool somatoform_likely = n_severe >= 3;
-    int total_score = totalScore();
-    QString severity = total_score >= 15
+    const QString spacer = " ";
+    const int n_severe = nSevereSymptoms();
+    const bool somatoform_likely = n_severe >= 3;
+    const int total_score = totalScore();
+    const QString severity = total_score >= 15
             ? textconst::SEVERE
             : (total_score >= 10 ? textconst::MODERATE
                                  : (total_score >= 5 ? textconst::MILD
@@ -128,7 +128,7 @@ QStringList Phq15::detail() const
 
 OpenableWidget* Phq15::editor(bool read_only)
 {
-    NameValueOptions options{
+    const NameValueOptions options{
         {xstring("a0"), 0},
         {xstring("a1"), 1},
         {xstring("a2"), 2},

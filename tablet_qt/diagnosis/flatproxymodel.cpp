@@ -37,7 +37,7 @@ int FlatProxyModel::buildMap(QAbstractItemModel* src_model,
         m_row_from_src_index.clear();
         m_src_index_from_row.clear();
     }
-    int nrows = src_model->rowCount(src_parent);
+    const int nrows = src_model->rowCount(src_parent);
     for (int r = 0; r < nrows; ++r) {
         QModelIndex index = src_model->index(r, 0, src_parent);
         m_row_from_src_index[index] = proxy_row;

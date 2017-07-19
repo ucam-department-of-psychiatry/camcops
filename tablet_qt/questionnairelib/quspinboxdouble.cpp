@@ -48,7 +48,7 @@ void QuSpinBoxDouble::setFromField()
 
 QPointer<QWidget> QuSpinBoxDouble::makeWidget(Questionnaire* questionnaire)
 {
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
     m_spinbox = new QDoubleSpinBox();
     m_spinbox->setEnabled(!read_only);
     m_spinbox->setDecimals(m_decimals);
@@ -84,7 +84,7 @@ FieldRefPtrList QuSpinBoxDouble::fieldrefs() const
 
 void QuSpinBoxDouble::widgetValueChanged(double value)
 {
-    bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }

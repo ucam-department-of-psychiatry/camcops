@@ -71,11 +71,10 @@ T trunc(const T& x)
 
 bool rangesOverlap(qreal a0, qreal a1, qreal b0, qreal b1);
 bool nearlyEqual(qreal x, qreal y);
-
 QVariant mean(const QVector<QVariant>& values, bool ignore_null = false);
 qreal mean(qreal a, qreal b);
-
 int centile(qreal x, qreal minimum, qreal maximum);
+double kahanSum(const QVector<double>& vec);
 
 // ============================================================================
 // QVariant operations, and QVariant collections

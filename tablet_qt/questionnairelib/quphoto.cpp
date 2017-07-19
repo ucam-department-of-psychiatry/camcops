@@ -81,8 +81,8 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     //                  photo_photo_photo_photo_photo_photo
 
     m_questionnaire = questionnaire;
-    bool read_only = questionnaire->readOnly();
-    Qt::Alignment align = Qt::AlignLeft | Qt::AlignTop;
+    const bool read_only = questionnaire->readOnly();
+    const Qt::Alignment align = Qt::AlignLeft | Qt::AlignTop;
 
     QAbstractButton* button_open_camera = nullptr;
     QLabel* no_camera = nullptr;
@@ -190,8 +190,8 @@ FieldRefPtrList QuPhoto::fieldrefs() const
 
 void QuPhoto::fieldValueChanged(const FieldRef* fieldref)
 {
-    bool missing = fieldref->missingInput();
-    bool null = fieldref->isNull();
+    const bool missing = fieldref->missingInput();
+    const bool null = fieldref->isNull();
     bool loaded = false;
     if (m_incomplete_mandatory_label) {
         m_incomplete_mandatory_label->setVisible(missing);
@@ -200,7 +200,7 @@ void QuPhoto::fieldValueChanged(const FieldRef* fieldref)
         m_incomplete_optional_label->setVisible(!missing && null);
     }
     if (m_image_widget) {
-        bool show_image = !missing && !null;
+        const bool show_image = !missing && !null;
         m_image_widget->setVisible(show_image);
         if (show_image) {
             QPixmap pm = fieldref->pixmap(&loaded);

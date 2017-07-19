@@ -26,8 +26,8 @@ StrictInt64Validator::StrictInt64Validator(bool allow_empty, QObject* parent) :
     QValidator(parent),
     m_allow_empty(allow_empty)
 {
-    b = 0;
-    t = std::numeric_limits<qint64>::max();
+    m_b = 0;
+    m_t = std::numeric_limits<qint64>::max();
 }
 
 
@@ -39,8 +39,8 @@ StrictInt64Validator::StrictInt64Validator(qint64 bottom, qint64 top,
     if (top < bottom) {  // user has supplied them backwards
         std::swap(bottom, top);
     }
-    b = bottom;
-    t = top;
+    m_b = bottom;
+    m_t = top;
 }
 
 
@@ -72,16 +72,16 @@ void StrictInt64Validator::setTop(qint64 top)
 void StrictInt64Validator::setRange(qint64 bottom, qint64 top)
 {
     bool rangeChanged = false;
-    if (b != bottom) {
-        b = bottom;
+    if (m_b != bottom) {
+        m_b = bottom;
         rangeChanged = true;
-        emit bottomChanged(b);
+        emit bottomChanged(m_b);
     }
 
-    if (t != top) {
-        t = top;
+    if (m_t != top) {
+        m_t = top;
         rangeChanged = true;
-        emit topChanged(t);
+        emit topChanged(m_t);
     }
 
     if (rangeChanged) {

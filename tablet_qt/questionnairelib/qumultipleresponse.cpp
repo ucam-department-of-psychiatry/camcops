@@ -79,7 +79,7 @@ QuMultipleResponse* QuMultipleResponse::setMinimumAnswers(int minimum_answers)
     if (minimum_answers < 0) {
         minimum_answers = 0;
     }
-    bool changed = minimum_answers != m_minimum_answers;
+    const bool changed = minimum_answers != m_minimum_answers;
     if (changed) {
         m_minimum_answers = minimum_answers;
         minOrMaxChanged();
@@ -93,7 +93,7 @@ QuMultipleResponse* QuMultipleResponse::setMaximumAnswers(int maximum_answers)
     if (maximum_answers == 0) {  // dumb value, use -1 for don't care
         maximum_answers = -1;
     }
-    bool changed = maximum_answers != m_maximum_answers;
+    const bool changed = maximum_answers != m_maximum_answers;
     if (changed) {
         m_maximum_answers = maximum_answers;
         minOrMaxChanged();
@@ -170,7 +170,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
         ccrandom::shuffle(m_items);
     }
 
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
 
     QPointer<QWidget> mainwidget = new BaseWidget();
     QLayout* mainlayout;
@@ -211,9 +211,9 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
             QWidget* itemwidget = new QWidget();
             ClickableLabelWordWrapWide* namelabel = new ClickableLabelWordWrapWide(item.text());
             namelabel->setEnabled(!read_only);
-            int fontsize = questionnaire->fontSizePt(uiconst::FontSize::Normal);
-            bool italic = false;
-            QString css = uifunc::textCSS(fontsize, m_bold, italic);
+            const int fontsize = questionnaire->fontSizePt(uiconst::FontSize::Normal);
+            const bool italic = false;
+            const QString css = uifunc::textCSS(fontsize, m_bold, italic);
             namelabel->setStyleSheet(css);
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
@@ -282,11 +282,11 @@ void QuMultipleResponse::clicked(int index)
         qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
-    bool at_max = nTrueAnswers() >= maximumAnswers();
+    const bool at_max = nTrueAnswers() >= maximumAnswers();
     bool changed = false;
     const QuestionWithOneField item = m_items.at(index);
     FieldRefPtr fieldref = item.fieldref();
-    QVariant value = fieldref->value();
+    const QVariant value = fieldref->value();
     QVariant newvalue;
     if (value.isNull()) {  // NULL -> true
         if (!at_max) {
@@ -318,10 +318,10 @@ void QuMultipleResponse::setFromFields()
 
 void QuMultipleResponse::fieldValueChanged()
 {
-    bool need_more = nTrueAnswers() < minimumAnswers();
+    const bool need_more = nTrueAnswers() < minimumAnswers();
     for (int i = 0; i < m_items.size(); ++i) {
         FieldRefPtr fieldref = m_items.at(i).fieldref();
-        QVariant value = fieldref->value();
+        const QVariant value = fieldref->value();
         QPointer<BooleanWidget> w = m_widgets.at(i);
         if (!w) {
             qCritical() << Q_FUNC_INFO << "- defunct pointer!";
@@ -370,8 +370,8 @@ int QuMultipleResponse::maximumAnswers() const
 
 QString QuMultipleResponse::defaultInstruction() const
 {
-    int minimum = minimumAnswers();
-    int maximum = maximumAnswers();
+    const int minimum = minimumAnswers();
+    const int maximum = maximumAnswers();
     if (minimum == maximum) {
         return QString("Choose %1:").arg(minimum);
     }
@@ -395,7 +395,7 @@ int QuMultipleResponse::nTrueAnswers() const
 {
     int n = 0;
     for (auto item : m_items) {
-        QVariant value = item.fieldref()->value();
+        const QVariant value = item.fieldref()->value();
         if (!value.isNull() && value.toBool()) {
             n += 1;
         }

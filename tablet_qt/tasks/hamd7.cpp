@@ -101,8 +101,8 @@ QStringList HamD7::summary() const
 
 QStringList HamD7::detail() const
 {
-    int score = totalScore();
-    QString severity = (
+    const int score = totalScore();
+    const QString severity = (
         score >= 20 ? xstring("severity_severe")
                     : (score >= 12 ? xstring("severity_moderate")
                                    : (score >= 4 ? xstring("severity_mild")
@@ -124,12 +124,12 @@ OpenableWidget* HamD7::editor(bool read_only)
         NameValueOptions options;
         int n_options = nOptions(n);
         for (int i = 0; i < n_options; ++i) {
-            QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
+            const QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
             options.append(NameValuePair(name, i));
         }
-        QString pagetitle = xstring(QString("q%1_title").arg(n));
-        QString question = xstring(QString("q%1_question").arg(n));
-        QString fieldname = strnum(QPREFIX, n);
+        const QString pagetitle = xstring(QString("q%1_title").arg(n));
+        const QString question = xstring(QString("q%1_question").arg(n));
+        const QString fieldname = strnum(QPREFIX, n);
         QuPagePtr page((new QuPage{
             new QuText(question),
             new QuMcq(fieldRef(fieldname), options),

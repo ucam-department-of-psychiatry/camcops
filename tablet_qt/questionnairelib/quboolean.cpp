@@ -128,7 +128,7 @@ QuBoolean* QuBoolean::setAsTextButton(bool as_text_button)
 
 QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
 {
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
 
     QPointer<QWidget> widget(new BaseWidget());
     widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -157,7 +157,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
             LabelWordWrapWide* label = new LabelWordWrapWide(m_text);
             labelwidget = label;
         }
-        int fontsize = questionnaire->fontSizePt(
+        const int fontsize = questionnaire->fontSizePt(
             m_big_text ? uiconst::FontSize::Big : uiconst::FontSize::Normal);
         QString css = uifunc::textCSS(fontsize, m_bold, m_italic);
         labelwidget->setStyleSheet(css);
@@ -166,7 +166,7 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
         // --------------------------------------------------------------------
         // Image label (accompanying image)
         // --------------------------------------------------------------------
-        QPixmap image = uifunc::getPixmap(m_image_filename, m_image_size);
+        const QPixmap image = uifunc::getPixmap(m_image_filename, m_image_size);
         AspectRatioPixmap* label = new AspectRatioPixmap();
         label->setPixmap(image);
         if (!read_only && m_content_clickable) {
@@ -197,8 +197,8 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
     }
 
     // Whole thing
-    Qt::Alignment label_align = Qt::AlignVCenter;
-    Qt::Alignment indicator_align = Qt::AlignTop;
+    const Qt::Alignment label_align = Qt::AlignVCenter;
+    const Qt::Alignment indicator_align = Qt::AlignTop;
     if (labelwidget) {
         if (m_indicator_on_left) {
             layout->addWidget(m_indicator, 0, indicator_align);

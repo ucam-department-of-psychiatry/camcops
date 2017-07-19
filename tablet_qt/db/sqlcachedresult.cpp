@@ -80,7 +80,7 @@ static const uint initial_cache_size = 128;
 
 static bool qIsAlnum(QChar ch)
 {
-    uint u = uint(ch.unicode());
+    const uint u = uint(ch.unicode());
     // matches [a-zA-Z0-9_]
     return u - 'a' < 26 || u - 'A' < 26 || u - '0' < 10 || u == '_';
 }
@@ -140,16 +140,16 @@ QString SqlCachedResult::fieldSerial(int i) const
 
 QString SqlCachedResult::positionalToNamedBinding(const QString& query) const
 {
-    int n = query.size();
+    const int n = query.size();
 
     QString result;
     result.reserve(n * 5 / 4);
     QChar closing_quote;
     int count = 0;
-    bool ignore_braces = (m_sqldriver->dbmsType() == QSqlDriver::PostgreSQL);
+    const bool ignore_braces = (m_sqldriver->dbmsType() == QSqlDriver::PostgreSQL);
 
     for (int i = 0; i < n; ++i) {
-        QChar ch = query.at(i);
+        const QChar ch = query.at(i);
         if (!closing_quote.isNull()) {
             if (ch == closing_quote) {
                 if (closing_quote == QLatin1Char(']') &&
@@ -184,17 +184,17 @@ QString SqlCachedResult::positionalToNamedBinding(const QString& query) const
 
 QString SqlCachedResult::namedToPositionalBinding(const QString& query)
 {
-    int n = query.size();
+    const int n = query.size();
 
     QString result;
     result.reserve(n);
     QChar closing_quote;
     int count = 0;
     int i = 0;
-    bool ignore_braces = (m_sqldriver->dbmsType() == QSqlDriver::PostgreSQL);
+    const bool ignore_braces = (m_sqldriver->dbmsType() == QSqlDriver::PostgreSQL);
 
     while (i < n) {
-        QChar ch = query.at(i);
+        const QChar ch = query.at(i);
         if (!closing_quote.isNull()) {
             if (ch == closing_quote) {
                 if (closing_quote == QLatin1Char(']')
@@ -451,7 +451,7 @@ bool SqlCachedResult::fetchLast()
 
 QVariant SqlCachedResult::data(int i)
 {
-    int idx = m_forward_only ? i : at() * m_col_count + i;
+    const int idx = m_forward_only ? i : at() * m_col_count + i;
     if (i >= m_col_count || i < 0 || at() < 0 || idx >= m_row_cache_end) {
         return QVariant();
     }
@@ -462,7 +462,7 @@ QVariant SqlCachedResult::data(int i)
 
 bool SqlCachedResult::isNull(int i)
 {
-    int idx = m_forward_only ? i : at() * m_col_count + i;
+    const int idx = m_forward_only ? i : at() * m_col_count + i;
     if (i >= m_col_count || i < 0 || at() < 0 || idx >= m_row_cache_end) {
         return true;
     }

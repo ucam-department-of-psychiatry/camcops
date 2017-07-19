@@ -97,7 +97,7 @@ bool Demqol::isComplete() const
 
 QStringList Demqol::summary() const
 {
-    int dp = 2;
+    const int dp = 2;
     return QStringList{stringfunc::standardResult(
                     textconst::TOTAL_SCORE,
                     convert::prettyValue(totalScore(), dp)),
@@ -116,14 +116,14 @@ QStringList Demqol::detail() const
 
 OpenableWidget* Demqol::editor(bool read_only)
 {
-    NameValueOptions main_options{
+    const NameValueOptions main_options{
         {xstring("a1"), 1},
         {xstring("a2"), 2},
         {xstring("a3"), 3},
         {xstring("a4"), 4},
         {xstring("no_response"), MISSING_VALUE},
     };
-    NameValueOptions qol_options{
+    const NameValueOptions qol_options{
         {xstring("q29_a1"), 1},
         {xstring("q29_a2"), 2},
         {xstring("q29_a3"), 3},
@@ -209,7 +209,7 @@ QVariant Demqol::totalScore() const
     int n = 0;
     int total = 0;
     for (int q = 1; q <= N_SCORED_QUESTIONS; ++q) {
-        QVariant v = value(strnum(QPREFIX, q));
+        const QVariant v = value(strnum(QPREFIX, q));
         if (v.isNull()) {
             continue;
         }

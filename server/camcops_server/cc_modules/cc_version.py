@@ -66,7 +66,8 @@ def make_version(v: Union[str, float, None]) -> Version:
             # of digits/decimal places, so either:
             # (a) 1.14 -> "1.14.0" and 1.5 -> "1.50.0", or
             # (b) 1.14 -> "1.1.4" and 1.5 -> "1.5.0"
-            # The decision is arbitrary as long as we right-pad everything
+            # The decision is arbitrary as long as we right-pad everything.
+            # ... Option (a) used.
             after_dp = parts[1]
             max_minor_digits = 2  # the most we used
             minor = int(after_dp.ljust(max_minor_digits, "0"))

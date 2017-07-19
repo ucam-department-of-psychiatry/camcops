@@ -103,12 +103,12 @@ QStringList Smast::summary() const
 
 QStringList Smast::detail() const
 {
-    int total = totalScore();
-    QString likelihood =
+    const int total = totalScore();
+    const QString likelihood =
             total >= 3 ? xstring("problem_probable")
                        : (total >= 2 ? xstring("problem_possible")
                                      : xstring("problem_unlikely"));
-    QString scores = ", " + xstring("scores") + " ";
+    const QString scores = ", " + xstring("scores") + " ";
 
     QStringList lines = completenessInfo();
     for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
@@ -132,7 +132,7 @@ OpenableWidget* Smast::editor(bool read_only)
         qfields.append(QuestionWithOneField(xstring(strnum("q", i)),
                                             fieldRef(strnum(QPREFIX, i))));
     }
-    QVector<McqGridSubtitle> sub{
+    const QVector<McqGridSubtitle> sub{
         {5, ""},
         {10, ""},
         {15, ""},
@@ -156,11 +156,11 @@ OpenableWidget* Smast::editor(bool read_only)
 
 int Smast::score(int question) const
 {
-    QVariant v = value(strnum(QPREFIX, question));
+    const QVariant v = value(strnum(QPREFIX, question));
     if (v.isNull()) {
         return 0;  // to avoid silly scoring of incomplete tasks
     }
-    bool yes = v.toString() == CommonOptions::YES_CHAR;
+    const bool yes = v.toString() == CommonOptions::YES_CHAR;
     if (REVERSE_SCORED_Q.contains(question)) {
         return yes ? 0 : 1;
     } else {

@@ -65,7 +65,7 @@ void QuTextEdit::setFromField()
 
 QPointer<QWidget> QuTextEdit::makeWidget(Questionnaire* questionnaire)
 {
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
     m_editor = new GrowingTextEdit();
     m_editor->setEnabled(!read_only);
     m_editor->setAcceptRichText(m_accept_rich_text);
@@ -117,7 +117,7 @@ void QuTextEdit::textChanged()
     }
     // ... That forces the text to empty (rather than a bunch of HTML
     // representing nothing) if there is no real text.
-    bool changed = m_fieldref->setValue(text, this);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(text, this);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
@@ -153,7 +153,7 @@ void QuTextEdit::widgetFocusChanged(bool in)
     if (in || !m_editor) {
         return;
     }
-    bool change_pending = m_timer->isActive();
+    const bool change_pending = m_timer->isActive();
     m_timer->stop();  // just in case it's running
     if (change_pending) {
         textChanged();  // maybe

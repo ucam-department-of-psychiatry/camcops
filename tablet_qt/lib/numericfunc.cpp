@@ -83,8 +83,8 @@ int numDigitsDouble(double number, int max_dp)
     // - ignores sign
     // - includes decimal point
 
-    QString formatted = QString::number(number, 'f', max_dp);
-    bool sign_present = number < 0;
+    const QString formatted = QString::number(number, 'f', max_dp);
+    const bool sign_present = number < 0;
     // Trim trailing zeros:
     int pos;
     for (pos = formatted.length() - 1; pos > 0; --pos) {
@@ -102,10 +102,10 @@ double firstDigitsDouble(double number, int n_digits, int max_dp)
     // Returns the first n_digits of a floating point number, as a double.
     // - sign is ignored (can't compare numbers without dropping it)
     // - includes decimal point
-    QString formatted = QString::number(number, 'f', max_dp);
-    bool sign_present = number < 0;
-    QString left = formatted.left(sign_present ? n_digits + 1 : n_digits);
-    double result = left.toDouble();
+    const QString formatted = QString::number(number, 'f', max_dp);
+    const bool sign_present = number < 0;
+    const QString left = formatted.left(sign_present ? n_digits + 1 : n_digits);
+    const double result = left.toDouble();
 #ifdef DEBUG_VALIDATOR
     qDebug() << Q_FUNC_INFO << "- formatted" << formatted
              << "n_digits" << n_digits
@@ -150,11 +150,11 @@ bool extendedDoubleMustExceed(double number, double bottom, double top)
     if (number > 0 && top < 0) {
         return true;
     }
-    int nd_number = numDigitsDouble(number);
+    const int nd_number = numDigitsDouble(number);
     QString str_number = QString("%1").arg(number);
     if (number > 0) {
         // Both positive. Extend with zeros, to length of top
-        int nd_top = numDigitsDouble(top);
+        const int nd_top = numDigitsDouble(top);
         for (int i = 0; i < nd_top - nd_number; ++i) {
             str_number += "0";
             if (str_number.toDouble() <= top) {
@@ -164,7 +164,7 @@ bool extendedDoubleMustExceed(double number, double bottom, double top)
         return true;
     } else {
         // Both negative. Extend with nines.
-        int nd_bottom = numDigitsDouble(bottom);
+        const int nd_bottom = numDigitsDouble(bottom);
         for (int i = 0; i < nd_bottom - nd_number; ++i) {
             str_number += "9";
             if (str_number.toDouble() <= top) {
@@ -184,11 +184,11 @@ bool extendedDoubleMustBeLessThan(double number, double bottom, double top)
     if (number > 0 && bottom < 0) {
         return false;
     }
-    int nd_number = numDigitsDouble(number);
+    const int nd_number = numDigitsDouble(number);
     QString str_number = QString("%1").arg(number);
     if (number > 0) {
         // Both positive. Extend with nines, to length of top
-        int nd_top = numDigitsDouble(top);
+        const int nd_top = numDigitsDouble(top);
         for (int i = 0; i < nd_top - nd_number; ++i) {
             str_number += "9";
             if (str_number.toDouble() >= bottom) {
@@ -198,7 +198,7 @@ bool extendedDoubleMustBeLessThan(double number, double bottom, double top)
         return true;
     } else {
         // Both negative. Extend with zeros, to length of bottom
-        int nd_bottom = numDigitsDouble(bottom);
+        const int nd_bottom = numDigitsDouble(bottom);
         for (int i = 0; i < nd_bottom - nd_number; ++i) {
             str_number += "0";
             if (str_number.toDouble() >= bottom) {

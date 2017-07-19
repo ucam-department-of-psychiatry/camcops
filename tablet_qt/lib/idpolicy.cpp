@@ -98,7 +98,7 @@ void IdPolicy::tokenize(const QString& policy_text)
     // QString::split() splits using the regex to match BOUNDARIES.
     // Our regex matches CONTENT, so we use QRegularExpression functions.
     // https://dangelog.wordpress.com/2012/04/07/qregularexpression/
-    QRegularExpression re(TOKENIZE_RE_STR);
+    const QRegularExpression re(TOKENIZE_RE_STR);
     QRegularExpressionMatchIterator it = re.globalMatch(policy_text);
     QStringList words;
     while (it.hasNext()) {
@@ -145,12 +145,12 @@ QString IdPolicy::stringify(const QVector<int> &tokens) const
 {
     QString policy;
     for (int i = 0; i < tokens.length(); ++i) {
-        int token = tokens.at(i);
+        const int token = tokens.at(i);
         if (i > 0 && token != TOKEN_RPAREN
                 && tokens.at(i - 1) != TOKEN_LPAREN) {
             policy += " ";
         }
-        QString element = m_token_to_name[token];
+        const QString element = m_token_to_name[token];
         bool upper = (token == TOKEN_AND || token == TOKEN_OR);
         policy += upper ? element.toUpper() : element.toLower();
     }
@@ -326,7 +326,7 @@ IdPolicy::ChunkValue IdPolicy::idPolicyElement(const AttributesType& attributes,
     // Returns a boolean indicator corresponding to whether the token's
     // information is present in the patient attributes (or a failure
     // indicator).
-    QString name = m_token_to_name[token];
+    const QString name = m_token_to_name[token];
     if (!attributes.contains(name)) {
         qWarning() << "Policy contains element" << name
                    << "but patient information is unaware of that attribute";

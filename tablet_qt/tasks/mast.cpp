@@ -117,7 +117,7 @@ OpenableWidget* Mast::editor(bool read_only)
         qfields.append(QuestionWithOneField(xstring(strnum("q", i)),
                                             fieldRef(strnum(QPREFIX, i))));
     }
-    QVector<McqGridSubtitle> sub{
+    const QVector<McqGridSubtitle> sub{
         {6, ""},
         {12, ""},
         {18, ""},
@@ -151,12 +151,12 @@ int Mast::totalScore() const
 
 int Mast::score(int question) const
 {
-    QVariant v = value(strnum(QPREFIX, question));
+    const QVariant v = value(strnum(QPREFIX, question));
     if (v.isNull()) {
         return 0;
     }
-    bool yes = v.toString() == CommonOptions::YES_CHAR;
-    int presence = REVERSED_QUESTIONS.contains(question)
+    const bool yes = v.toString() == CommonOptions::YES_CHAR;
+    const int presence = REVERSED_QUESTIONS.contains(question)
             ? (yes ? 0 : 1)  // reversed (negative responses are alcoholic)
             : (yes ? 1 : 0);  // normal
     int points;

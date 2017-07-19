@@ -41,24 +41,35 @@ VALUE_TYPE = Union[int, str, float, None]
 
 class StoredVarBase(object):
     """Abstract base class for type-varying values stored in the database."""
+
+    TYPE_INTEGER = "integer"
+    TYPE_TEXT = "text"
+    TYPE_REAL = "real"
+
     def get_value(self) -> VALUE_TYPE:
         """Get the stored value."""
-        if self.type == "integer":
+        if self.type == self.TYPE_INTEGER:
             return self.valueInteger
-        elif self.type == "text":
+        elif self.type == self.TYPE_TEXT:
             return self.valueText
-        elif self.type == "real":
+        elif self.type == self.TYPE_REAL:
             return self.valueReal
         else:
             raise RuntimeError("UNKNOWN_TYPE_IN_STOREDVAR")
 
     def set_value(self, value: VALUE_TYPE, save: bool = True) -> None:
         """Sets the stored value (and optionally saves it in the database.)"""
-        if self.type == "integer":
+        if self.type == self.TYPE_INTEGER:
             self.valueInteger = value
-        elif self.type == "text":
+            self.valueText = None
+            self.valueReal = None
+        elif self.type == self.TYPE_TEXT:
+            self.valueInteger = None
             self.valueText = value
-        elif self.type == "real":
+            self.valueReal = None
+        elif self.type == self.TYPE_REAL:
+            self.valueInteger = None
+            self.valueText = None
             self.valueReal = value
         else:
             raise RuntimeError("UNKNOWN_TYPE_IN_STOREDVAR")
@@ -69,6 +80,7 @@ class StoredVarBase(object):
 class DeviceStoredVar(StoredVarBase):
     """Class representing variables stored by tablet devices and copied to
     the server."""
+    # *** DITCH THIS WHEN OLD TABLET VERSIONS GONE; NO NEED FOR IT.
     TABLENAME = "storedvars"
     FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
         dict(name="id", cctype="INT_UNSIGNED", notnull=True,
@@ -144,7 +156,7 @@ class ServerStoredVar(StoredVarBase):
 
     def __init__(self,
                  namepk: str,
-                 type_on_creation: str = "integer",
+                 type_on_creation: str = StoredVarBase.TYPE_INTEGER,
                  default_value: VALUE_TYPE = None) -> None:
         """Initialize (fetch from database or create)."""
         if not pls.db.fetch_object_from_db_by_pk(

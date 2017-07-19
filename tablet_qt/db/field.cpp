@@ -180,7 +180,7 @@ bool Field::setValue(const QVariant& value)
     if (!m_value.isNull() && m_type != QVariant::UserType) {
         // Don't try to convert NULL values; needless warning.
         // Don't try to convert user type; it'll go wrong.
-        bool converted = m_value.convert(m_type);
+        const bool converted = m_value.convert(m_type);
         if (!converted) {
             if (m_type == QVariant::Char) {
                 // Deal with special oddities, e.g. failure to convert

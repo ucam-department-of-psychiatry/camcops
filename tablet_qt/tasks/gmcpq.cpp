@@ -158,11 +158,11 @@ QStringList GmcPq::summary() const
 
 QStringList GmcPq::detail() const
 {
-    NameValueOptions q4options = optionsQ4();
-    NameValueOptions q5options = optionsQ5();
+    const NameValueOptions q4options = optionsQ4();
+    const NameValueOptions q5options = optionsQ5();
     QStringList lines = completenessInfo();
-    QString sp = " ";
-    QString co = ": ";
+    const QString sp = " ";
+    const QString co = ": ";
     lines.append(fieldSummary(DOCTOR, xstring("q_doctor"), sp));
     lines.append("");
     lines.append(fieldSummaryNameValueOptions(Q1, optionsQ1(), xstring("q1"), sp));
@@ -200,7 +200,7 @@ QStringList GmcPq::detail() const
 OpenableWidget* GmcPq::editor(bool read_only)
 {
     QVector<QuPagePtr> pages;
-    NameValueOptions yn_options = CommonOptions::yesNoBoolean();
+    const NameValueOptions yn_options = CommonOptions::yesNoBoolean();
 
     auto text = [this](const QString& xstringname) -> QuElement* {
         return new QuText(xstring(xstringname));
@@ -423,8 +423,8 @@ NameValueOptions GmcPq::optionsQ11() const
 void GmcPq::updateMandatory()
 {
     // This could be more efficient with lots of signal handlers, but...
-    bool need_q2f_details = valueBool(Q2F);
-    bool need_ethnicity_other = ethnicityOther(valueInt(Q12));
+    const bool need_q2f_details = valueBool(Q2F);
+    const bool need_ethnicity_other = ethnicityOther(valueInt(Q12));
 
     fieldRef(Q2F_DETAILS)->setMandatory(need_q2f_details);
     fieldRef(Q12_DETAILS)->setMandatory(need_ethnicity_other);

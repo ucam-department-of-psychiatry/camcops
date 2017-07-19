@@ -136,7 +136,7 @@ QStringList Icd10Mixed::detail() const
 
 OpenableWidget* Icd10Mixed::editor(bool read_only)
 {
-    NameValueOptions true_false_options = CommonOptions::falseTrueBoolean();
+    const NameValueOptions true_false_options = CommonOptions::falseTrueBoolean();
     QVector<QuestionWithOneField> qfields{
         {fieldRef(MIXTURE_OR_RAPID_ALTERNATION), xstring("a")},
         {fieldRef(DURATION_AT_LEAST_2_WEEKS), xstring("b")},

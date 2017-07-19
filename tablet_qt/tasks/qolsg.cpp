@@ -344,9 +344,9 @@ void QolSG::askCategory()
              QPointF(0.5 * SCENE_WIDTH, 0.15 * SCENE_HEIGHT),
              BASE_TEXT_CONFIG,
              TX_INITIAL_INSTRUCTION);
-    qreal button_left = 0.2 * SCENE_WIDTH;
-    qreal button_width = 0.6 * SCENE_WIDTH;
-    qreal button_height = 0.1  * SCENE_HEIGHT;
+    const qreal button_left = 0.2 * SCENE_WIDTH;
+    const qreal button_width = 0.6 * SCENE_WIDTH;
+    const qreal button_height = 0.1  * SCENE_HEIGHT;
     ButtonAndProxy h = makeTextButton(
                 m_scene,
                 QRectF(button_left, 0.35 * SCENE_HEIGHT,
@@ -410,7 +410,7 @@ void QolSG::giveChoice(const QString& category_chosen)
     setValue(FN_CATEGORY_RESPONSE_TIME, now());
     setValue(FN_CATEGORY_RESPONDED, true);
     setValue(FN_CATEGORY_CHOSEN, category_chosen);
-    bool lottery_on_left = false;  // coin();
+    const bool lottery_on_left = false;  // coin();
     // task is more confusing with lots of left/right references. Fix the lottery on the right.
     setValue(FN_GAMBLE_LOTTERY_ON_LEFT, lottery_on_left);
     clearScene();
@@ -498,8 +498,8 @@ void QolSG::giveChoice(const QString& category_chosen)
 
 AdjustablePieAndProxy QolSG::makePie(const QPointF& centre, int n_sectors)
 {
-    qreal diameter = STIMDIAMETER;
-    qreal radius = diameter / 2;
+    const qreal diameter = STIMDIAMETER;
+    const qreal radius = diameter / 2;
     AdjustablePieAndProxy pp = makeAdjustablePie(m_scene, centre,
                                                  n_sectors, diameter);
     AdjustablePie* pie = pp.pie;
@@ -529,8 +529,8 @@ AdjustablePieAndProxy QolSG::makePie(const QPointF& centre, int n_sectors)
 
 void QolSG::showFixed(bool left, const LotteryOption& option)
 {
-    QPointF lottery_centre(left ? LEFT_STIM_CENTRE : RIGHT_STIM_CENTRE,
-                           STIM_VCENTRE);
+    const QPointF lottery_centre(left ? LEFT_STIM_CENTRE : RIGHT_STIM_CENTRE,
+                                 STIM_VCENTRE);
     AdjustablePieAndProxy pp = makePie(lottery_centre, 1);
     pp.pie->setProportions({1.0});
     pp.pie->setSectorPenBrushes({{SECTOR_PEN, QBrush(option.fill_colour)}});
@@ -542,8 +542,8 @@ void QolSG::showFixed(bool left, const LotteryOption& option)
 void QolSG::showLottery(bool left, const LotteryOption& option1,
                         const LotteryOption& option2, qreal starting_p)
 {
-    QPointF lottery_centre(left ? LEFT_STIM_CENTRE : RIGHT_STIM_CENTRE,
-                           STIM_VCENTRE);
+    const QPointF lottery_centre(left ? LEFT_STIM_CENTRE : RIGHT_STIM_CENTRE,
+                                 STIM_VCENTRE);
     AdjustablePieAndProxy pp = makePie(lottery_centre, 2);
     m_pie = pp.pie;
     m_pie->setProportions({starting_p, 1.0 - starting_p});
@@ -576,8 +576,8 @@ void QolSG::showGambleInstruction(bool lottery_on_left,
         return;
     }
 
-    QString fixed_side = lottery_on_left ? TX_RIGHT : TX_LEFT;
-    QString lottery_side = lottery_on_left ? TX_LEFT : TX_RIGHT;
+    const QString fixed_side = lottery_on_left ? TX_RIGHT : TX_LEFT;
+    const QString lottery_side = lottery_on_left ? TX_LEFT : TX_RIGHT;
 
     replaceFirst(instruction, FIXEDSIDE, fixed_side);
     replaceFirst(instruction, LOTTERYSIDE, lottery_side);
@@ -588,7 +588,7 @@ void QolSG::showGambleInstruction(bool lottery_on_left,
     TextConfig tc = BASE_TEXT_CONFIG;
     tc.width = (1 - 2 * EDGESPACE_FRAC) * SCENE_WIDTH;
     tc.alignment = Qt::AlignLeft | Qt::AlignTop;
-    qreal left = EDGESPACE_FRAC * SCENE_WIDTH;
+    const qreal left = EDGESPACE_FRAC * SCENE_WIDTH;
     QString sep("<br><br>");
 
     makeText(m_scene,
@@ -625,7 +625,7 @@ void QolSG::lotteryTouched(qreal p)
 
 void QolSG::recordChoice()
 {
-    qreal p = m_last_p;
+    const qreal p = m_last_p;
     qDebug() << Q_FUNC_INFO << "p =" << p;
     setValue(FN_GAMBLE_RESPONSE_TIME, now());
     setValue(FN_GAMBLE_RESPONDED, true);

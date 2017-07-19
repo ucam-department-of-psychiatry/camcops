@@ -73,8 +73,8 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     HBoxLayout* toprowlayout = new HBoxLayout();
     mainlayout->addLayout(toprowlayout);
 
-    Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
-    Qt::Alignment text_align = Qt::AlignHCenter | Qt::AlignVCenter;
+    const Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
+    const Qt::Alignment text_align = Qt::AlignHCenter | Qt::AlignVCenter;
 
     // Cancel button
     QAbstractButton* cancel = new ImageButton(uiconst::CBS_CANCEL);

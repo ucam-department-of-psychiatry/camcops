@@ -30,9 +30,9 @@ DqrlsResult Cdqrls(const MatrixXd& x,  // n,p
 {
     // Solves XB = Y, for B (B will have dimensions p,ny)
     DqrlsResult result;
-    int n = x.rows();  // number of observations
-    // int p = x.cols();  // number of predictors
-    // int ny = y.cols();  // number of dependent variables
+    const int n = x.rows();  // number of observations
+    // const int p = x.cols();  // number of predictors
+    // const int ny = y.cols();  // number of dependent variables
     if (check) {
         if (y.rows() != n) {
             result.errors.append(QString(

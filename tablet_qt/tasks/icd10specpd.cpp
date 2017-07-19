@@ -248,14 +248,14 @@ OpenableWidget* Icd10SpecPD::editor(bool read_only)
             -> QuElement* {
         Q_ASSERT(fieldnames.length() == xstringnames.length());
         QVector<QuestionWithOneField> qfields;
-        int numq = fieldnames.length();
+        const int numq = fieldnames.length();
         for (int i = 0; i < numq; ++i) {
             qfields.append(QuestionWithOneField(
                                xstring(xstringnames.at(i)),
                                fieldRef(fieldnames.at(i), false)));
         }
-        int n = options.size();
-        QVector<int> v(n, 1);
+        const int n = options.size();
+        const QVector<int> v(n, 1);
         return (new QuMcqGrid(qfields, options))
                 ->setExpand(true)
                 ->setWidth(n, v);
@@ -263,7 +263,7 @@ OpenableWidget* Icd10SpecPD::editor(bool read_only)
     auto grid = [this, &options, &gridbase]
             (const QString& prefix, int end, int start = 1) -> QuElement* {
         // Assumes the xstring name matches the fieldname (as it does)
-        QStringList field_xstring_names = strseq(prefix, start, end);
+        const QStringList field_xstring_names = strseq(prefix, start, end);
         return gridbase(field_xstring_names, field_xstring_names);
     };
     auto generalpage = [this, &text, &boldtext, &gridbase]() -> QuPagePtr {
@@ -389,8 +389,8 @@ OpenableWidget* Icd10SpecPD::editor(bool read_only)
 
 bool Icd10SpecPD::isPDExcluded() const
 {
-    QVector<QVariant> g_values = values(strseq(G_PREFIX, 1, N_GENERAL));
-    QVector<QVariant> g1_values = values(strseq(G1_PREFIX, 1, N_GENERAL_1));
+    const QVector<QVariant> g_values = values(strseq(G_PREFIX, 1, N_GENERAL));
+    const QVector<QVariant> g1_values = values(strseq(G1_PREFIX, 1, N_GENERAL_1));
     return anyFalse(g_values) || (noneNull(g1_values) &&
                                   countTrue(g1_values) <= 1);
 }
@@ -466,7 +466,7 @@ QVariant Icd10SpecPD::hasPD() const
 
 QVariant Icd10SpecPD::hasParanoidPD() const
 {
-    QVariant has_pd = hasPD();
+    const QVariant has_pd = hasPD();
     if (!has_pd.toBool()) {
         return has_pd;
     }
@@ -479,7 +479,7 @@ QVariant Icd10SpecPD::hasParanoidPD() const
 
 QVariant Icd10SpecPD::hasSchizoidPD() const
 {
-    QVariant has_pd = hasPD();
+    const QVariant has_pd = hasPD();
     if (!has_pd.toBool()) {
         return has_pd;
     }
@@ -492,7 +492,7 @@ QVariant Icd10SpecPD::hasSchizoidPD() const
 
 QVariant Icd10SpecPD::hasDissocialPD() const
 {
-    QVariant has_pd = hasPD();
+    const QVariant has_pd = hasPD();
     if (!has_pd.toBool()) {
         return has_pd;
     }
@@ -505,7 +505,7 @@ QVariant Icd10SpecPD::hasDissocialPD() const
 
 QVariant Icd10SpecPD::hasEUPD_I() const
 {
-    QVariant has_pd = hasPD();
+    const QVariant has_pd = hasPD();
     if (!has_pd.toBool()) {
         return has_pd;
     }
@@ -524,7 +524,7 @@ QVariant Icd10SpecPD::hasEUPD_I() const
 
 QVariant Icd10SpecPD::hasEUPD_B() const
 {
-    QVariant has_pd = hasPD();
+    const QVariant has_pd = hasPD();
     if (!has_pd.toBool()) {
         return has_pd;
     }
@@ -538,7 +538,7 @@ QVariant Icd10SpecPD::hasEUPD_B() const
 
 QVariant Icd10SpecPD::hasHistrionicPD() const
 {
-    QVariant has_pd = hasPD();
+    const QVariant has_pd = hasPD();
     if (!has_pd.toBool()) {
         return has_pd;
     }
@@ -551,7 +551,7 @@ QVariant Icd10SpecPD::hasHistrionicPD() const
 
 QVariant Icd10SpecPD::hasAnankasticPD() const
 {
-    QVariant has_pd = hasPD();
+    const QVariant has_pd = hasPD();
     if (!has_pd.toBool()) {
         return has_pd;
     }
@@ -564,7 +564,7 @@ QVariant Icd10SpecPD::hasAnankasticPD() const
 
 QVariant Icd10SpecPD::hasAnxiousPD() const
 {
-    QVariant has_pd = hasPD();
+    const QVariant has_pd = hasPD();
     if (!has_pd.toBool()) {
         return has_pd;
     }
@@ -577,7 +577,7 @@ QVariant Icd10SpecPD::hasAnxiousPD() const
 
 QVariant Icd10SpecPD::hasDependentPD() const
 {
-    QVariant has_pd = hasPD();
+    const QVariant has_pd = hasPD();
     if (!has_pd.toBool()) {
         return has_pd;
     }
@@ -600,18 +600,18 @@ void Icd10SpecPD::updateMandatory()
         }
     };
 
-    bool pd_excluded = isPDExcluded();
-    bool need_general = !pd_excluded;
-    bool need_paranoid = !(pd_excluded || valueBool(SKIP_PARANOID));
-    bool need_schizoid = !(pd_excluded || valueBool(SKIP_SCHIZOID));
-    bool need_dissocial = !(pd_excluded || valueBool(SKIP_DISSOCIAL));
-    bool need_eu = !(pd_excluded || valueBool(SKIP_EU));
-    bool need_histrionic = !(pd_excluded || valueBool(SKIP_HISTRIONIC));
-    bool need_anankastic = !(pd_excluded || valueBool(SKIP_ANANKASTIC));
-    bool need_anxious = !(pd_excluded || valueBool(SKIP_ANXIOUS));
-    bool need_dependent = !(pd_excluded || valueBool(SKIP_DEPENDENT));
-    bool need_other = !pd_excluded;
-    bool need_vignette = !pd_excluded && valueBool(OTHER_PD_PRESENT);
+    const bool pd_excluded = isPDExcluded();
+    const bool need_general = !pd_excluded;
+    const bool need_paranoid = !(pd_excluded || valueBool(SKIP_PARANOID));
+    const bool need_schizoid = !(pd_excluded || valueBool(SKIP_SCHIZOID));
+    const bool need_dissocial = !(pd_excluded || valueBool(SKIP_DISSOCIAL));
+    const bool need_eu = !(pd_excluded || valueBool(SKIP_EU));
+    const bool need_histrionic = !(pd_excluded || valueBool(SKIP_HISTRIONIC));
+    const bool need_anankastic = !(pd_excluded || valueBool(SKIP_ANANKASTIC));
+    const bool need_anxious = !(pd_excluded || valueBool(SKIP_ANXIOUS));
+    const bool need_dependent = !(pd_excluded || valueBool(SKIP_DEPENDENT));
+    const bool need_other = !pd_excluded;
+    const bool need_vignette = !pd_excluded && valueBool(OTHER_PD_PRESENT);
 
     set(G_PREFIX, N_GENERAL, need_general);
     set(G1_PREFIX, N_GENERAL_1, need_general);

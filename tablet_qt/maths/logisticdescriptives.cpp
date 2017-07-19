@@ -67,8 +67,8 @@ LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& x,
         qWarning("Empty data set passed to LogisticDescriptives");
         return;
     }
-    ColumnVector<qreal> predictors = eigenColumnVectorFromQVector<qreal>(x);
-    RowVector<int> responses = eigenColumnVectorFromQVector<int>(y);
+    const ColumnVector<qreal> predictors = eigenColumnVectorFromQVector<qreal>(x);
+    const RowVector<int> responses = eigenColumnVectorFromQVector<int>(y);
     LogisticRegression lr;
     lr.setVerbose(verbose);
     lr.fit(predictors, responses);

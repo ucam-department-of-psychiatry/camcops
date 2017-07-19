@@ -152,7 +152,7 @@ QSize CanvasWidget::sizeHint() const
     //   you inherit from a QWidget. But if you inherit from a QFrame... yup,
     //   it works!
 
-    Margins m = Margins::getContentsMargins(this);
+    const Margins m = Margins::getContentsMargins(this);
     return m.addMarginsTo(m_size);
 }
 
@@ -239,13 +239,13 @@ void CanvasWidget::paintEvent(QPaintEvent* event)
     style()->drawPrimitive(QStyle::PE_Widget, &o, &painter, this);
 
     // 2. Our bits
-    QRect cr = contentsRect();
+    const QRect cr = contentsRect();
     if (m_allow_shrink && cr.size() != m_image.size()) {
         // Scale
         QSize displaysize = m_size;
         displaysize.scale(cr.size(), Qt::KeepAspectRatio);
-        QRect dest_active_rect = QRect(cr.topLeft(), displaysize);
-        QRect source_all_image(QPoint(0, 0), m_image.size());
+        const QRect dest_active_rect = QRect(cr.topLeft(), displaysize);
+        const QRect source_all_image(QPoint(0, 0), m_image.size());
         painter.drawImage(dest_active_rect, m_image, source_all_image);
 
         // Optimizations are possible: we don't have to draw all of it...
@@ -265,7 +265,7 @@ void CanvasWidget::paintEvent(QPaintEvent* event)
         QRegion unused(cr);
         unused -= QRegion(dest_active_rect);
         painter.setClipRegion(unused);
-        QBrush brush_unused(m_unused_space_colour);
+        const QBrush brush_unused(m_unused_space_colour);
         painter.fillRect(cr, brush_unused);
 
     } else {

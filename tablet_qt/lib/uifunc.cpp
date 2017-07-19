@@ -123,13 +123,13 @@ QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,
                             bool behind, qreal pixmap_opacity)
 {
     // Assumes it is of size ICONSIZE
-    QSize size(image.size());
+    const QSize size(image.size());
     QPixmap pm(size);
     pm.fill(uiconst::TRANSPARENT);
     QPainter painter(&pm);
-    QBrush brush(colour);
+    const QBrush brush(colour);
     painter.setBrush(brush);
-    QPen pen(uiconst::TRANSPARENT);
+    const QPen pen(uiconst::TRANSPARENT);
     painter.setPen(pen);
     if (behind) {
         // Background to indicate "being touched"
@@ -335,7 +335,7 @@ void setProperty(QWidget* widget, const QString& property,
         qWarning() << Q_FUNC_INFO << "- ignored for null widget";
         return;
     }
-    QByteArray propdata = property.toLatin1();
+    const QByteArray propdata = property.toLatin1();
     const char* propname = propdata.constData();
     widget->setProperty(propname, value);
     if (repolish_afterwards) {
@@ -446,7 +446,7 @@ void stopApp(const QString& error, const QString& title)
         box.addButton(tr("Abort"), QDialogButtonBox::AcceptRole);
         box.exec();
     }
-    QString msg = "ABORTING: " + error;
+    const QString msg = "ABORTING: " + error;
     qFatal("%s", qPrintable(msg));
     // If the first argument is not a string literal:
     // "format not a string literal and no format arguments"
@@ -487,7 +487,7 @@ void alertLogMessageBox(const QString& text, const QString& title,
 void alertLogMessageBox(const QStringList& lines, const QString& title,
                         bool as_html)
 {
-    QString text = lines.join(as_html ? "<br>" : "\n");
+    const QString text = lines.join(as_html ? "<br>" : "\n");
     alertLogMessageBox(text, title, as_html);
 }
 
@@ -521,7 +521,7 @@ bool getPassword(const QString& text, const QString& title,
                  QString& password, QWidget* parent)
 {
     PasswordEntryDialog dlg(text, title, parent);
-    int reply = dlg.exec();
+    const int reply = dlg.exec();
     if (reply != QDialog::Accepted) {
         return false;
     }
@@ -537,7 +537,7 @@ bool getOldNewPasswords(const QString& text, const QString& title,
                         QWidget* parent)
 {
     PasswordChangeDialog dlg(text, title, require_old_password, parent);
-    int reply = dlg.exec();
+    const int reply = dlg.exec();
     if (reply != QMessageBox::Accepted) {
         return false;
     }
@@ -597,8 +597,8 @@ QString escapeString(const QString& string)
 
     // Convert to a C++ literal.
     // There's probably a much more efficient way...
-    QByteArray arr = string.toLatin1();
-    int len = arr.length();
+    const QByteArray arr = string.toLatin1();
+    const int len = arr.length();
     QString result;
     result.reserve(len * 1.1);  // as per QString::toHtmlEscaped
     result.append('"');  // opening quote
@@ -685,12 +685,12 @@ void applyScrollGestures(QWidget* widget)
     //    - Others have noticed this too:
     //      https://forum.qt.io/topic/37930/solved-qt-5-2-android-qscroller-on-qtablewidget-clicks
     //    - So:
-    bool widget_is_itemview = (
+    const bool widget_is_itemview = (
                 dynamic_cast<QAbstractItemView*>(widget) ||
                 dynamic_cast<QAbstractItemView*>(widget->parent()));
     // It makes little difference which of these two we choose:
-    // bool use_touch = platform::PLATFORM_ANDROID && !widget_is_itemview;
-    bool use_touch = false;
+    // const bool use_touch = platform::PLATFORM_ANDROID && !widget_is_itemview;
+    const bool use_touch = false;
 
     QScroller::ScrollerGestureType gesture_type = use_touch
             ? QScroller::TouchGesture

@@ -883,13 +883,19 @@ class ClinicalTextView(object):
             self.restricted_warning = ""
         self._patient = None  # default value if we fail
         self.summary = ""
+        first = True
 
         # Build task lists
         list_of_task_instance_lists = []
         # ... list (by task class) of lists of task instances
+        if DEBUG_CTV_TASK_INCLUSION:
+            self.summary += "["
         for cls in task_class_list:
             if DEBUG_CTV_TASK_INCLUSION:
-                self.summary += " // " + cls.tablename
+                if not first:
+                    self.summary += " // "
+                self.summary += cls.tablename
+            first = False
             if cls.is_anonymous:
                 if DEBUG_CTV_TASK_INCLUSION:
                     self.summary += " (anonymous)"
@@ -904,7 +910,7 @@ class ClinicalTextView(object):
                 continue
             for s in serverpks:
                 if DEBUG_CTV_TASK_INCLUSION:
-                    self.summary += "/ PK {} ".format(s)
+                    self.summary += " / PK {} ".format(s)
                 task = cls(s)
                 if task is None:
                     if DEBUG_CTV_TASK_INCLUSION:
@@ -932,6 +938,8 @@ class ClinicalTextView(object):
                 task_instances.append(task)
             if len(task_instances) > 0:
                 list_of_task_instance_lists.append(task_instances)
+        if DEBUG_CTV_TASK_INCLUSION:
+            self.summary += "] "
 
         # Move to a flat list and sort by creation date/time:
         self.flattasklist = cc_lang.flatten_list(list_of_task_instance_lists)

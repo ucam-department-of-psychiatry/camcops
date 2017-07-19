@@ -71,7 +71,7 @@ void QuLineEdit::setFromField()
 
 QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
 {
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
     m_editor = new QLineEdit();
     m_editor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_editor->setEnabled(!read_only);
@@ -147,9 +147,9 @@ void QuLineEdit::widgetTextChangedAndValid()
     // To cope with setting things to null, we need to use a QVariant.
     // We use null rather than a blank string, because QuLineEdit may be used
     // to set numeric fields (where "" will be converted to 0).
-    QString text = m_editor->text();
-    QVariant value = text.isEmpty() ? QVariant() : QVariant(text);
-    bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
+    const QString text = m_editor->text();
+    const QVariant value = text.isEmpty() ? QVariant() : QVariant(text);
+    const bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
@@ -166,7 +166,7 @@ void QuLineEdit::fieldValueChanged(const FieldRef* fieldref,
     if (originator != this) {
         // Now we're detecting textChanged, we have to block signals for this:
         const QSignalBlocker blocker(m_editor);
-        QString text = fieldref->isNull() ? "" : fieldref->valueString();
+        const QString text = fieldref->isNull() ? "" : fieldref->valueString();
         // qDebug() << Q_FUNC_INFO << "setting to" << text;
         m_editor->setText(text);
     }

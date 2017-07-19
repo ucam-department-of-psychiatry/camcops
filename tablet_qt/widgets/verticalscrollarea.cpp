@@ -381,7 +381,7 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
 #ifdef DEBUG_LAYOUT
         qDebug() << Q_FUNC_INFO << "- Child is resizing to" << w->geometry();
 #endif
-        bool skip = w->size() == m_widget_size_back_1 ||
+        const bool skip = w->size() == m_widget_size_back_1 ||
                 w->size() == m_widget_size_back_2;
         m_widget_size_back_2 = m_widget_size_back_1;
         m_widget_size_back_1 = w->size();
@@ -405,7 +405,7 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
         ReentryDepthGuard guard(m_reentry_depth);
         Q_UNUSED(guard);
 
-        bool parent_result = QScrollArea::eventFilter(o, e);  // will call d->updateScrollBars();
+        const bool parent_result = QScrollArea::eventFilter(o, e);  // will call d->updateScrollBars();
         resetSizeLimits();
         return parent_result;
 #else
@@ -468,14 +468,14 @@ QSize VerticalScrollArea::sizeHint() const
         int widget_working_width;
         if (m_last_widget_width == -1) {
             // First time through
-            int widget_preferred_width = sh.width();
+            const int widget_preferred_width = sh.width();
             widget_working_width = widget_preferred_width;
         } else {
             // The widget's not (necessarily) getting its preferred width, but
             // we have an idea of the width that it *is* getting.
             widget_working_width = m_last_widget_width;
         }
-        int likely_best_height = w->heightForWidth(widget_working_width);
+        const int likely_best_height = w->heightForWidth(widget_working_width);
         sh.rheight() = likely_best_height;
     }
 
@@ -485,9 +485,9 @@ QSize VerticalScrollArea::sizeHint() const
 #endif
 
     // Correct for our margins
-    QRect viewport_rect = viewport()->geometry();
-    QRect scrollarea_rect = geometry();
-    Margins marg = Margins::subRectMargins(scrollarea_rect, viewport_rect);
+    const QRect viewport_rect = viewport()->geometry();
+    const QRect scrollarea_rect = geometry();
+    const Margins marg = Margins::subRectMargins(scrollarea_rect, viewport_rect);
     sh.rheight() += marg.totalHeight();
 
 #ifdef DEBUG_LAYOUT
@@ -510,7 +510,7 @@ void VerticalScrollArea::resetSizeLimits()
     if (!w) {
         return;
     }
-    bool widget_has_hfw = w->hasHeightForWidth();
+    const bool widget_has_hfw = w->hasHeightForWidth();
 
     QScrollBar* vsb = verticalScrollBar();
     if (!vsb) {
@@ -534,22 +534,22 @@ void VerticalScrollArea::resetSizeLimits()
     // Can we distinguish these?
 
 #ifdef HFW_METHOD_1
-    int scrollbar_width = vsb->width();
+    const int scrollbar_width = vsb->width();
 #endif
 #ifdef DEBUG_LAYOUT
-    int vsb_value = vsb->value();
-    bool scrollbar_active = vsb_value != vsb->minimum() ||
+    const int vsb_value = vsb->value();
+    const bool scrollbar_active = vsb_value != vsb->minimum() ||
             vsb_value != vsb->maximum();
-    QString hfw_explanation = scrollbar_active ? "[scrollbar active] "
-                                               : "[scrollbar inactive] ";
+    const QString hfw_explanation = scrollbar_active ? "[scrollbar active] "
+                                                     : "[scrollbar inactive] ";
 #endif
 
     // And: in this example, we want (I think) our minimum width to be 4,
     // which is either width + scrollbar (if present), or width (if absent),
     // ... for HFW widgets.
 
-    int widget_width = w->geometry().width();
-    int widget_min_width = qMax(0, w->minimumSizeHint().width());
+    const int widget_width = w->geometry().width();
+    const int widget_min_width = qMax(0, w->minimumSizeHint().width());
     int widget_min_height;
     int widget_max_height;
 
@@ -609,7 +609,7 @@ void VerticalScrollArea::resetSizeLimits()
 
 #else
 
-        int widget_hfw_height = w->heightForWidth(widget_width);
+        const int widget_hfw_height = w->heightForWidth(widget_width);
         widget_min_height = widget_hfw_height;
         widget_max_height = widget_hfw_height;
 
@@ -646,16 +646,16 @@ void VerticalScrollArea::resetSizeLimits()
     }
 
     int new_min_width = widget_min_width;
-    int new_min_height = qBound(0, widget_min_height, SQUASH_DOWN_TO_HEIGHT);
+    const int new_min_height = qBound(0, widget_min_height, SQUASH_DOWN_TO_HEIGHT);
     int new_max_height = widget_max_height;
 
     // The only other odd bit is that VerticalScrollArea can position its
     // qt_scrollarea_viewport widget at e.g. pos (1, 1), not (0, 0), so our
     // maximum height is a little too small.
     // Basically, there is small boundary, as above.
-    QRect viewport_rect = viewport()->geometry();
-    QRect scrollarea_rect = geometry();
-    Margins marg = Margins::subRectMargins(scrollarea_rect, viewport_rect);
+    const QRect viewport_rect = viewport()->geometry();
+    const QRect scrollarea_rect = geometry();
+    const Margins marg = Margins::subRectMargins(scrollarea_rect, viewport_rect);
     new_min_width += marg.totalWidth();
     new_max_height += marg.totalHeight();
 
@@ -679,7 +679,7 @@ void VerticalScrollArea::resetSizeLimits()
              << layoutdumper::getWidgetInfo(w);
 #endif
 
-    bool change = new_min_width != minimumWidth() ||
+    const bool change = new_min_width != minimumWidth() ||
             new_min_height != minimumHeight() ||
             new_max_height != maximumHeight();
     if (!change) {
@@ -782,8 +782,8 @@ void VerticalScrollArea::swipeTriggered(QSwipeGesture* gesture)
 #ifdef TOUCHSCROLL_DIRECT
     qDebug() << Q_FUNC_INFO;
     if (gesture->state() == Qt::GestureUpdated) {
-        bool up = gesture->verticalDirection() == QSwipeGesture::Up;
-        bool down = gesture->verticalDirection() == QSwipeGesture::Down;
+        const bool up = gesture->verticalDirection() == QSwipeGesture::Up;
+        const bool down = gesture->verticalDirection() == QSwipeGesture::Down;
         if (up || down) {
             int dy = 50;
             if (down) {

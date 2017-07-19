@@ -107,7 +107,7 @@ QStringList Wsas::detail() const
 
 OpenableWidget* Wsas::editor(bool read_only)
 {
-    NameValueOptions options{
+    const NameValueOptions options{
         {appstring("wsas_a0"), 0},
         {appstring("wsas_a1"), 1},
         {appstring("wsas_a2"), 2},

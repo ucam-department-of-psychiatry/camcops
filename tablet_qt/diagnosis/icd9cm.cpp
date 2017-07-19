@@ -43,13 +43,13 @@ void Icd9cm::addIcd9cmCodes(const QStringList& codes)
 {
     // Conceptually: as for Icd10.
     for (auto c : codes) {
-        QString desc = xstring(c);
+        const QString desc = xstring(c);
 
-        bool show_code_in_full_name = !c.startsWith(RANGE_PREFIX);
+        const bool show_code_in_full_name = !c.startsWith(RANGE_PREFIX);
         addIndividualIcd9cmCode(c, desc, show_code_in_full_name);
 
         // Any special sub-codes?
-        int length = c.length();
+        const int length = c.length();
         if (length == 5 && c.startsWith("295.")) {
             // Types of schizophrenia
             addSchizophrenia(c, desc);
@@ -110,7 +110,7 @@ void Icd9cm::addIndividualIcd9cmCode(const QString& code, const QString& desc,
         m_creation_stack.pop();
     }
     DiagnosticCode* parent = m_creation_stack.top().second;
-    bool selectable = (
+    const bool selectable = (
         (code.length() > 4 && !code.startsWith(RANGE_PREFIX)) ||
                 // plus some specific ones with no children:
                 code == "311" ||
@@ -129,8 +129,8 @@ void Icd9cm::addSubcodes(const QString& basecode,
                         const QVector<CodeDescriptionPair>& level1)
 {
     for (auto extra1 : level1) {
-        QString code = QString("%1%2").arg(basecode).arg(extra1.first);
-        QString desc = QString("%1, %2").arg(basedesc)
+        const QString code = QString("%1%2").arg(basecode).arg(extra1.first);
+        const QString desc = QString("%1, %2").arg(basedesc)
                 .arg(xstring(extra1.second));
         addIndividualIcd9cmCode(code, desc);
     }

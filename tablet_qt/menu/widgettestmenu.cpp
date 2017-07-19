@@ -95,8 +95,8 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Widget tests"), "")
 
 {
-    bool qutext_bold = false;
-    bool mandatory = true;
+    const bool qutext_bold = false;
+    const bool mandatory = true;
 
     FieldRef::GetterFunction getter1 = std::bind(&WidgetTestMenu::dummyGetter1,
                                                  this);
@@ -123,9 +123,9 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app) :
     m_options_3.append(NameValuePair("Option C2 " + textconst::LOREM_IPSUM_1, 2));
     m_options_3.append(NameValuePair("Option C3", 3));
 
-    QSizePolicy fixed_fixed(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    QSizePolicy expand_expand(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    QSizePolicy expand_fixed_hfw = sizehelpers::expandingFixedHFWPolicy();
+    const QSizePolicy fixed_fixed(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    const QSizePolicy expand_expand(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    const QSizePolicy expand_fixed_hfw = sizehelpers::expandingFixedHFWPolicy();
     // UiFunc::horizExpandingPreferredHFWPolicy();
 
     m_items = {
@@ -398,7 +398,7 @@ QVariant WidgetTestMenu::dummyGetter1() const
 
 bool WidgetTestMenu::dummySetter1(const QVariant& value)
 {
-    bool changed = (value != m_dummy_value_1);
+    const bool changed = (value != m_dummy_value_1);
     if (changed) {
         m_dummy_value_1 = value;
     }
@@ -414,7 +414,7 @@ QVariant WidgetTestMenu::dummyGetter2() const
 
 bool WidgetTestMenu::dummySetter2(const QVariant& value)
 {
-    bool changed = (value != m_dummy_value_2);
+    const bool changed = (value != m_dummy_value_2);
     if (changed) {
         m_dummy_value_2 = value;
     }
@@ -470,8 +470,8 @@ void WidgetTestMenu::testQPushButton(const QSizePolicy& policy)
 void WidgetTestMenu::testAdjustablePie(int n, bool rotate_labels)
 {
     AdjustablePie* pie = new AdjustablePie(n);
-    qreal prop = 1.0 / n;
-    QVector<qreal> proportions(n, prop);
+    const qreal prop = 1.0 / n;
+    const QVector<qreal> proportions(n, prop);
     pie->setProportions(proportions);
     pie->setLabelRotation(rotate_labels);
     if (n == 1) {
@@ -487,7 +487,7 @@ void WidgetTestMenu::testAdjustablePie(int n, bool rotate_labels)
 void WidgetTestMenu::testAspectRatioPixmap()
 {
     AspectRatioPixmap* widget = new AspectRatioPixmap();
-    QPixmap pixmap = uifunc::getPixmap(uifunc::iconFilename(uiconst::ICON_CAMCOPS));
+    const QPixmap pixmap = uifunc::getPixmap(uifunc::iconFilename(uiconst::ICON_CAMCOPS));
     widget->setPixmap(pixmap);
     debugfunc::debugWidget(widget);
 }
@@ -497,8 +497,8 @@ void WidgetTestMenu::testBooleanWidget(BooleanWidget::Appearance appearance,
                                        bool long_text)
 {
     BooleanWidget* widget = new BooleanWidget();
-    bool big = true;
-    bool as_text_button = (appearance == BooleanWidget::Appearance::Text);
+    const bool big = true;
+    const bool as_text_button = (appearance == BooleanWidget::Appearance::Text);
     widget->setAppearance(appearance);
     widget->setSize(big);
     widget->setValue(true, true);
@@ -511,9 +511,9 @@ void WidgetTestMenu::testBooleanWidget(BooleanWidget::Appearance appearance,
 
 void WidgetTestMenu::testCanvasWidget(bool allow_shrink)
 {
-    QSize size(400, 400);
+    const QSize size(400, 400);
     CanvasWidget* widget = new CanvasWidget(size);
-    QImage img(size, QImage::Format_RGB32);
+    const QImage img(size, QImage::Format_RGB32);
     widget->setImage(img);
     widget->setAllowShrink(allow_shrink);
     widget->clear(Qt::white);
@@ -576,8 +576,8 @@ void WidgetTestMenu::testLabelWordWrapWide(bool long_text, bool use_hfw_layout,
     } else {
         widget = label;
     }
-    bool set_background_by_name = false;
-    bool set_background_by_stylesheet = true;
+    const bool set_background_by_name = false;
+    const bool set_background_by_stylesheet = true;
     layoutdumper::DumperConfig config;
     debugfunc::debugWidget(widget, set_background_by_name,
                            set_background_by_stylesheet,
@@ -736,7 +736,7 @@ void WidgetTestMenu::testVerticalScrollGridLayout()
     GridLayoutHfw* layout = new GridLayoutHfw();
     contentwidget->setLayout(layout);
 
-    bool long_text = true;
+    const bool long_text = true;
     QPixmap pixmap = uifunc::getPixmap(uifunc::iconFilename(uiconst::ICON_CAMCOPS));
 
     layout->addWidget(new LabelWordWrapWide(sampleText(long_text)), 0, 1);
@@ -797,7 +797,7 @@ void WidgetTestMenu::testBaseWidget(bool long_text)
 
 void WidgetTestMenu::testMenuItem()
 {
-    MenuItem item = MAKE_TASK_MENU_ITEM("ace3", m_app);
+    const MenuItem item = MAKE_TASK_MENU_ITEM("ace3", m_app);
     QWidget* widget = item.rowWidget(m_app);
     debugfunc::debugWidget(widget);
 }
@@ -965,7 +965,7 @@ void WidgetTestMenu::testQuMCQ(bool horizontal, bool long_text,
 
 void WidgetTestMenu::testQuMCQGrid(bool expand, int example)
 {
-    QString q2 = example == 1 ? "Question 2" : textconst::LOREM_IPSUM_1;
+    const QString q2 = example == 1 ? "Question 2" : textconst::LOREM_IPSUM_1;
     QVector<QuestionWithOneField> question_field_pairs{
         QuestionWithOneField(m_fieldref_1, "Question 1"),
         QuestionWithOneField(m_fieldref_2, q2),

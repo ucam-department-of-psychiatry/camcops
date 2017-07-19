@@ -140,25 +140,25 @@ QStringList Moca::summary() const
 
 QStringList Moca::detail() const
 {
-    int vsp = subScore(1, 5);
-    int naming = subScore(6, 8);
-    int attention = subScore(9, 12);
-    int language = subScore(13, 15);
-    int abstraction = subScore(16, 17);
-    int memory = subScore(18, 22);
-    int orientation = subScore(23, 28);
-    int totalscore = totalScore();
-    QString category = totalscore >= NORMAL_IF_GEQ ? textconst::NORMAL
-                                                   : textconst::ABNORMAL;
+    const int vsp = subScore(1, 5);
+    const int naming = subScore(6, 8);
+    const int attention = subScore(9, 12);
+    const int language = subScore(13, 15);
+    const int abstraction = subScore(16, 17);
+    const int memory = subScore(18, 22);
+    const int orientation = subScore(23, 28);
+    const int totalscore = totalScore();
+    const QString category = totalscore >= NORMAL_IF_GEQ ? textconst::NORMAL
+                                                         : textconst::ABNORMAL;
     QStringList reg1;
     QStringList reg2;
     QStringList recallcat;
     QStringList recallmc;
-    QString prefix_registered = xstring("registered");
-    QString prefix_recalled = xstring("recalled");
-    QString suffix_trial = xstring("trial");
-    QString suffix_cat_recall = xstring("category_recall_suffix");
-    QString suffix_mc_recall = xstring("mc_recall_suffix");
+    const QString prefix_registered = xstring("registered");
+    const QString prefix_recalled = xstring("recalled");
+    const QString suffix_trial = xstring("trial");
+    const QString suffix_cat_recall = xstring("category_recall_suffix");
+    const QString suffix_mc_recall = xstring("mc_recall_suffix");
     for (int i = 1; i <= N_REG_RECALL; ++i) {
         QString this_q = xstring(strnum("memory_", i));
         reg1 += fieldSummary(
@@ -483,23 +483,23 @@ void Moca::updateMandatory()
     int n_cat = 0;
     int n_mc = 0;
     for (int i = 1; i <= N_REG_RECALL; ++i) {
-        int qnum = i + 17;
-        QVariant v = value(strnum(QPREFIX, qnum));
-        bool cat_required = v.toInt() == 0;  // also true if NULL
-        QString recall_field = strnum(RECALL_CATEGORY_CUE_PREFIX, i);
-        QString tag = strnum(RECALL_TAG_PREFIX, i);
+        const int qnum = i + 17;
+        const QVariant v = value(strnum(QPREFIX, qnum));
+        const bool cat_required = v.toInt() == 0;  // also true if NULL
+        const QString recall_field = strnum(RECALL_CATEGORY_CUE_PREFIX, i);
+        const QString tag = strnum(RECALL_TAG_PREFIX, i);
         fieldRef(recall_field)->setMandatory(cat_required);
         m_questionnaire->setVisibleByTag(tag, cat_required, false,
                                          CATEGORY_RECALL_PAGE_TAG);
-        bool mc_required = cat_required &&
+        const bool mc_required = cat_required &&
                 valueInt(strnum(RECALL_CATEGORY_CUE_PREFIX, i)) == 0;
         m_questionnaire->setVisibleByTag(tag, mc_required, false,
                                          MC_RECALL_PAGE_TAG);
         n_cat += cat_required;
         n_mc += mc_required;
     }
-    bool require_cat_skip_label = n_cat == 0;
-    bool require_mc_skip_label = n_mc == 0;
+    const bool require_cat_skip_label = n_cat == 0;
+    const bool require_mc_skip_label = n_mc == 0;
     m_questionnaire->setVisibleByTag(SKIP_LABEL, require_cat_skip_label, false,
                                      CATEGORY_RECALL_PAGE_TAG);
     m_questionnaire->setVisibleByTag(SKIP_LABEL, require_mc_skip_label, false,

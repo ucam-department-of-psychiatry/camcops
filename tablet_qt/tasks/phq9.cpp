@@ -112,16 +112,16 @@ QStringList Phq9::detail() const
     using stringfunc::bold;
     using uifunc::yesNo;
 
-    int totalscore = totalScore();
-    QString sev = severity(totalscore);
-    int ncore = nCoreSymptoms();
-    int nother = nOtherSymptoms();
-    int ntotal = ncore + nother;
-    bool mds = (ncore >= 1) && (ntotal >= 5);
-    bool ods = (ncore >= 1) && (ntotal >= 2) && (ntotal <= 4);
+    const int totalscore = totalScore();
+    const QString sev = severity(totalscore);
+    const int ncore = nCoreSymptoms();
+    const int nother = nOtherSymptoms();
+    const int ntotal = ncore + nother;
+    const bool mds = (ncore >= 1) && (ntotal >= 5);
+    const bool ods = (ncore >= 1) && (ntotal >= 2) && (ntotal <= 4);
     // Scoring: ref PMID 10568646,
     // http://www.phqscreeners.com/instructions/instructions.pdf
-    QString spacer = " ";
+    const QString spacer = " ";
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
@@ -136,13 +136,13 @@ QStringList Phq9::detail() const
 
 OpenableWidget* Phq9::editor(bool read_only)
 {
-    NameValueOptions options_q1_9{
+    const NameValueOptions options_q1_9{
         {xstring("a0"), 0},
         {xstring("a1"), 1},
         {xstring("a2"), 2},
         {xstring("a3"), 3},
     };
-    NameValueOptions options_q10{
+    const NameValueOptions options_q10{
         {xstring("fa0"), 0},
         {xstring("fa1"), 1},
         {xstring("fa2"), 2},

@@ -108,7 +108,7 @@ QStringList Zbi12::detail() const
 
 OpenableWidget* Zbi12::editor(bool read_only)
 {
-    NameValueOptions options{
+    const NameValueOptions options{
         {appstring("zbi_a0"), 0},
         {appstring("zbi_a1"), 1},
         {appstring("zbi_a2"), 2},

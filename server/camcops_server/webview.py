@@ -336,7 +336,10 @@ def main_menu(session: Session, form: cgi.FieldStorage) -> str:
             <li><a href="{basic_dump}">
                 Basic research dump (fields and summaries)
             </a></li>
-            <li><a href="{regen}">Regenerate summary tables</a></li>
+            
+            <!-- DISABLED FOR NOW: -->
+            <!-- <li><a href="{regen}">Regenerate summary tables</a></li> -->
+            
             <li><a href="{table_dump}">Dump table/view data</a></li>
             <li>
                 <a href="{table_defs}">Inspect table definitions</a>

@@ -71,7 +71,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
     layout->setContentsMargins(uiconst::NO_MARGINS);
     widget->setLayout(layout);
 
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
 
     m_start_button = new QPushButton(tr("Start"));
     m_start_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);

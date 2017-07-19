@@ -113,8 +113,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // Main row
     // ------------------------------------------------------------------------
 
-    Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
-    Qt::Alignment text_align = Qt::AlignHCenter | Qt::AlignVCenter;
+    const Qt::Alignment button_align = Qt::AlignHCenter | Qt::AlignTop;
+    const Qt::Alignment text_align = Qt::AlignHCenter | Qt::AlignVCenter;
 
     // Cancel button
     QAbstractButton* cancel = new ImageButton(uiconst::CBS_CANCEL);
@@ -348,21 +348,21 @@ void DiagnosticCodeSelector::itemChosen(const QModelIndex& index)
     // number for a given parent.
     // To get a different column, we go via the parent back to the child:
     // http://doc.qt.io/qt-5/qmodelindex.html#details
-    QModelIndex parent = index.parent();
-    int row = index.row();
-    QModelIndex selectable_index = parent.child(
+    const QModelIndex parent = index.parent();
+    const int row = index.row();
+    const QModelIndex selectable_index = parent.child(
                 row, DiagnosticCode::COLUMN_SELECTABLE);
-    bool selectable = selectable_index.data().toBool();
+    const bool selectable = selectable_index.data().toBool();
     if (!selectable) {
         // qDebug() << Q_FUNC_INFO << "Unselectable";
         return;
     }
-    QModelIndex code_index = parent.child(
+    const QModelIndex code_index = parent.child(
                 row, DiagnosticCode::COLUMN_CODE);
-    QModelIndex description_index = parent.child(
+    const QModelIndex description_index = parent.child(
                 row, DiagnosticCode::COLUMN_DESCRIPTION);
-    QString code = code_index.data().toString();
-    QString description = description_index.data().toString();
+    const QString code = code_index.data().toString();
+    const QString description = description_index.data().toString();
 
     emit codeChanged(code, description);
     emit finished();
@@ -378,8 +378,8 @@ void DiagnosticCodeSelector::proxySelectionChanged(
     if (proxy_indexes.isEmpty()) {
         return;
     }
-    QModelIndex proxy_index = proxy_indexes.at(0);
-    QModelIndex src_index = sourceFromProxy(proxy_index);
+    const QModelIndex proxy_index = proxy_indexes.at(0);
+    const QModelIndex src_index = sourceFromProxy(proxy_index);
     itemChosen(src_index);
 }
 
@@ -387,7 +387,7 @@ void DiagnosticCodeSelector::proxySelectionChanged(
 void DiagnosticCodeSelector::searchItemClicked(const QModelIndex& index)
 {
     // The search view uses a proxy model.
-    QModelIndex src_index = sourceFromProxy(index);
+    const QModelIndex src_index = sourceFromProxy(index);
     itemChosen(src_index);
 }
 
@@ -445,14 +445,14 @@ void DiagnosticCodeSelector::searchTextEdited(const QString& text)
 
 QModelIndex DiagnosticCodeSelector::sourceFromProxy(const QModelIndex& index)
 {
-    QModelIndex intermediate = m_diag_filter_model->mapToSource(index);
+    const QModelIndex intermediate = m_diag_filter_model->mapToSource(index);
     return m_flat_proxy_model->mapToSource(intermediate);
 }
 
 
 QModelIndex DiagnosticCodeSelector::proxyFromSource(const QModelIndex& index)
 {
-    QModelIndex intermediate = m_flat_proxy_model->mapFromSource(index);
+    const QModelIndex intermediate = m_flat_proxy_model->mapFromSource(index);
     return m_diag_filter_model->mapFromSource(intermediate);
 }
 

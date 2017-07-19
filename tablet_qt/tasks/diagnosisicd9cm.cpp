@@ -95,7 +95,7 @@ QString DiagnosisIcd9CM::ancillaryTableFKToTaskFieldname() const
 
 void DiagnosisIcd9CM::loadAllAncillary(int pk)
 {
-    OrderBy order_by{{DiagnosisIcd9CMItem::SEQNUM, true}};
+    const OrderBy order_by{{DiagnosisIcd9CMItem::SEQNUM, true}};
     ancillaryfunc::loadAncillary<DiagnosisIcd9CMItem, DiagnosisItemBasePtr>(
                 m_items, m_app, m_db,
                 DiagnosisIcd9CMItem::FK_NAME, order_by, pk);

@@ -33,8 +33,8 @@ CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Catatonia and extrapyramidal side effects"),
                uifunc::iconFilename(uiconst::ICON_CATATONIA))
 {
-    QString examtitle = tr("Catatonia examination technique");
-    QString examsubtitle = tr("Standardized technique (for BFCRS, BFCSI)");
+    const QString examtitle = tr("Catatonia examination technique");
+    const QString examsubtitle = tr("Standardized technique (for BFCRS, BFCSI)");
     m_items = {
         MAKE_CHANGE_PATIENT(app),
         MAKE_TASK_MENU_ITEM(Aims::AIMS_TABLENAME, app),

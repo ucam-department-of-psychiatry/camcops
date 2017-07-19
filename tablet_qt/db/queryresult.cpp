@@ -37,7 +37,7 @@ QueryResult::QueryResult(QSqlQuery& query,
             bool first = true;
             while (query.next()) {
                 if (first) {
-                    QSqlRecord rec = query.record();
+                    const QSqlRecord rec = query.record();
                     ncols = rec.count();
                     if (ncols == 0) {
                         break;
@@ -129,7 +129,7 @@ QVariant QueryResult::at(int row, int col) const
 
 QVariant QueryResult::at(int row, const QString& colname) const
 {
-    int col = m_column_names.indexOf(colname);
+    const int col = m_column_names.indexOf(colname);
     return at(row, col);
 }
 
@@ -194,7 +194,7 @@ QString QueryResult::csvHeader(const char sep) const
 
 QString QueryResult::csvRow(int row, const char sep) const
 {
-    int ncols = nCols();
+    const int ncols = nCols();
     QStringList values;
     for (int col = 0; col < ncols; ++col) {
         values.append(convert::toSqlLiteral(at(row, col)));
@@ -207,7 +207,7 @@ QString QueryResult::csv(const char sep, const char linesep) const
 {
     QStringList rows;
     rows.append(csvHeader(sep));
-    int nrows = nRows();
+    const int nrows = nRows();
     for (int row = 0; row < nrows; ++row) {
         rows.append(csvRow(sep));
     }

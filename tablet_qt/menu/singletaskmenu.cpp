@@ -42,7 +42,7 @@ SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     if (m_anonymous) {
         setIcon(uifunc::iconFilename(uiconst::ICON_ANONYMOUS));
     }
-    bool crippled = specimen->isCrippled();
+    const bool crippled = specimen->isCrippled();
     m_p_header->setCrippled(crippled);
 
     // m_items is EXPENSIVE (and depends on security), so leave it to build()
@@ -67,7 +67,7 @@ void SingleTaskMenu::build()
     TaskPtr specimen = factory->create(m_tablename);
 
     // Common items
-    QString info_icon_filename = uifunc::iconFilename(uiconst::ICON_INFO);
+    const QString info_icon_filename = uifunc::iconFilename(uiconst::ICON_INFO);
     m_items = {
         MenuItem(tr("Options")).setLabelOnly(),
     };
@@ -94,7 +94,8 @@ void SingleTaskMenu::build()
     // Task items
     TaskPtrList tasklist = factory->fetch(m_tablename);
     qDebug() << Q_FUNC_INFO << "-" << tasklist.size() << "tasks";
-    bool show_patient_name = specimen->isAnonymous() || !m_app.isPatientSelected();
+    const bool show_patient_name = specimen->isAnonymous() ||
+            !m_app.isPatientSelected();
     for (auto task : tasklist) {
         m_items.append(MenuItem(task, false, show_patient_name));
     }

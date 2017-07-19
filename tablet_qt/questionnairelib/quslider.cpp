@@ -167,10 +167,10 @@ int QuSlider::sliderValueFromField(const QVariant& field_value) const
     if (!m_convert_for_real_field) {
         return field_value.toInt();
     }
-    double field_from_left = field_value.toDouble() - m_field_minimum;
-    double slider_range = m_maximum - m_minimum;
-    double field_range = m_field_maximum - m_field_minimum;
-    int slider_pos = (field_from_left * slider_range / field_range) +
+    const double field_from_left = field_value.toDouble() - m_field_minimum;
+    const double slider_range = m_maximum - m_minimum;
+    const double field_range = m_field_maximum - m_field_minimum;
+    const int slider_pos = (field_from_left * slider_range / field_range) +
             m_minimum;
     return slider_pos;
 }
@@ -181,10 +181,10 @@ QVariant QuSlider::fieldValueFromSlider(int slider_value) const
     if (!m_convert_for_real_field) {
         return slider_value;
     }
-    double slider_from_left = slider_value - m_minimum;
-    double slider_range = m_maximum - m_minimum;
-    double field_range = m_field_maximum - m_field_minimum;
-    double field_pos = (slider_from_left * field_range / slider_range ) +
+    const double slider_from_left = slider_value - m_minimum;
+    const double slider_range = m_maximum - m_minimum;
+    const double field_range = m_field_maximum - m_field_minimum;
+    const double field_pos = (slider_from_left * field_range / slider_range ) +
             m_field_minimum;
     return field_pos;
 }
@@ -192,7 +192,7 @@ QVariant QuSlider::fieldValueFromSlider(int slider_value) const
 
 QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
 {
-    bool read_only = questionnaire->readOnly();
+    const bool read_only = questionnaire->readOnly();
     m_container_widget = new QWidget();
     m_value_label = nullptr;
 
@@ -288,8 +288,8 @@ void QuSlider::completePendingFieldWrite()
     if (!m_field_write_pending) {
         return;
     }
-    QVariant newvalue = fieldValueFromSlider(m_field_write_slider_value);
-    bool changed = m_fieldref->setValue(newvalue, this);  // Will trigger valueChanged
+    const QVariant newvalue = fieldValueFromSlider(m_field_write_slider_value);
+    const bool changed = m_fieldref->setValue(newvalue, this);  // Will trigger valueChanged
     m_field_write_pending = false;
     if (changed) {
         emit elementValueChanged();

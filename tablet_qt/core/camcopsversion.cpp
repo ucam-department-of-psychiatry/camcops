@@ -21,7 +21,25 @@
 
 namespace camcopsversion {
 
-const Version CAMCOPS_VERSION(2, 0, 0);
+// http://semver.org/
+
+const Version CAMCOPS_VERSION(2, 0, 1);
 const Version MINIMUM_SERVER_VERSION(2, 0, 0);
 
 }  // namespace camcopsversion
+
+/*
+
+===============================================================================
+VERSION HISTORY
+===============================================================================
+2.0.0
+- Development of C++ version from scratch.
+- Released as beta to Google Play on 2017-07-17.
+
+2.0.1
+- More const checking.
+- Fix to stone/pound/ounce conversion.
+- ONGOING.
+
+*/

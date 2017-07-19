@@ -82,7 +82,7 @@ QStringList TaskFactory::tablenames(TaskClassSortMethod sort_method) const
     }
     using StringPair = QPair<QString, QString>;
     QVector<StringPair> pairs;
-    bool use_shortname = sort_method == TaskClassSortMethod::Shortname;
+    const bool use_shortname = sort_method == TaskClassSortMethod::Shortname;
     for (const QString& tablename : m_tablenames) {
         const TaskCache& cache = m_map[tablename];
         pairs.append(StringPair(tablename, use_shortname ? cache.shortname
@@ -164,8 +164,8 @@ void TaskFactory::makeTables(const QString& key) const
 TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
 {
     // KEY SECURITY DECISIONS IMPLEMENTED HERE: which tasks users can see.
-    int patient_id = m_app.selectedPatientId();
-    bool patient_selected = patient_id != dbconst::NONEXISTENT_PK;
+    const int patient_id = m_app.selectedPatientId();
+    const bool patient_selected = patient_id != dbconst::NONEXISTENT_PK;
     TaskPtrList tasklist;
     if (tablename.isEmpty()) {
         // Patient summary view; "all tasks" request.
@@ -197,8 +197,8 @@ TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
         // - Anonymous task / no patient selected -> all such tasks
         const TaskCache& cache = m_map[tablename];
         ProxyType proxy = cache.proxy;
-        bool anonymous = cache.anonymous;
-        bool locked = m_app.locked();
+        const bool anonymous = cache.anonymous;
+        const bool locked = m_app.locked();
         if (anonymous) {
             tasklist = proxy->fetch(m_app, m_app.db(), dbconst::NONEXISTENT_PK);
         } else {
@@ -259,7 +259,7 @@ TaskPtrList TaskFactory::allSpecimensExceptAnonymous() const
     while (it.hasNext()) {
         it.next();
         const TaskCache& cache = it.value();
-        bool anonymous = cache.anonymous;
+        const bool anonymous = cache.anonymous;
         if (anonymous) {
             continue;
         }

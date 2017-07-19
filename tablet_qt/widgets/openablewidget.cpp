@@ -133,8 +133,8 @@ void OpenableWidget::keyPressEvent(QKeyEvent* event)
     if (!event) {
         return;
     }
-    int key = event->key();
-    QEvent::Type type = event->type();
+    const int key = event->key();
+    const QEvent::Type type = event->type();
     if (key == Qt::Key_Escape && type == QEvent::KeyPress) {
         // Escape key pressed
         if (m_escape_key_can_abort) {

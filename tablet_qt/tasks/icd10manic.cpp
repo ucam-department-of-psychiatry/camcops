@@ -225,7 +225,7 @@ QStringList Icd10Manic::detail() const
 
 OpenableWidget* Icd10Manic::editor(bool read_only)
 {
-    NameValueOptions true_false_options = CommonOptions::falseTrueBoolean();
+    const NameValueOptions true_false_options = CommonOptions::falseTrueBoolean();
 
     auto heading = [this](const QString& xstringname) -> QuElement* {
         return new QuHeading(xstring(xstringname));
@@ -240,8 +240,8 @@ OpenableWidget* Icd10Manic::editor(bool read_only)
                         QuestionWithOneField(xstring(fieldname),
                                              fieldRef(fieldname, mandatory)));
         }
-        int n = options.size();
-        QVector<int> v(n, 1);
+        const int n = options.size();
+        const QVector<int> v(n, 1);
         return (new QuMcqGrid(qfields, options))
                 ->setExpand(true)
                 ->setWidth(n, v);
@@ -288,7 +288,7 @@ OpenableWidget* Icd10Manic::editor(bool read_only)
 
 QVariant Icd10Manic::meetsCriteriaManiaPsychoticSchizophrenic() const
 {
-    QVariant mania = meetsCriteriaManiaIgnoringPsychosis();
+    const QVariant mania = meetsCriteriaManiaIgnoringPsychosis();
     if (!mania.toBool()) {
         return mania;  // might be false or NULL
     }
@@ -313,7 +313,7 @@ QVariant Icd10Manic::meetsCriteriaManiaPsychoticSchizophrenic() const
 
 QVariant Icd10Manic::meetsCriteriaManiaPsychoticIcd() const
 {
-    QVariant mania = meetsCriteriaManiaIgnoringPsychosis();
+    const QVariant mania = meetsCriteriaManiaIgnoringPsychosis();
     if (!mania.toBool()) {
         return mania;  // might be false or NULL
     }
@@ -330,7 +330,7 @@ QVariant Icd10Manic::meetsCriteriaManiaPsychoticIcd() const
 
 QVariant Icd10Manic::meetsCriteriaManiaNonpsychotic() const
 {
-    QVariant mania_ign_psy = meetsCriteriaManiaIgnoringPsychosis();
+    const QVariant mania_ign_psy = meetsCriteriaManiaIgnoringPsychosis();
     if (!mania_ign_psy.toBool()) {
         return mania_ign_psy;  // might be false or NULL
     }
@@ -353,9 +353,9 @@ QVariant Icd10Manic::meetsCriteriaManiaIgnoringPsychosis() const
     if (allFalse(values({SUSTAINED7DAYS, ADMISSION_REQUIRED}))) {
         return false;
     }
-    QVector<QVariant> symptoms = values(HYPOMANIA_MANIA_NAMES + MANIA_NAMES);
-    int t = countTrue(symptoms);  // t for true
-    int u = countNull(symptoms);  // u for unknown
+    const QVector<QVariant> symptoms = values(HYPOMANIA_MANIA_NAMES + MANIA_NAMES);
+    const int t = countTrue(symptoms);  // t for true
+    const int u = countNull(symptoms);  // u for unknown
     if (valueBool(MOOD_ELEVATED) && (t + u < 3)) {
         // With elevated mood, need at least 3 symptoms
         return false;
@@ -392,9 +392,9 @@ QVariant Icd10Manic::meetsCriteriaHypomania() const
     if (valueIsFalseNotNull(SUSTAINED4DAYS)) {
         return false;
     }
-    QVector<QVariant> symptoms = values(HYPOMANIA_MANIA_NAMES);
-    int t = countTrue(symptoms);  // t for true
-    int u = countNull(symptoms);  // u for unknown
+    const QVector<QVariant> symptoms = values(HYPOMANIA_MANIA_NAMES);
+    const int t = countTrue(symptoms);  // t for true
+    const int u = countNull(symptoms);  // u for unknown
     if (t + u < 3) {
         // Need at least 3 symptoms
         return false;
@@ -415,8 +415,8 @@ QVariant Icd10Manic::meetsCriteriaHypomania() const
 
 QVariant Icd10Manic::meetsCriteriaNone() const
 {
-    QVariant h = meetsCriteriaHypomania();
-    QVariant m = meetsCriteriaManiaIgnoringPsychosis();
+    const QVariant h = meetsCriteriaHypomania();
+    const QVariant m = meetsCriteriaManiaIgnoringPsychosis();
     if (h.toBool() || m.toBool()) {
         return false;
     }
@@ -465,12 +465,12 @@ QStringList Icd10Manic::detailGroup(const QStringList& fieldnames) const
 void Icd10Manic::updateMandatory()
 {
     // Information is mandatory until we have an answer.
-    bool known = meetsCriteriaNone().toBool() ||
+    const bool known = meetsCriteriaNone().toBool() ||
             meetsCriteriaHypomania().toBool() ||
             meetsCriteriaManiaNonpsychotic().toBool() ||
             meetsCriteriaManiaPsychoticIcd().toBool() ||
             meetsCriteriaManiaPsychoticSchizophrenic().toBool();
-    bool need = !known;
+    const bool need = !known;
     for (auto fieldname : INFORMATIVE) {
         fieldRef(fieldname)->setMandatory(need, this);
     }

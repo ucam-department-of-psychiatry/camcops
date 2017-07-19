@@ -207,15 +207,15 @@ void CameraQml::cameraHasCapturedImage(const QString& filename)
     qDebug() << "Camera image has arrived via temporary file" << filename;
 #endif
 
-    QFileInfo fileinfo(filename);
-    QString extension_without_dot = fileinfo.suffix();
-    QMimeDatabase mime_db;
-    QMimeType mime_type = mime_db.mimeTypeForFile(filename);
+    const QFileInfo fileinfo(filename);
+    const QString extension_without_dot = fileinfo.suffix();
+    const QMimeDatabase mime_db;
+    const QMimeType mime_type = mime_db.mimeTypeForFile(filename);
     // ... default method is to use filename and contents
     // ... it will ALWAYS BE VALID, but may be "application/octet-stream" if
     //     Qt doesn't know what it is:
     //     http://doc.qt.io/qt-5/qmimedatabase.html#mimeTypeForFile
-    QString mimetype_name = mime_type.name();
+    const QString mimetype_name = mime_type.name();
 
     QFile file(filename);
     if (mimetype_name != "application/octet-stream" &&
@@ -223,7 +223,7 @@ void CameraQml::cameraHasCapturedImage(const QString& filename)
 
         // We know the MIME type (and can read the file), so we can use the
         // higher-performance method.
-        QByteArray data = file.readAll();
+        const QByteArray data = file.readAll();
         file.close();
         deleteFile(filename);
 #ifdef DEBUG_CAMERA

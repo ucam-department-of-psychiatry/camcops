@@ -91,8 +91,8 @@ void PasswordChangeDialog::okClicked()
     if (!m_editor_new1 || !m_editor_new2) {
         return;
     }
-    QString newpw1 = m_editor_new1->text();
-    QString newpw2 = m_editor_new2->text();
+    const QString newpw1 = m_editor_new1->text();
+    const QString newpw2 = m_editor_new2->text();
     if (newpw1.isEmpty()) {
         uifunc::alert(tr("Can't set an empty password"));
         return;

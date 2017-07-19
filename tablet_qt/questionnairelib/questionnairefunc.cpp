@@ -48,16 +48,16 @@ QuElement* defaultGridRawPointer(const QVector<GridRowDefinition>& deflist,
     const int row_span = 1;
     const int col_span = 1;
     for (GridRowDefinition def : deflist) {
-        QString text = def.first;
+        const QString text = def.first;
         QuElementPtr label_element = QuElementPtr(
                     (new QuText(text))->setAlignment(label_alignment));
-        QuGridCell label_cell(label_element, row, left_col,
-                              row_span, col_span,
-                              left_column_alignment);
+        const QuGridCell label_cell(label_element, row, left_col,
+                                    row_span, col_span,
+                                    left_column_alignment);
         QuElementPtr main_element = def.second;
-        QuGridCell main_cell(main_element, row, right_col,
-                             row_span, col_span,
-                             right_column_alignment);
+        const QuGridCell main_cell(main_element, row, right_col,
+                                   row_span, col_span,
+                                   right_column_alignment);
         cells.append(label_cell);
         cells.append(main_cell);
         ++row;
@@ -90,7 +90,7 @@ QuElementPtr defaultGrid(std::initializer_list<GridRowDefinition> defs,
                          Qt::Alignment left_column_alignment,
                          Qt::Alignment right_column_alignment)
 {
-    QVector<GridRowDefinition> deflist(defs);
+    const QVector<GridRowDefinition> deflist(defs);
     return defaultGrid(deflist, left_column_span, right_column_span,
                        label_alignment,
                        left_column_alignment, right_column_alignment);

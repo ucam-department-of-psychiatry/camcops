@@ -76,8 +76,8 @@ StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
     QMapIterator<QVariant::Type, QString> i(COLMAP);
     while (i.hasNext()) {
         i.next();
-        QVariant::Type fieldtype = i.key();
-        QString fieldname = i.value();
+        const QVariant::Type fieldtype = i.key();
+        const QString fieldname = i.value();
         if (!hasField(fieldname)) {
             // We can have duplicate/overlapping fieldnames, and it will be
             // happy (if the types are appropriately interconvertible).
@@ -111,7 +111,7 @@ StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
     // ------------------------------------------------------------------------
     if (!name.isEmpty()) {
         // Not a specimen; load, or set defaults and save
-        bool success = load(NAME_FIELDNAME, name);
+        const bool success = load(NAME_FIELDNAME, name);
         if (!success) {
             setValue(NAME_FIELDNAME, name);
             setValue(TYPE_FIELDNAME, TYPEMAP[type]);
@@ -133,7 +133,7 @@ bool StoredVar::setValue(const QVariant &value, bool save_to_db)
 #ifdef DEBUG_SET_VALUE
     qDebug() << Q_FUNC_INFO << "Setting" << m_name << "to" << value;
 #endif
-    bool changed = setValue(m_value_fieldname, value);
+    const bool changed = setValue(m_value_fieldname, value);
     if (save_to_db) {
         save();
     }

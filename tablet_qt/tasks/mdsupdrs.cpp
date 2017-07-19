@@ -364,23 +364,23 @@ QStringList MdsUpdrs::detail() const
 
 OpenableWidget* MdsUpdrs::editor(bool read_only)
 {
-    NameValueOptions main_options{
+    const NameValueOptions main_options{
         {A0, 0},
         {A1, 1},
         {A2, 2},
         {A3, 3},
         {A4, 4},
     };
-    NameValueOptions source_options{
+    const NameValueOptions source_options{
         {RESPONDENT_PT, 0},
         {RESPONDENT_CG, 1},
         {RESPONDENT_BOTH, 2},
     };
-    NameValueOptions on_off_options{
+    const NameValueOptions on_off_options{
         {textconst::OFF, 0},
         {textconst::ON, 1},
     };
-    NameValueOptions hy_options{
+    const NameValueOptions hy_options{
         {"0", 0},
         {"1", 1},
         {"2", 2},
@@ -504,6 +504,6 @@ void MdsUpdrs::levodopaChanged(const FieldRef* fieldref)
     if (!fieldref) {
         return;
     }
-    bool levodopa = fieldref->valueBool();
+    const bool levodopa = fieldref->valueBool();
     fieldRef(Q3C1)->setMandatory(levodopa);
 }

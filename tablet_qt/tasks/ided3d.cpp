@@ -335,11 +335,11 @@ QString IDED3D::ancillaryTableFKToTaskFieldname() const
 
 void IDED3D::loadAllAncillary(int pk)
 {
-    OrderBy stage_order_by{{IDED3DStage::FN_STAGE, true}};
+    const OrderBy stage_order_by{{IDED3DStage::FN_STAGE, true}};
     ancillaryfunc::loadAncillary<IDED3DStage, IDED3DStagePtr>(
                 m_stages, m_app, m_db,
                 IDED3DStage::FN_FK_TO_TASK, stage_order_by, pk);
-    OrderBy trial_order_by{{IDED3DTrial::FN_TRIAL, true}};
+    const OrderBy trial_order_by{{IDED3DTrial::FN_TRIAL, true}};
     ancillaryfunc::loadAncillary<IDED3DTrial, IDED3DTrialPtr>(
                 m_trials, m_app, m_db,
                 IDED3DTrial::FN_FK_TO_TASK, trial_order_by, pk);
@@ -384,7 +384,7 @@ QStringList IDED3D::summary() const
         return QStringList{tr("Debug mode for displaying test stimuli only")};
     }
     QStringList lines;
-    int n_trials = m_trials.length();
+    const int n_trials = m_trials.length();
     lines.append(QString("Performed %1 trial(s).").arg(n_trials));
     if (n_trials > 0) {
         IDED3DTrialPtr last_trial = m_trials.at(n_trials - 1);
@@ -529,8 +529,8 @@ void IDED3D::validateQuestionnaire()
     Q_ASSERT(pages.size() == 1);
     QuPage* page = pages.at(0);
 
-    bool duff_pc = valueInt(FN_PROGRESS_CRITERION_Y) < valueInt(FN_PROGRESS_CRITERION_X);
-    bool duff_minmax = valueInt(FN_MAX_NUMBER) < valueInt(FN_MIN_NUMBER);
+    const bool duff_pc = valueInt(FN_PROGRESS_CRITERION_Y) < valueInt(FN_PROGRESS_CRITERION_X);
+    const bool duff_minmax = valueInt(FN_MAX_NUMBER) < valueInt(FN_MIN_NUMBER);
 
     m_questionnaire->setVisibleByTag(TAG_WARNING_PROGRESS_CRITERION, duff_pc);
     m_questionnaire->setVisibleByTag(TAG_WARNING_MIN_MAX, duff_minmax);
@@ -577,16 +577,16 @@ void IDED3D::makeStages()
                 valueInt(FN_MAX_NUMBER));
 
     // Counterbalancing
-    int cb_dim = valueInt(FN_COUNTERBALANCE_DIMENSIONS);
-    int cb1max = n_dimensions;
-    int cb2max = n_dimensions - 1;
-    int cb1 = cb_dim % cb1max;
-    int cb2 = static_cast<int>(floor(static_cast<double>(cb_dim) /
-                                     static_cast<double>(cb1max))) % cb2max;
+    const int cb_dim = valueInt(FN_COUNTERBALANCE_DIMENSIONS);
+    const int cb1max = n_dimensions;
+    const int cb2max = n_dimensions - 1;
+    const int cb1 = cb_dim % cb1max;
+    const int cb2 = static_cast<int>(floor(static_cast<double>(cb_dim) /
+                                           static_cast<double>(cb1max))) % cb2max;
     // Dimensions
-    int first_dim_index = cb1;
-    int second_dim_index = (first_dim_index + 1 + cb2) % n_dimensions;
-    int third_dim_index = (first_dim_index + 1 + (cb2max - 1 - cb2)) % n_dimensions;
+    const int first_dim_index = cb1;
+    const int second_dim_index = (first_dim_index + 1 + cb2) % n_dimensions;
+    const int third_dim_index = (first_dim_index + 1 + (cb2max - 1 - cb2)) % n_dimensions;
 
     // Exemplars ("poss" = possibilities)
     QVector<int> poss_first_dim = possibilities.at(first_dim_index);
@@ -594,116 +594,116 @@ void IDED3D::makeStages()
     QVector<int> poss_third_dim = possibilities.at(third_dim_index);
 
     // Relevant exemplars:
-    int sd_correct_exemplar = dwor(poss_first_dim);
-    int sd_incorrect_exemplar = dwor(poss_first_dim);
-    int id_correct_exemplar = dwor(poss_first_dim);
-    int id_incorrect_exemplar = dwor(poss_first_dim);
-    int ed_correct_exemplar = dwor(poss_second_dim);
-    int ed_incorrect_exemplar = dwor(poss_second_dim);
+    const int sd_correct_exemplar = dwor(poss_first_dim);
+    const int sd_incorrect_exemplar = dwor(poss_first_dim);
+    const int id_correct_exemplar = dwor(poss_first_dim);
+    const int id_incorrect_exemplar = dwor(poss_first_dim);
+    const int ed_correct_exemplar = dwor(poss_second_dim);
+    const int ed_incorrect_exemplar = dwor(poss_second_dim);
 
     // Irrelevant exemplars:
-    int sd_irrelevant_exemplar_second_dim = dwor(poss_second_dim);
-    int sd_irrelevant_exemplar_third_dim = dwor(poss_third_dim);
-    QVector<int> cd_irrelevant_exemplars_second_dim{
+    const int sd_irrelevant_exemplar_second_dim = dwor(poss_second_dim);
+    const int sd_irrelevant_exemplar_third_dim = dwor(poss_third_dim);
+    const QVector<int> cd_irrelevant_exemplars_second_dim{
         // Only two distracting exemplars in each irrelevant dimension.
         dwor(poss_second_dim),
         dwor(poss_second_dim),
     };
-    QVector<int> cd_irrelevant_exemplars_third_dim{
+    const QVector<int> cd_irrelevant_exemplars_third_dim{
         dwor(poss_third_dim),
         dwor(poss_third_dim),
     };
-    QVector<int> id_irrelevant_exemplars_second_dim{
+    const QVector<int> id_irrelevant_exemplars_second_dim{
         // Only two distracting exemplars in each irrelevant dimension.
         dwor(poss_second_dim),
         dwor(poss_second_dim),
     };
-    QVector<int> id_irrelevant_exemplars_third_dim{
+    const QVector<int> id_irrelevant_exemplars_third_dim{
         dwor(poss_third_dim),
         dwor(poss_third_dim),
     };
-    QVector<int> ed_irrelevant_exemplars_first_dim{
+    const QVector<int> ed_irrelevant_exemplars_first_dim{
         // Only two distracting exemplars in each irrelevant dimension.
         dwor(poss_first_dim),
         dwor(poss_first_dim),
     };
-    QVector<int> ed_irrelevant_exemplars_third_dim{
+    const QVector<int> ed_irrelevant_exemplars_third_dim{
         dwor(poss_third_dim),
         dwor(poss_third_dim),
     };
 
     // Final stimulus collections
-    QStringList dimensions{
+    const QStringList dimensions{
         poss_dimensions.at(first_dim_index),
         poss_dimensions.at(second_dim_index),
         poss_dimensions.at(third_dim_index),
     };
     // SD: simple discrimination
-    Exemplars sd_correct(dimensions, {{sd_correct_exemplar},
-                                      {sd_irrelevant_exemplar_second_dim},
-                                      {sd_irrelevant_exemplar_third_dim}});
-    Exemplars sd_incorrect(dimensions, {{sd_incorrect_exemplar},
-                                        {sd_irrelevant_exemplar_second_dim},
-                                        {sd_irrelevant_exemplar_third_dim}});
+    const Exemplars sd_correct(dimensions, {{sd_correct_exemplar},
+                                            {sd_irrelevant_exemplar_second_dim},
+                                            {sd_irrelevant_exemplar_third_dim}});
+    const Exemplars sd_incorrect(dimensions, {{sd_incorrect_exemplar},
+                                              {sd_irrelevant_exemplar_second_dim},
+                                              {sd_irrelevant_exemplar_third_dim}});
     // SDR: SD reversal
-    Exemplars sdr_correct(dimensions, {{sd_incorrect_exemplar},
-                                       {sd_irrelevant_exemplar_second_dim},
-                                       {sd_irrelevant_exemplar_third_dim}});
-    Exemplars sdr_incorrect(dimensions, {{sd_correct_exemplar},
-                                         {sd_irrelevant_exemplar_second_dim},
-                                         {sd_irrelevant_exemplar_third_dim}});
+    const Exemplars sdr_correct(dimensions, {{sd_incorrect_exemplar},
+                                             {sd_irrelevant_exemplar_second_dim},
+                                             {sd_irrelevant_exemplar_third_dim}});
+    const Exemplars sdr_incorrect(dimensions, {{sd_correct_exemplar},
+                                               {sd_irrelevant_exemplar_second_dim},
+                                               {sd_irrelevant_exemplar_third_dim}});
     // CD: concurrent discrimination
-    Exemplars cd_correct(dimensions, {{sd_incorrect_exemplar},
-                                      cd_irrelevant_exemplars_second_dim,
-                                      cd_irrelevant_exemplars_third_dim});
-    Exemplars cd_incorrect(dimensions, {{sd_correct_exemplar},
-                                        cd_irrelevant_exemplars_second_dim,
-                                        cd_irrelevant_exemplars_third_dim});
+    const Exemplars cd_correct(dimensions, {{sd_incorrect_exemplar},
+                                            cd_irrelevant_exemplars_second_dim,
+                                            cd_irrelevant_exemplars_third_dim});
+    const Exemplars cd_incorrect(dimensions, {{sd_correct_exemplar},
+                                              cd_irrelevant_exemplars_second_dim,
+                                              cd_irrelevant_exemplars_third_dim});
     // CDR: CD reversal
-    Exemplars cdr_correct(dimensions, {{sd_correct_exemplar},
-                                       cd_irrelevant_exemplars_second_dim,
-                                       cd_irrelevant_exemplars_third_dim});
-    Exemplars cdr_incorrect(dimensions, {{sd_incorrect_exemplar},
-                                         cd_irrelevant_exemplars_second_dim,
-                                         cd_irrelevant_exemplars_third_dim});
+    const Exemplars cdr_correct(dimensions, {{sd_correct_exemplar},
+                                             cd_irrelevant_exemplars_second_dim,
+                                             cd_irrelevant_exemplars_third_dim});
+    const Exemplars cdr_incorrect(dimensions, {{sd_incorrect_exemplar},
+                                               cd_irrelevant_exemplars_second_dim,
+                                               cd_irrelevant_exemplars_third_dim});
     // ID: intradimensional set shift
-    Exemplars id_correct(dimensions, {{id_correct_exemplar},
-                                      id_irrelevant_exemplars_second_dim,
-                                      id_irrelevant_exemplars_third_dim});
-    Exemplars id_incorrect(dimensions, {{id_incorrect_exemplar},
-                                        id_irrelevant_exemplars_second_dim,
-                                        id_irrelevant_exemplars_third_dim});
+    const Exemplars id_correct(dimensions, {{id_correct_exemplar},
+                                            id_irrelevant_exemplars_second_dim,
+                                            id_irrelevant_exemplars_third_dim});
+    const Exemplars id_incorrect(dimensions, {{id_incorrect_exemplar},
+                                              id_irrelevant_exemplars_second_dim,
+                                              id_irrelevant_exemplars_third_dim});
     // IDR: ID reversal
-    Exemplars idr_correct(dimensions, {{id_incorrect_exemplar},
-                                       id_irrelevant_exemplars_second_dim,
-                                       id_irrelevant_exemplars_third_dim});
-    Exemplars idr_incorrect(dimensions, {{id_correct_exemplar},
-                                         id_irrelevant_exemplars_second_dim,
-                                         id_irrelevant_exemplars_third_dim});
+    const Exemplars idr_correct(dimensions, {{id_incorrect_exemplar},
+                                             id_irrelevant_exemplars_second_dim,
+                                             id_irrelevant_exemplars_third_dim});
+    const Exemplars idr_incorrect(dimensions, {{id_correct_exemplar},
+                                               id_irrelevant_exemplars_second_dim,
+                                               id_irrelevant_exemplars_third_dim});
     // ED: extradimensional set shift
-    Exemplars ed_correct(dimensions, {ed_irrelevant_exemplars_first_dim,
-                                      {ed_correct_exemplar},
-                                      ed_irrelevant_exemplars_third_dim});
-    Exemplars ed_incorrect(dimensions, {ed_irrelevant_exemplars_first_dim,
-                                        {ed_incorrect_exemplar},
-                                        ed_irrelevant_exemplars_third_dim});
+    const Exemplars ed_correct(dimensions, {ed_irrelevant_exemplars_first_dim,
+                                            {ed_correct_exemplar},
+                                            ed_irrelevant_exemplars_third_dim});
+    const Exemplars ed_incorrect(dimensions, {ed_irrelevant_exemplars_first_dim,
+                                              {ed_incorrect_exemplar},
+                                              ed_irrelevant_exemplars_third_dim});
     // EDR: ED reversal
-    Exemplars edr_correct(dimensions, {ed_irrelevant_exemplars_first_dim,
-                                       {ed_incorrect_exemplar},
-                                       ed_irrelevant_exemplars_third_dim});
-    Exemplars edr_incorrect(dimensions, {ed_irrelevant_exemplars_first_dim,
-                                         {ed_correct_exemplar},
-                                         ed_irrelevant_exemplars_third_dim});
+    const Exemplars edr_correct(dimensions, {ed_irrelevant_exemplars_first_dim,
+                                             {ed_incorrect_exemplar},
+                                             ed_irrelevant_exemplars_third_dim});
+    const Exemplars edr_incorrect(dimensions, {ed_irrelevant_exemplars_first_dim,
+                                               {ed_correct_exemplar},
+                                               ed_irrelevant_exemplars_third_dim});
 
     // Stages
-    QString first_dim_name = poss_dimensions.at(first_dim_index);
-    QString second_dim_name = poss_dimensions.at(second_dim_index);
+    const QString first_dim_name = poss_dimensions.at(first_dim_index);
+    const QString second_dim_name = poss_dimensions.at(second_dim_index);
     int stage = 0;  // zero-based stage number
     m_stages.clear();
     // ... use QVector<IDED3DStagePtr>; don't use QVector<Stage>;
     // no default constructor ("implicitly deleted... ill-formed...")
-    int n_locations = LOCATIONS.length();
-    int pk = pkvalueInt();
+    const int n_locations = LOCATIONS.length();
+    const int pk = pkvalueInt();
     m_stages.append(IDED3DStagePtr(new IDED3DStage(
             pk, m_app, m_db, stage++, "SD",  // Only a single dimension varies
             first_dim_name, sd_correct, sd_incorrect, n_locations,
@@ -748,15 +748,15 @@ void IDED3D::makeStages()
 
 void IDED3D::debugDisplayStimuli()
 {
-    int n_stimuli = IDED3DExemplars::nShapes();
+    const int n_stimuli = IDED3DExemplars::nShapes();
     m_scene->addRect(SCENE_RECT, QPen(), QBrush(Qt::green));
-    qreal aspect = SCENE_WIDTH / SCENE_HEIGHT;
-    QPair<int, int> x_y = gridDimensions(n_stimuli, aspect);
-    int nx = x_y.first;
-    int ny = x_y.second;
-    QVector<qreal> x_centres = distribute(nx, 0, SCENE_WIDTH);
-    QVector<qreal> y_centres = distribute(ny, 0, SCENE_HEIGHT);
-    qreal scale = 0.8 * qMin(SCENE_WIDTH / nx, SCENE_HEIGHT / ny) / STIMSIZE;
+    const qreal aspect = SCENE_WIDTH / SCENE_HEIGHT;
+    const QPair<int, int> x_y = gridDimensions(n_stimuli, aspect);
+    const int nx = x_y.first;
+    const int ny = x_y.second;
+    const QVector<qreal> x_centres = distribute(nx, 0, SCENE_WIDTH);
+    const QVector<qreal> y_centres = distribute(ny, 0, SCENE_HEIGHT);
+    const qreal scale = 0.8 * qMin(SCENE_WIDTH / nx, SCENE_HEIGHT / ny) / STIMSIZE;
     int n = 0;
     for (int y = 0; y < ny && n < n_stimuli; ++y) {
         for (int x = 0; x < nx && n < n_stimuli; ++x) {
@@ -799,10 +799,10 @@ QVector<QPointF> IDED3D::stimCentres(int n) const
     // Centre-of-stimulus positions within box.
     // Distribute stimuli about (0, 0) in an imaginary box that's 1 x 1,
     // i.e. from -0.5 to +0.5 in each direction.
-    qreal left = -0.5;
-    qreal right = +0.5;
-    qreal top = -0.5;
-    qreal bottom = +0.5;
+    const qreal left = -0.5;
+    const qreal right = +0.5;
+    const qreal top = -0.5;
+    const qreal bottom = +0.5;
 
     QVector<qreal> x, y;
 
@@ -859,7 +859,7 @@ QVector<QPointF> IDED3D::stimCentres(int n) const
 QRectF IDED3D::locationRect(int location) const
 {
     Q_ASSERT(location >= 0 && location < LOCATIONS.size());
-    QPointF centre = LOCATIONS.at(location);
+    const QPointF centre = LOCATIONS.at(location);
     return QRectF(centre.x() - BOXWIDTH / 2,
                   centre.y() - BOXHEIGHT / 2,
                   BOXWIDTH,
@@ -869,7 +869,7 @@ QRectF IDED3D::locationRect(int location) const
 
 void IDED3D::showEmptyBox(int location, bool touchable, bool correct)
 {
-    QRectF rect = locationRect(location);
+    const QRectF rect = locationRect(location);
     ButtonAndProxy box = makeTextButton(
                 m_scene,
                 rect,
@@ -885,9 +885,9 @@ void IDED3D::showCompositeStimulus(int shape, int colour_number, int number,
                                    int location, bool correct)
 {
     Q_ASSERT(location >= 0 && location < LOCATIONS.size());
-    QPointF overall_centre = LOCATIONS.at(location);
-    QColor colour = IDED3DExemplars::colour(colour_number);
-    qreal scale = (0.75 * 0.95 * BOXHEIGHT / 2) / STIMSIZE;
+    const QPointF overall_centre = LOCATIONS.at(location);
+    const QColor colour = IDED3DExemplars::colour(colour_number);
+    const qreal scale = (0.75 * 0.95 * BOXHEIGHT / 2) / STIMSIZE;
     // ... without the 0.75, you can fit 4 but not 5 wide.
     QVector<QPointF> centres = stimCentres(number);
 
@@ -927,7 +927,7 @@ bool IDED3D::stagePassed() const
 {
     // X of the last Y correct?
     int n_correct = 0;
-    int first = m_trials.size() - valueInt(FN_PROGRESS_CRITERION_Y);
+    const int first = m_trials.size() - valueInt(FN_PROGRESS_CRITERION_Y);
     for (int i = m_current_trial;
             i >= 0 && i >= first && m_trials.at(i)->stageZeroBased() == m_current_stage;
             --i) {
@@ -962,8 +962,8 @@ int IDED3D::getNumTrialsThisStage() const
 
 bool IDED3D::stageFailed() const
 {
-    int n_this_stage = getNumTrialsThisStage();
-    bool failed = n_this_stage >= valueInt(FN_MAX_TRIALS_PER_STAGE);
+    const int n_this_stage = getNumTrialsThisStage();
+    const bool failed = n_this_stage >= valueInt(FN_MAX_TRIALS_PER_STAGE);
     qDebug().nospace()
             << n_this_stage
             << " trials performed this stage (max="
