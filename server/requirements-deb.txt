@@ -5,6 +5,7 @@ libxml2-dev
 libxslt1-dev
 python
 python3
+python3.5
 python3-dev
 supervisor  # for managing gunicorn, etc.
 swig  # used by

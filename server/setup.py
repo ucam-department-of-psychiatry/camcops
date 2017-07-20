@@ -302,8 +302,8 @@ camcops_server
         'gunicorn==19.3.0',  # 'Internal' web server
         'hl7==0.3.3',  # For HL7 export
         'lockfile==0.12.2',  # File locking for background tasks
-        'matplotlib==1.5.0',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
-        'numpy==1.10.2',  # Used by some tasks. SLOW INSTALLATION.
+        'numpy==1.13.1',  # Used by some tasks. SLOW INSTALLATION. Previously 1.10.2. ??? BEFORE MATPLOTLIB ??? See https://stackoverflow.com/questions/37515053  # noqa
+        'matplotlib==2.0.2',  # Used for trackers and some tasks. SLOW INSTALLATION. Previously 1.5.0.  # noqa
         'pdfkit==0.5.0',  # wkhtmltopdf interface, for PDF generation from HTML
         'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt
         'Pygments==2.0.2',  # Syntax highlighting for introspection

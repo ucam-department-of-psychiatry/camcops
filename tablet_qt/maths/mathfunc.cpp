@@ -24,6 +24,7 @@
 #include "common/textconst.h"
 #include "lib/convert.h"
 #include "maths/eigenfunc.h"
+#include "maths/floatingpoint.h"
 #include "maths/mlpackfunc.h"
 #include "maths/statsfunc.h"
 
@@ -54,7 +55,11 @@ bool rangesOverlap(qreal a0, qreal a1, qreal b0, qreal b1)
 
 bool nearlyEqual(qreal x, qreal y)
 {
-    return qFuzzyIsNull(x - y);
+    // LESS GOOD: return qFuzzyIsNull(x - y);
+    // BETTER:
+    FloatingPoint<qreal> fx(x);
+    FloatingPoint<qreal> fy(y);
+    return fx.AlmostEquals(fy);
 }
 
 

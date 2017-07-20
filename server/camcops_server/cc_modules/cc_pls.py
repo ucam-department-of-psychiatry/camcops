@@ -483,7 +483,6 @@ class LocalStorage(object):
                 else:
                     pretty_dir = os.path.relpath(dir_, rootdir)
                 for filename in files:
-                    log.critical("Testing: " + repr(filename))
                     basename, ext = os.path.splitext(filename)
                     if ext not in INTROSPECTABLE_EXTENSIONS:
                         continue

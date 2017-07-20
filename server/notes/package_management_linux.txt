@@ -1,0 +1,6 @@
+To remove dead Debian packages (Ubuntu):
+    https://askubuntu.com/questions/122699/how-to-remove-package-in-bad-state-software-center-freezes-no-synaptic
+
+To remove dead yum packages (CentOS):
+    https://serverfault.com/questions/613256/yum-error-in-preun-scriptlet-when-removing-packages
+
