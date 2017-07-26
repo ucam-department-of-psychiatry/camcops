@@ -89,12 +89,12 @@ def main_only_quicksetup_rootlogger(level: int = logging.DEBUG) -> None:
 # =============================================================================
 
 # Webview logger
-log = logging.getLogger("camcops_wv")
-log.setLevel(logging.INFO)
+# log = logging.getLogger("camcops_wv")
+# log.setLevel(logging.INFO)
 
 # Database client logger
-dblog = logging.getLogger("camcops_db")
-dblog.setLevel(logging.INFO)
+# dblog = logging.getLogger("camcops_db")
+# dblog.setLevel(logging.INFO)
 
 # levels are DEBUG, INFO, WARN/WARNING, ERROR, CRITICAL/FATAL
 # -- level may be changed by config

@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "dbconstants.h"
+#include "dbconst.h"
 #include <QDebug>
 
 
@@ -31,16 +31,22 @@ const QString MOVE_OFF_TABLET_FIELDNAME("_move_off_tablet");
 const QString CREATION_TIMESTAMP_FIELDNAME("when_created");
 const int NONEXISTENT_PK = -1;
 
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
 const int NUMBER_OF_IDNUMS = 8;
 const QString BAD_IDNUM_DESC("<bad_idnum>");
-const QString UNKNOWN_IDNUM_DESC("<ID_number_%1>");
 const QString IDDESC_FIELD_FORMAT("iddesc%1");
 const QString IDSHORTDESC_FIELD_FORMAT("idshortdesc%1");
+#endif
+const QString UNKNOWN_IDNUM_DESC("<ID_number_%1>");
 
 
 bool isValidWhichIdnum(int which_idnum)
 {
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
     const bool valid = which_idnum >= 1 && which_idnum <= NUMBER_OF_IDNUMS;
+#else
+    const bool valid = which_idnum >= 1;
+#endif
     if (!valid) {
         qWarning() << Q_FUNC_INFO << "bad idnum" << which_idnum;
     }

@@ -23,22 +23,23 @@
 """
 
 import datetime
+import logging
 from typing import Optional
 
 import wand.image
 # ... sudo apt-get install libmagickwand-dev; sudo pip install Wand
 
 import cardinal_pythonlib.rnc_db as rnc_db
-import cardinal_pythonlib.rnc_web as ws
 
 from .cc_constants import ERA_NOW, MIMETYPE_PNG, STANDARD_GENERIC_FIELDSPECS
 from . import cc_db
 from .cc_html import get_data_url, get_embedded_img_tag
-from .cc_logger import log
 from .cc_namedtuples import XmlElementTuple
 from .cc_pls import pls
 from .cc_unittest import unit_test_ignore
-from . import cc_xml
+from .cc_xml import get_xml_blob_tuple
+
+log = logging.getLogger(__name__)
 
 # ExactImage API documentation is a little hard to find. See:
 #   http://www.exactcode.com/site/open_source/exactimage
@@ -134,7 +135,7 @@ class Blob(object):
     def get_image_xml_tuple(self, name: str) -> XmlElementTuple:
         """Returns an XmlElementTuple for this object."""
         image_bits = self.get_rotated_image()
-        return cc_xml.get_xml_blob_tuple(name, image_bits)
+        return get_xml_blob_tuple(name, image_bits)
 
     def get_data_url(self) -> str:
         """Returns a data URL encapsulating the BLOB, or ''."""
@@ -208,7 +209,7 @@ def unit_tests_blob(blob: Blob) -> None:
     unit_test_ignore("", blob.get_data_url)
 
 
-def unit_tests() -> None:
+def ccblob_unit_tests() -> None:
     """Unit tests for the cc_blob module."""
     current_pks = pls.db.fetchallfirstvalues(
         "SELECT _pk FROM {} WHERE _current".format(Blob.TABLENAME)

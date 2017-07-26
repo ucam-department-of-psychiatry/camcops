@@ -27,16 +27,16 @@
 import os
 import string
 from cardinal_pythonlib.rnc_lang import merge_dicts
-from camcops_server.cc_modules.cc_baseconstants import (
+
+from .cc_baseconstants import (
     CAMCOPS_SERVER_DIRECTORY,
-    TABLET_SOURCE_COPY_DIR,
 )
 
 # =============================================================================
 # Number of ID numbers. Don't alter this lightly; influences database fields.
 # =============================================================================
 
-NUMBER_OF_IDNUMS = 8  # Determines number of ID number fields
+NUMBER_OF_IDNUMS_DEFUNCT = 8  # Determines number of ID number fields
 
 # =============================================================================
 # Configuration

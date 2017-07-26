@@ -29,8 +29,7 @@ import xml.sax.saxutils
 from cardinal_pythonlib.rnc_db import FIELDSPEC_TYPE, FIELDSPECLIST_TYPE
 
 from . import cc_db
-from . import cc_namedtuples
-from .cc_namedtuples import XmlElementTuple
+from .cc_namedtuples import XmlElementTuple, XmlSimpleValue
 
 # =============================================================================
 # Constants
@@ -96,7 +95,7 @@ def make_xml_branches_from_summaries(
         name = d["name"]
         if name in skip_fields:
             continue
-        branches.append(cc_namedtuples.XmlElementTuple(
+        branches.append(XmlElementTuple(
             name=name,
             value=d["value"],
             datatype=get_xml_datatype_from_fieldspec(d),
@@ -176,7 +175,7 @@ def get_xml_tree(element: XmlElementTuple,
     xmltext = ""
     prefix = ' ' * level * indent_spaces
 
-    if isinstance(element, cc_namedtuples.XmlElementTuple):
+    if isinstance(element, XmlElementTuple):
 
         # Attributes
         namespaces = []
@@ -205,11 +204,10 @@ def get_xml_tree(element: XmlElementTuple,
                 attributes=attributes,
             )
         else:
-            complex_value = isinstance(element.value,
-                                       cc_namedtuples.XmlElementTuple) \
+            complex_value = isinstance(element.value, XmlElementTuple) \
                 or isinstance(element.value, list)
             value_to_recurse = element.value if complex_value else \
-                cc_namedtuples.XmlSimpleValue(element.value)
+                XmlSimpleValue(element.value)
             # ... XmlSimpleValue is a marker that subsequently distinguishes
             # things that were part of an XmlElementTuple from user-inserted
             # raw XML.
@@ -242,7 +240,7 @@ def get_xml_tree(element: XmlElementTuple,
                                     include_comments=include_comments)
         # recursive
 
-    elif isinstance(element, cc_namedtuples.XmlSimpleValue):
+    elif isinstance(element, XmlSimpleValue):
         # The lowest-level thing a value. No extra indent.
         xmltext += xml_escape_value(str(element.value))
         # Regarding newlines: no need to do anything special (although some
@@ -262,7 +260,7 @@ def get_xml_document(root: XmlElementTuple,
                      include_comments: bool = False) -> str:
     """Returns an entire XML document as text, given the root
     XmlElementTuple."""
-    if not isinstance(root, cc_namedtuples.XmlElementTuple):
+    if not isinstance(root, XmlElementTuple):
         raise AssertionError("get_xml_document: root not an XmlElementTuple; "
                              "XML requires a single root")
     return xml_header(eol) + get_xml_tree(

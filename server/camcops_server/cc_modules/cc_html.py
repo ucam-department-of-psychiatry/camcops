@@ -33,13 +33,12 @@ from .cc_constants import (
     ACTION,
     CSS_PAGED_MEDIA,
     DEFAULT_PLOT_DPI,
-    NUMBER_OF_IDNUMS,
     PARAM,
     USE_SVG_IN_HTML,
     WEBEND,
     WKHTMLTOPDF_CSS,
 )
-from . import cc_pls
+from .cc_pls import pls
 from .cc_string import wappstring
 
 
@@ -352,7 +351,7 @@ def tr_span_col(x: str,
 
 def get_html_from_pyplot_figure(fig) -> str:
     """Make HTML (as PNG or SVG) from pyplot figure."""
-    if USE_SVG_IN_HTML and cc_pls.pls.useSVG:
+    if USE_SVG_IN_HTML and pls.useSVG:
         return (
             rnc_plot.svg_html_from_pyplot_figure(fig) +
             rnc_plot.png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI,
@@ -372,12 +371,12 @@ def get_html_which_idnum_picker(param: str = PARAM.WHICH_IDNUM,
     """.format(
         param=param,
     )
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
+    for n in pls.get_which_idnums():
         html += """
             <option value="{value}"{selected}>{description}</option>
         """.format(
             value=str(n),
-            description=cc_pls.pls.get_id_desc(n),
+            description=pls.get_id_desc(n),
             selected=ws.option_selected(selected, n),
         )
     html += """
@@ -516,11 +515,11 @@ def get_correct_incorrect_none(x: Any) -> Optional[str]:
 def login_page(extra_msg: str = "", redirect=None):
     """HTML for main login page."""
     disable_autocomplete = (' autocomplete="off"'
-                            if cc_pls.pls.DISABLE_PASSWORD_AUTOCOMPLETE
+                            if pls.DISABLE_PASSWORD_AUTOCOMPLETE
                             else '')
     # http://stackoverflow.com/questions/2530
     # Note that e.g. Chrome may ignore this.
-    return cc_pls.pls.WEBSTART + """
+    return pls.WEBSTART + """
         <div>{dbtitle}</div>
         <div>
             <b>Unauthorized access prohibited.</b>
@@ -538,7 +537,7 @@ def login_page(extra_msg: str = "", redirect=None):
     """.format(
         dbtitle=get_database_title_string(),
         extramsg=extra_msg,
-        script=cc_pls.pls.SCRIPT_NAME,
+        script=pls.SCRIPT_NAME,
         da=disable_autocomplete,
         ACTION=ACTION,
         PARAM=PARAM,
@@ -552,7 +551,7 @@ def login_page(extra_msg: str = "", redirect=None):
 
 def simple_success_message(msg, extra_html=""):
     """HTML for simple success message."""
-    return cc_pls.pls.WEBSTART + """
+    return pls.WEBSTART + """
         <h1>Success</h1>
         <div>{}</div>
         {}
@@ -576,7 +575,7 @@ def fail_with_error_not_logged_in(error: str, redirect: str = None) -> str:
 
 def fail_with_error_stay_logged_in(error: str, extra_html: str = "") -> str:
     """HTML for errors where the user stays logged in."""
-    return cc_pls.pls.WEBSTART + """
+    return pls.WEBSTART + """
         {}
         {}
         {}
@@ -598,9 +597,9 @@ def get_return_to_main_menu_line() -> str:
 
 def get_database_title_string() -> str:
     """Database title as HTML-safe unicode."""
-    if not cc_pls.pls.DATABASE_TITLE:
+    if not pls.DATABASE_TITLE:
         return ""
-    return "Database: <b>{}</b>.".format(ws.webify(cc_pls.pls.DATABASE_TITLE))
+    return "Database: <b>{}</b>.".format(ws.webify(pls.DATABASE_TITLE))
 
 
 # =============================================================================
@@ -609,7 +608,7 @@ def get_database_title_string() -> str:
 
 def get_generic_action_url(action: str) -> str:
     """Make generic URL with initial action name/value pair."""
-    return "{}?{}={}".format(cc_pls.pls.SCRIPT_NAME, PARAM.ACTION, action)
+    return "{}?{}={}".format(pls.SCRIPT_NAME, PARAM.ACTION, action)
 
 
 def get_url_field_value_pair(field: str, value: Any) -> str:

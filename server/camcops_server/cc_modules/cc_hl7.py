@@ -27,6 +27,7 @@ import errno
 import codecs
 import hl7
 import lockfile
+import logging
 import os
 import socket
 import subprocess
@@ -47,8 +48,13 @@ from .cc_constants import (
     VALUE,
 )
 from . import cc_db
-from . import cc_dt
-from . import cc_filename
+from .cc_dt import (
+    convert_datetime_to_utc_notz,
+    format_datetime,
+    get_now_localtz,
+    get_now_utc_notz,
+)
+from .cc_filename import change_filename_ext
 from .cc_hl7core import (
     escape_hl7_text,
     get_mod11_checkdigit,
@@ -59,13 +65,17 @@ from .cc_hl7core import (
     msg_is_successful_ack,
     SEGMENT_SEPARATOR,
 )
-from . import cc_html
-from .cc_logger import log
-from . import cc_namedtuples
+from .cc_html import (
+    get_url_field_value_pair,
+    get_generic_action_url,
+)
+from .cc_namedtuples import PatientIdentifierTuple
 from .cc_pls import pls
 from .cc_recipdef import RecipientDefinition
-from . import cc_task
+from .cc_task import get_base_tables, get_url_task_html, task_factory
 from .cc_unittest import unit_test_ignore
+
+log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -172,7 +182,7 @@ class HL7Run(object):
             # Copy all attributes from the RecipientDefinition
             self.__dict__.update(param.__dict__)
 
-            self.start_at_utc = cc_dt.get_now_utc_notz()
+            self.start_at_utc = get_now_utc_notz()
             self.finish_at_utc = None
             self.save()
         else:
@@ -202,7 +212,7 @@ class HL7Run(object):
             self.script_stderr = str(e)
 
     def finish(self) -> None:
-        self.finish_at_utc = cc_dt.get_now_utc_notz()
+        self.finish_at_utc = get_now_utc_notz()
         self.save()
 
     @classmethod
@@ -293,7 +303,7 @@ class HL7Message(object):
             self.recipient_def = recipient_def
             self.show_queue_only = show_queue_only
             self.no_saving = show_queue_only
-            self.task = cc_task.task_factory(self.basetable, self.serverpk)
+            self.task = task_factory(self.basetable, self.serverpk)
         else:
             # HL7Message(msg_id)
             pls.db.fetch_object_from_db_by_pk(self, HL7Message.TABLENAME,
@@ -314,7 +324,7 @@ class HL7Message(object):
         if task_is_anonymous and not anonymous_ok:
             return False
         # After this point, all anonymous tasks must be OK. So:
-        task_has_primary_id = self.task.get_patient_idnum(
+        task_has_primary_id = self.task.get_patient_idnum_value(
             self.recipient_def.primary_idnum) is not None
         if not task_is_anonymous and not task_has_primary_id:
             return False
@@ -335,7 +345,7 @@ class HL7Message(object):
         infomsg = (
             "OUTBOUND MESSAGE DIVERTED FROM RECIPIENT {} AT {}\n".format(
                 self.recipient_def.recipient,
-                cc_dt.format_datetime(self.sent_at_utc, DATEFORMAT.ISO8601)
+                format_datetime(self.sent_at_utc, DATEFORMAT.ISO8601)
             )
         )
         print(infomsg, file=f)
@@ -368,8 +378,8 @@ class HL7Message(object):
             return True, False
 
         self.save()  # creates self.msg_id
-        now = cc_dt.get_now_localtz()
-        self.sent_at_utc = cc_dt.convert_datetime_to_utc_notz(now)
+        now = get_now_localtz()
+        self.sent_at_utc = convert_datetime_to_utc_notz(now)
 
         if self.recipient_def.using_hl7():
             self.make_hl7_message(now)  # will write its own error msg/flags
@@ -401,8 +411,7 @@ class HL7Message(object):
             forename=self.task.get_patient_forename(),
             dob=self.task.get_patient_dob(),
             sex=self.task.get_patient_sex(),
-            idnums=self.task.get_patient_idnum_array(),
-            idshortdescs=self.task.get_patient_idshortdesc_array(),
+            idnum_objects=self.task.get_patient_idnum_objects(),
             creation_datetime=self.task.get_creation_datetime(),
             basetable=self.basetable,
             serverpk=self.serverpk,
@@ -451,7 +460,7 @@ class HL7Message(object):
         # RiO metadata too?
         if self.recipient_def.rio_metadata:
             # No spaces in filename
-            self.rio_metadata_filename = cc_filename.change_filename_ext(
+            self.rio_metadata_filename = change_filename_ext(
                 self.filename, ".metadata").replace(" ", "")
             self.rio_metadata_filename = self.rio_metadata_filename
             metadata = task.get_rio_metadata(
@@ -530,7 +539,7 @@ class HL7Message(object):
         if not server_replied:
             self.failure_reason = "No response from server"
             return
-        self.reply_at_utc = cc_dt.get_now_utc_notz()
+        self.reply_at_utc = get_now_utc_notz()
         if self.recipient_def.keep_reply:
             self.reply = reply
         try:
@@ -570,7 +579,7 @@ class HL7Message(object):
             value = ws.webify(getattr(self, name))
             if name == "serverpk":
                 contents = "<a href={}>{}</a>".format(
-                    cc_task.get_url_task_html(self.basetable, self.serverpk),
+                    get_url_task_html(self.basetable, self.serverpk),
                     value
                 )
             elif name == "run_id":
@@ -742,7 +751,7 @@ def send_pending_hl7_messages_2(
     n_file_sent = 0
     n_file_successful = 0
     files_exported = []
-    basetables = cc_task.get_base_tables(recipient_def.include_anonymous)
+    basetables = get_base_tables(recipient_def.include_anonymous)
     for bt in basetables:
         # Current records...
         args = []
@@ -852,8 +861,8 @@ def make_sure_path_exists(path: str) -> None:
 
 def get_url_hl7_run(run_id: Any) -> str:
     """URL to view an HL7Run instance."""
-    url = cc_html.get_generic_action_url(ACTION.VIEW_HL7_RUN)
-    url += cc_html.get_url_field_value_pair(PARAM.HL7RUNID, run_id)
+    url = get_generic_action_url(ACTION.VIEW_HL7_RUN)
+    url += get_url_field_value_pair(PARAM.HL7RUNID, run_id)
     return url
 
 
@@ -877,10 +886,9 @@ def unit_tests() -> None:
     pk = current_pks[0] if current_pks else None
     task = phq9.Phq9(pk)
     pitlist = [
-        cc_namedtuples.PatientIdentifierTuple(
-            id="1", id_type="TT", assigning_authority="AA")
+        PatientIdentifierTuple(id="1", id_type="TT", assigning_authority="AA")
     ]
-    now = cc_dt.get_now_localtz()
+    now = get_now_localtz()
 
     unit_test_ignore("", get_mod11_checkdigit, "12345")
     unit_test_ignore("", get_mod11_checkdigit, "badnumber")

@@ -34,13 +34,16 @@ from .cc_constants import (
     ACTION,
     DATEFORMAT,
     FP_ID_NUM,
-    NUMBER_OF_IDNUMS,
     PARAM,
     VALUE,
     WEBEND,
 )
-from . import cc_dt
-from . import cc_html
+from .cc_dt import format_datetime
+from .cc_html import (
+    fail_with_error_stay_logged_in,
+    get_generic_action_url,
+    get_url_field_value_pair,
+)
 from .cc_lang import all_subclasses
 from .cc_pls import pls
 from .cc_unittest import (
@@ -133,9 +136,8 @@ def offer_report_menu(session: SESSION_FWD_REF) -> str:
     )
     for cls in get_all_report_classes():
         html += "<li><a href={}>{}</a></li>".format(
-            cc_html.get_generic_action_url(ACTION.OFFER_REPORT) +
-                cc_html.get_url_field_value_pair(PARAM.REPORT_ID,
-                                                 cls.report_id),
+            get_generic_action_url(ACTION.OFFER_REPORT) +
+                get_url_field_value_pair(PARAM.REPORT_ID, cls.report_id),
             cls.report_title
         )
     return html + "</ul>" + WEBEND
@@ -155,7 +157,7 @@ def get_param_html(paramspec: ReportParamSpec) -> str:
             " ".join([
                 """<option value="{}">{}</option>""".format(
                     str(n), pls.get_id_desc(n))
-                for n in range(1, NUMBER_OF_IDNUMS + 1)
+                for n in pls.get_which_idnums()
             ])
         )
     else:
@@ -170,7 +172,7 @@ def get_params_from_form(paramspeclist: List[ReportParamSpec],
     for paramspec in paramspeclist:
         if paramspec.type == PARAM.WHICH_IDNUM:
             idnum = ws.get_cgi_parameter_int(form, paramspec.name)
-            if idnum is None or idnum < 1 or idnum > NUMBER_OF_IDNUMS:
+            if idnum not in pls.get_which_idnums():
                 continue
             kwargs[paramspec.name] = idnum
         else:
@@ -203,7 +205,7 @@ def offer_individual_report(session: SESSION_FWD_REF,
     report_id = ws.get_cgi_parameter_str(form, PARAM.REPORT_ID)
     report = get_report_instance(report_id)
     if not report:
-        return cc_html.fail_with_error_stay_logged_in("Invalid report_id")
+        return fail_with_error_stay_logged_in("Invalid report_id")
 
     html = pls.WEBSTART + """
         {userdetails}
@@ -271,9 +273,8 @@ def tsv_from_query(rows: Iterable[Iterable[Any]],
     return tsv
 
 
-def provide_report(session: SESSION_FWD_REF,
-                   form: cgi.FieldStorage) \
-        -> Union[str, WSGI_TUPLE_TYPE]:
+def serve_report(session: SESSION_FWD_REF,
+                 form: cgi.FieldStorage) -> Union[str, WSGI_TUPLE_TYPE]:
     """Extracts report type, report parameters, and output type from the CGI
     form; offers up the results in the chosen format."""
 
@@ -281,7 +282,7 @@ def provide_report(session: SESSION_FWD_REF,
     report_id = ws.get_cgi_parameter_str(form, PARAM.REPORT_ID)
     report = get_report_instance(report_id)
     if not report:
-        return cc_html.fail_with_error_stay_logged_in("Invalid report_id")
+        return fail_with_error_stay_logged_in("Invalid report_id")
 
     # What output type?
     outputtype = ws.get_cgi_parameter_str(form, PARAM.OUTPUTTYPE)
@@ -289,7 +290,7 @@ def provide_report(session: SESSION_FWD_REF,
         outputtype = outputtype.lower()
     if (outputtype != VALUE.OUTPUTTYPE_HTML and
             outputtype != VALUE.OUTPUTTYPE_TSV):
-        return cc_html.fail_with_error_stay_logged_in("Unknown outputtype")
+        return fail_with_error_stay_logged_in("Unknown outputtype")
 
     # Get parameters
     params = get_params_from_form(report.param_spec_list, form)
@@ -297,7 +298,7 @@ def provide_report(session: SESSION_FWD_REF,
     # Get query details
     rows, descriptions = report.get_rows_descriptions(**params)
     if rows is None or descriptions is None:
-        return cc_html.fail_with_error_stay_logged_in(
+        return fail_with_error_stay_logged_in(
             "Report failed to return a list of descriptions/results")
 
     if outputtype == VALUE.OUTPUTTYPE_TSV:
@@ -305,7 +306,7 @@ def provide_report(session: SESSION_FWD_REF,
             "CamCOPS_" +
             report.report_id +
             "_" +
-            cc_dt.format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.FILENAME) +
+            format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.FILENAME) +
             ".tsv"
         )
         return ws.tsv_result(tsv_from_query(rows, descriptions), [], filename)
@@ -343,15 +344,18 @@ def expand_id_descriptions(fieldnames: Iterable[str]) -> List[str]:
     ...
         fieldnames = expand_id_descriptions(fieldnames)
     """
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
-        fieldnames = [
-            f.replace(
-                FP_ID_NUM + str(n),
-                FP_ID_NUM + str(n) + " (" + pls.get_id_desc(n) + ")"
-            )
-            for f in fieldnames
-        ]
-    return fieldnames
+    def replacer(fieldname: str) -> str:
+        if fieldname.startswith(FP_ID_NUM):
+            nstr = fieldname[len(FP_ID_NUM):]
+            try:
+                n = int(nstr)
+                if n in pls.get_which_idnums():
+                    return "{} ({})".format(fieldname, pls.get_id_desc(n))
+            except (TypeError, ValueError):
+                pass
+        return fieldname  # unmodified
+
+    return [replacer(f) for f in fieldnames]
 
 
 # =============================================================================
@@ -366,7 +370,7 @@ def task_unit_test_report(name: str, r: Report) -> None:
                      r.get_rows_descriptions)
 
 
-def unit_tests() -> None:
+def ccreport_unit_tests() -> None:
     """Unit tests for cc_report module."""
     # -------------------------------------------------------------------------
     # DELAYED IMPORTS (UNIT TESTING ONLY)
@@ -374,11 +378,9 @@ def unit_tests() -> None:
     from . import cc_session
 
     session = cc_session.Session()
-    paramspec = {
-        PARAM.TYPE: PARAM.WHICH_IDNUM,
-        PARAM.NAME: "xname",
-        PARAM.LABEL: "label"
-    }
+    paramspec = ReportParamSpec(type=PARAM.WHICH_IDNUM,
+                                name="xname",
+                                label="label")
     form = cgi.FieldStorage()
     rows = [
         ["a1", "a2", "a3"],
@@ -395,7 +397,7 @@ def unit_tests() -> None:
     unit_test_ignore("", ws.html_table_from_query, rows, descriptions)
     unit_test_ignore("", escape_for_tsv, "x")
     unit_test_ignore("", tsv_from_query, rows, descriptions)
-    unit_test_ignore("", provide_report, session, form)
+    unit_test_ignore("", serve_report, session, form)
     unit_test_ignore("", get_param_html, paramspec)
     unit_test_ignore("", get_param_html, paramspec)
 

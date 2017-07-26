@@ -24,23 +24,25 @@
 
 import datetime
 import os
-from typing import List, Optional, Union
+from typing import List, TYPE_CHECKING, Union
 
-from . import cc_dt
-from . import cc_lang
+from .cc_dt import format_datetime, get_now_localtz
+from .cc_lang import mangle_unicode_to_ascii
 from .cc_constants import (
     DATEFORMAT,
     FP_ID_NUM,
     FP_ID_SHORT_DESC,
-    NUMBER_OF_IDNUMS,
 )
+if TYPE_CHECKING:
+    from .cc_patientidnum import PatientIdNum
 
 
 # =============================================================================
 # Ancillary functions for export filenames
 # =============================================================================
 
-def patient_spec_for_filename_is_valid(patient_spec: str) -> bool:
+def patient_spec_for_filename_is_valid(patient_spec: str,
+                                       valid_which_idnums: List[int]) -> bool:
     """Returns True if the patient_spec appears valid; otherwise False."""
     testdict = dict(
         surname="surname",
@@ -49,7 +51,7 @@ def patient_spec_for_filename_is_valid(patient_spec: str) -> bool:
         sex="sex",
         allidnums="allidnums",
     )
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
+    for n in valid_which_idnums:
         nstr = str(n)
         testdict[FP_ID_SHORT_DESC + nstr] = FP_ID_SHORT_DESC + nstr
         testdict[FP_ID_NUM + nstr] = FP_ID_NUM + nstr
@@ -62,7 +64,8 @@ def patient_spec_for_filename_is_valid(patient_spec: str) -> bool:
         return False
 
 
-def filename_spec_is_valid(filename_spec: str) -> bool:
+def filename_spec_is_valid(filename_spec: str,
+                           valid_which_idnums: List[int]) -> bool:
     """Returns True if the filename_spec appears valid; otherwise False."""
     testdict = dict(
         # As above:
@@ -80,7 +83,7 @@ def filename_spec_is_valid(filename_spec: str) -> bool:
         filetype="filetype",
         anonymous="anonymous",
     )
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
+    for n in valid_which_idnums:
         nstr = str(n)
         testdict[FP_ID_SHORT_DESC + nstr] = FP_ID_SHORT_DESC + nstr
         testdict[FP_ID_NUM + nstr] = FP_ID_NUM + nstr
@@ -102,36 +105,30 @@ def get_export_filename(patient_spec_if_anonymous: str,
                         forename: str = None,
                         dob: Union[datetime.date, datetime.datetime] = None,
                         sex: str = None,
-                        idnums: List[Optional[int]] = [None]*NUMBER_OF_IDNUMS,
-                        idshortdescs: List[str] = [""]*NUMBER_OF_IDNUMS,
+                        idnum_objects: List['PatientIdNum'] = None,
                         creation_datetime: datetime.datetime = None,
                         basetable: str = None,
                         serverpk: int = None) -> str:
     """Get filename, for file exports/transfers."""
-    if idnums is None:
-        idnums = [None]*NUMBER_OF_IDNUMS
-    if idshortdescs is None:
-        idshortdescs = [""]*NUMBER_OF_IDNUMS
+    idnum_objects = idnum_objects or []  # type: List['PatientIdNum']
     d = dict(
         surname=surname or "",
         forename=forename or "",
         dob=(
-            cc_dt.format_datetime(dob, DATEFORMAT.FILENAME_DATE_ONLY, "")
+            format_datetime(dob, DATEFORMAT.FILENAME_DATE_ONLY, "")
             if dob else ""
         ),
         sex=sex or "",
     )
     all_id_components = []
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
-        i = n - 1
-        nstr = str(n)
-        has_num = idnums[i] is not None
-        has_desc = bool(idshortdescs[i])
-        d[FP_ID_SHORT_DESC + nstr] = (idshortdescs[i]
-                                      if has_num and has_desc else "")
-        d[FP_ID_NUM + nstr] = str(idnums[i]) if has_num else ""
-        if has_num and has_desc:
-            all_id_components.append(idshortdescs[i] + "-" + str(idnums[i]))
+    for idobj in idnum_objects:
+        if idobj.which_idnum is not None:
+            nstr = str(idobj.which_idnum)
+            has_num = idobj.idnum_value is not None
+            d[FP_ID_NUM + nstr] = str(idobj.idnum_value) if has_num else ""
+            d[FP_ID_SHORT_DESC + nstr] = idobj.short_description() or ""
+            if has_num and idobj.short_description():
+                all_id_components.append(idobj.get_filename_component())
     d["allidnums"] = "_".join(all_id_components)
     if is_anonymous:
         patient = patient_spec_if_anonymous
@@ -139,10 +136,8 @@ def get_export_filename(patient_spec_if_anonymous: str,
         patient = str(patient_spec).format(**d)
     d.update(dict(
         patient=patient,
-        created=cc_dt.format_datetime(creation_datetime,
-                                      DATEFORMAT.FILENAME, ""),
-        now=cc_dt.format_datetime(cc_dt.get_now_localtz(),
-                                  DATEFORMAT.FILENAME),
+        created=format_datetime(creation_datetime, DATEFORMAT.FILENAME, ""),
+        now=format_datetime(get_now_localtz(), DATEFORMAT.FILENAME),
         tasktype=str(basetable or ""),
         serverpk=str(serverpk or ""),
         filetype=task_format.lower(),
@@ -157,7 +152,7 @@ def convert_string_for_filename(s: str, allow_paths: bool = False) -> str:
     operating systems."""
     # http://stackoverflow.com/questions/7406102
     # ... modified
-    s = cc_lang.mangle_unicode_to_ascii(s)
+    s = mangle_unicode_to_ascii(s)
     s = s.replace(" ", "_")
     keepcharacters = ['.', '_', '-']
     if allow_paths:

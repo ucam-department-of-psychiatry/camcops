@@ -51,9 +51,17 @@ class FieldRef;
 using FieldRefPtr = QSharedPointer<FieldRef>;
 using FieldRefPtrList = QVector<FieldRefPtr>;
 
+class IdNumDescription;
+using IdNumDescriptionPtr = QSharedPointer<IdNumDescription>;
+using IdNumDescriptionPtrList = QVector<IdNumDescriptionPtr>;
+
 class Patient;
 using PatientPtr = QSharedPointer<Patient>;
 using PatientPtrList = QVector<PatientPtr>;
+
+class PatientIdNum;
+using PatientIdNumPtr = QSharedPointer<PatientIdNum>;
+using PatientIdNumPtrList = QVector<PatientIdNumPtr>;
 
 class PhotoSequencePhoto;
 using PhotoSequencePhotoPtr = QSharedPointer<PhotoSequencePhoto>;

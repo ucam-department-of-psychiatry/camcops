@@ -22,14 +22,16 @@
 ===============================================================================
 """
 
+import logging
 from typing import Optional, Union
 
 import cardinal_pythonlib.rnc_db as rnc_db
 
 from .cc_constants import STANDARD_GENERIC_FIELDSPECS
 from . import cc_db
-from .cc_logger import log
 from .cc_pls import pls
+
+log = logging.getLogger(__name__)
 
 
 # =============================================================================

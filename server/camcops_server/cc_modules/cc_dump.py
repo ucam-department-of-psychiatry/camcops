@@ -29,11 +29,11 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import zipfile
 
 from .cc_audit import audit
-from . import cc_blob
+from .cc_blob import Blob
 from .cc_constants import CONFIG_FILE_MAIN_SECTION
-from . import cc_patient
+from .cc_patient import Patient
 from .cc_pls import pls
-from . import cc_task
+from .cc_task import Task
 from .cc_unittest import unit_test_ignore
 
 # =============================================================================
@@ -42,8 +42,8 @@ from .cc_unittest import unit_test_ignore
 
 NOTHING_VALID_SPECIFIED = "No valid tables or views specified"
 POSSIBLE_SYSTEM_TABLES = [  # always exist
-    cc_blob.Blob.TABLENAME,
-    cc_patient.Patient.TABLENAME,
+    Blob.TABLENAME,
+    Patient.TABLENAME,
 ]
 POSSIBLE_SYSTEM_VIEWS = [
 ]
@@ -57,7 +57,7 @@ def get_possible_task_tables_views() -> Tuple[List[str], List[str]]:
     """Returns (tables, views) pertaining to tasks."""
     tables = []
     views = []
-    for cls in cc_task.Task.all_subclasses(sort_tablename=True):
+    for cls in Task.all_subclasses(sort_tablename=True):
         (tasktables, taskviews) = cls.get_all_table_and_view_names()
         tables.extend(tasktables)
         views.extend(taskviews)
@@ -232,11 +232,11 @@ def get_view_data_as_tsv(view: str,
         if not view:
             return "Invalid table or view"
     # Special blob handling...
-    if view == cc_blob.Blob.TABLENAME:
+    if view == Blob.TABLENAME:
         query = (
             "SELECT " +
-            ",".join(cc_blob.Blob.FIELDS_WITHOUT_BLOB) +
-            ",HEX(theblob) FROM " + cc_blob.Blob.TABLENAME
+            ",".join(Blob.FIELDS_WITHOUT_BLOB) +
+            ",HEX(theblob) FROM " + Blob.TABLENAME
         )
     else:
         query = "SELECT * FROM " + view
@@ -245,7 +245,7 @@ def get_view_data_as_tsv(view: str,
     return get_query_as_tsv(query)
 
 
-def get_multiple_views_data_as_tsv_zip(tables: List[str]) -> bytes:
+def get_multiple_views_data_as_tsv_zip(tables: List[str]) -> Optional[bytes]:
     """Returns the data from multiple views, as multiple TSV files in a ZIP."""
     tables = validate_table_list(tables)
     if not tables:
@@ -265,7 +265,7 @@ def get_multiple_views_data_as_tsv_zip(tables: List[str]) -> bytes:
 # Unit tests
 # =============================================================================
 
-def unit_tests() -> None:
+def ccdump_unit_tests() -> None:
     """Unit tests for the cc_dump module."""
     unit_test_ignore("", get_possible_task_tables_views)
     unit_test_ignore("", get_permitted_tables_and_views)

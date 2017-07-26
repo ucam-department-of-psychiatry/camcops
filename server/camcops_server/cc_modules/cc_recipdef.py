@@ -24,16 +24,29 @@
 
 import configparser
 import datetime
-from typing import List, Optional
+import logging
+from typing import List, Optional, TYPE_CHECKING
 
 import cardinal_pythonlib.rnc_db as rnc_db
 
-from . import cc_dt
-from . import cc_filename
-from . import cc_policy
+from .cc_dt import get_date_from_string
+from .cc_filename import (
+    filename_spec_is_valid,
+    get_export_filename,
+    patient_spec_for_filename_is_valid,
+)
+from .cc_policy import (
+    is_idnum_mandatory_in_finalize_policy,
+    is_idnum_mandatory_in_upload_policy,
+)
 from .cc_configfile import get_config_parameter, get_config_parameter_boolean
-from .cc_constants import NUMBER_OF_IDNUMS, VALUE
-from .cc_logger import log
+from .cc_constants import VALUE
+
+if TYPE_CHECKING:
+    from .cc_patientidnum import PatientIdNum
+
+log = logging.getLogger(__name__)
+
 
 # =============================================================================
 # Constants
@@ -110,14 +123,17 @@ class RecipientDefinition(object):
     FIELDS = [x["name"] for x in FIELDSPECS]
 
     def __init__(self,
+                 valid_which_idnums: List[int],
                  config: configparser.ConfigParser = None,
                  section: str = None) -> None:
-        """Initialize. Possible methods:
+        """
+        Initialize. Possible methods:
 
-            RecipientDefinition()
-            RecipientDefinition(config, section)
+            RecipientDefinition(valid_which_idnums)
+            RecipientDefinition(valid_which_idnums, config, section)
 
         Args:
+            valid_which_idnums: list of valid which_idnum
             config: configparser INI file object
             section: name of recipient and of INI file section
         """
@@ -125,8 +141,8 @@ class RecipientDefinition(object):
         # HL7 fields not copied to database
         self.ping_first = None
         self.network_timeout_ms = None
-        self.idnum_type_list = [None] * NUMBER_OF_IDNUMS
-        self.idnum_aa_list = [None] * NUMBER_OF_IDNUMS
+        self.idnum_type_list = {}  # type: Dict[int, str]
+        self.idnum_aa_list = {}  # type: Dict[int, str]
         self.keep_message = None
         self.keep_reply = None
         # File fields not copied to database (because actual filename stored):
@@ -138,6 +154,7 @@ class RecipientDefinition(object):
         self.include_anonymous = False
         # Internal use
         self.valid = False
+        self.valid_which_idnums = valid_which_idnums
 
         # Variable constructor...
         if config is None and section is None:
@@ -175,10 +192,10 @@ class RecipientDefinition(object):
                 True)
             sd = get_config_parameter(
                 config, section, "START_DATE", str, None)
-            self.start_date = cc_dt.get_date_from_string(sd)
+            self.start_date = get_date_from_string(sd)
             ed = get_config_parameter(
                 config, section, "END_DATE", str, None)
-            self.end_date = cc_dt.get_date_from_string(ed)
+            self.end_date = get_date_from_string(ed)
             self.finalized_only = get_config_parameter_boolean(
                 config, section, "FINALIZED_ONLY", True)
             self.task_format = get_config_parameter(
@@ -196,12 +213,11 @@ class RecipientDefinition(object):
                     config, section, "PING_FIRST", True)
                 self.network_timeout_ms = get_config_parameter(
                     config, section, "NETWORK_TIMEOUT_MS", int, 10000)
-                for n in range(1, NUMBER_OF_IDNUMS + 1):
-                    i = n - 1
+                for n in self.valid_which_idnums:
                     nstr = str(n)
-                    self.idnum_type_list[i] = get_config_parameter(
+                    self.idnum_type_list[n] = get_config_parameter(
                         config, section, "IDNUM_TYPE_" + nstr, str, "")
-                    self.idnum_aa_list[i] = get_config_parameter(
+                    self.idnum_aa_list[n] = get_config_parameter(
                         config, section, "IDNUM_AA_" + nstr, str, "")
                 self.keep_message = get_config_parameter_boolean(
                     config, section, "KEEP_MESSAGE", False)
@@ -266,14 +282,15 @@ class RecipientDefinition(object):
         if not self.primary_idnum and self.using_hl7():
             self.report_error("missing primary_idnum")
             return
-        if self.primary_idnum < 1 or self.primary_idnum > NUMBER_OF_IDNUMS:
+        if self.primary_idnum not in self.valid_which_idnums:
             self.report_error("invalid primary_idnum: {}".format(
                 self.primary_idnum))
             return
         if self.primary_idnum and self.require_idnum_mandatory:
             # (a) ID number must be mandatory in finalized records
-            if not cc_policy.is_idnum_mandatory_in_finalize_policy(
-                    self.primary_idnum):
+            if not is_idnum_mandatory_in_finalize_policy(
+                    which_idnum=self.primary_idnum,
+                    valid_which_idnums=self.valid_which_idnums):
                 self.report_error(
                     "primary_idnum ({}) not mandatory in finalizing policy, "
                     "but needs to be".format(self.primary_idnum))
@@ -281,8 +298,9 @@ class RecipientDefinition(object):
             if not self.finalized_only:
                 # (b) ID number must also be mandatory in uploaded,
                 # non-finalized records
-                if not cc_policy.is_idnum_mandatory_in_upload_policy(
-                        self.primary_idnum):
+                if not is_idnum_mandatory_in_upload_policy(
+                        which_idnum=self.primary_idnum,
+                        valid_which_idnums=self.valid_which_idnums):
                     self.report_error(
                         "primary_idnum ({}) not mandatory in upload policy, "
                         "but needs to be".format(self.primary_idnum))
@@ -308,7 +326,7 @@ class RecipientDefinition(object):
                     self.report_error(
                         "missing/invalid port: {}".format(self.port))
                     return
-            if not self.idnum_type_list[self.primary_idnum - 1]:
+            if not self.idnum_type_list.get(self.primary_idnum, None):
                 self.report_error(
                     "missing IDNUM_TYPE_{} (for primary ID)".format(
                         self.primary_idnum))
@@ -321,22 +339,24 @@ class RecipientDefinition(object):
             if not self.patient_spec:
                 self.report_error("missing patient_spec")
                 return
-            if not cc_filename.patient_spec_for_filename_is_valid(
-                    self.patient_spec):
+            if not patient_spec_for_filename_is_valid(
+                    patient_spec=self.patient_spec,
+                    valid_which_idnums=self.valid_which_idnums):
                 self.report_error(
                     "invalid patient_spec: {}".format(self.patient_spec))
                 return
             if not self.filename_spec:
                 self.report_error("missing filename_spec")
                 return
-            if not cc_filename.filename_spec_is_valid(self.filename_spec):
+            if not filename_spec_is_valid(
+                    filename_spec=self.filename_spec,
+                    valid_which_idnums=self.valid_which_idnums):
                 self.report_error(
                     "invalid filename_spec: {}".format(self.filename_spec))
                 return
             # RiO metadata
             if self.rio_metadata:
-                if not (1 <= self.rio_idnum <= NUMBER_OF_IDNUMS):
-                    # ... test handles None values; 1 < None < 3 is False
+                if self.rio_idnum not in self.valid_which_idnums:
                     self.report_error(
                         "invalid rio_idnum: {}".format(self.rio_idnum))
                     return
@@ -368,25 +388,13 @@ class RecipientDefinition(object):
         """Is the recipient a filestore?"""
         return self.type == RECIPIENT_TYPE_FILE
 
-    def get_id_type(self, idnum: int) -> str:
-        """Get HL7 ID type for a specific ID number.
+    def get_id_type(self, which_idnum: int) -> Optional[str]:
+        """Get HL7 ID type for a specific ID number."""
+        return self.idnum_type_list.get(which_idnum, None)
 
-        Args:
-            idnum: From 1 to NUMBER_OF_IDNUMS inclusive.
-        """
-        if idnum is None or idnum < 1 or idnum > NUMBER_OF_IDNUMS:
-            return None
-        return self.idnum_type_list[idnum - 1]
-
-    def get_id_aa(self, idnum: int) -> str:
-        """Get HL7 ID type for a specific ID number.
-
-        Args:
-            idnum: From 1 to NUMBER_OF_IDNUMS inclusive.
-        """
-        if idnum is None or idnum < 1 or idnum > NUMBER_OF_IDNUMS:
-            return None
-        return self.idnum_aa_list[idnum - 1]
+    def get_id_aa(self, which_idnum: int) -> Optional[str]:
+        """Get HL7 ID type for a specific ID number."""
+        return self.idnum_aa_list.get(which_idnum, None)
 
     def get_filename(self,
                      is_anonymous: bool = False,
@@ -394,13 +402,12 @@ class RecipientDefinition(object):
                      forename: str = None,
                      dob: datetime.datetime = None,
                      sex: str = None,
-                     idnums: List[Optional[int]] = [None]*NUMBER_OF_IDNUMS,
-                     idshortdescs: List[str] = [""]*NUMBER_OF_IDNUMS,
+                     idnum_objects: List['PatientIdNum'] = None,
                      creation_datetime: datetime.datetime = None,
                      basetable: str = None,
                      serverpk: int = None) -> str:
         """Get filename, for file transfers."""
-        return cc_filename.get_export_filename(
+        return get_export_filename(
             self.patient_spec_if_anonymous,
             self.patient_spec,
             self.filename_spec,
@@ -410,8 +417,7 @@ class RecipientDefinition(object):
             forename=forename,
             dob=dob,
             sex=sex,
-            idnums=idnums,
-            idshortdescs=idshortdescs,
+            idnum_objects=idnum_objects,
             creation_datetime=creation_datetime,
             basetable=basetable,
             serverpk=serverpk)

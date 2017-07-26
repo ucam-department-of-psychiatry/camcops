@@ -108,8 +108,8 @@ protected:
     void seedRng();
     void makeStoredVarTable();
     void createStoredVars();
-    void upgradeDatabase();
-    void upgradeDatabase(const Version& old_version, const Version& new_version);
+    Version upgradeDatabaseBeforeTablesMade();
+    void upgradeDatabaseAfterTasksRegistered(const Version& old_version);
     void makeOtherSystemTables();
     void registerTasks();
     void makeTaskTables();
@@ -197,8 +197,6 @@ public:
     Patient* selectedPatient() const;
     int selectedPatientId() const;
     PatientPtrList getAllPatients(bool sorted = true);
-    QString idDescription(int which_idnum) const;
-    QString idShortDescription(int which_idnum) const;
     IdPolicy uploadPolicy() const;
     IdPolicy finalizePolicy() const;
 protected:
@@ -218,6 +216,24 @@ signals:
     void fontSizeChanged();
 
     // ------------------------------------------------------------------------
+    // ID descriptions (downloaded from server)
+    // ------------------------------------------------------------------------
+public:
+    bool idDescriptionExists(int which_idnum);
+    QString idDescription(int which_idnum);
+    QString idShortDescription(int which_idnum);
+    void clearIdDescriptionCache();
+    void deleteAllIdDescriptions();
+    bool setIdDescription(int which_idnum, const QString& desc,
+                          const QString& shortdesc);
+    QVector<IdNumDescriptionPtr> getAllIdDescriptions();
+    QVector<int> whichIdNumsAvailable();
+protected:
+    QPair<QString, QString> idDescriptionDirect(int which_idnum);  // desc, shortdesc
+    QPair<QString, QString> idDescShortDesc(int which_idnum);
+    mutable QMap<int, QPair<QString, QString>> m_iddescription_cache;
+
+    // ------------------------------------------------------------------------
     // Extra strings (downloaded from server)
     // ------------------------------------------------------------------------
 public:
@@ -232,7 +248,7 @@ public:
 protected:
     QString xstringDirect(const QString& taskname, const QString& stringname,
                           const QString& default_str = "");
-    QMap<QPair<QString, QString>, QString> m_extrastring_cache;
+    mutable QMap<QPair<QString, QString>, QString> m_extrastring_cache;
 
     // ------------------------------------------------------------------------
     // Stored variables: generic
@@ -274,20 +290,15 @@ protected:
     void offerTerms();
 
     // ------------------------------------------------------------------------
-    // SQL dumping
-    // ------------------------------------------------------------------------
-public:
-    void dumpDataDatabase(QTextStream& os);
-    void dumpSystemDatabase(QTextStream& os);
-
-    // ------------------------------------------------------------------------
     // Uploading
     // ------------------------------------------------------------------------
+public:
     void upload();
 
     // ------------------------------------------------------------------------
     // App strings, or derived
     // ------------------------------------------------------------------------
+public:
     NameValueOptions nhsPersonMaritalStatusCodeOptions();
     NameValueOptions nhsEthnicCategoryCodeOptions();
 

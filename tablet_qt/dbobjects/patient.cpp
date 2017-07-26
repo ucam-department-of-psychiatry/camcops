@@ -21,17 +21,23 @@
 #include <limits>
 #include <QDebug>
 #include "core/camcopsapp.h"
-#include "common/dbconstants.h"
+#include "common/dbconst.h"
 #include "common/design_defines.h"
+#include "db/ancillaryfunc.h"
 #include "db/dbfunc.h"
 #include "db/dbnestabletransaction.h"
+#include "dbobjects/patientidnum.h"
+#include "dbobjects/patientidnumsorter.h"
+#include "dialogs/nvpchoicedialog.h"
+#include "lib/containers.h"
 #include "lib/datetime.h"
 #include "lib/idpolicy.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/qugridcontainer.h"
+#include "questionnairelib/qubutton.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quimage.h"
 #include "questionnairelib/qulineedit.h"
@@ -50,7 +56,9 @@ const QString FORENAME_FIELD("forename");
 const QString SURNAME_FIELD("surname");
 const QString DOB_FIELD("dob");
 const QString SEX_FIELD("sex");
-const QString IDNUM_FIELD_FORMAT("idnum%1");
+const QString IDNUM_FIELD_PREFIX("idnum");
+const QString IDNUM_FIELD_FORMAT(IDNUM_FIELD_PREFIX + "%1");
+const QString ANY_IDNUM("anyidnum");
 
 // Not so important:
 const QString ADDRESS_FIELD("address");
@@ -70,9 +78,16 @@ const QString TAG_IDCLASH_OK("idclash_ok");
 const QString TAG_IDCLASH_FAIL("idclash_fail");
 const QString TAG_IDCLASH_DETAIL("idclash_detail");
 
+const QString DELETE_ID_NUM(QObject::tr("Delete ID#"));
+
+
+// ============================================================================
+// Creation
+// ============================================================================
 
 Patient::Patient(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     DatabaseObject(app, db, TABLENAME, dbconst::PK_FIELDNAME, true, false),
+    m_page(nullptr),
     m_questionnaire(nullptr)
 {
     // ------------------------------------------------------------------------
@@ -85,6 +100,7 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     addField(ADDRESS_FIELD, QVariant::String);
     addField(GP_FIELD, QVariant::String);
     addField(OTHER_FIELD, QVariant::String);
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
     for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         addField(IDNUM_FIELD_FORMAT.arg(n), QVariant::LongLong);
 #ifdef DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
@@ -94,6 +110,7 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, int load_pk) :
         addField(dbconst::IDDESC_FIELD_FORMAT.arg(n), QVariant::String);
 #endif
     }
+#endif
 
     // ------------------------------------------------------------------------
     // Load from database (or create/save), unless this is a specimen
@@ -101,6 +118,51 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
+
+// ============================================================================
+// Ancillary management
+// ============================================================================
+
+void Patient::loadAllAncillary(int pk)
+{
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
+    Q_UNUSED(pk);
+#else
+    const OrderBy order_by{{PatientIdNum::FN_WHICH_IDNUM, true}};
+    ancillaryfunc::loadAncillary<PatientIdNum, PatientIdNumPtr>(
+                m_idnums, m_app, m_db,
+                PatientIdNum::FK_PATIENT, order_by, pk);
+#endif
+}
+
+
+QVector<DatabaseObjectPtr> Patient::getAncillarySpecimens() const
+{
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
+    return QVector<DatabaseObjectPtr>();
+#else
+    return QVector<DatabaseObjectPtr>{
+        PatientIdNumPtr(new PatientIdNum(m_app, m_db)),
+    };
+#endif
+}
+
+
+QVector<DatabaseObjectPtr> Patient::getAllAncillary() const
+{
+    QVector<DatabaseObjectPtr> ancillaries;
+#ifndef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
+    for (auto idnum : m_idnums) {
+        ancillaries.append(idnum);
+    }
+#endif
+    return ancillaries;
+}
+
+
+// ============================================================================
+// Information about patients
+// ============================================================================
 
 int Patient::id() const
 {
@@ -165,119 +227,59 @@ bool Patient::hasIdnum(int which_idnum) const
 }
 
 
+QVector<int> Patient::whichIdnumsPresent() const
+{
+    QVector<int> which;
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
+        if (hasIdnum(n)) {
+            which.append(n);
+        }
+    }
+#else
+    for (PatientIdNumPtr idnum : m_idnums) {
+        if (idnum->idnumIsPresent()) {
+            which.append(idnum->whichIdNum());
+        }
+    }
+#endif
+    return which;
+}
+
+
+QVector<int> Patient::whichIdnumsHaveEntries() const
+{
+    QVector<int> which;
+#ifndef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
+    for (PatientIdNumPtr idnum : m_idnums) {
+        which.append(idnum->whichIdNum());
+    }
+#endif
+    return which;
+}
+
+
 QVariant Patient::idnumVariant(int which_idnum) const
 {
     if (!dbconst::isValidWhichIdnum(which_idnum)) {
         return QVariant();
     }
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
     return value(IDNUM_FIELD_FORMAT.arg(which_idnum));
+#else
+    for (PatientIdNumPtr idnum : m_idnums) {
+        if (idnum->whichIdNum() == which_idnum) {
+            return idnum->idnumAsVariant();
+        }
+    }
+    return QVariant();
+#endif
 }
 
 
 qlonglong Patient::idnumInteger(int which_idnum) const
 {
-    if (!dbconst::isValidWhichIdnum(which_idnum)) {
-        return 0;
-    }
-    return valueULongLong(IDNUM_FIELD_FORMAT.arg(which_idnum));
-}
-
-
-OpenableWidget* Patient::editor(bool read_only)
-{
-    QuPagePtr page(new QuPage());
-    page->setTitle(tr("Edit patient"));
-
-    QuGridContainer* grid = new QuGridContainer();
-    grid->setColumnStretch(0, 1);
-    grid->setColumnStretch(1, 2);
-    int row = 0;
-    const Qt::Alignment align = Qt::AlignRight | Qt::AlignTop;
-
-    grid->addCell(QuGridCell(new QuText(tr("Surname")), row, 0, 1, 1, align));
-    grid->addCell(QuGridCell(new QuLineEdit(fieldRef(SURNAME_FIELD, false)),
-                             row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("Forename")), row, 0, 1, 1, align));
-    grid->addCell(QuGridCell(new QuLineEdit(fieldRef(FORENAME_FIELD, false)),
-                             row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("Sex")), row, 0, 1, 1, align));
-    grid->addCell(QuGridCell(
-        (new QuMcq(fieldRef(SEX_FIELD),  // properly mandatory
-                   CommonOptions::sexes()))->setHorizontal(true),
-        row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("Date of birth")),
-                             row, 0, 1, 1, align));
-    grid->addCell(QuGridCell(
-        (new QuDateTime(fieldRef(DOB_FIELD,
-                                 false)))->setMode(QuDateTime::DefaultDate),
-        row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("Address")), row, 0, 1, 1, align));
-    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(ADDRESS_FIELD, false)),
-                             row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("General practitioner (GP)")), row, 0, 1, 1, align));
-    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(GP_FIELD, false)),
-                             row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("Other details")), row, 0, 1, 1, align));
-    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(OTHER_FIELD, false)),
-                             row++, 1));
-    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
-        QString iddesc = m_app.idDescription(n);
-        QString idfield = IDNUM_FIELD_FORMAT.arg(n);
-        grid->addCell(QuGridCell(new QuText(iddesc), row, 0, 1, 1, align));
-        QuLineEditLongLong* num_editor = new QuLineEditLongLong(
-                    fieldRef(idfield, false),
-                    MIN_ID_NUM_VALUE,
-                    MAX_ID_NUM_VALUE);
-        grid->addCell(QuGridCell(num_editor, row++, 1));
-    }
-    page->addElement(grid);
-
-    page->addElement(new QuHeading(tr("Minimum ID required for app:")));
-    page->addElement(new QuText(TABLET_ID_POLICY.pretty()));
-    page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_POLICY_APP_OK));
-    page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_POLICY_APP_FAIL));
-
-    page->addElement(new QuHeading(tr("Minimum ID required for upload to server:")));
-    page->addElement(new QuText(m_app.uploadPolicy().pretty()));
-    page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_POLICY_UPLOAD_OK));
-    page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_POLICY_UPLOAD_FAIL));
-
-    page->addElement(new QuHeading(tr("Minimum ID required to finalize on server:")));
-    page->addElement(new QuText(m_app.finalizePolicy().pretty()));
-    page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_POLICY_FINALIZE_OK));
-    page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_POLICY_FINALIZE_FAIL));
-
-    page->addElement(new QuHeading(tr("ID numbers must not clash with another patient:")));
-    page->addElement((new QuText("?"))->addTag(TAG_IDCLASH_DETAIL));
-    page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_IDCLASH_OK));
-    page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_IDCLASH_FAIL));
-
-    for (const QString& fieldname : policyAttributes().keys()) {
-        FieldRefPtr fr = fieldRef(fieldname);
-        connect(fr.data(), &FieldRef::valueChanged,
-                this, &Patient::updateQuestionnaireIndicators);
-    }
-
-    m_questionnaire = new Questionnaire(m_app, {page});
-    m_questionnaire->setReadOnly(read_only);
-    updateQuestionnaireIndicators();
-    return m_questionnaire;
+    return idnumVariant(which_idnum).toULongLong();  // 0 in case of failure
 }
 
 
@@ -312,9 +314,21 @@ Patient::AttributesType Patient::policyAttributes() const
     map[SURNAME_FIELD] = hasSurname();
     map[DOB_FIELD] = hasDob();
     map[SEX_FIELD] = hasSex();
+    bool any_idnum = false;
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
     for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
-        map[IDNUM_FIELD_FORMAT.arg(n)] = hasIdnum(n);
+        const bool present = hasIdnum(n);
+        map[IDNUM_FIELD_FORMAT.arg(n)] = present;
+        any_idnum = any_idnum || present;
     }
+#else
+    for (PatientIdNumPtr idnum : m_idnums) {
+        const bool present = idnum->idnumIsPresent();
+        map[IDNUM_FIELD_FORMAT.arg(idnum->whichIdNum())] = present;
+        any_idnum = any_idnum || present;
+    }
+#endif
+    map[ANY_IDNUM] = any_idnum;
     return map;
 }
 
@@ -340,6 +354,7 @@ bool Patient::compliesWithFinalize() const
 QString Patient::shortIdnumSummary() const
 {
     QStringList details;
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
     for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         if (hasIdnum(n)) {
             details.append(QString("%1 %2")
@@ -347,6 +362,13 @@ QString Patient::shortIdnumSummary() const
                            .arg(idnumInteger(n)));
         }
     }
+#else
+    for (PatientIdNumPtr idnum : m_idnums) {
+        details.append(QString("%1 %2")
+                       .arg(m_app.idShortDescription(idnum->whichIdNum()))
+                       .arg(idnum->idnumAsString()));
+    }
+#endif
     if (details.isEmpty()) {
         return tr("[No ID numbers]");
     }
@@ -365,28 +387,35 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
     }
     AttributesType attributes = policyAttributes();
 
-    const bool tablet = TABLET_ID_POLICY.complies(attributes);
-    m_questionnaire->setVisibleByTag(TAG_POLICY_APP_OK, tablet);
-    m_questionnaire->setVisibleByTag(TAG_POLICY_APP_FAIL, !tablet);
-    fieldRef(SURNAME_FIELD)->setMandatory(!tablet);
-    fieldRef(FORENAME_FIELD)->setMandatory(!tablet);
-    fieldRef(SEX_FIELD)->setMandatory(!tablet);
-    fieldRef(DOB_FIELD)->setMandatory(!tablet);
+    const bool tablet_ok = TABLET_ID_POLICY.complies(attributes);
+    m_questionnaire->setVisibleByTag(TAG_POLICY_APP_OK, tablet_ok);
+    m_questionnaire->setVisibleByTag(TAG_POLICY_APP_FAIL, !tablet_ok);
+    fieldRef(SURNAME_FIELD)->setMandatory(!tablet_ok);
+    fieldRef(FORENAME_FIELD)->setMandatory(!tablet_ok);
+    fieldRef(SEX_FIELD)->setMandatory(!tablet_ok);
+    fieldRef(DOB_FIELD)->setMandatory(!tablet_ok);
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
     for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
-        fieldRef(IDNUM_FIELD_FORMAT.arg(n))->setMandatory(!tablet);
+        fieldRef(IDNUM_FIELD_FORMAT.arg(n))->setMandatory(!tablet_ok);
     }
+#else
+    for (PatientIdNumPtr idnum : m_idnums) {
+        idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE)->setMandatory(!tablet_ok);
+    }
+#endif
 
-    const bool upload = m_app.uploadPolicy().complies(attributes);
-    m_questionnaire->setVisibleByTag(TAG_POLICY_UPLOAD_OK, upload);
-    m_questionnaire->setVisibleByTag(TAG_POLICY_UPLOAD_FAIL, !upload);
+    const bool upload_ok = m_app.uploadPolicy().complies(attributes);
+    m_questionnaire->setVisibleByTag(TAG_POLICY_UPLOAD_OK, upload_ok);
+    m_questionnaire->setVisibleByTag(TAG_POLICY_UPLOAD_FAIL, !upload_ok);
 
-    const bool finalize = m_app.finalizePolicy().complies(attributes);
-    m_questionnaire->setVisibleByTag(TAG_POLICY_FINALIZE_OK, finalize);
-    m_questionnaire->setVisibleByTag(TAG_POLICY_FINALIZE_FAIL, !finalize);
+    const bool finalize_ok = m_app.finalizePolicy().complies(attributes);
+    m_questionnaire->setVisibleByTag(TAG_POLICY_FINALIZE_OK, finalize_ok);
+    m_questionnaire->setVisibleByTag(TAG_POLICY_FINALIZE_FAIL, !finalize_ok);
 
     bool id_ok = true;
     QStringList clashing_ids;
-    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
+    const QVector<int> which_idnums_present = whichIdnumsPresent();
+    for (const int n : which_idnums_present) {
         if (othersClashOnIdnum(n)) {
             clashing_ids.append(m_app.idShortDescription(n));
             id_ok = false;
@@ -409,18 +438,19 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
 bool Patient::othersClashOnIdnum(int which_idnum) const
 {
     // Answers the question: do any other patients share the ID number whose
-    // *index* (e.g. 0-7) is which_idnum?
+    // *index* (e.g. 1-8) is which_idnum?
     using dbfunc::delimit;
-    if (which_idnum < 1 || which_idnum > dbconst::NUMBER_OF_IDNUMS) {
+    if (!dbconst::isValidWhichIdnum(which_idnum)) {
         uifunc::stopApp("Bug: Bad which_idnum to Patient::othersClashOnIdnum");
     }
-    const QString id_fieldname = IDNUM_FIELD_FORMAT.arg(which_idnum);
     const QVariant idvar = idnumVariant(which_idnum);
     if (idvar.isNull()) {
         return false;
     }
     const qlonglong idnum = idnumInteger(which_idnum);
     const int patient_pk = id();
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
+    const QString id_fieldname = IDNUM_FIELD_FORMAT.arg(which_idnum);
     const SqlArgs sqlargs(
         QString("SELECT COUNT(*) FROM %1 WHERE %2 = ? AND %3 <> ?")
             .arg(delimit(TABLENAME),
@@ -428,6 +458,16 @@ bool Patient::othersClashOnIdnum(int which_idnum) const
                  delimit(dbconst::PK_FIELDNAME)),
         ArgList{idnum, patient_pk}
     );
+#else
+    const SqlArgs sqlargs(
+        QString("SELECT COUNT(*) FROM %1 WHERE %2 = ? AND %3 = ? AND %4 <> ?")
+            .arg(delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME),
+                 delimit(PatientIdNum::FN_WHICH_IDNUM),
+                 delimit(PatientIdNum::FN_IDNUM_VALUE),
+                 delimit(PatientIdNum::FK_PATIENT)),
+        ArgList{which_idnum, idnum, patient_pk}
+    );
+#endif
     const int c = m_db.fetchInt(sqlargs);
     return c > 0;
 }
@@ -440,6 +480,7 @@ bool Patient::anyIdClash() const
     // numbers with this patient)?"
     using dbfunc::delimit;
     ArgList args;
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
     QStringList idnum_criteria;
     for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         QVariant idvar = idnumVariant(n);
@@ -453,11 +494,25 @@ bool Patient::anyIdClash() const
     if (idnum_criteria.isEmpty()) {  // no IDs that are not NULL
         return false;
     }
-    args.append(id());
     const QString sql = QString("SELECT COUNT(*) FROM %1 WHERE (%2) AND %3 <> ?")
             .arg(delimit(TABLENAME),
                  idnum_criteria.join(" OR "),
                  delimit(dbconst::PK_FIELDNAME));
+#else
+    const QString sql = QString(
+                "SELECT COUNT(*) "
+                "FROM %1 otherpt "
+                "INNER JOIN %1 thispt "
+                "  ON otherpt.%2 = thispt.%2 "  // which_idnum
+                "  AND otherpt.%3 = thispt.%3 "  // idnum value; will automatically ignore NULLs
+                "  AND otherpt.%4 <> thispt.%4 "  // patient PK
+                "WHERE thispt.%4 = ?")  // patient PK
+            .arg(delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME),  // %1
+                 delimit(PatientIdNum::FN_WHICH_IDNUM),  // %2
+                 delimit(PatientIdNum::FN_IDNUM_VALUE),  // %3
+                 delimit(PatientIdNum::FK_PATIENT));  // %4
+#endif
+    args.append(id());
     const SqlArgs sqlargs(sql, args);
     const int c = m_db.fetchInt(sqlargs);
     return c > 0;
@@ -516,12 +571,23 @@ bool Patient::matchesForMerge(const Patient* other) const
         return false;
     }
     // All ID numbers must match or be blank:
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
     for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         QString id_fieldname = IDNUM_FIELD_FORMAT.arg(n);
         if (!sameOrOneNull(id_fieldname)) {
             return false;
         }
     }
+#else
+    for (PatientIdNumPtr this_id : m_idnums) {
+        const int which_idnum = this_id->whichIdNum();
+        if (this_id->idnumIsPresent() &&
+                other->hasIdnum(which_idnum) &&
+                other->idnumInteger(which_idnum) != idnumInteger(which_idnum)) {
+            return false;
+        }
+    }
+#endif
     // Forename, surname, DOB, sex must match or be blank:
     return sameOrOneBlank(FORENAME_FIELD) &&
             sameOrOneBlank(SURNAME_FIELD) &&
@@ -530,51 +596,6 @@ bool Patient::matchesForMerge(const Patient* other) const
             sameOrOneBlank(ADDRESS_FIELD) &&
             sameOrOneBlank(GP_FIELD) &&
             sameOrOneBlank(OTHER_FIELD);
-}
-
-
-void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
-{
-    DbNestableTransaction trans(m_db);
-
-    const int this_pk = id();
-    const int other_pk = other->id();
-
-    // Copy information from other to this
-    qInfo() << Q_FUNC_INFO << "Copying information from patient" << other_pk
-            << "to patient" << this_pk;
-    QStringList fields{
-        FORENAME_FIELD,
-        SURNAME_FIELD,
-        DOB_FIELD,
-        SEX_FIELD,
-        ADDRESS_FIELD,
-        GP_FIELD,
-        OTHER_FIELD,
-    };
-    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
-        fields.append(IDNUM_FIELD_FORMAT.arg(n));
-    }
-    for (const QString& fieldname : fields) {
-        QVariant this_value = value(fieldname);
-        QVariant other_value = other->value(fieldname);
-        if (this_value.isNull() || (this_value.toString().isEmpty() &&
-                                    !other_value.toString().isEmpty())) {
-            setValue(fieldname, other_value);
-        }
-    }
-    save();
-
-    // Move tasks from other to this
-    qInfo() << Q_FUNC_INFO << "Moving tasks from patient" << other_pk
-            << "to patient" << this_pk;
-    TaskFactory* factory = m_app.taskFactory();
-    for (TaskPtr p_task : factory->fetchAllForPatient(other_pk)) {
-        p_task->moveToPatient(this_pk);
-        p_task->save();
-    }
-
-    qInfo() << Q_FUNC_INFO << "Move complete";
 }
 
 
@@ -628,4 +649,312 @@ QString Patient::oneLineHtmlDetailString() const
     return QString("<b>%1</b> (%2); %3").arg(surnameUpperForename(),
                                              ageSexDob(),
                                              shortIdnumSummary());
+}
+
+
+// ============================================================================
+// Editing and other manipulations
+// ============================================================================
+
+OpenableWidget* Patient::editor(bool read_only)
+{
+    buildPage();
+    m_questionnaire = new Questionnaire(m_app, {m_page});
+    m_questionnaire->setReadOnly(read_only);
+    updateQuestionnaireIndicators();
+    return m_questionnaire;
+}
+
+
+void Patient::buildPage()
+{
+    if (!m_page) {
+        m_page = QuPagePtr(new QuPage());
+    } else {
+        m_page->clearElements();
+    }
+    m_page->setTitle(tr("Edit patient"));
+
+    QuGridContainer* grid = new QuGridContainer();
+    grid->setColumnStretch(0, 1);
+    grid->setColumnStretch(1, 2);
+    int row = 0;
+    const Qt::Alignment ralign = Qt::AlignRight | Qt::AlignTop;
+    const Qt::Alignment lalign = Qt::AlignLeft | Qt::AlignTop;
+    // Don't apply alignment to the editing widgets; let them fill their cells.
+    const int rowspan = 1;
+    const int colspan = 1;
+
+    grid->addCell(QuGridCell(new QuText(tr("Surname")),
+                             row, 0, rowspan, colspan, ralign));
+    grid->addCell(QuGridCell(new QuLineEdit(fieldRef(SURNAME_FIELD, false)),
+                             row++, 1));
+    grid->addCell(QuGridCell(new QuText(tr("Forename")),
+                             row, 0, rowspan, colspan, ralign));
+    grid->addCell(QuGridCell(new QuLineEdit(fieldRef(FORENAME_FIELD, false)),
+                             row++, 1));
+    grid->addCell(QuGridCell(new QuText(tr("Sex")),
+                             row, 0, rowspan, colspan, ralign));
+    grid->addCell(QuGridCell(
+        (new QuMcq(fieldRef(SEX_FIELD),  // properly mandatory
+                   CommonOptions::sexes()))->setHorizontal(true),
+        row++, 1));
+    grid->addCell(QuGridCell(new QuText(tr("Date of birth")),
+                             row, 0, rowspan, colspan, ralign));
+    grid->addCell(QuGridCell(
+        (new QuDateTime(fieldRef(DOB_FIELD,
+                                 false)))->setMode(QuDateTime::DefaultDate),
+        row++, 1));
+    grid->addCell(QuGridCell(new QuText(tr("Address")),
+                             row, 0, rowspan, colspan, ralign));
+    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(ADDRESS_FIELD, false)),
+                             row++, 1));
+    grid->addCell(QuGridCell(new QuText(tr("General practitioner (GP)")),
+                             row, 0, rowspan, colspan, ralign));
+    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(GP_FIELD, false)),
+                             row++, 1));
+    grid->addCell(QuGridCell(new QuText(tr("Other details")),
+                             row, 0, rowspan, colspan, ralign));
+    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(OTHER_FIELD, false)),
+                             row++, 1));
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
+        QString iddesc = m_app.idDescription(n);
+        QString idfield = IDNUM_FIELD_FORMAT.arg(n);
+        grid->addCell(QuGridCell(new QuText(iddesc),
+                                 row, 0, rowspan, colspan, ralign));
+        QuLineEditLongLong* num_editor = new QuLineEditLongLong(
+                    fieldRef(idfield, false),
+                    MIN_ID_NUM_VALUE,
+                    MAX_ID_NUM_VALUE);
+        grid->addCell(QuGridCell(num_editor, row++, 1));
+    }
+    m_page->addElement(grid);
+#else
+    m_page->addElement(grid);
+    QuGridContainer* idgrid = new QuGridContainer();
+    idgrid->setColumnStretch(0, 1);
+    idgrid->setColumnStretch(1, 1);
+    idgrid->setColumnStretch(2, 4);
+    row = 0;
+    for (PatientIdNumPtr idnum : m_idnums) {
+        const int which_idnum = idnum->whichIdNum();
+        QuButton* delete_id = new QuButton(
+                DELETE_ID_NUM + " " + QString::number(which_idnum),
+                std::bind(&Patient::deleteIdNum, this, which_idnum));
+        idgrid->addCell(QuGridCell(delete_id,
+                                   row, 0, rowspan, colspan, lalign));
+        QuText* id_label = new QuText(m_app.idDescription(which_idnum));
+        idgrid->addCell(QuGridCell(id_label,
+                                   row, 1, rowspan, colspan, ralign));
+        QuLineEditLongLong* num_editor = new QuLineEditLongLong(
+                    idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE, false),
+                    MIN_ID_NUM_VALUE,
+                    MAX_ID_NUM_VALUE);
+        idgrid->addCell(QuGridCell(num_editor, row++, 2));
+    }
+    QuButton* add_id = new QuButton(
+                tr("Add ID number"),
+                std::bind(&Patient::addIdNum, this));
+    idgrid->addCell(QuGridCell(add_id,
+                               row++, 0, rowspan, colspan, lalign));
+    m_page->addElement(idgrid);
+#endif
+
+    m_page->addElement(new QuHeading(tr("Minimum ID required for app:")));
+    m_page->addElement(new QuText(TABLET_ID_POLICY.pretty()));
+    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
+                                  uiconst::ICONSIZE))
+                     ->addTag(TAG_POLICY_APP_OK));
+    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
+                                  uiconst::ICONSIZE))
+                     ->addTag(TAG_POLICY_APP_FAIL));
+
+    m_page->addElement(new QuHeading(tr("Minimum ID required for upload to server:")));
+    m_page->addElement(new QuText(m_app.uploadPolicy().pretty()));
+    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
+                                  uiconst::ICONSIZE))
+                     ->addTag(TAG_POLICY_UPLOAD_OK));
+    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
+                                  uiconst::ICONSIZE))
+                     ->addTag(TAG_POLICY_UPLOAD_FAIL));
+
+    m_page->addElement(new QuHeading(tr("Minimum ID required to finalize on server:")));
+    m_page->addElement(new QuText(m_app.finalizePolicy().pretty()));
+    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
+                                  uiconst::ICONSIZE))
+                     ->addTag(TAG_POLICY_FINALIZE_OK));
+    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
+                                  uiconst::ICONSIZE))
+                     ->addTag(TAG_POLICY_FINALIZE_FAIL));
+
+    m_page->addElement(new QuHeading(tr("ID numbers must not clash with another patient:")));
+    m_page->addElement((new QuText("?"))->addTag(TAG_IDCLASH_DETAIL));
+    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
+                                  uiconst::ICONSIZE))
+                     ->addTag(TAG_IDCLASH_OK));
+    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
+                                  uiconst::ICONSIZE))
+                     ->addTag(TAG_IDCLASH_FAIL));
+
+    QStringList fields{FORENAME_FIELD, SURNAME_FIELD, DOB_FIELD, SEX_FIELD};
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
+        fields.append(IDNUM_FIELD_FORMAT.arg(n));
+    }
+#endif
+    for (const QString& fieldname : fields) {
+        FieldRefPtr fr = fieldRef(fieldname);
+        connect(fr.data(), &FieldRef::valueChanged,
+                this, &Patient::updateQuestionnaireIndicators);
+    }
+#ifndef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
+    for (PatientIdNumPtr idnum : m_idnums) {
+        FieldRefPtr fr = idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE);
+        connect(fr.data(), &FieldRef::valueChanged,
+                this, &Patient::updateQuestionnaireIndicators);
+    }
+#endif
+}
+
+
+void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
+{
+    DbNestableTransaction trans(m_db);
+
+    const int this_pk = id();
+    const int other_pk = other->id();
+
+    // Copy information from other to this
+    qInfo() << Q_FUNC_INFO << "Copying information from patient" << other_pk
+            << "to patient" << this_pk;
+    QStringList fields{
+        FORENAME_FIELD,
+        SURNAME_FIELD,
+        DOB_FIELD,
+        SEX_FIELD,
+        ADDRESS_FIELD,
+        GP_FIELD,
+        OTHER_FIELD,
+    };
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
+    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
+        fields.append(IDNUM_FIELD_FORMAT.arg(n));
+    }
+#else
+    bool please_sort = false;
+    for (PatientIdNumPtr other_id : other->m_idnums) {
+        if (other_id->idnumIsPresent()) {
+            const int which_idnum = other_id->whichIdNum();
+            const qlonglong other_idnum_value = other_id->idnumAsInteger();
+            bool found = false;
+            for (PatientIdNumPtr this_id : m_idnums) {
+                if (this_id->whichIdNum() == which_idnum) {
+                    found = true;
+                    if (this_id->idnumIsPresent() &&
+                            this_id->idnumAsInteger() != other_idnum_value) {
+                        qWarning().nospace()
+                                << Q_FUNC_INFO
+                                << " Something has gone wrong! ID number mismatch for ID#"
+                                << which_idnum
+                                << " (this: " << this_id->idnumAsVariant()
+                                << ", other: " << other_id->idnumAsVariant()
+                                << ") yet we shouldn't be copying if there is mismatch!";
+                    }
+                    this_id->setIdnumValue(other_id->idnumAsInteger(), true);  // save
+                }
+            }
+            if (!found) {
+                PatientIdNumPtr new_id(new PatientIdNum(this_pk, which_idnum,
+                                                        m_app, m_db));
+                m_idnums.append(new_id);
+                please_sort = true;
+            }
+        }
+    }
+    if (please_sort) {
+        sortIdNums();
+    }
+#endif
+    for (const QString& fieldname : fields) {
+        QVariant this_value = value(fieldname);
+        QVariant other_value = other->value(fieldname);
+        if (this_value.isNull() || (this_value.toString().isEmpty() &&
+                                    !other_value.toString().isEmpty())) {
+            setValue(fieldname, other_value);
+        }
+    }
+    save();
+
+    // Move tasks from other to this
+    qInfo() << Q_FUNC_INFO << "Moving tasks from patient" << other_pk
+            << "to patient" << this_pk;
+    TaskFactory* factory = m_app.taskFactory();
+    for (TaskPtr p_task : factory->fetchAllForPatient(other_pk)) {
+        p_task->moveToPatient(this_pk);
+        p_task->save();
+    }
+
+    qInfo() << Q_FUNC_INFO << "Move complete";
+}
+
+
+void Patient::addIdNum()
+{
+    const QVector<int> present = whichIdnumsHaveEntries();
+    const QVector<int> possible = m_app.whichIdNumsAvailable();
+    const QVector<int> unused = containers::setSubtract(possible, present);
+    if (unused.isEmpty()) {
+        uifunc::alert(tr("All ID numbers offered by the server are already here"));
+        return;
+    }
+    NameValueOptions options;
+    for (const int which_idnum : unused) {
+        const NameValuePair pair(m_app.idDescription(which_idnum), which_idnum);
+        options.append(pair);
+    }
+    NvpChoiceDialog dlg(m_questionnaire, options, tr("Add ID number"));
+    QVariant chosen_idnum_var;
+    if (dlg.choose(&chosen_idnum_var) != QDialog::Accepted) {
+        return;  // user pressed cancel, or some such
+    }
+    const int chosen_idnum = chosen_idnum_var.toInt();
+    PatientIdNumPtr new_id = PatientIdNumPtr(new PatientIdNum(
+                            id(), chosen_idnum, m_app, m_db));  // will save
+    m_idnums.append(new_id);
+    sortIdNums();
+}
+
+
+void Patient::deleteIdNum(int which_idnum)
+{
+    const QString strnum = QString::number(which_idnum);
+    const QString text(tr("Really delete ID number") + " " + strnum + " (" +
+                       m_app.idDescription(which_idnum) + ")?");
+    const QString title(DELETE_ID_NUM + strnum + "?");
+    if (!uifunc::confirm(text, title,
+                         tr("Yes, delete it"), tr("No, cancel"),
+                         m_questionnaire)) {
+        return;
+    }
+    for (int i = 0; i < m_idnums.size(); ++i) {
+        PatientIdNumPtr idnum = m_idnums.at(i);
+        if (idnum->whichIdNum() == which_idnum) {
+            idnum->deleteFromDatabase();
+            m_idnums.remove(i);
+            sortIdNums();
+            return;
+        }
+    }
+}
+
+
+void Patient::sortIdNums()
+{
+    qSort(m_idnums.begin(), m_idnums.end(), PatientIdNumSorter());
+    if (m_questionnaire) {
+        buildPage();
+        updateQuestionnaireIndicators();
+        m_questionnaire->refreshCurrentPage();
+    }
 }

@@ -186,7 +186,7 @@ bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
                     debug << "; ";
                 }
                 debug << rec.fieldName(col) << "=";
-                DebugFunc::debugConcisely(debug, query.value(col));
+                debugfunc::debugConcisely(debug, query.value(col));
             }
             ++row;
         }  // endl on destruction

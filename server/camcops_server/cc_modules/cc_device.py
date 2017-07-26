@@ -29,8 +29,7 @@ import cardinal_pythonlib.rnc_web as ws
 from .cc_constants import PARAM
 from . import cc_db
 from .cc_pls import pls
-from . import cc_report
-from .cc_report import Report, REPORT_RESULT_TYPE
+from .cc_report import expand_id_descriptions, Report, REPORT_RESULT_TYPE
 from .cc_unittest import unit_test_ignore
 
 
@@ -166,7 +165,7 @@ class DeviceReport(Report):
             tablename=Device.TABLENAME,
         )
         (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
-        fieldnames = cc_report.expand_id_descriptions(fieldnames)
+        fieldnames = expand_id_descriptions(fieldnames)
         return rows, fieldnames
 
 
@@ -182,10 +181,10 @@ def unit_tests_device(d: Device) -> None:
     unit_test_ignore("", d.get_id)
 
 
-def unit_tests() -> None:
+def ccdevice_unit_tests() -> None:
     """Unit tests for cc_device module."""
     current_pks = pls.db.fetchallfirstvalues(
-        "SELECT device FROM {}".format(Device.TABLENAME)
+        "SELECT id FROM {}".format(Device.TABLENAME)
     )
     test_pks = [None, current_pks[0]] if current_pks else [None]
     for pk in test_pks:

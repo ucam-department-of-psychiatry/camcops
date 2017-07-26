@@ -22,6 +22,7 @@
 ===============================================================================
 """
 
+import logging
 from typing import List
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
@@ -29,7 +30,8 @@ from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr_qa
 from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
-from ..cc_modules.cc_logger import log
+
+log = logging.getLogger(__name__)
 
 
 # =============================================================================

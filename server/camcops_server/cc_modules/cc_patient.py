@@ -38,26 +38,45 @@ from .cc_constants import (
     DATEFORMAT,
     ERA_NOW,
     FP_ID_DESC,
-    FP_ID_NUM,
     FP_ID_SHORT_DESC,
-    NUMBER_OF_IDNUMS,
+    FP_ID_NUM,
+    NUMBER_OF_IDNUMS_DEFUNCT,
     PARAM,
     STANDARD_GENERIC_FIELDSPECS,
 )
 from . import cc_db
-from . import cc_dt
-from . import cc_hl7core
-from . import cc_html
-from . import cc_namedtuples
-from .cc_namedtuples import BarePatientInfo, XmlElementTuple
+from .cc_dt import (
+    format_datetime,
+    format_datetime_string,
+    get_date_from_string,
+    get_datetime_from_string,
+    get_now_localtz,
+)
+from .cc_hl7core import make_pid_segment
+from .cc_html import answer, get_generic_action_url, get_url_field_value_pair
+from .cc_namedtuples import (
+    BarePatientInfo,
+    PatientIdentifierTuple,
+    XmlElementTuple,
+)
+from .cc_patientidnum import PatientIdNum
 from .cc_pls import pls
-from . import cc_policy
-from . import cc_report
+from .cc_policy import (
+    satisfies_finalize_id_policy,
+    satisfies_id_policy,
+    satisfies_upload_id_policy,
+    TOKENIZED_POLICY_TYPE,
+)
+from .cc_report import expand_id_descriptions
 from .cc_recipdef import RecipientDefinition
 from .cc_report import Report, REPORT_RESULT_TYPE
-from . import cc_specialnote
+from .cc_specialnote import SpecialNote
 from .cc_unittest import unit_test_ignore
-from . import cc_xml
+from .cc_version import CAMCOPS_SERVER_VERSION_STRING
+from .cc_xml import (
+    make_xml_branches_from_fieldspecs,
+    XML_COMMENT_SPECIAL_NOTES,
+)
 
 log = logging.getLogger(__name__)
 
@@ -96,20 +115,22 @@ class Patient:
         dict(name="other", cctype="TEXT",
              comment="Other details", identifies_patient=True),
     ]
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
+    # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN
+    # THE UPLOAD API; DELETE ONCE SQLALCHEMY/ALEMBIC RUNNING:
+    for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
         nstr = str(n)
-        FIELDSPECS.append(dict(name=FP_ID_NUM + nstr,
+        FIELDSPECS.append(dict(name=FP_ID_NUM + nstr,  # DEFUNCT as of v2.0.1  # noqa
                                cctype="BIGINT_UNSIGNED",
                                indexed=True,
                                comment="ID number " + nstr,
                                cris_include=True))
         # REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-        FIELDSPECS.append(dict(name=FP_ID_DESC + nstr,  # *** DEFUNCT as of v2.0.0  # noqa
+        FIELDSPECS.append(dict(name=FP_ID_DESC + nstr,  # DEFUNCT as of v2.0.0  # noqa
                                cctype="IDDESCRIPTOR",
                                comment="ID description " + nstr,
                                anon=True,
                                cris_include=True))
-        FIELDSPECS.append(dict(name=FP_ID_SHORT_DESC + nstr,  # *** DEFUNCT as of v2.0.0  # noqa
+        FIELDSPECS.append(dict(name=FP_ID_SHORT_DESC + nstr,  # DEFUNCT as of v2.0.0  # noqa
                                cctype="IDDESCRIPTOR",
                                comment="ID short description " + nstr,
                                anon=True,
@@ -133,17 +154,35 @@ class Patient:
         pls.db.fetch_object_from_db_by_pk(self, Patient.TABLENAME,
                                           Patient.FIELDS, serverpk)
         # Don't load special notes, for speed (retrieved on demand)
-        self._special_notes = None
+        self._special_notes = None  # type: List[SpecialNote]  # noqa
+        # Similarly for ID numbers
+        self._idnums = None  # type: List[PatientIdNum]
+        self._idnums_dirty = False
+
+    def get_idnum_objects(self) -> List[PatientIdNum]:
+        if self._idnums is None:
+            self._idnums = cc_db.get_contemporaneous_matching_ancillary_objects_by_fk(  # noqa
+                PatientIdNum, self.id,
+                self._device_id, self._era,
+                self._when_added_batch_utc, self._when_removed_batch_utc
+            )  # type: List[PatientIdNum]
+        return self._idnums
+
+    def get_idnum_which_value_tuples(self) -> List[Tuple[int, int]]:
+        return [(x.which_idnum, x.idnum_value)
+                for x in self.get_idnum_objects()]
+
+    def get_idnum_raw_values_only(self) -> List[int]:
+        return [x.idnum_value for x in self.get_idnum_objects()]
 
     def get_xml_root(self, skip_fields: List[str] = None) -> XmlElementTuple:
         """Get root of XML tree, as an XmlElementTuple."""
         skip_fields = skip_fields or []
-        branches = cc_xml.make_xml_branches_from_fieldspecs(
+        branches = make_xml_branches_from_fieldspecs(
             self, self.FIELDSPECS, skip_fields=skip_fields)
         # Special notes
-        self.ensure_special_notes_loaded()
-        branches.append(cc_xml.XML_COMMENT_SPECIAL_NOTES)
-        for sn in self._special_notes:
+        branches.append(XML_COMMENT_SPECIAL_NOTES)
+        for sn in self.get_special_notes():
             branches.append(sn.get_xml_root())
         return XmlElementTuple(name=self.TABLENAME,
                                value=branches)
@@ -160,8 +199,7 @@ class Patient:
         self.sex = sex
         if dob:
             dob = dob.replace(day=1)  # set DOB to first of the month
-            self.dob = cc_dt.format_datetime(dob,
-                                             DATEFORMAT.ISO8601_DATE_ONLY)
+            self.dob = format_datetime(dob, DATEFORMAT.ISO8601_DATE_ONLY)
 
     def get_literals_for_anonymisation(self) -> List[str]:
         """Return a list of strings that require removing from other fields in
@@ -175,7 +213,7 @@ class Patient:
             ] +
             address.split(",") +
             other.split(",") +
-            self.get_idnum_array()
+            [str(x) for x in self.get_idnum_raw_values_only() if x is not None]
         )
 
     def get_dates_for_anonymisation(self) -> List[Union[datetime.date,
@@ -193,36 +231,29 @@ class Patient:
             surname=self.surname,
             dob=self.dob,
             sex=self.sex,
-            idnum_array=self.get_idnum_array()
+            whichidnum_idnumvalue_tuples=self.get_whichidnum_idnumvalue_tuples()
         )
 
-    def get_idnum_array(self) -> List[Optional[int]]:
-        """Return array (length NUMBER_OF_IDNUMS) containing ID numbers."""
-        arr = []
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            arr.append(self.get_idnum(n))
-        return arr
-
-    def get_idshortdesc_array(self) -> List[Optional[str]]:
-        """Return array (length NUMBER_OF_IDNUMS) containing ID short
-        descriptions."""
-        arr = []
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            arr.append(self.get_idshortdesc(n))
+    def get_whichidnum_idnumvalue_tuples(self) -> List[Tuple[int, int]]:
+        """Return list of (which_idnum, idnum_value) tuples."""
+        arr = []  # type: List[Tuple[int, int]]
+        for idobj in self.get_idnum_objects():
+            if idobj.which_idnum is not None and idobj.idnum_value is not None:
+                arr.append((idobj.which_idnum, idobj.idnum_value))
         return arr
 
     def satisfies_upload_id_policy(self) -> bool:
         """Does the patient satisfy the uploading ID policy?"""
-        return cc_policy.satisfies_upload_id_policy(self.get_bare_ptinfo())
+        return satisfies_upload_id_policy(self.get_bare_ptinfo())
 
     def satisfies_finalize_id_policy(self) -> bool:
         """Does the patient satisfy the finalizing ID policy?"""
-        return cc_policy.satisfies_finalize_id_policy(self.get_bare_ptinfo())
+        return satisfies_finalize_id_policy(self.get_bare_ptinfo())
 
     def satisfies_id_policy(self,
-                            policy: cc_policy.TOKENIZED_POLICY_TYPE) -> bool:
+                            policy: TOKENIZED_POLICY_TYPE) -> bool:
         """Does the patient satisfy a particular ID policy?"""
-        return cc_policy.satisfies_id_policy(policy, self.get_bare_ptinfo())
+        return satisfies_id_policy(policy, self.get_bare_ptinfo())
 
     def dump(self) -> None:
         """Dump object to database's log."""
@@ -256,9 +287,9 @@ class Patient:
         """HTML fragment for date of birth."""
         if longform:
             return "<br>Date of birth: {}".format(
-                cc_html.answer(cc_dt.format_datetime_string(
+                answer(format_datetime_string(
                     self.dob, DATEFORMAT.LONG_DATE, default=None)))
-        return "DOB: {}.".format(cc_dt.format_datetime_string(
+        return "DOB: {}.".format(format_datetime_string(
             self.dob, DATEFORMAT.SHORT_DATE))
 
     def get_age(self, default: str = "") -> Union[int, str]:
@@ -269,13 +300,13 @@ class Patient:
         """Date of birth, as a a timezone-naive date."""
         if self.dob is None:
             return None
-        return cc_dt.get_date_from_string(self.dob)
+        return get_date_from_string(self.dob)
 
     def get_dob_str(self) -> Optional[str]:
         dob_dt = self.get_dob()
         if dob_dt is None:
             return None
-        return cc_dt.format_datetime(dob_dt, DATEFORMAT.SHORT_DATE)
+        return format_datetime(dob_dt, DATEFORMAT.SHORT_DATE)
 
     def get_age_at(self,
                    when: Union[datetime.datetime, datetime.date],
@@ -307,7 +338,7 @@ class Patient:
         """
         if now_string is None:
             return default
-        return self.get_age_at(cc_dt.get_datetime_from_string(now_string))
+        return self.get_age_at(get_datetime_from_string(now_string))
 
     def is_female(self) -> bool:
         """Is sex 'F'?"""
@@ -334,8 +365,8 @@ class Patient:
         """Get HL7 patient identifier (PID) segment."""
         # Put the primary one first:
         patient_id_tuple_list = [
-            cc_namedtuples.PatientIdentifierTuple(
-                id=str(self.get_idnum(recipient_def.primary_idnum)),
+            PatientIdentifierTuple(
+                id=str(self.get_idnum_value(recipient_def.primary_idnum)),
                 id_type=recipient_def.get_id_type(
                     recipient_def.primary_idnum),
                 assigning_authority=recipient_def.get_id_aa(
@@ -343,20 +374,21 @@ class Patient:
             )
         ]
         # Then the rest:
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            if n == recipient_def.primary_idnum:
+        for idobj in self.get_idnum_objects():
+            which_idnum = idobj.which_idnum
+            if which_idnum == recipient_def.primary_idnum:
                 continue
-            idnum = self.get_idnum(n)
-            if idnum is None:
+            idnum_value = idobj.idnum_value
+            if idnum_value is None:
                 continue
             patient_id_tuple_list.append(
-                cc_namedtuples.PatientIdentifierTuple(
-                    id=str(idnum),
-                    id_type=recipient_def.get_id_type(n),
-                    assigning_authority=recipient_def.get_id_aa(n)
+                PatientIdentifierTuple(
+                    id=str(idnum_value),
+                    id_type=recipient_def.get_id_type(which_idnum),
+                    assigning_authority=recipient_def.get_id_aa(which_idnum)
                 )
             )
-        return cc_hl7core.make_pid_segment(
+        return make_pid_segment(
             forename=self.get_surname(),
             surname=self.get_forename(),
             dob=self.get_dob(),
@@ -365,185 +397,68 @@ class Patient:
             patient_id_tuple_list=patient_id_tuple_list,
         )
 
-    def get_idnum(self, idnum: int) -> Optional[int]:
-        """Get value of a specific ID number.
-
-        Args:
-            idnum: integer from 1 to NUMBER_OF_IDNUMS inclusive
+    def get_idnum_object(self, which_idnum: int) -> Optional[PatientIdNum]:
         """
-        if idnum < 1 or idnum > NUMBER_OF_IDNUMS:
-            return None
-        nstr = str(idnum)
-        return getattr(self, FP_ID_NUM + nstr)
-
-    def get_iddesc(self, n: int) -> Optional[str]:
-        """Get value of a specific ID description.
-
-        Args:
-            n: integer from 1 to NUMBER_OF_IDNUMS inclusive
+        Gets the PatientIdNum object for a specified which_idnum, or None.
         """
-        if n < 1 or n > NUMBER_OF_IDNUMS:
-            return None
-        return getattr(self, FP_ID_DESC + str(n))
+        for x in self.get_idnum_objects():
+            if x.which_idnum == which_idnum:
+                return x
+        return None
 
-    def get_idshortdesc(self, n: int) -> Optional[str]:
-        """Get value of a specific ID short description.
+    def get_idnum_value(self, which_idnum: int) -> Optional[int]:
+        """Get value of a specific ID number, if present."""
+        idobj = self.get_idnum_object(which_idnum)
+        return idobj.idnum_value if idobj else None
 
-        Args:
-            n: integer from 1 to NUMBER_OF_IDNUMS inclusive
-        """
-        if n < 1 or n > NUMBER_OF_IDNUMS:
-            return None
-        return getattr(self, FP_ID_SHORT_DESC + str(n))
+    def set_idnum_value(self, which_idnum: int, idnum_value: int) -> None:
+        idobjs = self.get_idnum_objects()
+        for idobj in idobjs:
+            if idobj.which_idnum == which_idnum:
+                idobj.idnum_value = idnum_value
+                return
+        # Otherwise, make a new one:
+        newid = PatientIdNum()
+        newid._device_id = self._device_id
+        newid._era = self._era
+        newid._current = True
+        newid._when_added_exact = pls.NOW_LOCAL_TZ_ISO8601
+        newid._when_added_batch_utc = pls.NOW_UTC_NO_TZ
+        newid._adding_user_id = pls.session.user_id
+        newid._camcops_version = CAMCOPS_SERVER_VERSION_STRING
+        self._idnums.append(newid)
+        # ... not yet saved
 
-    # @staticmethod
-    # def get_id_generic(longform: bool,
-    #                    idnum: int,
-    #                    desc: str,
-    #                    shortdesc: str,
-    #                    serverdesc: str,
-    #                    servershortdesc: str,
-    #                    idnumtext: str,
-    #                    label_id_numbers: bool = False) -> Tuple[bool, str]:
-    #     """Returns (conflict, description).
-    #
-    #     Gets ID description/number in HTML format, or "", plus conflict
-    #     information.
-    #
-    #     Args:
-    #         longform: verbose (for most HTML) or not (for PDF headers)
-    #         idnum: value of ID number
-    #         desc: description
-    #         shortdesc: short description:
-    #         serverdesc: server's description
-    #         servershortdesc: server's short description
-    #         idnumtext: string used as a prefix if label_id_numbers
-    #         label_id_numbers: whether to use prefix
-    #
-    #     In practice:
-    #         longform=False: used in PDF headers
-    #         longform=True, label_id_numbers=True: used in trackers
-    #         longform=True, label_id_numbers=False: used in tasks
-    #
-    #     Returns (conflict, description).
-    #         conflict: Boolean; server's description doesn't match patient's
-    #         description: HTML
-    #     """
-    #     if idnum is None:
-    #         return False, ""  # no conflict if no number!
-    #     prefix = "<i>(" + idnumtext + ")</i> " if label_id_numbers else ""
-    #     if longform:
-    #         conflict = (desc != serverdesc)
-    #         if conflict:
-    #             finaldesc = "{} [server] or {} [tablet]".format(serverdesc,
-    #                                                             desc)
-    #         else:
-    #             finaldesc = ws.webify(desc)
-    #         return conflict, "<br>{}{}: <b>{}</b>".format(
-    #             prefix,
-    #             finaldesc,
-    #             idnum
-    #         )
-    #     else:
-    #         conflict = (shortdesc != servershortdesc)
-    #         if conflict:
-    #             finaldesc = "{} [server] or {} [tablet]".format(
-    #                 servershortdesc, shortdesc)
-    #         else:
-    #             finaldesc = ws.webify(shortdesc)
-    #         return conflict, "{}{}: {}.".format(
-    #             prefix,
-    #             finaldesc,
-    #             idnum
-    #         )
+    def get_iddesc(self, which_idnum: int) -> Optional[str]:
+        """Get value of a specific ID description, if present."""
+        idobj = self.get_idnum_object(which_idnum)
+        return idobj.description() if idobj else None
 
-    @staticmethod
-    def get_id_generic(longform: bool,
-                       idnum: int,
-                       serverdesc: str,
-                       servershortdesc: str,
-                       idnumtext: str,
-                       label_id_numbers: bool = False) -> str:
-        """Returns description.
-
-        Gets ID description/number in HTML format, or "".
-
-        Args:
-            longform: verbose (for most HTML) or not (for PDF headers)
-            idnum: value of ID number
-            serverdesc: server's description
-            servershortdesc: server's short description
-            idnumtext: string used as a prefix if label_id_numbers
-            label_id_numbers: whether to use prefix
-
-        In practice:
-            longform=False: used in PDF headers
-            longform=True, label_id_numbers=True: used in trackers
-            longform=True, label_id_numbers=False: used in tasks
-
-        Returns HTML description.
-        """
-        if idnum is None:
-            return ""
-        prefix = "<i>(" + idnumtext + ")</i> " if label_id_numbers else ""
-        if longform:
-            return "<br>{}{}: <b>{}</b>".format(
-                prefix,
-                ws.webify(serverdesc),
-                idnum
-            )
-        else:
-            return "{}{}: {}.".format(
-                prefix,
-                ws.webify(servershortdesc),
-                idnum
-            )
-
-    # def get_idnum_conflict_and_html(self,
-    #                                 n: int,
-    #                                 longform: bool,
-    #                                 label_id_numbers: bool = False) \
-    #         -> Tuple[bool, str]:
-    #     """Returns (conflict, description HTML).
-    #
-    #     Args:
-    #         n: which ID number? From 1 to NUMBER_OF_IDNUMS inclusive.
-    #         longform: see get_id_generic
-    #         label_id_numbers: whether to use prefix
-    #     """
-    #     if n < 1 or n > NUMBER_OF_IDNUMS:
-    #         return False, "Invalid ID number: {}".format(n)
-    #     nstr = str(n)  # which ID number?
-    #     return self.get_id_generic(
-    #         longform,
-    #         getattr(self, "idnum" + nstr),
-    #         getattr(self, "iddesc" + nstr),
-    #         getattr(self, "idshortdesc" + nstr),
-    #         pls.get_id_desc(n),
-    #         pls.get_id_shortdesc(n),
-    #         "idnum" + nstr,
-    #         label_id_numbers
-    #     )
+    def get_idshortdesc(self, which_idnum: int) -> Optional[str]:
+        """Get value of a specific ID short description, if present."""
+        idobj = self.get_idnum_object(which_idnum)
+        return idobj.short_description() if idobj else None
 
     def get_idnum_html(self,
-                       n: int,
+                       which_idnum: int,
                        longform: bool,
                        label_id_numbers: bool = False) -> str:
         """Returns description HTML.
 
         Args:
-            n: which ID number? From 1 to NUMBER_OF_IDNUMS inclusive.
+            which_idnum: which ID number? From 1 to NUMBER_OF_IDNUMS inclusive.
             longform: see get_id_generic
             label_id_numbers: whether to use prefix
         """
-        if n < 1 or n > NUMBER_OF_IDNUMS:
-            return "Invalid ID number: {}".format(n)
-        nstr = str(n)  # which ID number?
-        return self.get_id_generic(
+        idobj = self.get_idnum_object(which_idnum)
+        if not idobj:
+            return ""
+        nstr = str(which_idnum)  # which ID number?
+        return self._get_id_generic(
             longform,
-            getattr(self, FP_ID_NUM + nstr),
-            pls.get_id_desc(n),
-            pls.get_id_shortdesc(n),
+            idobj.idnum_value,
+            idobj.description(),
+            idobj.short_description(),
             FP_ID_NUM + nstr,
             label_id_numbers
         )
@@ -574,20 +489,20 @@ class Patient:
 
     def get_html_for_page_header(self) -> str:
         """Get HTML used for PDF page header."""
+        longform = False
         h = "<b>{}</b> ({}). {}".format(
             self.get_surname_forename_upper(),
             self.get_sex_verbose(),
-            self.get_dob_html(False),
+            self.get_dob_html(longform=longform),
         )
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            # conflict, msg = self.get_idnum_conflict_and_html(n, False)
-            msg = self.get_idnum_html(n, False)
-            h += " " + msg
-        h += " " + self.get_idother_html(False)
+        for idobj in self.get_idnum_objects():
+            h += " " + idobj.get_html(longform=longform)
+        h += " " + self.get_idother_html(longform=longform)
         return h
 
     def get_html_for_task_header(self, label_id_numbers: bool = False) -> str:
         """Get HTML used for patient details in tasks."""
+        longform = True
         h = """
             <div class="patient">
                 <b>{name}</b> ({sex})
@@ -595,17 +510,15 @@ class Patient:
         """.format(
             name=self.get_surname_forename_upper(),
             sex=self.get_sex_verbose(),
-            dob=self.get_dob_html(True),
+            dob=self.get_dob_html(longform=longform),
         )
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            # conflict, msg = self.get_idnum_conflict_and_html(
-            #     n, True, label_id_numbers)
-            msg = self.get_idnum_html(n, True, label_id_numbers)
+        for idobj in self.get_idnum_objects():
             h += """
                 {} <!-- ID{} -->
             """.format(
-                msg,
-                n
+                idobj.get_html(longform=longform,
+                               label_id_numbers=label_id_numbers),
+                idobj.which_idnum
             )
         h += """
                 {} <!-- ID_other -->
@@ -613,11 +526,11 @@ class Patient:
                 {} <!-- GP -->
             </div>
         """.format(
-            self.get_idother_html(True),
-            self.get_address_html(True),
-            self.get_gp_html(True),
+            self.get_idother_html(longform=longform),
+            self.get_address_html(longform=longform),
+            self.get_gp_html(longform=longform),
         )
-        h += self.get_special_notes()
+        h += self.get_special_notes_html()
         return h
 
     def get_html_for_webview_patient_column(self) -> str:
@@ -627,34 +540,23 @@ class Patient:
         """.format(
             self.get_surname_forename_upper(),
             self.get_sex_verbose(),
-            cc_dt.format_datetime_string(self.dob, DATEFORMAT.SHORT_DATE,
-                                         default="?"),
+            format_datetime_string(self.dob, DATEFORMAT.SHORT_DATE,
+                                   default="?"),
             self.get_age(default="?"),
         )
-
-    # def get_conflict_html_for_id_col(self) -> Tuple[bool, str]:
-    #     """Returns (conflict, html) used for patient ID column in task summary
-    #     view."""
-    #     h = ""
-    #     conflict = False
-    #     for n in range(1, NUMBER_OF_IDNUMS + 1):
-    #         c, msg = self.get_idnum_conflict_and_html(n, False)
-    #         conflict = conflict or c
-    #         h += " " + msg
-    #     h += " " + self.get_idother_html(False)
-    #     return conflict, h
 
     def get_html_for_id_col(self) -> str:
         """Returns HTML used for patient ID column in task summary view."""
         hlist = []
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            hlist.append(self.get_idnum_html(n, False))
-        hlist.append(self.get_idother_html(False))
+        longform = False
+        for idobj in self.get_idnum_objects():
+            hlist.append(idobj.get_html(longform=longform))
+        hlist.append(self.get_idother_html(longform=longform))
         return " ".join(hlist)
 
     def get_url_edit_patient(self) -> str:
-        url = cc_html.get_generic_action_url(ACTION.EDIT_PATIENT)
-        url += cc_html.get_url_field_value_pair(PARAM.SERVERPK, self._pk)
+        url = get_generic_action_url(ACTION.EDIT_PATIENT)
+        url += get_url_field_value_pair(PARAM.SERVERPK, self._pk)
         return url
 
     def is_preserved(self) -> bool:
@@ -666,6 +568,8 @@ class Patient:
         if self._pk is None:
             return
         pls.db.update_object_in_db(self, Patient.TABLENAME, Patient.FIELDS)
+        for idnum in self.get_idnum_objects():
+            idnum.save()
 
     # -------------------------------------------------------------------------
     # Audit
@@ -683,14 +587,12 @@ class Patient:
     # Special notes
     # -------------------------------------------------------------------------
 
-    def ensure_special_notes_loaded(self) -> None:
+    def get_special_notes(self) -> List[SpecialNote]:
         if self._special_notes is None:
-            self.load_special_notes()
-
-    def load_special_notes(self) -> None:
-        self._special_notes = cc_specialnote.SpecialNote.get_all_instances(
-            Patient.TABLENAME, self.id, self._device_id, self._era)
+            self._special_notes = SpecialNote.get_all_instances(
+                Patient.TABLENAME, self.id, self._device_id, self._era)  # type: List[SpecialNote]  # noqa
         # Will now be a list (though possibly an empty one).
+        return self._special_notes
 
     def apply_special_note(self,
                            note: str,
@@ -701,13 +603,12 @@ class Patient:
         """Manually applies a special note to a patient.
         WRITES TO DATABASE.
         """
-        sn = cc_specialnote.SpecialNote()
+        sn = SpecialNote()
         sn.basetable = Patient.TABLENAME
         sn.task_id = self.id
         sn.device_id = self._device_id
         sn.era = self._era
-        sn.note_at = cc_dt.format_datetime(pls.NOW_LOCAL_TZ,
-                                           DATEFORMAT.ISO8601)
+        sn.note_at = format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601)
         sn.user_id = user_id
         sn.note = note
         sn.save()
@@ -715,12 +616,11 @@ class Patient:
         # HL7 deletion of corresponding tasks is done in camcops.py
         self._special_notes = None   # will be reloaded if needed
 
-    def get_special_notes(self) -> str:
-        self.ensure_special_notes_loaded()
-        if not self._special_notes:
+    def get_special_notes_html(self) -> str:
+        special_notes = self.get_special_notes()
+        if not special_notes:
             return ""
-        note_html = "<br>".join([
-            x.get_note_as_html() for x in self._special_notes])
+        note_html = "<br>".join([x.get_note_as_html() for x in special_notes])
         return """
             <div class="specialnote">
                 <b>PATIENT SPECIAL NOTES:</b><br>
@@ -763,18 +663,27 @@ def get_patient_server_pks_by_idnum(
         which_idnum: int,
         idnum_value: int,
         current_only: bool = True) -> Sequence[int]:
-    if not which_idnum or which_idnum < 1 or which_idnum > NUMBER_OF_IDNUMS:
+    if not which_idnum or which_idnum < 1:
         return []
     if idnum_value is None:
         return []
     query = """
         SELECT _pk
-        FROM patient
-        WHERE idnum{} = ?
-    """.format(which_idnum)
-    args = [idnum_value]
+        FROM {patienttable} p
+        INNER JOIN {idnumtable} i
+            ON i._device_id = p._device_id
+            AND i._era = p._era
+            AND i.patient_id = p.id
+        WHERE i.which_idnum = ?
+            AND i.idnum_value = ?
+    """.format(
+        patienttable=Patient.TABLENAME,
+        idnumtable=PatientIdNum.tablename,
+    )
+    args = [which_idnum, idnum_value]
     if current_only:
-        query += " AND _current"
+        query += " AND p._current AND i._current"
+        # *** logical error if i/p not equally current?
     return pls.db.fetchallfirstvalues(query, *args)
 
 
@@ -793,28 +702,54 @@ class DistinctPatientReport(Report):
         # Not easy to get UTF-8 fields out of a query in the column headings!
         # So don't do SELECT idnum8 AS 'idnum8 (Addenbrooke's number)';
         # change it post hoc using cc_report.expand_id_descriptions()
+        patienttable = Patient.TABLENAME
+        select_fields = [
+            "p.surname AS surname",
+            "p.forename AS forename",
+            "p.dob AS dob",
+            "p.sex AS sex"
+        ]
+        from_tables = ["{} AS p".format(patienttable)]
+        where = ["p._current"]
+        for n in pls.get_which_idnums():
+            nstr = str(n)
+            fieldalias = FP_ID_NUM + nstr  # idnum7
+            idtablealias = "i" + nstr  # e.g. i7
+            select_fields.append("{}.idnum_value AS {}".format(idtablealias,
+                                                               fieldalias))
+            from_tables.append(
+                """
+                    INNER JOIN {idtable} AS {idtablealias}
+                        ON {idtable}.patient_id = p.id
+                        AND {idtable}._device_id = p._device_id
+                        AND {idtable}._era = p._era
+                """.format(
+                    idtable=PatientIdNum.tablename,
+                    idtablealias=idtablealias,
+                )
+            )
+            where.append("{}._current".format(idtablealias))
+            where.append("{}.which_idnum = {}".format(idtablealias, nstr))
+            # ... ugly! No parameters. Still, we know what we've got.
+        order_by_fields = [
+            "p.surname",
+            "p.forename",
+            "p.dob",
+            "p.sex"
+        ]
         sql = """
-            SELECT DISTINCT
-                surname
-                , forename
-                , dob
-                , sex
-        """
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            sql += ", idnum{}".format(n)
-        sql += """
-            FROM
-                patient
-            WHERE
-                _current
-            ORDER BY
-                surname
-                , forename
-                , dob
-                , sex
-        """
+            SELECT DISTINCT {select_fields}
+            FROM {from_tables}
+            WHERE {where}
+            ORDER BY {order_by}
+        """.format(
+            select_fields=", ".join(select_fields),
+            from_tables=" ".join(from_tables),
+            where=" AND ".join(where),
+            order_by=", ".join(order_by_fields),
+        )
         (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
-        fieldnames = cc_report.expand_id_descriptions(fieldnames)
+        fieldnames = expand_id_descriptions(fieldnames)
         return rows, fieldnames
 
 
@@ -829,8 +764,7 @@ def unit_tests_patient(p: Patient) -> None:
     unit_test_ignore("", p.get_literals_for_anonymisation)
     unit_test_ignore("", p.get_dates_for_anonymisation)
     unit_test_ignore("", p.get_bare_ptinfo)
-    unit_test_ignore("", p.get_idnum_array)
-    unit_test_ignore("", p.get_idshortdesc_array)
+    unit_test_ignore("", p.get_idnum_which_value_tuples)
     unit_test_ignore("", p.satisfies_upload_id_policy)
     unit_test_ignore("", p.satisfies_finalize_id_policy)
     # implicitly tested: satisfies_id_policy
@@ -842,27 +776,15 @@ def unit_tests_patient(p: Patient) -> None:
     unit_test_ignore("", p.get_dob_html, False)
     unit_test_ignore("", p.get_age)
     unit_test_ignore("", p.get_dob)
-    unit_test_ignore("", p.get_age_at, cc_dt.get_now_localtz())
+    unit_test_ignore("", p.get_age_at, get_now_localtz())
     unit_test_ignore("", p.get_age_at_string, "2000-01-01")
     unit_test_ignore("", p.is_female)
     unit_test_ignore("", p.is_male)
     unit_test_ignore("", p.get_sex)
     unit_test_ignore("", p.get_sex_verbose)
     # get_hl7_pid_segment: skipped as no default RecipientDefinition yet
-    for i in range(-1, NUMBER_OF_IDNUMS + 1 + 1):  # deliberate
-        unit_test_ignore("", p.get_idnum, i)
-        unit_test_ignore("", p.get_id_generic, True, i, "desc", "shortdesc",
-                         "serverdesc", "servershortdesc", "idnumtext", True)
-        unit_test_ignore("", p.get_id_generic, True, i, "desc", "shortdesc",
-                         "serverdesc", "servershortdesc", "idnumtext", False)
-        unit_test_ignore("", p.get_id_generic, False, i, "desc", "shortdesc",
-                         "serverdesc", "servershortdesc", "idnumtext", True)
-        unit_test_ignore("", p.get_id_generic, False, i, "desc", "shortdesc",
-                         "serverdesc", "servershortdesc", "idnumtext", False)
-        unit_test_ignore("", p.get_idnum_conflict_and_html, i, True, True)
-        unit_test_ignore("", p.get_idnum_conflict_and_html, i, True, False)
-        unit_test_ignore("", p.get_idnum_conflict_and_html, i, False, True)
-        unit_test_ignore("", p.get_idnum_conflict_and_html, i, False, False)
+    for i in range(-1, 10):  # deliberate, includes duff values
+        unit_test_ignore("", p.get_idnum_value, i)
         unit_test_ignore("", p.get_iddesc, i)
         unit_test_ignore("", p.get_idshortdesc, i)
     unit_test_ignore("", p.get_idother_html, True)
@@ -875,15 +797,14 @@ def unit_tests_patient(p: Patient) -> None:
     unit_test_ignore("", p.get_html_for_task_header, True)
     unit_test_ignore("", p.get_html_for_task_header, False)
     unit_test_ignore("", p.get_html_for_webview_patient_column)
-    unit_test_ignore("", p.get_conflict_html_for_id_col)
     unit_test_ignore("", p.get_url_edit_patient)
-    unit_test_ignore("", p.get_special_notes)
+    unit_test_ignore("", p.get_special_notes_html)
 
     # Lastly:
     unit_test_ignore("", p.anonymise)
 
 
-def unit_tests() -> None:
+def ccpatient_unit_tests() -> None:
     """Unit tests for cc_patient module."""
     current_pks = pls.db.fetchallfirstvalues(
         "SELECT _pk FROM {} WHERE _current".format(Patient.TABLENAME)

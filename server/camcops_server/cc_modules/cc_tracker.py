@@ -23,7 +23,8 @@
 """
 
 import datetime
-from typing import Any, List, Optional, Tuple
+import logging
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import cardinal_pythonlib.rnc_pdf as rnc_pdf
 import cardinal_pythonlib.rnc_web as ws
@@ -35,7 +36,6 @@ from .cc_constants import (
     DATEFORMAT,
     FP_ID_NUM,
     FULLWIDTH_PLOT_WIDTH,
-    NUMBER_OF_IDNUMS,
     PARAM,
     PDFEND,
     PDF_HEAD_NO_PAGED_MEDIA,
@@ -44,21 +44,30 @@ from .cc_constants import (
     VALUE,
     WKHTMLTOPDF_OPTIONS,
 )
-from . import cc_dt
-from . import cc_filename
-from . import cc_html
-from . import cc_lang
-from .cc_logger import log
+from .cc_dt import format_datetime
+from .cc_filename import get_export_filename
+from .cc_html import (
+    get_generic_action_url,
+    get_html_from_pyplot_figure,
+    get_url_field_value_pair,
+    pdf_footer_content,
+    pdf_header_content,
+)
+from .cc_lang import flatten_list
 from .cc_namedtuples import XmlElementTuple
-from . import cc_plot
+from .cc_plot import matplotlib, set_matplotlib_fontsize
+from .cc_patientidnum import PatientIdNum
 from .cc_pls import pls
 from .cc_session import Session
 from .cc_task import Task, TrackerInfo
 from .cc_unittest import unit_test_ignore
-from . import cc_version
-from . import cc_xml
+from .cc_version import CAMCOPS_SERVER_VERSION
+from .cc_xml import get_xml_document
 
 import matplotlib.pyplot as plt  # ONLY AFTER IMPORTING cc_plot
+
+log = logging.getLogger(__name__)
+
 
 # =============================================================================
 # Constants
@@ -114,8 +123,6 @@ def consistency(values: List[Any],
         return True, "consistent (no values)"
     if len(unique) == 1:
         return True, "consistent ({})".format(unique[0])
-    # log.debug("consistency: values = {}, unique = {}".format(repr(values),
-    #                                                            repr(unique)))
     if len(unique) == 2:
         if None in unique:
             return True, "consistent (all blank or {})".format(
@@ -124,6 +131,33 @@ def consistency(values: List[Any],
     return False, "<b>INCONSISTENT (contains values {})</b>".format(
         ", ".join(unique)
     )
+
+
+def consistency_idnums(idnum_lists: List[List[PatientIdNum]]) -> Tuple[bool, str]:
+    known = {}  # type: Dict[int, Set[int]]  # maps which_idnum -> set of idnum_values  # noqa
+    for idnum_list in idnum_lists:
+        for idnum in idnum_list:
+            idnum_value = idnum.idnum_value
+            if idnum_value is not None:
+                which_idnum = idnum.which_idnum
+                if which_idnum not in known:
+                    known[which_idnum] = set()  # type: Set[int]
+                known[which_idnum].add(idnum_value)
+    failures = []  # type: List[str]
+    successes = []  # type: List[str]
+    for which_idnum, encountered_values in known.items():
+        value_str = ", ".join(str(v) for v in sorted(list(encountered_values)))
+        if len(encountered_values) > 1:
+            failures.append("idnum{} contains values {}".format(
+                which_idnum, value_str))
+        else:
+            successes.append("idnum{} all blank or {}".format(
+                which_idnum, value_str))
+    if failures:
+        return False, "<b>INCONSISTENT ({})</b>".format(
+            "; ".join(failures + successes))
+    else:
+        return True, "consistent ({})".format("; ".join(successes))
 
 
 def get_summary_of_tasks(list_of_task_instance_lists: List[List[Task]]) -> str:
@@ -151,10 +185,8 @@ def format_daterange(start: Optional[datetime.datetime],
 
     Arguments are datetime values."""
     return "[{}, {}]".format(
-        cc_dt.format_datetime(start, DATEFORMAT.ISO8601_DATE_ONLY,
-                              default="−∞"),
-        cc_dt.format_datetime(end, DATEFORMAT.ISO8601_DATE_ONLY,
-                              default="+∞")
+        format_datetime(start, DATEFORMAT.ISO8601_DATE_ONLY, default="−∞"),
+        format_datetime(end, DATEFORMAT.ISO8601_DATE_ONLY, default="+∞")
     )
 
 
@@ -177,36 +209,14 @@ class ConsistencyInfo(object):
             [task.get_patient_dob_first11chars() for task in flattasklist])
         self.consistent_sex, self.msg_sex = consistency(
             [task.get_patient_sex() for task in flattasklist])
-        self.consistent_idnums = []
-        self.msg_idnums = []
-        self.consistent_iddescs = []
-        self.msg_iddescs = []
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            result, msg = consistency(
-                [task.get_patient_idnum(n) for task in flattasklist])
-            self.consistent_idnums.append(result)
-            self.msg_idnums.append(msg)
-            if result and (len(flattasklist) == 0 or (
-                    len(flattasklist) > 0 and
-                    flattasklist[0].get_patient_idnum(n) is None)):
-                # Values consistent; either no values, or all values are
-                # None... we don't care about description consistency
-                self.consistent_iddescs.append(True)
-                self.msg_iddescs.append("")
-            else:
-                # Description consistent?
-                result, msg = consistency(
-                    [task.get_patient_iddesc(n) for task in flattasklist],
-                    pls.get_id_desc(n))
-                self.consistent_iddescs.append(result)
-                self.msg_iddescs.append(msg)
+        self.consistent_idnums, self.msg_idnums = consistency_idnums(
+            [task.get_patient_idnum_objects() for task in flattasklist])
         self.all_consistent = (
             self.consistent_forename and
             self.consistent_surname and
             self.consistent_dob and
             self.consistent_sex and
-            all(self.consistent_idnums) and
-            all(self.consistent_iddescs)
+            self.consistent_idnums
         )
 
     def are_all_consistent(self) -> bool:
@@ -221,13 +231,8 @@ class ConsistencyInfo(object):
             "Surname: {}".format(self.msg_surname),
             "DOB: {}".format(self.msg_dob),
             "Sex: {}".format(self.msg_sex),
+            "ID numbers: {}".format(self.msg_idnums),
         ]
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            i = n - 1
-            # if self.msg_iddescs[i]:
-            #     cons.append("""iddesc{}: {}""".format(n, self.msg_iddescs[i]))  # noqa
-            if self.msg_idnums[i]:
-                cons.append("""idnum{}: {}""".format(n, self.msg_idnums[i]))
         return cons
 
     def get_xml_root(self) -> XmlElementTuple:
@@ -283,9 +288,7 @@ class Tracker(object):
                 task_class_list.append(cls)
 
         # What filters?
-        self.idnumarray = []
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            self.idnumarray.append(idnum_value if n == which_idnum else None)
+        self.idnum_criteria = [(which_idnum, idnum_value)]
 
         # Date range? NB date adjustment to include the whole of the final day.
         self.end_datetime_extended = None
@@ -319,7 +322,7 @@ class Tracker(object):
                 continue
             task_instances = []
             serverpks = cls.get_task_pks_for_tracker(
-                self.idnumarray, self.start_datetime,
+                self.idnum_criteria, self.start_datetime,
                 self.end_datetime_extended)
             if len(serverpks) == 0:
                 if DEBUG_TRACKER_TASK_INCLUSION:
@@ -380,7 +383,7 @@ class Tracker(object):
         self.summary += get_summary_of_tasks(self.list_of_task_instance_lists)
 
         # Consistency information
-        self.flattasklist = cc_lang.flatten_list(
+        self.flattasklist = flatten_list(
             self.list_of_task_instance_lists)
         self.consistency_info = ConsistencyInfo(self.flattasklist)
 
@@ -414,14 +417,14 @@ class Tracker(object):
                     ),
                     XmlElementTuple(
                         name="start_datetime",
-                        value=cc_dt.format_datetime(self.start_datetime,
-                                                    DATEFORMAT.ISO8601),
+                        value=format_datetime(self.start_datetime,
+                                              DATEFORMAT.ISO8601),
                         datatype="dateTime"
                     ),
                     XmlElementTuple(
                         name="end_datetime",
-                        value=cc_dt.format_datetime(self.end_datetime,
-                                                    DATEFORMAT.ISO8601),
+                        value=format_datetime(self.end_datetime,
+                                              DATEFORMAT.ISO8601),
                         datatype="dateTime"
                     ),
                 ]
@@ -437,7 +440,7 @@ class Tracker(object):
                 patient_server_pk=t.get_patient_server_pk()
             )
         tree = XmlElementTuple(name="tracker", value=branches)
-        return cc_xml.get_xml_document(
+        return get_xml_document(
             tree,
             indent_spaces=indent_spaces,
             eol=eol,
@@ -450,7 +453,7 @@ class Tracker(object):
 
     def get_html(self) -> str:
         """Get HTML representing tracker."""
-        cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
+        set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
         pls.switch_output_to_svg()
         return (
             self.get_html_start() +
@@ -468,7 +471,7 @@ class Tracker(object):
 
     def get_pdf(self) -> bytes:
         """Get PDF representing tracker."""
-        cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
+        set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
         if CSS_PAGED_MEDIA:
             pls.switch_output_to_png()
             return rnc_pdf.pdf_from_html(self.get_pdf_html())
@@ -497,7 +500,7 @@ class Tracker(object):
 
     def suggested_pdf_filename(self) -> str:
         """Get suggested filename for tracker PDF."""
-        return cc_filename.get_export_filename(
+        return get_export_filename(
             pls.PATIENT_SPEC_IF_ANONYMOUS,
             pls.PATIENT_SPEC,
             pls.TRACKER_FILENAME_SPEC,
@@ -507,11 +510,7 @@ class Tracker(object):
             forename=self._patient.get_forename() if self._patient else "",
             dob=self._patient.get_dob() if self._patient else None,
             sex=self._patient.get_sex() if self._patient else None,
-            idnums=self._patient.get_idnum_array() if self._patient else None,
-            idshortdescs=(
-                self._patient.get_idshortdesc_array()
-                if self._patient else None
-            ),
+            idnum_objects=self._patient.get_idnum_objects() if self._patient else None,  # noqa
             creation_datetime=None,
             basetable=None,
             serverpk=None)
@@ -523,12 +522,9 @@ class Tracker(object):
     def get_tracker_header_html(self) -> str:
         """HTML for tracker header, including patient ID information."""
         conditions = []
-        for i in range(len(self.idnumarray)):
-            n = i + 1
-            nstr = str(n)
-            if self.idnumarray[i] is not None:
-                conditions.append(FP_ID_NUM + nstr +
-                                  " = {}".format(self.idnumarray[i]))
+        for which_idnum, idnum_value in self.idnum_criteria:
+            conditions.append("{}{} = {}".format(
+                FP_ID_NUM, which_idnum, idnum_value))
         cons = self.consistency_info.get_description_list()
         if self.consistency_info.are_all_consistent():
             cons_class = "tracker_all_consistent"
@@ -574,14 +570,13 @@ class Tracker(object):
             ptinfo = self._patient.get_html_for_page_header()
         else:
             ptinfo = ""
-        return cc_html.pdf_header_content(ptinfo)
+        return pdf_header_content(ptinfo)
 
     @staticmethod
     def get_pdf_footer_content() -> str:
-        accessed = cc_dt.format_datetime(pls.NOW_LOCAL_TZ,
-                                         DATEFORMAT.LONG_DATETIME)
+        accessed = format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.LONG_DATETIME)
         content = "Tracker accessed {}.".format(accessed)
-        return cc_html.pdf_footer_content(content)
+        return pdf_footer_content(content)
 
     def get_pdf_start(self) -> str:
         """Opening HTML for PDF, including CSS."""
@@ -620,9 +615,9 @@ class Tracker(object):
             request=request,
             summary=self.summary,
             url=pls.SCRIPT_PUBLIC_URL_ESCAPED,
-            server_version=cc_version.CAMCOPS_SERVER_VERSION,
-            when=cc_dt.format_datetime(pls.NOW_LOCAL_TZ,
-                                       DATEFORMAT.SHORT_DATETIME_SECONDS),
+            server_version=CAMCOPS_SERVER_VERSION,
+            when=format_datetime(pls.NOW_LOCAL_TZ,
+                                 DATEFORMAT.SHORT_DATETIME_SECONDS),
         )
 
     # -------------------------------------------------------------------------
@@ -715,7 +710,7 @@ class Tracker(object):
                    (1.0/float(aspect_ratio)) * FULLWIDTH_PLOT_WIDTH)
         fig = plt.figure(figsize=figsize)
         ax = fig.add_subplot(1, 1, 1)
-        x = [cc_plot.matplotlib.dates.date2num(t) for t in datetimes]
+        x = [matplotlib.dates.date2num(t) for t in datetimes]
         datelabels = [dt.strftime(TRACKER_DATEFORMAT) for dt in datetimes]
 
         # First plot
@@ -730,8 +725,7 @@ class Tracker(object):
         if (self.earliest is not None and
                 self.latest is not None and
                 self.earliest != self.latest):
-            xlim = cc_plot.matplotlib.dates.date2num((self.earliest,
-                                                      self.latest))
+            xlim = matplotlib.dates.date2num((self.earliest, self.latest))
             margin = (2.5 / 95.0) * (xlim[1] - xlim[0])
             xlim[0] -= margin
             xlim[1] += margin
@@ -803,7 +797,7 @@ class Tracker(object):
         # check the logger, but visually doesn't help)
         # - http://stackoverflow.com/questions/9126838
         # - http://matplotlib.org/examples/pylab_examples/finance_work2.html
-        return cc_html.get_html_from_pyplot_figure(fig) + "<br>"
+        return get_html_from_pyplot_figure(fig) + "<br>"
         # ... extra line break for the PDF rendering
 
     # -------------------------------------------------------------------------
@@ -812,26 +806,26 @@ class Tracker(object):
 
     def get_hyperlink_pdf(self, text: str) -> str:
         """URL to a PDF version of the tracker."""
-        url = cc_html.get_generic_action_url(ACTION.TRACKER)
+        url = get_generic_action_url(ACTION.TRACKER)
         for tt in self.task_tablename_list:
-            url += cc_html.get_url_field_value_pair(PARAM.TASKTYPES, tt)
-        url += cc_html.get_url_field_value_pair(
+            url += get_url_field_value_pair(PARAM.TASKTYPES, tt)
+        url += get_url_field_value_pair(
             PARAM.WHICH_IDNUM,
             "" if self.which_idnum is None else self.which_idnum)
-        url += cc_html.get_url_field_value_pair(
+        url += get_url_field_value_pair(
             PARAM.IDNUM_VALUE,
             "" if self.idnum_value is None else self.idnum_value)
-        url += cc_html.get_url_field_value_pair(
+        url += get_url_field_value_pair(
             PARAM.START_DATETIME,
-            cc_dt.format_datetime(self.start_datetime,
-                                  DATEFORMAT.ISO8601_DATE_ONLY, default="")
+            format_datetime(self.start_datetime,
+                            DATEFORMAT.ISO8601_DATE_ONLY, default="")
         )
-        url += cc_html.get_url_field_value_pair(
+        url += get_url_field_value_pair(
             PARAM.END_DATETIME,
-            cc_dt.format_datetime(self.end_datetime,
-                                  DATEFORMAT.ISO8601_DATE_ONLY, default="")
+            format_datetime(self.end_datetime,
+                            DATEFORMAT.ISO8601_DATE_ONLY, default="")
         )
-        url += cc_html.get_url_field_value_pair(
+        url += get_url_field_value_pair(
             PARAM.OUTPUTTYPE,
             VALUE.OUTPUTTYPE_PDF)
         return """<a href="{}" target="_blank">{}</a>""".format(url, text)
@@ -863,9 +857,7 @@ class ClinicalTextView(object):
         task_class_list = Task.all_subclasses()
 
         # What filters?
-        self.idnumarray = []
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            self.idnumarray.append(idnum_value if n == which_idnum else None)
+        self.idnum_criteria = [(which_idnum, idnum_value)]
 
         # Date range? NB date adjustment to include the whole of the final day.
         self.end_datetime_extended = None
@@ -902,7 +894,7 @@ class ClinicalTextView(object):
                 continue
             task_instances = []
             serverpks = cls.get_task_pks_for_clinical_text_view(
-                self.idnumarray, self.start_datetime,
+                self.idnum_criteria, self.start_datetime,
                 self.end_datetime_extended)
             if len(serverpks) == 0:
                 if DEBUG_CTV_TASK_INCLUSION:
@@ -942,7 +934,7 @@ class ClinicalTextView(object):
             self.summary += "] "
 
         # Move to a flat list and sort by creation date/time:
-        self.flattasklist = cc_lang.flatten_list(list_of_task_instance_lists)
+        self.flattasklist = flatten_list(list_of_task_instance_lists)
         self.flattasklist.sort(key=lambda task_: task_.get_creation_datetime())
 
         # Fetch patient information
@@ -983,14 +975,14 @@ class ClinicalTextView(object):
                     ),
                     XmlElementTuple(
                         name="start_datetime",
-                        value=cc_dt.format_datetime(self.start_datetime,
-                                                    DATEFORMAT.ISO8601),
+                        value=format_datetime(self.start_datetime,
+                                              DATEFORMAT.ISO8601),
                         datatype="dateTime"
                     ),
                     XmlElementTuple(
                         name="end_datetime",
-                        value=cc_dt.format_datetime(self.end_datetime,
-                                                    DATEFORMAT.ISO8601),
+                        value=format_datetime(self.end_datetime,
+                                              DATEFORMAT.ISO8601),
                         datatype="dateTime"
                     ),
                 ]
@@ -1006,7 +998,7 @@ class ClinicalTextView(object):
                 patient_server_pk=t.get_patient_server_pk()
             )
         tree = XmlElementTuple(name="tracker", value=branches)
-        return cc_xml.get_xml_document(
+        return get_xml_document(
             tree,
             indent_spaces=indent_spaces,
             eol=eol,
@@ -1048,7 +1040,7 @@ class ClinicalTextView(object):
 
     def suggested_pdf_filename(self) -> str:
         """Get suggested filename for CTV PDF."""
-        return cc_filename.get_export_filename(
+        return get_export_filename(
             pls.PATIENT_SPEC_IF_ANONYMOUS,
             pls.PATIENT_SPEC,
             pls.CTV_FILENAME_SPEC,
@@ -1058,11 +1050,7 @@ class ClinicalTextView(object):
             forename=self._patient.get_forename() if self._patient else "",
             dob=self._patient.get_dob() if self._patient else None,
             sex=self._patient.get_sex() if self._patient else None,
-            idnums=self._patient.get_idnum_array() if self._patient else None,
-            idshortdescs=(
-                self._patient.get_idshortdesc_array()
-                if self._patient else None
-            ),
+            idnum_objects=self._patient.get_idnum_objects() if self._patient else None,  # noqa
             creation_datetime=None,
             basetable=None,
             serverpk=None)
@@ -1074,12 +1062,9 @@ class ClinicalTextView(object):
     def get_clinicaltextview_header_html(self) -> str:
         """HTML for CTV header, including patient ID information."""
         conditions = []
-        for i in range(len(self.idnumarray)):
-            n = i + 1
-            nstr = str(n)
-            if self.idnumarray[i] is not None:
-                conditions.append(FP_ID_NUM + nstr +
-                                  " = {}".format(self.idnumarray[i]))
+        for which_idnum, idnum_value in self.idnum_criteria:
+            conditions.append("{}{} = {}".format(
+                FP_ID_NUM, which_idnum, idnum_value))
 
         cons = self.consistency_info.get_description_list()
         if self.consistency_info.are_all_consistent():
@@ -1142,7 +1127,7 @@ class ClinicalTextView(object):
             {}
         """.format(
             ptinfo,
-            cc_dt.format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.LONG_DATETIME),
+            format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.LONG_DATETIME),
             pls.PDF_LOGO_LINE,
         ) + self.get_clinicaltextview_header_html()
 
@@ -1160,9 +1145,9 @@ class ClinicalTextView(object):
         """.format(
             summary=self.summary,
             url=pls.SCRIPT_PUBLIC_URL_ESCAPED,
-            server_version=cc_version.CAMCOPS_SERVER_VERSION,
-            when=cc_dt.format_datetime(pls.NOW_LOCAL_TZ,
-                                       DATEFORMAT.SHORT_DATETIME_SECONDS),
+            server_version=CAMCOPS_SERVER_VERSION,
+            when=format_datetime(pls.NOW_LOCAL_TZ,
+                                 DATEFORMAT.SHORT_DATETIME_SECONDS),
         )
 
     # -------------------------------------------------------------------------
@@ -1182,8 +1167,8 @@ class ClinicalTextView(object):
                 Start date for search: {}
             </div>
         """.format(
-            cc_dt.format_datetime(self.start_datetime,
-                                  DATEFORMAT.ISO8601_DATE_ONLY, default="−∞")
+            format_datetime(self.start_datetime,
+                            DATEFORMAT.ISO8601_DATE_ONLY, default="−∞")
         )
         for t in range(len(self.flattasklist)):
             html += self.get_textview_for_one_task_instance_html(
@@ -1193,8 +1178,8 @@ class ClinicalTextView(object):
                 End date for search: {}
             </div>
         """.format(
-            cc_dt.format_datetime(self.end_datetime,
-                                  DATEFORMAT.ISO8601_DATE_ONLY, default="+∞")
+            format_datetime(self.end_datetime,
+                            DATEFORMAT.ISO8601_DATE_ONLY, default="+∞")
         )
         return html
 
@@ -1202,8 +1187,8 @@ class ClinicalTextView(object):
     def get_textview_for_one_task_instance_html(task: Task,
                                                 as_pdf: bool = False) -> str:
         """HTML for the CTV contribution of a single task."""
-        datetext = cc_dt.format_datetime(task.get_creation_datetime(),
-                                         DATEFORMAT.LONG_DATETIME_WITH_DAY)
+        datetext = format_datetime(task.get_creation_datetime(),
+                                   DATEFORMAT.LONG_DATETIME_WITH_DAY)
         # HTML versions get hyperlinks.
         if as_pdf:
             links = ""
@@ -1243,7 +1228,7 @@ class ClinicalTextView(object):
         # Warnings
         warnings = (
             task.get_erasure_notice() +  # if applicable
-            task.get_special_notes() +  # if applicable
+            task.get_special_notes_html() +  # if applicable
             task.get_invalid_warning()  # if applicable
             # task.get_not_current_warning() not required (CTV: all current)
         )
@@ -1271,22 +1256,22 @@ class ClinicalTextView(object):
 
     def get_hyperlink_pdf(self, text: str) -> str:
         """URL to a PDF version of the CTV."""
-        url = cc_html.get_generic_action_url(ACTION.CLINICALTEXTVIEW)
-        url += cc_html.get_url_field_value_pair(
+        url = get_generic_action_url(ACTION.CLINICALTEXTVIEW)
+        url += get_url_field_value_pair(
             PARAM.WHICH_IDNUM,
             "" if self.which_idnum is None else self.which_idnum)
-        url += cc_html.get_url_field_value_pair(
+        url += get_url_field_value_pair(
             PARAM.IDNUM_VALUE,
             "" if self.idnum_value is None else self.idnum_value)
-        url += cc_html.get_url_field_value_pair(
+        url += get_url_field_value_pair(
             PARAM.START_DATETIME,
-            cc_dt.format_datetime(self.start_datetime,
-                                  DATEFORMAT.ISO8601_DATE_ONLY, default=""))
-        url += cc_html.get_url_field_value_pair(
+            format_datetime(self.start_datetime,
+                            DATEFORMAT.ISO8601_DATE_ONLY, default=""))
+        url += get_url_field_value_pair(
             PARAM.END_DATETIME,
-            cc_dt.format_datetime(self.end_datetime,
-                                  DATEFORMAT.ISO8601_DATE_ONLY, default=""))
-        url += cc_html.get_url_field_value_pair(
+            format_datetime(self.end_datetime,
+                            DATEFORMAT.ISO8601_DATE_ONLY, default=""))
+        url += get_url_field_value_pair(
             PARAM.OUTPUTTYPE, VALUE.OUTPUTTYPE_PDF)
         return """<a href="{}" target="_blank">{}</a>""".format(url, text)
 
@@ -1328,7 +1313,7 @@ def unit_tests_ctv(c: ClinicalTextView) -> None:
     unit_test_ignore("", c.get_hyperlink_pdf, "hello")
 
 
-def unit_tests() -> None:
+def cctracker_unit_tests() -> None:
     """Unit tests for cc_tracker module."""
     session = Session()
     tasktables = []

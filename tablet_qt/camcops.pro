@@ -185,7 +185,6 @@ RESOURCES += \
 SOURCES += main.cpp \
     common/appstrings.cpp \
     common/cssconst.cpp \
-    common/dbconstants.cpp \
     common/globals.cpp \
     common/platform.cpp \
     common/textconst.cpp \
@@ -527,14 +526,17 @@ SOURCES += main.cpp \
     qobjects/cameraframegrabber.cpp \
     widgets/cameraqcamera.cpp \
     widgets/cameraqml.cpp \
-    db/blobfieldref.cpp
+    db/blobfieldref.cpp \
+    dbobjects/patientidnum.cpp \
+    dbobjects/idnumdescription.cpp \
+    common/dbconst.cpp \
+    dbobjects/patientidnumsorter.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
     common/aliases_qt.h \
     common/appstrings.h \
     common/cssconst.h \
-    common/dbconstants.h \
     common/design_defines.h \
     common/globals.h \
     common/gui_defines.h \
@@ -885,7 +887,11 @@ HEADERS += \
     widgets/cameraqcamera.h \
     widgets/cameraqml.h \
     db/blobfieldref.h \
-    maths/floatingpoint.h
+    maths/floatingpoint.h \
+    dbobjects/patientidnum.h \
+    dbobjects/idnumdescription.h \
+    common/dbconst.h \
+    dbobjects/patientidnumsorter.h
 
 DISTFILES += \
     android/AndroidManifest.xml \

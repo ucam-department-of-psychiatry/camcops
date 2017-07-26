@@ -36,6 +36,8 @@
 #include "core/camcopsapp.h"
 #include "core/camcopsversion.h"
 #include "db/dbnestabletransaction.h"
+#include "dbobjects/idnumdescription.h"
+#include "dbobjects/patientidnum.h"
 #include "dialogs/passwordentrydialog.h"
 #include "dialogs/logbox.h"
 #include "dbobjects/blob.h"
@@ -73,8 +75,10 @@ const QString KEY_TABLE("table");  // C->S
 const QString KEY_TABLES("tables");  // C->S
 const QString KEY_USER("user");  // C->S
 const QString KEY_VALUES("values");  // C->S
-const QString KEYSPEC_ID_DESCRIPTION("idDescription%1");  // S->C
-const QString KEYSPEC_ID_SHORT_DESCRIPTION("idShortDescription%1");  // S->C
+const QString KEYPREFIX_ID_DESCRIPTION("idDescription");  // S->C
+const QString KEYSPEC_ID_DESCRIPTION(KEYPREFIX_ID_DESCRIPTION + "%1");  // S->C
+const QString KEYPREFIX_ID_SHORT_DESCRIPTION("idShortDescription");  // S->C
+const QString KEYSPEC_ID_SHORT_DESCRIPTION(KEYPREFIX_ID_SHORT_DESCRIPTION + "%1");  // S->C
 const QString KEYSPEC_RECORD("record%1");  // B
 
 // Operations for server:
@@ -738,13 +742,23 @@ void NetworkManager::storeServerIdentificationInfo()
     m_app.setVar(varconst::SERVER_CAMCOPS_VERSION, m_reply_dict[KEY_SERVER_CAMCOPS_VERSION]);
     m_app.setVar(varconst::ID_POLICY_UPLOAD, m_reply_dict[KEY_ID_POLICY_UPLOAD]);
     m_app.setVar(varconst::ID_POLICY_FINALIZE, m_reply_dict[KEY_ID_POLICY_FINALIZE]);
-    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
-        QString key_desc = KEYSPEC_ID_DESCRIPTION.arg(n);
-        QString key_shortdesc = KEYSPEC_ID_SHORT_DESCRIPTION.arg(n);
-        QString varname_desc = dbconst::IDDESC_FIELD_FORMAT.arg(n);
-        QString varname_shortdesc = dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n);
-        m_app.setVar(varname_desc, m_reply_dict[key_desc]);
-        m_app.setVar(varname_shortdesc, m_reply_dict[key_shortdesc]);
+
+    m_app.deleteAllIdDescriptions();
+    for (const QString keydesc : m_reply_dict.keys()) {
+        if (keydesc.startsWith(KEYPREFIX_ID_DESCRIPTION)) {
+            const QString number = keydesc.right(keydesc.length() -
+                                                 KEYPREFIX_ID_DESCRIPTION.length());
+            bool ok = false;
+            const int which_idnum = number.toInt(&ok);
+            if (ok) {
+                const QString desc = m_reply_dict[keydesc];
+                const QString key_shortdesc = KEYSPEC_ID_SHORT_DESCRIPTION.arg(which_idnum);
+                const QString shortdesc = m_reply_dict[key_shortdesc];
+                m_app.setIdDescription(which_idnum, desc, shortdesc);
+            } else {
+                qWarning() << "Bad ID description key:" << keydesc;
+            }
+        }
     }
 
     m_app.setVar(varconst::LAST_SERVER_REGISTRATION, datetime::now());
@@ -952,7 +966,7 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
     }
 
     // ========================================================================
-    // Step 2: Apply flags from patients to their tasks/ancillary tables.
+    // Step 2: Apply flags from patients to their idnums/tasks/ancillary tables.
     // ========================================================================
     // m_upload_patient_ids_to_move_off has been precalculated for efficiency
 
@@ -964,6 +978,22 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         // https://www.sqlite.org/limits.html
         QString sql;
 
+        // Patient ID number table
+        sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
+                      .arg(delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME),
+                           delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
+                           delimit(PatientIdNum::FK_PATIENT),
+                           pt_paramholders);
+#ifdef USE_BACKGROUND_DATABASE
+            m_db.execNoAnswer(sql, pt_args);
+#else
+            if (!m_db.exec(sql, pt_args)) {
+                queryFail(sql);
+                return false;
+            }
+#endif
+
+        // Task tables
         for (auto specimen : m_p_task_factory->allSpecimens()) {
             if (specimen->isAnonymous()) {
                 continue;
@@ -1180,7 +1210,8 @@ void NetworkManager::catalogueTablesForUpload()
 {
     statusMessage("Cataloguing tables for upload");
     const QStringList recordwise_tables{Blob::TABLENAME};
-    const QStringList patient_tables{Patient::TABLENAME};
+    const QStringList patient_tables{Patient::TABLENAME,
+                                     PatientIdNum::PATIENT_IDNUM_TABLENAME};
     const QStringList all_tables = m_db.getAllTables();
     for (const QString& table : all_tables) {
         // How to upload?
@@ -1403,15 +1434,23 @@ bool NetworkManager::areDescriptionsOK()
 {
     statusMessage("Checking ID descriptions match server");
     bool ok = true;
+#ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
     for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
-        QString key_desc = KEYSPEC_ID_DESCRIPTION.arg(n);
-        QString key_shortdesc = KEYSPEC_ID_SHORT_DESCRIPTION.arg(n);
-        QString varname_desc = dbconst::IDDESC_FIELD_FORMAT.arg(n);
-        QString varname_shortdesc = dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n);
-        QString local_desc = m_app.varString(varname_desc);
-        QString local_shortdesc = m_app.varString(varname_shortdesc);
-        QString server_desc = m_reply_dict[key_desc];
-        QString server_shortdesc = m_reply_dict[key_shortdesc];
+        const QString varname_desc = dbconst::IDDESC_FIELD_FORMAT.arg(n);
+        const QString varname_shortdesc = dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n);
+        const QString local_desc = m_app.varString(varname_desc);
+        const QString local_shortdesc = m_app.varString(varname_shortdesc);
+#else
+    QVector<IdNumDescriptionPtr> iddescriptions = m_app.getAllIdDescriptions();
+    for (IdNumDescriptionPtr iddesc : iddescriptions) {
+        const int n = iddesc->whichIdNum();
+        const QString local_desc = iddesc->description();
+        const QString local_shortdesc = iddesc->shortDescription();
+#endif
+        const QString key_desc = KEYSPEC_ID_DESCRIPTION.arg(n);
+        const QString key_shortdesc = KEYSPEC_ID_SHORT_DESCRIPTION.arg(n);
+        const QString server_desc = m_reply_dict[key_desc];
+        const QString server_shortdesc = m_reply_dict[key_shortdesc];
         ok = ok && local_desc == server_desc && local_shortdesc == server_shortdesc;
     }
     if (ok) {
@@ -1610,6 +1649,8 @@ void NetworkManager::wipeTables()
         }
         // Selective wipes: patients
         m_db.deleteFrom(Patient::TABLENAME, where);
+        // Selective wipes: patient ID numbers
+        m_db.deleteFrom(PatientIdNum::PATIENT_IDNUM_TABLENAME, where);
     }
 }
 

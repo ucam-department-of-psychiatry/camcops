@@ -26,7 +26,7 @@ import configparser
 import logging
 from typing import Any, Callable, List
 
-from .cc_logger import log
+log = logging.getLogger(__name__)
 
 
 # =============================================================================

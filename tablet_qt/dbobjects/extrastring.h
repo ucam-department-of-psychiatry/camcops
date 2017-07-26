@@ -41,7 +41,7 @@ public:
     bool exists() const;
     bool anyExist(const QString& task) const;  // sort-of static function
     void deleteAllExtraStrings();  // sort-of static function
-    void makeIndexes();
+    void makeIndexes();  // sort-of static function
 
 public:
     static const QString EXTRASTRINGS_TASK_FIELD;

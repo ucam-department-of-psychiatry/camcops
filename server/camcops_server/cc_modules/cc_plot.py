@@ -27,13 +27,14 @@
 # =============================================================================
 
 import atexit
+import logging
 import os
 import shutil
 import tempfile
 
 import cardinal_pythonlib.rnc_plot as rnc_plot
 
-from .cc_logger import log
+log = logging.getLogger(__name__)
 
 # =============================================================================
 # Import matplotlib
@@ -95,7 +96,7 @@ def set_matplotlib_fontsize(fontsize: float) -> None:
     rnc_plot.set_matplotlib_fontsize(matplotlib, fontsize)
 
 
-def do_nothing() -> None:
+def ccplot_do_nothing() -> None:
     """Call to justify an import, as seen by pyflakes, whereas the real
     justification is to configure matplotlib at first import."""
     pass

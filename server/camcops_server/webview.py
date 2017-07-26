@@ -23,6 +23,7 @@
 """
 
 import datetime
+import logging
 import sys
 import typing
 from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Union
@@ -64,10 +65,6 @@ from .cc_modules.cc_constants import (
     CAMCOPS_URL,
     COMMON_HEAD,
     DATEFORMAT,
-    FP_ID_DESC,
-    FP_ID_NUM,
-    FP_ID_SHORT_DESC,
-    NUMBER_OF_IDNUMS,
     PARAM,
     RESTRICTED_WARNING,
     TASK_LIST_FOOTER,
@@ -86,29 +83,73 @@ from .cc_modules.cc_dt import (
     format_datetime,
     format_datetime_string
 )
-from .cc_modules import cc_dump
-from .cc_modules import cc_hl7
-from .cc_modules import cc_html
-from .cc_modules.cc_logger import log
-from .cc_modules import cc_patient
-from .cc_modules.cc_patient import Patient
-from .cc_modules import cc_plot
+from .cc_modules.cc_dump import (
+    get_database_dump_as_sql,
+    get_multiple_views_data_as_tsv_zip,
+    get_permitted_tables_views_sorted_labelled,
+    NOTHING_VALID_SPECIFIED,
+)
+from .cc_modules.cc_hl7 import HL7Message, HL7Run
+from .cc_modules.cc_html import (
+    fail_with_error_not_logged_in,
+    fail_with_error_stay_logged_in,
+    get_generic_action_url,
+    get_html_sex_picker,
+    get_html_which_idnum_picker,
+    get_url_enter_new_password,
+    get_url_field_value_pair,
+    get_url_main_menu,
+    login_page,
+    simple_success_message,
+)
+from .cc_modules.cc_patient import get_patient_server_pks_by_idnum, Patient
+from .cc_modules.cc_plot import ccplot_do_nothing
 from .cc_modules.cc_pls import pls
-from .cc_modules import cc_policy
-from .cc_modules import cc_report
-from .cc_modules import cc_session
-from .cc_modules.cc_session import Session
+from .cc_modules.cc_policy import (
+    get_finalize_id_policy_principal_numeric_id,
+    get_upload_id_policy_principal_numeric_id,
+    id_policies_valid,
+)
+from .cc_modules.cc_report import (
+    offer_individual_report,
+    offer_report_menu,
+    serve_report,
+)
+from .cc_modules.cc_session import establish_session, Session
 from .cc_modules.cc_specialnote import forcibly_preserve_special_notes
 from .cc_modules.cc_storedvar import DeviceStoredVar
 from .cc_modules.cc_string import wappstring
-from .cc_modules import cc_task
-from .cc_modules.cc_task import Task
+from .cc_modules.cc_task import (
+    gen_tasks_for_patient_deletion,
+    gen_tasks_live_on_tablet,
+    gen_tasks_matching_session_filter,
+    gen_tasks_using_patient,
+    get_all_task_classes,
+    get_url_task_html,
+    Task,
+    task_factory,
+)
 from .cc_modules.cc_tracker import ClinicalTextView, Tracker
 from .cc_modules.cc_unittest import unit_test_ignore
-from .cc_modules import cc_user
+from .cc_modules.cc_user import (
+    act_on_login_failure,
+    add_user,
+    ask_delete_user_html,
+    ask_to_add_user_html,
+    change_password,
+    change_user,
+    delete_user,
+    edit_user_form,
+    enable_user_webview,
+    enter_new_password_html,
+    get_user,
+    is_user_locked_out,
+    manage_users_html,
+)
 from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
-cc_plot.do_nothing()
+log = logging.getLogger(__name__)
+ccplot_do_nothing()
 
 # Task imports
 import_submodules(".tasks", __package__)
@@ -169,7 +210,7 @@ ID_POLICY_INVALID_DIV = """
 
 def login_failed(redirect: str = None) -> str:
     """HTML given after login failure."""
-    return cc_html.fail_with_error_not_logged_in(
+    return fail_with_error_not_logged_in(
         "Invalid username/password. Try again.",
         redirect)
 
@@ -177,7 +218,7 @@ def login_failed(redirect: str = None) -> str:
 def account_locked(locked_until: datetime.datetime, 
                    redirect: str = None) -> str:
     """HTML given when account locked out."""
-    return cc_html.fail_with_error_not_logged_in(
+    return fail_with_error_not_logged_in(
         "Account locked until {} due to multiple login failures. "
         "Try again later or contact your administrator.".format(
             format_datetime(
@@ -191,7 +232,7 @@ def account_locked(locked_until: datetime.datetime,
 
 def fail_not_user(action: str, redirect: str = None) -> str:
     """HTML given when action failed because not logged in properly."""
-    return cc_html.fail_with_error_not_logged_in(
+    return fail_with_error_not_logged_in(
         "Can't process action {} — not logged in as a valid user, "
         "or session has timed out.".format(action),
         redirect)
@@ -201,25 +242,25 @@ def fail_not_user(action: str, redirect: str = None) -> str:
 
 def fail_not_authorized_for_task() -> str:
     """HTML given when user isn't allowed to see a specific task."""
-    return cc_html.fail_with_error_stay_logged_in(
+    return fail_with_error_stay_logged_in(
         "Not authorized to view that task.")
 
 
 def fail_task_not_found() -> str:
     """HTML given when task not found."""
-    return cc_html.fail_with_error_stay_logged_in("Task not found.")
+    return fail_with_error_stay_logged_in("Task not found.")
 
 
 def fail_not_manager(action: str) -> str:
     """HTML given when user doesn't have management rights."""
-    return cc_html.fail_with_error_stay_logged_in(
+    return fail_with_error_stay_logged_in(
         "Can't process action {} - not logged in as a manager.".format(action)
     )
 
 
 def fail_unknown_action(action: str) -> str:
     """HTML given when action unknown."""
-    return cc_html.fail_with_error_stay_logged_in(
+    return fail_with_error_stay_logged_in(
         "Can't process action {} - action not recognized.".format(action)
     )
 
@@ -241,13 +282,11 @@ def login(session: Session, form: cgi.FieldStorage) \
         session.logout()
         return login_failed(redirect)
     # 2. Is the user locked?
-    if cc_user.is_user_locked_out(username):
-        return account_locked(
-            cc_user.user_locked_out_until(username),
-            redirect
-        )
+    if is_user_locked_out(username):
+        return account_locked(user_locked_out_until(username),
+                              redirect)
     # 3. Is the username/password combination correct?
-    userobject = cc_user.get_user(username, password)  # checks password
+    userobject = get_user(username, password)  # checks password
     # noinspection PyUnresolvedReferences
     if userobject is not None and userobject.may_use_webviewer:
         # Successful login.
@@ -260,7 +299,7 @@ def login(session: Session, form: cgi.FieldStorage) \
         return login_failed(redirect)
     else:
         # Unsuccessful. Note that the username may/may not be genuine.
-        cc_user.act_on_login_failure(username)  # may lock the account
+        act_on_login_failure(username)  # may lock the account
         # ... call audit() before session.logout(), as the latter
         # will wipe the session IP address
         session.logout()
@@ -270,10 +309,9 @@ def login(session: Session, form: cgi.FieldStorage) \
 
     # Need to change password?
     if session.user_must_change_password():
-        return cc_user.enter_new_password(
-            session, session.username,
-            as_manager=False, because_password_expired=True
-        )
+        return enter_new_password_html(session, session.username,
+                                       as_manager=False,
+                                       because_password_expired=True)
 
     # Need to agree terms/conditions of use?
     if session.user_must_agree_terms():
@@ -289,10 +327,9 @@ def login(session: Session, form: cgi.FieldStorage) \
 # noinspection PyUnusedLocal
 def logout(session: Session, form: cgi.FieldStorage) -> str:
     """Logs a session out."""
-
     audit("Logout")
     session.logout()
-    return cc_html.login_page()
+    return login_page()
 
 
 def agree_terms(session: Session, form: cgi.FieldStorage) -> str:
@@ -317,9 +354,9 @@ def main_menu(session: Session, form: cgi.FieldStorage) -> str:
         </ul>
     """.format(
         user=session.get_current_user_html(offer_main_menu=False),
-        url_tasks=cc_html.get_generic_action_url(ACTION.VIEW_TASKS),
-        url_tr=cc_html.get_generic_action_url(ACTION.CHOOSE_TRACKER),
-        url_ctv=cc_html.get_generic_action_url(ACTION.CHOOSE_CLINICALTEXTVIEW),
+        url_tasks=get_generic_action_url(ACTION.VIEW_TASKS),
+        url_tr=get_generic_action_url(ACTION.CHOOSE_TRACKER),
+        url_ctv=get_generic_action_url(ACTION.CHOOSE_CLINICALTEXTVIEW),
     )
 
     # Reports, dump
@@ -329,7 +366,7 @@ def main_menu(session: Session, form: cgi.FieldStorage) -> str:
         html += """
             <li><a href="{reports}">Run reports</a></li>
         """.format(
-            reports=cc_html.get_generic_action_url(ACTION.REPORTS_MENU),
+            reports=get_generic_action_url(ACTION.REPORTS_MENU),
         )
     if session.authorized_to_dump():
         html += """
@@ -346,14 +383,11 @@ def main_menu(session: Session, form: cgi.FieldStorage) -> str:
                 (... <a href="{tv_defs}">including views</a>)
             </li>
         """.format(
-            basic_dump=cc_html.get_generic_action_url(ACTION.OFFER_BASIC_DUMP),
-            regen=cc_html.get_generic_action_url(
-                ACTION.OFFER_REGENERATE_SUMMARIES),
-            table_dump=cc_html.get_generic_action_url(ACTION.OFFER_TABLE_DUMP),
-            table_defs=cc_html.get_generic_action_url(
-                ACTION.INSPECT_TABLE_DEFS),
-            tv_defs=cc_html.get_generic_action_url(
-                ACTION.INSPECT_TABLE_VIEW_DEFS),
+            basic_dump=get_generic_action_url(ACTION.OFFER_BASIC_DUMP),
+            regen=get_generic_action_url(ACTION.OFFER_REGENERATE_SUMMARIES),
+            table_dump=get_generic_action_url(ACTION.OFFER_TABLE_DUMP),
+            table_defs=get_generic_action_url(ACTION.INSPECT_TABLE_DEFS),
+            tv_defs=get_generic_action_url(ACTION.INSPECT_TABLE_VIEW_DEFS),
         )
     if session.authorized_for_reports() or session.authorized_to_dump():
         html += """</ul>"""
@@ -371,12 +405,12 @@ def main_menu(session: Session, form: cgi.FieldStorage) -> str:
             <li><a href="{}">View HL7 run log</a></li>
         </ul>
         """.format(
-            cc_html.get_generic_action_url(ACTION.MANAGE_USERS),
-            cc_html.get_generic_action_url(ACTION.DELETE_PATIENT),
-            cc_html.get_generic_action_url(ACTION.FORCIBLY_FINALIZE),
-            cc_html.get_generic_action_url(ACTION.OFFER_AUDIT_TRAIL_OPTIONS),
-            cc_html.get_generic_action_url(ACTION.OFFER_HL7_LOG_OPTIONS),
-            cc_html.get_generic_action_url(ACTION.OFFER_HL7_RUN_OPTIONS),
+            get_generic_action_url(ACTION.MANAGE_USERS),
+            get_generic_action_url(ACTION.DELETE_PATIENT),
+            get_generic_action_url(ACTION.FORCIBLY_FINALIZE),
+            get_generic_action_url(ACTION.OFFER_AUDIT_TRAIL_OPTIONS),
+            get_generic_action_url(ACTION.OFFER_HL7_LOG_OPTIONS),
+            get_generic_action_url(ACTION.OFFER_HL7_RUN_OPTIONS),
         )
 
     # Everybody
@@ -384,7 +418,7 @@ def main_menu(session: Session, form: cgi.FieldStorage) -> str:
         introspection = """
             <li><a href="{}">Introspect source code</a></li>
         """.format(
-            cc_html.get_generic_action_url(ACTION.OFFER_INTROSPECTION),
+            get_generic_action_url(ACTION.OFFER_INTROSPECTION),
         )
     else:
         introspection = ""
@@ -404,16 +438,16 @@ def main_menu(session: Session, form: cgi.FieldStorage) -> str:
         </div>
         {invalid_policy_warning}
     """.format(
-        pol=cc_html.get_generic_action_url(ACTION.VIEW_POLICIES),
+        pol=get_generic_action_url(ACTION.VIEW_POLICIES),
         introspection=introspection,
-        chpw=cc_html.get_url_enter_new_password(session.username),
-        logout=cc_html.get_generic_action_url(ACTION.LOGOUT),
+        chpw=get_url_enter_new_password(session.username),
+        logout=get_generic_action_url(ACTION.LOGOUT),
         now=format_datetime(pls.NOW_LOCAL_TZ,
                             DATEFORMAT.SHORT_DATETIME_SECONDS),
         sv=CAMCOPS_SERVER_VERSION,
         camcops_url=CAMCOPS_URL,
         invalid_policy_warning=(
-            "" if cc_policy.id_policies_valid() else ID_POLICY_INVALID_DIV
+            "" if id_policies_valid() else ID_POLICY_INVALID_DIV
         ),
     ) + WEBEND
     return html
@@ -463,7 +497,7 @@ def view_policies(session: Session, form: cgi.FieldStorage) -> str:
     """.format(
         user=session.get_current_user_html(),
     )
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
+    for n in pls.get_which_idnums():
         html += """<tr> <td>{}</td> <td>{}</td> <td>{}</td> </tr>""".format(
             n,
             pls.get_id_desc(n),
@@ -484,8 +518,8 @@ def view_policies(session: Session, form: cgi.FieldStorage) -> str:
     """.format(
         pls.ID_POLICY_UPLOAD_STRING,
         pls.ID_POLICY_FINALIZE_STRING,
-        cc_policy.get_upload_id_policy_principal_numeric_id(),
-        cc_policy.get_finalize_id_policy_principal_numeric_id(),
+        get_upload_id_policy_principal_numeric_id(),
+        get_finalize_id_policy_principal_numeric_id(),
     )
     return html + WEBEND
 
@@ -506,7 +540,7 @@ def view_tasks(session: Session, form: cgi.FieldStorage) -> str:
     # use a generator rather than a giant list to save memory).
     task_rows = ""
     ntasks = 0
-    for task in cc_task.gen_tasks_matching_session_filter(session):
+    for task in gen_tasks_matching_session_filter(session):
         ntasks += 1
         tasknum = ntasks - 1
         if tasknum >= first and (last is None or tasknum <= last):
@@ -521,10 +555,10 @@ def view_tasks(session: Session, form: cgi.FieldStorage) -> str:
         nav_previous = "Previous"
     else:
         nav_first = """<a href="{}">First</a>""".format(
-            cc_html.get_generic_action_url(ACTION.FIRST_PAGE)
+            get_generic_action_url(ACTION.FIRST_PAGE)
         )
         nav_previous = """<a href="{}">Previous</a>""".format(
-            cc_html.get_generic_action_url(ACTION.PREVIOUS_PAGE)
+            get_generic_action_url(ACTION.PREVIOUS_PAGE)
         )
     if currentpage >= npages:
         nav_next = "Next"
@@ -673,12 +707,12 @@ def serve_task(session: Session, form: cgi.FieldStorage) \
                      VALUE.OUTPUTTYPE_PDFHTML,
                      VALUE.OUTPUTTYPE_XML]
     if outputtype not in allowed_types:
-        return cc_html.fail_with_error_stay_logged_in(
+        return fail_with_error_stay_logged_in(
             "Task: outputtype must be one of {}".format(
                 str(allowed_types)
             )
         )
-    task = cc_task.task_factory(tablename, serverpk)
+    task = task_factory(tablename, serverpk)
     if task is None:
         return fail_task_not_found()
     # Is the user restricted so they can't see this particular one?
@@ -751,11 +785,10 @@ def choose_tracker(session: Session, form: cgi.FieldStorage) -> str:
         warning=warning_restricted,
         script=pls.SCRIPT_NAME,
         ACTION=ACTION,
-        which_idnum_picker=cc_html.get_html_which_idnum_picker(
-            PARAM.WHICH_IDNUM),
+        which_idnum_picker=get_html_which_idnum_picker(PARAM.WHICH_IDNUM),
         PARAM=PARAM,
     )
-    classes = cc_task.get_all_task_classes()
+    classes = get_all_task_classes()
     for cls in classes:
         if hasattr(cls, 'get_trackers'):
             html += """
@@ -829,7 +862,7 @@ def serve_tracker(session: Session, form: cgi.FieldStorage) \
                      VALUE.OUTPUTTYPE_HTML,
                      VALUE.OUTPUTTYPE_XML]
     if outputtype not in allowed_types:
-        return cc_html.fail_with_error_stay_logged_in(
+        return fail_with_error_stay_logged_in(
             "Tracker: outputtype must be one of {}".format(
                 str(allowed_types)
             )
@@ -907,8 +940,7 @@ def choose_clinicaltextview(session: Session, form: cgi.FieldStorage) -> str:
         userdetails=session.get_current_user_html(),
         warning=warning_restricted,
         script=pls.SCRIPT_NAME,
-        which_idnum_picker=cc_html.get_html_which_idnum_picker(
-            PARAM.WHICH_IDNUM),
+        which_idnum_picker=get_html_which_idnum_picker(PARAM.WHICH_IDNUM),
         PARAM=PARAM,
         VALUE=VALUE,
         ACTION=ACTION,
@@ -927,7 +959,7 @@ def serve_clinicaltextview(session: Session, form: cgi.FieldStorage) \
                      VALUE.OUTPUTTYPE_HTML,
                      VALUE.OUTPUTTYPE_XML]
     if outputtype not in allowed_types:
-        return cc_html.fail_with_error_stay_logged_in(
+        return fail_with_error_stay_logged_in(
             "Clinical text view: outputtype must be one of {}".format(
                 str(allowed_types)
             )
@@ -1032,25 +1064,25 @@ def reports_menu(session: Session, form: cgi.FieldStorage) -> str:
     """Offer a menu of reports."""
 
     if not session.authorized_for_reports():
-        return cc_html.fail_with_error_stay_logged_in(CANNOT_REPORT)
-    return cc_report.offer_report_menu(session)
+        return fail_with_error_stay_logged_in(CANNOT_REPORT)
+    return offer_report_menu(session)
 
 
 def offer_report(session: Session, form: cgi.FieldStorage) -> str:
     """Offer configuration options for a single report."""
 
     if not session.authorized_for_reports():
-        return cc_html.fail_with_error_stay_logged_in(CANNOT_REPORT)
-    return cc_report.offer_individual_report(session, form)
+        return fail_with_error_stay_logged_in(CANNOT_REPORT)
+    return offer_individual_report(session, form)
 
 
-def provide_report(session: Session, form: cgi.FieldStorage) \
-        -> Union[str, WSGI_TUPLE_TYPE]:
+def provide_report(session: Session,
+                   form: cgi.FieldStorage) -> Union[str, WSGI_TUPLE_TYPE]:
     """Serve up a configured report."""
 
     if not session.authorized_for_reports():
-        return cc_html.fail_with_error_stay_logged_in(CANNOT_REPORT)
-    return cc_report.provide_report(session, form)
+        return fail_with_error_stay_logged_in(CANNOT_REPORT)
+    return serve_report(session, form)
     # ... unusual: manages the content type itself
 
 
@@ -1060,7 +1092,7 @@ def offer_regenerate_summary_tables(session: Session,
     """Ask for confirmation to regenerate summary tables."""
 
     if not session.authorized_to_dump():
-        return cc_html.fail_with_error_stay_logged_in(CANNOT_DUMP)
+        return fail_with_error_stay_logged_in(CANNOT_DUMP)
     return pls.WEBSTART + """
         {}
         <h1>Regenerate summary tables?</h1>
@@ -1071,8 +1103,8 @@ def offer_regenerate_summary_tables(session: Session,
         <div><a href="{}">Cancel and return to main menu</a></div>
     """.format(
         session.get_current_user_html(),
-        cc_html.get_generic_action_url(ACTION.REGENERATE_SUMMARIES),
-        cc_html.get_url_main_menu(),
+        get_generic_action_url(ACTION.REGENERATE_SUMMARIES),
+        get_url_main_menu(),
     ) + WEBEND
 
 
@@ -1081,12 +1113,12 @@ def regenerate_summary_tables(session: Session, form: cgi.FieldStorage) -> str:
     """Drop and regenerated cached/temporary summary data tables."""
 
     if not session.authorized_to_dump():
-        return cc_html.fail_with_error_stay_logged_in(CANNOT_DUMP)
+        return fail_with_error_stay_logged_in(CANNOT_DUMP)
     success, errormsg = make_summary_tables()
     if success:
-        return cc_html.simple_success_message("Summary tables regenerated.")
+        return simple_success_message("Summary tables regenerated.")
     else:
-        return cc_html.fail_with_error_stay_logged_in(
+        return fail_with_error_stay_logged_in(
             "Couldn’t regenerate summary tables. Error was: " + errormsg)
 
 
@@ -1095,7 +1127,7 @@ def inspect_table_defs(session: Session, form: cgi.FieldStorage) -> str:
     """Inspect table definitions with field comments."""
 
     if not session.authorized_to_dump():
-        return cc_html.fail_with_error_stay_logged_in(CANNOT_DUMP)
+        return fail_with_error_stay_logged_in(CANNOT_DUMP)
     return get_descriptions_comments_html(include_views=False)
 
 
@@ -1104,7 +1136,7 @@ def inspect_table_view_defs(session: Session, form: cgi.FieldStorage) -> str:
     """Inspect table and view definitions with field comments."""
 
     if not session.authorized_to_dump():
-        return cc_html.fail_with_error_stay_logged_in(CANNOT_DUMP)
+        return fail_with_error_stay_logged_in(CANNOT_DUMP)
     return get_descriptions_comments_html(include_views=True)
 
 
@@ -1113,8 +1145,8 @@ def offer_basic_dump(session: Session, form: cgi.FieldStorage) -> str:
     """Offer options for a basic research data dump."""
 
     if not session.authorized_to_dump():
-        return cc_html.fail_with_error_stay_logged_in(CANNOT_DUMP)
-    classes = cc_task.get_all_task_classes()
+        return fail_with_error_stay_logged_in(CANNOT_DUMP)
+    classes = get_all_task_classes()
     possible_tasks = "".join([
         """
             <label>
@@ -1250,8 +1282,8 @@ def offer_basic_dump(session: Session, form: cgi.FieldStorage) -> str:
         ACTION=ACTION,
         PARAM=PARAM,
         VALUE=VALUE,
-        view_tasks=cc_html.get_generic_action_url(ACTION.VIEW_TASKS),
-        table_dump=cc_html.get_generic_action_url(ACTION.OFFER_TABLE_DUMP),
+        view_tasks=get_generic_action_url(ACTION.VIEW_TASKS),
+        table_dump=get_generic_action_url(ACTION.OFFER_TABLE_DUMP),
         possible_tasks=possible_tasks,
     ) + WEBEND
 
@@ -1262,7 +1294,7 @@ def basic_dump(session: Session, form: cgi.FieldStorage) \
 
     # Permissions
     if not session.authorized_to_dump():
-        return cc_html.fail_with_error_stay_logged_in(CANNOT_DUMP)
+        return fail_with_error_stay_logged_in(CANNOT_DUMP)
 
     # Parameters
     dump_type = ws.get_cgi_parameter_str(form, PARAM.BASIC_DUMP_TYPE)
@@ -1270,7 +1302,7 @@ def basic_dump(session: Session, form: cgi.FieldStorage) \
                             VALUE.DUMPTYPE_AS_TASK_FILTER,
                             VALUE.DUMPTYPE_SPECIFIC_TASKS]
     if dump_type not in permitted_dump_types:
-        return cc_html.fail_with_error_stay_logged_in(
+        return fail_with_error_stay_logged_in(
             "Basic dump: {PARAM.BASIC_DUMP_TYPE} must be one of "
             "{permitted}.".format(
                 PARAM=PARAM,
@@ -1284,7 +1316,7 @@ def basic_dump(session: Session, form: cgi.FieldStorage) \
     z = zipfile.ZipFile(memfile, "w")
 
     # Generate everything
-    classes = cc_task.get_all_task_classes()
+    classes = get_all_task_classes()
     processed_tables = []
     for cls in classes:
         if dump_type == VALUE.DUMPTYPE_AS_TASK_FILTER:
@@ -1343,7 +1375,7 @@ def offer_table_dump(session: Session, form: cgi.FieldStorage) -> str:
     """HTML form to request dump of table data."""
 
     if not session.authorized_to_dump():
-        return cc_html.fail_with_error_stay_logged_in(CANNOT_DUMP)
+        return fail_with_error_stay_logged_in(CANNOT_DUMP)
     # POST, not GET, or the URL exceeds the Apache limit
     html = pls.WEBSTART + """
         {userdetails}
@@ -1367,7 +1399,7 @@ def offer_table_dump(session: Session, form: cgi.FieldStorage) -> str:
         PARAM=PARAM,
     )
 
-    for x in cc_dump.get_permitted_tables_views_sorted_labelled():
+    for x in get_permitted_tables_views_sorted_labelled():
         if x["name"] == Blob.TABLENAME:
             name = PARAM.TABLES_BLOB
             checked = ""
@@ -1452,7 +1484,7 @@ def serve_table_dump(session: Session, form: cgi.FieldStorage) \
     """Serve a dump of table +/- view data."""
 
     if not session.authorized_to_dump():
-        return cc_html.fail_with_error_stay_logged_in(CANNOT_DUMP)
+        return fail_with_error_stay_logged_in(CANNOT_DUMP)
     outputtype = ws.get_cgi_parameter_str(form, PARAM.OUTPUTTYPE)
     if outputtype is not None:
         outputtype = outputtype.lower()
@@ -1468,14 +1500,12 @@ def serve_table_dump(session: Session, form: cgi.FieldStorage) \
         ) + ".sql"
         # atypical content type
         return ws.text_result(
-            cc_dump.get_database_dump_as_sql(tables), [], filename
+            get_database_dump_as_sql(tables), [], filename
         )
     elif outputtype == VALUE.OUTPUTTYPE_TSV:
-        zip_contents = cc_dump.get_multiple_views_data_as_tsv_zip(tables)
+        zip_contents = get_multiple_views_data_as_tsv_zip(tables)
         if zip_contents is None:
-            return cc_html.fail_with_error_stay_logged_in(
-                cc_dump.NOTHING_VALID_SPECIFIED
-            )
+            return fail_with_error_stay_logged_in(NOTHING_VALID_SPECIFIED)
         filename = "CamCOPS_dump_" + format_datetime(
             pls.NOW_LOCAL_TZ,
             DATEFORMAT.FILENAME
@@ -1483,7 +1513,7 @@ def serve_table_dump(session: Session, form: cgi.FieldStorage) \
         # atypical content type
         return ws.zip_result(zip_contents, [], filename)
     else:
-        return cc_html.fail_with_error_stay_logged_in(
+        return fail_with_error_stay_logged_in(
             "Dump: outputtype must be '{}' or '{}'".format(
                 VALUE.OUTPUTTYPE_SQL,
                 VALUE.OUTPUTTYPE_TSV
@@ -1496,7 +1526,7 @@ def offer_audit_trail_options(session: Session, form: cgi.FieldStorage) -> str:
     """HTML form to request audit trail."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     return pls.WEBSTART + """
         {userdetails}
         <h1>View audit trail (starting with most recent)</h1>
@@ -1553,7 +1583,7 @@ def view_audit_trail(session: Session, form: cgi.FieldStorage) -> str:
     """Show audit trail."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     nrows = ws.get_cgi_parameter_int(form, PARAM.NROWS)
     if nrows is None or nrows < 0:
         # ... let's apply some limits!
@@ -1635,7 +1665,7 @@ def offer_hl7_log_options(session: Session, form: cgi.FieldStorage) -> str:
     """HTML form to request HL7 message log view."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     return pls.WEBSTART + """
         {userdetails}
         <h1>View HL7 outbound message log (starting with most recent)</h1>
@@ -1699,7 +1729,7 @@ def view_hl7_log(session: Session, form: cgi.FieldStorage) -> str:
     """Show HL7 message log."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     nrows = ws.get_cgi_parameter_int(form, PARAM.NROWS)
     basetable = ws.get_cgi_parameter_str(form, PARAM.TABLENAME)
     serverpk = ws.get_cgi_parameter_int(form, PARAM.SERVERPK)
@@ -1719,7 +1749,7 @@ def view_hl7_log(session: Session, form: cgi.FieldStorage) -> str:
         SELECT msg_id
         FROM {hl7table}
     """.format(
-        hl7table=cc_hl7.HL7Message.TABLENAME,
+        hl7table=HL7Message.TABLENAME,
     )
     if basetable:
         wheres.append("basetable = ?")
@@ -1765,10 +1795,10 @@ def view_hl7_log(session: Session, form: cgi.FieldStorage) -> str:
         end_datetime=format_datetime(end_datetime,
                                      DATEFORMAT.ISO8601_DATE_ONLY),
     )
-    html += cc_hl7.HL7Message.get_html_header_row(showmessage=showmessage,
-                                                  showreply=showreply)
+    html += HL7Message.get_html_header_row(showmessage=showmessage,
+                                           showreply=showreply)
     for pk in pks:
-        hl7msg = cc_hl7.HL7Message(pk)
+        hl7msg = HL7Message(pk)
         html += hl7msg.get_html_data_row(showmessage=showmessage,
                                          showreply=showreply)
     return html + """
@@ -1781,7 +1811,7 @@ def offer_hl7_run_options(session: Session, form: cgi.FieldStorage) -> str:
     """HTML form to request HL7 run log view."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     return pls.WEBSTART + """
         {userdetails}
         <h1>View HL7 run log (starting with most recent)</h1>
@@ -1823,7 +1853,7 @@ def view_hl7_run(session: Session, form: cgi.FieldStorage) -> str:
     """Show HL7 run log."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     run_id = ws.get_cgi_parameter_int(form, PARAM.HL7RUNID)
     nrows = ws.get_cgi_parameter_int(form, PARAM.NROWS)
     if nrows is None or nrows < 0:
@@ -1834,9 +1864,7 @@ def view_hl7_run(session: Session, form: cgi.FieldStorage) -> str:
     sql = """
         SELECT run_id
         FROM {hl7runtable}
-    """.format(
-        hl7runtable=cc_hl7.HL7Run.TABLENAME
-    )
+    """.format(hl7runtable=HL7Run.TABLENAME)
     wheres = []
     args = []
     if run_id is not None:
@@ -1873,9 +1901,9 @@ def view_hl7_run(session: Session, form: cgi.FieldStorage) -> str:
         end_datetime=format_datetime(end_datetime,
                                      DATEFORMAT.ISO8601_DATE_ONLY),
     )
-    html += cc_hl7.HL7Run.get_html_header_row()
+    html += HL7Run.get_html_header_row()
     for pk in pks:
-        hl7run = cc_hl7.HL7Run(pk)
+        hl7run = HL7Run(pk)
         html += hl7run.get_html_data_row()
     return html + """
         </table>
@@ -1887,7 +1915,7 @@ def offer_introspection(session: Session, form: cgi.FieldStorage) -> str:
     """HTML form to offer CamCOPS server source code."""
 
     if not pls.INTROSPECTION:
-        return cc_html.fail_with_error_stay_logged_in(NO_INTROSPECTION_MSG)
+        return fail_with_error_stay_logged_in(NO_INTROSPECTION_MSG)
     html = pls.WEBSTART + """
         {user}
         <h1>Introspection into CamCOPS source code</h1>
@@ -1911,12 +1939,11 @@ def introspect(session: Session, form: cgi.FieldStorage) -> str:
     """Provide formatted source code."""
 
     if not pls.INTROSPECTION:
-        return cc_html.fail_with_error_stay_logged_in(NO_INTROSPECTION_MSG)
+        return fail_with_error_stay_logged_in(NO_INTROSPECTION_MSG)
     filename = ws.get_cgi_parameter_str(form, PARAM.FILENAME)
     possible_filenames = [ft.searchterm for ft in pls.INTROSPECTION_FILES]
     if not filename or filename not in possible_filenames:
-        return cc_html.fail_with_error_not_logged_in(
-            INTROSPECTION_INVALID_FILE_MSG)
+        return fail_with_error_not_logged_in(INTROSPECTION_INVALID_FILE_MSG)
     index = possible_filenames.index(filename)
     ft = pls.INTROSPECTION_FILES[index]
     # log.debug("INTROSPECTION: " + str(ft))
@@ -1931,7 +1958,7 @@ def introspect(session: Session, form: cgi.FieldStorage) -> str:
             code = f.read()
     except Exception as e:
         log.debug("INTROSPECTION ERROR: " + str(e))
-        return cc_html.fail_with_error_not_logged_in(INTROSPECTION_FAILED_MSG)
+        return fail_with_error_not_logged_in(INTROSPECTION_FAILED_MSG)
     body = pygments.highlight(code, lexer, formatter)
     css = formatter.get_style_defs('.highlight')
     return """
@@ -1955,14 +1982,14 @@ def add_special_note(session: Session, form: cgi.FieldStorage) -> str:
     """Add a special note to a task (after confirmation)."""
 
     if not session.authorized_to_add_special_note():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     n_confirmations = 2
     tablename = ws.get_cgi_parameter_str(form, PARAM.TABLENAME)
     serverpk = ws.get_cgi_parameter_int(form, PARAM.SERVERPK)
     confirmation_sequence = ws.get_cgi_parameter_int(
         form, PARAM.CONFIRMATION_SEQUENCE)
     note = ws.get_cgi_parameter_str(form, PARAM.NOTE)
-    task = cc_task.task_factory(tablename, serverpk)
+    task = task_factory(tablename, serverpk)
     if task is None:
         return fail_task_not_found()
     if (confirmation_sequence is None or
@@ -2012,18 +2039,18 @@ def add_special_note(session: Session, form: cgi.FieldStorage) -> str:
             serverpk=serverpk,
             confirmation_sequence=confirmation_sequence + 1,
             textarea=textarea,
-            cancelurl=cc_task.get_url_task_html(tablename, serverpk),
+            cancelurl=get_url_task_html(tablename, serverpk),
         ) + WEBEND
     # If we get here, we'll apply the note.
     task.apply_special_note(note, session.user_id)
-    return cc_html.simple_success_message(
+    return simple_success_message(
         "Note applied ({}, server PK {}).".format(
             tablename,
             serverpk
         ),
         """
             <div><a href={}>View amended task</div>
-        """.format(cc_task.get_url_task_html(tablename, serverpk))
+        """.format(get_url_task_html(tablename, serverpk))
     )
 
 
@@ -2032,21 +2059,20 @@ def erase_task(session: Session, form: cgi.FieldStorage) -> str:
 
     Leaves the task record as a placeholder.
     """
-
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     n_confirmations = 3
     tablename = ws.get_cgi_parameter_str(form, PARAM.TABLENAME)
     serverpk = ws.get_cgi_parameter_int(form, PARAM.SERVERPK)
     confirmation_sequence = ws.get_cgi_parameter_int(
         form, PARAM.CONFIRMATION_SEQUENCE)
-    task = cc_task.task_factory(tablename, serverpk)
+    task = task_factory(tablename, serverpk)
     if task is None:
         return fail_task_not_found()
     if task.is_erased():
-        return cc_html.fail_with_error_stay_logged_in("Task already erased.")
+        return fail_with_error_stay_logged_in("Task already erased.")
     if task.is_live_on_tablet():
-        return cc_html.fail_with_error_stay_logged_in(ERROR_TASK_LIVE)
+        return fail_with_error_stay_logged_in(ERROR_TASK_LIVE)
     if (confirmation_sequence is None or
             confirmation_sequence < 0 or
             confirmation_sequence > n_confirmations):
@@ -2083,18 +2109,18 @@ def erase_task(session: Session, form: cgi.FieldStorage) -> str:
             tablename=tablename,
             serverpk=serverpk,
             confirmation_sequence=confirmation_sequence + 1,
-            cancelurl=cc_task.get_url_task_html(tablename, serverpk),
+            cancelurl=get_url_task_html(tablename, serverpk),
         ) + WEBEND
     # If we get here, we'll do the erasure.
     task.manually_erase(session.user_id)
-    return cc_html.simple_success_message(
+    return simple_success_message(
         "Task erased ({}, server PK {}).".format(
             tablename,
             serverpk
         ),
         """
             <div><a href={}>View amended task</div>
-        """.format(cc_task.get_url_task_html(tablename, serverpk))
+        """.format(get_url_task_html(tablename, serverpk))
     )
 
 
@@ -2102,7 +2128,7 @@ def delete_patient(session: Session, form: cgi.FieldStorage) -> str:
     """Completely delete all data from a patient (after confirmation)."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     n_confirmations = 3
     which_idnum = ws.get_cgi_parameter_int(form, PARAM.WHICH_IDNUM)
     idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
@@ -2112,21 +2138,19 @@ def delete_patient(session: Session, form: cgi.FieldStorage) -> str:
             confirmation_sequence < 0 or
             confirmation_sequence > n_confirmations):
         confirmation_sequence = 0
-    patient_server_pks = cc_patient.get_patient_server_pks_by_idnum(
+    patient_server_pks = get_patient_server_pks_by_idnum(
         which_idnum, idnum_value, current_only=False)
     if which_idnum is not None or idnum_value is not None:
         # A patient was asked for...
         if not patient_server_pks:
             # ... but not found
-            return cc_html.fail_with_error_stay_logged_in(
-                "No such patient found.")
+            return fail_with_error_stay_logged_in("No such patient found.")
     if confirmation_sequence < n_confirmations:
         # First call. Offer method.
         tasks = ""
         if which_idnum is not None and idnum_value is not None:
             tasks = AFFECTED_TASKS_HTML + task_list_from_generator(
-                cc_task.gen_tasks_for_patient_deletion(which_idnum,
-                                                       idnum_value))
+                gen_tasks_for_patient_deletion(which_idnum, idnum_value))
         if confirmation_sequence > 0:
             warning = """
                 <div class="warning">
@@ -2157,7 +2181,7 @@ def delete_patient(session: Session, form: cgi.FieldStorage) -> str:
                         value="{idnum_value}">
             """.format(
                 PARAM=PARAM,
-                which_idnum_picker=cc_html.get_html_which_idnum_picker(
+                which_idnum_picker=get_html_which_idnum_picker(
                     PARAM.WHICH_IDNUM, selected=which_idnum),
                 idnum_value="" if idnum_value is None else idnum_value,
             )
@@ -2186,19 +2210,19 @@ def delete_patient(session: Session, form: cgi.FieldStorage) -> str:
             patient_picker_or_label=patient_picker_or_label,
             PARAM=PARAM,
             confirmation_sequence=confirmation_sequence + 1,
-            cancelurl=cc_html.get_url_main_menu(),
+            cancelurl=get_url_main_menu(),
             tasks=tasks,
         ) + WEBEND
     if not patient_server_pks:
-        return cc_html.fail_with_error_stay_logged_in("No such patient found.")
+        return fail_with_error_stay_logged_in("No such patient found.")
     # If we get here, we'll do the erasure.
     # Delete tasks (with subtables)
-    for cls in cc_task.get_all_task_classes():
+    for cls in get_all_task_classes():
         tablename = cls.tablename
         serverpks = cls.get_task_pks_for_patient_deletion(which_idnum,
                                                           idnum_value)
         for serverpk in serverpks:
-            task = cc_task.task_factory(tablename, serverpk)
+            task = task_factory(tablename, serverpk)
             task.delete_entirely()
     # Delete patients
     for ppk in patient_server_pks:
@@ -2207,7 +2231,7 @@ def delete_patient(session: Session, form: cgi.FieldStorage) -> str:
     msg = "Patient with idnum{} = {} and associated tasks DELETED".format(
         which_idnum, idnum_value)
     audit(msg)
-    return cc_html.simple_success_message(msg)
+    return simple_success_message(msg)
 
 
 def info_html_for_patient_edit(title: str,
@@ -2236,7 +2260,7 @@ def info_html_for_patient_edit(title: str,
 
 def edit_patient(session: Session, form: cgi.FieldStorage) -> str:
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     # Inputs. We operate with text, for HTML reasons.
     patient_server_pk = ws.get_cgi_parameter_int(form, PARAM.SERVERPK)
     confirmation_sequence = ws.get_cgi_parameter_int(
@@ -2250,23 +2274,17 @@ def edit_patient(session: Session, form: cgi.FieldStorage) -> str:
         "gp": ws.get_cgi_parameter_str(form, PARAM.GP, default=""),
         "other": ws.get_cgi_parameter_str(form, PARAM.OTHER, default=""),
     }
+    idnum_changes = {}  # type: Dict[int, int]  # which_idnum, idnum_value
     if changes["forename"]:
         changes["forename"] = changes["forename"].upper()
     if changes["surname"]:
         changes["surname"] = changes["surname"].upper()
     changes["dob"] = format_datetime(
         changes["dob"], DATEFORMAT.ISO8601_DATE_ONLY, default="")
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
+    for n in pls.get_which_idnums():
         val = ws.get_cgi_parameter_int(form, PARAM.IDNUM_PREFIX + str(n))
-        if val is None:
-            val = ""
-        nstr = str(n)
-        changes[FP_ID_NUM + nstr] = val
-        # We will also write the server's ID descriptions, if the ID number is
-        # changing.
-        if val != "":
-            changes[FP_ID_DESC + nstr] = pls.get_id_desc(n)
-            changes[FP_ID_SHORT_DESC + nstr] = pls.get_id_shortdesc(n)
+        if val is not None:
+            idnum_changes[n] = val
     # Calculations
     n_confirmations = 2
     if (confirmation_sequence is None or
@@ -2275,15 +2293,15 @@ def edit_patient(session: Session, form: cgi.FieldStorage) -> str:
         confirmation_sequence = 0
     patient = Patient(patient_server_pk)
     if patient.get_pk() is None:
-        return cc_html.fail_with_error_stay_logged_in(
+        return fail_with_error_stay_logged_in(
             "No such patient found.")
     if not patient.is_preserved():
-        return cc_html.fail_with_error_stay_logged_in(
+        return fail_with_error_stay_logged_in(
             "Patient record is still live on tablet; cannot edit.")
     if confirmation_sequence < n_confirmations:
         # First call. Offer method.
         tasks = AFFECTED_TASKS_HTML + task_list_from_generator(
-            cc_task.gen_tasks_using_patient(
+            gen_tasks_using_patient(
                 patient.id, patient.get_device_id(), patient.get_era()))
         if confirmation_sequence > 0:
             warning = """
@@ -2317,14 +2335,18 @@ def edit_patient(session: Session, form: cgi.FieldStorage) -> str:
                                            PARAM.OTHER, changes["other"],
                                            patient.other)
             )
-            for n in range(1, NUMBER_OF_IDNUMS + 1):
+            for n in pls.get_which_idnums():
+                oldvalue = patient.get_idnum_value(n)
+                newvalue = idnum_changes.get(n, None)
+                if newvalue is None:
+                    newvalue = oldvalue
                 desc = pls.get_id_desc(n)
                 details += info_html_for_patient_edit(
                     "ID number {} ({})".format(n, desc),
-                    changes[FP_ID_NUM + str(n)],
+                    str(newvalue),
                     PARAM.IDNUM_PREFIX + str(n),
-                    changes[FP_ID_NUM + str(n)],
-                    patient.get_idnum(n))
+                    str(newvalue),
+                    str(oldvalue))
         else:
             warning = ""
             dob_for_html = format_datetime_string(
@@ -2348,14 +2370,14 @@ def edit_patient(session: Session, form: cgi.FieldStorage) -> str:
                 forename=patient.forename or "",
                 surname=patient.surname or "",
                 dob=dob_for_html,
-                sex_picker=cc_html.get_html_sex_picker(param=PARAM.SEX,
-                                                       selected=patient.sex,
-                                                       offer_all=False),
+                sex_picker=get_html_sex_picker(param=PARAM.SEX,
+                                               selected=patient.sex,
+                                               offer_all=False),
                 address=patient.address or "",
                 gp=patient.gp or "",
                 other=patient.other or "",
             )
-            for n in range(1, NUMBER_OF_IDNUMS + 1):
+            for n in pls.get_which_idnums():
                 details += """
                     ID number {n} ({desc}):
                     <input type="number" name="{paramprefix}{n}"
@@ -2364,7 +2386,7 @@ def edit_patient(session: Session, form: cgi.FieldStorage) -> str:
                     n=n,
                     desc=pls.get_id_desc(n),
                     paramprefix=PARAM.IDNUM_PREFIX,
-                    value=patient.get_idnum(n),
+                    value=patient.get_idnum_value(n),
                 )
         return pls.WEBSTART + """
             {user}
@@ -2394,12 +2416,12 @@ def edit_patient(session: Session, form: cgi.FieldStorage) -> str:
             patient_server_pk=patient_server_pk,
             details=details,
             confirmation_sequence=confirmation_sequence + 1,
-            cancelurl=cc_html.get_url_main_menu(),
+            cancelurl=get_url_main_menu(),
             tasks=tasks,
         ) + WEBEND
     # Line up the changes and validate, but DO NOT SAVE THE PATIENT as yet.
     changemessages = []
-    for k, v in changes.iteritems():
+    for k, v in changes.items():
         if v == "":
             v = None
         oldval = getattr(patient, k)
@@ -2413,27 +2435,31 @@ def edit_patient(session: Session, form: cgi.FieldStorage) -> str:
                 newval=v
             ))
             setattr(patient, k, v)
+    for which_idnum, idnum_value in idnum_changes.items():
+        oldvalue = patient.get_idnum_value(which_idnum)
+        if idnum_value != oldvalue:
+            patient.set_idnum_value(which_idnum, idnum_value)
     # Valid?
     if (not patient.satisfies_upload_id_policy() or
             not patient.satisfies_finalize_id_policy()):
-        return cc_html.fail_with_error_stay_logged_in(
+        return fail_with_error_stay_logged_in(
             "New version does not satisfy uploading or finalizing policy; "
             "no changes made.")
     # Anything to do?
     if not changemessages:
-        return cc_html.simple_success_message("No changes made.")
+        return simple_success_message("No changes made.")
     # If we get here, we'll make the change.
     patient.save()
     msg = "Patient details edited. Changes: "
     msg += "; ".join(changemessages) + "."
     patient.apply_special_note(msg, session.user_id,
                                audit_msg="Patient details edited")
-    for task in cc_task.gen_tasks_using_patient(patient.id,
-                                                patient.get_device_id(),
-                                                patient.get_era()):
+    for task in gen_tasks_using_patient(patient.id,
+                                        patient.get_device_id(),
+                                        patient.get_era()):
         # Patient details changed, so resend any tasks via HL7
         task.delete_from_hl7_message_log()
-    return cc_html.simple_success_message(msg)
+    return simple_success_message(msg)
 
 
 def task_list_from_generator(generator: Iterable[Task]) -> str:
@@ -2455,7 +2481,7 @@ def forcibly_finalize(session: Session, form: cgi.FieldStorage) -> str:
     """Force-finalize all live (_era == ERA_NOW) records from a device."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     n_confirmations = 3
     device_id = ws.get_cgi_parameter_int(form, PARAM.DEVICE)
     confirmation_sequence = ws.get_cgi_parameter_int(
@@ -2465,22 +2491,21 @@ def forcibly_finalize(session: Session, form: cgi.FieldStorage) -> str:
             confirmation_sequence > n_confirmations):
         confirmation_sequence = 0
     if confirmation_sequence > 0 and device_id is None:
-        return cc_html.fail_with_error_stay_logged_in("Device not specified.")
+        return fail_with_error_stay_logged_in("Device not specified.")
     d = None
     if device_id is not None:
         # A device was asked for...
         d = Device(device_id)
         if not d.is_valid():
             # ... but not found
-            return cc_html.fail_with_error_stay_logged_in(
-                "No such device found.")
+            return fail_with_error_stay_logged_in("No such device found.")
         device_id = d.id
     if confirmation_sequence < n_confirmations:
         # First call. Offer method.
         tasks = ""
         if device_id is not None:
             tasks = AFFECTED_TASKS_HTML + task_list_from_generator(
-                cc_task.gen_tasks_live_on_tablet(device_id))
+                gen_tasks_live_on_tablet(device_id))
         if confirmation_sequence > 0:
             warning = """
                 <div class="warning">
@@ -2530,7 +2555,7 @@ def forcibly_finalize(session: Session, form: cgi.FieldStorage) -> str:
             device_picker_or_label=device_picker_or_label,
             PARAM=PARAM,
             confirmation_sequence=confirmation_sequence + 1,
-            cancelurl=cc_html.get_url_main_menu(),
+            cancelurl=get_url_main_menu(),
             tasks=tasks
         ) + WEBEND
 
@@ -2542,7 +2567,7 @@ def forcibly_finalize(session: Session, form: cgi.FieldStorage) -> str:
         Blob.TABLENAME,
         DeviceStoredVar.TABLENAME,
     ]
-    for cls in cc_task.get_all_task_classes():
+    for cls in get_all_task_classes():
         tables.append(cls.tablename)
         tables.extend(cls.get_extra_table_names())
     for t in tables:
@@ -2553,7 +2578,7 @@ def forcibly_finalize(session: Session, form: cgi.FieldStorage) -> str:
     # OK, done.
     msg = "Live records for device {} forcibly finalized".format(device_id)
     audit(msg)
-    return cc_html.simple_success_message(msg)
+    return simple_success_message(msg)
 
 
 def enter_new_password(session: Session, form: cgi.FieldStorage) -> str:
@@ -2562,30 +2587,24 @@ def enter_new_password(session: Session, form: cgi.FieldStorage) -> str:
     user_to_change = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
     if (user_to_change != session.username and
             not session.authorized_as_superuser()):
-        return cc_html.fail_with_error_stay_logged_in(
-            CAN_ONLY_CHANGE_OWN_PASSWORD)
-    return cc_user.enter_new_password(
-        session,
-        user_to_change,
-        user_to_change != session.username
-    )
+        return fail_with_error_stay_logged_in(CAN_ONLY_CHANGE_OWN_PASSWORD)
+    return enter_new_password_html(session,
+                                   user_to_change,
+                                   user_to_change != session.username)
 
 
-def change_password(session: Session, form: cgi.FieldStorage) -> str:
+def change_password_if_auth(session: Session, form: cgi.FieldStorage) -> str:
     """Implement a password change."""
 
     user_to_change = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
     if user_to_change is None or session.username is None:
-        return cc_html.fail_with_error_stay_logged_in(MISSING_PARAMETERS_MSG)
+        return fail_with_error_stay_logged_in(MISSING_PARAMETERS_MSG)
     if (user_to_change != session.username and
             not session.authorized_as_superuser()):
-        return cc_html.fail_with_error_stay_logged_in(
-            CAN_ONLY_CHANGE_OWN_PASSWORD)
-    return cc_user.change_password(
-        user_to_change,
-        form,
-        user_to_change != session.username
-    )
+        return fail_with_error_stay_logged_in(CAN_ONLY_CHANGE_OWN_PASSWORD)
+    return change_password(user_to_change,
+                           form,
+                           user_to_change != session.username)
 
 
 # noinspection PyUnusedLocal
@@ -2593,8 +2612,8 @@ def manage_users(session: Session, form: cgi.FieldStorage) -> str:
     """Offer user management menu."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    return cc_user.manage_users(session)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+    return manage_users_html(session)
 
 
 # noinspection PyUnusedLocal
@@ -2602,60 +2621,60 @@ def ask_to_add_user(session: Session, form: cgi.FieldStorage) -> str:
     """Ask for details to add a user."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    return cc_user.ask_to_add_user(session)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+    return ask_to_add_user_html(session)
 
 
-def add_user(session: Session, form: cgi.FieldStorage) -> str:
+def add_user_if_auth(session: Session, form: cgi.FieldStorage) -> str:
     """Adds a user using the details supplied."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    return cc_user.add_user(form)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+    return add_user(form)
 
 
 def edit_user(session: Session, form: cgi.FieldStorage) -> str:
     """Offers a user editing page."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     user_to_edit = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    return cc_user.edit_user(session, user_to_edit)
+    return edit_user_form(session, user_to_edit)
 
 
-def change_user(session: Session, form: cgi.FieldStorage) -> str:
+def change_user_if_auth(session: Session, form: cgi.FieldStorage) -> str:
     """Applies edits to a user."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    return cc_user.change_user(form)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+    return change_user(form)
 
 
 def ask_delete_user(session: Session, form: cgi.FieldStorage) -> str:
     """Asks for confirmation to delete a user."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     user_to_delete = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    return cc_user.ask_delete_user(session, user_to_delete)
+    return ask_delete_user_html(session, user_to_delete)
 
 
-def delete_user(session: Session, form: cgi.FieldStorage) -> str:
+def delete_user_if_auth(session: Session, form: cgi.FieldStorage) -> str:
     """Deletes a user."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     user_to_delete = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    return cc_user.delete_user(user_to_delete)
+    return delete_user(user_to_delete)
 
 
 def enable_user(session: Session, form: cgi.FieldStorage) -> str:
     """Enables a user (unlocks, clears login failures)."""
 
     if not session.authorized_as_superuser():
-        return cc_html.fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
+        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     user_to_enable = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    return cc_user.enable_user_webview(user_to_enable)
+    return enable_user_webview(user_to_enable)
 
 
 # noinspection PyUnusedLocal
@@ -2730,24 +2749,24 @@ def get_tsv_line_from_dict(d: Dict) -> str:
 def get_url_next_page(ntasks: int) -> str:
     """URL to move to next page in task list."""
     return (
-        cc_html.get_generic_action_url(ACTION.NEXT_PAGE) +
-        cc_html.get_url_field_value_pair(PARAM.NTASKS, ntasks)
+        get_generic_action_url(ACTION.NEXT_PAGE) +
+        get_url_field_value_pair(PARAM.NTASKS, ntasks)
     )
 
 
 def get_url_last_page(ntasks: int) -> str:
     """URL to move to last page in task list."""
     return (
-        cc_html.get_generic_action_url(ACTION.LAST_PAGE) +
-        cc_html.get_url_field_value_pair(PARAM.NTASKS, ntasks)
+        get_generic_action_url(ACTION.LAST_PAGE) +
+        get_url_field_value_pair(PARAM.NTASKS, ntasks)
     )
 
 
 def get_url_introspect(filename: str) -> str:
     """URL to view specific source code file."""
     return (
-        cc_html.get_generic_action_url(ACTION.INTROSPECT) +
-        cc_html.get_url_field_value_pair(PARAM.FILENAME, filename)
+        get_generic_action_url(ACTION.INTROSPECT) +
+        get_url_field_value_pair(PARAM.FILENAME, filename)
     )
 
 
@@ -2817,14 +2836,14 @@ ACTIONDICT = {
 
     # User management
     ACTION.ENTER_NEW_PASSWORD: enter_new_password,
-    ACTION.CHANGE_PASSWORD: change_password,
+    ACTION.CHANGE_PASSWORD: change_password_if_auth,
     ACTION.MANAGE_USERS: manage_users,
     ACTION.ASK_TO_ADD_USER: ask_to_add_user,
-    ACTION.ADD_USER: add_user,
+    ACTION.ADD_USER: add_user_if_auth,
     ACTION.EDIT_USER: edit_user,
-    ACTION.CHANGE_USER: change_user,
+    ACTION.CHANGE_USER: change_user_if_auth,
     ACTION.ASK_DELETE_USER: ask_delete_user,
-    ACTION.DELETE_USER: delete_user,
+    ACTION.DELETE_USER: delete_user_if_auth,
     ACTION.ENABLE_USER: enable_user,
 
     # Supervisory reports
@@ -2890,7 +2909,7 @@ def main_http_processor(env: Dict[str, str]) \
     # -------------------------------------------------------------------------
     if not pls.session.authorized_as_viewer():
         if not action:
-            return cc_html.login_page()
+            return login_page()
         else:
             return fail_not_user(action, redirect=env.get("REQUEST_URI"))
 
@@ -2899,10 +2918,9 @@ def main_http_processor(env: Dict[str, str]) \
     # -------------------------------------------------------------------------
     if pls.session.user_must_change_password():
         if action != ACTION.CHANGE_PASSWORD:
-            return cc_user.enter_new_password(
-                pls.session, pls.session.username,
-                as_manager=False, because_password_expired=True
-            )
+            return enter_new_password(pls.session, pls.session.username,
+                                      as_manager=False,
+                                      because_password_expired=True)
     elif pls.session.user_must_agree_terms() and action != ACTION.AGREE_TERMS:
         return offer_terms(pls.session, form)
     # Caution with the case where the user must do both; don't want deadlock!
@@ -3015,7 +3033,7 @@ def make_summary_tables(from_console: bool = True) -> Tuple[bool, str]:
     try:
         with lock:
             log.info("MAKING SUMMARY TABLES")
-            for cls in cc_task.get_all_task_classes():
+            for cls in get_all_task_classes():
                 cls.make_summary_table()
             audit("Created/recreated summary tables",
                   from_console=from_console)
@@ -3036,7 +3054,7 @@ def webview_application(environ: Dict[str, str],
         -> Iterable[bytes]:
     """Main WSGI application handler."""
     # Establish a session based on incoming details
-    cc_session.establish_session(environ)  # writes to pls.session
+    establish_session(environ)  # writes to pls.session
 
     # Call main
     result = main_http_processor(environ)
@@ -3071,9 +3089,9 @@ def webview_application(environ: Dict[str, str],
 # Unit tests
 # =============================================================================
 
-def unit_tests() -> None:
+def webview_unit_tests() -> None:
     """Unit tests for camcops.py"""
-    session = cc_session.Session()
+    session = Session()
     form = cgi.FieldStorage()
     # suboptimal tests, as form isn't tailed to these things
 

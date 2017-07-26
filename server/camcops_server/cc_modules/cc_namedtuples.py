@@ -51,7 +51,7 @@ BarePatientInfo = collections.namedtuple("BarePatientInfo", [
     "surname",
     "dob",
     "sex",
-    "idnum_array"
+    "whichidnum_idnumvalue_tuples"
 ])
 
 

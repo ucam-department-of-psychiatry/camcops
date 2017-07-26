@@ -28,8 +28,11 @@
 #include "common/uiconst.h"
 #include "common/varconst.h"
 #include "core/networkmanager.h"
+#include "db/databasemanager.h"
 #include "db/dbnestabletransaction.h"
+#include "db/dumpsql.h"
 #include "db/fieldref.h"
+#include "dbobjects/idnumdescription.h"
 #include "dialogs/logmessagebox.h"
 #include "lib/convert.h"
 #include "lib/uifunc.h"
@@ -154,19 +157,27 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
         ).setNeedsPrivilege(),
 #endif
         MenuItem(
-            tr("(†) Send data database to debugging stream"),
+            tr("(†) View record counts for all data tables"),
+            std::bind(&SettingsMenu::viewDataCounts, this)
+        ).setNeedsPrivilege(),
+        MenuItem(
+            tr("(†) View record counts for all system tables"),
+            std::bind(&SettingsMenu::viewSystemCounts, this)
+        ).setNeedsPrivilege(),
+        MenuItem(
+            tr("(†) Send decrypted data database to debugging stream"),
             std::bind(&SettingsMenu::debugDataDbAsSql, this)
         ).setNeedsPrivilege(),
         MenuItem(
-            tr("(†) Send system database to debugging stream"),
+            tr("(†) Send decrypted system database to debugging stream"),
             std::bind(&SettingsMenu::debugSystemDbAsSql, this)
         ).setNeedsPrivilege(),
         MenuItem(
-            tr("(†) Dump data database to SQL file (not on iOS)"),
+            tr("(†) Dump decrypted data database to SQL file (not on iOS)"),
             std::bind(&SettingsMenu::saveDataDbAsSql, this)
         ).setNeedsPrivilege().setUnsupported(platform::PLATFORM_IOS),
         MenuItem(
-            tr("(†) Dump system database to SQL file (not on iOS)"),
+            tr("(†) Dump decrypted system database to SQL file (not on iOS)"),
             std::bind(&SettingsMenu::saveSystemDbAsSql, this)
         ).setNeedsPrivilege().setUnsupported(platform::PLATFORM_IOS),
     };
@@ -212,13 +223,16 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
     const QString https_h = tr("You should <b>only</b> disable this for debugging!");
 #endif
 
-    FieldRefPtr ssl_fr = app.storedVarFieldRef(varconst::VALIDATE_SSL_CERTIFICATES);
+    FieldRefPtr ssl_fr = app.storedVarFieldRef(
+                varconst::VALIDATE_SSL_CERTIFICATES);
     const QString ssl_t = tr("Validate HTTPS (TLS/SSL) certificates?");
-    const QString ssl_h = tr("Should always be YES for security-conscious systems.");
+    const QString ssl_h = tr("Should always be YES for security-conscious "
+                             "systems.");
 
     FieldRefPtr ssl_proto_fr = app.storedVarFieldRef(varconst::SSL_PROTOCOL);
     const QString ssl_proto_t = tr("HTTPS (TLS/SSL) protocol?");
-    const QString ssl_proto_h = tr("Stick with the default unless your server can’t cope with it.");
+    const QString ssl_proto_h = tr("Stick with the default unless your server "
+                                   "can’t cope with it.");
 
     FieldRefPtr storepw_fr = app.storedVarFieldRef(varconst::STORE_SERVER_PASSWORD);
     const QString storepw_t = tr("Store user’s server password?");
@@ -355,20 +369,24 @@ OpenableWidget* SettingsMenu::configureIntellectualProperty(CamcopsApp& app)
         new QuText(label_ip_preamble),
 
         (new QuText(tr("Clinical use?")))->setBold(true),
-        (new QuMcq(m_ip_clinical_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
+        (new QuMcq(m_ip_clinical_fr,
+                   CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
         (new QuText(tr("WARNING: NOT FOR GENERAL CLINICAL USE; not a Medical Device; "
                        "see Terms and Conditions")))
                        ->setWarning(true)
                        ->addTag(TAG_IP_CLINICAL_WARNING),
 
         (new QuText(tr("Commercial use?")))->setBold(true),
-        (new QuMcq(commercial_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
+        (new QuMcq(commercial_fr,
+                   CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
 
         (new QuText(tr("Educational use?")))->setBold(true),
-        (new QuMcq(educational_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
+        (new QuMcq(educational_fr,
+                   CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
 
         (new QuText(tr("Research use?")))->setBold(true),
-        (new QuMcq(research_fr, CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
+        (new QuMcq(research_fr,
+                   CommonOptions::unknownNoYesInteger()))->setHorizontal(true),
     });
     page->setTitle(tr("Intellectual property (IP) permissions"));
     page->setType(QuPage::PageType::Config);
@@ -421,8 +439,10 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     FieldRefPtr username_fr = app.storedVarFieldRef(varconst::SERVER_USERNAME);
     const QString username_t = tr("Username on server");
     // Safe object lifespan signal: can use std::bind
-    FieldRef::GetterFunction getter = std::bind(&SettingsMenu::serverPasswordGetter, this);
-    FieldRef::SetterFunction setter = std::bind(&SettingsMenu::serverPasswordSetter, this, std::placeholders::_1);
+    FieldRef::GetterFunction getter = std::bind(
+                &SettingsMenu::serverPasswordGetter, this);
+    FieldRef::SetterFunction setter = std::bind(
+                &SettingsMenu::serverPasswordSetter, this, std::placeholders::_1);
     FieldRefPtr password_fr = FieldRefPtr(new FieldRef(getter, setter, true));
     const QString password_t = tr("Password on server");
     FieldRefPtr upload_after_edit_fr = app.storedVarFieldRef(varconst::OFFER_UPLOAD_AFTER_EDIT);
@@ -601,11 +621,16 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp &app)
             ->setTickLabelPosition(QSlider::TicksAbove),
         new QuButton(tr("Reset to 100%"),
                        [this](){ resetFontSize(); }),
-        (new QuText(demoText(TAG_NORMAL, uiconst::FontSize::Normal)))->addTag(TAG_NORMAL),
-        (new QuText(demoText(TAG_BIG, uiconst::FontSize::Big)))->addTag(TAG_BIG),
-        (new QuText(demoText(TAG_HEADING, uiconst::FontSize::Heading)))->addTag(TAG_HEADING),
-        (new QuText(demoText(TAG_TITLE, uiconst::FontSize::Title)))->addTag(TAG_TITLE),
-        (new QuText(demoText(TAG_MENUS, uiconst::FontSize::Menus)))->addTag(TAG_MENUS),
+        (new QuText(demoText(TAG_NORMAL,
+                             uiconst::FontSize::Normal)))->addTag(TAG_NORMAL),
+        (new QuText(demoText(TAG_BIG,
+                             uiconst::FontSize::Big)))->addTag(TAG_BIG),
+        (new QuText(demoText(TAG_HEADING,
+                             uiconst::FontSize::Heading)))->addTag(TAG_HEADING),
+        (new QuText(demoText(TAG_TITLE,
+                             uiconst::FontSize::Title)))->addTag(TAG_TITLE),
+        (new QuText(demoText(TAG_MENUS,
+                             uiconst::FontSize::Menus)))->addTag(TAG_MENUS),
     });
     page->setTitle(tr("Set questionnaire font size"));
     page->setType(QuPage::PageType::Config);
@@ -827,23 +852,34 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     const QString label_server_port = tr("Port for HTTPS:");
     const QString label_server_path = tr("Path on server:");
     const QString label_server_timeout = tr("Network timeout (ms):");
-    const QString label_last_server_registration = tr("Last server registration/ID info acceptance:");
+    const QString label_last_server_registration = tr(
+                "Last server registration/ID info acceptance:");
     const QString label_last_successful_upload = tr("Last successful upload:");
     const QString label_dbtitle = tr("Database title (from the server):");
     const QString label_policy_upload = tr("Server’s upload ID policy:");
     const QString label_policy_finalize = tr("Server’s finalizing ID policy:");
     const QString label_server_camcops_version = tr("Server CamCOPS version:");
 
-    const QString data_server_address = convert::prettyValue(app.var(varconst::SERVER_ADDRESS));
-    const QString data_server_port = convert::prettyValue(app.var(varconst::SERVER_PORT));
-    const QString data_server_path = convert::prettyValue(app.var(varconst::SERVER_PATH));
-    const QString data_server_timeout = convert::prettyValue(app.var(varconst::SERVER_TIMEOUT_MS));
-    const QString data_last_server_registration = convert::prettyValue(app.var(varconst::LAST_SERVER_REGISTRATION));
-    const QString data_last_successful_upload = convert::prettyValue(app.var(varconst::LAST_SUCCESSFUL_UPLOAD));
-    const QString data_dbtitle = convert::prettyValue(app.var(varconst::SERVER_DATABASE_TITLE));
-    const QString data_policy_upload = convert::prettyValue(app.var(varconst::ID_POLICY_UPLOAD));
-    const QString data_policy_finalize = convert::prettyValue(app.var(varconst::ID_POLICY_FINALIZE));
-    const QString data_server_camcops_version = convert::prettyValue(app.var(varconst::SERVER_CAMCOPS_VERSION));
+    const QString data_server_address = convert::prettyValue(
+                app.var(varconst::SERVER_ADDRESS));
+    const QString data_server_port = convert::prettyValue(
+                app.var(varconst::SERVER_PORT));
+    const QString data_server_path = convert::prettyValue(
+                app.var(varconst::SERVER_PATH));
+    const QString data_server_timeout = convert::prettyValue(
+                app.var(varconst::SERVER_TIMEOUT_MS));
+    const QString data_last_server_registration = convert::prettyValue(
+                app.var(varconst::LAST_SERVER_REGISTRATION));
+    const QString data_last_successful_upload = convert::prettyValue(
+                app.var(varconst::LAST_SUCCESSFUL_UPLOAD));
+    const QString data_dbtitle = convert::prettyValue(
+                app.var(varconst::SERVER_DATABASE_TITLE));
+    const QString data_policy_upload = convert::prettyValue(
+                app.var(varconst::ID_POLICY_UPLOAD));
+    const QString data_policy_finalize = convert::prettyValue(
+                app.var(varconst::ID_POLICY_FINALIZE));
+    const QString data_server_camcops_version = convert::prettyValue(
+                app.var(varconst::SERVER_CAMCOPS_VERSION));
 
     const Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
     const Qt::Alignment dataalign = Qt::AlignLeft | Qt::AlignTop;
@@ -852,61 +888,93 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
     g1->setColumnStretch(0, 1);
     g1->setColumnStretch(1, 1);
     int row = 0;
-    g1->addCell(QuGridCell((new QuText(label_server_address))->setAlignment(labelalign), row, 0));
-    g1->addCell(QuGridCell((new QuText(data_server_address))->setAlignment(dataalign)->setBold(), row, 1));
+    g1->addCell(QuGridCell((new QuText(label_server_address))
+                           ->setAlignment(labelalign), row, 0));
+    g1->addCell(QuGridCell((new QuText(data_server_address))
+                           ->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
-    g1->addCell(QuGridCell((new QuText(label_server_port))->setAlignment(labelalign), row, 0));
-    g1->addCell(QuGridCell((new QuText(data_server_port))->setAlignment(dataalign)->setBold(), row, 1));
+    g1->addCell(QuGridCell((new QuText(label_server_port))
+                           ->setAlignment(labelalign), row, 0));
+    g1->addCell(QuGridCell((new QuText(data_server_port))
+                           ->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
-    g1->addCell(QuGridCell((new QuText(label_server_path))->setAlignment(labelalign), row, 0));
-    g1->addCell(QuGridCell((new QuText(data_server_path))->setAlignment(dataalign)->setBold(), row, 1));
+    g1->addCell(QuGridCell((new QuText(label_server_path))
+                           ->setAlignment(labelalign), row, 0));
+    g1->addCell(QuGridCell((new QuText(data_server_path))
+                           ->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
-    g1->addCell(QuGridCell((new QuText(label_server_timeout))->setAlignment(labelalign), row, 0));
-    g1->addCell(QuGridCell((new QuText(data_server_timeout))->setAlignment(dataalign)->setBold(), row, 1));
+    g1->addCell(QuGridCell((new QuText(label_server_timeout))
+                           ->setAlignment(labelalign), row, 0));
+    g1->addCell(QuGridCell((new QuText(data_server_timeout))
+                           ->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
 
     QuGridContainer* g2 = new QuGridContainer();
     g2->setColumnStretch(0, 1);
     g2->setColumnStretch(1, 1);
     row = 0;
-    g2->addCell(QuGridCell((new QuText(label_last_server_registration))->setAlignment(labelalign), row, 0));
-    g2->addCell(QuGridCell((new QuText(data_last_server_registration))->setAlignment(dataalign)->setBold(), row, 1));
+    g2->addCell(QuGridCell((new QuText(label_last_server_registration))
+                           ->setAlignment(labelalign), row, 0));
+    g2->addCell(QuGridCell((new QuText(data_last_server_registration))
+                           ->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
-    g2->addCell(QuGridCell((new QuText(label_last_successful_upload))->setAlignment(labelalign), row, 0));
-    g2->addCell(QuGridCell((new QuText(data_last_successful_upload))->setAlignment(dataalign)->setBold(), row, 1));
+    g2->addCell(QuGridCell((new QuText(label_last_successful_upload))
+                           ->setAlignment(labelalign), row, 0));
+    g2->addCell(QuGridCell((new QuText(data_last_successful_upload))
+                           ->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
-    g2->addCell(QuGridCell((new QuText(label_dbtitle))->setAlignment(labelalign), row, 0));
-    g2->addCell(QuGridCell((new QuText(data_dbtitle))->setAlignment(dataalign)->setBold(), row, 1));
+    g2->addCell(QuGridCell((new QuText(label_dbtitle))
+                           ->setAlignment(labelalign), row, 0));
+    g2->addCell(QuGridCell((new QuText(data_dbtitle))
+                           ->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
-    g2->addCell(QuGridCell((new QuText(label_policy_upload))->setAlignment(labelalign), row, 0));
-    g2->addCell(QuGridCell((new QuText(data_policy_upload))->setAlignment(dataalign)->setBold(), row, 1));
+    g2->addCell(QuGridCell((new QuText(label_policy_upload))
+                           ->setAlignment(labelalign), row, 0));
+    g2->addCell(QuGridCell((new QuText(data_policy_upload))
+                           ->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
-    g2->addCell(QuGridCell((new QuText(label_policy_finalize))->setAlignment(labelalign), row, 0));
-    g2->addCell(QuGridCell((new QuText(data_policy_finalize))->setAlignment(dataalign)->setBold(), row, 1));
+    g2->addCell(QuGridCell((new QuText(label_policy_finalize))
+                           ->setAlignment(labelalign), row, 0));
+    g2->addCell(QuGridCell((new QuText(data_policy_finalize))
+                           ->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
-    g2->addCell(QuGridCell((new QuText(label_server_camcops_version))->setAlignment(labelalign), row, 0));
-    g2->addCell(QuGridCell((new QuText(data_server_camcops_version))->setAlignment(dataalign)->setBold(), row, 1));
+    g2->addCell(QuGridCell((new QuText(label_server_camcops_version))
+                           ->setAlignment(labelalign), row, 0));
+    g2->addCell(QuGridCell((new QuText(data_server_camcops_version))
+                           ->setAlignment(dataalign)->setBold(), row, 1));
     ++row;
 
     QuGridContainer* g3 = new QuGridContainer();
     g3->setColumnStretch(0, 1);
     g3->setColumnStretch(1, 1);
     row = 0;
+#if OLD_STYLE_ID_DESCRIPTIONS
     for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
+        const QString desc = convert::prettyValue(
+                    app.var(dbconst::IDDESC_FIELD_FORMAT.arg(n)));
+        const QString shortdesc = convert::prettyValue(
+                    app.var(dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n)));
+#else
+    QVector<IdNumDescriptionPtr> descriptions = m_app.getAllIdDescriptions();
+    for (IdNumDescriptionPtr description : descriptions) {
+        const int n = description->whichIdNum();
+        const QString desc = description->description();
+        const QString shortdesc = description->shortDescription();
+#endif
         g3->addCell(QuGridCell(
             (new QuText(tr("Description for patient identifier ") +
                         QString::number(n) + ":")
             )->setAlignment(labelalign), row, 0));
-        QString desc = convert::prettyValue(app.var(dbconst::IDDESC_FIELD_FORMAT.arg(n)));
-        g3->addCell(QuGridCell((new QuText(desc))->setAlignment(dataalign)->setBold(), row, 1));
+        g3->addCell(QuGridCell((new QuText(desc))
+                               ->setAlignment(dataalign)->setBold(), row, 1));
         ++row;
 
         g3->addCell(QuGridCell(
             (new QuText(tr("Short description for patient identifier ") +
                         QString::number(n) + ":")
             )->setAlignment(labelalign), row, 0));
-        QString shortdesc = convert::prettyValue(app.var(dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n)));
-        g3->addCell(QuGridCell((new QuText(shortdesc))->setAlignment(dataalign)->setBold(), row, 1));
+        g3->addCell(QuGridCell((new QuText(shortdesc))
+                               ->setAlignment(dataalign)->setBold(), row, 1));
         ++row;
     }
 
@@ -915,6 +983,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
         new QuHorizontalLine(),
         g2,
         new QuHorizontalLine(),
+        new QuText(tr("ID number descriptions:")),
         g3,
     });
 
@@ -930,14 +999,7 @@ OpenableWidget* SettingsMenu::viewServerInformation(CamcopsApp& app)
 void SettingsMenu::viewDataDbAsSql()
 {
 #ifdef OFFER_VIEW_SQL
-    QString sql;
-    { // block ensures stream is flushed by the time we read the string
-        SlowGuiGuard guard = m_app.getSlowGuiGuard();
-        QTextStream os(&sql);
-        m_app.dumpDataDatabase(os);
-    }
-    LogMessageBox box(this, tr("Main data database"), sql);
-    box.exec();
+    viewDbAsSql(m_app.db(), tr("Main data database"));
 #endif
 }
 
@@ -945,71 +1007,73 @@ void SettingsMenu::viewDataDbAsSql()
 void SettingsMenu::viewSystemDbAsSql()
 {
 #ifdef OFFER_VIEW_SQL
+    viewDbAsSql(m_app.sysdb(), tr("CamCOPS system database"));
+#endif
+}
+
+
+void SettingsMenu::viewDbAsSql(DatabaseManager& db, const QString& title)
+{
     QString sql;
-    {  // as above
+    {  // block ensures stream is flushed by the time we read the string
         SlowGuiGuard guard = m_app.getSlowGuiGuard();
         QTextStream os(&sql);
-        m_app.dumpSystemDatabase(os);
+        dumpsql::dumpDatabase(os, db);
     }
-    LogMessageBox box(this, tr("CamCOPS system database"), sql);
+    LogMessageBox box(this, title, sql);
     box.exec();
-#endif
 }
 
 
 void SettingsMenu::debugDataDbAsSql()
 {
-    {
-        SlowGuiGuard guard = m_app.getSlowGuiGuard(tr("Sending data..."), tr("Please wait"));
-        QString sql;
-        {  // as above
-            QTextStream os(&sql);
-            m_app.dumpDataDatabase(os);
-        }
-        qInfo().noquote().nospace() << sql;
-    }
-    uifunc::alert(tr("Data database sent to debugging stream"), tr("Finished"));
+    debugDbAsSql(m_app.db(), tr("Data"));
 }
 
 
 void SettingsMenu::debugSystemDbAsSql()
 {
-    {
-        SlowGuiGuard guard = m_app.getSlowGuiGuard(tr("Sending data..."), tr("Please wait"));
+    debugDbAsSql(m_app.sysdb(), tr("System"));
+}
+
+
+void SettingsMenu::debugDbAsSql(DatabaseManager& db, const QString& prefix)
+{
+    { // guard block
+        SlowGuiGuard guard = m_app.getSlowGuiGuard(tr("Sending data..."),
+                                                   tr("Please wait"));
         QString sql;
-        {  // as above
+        { // block ensures stream is flushed by the time we read the string
             QTextStream os(&sql);
-            m_app.dumpSystemDatabase(os);
+            dumpsql::dumpDatabase(os, db);
         }
         qInfo().noquote().nospace() << sql;
     }
-    uifunc::alert(tr("Data database sent to debugging stream"), tr("Finished"));
+    uifunc::alert(prefix + " "  + tr("database sent to debugging stream"),
+                  tr("Finished"));
 }
 
 
 void SettingsMenu::saveDataDbAsSql()
 {
-    const QString filename = QFileDialog::getSaveFileName(
-                this, tr("Save data database as..."));
-    if (filename.isEmpty()) {
-        return;  // user cancelled
-    }
-    QFile file(filename);
-    file.open(QIODevice::WriteOnly | QIODevice::Text);
-    if (!file.isOpen()) {
-        uifunc::alert(tr("Unable to open file: ") + filename, tr("Failure"));
-        return;
-    }
-    QTextStream os(&file);
-    m_app.dumpDataDatabase(os);
-    uifunc::alert(tr("Data database written to: ") + filename, tr("Success"));
+    saveDbAsSql(m_app.db(),
+                tr("Save data database as..."),
+                tr("Data database written to:"));
 }
 
 
 void SettingsMenu::saveSystemDbAsSql()
 {
-    const QString filename = QFileDialog::getSaveFileName(
-                this, tr("Save system database as..."));
+    saveDbAsSql(m_app.sysdb(),
+                tr("Save system database as..."),
+                tr("System database written to:"));
+}
+
+
+void SettingsMenu::saveDbAsSql(DatabaseManager& db, const QString& save_title,
+                               const QString& finish_prefix)
+{
+    const QString filename = QFileDialog::getSaveFileName(this, save_title);
     if (filename.isEmpty()) {
         return;  // user cancelled
     }
@@ -1020,6 +1084,35 @@ void SettingsMenu::saveSystemDbAsSql()
         return;
     }
     QTextStream os(&file);
-    m_app.dumpSystemDatabase(os);
-    uifunc::alert(tr("System database written to: ") + filename, tr("Success"));
+    dumpsql::dumpDatabase(os, db);
+    uifunc::alert(finish_prefix + " " + filename + "\n" +
+                    tr("You can import it into SQLite with a command like") +
+                    " \"sqlite3 newdb.sqlite < mydump.sql\"",
+                  tr("Success"));
+}
+
+
+void SettingsMenu::viewDataCounts()
+{
+    viewCounts(m_app.db(), tr("Record counts for data database"));
+}
+
+
+void SettingsMenu::viewSystemCounts()
+{
+    viewCounts(m_app.sysdb(), tr("Record counts for system database"));
+}
+
+
+void SettingsMenu::viewCounts(DatabaseManager& db, const QString& title)
+{
+    const QStringList tables = db.getAllTables();
+    QStringList lines;
+    for (const QString& table : tables) {
+        const int count = db.count(table);
+        lines.append(QString("%1: <b>%2</b>").arg(table).arg(count));
+    }
+    const QString text = lines.join("<br>");
+    LogMessageBox box(this, title, text, true);
+    box.exec();
 }

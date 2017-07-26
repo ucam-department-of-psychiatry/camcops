@@ -24,7 +24,7 @@
 #include <QSharedPointer>
 #include <QString>
 #include <QStringList>
-#include "common/dbconstants.h"
+#include "common/dbconst.h"
 #include "task.h"
 #include "taskproxy.h"
 #include "taskregistrar.h"

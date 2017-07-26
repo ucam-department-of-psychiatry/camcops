@@ -57,6 +57,8 @@ protected:
     void fetchIdDescriptions();
     void fetchExtraStrings();
     OpenableWidget* viewServerInformation(CamcopsApp& app);
+    void viewDataCounts();
+    void viewSystemCounts();
     void viewDataDbAsSql();
     void viewSystemDbAsSql();
     void debugDataDbAsSql();
@@ -70,6 +72,11 @@ protected:
     QString makeHint(const QString& part1, const QString& part2) const;
     QVariant serverPasswordGetter();
     bool serverPasswordSetter(const QVariant& value);
+    void viewDbAsSql(DatabaseManager& db, const QString& title);
+    void debugDbAsSql(DatabaseManager& db, const QString& prefix);
+    void saveDbAsSql(DatabaseManager& db, const QString& save_title,
+                     const QString& finish_prefix);
+    void viewCounts(DatabaseManager& db, const QString& title);
 protected:
     mutable SecureQString m_temp_plaintext_password;
     bool m_plaintext_pw_live;

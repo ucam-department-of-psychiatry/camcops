@@ -28,7 +28,7 @@ from typing import List, Optional, Tuple, Union
 
 import hl7
 
-from . import cc_dt
+from .cc_dt import format_datetime, get_now_localtz
 from .cc_constants import DATEFORMAT, VALUE
 from .cc_namedtuples import PatientIdentifierTuple
 # NO: CIRCULAR # from .cc_task import Task
@@ -112,8 +112,8 @@ def make_msh_segment(message_datetime: datetime.datetime,
     sending_facility = ""
     receiving_application = ""
     receiving_facility = ""
-    date_time_of_message = cc_dt.format_datetime(message_datetime,
-                                                 DATEFORMAT.HL7_DATETIME)
+    date_time_of_message = format_datetime(message_datetime,
+                                           DATEFORMAT.HL7_DATETIME)
     security = ""
     message_type = hl7.Field(COMPONENT_SEPARATOR, [
         "ORU",  # message type ID = Observ result/unsolicited
@@ -220,7 +220,7 @@ def make_pid_segment(forename: str,
         "",  # degree (e.g. MD)
     ])
     mothers_maiden_name = ""
-    date_of_birth = cc_dt.format_datetime(dob, DATEFORMAT.HL7_DATE)
+    date_of_birth = format_datetime(dob, DATEFORMAT.HL7_DATE)
     alias = ""
     race = ""
     country_code = ""
@@ -445,7 +445,7 @@ def make_obx_segment(task: TASK_FWD_REF,
     observation_result_status = ""
     date_of_last_observation_normal_values = ""
     user_defined_access_checks = ""
-    date_and_time_of_observation = cc_dt.format_datetime(
+    date_and_time_of_observation = format_datetime(
         observation_datetime, DATEFORMAT.HL7_DATETIME)
     producer_id = ""
     observation_method = ""
@@ -560,8 +560,8 @@ def make_dg1_segment(set_id: int,
         alternate_coding_system,
     ])
     diagnosis_description = ""
-    diagnosis_datetime = cc_dt.format_datetime(diagnosis_datetime,
-                                               DATEFORMAT.HL7_DATETIME)
+    diagnosis_datetime = format_datetime(diagnosis_datetime,
+                                         DATEFORMAT.HL7_DATETIME)
     if diagnosis_type not in ["A", "W", "F"]:
         raise AssertionError("make_dg1_segment: diagnosis_type invalid")
     major_diagnostic_category = ""
@@ -613,7 +613,7 @@ def make_dg1_segment(set_id: int,
         raise AssertionError(
             "make_dg1_segment: confidential_indicator invalid")
     attestation_datetime = (
-        cc_dt.format_datetime(attestation_datetime, DATEFORMAT.HL7_DATETIME)
+        format_datetime(attestation_datetime, DATEFORMAT.HL7_DATETIME)
         if attestation_datetime else ""
     )
 
@@ -715,28 +715,27 @@ def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
 # Unit tests
 # =============================================================================
 
-def unit_tests() -> None:
+def cchl7core_unit_tests() -> None:
     """Unit tests for cc_hl7 module."""
     # -------------------------------------------------------------------------
     # DELAYED IMPORTS (UNIT TESTING ONLY)
     # -------------------------------------------------------------------------
-    from . import cc_namedtuples
     from .cc_pls import pls
-    import tasks.phq9 as phq9
+    from ..tasks.phq9 import Phq9
 
     # skip: send_all_pending_hl7_messages
     # skip: send_pending_hl7_messages
 
     current_pks = pls.db.fetchallfirstvalues(
-        "SELECT _pk FROM {} WHERE _current".format(phq9.Phq9.tablename)
+        "SELECT _pk FROM {} WHERE _current".format(Phq9.tablename)
     )
     pk = current_pks[0] if current_pks else None
-    task = phq9.Phq9(pk)
+    task = Phq9(pk)
     pitlist = [
-        cc_namedtuples.PatientIdentifierTuple(
+        PatientIdentifierTuple(
             id="1", id_type="TT", assigning_authority="AA")
     ]
-    now = cc_dt.get_now_localtz()
+    now = get_now_localtz()
 
     unit_test_ignore("", get_mod11_checkdigit, "12345")
     unit_test_ignore("", get_mod11_checkdigit, "badnumber")

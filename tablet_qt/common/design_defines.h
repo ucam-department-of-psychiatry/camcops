@@ -41,6 +41,13 @@
 
 // #define DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
 
+// ============================================================================
+// Limit to 8 ID numbers, in patient table, or use separate table?
+// ============================================================================
+// Design change 2017-07-24: Do NOT #define this.
+
+// #define LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
+
 
 // ============================================================================
 // Have clients send "analytics" information to CamCOPS central?

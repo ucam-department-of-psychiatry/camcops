@@ -51,6 +51,7 @@ public:
     QuPage(std::initializer_list<QuElementPtr> elements);
     QuPage(const QVector<QuElement*>& elements);  // takes ownership
     QuPage(std::initializer_list<QuElement*> elements);  // takes ownership
+    virtual ~QuPage();
 
     virtual void build() {}  // for on-the-fly building
 
@@ -63,8 +64,6 @@ public:
     QuPage* addTag(const QString& tag);
     QuPage* allowScroll(bool allow_scroll);
     QVector<QuElement*> elementsWithTag(const QString& tag);
-
-    virtual ~QuPage();
 
     PageType type() const;
     QString title() const;

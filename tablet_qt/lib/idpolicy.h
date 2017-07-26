@@ -45,6 +45,8 @@ public:
     };
 protected:
     void initializeTokenDicts();
+    int nameToToken(const QString& name) const;
+    QString tokenToName(int token) const;
     void tokenize(const QString& policy_text);
     void reportSyntaxError(const QString& msg) const;
     ChunkValue idPolicyChunk(const QVector<int>& tokens,

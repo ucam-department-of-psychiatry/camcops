@@ -36,7 +36,7 @@ from .cc_dt import format_datetime
 from .cc_namedtuples import XmlElementTuple
 from .cc_pls import pls
 from .cc_user import get_username_from_id
-from . import cc_xml
+from .cc_xml import make_xml_branches_from_fieldspecs
 
 
 # =============================================================================
@@ -116,7 +116,7 @@ class SpecialNote(object):
     def get_xml_root(self, skip_fields: List[str] = None) -> XmlElementTuple:
         """Get root of XML tree, as an XmlElementTuple."""
         skip_fields = skip_fields or []
-        branches = cc_xml.make_xml_branches_from_fieldspecs(
+        branches = make_xml_branches_from_fieldspecs(
             self, self.FIELDSPECS, skip_fields=skip_fields)
         return XmlElementTuple(name=self.TABLENAME, value=branches)
 

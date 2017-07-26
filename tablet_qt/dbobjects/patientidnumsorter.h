@@ -17,28 +17,14 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "camcopsversion.h"
+#pragma once
+#include "common/aliases_camcops.h"
 
-namespace camcopsversion {  // http://semver.org/
 
-const Version CAMCOPS_VERSION(2, 0, 1);
-const Version MINIMUM_SERVER_VERSION(2, 0, 0);
-
-}  // namespace camcopsversion
-
-/*
-
-===============================================================================
-VERSION HISTORY
-===============================================================================
-2.0.0
-- Development of C++ version from scratch. Replaces Titanium version.
-- Released as beta to Google Play on 2017-07-17.
-
-2.0.1
-- More const checking.
-- Bugfix to stone/pound/ounce conversion.
-- Bugfix to raw SQL dump.
-- ID numbers generalized so you can have >8 (= table structure change).
-
-*/
+class PatientIdNumSorter
+{
+public:
+    PatientIdNumSorter();
+    bool operator()(const PatientIdNumPtr& left,
+                    const PatientIdNumPtr& right) const;
+};

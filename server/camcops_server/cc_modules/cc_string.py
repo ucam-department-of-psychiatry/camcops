@@ -24,6 +24,7 @@
 
 from collections import OrderedDict
 import glob
+import logging
 from typing import List, Optional, Tuple
 import xml.etree.cElementTree as ElementTree
 # ... cElementTree is a faster implementation
@@ -33,8 +34,9 @@ import xml.etree.cElementTree as ElementTree
 import cardinal_pythonlib.rnc_web as ws
 
 from .cc_convert import unescape_newlines
-from .cc_logger import log
-from . import cc_pls
+from .cc_pls import pls
+
+log = logging.getLogger(__name__)
 
 
 APPSTRING_TASKNAME = "camcops"
@@ -43,47 +45,6 @@ APPSTRING_TASKNAME = "camcops"
 # =============================================================================
 # Localization strings
 # =============================================================================
-
-# def cache_strings() -> None:
-#     """
-#     Caches strings from the main XML string file.
-#     The string file looks like this:
-#         <?xml version="1.0" encoding="UTF-8"?>
-#         <resources>
-#             <string name="NAME">VALUE</string>
-#             <!-- ... -->
-#         </resources>
-#     """
-#     if cc_pls.pls.stringDict is not None:
-#         return
-#     if cc_pls.pls.MAIN_STRING_FILE is None:
-#         raise AssertionError(
-#             "pls.MAIN_STRING_FILE is None -- likely use of "
-#             "LSTRING/WSTRING/wappstring/wxstring in classmethod, before "
-#             "initialization via "
-#             "the WSGI application entry point")
-#     log.info("Loading XML file: " + cc_pls.pls.MAIN_STRING_FILE)
-#     parser = ElementTree.XMLParser(encoding="UTF-8")
-#     tree = ElementTree.parse(cc_pls.pls.MAIN_STRING_FILE, parser=parser)
-#     cc_pls.pls.stringDict = {}
-#     # find all children of the root with tag "string" and attribute "name"
-#     for e in tree.findall("./string[@name]"):
-#         cc_pls.pls.stringDict[e.attrib.get("name")] = unescape_newlines(e.text)  # noqa
-
-
-# # noinspection PyPep8Naming
-# def LSTRING(stringname: str) -> str:  # equivalent of Titanium's L()
-#     """Looks up a string from the XML string file."""
-#     cache_strings()
-#     return cc_pls.pls.stringDict.get(stringname,
-#                                      "XML_STRING_NOT_FOUND_" + stringname)
-
-
-# # noinspection PyPep8Naming
-# def WSTRING(stringname: str) -> str:
-#     """Returns a web-safe version of a string from the XML string file."""
-#     return ws.webify(LSTRING(stringname))
-
 
 def cache_extra_strings() -> None:
     """
@@ -99,18 +60,18 @@ def cache_extra_strings() -> None:
             <!-- ... -->
         </resources>
     """
-    if cc_pls.pls.extraStringDicts is not None:
+    if pls.extraStringDicts is not None:
         return
-    if cc_pls.pls.EXTRA_STRING_FILES is None:
+    if pls.EXTRA_STRING_FILES is None:
         raise AssertionError(
             "pls.EXTRA_STRING_FILES is None -- likely use of "
             "XSTRING/WXSTRING in classmethod, before initialization via "
             "the WSGI application entry point")
-    cc_pls.pls.extraStringDicts = OrderedDict()
+    pls.extraStringDicts = OrderedDict()
     # Glob support added 2016-01-04.
-    # for filename in cc_pls.pls.EXTRA_STRING_FILES:
+    # for filename in pls.EXTRA_STRING_FILES:
     filenames = []
-    for filespec in cc_pls.pls.EXTRA_STRING_FILES:
+    for filespec in pls.EXTRA_STRING_FILES:
         possibles = glob.glob(filespec)
         filenames.extend(possibles)
     filenames = sorted(set(filenames))  # just unique ones
@@ -121,11 +82,11 @@ def cache_extra_strings() -> None:
         root = tree.getroot()
         for taskroot in root.findall("./task[@name]"):
             taskname = taskroot.attrib.get("name")
-            if taskname not in cc_pls.pls.extraStringDicts:
-                cc_pls.pls.extraStringDicts[taskname] = OrderedDict()
+            if taskname not in pls.extraStringDicts:
+                pls.extraStringDicts[taskname] = OrderedDict()
             for e in taskroot.findall("./string[@name]"):
                 stringname = e.attrib.get("name")
-                cc_pls.pls.extraStringDicts[taskname][stringname] = (
+                pls.extraStringDicts[taskname][stringname] = (
                     unescape_newlines(e.text)
                 )
 
@@ -138,9 +99,9 @@ def XSTRING(taskname: str,
     """Looks up a string from one of the optional extra XML string files."""
     # For speed, calculate default only if needed:
     cache_extra_strings()
-    if taskname in cc_pls.pls.extraStringDicts:
-        if stringname in cc_pls.pls.extraStringDicts[taskname]:
-            return cc_pls.pls.extraStringDicts[taskname].get(stringname)
+    if taskname in pls.extraStringDicts:
+        if stringname in pls.extraStringDicts[taskname]:
+            return pls.extraStringDicts[taskname].get(stringname)
     if default is None and provide_default_if_none:
         default = "EXTRA_STRING_NOT_FOUND({}.{})".format(taskname, stringname)
     return default
@@ -163,7 +124,7 @@ def get_all_extra_strings() -> List[Tuple[str, str, str]]:
     """Returns all extra strings, as a list of (task, name, value) tuples."""
     cache_extra_strings()
     rows = []
-    for task, subdict in cc_pls.pls.extraStringDicts.items():
+    for task, subdict in pls.extraStringDicts.items():
         for name, value in subdict.items():
             rows.append((task, name, value))
     return rows
@@ -172,7 +133,7 @@ def get_all_extra_strings() -> List[Tuple[str, str, str]]:
 def task_extrastrings_exist(taskname: str) -> bool:
     """Has the server been supplied with extra strings for a specific task?"""
     cache_extra_strings()
-    return taskname in cc_pls.pls.extraStringDicts
+    return taskname in pls.extraStringDicts
 
 
 def wappstring(stringname: str,

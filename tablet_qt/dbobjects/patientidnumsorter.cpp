@@ -17,28 +17,21 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "camcopsversion.h"
+#include "patientidnumsorter.h"
+#include "dbobjects/patientidnum.h"
 
-namespace camcopsversion {  // http://semver.org/
 
-const Version CAMCOPS_VERSION(2, 0, 1);
-const Version MINIMUM_SERVER_VERSION(2, 0, 0);
+PatientIdNumSorter::PatientIdNumSorter()
+{
+}
 
-}  // namespace camcopsversion
 
-/*
-
-===============================================================================
-VERSION HISTORY
-===============================================================================
-2.0.0
-- Development of C++ version from scratch. Replaces Titanium version.
-- Released as beta to Google Play on 2017-07-17.
-
-2.0.1
-- More const checking.
-- Bugfix to stone/pound/ounce conversion.
-- Bugfix to raw SQL dump.
-- ID numbers generalized so you can have >8 (= table structure change).
-
-*/
+bool PatientIdNumSorter::operator()(const PatientIdNumPtr& left,
+                                    const PatientIdNumPtr& right) const
+{
+    // Implements: LEFT < RIGHT ?
+    // Sort by which_idnum
+    const int l_which = left->whichIdNum();
+    const int r_which = right->whichIdNum();
+    return l_which < r_which;
+}

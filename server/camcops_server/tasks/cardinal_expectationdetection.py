@@ -822,7 +822,7 @@ class CardinalExpectationDetection(Task):
                 </tr>
         """
         for b in range(self.num_blocks):
-            html += "<tr>" + td(b)
+            html += "<tr>" + td(str(b))
             for g in range(N_CUES):
                 (p_detected_given_present,
                  p_detected_given_absent,

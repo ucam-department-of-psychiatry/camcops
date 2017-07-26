@@ -44,7 +44,7 @@
 #include <QTextStream>
 #include <QUuid>
 #include "common/appstrings.h"
-#include "common/dbconstants.h"  // for NONEXISTENT_PK
+#include "common/dbconst.h"  // for NONEXISTENT_PK
 #include "common/design_defines.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
@@ -52,14 +52,15 @@
 #include "core/camcopsversion.h"
 #include "core/networkmanager.h"
 #include "crypto/cryptofunc.h"
+#include "db/ancillaryfunc.h"
 #include "db/databasemanager.h"
 #include "db/dbfunc.h"
 #include "db/dbnestabletransaction.h"
-#include "db/dumpsql.h"
 #include "db/whereconditions.h"
 #include "db/whichdb.h"
 #include "dbobjects/blob.h"
 #include "dbobjects/extrastring.h"
+#include "dbobjects/idnumdescription.h"
 #include "dbobjects/patientsorter.h"
 #include "dbobjects/storedvar.h"
 #include "dialogs/scrollmessagebox.h"
@@ -202,9 +203,10 @@ int CamcopsApp::run()
 void CamcopsApp::backgroundStartup()
 {
     // WORKER THREAD. BEWARE.
-    upgradeDatabase();
+    const Version& old_version = upgradeDatabaseBeforeTablesMade();
     makeOtherSystemTables();
     registerTasks();  // AFTER storedvar creation, so tasks can read them
+    upgradeDatabaseAfterTasksRegistered(old_version);  // AFTER tasks registered
     makeTaskTables();
     // Should we drop tables we're unaware of? Clearly we should never do this
     // on the server. Doing so on the client prevents the client trying to
@@ -591,14 +593,6 @@ void CamcopsApp::createStoredVars()
     createVar(varconst::ID_POLICY_UPLOAD, QVariant::String, "");
     createVar(varconst::ID_POLICY_FINALIZE, QVariant::String, "");
 
-    // Patient-related device-wide settings
-    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
-        QString desc = dbconst::IDDESC_FIELD_FORMAT.arg(n);
-        QString shortdesc = dbconst::IDSHORTDESC_FIELD_FORMAT.arg(n);
-        createVar(desc, QVariant::String);
-        createVar(shortdesc, QVariant::String);
-    }
-
     // Other information from server
     createVar(varconst::SERVER_DATABASE_TITLE, QVariant::String, "");
     createVar(varconst::SERVER_CAMCOPS_VERSION, QVariant::String, "");
@@ -635,38 +629,46 @@ void CamcopsApp::createStoredVars()
 }
 
 
-void CamcopsApp::upgradeDatabase()
+Version CamcopsApp::upgradeDatabaseBeforeTablesMade()
 {
-    // ------------------------------------------------------------------------
-    // Any database upgrade required?
-    // ------------------------------------------------------------------------
-
     const Version old_version(varString(varconst::CAMCOPS_TABLET_VERSION_AS_STRING));
     const Version new_version = camcopsversion::CAMCOPS_VERSION;
-    upgradeDatabase(old_version, new_version);
+    if (old_version == new_version) {
+        qInfo() << "Database is current; no special upgrade steps required";
+        return old_version;
+    }
+    qInfo() << "Considering system-wide special database upgrade steps from "
+               "version" << old_version << "to version" << new_version;
+
+    // ------------------------------------------------------------------------
+    // System-wide database upgrade steps go here
+    // ------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------
+    // ... done
+    // ------------------------------------------------------------------------
+
+    qInfo() << "System-wide database upgrade steps complete";
     if (new_version != old_version) {
         setVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, new_version.toString());
     }
+    return old_version;
 }
 
 
-void CamcopsApp::upgradeDatabase(const Version& old_version,
-                                 const Version& new_version)
+void CamcopsApp::upgradeDatabaseAfterTasksRegistered(const Version& old_version)
 {
+    // ------------------------------------------------------------------------
+    // Any database upgrade required? STEP 2: INDIVIDUAL TASKS.
+    // ------------------------------------------------------------------------
+    const Version new_version = camcopsversion::CAMCOPS_VERSION;
     if (old_version == new_version) {
-        qInfo() << "Database is current; no special upgrade steps required";
+        // User message will have appeared above.
         return;
     }
-    qInfo() << "Considering special database upgrade steps from version"
-            << old_version << "to version" << new_version;
 
-    // Do things: (a) system-wide
-
-    // Do things: (b) individual tasks
+    Q_ASSERT(m_p_task_factory);
     m_p_task_factory->upgradeDatabase(old_version, new_version);
-
-    qInfo() << "Special database upgrade steps complete";
-    return;
 }
 
 
@@ -680,6 +682,10 @@ void CamcopsApp::makeOtherSystemTables()
     ExtraString extrastring_specimen(*this, *m_sysdb);
     extrastring_specimen.makeTable();
     extrastring_specimen.makeIndexes();
+
+    IdNumDescription idnumdesc_specimen(*this, *m_sysdb);
+    idnumdesc_specimen.makeTable();
+    idnumdesc_specimen.makeIndexes();
 
     // Make special tables: main database
     Blob blob_specimen(*this, *m_datadb);
@@ -1374,34 +1380,6 @@ PatientPtrList CamcopsApp::getAllPatients(bool sorted)
 }
 
 
-QString CamcopsApp::idDescription(int which_idnum) const
-{
-    if (!dbconst::isValidWhichIdnum(which_idnum)) {
-        return dbconst::BAD_IDNUM_DESC;
-    }
-    const QString field = dbconst::IDDESC_FIELD_FORMAT.arg(which_idnum);
-    const QString desc_str = varString(field);
-    if (desc_str.isEmpty()) {
-        return dbconst::UNKNOWN_IDNUM_DESC.arg(which_idnum);
-    }
-    return desc_str;
-}
-
-
-QString CamcopsApp::idShortDescription(int which_idnum) const
-{
-    if (!dbconst::isValidWhichIdnum(which_idnum)) {
-        return dbconst::BAD_IDNUM_DESC;
-    }
-    const QString field = dbconst::IDSHORTDESC_FIELD_FORMAT.arg(which_idnum);
-    const QString desc_str = varString(field);
-    if (desc_str.isEmpty()) {
-        return dbconst::UNKNOWN_IDNUM_DESC.arg(which_idnum);
-    }
-    return desc_str;
-}
-
-
 IdPolicy CamcopsApp::uploadPolicy() const
 {
     return IdPolicy(varString(varconst::ID_POLICY_UPLOAD));
@@ -1478,6 +1456,92 @@ int CamcopsApp::fontSizePt(uiconst::FontSize fontsize,
     default:
         return factor * 12;
     }
+}
+
+
+// ============================================================================
+// ID descriptions (downloaded from server)
+// ============================================================================
+
+QPair<QString, QString> CamcopsApp::idDescriptionDirect(int which_idnum)  // desc, shortdesc
+{
+    IdNumDescription idnumdesc(*this, *m_sysdb, which_idnum);
+    if (!idnumdesc.exists()) {
+        QString failure = dbconst::UNKNOWN_IDNUM_DESC.arg(which_idnum);
+        return QPair<QString, QString>(failure, failure);
+    }
+    return QPair<QString, QString>(idnumdesc.description(),
+                                   idnumdesc.shortDescription());
+}
+
+
+QPair<QString, QString> CamcopsApp::idDescShortDesc(int which_idnum)
+{
+    if (!m_iddescription_cache.contains(which_idnum)) {
+        m_iddescription_cache[which_idnum] = idDescriptionDirect(which_idnum);
+    }
+    return m_iddescription_cache[which_idnum];
+}
+
+
+QString CamcopsApp::idDescription(int which_idnum)
+{
+    const QPair<QString, QString> desc_shortdesc = idDescShortDesc(which_idnum);
+    return desc_shortdesc.first;
+}
+
+
+QString CamcopsApp::idShortDescription(int which_idnum)
+{
+    const QPair<QString, QString> desc_shortdesc = idDescShortDesc(which_idnum);
+    return desc_shortdesc.second;
+}
+
+
+void CamcopsApp::clearIdDescriptionCache()
+{
+    m_iddescription_cache.clear();
+}
+
+
+void CamcopsApp::deleteAllIdDescriptions()
+{
+    IdNumDescription idnumdesc_specimen(*this, *m_sysdb);
+    idnumdesc_specimen.deleteAllDescriptions();
+    clearIdDescriptionCache();
+}
+
+
+bool CamcopsApp::setIdDescription(int which_idnum, const QString& desc,
+                                  const QString& shortdesc)
+{
+    IdNumDescription idnumdesc(*this, *m_sysdb, which_idnum);
+    const bool success = idnumdesc.setDescriptions(desc, shortdesc);
+    if (success) {
+        idnumdesc.save();
+    }
+    clearIdDescriptionCache();
+    return success;
+}
+
+
+QVector<IdNumDescriptionPtr> CamcopsApp::getAllIdDescriptions()
+{
+    const OrderBy order_by{{IdNumDescription::FN_IDNUM, true}};
+    QVector<IdNumDescriptionPtr> descriptions;
+    ancillaryfunc::loadAllRecords<IdNumDescription, IdNumDescriptionPtr>
+            (descriptions, *this, *m_sysdb, order_by);
+    return descriptions;
+}
+
+
+QVector<int> CamcopsApp::whichIdNumsAvailable()
+{
+    QVector<int> which_available;
+    for (IdNumDescriptionPtr iddesc : getAllIdDescriptions()) {
+        which_available.append(iddesc->whichIdNum());
+    }
+    return which_available;
 }
 
 
@@ -1733,22 +1797,6 @@ void CamcopsApp::offerTerms()
         // Refused terms
         uifunc::stopApp(tr("OK. Goodbye."), tr("You refused the conditions."));
     }
-}
-
-
-// ============================================================================
-// SQL dumping
-// ============================================================================
-
-void CamcopsApp::dumpDataDatabase(QTextStream& os)
-{
-    dumpsql::dumpDatabase(os, *m_datadb);
-}
-
-
-void CamcopsApp::dumpSystemDatabase(QTextStream& os)
-{
-    dumpsql::dumpDatabase(os, *m_sysdb);
 }
 
 

@@ -19,13 +19,15 @@
 
 #include "idpolicy.h"
 #include <QRegularExpression>  // replacing QRegExp; http://doc.qt.io/qt-5.7/qregexp.html#details
-#include "common/dbconstants.h"
+#include "common/dbconst.h"
+#include "common/design_defines.h"
 #include "dbobjects/patient.h"
 
 // ============================================================================
 // Constants
 // ============================================================================
 
+const int BAD_TOKEN = 0;
 const int TOKEN_LPAREN = -1;
 const int TOKEN_RPAREN = -2;
 const int TOKEN_AND = -3;
@@ -34,6 +36,7 @@ const int TOKEN_FORENAME = -5;
 const int TOKEN_SURNAME = -6;
 const int TOKEN_DOB = -7;
 const int TOKEN_SEX = -8;
+const int TOKEN_ANY_IDNUM = -9;
 // Tokens for ID numbers are from 1 upwards.
 
 const QString TOKENIZE_RE_STR(
@@ -69,6 +72,8 @@ IdPolicy::IdPolicy(const QString& policy_text) :
 
 void IdPolicy::initializeTokenDicts()
 {
+    // Everything except ID numbers:
+
     m_token_to_name.clear();
     m_token_to_name[TOKEN_LPAREN] = "(";
     m_token_to_name[TOKEN_RPAREN] = ")";
@@ -78,9 +83,7 @@ void IdPolicy::initializeTokenDicts()
     m_token_to_name[TOKEN_SURNAME] = SURNAME_FIELD;
     m_token_to_name[TOKEN_DOB] = DOB_FIELD;
     m_token_to_name[TOKEN_SEX] = SEX_FIELD;
-    for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
-        m_token_to_name[n] = IDNUM_FIELD_FORMAT.arg(n);
-    }
+    m_token_to_name[TOKEN_ANY_IDNUM] = ANY_IDNUM;
 
     m_name_to_token.clear();
     QMapIterator<int, QString> it(m_token_to_name);
@@ -88,6 +91,39 @@ void IdPolicy::initializeTokenDicts()
         it.next();
         m_name_to_token[it.value()] = it.key();
     }
+}
+
+
+int IdPolicy::nameToToken(const QString& name) const
+{
+    // One of our pre-cached tokens?
+    if (m_name_to_token.contains(name)) {
+        return m_name_to_token[name];
+    }
+    // An ID number token?
+    if (name.startsWith(IDNUM_FIELD_PREFIX)) {
+        const QString number = name.right(name.length() - IDNUM_FIELD_PREFIX.length());
+        bool ok = false;
+        const int which_idnum = number.toInt(&ok);
+        if (ok) {
+            return which_idnum;
+        }
+    }
+    // Failed.
+    return BAD_TOKEN;
+}
+
+
+QString IdPolicy::tokenToName(int token) const
+{
+    if (token > 0) {
+        return IDNUM_FIELD_FORMAT.arg(token);
+    }
+    if (m_token_to_name.contains(token)) {
+        return m_token_to_name[token];
+    }
+    qWarning() << Q_FUNC_INFO << "Bad token!";
+    return "BAD_TOKEN";
 }
 
 
@@ -102,17 +138,18 @@ void IdPolicy::tokenize(const QString& policy_text)
     QRegularExpressionMatchIterator it = re.globalMatch(policy_text);
     QStringList words;
     while (it.hasNext()) {
-        QRegularExpressionMatch match = it.next();
-        QString word = match.captured(1);
+        const QRegularExpressionMatch match = it.next();
+        const QString word = match.captured(1);
         words << word;
     }
     for (const QString& word : words) {
-        QString element = word.toLower();
-        if (!m_name_to_token.contains(element)) {
+        const QString element = word.toLower();
+        const int token = nameToToken(element);
+        if (token == BAD_TOKEN) {
             reportSyntaxError(QString("unknown word: %1").arg(word));
             return;
         }
-        m_tokens.append(m_name_to_token[element]);
+        m_tokens.append(token);
     }
     // check syntax:
     AttributesType blank_attributes;
@@ -150,8 +187,8 @@ QString IdPolicy::stringify(const QVector<int> &tokens) const
                 && tokens.at(i - 1) != TOKEN_LPAREN) {
             policy += " ";
         }
-        const QString element = m_token_to_name[token];
-        bool upper = (token == TOKEN_AND || token == TOKEN_OR);
+        const QString element = tokenToName(token);
+        const bool upper = (token == TOKEN_AND || token == TOKEN_OR);
         policy += upper ? element.toUpper() : element.toLower();
     }
     return policy;
@@ -308,7 +345,7 @@ IdPolicy::OperatorValue IdPolicy::idPolicyOp(const QVector<int>& tokens,
         reportSyntaxError("policy incomplete; missing operator at end");
         return OperatorValue::None;
     }
-    int token = tokens.at(index++);
+    const int token = tokens.at(index++);
     switch (token) {
     case TOKEN_AND:
         return OperatorValue::And;
@@ -326,13 +363,21 @@ IdPolicy::ChunkValue IdPolicy::idPolicyElement(const AttributesType& attributes,
     // Returns a boolean indicator corresponding to whether the token's
     // information is present in the patient attributes (or a failure
     // indicator).
-    const QString name = m_token_to_name[token];
-    if (!attributes.contains(name)) {
-        qWarning() << "Policy contains element" << name
-                   << "but patient information is unaware of that attribute";
-        return ChunkValue::Unknown;
+    const QString name = tokenToName(token);
+    if (token <= 0) {
+        if (!attributes.contains(name)) {
+            qWarning() << "Policy contains element" << name
+                       << "but patient information is unaware of that attribute";
+            return ChunkValue::Unknown;
+        }
+        return attributes[name] ? ChunkValue::True : ChunkValue::False;
+    } else {
+        if (attributes.contains(name)) {
+            return attributes[name] ? ChunkValue::True : ChunkValue::False;
+        }
+        // But if it's absent, that's just a missing ID, not a syntax error:
+        return ChunkValue::False;
     }
-    return attributes[name] ? ChunkValue::True : ChunkValue::False;
 }
 
 
@@ -340,9 +385,8 @@ IdPolicy::ChunkValue IdPolicy::idPolicyElement(const AttributesType& attributes,
 // Tablet ID policy
 // ============================================================================
 
-const IdPolicy TABLET_ID_POLICY("sex AND ( (forename AND surname AND dob) OR "
-                                "(idnum1 OR idnum2 OR idnum3 OR idnum4 OR "
-                                "idnum5 OR idnum6 OR idnum7 OR idnum8) )");
+const IdPolicy TABLET_ID_POLICY(
+        "sex AND ((forename AND surname AND dob) OR anyidnum)");
 // ... clinical environment: forename/surname/dob/sex, and we can await an
 //     ID number later
 // ... research environment: sex and one ID number for pseudonymised

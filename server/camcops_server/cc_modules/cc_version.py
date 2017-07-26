@@ -37,6 +37,9 @@ from .cc_version_string import (
 CAMCOPS_SERVER_VERSION = Version(CAMCOPS_SERVER_VERSION_STRING)
 MINIMUM_TABLET_VERSION = Version(MINIMUM_TABLET_VERSION_STRING)
 
+FIRST_TABLET_VER_WITHOUT_IDDESC_IN_PT_TABLE = Version("2.0.0")
+FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE = Version("2.0.1")
+
 
 # =============================================================================
 # For converting from older formats

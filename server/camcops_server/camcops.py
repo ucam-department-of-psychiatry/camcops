@@ -41,7 +41,7 @@ from cardinal_pythonlib.rnc_web import HEADERS_TYPE
 from cardinal_pythonlib.wsgi_errorreporter import ErrorReportingMiddleware
 from cardinal_pythonlib.wsgi_cache import DisableClientSideCachingMiddleware
 
-from .cc_modules import cc_analytics
+from .cc_modules.cc_analytics import ccanalytics_unit_tests
 from .cc_modules.cc_audit import (
     audit,
     SECURITY_AUDIT_TABLENAME,
@@ -50,7 +50,8 @@ from .cc_modules.cc_audit import (
 from .cc_modules.cc_constants import (
     CAMCOPS_URL,
     ENVVAR_CONFIG_FILE,
-    NUMBER_OF_IDNUMS,
+    FP_ID_NUM,
+    NUMBER_OF_IDNUMS_DEFUNCT,  # allowed, for database upgrade steps
     SEPARATOR_EQUALS,
     SEPARATOR_HYPHENS,
     STATIC_ROOT_DIR,
@@ -58,45 +59,60 @@ from .cc_modules.cc_constants import (
     URL_ROOT_STATIC,
     URL_ROOT_WEBVIEW,
 )
-from .cc_modules import cc_blob
-from .cc_modules.cc_blob import Blob
+from .cc_modules.cc_blob import Blob, ccblob_unit_tests
 from .cc_modules import cc_db
-from .cc_modules import cc_device
-from .cc_modules.cc_device import Device
-from .cc_modules import cc_dump
-from .cc_modules.cc_logger import log, dblog, main_only_quicksetup_rootlogger
-from .cc_modules import cc_hl7
-from .cc_modules import cc_hl7core
-from .cc_modules import cc_patient
+from .cc_modules.cc_device import ccdevice_unit_tests, Device
+from .cc_modules.cc_dump import ccdump_unit_tests
+from .cc_modules.cc_logger import main_only_quicksetup_rootlogger
+from .cc_modules.cc_hl7 import (
+    HL7Message,
+    HL7Run,
+    send_all_pending_hl7_messages,
+)
+from .cc_modules.cc_hl7core import cchl7core_unit_tests
+from .cc_modules.cc_patient import ccpatient_unit_tests
 from .cc_modules.cc_patient import Patient
+from .cc_modules.cc_patientidnum import PatientIdNum
 from .cc_modules.cc_pls import pls
-from .cc_modules import cc_policy
-from .cc_modules import cc_report
-from .cc_modules import cc_session
-from .cc_modules.cc_session import Session
+from .cc_modules.cc_policy import ccpolicy_unit_tests
+from .cc_modules.cc_report import ccreport_unit_tests
+from .cc_modules.cc_session import ccsession_unit_tests, Session
 from .cc_modules.cc_specialnote import SpecialNote
 from .cc_modules.cc_storedvar import DeviceStoredVar, ServerStoredVar
-from .cc_modules import cc_task
-from .cc_modules import cc_tracker  # imports matplotlib; SLOW
-from .cc_modules import cc_user
+from .cc_modules.cc_task import (
+    cctask_unit_tests,
+    cctask_unit_tests_basic,
+    get_all_task_classes,
+)
+from .cc_modules.cc_tracker import cctracker_unit_tests  # imports matplotlib; SLOW  # noqa
+from .cc_modules.cc_user import ccuser_unit_tests
 from .cc_modules.cc_user import (
+    create_superuser,
+    enable_user,
     SECURITY_ACCOUNT_LOCKOUT_TABLENAME,
     SECURITY_LOGIN_FAILURE_TABLENAME,
+    set_password_directly,
     User,
+    user_exists,
 )
 from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION, make_version
-from .webview import (
-    get_database_title,
-    make_summary_tables,
-    webview_application,
-)
-from . import database
 from .database import (
     database_application,
+    database_unit_tests,
     DIRTY_TABLES_TABLENAME,
     DIRTY_TABLES_FIELDSPECS,
 )
-from . import webview
+from .webview import (
+    get_database_title,
+    get_tsv_header_from_dict,
+    get_tsv_line_from_dict,
+    make_summary_tables,
+    webview_application,
+    webview_unit_tests,
+    write_descriptions_comments,
+)
+
+log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -260,7 +276,7 @@ def rename_table(from_table: str, to_table: str) -> None:
 
 
 def drop_all_views_and_summary_tables() -> None:
-    for cls in cc_task.get_all_task_classes():
+    for cls in get_all_task_classes():
         cls.drop_views()
         cls.drop_summary_tables()
     Blob.drop_views()
@@ -402,7 +418,7 @@ def v2_0_0_move_png_rotation_field(tablename: str, blob_id_fieldname: str,
     pls.db.db_exec_literal(sql)
 
 
-def upgrade_database(old_version: Version) -> None:
+def upgrade_database_first_phase(old_version: Version) -> None:
     print("Old database version: {}. New version: {}.".format(
         old_version,
         CAMCOPS_SERVER_VERSION
@@ -533,7 +549,7 @@ def upgrade_database(old_version: Version) -> None:
         v1_5_alter_generic_table_usercol(Device.TABLENAME,
                                          'uploading_user',
                                          'uploading_user_id')
-        for cls in cc_task.get_all_task_classes():
+        for cls in get_all_task_classes():
             v1_5_alter_generic_table(cls.tablename)
             for tablename in cls.get_extra_table_names():
                 v1_5_alter_generic_table(tablename)
@@ -580,7 +596,7 @@ def upgrade_database(old_version: Version) -> None:
                       cc_db.SQLTYPE.SEMANTICVERSIONTYPE)
         v2_0_0_alter_generic_table(DeviceStoredVar.TABLENAME)
         # Tasks
-        for cls in cc_task.get_all_task_classes():
+        for cls in get_all_task_classes():
             v2_0_0_alter_generic_table(cls.tablename)
             for tablename in cls.get_extra_table_names():
                 v2_0_0_alter_generic_table(tablename)
@@ -600,6 +616,7 @@ def upgrade_database(old_version: Version) -> None:
 def upgrade_database_second_phase(old_version: Version) -> None:
     if old_version < Version("2.0.0"):
         report_database_upgrade_step("2.0.0")
+        # BLOBs become more generalized and know about their own image rotation
         v2_0_0_move_png_rotation_field("ace3", "picture1_blobid", "picture1_rotation")  # noqa
         v2_0_0_move_png_rotation_field("ace3", "picture2_blobid", "picture2_rotation")  # noqa
         v2_0_0_move_png_rotation_field("demoquestionnaire", "photo_blobid", "photo_rotation")  # noqa
@@ -608,6 +625,83 @@ def upgrade_database_second_phase(old_version: Version) -> None:
         pls.db.db_exec_literal("""
             UPDATE {blobtable} SET mimetype = 'image/png'
         """.format(blobtable=Blob.TABLENAME))
+
+    if old_version < Version("2.0.1"):
+        report_database_upgrade_step("2.0.1")
+        # Move ID numbers into their own table, allowing an arbitrary number.
+        for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
+            nstr = str(n)
+            pls.db.db_exec_literal("""
+                INSERT INTO {idnumtable} (
+                    -- _pk is autogenerated
+                    
+                    _device_id,
+                    _era,
+                    _current,
+                    _when_added_exact,
+                    _when_added_batch_utc,
+                    
+                    _adding_user_id,
+                    _when_removed_exact,
+                    _when_removed_batch_utc,
+                    _removing_user_id,
+                    _preserving_user_id,
+                    
+                    _forcibly_preserved,
+                    _predecessor_pk,
+                    _successor_pk,
+                    _manually_erased,
+                    _manually_erased_at,
+                    _manually_erasing_user_id,
+                    _camcops_version,
+                    
+                    _addition_pending,
+                    _removal_pending,
+                    _move_off_tablet,
+                    
+                    patient_id,
+                    which_idnum,
+                    idnum_value,
+                    when_last_modified
+                )
+                SELECT
+                    _device_id,
+                    _era,
+                    _current,
+                    _when_added_exact,
+                    _when_added_batch_utc,
+                    
+                    _adding_user_id,
+                    _when_removed_exact,
+                    _when_removed_batch_utc,
+                    _removing_user_id,
+                    _preserving_user_id,
+                    
+                    _forcibly_preserved,
+                    NULL,  -- _predecessor_pk
+                    NULL,  -- _successor_pk
+                    _manually_erased,
+                    _manually_erased_at,
+                    _manually_erasing_user_id,
+                    _camcops_version,
+                    
+                    0,  -- _addition_pending
+                    0,  -- _removal_pending
+                    0,  -- _move_off_tablet
+                    
+                    id,  -- goes to patient_id
+                    {which_idnum},  -- goes to which_idnum
+                    {idnumfield},  -- goes to idnum_value
+                    when_last_modified
+                    
+                FROM {patienttable}
+                WHERE {idnumfield} IS NOT NULL
+            """.format(
+                idnumtable=PatientIdNum.tablename,
+                patienttable=Patient.TABLENAME,
+                which_idnum=nstr,
+                idnumfield=FP_ID_NUM + nstr,
+            ))
 
 
 # =============================================================================
@@ -693,7 +787,7 @@ def make_tables(drop_superfluous_columns: bool = False) -> None:
                                                ServerStoredVar.TYPE_REAL)
     old_version = make_version(sv_version.get_value() or
                                sv_potential_old_version.get_value())
-    upgrade_database(old_version)
+    upgrade_database_first_phase(old_version)
     # Important that we write the new version now:
     sv_version.set_value(str(CAMCOPS_SERVER_VERSION))
     # This value must only be written in conjunction with the database
@@ -704,15 +798,16 @@ def make_tables(drop_superfluous_columns: bool = False) -> None:
     print(SEPARATOR_HYPHENS)
 
     # Other system tables
-    cc_user.User.make_tables(drop_superfluous_columns)
-    cc_device.Device.make_tables(drop_superfluous_columns)
-    cc_hl7.HL7Run.make_tables(drop_superfluous_columns)
-    cc_hl7.HL7Message.make_tables(drop_superfluous_columns)
-    cc_session.Session.make_tables(drop_superfluous_columns)
+    User.make_tables(drop_superfluous_columns)
+    Device.make_tables(drop_superfluous_columns)
+    HL7Run.make_tables(drop_superfluous_columns)
+    HL7Message.make_tables(drop_superfluous_columns)
+    Session.make_tables(drop_superfluous_columns)
     SpecialNote.make_tables(drop_superfluous_columns)
 
     # Core client tables
     Patient.make_tables(drop_superfluous_columns)
+    PatientIdNum.make_tables(drop_superfluous_columns)
     Blob.make_tables(drop_superfluous_columns)
     DeviceStoredVar.make_tables(drop_superfluous_columns)
 
@@ -732,7 +827,7 @@ def make_tables(drop_superfluous_columns: bool = False) -> None:
     print(SEPARATOR_HYPHENS)
     print("Making task tables")
     print(SEPARATOR_HYPHENS)
-    for cls in cc_task.get_all_task_classes():
+    for cls in get_all_task_classes():
         print("Making table(s) and view(s) for task: " + cls.shortname)
         cls.make_tables(drop_superfluous_columns)
 
@@ -748,7 +843,7 @@ def export_descriptions_comments() -> None:
         "Include views (leave blank for no, anything else for yes)? "
     ))
     with open(filename, 'wb') as file:
-        webview.write_descriptions_comments(file, include_views)
+        write_descriptions_comments(file, include_views)
     print("Done.")
 
 
@@ -763,13 +858,20 @@ def reset_storedvars() -> None:
     print("Setting database title/ID descriptions from configuration file")
     dbt = ServerStoredVar("databaseTitle", "text")
     dbt.set_value(pls.DATABASE_TITLE)
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
-        i = n - 1
+    pls.db.db_exec_literal(
+        "DELETE FROM {ssvtable} WHERE name LIKE 'idDescription%'".format(
+            ssvtable=ServerStoredVar.TABLENAME,
+        ))
+    pls.db.db_exec_literal(
+        "DELETE FROM {ssvtable} WHERE name LIKE 'idShortDescription%'".format(
+            ssvtable=ServerStoredVar.TABLENAME,
+        ))
+    for n in pls.get_which_idnums():
         nstr = str(n)
         sv_id = ServerStoredVar("idDescription" + nstr, "text")
-        sv_id.set_value(pls.IDDESC[i])
+        sv_id.set_value(pls.get_id_desc(n))
         sv_sd = ServerStoredVar("idShortDescription" + nstr, "text")
-        sv_sd.set_value(pls.IDSHORTDESC[i])
+        sv_sd.set_value(pls.get_id_shortdesc(n))
     sv_id_policy_upload = ServerStoredVar("idPolicyUpload", "text")
     sv_id_policy_upload.set_value(pls.ID_POLICY_UPLOAD_STRING)
     sv_id_policy_finalize = ServerStoredVar("idPolicyFinalize", "text")
@@ -780,7 +882,7 @@ def reset_storedvars() -> None:
 def generate_anonymisation_staging_db() -> None:
     db = pls.get_anonymisation_database()  # may raise
     ddfilename = pls.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE
-    classes = cc_task.get_all_task_classes()
+    classes = get_all_task_classes()
     with codecs.open(ddfilename, mode="w", encoding="utf8") as f:
         written_header = False
         for cls in classes:
@@ -793,10 +895,10 @@ def generate_anonymisation_staging_db() -> None:
             if not rows:
                 continue
             if not written_header:
-                f.write(webview.get_tsv_header_from_dict(rows[0]) + "\n")
+                f.write(get_tsv_header_from_dict(rows[0]) + "\n")
                 written_header = True
             for r in rows:
-                f.write(webview.get_tsv_line_from_dict(r) + "\n")
+                f.write(get_tsv_line_from_dict(r) + "\n")
     db.commit()
     print("Draft data dictionary written to {}".format(ddfilename))
 
@@ -805,7 +907,7 @@ def make_superuser() -> None:
     """Make a superuser from the command line."""
     print("MAKE SUPERUSER")
     username = ask_user("New superuser")
-    if cc_user.user_exists(username):
+    if user_exists(username):
         print("... user already exists!")
         return
     password1 = ask_user_password("New superuser password")
@@ -813,7 +915,7 @@ def make_superuser() -> None:
     if password1 != password2:
         print("... passwords don't match; try again")
         return
-    result = cc_user.create_superuser(username, password1)
+    result = create_superuser(username, password1)
     print("Success: " + str(result))
 
 
@@ -821,7 +923,7 @@ def reset_password() -> None:
     """Reset a password from the command line."""
     print("RESET PASSWORD")
     username = ask_user("Username")
-    if not cc_user.user_exists(username):
+    if not user_exists(username):
         print("... user doesn't exist!")
         return
     password1 = ask_user_password("New password")
@@ -829,7 +931,7 @@ def reset_password() -> None:
     if password1 != password2:
         print("... passwords don't match; try again")
         return
-    result = cc_user.set_password_directly(username, password1)
+    result = set_password_directly(username, password1)
     print("Success: " + str(result))
 
 
@@ -837,10 +939,10 @@ def enable_user_cli() -> None:
     """Re-enable a locked user account from the command line."""
     print("ENABLE LOCKED USER ACCOUNT")
     username = ask_user("Username")
-    if not cc_user.user_exists(username):
+    if not user_exists(username):
         print("... user doesn't exist!")
         return
-    cc_user.enable_user(username)
+    enable_user(username)
     print("Enabled.")
 
 
@@ -853,68 +955,68 @@ def test() -> None:
     # We do some rollbacks so as not to break performance of ongoing tasks.
 
     print("-- Ensuring all tasks have basic info")
-    cc_task.unit_tests_basic()
+    cctask_unit_tests_basic()
     pls.db.rollback()
 
     print("-- Testing camcopswebview")
-    webview.unit_tests()
+    webview_unit_tests()
     pls.db.rollback()
 
     print("-- Testing cc_analytics")
-    cc_analytics.unit_tests()
+    ccanalytics_unit_tests()
     pls.db.rollback()
 
     print("-- Testing cc_blob")
-    cc_blob.unit_tests()
+    ccblob_unit_tests()
     pls.db.rollback()
 
     # cc_constants: no functions
 
     print("-- Testing cc_device")
-    cc_device.unit_tests()
+    ccdevice_unit_tests()
     pls.db.rollback()
 
     print("-- Testing cc_dump")
-    cc_dump.unit_tests()
+    ccdump_unit_tests()
     pls.db.rollback()
 
     print("-- Testing cc_hl7core")
-    cc_hl7core.unit_tests()
+    cchl7core_unit_tests()
     pls.db.rollback()
 
     # cc_namedtuples: simple, and doesn't need cc_shared
 
     print("-- Testing cc_patient")
-    cc_patient.unit_tests()
+    ccpatient_unit_tests()
     pls.db.rollback()
 
     print("-- Testing cc_policy")
-    cc_policy.unit_tests()
+    ccpolicy_unit_tests()
     pls.db.rollback()
 
     print("-- Testing cc_report")
-    cc_report.unit_tests()
+    ccreport_unit_tests()
     pls.db.rollback()
 
     print("-- Testing cc_session")
-    cc_session.unit_tests()
+    ccsession_unit_tests()
     pls.db.rollback()
 
     # at present only tested implicitly: cc_shared
 
     print("-- Testing cc_tracker")
-    cc_tracker.unit_tests()
+    cctracker_unit_tests()
     pls.db.rollback()
 
     print("-- Testing cc_user")
-    cc_user.unit_tests()
+    ccuser_unit_tests()
     pls.db.rollback()
 
     # cc_version: no functions
 
     # Done last (slowest)
     print("-- Testing cc_task")
-    cc_task.unit_tests()
+    cctask_unit_tests()
     pls.db.rollback()
 
 
@@ -1000,8 +1102,7 @@ def cli_main() -> None:
 
     # Initial log level (overridden later by config file but helpful for start)
     loglevel = logging.DEBUG if args.verbose >= 1 else logging.INFO
-    log.setLevel(loglevel)
-    dblog.setLevel(loglevel)
+    logging.getLogger().setLevel(loglevel)  # set level for root logger
 
     if args.show_hl7_queue:
         silent = True
@@ -1082,11 +1183,11 @@ database, for example, in MySQL:
         n_actions += 1
 
     if args.hl7:
-        cc_hl7.send_all_pending_hl7_messages()
+        send_all_pending_hl7_messages()
         n_actions += 1
 
     if args.show_hl7_queue:
-        cc_hl7.send_all_pending_hl7_messages(show_queue_only=True)
+        send_all_pending_hl7_messages(show_queue_only=True)
         n_actions += 1
 
     if args.anonstaging:
@@ -1098,7 +1199,7 @@ database, for example, in MySQL:
         n_actions += 1
 
     if args.dbunittest:
-        database.unit_tests()
+        database_unit_tests()
         n_actions += 1
 
     if n_actions > 0:
@@ -1163,9 +1264,9 @@ Using database: {dbname} ({dbtitle}).
         elif choice == 9:
             test()
         elif choice == 10:
-            cc_hl7.send_all_pending_hl7_messages()
+            send_all_pending_hl7_messages()
         elif choice == 11:
-            cc_hl7.send_all_pending_hl7_messages(show_queue_only=True)
+            send_all_pending_hl7_messages(show_queue_only=True)
         elif choice == 12:
             generate_anonymisation_staging_db()
         elif choice == 13:
@@ -1181,6 +1282,9 @@ Using database: {dbname} ({dbtitle}).
 # Command-line entry point
 # =============================================================================
 
+# Currently sets up colour logging even if under WSGI environment. This is fine
+# for gunicorn from the command line; I'm less clear about whether the disk
+# logs look polluted by ANSI codes; needs checking.
+main_only_quicksetup_rootlogger(logging.INFO)
 if __name__ == '__main__':
-    main_only_quicksetup_rootlogger(logging.INFO)
     cli_main()

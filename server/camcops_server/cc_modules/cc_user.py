@@ -24,6 +24,7 @@
 
 import cgi
 import datetime
+import logging
 import re
 from typing import Optional
 
@@ -33,13 +34,25 @@ import cardinal_pythonlib.rnc_web as ws
 from .cc_audit import audit
 from .cc_constants import ACTION, PARAM, DATEFORMAT, WEBEND
 from . import cc_db
-from . import cc_dt
-from . import cc_html
-from .cc_logger import log
+from .cc_dt import (
+    convert_utc_datetime_without_tz_to_local,
+    format_datetime,
+    get_datetime_from_string,
+)
+from .cc_html import (
+    fail_with_error_stay_logged_in,
+    get_generic_action_url,
+    get_url_enter_new_password,
+    get_url_field_value_pair,
+    get_yes_no,
+    simple_success_message,
+)
 from .cc_pls import pls
 # NO: CIRCULAR # from .cc_session import Session
-from . import cc_storedvar
+from .cc_storedvar import ServerStoredVar
 from .cc_unittest import unit_test_ignore
+
+log = logging.getLogger(__name__)
 
 SESSION_FWD_REF = "Session"
 
@@ -139,7 +152,7 @@ def user_locked_out_until(username: str) -> Optional[datetime.datetime]:
         username)
     if not utc_no_tz:
         return None
-    return cc_dt.convert_utc_datetime_without_tz_to_local(utc_no_tz)
+    return convert_utc_datetime_without_tz_to_local(utc_no_tz)
 
 
 def lock_user_out(username: str, lockout_minutes: int) -> None:
@@ -228,11 +241,11 @@ def clear_dummy_login_failures_if_necessary() -> None:
 
     Not too often! See CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS.
     """
-    last_cleared_var = cc_storedvar.ServerStoredVar(
+    last_cleared_var = ServerStoredVar(
         "lastDummyLoginFailureClearanceAt", "text", None)
     last_cleared_val = last_cleared_var.get_value()
     if last_cleared_val:
-        elapsed = pls.NOW_UTC_WITH_TZ - cc_dt.get_datetime_from_string(
+        elapsed = pls.NOW_UTC_WITH_TZ - get_datetime_from_string(
             last_cleared_val)
         if elapsed < CLEAR_DUMMY_LOGIN_PERIOD:
             # We cleared it recently.
@@ -240,8 +253,8 @@ def clear_dummy_login_failures_if_necessary() -> None:
 
     clear_login_failures_for_nonexistent_users()
     log.debug("Dummy login failures cleared.")
-    now_as_utc_iso_string = cc_dt.format_datetime(pls.NOW_UTC_WITH_TZ,
-                                                  DATEFORMAT.ISO8601)
+    now_as_utc_iso_string = format_datetime(pls.NOW_UTC_WITH_TZ,
+                                            DATEFORMAT.ISO8601)
     last_cleared_var.set_value(now_as_utc_iso_string)
 
 
@@ -394,8 +407,8 @@ class User:
     def agree_terms(self) -> None:
         """Mark the user as having agreed to the terms/conditions of use
         now."""
-        self.when_agreed_terms_of_use = cc_dt.format_datetime(
-            pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601)
+        self.when_agreed_terms_of_use = format_datetime(pls.NOW_LOCAL_TZ,
+                                                        DATEFORMAT.ISO8601)
         self.save()
 
     def clear_login_failures(self) -> None:
@@ -541,31 +554,31 @@ def get_user_filter_dropdown(currently_selected_id: int = None) -> str:
 def get_url_edit_user(username: str) -> str:
     """URL to edit a specific user."""
     return (
-        cc_html.get_generic_action_url(ACTION.EDIT_USER) +
-        cc_html.get_url_field_value_pair(PARAM.USERNAME, username)
+        get_generic_action_url(ACTION.EDIT_USER) +
+        get_url_field_value_pair(PARAM.USERNAME, username)
     )
 
 
 def get_url_ask_delete_user(username: str) -> str:
     """URL to ask for confirmation to delete a specific user."""
     return (
-        cc_html.get_generic_action_url(ACTION.ASK_DELETE_USER) +
-        cc_html.get_url_field_value_pair(PARAM.USERNAME, username)
+        get_generic_action_url(ACTION.ASK_DELETE_USER) +
+        get_url_field_value_pair(PARAM.USERNAME, username)
     )
 
 
 def get_url_enable_user(username: str) -> str:
     """URL to enable a specific user."""
     return (
-        cc_html.get_generic_action_url(ACTION.ENABLE_USER) +
-        cc_html.get_url_field_value_pair(PARAM.USERNAME, username)
+        get_generic_action_url(ACTION.ENABLE_USER) +
+        get_url_field_value_pair(PARAM.USERNAME, username)
     )
 
 
-def enter_new_password(session: SESSION_FWD_REF,
-                       username: str,
-                       as_manager: bool = False,
-                       because_password_expired: bool = False) -> str:
+def enter_new_password_html(session: SESSION_FWD_REF,
+                            username: str,
+                            as_manager: bool = False,
+                            because_password_expired: bool = False) -> str:
     """HTML to change password."""
     if as_manager:
         changepw = """
@@ -679,7 +692,7 @@ def set_password_directly(username: str, password: str) -> bool:
     return True
 
 
-def manage_users(session: SESSION_FWD_REF) -> str:
+def manage_users_html(session: SESSION_FWD_REF) -> str:
     """HTML to view/edit users."""
     allusers = pls.db.fetch_all_objects_from_db(User, User.TABLENAME,
                                                 User.FIELDS, True)
@@ -710,14 +723,14 @@ def manage_users(session: SESSION_FWD_REF) -> str:
             </tr>
     """.format(
         session.get_current_user_html(),
-        cc_html.get_generic_action_url(ACTION.ASK_TO_ADD_USER),
+        get_generic_action_url(ACTION.ASK_TO_ADD_USER),
     ) + WEBEND
     for u in allusers:
         if u.is_locked_out():
             enableuser = "| <a href={}>Re-enable user</a>".format(
                 get_url_enable_user(u.username)
             )
-            lockedmsg = "Yes, until {}".format(cc_dt.format_datetime(
+            lockedmsg = "Yes, until {}".format(format_datetime(
                 u.locked_out_until(),
                 DATEFORMAT.ISO8601
             ))
@@ -748,22 +761,22 @@ def manage_users(session: SESSION_FWD_REF) -> str:
             </tr>
         """.format(
             url_edit=get_url_edit_user(u.username),
-            url_changepw=cc_html.get_url_enter_new_password(u.username),
+            url_changepw=get_url_enter_new_password(u.username),
             enableuser=enableuser,
             lockedmsg=lockedmsg,
             lastpwchange=ws.webify(u.last_password_change_utc),
-            may_use_webviewer=cc_html.get_yes_no(u.may_use_webviewer),
-            may_view_other_users_records=cc_html.get_yes_no(
+            may_use_webviewer=get_yes_no(u.may_use_webviewer),
+            may_view_other_users_records=get_yes_no(
                 u.may_view_other_users_records),
-            view_all_patients_when_unfiltered=cc_html.get_yes_no(
+            view_all_patients_when_unfiltered=get_yes_no(
                 u.view_all_patients_when_unfiltered),
-            may_upload=cc_html.get_yes_no(u.may_upload),
-            superuser=cc_html.get_yes_no(u.superuser),
-            may_register_devices=cc_html.get_yes_no(u.may_register_devices),
-            may_use_webstorage=cc_html.get_yes_no(u.may_use_webstorage),
-            may_dump_data=cc_html.get_yes_no(u.may_dump_data),
-            may_run_reports=cc_html.get_yes_no(u.may_run_reports),
-            may_add_notes=cc_html.get_yes_no(u.may_add_notes),
+            may_upload=get_yes_no(u.may_upload),
+            superuser=get_yes_no(u.superuser),
+            may_register_devices=get_yes_no(u.may_register_devices),
+            may_use_webstorage=get_yes_no(u.may_use_webstorage),
+            may_dump_data=get_yes_no(u.may_dump_data),
+            may_run_reports=get_yes_no(u.may_run_reports),
+            may_add_notes=get_yes_no(u.may_add_notes),
             url_delete=get_url_ask_delete_user(u.username),
             username=u.username,
         )
@@ -773,7 +786,7 @@ def manage_users(session: SESSION_FWD_REF) -> str:
     return output
 
 
-def edit_user(session: SESSION_FWD_REF, username: str) -> str:
+def edit_user_form(session: SESSION_FWD_REF, username: str) -> str:
     """HTML form to edit a single user's permissions."""
     user = get_user_by_name(username, False)
     if not user:
@@ -927,7 +940,7 @@ def change_user(form: cgi.FieldStorage) -> str:
         "Details updated for user " + user.username)
 
 
-def ask_to_add_user(session: SESSION_FWD_REF) -> str:
+def ask_to_add_user_html(session: SESSION_FWD_REF) -> str:
     """HTML form to add a user."""
     return pls.WEBSTART + """
         {userdetails}
@@ -1108,7 +1121,7 @@ def add_user(form: cgi.FieldStorage) -> str:
                                            " created")
 
 
-def ask_delete_user(session: SESSION_FWD_REF, username: str) -> str:
+def ask_delete_user_html(session: SESSION_FWD_REF, username: str) -> str:
     """HTML form to delete a user."""
     return pls.WEBSTART + """
         {userdetails}
@@ -1159,10 +1172,8 @@ def user_management_success_message(msg: str,
             <div>
                 <a href={}>Return to user menu</a>
             </div>
-        """.format(
-            cc_html.get_generic_action_url(ACTION.MANAGE_USERS)
-        )
-    return cc_html.simple_success_message(msg, additional_html + extra_html)
+        """.format(get_generic_action_url(ACTION.MANAGE_USERS))
+    return simple_success_message(msg, additional_html + extra_html)
 
 
 def user_management_failure_message(msg: str, as_manager: bool = True) -> str:
@@ -1174,16 +1185,16 @@ def user_management_failure_message(msg: str, as_manager: bool = True) -> str:
                 <a href={}>Return to user menu</a>
             </div>
         """.format(
-            cc_html.get_generic_action_url(ACTION.MANAGE_USERS)
+            get_generic_action_url(ACTION.MANAGE_USERS)
         )
-    return cc_html.fail_with_error_stay_logged_in(msg, extra_html)
+    return fail_with_error_stay_logged_in(msg, extra_html)
 
 
 # =============================================================================
 # Unit testing
 # =============================================================================
 
-def unit_tests() -> None:
+def ccuser_unit_tests() -> None:
     """Unit tests for cc_user module."""
     # -------------------------------------------------------------------------
     # Delayed imports (UNIT TESTING ONLY)
@@ -1226,15 +1237,15 @@ def unit_tests() -> None:
     session = cc_session.Session()
     # form = cgi.FieldStorage()
 
-    unit_test_ignore("", enter_new_password, session, "dummy_user")
+    unit_test_ignore("", enter_new_password_html, session, "dummy_user")
     # skip: change_password
     # skip: set_password_directly
-    unit_test_ignore("", manage_users, session)
-    unit_test_ignore("", edit_user, session, "dummy_user")
+    unit_test_ignore("", manage_users_html, session)
+    unit_test_ignore("", edit_user_form, session, "dummy_user")
     # skip: change_user
-    unit_test_ignore("", ask_to_add_user, session)
+    unit_test_ignore("", ask_to_add_user_html, session)
     # skip: add_user
-    unit_test_ignore("", ask_delete_user, session, "dummy_user")
+    unit_test_ignore("", ask_delete_user_html, session, "dummy_user")
     # skip: delete_user
     unit_test_ignore("", user_management_success_message, "test_msg", True)
     unit_test_ignore("", user_management_success_message, "test_msg", False)

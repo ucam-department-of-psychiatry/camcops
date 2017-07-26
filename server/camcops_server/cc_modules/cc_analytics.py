@@ -23,19 +23,23 @@
 """
 
 import datetime
+import logging
 import urllib.error
 import urllib.parse
 import urllib.request
 from typing import List, Tuple
 
-from . import cc_dt
-from . import cc_storedvar
-from . import cc_version
 from .cc_constants import DATEFORMAT
-from .cc_logger import log
+from .cc_dt import (
+    format_datetime,
+    get_datetime_from_string,
+)
 from .cc_pls import pls
 from .cc_storedvar import ServerStoredVar
 from .cc_unittest import unit_test_ignore
+from .cc_version import CAMCOPS_SERVER_VERSION
+
+log = logging.getLogger(__name__)
 
 ANALYTICS_FREQUENCY_DAYS = 7  # send analytics weekly
 
@@ -64,22 +68,22 @@ def send_analytics_if_necessary() -> None:
                                     None)
     last_sent_val = last_sent_var.get_value()
     if last_sent_val:
-        elapsed = pls.NOW_UTC_WITH_TZ - cc_dt.get_datetime_from_string(
+        elapsed = pls.NOW_UTC_WITH_TZ - get_datetime_from_string(
             last_sent_val)
         if elapsed < ANALYTICS_PERIOD:
             # We sent analytics recently.
             return
 
     # Compile analytics
-    now_as_utc_iso_string = cc_dt.format_datetime(pls.NOW_UTC_WITH_TZ,
-                                                  DATEFORMAT.ISO8601)
+    now_as_utc_iso_string = format_datetime(pls.NOW_UTC_WITH_TZ,
+                                            DATEFORMAT.ISO8601)
     (table_names, record_counts) = get_all_tables_with_record_counts()
 
     # This is what's sent:
     d = {
         "source": "server",
         "now": now_as_utc_iso_string,
-        "camcops_version": str(cc_version.CAMCOPS_SERVER_VERSION),
+        "camcops_version": str(CAMCOPS_SERVER_VERSION),
         "server": pls.SERVER_NAME,
         "table_names": ",".join(table_names),
         "record_counts": ",".join([str(x) for x in record_counts]),
@@ -121,7 +125,7 @@ def get_all_tables_with_record_counts() -> Tuple[List[str], List[int]]:
     return table_names, record_counts
 
 
-def unit_tests() -> None:
+def ccanalytics_unit_tests() -> None:
     """Unit tests for the cc_analytics module."""
     unit_test_ignore("", send_analytics_if_necessary)
     unit_test_ignore("", get_all_tables_with_record_counts)

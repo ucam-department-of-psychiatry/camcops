@@ -24,7 +24,7 @@
 #include <QString>
 #include "common/aliases_camcops.h"
 #include "common/aliases_qt.h"
-#include "common/dbconstants.h"
+#include "common/dbconst.h"
 #include "db/field.h"
 #include "db/sqlargs.h"
 #include "db/whereconditions.h"

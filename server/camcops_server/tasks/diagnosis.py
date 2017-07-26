@@ -27,7 +27,6 @@ from typing import Any, Dict, List
 import cardinal_pythonlib.rnc_web as ws
 import hl7
 
-from ..cc_modules.cc_constants import NUMBER_OF_IDNUMS
 from ..cc_modules.cc_hl7core import make_dg1_segment
 from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_nlp import guess_name_components
@@ -215,15 +214,13 @@ def get_diagnosis_report_sql(diagnosis_table: str,
                              item_table: str,
                              item_fk_fieldname: str,
                              system: str) -> str:
-    select_idnums = ["p.idnum{n} AS idnum{n}".format(n=n)
-                     for n in range(1, NUMBER_OF_IDNUMS + 1)]
     sql = """
         SELECT
             p.surname AS surname,
             p.forename AS forename,
             p.dob AS dob,
             p.sex AS sex,
-            {select_idnums},
+            'IDNUMS_NEED_FIXING' AS idnums,
             d.when_created,
             '{system}' AS system,
             i.code AS code,
@@ -249,7 +246,6 @@ def get_diagnosis_report_sql(diagnosis_table: str,
             d.when_created,
             i.code
     """.format(
-        select_idnums=", ".join(select_idnums),
         system=system,
         diagnosis_table=diagnosis_table,
         item_table=item_table,

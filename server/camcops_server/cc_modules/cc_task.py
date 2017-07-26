@@ -38,12 +38,12 @@ import collections
 import copy
 import datetime
 from enum import Enum
-# import operator
+import logging
 import re
 import statistics
 import typing
 from typing import (Any, Dict, Iterable, Generator, List, Optional, Sequence,
-                    Tuple, Type, Union)
+                    Tuple, Type, TYPE_CHECKING, Union)
 
 import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.rnc_db import (
@@ -57,8 +57,7 @@ import hl7
 from semantic_version import Version
 
 from .cc_audit import audit
-from . import cc_blob
-from .cc_blob import Blob
+from .cc_blob import Blob, get_contemporaneous_blob_by_client_info
 from .cc_constants import (
     ACTION,
     ANON_PATIENT,
@@ -71,10 +70,8 @@ from .cc_constants import (
     CSS_PAGED_MEDIA,
     DATEFORMAT,
     ERA_NOW,
-    FP_ID_NUM,
     HL7MESSAGE_TABLENAME,
     INVALID_VALUE,
-    NUMBER_OF_IDNUMS,
     PARAM,
     PDFEND,
     PDF_HEAD_LANDSCAPE,
@@ -92,28 +89,46 @@ from .cc_constants import (
     WKHTMLTOPDF_OPTIONS,
 )
 from . import cc_db
-from . import cc_device
-from . import cc_dt
+from .cc_device import Device
 from .cc_dt import (
+    convert_datetime_to_utc,
+    get_date_regex,
     get_datetime_from_string,
+    get_now_utc,
     format_datetime,
     format_datetime_string
 )
-from . import cc_filename
-from . import cc_hl7core
-from . import cc_html
-from . import cc_lang
-from .cc_lang import all_subclasses, Min, MinType
-from .cc_logger import log
+from .cc_filename import get_export_filename
+from .cc_hl7core import make_obr_segment, make_obx_segment
+from .cc_html import (
+    answer,
+    get_generic_action_url,
+    get_present_absent_none,
+    get_true_false_none,
+    get_url_field_value_pair,
+    get_yes_no,
+    get_yes_no_none,
+    pdf_footer_content,
+    pdf_header_content,
+    tr,
+    tr_qa,
+)
+from .cc_lang import (
+    all_subclasses,
+    derived_class_implements_method,
+    flatten_list,
+    mangle_unicode_to_ascii,
+    Min,
+    MinType,
+)
 from .cc_namedtuples import XmlElementTuple
-from . import cc_patient
-from .cc_patient import Patient
-from . import cc_plot
+from .cc_patient import get_current_version_of_patient_by_client_info, Patient
+from .cc_patientidnum import PatientIdNum
+from .cc_plot import set_matplotlib_fontsize
 from .cc_pls import pls
 from .cc_recipdef import RecipientDefinition
 from .cc_report import Report, REPORT_RESULT_TYPE
-from .cc_session import Session
-from . import cc_specialnote
+from .cc_specialnote import SpecialNote
 from .cc_string import task_extrastrings_exist, wappstring, WXSTRING
 from .cc_unittest import (
     get_object_name,
@@ -125,8 +140,23 @@ from .cc_unittest import (
 )
 from .cc_user import User
 from .cc_version import CAMCOPS_SERVER_VERSION, make_version
-from . import cc_xml
+from .cc_xml import (
+    get_xml_blob_tuple,
+    get_xml_document,
+    make_xml_branches_from_fieldspecs,
+    make_xml_branches_from_summaries,
+    XML_COMMENT_ANONYMOUS,
+    XML_COMMENT_BLOBS,
+    XML_COMMENT_CALCULATED,
+    XML_COMMENT_PATIENT,
+    XML_COMMENT_SPECIAL_NOTES,
+    XML_COMMENT_STORED,
+)
 
+if TYPE_CHECKING:
+    from .cc_session import Session
+
+log = logging.getLogger(__name__)
 
 ANCILLARY_FWD_REF = "Ancillary"
 TASK_FWD_REF = "Task"
@@ -434,22 +464,22 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
     # Attributes that must be provided
     # -------------------------------------------------------------------------
-    tablename = None
-    shortname = None
-    longname = None
-    fieldspecs = []
+    tablename = None  # type: str
+    shortname = None  # type: str
+    longname = None  # type: str
+    fieldspecs = []  # type: List[Dict]
 
     # -------------------------------------------------------------------------
     # Attributes that can be overridden
     # -------------------------------------------------------------------------
-    extrastring_taskname = None  # if None, tablename is used instead
+    extrastring_taskname = None  # type: str  # if None, tablename is used instead  # noqa
     is_anonymous = False  # Alters fields/HTML
     has_clinician = False  # Will add fields/HTML
     has_respondent = False  # Will add fields/HTML
     use_landscape_for_pdf = False
     dependent_classes = []
-    blob_name_idfield_list = []
-    extra_summary_table_info = []
+    blob_name_idfield_list = []  # type: List[Tuple[str, str]]
+    extra_summary_table_info = []  # type: List[Dict[str, Any]]
 
     def __init__(self, serverpk: Optional[int]) -> None:
         """Initialize (loading details from database)."""
@@ -464,14 +494,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             self._patient = None
         else:
             self._patient = \
-                cc_patient.get_current_version_of_patient_by_client_info(
+                get_current_version_of_patient_by_client_info(
                     self._device_id, self.patient_id, self._era)
         # NOTE: this retrieves the most recent (i.e. the current) information
         # on that patient. Consequently, task version history doesn't show the
         # history of patient edits.
 
         # Don't load special notes, for speed (retrieved on demand)
-        self._special_notes = None
+        self._special_notes = None  # type: List[SpecialNote]
 
     # -------------------------------------------------------------------------
     # Methods always overridden
@@ -531,7 +561,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_ancillary_item_pks(self, itemclass: Type[ANCILLARY_FWD_REF]) \
             -> List[int]:
-        return cc_db.get_contemporaneous_matching_fields_by_fk(
+        return cc_db.get_contemporaneous_matching_field_pks_by_fk(
             itemclass.tablename, PKNAME,
             itemclass.fkname, self.id,
             self._device_id, self._era,
@@ -540,8 +570,6 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_ancillary_item_count(self, itemclass: Type[ANCILLARY_FWD_REF]) \
             -> int:
-        # pklist = self.get_ancillary_item_pks(itemclass)
-        # return len(pklist)
         return cc_db.get_contemporaneous_matching_field_pks_by_fk(
             itemclass.tablename, PKNAME,
             itemclass.fkname, self.id,
@@ -553,17 +581,6 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     def get_ancillary_items(self,
                             itemclass: Type[ANCILLARY_FWD_REF],
                             sortfield: str = None) -> List[ANCILLARY_FWD_REF]:
-        # Very inefficient method: removed
-        """
-        pklist = self.get_ancillary_item_pks(itemclass)
-        items = pls.db.fetch_all_objects_from_db_by_pklist(
-            itemclass,
-            itemclass.tablename,
-            itemclass.get_fieldnames(),
-            pklist,
-            True  # construct_with_pk
-        )
-        """
         items = cc_db.get_contemporaneous_matching_ancillary_objects_by_fk(
             itemclass, self.id,
             self._device_id, self._era,
@@ -814,7 +831,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         localtime = self.get_creation_datetime()
         if localtime is None:
             return None
-        return cc_dt.convert_datetime_to_utc(localtime)
+        return convert_datetime_to_utc(localtime)
 
     def get_seconds_from_creation_to_first_finish(self) -> Optional[float]:
         """Time in seconds from creation time to first finish (i.e. first exit
@@ -823,6 +840,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             return None
         start = self.get_creation_datetime()
         end = get_datetime_from_string(self.when_firstexit)
+        if not start or not end:
+            return None
         diff = end - start
         return diff.total_seconds()
 
@@ -831,9 +850,9 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return "{}.when_created".format(cls.tablename)
 
     @classmethod
-    def whencreated_fieldexpr_as_utc(cls) -> str:
+    def whencreated_fieldexpr_as_utc(cls, table_alias: str = '') -> str:
         return cc_db.mysql_select_utc_date_field_from_iso8601_field(
-            "{}.when_created".format(cls.tablename))
+            "{}.when_created".format(table_alias or cls.tablename))
 
     @classmethod
     def whencreated_fieldexpr_as_local(cls) -> str:
@@ -877,7 +896,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     @classmethod
     def make_summary_table(cls) -> str:
         """Drop and remake (temporary) summary tables."""
-        now = cc_dt.get_now_utc()
+        # now = get_now_utc()
         cls.drop_summary_tables()
 
         # DISABLED FOR NOW:
@@ -1049,7 +1068,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         datetimes = [x for x in datetimes if x]  # remove blanks
         regexes = (
             [get_literal_regex(x) for x in literals] +
-            [cc_dt.get_date_regex(dt) for dt in datetimes]
+            [get_date_regex(dt) for dt in datetimes]
         )
 
         # Wipe the core fields
@@ -1080,14 +1099,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Special notes
     # -------------------------------------------------------------------------
 
-    def ensure_special_notes_loaded(self) -> None:
+    def get_special_notes(self) -> List[SpecialNote]:
         if self._special_notes is None:
-            self.load_special_notes()
-
-    def load_special_notes(self) -> None:
-        self._special_notes = cc_specialnote.SpecialNote.get_all_instances(
-            self.tablename, self.id, self._device_id, self._era)
-        # Will now be a list (though possibly an empty one).
+            self._special_notes = SpecialNote.get_all_instances(
+                self.tablename, self.id, self._device_id, self._era)  # type: List[SpecialNote]  # noqa
+            # Will now be a list (though possibly an empty one).
+        return self._special_notes
 
     def apply_special_note(self,
                            note: str,
@@ -1098,7 +1115,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         Applies it to all predecessor/successor versions as well.
         WRITES TO DATABASE.
         """
-        sn = cc_specialnote.SpecialNote()
+        sn = SpecialNote()
         sn.basetable = self.tablename
         sn.task_id = self.id
         sn.device_id = self._device_id
@@ -1194,37 +1211,23 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             return ""
         return self._patient.get_address()
 
-    def get_patient_iddesc(self, idnum: int) -> str:
-        """Get the patient's ID description, or None.
+    def get_patient_idnum_objects(self) -> List[PatientIdNum]:
+        if not self._patient:
+            return []
+        return self._patient.get_idnum_objects()
 
-        Args:
-            idnum: integer between 1 and NUMBER_OF_IDNUMS inclusive
+    def get_patient_idnum_object(self,
+                                 which_idnum: int) -> Optional[PatientIdNum]:
+        """
+        Get the patient's ID number, or None.
         """
         if not self._patient:
             return None
-        return self._patient.get_iddesc(idnum)
+        return self._patient.get_idnum_object(which_idnum)
 
-    def get_patient_idnum(self, idnum: int) -> str:
-        """Get the patient's ID number, or None.
-
-        Args:
-            idnum: integer between 1 and NUMBER_OF_IDNUMS inclusive
-        """
-        if not self._patient:
-            return None
-        return self._patient.get_idnum(idnum)
-
-    def get_patient_idnum_array(self) -> List[Optional[int]]:
-        """Get array (length NUMBER_OF_IDNUMS) of ID numbers."""
-        if not self._patient:
-            return [None] * NUMBER_OF_IDNUMS
-        return self._patient.get_idnum_array()
-
-    def get_patient_idshortdesc_array(self) -> List[Optional[str]]:
-        """Get array (length NUMBER_OF_IDNUMS) of ID short descriptions."""
-        if not self._patient:
-            return [None] * NUMBER_OF_IDNUMS
-        return self._patient.get_idshortdesc_array()
+    def get_patient_idnum_value(self, which_idnum: str) -> Optional[int]:
+        idobj = self.get_patient_idnum_object(which_idnum=which_idnum)
+        return idobj.idnum_value if idobj else None
 
     def get_patient_hl7_pid_segment(
             self, recipient_def: RecipientDefinition) -> hl7.Segment:
@@ -1246,8 +1249,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             OBX segment
             any extra ones offered by the task
         """
-        obr_segment = cc_hl7core.make_obr_segment(self)
-        obx_segment = cc_hl7core.make_obx_segment(
+        obr_segment = make_obr_segment(self)
+        obx_segment = make_obx_segment(
             self,
             task_format=recipient_def.task_format,
             observation_identifier=self.tablename + "_" + str(self._pk),
@@ -1476,14 +1479,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         taskpks = self.get_server_pks_of_record_group()
         tasks = [task_factory(tablename, pk) for pk in taskpks]
         list_of_blob_id_lists = [t.get_blob_ids() for t in tasks]
-        blob_ids = cc_lang.flatten_list(list_of_blob_id_lists)
+        blob_ids = flatten_list(list_of_blob_id_lists)
         blob_ids = list(set(blob_ids))  # remove duplicates
         list_of_blob_pk_lists = [
             cc_db.get_server_pks_of_record_group(
                 Blob.TABLENAME, PKNAME, "id", i,
                 self._device_id, self._era)
             for i in blob_ids]
-        blob_pks = cc_lang.flatten_list(list_of_blob_pk_lists)
+        blob_pks = flatten_list(list_of_blob_pk_lists)
         blob_pks = list(set(blob_pks))
         return blob_pks
 
@@ -1509,7 +1512,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         satisfies_finalize = (
             anonymous or self._patient.satisfies_finalize_id_policy()
         )
-        # device = cc_device.Device(self._device_id)
+        # device = Device(self._device_id)
         live_on_tablet = self.is_live_on_tablet()
 
         if anonymous:
@@ -1562,7 +1565,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     @classmethod
     def get_session_candidate_task_pks_whencreated(
             cls,
-            session: Session,
+            session: 'Session',
             sort: bool = False,
             reverse: bool = False) -> List[Tuple[int, datetime.datetime]]:
         """Get all current server PKs/creation dates for this task that are
@@ -1571,8 +1574,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         Returns a list of [_pk, when_created] pairs.
         """
         table = cls.tablename
-        wcfield_utc = cls.whencreated_fieldexpr_as_utc()
-        wheres = []
+        wcfield_utc = cls.whencreated_fieldexpr_as_utc(table_alias='t')
+        wheres = []  # type: List[str]
         args = []
         # in what follows: MySQL: case-insensitive comparison by default:
         # http://dev.mysql.com/doc/refman/5.0/en/case-sensitivity.html
@@ -1582,10 +1585,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 return []
             # anonymous, don't link to patient table, no patient filtering
             query = """
-                SELECT _pk, {wcfield_utc}
-                FROM {t}
+                SELECT t._pk, {wcfield_utc}
+                FROM {tasktable} AS t
             """.format(
-                t=table,
+                tasktable=table,
                 wcfield_utc=wcfield_utc
             )
             if not session.filter_include_old_versions:
@@ -1598,42 +1601,65 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         else:
             # not anonymous; link to patient table; patient filtering may apply
             query = """
-                SELECT {t}._pk, {wcfield_utc}
-                FROM {t}
-                INNER JOIN patient
-                    ON {t}.patient_id = patient.id
-                    AND {t}._device_id = patient._device_id
-                    AND {t}._era = patient._era
-            """.format(t=table, wcfield_utc=wcfield_utc)
+                SELECT t._pk, {wcfield_utc}
+                FROM {tasktable} AS t
+                INNER JOIN {patienttable} AS p
+                    ON t.patient_id = p.id
+                    AND t._device_id = p._device_id
+                    AND t._era = p._era
+            """.format(
+                tasktable=table,
+                patienttable=Patient.TABLENAME,
+                wcfield_utc=wcfield_utc,
+            )
             if not session.filter_include_old_versions:
-                wheres.append("{t}._current".format(t=table))
-                wheres.append("patient._current")
+                wheres.append("t._current".format(t=table))
+                wheres.append("p._current")
             if session.filter_surname is not None:
-                wheres.append("patient.surname = ?")
+                wheres.append("p.surname = ?")
                 args.append(session.filter_surname)
             if session.filter_forename is not None:
-                wheres.append("patient.forename = ?")
+                wheres.append("p.forename = ?")
                 args.append(session.filter_forename)
             if session.filter_dob_iso8601 is not None:
-                wheres.append("patient.dob = ?")
+                wheres.append("p.dob = ?")
                 args.append(session.filter_dob_iso8601)
             if session.filter_sex is not None:
-                wheres.append("patient.sex = ?")
+                wheres.append("p.sex = ?")
                 args.append(session.filter_sex)
-            for n in range(1, NUMBER_OF_IDNUMS + 1):
-                nstr = str(n)
-                f = getattr(session, "filter_idnum" + nstr)
-                if f is not None:
-                    wheres.append("patient.idnum" + nstr + " = ?")
-                    args.append(f)
-
+            idnum_filters = session.get_idnum_filters()
+            if idnum_filters:
+                idwheres = []  # type: List[str]
+                for which_idnum, idnum_value in idnum_filters:
+                    idwheres.append("i.which_idnum = ? AND i.idnum_value = ?")
+                    args.append(which_idnum)
+                    args.append(idnum_value)
+                wheres.append(
+                    """
+                        EXISTS (
+                            SELECT * FROM {idnumtable} AS i
+                            WHERE i.patient_id = p.id
+                                AND i._device_id = p._device_id
+                                AND i._era = p._era
+                                AND ({idwheres})
+                                {current}
+                        )
+                    """.format(
+                        idnumtable=PatientIdNum.tablename,
+                        idwheres=" OR ".join("({})".format(x)
+                                             for x in idwheres),
+                        current=("AND i._current" if not
+                                 session.filter_include_old_versions else ""),
+                        # *** check, re if not everything is equally current
+                    )
+                )
         # These restrictions can apply to anonymous and patient-oriented tasks
         # alike:
         if session.restricted_to_viewing_user() is not None:
-            wheres.append("{}._adding_user_id = ?".format(table))
+            wheres.append("t._adding_user_id = ?")
             args.append(session.restricted_to_viewing_user())
         if session.filter_device_id is not None:
-            wheres.append("{}._device_id = ?".format(table))
+            wheres.append("t._device_id = ?")
             args.append(session.filter_device_id)
         start_datetime = session.get_filter_start_datetime()
         end_datetime = session.get_filter_end_datetime_corrected_1day()
@@ -1653,7 +1679,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 query += " DESC"
         return pls.db.fetchall(query, *args)
 
-    def allowed_to_user(self, session: Session) -> bool:
+    def allowed_to_user(self, session: 'Session') -> bool:
         """Is the current user allowed to see this task?"""
         if (session.restricted_to_viewing_user() is not None and
                 session.restricted_to_viewing_user() != self._adding_user):
@@ -1661,11 +1687,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return True
 
     @classmethod
-    def filter_allows_task_type(cls, session: Session) -> bool:
+    def filter_allows_task_type(cls, session: 'Session') -> bool:
         return (session.filter_task is None or
                 session.filter_task == cls.tablename)
 
-    def is_compatible_with_filter(self, session: Session) -> bool:
+    def is_compatible_with_filter(self, session: 'Session') -> bool:
         """Is this task allowed through the filter?"""
         # 1. Quick things
         if not self.allowed_to_user(session):
@@ -1714,10 +1740,9 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             temp_pt_sex = self._patient.sex.upper()
             if session.filter_sex.upper() != temp_pt_sex:
                 return False
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            nstr = str(n)
-            f = getattr(session, "filter_idnum" + nstr)
-            if f is not None and f != getattr(self._patient, FP_ID_NUM + nstr):
+        for which_idnum, idnum_value in session.get_idnum_filters():
+            if (idnum_value is not None and
+                    idnum_value != self._patient.get_idnum_value(which_idnum)):
                 return False
 
         # 4. Slow:
@@ -1752,7 +1777,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     @classmethod
     def get_task_pks_for_tracker(
             cls,
-            idnumarray: List[Optional[int]],
+            idnum_criteria: List[Tuple[int, int]],  # which_idnum, idnum_value
             start_datetime: Optional[datetime.datetime],
             end_datetime: Optional[datetime.datetime]) -> List[int]:
         """Get server PKs for tracker information matching the requested
@@ -1760,12 +1785,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         if not hasattr(cls, 'get_trackers'):
             return []
         return cls.get_task_pks_for_tracker_or_clinical_text_view(
-            idnumarray, start_datetime, end_datetime)
+            idnum_criteria, start_datetime, end_datetime)
 
     @classmethod
     def get_task_pks_for_clinical_text_view(
             cls,
-            idnumarray: List[Optional[int]],
+            idnum_criteria: List[Tuple[int, int]],  # which_idnum, idnum_value
             start_datetime: Optional[datetime.datetime],
             end_datetime: Optional[datetime.datetime]) -> List[int]:
         """Get server PKs for CTV information matching the requested criteria,
@@ -1773,56 +1798,67 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         # Return ALL tasks (those not providing clinical text appear as
         # hypertext headings)
         return cls.get_task_pks_for_tracker_or_clinical_text_view(
-            idnumarray, start_datetime, end_datetime)
+            idnum_criteria, start_datetime, end_datetime)
 
     @classmethod
     def get_task_pks_for_tracker_or_clinical_text_view(
             cls,
-            idnumarray: List[Optional[int]],
+            idnum_criteria: List[Tuple[int, int]],  # which_idnum, idnum_value
             start_datetime: Optional[datetime.datetime],
             end_datetime: Optional[datetime.datetime]) -> List[int]:
         """Get server PKs matching requested criteria.
 
         Args:
-            idnumarray: array of length NUMBER_OF_IDNUMS: elements are either
-                an ID number value, or None
+            idnum_criteria: List of tuples of (which_idnum, idnum_value) to
+                restrict to
             start_datetime: earliest date, or None
             end_datetime: latest date, or None
 
         Must not be called for anonymous tasks.
         """
-        if all(x is None for x in idnumarray):
+        if not idnum_criteria:
             return []
         table = cls.tablename
         # We don't do trackers/clinical_text_view for anonymous tasks
         # (nonsensical), so this is always OK:
         query = """
-            SELECT {0}._pk
-            FROM {0}
-            INNER JOIN patient
-                ON {0}.patient_id = patient.id
-                AND {0}._device_id = patient._device_id
-                AND {0}._era = patient._era
+            SELECT t._pk
+            FROM {tasktable} t
+            INNER JOIN {patienttable} p
+                ON t.patient_id = p.id
+                AND t._device_id = p._device_id
+                AND t._era = p._era
+            INNER JOIN {idtable} i
+                ON i.patient_id = p.id
+                AND i._device_id = p._device_id
+                AND i._era = p._era
             WHERE
-                {0}._current
-                AND patient._current
-        """.format(table)
+                t._current
+                AND p._current
+                AND i._current
+        """.format(
+            tasktable=table,
+            patienttable=Patient.TABLENAME,
+            idtable=PatientIdNum.tablename,
+        )
         wheres = []
         args = []
-        for i in range(len(idnumarray)):
-            n = i + 1
-            nstr = str(n)
-            if idnumarray[i] is not None:
-                wheres.append("patient.idnum" + nstr + " = ?")
-                args.append(idnumarray[i])
-        wcfield_utc = cls.whencreated_fieldexpr_as_utc()
+        for which_idnum, idnum_value in idnum_criteria:
+            if which_idnum is None or idnum_value is None:
+                continue
+            wheres.append("i.which_idnum = ?")
+            args.append(which_idnum)
+            wheres.append("i.idnum_value = ?")
+            args.append(idnum_value)
+        wcfield_utc = cls.whencreated_fieldexpr_as_utc(table_alias='t')
         if start_datetime is not None:
             wheres.append("{} >= ?".format(wcfield_utc))
             args.append(start_datetime)
         if end_datetime is not None:
             wheres.append("{} <= ?".format(wcfield_utc))
             args.append(end_datetime)
-        query += " AND " + " AND ".join(wheres)
+        if wheres:
+            query += " AND " + " AND ".join(wheres)
         return pls.db.fetchallfirstvalues(query, *args)
 
     # -------------------------------------------------------------------------
@@ -1879,7 +1915,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     @classmethod
     def gen_all_tasks_matching_session_filter(
             cls,
-            session: Session,
+            session: 'Session',
             sort: bool = False,
             reverse: bool = False) -> Generator[TASK_FWD_REF, None, None]:
         if not cls.filter_allows_task_type(session):
@@ -2066,7 +2102,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                                  include_blobs=include_blobs,
                                  include_patient=include_patient,
                                  skip_fields=skip_fields)
-        return cc_xml.get_xml_document(
+        return get_xml_document(
             tree,
             indent_spaces=indent_spaces,
             eol=eol,
@@ -2103,14 +2139,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 # Simple fields for ancillary items
                 itembranches.append(XmlElementTuple(
                     name=tablename,
-                    value=cc_xml.make_xml_branches_from_fieldspecs(
+                    value=make_xml_branches_from_fieldspecs(
                         it,
                         fieldspecs,
                         skip_fields=skip_fields)
                 ))
                 # BLOBs for ancillary items
                 if include_blobs and blobinfo:
-                    itembranches.append(cc_xml.XML_COMMENT_BLOBS)
+                    itembranches.append(XML_COMMENT_BLOBS)
                     itembranches.extend(it.make_xml_branches_for_blob_fields(
                         skip_fields=skip_fields))
             branches.append("<!-- Items for {} -->\n".format(tablename))
@@ -2131,30 +2167,29 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         calculated, patient, and/or BLOB fields, depending on the options."""
         skip_fields = skip_fields or []
         # Stored
-        branches = [cc_xml.XML_COMMENT_STORED]
-        branches.extend(cc_xml.make_xml_branches_from_fieldspecs(
+        branches = [XML_COMMENT_STORED]
+        branches.extend(make_xml_branches_from_fieldspecs(
             self, self.get_full_fieldspecs(), skip_fields=skip_fields))
         # Special notes
-        self.ensure_special_notes_loaded()
-        branches.append(cc_xml.XML_COMMENT_SPECIAL_NOTES)
-        for sn in self._special_notes:
+        branches.append(XML_COMMENT_SPECIAL_NOTES)
+        for sn in self.get_special_notes():
             branches.append(sn.get_xml_root())
         # Calculated
         if include_calculated:
-            branches.append(cc_xml.XML_COMMENT_CALCULATED)
-            branches.extend(cc_xml.make_xml_branches_from_summaries(
+            branches.append(XML_COMMENT_CALCULATED)
+            branches.extend(make_xml_branches_from_summaries(
                 self.get_summaries(), skip_fields=skip_fields))
         # Patient details
         if self.is_anonymous:
-            branches.append(cc_xml.XML_COMMENT_ANONYMOUS)
+            branches.append(XML_COMMENT_ANONYMOUS)
         elif include_patient:
-            branches.append(cc_xml.XML_COMMENT_PATIENT)
+            branches.append(XML_COMMENT_PATIENT)
             if self._patient:
                 branches.append(self._patient.get_xml_root())
         # BLOBs
         blobinfo = self.blob_name_idfield_list
         if include_blobs and blobinfo:
-            branches.append(cc_xml.XML_COMMENT_BLOBS)
+            branches.append(XML_COMMENT_BLOBS)
             branches.extend(self.make_xml_branches_for_blob_fields(
                 skip_fields=skip_fields))
         return branches
@@ -2190,7 +2225,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                  offer_erase: bool = False,
                  offer_edit_patient: bool = False) -> str:
         """Returns HTML representing task."""
-        cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
+        set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
         pls.switch_output_to_svg()
         return (
             self.get_html_start() +
@@ -2222,7 +2257,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_pdf(self) -> bytes:
         """Returns PDF representing task."""
-        cc_plot.set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
+        set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
         if CSS_PAGED_MEDIA:
             pls.switch_output_to_png()
             # ... even weasyprint's SVG handling is inadequate
@@ -2247,7 +2282,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def suggested_pdf_filename(self) -> str:
         """Suggested filename for PDF."""
-        return cc_filename.get_export_filename(
+        return get_export_filename(
             pls.PATIENT_SPEC_IF_ANONYMOUS,
             pls.PATIENT_SPEC,
             pls.TASK_FILENAME_SPEC,
@@ -2257,11 +2292,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             forename=self._patient.get_forename() if self._patient else "",
             dob=self._patient.get_dob() if self._patient else None,
             sex=self._patient.get_sex() if self._patient else None,
-            idnums=self._patient.get_idnum_array() if self._patient else None,
-            idshortdescs=(
-                self._patient.get_idshortdesc_array()
-                if self._patient else None
-            ),
+            idnum_objects=self._patient.get_idnum_objects() if self._patient else None,  # noqa
             creation_datetime=self.get_creation_datetime(),
             basetable=self.tablename,
             serverpk=self._pk)
@@ -2370,7 +2401,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """
 
         try:
-            client_id = self._patient.get_idnum(which_idnum)
+            client_id = self._patient.get_idnum_value(which_idnum)
         except AttributeError:
             client_id = ""
         title = "CamCOPS_" + self.shortname
@@ -2395,7 +2426,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         ]
         # UTF-8 is NOT supported by RiO for metadata. So:
         csv_line = ",".join([
-            '"{}"'.format(cc_lang.mangle_unicode_to_ascii(x))
+            '"{}"'.format(mangle_unicode_to_ascii(x))
             for x in item_list
         ])
         return csv_line + "\n"
@@ -2417,14 +2448,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             content = self.get_anonymous_page_header_html()
         else:
             content = self._patient.get_html_for_page_header()
-        return cc_html.pdf_header_content(content)
+        return pdf_header_content(content)
 
     def get_pdf_footer_content(self) -> str:
         taskname = ws.webify(self.shortname)
         created = format_datetime_string(self.when_created,
                                          DATEFORMAT.LONG_DATETIME)
         content = "{} created {}.".format(taskname, created)
-        return cc_html.pdf_footer_content(content)
+        return pdf_footer_content(content)
 
     def get_pdf_start(self) -> str:
         """Opening HTML for PDF, including CSS."""
@@ -2474,7 +2505,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         else:
             pt_info = self._patient.get_html_for_task_header()
             age = " (patient aged {})".format(
-                cc_html.answer(
+                answer(
                     self._patient.get_age_at(
                         get_datetime_from_string(self.when_created)
                     ),
@@ -2489,7 +2520,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """.format(
             longname=ws.webify(self.longname),
             shortname=ws.webify(self.shortname),
-            created=cc_html.answer(
+            created=answer(
                 format_datetime_string(self.when_created,
                                        DATEFORMAT.LONG_DATETIME_WITH_DAY,
                                        default=None)
@@ -2500,7 +2531,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             pt_info +
             main_task_header +
             self.get_erasure_notice() +  # if applicable
-            self.get_special_notes() +  # if applicable
+            self.get_special_notes_html() +  # if applicable
             self.get_not_current_warning()  # if applicable
         )
 
@@ -2558,12 +2589,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             self._manually_erased_at,
         )
 
-    def get_special_notes(self) -> str:
-        self.ensure_special_notes_loaded()
-        if not self._special_notes:
+    def get_special_notes_html(self) -> str:
+        special_notes = self.get_special_notes()
+        if not special_notes:
             return ""
         note_html = "<br>".join([
-            x.get_note_as_html() for x in self._special_notes])
+            x.get_note_as_html() for x in special_notes])
         return """
             <div class="specialnote">
                 <b>TASK SPECIAL NOTES:</b><br>
@@ -2575,7 +2606,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_office_html(self) -> str:
         """Tedious HTML that goes at the bottom."""
-        device = cc_device.Device(self._device_id)
+        device = Device(self._device_id)
         anonymous = self.is_anonymous
         preserved = self.is_preserved()
         preserved_by = ""
@@ -2623,7 +2654,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             server_pk=self._pk,
             pred_pk=str(self._predecessor_pk),
             succ_pk=str(self._successor_pk),
-            current=cc_html.get_yes_no(self._current),
+            current=get_yes_no(self._current),
             not_current_because="" if self._current else (
                 " ({} by {} at {})".format(
                     ("deleted" if self._successor_pk is None else "modified"),
@@ -2632,7 +2663,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                                            DATEFORMAT.SHORT_DATETIME_SECONDS),
                 )
             ),
-            preserved=cc_html.get_yes_no(preserved),
+            preserved=get_yes_no(preserved),
             preserved_by=preserved_by,
             patient_server_pk=(
                 self.get_patient_server_pk() if not anonymous else "N/A"),
@@ -2809,7 +2840,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         c = self.is_complete()
         return """<td>Completed?</td>{}<b>{}</b></td>""".format(
             "<td>" if c else """<td class="incomplete">""",
-            cc_html.get_yes_no(c)
+            get_yes_no(c)
         )
 
     def get_is_complete_tr(self) -> str:
@@ -2836,7 +2867,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             val = default
         if label is None:
             label = fieldname
-        return cc_html.tr_qa(label, val)
+        return tr_qa(label, val)
 
     def get_twocol_string_row(self,
                               fieldname: str,
@@ -2844,7 +2875,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """HTML table row, two columns, with web-safing of value."""
         if label is None:
             label = fieldname
-        return cc_html.tr_qa(label, getattr(self, fieldname))
+        return tr_qa(label, getattr(self, fieldname))
 
     def get_twocol_bool_row(self,
                             fieldname: str,
@@ -2852,9 +2883,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """HTML table row, two columns, with Boolean Y/N formatter."""
         if label is None:
             label = fieldname
-        return cc_html.tr_qa(
-            label,
-            cc_html.get_yes_no_none(getattr(self, fieldname)))
+        return tr_qa(label, get_yes_no_none(getattr(self, fieldname)))
 
     def get_twocol_bool_row_true_false(self,
                                        fieldname: str,
@@ -2862,9 +2891,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """HTML table row, two columns, with Boolean T/F formatter."""
         if label is None:
             label = fieldname
-        return cc_html.tr_qa(
-            label,
-            cc_html.get_true_false_none(getattr(self, fieldname)))
+        return tr_qa(label, get_true_false_none(getattr(self, fieldname)))
 
     def get_twocol_bool_row_present_absent(self,
                                            fieldname: str,
@@ -2872,9 +2899,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """HTML table row, two columns, with Boolean P/A formatter."""
         if label is None:
             label = fieldname
-        return cc_html.tr_qa(
-            label,
-            cc_html.get_present_absent_none(getattr(self, fieldname)))
+        return tr_qa(label, get_present_absent_none(getattr(self, fieldname)))
 
     def get_twocol_picture_row(self,
                                fieldname: str,
@@ -2882,8 +2907,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """HTML table row, two columns, with PNG on right."""
         if label is None:
             label = fieldname
-        return cc_html.tr(label,
-                          self.get_blob_img_html(getattr(self, fieldname)))
+        return tr(label, self.get_blob_img_html(getattr(self, fieldname)))
 
     # -------------------------------------------------------------------------
     # Field helper functions for subclasses
@@ -3119,7 +3143,7 @@ def get_blob_xml_tuple(obj: Union[Task, Ancillary],
     """Get XmlElementTuple for a PNG BLOB."""
     blob = obj.get_blob_by_id(blobid)
     if blob is None:
-        return cc_xml.get_xml_blob_tuple(name, None)
+        return get_xml_blob_tuple(name, None)
     return blob.get_image_xml_tuple(name)
 
 
@@ -3129,7 +3153,7 @@ def get_blob_by_id(obj: Union[Task, Ancillary],
     if blobid is None:
         return None
     # noinspection PyProtectedMember
-    return cc_blob.get_contemporaneous_blob_by_client_info(
+    return get_contemporaneous_blob_by_client_info(
         obj._device_id, blobid, obj._era,
         obj._when_added_batch_utc, obj._when_removed_batch_utc)
 
@@ -3146,7 +3170,7 @@ def second_item_or_min(x: Tuple[Any, int, Optional[datetime.datetime]]) -> \
 
 
 def gen_tasks_matching_session_filter(
-        session: Session) -> Generator[Task, None, None]:
+        session: 'Session') -> Generator[Task, None, None]:
     """Generate tasks that match the session's filter settings."""
 
     # Find candidate tasks meeting the filters
@@ -3353,10 +3377,10 @@ class TaskCountReport(Report):
 
 def get_url_task(tablename: str, serverpk: int, outputtype: str) -> str:
     """URL to view a particular task."""
-    url = cc_html.get_generic_action_url(ACTION.TASK)
-    url += cc_html.get_url_field_value_pair(PARAM.OUTPUTTYPE, outputtype)
-    url += cc_html.get_url_field_value_pair(PARAM.TABLENAME, tablename)
-    url += cc_html.get_url_field_value_pair(PARAM.SERVERPK, serverpk)
+    url = get_generic_action_url(ACTION.TASK)
+    url += get_url_field_value_pair(PARAM.OUTPUTTYPE, outputtype)
+    url += get_url_field_value_pair(PARAM.TABLENAME, tablename)
+    url += get_url_field_value_pair(PARAM.SERVERPK, serverpk)
     return url
 
 
@@ -3373,24 +3397,24 @@ def get_url_task_html(tablename: str, serverpk: int) -> str:
 def get_url_task_xml(tablename: str, serverpk: int) -> str:
     """URL to view a particular task as XML (with default options)."""
     url = get_url_task(tablename, serverpk, VALUE.OUTPUTTYPE_XML)
-    url += cc_html.get_url_field_value_pair(PARAM.INCLUDE_BLOBS, 1)
-    url += cc_html.get_url_field_value_pair(PARAM.INCLUDE_CALCULATED, 1)
-    url += cc_html.get_url_field_value_pair(PARAM.INCLUDE_PATIENT, 1)
-    url += cc_html.get_url_field_value_pair(PARAM.INCLUDE_COMMENTS, 1)
+    url += get_url_field_value_pair(PARAM.INCLUDE_BLOBS, 1)
+    url += get_url_field_value_pair(PARAM.INCLUDE_CALCULATED, 1)
+    url += get_url_field_value_pair(PARAM.INCLUDE_PATIENT, 1)
+    url += get_url_field_value_pair(PARAM.INCLUDE_COMMENTS, 1)
     return url
 
 
 def get_url_erase_task(tablename: str, serverpk: int) -> str:
-    url = cc_html.get_generic_action_url(ACTION.ERASE_TASK)
-    url += cc_html.get_url_field_value_pair(PARAM.TABLENAME, tablename)
-    url += cc_html.get_url_field_value_pair(PARAM.SERVERPK, serverpk)
+    url = get_generic_action_url(ACTION.ERASE_TASK)
+    url += get_url_field_value_pair(PARAM.TABLENAME, tablename)
+    url += get_url_field_value_pair(PARAM.SERVERPK, serverpk)
     return url
 
 
 def get_url_add_special_note(tablename: str, serverpk: int) -> str:
-    url = cc_html.get_generic_action_url(ACTION.ADD_SPECIAL_NOTE)
-    url += cc_html.get_url_field_value_pair(PARAM.TABLENAME, tablename)
-    url += cc_html.get_url_field_value_pair(PARAM.SERVERPK, serverpk)
+    url = get_generic_action_url(ACTION.ADD_SPECIAL_NOTE)
+    url += get_url_field_value_pair(PARAM.TABLENAME, tablename)
+    url += get_url_field_value_pair(PARAM.SERVERPK, serverpk)
     return url
 
 
@@ -3401,8 +3425,7 @@ def get_url_add_special_note(tablename: str, serverpk: int) -> str:
 def require_implementation(class_name: str,
                            instance: Task,
                            method_name: str) -> None:
-    if not cc_lang.derived_class_implements_method(instance, Task,
-                                                   method_name):
+    if not derived_class_implements_method(instance, Task, method_name):
         raise NotImplementedError("class {} must implement {}".format(
             class_name, method_name
         ))
@@ -3447,7 +3470,8 @@ def ancillary_class_unit_test(cls: Type[Ancillary]) -> None:
 
 def task_instance_unit_test(name: str, instance: Task) -> None:
     """Unit test for an named instance of Task."""
-    recipient_def = RecipientDefinition()
+    recipient_def = RecipientDefinition(
+        valid_which_idnums=pls.get_which_idnums())
 
     # -------------------------------------------------------------------------
     # Test methods
@@ -3484,7 +3508,7 @@ def task_instance_unit_test(name: str, instance: Task) -> None:
     datetimes = [datetime.date(2014, 1, 1)]
     regexes = (
         [get_literal_regex(x) for x in literals] +
-        [cc_dt.get_date_regex(dt) for dt in datetimes]
+        [get_date_regex(dt) for dt in datetimes]
     )
     unit_test_ignore("Testing {}.anonymise_subtables".format(name),
                      instance.anonymise_subtables, regexes)
@@ -3535,10 +3559,6 @@ def task_instance_unit_test(name: str, instance: Task) -> None:
 
     unit_test_ignore("Testing {}.anonymise".format(name), instance.anonymise)
 
-    unit_test_ignore("Testing {}.ensure_special_notes_loaded".format(name),
-                     instance.ensure_special_notes_loaded)
-    unit_test_ignore("Testing {}.load_special_notes".format(name),
-                     instance.load_special_notes)
     # not tested: apply_special_note
 
     unit_test_ignore("Testing {}.get_clinician_name".format(name),
@@ -3562,13 +3582,10 @@ def task_instance_unit_test(name: str, instance: Task) -> None:
                      instance.get_patient_sex)
     unit_test_ignore("Testing {}.get_patient_address".format(name),
                      instance.get_patient_address)
-    for i in range(1, NUMBER_OF_IDNUMS + 1):
-        unit_test_ignore("Testing {}.get_patient_idnum({})".format(name, i),
-                         instance.get_patient_idnum, i)
-    unit_test_ignore("Testing {}.get_patient_idnum_array".format(name),
-                     instance.get_patient_idnum_array)
-    unit_test_ignore("Testing {}.get_patient_idshortdesc_array".format(name),
-                     instance.get_patient_idshortdesc_array)
+    unit_test_ignore("Testing {}.get_patient_idnum_objects".format(name),
+                     instance.get_patient_idnum_objects)
+    unit_test_ignore("Testing {}.get_patient_idnum_object(1)".format(name),
+                     instance.get_patient_idnum_object, 1)
     unit_test_ignore("Testing {}.get_patient_hl7_pid_segment".format(name),
                      instance.get_patient_hl7_pid_segment, recipient_def)
 
@@ -3682,7 +3699,7 @@ def task_instance_unit_test(name: str, instance: Task) -> None:
     unit_test_ignore("Testing {}.get_erasure_notice".format(name),
                      instance.get_erasure_notice)
     unit_test_ignore("Testing {}.get_special_notes".format(name),
-                     instance.get_special_notes)
+                     instance.get_special_notes_html)
     unit_test_ignore("Testing {}.get_office_html".format(name),
                      instance.get_office_html)
     unit_test_ignore("Testing {}.get_xml_nav_html".format(name),
@@ -3707,20 +3724,21 @@ def task_instance_unit_test(name: str, instance: Task) -> None:
     for depclass in depclasslist:
         ancillary_class_unit_test(depclass)
 
-    info = instance.extra_summary_table_info
-    now = cc_dt.get_now_utc()
+    infolist = instance.extra_summary_table_info
+    now = get_now_utc()
     data = instance.get_extra_summary_table_data(now)
-    ntables = len(info)
+    ntables = len(infolist)
     if len(data) != ntables:
         raise AssertionError(
-            "extra_summary_table_info: different # tables to "
-            "get_extra_summary_table_data()")
+            "extra_summary_table_info: different # tables [{}] to "
+            "get_extra_summary_table_data() [{}]".format(ntables, len(data)))
     for i in range(ntables):
         for row_valuelist in data[i]:
-            if len(row_valuelist) != len(info[i]):
+            if len(row_valuelist) != len(infolist[i]["fieldspecs"]):
                 raise AssertionError(
-                    "extra_summary_table_info: different # fields to"
-                    " get_extra_summary_table_data()")
+                    "extra_summary_table_info: different # fields [{}] to"
+                    " get_extra_summary_table_data() "
+                    "[{}]".format(len(infolist[i]), len(row_valuelist)))
 
     # -------------------------------------------------------------------------
     # Ensure the summary names don't overlap with the field names, etc.
@@ -3788,7 +3806,7 @@ def task_unit_test(cls: Type[Task]) -> None:
     # Other classmethod tests
 
 
-def unit_tests() -> None:
+def cctask_unit_tests() -> None:
     """Unit tests for cc_task module."""
     unit_test_ignore("", task_factory, "xxx", 0)
     unit_test_ignore("", task_factory, "phq9", 0)
@@ -3856,7 +3874,7 @@ def unit_tests() -> None:
         pls.db.rollback()
 
 
-def unit_tests_basic() -> None:
+def cctask_unit_tests_basic() -> None:
     "Preliminary quick checks."""
     classes = Task.all_subclasses()  # Don't sort yet, in case sortname missing
     for cls in classes:

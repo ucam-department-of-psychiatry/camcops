@@ -28,6 +28,7 @@
 
 import cgi
 import datetime
+import logging
 import re
 import time
 from typing import (Any, Callable, Dict, Iterable, List,
@@ -39,19 +40,25 @@ from cardinal_pythonlib.rnc_web import HEADERS_TYPE
 
 from .cc_modules.cc_dt import format_datetime
 from .cc_modules import cc_audit
-from .cc_modules import cc_session
-from .cc_modules import cc_string
-from .cc_modules import cc_version
+from .cc_modules.cc_session import establish_session_for_tablet
+from .cc_modules.cc_string import get_all_extra_strings
+from .cc_modules.cc_version import (
+    CAMCOPS_SERVER_VERSION,
+    FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE,
+    FIRST_TABLET_VER_WITHOUT_IDDESC_IN_PT_TABLE,
+    MINIMUM_TABLET_VERSION,
+)
 from .cc_modules.cc_audit import SECURITY_AUDIT_TABLENAME
 from .cc_modules.cc_constants import (
     CLIENT_DATE_FIELD,
     DATEFORMAT,
     ERA_NOW,
+    FP_ID_NUM,
     FP_ID_DESC,
     FP_ID_SHORT_DESC,
     HL7MESSAGE_TABLENAME,
     MOVE_OFF_TABLET_FIELD,
-    NUMBER_OF_IDNUMS,
+    NUMBER_OF_IDNUMS_DEFUNCT,  # allowed; for old tablet versions
     STANDARD_GENERIC_FIELDSPECS
 )
 from .cc_modules.cc_convert import (
@@ -65,8 +72,8 @@ from .cc_modules.cc_convert import (
 )
 from .cc_modules.cc_device import Device, get_device_by_name
 from .cc_modules.cc_hl7 import HL7Run
-from .cc_modules.cc_logger import dblog as log
 from .cc_modules.cc_patient import Patient
+from .cc_modules.cc_patientidnum import PatientIdNum
 from .cc_modules.cc_pls import pls
 from .cc_modules.cc_session import Session
 from .cc_modules.cc_specialnote import SpecialNote
@@ -83,6 +90,8 @@ from .cc_modules.cc_user import (
     User,
 )
 from .cc_modules.cc_version import make_version
+
+log = logging.getLogger(__name__)
 
 # =============================================================================
 # Debugging options
@@ -235,24 +244,31 @@ class SessionManager(object):
         self.session_id = ws.get_cgi_parameter_int(form, PARAM.SESSION_ID)
         self.session_token = ws.get_cgi_parameter_str(form,
                                                       PARAM.SESSION_TOKEN)
-        self.tablet_version = ws.get_cgi_parameter_str(
+        self.tablet_version_str = ws.get_cgi_parameter_str(
             form, PARAM.CAMCOPS_VERSION)
+        self.tablet_version_ver = make_version(self.tablet_version_str)
         # Look up device and user
         self._device_obj = get_device_by_name(self.device_name)
         self._user_obj = get_user_by_name(self.username)
 
         # Ensure table version is OK
-        if make_version(self.tablet_version) < cc_version.MINIMUM_TABLET_VERSION:  # noqa
+        if self.tablet_version_ver < MINIMUM_TABLET_VERSION:  # noqa
             fail_user_error(
                 "Tablet CamCOPS version too old: is {v}, need {r}".format(
-                    v=self.tablet_version,
-                    r=cc_version.MINIMUM_TABLET_VERSION))
+                    v=self.tablet_version_str,
+                    r=MINIMUM_TABLET_VERSION))
+        # Other version things
+        self.cope_with_deleted_patient_descriptors = (
+            self.tablet_version_ver <
+            FIRST_TABLET_VER_WITHOUT_IDDESC_IN_PT_TABLE)
+        self.cope_with_old_idnums = (
+            self.tablet_version_ver <
+            FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE)
+
         # Establish session
-        cc_session.establish_session_for_tablet(self.session_id,
-                                                self.session_token,
-                                                pls.remote_addr,
-                                                self.username,
-                                                self.password)
+        establish_session_for_tablet(self.session_id, self.session_token,
+                                     pls.remote_addr,
+                                     self.username, self.password)
         # Report
         log.info(
             "Incoming connection from IP={i}, port={p}, device_name={dn}, "
@@ -473,13 +489,12 @@ def get_server_id_info() -> Dict:
         "databaseTitle": pls.DATABASE_TITLE,
         "idPolicyUpload": pls.ID_POLICY_UPLOAD_STRING,
         "idPolicyFinalize": pls.ID_POLICY_FINALIZE_STRING,
-        "serverCamcopsVersion": cc_version.CAMCOPS_SERVER_VERSION,
+        "serverCamcopsVersion": CAMCOPS_SERVER_VERSION,
     }
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
-        i = n - 1
+    for n in pls.get_which_idnums():
         nstr = str(n)
-        reply["idDescription" + nstr] = pls.IDDESC[i]
-        reply["idShortDescription" + nstr] = pls.IDSHORTDESC[i]
+        reply["idDescription" + nstr] = pls.get_id_desc(n, "")
+        reply["idShortDescription" + nstr] = pls.get_id_shortdesc(n, "")
     return reply
 
 
@@ -763,17 +778,47 @@ def upload_record_core(sm: SessionManager,
                 )
         else:
             # MODIFIED
-            if COPE_WITH_DELETED_PATIENT_DESCRIPTIONS:
-                # Old tablets (pre-2.0.0) will upload copies of the ID
-                # descriptions with the patient. To cope with that, we remove
-                # those here:
-                if table == Patient.TABLENAME:
-                    for n in range(1, NUMBER_OF_IDNUMS + 1):
+            if table == Patient.TABLENAME:
+                if sm.cope_with_deleted_patient_descriptors:
+                    # Old tablets (pre-2.0.0) will upload copies of the ID
+                    # descriptions with the patient. To cope with that, we
+                    # remove those here:
+                    for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
                         nstr = str(n)
                         fn_desc = FP_ID_DESC + nstr
                         fn_shortdesc = FP_ID_SHORT_DESC + nstr
                         valuedict.pop(fn_desc, None)  # remove item, if exists
                         valuedict.pop(fn_shortdesc, None)
+                if sm.cope_with_old_idnums:
+                    # Insert records into the new ID number table from the old
+                    # patient table:
+                    for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
+                        nstr = str(which_idnum)
+                        fn_idnum = FP_ID_NUM + nstr
+                        idnum_value = valuedict.get(fn_idnum, None)
+                        patient_id = valuedict.get("id", None)
+                        if idnum_value is None or patient_id is None:
+                            continue
+                        mark_table_dirty(sm, PatientIdNum.tablename)
+                        _, _ = upload_record_core(
+                            sm=sm,
+                            table=PatientIdNum.tablename,
+                            clientpk_name='id',
+                            valuedict={
+                                'id': patient_id * NUMBER_OF_IDNUMS_DEFUNCT,  # !  # noqa
+                                # ... guarantees a pseudo client PK
+                                'patient_id': patient_id,
+                                'which_idnum': which_idnum,
+                                'idnum_value': idnum_value,
+                                CLIENT_DATE_FIELD: client_date_value,
+                                MOVE_OFF_TABLET_FIELD: valuedict[MOVE_OFF_TABLET_FIELD],  # noqa
+                            },
+                            recordnum=recordnum
+                        )
+                    # Now, how to deal with deletion, i.e. records missing
+                    # from the tablet?
+                    # See our caller, upload_table().
+
             newserverpk = insert_record(sm, table, valuedict, oldserverpk)
             flag_modified(sm, table, oldserverpk, newserverpk)
             log.debug("Table {table}, record {recordnum}: modified".format(
@@ -799,7 +844,7 @@ def insert_record(sm: SessionManager,
         "_addition_pending": 1,
         "_removal_pending": 0,
         "_predecessor_pk": predecessor_pk,
-        "_camcops_version": sm.tablet_version,
+        "_camcops_version": sm.tablet_version_str,
     })
     return pls.db.insert_record_by_dict(table, valuedict)
 
@@ -844,7 +889,7 @@ def update_new_copy_of_record(sm: SessionManager,
     """.format(
         table=table,
     )
-    args = [predecessor_pk, sm.tablet_version]
+    args = [predecessor_pk, sm.tablet_version_str]
     for f, v in valuedict.items():
         query += ", {}=?".format(delimit(f))
         args.append(v)
@@ -1275,7 +1320,7 @@ def register(sm: SessionManager) -> Dict:
         """.format(table=table)
         pls.db.db_exec(query,
                        device_friendly_name,
-                       sm.tablet_version,
+                       sm.tablet_version_str,
                        sm.user_id,
                        pls.NOW_UTC_NO_TZ,
                        sm.device_name)
@@ -1284,7 +1329,7 @@ def register(sm: SessionManager) -> Dict:
         valuedict = {
             "name": sm.device_name,
             "friendly_name": device_friendly_name,
-            "camcops_version": sm.tablet_version,
+            "camcops_version": sm.tablet_version_str,
             "registered_by_user_id": sm.user_id,
             "when_registered_utc": pls.NOW_UTC_NO_TZ,
         }
@@ -1305,7 +1350,7 @@ def register(sm: SessionManager) -> Dict:
 def get_extra_strings(sm: SessionManager) -> Dict:
     """Fetch all local extra strings from the server."""
     fields = ["task", "name", "value"]
-    rows = cc_string.get_all_extra_strings()
+    rows = get_all_extra_strings()
     reply = get_select_reply(fields, rows)
     audit(sm, "get_extra_strings")
     return reply
@@ -1389,6 +1434,27 @@ def upload_table(sm: SessionManager) -> str:
     server_pks_for_deletion = [x for x in server_active_record_pks
                                if x not in server_uploaded_pks]
     flag_deleted(sm, table, server_pks_for_deletion)
+
+    # Special for old tablets:
+    if sm.cope_with_old_idnums and table == Patient.TABLENAME:
+        mark_table_dirty(sm, PatientIdNum.tablename)
+        for delete_patient_pk in server_pks_for_deletion:
+            pls.db.db_exec(
+                """
+                    UPDATE {idtable} AS i
+                    INNER JOIN {patienttable} AS p
+                    SET i._removal_pending = 1, i._successor_pk = NULL
+                    WHERE i._device_id = p._device_id
+                    AND i._era = '{now}'
+                    AND i.patient_id = p.id
+                    AND p._pk = ?
+                """.format(
+                    idtable=PatientIdNum.tablename,
+                    patienttable=Patient.TABLENAME,
+                    now=ERA_NOW,
+                ),
+                delete_patient_pk
+            )
 
     # Success
     log.debug("server_active_record_pks: {}".format(
@@ -1807,7 +1873,7 @@ def database_application(environ: Dict[str, str],
 # Unit tests
 # =============================================================================
 
-def unit_tests() -> None:
+def database_unit_tests() -> None:
     """Unit tests for database script."""
     # a = (UserErrorException, ServerErrorException)
     u = UserErrorException

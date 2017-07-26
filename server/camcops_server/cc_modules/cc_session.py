@@ -23,26 +23,42 @@
 """
 
 import cgi
-import http.cookies
 import datetime
+import http.cookies
+import json
+import logging
 import math
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import cardinal_pythonlib.rnc_crypto as rnc_crypto
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 
-from . import cc_analytics
-from .cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS, PARAM
+from .cc_analytics import send_analytics_if_necessary
+from .cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS_DEFUNCT, PARAM
 from . import cc_db
-# from . import cc_device
-from . import cc_dt
-from . import cc_html
-from .cc_logger import log
+from .cc_dt import format_datetime, get_datetime_from_string
+from .cc_html import (
+    get_database_title_string,
+    get_html_sex_picker,
+    get_html_which_idnum_picker,
+    get_url_main_menu,
+    get_yes_no_none,
+)
 from .cc_pls import pls
 from .cc_unittest import unit_test_ignore
-from . import cc_task
-from . import cc_user
+from .cc_task import get_task_filter_dropdown
+from .cc_user import (
+    clear_dummy_login_failures_if_necessary,
+    delete_old_account_lockouts,
+    get_user,
+    get_user_filter_dropdown,
+    get_username_from_id,
+    User,
+)
+
+log = logging.getLogger(__name__)
+
 
 # =============================================================================
 # Constants
@@ -127,7 +143,7 @@ def establish_session_for_tablet(session_id: Optional[int],
         # Create a fresh session.
         pls.session = Session(None, None, ip_address)
     if not pls.session.userobject and username:
-        userobject = cc_user.get_user(username, password)  # checks password
+        userobject = get_user(username, password)  # checks password
         if userobject is not None and (userobject.may_upload or
                                        userobject.may_use_webstorage):
             # Successful login.
@@ -183,8 +199,11 @@ class Session:
              comment="Number of records to view"),
         dict(name="first_task_to_view", cctype="INT_UNSIGNED",
              comment="First record number to view"),
+        dict(name="filter_idnums_json", cctype="TEXT",  # new in v2.0.1
+             comment="ID filters as JSON"),
     ]
-    for n in range(1, NUMBER_OF_IDNUMS + 1):
+    # DEFUNCT as of v2.0.1; NEED DELETING ONCE ALEMBIC RUNNING:
+    for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
         nstr = str(n)
         FIELDSPECS.append(
             dict(name="filter_idnum" + nstr,
@@ -245,7 +264,7 @@ class Session:
                 self.id, self.token))
 
         if self.user_id:
-            self.userobject = cc_user.User(self.user_id)
+            self.userobject = User(self.user_id)
             if self.userobject.id is not None:
                 log.debug("found user: {}".format(self.username))
             else:
@@ -281,9 +300,9 @@ class Session:
         # always log out manually. But sometimes they will. So we may as well
         # do some slow non-critical things:
         delete_old_sessions()
-        cc_user.delete_old_account_lockouts()
-        cc_user.clear_dummy_login_failures_if_necessary()
-        cc_analytics.send_analytics_if_necessary()
+        delete_old_account_lockouts()
+        clear_dummy_login_failures_if_necessary()
+        send_analytics_if_necessary()
 
     def save(self) -> None:
         """Save to database."""
@@ -313,7 +332,7 @@ class Session:
         ]
         # http://stackoverflow.com/questions/14107260
 
-    def login(self, userobject: cc_user.User) -> None:
+    def login(self, userobject: User) -> None:
         """Log in. Associates the user with the session and makes a new
         token."""
         log.debug("login: username = {}".format(userobject.username))
@@ -416,10 +435,10 @@ class Session:
             user = "Logged in as <b>{}</b>.".format(ws.webify(self.username))
         else:
             user = ""
-        database = cc_html.get_database_title_string()
+        database = get_database_title_string()
         if offer_main_menu:
             menu = """ <a href="{}">Return to main menu</a>.""".format(
-                cc_html.get_url_main_menu())
+                get_url_main_menu())
         else:
             menu = ""
         if not user and not database and not menu:
@@ -430,28 +449,44 @@ class Session:
     # Filters
     # -------------------------------------------------------------------------
 
+    def get_idnum_filters(self) -> List[Tuple[int, int]]:  # which_idnum, idnum_value  # noqa
+        if (not self.filter_idnums_json or
+                not isinstance(self.filter_idnums_json, str)):
+            # json.loads() requires a string
+            return []
+        restored = json.loads(self.filter_idnums_json)
+        if not isinstance(restored, list):
+            # garbage!
+            return []
+        final = []  # type: List[Tuple[int, int]]
+        for pair in restored:
+            if not isinstance(pair, list) or len(pair) != 2:
+                # json.loads() will restore a tuple as a list of length 2
+                return []
+            final.append((pair[0], pair[1]))
+        return final
+
+    def set_idnum_filters(self, idnum_filter: List[Tuple[int, int]]) -> None:
+        self.filter_idnums_json = json.dumps(idnum_filter)
+
     def any_patient_filtering(self) -> bool:
         """Is there some sort of patient filtering being applied?"""
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            if getattr(self, "filter_idnum" + str(n)) is not None:
-                return True
         return (
             self.filter_surname is not None or
             self.filter_forename is not None or
             self.filter_dob_iso8601 is not None or
-            self.filter_sex is not None
+            self.filter_sex is not None or
+            bool(self.get_idnum_filters())
         )
 
     def any_specific_patient_filtering(self) -> bool:
         """Are there filters that would restrict to one or a few patients?"""
         # differs from any_patient_filtering w.r.t. sex
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            if getattr(self, "filter_idnum" + str(n)) is not None:
-                return True
         return (
             self.filter_surname is not None or
             self.filter_forename is not None or
-            self.filter_dob_iso8601 is not None
+            self.filter_dob_iso8601 is not None or
+            bool(self.get_idnum_filters())
         )
 
     def get_current_filter_html(self) -> str:
@@ -465,7 +500,7 @@ class Session:
         filters = []
         id_filter_values = []
         id_filter_descs = []
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
+        for n in pls.get_which_idnums():
             nstr = str(n)
             id_filter_values.append(getattr(self, "filter_idnum" + nstr))
             id_filter_descs.append(pls.get_id_desc(n))
@@ -479,7 +514,7 @@ class Session:
                 {picker}
                 <input type="number" name="{PARAM.IDNUM_VALUE}">
         """.format(
-            picker=cc_html.get_html_which_idnum_picker(PARAM.WHICH_IDNUM),
+            picker=get_html_which_idnum_picker(PARAM.WHICH_IDNUM),
             PARAM=PARAM,
         )
         found_one = get_filter_html(
@@ -508,7 +543,7 @@ class Session:
         ) or found_one
         found_one = get_filter_html(
             "Date of birth",
-            cc_dt.format_datetime(self.get_filter_dob(), DATEFORMAT.LONG_DATE),
+            format_datetime(self.get_filter_dob(), DATEFORMAT.LONG_DATE),
             ACTION.CLEAR_FILTER_DOB,
             """<input type="date" name="{}">""".format(PARAM.DOB),
             ACTION.APPLY_FILTER_DOB,
@@ -518,9 +553,9 @@ class Session:
             "Sex",
             self.filter_sex,
             ACTION.CLEAR_FILTER_SEX,
-            cc_html.get_html_sex_picker(param=PARAM.SEX,
-                                        selected=self.filter_sex,
-                                        offer_all=True),
+            get_html_sex_picker(param=PARAM.SEX,
+                                selected=self.filter_sex,
+                                offer_all=True),
             ACTION.APPLY_FILTER_SEX,
             filters
         ) or found_one
@@ -528,13 +563,13 @@ class Session:
             "Task type",
             self.filter_task,
             ACTION.CLEAR_FILTER_TASK,
-            cc_task.get_task_filter_dropdown(self.filter_task),
+            get_task_filter_dropdown(self.filter_task),
             ACTION.APPLY_FILTER_TASK,
             filters
         ) or found_one
         found_one = get_filter_html(
             "Task completed",
-            cc_html.get_yes_no_none(self.filter_complete),
+            get_yes_no_none(self.filter_complete),
             ACTION.CLEAR_FILTER_COMPLETE,
             """
                 <select name="{PARAM.COMPLETE}">
@@ -550,7 +585,7 @@ class Session:
         ) or found_one
         found_one = get_filter_html(
             "Include old (overwritten) versions",
-            cc_html.get_yes_no_none(self.filter_include_old_versions),
+            get_yes_no_none(self.filter_include_old_versions),
             ACTION.CLEAR_FILTER_INCLUDE_OLD_VERSIONS,
             """
                 <select name="{PARAM.INCLUDE_OLD_VERSIONS}">
@@ -576,16 +611,16 @@ class Session:
         # ) or found_one
         found_one = get_filter_html(
             "Adding user",
-            cc_user.get_username_from_id(self.filter_user_id),
+            get_username_from_id(self.filter_user_id),
             ACTION.CLEAR_FILTER_USER,
-            cc_user.get_user_filter_dropdown(self.filter_user_id),
+            get_user_filter_dropdown(self.filter_user_id),
             ACTION.APPLY_FILTER_USER,
             filters
         ) or found_one
         found_one = get_filter_html(
             "Start date (UTC)",
-            cc_dt.format_datetime(self.get_filter_start_datetime(),
-                                  DATEFORMAT.LONG_DATE),
+            format_datetime(self.get_filter_start_datetime(),
+                            DATEFORMAT.LONG_DATE),
             ACTION.CLEAR_FILTER_START_DATETIME,
             """<input type="date" name="{}">""".format(PARAM.START_DATETIME),
             ACTION.APPLY_FILTER_START_DATETIME,
@@ -593,8 +628,8 @@ class Session:
         ) or found_one
         found_one = get_filter_html(
             "End date (UTC)",
-            cc_dt.format_datetime(self.get_filter_end_datetime(),
-                                  DATEFORMAT.LONG_DATE),
+            format_datetime(self.get_filter_end_datetime(),
+                            DATEFORMAT.LONG_DATE),
             ACTION.CLEAR_FILTER_END_DATETIME,
             """<input type="date" name="{}">""".format(PARAM.END_DATETIME),
             ACTION.APPLY_FILTER_END_DATETIME,
@@ -658,7 +693,7 @@ class Session:
             self.filter_forename = filter_forename.upper()
         dt = ws.get_cgi_parameter_datetime(form, PARAM.DOB)
         if dt:
-            self.filter_dob_iso8601 = cc_dt.format_datetime(
+            self.filter_dob_iso8601 = format_datetime(
                 dt, DATEFORMAT.ISO8601_DATE_ONLY)  # NB date only
         filter_sex = ws.get_cgi_parameter_str_or_none(form, PARAM.SEX)
         if filter_sex:
@@ -667,9 +702,9 @@ class Session:
         idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
         if (which_idnum and
                 idnum_value is not None and
-                1 <= which_idnum <= NUMBER_OF_IDNUMS):
-            self.clear_filter_idnums()  # Only filter on one ID at a time.
-            setattr(self, "filter_idnum" + str(which_idnum), idnum_value)
+                which_idnum in pls.get_which_idnums()):
+            self.set_idnum_filters([(which_idnum, idnum_value)])
+            # Only filter on one ID at a time.
         filter_task = ws.get_cgi_parameter_str_or_none(form, PARAM.TASK)
         if filter_task:
             self.filter_task = filter_task
@@ -689,11 +724,11 @@ class Session:
             self.filter_user_id = filter_user_id
         dt = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
         if dt:
-            self.filter_start_datetime_iso8601 = cc_dt.format_datetime(
+            self.filter_start_datetime_iso8601 = format_datetime(
                 dt, DATEFORMAT.ISO8601)
         dt = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
         if dt:
-            self.filter_end_datetime_iso8601 = cc_dt.format_datetime(
+            self.filter_end_datetime_iso8601 = format_datetime(
                 dt, DATEFORMAT.ISO8601)
         filter_text = ws.get_cgi_parameter_str_or_none(form, PARAM.TEXT)
         if filter_text:
@@ -719,7 +754,7 @@ class Session:
     def apply_filter_dob(self, form: cgi.FieldStorage) -> None:
         """Apply the DOB filter."""
         dt = ws.get_cgi_parameter_datetime(form, PARAM.DOB)
-        self.filter_dob_iso8601 = cc_dt.format_datetime(
+        self.filter_dob_iso8601 = format_datetime(
             dt, DATEFORMAT.ISO8601_DATE_ONLY)  # NB date only
         self.reset_pagination()
 
@@ -732,12 +767,13 @@ class Session:
 
     def apply_filter_idnums(self, form: cgi.FieldStorage) -> None:
         """Apply the ID number filter. Only one ID number filter at a time."""
-        self.clear_filter_idnums()  # Only filter on one ID at a time.
         which_idnum = ws.get_cgi_parameter_int(form, PARAM.WHICH_IDNUM)
         idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
-        if 1 <= which_idnum <= NUMBER_OF_IDNUMS:
-            setattr(self, "filter_idnum" + str(which_idnum), idnum_value)
-            self.reset_pagination()
+        if which_idnum in pls.get_which_idnums():
+            self.set_idnum_filters([(which_idnum, idnum_value)])
+        else:
+            self.clear_filter_idnums()
+        self.reset_pagination()
 
     def apply_filter_task(self, form: cgi.FieldStorage) -> None:
         """Apply the task filter."""
@@ -769,14 +805,14 @@ class Session:
     def apply_filter_start_datetime(self, form: cgi.FieldStorage) -> None:
         """Apply the start date filter."""
         dt = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
-        self.filter_start_datetime_iso8601 = cc_dt.format_datetime(
+        self.filter_start_datetime_iso8601 = format_datetime(
             dt, DATEFORMAT.ISO8601)
         self.reset_pagination()
 
     def apply_filter_end_datetime(self, form: cgi.FieldStorage) -> None:
         """Apply the end date filter."""
         dt = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
-        self.filter_end_datetime_iso8601 = cc_dt.format_datetime(
+        self.filter_end_datetime_iso8601 = format_datetime(
             dt, DATEFORMAT.ISO8601)
         self.reset_pagination()
 
@@ -795,8 +831,7 @@ class Session:
         self.filter_forename = None
         self.filter_dob_iso8601 = None
         self.filter_sex = None
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            setattr(self, "filter_idnum" + str(n), None)
+        self.clear_filter_idnums(reset_pagination=False)
         self.filter_task = None
         self.filter_complete = None
         self.filter_include_old_versions = None
@@ -827,11 +862,11 @@ class Session:
         self.filter_sex = None
         self.reset_pagination()
 
-    def clear_filter_idnums(self) -> None:
+    def clear_filter_idnums(self, reset_pagination: bool = True) -> None:
         """Clear all ID number filters."""
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            setattr(self, "filter_idnum" + str(n), None)
-        self.reset_pagination()
+        self.set_idnum_filters([])
+        if reset_pagination:
+            self.reset_pagination()
 
     def clear_filter_task(self) -> None:
         """Clear task filter."""
@@ -879,16 +914,16 @@ class Session:
 
     def get_filter_dob(self) -> Optional[datetime.datetime]:
         """Get filtering DOB as a datetime."""
-        return cc_dt.get_datetime_from_string(self.filter_dob_iso8601)
+        return get_datetime_from_string(self.filter_dob_iso8601)
 
     def get_filter_start_datetime(self) -> Optional[datetime.datetime]:
         """Get start date filter as a datetime."""
-        return cc_dt.get_datetime_from_string(
+        return get_datetime_from_string(
             self.filter_start_datetime_iso8601)
 
     def get_filter_end_datetime(self) -> Optional[datetime.datetime]:
         """Get end date filter as a datetime."""
-        return cc_dt.get_datetime_from_string(self.filter_end_datetime_iso8601)
+        return get_datetime_from_string(self.filter_end_datetime_iso8601)
 
     def get_filter_end_datetime_corrected_1day(self) \
             -> Optional[datetime.datetime]:
@@ -1119,7 +1154,7 @@ def unit_tests_session(s: Session) -> None:
     # get_filter_html: tested implicitly
 
 
-def unit_tests() -> None:
+def ccsession_unit_tests() -> None:
     """Unit tests for cc_session module."""
     unit_test_ignore("", delete_old_sessions)
     unit_test_ignore("", is_token_in_use, "dummytoken")

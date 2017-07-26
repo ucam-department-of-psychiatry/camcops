@@ -42,6 +42,7 @@ void loadAncillary(QVector<AncillaryPtrType>& ancillaries,
                    const OrderBy& order_by,
                    int parent_pk)
 {
+    // Load all objects whose FK match the specified PK.
     ancillaries.clear();
     WhereConditions where;
     where.add(fk_name, parent_pk);
@@ -55,6 +56,28 @@ void loadAncillary(QVector<AncillaryPtrType>& ancillaries,
         raw_ptr_ancillary->setFromQuery(result, row, true);
         AncillaryPtrType ancillary(raw_ptr_ancillary);
         ancillaries.append(ancillary);
+    }
+}
+
+
+template<class Type, class PtrType>
+void loadAllRecords(QVector<PtrType>& objects,
+                    CamcopsApp& app,
+                    DatabaseManager& db,
+                    const OrderBy& order_by)
+{
+    // Load *all* objects from a table.
+    objects.clear();
+    WhereConditions where;
+    Type specimen(app, db);
+    SqlArgs sqlargs = specimen.fetchQuerySql(where, order_by);
+    QueryResult result = db.query(sqlargs);
+    int nrows = result.nRows();
+    for (int row = 0; row < nrows; ++row) {
+        Type* raw_ptr = new Type(app, db, dbconst::NONEXISTENT_PK);
+        raw_ptr->setFromQuery(result, row, true);
+        PtrType object(raw_ptr);
+        objects.append(object);
     }
 }
 

@@ -34,7 +34,9 @@ extern const QString SEX_FIELD;
 extern const QString ADDRESS_FIELD;
 extern const QString GP_FIELD;
 extern const QString OTHER_FIELD;
+extern const QString IDNUM_FIELD_PREFIX;
 extern const QString IDNUM_FIELD_FORMAT;
+extern const QString ANY_IDNUM;
 
 
 class Patient : public DatabaseObject
@@ -42,9 +44,21 @@ class Patient : public DatabaseObject
     Q_OBJECT
     using AttributesType = QMap<QString, bool>;
 public:
+    // ------------------------------------------------------------------------
+    // Creation
+    // ------------------------------------------------------------------------
     Patient(CamcopsApp& app,
             DatabaseManager& db,
             int load_pk = dbconst::NONEXISTENT_PK);
+    // ------------------------------------------------------------------------
+    // Ancillary management
+    // ------------------------------------------------------------------------
+    virtual void loadAllAncillary(int pk) override;
+    virtual QVector<DatabaseObjectPtr> getAncillarySpecimens() const override;
+    virtual QVector<DatabaseObjectPtr> getAllAncillary() const override;
+    // ------------------------------------------------------------------------
+    // Information about patients
+    // ------------------------------------------------------------------------
     int id() const;
     QString forename() const;
     QString surname() const;
@@ -59,9 +73,10 @@ public:
     bool hasDob() const;
     bool hasSex() const;
     bool hasIdnum(int which_idnum) const;
+    QVector<int> whichIdnumsPresent() const;
+    QVector<int> whichIdnumsHaveEntries() const;
     QVariant idnumVariant(int which_idnum) const;
     qlonglong idnumInteger(int which_idnum) const;
-    OpenableWidget* editor(bool read_only);
     AttributesType policyAttributes() const;
     bool compliesWith(const IdPolicy& policy) const;
     bool compliesWithUpload() const;
@@ -72,7 +87,6 @@ public:
     int numTasks() const;
     virtual void deleteFromDatabase() override;
     bool matchesForMerge(const Patient* other) const;
-    void mergeInDetailsAndTakeTasksFrom(const Patient* other);
     // Helper functions for various viewers:
     QString descriptionForMerge() const;
     QString forenameSurname() const;
@@ -81,11 +95,22 @@ public:
     QString ageSexDob() const;
     QString twoLineDetailString() const;
     QString oneLineHtmlDetailString() const;
+    // ------------------------------------------------------------------------
+    // Editing and other manipulations
+    // ------------------------------------------------------------------------
+    OpenableWidget* editor(bool read_only);
+    void mergeInDetailsAndTakeTasksFrom(const Patient* other);
 public:
     static const QString TABLENAME;
 protected:
+    void buildPage();
+    void addIdNum();
+    void deleteIdNum(int which_idnum);
+    void sortIdNums();
     void updateQuestionnaireIndicators(const FieldRef* fieldref = nullptr,
                                        const QObject* originator = nullptr);
 protected:
+    QVector<PatientIdNumPtr> m_idnums;
+    QuPagePtr m_page;
     QPointer<Questionnaire> m_questionnaire;
 };

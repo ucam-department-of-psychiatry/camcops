@@ -71,6 +71,11 @@ QuPage::QuPage(std::initializer_list<QuElement*> elements)  // takes ownership
 }
 
 
+QuPage::~QuPage()
+{
+}
+
+
 QuPage* QuPage::setType(PageType type)
 {
     m_type = type;
@@ -150,11 +155,6 @@ QuPage* QuPage::addTag(const QString& tag)
 {
     m_tags.append(tag);
     return this;
-}
-
-
-QuPage::~QuPage()
-{
 }
 
 

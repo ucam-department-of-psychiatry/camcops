@@ -36,7 +36,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import logging
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_pdf as rnc_pdf
@@ -59,7 +59,6 @@ from .cc_constants import (
     DEFAULT_DATABASE_TITLE,
     DEFAULT_DB_PORT,
     DEFAULT_DB_SERVER,
-    # DEFAULT_EXTRA_STRING_SPEC,
     DEFAULT_LOCAL_INSTITUTION_URL,
     DEFAULT_LOCAL_LOGO_FILE,
     DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES,
@@ -68,24 +67,35 @@ from .cc_constants import (
     DEFAULT_MYSQLDUMP,
     DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS,
     DEFAULT_PLOT_FONTSIZE,
-    # DEFAULT_STRING_FILE,
     DEFAULT_TIMEOUT_MINUTES,
     ENVVAR_CONFIG_FILE,
     INTROSPECTION_BASE_DIRECTORY,
     LOCAL_LOGO_FILE_WEBREF,
-    NUMBER_OF_IDNUMS,
     PDF_ENGINE,
     PDF_LOGO_HEIGHT,
     URL_RELATIVE_WEBVIEW,
     WEB_HEAD,
 )
-from . import cc_dt
-from . import cc_filename
-from .cc_logger import dblog, log
-from . import cc_namedtuples
-from . import cc_policy
-from . import cc_recipdef
+from .cc_dt import (
+    convert_datetime_to_utc,
+    convert_datetime_to_utc_notz,
+    format_datetime,
+    get_now_localtz,
+)
+from .cc_filename import (
+    filename_spec_is_valid,
+    patient_spec_for_filename_is_valid,
+)
+from .cc_namedtuples import IntrospectionFileDetails
+from .cc_policy import (
+    finalize_id_policy_valid,
+    tokenize_finalize_id_policy,
+    tokenize_upload_id_policy,
+    upload_id_policy_valid,
+)
+from .cc_recipdef import RecipientDefinition
 
+log = logging.getLogger(__name__)
 
 # =============================================================================
 # Process-local storage class
@@ -124,10 +134,10 @@ class LocalStorage(object):
         self.EXTRA_STRING_FILES = None
         self.HL7_LOCKFILE = None
         self.HL7_RECIPIENT_DEFS = []
-        self.IDDESC = [None] * NUMBER_OF_IDNUMS
+        self.IDDESC = {}  # type: Dict[int, str]
+        self.IDSHORTDESC = {}  # type: Dict[int, str]
         self.ID_POLICY_FINALIZE_STRING = ""
         self.ID_POLICY_UPLOAD_STRING = ""
-        self.IDSHORTDESC = [None] * NUMBER_OF_IDNUMS
         self.INTROSPECTION = False
         self.INTROSPECTION_FILES = []
         self.LOCAL_INSTITUTION_URL = DEFAULT_LOCAL_INSTITUTION_URL
@@ -140,13 +150,13 @@ class LocalStorage(object):
         self.MYSQL = DEFAULT_MYSQL
         self.MYSQLDUMP = DEFAULT_MYSQLDUMP
         self.NOW_LOCAL_TZ_ISO8601 = ""
-        self.NOW_LOCAL_TZ = None
-        self.NOW_UTC_NO_TZ = None
-        self.NOW_UTC_WITH_TZ = None
+        self.NOW_LOCAL_TZ = None  # type: datetime.datetime
+        self.NOW_UTC_NO_TZ = None  # type: datetime.datetime
+        self.NOW_UTC_WITH_TZ = None  # type: datetime.datetime
         self.PASSWORD_CHANGE_FREQUENCY_DAYS = None
         self.PATIENT_SPEC = ""
         self.PATIENT_SPEC_IF_ANONYMOUS = ""
-        self.PDF_LOGO_LINE = None
+        self.PDF_LOGO_LINE = None  # type: str
         self.PERSISTENT_CONSTANTS_INITIALIZED = False
         # currently not configurable, but easy to add in the future:
         self.PLOT_FONTSIZE = DEFAULT_PLOT_FONTSIZE
@@ -171,25 +181,18 @@ class LocalStorage(object):
         self.WEBVIEW_LOGLEVEL = logging.INFO
         self.WKHTMLTOPDF_FILENAME = None
 
-    def get_id_desc(self, n: int) -> Optional[str]:
-        """Get server's ID description.
+    def get_which_idnums(self) -> List[int]:
+        return list(self.IDDESC.keys())
 
-        Args:
-            n: from 1 to NUMBER_OF_IDNUMS
-        """
-        if n < 1 or n > NUMBER_OF_IDNUMS:
-            return None
-        return self.IDDESC[n - 1]
+    def get_id_desc(self, which_idnum: int,
+                    default: str = None) -> Optional[str]:
+        """Get server's ID description."""
+        return self.IDDESC.get(which_idnum, default)
 
-    def get_id_shortdesc(self, n: int) -> Optional[str]:
-        """Get server's short ID description.
-
-        Args:
-            n: from 1 to NUMBER_OF_IDNUMS
-        """
-        if n < 1 or n > NUMBER_OF_IDNUMS:
-            return None
-        return self.IDSHORTDESC[n - 1]
+    def get_id_shortdesc(self, which_idnum: int,
+                         default: str = None) -> Optional[str]:
+        """Get server's short ID description."""
+        return self.IDSHORTDESC.get(which_idnum, default)
 
     def switch_output_to_png(self) -> None:
         """Switch server to producing figures in PNG."""
@@ -205,14 +208,13 @@ class LocalStorage(object):
         # ---------------------------------------------------------------------
         # Date/time
         # ---------------------------------------------------------------------
-        self.NOW_LOCAL_TZ = cc_dt.get_now_localtz()
+        self.NOW_LOCAL_TZ = get_now_localtz()
         # ... we want nearly all our times offset-aware
         # ... http://stackoverflow.com/questions/4530069
-        self.NOW_UTC_WITH_TZ = cc_dt.convert_datetime_to_utc(self.NOW_LOCAL_TZ)
-        self.NOW_UTC_NO_TZ = cc_dt.convert_datetime_to_utc_notz(
-            self.NOW_LOCAL_TZ)
-        self.NOW_LOCAL_TZ_ISO8601 = cc_dt.format_datetime(self.NOW_LOCAL_TZ,
-                                                          DATEFORMAT.ISO8601)
+        self.NOW_UTC_WITH_TZ = convert_datetime_to_utc(self.NOW_LOCAL_TZ)
+        self.NOW_UTC_NO_TZ = convert_datetime_to_utc_notz(self.NOW_LOCAL_TZ)
+        self.NOW_LOCAL_TZ_ISO8601 = format_datetime(self.NOW_LOCAL_TZ,
+                                                    DATEFORMAT.ISO8601)
         self.TODAY = datetime.date.today()  # fetches the local date
 
         # ---------------------------------------------------------------------
@@ -312,7 +314,8 @@ class LocalStorage(object):
 
         self.DBCLIENT_LOGLEVEL = get_config_parameter_loglevel(
             config, section, "DBCLIENT_LOGLEVEL", logging.INFO)
-        dblog.setLevel(self.DBCLIENT_LOGLEVEL)
+        logging.getLogger("camcops_server.database")\
+            .setLevel(self.DBCLIENT_LOGLEVEL)
 
         self.DBENGINE_LOGLEVEL = get_config_parameter_loglevel(
             config, section, "DBENGINE_LOGLEVEL", logging.INFO)
@@ -329,13 +332,32 @@ class LocalStorage(object):
         self.HL7_LOCKFILE = get_config_parameter(
             config, section, "HL7_LOCKFILE", str, None)
 
-        for n in range(1, NUMBER_OF_IDNUMS + 1):
-            i = n - 1
-            nstr = str(n)
-            self.IDDESC[i] = get_config_parameter(
-                config, section, "IDDESC_" + nstr, str, "")
-            self.IDSHORTDESC[i] = get_config_parameter(
-                config, section, "IDSHORTDESC_" + nstr, str, "")
+        descprefix = "IDDESC_"
+        shortdescprefix = "IDSHORTDESC_"
+        for key, desc in config.items(section):
+            if key.startswith(descprefix):
+                nstr = key[len(descprefix):]
+                try:
+                    which_idnum = int(nstr)
+                except (TypeError, ValueError):
+                    raise AssertionError(
+                        "Bad ID description config key: " + repr(key))
+                if which_idnum <= 0:
+                    raise AssertionError(
+                        "Bad ID number: {} (must be >=1)".format(nstr))
+                if not desc:
+                    raise AssertionError(
+                        "Bad description for ID {}: {}".format(
+                            nstr, repr(desc)))
+                shortdesc = get_config_parameter(
+                    config, section, shortdescprefix + nstr, str, "")
+                if not shortdesc:
+                    raise AssertionError(
+                        "ID number {} has description but no short "
+                        "description".format(nstr))
+                self.IDDESC[which_idnum] = desc
+                self.IDSHORTDESC[which_idnum] = shortdesc
+
         self.ID_POLICY_UPLOAD_STRING = get_config_parameter(
             config, section, "UPLOAD_POLICY", str, "")
         self.ID_POLICY_FINALIZE_STRING = get_config_parameter(
@@ -388,7 +410,7 @@ class LocalStorage(object):
 
         self.WEBVIEW_LOGLEVEL = get_config_parameter_loglevel(
             config, section, "WEBVIEW_LOGLEVEL", logging.INFO)
-        log.setLevel(self.WEBVIEW_LOGLEVEL)
+        logging.getLogger().setLevel(self.WEBVIEW_LOGLEVEL)  # root logger
 
         self.WKHTMLTOPDF_FILENAME = get_config_parameter(
             config, section, "WKHTMLTOPDF_FILENAME", str, None)
@@ -404,7 +426,10 @@ class LocalStorage(object):
             for key, recipientdef_name in hl7_items:
                 log.debug("HL7 config: key={}, recipientdef_name="
                           "{}".format(key, recipientdef_name))
-                h = cc_recipdef.RecipientDefinition(config, recipientdef_name)
+                h = RecipientDefinition(
+                    valid_which_idnums=self.get_which_idnums(),
+                    config=config,
+                    section=recipientdef_name)
                 if h.valid:
                     self.HL7_RECIPIENT_DEFS.append(h)
         except configparser.NoSectionError:
@@ -489,7 +514,7 @@ class LocalStorage(object):
                     fullpath = os.path.join(dir_, filename)
                     prettypath = os.path.join(pretty_dir, filename)
                     self.INTROSPECTION_FILES.append(
-                        cc_namedtuples.IntrospectionFileDetails(
+                        IntrospectionFileDetails(
                             fullpath=fullpath,
                             prettypath=prettypath,
                             searchterm=filename,
@@ -500,14 +525,22 @@ class LocalStorage(object):
                 self.INTROSPECTION_FILES,
                 key=operator.attrgetter("prettypath"))
 
+        valid_which_idnums = self.get_which_idnums()
+
         # Cache tokenized ID policies
-        cc_policy.tokenize_upload_id_policy(self.ID_POLICY_UPLOAD_STRING)
-        cc_policy.tokenize_finalize_id_policy(self.ID_POLICY_FINALIZE_STRING)
+        tokenize_upload_id_policy(policy=self.ID_POLICY_UPLOAD_STRING,
+                                  valid_which_idnums=valid_which_idnums)
+        tokenize_finalize_id_policy(policy=self.ID_POLICY_FINALIZE_STRING,
+                                    valid_which_idnums=valid_which_idnums)
         # Valid?
-        if not cc_policy.upload_id_policy_valid():
-            raise RuntimeError("UPLOAD_POLICY invalid in config")
-        if not cc_policy.finalize_id_policy_valid():
-            raise RuntimeError("FINALIZE_POLICY invalid in config")
+        if not upload_id_policy_valid():
+            raise RuntimeError(
+                "UPLOAD_POLICY invalid in config (policy: {})".format(
+                    repr(self.ID_POLICY_UPLOAD_STRING)))
+        if not finalize_id_policy_valid():
+            raise RuntimeError(
+                "FINALIZE_POLICY invalid in config (policy: {})".format(
+                    repr(self.ID_POLICY_FINALIZE_STRING)))
 
         # Note: HTML4 uses <img ...>; XHTML uses <img ... />;
         # HTML5 is happy with <img ... />
@@ -608,29 +641,33 @@ class LocalStorage(object):
         if not self.PATIENT_SPEC:
             raise RuntimeError("Missing/blank PATIENT_SPEC in [server] section"
                                " of config file")
-        if not cc_filename.patient_spec_for_filename_is_valid(
-                self.PATIENT_SPEC):
+        if not patient_spec_for_filename_is_valid(
+                patient_spec=self.PATIENT_SPEC,
+                valid_which_idnums=valid_which_idnums):
             raise RuntimeError("Invalid PATIENT_SPEC in [server] section of "
                                "config file")
 
         if not self.TASK_FILENAME_SPEC:
             raise RuntimeError("Missing/blank TASK_FILENAME_SPEC in "
                                "[server] section of config file")
-        if not cc_filename.filename_spec_is_valid(self.TASK_FILENAME_SPEC):
+        if not filename_spec_is_valid(self.TASK_FILENAME_SPEC,
+                                      valid_which_idnums=valid_which_idnums):
             raise RuntimeError("Invalid TASK_FILENAME_SPEC in "
                                "[server] section of config file")
 
         if not self.TRACKER_FILENAME_SPEC:
             raise RuntimeError("Missing/blank TRACKER_FILENAME_SPEC in "
                                "[server] section of config file")
-        if not cc_filename.filename_spec_is_valid(self.TRACKER_FILENAME_SPEC):
+        if not filename_spec_is_valid(self.TRACKER_FILENAME_SPEC,
+                                      valid_which_idnums=valid_which_idnums):
             raise RuntimeError("Invalid TRACKER_FILENAME_SPEC in "
                                "[server] section of config file")
 
         if not self.CTV_FILENAME_SPEC:
             raise RuntimeError("Missing/blank CTV_FILENAME_SPEC in "
                                "[server] section of config file")
-        if not cc_filename.filename_spec_is_valid(self.CTV_FILENAME_SPEC):
+        if not filename_spec_is_valid(self.CTV_FILENAME_SPEC,
+                                      valid_which_idnums=valid_which_idnums):
             raise RuntimeError("Invalid CTV_FILENAME_SPEC in "
                                "[server] section of config file")
 
