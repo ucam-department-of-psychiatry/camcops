@@ -41,7 +41,6 @@ from ..cc_modules.cc_html import (
     tr_span_col,
 )
 from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
-# from ..cc_modules.cc_version import TABLET_VERSION_2_0_0
 
 
 # =============================================================================
@@ -51,7 +50,13 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 ADDRESS_PARTS = ["forename", "surname", "number", "street_1",
                  "street_2", "town", "county"]
 RECALL_WORDS = ["lemon", "key", "ball"]
-TABLET_VERSION_2 = Version
+PERCENT_DP = 1
+TOTAL_MAX = 100
+ATTN_MAX = 18
+MEMORY_MAX = 26
+FLUENCY_MAX = 14
+LANG_MAX = 26
+VSP_MAX = 16
 
 
 # =============================================================================
@@ -264,26 +269,35 @@ class Ace3(Task):
         v = self.vsp_score()
         t = a + m + f + l + v
         text = (
-            "ACE-III total: {}/100 (attention {}/18, memory {}/26, "
-            "fluency {}/14, language {}/26, visuospatial {}/16)"
-        ).format(t, a, m, f, l, v)
+            "ACE-III total: {t}/{tmax} "
+            "(attention {a}/{amax}, memory {m}/{mmax}, "
+            "fluency {f}/{fmax}, language {l}/{lmax}, visuospatial {v}/{vmax})"
+        ).format(t=t, a=a, m=m, f=f, l=l, v=v,
+                 tmax=TOTAL_MAX, amax=ATTN_MAX, mmax=MEMORY_MAX,
+                 fmax=FLUENCY_MAX, lmax=LANG_MAX, vmax=VSP_MAX)
         return [CtvInfo(content=text)]
 
     def get_summaries(self):
         return [
             self.is_complete_summary_field(),
             dict(name="total", cctype="INT",
-                 value=self.total_score(), comment="Total score (/100)"),
+                 value=self.total_score(),
+                 comment="Total score (/{})".format(TOTAL_MAX)),
             dict(name="attn", cctype="INT",
-                 value=self.attn_score(), comment="Attention (/18)"),
+                 value=self.attn_score(),
+                 comment="Attention (/{})".format(ATTN_MAX)),
             dict(name="mem", cctype="INT",
-                 value=self.mem_score(), comment="Memory (/26)"),
+                 value=self.mem_score(),
+                 comment="Memory (/{})".format(MEMORY_MAX)),
             dict(name="fluency", cctype="INT",
-                 value=self.fluency_score(), comment="Fluency (/14)"),
+                 value=self.fluency_score(),
+                 comment="Fluency (/{})".format(FLUENCY_MAX)),
             dict(name="lang", cctype="INT",
-                 value=self.lang_score(), comment="Language (/26)"),
+                 value=self.lang_score(),
+                 comment="Language (/{})".format(LANG_MAX)),
             dict(name="vsp", cctype="INT",
-                 value=self.vsp_score(), comment="Visuospatial (/16)"),
+                 value=self.vsp_score(),
+                 comment="Visuospatial (/{})".format(VSP_MAX)),
         ]
 
     def attn_score(self) -> int:
@@ -429,6 +443,9 @@ class Ace3(Task):
         return self.is_recognition_complete()
 
     def get_task_html(self) -> str:
+        def percent(score: int, maximum: int) -> str:
+            return ws.number_to_dp(100 * score / maximum, PERCENT_DP)
+
         a = self.attn_score()
         m = self.mem_score()
         f = self.fluency_score()
@@ -442,7 +459,8 @@ class Ace3(Task):
             fig = plt.figure(figsize=figsize)
             ax = fig.add_subplot(1, 1, 1)
             scores = numpy.array([a, m, f, l, v])
-            maxima = numpy.array([18, 26, 14, 26, 16])
+            maxima = numpy.array([ATTN_MAX, MEMORY_MAX, FLUENCY_MAX,
+                                  LANG_MAX, VSP_MAX])
             y = 100 * scores / maxima
             x_labels = ["Attn", "Mem", "Flu", "Lang", "VSp"]
             # noinspection PyTypeChecker
@@ -450,9 +468,10 @@ class Ace3(Task):
             xvar = numpy.arange(n)
             ax.bar(xvar, y, width, color="b")
             ax.set_ylabel("%")
-            ax.set_xticks(xvar + width/2)
+            ax.set_xticks(xvar)
+            x_offset = -0.5
+            ax.set_xlim(0 + x_offset, len(scores) + x_offset)
             ax.set_xticklabels(x_labels)
-            ax.set_xlim(0 - (1 - width), len(scores))
             plt.tight_layout()  # or the ylabel drops off the figure
             # fig.autofmt_xdate()
             figurehtml = get_html_from_pyplot_figure(fig)
@@ -468,11 +487,16 @@ class Ace3(Task):
             """.format(is_complete=self.get_is_complete_td_pair(),
                        figure=figurehtml) +
             tr("Total ACE-III score <sup>[1]</sup>", answer(t) + " / 100") +
-            tr("Attention", answer(a) + " / 18 ({}%)".format(100*a/18)) +
-            tr("Memory", answer(m) + " / 26 ({}%)".format(100*m/26)) +
-            tr("Fluency", answer(f) + " / 14 ({}%)".format(100*f/14)) +
-            tr("Language", answer(l) + " / 26 ({}%)".format(100*l/26)) +
-            tr("Visuospatial", answer(v) + " / 16 ({}%)".format(100*v/16)) +
+            tr("Attention", answer(a) + " / {} ({}%)".format(
+                ATTN_MAX, percent(a, ATTN_MAX))) +
+            tr("Memory", answer(m) + " / {} ({}%)".format(
+                MEMORY_MAX, percent(m, MEMORY_MAX))) +
+            tr("Fluency", answer(f) + " / {} ({}%)".format(
+                FLUENCY_MAX, percent(f, FLUENCY_MAX))) +
+            tr("Language", answer(l) + " / {} ({}%)".format(
+                LANG_MAX, percent(l, LANG_MAX))) +
+            tr("Visuospatial", answer(v) + " / {} ({}%)".format(
+                VSP_MAX, percent(v, VSP_MAX))) +
             """
                     </table>
                 </div>
