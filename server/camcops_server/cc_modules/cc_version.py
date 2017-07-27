@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_version.py
+# camcops_server/cc_modules/cc_version.py
 
 """
 ===============================================================================

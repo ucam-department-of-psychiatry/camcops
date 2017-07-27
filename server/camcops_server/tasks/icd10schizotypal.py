@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# icd10schizotypal.py
+# camcops_server/tasks/icd10schizotypal.py
 
 """
 ===============================================================================

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# demqol.py
+# camcops_server/tasks/demqol.py
 
 """
 ===============================================================================
@@ -22,7 +22,7 @@
 ===============================================================================
 """
 
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import cardinal_pythonlib.rnc_web as ws
 
@@ -385,7 +385,8 @@ class DemqolProxy(Task):
 def calc_total_score(obj: Union[Demqol, DemqolProxy],
                      n_scored_questions: int,
                      reverse_score_qs: List[int],
-                     minimum_n_for_total_score: int) -> Tuple[float, bool]:
+                     minimum_n_for_total_score: int) \
+        -> Tuple[Optional[float], bool]:
     """Returns (total, extrapolated?)."""
     n = 0
     total = 0

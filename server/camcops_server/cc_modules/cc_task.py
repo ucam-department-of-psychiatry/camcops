@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_task.py
+# camcops_server/cc_modules/cc_task.py
 
 """
 ===============================================================================
@@ -121,7 +121,7 @@ from .cc_lang import (
     Min,
     MinType,
 )
-from .cc_namedtuples import XmlElementTuple
+from .cc_logger import BraceStyleAdapter
 from .cc_patient import get_current_version_of_patient_by_client_info, Patient
 from .cc_patientidnum import PatientIdNum
 from .cc_plot import set_matplotlib_fontsize
@@ -151,12 +151,13 @@ from .cc_xml import (
     XML_COMMENT_PATIENT,
     XML_COMMENT_SPECIAL_NOTES,
     XML_COMMENT_STORED,
+    XmlElement,
 )
 
 if TYPE_CHECKING:
     from .cc_session import Session
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 ANCILLARY_FWD_REF = "Ancillary"
 TASK_FWD_REF = "Task"
@@ -888,13 +889,13 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return cls.tablename + "_SUMMARY_TEMP"
 
     @classmethod
-    def provides_summaries(cls) -> str:
+    def provides_summaries(cls) -> bool:
         """Does the task provide summary information?"""
         specimen_instance = cls(None)  # blank PK
         return len(specimen_instance.get_summaries()) > 0
 
     @classmethod
-    def make_summary_table(cls) -> str:
+    def make_summary_table(cls) -> None:
         """Drop and remake (temporary) summary tables."""
         # now = get_now_utc()
         cls.drop_summary_tables()
@@ -910,8 +911,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         table = cls.tablename
         if not cls.provides_summaries():
             return
-        log.info("Generating summary tables for: {}".format(
-                    cls.shortname))
+        log.info("Generating summary tables for: {}", cls.shortname)
 
         # Table
         summarytable = cls.get_standard_summary_table_name()
@@ -1225,12 +1225,13 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             return None
         return self._patient.get_idnum_object(which_idnum)
 
-    def get_patient_idnum_value(self, which_idnum: str) -> Optional[int]:
+    def get_patient_idnum_value(self, which_idnum: int) -> Optional[int]:
         idobj = self.get_patient_idnum_object(which_idnum=which_idnum)
         return idobj.idnum_value if idobj else None
 
-    def get_patient_hl7_pid_segment(
-            self, recipient_def: RecipientDefinition) -> hl7.Segment:
+    def get_patient_hl7_pid_segment(self,
+                                    recipient_def: RecipientDefinition) \
+            -> Union[hl7.Segment, str]:
         """Get patient HL7 PID segment, or ""."""
         if not self._patient:
             return ""
@@ -1762,7 +1763,6 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 continue
             if not cc_db.cctype_is_string(fs["cctype"]):
                 continue
-            # log.critical("Checking text filter for: {}".format(fs["name"]))
             value = getattr(self, fs["name"])
             if value is None:
                 continue
@@ -1954,9 +1954,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         mainrow = collections.OrderedDict(
             (f, getattr(self, f)) for f in self.get_fields())
         if self._patient:
-            mainrow.update(collections.OrderedDict(
-                (TSV_PATIENT_FIELD_PREFIX + f, getattr(self._patient, f))
-                for f in self._patient.FIELDS))
+            mainrow.update(self._patient.get_dict_for_tsv())
         mainrow.update(collections.OrderedDict(
             (s["name"], s["value"]) for s in self.get_summaries()))
         maindict = {
@@ -2027,8 +2025,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     @classmethod
     def make_cris_tables(cls, db: DatabaseSupporter) -> None:
         # DO NOT CONFUSE pls.db and db. HERE WE ONLY USE db.
-        log.info("Generating CRIS staging tables for: {}".format(
-                    cls.shortname))
+        log.info("Generating CRIS staging tables for: {}", cls.shortname)
         cc_db.set_db_to_utf8(db)
         task_table = CRIS_TABLENAME_PREFIX + cls.tablename
         created_tables = []
@@ -2113,7 +2110,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                      include_calculated: bool = True,
                      include_blobs: bool = True,
                      include_patient: bool = True,
-                     skip_fields: List[str] =None) -> XmlElementTuple:
+                     skip_fields: List[str] =None) -> XmlElement:
         """Returns XML tree. Return value is the root XmlElementTuple.
 
         Override to include other tables, or to deal with BLOBs, if the default
@@ -2137,7 +2134,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             blobinfo = depclass.blob_name_idfield_list
             for it in items:
                 # Simple fields for ancillary items
-                itembranches.append(XmlElementTuple(
+                itembranches.append(XmlElement(
                     name=tablename,
                     value=make_xml_branches_from_fieldspecs(
                         it,
@@ -2150,11 +2147,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                     itembranches.extend(it.make_xml_branches_for_blob_fields(
                         skip_fields=skip_fields))
             branches.append("<!-- Items for {} -->\n".format(tablename))
-            branches.append(XmlElementTuple(
+            branches.append(XmlElement(
                 name=tablename,
                 value=itembranches
             ))
-        tree = XmlElementTuple(name=self.tablename, value=branches)
+        tree = XmlElement(name=self.tablename, value=branches)
         return tree
 
     def get_xml_core_branches(
@@ -2162,7 +2159,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             include_calculated: bool = True,
             include_blobs: bool = True,
             include_patient: bool = True,
-            skip_fields: List[str] = None) -> List[XmlElementTuple]:
+            skip_fields: List[str] = None) -> List[XmlElement]:
         """Returns a list of XmlElementTuple elements representing stored,
         calculated, patient, and/or BLOB fields, depending on the options."""
         skip_fields = skip_fields or []
@@ -2196,14 +2193,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def make_xml_branches_for_blob_fields(
             self,
-            skip_fields: List[str] = None) -> List[XmlElementTuple]:
+            skip_fields: List[str] = None) -> List[XmlElement]:
         """Returns list of XmlElementTuple elements for BLOB fields."""
         skip_fields = skip_fields or []
         return make_xml_branches_for_blob_fields(self, skip_fields=skip_fields)
 
     def get_blob_xml_tuple(self,
                            blobid: int,
-                           name: str) -> XmlElementTuple:
+                           name: str) -> XmlElement:
         """Get XmlElementTuple for a PNG BLOB."""
         return get_blob_xml_tuple(self, blobid, name)
 
@@ -3074,14 +3071,14 @@ class Ancillary(object):
                 serverpk)
 
     def make_xml_branches_for_blob_fields(
-            self, skip_fields: List[str] = None) -> List[XmlElementTuple]:
+            self, skip_fields: List[str] = None) -> List[XmlElement]:
         """Returns list of XmlElementTuple elements for BLOB fields."""
         skip_fields = skip_fields or []
         return make_xml_branches_for_blob_fields(self, skip_fields=skip_fields)
 
     def get_blob_xml_tuple(self,
                            blobid: int,
-                           name: str) -> XmlElementTuple:
+                           name: str) -> XmlElement:
         """Get XmlElementTuple for a PNG BLOB."""
         return get_blob_xml_tuple(self, blobid, name)
 
@@ -3121,7 +3118,7 @@ def task_factory(basetable: str, serverpk: int) -> Task:
 
 def make_xml_branches_for_blob_fields(
         obj: Union[Task, Ancillary], 
-        skip_fields: bool = None) -> List[XmlElementTuple]:
+        skip_fields: bool = None) -> List[XmlElement]:
     """Returns list of XmlElementTuple elements for BLOB fields."""
     skip_fields = skip_fields or []
     branches = []
@@ -3139,7 +3136,7 @@ def make_xml_branches_for_blob_fields(
 
 def get_blob_xml_tuple(obj: Union[Task, Ancillary],
                        blobid: int,
-                       name: str) -> XmlElementTuple:
+                       name: str) -> XmlElement:
     """Get XmlElementTuple for a PNG BLOB."""
     blob = obj.get_blob_by_id(blobid)
     if blob is None:
@@ -3180,9 +3177,8 @@ def gen_tasks_matching_session_filter(
             pk_wc = cls.get_session_candidate_task_pks_whencreated(session)
             for row in pk_wc:
                 if row[1] is None:
-                    log.warning(
-                        "Blank when_created: cls={}, _pk={}, "
-                        "when_created={}".format(cls, row[0], row[1]))
+                    log.warning("Blank when_created: cls={}, _pk={}, "
+                                "when_created={}", cls, row[0], row[1])
                     # ... will crash at the sort stage
                 cls_pk_wc.append((cls, row[0], row[1]))
     # Sort by when_created (conjointly across task classes)
@@ -3195,7 +3191,7 @@ def gen_tasks_matching_session_filter(
     # *** CHANGE THIS: inefficient; runs multiple queries where one would do
 
 
-def gen_tasks_live_on_tablet(device_id: str) -> Generator[Task, None, None]:
+def gen_tasks_live_on_tablet(device_id: int) -> Generator[Task, None, None]:
     """Generate tasks that are live on the device.
     Includes non-current ones."""
 

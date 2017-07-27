@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# hads.py
+# camcops_server/tasks/hads.py
 
 """
 ===============================================================================
@@ -111,7 +111,6 @@ class Hads(Task):
         min_score = 0
         max_score = 3
         crippled = not self.extrastrings_exist()
-        log.info("crippled: {}".format(crippled))
         a = self.anxiety_score()
         d = self.depression_score()
         h = """

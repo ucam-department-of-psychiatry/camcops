@@ -28,8 +28,9 @@ import os
 import subprocess
 
 from camcops_server.cc_modules.cc_constants import ENVVAR_CONFIG_FILE
+from camcops_server.cc_modules.cc_logger import BraceStyleAdapter
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 HOME_DIR = os.path.expanduser('~')
@@ -84,7 +85,7 @@ def main() -> None:
     logging.basicConfig(level=logging.DEBUG)
 
     # Start the webserver
-    log.info('starting server with options {}'.format(opts))
+    log.info('starting server with options {}', opts)
     start_server(opts)
 
 

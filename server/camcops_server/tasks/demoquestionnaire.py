@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# demoquestionnaire.py
+# camcops_server/tasks/demoquestionnaire.py
 
 """
 ===============================================================================

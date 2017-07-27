@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# npiq.py
+# camcops_server/tasks/npiq.py
 
 """
 ===============================================================================
@@ -103,7 +103,7 @@ class NpiQ(Task):
             )
         )]
 
-    def q_endorsed(self, q: int) -> str:
+    def q_endorsed(self, q: int) -> bool:
         return bool(getattr(self, ENDORSED + str(q)))
 
     def n_endorsed(self) -> int:

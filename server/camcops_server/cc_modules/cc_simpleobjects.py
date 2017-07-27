@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_namedtuples.py
+# camcops_server/cc_modules/cc_simpleobjects.py
 
 """
 ===============================================================================
@@ -29,10 +29,10 @@ import collections
 
 
 # =============================================================================
-# PatientIdentifierTuple
+# HL7PatientIdentifier
 # =============================================================================
 
-PatientIdentifierTuple = collections.namedtuple("PatientIdentifierTuple", [
+HL7PatientIdentifier = collections.namedtuple("PatientIdentifierTuple", [
     "id",
     "id_type",
     "assigning_authority"
@@ -53,21 +53,6 @@ BarePatientInfo = collections.namedtuple("BarePatientInfo", [
     "sex",
     "whichidnum_idnumvalue_tuples"
 ])
-
-
-# =============================================================================
-# XML element
-# =============================================================================
-
-class XmlElementTuple(collections.namedtuple(
-        "XmlElementTuple", ["name", "value", "datatype", "comment"])):
-    """Represents XML data in a tree. See functions in cc_xml.py"""
-    def __new__(cls, name, value=None, datatype=None, comment=None):
-        # Special: boolean requires lower case "true"/"false" (or 0/1)
-        if datatype == "boolean" and value is not None:
-            value = str(value).lower()
-        # noinspection PyTypeChecker
-        return super().__new__(cls, name, value, datatype, comment)
 
 
 # =============================================================================

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_pls.py
+# camcops_server/cc_modules/cc_pls.py
 
 """
 ===============================================================================
@@ -36,7 +36,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, TYPE_CHECKING
 
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_pdf as rnc_pdf
@@ -86,7 +86,8 @@ from .cc_filename import (
     filename_spec_is_valid,
     patient_spec_for_filename_is_valid,
 )
-from .cc_namedtuples import IntrospectionFileDetails
+from .cc_logger import BraceStyleAdapter
+from .cc_simpleobjects import IntrospectionFileDetails
 from .cc_policy import (
     finalize_id_policy_valid,
     tokenize_finalize_id_policy,
@@ -95,7 +96,11 @@ from .cc_policy import (
 )
 from .cc_recipdef import RecipientDefinition
 
-log = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    from .cc_session import Session
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
+
 
 # =============================================================================
 # Process-local storage class
@@ -129,17 +134,17 @@ class LocalStorage(object):
         self.DB_SERVER = DEFAULT_DB_SERVER
         self.DB_USER = ""
         self.DISABLE_PASSWORD_AUTOCOMPLETE = False
-        self.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE = None
-        self.extraStringDicts = None  # dictionary of dictionaries
-        self.EXTRA_STRING_FILES = None
-        self.HL7_LOCKFILE = None
-        self.HL7_RECIPIENT_DEFS = []
+        self.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE = None  # type: str
+        self.extraStringDicts = None  # type: Dict[str, Dict[str, str]]
+        self.EXTRA_STRING_FILES = None  # type: List[str]
+        self.HL7_LOCKFILE = None  # type: str
+        self.HL7_RECIPIENT_DEFS = []  # type: List[RecipientDefinition]
         self.IDDESC = {}  # type: Dict[int, str]
         self.IDSHORTDESC = {}  # type: Dict[int, str]
         self.ID_POLICY_FINALIZE_STRING = ""
         self.ID_POLICY_UPLOAD_STRING = ""
         self.INTROSPECTION = False
-        self.INTROSPECTION_FILES = []
+        self.INTROSPECTION_FILES = []  # type: List[IntrospectionFileDetails]
         self.LOCAL_INSTITUTION_URL = DEFAULT_LOCAL_INSTITUTION_URL
         self.LOCAL_LOGO_FILE_ABSOLUTE = ""
         self.LOCKOUT_DURATION_INCREMENT_MINUTES = (
@@ -153,33 +158,32 @@ class LocalStorage(object):
         self.NOW_LOCAL_TZ = None  # type: datetime.datetime
         self.NOW_UTC_NO_TZ = None  # type: datetime.datetime
         self.NOW_UTC_WITH_TZ = None  # type: datetime.datetime
-        self.PASSWORD_CHANGE_FREQUENCY_DAYS = None
+        self.PASSWORD_CHANGE_FREQUENCY_DAYS = None  # type: int
         self.PATIENT_SPEC = ""
         self.PATIENT_SPEC_IF_ANONYMOUS = ""
         self.PDF_LOGO_LINE = None  # type: str
         self.PERSISTENT_CONSTANTS_INITIALIZED = False
         # currently not configurable, but easy to add in the future:
         self.PLOT_FONTSIZE = DEFAULT_PLOT_FONTSIZE
-        self.remote_addr = None
-        self.remote_port = None
+        self.remote_addr = None  # type: str
+        self.remote_port = None  # type: str
         self.SCRIPT_NAME = ""
         self.SCRIPT_PUBLIC_URL_ESCAPED = ""
         self.SEND_ANALYTICS = True
         self.SERVER_NAME = ""
-        self.session = None
+        self.session = None  # type: Session
         self.SESSION_TIMEOUT = datetime.timedelta(
             minutes=DEFAULT_TIMEOUT_MINUTES)
-        self.stringDict = None
-        self.SUMMARY_TABLES_LOCKFILE = None
+        self.SUMMARY_TABLES_LOCKFILE = None  # type: str
         self.TASK_FILENAME_SPEC = ""
-        self.TODAY = None
+        self.TODAY = None  # type: datetime.date
         self.TRACKER_FILENAME_SPEC = ""
         self.useSVG = False
-        self.VALID_TABLE_NAMES = []
-        self.WEB_LOGO = None
-        self.WEBSTART = None
+        self.VALID_TABLE_NAMES = []  # type: List[str]
+        self.WEB_LOGO = None  # type: str
+        self.WEBSTART = None  # type: str
         self.WEBVIEW_LOGLEVEL = logging.INFO
-        self.WKHTMLTOPDF_FILENAME = None
+        self.WKHTMLTOPDF_FILENAME = None  # type: str
 
     def get_which_idnums(self) -> List[int]:
         return list(self.IDDESC.keys())
@@ -279,7 +283,7 @@ class LocalStorage(object):
             self.CAMCOPS_CONFIG_FILE = os.environ.get(ENVVAR_CONFIG_FILE)
         if not self.CAMCOPS_CONFIG_FILE:
             raise AssertionError("{} not specified".format(ENVVAR_CONFIG_FILE))
-        log.info("Reading from {}".format(self.CAMCOPS_CONFIG_FILE))
+        log.info("Reading from {}", self.CAMCOPS_CONFIG_FILE)
         config = configparser.ConfigParser()
         config.read_file(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
 
@@ -332,8 +336,9 @@ class LocalStorage(object):
         self.HL7_LOCKFILE = get_config_parameter(
             config, section, "HL7_LOCKFILE", str, None)
 
-        descprefix = "IDDESC_"
-        shortdescprefix = "IDSHORTDESC_"
+        # The ConfigParser forces all its keys to lower care.
+        descprefix = "iddesc_"
+        shortdescprefix = "idshortdesc_"
         for key, desc in config.items(section):
             if key.startswith(descprefix):
                 nstr = key[len(descprefix):]
@@ -424,8 +429,8 @@ class LocalStorage(object):
         try:
             hl7_items = config.items(CONFIG_FILE_RECIPIENTLIST_SECTION)
             for key, recipientdef_name in hl7_items:
-                log.debug("HL7 config: key={}, recipientdef_name="
-                          "{}".format(key, recipientdef_name))
+                log.debug("HL7 config: key={}, recipientdef_name={}",
+                          key, recipientdef_name)
                 h = RecipientDefinition(
                     valid_which_idnums=self.get_which_idnums(),
                     config=config,
@@ -433,9 +438,8 @@ class LocalStorage(object):
                 if h.valid:
                     self.HL7_RECIPIENT_DEFS.append(h)
         except configparser.NoSectionError:
-            log.info("No config file section [{}]".format(
-                CONFIG_FILE_RECIPIENTLIST_SECTION
-            ))
+            log.info("No config file section [{}]",
+                     CONFIG_FILE_RECIPIENTLIST_SECTION)
 
         # ---------------------------------------------------------------------
         # Read from the config file: 3. database password

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# distressthermometer.py
+# camcops_server/tasks/distressthermometer.py
 
 """
 ===============================================================================

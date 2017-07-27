@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# camcops_meta.py
+# camcops_server/camcops_meta.py
 
 """
 ===============================================================================

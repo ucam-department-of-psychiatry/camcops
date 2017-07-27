@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# fab.py
+# camcops_server/tasks_discarded/fab.py
 
 """
 ===============================================================================

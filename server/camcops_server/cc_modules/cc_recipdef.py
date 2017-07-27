@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_recipdef.py
+# camcops_server/cc_modules/cc_recipdef.py
 
 """
 ===============================================================================
@@ -35,6 +35,7 @@ from .cc_filename import (
     get_export_filename,
     patient_spec_for_filename_is_valid,
 )
+from .cc_logger import BraceStyleAdapter
 from .cc_policy import (
     is_idnum_mandatory_in_finalize_policy,
     is_idnum_mandatory_in_upload_policy,
@@ -45,7 +46,7 @@ from .cc_constants import VALUE
 if TYPE_CHECKING:
     from .cc_patientidnum import PatientIdNum
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -264,14 +265,12 @@ class RecipientDefinition(object):
             self.check_valid()
 
         except configparser.NoSectionError:
-            log.warning("Config file section missing: [{}]".format(
-                section
-            ))
+            log.warning("Config file section missing: [{}]", section)
             self.valid = False
 
     @staticmethod
     def report_error(msg) -> None:
-        log.error("RecipientDefinition: {}".format(msg))
+        log.error("RecipientDefinition: {}", msg)
 
     def check_valid(self) -> None:
         """Performs validity check and sets self.valid"""

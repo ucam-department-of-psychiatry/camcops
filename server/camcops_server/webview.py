@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# webview.py
+# camcops_server/webview.py
 
 """
 ===============================================================================
@@ -22,33 +22,22 @@
 ===============================================================================
 """
 
+import cgi
+import codecs
+import collections
 import datetime
+import io
+import lockfile
 import logging
 import sys
 import typing
 from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Union
+import zipfile
 
-# =============================================================================
-# Command-line "respond quickly" point
-# =============================================================================
-
-# if __name__ == '__main__':
-#     print("CamCOPS loading...", file=sys.stderr)
-
-# =============================================================================
-# Imports
-# =============================================================================
-
-import cgi
-import codecs
-import collections
-import io
-import lockfile
 import pygments
 import pygments.lexers
 import pygments.lexers.web
 import pygments.formatters
-import zipfile
 
 # local:
 from cardinal_pythonlib.rnc_lang import import_submodules
@@ -102,6 +91,7 @@ from .cc_modules.cc_html import (
     login_page,
     simple_success_message,
 )
+from .cc_modules.cc_logger import BraceStyleAdapter
 from .cc_modules.cc_patient import get_patient_server_pks_by_idnum, Patient
 from .cc_modules.cc_plot import ccplot_do_nothing
 from .cc_modules.cc_pls import pls
@@ -148,7 +138,7 @@ from .cc_modules.cc_user import (
 )
 from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 ccplot_do_nothing()
 
 # Task imports
@@ -1946,7 +1936,7 @@ def introspect(session: Session, form: cgi.FieldStorage) -> str:
         return fail_with_error_not_logged_in(INTROSPECTION_INVALID_FILE_MSG)
     index = possible_filenames.index(filename)
     ft = pls.INTROSPECTION_FILES[index]
-    # log.debug("INTROSPECTION: " + str(ft))
+    # log.debug("INTROSPECTION: {}", ft)
     fullpath = ft.fullpath
     if fullpath.endswith(".jsx"):
         lexer = pygments.lexers.web.JavascriptLexer()
@@ -1957,7 +1947,7 @@ def introspect(session: Session, form: cgi.FieldStorage) -> str:
         with codecs.open(fullpath, "r", "utf8") as f:
             code = f.read()
     except Exception as e:
-        log.debug("INTROSPECTION ERROR: " + str(e))
+        log.debug("INTROSPECTION ERROR: {}", e)
         return fail_with_error_not_logged_in(INTROSPECTION_FAILED_MSG)
     body = pygments.highlight(code, lexer, formatter)
     css = formatter.get_style_defs('.highlight')
@@ -2887,16 +2877,13 @@ def main_http_processor(env: Dict[str, str]) \
     form = ws.get_cgi_fieldstorage_from_wsgi_env(env)
     action = ws.get_cgi_parameter_str(form, PARAM.ACTION)
 
-    log.info(
-        "Incoming connection from IP={i}, port={p}, user_id={ui}, "
-        "username={un}, action={a}".format(
-            i=pls.remote_addr,
-            p=pls.remote_port,
-            ui=pls.session.user_id,
-            un=pls.session.username,
-            a=action,
-        )
-    )
+    log.info("Incoming connection from IP={i}, port={p}, user_id={ui}, "
+             "username={un}, action={a}",
+             i=pls.remote_addr,
+             p=pls.remote_port,
+             ui=pls.session.user_id,
+             un=pls.session.username,
+             a=action)
 
     # -------------------------------------------------------------------------
     # Login

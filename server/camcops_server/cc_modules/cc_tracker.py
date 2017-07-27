@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_tracker.py
+# camcops_server/cc_modules/cc_tracker.py
 
 """
 ===============================================================================
@@ -54,7 +54,7 @@ from .cc_html import (
     pdf_header_content,
 )
 from .cc_lang import flatten_list
-from .cc_namedtuples import XmlElementTuple
+from .cc_logger import BraceStyleAdapter
 from .cc_plot import matplotlib, set_matplotlib_fontsize
 from .cc_patientidnum import PatientIdNum
 from .cc_pls import pls
@@ -62,11 +62,11 @@ from .cc_session import Session
 from .cc_task import Task, TrackerInfo
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION
-from .cc_xml import get_xml_document
+from .cc_xml import get_xml_document, XmlElement
 
 import matplotlib.pyplot as plt  # ONLY AFTER IMPORTING cc_plot
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -133,7 +133,8 @@ def consistency(values: List[Any],
     )
 
 
-def consistency_idnums(idnum_lists: List[List[PatientIdNum]]) -> Tuple[bool, str]:
+def consistency_idnums(idnum_lists: List[List[PatientIdNum]]) \
+        -> Tuple[bool, str]:
     known = {}  # type: Dict[int, Set[int]]  # maps which_idnum -> set of idnum_values  # noqa
     for idnum_list in idnum_lists:
         for idnum in idnum_list:
@@ -235,21 +236,21 @@ class ConsistencyInfo(object):
         ]
         return cons
 
-    def get_xml_root(self) -> XmlElementTuple:
+    def get_xml_root(self) -> XmlElement:
         """XML tree (as root XmlElementTuple) of consistency information."""
         branches = [
-            XmlElementTuple(
+            XmlElement(
                 name="all_consistent",
                 value=self.are_all_consistent(),
                 datatype="boolean"
             )
         ]
         for c in self.get_description_list():
-            branches.append(XmlElementTuple(
+            branches.append(XmlElement(
                 name="consistency_check",
                 value=c,
             ))
-        return XmlElementTuple(name="_consistency", value=branches)
+        return XmlElement(name="_consistency", value=branches)
 
 
 # =============================================================================
@@ -296,10 +297,9 @@ class Tracker(object):
             self.end_datetime_extended = (
                 self.end_datetime + datetime.timedelta(days=1)
             )
-        log.debug("start_datetime: " + str(self.start_datetime))
-        log.debug("end_datetime: " + str(self.end_datetime))
-        log.debug("end_datetime_extended: " + str(
-            self.end_datetime_extended))
+        log.debug("start_datetime: ", self.start_datetime)
+        log.debug("end_datetime: ", self.end_datetime)
+        log.debug("end_datetime_extended: ", self.end_datetime_extended)
 
         self.restricted_warning = (
             RESTRICTED_WARNING_SINGULAR
@@ -398,30 +398,30 @@ class Tracker(object):
         """Get XML document representing tracker."""
         branches = [
             self.consistency_info.get_xml_root(),
-            XmlElementTuple(
+            XmlElement(
                 name="_search_criteria",
                 value=[
-                    XmlElementTuple(
+                    XmlElement(
                         name="task_tablename_list",
                         value=",".join(self.task_tablename_list)
                     ),
-                    XmlElementTuple(
+                    XmlElement(
                         name="which_idnum",
                         value=self.which_idnum,
                         datatype="integer"
                     ),
-                    XmlElementTuple(
+                    XmlElement(
                         name="idnum_value",
                         value=self.idnum_value,
                         datatype="integer"
                     ),
-                    XmlElementTuple(
+                    XmlElement(
                         name="start_datetime",
                         value=format_datetime(self.start_datetime,
                                               DATEFORMAT.ISO8601),
                         datatype="dateTime"
                     ),
-                    XmlElementTuple(
+                    XmlElement(
                         name="end_datetime",
                         value=format_datetime(self.end_datetime,
                                               DATEFORMAT.ISO8601),
@@ -439,7 +439,7 @@ class Tracker(object):
                 server_pk=t.get_pk(),
                 patient_server_pk=t.get_patient_server_pk()
             )
-        tree = XmlElementTuple(name="tracker", value=branches)
+        tree = XmlElement(name="tracker", value=branches)
         return get_xml_document(
             tree,
             indent_spaces=indent_spaces,
@@ -865,9 +865,9 @@ class ClinicalTextView(object):
             self.end_datetime_extended = (
                 self.end_datetime + datetime.timedelta(days=1)
             )
-        log.debug("start_datetime: " + str(self.start_datetime))
-        log.debug("end_datetime: " + str(self.end_datetime))
-        log.debug("end_datetime_extended: " + str(self.end_datetime_extended))
+        log.debug("start_datetime: ", self.start_datetime)
+        log.debug("end_datetime: ", self.end_datetime)
+        log.debug("end_datetime_extended: ", self.end_datetime_extended)
 
         if session.restricted_to_viewing_user():
             self.restricted_warning = RESTRICTED_WARNING_SINGULAR
@@ -960,26 +960,26 @@ class ClinicalTextView(object):
         """Get XML document representing CTV."""
         branches = [
             self.consistency_info.get_xml_root(),
-            XmlElementTuple(
+            XmlElement(
                 name="_search_criteria",
                 value=[
-                    XmlElementTuple(
+                    XmlElement(
                         name="which_idnum",
                         value=self.which_idnum,
                         datatype="integer"
                     ),
-                    XmlElementTuple(
+                    XmlElement(
                         name="idnum_value",
                         value=self.idnum_value,
                         datatype="integer"
                     ),
-                    XmlElementTuple(
+                    XmlElement(
                         name="start_datetime",
                         value=format_datetime(self.start_datetime,
                                               DATEFORMAT.ISO8601),
                         datatype="dateTime"
                     ),
-                    XmlElementTuple(
+                    XmlElement(
                         name="end_datetime",
                         value=format_datetime(self.end_datetime,
                                               DATEFORMAT.ISO8601),
@@ -997,7 +997,7 @@ class ClinicalTextView(object):
                 server_pk=t.get_pk(),
                 patient_server_pk=t.get_patient_server_pk()
             )
-        tree = XmlElementTuple(name="tracker", value=branches)
+        tree = XmlElement(name="tracker", value=branches)
         return get_xml_document(
             tree,
             indent_spaces=indent_spaces,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# asrm.py
+# camcops_server/tasks_discarded/asrm.py
 
 """
 ===============================================================================

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# camcops.py
+# camcops_server/camcops.py
 
 """
 ===============================================================================
@@ -63,7 +63,10 @@ from .cc_modules.cc_blob import Blob, ccblob_unit_tests
 from .cc_modules import cc_db
 from .cc_modules.cc_device import ccdevice_unit_tests, Device
 from .cc_modules.cc_dump import ccdump_unit_tests
-from .cc_modules.cc_logger import main_only_quicksetup_rootlogger
+from .cc_modules.cc_logger import (
+    main_only_quicksetup_rootlogger,
+    BraceStyleAdapter,
+)
 from .cc_modules.cc_hl7 import (
     HL7Message,
     HL7Run,
@@ -112,7 +115,7 @@ from .webview import (
     write_descriptions_comments,
 )
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -180,17 +183,16 @@ def application(environ: Dict[str, str],
     """
 
     if environ["wsgi.multithread"]:
-        # log.critical(repr(environ))
         log.critical("Error: started in multithreaded mode")
         raise RuntimeError("Cannot be run in multithreaded mode")
 
     # Set global variables, connect/reconnect to database, etc.
     pls.set_from_environ_and_ping_db(environ)
 
-    log.debug("WSGI environment: {}".format(repr(environ)))
+    log.debug("WSGI environment: {0!r}", environ)
 
     path = environ['PATH_INFO']
-    # log.debug("PATH_INFO: {}".format(path))
+    # log.debug("PATH_INFO: {}", path)
 
     # Trap any errors from here.
     # http://doughellmann.com/2009/06/19/python-exception-handling-techniques.html  # noqa
@@ -289,7 +291,7 @@ def v1_5_alter_device_table() -> None:
     if not pls.db.table_exists(tablename):
         return
     if pls.db.column_exists(tablename, 'id'):
-        log.warning("Column 'id' already exists in table {}".format(tablename))
+        log.warning("Column 'id' already exists in table {}", tablename)
         return
     ex = pls.db.db_exec_literal
     ex("ALTER TABLE {table} ADD COLUMN id "
@@ -308,7 +310,7 @@ def v1_5_alter_user_table() -> None:
     if not pls.db.table_exists(tablename):
         return
     if pls.db.column_exists(tablename, 'id'):
-        log.warning("Column 'id' already exists in table {}".format(tablename))
+        log.warning("Column 'id' already exists in table {}", tablename)
         return
     ex = pls.db.db_exec_literal
     ex("ALTER TABLE {table} ADD COLUMN id "
@@ -329,8 +331,8 @@ def v1_5_alter_generic_table_devicecol(tablename: str,
     if not pls.db.table_exists(tablename):
         return
     if pls.db.column_exists(tablename, to_col):
-        log.warning("Column '{}' already exists in table {}".format(
-            to_col, tablename))
+        log.warning("Column '{}' already exists in table {}",
+                    to_col, tablename)
         return
     ex = pls.db.db_exec_literal
     ex("ALTER TABLE {table} ADD COLUMN {to_col} INT UNSIGNED".format(
@@ -354,8 +356,8 @@ def v1_5_alter_generic_table_usercol(tablename: str,
     if not pls.db.table_exists(tablename):
         return
     if pls.db.column_exists(tablename, to_col):
-        log.warning("Column '{}' already exists in table {}".format(
-            to_col, tablename))
+        log.warning("Column '{}' already exists in table {}",
+                    to_col, tablename)
         return
     ex = pls.db.db_exec_literal
     ex("ALTER TABLE {table} ADD COLUMN {to_col} INT UNSIGNED".format(
@@ -749,22 +751,18 @@ def make_tables(drop_superfluous_columns: bool = False) -> None:
     max_allowed_packet = pls.db.mysql_get_max_allowed_packet()
     size_32m = 32 * 1024 * 1024
     if max_allowed_packet < size_32m:
-        log.error(
-            "MySQL max_allowed_packet < 32M (it's {} and needs to be {}); "
-            "please insert 'max_allowed_packet = 32M'".format(
-                max_allowed_packet,
-                size_32m,
-            ) + insertmsg)
+        log.error("MySQL max_allowed_packet < 32M (it's {} and needs to be "
+                  "{}); please insert 'max_allowed_packet = 32M'" + insertmsg,
+                  max_allowed_packet,
+                  size_32m)
         failed = True
     if not pls.db.mysql_using_file_per_table():
-        log.error(
-            "NOT USING innodb_file_per_table; please insert "
-            "'innodb_file_per_table = 1'" + insertmsg)
+        log.error("NOT USING innodb_file_per_table; please insert "
+                  "'innodb_file_per_table = 1'" + insertmsg)
         failed = True
     if not pls.db.mysql_using_innodb_barracuda():
-        log.error(
-            "innodb_file_format IS NOT Barracuda; please insert "
-            "'innodb_file_per_table = Barracuda'" + insertmsg)
+        log.error("innodb_file_format IS NOT Barracuda; please insert "
+                  "'innodb_file_per_table = Barracuda'" + insertmsg)
         failed = True
     if failed:
         raise AssertionError("MySQL settings need fixing")
@@ -1286,5 +1284,6 @@ Using database: {dbname} ({dbtitle}).
 # for gunicorn from the command line; I'm less clear about whether the disk
 # logs look polluted by ANSI codes; needs checking.
 main_only_quicksetup_rootlogger(logging.INFO)
+
 if __name__ == '__main__':
     cli_main()

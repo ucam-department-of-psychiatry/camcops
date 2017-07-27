@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# wemwbs.py
+# camcops_server/tasks/wemwbs.py
 
 """
 ===============================================================================

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_configfile.py
+# camcops_server/cc_modules/cc_configfile.py
 
 """
 ===============================================================================
@@ -25,8 +25,9 @@
 import configparser
 import logging
 from typing import Any, Callable, List
+from .cc_logger import BraceStyleAdapter
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -53,7 +54,7 @@ def get_config_parameter(config: configparser.ConfigParser,
         value = fn(config.get(section, param))
     except (TypeError, ValueError, configparser.NoOptionError):
         log.warning("Configuration variable {} not found or improper; "
-                    "using default of {}".format(param, default))
+                    "using default of {}", param, default)
         if default is None:
             value = default
         else:
@@ -79,7 +80,7 @@ def get_config_parameter_boolean(config: configparser.ConfigParser,
         value = config.getboolean(section, param)
     except (TypeError, ValueError, configparser.NoOptionError):
         log.warning("Configuration variable {} not found or improper; "
-                    "using default of {}".format(param, default))
+                    "using default of {}", param, default)
         value = default
     return value
 
@@ -114,7 +115,7 @@ def get_config_parameter_loglevel(config: configparser.ConfigParser,
             raise ValueError
     except (TypeError, ValueError, configparser.NoOptionError, AttributeError):
         log.warning("Configuration variable {} not found or improper; "
-                    "using default of {}".format(param, default))
+                    "using default of {}", param, default)
         return default
 
 
@@ -127,5 +128,5 @@ def get_config_parameter_multiline(config: configparser.ConfigParser,
         return [x.strip() for x in multiline.splitlines() if x.strip()]
     except (TypeError, ValueError, configparser.NoOptionError):
         log.warning("Configuration variable {} not found or improper; "
-                    "using default of {}".format(param, default))
+                    "using default of {}", param, default)
         return default

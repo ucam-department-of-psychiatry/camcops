@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_user.py
+# camcops_server/cc_modules/cc_user.py
 
 """
 ===============================================================================
@@ -47,12 +47,13 @@ from .cc_html import (
     get_yes_no,
     simple_success_message,
 )
+from .cc_logger import BraceStyleAdapter
 from .cc_pls import pls
 # NO: CIRCULAR # from .cc_session import Session
 from .cc_storedvar import ServerStoredVar
 from .cc_unittest import unit_test_ignore
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 SESSION_FWD_REF = "Session"
 

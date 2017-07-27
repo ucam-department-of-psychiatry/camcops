@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# honos.py
+# camcops_server/tasks/honos.py
 
 """
 ===============================================================================
@@ -22,7 +22,7 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import List, Optional
 
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
@@ -141,7 +141,7 @@ class Honos(Task):
     def get_q(self, q: int) -> str:
         return self.wxstring("q" + str(q) + "_s")
 
-    def get_answer(self, q: int, a: int) -> str:
+    def get_answer(self, q: int, a: int) -> Optional[str]:
         if a == 9:
             return self.wxstring("option9")
         if a is None or a < 0 or a > 4:

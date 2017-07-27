@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# bars.py
+# camcops_server/tasks_discarded/bars.py
 
 """
 ===============================================================================

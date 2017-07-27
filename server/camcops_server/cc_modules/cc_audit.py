@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_audit.py
+# camcops_server/cc_modules/cc_audit.py
 
 """
 ===============================================================================
@@ -21,7 +21,6 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 ===============================================================================
 """
-
 
 from .cc_pls import pls
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_convert.py
+# camcops_server/cc_modules/cc_convert.py
 
 """
 ===============================================================================
@@ -26,10 +26,13 @@ import base64
 import binascii
 import logging
 import re
-from typing import Any, Generator, List
+from typing import Any, Generator, List, Optional
 
 import cardinal_pythonlib.rnc_db as rnc_db
-from ..cc_modules.cc_pls import pls
+from .cc_logger import BraceStyleAdapter
+from .cc_pls import pls
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 REGEX_WHITESPACE = re.compile("\s")
 REGEX_BLOB_HEX = re.compile("""
@@ -50,42 +53,58 @@ REGEX_BLOB_BASE64 = re.compile("""
 SQLSEP = ","
 SQLQUOTE = "'"
 
-log = logging.getLogger(__name__)
-
 
 # =============================================================================
 # Conversion to/from quoted SQL values
 # =============================================================================
 
 def special_hex_encode(v: bytes) -> str:
-    """Encode in X'{hex}' format."""
-    return "X'{}'".format(binascii.hexlify(v))
+    """
+    Encode in X'{hex}' format.
+    Example:
+        special_hex_encode(b"hello") == "X'68656c6c6f'"
+    """
+    return "X'{}'".format(binascii.hexlify(v).decode("ascii"))
 
 
-def special_hex_decode(s: str) -> bytearray:  # TODO: change to bytes?
-    """Reverse special_hex_encode()."""
+def special_hex_decode(s: str) -> Optional[bytes]:
+    """
+    Reverse special_hex_encode().
+    The parameter is a hex-encoded BLOB like
+        "X'CDE7A24B1A9DBA3148BCB7A0B9DA5BB6A424486C'"
+    """
     # SPECIAL HANDLING for BLOBs: a string like X'01FF' means a hex-
     # encoded BLOB. Titanium is rubbish at blobs, so we encode them as
     # special string literals.
-    # Hex-encoded BLOB like X'CDE7A24B1A9DBA3148BCB7A0B9DA5BB6A424486C'
+    # SQLite uses this notation: https://sqlite.org/lang_expr.html
     # Strip off the start and end and convert it to a byte array:
     # http://stackoverflow.com/questions/5649407
-    return bytearray.fromhex(s[2:-1])
+    if len(s) < 3 or not s.startswith("X'") or not s.endswith("'"):
+        return None
+    return binascii.unhexlify(s[2:-1])
 
 
 def special_base64_encode(v: bytes) -> str:
-    """Encode in 64'{base64encoded}' format."""
-    return "64'{}'".format(base64.b64encode(v))
+    """
+    Encode in 64'{base64encoded}' format.
+    Example:
+        special_base64_encode(b"hello") == "64'aGVsbG8='"
+    """
+    return "64'{}'".format(base64.b64encode(v).decode('ascii'))
 
 
-def special_base64_decode(s: str) -> bytearray:  # TODO: change to bytes?
-    """Reverse special_base64_encode()."""
-    # OTHER WAY OF DOING BLOBS: base64 encoding
+def special_base64_decode(s: str) -> Optional[bytes]:
+    """
+    Reverse special_base64_encode().
+    """
+    # THIS IS ANOTHER WAY OF DOING BLOBS: base64 encoding
     # e.g. a string like 64'cGxlYXN1cmUu' is a base-64-encoded BLOB
     # (the 64'...' bit is my representation)
     # regex from http://stackoverflow.com/questions/475074
     # better one from http://www.perlmonks.org/?node_id=775820
-    return bytearray(base64.b64decode(s[3:-1]))
+    if len(s) < 4 or not s.startswith("64'") or not s.endswith("'"):
+        return None
+    return base64.b64decode(s[3:-1])
 
 
 def escape_newlines(s: str) -> str:
@@ -155,7 +174,7 @@ def gen_items_from_sql_csv(s: str) -> Generator[str, None, None]:
     within the string passed."""
     # csv.reader will not both process the quotes and return the quotes;
     # we need them to distinguish e.g. NULL from 'NULL'.
-    # log.warning('gen_items_from_sql_csv: s = {}'.format(repr(s)))
+    # log.warning('gen_items_from_sql_csv: s = {0!r}', s)
     if not s:
         return
     n = len(s)
@@ -168,7 +187,7 @@ def gen_items_from_sql_csv(s: str) -> Generator[str, None, None]:
                 # end of chunk
                 chunk = s[startpos:pos]  # does not include s[pos]
                 result = chunk.strip()
-                # log.warning('yielding: {}'.format(repr(result)))
+                # log.warning('yielding: {0!r}', result)
                 yield result
                 startpos = pos + 1
             elif s[pos] == SQLQUOTE:
@@ -184,7 +203,7 @@ def gen_items_from_sql_csv(s: str) -> Generator[str, None, None]:
         pos += 1
     # Last chunk
     result = s[startpos:].strip()
-    # log.warning('yielding last: {}'.format(repr(result)))
+    # log.warning('yielding last: {0!r}', result)
     yield result
 
 
@@ -235,7 +254,7 @@ def decode_single_value(v: str) -> Any:
         # v is a quoted string
         s = rnc_db.sql_dequote_string(v)
         # s is the underlying string that the source started with
-        # log.debug("UNDERLYING STRING: {}".format(s))
+        # log.debug("UNDERLYING STRING: {}", s)
         return s
 
     # Not a quoted string.
@@ -257,9 +276,9 @@ def decode_single_value(v: str) -> Any:
 def decode_values(valuelist: str) -> List[Any]:
     """Takes a SQL CSV value list and returns the corresponding list of decoded
     values."""
-    # log.debug("decode_values: valuelist={}".format(valuelist))
+    # log.debug("decode_values: valuelist={}", valuelist)
     v = [decode_single_value(v) for v in gen_items_from_sql_csv(valuelist)]
-    # log.debug("decode_values: values={}".format(v))
+    # log.debug("decode_values: values={}", v)
     return v
 
 

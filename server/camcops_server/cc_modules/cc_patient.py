@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_patient.py
+# camcops_server/cc_modules/cc_patient.py
 
 """
 ===============================================================================
@@ -22,9 +22,10 @@
 ===============================================================================
 """
 
+import collections
 import datetime
 import logging
-from typing import Any, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import dateutil.relativedelta
 import hl7
@@ -43,6 +44,7 @@ from .cc_constants import (
     NUMBER_OF_IDNUMS_DEFUNCT,
     PARAM,
     STANDARD_GENERIC_FIELDSPECS,
+    TSV_PATIENT_FIELD_PREFIX,
 )
 from . import cc_db
 from .cc_dt import (
@@ -54,11 +56,8 @@ from .cc_dt import (
 )
 from .cc_hl7core import make_pid_segment
 from .cc_html import answer, get_generic_action_url, get_url_field_value_pair
-from .cc_namedtuples import (
-    BarePatientInfo,
-    PatientIdentifierTuple,
-    XmlElementTuple,
-)
+from .cc_logger import BraceStyleAdapter
+from .cc_simpleobjects import BarePatientInfo, HL7PatientIdentifier
 from .cc_patientidnum import PatientIdNum
 from .cc_pls import pls
 from .cc_policy import (
@@ -76,9 +75,11 @@ from .cc_version import CAMCOPS_SERVER_VERSION_STRING
 from .cc_xml import (
     make_xml_branches_from_fieldspecs,
     XML_COMMENT_SPECIAL_NOTES,
+    XmlDataTypes,
+    XmlElement,
 )
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -175,17 +176,56 @@ class Patient:
     def get_idnum_raw_values_only(self) -> List[int]:
         return [x.idnum_value for x in self.get_idnum_objects()]
 
-    def get_xml_root(self, skip_fields: List[str] = None) -> XmlElementTuple:
+    def get_xml_root(self, skip_fields: List[str] = None) -> XmlElement:
         """Get root of XML tree, as an XmlElementTuple."""
         skip_fields = skip_fields or []
+        # Exclude old ID fields:
+        for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
+            nstr = str(n)
+            skip_fields.append(FP_ID_NUM + nstr)
+            skip_fields.append(FP_ID_DESC + nstr)
+            skip_fields.append(FP_ID_SHORT_DESC + nstr)
         branches = make_xml_branches_from_fieldspecs(
             self, self.FIELDSPECS, skip_fields=skip_fields)
+        # Now add newer IDs:
+        for n in pls.get_which_idnums():
+            branches.append(XmlElement(name=FP_ID_NUM + nstr,
+                                       value=self.get_idnum_value(n),
+                                       datatype=XmlDataTypes.INTEGER,
+                                       comment="ID number " + nstr))
+            branches.append(XmlElement(name=FP_ID_DESC + nstr,
+                                       value=self.get_iddesc(n),
+                                       datatype=XmlDataTypes.STRING,
+                                       comment="ID description " + nstr))
+            branches.append(XmlElement(name=FP_ID_SHORT_DESC + nstr,
+                                       value=self.get_idshortdesc(n),
+                                       datatype=XmlDataTypes.STRING,
+                                       comment="ID short description " + nstr))
         # Special notes
         branches.append(XML_COMMENT_SPECIAL_NOTES)
         for sn in self.get_special_notes():
             branches.append(sn.get_xml_root())
-        return XmlElementTuple(name=self.TABLENAME,
-                               value=branches)
+        return XmlElement(name=self.TABLENAME,
+                          value=branches)
+
+    def get_dict_for_tsv(self) -> Dict[str, Any]:
+        d = collections.OrderedDict()
+        for f in self.FIELDS:
+            # Exclude old ID fields:
+            if (not f.startswith(FP_ID_NUM) and
+                    not f.startswith(FP_ID_DESC) and
+                    not f.startswith(FP_ID_SHORT_DESC)):
+                d[TSV_PATIENT_FIELD_PREFIX + f] = getattr(self, f)
+        # Now the ID fields:
+        for n in pls.get_which_idnums():
+            nstr = str(n)
+            d[TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr] = \
+                self.get_idnum_value(n)
+            d[TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr] = \
+                self.get_iddesc(n)
+            d[TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC + nstr] = \
+                self.get_idshortdesc(n)
+        return d
 
     def anonymise(self) -> None:
         """Wipes the object's patient-identifiable content.
@@ -365,7 +405,7 @@ class Patient:
         """Get HL7 patient identifier (PID) segment."""
         # Put the primary one first:
         patient_id_tuple_list = [
-            PatientIdentifierTuple(
+            HL7PatientIdentifier(
                 id=str(self.get_idnum_value(recipient_def.primary_idnum)),
                 id_type=recipient_def.get_id_type(
                     recipient_def.primary_idnum),
@@ -382,7 +422,7 @@ class Patient:
             if idnum_value is None:
                 continue
             patient_id_tuple_list.append(
-                PatientIdentifierTuple(
+                HL7PatientIdentifier(
                     id=str(idnum_value),
                     id_type=recipient_def.get_id_type(which_idnum),
                     assigning_authority=recipient_def.get_id_aa(which_idnum)
@@ -394,7 +434,7 @@ class Patient:
             dob=self.get_dob(),
             sex=self.get_sex(),
             address=self.get_address(),
-            patient_id_tuple_list=patient_id_tuple_list,
+            patient_id_list=patient_id_tuple_list,
         )
 
     def get_idnum_object(self, which_idnum: int) -> Optional[PatientIdNum]:
@@ -642,7 +682,7 @@ def get_current_version_of_patient_by_client_info(device_id: int,
     serverpk = cc_db.get_current_server_pk_by_client_info(
         Patient.TABLENAME, device_id, clientpk, era)
     if serverpk is None:
-        log.critical("NO PATIENT") # ***
+        log.critical("MISSING PATIENT - acceptable only in unit testing")
         return Patient()
     return Patient(serverpk)
 
@@ -710,7 +750,6 @@ class DistinctPatientReport(Report):
             "p.sex AS sex"
         ]
         from_tables = ["{} AS p".format(patienttable)]
-        where = ["p._current"]
         for n in pls.get_which_idnums():
             nstr = str(n)
             fieldalias = FP_ID_NUM + nstr  # idnum7
@@ -719,34 +758,33 @@ class DistinctPatientReport(Report):
                                                                fieldalias))
             from_tables.append(
                 """
-                    INNER JOIN {idtable} AS {idtablealias}
-                        ON {idtable}.patient_id = p.id
-                        AND {idtable}._device_id = p._device_id
-                        AND {idtable}._era = p._era
+                    LEFT JOIN {idtable} AS {idtablealias} ON (
+                        {idtablealias}.patient_id = p.id
+                        AND {idtablealias}._device_id = p._device_id
+                        AND {idtablealias}._era = p._era
+                        AND {idtablealias}._current
+                        AND {idtablealias}.which_idnum = {which_idnum}
+                    )
                 """.format(
                     idtable=PatientIdNum.tablename,
                     idtablealias=idtablealias,
+                    which_idnum=nstr,
+                    # ... ugly! No parameters. Still, we know what we've got.
                 )
             )
-            where.append("{}._current".format(idtablealias))
-            where.append("{}.which_idnum = {}".format(idtablealias, nstr))
-            # ... ugly! No parameters. Still, we know what we've got.
-        order_by_fields = [
-            "p.surname",
-            "p.forename",
-            "p.dob",
-            "p.sex"
-        ]
         sql = """
             SELECT DISTINCT {select_fields}
             FROM {from_tables}
-            WHERE {where}
-            ORDER BY {order_by}
+            WHERE 
+                p._current
+            ORDER BY 
+                p.surname,
+                p.forename,
+                p.dob,
+                p.sex
         """.format(
             select_fields=", ".join(select_fields),
             from_tables=" ".join(from_tables),
-            where=" AND ".join(where),
-            order_by=", ".join(order_by_fields),
         )
         (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
         fieldnames = expand_id_descriptions(fieldnames)

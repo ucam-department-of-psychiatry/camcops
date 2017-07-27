@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_patientidnum.py
+# camcops_server/cc_modules/cc_patientidnum.py
 
 """
 ===============================================================================
@@ -32,9 +32,10 @@ from .cc_constants import (
     STANDARD_GENERIC_FIELDSPECS,
 )
 from . import cc_db
+from .cc_logger import BraceStyleAdapter
 from .cc_pls import pls
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -48,6 +49,8 @@ class PatientIdNum:
     # get_contemporaneous_matching_ancillary_objects_by_fk() but this is
     # INELEGANT. Fix with proper DB engine. ***
     FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
+        dict(name="id", cctype="INT_UNSIGNED", notnull=True,
+             comment="Primary key on the source tablet device"),
         dict(name="patient_id", cctype="INT_UNSIGNED", notnull=True,
              comment="FK to patient.id (for this device/era)"),
         dict(name="which_idnum", cctype="INT_UNSIGNED", notnull=True,

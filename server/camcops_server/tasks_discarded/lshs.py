@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# lshs.py
+# camcops_server/tasks_discarded/lshs.py
 
 """
 ===============================================================================

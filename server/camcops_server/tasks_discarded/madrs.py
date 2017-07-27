@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# madrs.py
+# camcops_server/tasks_discarded/madrs.py
 
 """
 ===============================================================================

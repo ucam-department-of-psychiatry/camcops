@@ -48,11 +48,27 @@ BUILDS/DISTRIBUTION
 
         e.g. 0 = Affective Disorders Research Database
              1 = Clinicians
-             2 = O'Brien clinical lab
+             2 = Smith clinical lab
 
     - patient ID policy remains consistent across the server
     - tasks have a group ID (on the server, to keep the client simple)
       ... editable on the server, if required
+      ... has to be per-task to cope with anonymous tasks
+          ... or could be per-task for anonymous tasks and per-patient for
+              everything else; that would greatly simplify moving tasks between
+              groups (which should be a rare operation), because to be
+              consistent afterwards for an identifiable task, all the patient
+              information has to move with it (or be copied)
+          ... but slows down task load, since group filter can't be applied
+              in SQL
+          ... and this would be simpler if "patient" records are not in groups,
+              though that breaks segregation a bit
+      ... could be in EVERY uploaded table
+          ... perfect in terms of info segregation and fast SQL
+                ... for which: _group IN (?, ?, ?, ...) [= user.permitted_groups()]
+          ... works for bulk data dumps too (restrict by _group)
+          ... makes moves complex, but they should be rare
+
     - a user chooses (on the web site) which group they upload to
       ... shouldn't be something that they need to change often
 
@@ -77,8 +93,8 @@ BUILDS/DISTRIBUTION
         - "does task exist" is tested by server within the context of the
           user's current group
         - ... which just means that users need to be aware that IF data has
-          been copied to the server, it should probably be moved to the server
-          prior to changing groups.
+          been *copied* to the server, it should probably be *moved* to the
+          server prior to changing groups.
 
 - Note for SERVER side: is ZIP generation inefficient with >1 SQL query per
   task fetched (e.g. generate PKs, filter PKs, fetch...)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# diagnosis.py
+# camcops_server/tasks/diagnosis.py
 
 """
 ===============================================================================

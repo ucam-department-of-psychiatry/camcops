@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# photo.py
+# camcops_server/tasks/photo.py
 
 """
 ===============================================================================

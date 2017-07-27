@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# slums.py
+# camcops_server/tasks/slums.py
 
 """
 ===============================================================================

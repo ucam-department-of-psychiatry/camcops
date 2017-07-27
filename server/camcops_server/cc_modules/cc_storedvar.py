@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_storedvar.py
+# camcops_server/cc_modules/cc_storedvar.py
 
 """
 ===============================================================================
@@ -29,9 +29,10 @@ import cardinal_pythonlib.rnc_db as rnc_db
 
 from .cc_constants import STANDARD_GENERIC_FIELDSPECS
 from . import cc_db
+from .cc_logger import BraceStyleAdapter
 from .cc_pls import pls
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -215,7 +216,7 @@ def get_device_storedvar_value(device_id: int,
     return sv.get_value() if sv is not None else ""
 
 
-def get_server_storedvar(name: str) -> ServerStoredVar:
+def get_server_storedvar(name: str) -> Optional[ServerStoredVar]:
     """Fetches a ServerStoredVar() object, or None."""
     # lookup by name, not client ID
     try:

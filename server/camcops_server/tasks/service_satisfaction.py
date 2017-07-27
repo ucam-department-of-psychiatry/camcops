@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# service_satisfaction.py
+# camcops_server/tasks/service_satisfaction.py
 
 """
 ===============================================================================

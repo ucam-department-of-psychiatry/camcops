@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_policy.py
+# camcops_server/cc_modules/cc_policy.py
 
 """
 ===============================================================================
@@ -27,10 +27,11 @@ import logging
 import tokenize
 from typing import List, Optional, Tuple
 
-from .cc_namedtuples import BarePatientInfo
+from .cc_logger import BraceStyleAdapter
+from .cc_simpleobjects import BarePatientInfo
 from .cc_unittest import unit_test_ignore
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 # =============================================================================
 # Constants

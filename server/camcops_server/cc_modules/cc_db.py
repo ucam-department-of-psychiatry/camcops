@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_db.py
+# camcops_server/cc_modules/cc_db.py
 
 """
 ===============================================================================
@@ -40,9 +40,10 @@ from .cc_constants import (
     STANDARD_TASK_FIELDSPECS,
 )
 from .cc_dt import format_datetime
+from .cc_logger import BraceStyleAdapter
 from .cc_pls import pls
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 T = TypeVar('T')
 
@@ -216,7 +217,6 @@ def get_current_server_pk_by_client_info(table: str,
     sql = ("SELECT _pk FROM " + table +
            " WHERE _current AND _device_id=? AND id=? AND _era=?")
     args = (device_id, clientpk, era)
-    # log.critical("sql: {}, args: {}".format(repr(sql), repr(args)))
     row = pls.db.fetchone(sql, *args)
     if row is None:
         return None
@@ -246,7 +246,6 @@ def get_contemporaneous_server_pk_by_client_info(
         args.append(referrer_removed_utc)
     else:
         sql += "_when_removed_batch_utc IS NULL"
-    # log.critical("sql: {}, args: {}".format(repr(sql), repr(args)))
     row = pls.db.fetchone(sql, *args)
     if row is None:
         return None
@@ -496,10 +495,6 @@ def create_or_update_table(tablename: str,
     """Adds the sqltype to a set of fieldspecs using cctype, then creates the
     table."""
     add_sqltype_to_fieldspeclist_in_place(fieldspecs_with_cctype)
-    # if False:
-    #     for fs in fieldspecs_with_cctype:
-    #         if "indexed" in fs:
-    #             log.critical(fs)
     pls.db.create_or_update_table(
         tablename, fieldspecs_with_cctype,
         drop_superfluous_columns=drop_superfluous_columns,

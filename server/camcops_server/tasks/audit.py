@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# audit.py
+# camcops_server/tasks/audit.py
 
 """
 ===============================================================================

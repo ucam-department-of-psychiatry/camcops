@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_analytics.py
+# camcops_server/cc_modules/cc_analytics.py
 
 """
 ===============================================================================
@@ -34,12 +34,13 @@ from .cc_dt import (
     format_datetime,
     get_datetime_from_string,
 )
+from .cc_logger import BraceStyleAdapter
 from .cc_pls import pls
 from .cc_storedvar import ServerStoredVar
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 ANALYTICS_FREQUENCY_DAYS = 7  # send analytics weekly
 
@@ -101,7 +102,7 @@ def send_analytics_if_necessary() -> None:
         # don't care about any response
     except (urllib.error.URLError, urllib.error.HTTPError):
         # something broke; try again next time
-        log.info("Failed to send analytics to {}".format(ANALYTICS_URL))
+        log.info("Failed to send analytics to {}", ANALYTICS_URL)
         return
 
     # Store current time as last-sent time

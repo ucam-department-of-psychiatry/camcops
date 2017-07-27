@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# panss.py
+# camcops_server/tasks/panss.py
 
 """
 ===============================================================================

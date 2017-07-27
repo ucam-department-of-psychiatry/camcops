@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# qolsg.py
+# camcops_server/tasks/qolsg.py
 
 """
 ===============================================================================

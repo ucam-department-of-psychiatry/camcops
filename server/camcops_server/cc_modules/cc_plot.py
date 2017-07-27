@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_plot.py
+# camcops_server/cc_modules/cc_plot.py
 
 """
 ===============================================================================
@@ -34,7 +34,10 @@ import tempfile
 
 import cardinal_pythonlib.rnc_plot as rnc_plot
 
-log = logging.getLogger(__name__)
+from .cc_logger import BraceStyleAdapter
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
+
 
 # =============================================================================
 # Import matplotlib
@@ -70,8 +73,8 @@ if 'HOME' in os.environ:
     del os.environ['HOME']
 
 # 5. Import matplotlib
-log.info("importing matplotlib (can be slow) (MPLCONFIGDIR={})...".format(
-    MPLCONFIGDIR))
+log.info("importing matplotlib (can be slow) (MPLCONFIGDIR={})...",
+         MPLCONFIGDIR)
 import matplotlib  # noqa
 
 # 6. Set the backend

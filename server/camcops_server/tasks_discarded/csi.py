@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# csi.py
+# camcops_server/tasks_discarded/csi.py
 
 """
 ===============================================================================

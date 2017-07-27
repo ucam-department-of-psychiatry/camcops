@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_version_string.py
+# camcops_server/cc_modules/cc_version_string.py
 
 """
 ===============================================================================
@@ -30,5 +30,5 @@
 # =============================================================================
 
 CAMCOPS_SERVER_VERSION_STRING = "2.0.1"
-CAMCOPS_CHANGEDATE = "2017-07-25"
+CAMCOPS_CHANGEDATE = "2017-07-27"
 MINIMUM_TABLET_VERSION_STRING = "1.14.0"

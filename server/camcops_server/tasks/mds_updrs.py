@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# mds_updrs.py
+# camcops_server/tasks/mds_updrs.py
 
 """
 ===============================================================================

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_string.py
+# camcops_server/cc_modules/cc_string.py
 
 """
 ===============================================================================
@@ -34,9 +34,10 @@ import xml.etree.cElementTree as ElementTree
 import cardinal_pythonlib.rnc_web as ws
 
 from .cc_convert import unescape_newlines
+from .cc_logger import BraceStyleAdapter
 from .cc_pls import pls
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 APPSTRING_TASKNAME = "camcops"

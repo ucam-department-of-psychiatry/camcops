@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# epds.py
+# camcops_server/tasks_discarded/epds.py
 
 """
 ===============================================================================

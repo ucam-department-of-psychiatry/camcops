@@ -781,7 +781,7 @@ SvgWidgetAndProxy IDED3D::showIndividualStimulus(
     const QString& path_contents = IDED3DExemplars::shapeSvg(stimulus_num);
     SvgTransform transform;
     transform.scale(scale);
-    QString svg = graphicsfunc::svgFromPathContents(
+    const QString svg = graphicsfunc::svgFromPathContents(
                 path_contents, colour, STIM_STROKE_WIDTH, colour, transform);
 #ifdef DEBUG_SVG
     qDebug().noquote() << "showIndividualStimulus: svg:" << svg;

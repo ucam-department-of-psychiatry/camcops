@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_session.py
+# camcops_server/cc_modules/cc_session.py
 
 """
 ===============================================================================
@@ -45,9 +45,10 @@ from .cc_html import (
     get_url_main_menu,
     get_yes_no_none,
 )
+from .cc_logger import BraceStyleAdapter
 from .cc_pls import pls
-from .cc_unittest import unit_test_ignore
 from .cc_task import get_task_filter_dropdown
+from .cc_unittest import unit_test_ignore
 from .cc_user import (
     clear_dummy_login_failures_if_necessary,
     delete_old_account_lockouts,
@@ -57,7 +58,7 @@ from .cc_user import (
     User,
 )
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -105,15 +106,14 @@ def establish_session(env: Dict) -> None:
     create a new one. Session is then stored in pls.session (pls being
     process-local storage)."""
     log.debug("establish_session")
-    # log.critical(repr(env))
     ip_address = env["REMOTE_ADDR"]
     try:
-        # log.debug('HTTP_COOKIE: {}'.format(repr(env["HTTP_COOKIE"])))
+        # log.debug('HTTP_COOKIE: {0!r}', env["HTTP_COOKIE"])
         cookie = http.cookies.SimpleCookie(env["HTTP_COOKIE"])
         session_id = int(cookie["session_id"].value)
         session_token = cookie["session_token"].value
-        log.debug("Found cookie token: ID {}, token {}".format(
-            session_id, session_token))
+        log.debug("Found cookie token: ID {}, token {}",
+                  session_id, session_token)
     except (http.cookies.CookieError, KeyError):
         log.debug("No cookie yet. Creating new one.")
         session_id = None
@@ -237,20 +237,18 @@ class Session:
             log.debug("no token")
             make_new_session = True
         elif self.token != token:  # token not what we were expecting
-            log.debug(
-                "token mismatch (existing = {}, incoming = {})".format(
-                    self.token, token))
+            log.debug("token mismatch (existing = {}, incoming = {})",
+                      self.token, token)
             make_new_session = True
         elif self.ip_address != ip_address:  # from wrong IP address
-            log.debug(
-                "IP address mismatch (existing = {}, incoming = {}".format(
-                    self.ip_address, ip_address))
+            log.debug("IP address mismatch (existing = {}, incoming = {}",
+                      self.ip_address, ip_address)
             make_new_session = True
         elif self.last_activity_utc < expiry_if_before:  # expired
             log.debug("session expired")
             make_new_session = True
         else:
-            log.debug("session {} successfully loaded".format(pk))
+            log.debug("session {} successfully loaded", pk)
 
         if make_new_session:
             # new one (meaning new not-logged-in one) for you!
@@ -260,13 +258,13 @@ class Session:
             self.ip_address = ip_address
         self.save()  # assigns self.id if it was blank
         if make_new_session:  # after self.id has been set
-            log.debug("Making new session. ID: {}. Token: {}".format(
-                self.id, self.token))
+            log.debug("Making new session. ID: {}. Token: {}",
+                      self.id, self.token)
 
         if self.user_id:
             self.userobject = User(self.user_id)
             if self.userobject.id is not None:
-                log.debug("found user: {}".format(self.username))
+                log.debug("found user: {}", self.username)
             else:
                 log.debug("userobject had blank ID; wiping user")
                 self.userobject = None
@@ -335,7 +333,7 @@ class Session:
     def login(self, userobject: User) -> None:
         """Log in. Associates the user with the session and makes a new
         token."""
-        log.debug("login: username = {}".format(userobject.username))
+        log.debug("login: username = {}", userobject.username)
         self.user_id = userobject.id
         self.userobject = userobject
         self.token = generate_token()
@@ -498,18 +496,14 @@ class Session:
         # after entering information in any box (which is nice).
         found_one = False
         filters = []
-        id_filter_values = []
-        id_filter_descs = []
-        for n in pls.get_which_idnums():
-            nstr = str(n)
-            id_filter_values.append(getattr(self, "filter_idnum" + nstr))
-            id_filter_descs.append(pls.get_id_desc(n))
+
         id_filter_value = None
         id_filter_name = "ID number"
-        for index, value in enumerate(id_filter_values):
-            if value is not None:
-                id_filter_value = value
-                id_filter_name = id_filter_descs[index]
+        for which_idnum, idnum_value in self.get_idnum_filters():
+            if (idnum_value is not None and
+                    which_idnum in pls.get_which_idnums()):
+                id_filter_value = idnum_value
+                id_filter_name = pls.get_id_desc(which_idnum)
         which_idnum_temp = """
                 {picker}
                 <input type="number" name="{PARAM.IDNUM_VALUE}">
@@ -956,7 +950,8 @@ class Session:
         """Number of pages."""
         if not ntasks or not self.number_to_view:
             return 1
-        return math.ceil(ntasks / self.number_to_view)
+        npages = math.ceil(ntasks / self.number_to_view)  # type: int
+        return npages
 
     def get_current_page(self) -> int:
         """Current page we're on."""

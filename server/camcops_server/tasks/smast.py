@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# smast.py
+# camcops_server/tasks/smast.py
 
 """
 ===============================================================================

@@ -30,8 +30,9 @@ import cherrypy
 
 from ..camcops import application as wsgi_application
 from ..cc_modules.cc_constants import STATIC_ROOT_DIR, URL_ROOT_STATIC
+from ..cc_modules.cc_logger import BraceStyleAdapter
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_ROOT = '/'  # TODO: from config file?
@@ -75,15 +76,15 @@ def start_server(opts):
             'server.ssl_private_key': opts.ssl_private_key,
         })
 
-    log.info("Starting on host: {}".format(opts.host))
-    log.info("Starting on port: {}".format(opts.port))
-    log.info("Static files will be served from filesystem path: {}".format(
-        STATIC_ROOT_DIR))
-    log.info("Static files will be served at URL path: {}".format(
-        URL_ROOT_STATIC))
-    log.info("CRATE will be at: {}".format(opts.root_path))
-    log.info("Thread pool size: {}".format(opts.threads))
-    log.info("Thread pool max size: {}".format(opts.threads))
+    log.info("Starting on host: {}", opts.host)
+    log.info("Starting on port: {}", opts.port)
+    log.info("Static files will be served from filesystem path: {}",
+             STATIC_ROOT_DIR)
+    log.info("Static files will be served at URL path: {}",
+             URL_ROOT_STATIC)
+    log.info("CRATE will be at: {}", opts.root_path)
+    log.info("Thread pool size: {}", opts.threads)
+    log.info("Thread pool max size: {}", opts.threads)
 
     static_config = {
         '/': {
@@ -169,7 +170,7 @@ def main() -> None:
     logging.basicConfig(level=logging.DEBUG)
 
     # Start the webserver
-    log.info('starting server with options {}'.format(opts))
+    log.info('starting server with options {}', opts)
     start_server(opts)
 
 

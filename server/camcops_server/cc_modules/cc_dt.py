@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_dt.py
+# camcops_server/cc_modules/cc_dt.py
 
 """
 ===============================================================================
@@ -38,14 +38,14 @@ import pytz
 # Processing dates and times
 # =============================================================================
 
-def get_datetime_from_string(s: str) -> datetime.datetime:
+def get_datetime_from_string(s: str) -> Optional[datetime.datetime]:
     """Convert string (e.g. ISO-8601) to datetime, or None."""
     if not s:
         return None  # if you parse() an empty string, you get today's date
     return dateutil.parser.parse(s)  # deals with ISO8601 automatically
 
 
-def get_date_from_string(s: str) -> datetime.date:
+def get_date_from_string(s: str) -> Optional[datetime.date]:
     """Convert string (e.g. ISO-8601) to date, or None."""
     if not s:
         return None  # if you parse() an empty string, you get today's date
@@ -74,7 +74,7 @@ def format_datetime_string(s: str,
     return dt.strftime(fmt)
 
 
-def get_date_regex_string(dt: datetime.datetime) -> str:
+def get_date_regex_string(dt: Union[datetime.date, datetime.datetime]) -> str:
     # Reminders: ? zero or one, + one or more, * zero or more
     wb = "\\b"  # word boundary; escape the slash
     ws = "\\s"  # whitespace; includes newlines
@@ -134,7 +134,8 @@ print(r.sub(replacement, teststring))
 '''
 
 
-def get_date_regex(dt: datetime.datetime) -> typing.re.Pattern:
+def get_date_regex(dt: Union[datetime.date,
+                             datetime.datetime]) -> typing.re.Pattern:
     """Regex for anonymisation. Date."""
     return re.compile(get_date_regex_string(dt), re.IGNORECASE)
 

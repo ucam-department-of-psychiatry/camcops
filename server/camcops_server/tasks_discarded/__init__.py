@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# __init__.py
+# camcops_server/tasks_discarded/__init__.py
 
 """
 ===============================================================================

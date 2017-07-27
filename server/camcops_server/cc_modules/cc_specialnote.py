@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_specialnote.py
+# camcops_server/cc_modules/cc_specialnote.py
 
 """
 ===============================================================================
@@ -33,10 +33,9 @@ from .cc_constants import (
 )
 from . import cc_db
 from .cc_dt import format_datetime
-from .cc_namedtuples import XmlElementTuple
 from .cc_pls import pls
 from .cc_user import get_username_from_id
-from .cc_xml import make_xml_branches_from_fieldspecs
+from .cc_xml import make_xml_branches_from_fieldspecs, XmlElement
 
 
 # =============================================================================
@@ -113,12 +112,12 @@ class SpecialNote(object):
     def get_username(self) -> Optional[str]:
         return get_username_from_id(self.user_id)
 
-    def get_xml_root(self, skip_fields: List[str] = None) -> XmlElementTuple:
+    def get_xml_root(self, skip_fields: List[str] = None) -> XmlElement:
         """Get root of XML tree, as an XmlElementTuple."""
         skip_fields = skip_fields or []
         branches = make_xml_branches_from_fieldspecs(
             self, self.FIELDSPECS, skip_fields=skip_fields)
-        return XmlElementTuple(name=self.TABLENAME, value=branches)
+        return XmlElement(name=self.TABLENAME, value=branches)
 
     @classmethod
     def get_all_instances(cls,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cgisch.py
+# camcops_server/tasks/cgisch.py
 
 """
 ===============================================================================

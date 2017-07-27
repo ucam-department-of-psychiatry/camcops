@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# qolbasic.py
+# camcops_server/tasks/qolbasic.py
 
 """
 ===============================================================================

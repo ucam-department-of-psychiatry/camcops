@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# sas.py
+# camcops_server/tasks_discarded/sas.py
 
 """
 ===============================================================================

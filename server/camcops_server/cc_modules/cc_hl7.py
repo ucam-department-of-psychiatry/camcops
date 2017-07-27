@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_hl7.py
+# camcops_server/cc_modules/cc_hl7.py
 
 """
 ===============================================================================
@@ -69,13 +69,14 @@ from .cc_html import (
     get_url_field_value_pair,
     get_generic_action_url,
 )
-from .cc_namedtuples import PatientIdentifierTuple
+from .cc_logger import BraceStyleAdapter
+from .cc_simpleobjects import HL7PatientIdentifier
 from .cc_pls import pls
 from .cc_recipdef import RecipientDefinition
 from .cc_task import get_base_tables, get_url_task_html, task_factory
 from .cc_unittest import unit_test_ignore
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -393,14 +394,10 @@ class HL7Message(object):
             raise AssertionError("HL7Message.send: invalid recipient_def.type")
         self.save()
 
-        log.debug(
-            "HL7Message.send: recipient={}, basetable={}, "
-            "serverpk={}".format(
-                self.recipient_def.recipient,
-                self.basetable,
-                self.serverpk
-            )
-        )
+        log.debug("HL7Message.send: recipient={}, basetable={}, serverpk={}",
+                  self.recipient_def.recipient,
+                  self.basetable,
+                  self.serverpk)
         return True, self.success
 
     def send_to_filestore(self) -> None:
@@ -709,11 +706,11 @@ def send_pending_hl7_messages(recipient_def: RecipientDefinition,
             timeout_s = min(recipient_def.network_timeout_ms // 1000, 1)
             if not ping(hostname=recipient_def.host,
                         timeout_s=timeout_s):
-                log.error("Failed to ping {}".format(recipient_def.host))
+                log.error("Failed to ping {}", recipient_def.host)
                 return
         except socket.error:
             log.error("Socket error trying to ping {}; likely need to "
-                      "run as root".format(recipient_def.host))
+                      "run as root", recipient_def.host)
             return
 
     if show_queue_only:
@@ -729,8 +726,8 @@ def send_pending_hl7_messages(recipient_def: RecipientDefinition,
                 send_pending_hl7_messages_2(recipient_def, show_queue_only,
                                             queue_stdout, hl7run, f)
         except Exception as e:
-            log.error("Couldn't open file {} for appending: {}".format(
-                recipient_def.divert_to_file, e))
+            log.error("Couldn't open file {} for appending: {}",
+                      recipient_def.divert_to_file, e)
             return
     else:
         send_pending_hl7_messages_2(recipient_def, show_queue_only,
@@ -835,10 +832,10 @@ def send_pending_hl7_messages_2(
     if hl7run:
         hl7run.call_script(files_exported)
         hl7run.finish()
-    log.info("{} HL7 messages sent, {} successful, {} failed".format(
-        n_hl7_sent, n_hl7_successful, n_hl7_sent - n_hl7_successful))
-    log.info("{} files sent, {} successful, {} failed".format(
-        n_file_sent, n_file_successful, n_file_sent - n_file_successful))
+    log.info("{} HL7 messages sent, {} successful, {} failed",
+             n_hl7_sent, n_hl7_successful, n_hl7_sent - n_hl7_successful)
+    log.info("{} files sent, {} successful, {} failed",
+             n_file_sent, n_file_successful, n_file_sent - n_file_successful)
 
 
 # =============================================================================
@@ -886,7 +883,7 @@ def unit_tests() -> None:
     pk = current_pks[0] if current_pks else None
     task = phq9.Phq9(pk)
     pitlist = [
-        PatientIdentifierTuple(id="1", id_type="TT", assigning_authority="AA")
+        HL7PatientIdentifier(id="1", id_type="TT", assigning_authority="AA")
     ]
     now = get_now_localtz()
 

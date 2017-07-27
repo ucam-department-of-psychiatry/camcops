@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# icd10depressive.py
+# camcops_server/tasks/icd10depressive.py
 
 """
 ===============================================================================
@@ -350,7 +350,7 @@ class Icd10Depressive(Task):
             ("" if skip_somatic else " " + self.get_somatic_description())
         )
 
-    def is_psychotic_or_stupor(self) -> str:
+    def is_psychotic_or_stupor(self) -> Optional[bool]:
         if self.count_booleans(Icd10Depressive.PSYCHOSIS_NAMES) > 0:
             return True
         elif self.are_all_fields_complete(Icd10Depressive.PSYCHOSIS_NAMES) > 0:

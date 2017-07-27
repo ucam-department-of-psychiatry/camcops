@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# gass.py
+# camcops_server/tasks_discarded/gass.py
 
 """
 ===============================================================================

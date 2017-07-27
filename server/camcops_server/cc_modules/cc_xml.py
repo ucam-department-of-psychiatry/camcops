@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_xml.py
+# camcops_server/cc_modules/cc_xml.py
 
 """
 ===============================================================================
@@ -23,13 +23,13 @@
 """
 
 import base64
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 import xml.sax.saxutils
 
 from cardinal_pythonlib.rnc_db import FIELDSPEC_TYPE, FIELDSPECLIST_TYPE
 
 from . import cc_db
-from .cc_namedtuples import XmlElementTuple, XmlSimpleValue
+from .cc_simpleobjects import XmlSimpleValue
 
 # =============================================================================
 # Constants
@@ -56,6 +56,32 @@ XML_IGNORE_NAMESPACES = [
 # http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html
 
 
+class XmlDataTypes(object):
+    BASE64BINARY = "bas64Binary"
+    BOOLEAN = "boolean"
+    DATETIME = "dateTime"
+    DOUBLE = "double"
+    INTEGER = "integer"
+    STRING = "string"
+
+
+# =============================================================================
+# XML element
+# =============================================================================
+
+class XmlElement(object):
+    """Represents XML data in a tree. See functions in cc_xml.py"""
+    def __init__(self, name: str, value: Any = None, datatype: str = None,
+                 comment: str = None):
+        # Special: boolean requires lower case "true"/"false" (or 0/1)
+        if datatype == XmlDataTypes.BOOLEAN and value is not None:
+            value = str(value).lower()
+        self.name = name
+        self.value = value
+        self.datatype = datatype
+        self.comment = comment
+
+
 # =============================================================================
 # XML processing
 # =============================================================================
@@ -66,7 +92,7 @@ XML_IGNORE_NAMESPACES = [
 def make_xml_branches_from_fieldspecs(
         obj,
         fieldspecs: FIELDSPECLIST_TYPE,
-        skip_fields: List[str] = None) -> List[XmlElementTuple]:
+        skip_fields: List[str] = None) -> List[XmlElement]:
     """Returns a list of XML branches, each an XmlElementTuple, from an
     objects and the list of fieldspecs that define/describe its fields."""
     skip_fields = skip_fields or []
@@ -75,7 +101,7 @@ def make_xml_branches_from_fieldspecs(
         name = fs["name"]
         if name in skip_fields:
             continue
-        branches.append(XmlElementTuple(
+        branches.append(XmlElement(
             name=name,
             value=getattr(obj, name),
             datatype=get_xml_datatype_from_fieldspec(fs),
@@ -86,7 +112,7 @@ def make_xml_branches_from_fieldspecs(
 
 def make_xml_branches_from_summaries(
         summaries: List[Dict],
-        skip_fields: List[str] = None) -> List[XmlElementTuple]:
+        skip_fields: List[str] = None) -> List[XmlElement]:
     """Returns a list of XML branches, each an XmlElementTuple, from a
     list of summary data provided by a task."""
     skip_fields = skip_fields or []
@@ -95,7 +121,7 @@ def make_xml_branches_from_summaries(
         name = d["name"]
         if name in skip_fields:
             continue
-        branches.append(XmlElementTuple(
+        branches.append(XmlElement(
             name=name,
             value=d["value"],
             datatype=get_xml_datatype_from_fieldspec(d),
@@ -119,27 +145,27 @@ def get_xml_datatype_from_fieldspec(fs: FIELDSPEC_TYPE) -> Optional[str]:
     # http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html
     t = fs["cctype"]
     if t in ["ISO8601", "DATETIME"]:
-        return "dateTime"
+        return XmlDataTypes.DATETIME
     if t in ["INT", "INT_UNSIGNED", "BIGINT", "BIGINT_UNSIGNED"]:
-        return "integer"
+        return XmlDataTypes.INTEGER
     if t in ["FLOAT"]:
-        return "double"
+        return XmlDataTypes.DOUBLE
     if t in ["BOOL"]:
-        return "boolean"
+        return XmlDataTypes.BOOLEAN
     if cc_db.cctype_is_string(t):
-        return "string"
+        return XmlDataTypes.STRING
     # BLOBs are handled separately.
     return None
 
 
 def get_xml_blob_tuple(name: str,
                        blobdata: Optional[bytes],
-                       comment: str = None) -> XmlElementTuple:
+                       comment: str = None) -> XmlElement:
     """Returns an XmlElementTuple representing a base-64-encoded BLOB."""
-    return XmlElementTuple(
+    return XmlElement(
         name=name,
         value=base64.b64encode(blobdata) if blobdata else None,
-        datatype="base64Binary",
+        datatype=XmlDataTypes.BASE64BINARY,
         comment=comment
     )
     # http://www.w3.org/TR/2001/REC-xmlschema-2-20010502/#base64Binary
@@ -160,7 +186,7 @@ def xml_quote_attribute(attr: str) -> str:
     return xml.sax.saxutils.quoteattr(attr)
 
 
-def get_xml_tree(element: XmlElementTuple,
+def get_xml_tree(element: XmlElement,
                  level: int = 0,
                  indent_spaces: int = 4,
                  eol: str = '\n',
@@ -175,7 +201,7 @@ def get_xml_tree(element: XmlElementTuple,
     xmltext = ""
     prefix = ' ' * level * indent_spaces
 
-    if isinstance(element, XmlElementTuple):
+    if isinstance(element, XmlElement):
 
         # Attributes
         namespaces = []
@@ -204,7 +230,7 @@ def get_xml_tree(element: XmlElementTuple,
                 attributes=attributes,
             )
         else:
-            complex_value = isinstance(element.value, XmlElementTuple) \
+            complex_value = isinstance(element.value, XmlElement) \
                 or isinstance(element.value, list)
             value_to_recurse = element.value if complex_value else \
                 XmlSimpleValue(element.value)
@@ -254,13 +280,13 @@ def get_xml_tree(element: XmlElementTuple,
     return xmltext
 
 
-def get_xml_document(root: XmlElementTuple,
+def get_xml_document(root: XmlElement,
                      indent_spaces: int = 4,
                      eol: str = '\n',
                      include_comments: bool = False) -> str:
     """Returns an entire XML document as text, given the root
     XmlElementTuple."""
-    if not isinstance(root, XmlElementTuple):
+    if not isinstance(root, XmlElement):
         raise AssertionError("get_xml_document: root not an XmlElementTuple; "
                              "XML requires a single root")
     return xml_header(eol) + get_xml_tree(

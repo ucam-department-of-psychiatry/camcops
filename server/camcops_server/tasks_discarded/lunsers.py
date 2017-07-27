@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# lunsers.py
+# camcops_server/tasks_discarded/lunsers.py
 
 """
 ===============================================================================

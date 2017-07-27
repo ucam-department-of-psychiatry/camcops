@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# icd10schizophrenia.py
+# camcops_server/tasks/icd10schizophrenia.py
 
 """
 ===============================================================================

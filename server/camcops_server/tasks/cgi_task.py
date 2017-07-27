@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cgi_task.py
+# camcops_server/tasks/cgi_task.py
 
 """
 ===============================================================================

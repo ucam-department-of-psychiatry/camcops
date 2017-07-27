@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# bfcrs.py
+# camcops_server/tasks_discarded/bfcrs.py
 
 """
 ===============================================================================

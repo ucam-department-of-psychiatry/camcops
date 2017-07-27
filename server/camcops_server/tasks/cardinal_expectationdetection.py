@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cardinal_expectationdetection.py
+# camcops_server/tasks/cardinal_expectationdetection.py
 
 """
 ===============================================================================

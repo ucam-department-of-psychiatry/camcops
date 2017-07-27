@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# gmcpq.py
+# camcops_server/tasks/gmcpq.py
 
 """
 ===============================================================================

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# CardinalExpDetThreshold.py
+# camcops_server/tasks/cardinal_expdetthreshold.py
 
 """
 ===============================================================================

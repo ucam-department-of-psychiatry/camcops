@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# ybocs.py
+# camcops_server/tasks/ybocs.py
 
 """
 ===============================================================================

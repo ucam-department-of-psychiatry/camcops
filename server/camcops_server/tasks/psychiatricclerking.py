@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# psychiatricclerking.py
+# camcops_server/tasks/psychiatricclerking.py
 
 """
 ===============================================================================

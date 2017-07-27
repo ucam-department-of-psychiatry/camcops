@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# icd10manic.py
+# camcops_server/tasks/icd10manic.py
 
 """
 ===============================================================================

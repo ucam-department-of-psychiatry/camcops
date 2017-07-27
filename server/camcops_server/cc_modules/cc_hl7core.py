@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_hl7core.py
+# camcops_server/cc_modules/cc_hl7core.py
 
 """
 ===============================================================================
@@ -30,7 +30,7 @@ import hl7
 
 from .cc_dt import format_datetime, get_now_localtz
 from .cc_constants import DATEFORMAT, VALUE
-from .cc_namedtuples import PatientIdentifierTuple
+from .cc_simpleobjects import HL7PatientIdentifier
 # NO: CIRCULAR # from .cc_task import Task
 from .cc_unittest import unit_test_ignore
 
@@ -163,10 +163,10 @@ def make_pid_segment(forename: str,
                      dob: Union[datetime.datetime, datetime.date],
                      sex: str,
                      address: str,
-                     patient_id_tuple_list: List[
-                         PatientIdentifierTuple] = None) -> hl7.Segment:
+                     patient_id_list: List[
+                         HL7PatientIdentifier] = None) -> hl7.Segment:
     """Creates an HL7 patient identification (PID) segment."""
-    patient_id_tuple_list = patient_id_tuple_list or []
+    patient_id_list = patient_id_list or []
 
     # -------------------------------------------------------------------------
     # Patient identification (PID)
@@ -187,14 +187,14 @@ def make_pid_segment(forename: str,
 
     # Internal ID
     internal_id_element_list = []
-    for i in range(len(patient_id_tuple_list)):
-        if not patient_id_tuple_list[i].id:
+    for i in range(len(patient_id_list)):
+        if not patient_id_list[i].id:
             continue
-        pid = patient_id_tuple_list[i].id
+        pid = patient_id_list[i].id
         check_digit = get_mod11_checkdigit(pid)
         check_digit_scheme = "M11"  # Mod 11 algorithm
-        type_id = patient_id_tuple_list[i].id_type
-        assigning_authority = patient_id_tuple_list[i].assigning_authority
+        type_id = patient_id_list[i].id_type
+        assigning_authority = patient_id_list[i].assigning_authority
         internal_id_element = hl7.Field(COMPONENT_SEPARATOR, [
             pid,
             check_digit,
@@ -732,7 +732,7 @@ def cchl7core_unit_tests() -> None:
     pk = current_pks[0] if current_pks else None
     task = Phq9(pk)
     pitlist = [
-        PatientIdentifierTuple(
+        HL7PatientIdentifier(
             id="1", id_type="TT", assigning_authority="AA")
     ]
     now = get_now_localtz()

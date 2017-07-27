@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cc_device.py
+# camcops_server/cc_modules/cc_device.py
 
 """
 ===============================================================================

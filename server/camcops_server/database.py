@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# database.py
+# camcops_server/database.py
 
 """
 ===============================================================================
@@ -72,6 +72,7 @@ from .cc_modules.cc_convert import (
 )
 from .cc_modules.cc_device import Device, get_device_by_name
 from .cc_modules.cc_hl7 import HL7Run
+from .cc_modules.cc_logger import BraceStyleAdapter
 from .cc_modules.cc_patient import Patient
 from .cc_modules.cc_patientidnum import PatientIdNum
 from .cc_modules.cc_pls import pls
@@ -91,7 +92,7 @@ from .cc_modules.cc_user import (
 )
 from .cc_modules.cc_version import make_version
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 # =============================================================================
 # Debugging options
@@ -270,17 +271,14 @@ class SessionManager(object):
                                      pls.remote_addr,
                                      self.username, self.password)
         # Report
-        log.info(
-            "Incoming connection from IP={i}, port={p}, device_name={dn}, "
-            "device_id={di}, user={u}, operation={o}".format(
-                i=pls.remote_addr,
-                p=pls.remote_port,
-                dn=self.device_name,
-                di=self.device_id,
-                u=self.username,
-                o=self.operation,
-            )
-        )
+        log.info("Incoming connection from IP={i}, port={p}, device_name={dn},"
+                 " device_id={di}, user={u}, operation={o}",
+                 i=pls.remote_addr,
+                 p=pls.remote_port,
+                 dn=self.device_name,
+                 di=self.device_id,
+                 u=self.username,
+                 o=self.operation)
 
     @property
     def device_id(self) -> Optional[int]:
@@ -396,7 +394,7 @@ def get_fields_from_post_var(form: cgi.FieldStorage,
     fields = [x.strip() for x in csfields.split(",")]
     for f in fields:
         ensure_valid_field_name(f)
-    # log.debug("get_fields_from_post_var: fields={}".format(fields))
+    # log.debug("get_fields_from_post_var: fields={}", fields)
     return fields
 
 
@@ -761,21 +759,12 @@ def upload_record_core(sm: SessionManager,
             # UNLESS MOVE_OFF_TABLET_FIELDNAME is set
             if valuedict[MOVE_OFF_TABLET_FIELD]:
                 flag_record_for_preservation(table, oldserverpk)
-                log.debug(
-                    "Table {table}, uploaded record {recordnum}: identical "
-                    "but moving off tablet".format(
-                        table=table,
-                        recordnum=recordnum,
-                    )
-                )
+                log.debug("Table {table}, uploaded record {recordnum}: "
+                          "identical but moving off tablet",
+                          table=table, recordnum=recordnum)
             else:
-                log.debug(
-                    "Table {table}, uploaded record {recordnum}: "
-                    "identical".format(
-                        table=table,
-                        recordnum=recordnum,
-                    )
-                )
+                log.debug("Table {table}, uploaded record {recordnum}: "
+                          "identical", table=table, recordnum=recordnum)
         else:
             # MODIFIED
             if table == Patient.TABLENAME:
@@ -821,10 +810,8 @@ def upload_record_core(sm: SessionManager,
 
             newserverpk = insert_record(sm, table, valuedict, oldserverpk)
             flag_modified(sm, table, oldserverpk, newserverpk)
-            log.debug("Table {table}, record {recordnum}: modified".format(
-                table=table,
-                recordnum=recordnum,
-            ))
+            log.debug("Table {table}, record {recordnum}: modified",
+                      table=table, recordnum=recordnum)
     else:
         # NEW
         newserverpk = insert_record(sm, table, valuedict, None)
@@ -931,8 +918,8 @@ def get_batch_details_start_if_needed(sm: SessionManager) \
         # previous pending changes)
         start_device_upload_batch(sm)
         return pls.NOW_UTC_NO_TZ, False
-    log.debug("get_batch_details_start_if_needed: upload_batch_utc "
-              "= {}".format(repr(upload_batch_utc)))
+    log.debug("get_batch_details_start_if_needed: upload_batch_utc = {0!r}",
+              upload_batch_utc)
     return upload_batch_utc, currently_preserving
 
 
@@ -1417,8 +1404,8 @@ def upload_table(sm: SessionManager) -> str:
                     nfields=nfields, r=r, nvalues=nvalues)
             )
             log.warning(errmsg)
-            log.warning("fields: {}".format(repr(fields)))
-            log.warning("values: {}".format(repr(values)))
+            log.warning("fields: {0!r}", fields)
+            log.warning("values: {0!r}", values)
             fail_user_error(errmsg)
         valuedict = dict(list(zip(fields, values)))
         # CORE: CALLS upload_record_core
@@ -1457,16 +1444,14 @@ def upload_table(sm: SessionManager) -> str:
             )
 
     # Success
-    log.debug("server_active_record_pks: {}".format(
-        server_active_record_pks))
-    log.debug("server_uploaded_pks: {}".format(server_uploaded_pks))
-    log.debug("server_pks_for_deletion: {}".format(
-        server_pks_for_deletion))
-    log.debug("Table {table}, number of missing records (deleted): "
-              "{d}".format(table=table, d=len(server_pks_for_deletion)))
+    log.debug("server_active_record_pks: {}", server_active_record_pks)
+    log.debug("server_uploaded_pks: {}", server_uploaded_pks)
+    log.debug("server_pks_for_deletion: {}", server_pks_for_deletion)
+    log.debug("Table {table}, number of missing records (deleted): {d}",
+              table=table, d=len(server_pks_for_deletion))
     # Auditing occurs at commit_all.
-    log.info("Upload successful; {n} records uploaded to table {t}".format(
-        n=nrecords, t=table))
+    log.info("Upload successful; {n} records uploaded to table {t}",
+             n=nrecords, t=table)
     return "Table {} upload successful".format(table)
 
 
@@ -1543,8 +1528,7 @@ def delete_where_key_not(sm: SessionManager) -> str:
     _, _ = get_batch_details_start_if_needed(sm)
     flag_deleted_where_clientpk_not(sm, table, clientpk_name, clientpk_values)
     # Auditing occurs at commit_all.
-    log.info("delete_where_key_not successful; table {} trimmed".format(
-        table))
+    log.info("delete_where_key_not successful; table {} trimmed", table)
     return "Trimmed"
 
 
@@ -1588,7 +1572,7 @@ def which_keys_to_send(sm: SessionManager) -> str:
 
     # Success
     pk_csv_list = ",".join([str(x) for x in pks_needed if x is not None])
-    log.info("which_keys_to_send successful: table {}".format(table))
+    log.info("which_keys_to_send successful: table {}", table)
     return pk_csv_list
 
 
@@ -1759,9 +1743,8 @@ def main_http_processor(env: Dict[str, str]) -> Dict:
     #   text:   main text to send (will use status '200 OK')
     # For failure, raises an exception.
 
-    log.info("CamCOPS database script starting at {}".format(
-        format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601)
-    ))
+    log.info("CamCOPS database script starting at {}",
+             format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601))
     form = ws.get_cgi_fieldstorage_from_wsgi_env(env)
 
     if not ws.cgi_method_is_post(env):
@@ -1812,14 +1795,14 @@ def database_application(environ: Dict[str, str],
         resultdict[PARAM.SUCCESS] = 1
         status = '200 OK'
     except UserErrorException as e:
-        log.warn("CLIENT-SIDE SCRIPT ERROR: " + str(e))
+        log.warning("CLIENT-SIDE SCRIPT ERROR: {}", e)
         resultdict = {
             PARAM.SUCCESS: 0,
             PARAM.ERROR: escape_newlines(str(e))
         }
         status = '200 OK'
     except ServerErrorException as e:
-        log.error("SERVER-SIDE SCRIPT ERROR: " + str(e))
+        log.error("SERVER-SIDE SCRIPT ERROR: {}", e)
         pls.db.rollback()
         resultdict = {
             PARAM.SUCCESS: 0,
@@ -1830,7 +1813,7 @@ def database_application(environ: Dict[str, str],
         # All other exceptions. May include database write failures.
         # Let's return with status '200 OK'; though this seems dumb, it means
         # the tablet user will at least see the message.
-        log.exception("Unhandled exception")
+        log.exception("Unhandled exception")  # + traceback.format_exc()
         pls.db.rollback()
         resultdict = {
             PARAM.SUCCESS: 0,
@@ -1852,15 +1835,12 @@ def database_application(environ: Dict[str, str],
     pls.db.commit()
     t2 = time.time()
 
-    # log.debug("Reply: {}".format(repr(output)))
+    # log.debug("Reply: {0!r}", output)
     # ... don't send Unicode to the log...
-    log.info(
-        "Total time (s): {t} (script {s}, commit {c})".format(
-            t=t2 - t0,
-            s=t1 - t0,
-            c=t2 - t1
-        )
-    )
+    log.info("Total time (s): {t} (script {s}, commit {c})",
+             t=t2 - t0,
+             s=t1 - t0,
+             c=t2 - t1)
 
     # Return headers and output
     response_headers = [('Content-Type', CONTENTTYPE),
@@ -1922,7 +1902,9 @@ def database_unit_tests() -> None:
         r = decode_values(k)
         if r != v:
             raise AssertionError(
-                "Mismatch! Result: {}\nShould have been: {}\n".format(r, v))
+                "Mismatch! Result: {r!s}\n"
+                "Should have been: {v!s}\n"
+                "Key was: {k!s}".format(r=r, v=v, k=k))
 
     # Newline encoding/decodine
     ts2 = "slash \\ newline \n ctrl_r \r special \\n other special \\r " \
