@@ -42,11 +42,13 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Hama(Task):
-    NQUESTIONS = 14
-
     tablename = "hama"
     shortname = "HAM-A"
     longname = "Hamilton Rating Scale for Anxiety"
+    has_clinician = True
+    provides_trackers = True
+
+    NQUESTIONS = 14
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS,
         comment_fmt="Q{n}, {s} (0-4, higher worse)", min=0, max=4,
@@ -57,7 +59,6 @@ class Hama(Task):
             "gastrointestinal", "genitourinary", "other autonomic",
             "behaviour in interview"
         ])
-    has_clinician = True
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 

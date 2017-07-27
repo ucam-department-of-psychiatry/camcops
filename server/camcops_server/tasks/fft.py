@@ -37,6 +37,7 @@ class Fft(Task):
     tablename = "fft"
     shortname = "FFT"
     longname = "Friends and Family Test"
+
     fieldspecs = [
         dict(name="service", cctype="TEXT",
              comment="Clinical service being rated"),

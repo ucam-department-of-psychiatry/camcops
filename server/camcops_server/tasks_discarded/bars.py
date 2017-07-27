@@ -34,14 +34,14 @@ from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
 # =============================================================================
 
 class Bars(Task):
-    NQUESTIONS = 4
-
     tablename = "bars"
     shortname = "BARS"
     longname = "Barnes Akathisia Rating Scale"
     fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
     has_clinician = True
+    provides_trackers = True
 
+    NQUESTIONS = 4
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self) -> List[TrackerInfo]:

@@ -52,6 +52,7 @@ class CecaQ3(Task):
     tablename = "cecaq3"
     shortname = "CECA-Q3"
     longname = "Childhood Experience of Care and Abuse Questionnaire"
+
     fieldspecs = [
         dict(name="s1a_motherfigure_birthmother", cctype="BOOL",
              pv=PV.BIT, comment="Raised by, maternal, birth mother?"),

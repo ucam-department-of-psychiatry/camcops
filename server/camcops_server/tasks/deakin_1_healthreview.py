@@ -42,6 +42,7 @@ class Deakin1HealthReview(Task):
     tablename = "deakin_1_healthreview"
     shortname = "Deakin_1_HealthReview"
     longname = "Deakin JB – 1 – Health Review"
+
     fieldspecs = [
         dict(name="ethnicity", cctype="INT", min=1, max=16,
              comment="Ethnicity code, per GMC Patient Questionnaire (1-16)"),

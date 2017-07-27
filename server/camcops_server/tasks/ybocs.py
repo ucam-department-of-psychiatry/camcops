@@ -39,6 +39,12 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 # =============================================================================
 
 class Ybocs(Task):
+    tablename = "ybocs"
+    shortname = "Y-BOCS"
+    longname = "Yale–Brown Obsessive Compulsive Scale"
+    has_clinician = True
+    provides_trackers = True
+
     TARGET_FIELDSPECS = [
         dict(name="target_obsession_1", cctype="TEXT",
              comment="Target symptoms: obsession 1"),
@@ -83,9 +89,6 @@ class Ybocs(Task):
         ('19', 3, "reliability"),
     ]
 
-    tablename = "ybocs"
-    shortname = "Y-BOCS"
-    longname = "Yale–Brown Obsessive Compulsive Scale"
     fieldspecs = list(TARGET_FIELDSPECS)  # copy
     for qnumstr, maxscore, comment in QINFO:
         fieldspecs.append({
@@ -96,7 +99,6 @@ class Ybocs(Task):
             'min': 0,
             'max': maxscore,
         })
-    has_clinician = True
 
     QUESTION_FIELDS = ["q" + x[0] for x in QINFO]
     SCORED_QUESTIONS = ["q" + str(x) for x in range(1, 10 + 1)]

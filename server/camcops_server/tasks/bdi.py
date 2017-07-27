@@ -37,6 +37,11 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 # =============================================================================
 
 class Bdi(Task):
+    tablename = "bdi"
+    shortname = "BDI"
+    longname = "Beck Depression Inventory (data collection only)"
+    provides_trackers = True
+
     NQUESTIONS = 21
     TASK_SCORED_FIELDSPECS = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=3,
@@ -49,10 +54,6 @@ class Bdi(Task):
                          "irritability", "appetite", "concentration",
                          "fatigue", "libido"])
     TASK_SCORED_FIELDS = [x["name"] for x in TASK_SCORED_FIELDSPECS]
-
-    tablename = "bdi"
-    shortname = "BDI"
-    longname = "Beck Depression Inventory (data collection only)"
     fieldspecs = [
         dict(name="bdi_scale", cctype="TEXT",
              comment="Which BDI scale (BDI-I, BDI-IA, BDI-II)?"),

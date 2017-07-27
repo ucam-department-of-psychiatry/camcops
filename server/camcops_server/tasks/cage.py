@@ -41,16 +41,16 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 # =============================================================================
 
 class Cage(Task):
-    NQUESTIONS = 4
-
     tablename = "cage"
     shortname = "CAGE"
     longname = "CAGE Questionnaire"
+    provides_trackers = True
+
+    NQUESTIONS = 4
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, "CHAR", pv=['Y', 'N'],
         comment_fmt="Q{n}, {s} (Y, N)",
         comment_strings=["C", "A", "G", "E"])
-
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self) -> List[TrackerInfo]:

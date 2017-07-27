@@ -139,6 +139,9 @@ class CardinalExpDetThreshold(Task):
     shortname = "Cardinal_ExpDetThreshold"
     longname = ("Cardinal RN – Threshold determination for "
                 "Expectation–Detection task")
+    use_landscape_for_pdf = True
+    dependent_classes = [CardinalExpDetThresholdTrial]
+
     fieldspecs = [
         # Config
         dict(name="modality", cctype="INT",
@@ -183,8 +186,6 @@ class CardinalExpDetThreshold(Task):
              comment=EQUATION_COMMENT +
              "; theta = -intercept/k = -intercept/slope "),
     ]
-    use_landscape_for_pdf = True
-    dependent_classes = [CardinalExpDetThresholdTrial]
 
     def is_complete(self) -> bool:
         return bool(self.finished)

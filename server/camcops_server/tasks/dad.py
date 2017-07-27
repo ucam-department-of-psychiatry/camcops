@@ -42,6 +42,12 @@ NA = -99
 
 
 class Dad(Task):
+    tablename = "dad"
+    shortname = "DAD"
+    longname = "Disability Assessment for Dementia"
+    has_clinician = True
+    has_respondent = True
+
     GROUPS = [
         "hygiene",
         "dressing",
@@ -107,9 +113,6 @@ class Dad(Task):
     ]
     explan = " ({} yes, {} no, {} not applicable)".format(YES, NO, NA)
 
-    tablename = "dad"
-    shortname = "DAD"
-    longname = "Disability Assessment for Dementia"
     fieldspecs = []
     for item in ITEMS:
         fieldspecs.append(dict(
@@ -118,8 +121,6 @@ class Dad(Task):
             pv=[YES, NO, NA],
             comment=item + explan,
         ))
-    has_clinician = True
-    has_respondent = True
 
     def get_summaries(self):
         d = self.get_score_dict()

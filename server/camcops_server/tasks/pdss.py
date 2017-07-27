@@ -40,6 +40,11 @@ DP = 3
 
 
 class Pdss(Task):
+    tablename = "pdss"
+    shortname = "PDSS"
+    longname = "Panic Disorder Severity Scale"
+    provides_trackers = True
+
     MIN_SCORE = 0
     MAX_SCORE = 4
     QUESTION_SNIPPETS = [
@@ -53,9 +58,6 @@ class Pdss(Task):
     ]
     NQUESTIONS = 7
 
-    tablename = "pdss"
-    shortname = "PDSS"
-    longname = "Panic Disorder Severity Scale"
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",

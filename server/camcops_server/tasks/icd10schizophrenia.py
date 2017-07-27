@@ -48,6 +48,11 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 # =============================================================================
 
 class Icd10Schizophrenia(Task):
+    tablename = "icd10schizophrenia"
+    shortname = "ICD10-SZ"
+    longname = "ICD-10 criteria for schizophrenia (F20)"
+    has_clinician = True
+
     A_FIELDSPECS = [
         dict(name="passivity_bodily", cctype="BOOL", pv=PV.BIT,
              comment="Passivity: delusions of control, influence, or "
@@ -195,9 +200,6 @@ class Icd10Schizophrenia(Task):
     G_NAMES = [x["name"] for x in G_FIELDSPECS]
     H_NAMES = [x["name"] for x in H_FIELDSPECS]
 
-    tablename = "icd10schizophrenia"
-    shortname = "ICD10-SZ"
-    longname = "ICD-10 criteria for schizophrenia (F20)"
     fieldspecs = (
         [
             dict(name="date_pertains_to", cctype="ISO8601",
@@ -214,7 +216,6 @@ class Icd10Schizophrenia(Task):
         G_FIELDSPECS +
         H_FIELDSPECS
     )
-    has_clinician = True
 
     def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():

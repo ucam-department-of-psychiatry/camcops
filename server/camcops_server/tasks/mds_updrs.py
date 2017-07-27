@@ -32,6 +32,13 @@ from ..cc_modules.cc_task import Task
 # =============================================================================
 
 class MdsUpdrs(Task):
+    tablename = "mds_updrs"
+    shortname = "MDS-UPDRS"
+    longname = (
+        "Movement Disorder Society-Sponsored Revision of the Unified "
+        "Parkinson’s Disease Rating Scale (data collection only)")
+    has_clinician = True  # v2.0.0
+
     main_cmt = " (0 normal, 1 slight, 2 mild, 3 moderate, 4 severe)"
     main_pv = list(range(0, 4 + 1))
     informant_cmt = " (0 patient, 1 caregiver, 2 both)"
@@ -40,12 +47,6 @@ class MdsUpdrs(Task):
     on_off_cmt = " (0 off, 1 on)"
     hy_pv = list(range(0, 5 + 1))
 
-    tablename = "mds_updrs"
-    shortname = "MDS-UPDRS"
-    longname = (
-        "Movement Disorder Society-Sponsored Revision of the Unified "
-        "Parkinson’s Disease Rating Scale (data collection only)")
-    has_clinician = True  # v2.0.0
     fieldspecs = [
         # Part I
         dict(name="q1a", cctype="INT", pv=informant_pv,

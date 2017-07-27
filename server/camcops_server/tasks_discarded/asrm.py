@@ -35,13 +35,13 @@ from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
 # =============================================================================
 
 class Asrm(Task):
-    NQUESTIONS = 5
-
     tablename = "asrm"
     shortname = "ASRM"
     longname = "Altman Self-Rating Mania Scale"
-    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
+    provides_trackers = True
 
+    NQUESTIONS = 5
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self) -> List[TrackerInfo]:

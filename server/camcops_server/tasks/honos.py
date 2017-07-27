@@ -50,11 +50,13 @@ PV_PROBLEMTYPE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 # =============================================================================
 
 class Honos(Task):
-    NQUESTIONS = 12
-
     tablename = "honos"
     shortname = "HoNOS"
     longname = "Health of the Nation Outcome Scales, working age adults"
+    has_clinician = True
+    provides_trackers = True
+
+    NQUESTIONS = 12
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, pv=PV_MAIN,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
@@ -83,7 +85,6 @@ class Honos(Task):
         dict(name="q8otherproblem", cctype="TEXT",
              comment="Q8: other problem: specify"),
     ]
-    has_clinician = True
 
     COPYRIGHT_DIV = """
         <div class="copyright">

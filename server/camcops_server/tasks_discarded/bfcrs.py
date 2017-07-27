@@ -35,12 +35,13 @@ from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
 # =============================================================================
 
 class Bfcrs(Task):
-    NQUESTIONS = 23
-    N_CSI_QUESTIONS = 14  # the first 14
-
     tablename = "bfcrs"
     shortname = "BFCRS"
     longname = "Bush–Francis Catatonia Rating Scale"
+    provides_trackers = True
+
+    NQUESTIONS = 23
+    N_CSI_QUESTIONS = 14  # the first 14
     fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]

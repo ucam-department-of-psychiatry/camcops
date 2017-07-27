@@ -62,7 +62,7 @@ from .cc_session import Session
 from .cc_task import Task, TrackerInfo
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION
-from .cc_xml import get_xml_document, XmlElement
+from .cc_xml import get_xml_document, XmlDataTypes, XmlElement
 
 import matplotlib.pyplot as plt  # ONLY AFTER IMPORTING cc_plot
 
@@ -87,7 +87,6 @@ WARNING_DENIED_INFORMATION = """
 """
 
 DEBUG_TRACKER_TASK_INCLUSION = False  # should be False for production system
-DEBUG_CTV_TASK_INCLUSION = False  # should be False for production system
 
 
 # =============================================================================
@@ -254,39 +253,30 @@ class ConsistencyInfo(object):
 
 
 # =============================================================================
-# Tracker class
+# TrackerCtvCommon class:
 # =============================================================================
 
-class Tracker(object):
-    """Class representing numerical tracker."""
+class TrackerCtvCommon(object):
+    """Base class for Tracker and ClinicalTextView."""
 
     def __init__(self,
                  session: Session,
-                 task_tablename_list: List[str],
+                 task_class_list: List,
                  which_idnum: int,
                  idnum_value: int,
                  start_datetime: Optional[datetime.datetime],
-                 end_datetime: Optional[datetime.date]) -> None:
+                 end_datetime: Optional[datetime.date],
+                 as_ctv: bool) -> None:
         """Initialize, fetching applicable tasks."""
 
-        # Preprocess
-        for i in range(len(task_tablename_list)):
-            if task_tablename_list[i] is not None:
-                task_tablename_list[i] = task_tablename_list[i].lower()
         # Record input variables at this point (for URL regeneration)
-        self.task_tablename_list = task_tablename_list
+        self.task_class_list = task_class_list
+        self.task_tablename_list = [cls.tablename for cls in task_class_list]
         self.which_idnum = which_idnum
         self.idnum_value = idnum_value
         self.start_datetime = start_datetime
         self.end_datetime = end_datetime
-
-        # Which tasks?
-        task_class_list = []
-        classes = Task.all_subclasses(sort_shortname=True)
-        for cls in classes:
-            if (hasattr(cls, 'get_trackers') and
-                    cls.tablename in task_tablename_list):
-                task_class_list.append(cls)
+        self.as_ctv = as_ctv
 
         # What filters?
         self.idnum_criteria = [(which_idnum, idnum_value)]
@@ -305,32 +295,49 @@ class Tracker(object):
             RESTRICTED_WARNING_SINGULAR
             if session.restricted_to_viewing_user() else ""
         )
-        self._patient = None  # default value if we fail
-        self.list_of_task_instance_lists = []
+        self._patient = None  # type: Patient  # default value if we fail
+        self.list_of_task_instance_lists = []  # type: List[List[Task]]
         # ... list (by task class) of lists of task instances
-        self.earliest = None
-        self.latest = None
+        self.earliest = None  # type: datetime.datetime
+        self.latest = None  # type: datetime.datetime
         self.summary = ""
+        first = True
 
-        # Build task lists
+        # Build task lists. For each class:
         for cls in task_class_list:
+
+            # Debugging information
             if DEBUG_TRACKER_TASK_INCLUSION:
-                self.summary += " // " + cls.tablename
+                if not first:
+                    self.summary += " // "
+                self.summary += cls.tablename
+            first = False
             if cls.is_anonymous:
                 if DEBUG_TRACKER_TASK_INCLUSION:
                     self.summary += " (anonymous)"
                 continue
-            task_instances = []
-            serverpks = cls.get_task_pks_for_tracker(
-                self.idnum_criteria, self.start_datetime,
-                self.end_datetime_extended)
+
+            # Get server PKs
+            if self.as_ctv:
+                serverpks = cls.get_task_pks_for_clinical_text_view(
+                    self.idnum_criteria, self.start_datetime,
+                    self.end_datetime_extended)
+            else:
+                serverpks = cls.get_task_pks_for_tracker(
+                    self.idnum_criteria, self.start_datetime,
+                    self.end_datetime_extended)
+
             if len(serverpks) == 0:
                 if DEBUG_TRACKER_TASK_INCLUSION:
                     self.summary += " (no instances)"
                 continue
+
+            # Iterate through task instances
+            task_instances = []
             for s in serverpks:
                 if DEBUG_TRACKER_TASK_INCLUSION:
                     self.summary += " / PK {}".format(s)
+                # Make task instance
                 task = cls(s)
                 if task is None:
                     if DEBUG_TRACKER_TASK_INCLUSION:
@@ -340,8 +347,9 @@ class Tracker(object):
                     if DEBUG_TRACKER_TASK_INCLUSION:
                         self.summary += " (denied to user)"
                     continue
-                dt = task.get_creation_datetime()
+
                 # Second check on datetimes
+                dt = task.get_creation_datetime()
                 if (self.start_datetime is not None and
                         dt < self.start_datetime):
                     if DEBUG_TRACKER_TASK_INCLUSION:
@@ -357,13 +365,17 @@ class Tracker(object):
                     self.earliest = dt
                 if self.latest is None or dt > self.latest:
                     self.latest = dt
-                if not task.is_complete():
+
+                # We include incomplete tasks in CTVs, but not trackers
+                if not as_ctv and not task.is_complete():
                     if DEBUG_TRACKER_TASK_INCLUSION:
                         self.summary += " (not complete)"
                     continue
+
                 if DEBUG_TRACKER_TASK_INCLUSION:
                     self.summary += " (FOUND ONE)"
                 task_instances.append(task)
+
             if len(task_instances) > 0:
                 self.list_of_task_instance_lists.append(task_instances)
 
@@ -372,29 +384,51 @@ class Tracker(object):
             self.list_of_task_instance_lists[taskclass].sort(
                 key=lambda task_: task_.get_creation_datetime())
 
+        # Flat task list, sorted by creation date/time
+        self.flattasklist = flatten_list(self.list_of_task_instance_lists)
+        self.flattasklist.sort(key=lambda task_: task_.get_creation_datetime())
+
         # Fetch patient information
-        if (len(self.list_of_task_instance_lists) > 0 and
-                len(self.list_of_task_instance_lists[0]) > 0):
-            self._patient = (
-                self.list_of_task_instance_lists[0][0].get_patient())
+        if len(self.flattasklist) > 0:
+            # noinspection PyProtectedMember
+            self._patient = self.flattasklist[0]._patient
             # patient details from the first of our tasks
 
         # Summary information
         self.summary += get_summary_of_tasks(self.list_of_task_instance_lists)
 
         # Consistency information
-        self.flattasklist = flatten_list(
-            self.list_of_task_instance_lists)
         self.consistency_info = ConsistencyInfo(self.flattasklist)
+
+    # -------------------------------------------------------------------------
+    # Required for implementation
+    # -------------------------------------------------------------------------
+
+    def get_xml(self,
+                 indent_spaces: int = 4,
+                 eol: str = '\n',
+                 include_comments: bool = False) -> str:
+        raise NotImplementedError()
+
+    def get_html(self) -> str:
+        raise NotImplementedError()
+
+    def get_pdf_html(self) -> str:
+        raise NotImplementedError()
+
+    def get_office_html(self) -> str:
+        raise NotImplementedError()
 
     # -------------------------------------------------------------------------
     # XML view
     # -------------------------------------------------------------------------
 
-    def get_xml(self,
-                indent_spaces: int = 4,
-                eol: str = '\n',
-                include_comments: bool = False) -> str:
+    def _get_xml(self,
+                 audit_string: str,
+                 xml_name: str,
+                 indent_spaces: int = 4,
+                 eol: str = '\n',
+                 include_comments: bool = False) -> str:
         """Get XML document representing tracker."""
         branches = [
             self.consistency_info.get_xml_root(),
@@ -408,24 +442,24 @@ class Tracker(object):
                     XmlElement(
                         name="which_idnum",
                         value=self.which_idnum,
-                        datatype="integer"
+                        datatype=XmlDataTypes.INTEGER
                     ),
                     XmlElement(
                         name="idnum_value",
                         value=self.idnum_value,
-                        datatype="integer"
+                        datatype=XmlDataTypes.INTEGER
                     ),
                     XmlElement(
                         name="start_datetime",
                         value=format_datetime(self.start_datetime,
                                               DATEFORMAT.ISO8601),
-                        datatype="dateTime"
+                        datatype=XmlDataTypes.DATETIME
                     ),
                     XmlElement(
                         name="end_datetime",
                         value=format_datetime(self.end_datetime,
                                               DATEFORMAT.ISO8601),
-                        datatype="dateTime"
+                        datatype=XmlDataTypes.DATETIME
                     ),
                 ]
             )
@@ -434,12 +468,12 @@ class Tracker(object):
             branches.append(t.get_xml_root(include_calculated=True,
                                            include_blobs=False))
             audit(
-                "Tracker XML accessed",
+                audit_string,
                 table=t.tablename,
                 server_pk=t.get_pk(),
                 patient_server_pk=t.get_patient_server_pk()
             )
-        tree = XmlElement(name="tracker", value=branches)
+        tree = XmlElement(name=xml_name, value=branches)
         return get_xml_document(
             tree,
             indent_spaces=indent_spaces,
@@ -451,13 +485,13 @@ class Tracker(object):
     # HTML view
     # -------------------------------------------------------------------------
 
-    def get_html(self) -> str:
+    def _get_html(self, main_html: str) -> str:
         """Get HTML representing tracker."""
         set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
         pls.switch_output_to_svg()
         return (
             self.get_html_start() +
-            self.get_all_plots_for_all_tasks_html() +
+            main_html +
             self.get_office_html() +
             """<div class="navigation">""" +
             self.get_hyperlink_pdf("View PDF for printing/saving") +
@@ -477,7 +511,7 @@ class Tracker(object):
             return rnc_pdf.pdf_from_html(self.get_pdf_html())
         else:
             pls.switch_output_to_svg()  # wkhtmltopdf can cope
-            html = self.get_pdf_html()
+            html = self.get_pdf_html()  # main content comes here
             header = self.get_pdf_header_content()
             footer = self.get_pdf_footer_content()
             options = WKHTMLTOPDF_OPTIONS
@@ -489,21 +523,21 @@ class Tracker(object):
                                          footer_html=footer,
                                          wkhtmltopdf_options=options)
 
-    def get_pdf_html(self) -> str:
-        """Get HTML used to generate PDF representing tracker."""
+    def _get_pdf_html(self, main_html: str) -> str:
+        """Get HTML used to generate PDF representing tracker/CTV."""
         return (
             self.get_pdf_start() +
-            self.get_all_plots_for_all_tasks_html() +
+            main_html +
             self.get_office_html() +
             PDFEND
         )
 
     def suggested_pdf_filename(self) -> str:
-        """Get suggested filename for tracker PDF."""
+        """Get suggested filename for tracker/CTV PDF."""
         return get_export_filename(
             pls.PATIENT_SPEC_IF_ANONYMOUS,
             pls.PATIENT_SPEC,
-            pls.TRACKER_FILENAME_SPEC,
+            pls.CTV_FILENAME_SPEC if self.as_ctv else pls.TRACKER_FILENAME_SPEC,  # noqa
             VALUE.OUTPUTTYPE_PDF,
             is_anonymous=self._patient is None,
             surname=self._patient.get_surname() if self._patient else "",
@@ -519,8 +553,8 @@ class Tracker(object):
     # Headers and footers
     # -------------------------------------------------------------------------
 
-    def get_tracker_header_html(self) -> str:
-        """HTML for tracker header, including patient ID information."""
+    def get_header_html(self) -> str:
+        """HTML for tracker/CTV header, including patient ID information."""
         conditions = []
         for which_idnum, idnum_value in self.idnum_criteria:
             conditions.append("{}{} = {}".format(
@@ -563,19 +597,14 @@ class Tracker(object):
 
     def get_html_start(self) -> str:
         """HTML with CSS and header."""
-        return pls.WEBSTART + self.get_tracker_header_html()
+        return pls.WEBSTART + self.get_header_html()
 
-    def get_pdf_header_content(self) -> str:
-        if self._patient is not None:
-            ptinfo = self._patient.get_html_for_page_header()
-        else:
-            ptinfo = ""
-        return pdf_header_content(ptinfo)
-
-    @staticmethod
-    def get_pdf_footer_content() -> str:
+    def get_pdf_footer_content(self) -> str:
         accessed = format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.LONG_DATETIME)
-        content = "Tracker accessed {}.".format(accessed)
+        content = "{thing} accessed {accessed}.".format(
+            thing="CTV" if self.as_ctv else "Tracker",
+            accessed=accessed
+        )
         return pdf_footer_content(content)
 
     def get_pdf_start(self) -> str:
@@ -592,10 +621,17 @@ class Tracker(object):
             head +
             pdf_header_footer +
             pls.PDF_LOGO_LINE +
-            self.get_tracker_header_html()
+            self.get_header_html()
         )
 
-    def get_office_html(self) -> str:
+    def get_pdf_header_content(self) -> str:
+        if self._patient is not None:
+            ptinfo = self._patient.get_html_for_page_header()
+        else:
+            ptinfo = ""
+        return pdf_header_content(ptinfo)
+
+    def _get_office_html(self, preamble: str) -> str:
         """Tedious HTML listing sources."""
         if len(self.task_tablename_list) == 0:
             request = "None"
@@ -603,8 +639,7 @@ class Tracker(object):
             request = ", ".join(self.task_tablename_list)
         return """
             <div class="office">
-                Trackers use only information from tasks that are flagged
-                CURRENT and COMPLETE.
+                {preamble}
                 Requested tasks: {request}.
                 Sources (tablename, task server PK, patient server PK):
                     {summary}.
@@ -612,6 +647,7 @@ class Tracker(object):
                     {server_version}) at: {when}.
             </div>
         """.format(
+            preamble=preamble,
             request=request,
             summary=self.summary,
             url=pls.SCRIPT_PUBLIC_URL_ESCAPED,
@@ -660,7 +696,252 @@ class Tracker(object):
         html = ""
         if len(task_instance_list) == 0:
             return html
-        if not hasattr(task_instance_list[0], 'get_trackers'):
+        if not task_instance_list[0].provides_trackers:
+            # ask the first of the task instances
+            return html
+        ntasks = len(task_instance_list)
+        task_instance_list.sort(key=lambda task: task.get_creation_datetime())
+        alltrackers = [task.get_trackers() for task in task_instance_list]
+        datetimes = [
+            task.get_creation_datetime() for task in task_instance_list
+        ]
+        ntrackers = len(alltrackers[0])
+        # ... number of trackers supplied by the first task (and all tasks)
+        for tracker in range(ntrackers):
+            values = [
+                alltrackers[tasknum][tracker].value
+                for tasknum in range(ntasks)
+            ]
+            html += self.get_single_plot_html(
+                datetimes,
+                values,
+                specimen_tracker=alltrackers[0][tracker]
+            )
+        for task in task_instance_list:
+            # noinspection PyProtectedMember
+            audit(
+                "Tracker data accessed",
+                table=task.tablename,
+                server_pk=task._pk,
+                patient_server_pk=task.get_patient_server_pk()
+            )
+        return html
+
+    def get_single_plot_html(
+            self,
+            datetimes: List[datetime.datetime],
+            values: List[float],
+            specimen_tracker: TrackerInfo) -> str:
+        """HTML for a single figure."""
+        plot_label = specimen_tracker.plot_label
+        axis_label = specimen_tracker.axis_label
+        axis_min = specimen_tracker.axis_min
+        axis_max = specimen_tracker.axis_max
+        axis_ticks = specimen_tracker.axis_ticks
+        horizontal_lines = specimen_tracker.horizontal_lines
+        horizontal_labels = specimen_tracker.horizontal_labels
+        aspect_ratio = specimen_tracker.aspect_ratio
+
+        figsize = (FULLWIDTH_PLOT_WIDTH,
+                   (1.0/float(aspect_ratio)) * FULLWIDTH_PLOT_WIDTH)
+        fig = plt.figure(figsize=figsize)
+        ax = fig.add_subplot(1, 1, 1)
+        x = [matplotlib.dates.date2num(t) for t in datetimes]
+        datelabels = [dt.strftime(TRACKER_DATEFORMAT) for dt in datetimes]
+
+        # First plot
+        ax.plot(x, values, color="b", linestyle="-", marker="+",
+                markeredgecolor="r", markerfacecolor="r", label=None)
+        # ... NB command performed twice, see below
+
+        # x axis
+        ax.set_xlabel("Date/time")
+        ax.set_xticks(x)
+        ax.set_xticklabels(datelabels)
+        if (self.earliest is not None and
+                self.latest is not None and
+                self.earliest != self.latest):
+            xlim = matplotlib.dates.date2num((self.earliest, self.latest))
+            margin = (2.5 / 95.0) * (xlim[1] - xlim[0])
+            xlim[0] -= margin
+            xlim[1] += margin
+            ax.set_xlim(xlim)
+        xlim = ax.get_xlim()
+        fig.autofmt_xdate(rotation=90)
+        # ... autofmt_xdate must be BEFORE twinx:
+        # http://stackoverflow.com/questions/8332395
+        if axis_ticks is not None and len(axis_ticks) > 0:
+            tick_positions = [m.y for m in axis_ticks]
+            tick_labels = [m.label for m in axis_ticks]
+            ax.set_yticks(tick_positions)
+            ax.set_yticklabels(tick_labels)
+
+        # y axis
+        ax.set_ylabel(axis_label)
+        axis_min = min(axis_min, min(values)) if axis_min else min(values)
+        axis_max = max(axis_max, max(values)) if axis_max else max(values)
+        # ... the supplied values are stretched if the data are outside them
+        # ... but min(something, None) is None, so beware
+        # If we get something with no sense of scale whatsoever, then what
+        # we do is arbitrary. Matplotlib does its own thing, but we could do:
+        if axis_min == axis_max:
+            if axis_min == 0:
+                axis_min, axis_min = -1.0, 1.0
+            else:
+                singlevalue = axis_min
+                axis_min = 0.9 * singlevalue
+                axis_max = 1.1 * singlevalue
+                if axis_min > axis_max:
+                    axis_min, axis_max = axis_max, axis_min
+        ax.set_ylim(axis_min, axis_max)
+
+        # title
+        ax.set_title(plot_label)
+
+        # Horizontal lines
+        stupid_jitter = 0.001
+        if horizontal_lines is not None:
+            for y in horizontal_lines:
+                plt.plot(xlim, [y, y + stupid_jitter], color="0.5",
+                         linestyle=":")
+                # PROBLEM: horizontal lines becoming invisible
+                # (whether from ax.axhline or plot)
+
+        # Horizontal labels
+        if horizontal_labels is not None:
+            label_left = xlim[0] + 0.01 * (xlim[1] - xlim[0])
+            for lab in horizontal_labels:
+                y = lab.y
+                l = lab.label
+                va = lab.vertical_alignment.value
+                ax.text(label_left, y, l, verticalalignment=va, alpha=0.5)
+                # was "0.5" rather than 0.5, which led to a tricky-to-find
+                # "TypeError: a float is required" exception after switching
+                # to Python 3.
+
+        # replot so the data are on top of the rest:
+        ax.plot(x, values, color="b", linestyle="-", marker="+",
+                markeredgecolor="r", markerfacecolor="r", label=None)
+        # ... NB command performed twice, see above
+
+        plt.tight_layout()
+        # ... stop the labels dropping off
+        # (only works properly for LEFT labels...)
+
+        # http://matplotlib.org/faq/howto_faq.html
+        # ... tried it - didn't work (internal numbers change fine,
+        # check the logger, but visually doesn't help)
+        # - http://stackoverflow.com/questions/9126838
+        # - http://matplotlib.org/examples/pylab_examples/finance_work2.html
+        return get_html_from_pyplot_figure(fig) + "<br>"
+        # ... extra line break for the PDF rendering
+
+    # -------------------------------------------------------------------------
+    # URLs
+    # -------------------------------------------------------------------------
+
+    def get_hyperlink_pdf(self, text: str) -> str:
+        """URL to a PDF version of the tracker/CTV."""
+        raise NotImplementedError()
+
+
+# =============================================================================
+# Tracker class
+# =============================================================================
+
+class Tracker(TrackerCtvCommon):
+    """Class representing numerical tracker."""
+
+    def __init__(self,
+                 session: Session,
+                 task_tablename_list: List[str],
+                 which_idnum: int,
+                 idnum_value: int,
+                 start_datetime: Optional[datetime.datetime],
+                 end_datetime: Optional[datetime.date]) -> None:
+        self.task_tablename_list = [t.lower() for t in task_tablename_list
+                                    if t]
+        task_class_list = [
+            cls for cls in Task.all_subclasses(sort_shortname=True)
+            if cls.provides_trackers and cls.tablename in task_tablename_list]
+        super().__init__(
+            session=session,
+            task_class_list=task_class_list,
+            which_idnum=which_idnum,
+            idnum_value=idnum_value,
+            start_datetime=start_datetime,
+            end_datetime=end_datetime,
+            as_ctv=False
+        )
+
+    def get_xml(self,
+                indent_spaces: int = 4,
+                eol: str = '\n',
+                include_comments: bool = False) -> str:
+        """Get XML document representing tracker."""
+        return self._get_xml(
+            audit_string="Tracker XML accessed",
+            xml_name="tracker",
+            indent_spaces=indent_spaces,
+            eol=eol,
+            include_comments=include_comments
+        )
+
+    def get_html(self) -> str:
+        """Get HTML representing tracker."""
+        return self._get_html(self.get_all_plots_for_all_tasks_html())
+
+    def get_pdf_html(self) -> str:
+        """Get HTML used to generate PDF representing tracker."""
+        return self._get_pdf_html(self.get_all_plots_for_all_tasks_html())
+
+    def get_office_html(self) -> str:
+        """Tedious HTML listing sources."""
+        return self._get_office_html(
+            "Trackers use only information from tasks that are flagged "
+            "CURRENT and COMPLETE.")
+
+    # -------------------------------------------------------------------------
+    # Plotting
+    # -------------------------------------------------------------------------
+
+    def get_all_plots_for_all_tasks_html(self) -> str:
+        """HTML for all plots."""
+        if (self.task_tablename_list is None or
+                len(self.task_tablename_list) == 0):
+            return """
+                <div class="warning">
+                    Unable to generate tracker: no task types specified
+                </div>"""
+        if self._patient is None:
+            return """
+                <div class="warning">
+                    Unable to generate tracker: no patient details
+                </div>"""
+
+        html = ""
+        for c in range(len(self.list_of_task_instance_lists)):
+            task_instance_list = self.list_of_task_instance_lists[c]
+            if len(task_instance_list) == 0:
+                continue
+            html += """
+                <div class="taskheader">
+                    <b>{} ({})</b>
+                </div>
+            """.format(
+                ws.webify(task_instance_list[0].longname),
+                ws.webify(task_instance_list[0].shortname)
+            )
+            html += self.get_all_plots_for_one_task_html(task_instance_list)
+        return html
+
+    def get_all_plots_for_one_task_html(self,
+                                        task_instance_list: List[Task]) -> str:
+        """HTML for all plots for a given task type."""
+        html = ""
+        if len(task_instance_list) == 0:
+            return html
+        if not task_instance_list[0].provides_trackers:
             # ask the first of the task instances
             return html
         ntasks = len(task_instance_list)
@@ -835,7 +1116,7 @@ class Tracker(object):
 # ClinicalTextView class
 # =============================================================================
 
-class ClinicalTextView(object):
+class ClinicalTextView(TrackerCtvCommon):
     """Class representing a clinical text view."""
 
     def __init__(self,
@@ -844,314 +1125,51 @@ class ClinicalTextView(object):
                  idnum_value: int,
                  start_datetime: Optional[datetime.datetime],
                  end_datetime: Optional[datetime.datetime]) -> None:
-        """Initialize, fetching applicable tasks."""
-
-        # Record input variables at this point (for URL regeneration)
-        self.which_idnum = which_idnum
-        self.idnum_value = idnum_value
-        self.start_datetime = start_datetime
-        self.end_datetime = end_datetime
-
-        # Which tasks? We want to note all within date range, so we use all
-        # classes.
         task_class_list = Task.all_subclasses()
-
-        # What filters?
-        self.idnum_criteria = [(which_idnum, idnum_value)]
-
-        # Date range? NB date adjustment to include the whole of the final day.
-        self.end_datetime_extended = None
-        if self.end_datetime is not None:
-            self.end_datetime_extended = (
-                self.end_datetime + datetime.timedelta(days=1)
-            )
-        log.debug("start_datetime: ", self.start_datetime)
-        log.debug("end_datetime: ", self.end_datetime)
-        log.debug("end_datetime_extended: ", self.end_datetime_extended)
-
-        if session.restricted_to_viewing_user():
-            self.restricted_warning = RESTRICTED_WARNING_SINGULAR
-        else:
-            self.restricted_warning = ""
-        self._patient = None  # default value if we fail
-        self.summary = ""
-        first = True
-
-        # Build task lists
-        list_of_task_instance_lists = []
-        # ... list (by task class) of lists of task instances
-        if DEBUG_CTV_TASK_INCLUSION:
-            self.summary += "["
-        for cls in task_class_list:
-            if DEBUG_CTV_TASK_INCLUSION:
-                if not first:
-                    self.summary += " // "
-                self.summary += cls.tablename
-            first = False
-            if cls.is_anonymous:
-                if DEBUG_CTV_TASK_INCLUSION:
-                    self.summary += " (anonymous)"
-                continue
-            task_instances = []
-            serverpks = cls.get_task_pks_for_clinical_text_view(
-                self.idnum_criteria, self.start_datetime,
-                self.end_datetime_extended)
-            if len(serverpks) == 0:
-                if DEBUG_CTV_TASK_INCLUSION:
-                    self.summary += " (no instances)"
-                continue
-            for s in serverpks:
-                if DEBUG_CTV_TASK_INCLUSION:
-                    self.summary += " / PK {} ".format(s)
-                task = cls(s)
-                if task is None:
-                    if DEBUG_CTV_TASK_INCLUSION:
-                        self.summary += " (task is None)"
-                    continue
-                if not task.allowed_to_user(session):
-                    if DEBUG_CTV_TASK_INCLUSION:
-                        self.summary += " (denied to user)"
-                    continue
-                dt = task.get_creation_datetime()
-                # Second check on datetimes
-                if (self.start_datetime is not None and
-                        dt < self.start_datetime):
-                    if DEBUG_CTV_TASK_INCLUSION:
-                        self.summary += " (start date wrong)"
-                    continue
-                if (self.end_datetime_extended is not None and
-                        dt > self.end_datetime_extended):
-                    if DEBUG_CTV_TASK_INCLUSION:
-                        self.summary += " (end date wrong)"
-                    continue
-                # We include incomplete tasks
-                if DEBUG_CTV_TASK_INCLUSION:
-                    self.summary += " (FOUND ONE)"
-                task_instances.append(task)
-            if len(task_instances) > 0:
-                list_of_task_instance_lists.append(task_instances)
-        if DEBUG_CTV_TASK_INCLUSION:
-            self.summary += "] "
-
-        # Move to a flat list and sort by creation date/time:
-        self.flattasklist = flatten_list(list_of_task_instance_lists)
-        self.flattasklist.sort(key=lambda task_: task_.get_creation_datetime())
-
-        # Fetch patient information
-        if len(self.flattasklist) > 0:
-            # noinspection PyProtectedMember
-            self._patient = self.flattasklist[0]._patient
-            # patient details from the first of our tasks
-
-        # Summary information
-        self.summary += get_summary_of_tasks(list_of_task_instance_lists)
-
-        # Consistency information
-        self.consistency_info = ConsistencyInfo(self.flattasklist)
-
-    # -------------------------------------------------------------------------
-    # XML view
-    # -------------------------------------------------------------------------
+        # We want to note all within date range, so we use all classes.
+        super().__init__(
+            session=session,
+            task_class_list=task_class_list,
+            which_idnum=which_idnum,
+            idnum_value=idnum_value,
+            start_datetime=start_datetime,
+            end_datetime=end_datetime,
+            as_ctv=True
+        )
 
     def get_xml(self,
                 indent_spaces: int = 4,
                 eol: str = '\n',
                 include_comments: bool = False) -> str:
         """Get XML document representing CTV."""
-        branches = [
-            self.consistency_info.get_xml_root(),
-            XmlElement(
-                name="_search_criteria",
-                value=[
-                    XmlElement(
-                        name="which_idnum",
-                        value=self.which_idnum,
-                        datatype="integer"
-                    ),
-                    XmlElement(
-                        name="idnum_value",
-                        value=self.idnum_value,
-                        datatype="integer"
-                    ),
-                    XmlElement(
-                        name="start_datetime",
-                        value=format_datetime(self.start_datetime,
-                                              DATEFORMAT.ISO8601),
-                        datatype="dateTime"
-                    ),
-                    XmlElement(
-                        name="end_datetime",
-                        value=format_datetime(self.end_datetime,
-                                              DATEFORMAT.ISO8601),
-                        datatype="dateTime"
-                    ),
-                ]
-            )
-        ]
-        for t in self.flattasklist:
-            branches.append(t.get_xml_root(include_calculated=True,
-                                           include_blobs=False))
-            audit(
-                "Clinical text view XML accessed",
-                table=t.tablename,
-                server_pk=t.get_pk(),
-                patient_server_pk=t.get_patient_server_pk()
-            )
-        tree = XmlElement(name="tracker", value=branches)
-        return get_xml_document(
-            tree,
+        return self._get_xml(
+            audit_string="Clinical text view XML accessed",
+            xml_name="ctv",
             indent_spaces=indent_spaces,
             eol=eol,
             include_comments=include_comments
         )
 
-    # -------------------------------------------------------------------------
-    # HTML view
-    # -------------------------------------------------------------------------
-
     def get_html(self) -> str:
         """Get HTML representing CTV."""
-        return (
-            self.get_html_start() +
-            self.get_clinicaltextview_main_html(as_pdf=False) +
-            self.get_office_html() +
-            """<div class="navigation">""" +
-            self.get_hyperlink_pdf("View PDF for printing/saving") +
-            "</div>" +
-            PDFEND
+        return self._get_html(
+            self.get_clinicaltextview_main_html(as_pdf=False)
         )
-
-    # -------------------------------------------------------------------------
-    # PDF view
-    # -------------------------------------------------------------------------
-
-    def get_pdf(self) -> bytes:
-        """Get PDF representing CTV."""
-        return rnc_pdf.pdf_from_html(self.get_pdf_html())
 
     def get_pdf_html(self) -> str:
         """Get HTML used to generate PDF representing CTV."""
-        return (
-            self.get_pdf_start() +
-            self.get_clinicaltextview_main_html(as_pdf=True) +
-            self.get_office_html() +
-            PDFEND
+        return self._get_pdf_html(
+            self.get_clinicaltextview_main_html(as_pdf=True)
         )
-
-    def suggested_pdf_filename(self) -> str:
-        """Get suggested filename for CTV PDF."""
-        return get_export_filename(
-            pls.PATIENT_SPEC_IF_ANONYMOUS,
-            pls.PATIENT_SPEC,
-            pls.CTV_FILENAME_SPEC,
-            VALUE.OUTPUTTYPE_PDF,
-            is_anonymous=self._patient is None,
-            surname=self._patient.get_surname() if self._patient else "",
-            forename=self._patient.get_forename() if self._patient else "",
-            dob=self._patient.get_dob() if self._patient else None,
-            sex=self._patient.get_sex() if self._patient else None,
-            idnum_objects=self._patient.get_idnum_objects() if self._patient else None,  # noqa
-            creation_datetime=None,
-            basetable=None,
-            serverpk=None)
-
-    # -------------------------------------------------------------------------
-    # Headers and footers
-    # -------------------------------------------------------------------------
-
-    def get_clinicaltextview_header_html(self) -> str:
-        """HTML for CTV header, including patient ID information."""
-        conditions = []
-        for which_idnum, idnum_value in self.idnum_criteria:
-            conditions.append("{}{} = {}".format(
-                FP_ID_NUM, which_idnum, idnum_value))
-
-        cons = self.consistency_info.get_description_list()
-        if self.consistency_info.are_all_consistent():
-            cons_class = "tracker_all_consistent"
-            joiner = ". "
-        else:
-            cons_class = "warning"
-            joiner = "<br>"
-        h = """
-            <div class="trackerheader">
-                Patient identified by: <b>{}</b>.
-                Date range for search: <b>{}</b>.
-                The information will <b>only be valid</b> (i.e. will only be
-                from only one patient!) if all contributing tablet devices use
-                these identifiers consistently. The consistency check is below.
-                The patient information shown below is taken from the first
-                task used.
-            </div>
-            <div class="{}">
-                {}
-        """.format(
-            ";".join(conditions),
-            format_daterange(self.start_datetime, self.end_datetime),
-            cons_class,
-            joiner.join(cons)
-        )
-        if self._patient is not None:
-            ptinfo = self._patient.get_html_for_task_header(
-                label_id_numbers=True)
-        else:
-            ptinfo = WARNING_NO_PATIENT_FOUND
-        h += """
-            </div>
-            {}
-            {}
-        """.format(
-            ptinfo,
-            self.restricted_warning,
-        )
-        return h
-
-    def get_html_start(self) -> str:
-        """HTML with CSS and header."""
-        return pls.WEBSTART + self.get_clinicaltextview_header_html()
-
-    def get_pdf_start(self) -> str:
-        """HTML for PDF, with CSS and header."""
-        if self._patient is not None:
-            ptinfo = self._patient.get_html_for_page_header()
-        else:
-            ptinfo = ""
-        return PDF_HEAD_PORTRAIT + """
-            <div id="headerContent">
-                {}
-            </div>
-            <div id="footerContent">
-                Page <pdf:pagenumber> of <pdf:pagecount>.
-                Clinical text view accessed {}.
-            </div>
-            {}
-        """.format(
-            ptinfo,
-            format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.LONG_DATETIME),
-            pls.PDF_LOGO_LINE,
-        ) + self.get_clinicaltextview_header_html()
 
     def get_office_html(self) -> str:
         """Tedious HTML listing sources."""
-        return """
-            <div class="office">
-                The clinical text view uses only information from tasks that
-                are flagged CURRENT.
-                Sources (tablename, task server PK, patient server PK):
-                    {summary}.
-                Information retrieved from {url} (server version
-                    {server_version}) at: {when}.
-            </div>
-        """.format(
-            summary=self.summary,
-            url=pls.SCRIPT_PUBLIC_URL_ESCAPED,
-            server_version=CAMCOPS_SERVER_VERSION,
-            when=format_datetime(pls.NOW_LOCAL_TZ,
-                                 DATEFORMAT.SHORT_DATETIME_SECONDS),
-        )
+        return self._get_office_html(
+            "The clinical text view uses only information from tasks that are "
+            "flagged CURRENT.")
 
     # -------------------------------------------------------------------------
-    # Plotting
+    # Proper content
     # -------------------------------------------------------------------------
 
     def get_clinicaltextview_main_html(self, as_pdf: bool = False) -> str:
@@ -1287,7 +1305,7 @@ def unit_tests_tracker(t: Tracker) -> None:
     unit_test_ignore("", t.get_pdf)
     unit_test_ignore("", t.get_pdf_html)
     unit_test_ignore("", t.suggested_pdf_filename)
-    unit_test_ignore("", t.get_tracker_header_html)
+    unit_test_ignore("", t.get_header_html)
     unit_test_ignore("", t.get_html_start)
     unit_test_ignore("", t.get_pdf_start)
     unit_test_ignore("", t.get_office_html)
@@ -1304,7 +1322,7 @@ def unit_tests_ctv(c: ClinicalTextView) -> None:
     unit_test_ignore("", c.get_pdf)
     unit_test_ignore("", c.get_pdf_html)
     unit_test_ignore("", c.suggested_pdf_filename)
-    unit_test_ignore("", c.get_clinicaltextview_header_html)
+    unit_test_ignore("", c.get_header_html)
     unit_test_ignore("", c.get_html_start)
     unit_test_ignore("", c.get_pdf_start)
     unit_test_ignore("", c.get_office_html)

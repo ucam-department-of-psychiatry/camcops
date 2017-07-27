@@ -780,7 +780,7 @@ def choose_tracker(session: Session, form: cgi.FieldStorage) -> str:
     )
     classes = get_all_task_classes()
     for cls in classes:
-        if hasattr(cls, 'get_trackers'):
+        if cls.provides_trackers:
             html += """
                 <label>
                     <input type="checkbox" name="{PARAM.TASKTYPES}"

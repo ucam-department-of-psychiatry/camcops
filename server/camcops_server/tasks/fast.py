@@ -41,11 +41,11 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Fast(Task):
-    NQUESTIONS = 4
-
     tablename = "fast"
     shortname = "FAST"
     longname = "Fast Alcohol Screening Test"
+
+    NQUESTIONS = 4
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=4,
         comment_fmt="Q{n}. {s} (0-4, higher worse)",

@@ -47,6 +47,9 @@ class Cgi(Task):
     tablename = "cgi"
     shortname = "CGI"
     longname = "Clinical Global Impressions"
+    has_clinician = True
+    provides_trackers = True
+
     fieldspecs = [
         dict(name="q1", cctype="INT", min=0, max=7,
              comment="Q1. Severity (1-7, higher worse, 0 not assessed)"),
@@ -61,8 +64,6 @@ class Cgi(Task):
         dict(name="q3", cctype="INT", min=0, max=16,
              comment="Q3 (calculated). Efficacy index [(Q3T - 1) * 4 + Q3S]."),
     ]
-    has_clinician = True
-
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self) -> List[TrackerInfo]:

@@ -53,12 +53,15 @@ WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
 # =============================================================================
 
 class Moca(Task):
-    NQUESTIONS = 28
-    MAX_SCORE = 30
-
     tablename = "moca"
     shortname = "MoCA"
     longname = "Montreal Cognitive Assessment"
+    has_clinician = True
+    provides_trackers = True
+
+    NQUESTIONS = 28
+    MAX_SCORE = 30
+
     fieldspecs = (
         repeat_fieldspec(
             "q", 1, NQUESTIONS, min=0, max=1,  # see below
@@ -128,7 +131,6 @@ class Moca(Task):
     for item in fieldspecs:
         if item["name"] == "q12":
             item["max"] = 3
-    has_clinician = True
     blob_name_idfield_list = [
         ("trailpicture", "trailpicture_blobid"),
         ("cubepicture", "cubepicture_blobid"),

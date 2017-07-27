@@ -83,6 +83,8 @@ class Cape42(Task):
     tablename = "cape42"
     shortname = "CAPE-42"
     longname = "Community Assessment of Psychic Experiences"
+    provides_trackers = True
+
     fieldspecs = (
         repeat_fieldspec(
             "frequency", 1, NQUESTIONS,

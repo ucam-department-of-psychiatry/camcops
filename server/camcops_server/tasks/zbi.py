@@ -36,6 +36,11 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, get_from_dict, Task
 # =============================================================================
 
 class Zbi12(Task):
+    tablename = "zbi12"
+    shortname = "ZBI-12"
+    longname = "Zarit Burden Interview-12"
+    has_respondent = True
+
     MIN_SCORE = 0
     MAX_SCORE = 4
     QUESTION_SNIPPETS = [
@@ -54,16 +59,12 @@ class Zbi12(Task):
     ]
     NQUESTIONS = 12
 
-    tablename = "zbi12"
-    shortname = "ZBI-12"
-    longname = "Zarit Burden Interview-12"
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
         min=MIN_SCORE, max=MAX_SCORE,
         comment_strings=QUESTION_SNIPPETS
     )
-    has_respondent = True
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 

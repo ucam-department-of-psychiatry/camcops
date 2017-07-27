@@ -42,11 +42,12 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Phq15(Task):
-    NQUESTIONS = 15
-
     tablename = "phq15"
     shortname = "PHQ-15"
     longname = "Patient Health Questionnaire-15"
+    provides_trackers = True
+
+    NQUESTIONS = 15
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=2,
         comment_fmt="Q{n} ({s}) (0 not bothered at all - 2 bothered a lot)",

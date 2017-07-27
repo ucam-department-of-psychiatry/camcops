@@ -42,6 +42,8 @@ class QolBasic(Task):
     tablename = "qolbasic"
     shortname = "QoL-Basic"
     longname = "Quality of Life: basic assessment"
+    provides_trackers = True
+
     fieldspecs = [
         dict(name="tto", cctype="FLOAT", min=0, max=10,
              comment="Time trade-off (QoL * 10). Prompt: ... Indicate... the "

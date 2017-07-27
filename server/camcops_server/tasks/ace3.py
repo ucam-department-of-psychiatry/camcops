@@ -71,6 +71,9 @@ class Ace3(Task):
     tablename = "ace3"
     shortname = "ACE-III"
     longname = "Addenbrooke’s Cognitive Examination III"
+    has_clinician = True
+    provides_trackers = True
+
     fieldspecs = (
         [
             dict(name="age_at_leaving_full_time_education",
@@ -236,7 +239,6 @@ class Ace3(Task):
                  comment="Clinician's comments"),
         ]
     )
-    has_clinician = True
     blob_name_idfield_list = [
         ("picture1", "picture1_blobid"),
         ("picture2", "picture2_blobid"),

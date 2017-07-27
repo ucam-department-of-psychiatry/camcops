@@ -34,6 +34,11 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 # =============================================================================
 
 class Pswq(Task):
+    tablename = "pswq"
+    shortname = "PSWQ"
+    longname = "Penn State Worry Questionnaire"
+    provides_trackers = True
+
     MIN_SCORE = 1
     MAX_SCORE = 5
     QUESTION_SNIPPETS = [
@@ -57,9 +62,6 @@ class Pswq(Task):
     NQUESTIONS = 16
     REVERSE_SCORE = [1, 3, 8, 10, 11]
 
-    tablename = "pswq"
-    shortname = "PSWQ"
-    longname = "Penn State Worry Questionnaire"
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS,
         comment_fmt="Q{n}, {s} (1-5)",

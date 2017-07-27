@@ -35,11 +35,13 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 # =============================================================================
 
 class Rand36(Task):
-    NQUESTIONS = 36
-
     tablename = "rand36"
     shortname = "RAND-36"
     longname = "RAND 36-Item Short Form Health Survey 1.0"
+    provides_trackers = True
+
+    NQUESTIONS = 36
+
     fieldspecs = [
         dict(name="q1", cctype="INT", min=1, max=5,
              comment="Q1 (general health) (1 excellent - 5 poor)"),

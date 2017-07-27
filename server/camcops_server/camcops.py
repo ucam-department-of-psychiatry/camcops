@@ -661,6 +661,7 @@ def upgrade_database_second_phase(old_version: Version) -> None:
                     _removal_pending,
                     _move_off_tablet,
                     
+                    id,
                     patient_id,
                     which_idnum,
                     idnum_value,
@@ -691,6 +692,7 @@ def upgrade_database_second_phase(old_version: Version) -> None:
                     0,  -- _removal_pending
                     0,  -- _move_off_tablet
                     
+                    id * 8,  -- goes to id
                     id,  -- goes to patient_id
                     {which_idnum},  -- goes to which_idnum
                     {idnumfield},  -- goes to idnum_value

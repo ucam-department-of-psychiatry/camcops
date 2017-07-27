@@ -50,6 +50,8 @@ class DemoQuestionnaire(Task):
     tablename = "demoquestionnaire"
     shortname = "Demo"
     longname = "Demonstration Questionnaire"
+    is_anonymous = True
+
     fieldspecs = (
         repeat_fieldspec("mcq", 1, N_MCQ) +
         repeat_fieldspec("mcqbool", 1, N_MCQBOOL) +
@@ -90,7 +92,6 @@ class DemoQuestionnaire(Task):
     for d in fieldspecs:
         if "comment" not in d:
             d["comment"] = d["name"]
-    is_anonymous = True
     blob_name_idfield_list = [
         ("photo", "photo_blobid"),
         ("canvas", "canvas_blobid"),

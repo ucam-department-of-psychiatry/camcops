@@ -48,6 +48,14 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 # =============================================================================
 
 class Icd10Depressive(Task):
+    tablename = "icd10depressive"
+    shortname = "ICD10-DEPR"
+    longname = (
+        "ICD-10 symptomatic criteria for a depressive episode "
+        "(as in e.g. F06.3, F25, F31, F32, F33)"
+    )
+    has_clinician = True
+
     CORE_FIELDSPECS = [
         dict(name="mood", cctype="BOOL", pv=PV.BIT,
              comment="Depressed mood to a degree that is definitely abnormal "
@@ -130,12 +138,6 @@ class Icd10Depressive(Task):
     SOMATIC_NAMES = [x["name"] for x in SOMATIC_FIELDSPECS]
     PSYCHOSIS_NAMES = [x["name"] for x in PSYCHOSIS_FIELDSPECS]
 
-    tablename = "icd10depressive"
-    shortname = "ICD10-DEPR"
-    longname = (
-        "ICD-10 symptomatic criteria for a depressive episode "
-        "(as in e.g. F06.3, F25, F31, F32, F33)"
-    )
     fieldspecs = (
         [
             dict(name="date_pertains_to", cctype="ISO8601",
@@ -155,7 +157,6 @@ class Icd10Depressive(Task):
         SOMATIC_FIELDSPECS +
         PSYCHOSIS_FIELDSPECS
     )
-    has_clinician = True
 
     def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():

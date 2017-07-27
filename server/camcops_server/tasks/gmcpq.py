@@ -40,14 +40,15 @@ from ..cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 class GMCPQ(Task):
+    tablename = "gmcpq"
+    shortname = "GMC-PQ"
+    longname = "GMC Patient Questionnaire"
+    is_anonymous = True
+
     RATING_TEXT = " (1 poor - 5 very good, 0 does not apply)"
     AGREE_TEXT = (
         " (1 strongly disagree - 5 strongly agree, 0 does not apply)"
     )
-
-    tablename = "gmcpq"
-    shortname = "GMC-PQ"
-    longname = "GMC Patient Questionnaire"
     fieldspecs = [
         dict(name="doctor", cctype="TEXT",
              comment="Doctor's name"),
@@ -119,7 +120,6 @@ class GMCPQ(Task):
         dict(name="q12_details", cctype="TEXT",
              comment="Ethnic group, other, details"),
     ]
-    is_anonymous = True
 
     def is_complete(self) -> bool:
         return (

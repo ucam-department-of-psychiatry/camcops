@@ -49,12 +49,14 @@ MAX_SCORE = (
 
 
 class Hamd(Task):
-    NSCOREDQUESTIONS = 17
-    NQUESTIONS = 21
-
     tablename = "hamd"
     shortname = "HAM-D"
     longname = "Hamilton Rating Scale for Depression"
+    has_clinician = True
+    provides_trackers = True
+
+    NSCOREDQUESTIONS = 17
+    NQUESTIONS = 21
     fieldspecs = (
         repeat_fieldspec(
             "q", 1, 15, comment_fmt="Q{n}, {s} (scored 0-4, except 0-2 for "
@@ -103,7 +105,6 @@ class Hamd(Task):
             item["max"] = 2
         if name == "q20":
             item["max"] = 3
-    has_clinician = True
 
     def get_trackers(self) -> List[TrackerInfo]:
         return [TrackerInfo(

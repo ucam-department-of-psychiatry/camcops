@@ -60,11 +60,12 @@ QUESTION_SNIPPETS = [
 
 
 class Caps(Task):
-    NQUESTIONS = 32
-
     tablename = "caps"
     shortname = "CAPS"
     longname = "Cardiff Anomalous Perceptions Scale"
+    provides_trackers = True
+
+    NQUESTIONS = 32
     fieldspecs = (
         repeat_fieldspec(
             "endorse", 1, NQUESTIONS, pv=PV.BIT,

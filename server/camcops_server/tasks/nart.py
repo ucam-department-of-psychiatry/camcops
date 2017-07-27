@@ -96,13 +96,14 @@ class Nart(Task):
     tablename = "nart"
     shortname = "NART"
     longname = "National Adult Reading Test"
+    has_clinician = True
+
     fieldspecs = []
     for w in WORDLIST:
         fieldspecs.append(
             dict(name=w, cctype="BOOL", pv=PV.BIT,
                  comment="Pronounced {} correctly "
                  "(0 no, 1 yes)".format(w)))
-    has_clinician = True
 
     def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():

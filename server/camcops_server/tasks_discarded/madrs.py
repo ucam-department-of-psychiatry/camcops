@@ -34,16 +34,16 @@ from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo, TrackerLabel
 # =============================================================================
 
 class Madrs(Task):
-    NQUESTIONS = 10
-
     tablename = "madrs"
     shortname = "MADRS"
     longname = "Montgomery–Åsberg Depression Rating Scale"
+    has_clinician = True
+    provides_trackers = True
+
+    NQUESTIONS = 10
     fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS) + [
         dict(name="period_rated", cctype="TEXT"),
     ]
-    has_clinician = True
-
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self) -> List[TrackerInfo]:

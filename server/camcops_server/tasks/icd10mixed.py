@@ -52,6 +52,8 @@ class Icd10Mixed(Task):
         "ICD-10 symptomatic criteria for a mixed affective episode "
         "(as in e.g. F06.3, F25, F38.00, F31.6)"
     )
+    has_clinician = True
+
     fieldspecs = [
         dict(name="date_pertains_to", cctype="ISO8601",
              comment="Date the assessment pertains to"),
@@ -67,7 +69,6 @@ class Icd10Mixed(Task):
              comment="Both manic and depressive symptoms must be prominent"
              " most of the time during a period of at least two weeks."),
     ]
-    has_clinician = True
 
     def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():

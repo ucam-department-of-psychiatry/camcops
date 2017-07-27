@@ -54,6 +54,8 @@ from ..cc_modules.cc_task import (
 # As a result, it calls "self" methods that it doesn't actually possess.
 
 class PclCommon(object):
+    provides_trackers = True
+
     NQUESTIONS = 17
     CORE_FIELDSPECS = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=1, max=5,
@@ -226,6 +228,7 @@ class PclC(PclCommon, Task):
     tablename = "pclc"
     shortname = "PCL-C"
     longname = "PTSD Checklist, Civilian version"
+
     fieldspecs = PclCommon.CORE_FIELDSPECS
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
@@ -240,6 +243,7 @@ class PclM(PclCommon, Task):
     tablename = "pclm"
     shortname = "PCL-M"
     longname = "PTSD Checklist, Military version"
+
     fieldspecs = PclCommon.CORE_FIELDSPECS
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
@@ -254,6 +258,7 @@ class PclS(PclCommon, Task):
     tablename = "pcls"
     shortname = "PCL-S"
     longname = "PTSD Checklist, Stressor-specific version"
+
     fieldspecs = PclCommon.CORE_FIELDSPECS + [
         dict(name="event", cctype="TEXT",
              comment="Traumatic event"),

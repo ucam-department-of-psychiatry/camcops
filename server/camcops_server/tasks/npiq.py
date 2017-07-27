@@ -40,6 +40,11 @@ DISTRESS = "distress"
 
 
 class NpiQ(Task):
+    tablename = "npiq"
+    shortname = "NPI-Q"
+    longname = "Neuropsychiatric Inventory Questionnaire"
+    has_respondent = True
+
     NQUESTIONS = 12
     QUESTION_SNIPPETS = [
         "delusions",  # 1
@@ -55,10 +60,6 @@ class NpiQ(Task):
         "night-time behaviour",
         "appetite/eating",
     ]
-
-    tablename = "npiq"
-    shortname = "NPI-Q"
-    longname = "Neuropsychiatric Inventory Questionnaire"
     fieldspecs = repeat_fieldspec(
         ENDORSED, 1, NQUESTIONS, cctype="BOOL", pv=PV.BIT,
         comment_fmt="Q{n}, {s}, endorsed?",
@@ -72,7 +73,6 @@ class NpiQ(Task):
         comment_fmt="Q{n}, {s}, distress (0-5), if endorsed",
         comment_strings=QUESTION_SNIPPETS
     )
-    has_respondent = True
 
     ENDORSED_FIELDS = [ENDORSED + str(n) for n in range(1, NQUESTIONS + 1)]
 

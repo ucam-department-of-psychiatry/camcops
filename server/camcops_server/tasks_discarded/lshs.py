@@ -34,11 +34,12 @@ from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
 # =============================================================================
 
 class LshsA(Task):
-    NQUESTIONS = 12
-
     tablename = "lshs_a"
     shortname = "LSHS-A"
     longname = "Launay–Slade Hallucination Scale, revision A"
+    provides_trackers = True
+
+    NQUESTIONS = 12
     fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]

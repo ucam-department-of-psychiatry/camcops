@@ -89,13 +89,14 @@ class DiagnosisItemBase(Ancillary):
 
 
 class DiagnosisBase(object):
+    has_clinician = True
+
     MUST_OVERRIDE = "DiagnosisBase: must override fn in derived class"
     fieldspecs = [
         dict(name="relates_to_date",
              cctype="DATETIME",
              comment="Date that diagnoses relate to"),  # new in v2.0.0
     ]
-    has_clinician = True
     hl7_coding_system = "?"
 
     def get_num_items(self) -> int:

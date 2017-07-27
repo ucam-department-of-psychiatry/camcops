@@ -44,6 +44,12 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 # =============================================================================
 
 class Ifs(Task):
+    tablename = "ifs"
+    shortname = "IFS"
+    longname = "INECO Frontal Screening"
+    has_clinician = True
+    provides_trackers = True
+
     Q4_DIGIT_LENGTHS = list(range(2, 7 + 1))
     Q6_SEQUENCE_NUMS = list(range(1, 4 + 1))
     Q7_PROVERB_NUMS = list(range(1, 3 + 1))
@@ -55,9 +61,6 @@ class Ifs(Task):
         ["q8_sentence{}".format(n) for n in Q8_SENTENCE_NUMS]
     )
 
-    tablename = "ifs"
-    shortname = "IFS"
-    longname = "INECO Frontal Screening"
     fieldspecs = [
         dict(name="q1", cctype="INT", pv=[0, 1, 2, 3],
              comment="Q1. Motor series (motor programming)"),
@@ -100,7 +103,6 @@ class Ifs(Task):
             dict(name="q8_sentence{}".format(n), cctype="INT", pv=[0, 1, 2],
                  comment="Q8. Hayling, sentence {}".format(n)),
         ])
-    has_clinician = True
 
     def get_trackers(self) -> List[TrackerInfo]:
         scoredict = self.get_score()

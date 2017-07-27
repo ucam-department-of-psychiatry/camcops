@@ -43,6 +43,12 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Panss(Task):
+    tablename = "panss"
+    shortname = "PANSS"
+    longname = "Positive and Negative Syndrome Scale"
+    has_clinician = True
+    provides_trackers = True
+
     P_FIELDSPECS = repeat_fieldspec(
         "p", 1, 7, min=1, max=7,
         comment_fmt="P{n}: {s} (1 absent - 7 extreme)",
@@ -84,11 +90,7 @@ class Panss(Task):
             "active social avoidance",
         ])
 
-    tablename = "panss"
-    shortname = "PANSS"
-    longname = "Positive and Negative Syndrome Scale"
     fieldspecs = P_FIELDSPECS + N_FIELDSPECS + G_FIELDSPECS
-    has_clinician = True
 
     P_FIELDS = repeat_fieldname("p", 1, 7)
     N_FIELDS = repeat_fieldname("n", 1, 7)

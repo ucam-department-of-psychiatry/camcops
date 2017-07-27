@@ -35,14 +35,14 @@ from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo, TrackerLabel
 # =============================================================================
 
 class Fab(Task):
-    NQUESTIONS = 6
-
     tablename = "fab"
     shortname = "FAB"
     longname = "Frontal Assessment Battery"
-    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
     has_clinician = True
+    provides_trackers = True
 
+    NQUESTIONS = 6
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self) -> List[TrackerInfo]:

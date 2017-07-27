@@ -60,6 +60,7 @@ class CPFTLPSReferral(Task):
     tablename = "cpft_lps_referral"
     shortname = "CPFT_LPS_Referral"
     longname = "Referral to CPFT Liaison Psychiatry Service"
+
     fieldspecs = [
         dict(name="referral_date_time", cctype="ISO8601"),
         dict(name="lps_division", cctype="TEXT"),

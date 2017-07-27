@@ -293,6 +293,9 @@ class CardinalExpectationDetection(Task):
     tablename = "cardinal_expdet"
     shortname = "Cardinal_ExpDet"
     longname = "Cardinal RN – Expectation–Detection task"
+    use_landscape_for_pdf = True
+    dependent_classes = [ExpDetTrial, ExpDetTrialGroupSpec]
+
     fieldspecs = [
         # Config
         dict(name="num_blocks", cctype="INT",
@@ -342,8 +345,6 @@ class CardinalExpectationDetection(Task):
         dict(name="last_trial_completed", cctype="INT",
              comment="Number of last trial completed"),
     ]
-    use_landscape_for_pdf = True
-    dependent_classes = [ExpDetTrial, ExpDetTrialGroupSpec]
     # -------------------------------------------------------------------------
     # extra_summary_table_info
     # -------------------------------------------------------------------------

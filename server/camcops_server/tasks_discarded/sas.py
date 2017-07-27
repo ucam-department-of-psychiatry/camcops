@@ -34,11 +34,12 @@ from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
 # =============================================================================
 
 class Sas(Task):
-    NQUESTIONS = 10
-
     tablename = "sas"
     shortname = "SAS"
     longname = "Simpson–Angus Extrapyramidal Side Effects Scale"
+    provides_trackers = True
+
+    NQUESTIONS = 10
     fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]

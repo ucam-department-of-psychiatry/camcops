@@ -42,11 +42,13 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Smast(Task):
-    NQUESTIONS = 13
-
     tablename = "smast"
     shortname = "SMAST"
     longname = "Short Michigan Alcohol Screening Test"
+    provides_trackers = True
+
+    NQUESTIONS = 13
+
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, "CHAR", pv=['Y', 'N'],
         comment_fmt="Q{n}: {s} (Y or N)",

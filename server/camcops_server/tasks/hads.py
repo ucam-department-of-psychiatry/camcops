@@ -39,13 +39,15 @@ log = logging.getLogger(__name__)
 # =============================================================================
 
 class Hads(Task):
+    tablename = "hads"
+    shortname = "HADS"
+    longname = "Hospital Anxiety and Depression Scale (data collection only)"
+    provides_trackers = True
+
     NQUESTIONS = 14
     ANXIETY_QUESTIONS = [1, 3, 5, 7, 9, 11, 13]
     DEPRESSION_QUESTIONS = [2, 4, 6, 8, 10, 12, 14]
 
-    tablename = "hads"
-    shortname = "HADS"
-    longname = "Hospital Anxiety and Depression Scale (data collection only)"
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=3,
         comment_fmt="Q{n}: {s} (0-3)",

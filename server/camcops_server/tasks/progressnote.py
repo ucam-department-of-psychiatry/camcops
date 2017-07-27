@@ -39,11 +39,12 @@ class ProgressNote(Task):
     tablename = "progressnote"
     shortname = "ProgressNote"
     longname = "Clinical progress note"
+    has_clinician = True
+
     fieldspecs = [
         dict(name="location", cctype="TEXT", comment="Location"),
         dict(name="note", cctype="TEXT", comment="Clinical note"),
     ]
-    has_clinician = True
 
     def get_clinical_text(self) -> List[CtvInfo]:
         return [CtvInfo(content=ws.webify(self.note))]

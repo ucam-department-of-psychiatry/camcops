@@ -34,6 +34,11 @@ from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
 # =============================================================================
 
 class Lunsers(Task):
+    tablename = "lunsers"
+    shortname = "LUNSERS"
+    longname = "Liverpool University Neuroleptic Side Effect Rating Scale"
+    provides_trackers = True
+
     NQUESTIONS = 51
     list_epse = [19, 29, 34, 37, 40, 43, 48]
     list_anticholinergic = [6, 10, 32, 38, 51]
@@ -45,9 +50,6 @@ class Lunsers(Task):
     list_hormonal_male = [7, 17, 24, 46]
     list_redherrings = [3, 8, 11, 12, 25, 28, 30, 33, 42, 45]
 
-    tablename = "lunsers"
-    shortname = "LUNSERS"
-    longname = "Liverpool University Neuroleptic Side Effect Rating Scale"
     fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
 
     def get_trackers(self) -> List[TrackerInfo]:

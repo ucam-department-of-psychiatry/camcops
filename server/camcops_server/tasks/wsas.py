@@ -42,6 +42,11 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Wsas(Task):
+    tablename = "wsas"
+    shortname = "WSAS"
+    longname = "Work and Social Adjustment Scale"
+    provides_trackers = True
+
     MIN_SCORE = 0
     MAX_SCORE = 8
     QUESTION_SNIPPETS = [
@@ -59,9 +64,6 @@ class Wsas(Task):
         comment_strings=QUESTION_SNIPPETS
     )
 
-    tablename = "wsas"
-    shortname = "WSAS"
-    longname = "Work and Social Adjustment Scale"
     fieldspecs = [
         dict(name="retired_etc", cctype="BOOL",
              comment="Retired or choose not to have job for reason unrelated "

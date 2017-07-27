@@ -48,6 +48,8 @@ class ContactLog(Task):
     tablename = "contactlog"
     shortname = "ContactLog"
     longname = "Clinical contact log"
+    has_clinician = True
+
     fieldspecs = [
         dict(name="location", cctype="TEXT", comment="Location"),
         dict(name="start", cctype="TEXT",
@@ -63,7 +65,6 @@ class ContactLog(Task):
              "(0 no, 1 yes)?"),
         dict(name="comment", cctype="TEXT", comment="Comment"),
     ]
-    has_clinician = True
 
     def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():

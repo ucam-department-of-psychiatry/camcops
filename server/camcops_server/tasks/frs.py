@@ -190,16 +190,16 @@ def make_frs_fieldspec(n: int) -> Dict[str, Any]:
 
 
 class Frs(Task):
-    TASK_FIELDS = ["q" + str(n) for n in range(1, NQUESTIONS + 1)]
-
     tablename = "frs"
     shortname = "FRS"
     longname = "Frontotemporal Dementia Rating Scale"
+    has_clinician = True
+    has_respondent = True
+
+    TASK_FIELDS = ["q" + str(n) for n in range(1, NQUESTIONS + 1)]
     fieldspecs = [make_frs_fieldspec(n) for n in range(1, NQUESTIONS + 1)]
     fieldspecs.append(dict(name="comments", cctype="TEXT",
                            comment="Clinician's comments"))
-    has_clinician = True
-    has_respondent = True
 
     def get_summaries(self):
         scoredict = self.get_score()

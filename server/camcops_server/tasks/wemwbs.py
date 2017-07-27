@@ -41,15 +41,17 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Wemwbs(Task):
+    tablename = "wemwbs"
+    shortname = "WEMWBS"
+    longname = "Warwick–Edinburgh Mental Well-Being Scale"
+    provides_trackers = True
+
     MINQSCORE = 1
     MAXQSCORE = 5
     N_QUESTIONS = 14
     MINTOTALSCORE = N_QUESTIONS * MINQSCORE
     MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
 
-    tablename = "wemwbs"
-    shortname = "WEMWBS"
-    longname = "Warwick–Edinburgh Mental Well-Being Scale"
     fieldspecs = repeat_fieldspec(
         "q", 1, N_QUESTIONS, min=1, max=5,
         comment_fmt="Q{n} ({s}) (1 none of the time - 5 all of the time)",

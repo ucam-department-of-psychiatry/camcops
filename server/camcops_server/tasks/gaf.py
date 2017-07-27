@@ -38,11 +38,13 @@ class Gaf(Task):
     tablename = "gaf"
     shortname = "GAF"
     longname = "Global Assessment of Functioning (data collection only)"
+    has_clinician = True
+    provides_trackers = True
+
     fieldspecs = [
         dict(name="score", cctype="INT", min=0, max=100,
              comment="GAF score (1-100 or 0 for insufficient information)"),
     ]
-    has_clinician = True
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 

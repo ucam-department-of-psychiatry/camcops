@@ -40,6 +40,12 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 # =============================================================================
 
 class Badls(Task):
+    tablename = "badls"
+    shortname = "BADLS"
+    longname = "Bristol Activities of Daily Living Scale"
+    has_respondent = True
+    provides_trackers = True
+
     SCORING = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 0}
     NQUESTIONS = 20
     QUESTION_SNIPPETS = [
@@ -64,10 +70,6 @@ class Badls(Task):
         "games/hobbies",
         "transport",  # 20
     ]
-
-    tablename = "badls"
-    shortname = "BADLS"
-    longname = "Bristol Activities of Daily Living Scale"
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, cctype="CHAR",
         comment_fmt="Q{n}, {s} ('a' best [0] to 'd' worst [3]; "
@@ -75,8 +77,6 @@ class Badls(Task):
         pv=list(SCORING.keys()),
         comment_strings=QUESTION_SNIPPETS
     )
-    has_respondent = True
-
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_summaries(self):

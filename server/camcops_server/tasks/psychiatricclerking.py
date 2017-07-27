@@ -34,6 +34,11 @@ from ..cc_modules.cc_task import CtvInfo, Task
 # =============================================================================
 
 class PsychiatricClerking(Task):
+    tablename = "psychiatricclerking"
+    shortname = "Clerking"
+    longname = "Psychiatric clerking"
+    has_clinician = True
+
     # FIELDSPEC_A = CLINICIAN_FIELDSPECS  # replaced by has_clinician
     FIELDSPEC_B = [
         dict(name="location", cctype="TEXT"),
@@ -99,9 +104,6 @@ class PsychiatricClerking(Task):
         # DO NOT write to FIELDSPEC_A like this, because that overwrite
         # CLINICIAN_FIELDSPECS.
 
-    tablename = "psychiatricclerking"
-    shortname = "Clerking"
-    longname = "Psychiatric clerking"
     fieldspecs = (
         FIELDSPEC_B +
         FIELDSPEC_C +
@@ -111,7 +113,6 @@ class PsychiatricClerking(Task):
         FIELDSPEC_E +
         FIELDSPEC_F
     )
-    has_clinician = True
 
     def get_ctv_heading(self, wstringname) -> CtvInfo:
         return CtvInfo(

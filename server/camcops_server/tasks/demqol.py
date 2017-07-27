@@ -68,6 +68,12 @@ COPYRIGHT_DIV = """
 # =============================================================================
 
 class Demqol(Task):
+    tablename = "demqol"
+    shortname = "DEMQOL"
+    longname = "Dementia Quality of Life measure, self-report version"
+    has_clinician = True
+    provides_trackers = True
+
     NQUESTIONS = 29
     N_SCORED_QUESTIONS = 28
     MINIMUM_N_FOR_TOTAL_SCORE = 14
@@ -75,9 +81,6 @@ class Demqol(Task):
     MIN_SCORE = N_SCORED_QUESTIONS
     MAX_SCORE = MIN_SCORE * 4
 
-    tablename = "demqol"
-    shortname = "DEMQOL"
-    longname = "Dementia Quality of Life measure, self-report version"
     fieldspecs = repeat_fieldspec(
         "q", 1, N_SCORED_QUESTIONS, pv=PERMITTED_VALUES,
         comment_fmt="Q{n}. {s} (1 a lot - 4 not at all; -99 no response)",
@@ -103,7 +106,6 @@ class Demqol(Task):
              comment="Q29. Overall quality of life (1 very good - 4 poor; "
                      "-99 no response)."),
     ]
-    has_clinician = True
 
     def is_complete(self) -> bool:
         return self.field_contents_valid() and self.are_all_fields_complete(

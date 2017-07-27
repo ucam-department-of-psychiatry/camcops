@@ -42,11 +42,12 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Gad7(Task):
-    NQUESTIONS = 7
-
     tablename = "gad7"
     shortname = "GAD-7"
     longname = "Generalized Anxiety Disorder Assessment"
+    provides_trackers = True
+
+    NQUESTIONS = 7
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=3,
         comment_fmt="Q{n}, {s} (0 not at all - 3 nearly every day)",

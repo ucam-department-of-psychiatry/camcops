@@ -49,6 +49,8 @@ class Bmi(Task):
     tablename = "bmi"
     shortname = "BMI"
     longname = "Body mass index"
+    provides_trackers = True
+
     fieldspecs = [
         dict(name="height_m", cctype="FLOAT", min=0,
              comment="height (m)"),

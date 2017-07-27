@@ -37,6 +37,11 @@ from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
 # =============================================================================
 
 class Gass(Task):
+    tablename = "gass"
+    shortname = "GASS"
+    longname = "Glasgow Antipsychotic Side-effect Scale"
+    provides_trackers = True
+
     NQUESTIONS = 22
     list_sedation = [1, 2]
     list_cardiovascular = [3, 4]
@@ -48,9 +53,6 @@ class Gass(Task):
     list_prolactinaemic_male = [17, 18, 19, 20]
     list_weightgain = [22]
 
-    tablename = "gass"
-    shortname = "GASS"
-    longname = "Glasgow Antipsychotic Side-effect Scale"
     fieldspecs = (
         [dict(name="medication", cctype="TEXT")] +
         repeat_fieldspec("q", 1, NQUESTIONS) +

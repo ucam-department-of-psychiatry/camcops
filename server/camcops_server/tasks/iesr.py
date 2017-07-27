@@ -42,6 +42,11 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Iesr(Task):
+    tablename = "iesr"
+    shortname = "IES-R"
+    longname = "Impact of Events Scale – Revised"
+    provides_trackers = True
+
     MIN_SCORE = 0
     MAX_SCORE = 4
     QUESTION_SNIPPETS = [
@@ -76,9 +81,6 @@ class Iesr(Task):
         comment_strings=QUESTION_SNIPPETS
     )
 
-    tablename = "iesr"
-    shortname = "IES-R"
-    longname = "Impact of Events Scale – Revised"
     fieldspecs = [
         dict(name="event", cctype="TEXT",
              comment="Relevant event"),

@@ -35,13 +35,13 @@ from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo, TrackerLabel
 # =============================================================================
 
 class Epds(Task):
-    NQUESTIONS = 10
-
     tablename = "epds"
     shortname = "EPDS"
     longname = "Edinburgh Postnatal Depression Scale"
-    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
+    provides_trackers = True
 
+    NQUESTIONS = 10
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self) -> List[TrackerInfo]:

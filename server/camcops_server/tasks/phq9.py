@@ -46,6 +46,8 @@ class Phq9(Task):
     tablename = "phq9"
     shortname = "PHQ-9"
     longname = "Patient Health Questionnaire-9"
+    provides_trackers = True
+
     fieldspecs = repeat_fieldspec(
         "q", 1, 9, min=0, max=3,
         comment_fmt="Q{n} ({s}) (0 not at all - 3 nearly every day)",

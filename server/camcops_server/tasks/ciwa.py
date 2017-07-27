@@ -47,12 +47,15 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Ciwa(Task):
-    NSCOREDQUESTIONS = 10
-
     tablename = "ciwa"
     shortname = "CIWA-Ar"
     longname = ("Clinical Institute Withdrawal Assessment for Alcohol "
                 "Scale, Revised")
+    has_clinician = True
+    provides_trackers = True
+
+    NSCOREDQUESTIONS = 10
+
     fieldspecs = repeat_fieldspec(
         "q", 1, NSCOREDQUESTIONS - 1, min=0, max=7,
         comment_fmt="Q{n}, {s} (0-7, higher worse)",
@@ -76,7 +79,6 @@ class Ciwa(Task):
         dict(name="rr", cctype="INT", min=0,
              comment="Respiratory rate (breaths/minute)"),
     ]
-    has_clinician = True
 
     def get_trackers(self) -> List[TrackerInfo]:
         return [TrackerInfo(

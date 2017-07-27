@@ -240,6 +240,8 @@ class IDED3D(Task):
     tablename = "ided3d"
     shortname = "ID/ED-3D"
     longname = "Three-dimensional ID/ED task"
+    dependent_classes = [IDED3DTrial, IDED3DStage]
+
     fieldspecs = [
         # Config
         dict(name="last_stage", cctype="INT",
@@ -285,7 +287,6 @@ class IDED3D(Task):
         dict(name="last_trial_completed", cctype="INT",
              comment="Number of last trial completed"),
     ]
-    dependent_classes = [IDED3DTrial, IDED3DStage]
 
     def is_complete(self) -> bool:
         return bool(self.debug_display_stimuli_only) or bool(self.finished)

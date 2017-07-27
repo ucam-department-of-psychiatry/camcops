@@ -41,11 +41,13 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Bprs(Task):
-    NQUESTIONS = 20
-
     tablename = "bprs"
     shortname = "BPRS"
     longname = "Brief Psychiatric Rating Scale"
+    has_clinician = True
+    provides_trackers = True
+
+    NQUESTIONS = 20
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=7,
         comment_fmt="Q{n}, {s} (1-7, higher worse, 0 for unable to rate)",
@@ -57,7 +59,6 @@ class Bprs(Task):
             "motor retardation", "uncooperativeness",
             "unusual thought content", "blunted affect", "excitement",
             "disorientation", "severity of illness", "global improvement"])
-    has_clinician = True
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
     SCORED_FIELDS = [x for x in TASK_FIELDS if (x != "q19" and x != "q20")]

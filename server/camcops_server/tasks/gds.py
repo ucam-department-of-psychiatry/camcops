@@ -36,11 +36,12 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
 # =============================================================================
 
 class Gds15(Task):
-    NQUESTIONS = 15
-
     tablename = "gds15"
     shortname = "GDS-15"
     longname = "Geriatric Depression Scale, 15-item version"
+    provides_trackers = True
+
+    NQUESTIONS = 15
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, cctype="TEXT", pv=[NO_CHAR, YES_CHAR],
         comment_fmt="Q{n}, {s} ('Y' or 'N')",

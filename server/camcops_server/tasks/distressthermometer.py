@@ -39,11 +39,11 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 # =============================================================================
 
 class DistressThermometer(Task):
-    NQUESTIONS = 36
-
     tablename = "distressthermometer"
     shortname = "Distress Thermometer"
     longname = "Distress Thermometer"
+
+    NQUESTIONS = 36
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, pv=PV.BIT, comment_fmt="{n}. {s} (0 no, 1 yes)",
         comment_strings=[

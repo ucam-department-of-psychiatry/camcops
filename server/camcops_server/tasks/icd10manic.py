@@ -48,6 +48,14 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 # =============================================================================
 
 class Icd10Manic(Task):
+    tablename = "icd10manic"
+    shortname = "ICD10-MANIC"
+    longname = (
+        "ICD-10 symptomatic criteria for a manic/hypomanic episode "
+        "(as in e.g. F06.3, F25, F30, F31)"
+    )
+    has_clinician = True
+
     CORE_FIELDSPECS = [
         dict(name="mood_elevated", cctype="BOOL", pv=PV.BIT,
              comment="The mood is 'elevated' [hypomania] or 'predominantly "
@@ -134,12 +142,6 @@ class Icd10Manic(Task):
     OTHER_CRITERIA_NAMES = [x["name"] for x in OTHER_CRITERIA_FIELDSPECS]
     PSYCHOSIS_NAMES = [x["name"] for x in PSYCHOSIS_FIELDSPECS]
 
-    tablename = "icd10manic"
-    shortname = "ICD10-MANIC"
-    longname = (
-        "ICD-10 symptomatic criteria for a manic/hypomanic episode "
-        "(as in e.g. F06.3, F25, F30, F31)"
-    )
     fieldspecs = (
         [
             dict(name="date_pertains_to", cctype="ISO8601",
@@ -153,7 +155,6 @@ class Icd10Manic(Task):
         OTHER_CRITERIA_FIELDSPECS +
         PSYCHOSIS_FIELDSPECS
     )
-    has_clinician = True
 
     def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():

@@ -46,11 +46,13 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Dast(Task):
-    NQUESTIONS = 28
-
     tablename = "dast"
     shortname = "DAST"
     longname = "Drug Abuse Screening Test"
+    provides_trackers = True
+
+    NQUESTIONS = 28
+
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, "CHAR", pv=['Y', 'N'],
         comment_fmt='Q{n}. {s} ("+" = Y scores 1, "-" = N scores 1)',

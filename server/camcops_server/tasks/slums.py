@@ -48,6 +48,12 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Slums(Task):
+    tablename = "slums"
+    shortname = "SLUMS"
+    longname = "St Louis University Mental Status"
+    has_clinician = True
+    provides_trackers = True
+
     PREAMBLE_FIELDSPECS = [
         dict(name="alert", cctype="INT", pv=PV.BIT,
              comment="Is the patient alert? (0 no, 1 yes)"),
@@ -110,15 +116,11 @@ class Slums(Task):
              comments="Clinician's comments"),
     ]
 
-    tablename = "slums"
-    shortname = "SLUMS"
-    longname = "St Louis University Mental Status"
     fieldspecs = (
         PREAMBLE_FIELDSPECS +
         SCORED_FIELDSPECS +
         OTHER_FIELDSPECS
     )
-    has_clinician = True
     blob_name_idfield_list = [
         ("clockpicture", "clockpicture_blobid"),
         ("shapespicture", "shapespicture_blobid"),

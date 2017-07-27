@@ -49,12 +49,15 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Aims(Task):
-    NQUESTIONS = 12
-    NSCOREDQUESTIONS = 10
-
     tablename = "aims"
     shortname = "AIMS"
     longname = "Abnormal Involuntary Movement Scale"
+    provides_trackers = True
+    has_clinician = True
+
+    NQUESTIONS = 12
+    NSCOREDQUESTIONS = 10
+
     fieldspecs = (
         repeat_fieldspec(
             "q", 1, NSCOREDQUESTIONS,
@@ -69,8 +72,6 @@ class Aims(Task):
             comment_strings=["problems_teeth_dentures",
                              "usually_wears_dentures"])
     )
-    has_clinician = True
-
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self) -> List[TrackerInfo]:

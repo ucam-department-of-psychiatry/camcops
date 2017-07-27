@@ -46,11 +46,12 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Audit(Task):
-    NQUESTIONS = 10
-
     tablename = "audit"
     shortname = "AUDIT"
     longname = "WHO Alcohol Use Disorders Identification Test"
+    provides_trackers = True
+
+    NQUESTIONS = 10
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=4,
         comment_fmt="Q{n}, {s} (0-4, higher worse)",
@@ -58,7 +59,6 @@ class Audit(Task):
             "how often drink", "drinks per day", "how often six drinks",
             "unable to stop", "unable to do what was expected", "eye opener",
             "guilt", "unable to remember", "injuries", "others concerned"])
-
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self) -> List[TrackerInfo]:

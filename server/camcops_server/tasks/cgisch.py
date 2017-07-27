@@ -51,6 +51,9 @@ class CgiSch(Task):
     tablename = "cgisch"
     shortname = "CGI-SCH"
     longname = "Clinical Global Impression – Schizophrenia"
+    has_clinician = True
+    provides_trackers = True
+
     fieldspecs = (
         repeat_fieldspec(
             "severity", 1, 5, min=1, max=7,
@@ -61,7 +64,6 @@ class CgiSch(Task):
             comment_fmt="Change Q{n}, {s} (1-7, higher worse, or 9 N/A)",
             comment_strings=QUESTION_FRAGMENTS)
     )
-    has_clinician = True
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 

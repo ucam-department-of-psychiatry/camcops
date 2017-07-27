@@ -39,6 +39,8 @@ class Photo(Task):
     tablename = "photo"
     shortname = "Photo"
     longname = "Photograph"
+    has_clinician = True
+
     fieldspecs = [
         dict(name="description", cctype="TEXT",
              comment="Description of the photograph"),
@@ -50,7 +52,6 @@ class Photo(Task):
              comment="Rotation (clockwise, in degrees) to be applied for "
                      "viewing"),
     ]
-    has_clinician = True
     blob_name_idfield_list = [
         ("photo_blob", "photo_blobid")
     ]
@@ -133,11 +134,12 @@ class PhotoSequence(Task):
     tablename = "photosequence"
     shortname = "PhotoSequence"
     longname = "Photograph sequence"
+    has_clinician = True
+
     fieldspecs = [
         dict(name="sequence_description", cctype="TEXT",
              comment="Description of the sequence of photographs"),
     ]
-    has_clinician = True
     dependent_classes = [PhotoSequenceSinglePhoto]
 
     def get_clinical_text(self) -> List[CtvInfo]:

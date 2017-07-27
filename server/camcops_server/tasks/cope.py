@@ -35,16 +35,17 @@ from ..cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 class CopeBrief(Task):
+    tablename = "cope_brief"
+    shortname = "COPE-Brief"
+    longname = "Brief COPE Inventory"
+    extrastring_taskname = "cope"
+
     NQUESTIONS = 28
     RELATIONSHIP_OTHER_CODE = 0
     RELATIONSHIPS_FIRST = 0
     RELATIONSHIPS_FIRST_NON_OTHER = 1
     RELATIONSHIPS_LAST = 9
 
-    tablename = "cope_brief"
-    shortname = "COPE-Brief"
-    longname = "Brief COPE Inventory"
-    extrastring_taskname = "cope"
     fieldspecs = [
         dict(name="completed_by_patient", cctype="INT", pv=PV.BIT,
              comment="Task completed by patient? (0 no, 1 yes)"),

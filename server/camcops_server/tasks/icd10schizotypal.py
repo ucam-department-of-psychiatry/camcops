@@ -48,11 +48,12 @@ from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
 # =============================================================================
 
 class Icd10Schizotypal(Task):
-    N_A = 9
-
     tablename = "icd10schizotypal"
     shortname = "ICD10-SZTYP"
     longname = "ICD-10 criteria for schizotypal disorder (F21)"
+    has_clinician = True
+
+    N_A = 9
     fieldspecs = (
         [
             dict(name="date_pertains_to", cctype="ISO8601",
@@ -80,7 +81,6 @@ class Icd10Schizotypal(Task):
             ]
         )
     )
-    has_clinician = True
 
     def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():

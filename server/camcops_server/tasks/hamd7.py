@@ -42,11 +42,13 @@ from ..cc_modules.cc_task import (
 # =============================================================================
 
 class Hamd7(Task):
-    NQUESTIONS = 7
-
     tablename = "hamd7"
     shortname = "HAMD-7"
     longname = "Hamilton Rating Scale for Depression (7-item scale)"
+    provides_trackers = True
+    has_clinician = True
+
+    NQUESTIONS = 7
     fieldspecs = repeat_fieldspec(
         "q", 1, NQUESTIONS, min=0, max=4,  # see below
         comment_fmt="Q{n}, {s} (0-4, except Q6 0-2; higher worse)",
@@ -59,7 +61,6 @@ class Hamd7(Task):
     for item in fieldspecs:
         if item["name"] == "q6":
             item["max"] = 2
-    has_clinician = True
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 

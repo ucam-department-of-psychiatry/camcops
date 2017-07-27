@@ -54,6 +54,11 @@ def ctv_info_pd(condition: str, has_it: Optional[bool]) -> CtvInfo:
 
 
 class Icd10SpecPD(Task):
+    tablename = "icd10specpd"
+    shortname = "ICD10-PD"
+    longname = "ICD-10 criteria for specific personality disorders (F60)"
+    has_clinician = True
+
     N_GENERAL = 6
     N_GENERAL_1 = 4
     N_PARANOID = 7
@@ -66,9 +71,6 @@ class Icd10SpecPD(Task):
     N_ANXIOUS = 5
     N_DEPENDENT = 6
 
-    tablename = "icd10specpd"
-    shortname = "ICD10-PD"
-    longname = "ICD-10 criteria for specific personality disorders (F60)"
     fieldspecs = (
         [
             dict(name="date_pertains_to", cctype="ISO8601",
@@ -183,7 +185,6 @@ class Icd10SpecPD(Task):
                              "fears of being left to oneself",
                              "everyday decisions require advice/reassurance"])
     )
-    has_clinician = True
 
     def get_clinical_text(self) -> List[CtvInfo]:
         if not self.is_complete():

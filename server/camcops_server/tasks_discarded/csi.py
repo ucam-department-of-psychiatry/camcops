@@ -35,14 +35,14 @@ from ..cc_modules.cc_task import Task, TrackerInfo
 # =============================================================================
 
 class Csi(Task):
-    NQUESTIONS = 14
-
     tablename = "csi"
     shortname = "CSI"
     longname = "Catatonia Screening Instrument"
-    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
     has_clinician = True  # !!! not implemented on tablet; should be
+    provides_trackers = True
 
+    NQUESTIONS = 14
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self) -> List[TrackerInfo]:

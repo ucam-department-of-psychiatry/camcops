@@ -477,6 +477,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     is_anonymous = False  # Alters fields/HTML
     has_clinician = False  # Will add fields/HTML
     has_respondent = False  # Will add fields/HTML
+    provides_trackers = False
     use_landscape_for_pdf = False
     dependent_classes = []
     blob_name_idfield_list = []  # type: List[Tuple[str, str]]
@@ -676,8 +677,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Implement if you provide trackers
     # -------------------------------------------------------------------------
 
-    '''
-    def get_trackers(self) -> List[Dict[]]:
+    def get_trackers(self) -> List[TrackerInfo]:
         """
         Tasks that provide quantitative information for tracking over time
         should override this and return a list of TrackerInfo, one per tracker.
@@ -689,7 +689,6 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         function.
         """
         return []
-    '''
 
     # -------------------------------------------------------------------------
     # Override to provide clinical text
@@ -1782,7 +1781,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             end_datetime: Optional[datetime.datetime]) -> List[int]:
         """Get server PKs for tracker information matching the requested
         criteria, or []."""
-        if not hasattr(cls, 'get_trackers'):
+        if not cls.provides_trackers:
             return []
         return cls.get_task_pks_for_tracker_or_clinical_text_view(
             idnum_criteria, start_datetime, end_datetime)
@@ -3484,7 +3483,7 @@ def task_instance_unit_test(name: str, instance: Task) -> None:
     unit_test_ignore("Testing {}.get_extra_table_names".format(name),
                      instance.get_extra_table_names)
 
-    if hasattr(instance, 'get_trackers'):
+    if instance.provides_trackers:
         unit_test_ignore("Testing {}.get_trackers".format(name),
                          instance.get_trackers)
 

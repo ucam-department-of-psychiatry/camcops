@@ -43,6 +43,11 @@ from ..cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 class CbiR(Task):
+    tablename = "cbir"
+    shortname = "CBI-R"
+    longname = "Cambridge Behavioural Inventory, Revised"
+    has_respondent = True
+
     MIN_SCORE = 0
     MAX_SCORE = 4
     QUESTION_SNIPPETS = [
@@ -105,9 +110,6 @@ class CbiR(Task):
 
     NQUESTIONS = 45
 
-    tablename = "cbir"
-    shortname = "CBI-R"
-    longname = "Cambridge Behavioural Inventory, Revised"
     fieldspecs = [
         dict(name="confirm_blanks", cctype="INT", pv=PV.BIT,
              comment="Respondent confirmed that blanks are deliberate (N/A) "
@@ -125,7 +127,6 @@ class CbiR(Task):
         min=MIN_SCORE, max=MAX_SCORE,
         comment_strings=QUESTION_SNIPPETS
     )
-    has_respondent = True
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 

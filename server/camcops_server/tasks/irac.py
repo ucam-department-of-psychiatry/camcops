@@ -36,6 +36,7 @@ class Irac(Task):
     tablename = "irac"
     shortname = "IRAC"
     longname = "Identify and Rate the Aim of the Contact"
+
     fieldspecs = [
         dict(name="aim", cctype="TEXT",
              comment="Main aim of the contact"),

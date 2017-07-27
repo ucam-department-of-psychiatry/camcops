@@ -42,6 +42,8 @@ class QolSG(Task):
     tablename = "qolsg"
     shortname = "QoL-SG"
     longname = "Quality of Life: Standard Gamble"
+    provides_trackers = True
+
     fieldspecs = [
         dict(name="category_start_time", cctype="TEXT",
              comment="Time categories were offered (ISO-8601)"),
