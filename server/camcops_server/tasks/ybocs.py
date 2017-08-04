@@ -24,14 +24,19 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV, PV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
     answer,
     get_ternary,
     subheading_spanning_four_columns,
     tr,
 )
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -130,18 +135,21 @@ class Ybocs(Task):
             ),
         ]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total_score", cctype="INT",
-                 value=self.total_score(),
-                 comment="Total score (/ 40)"),
-            dict(name="obsession_score", cctype="INT",
-                 value=self.obsession_score(),
-                 comment="Obsession score (/ 20)"),
-            dict(name="compulsion_score", cctype="INT",
-                 value=self.compulsion_score(),
-                 comment="Compulsion score (/ 20)"),
+            SummaryElement(name="total_score",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (/ 40)"),
+            SummaryElement(name="obsession_score",
+                           coltype=Integer(),
+                           value=self.obsession_score(),
+                           comment="Obsession score (/ 20)"),
+            SummaryElement(name="compulsion_score",
+                           coltype=Integer(),
+                           value=self.compulsion_score(),
+                           comment="Compulsion score (/ 20)"),
         ]
 
     def get_clinical_text(self) -> List[CtvInfo]:

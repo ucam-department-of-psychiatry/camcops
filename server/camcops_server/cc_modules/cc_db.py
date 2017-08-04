@@ -32,7 +32,11 @@ from cardinal_pythonlib.rnc_db import (
     FIELDSPEC_TYPE,
     FIELDSPECLIST_TYPE,
 )
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql.schema import Column, ForeignKey
+from sqlalchemy.sql.sqltypes import Boolean, DateTime
 
+from .cc_config import pls
 from .cc_constants import (
     DATEFORMAT,
     ERA_NOW,
@@ -41,7 +45,12 @@ from .cc_constants import (
 )
 from .cc_dt import format_datetime
 from .cc_logger import BraceStyleAdapter
-from .cc_pls import pls
+from .cc_sqla_coltypes import (
+    DateTimeAsIsoTextColType,
+    EraColType,
+    IntUnsigned,
+    SemanticVersionColType,
+)
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -49,56 +58,135 @@ T = TypeVar('T')
 
 
 # =============================================================================
-# Field types
+# Base classes implementing common fields
 # =============================================================================
 
-# Keys in SQLTYPE are the valid values for the "cctype" field.
-# Values are the corresponding SQL type.
-class SQLTYPE(object):
-    # Boolean
-    BOOL = "BOOLEAN"
+# *** note: replaces STANDARD_GENERIC_FIELDSPECS
+class GenericTabletRecordMixin(object):
+    # -------------------------------------------------------------------------
+    # On the server side:
+    # -------------------------------------------------------------------------
+    _pk = Column(
+        "_pk", IntUnsigned,
+        primary_key=True, autoincrement=True, index=True,
+        comment="(SERVER) Primary key (on the server)"
+    )
+    _device_id = Column(
+        "_device_id", IntUnsigned, ForeignKey("_security_devices.id"),
+        nullable=False, index=True,
+        comment="(SERVER) ID of the source tablet device"
+    )
+    device = relationship("Device")
+    _era = Column(
+        "_era", EraColType,
+        nullable=False, index=True,
+        comment="(SERVER) 'NOW', or when this row was preserved and removed "
+                "from the source device (UTC ISO 8601)",
+    )
+    # ... note that _era is textual so that plain comparison
+    # with "=" always works, i.e. no NULLs -- for USER comparison too, not
+    # just in CamCOPS code
+    _current = Column(
+        "_current", Boolean,
+        nullable=False, index=True,
+        comment="(SERVER) Is the row current (1) or not (0)?"
+    )
+    _when_added_exact = Column(
+        "_when_added_exact", DateTimeAsIsoTextColType,
+        comment="(SERVER) Date/time this row was added (ISO 8601)"
+    )
+    _when_added_batch_utc = Column(
+        "_when_added_batch_utc", DateTime,
+        comment="(SERVER) Date/time of the upload batch that added this "
+                "row (DATETIME in UTC)"
+    )
+    _adding_user_id = Column(
+        "_adding_user_id", IntUnsigned, ForeignKey("_security_users.id"),
+        comment="(SERVER) ID of user that added this row",
+    )
+    _adding_user = relationship("User", foreign_keys=[_adding_user_id])
+    _when_removed_exact = Column(
+        "_when_removed_exact", DateTimeAsIsoTextColType,
+        comment="(SERVER) Date/time this row was removed, i.e. made "
+                "not current (ISO 8601)"
+    )
+    _when_removed_batch_utc = Column(
+        "_when_removed_batch_utc", DateTime,
+        comment="(SERVER) Date/time of the upload batch that removed "
+                "this row (DATETIME in UTC)"
+    )
+    _removing_user_id = Column(
+        "_removing_user_id", IntUnsigned, ForeignKey("_security_users.id"),
+        comment="(SERVER) ID of user that removed this row"
+    )
+    _removing_user = relationship("User", foreign_keys=[_removing_user_id])
+    _preserving_user_id = Column(
+        "_preserving_user_id", IntUnsigned, ForeignKey("_security_users.id"),
+        comment="(SERVER) ID of user that preserved this row"
+    )
+    _preserving_user = relationship("User", foreign_keys=[_preserving_user_id])
+    _forcibly_preserved = Column(
+        "_forcibly_preserved", Boolean,
+        comment="(SERVER) Forcibly preserved by superuser (rather than "
+                "normally preserved by tablet)?"
+    )
+    _predecessor_pk = Column(
+        "_predecessor_pk", IntUnsigned,
+        comment="(SERVER) PK of predecessor record, prior to modification"
+    )
+    _successor_pk = Column(
+        "_successor_pk", IntUnsigned,
+        comment="(SERVER) PK of successor record  (after modification) "
+                "or NULL (whilst live, or after deletion)"
+    )
+    _manually_erased = Column(
+        "_manually_erased", Boolean,
+        comment="(SERVER) Record manually erased (content destroyed)?"
+    )
+    _manually_erased_at = Column(
+        "_manually_erased_at", DateTimeAsIsoTextColType,
+        comment="(SERVER) Date/time of manual erasure (ISO 8601)"
+    )
+    _manually_erasing_user_id = Column(
+        "_manually_erasing_user_id", IntUnsigned,
+        ForeignKey("_security_users.id"),
+        comment="(SERVER) ID of user that erased this row manually"
+    )
+    _manually_erasing_user = relationship(
+        "User", foreign_keys=[_manually_erasing_user_id])
+    _camcops_version = Column(
+        "_camcops_version", SemanticVersionColType,
+        comment = "(SERVER) CamCOPS version number of the uploading device"
+    )
+    _addition_pending = Column(
+        "_addition_pending", Boolean,
+        nullable=False,
+        comment="(SERVER) Addition pending?"
+    )
+    _removal_pending = Column(
+        "_removal_pending", Boolean,
+        comment="(SERVER) Removal pending?"
+    )
 
-    # Date/time
-    DATETIME = "DATETIME"
-    ISO8601 = "VARCHAR({})".format(ISO8601_STRING_LENGTH)
+    # -------------------------------------------------------------------------
+    # Fields that *all* client tables have:
+    # -------------------------------------------------------------------------
+    _move_off_tablet = Column(
+        "_move_off_tablet", Boolean,
+        comment="(SERVER/TABLET) Record-specific preservation pending?"
+    )
+    when_last_modified = Column(
+        "when_last_modified", DateTimeAsIsoTextColType,
+        comment="(STANDARD) Date/time this row was last modified on the "
+                "source tablet device (ISO 8601)"
+        # *** WHEN ALEMBIC UP: INDEX THIS: USED BY DATABASE UPLOAD SCRIPT.
+    )
 
-    # Numeric
-    BIGINT = "BIGINT"  # MySQL: -9223372036854775808 to 9223372036854775807
-    BIGINT_UNSIGNED = "BIGINT UNSIGNED"  # MySQL: 0 to 18446744073709551615
-    INT = "INT"  # MySQL: -2147483648 to 2147483647
-    INT_UNSIGNED = "INT UNSIGNED"  # MySQL: 0 to 4294967295
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
-    # Real
-    FLOAT = "REAL"
 
-    # BLOB
-    LONGBLOB = "LONGBLOB"
-
-    # Textual
-    AUDITSOURCE = "VARCHAR(20)"
-    CHAR = "VARCHAR(1)"
-    DEVICE = "VARCHAR(255)"
-    FILTER_TEXT = "VARCHAR(255)"
-    HASHEDPASSWORD = "VARCHAR(255)"
-    HOSTNAME = "VARCHAR(255)"
-    IDDESCRIPTOR = "VARCHAR(255)"
-    IPADDRESS = "VARCHAR(45)"  # http://stackoverflow.com/questions/166132
-    LONGTEXT = "LONGTEXT"  # http://stackoverflow.com/questions/6766781
-    MIMETYPE = "VARCHAR(255)"  # https://stackoverflow.com/questions/643690
-    PATIENTNAME = "VARCHAR(255)"
-    SENDINGFORMAT = "VARCHAR(50)"
-    SEX = "VARCHAR(1)"
-    TABLENAME = "VARCHAR(255)"
-    TEXT = "TEXT"
-    TIME = "TIME"  # v2
-    TOKEN = "VARCHAR(50)"
-    USERNAME = "VARCHAR(255)"
-    STOREDVARNAME = "VARCHAR(255)"  # probably overkill!
-    STOREDVARTYPE = "VARCHAR(255)"  # probably overkill!
-    # If you insert something too long into a VARCHAR, it just gets truncated.
-
-    SEMANTICVERSIONTYPE = "VARCHAR(147)"
-    # ... https://github.com/mojombo/semver/issues/79
+    # *** DEFINE MEMBER FUNCTIONS TO DO JOIN QUERIES
 
 
 # =============================================================================

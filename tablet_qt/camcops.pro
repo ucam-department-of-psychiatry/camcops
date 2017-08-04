@@ -530,7 +530,9 @@ SOURCES += main.cpp \
     dbobjects/patientidnum.cpp \
     dbobjects/idnumdescription.cpp \
     common/dbconst.cpp \
-    dbobjects/patientidnumsorter.cpp
+    dbobjects/patientidnumsorter.cpp \
+    widgets/treeviewcontroldelegate.cpp \
+    widgets/treeviewproxystyle.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -891,7 +893,9 @@ HEADERS += \
     dbobjects/patientidnum.h \
     dbobjects/idnumdescription.h \
     common/dbconst.h \
-    dbobjects/patientidnumsorter.h
+    dbobjects/patientidnumsorter.h \
+    widgets/treeviewcontroldelegate.h \
+    widgets/treeviewproxystyle.h
 
 DISTFILES += \
     android/AndroidManifest.xml \

@@ -83,6 +83,7 @@ def copier(src: str, dst: str, follow_symlinks: bool = True,
         return
     if verbose:
         print("Copying {} -> {}".format(src, dst))
+    # noinspection PyArgumentList
     shutil.copy2(src, dst, follow_symlinks=follow_symlinks)
 
 
@@ -192,6 +193,7 @@ if getattr(our_args, EXTRAS_ARG):
     # deltree(dst_tablet_ti)
     deltree(dst_tablet_qt)
     # shutil.copytree(src=src_tablet_ti, dst=dst_tablet_ti, copy_function=copier)  # noqa
+    # noinspection PyArgumentList
     shutil.copytree(src=src_tablet_qt, dst=dst_tablet_qt, copy_function=copier)
     delete_empty_directories(dst_tablet)
 
@@ -318,6 +320,14 @@ camcops_server
         'Werkzeug==0.11.3',  # Profiling middleware
 
         'cardinal_pythonlib==0.2.3',  # RNC libraries
+
+        # Adding as part of Pyramid/SQLAlchemy/Alembic upgrade, v2.1.0:
+        'arrow==0.10.0',
+        'dogpile.cache==0.6.4',
+        'mysqlclient==1.3.10',  # for mysql+mysqldb://...
+        'pyramid==1.9.1',
+        'pyramid_debugtoolbar==4.3',
+        'sqlalchemy==1.2.0b1',
     ],
 
     entry_points={

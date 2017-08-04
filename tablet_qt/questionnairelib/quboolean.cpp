@@ -21,14 +21,13 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QWidget>
-// #include "common/cssconst.h"
+#include "lib/convert.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/aspectratiopixmap.h"
 #include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
-// #include "widgets/clickablelabelnowrap.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -53,6 +52,7 @@ QuBoolean::QuBoolean(const QString &filename, const QSize &size,
 
 void QuBoolean::commonConstructor()
 {
+    m_adjust_image_for_dpi = true;
     m_content_clickable = true;
     m_indicator_on_left = true;  // due to LabelWordWrap, better as true
     m_big_indicator = true;  // finger-sized; standard...
@@ -126,6 +126,13 @@ QuBoolean* QuBoolean::setAsTextButton(bool as_text_button)
 }
 
 
+QuBoolean* QuBoolean::setAdjustImageForDpi(bool adjust_image_for_dpi)
+{
+    adjust_image_for_dpi = adjust_image_for_dpi;
+    return this;
+}
+
+
 QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
 {
     const bool read_only = questionnaire->readOnly();
@@ -166,7 +173,10 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
         // --------------------------------------------------------------------
         // Image label (accompanying image)
         // --------------------------------------------------------------------
-        const QPixmap image = uifunc::getPixmap(m_image_filename, m_image_size);
+        QPixmap image = uifunc::getPixmap(m_image_filename, m_image_size);
+        if (m_adjust_image_for_dpi) {
+            image = image.scaled(convert::convertSizeByDpi(image.size()));
+        }
         AspectRatioPixmap* label = new AspectRatioPixmap();
         label->setPixmap(image);
         if (!read_only && m_content_clickable) {

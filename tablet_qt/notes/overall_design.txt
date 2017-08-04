@@ -242,3 +242,167 @@ THINGS TO AVOID
             for field in SOME_FIELD_LIST:
                 column_sql, params = schema_editor.column_sql(MyModel, field)
 
+
+===============================================================================
+SERVER VERSION HISTORY AND JOINS
+===============================================================================
+
+CURRENT
+
+- The server/tablet interaction causes the tablet to uploads stuff that's
+  changed, on a per-table basis. So imagine the patient ID numbers, patient,
+  task, and some sort of ancillary table, and imaging them like a desk, where
+  uploading a new version places a new sheet of paper on top of the old:
+
+                            version_3                           rec_3_v_3
+    version_2               version_2               rec_2_v_2   rec_3_v_2
+    version_1   version_1   version_1   rec_1_v_1   rec_2_v_1   rec_3_v_1
+    ---------   ---------   ---------   ---------------------------------
+      idnum      patient      task                  ancillary
+
+  No, let's revise that metaphor a bit. It works for "the current state", which
+  is "what's on top"...
+
+  Everything from a device, at a particular time, will match on device ID and
+  era. Now, finding the current set is easy:
+    - (a) link as the tablet would do, on PKs/FKs;                     } "same
+    - (b) add the additional criteria of matches on device ID and era; }  desk"
+    - and (c) restrict to "current" records. } "topmost piece of paper"
+
+CONTEMPORANEOUS 1: WHAT WAS THE STATE OF PLAY WHEN THE INDEX RECORD WAS
+UPLOADED?
+
+- The more subtle question is "show me the state of play at time X" where
+  revisions may have occurred subsequently. Here, the desk metaphor breaks
+  down. We might initially assume that the contemporaneous records are each
+  "the topmost piece of paper no higher than our starting point", but that's
+  wrong. (Once we have two stacks each of two pieces of paper, who knows what
+  pairs occurred as they were dealt?) Imagine instead a desk in which every
+  upload places a sheet of glass down before adding more paper. Let's just
+  consider two tables:
+
+        time_5      x4 [removed at: NULL]
+        time_4      x3 [removed at: time_5]     y3 [removed at: NULL]
+        time_3                                  y2 [removed at: time_4]
+        time_2      x2 [removed at: time_4]
+        time_1      x1 [removed at: time_2]     y1 [removed at: time_3]
+                    ----                        -----
+        added_at    this                        other
+
+  So if we start with x2, then the contemporaneous y record is y1; x3 -> y3;
+  y1 -> x1; and so on. As before, we begin with:
+
+    - match on PK/FK links, as before;          } "same desk"
+    - match on device ID and era, as before;    }
+
+  Then the obvious part, for this specific question, is that a contemporaneous
+  record can't have been added after we were:
+    - AND other._when_added_batch_utc <= this._when_added_batch_utc
+
+  and the slightly trickier part is that "other" can't have been removed before
+  or at the time we were ADDED:
+    - AND (other._when_removed_batch_utc > this._when_added_batch_utc
+           OR _when_removed_batch_utc IS NULL)
+
+  (when "this" was *removed* is irrelevant). So we end up with:
+
+    -- Find what "other" looked like when "this" was uploaded
+    SELECT other.*
+    FROM other INNER JOIN this ON
+        other.fk_to_this = this.pk
+        AND other._device_id = this.device_id
+        AND other._era = this._era
+
+        AND other._when_added_batch_utc <= this._when_added_batch_utc
+        AND (other._when_removed_batch_utc > this._when_added_batch_utc
+             OR other._when_removed_batch_utc IS NULL)
+
+  In other words, we take this._when_added_batch_utc at a fixed point in time
+  and seek an "other" record whose timespan encompasses that point.
+
+  Another metaphor: "I lived for 100 years. Who was alive on the day when I was
+  born? Everyone who was born before or on my birthday, and who died after I
+  was born or is still alive."
+
+        b----d                      b-----d
+             b-----d                      b---d
+                   b------...                 b--------
+                ^                             ^
+                X---------...                 X--------
+
+CONTEMPORANEOUS 2: WHAT WAS THE LAST STATE OF PLAY POSSIBLE FOR THIS INDEX
+RECORD?
+
+- A slightly different question: what was the latest revised version of the
+  "other" object that could apply to "this"?
+  In this example, x2 -> y1; x3 -> y3; y1 -> x2.
+  This requires treating the lifespan of "this" as a time range.
+
+  Our lifespan metaphor: "I may be alive or dead. Who was the last person in
+  each [odd sequential non-overlapping family lineage] to see me alive?"
+  If I'm dead:
+    (*) Restrict to those born before I died.
+    (*) Those who weren't already dead before I died.
+  If I'm alive:
+    (*) Restrict to those who are also still alive."
+
+        b----d                      b---d               b-------d
+             b----d                     b---------              b----...
+                  b-----...
+                  ^                              ^            ^
+         ...------X                     B---------      ...---X
+         I'm dead                       I'm alive       I'm dead
+
+
+        b-----d     b-------d       b---d
+              b-----d       b-------d   b-----
+            B---------------------------------
+        I'm alive
+
+    So:
+
+    -- Find what "other" looked like the last time "this" was valid
+    SELECT other.*
+    FROM other INNER JOIN this ON
+        other.fk_to_this = this.pk
+        AND other._device_id = this.device_id
+        AND other._era = this._era
+
+        AND (
+            (
+                this._when_removed_batch_utc IS NOT NULL  -- "I'm dead"
+                AND other._when_added_batch_utc < this._when_removed_batch_utc
+                AND (other._when_removed_batch_utc >= this._when_removed_batch_utc
+                     OR other._when_removed_batch_utc IS NULL)
+            )
+            OR (
+                this._when_removed_batch_utc IS NULL  -- "I'm alive"
+                AND other._when_removed_batch_utc IS NULL
+            )
+        )
+
+CONTEMPORANEOUS 3: IF I'D LOOKED AT THE TABLET AT A PARTICULAR TIME, WHAT WOULD
+I HAVE SEEN?
+
+- Rather than starting from an index record, now we start from an index time.
+  We just take all relevant records (for a device/era) where
+
+    _when_added_batch_utc <= index_time
+    AND (_when_removed_batch_utc > index_time
+         OR _when_removed_batch_utc IS NULL)
+
+- This is a generalization of the "upload time of index record" version, above.
+
+OVERALL QUESTION: WHAT'S USEFUL?
+
+It is not clear that any of these things are really useful except as an audit
+trail. They can certainly be confusing, and offer too many options (e.g. for
+research dumps: current versions only? Everything?). All possible states of the
+tablet that were uploaded can in principle be recreated.
+
+Let's take the pragmatic approach: the server should offer views to
+researchers (both the clinical-style per-patient views and the research-style
+data dumps) of *current* data only.
+
+This also allows us to use SQLAlchemy relationship() calls, which is a helpful
+bonus.

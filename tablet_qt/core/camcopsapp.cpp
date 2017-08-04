@@ -747,6 +747,7 @@ void CamcopsApp::initGuiOne()
     uiconst::SMALL_ICONSIZE = cvSize(uiconst::SMALL_ICONSIZE_FOR_DEFAULT_DPI);
     uiconst::MIN_SPINBOX_HEIGHT = cvLength(uiconst::MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI);
     uiconst::SLIDER_HANDLE_SIZE_PX = cvLength(uiconst::SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI);
+    uiconst::DIAL_DIAMETER_PX = cvLength(uiconst::DIAL_DIAMETER_PX_FOR_DEFAULT_DPI);
 }
 
 

@@ -24,17 +24,16 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    get_from_dict,
-    Task,
-    TrackerInfo,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -125,21 +124,25 @@ class Iesr(Task):
             ),
         ]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total_score", cctype="INT",
-                 value=self.total_score(),
-                 comment="Total score (/ 88)"),
-            dict(name="avoidance_score", cctype="INT",
-                 value=self.avoidance_score(),
-                 comment="Avoidance score (/ 32)"),
-            dict(name="intrusion_score", cctype="INT",
-                 value=self.intrusion_score(),
-                 comment="Intrusion score (/ 28)"),
-            dict(name="hyperarousal_score", cctype="INT",
-                 value=self.hyperarousal_score(),
-                 comment="Hyperarousal score (/ 28)"),
+            SummaryElement(name="total_score",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (/ 88)"),
+            SummaryElement(name="avoidance_score",
+                           coltype=Integer(),
+                           value=self.avoidance_score(),
+                           comment="Avoidance score (/ 32)"),
+            SummaryElement(name="intrusion_score",
+                           coltype=Integer(),
+                           value=self.intrusion_score(),
+                           comment="Intrusion score (/ 28)"),
+            SummaryElement(name="hyperarousal_score",
+                           coltype=Integer(),
+                           value=self.hyperarousal_score(),
+                           comment="Hyperarousal score (/ 28)"),
         ]
 
     def get_clinical_text(self) -> List[CtvInfo]:

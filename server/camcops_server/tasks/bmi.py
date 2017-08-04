@@ -25,15 +25,13 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Float
+
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    LabelAlignment,
-    Task,
-    TrackerInfo,
-    TrackerLabel,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import LabelAlignment, TrackerInfo, TrackerLabel  # noqa
 
 
 # =============================================================================
@@ -128,11 +126,11 @@ class Bmi(Task):
             )
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="bmi", cctype="FLOAT",
-                 value=self.bmi(), comment="BMI (kg/m^2)"),
+            SummaryElement(name="bmi", coltype=Float(),
+                           value=self.bmi(), comment="BMI (kg/m^2)"),
         ]
 
     def bmi(self) -> Optional[float]:

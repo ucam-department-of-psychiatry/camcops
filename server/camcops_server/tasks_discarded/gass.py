@@ -25,11 +25,14 @@
 from typing import Dict, List
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import get_yes_no
-from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
+from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -68,11 +71,13 @@ class Gass(Task):
             axis_max=63.5
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT",
-                 value=self.total_score(), comment="Total score"),
+            SummaryElement(name="total", 
+                           coltype=Integer(),
+                           value=self.total_score(), 
+                           comment="Total score"),
         ]
 
     @staticmethod
@@ -115,7 +120,7 @@ class Gass(Task):
 
     def get_row(self, q: int, answer_dict: Dict) -> str:
         return """<tr><td>{}</td><td><b>{}</b></td><td>{}</td></tr>""".format(
-            WSTRING("gass_q" + str(q)),
+            self.wxstring("q" + str(q)),
             get_from_dict(answer_dict, getattr(self, "q" + str(q))),
             get_yes_no(getattr(self, "d" + str(q)))
         )
@@ -138,7 +143,7 @@ class Gass(Task):
         answer_dict = {None: "?"}
         for option in range(0, 4):
             answer_dict[option] = (
-                str(option) + " — " + WSTRING("gass_option" + str(option)))
+                str(option) + " — " + self.wxstring("option" + str(option)))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -157,45 +162,45 @@ class Gass(Task):
                 /tr>
         """.format(
             self.get_is_complete_tr(),
-            WSTRING("total_score"), score
+            wappstring("total_score"), score
         )
         h += self.get_group_html(self.list_sedation,
-                                 WSTRING("gass_group_sedation"),
+                                 self.wxstring("group_sedation"),
                                  answer_dict)
         h += self.get_group_html(self.list_cardiovascular,
-                                 WSTRING("gass_group_cardiovascular"),
+                                 self.wxstring("group_cardiovascular"),
                                  answer_dict)
         h += self.get_group_html(self.list_epse,
-                                 WSTRING("gass_group_epse"),
+                                 self.wxstring("group_epse"),
                                  answer_dict)
         h += self.get_group_html(self.list_anticholinergic,
-                                 WSTRING("gass_group_anticholinergic"),
+                                 self.wxstring("group_anticholinergic"),
                                  answer_dict)
         h += self.get_group_html(self.list_gastrointestinal,
-                                 WSTRING("gass_group_gastrointestinal"),
+                                 self.wxstring("group_gastrointestinal"),
                                  answer_dict)
         h += self.get_group_html(self.list_genitourinary,
-                                 WSTRING("gass_group_genitourinary"),
+                                 self.wxstring("group_genitourinary"),
                                  answer_dict)
         if self.is_female():
             h += self.get_group_html(self.list_prolactinaemic_female,
-                                     WSTRING("gass_group_prolactinaemic") +
-                                     " (" + WSTRING("female") + ")",
+                                     self.wxstring("group_prolactinaemic") +
+                                     " (" + wappstring("female") + ")",
                                      answer_dict)
         else:
             h += self.get_group_html(self.list_prolactinaemic_male,
-                                     WSTRING("gass_group_prolactinaemic") +
-                                     " (" + WSTRING("male") + ")",
+                                     self.wxstring("group_prolactinaemic") +
+                                     " (" + wappstring("male") + ")",
                                      answer_dict)
         h += self.get_group_html(self.list_weightgain,
-                                 WSTRING("gass_group_weightgain"),
+                                 self.wxstring("group_weightgain"),
                                  answer_dict)
         h += """
                 <tr class="subheading"><td colspan="3">{}</td></tr>
                 <tr><td colspan="3">{}</td></tr>
             </table>
         """.format(
-            WSTRING("gass_medication_hint"),
+            self.wxstring("medication_hint"),
             ws.webify(self.medication)
         )
         return h

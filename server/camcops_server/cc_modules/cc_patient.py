@@ -25,13 +25,18 @@
 import collections
 import datetime
 import logging
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
+from arrow import Arrow
 import dateutil.relativedelta
 import hl7
 
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Text
 
 from .cc_audit import audit
 from .cc_constants import (
@@ -43,10 +48,9 @@ from .cc_constants import (
     FP_ID_NUM,
     NUMBER_OF_IDNUMS_DEFUNCT,
     PARAM,
-    STANDARD_GENERIC_FIELDSPECS,
     TSV_PATIENT_FIELD_PREFIX,
 )
-from . import cc_db
+from .cc_db import GenericTabletRecordMixin
 from .cc_dt import (
     format_datetime,
     format_datetime_string,
@@ -59,7 +63,6 @@ from .cc_html import answer, get_generic_action_url, get_url_field_value_pair
 from .cc_logger import BraceStyleAdapter
 from .cc_simpleobjects import BarePatientInfo, HL7PatientIdentifier
 from .cc_patientidnum import PatientIdNum
-from .cc_pls import pls
 from .cc_policy import (
     satisfies_finalize_id_policy,
     satisfies_id_policy,
@@ -69,7 +72,18 @@ from .cc_policy import (
 from .cc_report import expand_id_descriptions
 from .cc_recipdef import RecipientDefinition
 from .cc_report import Report, REPORT_RESULT_TYPE
+from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
+from .cc_sqla_coltypes import (
+    BigIntUnsigned,
+    CamcopsColumn,
+    DateTimeAsIsoTextColType,
+    IdDescriptorColType,
+    IntUnsigned,
+    PatientNameColType,
+    SexColType,
+)
+from .cc_sqlalchemy import Base, get_rows_fieldnames_from_raw_sql
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING
 from .cc_xml import (
@@ -86,97 +100,151 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Patient class
 # =============================================================================
 
-class Patient:
+class Patient(GenericTabletRecordMixin, Base):
     """Class representing a patient."""
-    TABLENAME = "patient"
-    FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
-        dict(name="id", cctype="INT_UNSIGNED", notnull=True,
-             comment="Primary key (patient ID) on the source tablet device"),
-        # ... client PK
-        dict(name="forename", cctype="PATIENTNAME",
-             comment="Forename", indexed=True, index_nchar=10,
-             identifies_patient=True,
-             cris_include=True),
-        dict(name="surname", cctype="PATIENTNAME",
-             comment="Surname", indexed=True, index_nchar=10,
-             identifies_patient=True,
-             cris_include=True),
-        dict(name="dob", cctype="ISO8601",
-             comment="Date of birth", indexed=True, index_nchar=10,
-             identifies_patient=True,
-             cris_include=True),
+    __tablename__ = "patient"
+
+    id = Column(
+        "id", IntUnsigned,
+        nullable=False,
+        comment="Primary key (patient ID) on the source tablet device"
+        # client PK
+    )
+    forename = CamcopsColumn(
+        "forename", PatientNameColType,
+        index=True,
+        identifies_patient=True, cris_include=True,
+        comment="Forename"
+    )
+    surname = CamcopsColumn(
+        "surname", PatientNameColType,
+        index=True,
+        identifies_patient=True, cris_include=True,
+        comment="Surname"
+    )
+    dob = CamcopsColumn(
+        "dob", DateTimeAsIsoTextColType,  # *** change; Date?
+        index=True,
+        identifies_patient=True, cris_include=True,
+        comment="Date of birth"
         # ... e.g. "2013-02-04"
-        dict(name="sex", cctype="SEX",
-             comment="Sex (M, F, X)", indexed=True,
-             cris_include=True),
-        dict(name="address", cctype="TEXT",
-             comment="Address", identifies_patient=True),
-        dict(name="gp", cctype="TEXT",
-             comment="General practitioner (GP)"),
-        dict(name="other", cctype="TEXT",
-             comment="Other details", identifies_patient=True),
-    ]
+    )
+    sex = CamcopsColumn(
+        "sex", SexColType,
+        index=True,
+        cris_include=True,
+        comment="Sex (M, F, X)"
+    )
+    address = CamcopsColumn(
+        "address", Text,
+        identifies_patient=True,
+        comment="Address"
+    )
+    gp = Column(
+        "gp", Text,
+        comment="General practitioner (GP)"
+    )
+    other = CamcopsColumn(
+        "other", Text,
+        identifies_patient=True,
+        comment="Other details"
+    )
+    idnums = relationship(
+        # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-custom-foreign
+        # http://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship  # noqa
+        # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa
+        "PatientIdNum",
+        primaryjoin=(
+            "and_("
+            " remote(PatientIdNum.patient_id) == foreign(Patient.id), "
+            " remote(PatientIdNum._device_id) == foreign(Patient._device_id), "
+            " remote(PatientIdNum._era) == foreign(Patient._era), "
+            " remote(PatientIdNum._current) == True "
+            # " remote(PatientIdNum._when_added_batch_utc) <= foreign(Patient._when_added_batch_utc), "  # noqa
+            # " remote(PatientIdNum._when_removed_batch_utc) == foreign(Patient._when_removed_batch_utc), "  # noqa # *** check logic! Wrong!
+            ")"
+        )
+    )
+
     # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN
     # THE UPLOAD API; DELETE ONCE SQLALCHEMY/ALEMBIC RUNNING:
-    for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
-        nstr = str(n)
-        FIELDSPECS.append(dict(name=FP_ID_NUM + nstr,  # DEFUNCT as of v2.0.1  # noqa
-                               cctype="BIGINT_UNSIGNED",
-                               indexed=True,
-                               comment="ID number " + nstr,
-                               cris_include=True))
-        # REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-        FIELDSPECS.append(dict(name=FP_ID_DESC + nstr,  # DEFUNCT as of v2.0.0  # noqa
-                               cctype="IDDESCRIPTOR",
-                               comment="ID description " + nstr,
-                               anon=True,
-                               cris_include=True))
-        FIELDSPECS.append(dict(name=FP_ID_SHORT_DESC + nstr,  # DEFUNCT as of v2.0.0  # noqa
-                               cctype="IDDESCRIPTOR",
-                               comment="ID short description " + nstr,
-                               anon=True,
-                               cris_include=True))
+    idnum1 = Column("idnum1", BigIntUnsigned, comment="ID number 1")
+    idnum2 = Column("idnum2", BigIntUnsigned, comment="ID number 2")
+    idnum3 = Column("idnum3", BigIntUnsigned, comment="ID number 3")
+    idnum4 = Column("idnum4", BigIntUnsigned, comment="ID number 4")
+    idnum5 = Column("idnum5", BigIntUnsigned, comment="ID number 5")
+    idnum6 = Column("idnum6", BigIntUnsigned, comment="ID number 6")
+    idnum7 = Column("idnum7", BigIntUnsigned, comment="ID number 7")
+    idnum8 = Column("idnum8", BigIntUnsigned, comment="ID number 8")
 
-    FIELDS = [x["name"] for x in FIELDSPECS]
+    iddesc1 = Column("iddesc1", IdDescriptorColType, comment="ID description 1")  # noqa
+    iddesc2 = Column("iddesc2", IdDescriptorColType, comment="ID description 2")  # noqa
+    iddesc3 = Column("iddesc3", IdDescriptorColType, comment="ID description 3")  # noqa
+    iddesc4 = Column("iddesc4", IdDescriptorColType, comment="ID description 4")  # noqa
+    iddesc5 = Column("iddesc5", IdDescriptorColType, comment="ID description 5")  # noqa
+    iddesc6 = Column("iddesc6", IdDescriptorColType, comment="ID description 6")  # noqa
+    iddesc7 = Column("iddesc7", IdDescriptorColType, comment="ID description 7")  # noqa
+    iddesc8 = Column("iddesc8", IdDescriptorColType, comment="ID description 8")  # noqa
+
+    idshortdesc1 = Column("idshortdesc1", IdDescriptorColType, comment="ID short description 1")  # noqa
+    idshortdesc2 = Column("idshortdesc2", IdDescriptorColType, comment="ID short description 2")  # noqa
+    idshortdesc3 = Column("idshortdesc3", IdDescriptorColType, comment="ID short description 3")  # noqa
+    idshortdesc4 = Column("idshortdesc4", IdDescriptorColType, comment="ID short description 4")  # noqa
+    idshortdesc5 = Column("idshortdesc5", IdDescriptorColType, comment="ID short description 5")  # noqa
+    idshortdesc6 = Column("idshortdesc6", IdDescriptorColType, comment="ID short description 6")  # noqa
+    idshortdesc7 = Column("idshortdesc7", IdDescriptorColType, comment="ID short description 7")  # noqa
+    idshortdesc8 = Column("idshortdesc8", IdDescriptorColType, comment="ID short description 8")  # noqa
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
-        """Make underlying database tables."""
-        cc_db.create_standard_table(
-            cls.TABLENAME, cls.FIELDSPECS,
-            drop_superfluous_columns=drop_superfluous_columns)
+    def get_patients_by_idnum(cls,
+                              dbsession: SqlASession,
+                              which_idnum: int,
+                              idnum_value: int) -> List['Patient']:
+        if not which_idnum or which_idnum < 1:
+            return []
+        if idnum_value is None:
+            return []
+        q = dbsession.query(cls).join(PatientIdNum)  # the join pre-restricts to current ID numbers  # noqa
+        q = q.filter(PatientIdNum.which_idnum == which_idnum)
+        q = q.filter(PatientIdNum.idnum_value == idnum_value)
+        q = q.filter(cls._current == True)  # noqa
+        patients = q.all()  # type: List[Patient]
+        return patients
 
-    @classmethod
-    def drop_views(cls) -> None:
-        pls.db.drop_view(cls.TABLENAME + "_current")
-
-    def __init__(self, serverpk: int = None) -> None:
-        """Initialize, loading from database."""
-        pls.db.fetch_object_from_db_by_pk(self, Patient.TABLENAME,
-                                          Patient.FIELDS, serverpk)
-        # Don't load special notes, for speed (retrieved on demand)
-        self._special_notes = None  # type: List[SpecialNote]  # noqa
-        # Similarly for ID numbers
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self._idnums = None  # type: List[PatientIdNum]
-        self._idnums_dirty = False
+        self._special_notes = None  # type: List[SpecialNote]
+
+    @reconstructor
+    def init_on_load(self) -> None:
+        # http://docs.sqlalchemy.org/en/latest/orm/constructors.html
+        self._idnums = None  # type: List[PatientIdNum]
+        self._special_notes = None  # type: List[SpecialNote]
 
     def get_idnum_objects(self) -> List[PatientIdNum]:
-        if self._idnums is None:
-            self._idnums = cc_db.get_contemporaneous_matching_ancillary_objects_by_fk(  # noqa
-                PatientIdNum, self.id,
-                self._device_id, self._era,
-                self._when_added_batch_utc, self._when_removed_batch_utc
-            )  # type: List[PatientIdNum]
-        return self._idnums
+        return self.idnums
+        # if self._idnums is None:
+        #     dbsession = SqlASession.object_session(self)  # type: SqlASession
+        #     q = dbsession.query(PatientIdNum)
+        #     q = q.filter(PatientIdNum.patient_id == self.id)
+        #     q = q.filter(PatientIdNum._device_id == self._device_id)
+        #     q = q.filter(PatientIdNum._era == self._era)
+        #     q = q.filter(PatientIdNum._when_added_batch_utc <= self._when_added_batch_utc)  # noqa
+        #     q = q.filter(PatientIdNum._when_removed_batch_utc == self._when_removed_batch_utc)  # noqa # *** check logic! Wrong!
+        #     self._idnums = q.fetchall()  # type: List[PatientIdNum]
+        # return self._idnums
 
-    def get_idnum_which_value_tuples(self) -> List[Tuple[int, int]]:
+    def get_idnum_which_value_tuples(self) \
+            -> List[Tuple[int, int]]:
         return [(x.which_idnum, x.idnum_value)
                 for x in self.get_idnum_objects()]
 
     def get_idnum_raw_values_only(self) -> List[int]:
         return [x.idnum_value for x in self.get_idnum_objects()]
 
-    def get_xml_root(self, skip_fields: List[str] = None) -> XmlElement:
+    def get_xml_root(self, request: CamcopsRequest,
+                     skip_fields: List[str] = None) -> XmlElement:
         """Get root of XML tree, as an XmlElementTuple."""
         skip_fields = skip_fields or []
         # Exclude old ID fields:
@@ -186,29 +254,29 @@ class Patient:
             skip_fields.append(FP_ID_DESC + nstr)
             skip_fields.append(FP_ID_SHORT_DESC + nstr)
         branches = make_xml_branches_from_fieldspecs(
-            self, self.FIELDSPECS, skip_fields=skip_fields)
+            self, skip_fields=skip_fields)
         # Now add newer IDs:
-        for n in pls.get_which_idnums():
+        cfg = request.config
+        for n in cfg.get_which_idnums():
             branches.append(XmlElement(name=FP_ID_NUM + nstr,
                                        value=self.get_idnum_value(n),
                                        datatype=XmlDataTypes.INTEGER,
                                        comment="ID number " + nstr))
             branches.append(XmlElement(name=FP_ID_DESC + nstr,
-                                       value=self.get_iddesc(n),
+                                       value=self.get_iddesc(request, n),
                                        datatype=XmlDataTypes.STRING,
                                        comment="ID description " + nstr))
             branches.append(XmlElement(name=FP_ID_SHORT_DESC + nstr,
-                                       value=self.get_idshortdesc(n),
+                                       value=self.get_idshortdesc(request, n),
                                        datatype=XmlDataTypes.STRING,
                                        comment="ID short description " + nstr))
         # Special notes
         branches.append(XML_COMMENT_SPECIAL_NOTES)
         for sn in self.get_special_notes():
             branches.append(sn.get_xml_root())
-        return XmlElement(name=self.TABLENAME,
-                          value=branches)
+        return XmlElement(name=self.TABLENAME, value=branches)
 
-    def get_dict_for_tsv(self) -> Dict[str, Any]:
+    def get_dict_for_tsv(self, request: CamcopsRequest) -> Dict[str, Any]:
         d = collections.OrderedDict()
         for f in self.FIELDS:
             # Exclude old ID fields:
@@ -217,14 +285,15 @@ class Patient:
                     not f.startswith(FP_ID_SHORT_DESC)):
                 d[TSV_PATIENT_FIELD_PREFIX + f] = getattr(self, f)
         # Now the ID fields:
-        for n in pls.get_which_idnums():
+        cfg = request.config
+        for n in cfg.get_which_idnums():
             nstr = str(n)
             d[TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr] = \
                 self.get_idnum_value(n)
             d[TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr] = \
-                self.get_iddesc(n)
+                self.get_iddesc(request, n)
             d[TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC + nstr] = \
-                self.get_idshortdesc(n)
+                self.get_idshortdesc(request, n)
         return d
 
     def anonymise(self) -> None:
@@ -244,17 +313,20 @@ class Patient:
     def get_literals_for_anonymisation(self) -> List[str]:
         """Return a list of strings that require removing from other fields in
         the anonymisation process."""
-        address = self.address or ""  # get rid of None values
-        other = self.other or ""
-        return (
-            [
-                self.forename,
-                self.surname,
-            ] +
-            address.split(",") +
-            other.split(",") +
-            [str(x) for x in self.get_idnum_raw_values_only() if x is not None]
-        )
+        literals = []  # type: List[str]
+        if self.forename:
+            forename = self.forename  # type: str # for type checker
+            literals.append(forename)
+        if self.surname:
+            surname = self.surname  # type: str # for type checker
+            literals.append(surname)
+        if self.address is not None:
+            literals.extend([x for x in self.address.split(",") if x])
+        if self.other is not None:
+            literals.extend([x for x in self.other.split(",") if x])
+        literals.extend(str(x) for x in self.get_idnum_raw_values_only()
+                        if x is not None)
+        return literals
 
     def get_dates_for_anonymisation(self) -> List[Union[datetime.date,
                                                         datetime.datetime]]:
@@ -332,9 +404,11 @@ class Patient:
         return "DOB: {}.".format(format_datetime_string(
             self.dob, DATEFORMAT.SHORT_DATE))
 
-    def get_age(self, default: str = "") -> Union[int, str]:
+    def get_age(self, request: CamcopsRequest,
+                default: str = "") -> Union[int, str]:
         """Age (in whole years) today, or default."""
-        return self.get_age_at(pls.TODAY, default=default)
+        now = request.now_arrow
+        return self.get_age_at(now, default=default)
 
     def get_dob(self) -> Optional[datetime.date]:
         """Date of birth, as a a timezone-naive date."""
@@ -349,19 +423,19 @@ class Patient:
         return format_datetime(dob_dt, DATEFORMAT.SHORT_DATE)
 
     def get_age_at(self,
-                   when: Union[datetime.datetime, datetime.date],
+                   when: Union[datetime.datetime, datetime.date, Arrow],
                    default: str = "") -> Union[int, str]:
         """Age (in whole years) at a particular date, or default.
 
         Args:
-            when: date or datetime
+            when: date or datetime or Arrow
             default: default
         """
         dob = self.get_dob()  # date; timezone-naive
         if dob is None:
             return default
         # when must be a date, i.e. timezone-naive. So:
-        if type(when) is datetime.datetime:
+        if type(when) is not datetime.date:
             when = when.date()
         # if it wasn't timezone-naive, we could make it timezone-naive: e.g.
         # now = now.replace(tzinfo = None)
@@ -398,7 +472,8 @@ class Patient:
 
     def get_address(self) -> Optional[str]:
         """Returns address (NOT necessarily web-safe)."""
-        return self.address
+        address = self.address  # type: Optional[str]
+        return address
 
     def get_hl7_pid_segment(self,
                             recipient_def: RecipientDefinition) -> hl7.Segment:
@@ -451,7 +526,10 @@ class Patient:
         idobj = self.get_idnum_object(which_idnum)
         return idobj.idnum_value if idobj else None
 
-    def set_idnum_value(self, which_idnum: int, idnum_value: int) -> None:
+    def set_idnum_value(self, request: CamcopsRequest,
+                        which_idnum: int, idnum_value: int) -> None:
+        dbsession = request.dbsession
+        ccsession = request.camcops_session
         idobjs = self.get_idnum_objects()
         for idobj in idobjs:
             if idobj.which_idnum == which_idnum:
@@ -459,37 +537,45 @@ class Patient:
                 return
         # Otherwise, make a new one:
         newid = PatientIdNum()
+        newid.patient_id = self.id
         newid._device_id = self._device_id
         newid._era = self._era
         newid._current = True
-        newid._when_added_exact = pls.NOW_LOCAL_TZ_ISO8601
-        newid._when_added_batch_utc = pls.NOW_UTC_NO_TZ
-        newid._adding_user_id = pls.session.user_id
+        newid._when_added_exact = request.now_iso8601_era_format
+        newid._when_added_batch_utc = request.now_utc_datetime
+        newid._adding_user_id = ccsession.user_id
         newid._camcops_version = CAMCOPS_SERVER_VERSION_STRING
-        self._idnums.append(newid)
-        # ... not yet saved
+        dbsession.add(newid)
+        self.idnums.append(newid)
 
-    def get_iddesc(self, which_idnum: int) -> Optional[str]:
+    def get_iddesc(self, request: CamcopsRequest,
+                   which_idnum: int) -> Optional[str]:
         """Get value of a specific ID description, if present."""
+        cfg = request.config
         idobj = self.get_idnum_object(which_idnum)
-        return idobj.description() if idobj else None
+        return idobj.description(cfg) if idobj else None
 
-    def get_idshortdesc(self, which_idnum: int) -> Optional[str]:
+    def get_idshortdesc(self, request: CamcopsRequest,
+                        which_idnum: int) -> Optional[str]:
         """Get value of a specific ID short description, if present."""
+        cfg = request.config
         idobj = self.get_idnum_object(which_idnum)
-        return idobj.short_description() if idobj else None
+        return idobj.short_description(cfg) if idobj else None
 
     def get_idnum_html(self,
+                       request: CamcopsRequest,
                        which_idnum: int,
                        longform: bool,
                        label_id_numbers: bool = False) -> str:
         """Returns description HTML.
 
         Args:
+            request: Pyramid request
             which_idnum: which ID number? From 1 to NUMBER_OF_IDNUMS inclusive.
             longform: see get_id_generic
             label_id_numbers: whether to use prefix
         """
+        cfg = request.config
         idobj = self.get_idnum_object(which_idnum)
         if not idobj:
             return ""
@@ -497,8 +583,8 @@ class Patient:
         return self._get_id_generic(
             longform,
             idobj.idnum_value,
-            idobj.description(),
-            idobj.short_description(),
+            idobj.description(cfg),
+            idobj.short_description(cfg),
             FP_ID_NUM + nstr,
             label_id_numbers
         )
@@ -527,22 +613,25 @@ class Patient:
             return "<br>Address: <b>{}</b>".format(ws.webify(self.address))
         return ws.webify(self.address)
 
-    def get_html_for_page_header(self) -> str:
+    def get_html_for_page_header(self, request: CamcopsRequest) -> str:
         """Get HTML used for PDF page header."""
         longform = False
+        cfg = request.config
         h = "<b>{}</b> ({}). {}".format(
             self.get_surname_forename_upper(),
             self.get_sex_verbose(),
             self.get_dob_html(longform=longform),
         )
         for idobj in self.get_idnum_objects():
-            h += " " + idobj.get_html(longform=longform)
+            h += " " + idobj.get_html(cfg=cfg, longform=longform)
         h += " " + self.get_idother_html(longform=longform)
         return h
 
-    def get_html_for_task_header(self, label_id_numbers: bool = False) -> str:
+    def get_html_for_task_header(self, request: CamcopsRequest,
+                                 label_id_numbers: bool = False) -> str:
         """Get HTML used for patient details in tasks."""
         longform = True
+        cfg = request.config
         h = """
             <div class="patient">
                 <b>{name}</b> ({sex})
@@ -556,7 +645,8 @@ class Patient:
             h += """
                 {} <!-- ID{} -->
             """.format(
-                idobj.get_html(longform=longform,
+                idobj.get_html(cfg=cfg,
+                               longform=longform,
                                label_id_numbers=label_id_numbers),
                 idobj.which_idnum
             )
@@ -573,7 +663,8 @@ class Patient:
         h += self.get_special_notes_html()
         return h
 
-    def get_html_for_webview_patient_column(self) -> str:
+    def get_html_for_webview_patient_column(
+            self, request: CamcopsRequest) -> str:
         """Get HTML for patient details in task summary view."""
         return """
             <b>{}</b> ({}, {}, aged {})
@@ -582,34 +673,27 @@ class Patient:
             self.get_sex_verbose(),
             format_datetime_string(self.dob, DATEFORMAT.SHORT_DATE,
                                    default="?"),
-            self.get_age(default="?"),
+            self.get_age(request=request, default="?"),
         )
 
-    def get_html_for_id_col(self) -> str:
+    def get_html_for_id_col(self, request: CamcopsRequest) -> str:
         """Returns HTML used for patient ID column in task summary view."""
         hlist = []
         longform = False
+        cfg = request.config
         for idobj in self.get_idnum_objects():
-            hlist.append(idobj.get_html(longform=longform))
+            hlist.append(idobj.get_html(cfg=cfg, longform=longform))
         hlist.append(self.get_idother_html(longform=longform))
         return " ".join(hlist)
 
-    def get_url_edit_patient(self) -> str:
-        url = get_generic_action_url(ACTION.EDIT_PATIENT)
+    def get_url_edit_patient(self, request: CamcopsRequest) -> str:
+        url = get_generic_action_url(request, ACTION.EDIT_PATIENT)
         url += get_url_field_value_pair(PARAM.SERVERPK, self._pk)
         return url
 
     def is_preserved(self) -> bool:
         """Is the patient record preserved and erased from the tablet?"""
         return self._pk is not None and self._era != ERA_NOW
-
-    def save(self) -> None:
-        """Saves patient record back to database. UNUSUAL."""
-        if self._pk is None:
-            return
-        pls.db.update_object_in_db(self, Patient.TABLENAME, Patient.FIELDS)
-        for idnum in self.get_idnum_objects():
-            idnum.save()
 
     # -------------------------------------------------------------------------
     # Audit
@@ -629,32 +713,40 @@ class Patient:
 
     def get_special_notes(self) -> List[SpecialNote]:
         if self._special_notes is None:
+            dbsession = SqlASession.object_session(self)  # type: SqlASession
+            patient_id = self.id  # type: int
             self._special_notes = SpecialNote.get_all_instances(
-                Patient.TABLENAME, self.id, self._device_id, self._era)  # type: List[SpecialNote]  # noqa
-        # Will now be a list (though possibly an empty one).
+                dbsession=dbsession,
+                basetable=self.__tablename__,
+                task_or_patient_id=patient_id,
+                device_id=self._device_id,
+                era=self._era
+            )  # type: List[SpecialNote]
+        # noinspection PyTypeChecker
         return self._special_notes
 
-    def apply_special_note(self,
-                           note: str,
-                           user_id: int,
-                           from_console: bool = False,
-                           audit_msg: str = "Special note applied manually") \
-            -> None:
-        """Manually applies a special note to a patient.
+    def apply_special_note(
+            self,
+            request: CamcopsRequest,
+            note: str,
+            audit_msg: str = "Special note applied manually") -> None:
+        """
+        Manually applies a special note to a patient.
         WRITES TO DATABASE.
         """
         sn = SpecialNote()
-        sn.basetable = Patient.TABLENAME
-        sn.task_id = self.id
+        sn.basetable = self.__tablename__
+        sn.task_or_patient_id = self.id
         sn.device_id = self._device_id
         sn.era = self._era
-        sn.note_at = format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601)
-        sn.user_id = user_id
+        sn.note_at = request.now_iso8601_era_format
+        sn.user_id = request.camcops_session.user_id
         sn.note = note
-        sn.save()
-        self.audit(audit_msg, from_console)
+        request.dbsession.add(sn)
+        self.audit(audit_msg)
         # HL7 deletion of corresponding tasks is done in camcops.py
         self._special_notes = None   # will be reloaded if needed
+        # *** alter this to an SQLAlchemy relationship?
 
     def get_special_notes_html(self) -> str:
         special_notes = self.get_special_notes()
@@ -672,62 +764,6 @@ class Patient:
 
 
 # =============================================================================
-# Database lookup
-# =============================================================================
-
-def get_current_version_of_patient_by_client_info(device_id: int,
-                                                  clientpk: int,
-                                                  era: str) -> Patient:
-    """Returns current Patient object, or None."""
-    serverpk = cc_db.get_current_server_pk_by_client_info(
-        Patient.TABLENAME, device_id, clientpk, era)
-    if serverpk is None:
-        log.critical("MISSING PATIENT - acceptable only in unit testing")
-        return Patient()
-    return Patient(serverpk)
-
-# We were looking up ID descriptors from the device's stored variables.
-# However, that is a bit of a nuisance for a server-side researcher, and
-# it's a pain to copy the server's storedvar values (and -- all or some?)
-# when a patient gets individually moved off the tablet. Anyway, they're
-# important, so a little repetition is not the end of the world. So,
-# let's have the tablet store its current ID descriptors in the patient
-# record at the point of upload, and then it's available here directly.
-# Thus, always complete and contemporaneous.
-#
-# ... DECISION CHANGED 2017-07-08; see justification in tablet
-#     overall_design.txt
-
-
-def get_patient_server_pks_by_idnum(
-        which_idnum: int,
-        idnum_value: int,
-        current_only: bool = True) -> Sequence[int]:
-    if not which_idnum or which_idnum < 1:
-        return []
-    if idnum_value is None:
-        return []
-    query = """
-        SELECT _pk
-        FROM {patienttable} p
-        INNER JOIN {idnumtable} i
-            ON i._device_id = p._device_id
-            AND i._era = p._era
-            AND i.patient_id = p.id
-        WHERE i.which_idnum = ?
-            AND i.idnum_value = ?
-    """.format(
-        patienttable=Patient.TABLENAME,
-        idnumtable=PatientIdNum.tablename,
-    )
-    args = [which_idnum, idnum_value]
-    if current_only:
-        query += " AND p._current AND i._current"
-        # *** logical error if i/p not equally current?
-    return pls.db.fetchallfirstvalues(query, *args)
-
-
-# =============================================================================
 # Reports
 # =============================================================================
 
@@ -738,11 +774,12 @@ class DistinctPatientReport(Report):
                     "numbers")
     param_spec_list = []
 
-    def get_rows_descriptions(self) -> REPORT_RESULT_TYPE:
+    def get_rows_descriptions(self, request: CamcopsRequest,
+                              **kwargs) -> REPORT_RESULT_TYPE:
         # Not easy to get UTF-8 fields out of a query in the column headings!
         # So don't do SELECT idnum8 AS 'idnum8 (Addenbrooke's number)';
         # change it post hoc using cc_report.expand_id_descriptions()
-        patienttable = Patient.TABLENAME
+        patienttable = Patient.__tablename__
         select_fields = [
             "p.surname AS surname",
             "p.forename AS forename",
@@ -750,7 +787,7 @@ class DistinctPatientReport(Report):
             "p.sex AS sex"
         ]
         from_tables = ["{} AS p".format(patienttable)]
-        for n in pls.get_which_idnums():
+        for n in request.config.get_which_idnums():
             nstr = str(n)
             fieldalias = FP_ID_NUM + nstr  # idnum7
             idtablealias = "i" + nstr  # e.g. i7
@@ -786,7 +823,8 @@ class DistinctPatientReport(Report):
             select_fields=", ".join(select_fields),
             from_tables=" ".join(from_tables),
         )
-        (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
+        dbsession = request.dbsession
+        rows, fieldnames = get_rows_fieldnames_from_raw_sql(dbsession, sql)
         fieldnames = expand_id_descriptions(fieldnames)
         return rows, fieldnames
 
@@ -795,7 +833,7 @@ class DistinctPatientReport(Report):
 # Unit tests
 # =============================================================================
 
-def unit_tests_patient(p: Patient) -> None:
+def unit_tests_patient(p: Patient, request: CamcopsRequest) -> None:
     """Unit tests for Patient class."""
     # skip make_tables
     unit_test_ignore("", p.get_xml_root)
@@ -835,24 +873,23 @@ def unit_tests_patient(p: Patient) -> None:
     unit_test_ignore("", p.get_html_for_task_header, True)
     unit_test_ignore("", p.get_html_for_task_header, False)
     unit_test_ignore("", p.get_html_for_webview_patient_column)
-    unit_test_ignore("", p.get_url_edit_patient)
+    unit_test_ignore("", p.get_url_edit_patient, request)
     unit_test_ignore("", p.get_special_notes_html)
 
     # Lastly:
     unit_test_ignore("", p.anonymise)
 
 
-def ccpatient_unit_tests() -> None:
+def ccpatient_unit_tests(request: CamcopsRequest) -> None:
     """Unit tests for cc_patient module."""
-    current_pks = pls.db.fetchallfirstvalues(
-        "SELECT _pk FROM {} WHERE _current".format(Patient.TABLENAME)
-    )
-    test_pks = [None, current_pks[0]] if current_pks else [None]
-    for pk in test_pks:
-        p = Patient(pk)
-        unit_tests_patient(p)
-
-    unit_test_ignore("", get_current_version_of_patient_by_client_info,
-                     "", 0, ERA_NOW)
+    dbsession = request.dbsession
+    q = dbsession.query(Patient)
+    # noinspection PyProtectedMember
+    q = q.filter(Patient._current == True)  # noqa
+    patient = q.first()
+    if patient is None:
+        patient = Patient()
+        dbsession.add(patient)
+    unit_tests_patient(patient, request)
 
     # Patient_Report_Distinct: tested via cc_report

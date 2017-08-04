@@ -24,10 +24,15 @@
 
 from typing import Any, List, Optional
 
+from sqlalchemy.sql.sqltypes import Float
+
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, identity, tr, tr_span_col
 from ..cc_modules.cc_lang import mean
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -191,38 +196,47 @@ class Rand36(Task):
             )
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="overall", cctype="FLOAT",
-                 value=self.score_overall(),
-                 comment="Overall mean score (0-100, higher better)"),
-            dict(name="physical_functioning", cctype="FLOAT",
-                 value=self.score_physical_functioning(),
-                 comment="Physical functioning score (0-100, higher better)"),
-            dict(name="role_limitations_physical", cctype="FLOAT",
-                 value=self.score_role_limitations_physical(),
-                 comment="Role limitations due to physical health score "
-                 "(0-100, higher better)"),
-            dict(name="role_limitations_emotional", cctype="FLOAT",
-                 value=self.score_role_limitations_emotional(),
-                 comment="Role limitations due to emotional problems score "
-                 "(0-100, higher better)"),
-            dict(name="energy", cctype="FLOAT",
-                 value=self.score_energy(),
-                 comment="Energy/fatigue score (0-100, higher better)"),
-            dict(name="emotional_wellbeing", cctype="FLOAT",
-                 value=self.score_emotional_wellbeing(),
-                 comment="Emotional well-being score (0-100, higher better)"),
-            dict(name="social_functioning", cctype="FLOAT",
-                 value=self.score_social_functioning(),
-                 comment="Social functioning score (0-100, higher better)"),
-            dict(name="pain", cctype="FLOAT",
-                 value=self.score_pain(),
-                 comment="Pain score (0-100, higher better)"),
-            dict(name="general_health", cctype="FLOAT",
-                 value=self.score_general_health(),
-                 comment="General health score (0-100, higher better)"),
+            SummaryElement(
+                name="overall", coltype=Float(),
+                value=self.score_overall(),
+                comment="Overall mean score (0-100, higher better)"),
+            SummaryElement(
+                name="physical_functioning", coltype=Float(),
+                value=self.score_physical_functioning(),
+                comment="Physical functioning score (0-100, higher better)"),
+            SummaryElement(
+                name="role_limitations_physical", coltype=Float(),
+                value=self.score_role_limitations_physical(),
+                comment="Role limitations due to physical health score "
+                        "(0-100, higher better)"),
+            SummaryElement(
+                name="role_limitations_emotional", coltype=Float(),
+                value=self.score_role_limitations_emotional(),
+                comment="Role limitations due to emotional problems score "
+                        "(0-100, higher better)"),
+            SummaryElement(
+                name="energy", coltype=Float(),
+                value=self.score_energy(),
+                comment="Energy/fatigue score (0-100, higher better)"),
+            SummaryElement(
+                name="emotional_wellbeing", coltype=Float(),
+                value=self.score_emotional_wellbeing(),
+                comment="Emotional well-being score (0-100, higher better)"),
+            SummaryElement(
+                name="social_functioning", coltype=Float(),
+                value=self.score_social_functioning(),
+                comment="Social functioning score (0-100, higher better)"),
+            SummaryElement(
+                name="pain", coltype=Float(),
+                value=self.score_pain(),
+                comment="Pain score (0-100, higher better)"),
+            SummaryElement(
+                name="general_health", coltype=Float(),
+                value=self.score_general_health(),
+                comment="General health score (0-100, higher better)"),
         ]
 
     # Scoring

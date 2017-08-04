@@ -25,9 +25,13 @@
 import math
 from typing import List, Optional
 
+from sqlalchemy.sql.sqltypes import Float
+
 from ..cc_modules.cc_constants import PV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import answer, td, tr_qa
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
 
 
 WORDLIST = [
@@ -113,15 +117,22 @@ class Nart(Task):
                 self.fsiq(), self.viq(), self.piq())
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="fsiq", cctype="FLOAT", value=self.fsiq(),
-                 comment="Predicted full-scale IQ"),
-            dict(name="viq", cctype="FLOAT", value=self.viq(),
-                 comment="Predicted verbal IQ"),
-            dict(name="piq", cctype="FLOAT", value=self.piq(),
-                 comment="Predicted performance IQ"),
+            SummaryElement(name="fsiq",
+                           coltype=Float(),
+                           value=self.fsiq(),
+                           comment="Predicted full-scale IQ"),
+            SummaryElement(name="viq",
+                           coltype=Float(),
+                           value=self.viq(),
+                           comment="Predicted verbal IQ"),
+            SummaryElement(name="piq",
+                           coltype=Float(),
+                           value=self.piq(),
+                           comment="Predicted performance IQ"),
+            # *** implement all other IQ measures for NART
         ]
 
     def is_complete(self) -> bool:

@@ -24,9 +24,13 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
+from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -53,11 +57,13 @@ class Sas(Task):
             axis_max=40.5
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT",
-                 value=self.total_score(), comment="Total score"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score"),
         ]
 
     def is_complete(self) -> bool:
@@ -72,7 +78,8 @@ class Sas(Task):
         for q in range(1, self.NQUESTIONS + 1):
             d = {None: "?"}
             for option in range(0, 5):
-                d[option] = WSTRING("sas_q" + str(q) + "_option" + str(option))
+                d[option] = self.wxstring("q" + str(q) + "_option" +
+                                          str(option))
             answer_dicts.append(d)
         h = """
             <div class="summary">
@@ -88,11 +95,11 @@ class Sas(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            WSTRING("total_score"), score
+            wappstring("total_score"), score
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                WSTRING("sas_q" + str(q) + "_s"),
+                self.wxstring("q" + str(q) + "_s"),
                 get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
         h += """

@@ -27,11 +27,11 @@ import datetime
 from typing import List, Optional, Tuple, Union
 
 import hl7
+from sqlalchemy.orm import Session as SqlASession
 
 from .cc_dt import format_datetime, get_now_localtz
 from .cc_constants import DATEFORMAT, VALUE
 from .cc_simpleobjects import HL7PatientIdentifier
-# NO: CIRCULAR # from .cc_task import Task
 from .cc_unittest import unit_test_ignore
 
 TASK_FWD_REF = "Task"
@@ -715,22 +715,21 @@ def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
 # Unit tests
 # =============================================================================
 
-def cchl7core_unit_tests() -> None:
+def cchl7core_unit_tests(dbsession: SqlASession) -> None:
     """Unit tests for cc_hl7 module."""
     # -------------------------------------------------------------------------
     # DELAYED IMPORTS (UNIT TESTING ONLY)
     # -------------------------------------------------------------------------
-    from .cc_pls import pls
     from ..tasks.phq9 import Phq9
 
     # skip: send_all_pending_hl7_messages
     # skip: send_pending_hl7_messages
 
-    current_pks = pls.db.fetchallfirstvalues(
-        "SELECT _pk FROM {} WHERE _current".format(Phq9.tablename)
-    )
-    pk = current_pks[0] if current_pks else None
-    task = Phq9(pk)
+    task = dbsession.query(Phq9)\
+        .filter(Phq9._current == True)\
+        .first()  # type: Optional[Phq9]
+    if task is None:
+        task = Phq9()
     pitlist = [
         HL7PatientIdentifier(
             id="1", id_type="TT", assigning_authority="AA")

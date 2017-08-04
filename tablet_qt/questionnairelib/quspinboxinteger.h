@@ -37,6 +37,7 @@ protected:
     virtual FieldRefPtrList fieldrefs() const override;
 protected slots:
     void widgetValueChanged(int value);
+    void widgetValueChangedString(const QString& text);
     void fieldValueChanged(const FieldRef* fieldref,
                            const QObject* originator = nullptr);
 protected:

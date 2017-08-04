@@ -24,10 +24,14 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV, PV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, get_yes_no_unknown, tr
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -76,18 +80,18 @@ class NpiQ(Task):
 
     ENDORSED_FIELDS = [ENDORSED + str(n) for n in range(1, NQUESTIONS + 1)]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="n_endorsed", cctype="INT",
-                 value=self.n_endorsed(),
-                 comment="Number endorsed (/ 12)"),
-            dict(name="severity_score", cctype="INT",
-                 value=self.severity_score(),
-                 comment="Severity score (/ 36)"),
-            dict(name="distress_score", cctype="INT",
-                 value=self.distress_score(),
-                 comment="Distress score (/ 60)"),
+            SummaryElement(name="n_endorsed", coltype=Integer(),
+                           value=self.n_endorsed(),
+                           comment="Number endorsed (/ 12)"),
+            SummaryElement(name="severity_score", coltype=Integer(),
+                           value=self.severity_score(),
+                           comment="Severity score (/ 36)"),
+            SummaryElement(name="distress_score", coltype=Integer(),
+                           value=self.distress_score(),
+                           comment="Distress score (/ 60)"),
         ]
 
     def get_clinical_text(self) -> List[CtvInfo]:

@@ -64,6 +64,9 @@ CustomAndroidx86 -- NOT FULLY TESTED
 3. Build settings
 ===============================================================================
 
+... let's put them in a camcops.pro.shared file
+    http://doc.qt.io/qtcreator/creator-sharing-project-settings.html
+
 General:
     Use defaults, except everywhere you see "make arguments", add "-j 8" for an
     8-CPU machine to get it compiling in parallel.
@@ -87,6 +90,23 @@ Android:
                                 ~/dev/qt_local_build/openssl_android_armv7_build/openssl-1.0.2.h/libssl.so
                                 [... both of which were automatically added]
 
+    Then in the file AndroidManifest.xml:
+        Version code:           [integer; may as well use consecutive]
+        Version name:           [string]
+        Minimum required SDK:   API 16: Android 4.1, 4.1.1 [default]
+        Target SDK:             API 23: Android 6.0 [default]
+        Application name:       CamCOPS
+        Activity name:          CamCOPS
+        Run:                    camcops
+        Application icon:       [icon]
+        [tick] Include default permissions for Qt modules
+        [tick] Include default features for Qt modules
+        [no other specific permission requested]
+
+    For versions, see:
+        https://developer.android.com/guide/topics/manifest/manifest-element.html
+        https://developer.android.com/studio/publish/versioning.html
+
 ... with no keystore, produces QtApp-debug.apk
 ... with a keystore, produces QtApp-release-signed.apk
                               ========================
@@ -105,7 +125,7 @@ Google Play Store settings
   for sex, violence, etc.
 
 - Note that "Pending publication" means you're waiting for Google Play to sort
-  itself out, not that you hav to do anything.
+  itself out, not that you have to do anything.
 
 ===============================================================================
 NOTE ALSO

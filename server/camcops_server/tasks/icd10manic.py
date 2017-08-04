@@ -25,6 +25,7 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Boolean
 
 from ..cc_modules.cc_dt import format_datetime_string
 from ..cc_modules.cc_constants import (
@@ -32,6 +33,7 @@ from ..cc_modules.cc_constants import (
     ICD10_COPYRIGHT_DIV,
     PV,
 )
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
     get_present_absent_none,
     heading_spanning_two_columns,
@@ -39,8 +41,10 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_lang import is_false
+from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -170,15 +174,17 @@ class Icd10Manic(Task):
             infolist.append(CtvInfo(content=ws.webify(self.comments)))
         return infolist
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="category", cctype="TEXT",
-                 value=self.get_description(),
-                 comment="Diagnostic category"),
-            dict(name="psychotic_symptoms", cctype="BOOL",
-                 value=self.psychosis_present(),
-                 comment="Psychotic symptoms present?"),
+            SummaryElement(name="category",
+                           coltype=SummaryCategoryColType,
+                           value=self.get_description(),
+                           comment="Diagnostic category"),
+            SummaryElement(name="psychotic_symptoms",
+                           coltype=Boolean(),
+                           value=self.psychosis_present(),
+                           comment="Psychotic symptoms present?"),
         ]
 
     # Meets criteria? These also return null for unknown.

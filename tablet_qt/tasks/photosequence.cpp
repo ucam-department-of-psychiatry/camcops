@@ -25,7 +25,7 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/qubutton.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/quhorizontalcontainer.h"
+#include "questionnairelib/quflowcontainer.h"
 #include "questionnairelib/quphoto.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
@@ -252,7 +252,7 @@ void PhotoSequence::rebuildPage(QuPage* page, int page_index)
         QuButton* fwd = new QuButton(textconst::PHOTOSEQUENCE_MOVE_FORWARDS,
                                      callback_fwd);
         fwd->setActive(!is_last);
-        elements.append(new QuHorizontalContainer({add, del, back, fwd}));
+        elements.append(new QuFlowContainer({add, del, back, fwd}));
         elements.append(new QuText(textconst::PHOTOSEQUENCE_PHOTO_DESCRIPTION));
         elements.append(new QuTextEdit(
                             photo->fieldRef(PhotoSequencePhoto::DESCRIPTION)));

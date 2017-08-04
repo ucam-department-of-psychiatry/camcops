@@ -24,6 +24,8 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
@@ -33,7 +35,9 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import Task, TrackerInfo
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -95,20 +99,25 @@ class Caps(Task):
             axis_max=32.5
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT",
-                 value=self.total_score(), comment="Total score (/32)"),
-            dict(name="distress", cctype="INT",
-                 value=self.distress_score(),
-                 comment="Distress score (/160)"),
-            dict(name="intrusiveness", cctype="INT",
-                 value=self.intrusiveness_score(),
-                 comment="Intrusiveness score (/160)"),
-            dict(name="frequency", cctype="INT",
-                 value=self.frequency_score(),
-                 comment="Frequency score (/160)"),
+            SummaryElement(
+                name="total", coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (/32)"),
+            SummaryElement(
+                name="distress", coltype=Integer(),
+                value=self.distress_score(),
+                comment="Distress score (/160)"),
+            SummaryElement(
+                name="intrusiveness", coltype=Integer(),
+                value=self.intrusiveness_score(),
+                comment="Intrusiveness score (/160)"),
+            SummaryElement(
+                name="frequency", coltype=Integer(),
+                value=self.frequency_score(),
+                comment="Frequency score (/160)"),
         ]
 
     def is_question_complete(self, q: int) -> bool:

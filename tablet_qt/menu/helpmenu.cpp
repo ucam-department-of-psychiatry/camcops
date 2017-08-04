@@ -176,6 +176,7 @@ void HelpMenu::showDeviceIdAndDbDetails() const
 {
     QStringList lines{
         QString("<b>Device ID:</b> %1").arg(m_app.deviceId()),
+        QString("<b>Dots per inch (DPI):</b> %1").arg(m_app.dotsPerInch()),
         QString("<b>Main database:</b> %1").arg(
             m_app.dbFullPath(dbfunc::DATA_DATABASE_FILENAME)),
         QString("<b>System database:</b> %1").arg(

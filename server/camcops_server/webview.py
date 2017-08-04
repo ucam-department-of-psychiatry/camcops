@@ -94,7 +94,7 @@ from .cc_modules.cc_html import (
 from .cc_modules.cc_logger import BraceStyleAdapter
 from .cc_modules.cc_patient import get_patient_server_pks_by_idnum, Patient
 from .cc_modules.cc_plot import ccplot_do_nothing
-from .cc_modules.cc_pls import pls
+from .cc_modules.cc_config import pls
 from .cc_modules.cc_policy import (
     get_finalize_id_policy_principal_numeric_id,
     get_upload_id_policy_principal_numeric_id,
@@ -105,7 +105,7 @@ from .cc_modules.cc_report import (
     offer_report_menu,
     serve_report,
 )
-from .cc_modules.cc_session import establish_session, Session
+from .cc_modules.cc_session import establish_session, CamcopsSession
 from .cc_modules.cc_specialnote import forcibly_preserve_special_notes
 from .cc_modules.cc_storedvar import DeviceStoredVar
 from .cc_modules.cc_string import wappstring
@@ -259,7 +259,7 @@ def fail_unknown_action(action: str) -> str:
 # Pages/actions
 # =============================================================================
 
-def login(session: Session, form: cgi.FieldStorage) \
+def login(session: CamcopsSession, form: cgi.FieldStorage) \
         -> Union[str, WSGI_TUPLE_TYPE_WITH_STATUS]:
     """Processes a login request."""
 
@@ -315,14 +315,14 @@ def login(session: Session, form: cgi.FieldStorage) \
 
 
 # noinspection PyUnusedLocal
-def logout(session: Session, form: cgi.FieldStorage) -> str:
+def logout(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Logs a session out."""
     audit("Logout")
     session.logout()
     return login_page()
 
 
-def agree_terms(session: Session, form: cgi.FieldStorage) -> str:
+def agree_terms(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """The user has agreed the terms. Log this, then offer the main menu."""
 
     session.agree_terms()
@@ -330,7 +330,7 @@ def agree_terms(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def main_menu(session: Session, form: cgi.FieldStorage) -> str:
+def main_menu(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Main HTML menu."""
 
     # Main clinical/task section
@@ -444,7 +444,7 @@ def main_menu(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def offer_terms(session: Session, form: cgi.FieldStorage) -> str:
+def offer_terms(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """HTML offering terms/conditions and requesting acknowledgement."""
 
     html = pls.WEBSTART + """
@@ -471,7 +471,7 @@ def offer_terms(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def view_policies(session: Session, form: cgi.FieldStorage) -> str:
+def view_policies(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """HTML showing server's ID policies."""
 
     html = pls.WEBSTART + """
@@ -515,7 +515,7 @@ def view_policies(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def view_tasks(session: Session, form: cgi.FieldStorage) -> str:
+def view_tasks(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """HTML displaying tasks and applicable filters."""
 
     # Which tasks to view?
@@ -645,28 +645,28 @@ def view_tasks(session: Session, form: cgi.FieldStorage) -> str:
     ) + WEBEND
 
 
-def change_number_to_view(session: Session, form: cgi.FieldStorage) -> str:
+def change_number_to_view(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Change the number of tasks visible on a single screen."""
 
     session.change_number_to_view(form)
     return view_tasks(session, form)
 
 
-def first_page(session: Session, form: cgi.FieldStorage) -> str:
+def first_page(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Navigate to the first page of tasks."""
 
     session.first_page()
     return view_tasks(session, form)
 
 
-def previous_page(session: Session, form: cgi.FieldStorage) -> str:
+def previous_page(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Navigate to the previous page of tasks."""
 
     session.previous_page()
     return view_tasks(session, form)
 
 
-def next_page(session: Session, form: cgi.FieldStorage) -> str:
+def next_page(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Navigate to the next page of tasks."""
 
     ntasks = ws.get_cgi_parameter_int(form, PARAM.NTASKS)
@@ -674,14 +674,14 @@ def next_page(session: Session, form: cgi.FieldStorage) -> str:
     return view_tasks(session, form)
 
 
-def last_page(session: Session, form: cgi.FieldStorage) -> str:
+def last_page(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Navigate to the last page of tasks."""
     ntasks = ws.get_cgi_parameter_int(form, PARAM.NTASKS)
     session.last_page(ntasks)
     return view_tasks(session, form)
 
 
-def serve_task(session: Session, form: cgi.FieldStorage) \
+def serve_task(session: CamcopsSession, form: cgi.FieldStorage) \
         -> Union[str, WSGI_TUPLE_TYPE]:
     """Serves an individual task."""
 
@@ -743,7 +743,7 @@ def serve_task(session: Session, form: cgi.FieldStorage) \
 
 
 # noinspection PyUnusedLocal
-def choose_tracker(session: Session, form: cgi.FieldStorage) -> str:
+def choose_tracker(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """HTML form for tracker selection."""
 
     if session.restricted_to_viewing_user():
@@ -841,7 +841,7 @@ def choose_tracker(session: Session, form: cgi.FieldStorage) -> str:
     return html + WEBEND
 
 
-def serve_tracker(session: Session, form: cgi.FieldStorage) \
+def serve_tracker(session: CamcopsSession, form: cgi.FieldStorage) \
         -> Union[str, WSGI_TUPLE_TYPE]:
     """Serve up a tracker."""
 
@@ -875,7 +875,7 @@ def serve_tracker(session: Session, form: cgi.FieldStorage) \
 
 
 # noinspection PyUnusedLocal
-def choose_clinicaltextview(session: Session, form: cgi.FieldStorage) -> str:
+def choose_clinicaltextview(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """HTML form for CTV selection."""
 
     if session.restricted_to_viewing_user():
@@ -938,7 +938,7 @@ def choose_clinicaltextview(session: Session, form: cgi.FieldStorage) -> str:
     return html + WEBEND
 
 
-def serve_clinicaltextview(session: Session, form: cgi.FieldStorage) \
+def serve_clinicaltextview(session: CamcopsSession, form: cgi.FieldStorage) \
         -> Union[str, WSGI_TUPLE_TYPE]:
     """Returns a CTV."""
 
@@ -971,7 +971,7 @@ def serve_clinicaltextview(session: Session, form: cgi.FieldStorage) \
         raise AssertionError("ACTION.CLINICALTEXTVIEW: Invalid outputtype")
 
 
-def change_task_filters(session: Session, form: cgi.FieldStorage) -> str:
+def change_task_filters(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Apply/clear filter parameters, then redisplay task list."""
 
     if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTERS):
@@ -1050,7 +1050,7 @@ def change_task_filters(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def reports_menu(session: Session, form: cgi.FieldStorage) -> str:
+def reports_menu(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Offer a menu of reports."""
 
     if not session.authorized_for_reports():
@@ -1058,7 +1058,7 @@ def reports_menu(session: Session, form: cgi.FieldStorage) -> str:
     return offer_report_menu(session)
 
 
-def offer_report(session: Session, form: cgi.FieldStorage) -> str:
+def offer_report(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Offer configuration options for a single report."""
 
     if not session.authorized_for_reports():
@@ -1066,7 +1066,7 @@ def offer_report(session: Session, form: cgi.FieldStorage) -> str:
     return offer_individual_report(session, form)
 
 
-def provide_report(session: Session,
+def provide_report(session: CamcopsSession,
                    form: cgi.FieldStorage) -> Union[str, WSGI_TUPLE_TYPE]:
     """Serve up a configured report."""
 
@@ -1077,7 +1077,7 @@ def provide_report(session: Session,
 
 
 # noinspection PyUnusedLocal
-def offer_regenerate_summary_tables(session: Session,
+def offer_regenerate_summary_tables(session: CamcopsSession,
                                     form: cgi.FieldStorage) -> str:
     """Ask for confirmation to regenerate summary tables."""
 
@@ -1099,7 +1099,7 @@ def offer_regenerate_summary_tables(session: Session,
 
 
 # noinspection PyUnusedLocal
-def regenerate_summary_tables(session: Session, form: cgi.FieldStorage) -> str:
+def regenerate_summary_tables(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Drop and regenerated cached/temporary summary data tables."""
 
     if not session.authorized_to_dump():
@@ -1113,7 +1113,7 @@ def regenerate_summary_tables(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def inspect_table_defs(session: Session, form: cgi.FieldStorage) -> str:
+def inspect_table_defs(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Inspect table definitions with field comments."""
 
     if not session.authorized_to_dump():
@@ -1122,7 +1122,7 @@ def inspect_table_defs(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def inspect_table_view_defs(session: Session, form: cgi.FieldStorage) -> str:
+def inspect_table_view_defs(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Inspect table and view definitions with field comments."""
 
     if not session.authorized_to_dump():
@@ -1131,7 +1131,7 @@ def inspect_table_view_defs(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def offer_basic_dump(session: Session, form: cgi.FieldStorage) -> str:
+def offer_basic_dump(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Offer options for a basic research data dump."""
 
     if not session.authorized_to_dump():
@@ -1278,7 +1278,7 @@ def offer_basic_dump(session: Session, form: cgi.FieldStorage) -> str:
     ) + WEBEND
 
 
-def basic_dump(session: Session, form: cgi.FieldStorage) \
+def basic_dump(session: CamcopsSession, form: cgi.FieldStorage) \
         -> Union[str, WSGI_TUPLE_TYPE]:
     """Provides a basic research dump (ZIP of TSV files)."""
 
@@ -1361,7 +1361,7 @@ def basic_dump(session: Session, form: cgi.FieldStorage) \
 
 
 # noinspection PyUnusedLocal
-def offer_table_dump(session: Session, form: cgi.FieldStorage) -> str:
+def offer_table_dump(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """HTML form to request dump of table data."""
 
     if not session.authorized_to_dump():
@@ -1469,7 +1469,7 @@ def offer_table_dump(session: Session, form: cgi.FieldStorage) -> str:
     return html + WEBEND
 
 
-def serve_table_dump(session: Session, form: cgi.FieldStorage) \
+def serve_table_dump(session: CamcopsSession, form: cgi.FieldStorage) \
         -> Union[str, WSGI_TUPLE_TYPE]:
     """Serve a dump of table +/- view data."""
 
@@ -1512,7 +1512,7 @@ def serve_table_dump(session: Session, form: cgi.FieldStorage) \
 
 
 # noinspection PyUnusedLocal
-def offer_audit_trail_options(session: Session, form: cgi.FieldStorage) -> str:
+def offer_audit_trail_options(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """HTML form to request audit trail."""
 
     if not session.authorized_as_superuser():
@@ -1569,7 +1569,7 @@ def offer_audit_trail_options(session: Session, form: cgi.FieldStorage) -> str:
     )
 
 
-def view_audit_trail(session: Session, form: cgi.FieldStorage) -> str:
+def view_audit_trail(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Show audit trail."""
 
     if not session.authorized_as_superuser():
@@ -1651,7 +1651,7 @@ def view_audit_trail(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def offer_hl7_log_options(session: Session, form: cgi.FieldStorage) -> str:
+def offer_hl7_log_options(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """HTML form to request HL7 message log view."""
 
     if not session.authorized_as_superuser():
@@ -1715,7 +1715,7 @@ def offer_hl7_log_options(session: Session, form: cgi.FieldStorage) -> str:
     )
 
 
-def view_hl7_log(session: Session, form: cgi.FieldStorage) -> str:
+def view_hl7_log(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Show HL7 message log."""
 
     if not session.authorized_as_superuser():
@@ -1797,7 +1797,7 @@ def view_hl7_log(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def offer_hl7_run_options(session: Session, form: cgi.FieldStorage) -> str:
+def offer_hl7_run_options(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """HTML form to request HL7 run log view."""
 
     if not session.authorized_as_superuser():
@@ -1839,7 +1839,7 @@ def offer_hl7_run_options(session: Session, form: cgi.FieldStorage) -> str:
     )
 
 
-def view_hl7_run(session: Session, form: cgi.FieldStorage) -> str:
+def view_hl7_run(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Show HL7 run log."""
 
     if not session.authorized_as_superuser():
@@ -1901,7 +1901,7 @@ def view_hl7_run(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def offer_introspection(session: Session, form: cgi.FieldStorage) -> str:
+def offer_introspection(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """HTML form to offer CamCOPS server source code."""
 
     if not pls.INTROSPECTION:
@@ -1925,7 +1925,7 @@ def offer_introspection(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def introspect(session: Session, form: cgi.FieldStorage) -> str:
+def introspect(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Provide formatted source code."""
 
     if not pls.INTROSPECTION:
@@ -1968,7 +1968,7 @@ def introspect(session: Session, form: cgi.FieldStorage) -> str:
     """.format(css=css, body=body)
 
 
-def add_special_note(session: Session, form: cgi.FieldStorage) -> str:
+def add_special_note(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Add a special note to a task (after confirmation)."""
 
     if not session.authorized_to_add_special_note():
@@ -2044,7 +2044,7 @@ def add_special_note(session: Session, form: cgi.FieldStorage) -> str:
     )
 
 
-def erase_task(session: Session, form: cgi.FieldStorage) -> str:
+def erase_task(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Wipe all data from a task (after confirmation).
 
     Leaves the task record as a placeholder.
@@ -2114,7 +2114,7 @@ def erase_task(session: Session, form: cgi.FieldStorage) -> str:
     )
 
 
-def delete_patient(session: Session, form: cgi.FieldStorage) -> str:
+def delete_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Completely delete all data from a patient (after confirmation)."""
 
     if not session.authorized_as_superuser():
@@ -2248,7 +2248,7 @@ def info_html_for_patient_edit(title: str,
     )
 
 
-def edit_patient(session: Session, form: cgi.FieldStorage) -> str:
+def edit_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     if not session.authorized_as_superuser():
         return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
     # Inputs. We operate with text, for HTML reasons.
@@ -2467,7 +2467,7 @@ def task_list_from_generator(generator: Iterable[Task]) -> str:
     )
 
 
-def forcibly_finalize(session: Session, form: cgi.FieldStorage) -> str:
+def forcibly_finalize(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Force-finalize all live (_era == ERA_NOW) records from a device."""
 
     if not session.authorized_as_superuser():
@@ -2571,7 +2571,7 @@ def forcibly_finalize(session: Session, form: cgi.FieldStorage) -> str:
     return simple_success_message(msg)
 
 
-def enter_new_password(session: Session, form: cgi.FieldStorage) -> str:
+def enter_new_password(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Ask for a new password."""
 
     user_to_change = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
@@ -2583,7 +2583,7 @@ def enter_new_password(session: Session, form: cgi.FieldStorage) -> str:
                                    user_to_change != session.username)
 
 
-def change_password_if_auth(session: Session, form: cgi.FieldStorage) -> str:
+def change_password_if_auth(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Implement a password change."""
 
     user_to_change = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
@@ -2598,7 +2598,7 @@ def change_password_if_auth(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def manage_users(session: Session, form: cgi.FieldStorage) -> str:
+def manage_users(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Offer user management menu."""
 
     if not session.authorized_as_superuser():
@@ -2607,7 +2607,7 @@ def manage_users(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def ask_to_add_user(session: Session, form: cgi.FieldStorage) -> str:
+def ask_to_add_user(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Ask for details to add a user."""
 
     if not session.authorized_as_superuser():
@@ -2615,7 +2615,7 @@ def ask_to_add_user(session: Session, form: cgi.FieldStorage) -> str:
     return ask_to_add_user_html(session)
 
 
-def add_user_if_auth(session: Session, form: cgi.FieldStorage) -> str:
+def add_user_if_auth(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Adds a user using the details supplied."""
 
     if not session.authorized_as_superuser():
@@ -2623,7 +2623,7 @@ def add_user_if_auth(session: Session, form: cgi.FieldStorage) -> str:
     return add_user(form)
 
 
-def edit_user(session: Session, form: cgi.FieldStorage) -> str:
+def edit_user(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Offers a user editing page."""
 
     if not session.authorized_as_superuser():
@@ -2632,7 +2632,7 @@ def edit_user(session: Session, form: cgi.FieldStorage) -> str:
     return edit_user_form(session, user_to_edit)
 
 
-def change_user_if_auth(session: Session, form: cgi.FieldStorage) -> str:
+def change_user_if_auth(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Applies edits to a user."""
 
     if not session.authorized_as_superuser():
@@ -2640,7 +2640,7 @@ def change_user_if_auth(session: Session, form: cgi.FieldStorage) -> str:
     return change_user(form)
 
 
-def ask_delete_user(session: Session, form: cgi.FieldStorage) -> str:
+def ask_delete_user(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Asks for confirmation to delete a user."""
 
     if not session.authorized_as_superuser():
@@ -2649,7 +2649,7 @@ def ask_delete_user(session: Session, form: cgi.FieldStorage) -> str:
     return ask_delete_user_html(session, user_to_delete)
 
 
-def delete_user_if_auth(session: Session, form: cgi.FieldStorage) -> str:
+def delete_user_if_auth(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Deletes a user."""
 
     if not session.authorized_as_superuser():
@@ -2658,7 +2658,7 @@ def delete_user_if_auth(session: Session, form: cgi.FieldStorage) -> str:
     return delete_user(user_to_delete)
 
 
-def enable_user(session: Session, form: cgi.FieldStorage) -> str:
+def enable_user(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Enables a user (unlocks, clears login failures)."""
 
     if not session.authorized_as_superuser():
@@ -2668,7 +2668,7 @@ def enable_user(session: Session, form: cgi.FieldStorage) -> str:
 
 
 # noinspection PyUnusedLocal
-def crash(session: Session, form: cgi.FieldStorage) -> str:
+def crash(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Deliberately raises an exception."""
 
     raise RuntimeError("Deliberately crashed. Should not affect other "
@@ -2679,7 +2679,7 @@ def crash(session: Session, form: cgi.FieldStorage) -> str:
 # Ancillary to the main pages/actions
 # =============================================================================
 
-def get_tracker(session: Session, form: cgi.FieldStorage) -> Tracker:
+def get_tracker(session: CamcopsSession, form: cgi.FieldStorage) -> Tracker:
     """Returns a Tracker() object specified by the CGI form."""
 
     task_tablename_list = ws.get_cgi_parameter_list(form, PARAM.TASKTYPES)
@@ -2697,7 +2697,7 @@ def get_tracker(session: Session, form: cgi.FieldStorage) -> Tracker:
     )
 
 
-def get_clinicaltextview(session: Session,
+def get_clinicaltextview(session: CamcopsSession,
                          form: cgi.FieldStorage) -> ClinicalTextView:
     """Returns a ClinicalTextView() object defined by the CGI form."""
 
@@ -2905,9 +2905,9 @@ def main_http_processor(env: Dict[str, str]) \
     # -------------------------------------------------------------------------
     if pls.session.user_must_change_password():
         if action != ACTION.CHANGE_PASSWORD:
-            return enter_new_password(pls.session, pls.session.username,
-                                      as_manager=False,
-                                      because_password_expired=True)
+            return enter_new_password_html(pls.session, pls.session.username,
+                                           as_manager=False,
+                                           because_password_expired=True)
     elif pls.session.user_must_agree_terms() and action != ACTION.AGREE_TERMS:
         return offer_terms(pls.session, form)
     # Caution with the case where the user must do both; don't want deadlock!
@@ -3078,7 +3078,7 @@ def webview_application(environ: Dict[str, str],
 
 def webview_unit_tests() -> None:
     """Unit tests for camcops.py"""
-    session = Session()
+    session = CamcopsSession()
     form = cgi.FieldStorage()
     # suboptimal tests, as form isn't tailed to these things
 

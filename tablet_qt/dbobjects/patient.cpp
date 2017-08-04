@@ -668,6 +668,14 @@ OpenableWidget* Patient::editor(bool read_only)
 
 void Patient::buildPage()
 {
+    auto addIcon = [this](const QString& name, const QString& tag) {
+        QuImage* image = new QuImage(uifunc::iconFilename(name),
+                                     uiconst::ICONSIZE);
+        image->setAdjustForDpi(false);  // uiconst::ICONSIZE already corrects for this
+        image->addTag(tag);
+        m_page->addElement(image);
+    };
+
     if (!m_page) {
         m_page = QuPagePtr(new QuPage());
     } else {
@@ -763,39 +771,23 @@ void Patient::buildPage()
 
     m_page->addElement(new QuHeading(tr("Minimum ID required for app:")));
     m_page->addElement(new QuText(TABLET_ID_POLICY.pretty()));
-    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_POLICY_APP_OK));
-    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_POLICY_APP_FAIL));
+    addIcon(uiconst::CBS_OK, TAG_POLICY_APP_OK);
+    addIcon(uiconst::ICON_STOP, TAG_POLICY_APP_FAIL);
 
     m_page->addElement(new QuHeading(tr("Minimum ID required for upload to server:")));
     m_page->addElement(new QuText(m_app.uploadPolicy().pretty()));
-    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_POLICY_UPLOAD_OK));
-    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_POLICY_UPLOAD_FAIL));
+    addIcon(uiconst::CBS_OK, TAG_POLICY_UPLOAD_OK);
+    addIcon(uiconst::ICON_STOP, TAG_POLICY_UPLOAD_FAIL);
 
     m_page->addElement(new QuHeading(tr("Minimum ID required to finalize on server:")));
     m_page->addElement(new QuText(m_app.finalizePolicy().pretty()));
-    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_POLICY_FINALIZE_OK));
-    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_POLICY_FINALIZE_FAIL));
+    addIcon(uiconst::CBS_OK, TAG_POLICY_FINALIZE_OK);
+    addIcon(uiconst::ICON_STOP, TAG_POLICY_FINALIZE_FAIL);
 
     m_page->addElement(new QuHeading(tr("ID numbers must not clash with another patient:")));
     m_page->addElement((new QuText("?"))->addTag(TAG_IDCLASH_DETAIL));
-    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::CBS_OK),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_IDCLASH_OK));
-    m_page->addElement((new QuImage(uifunc::iconFilename(uiconst::ICON_STOP),
-                                  uiconst::ICONSIZE))
-                     ->addTag(TAG_IDCLASH_FAIL));
+    addIcon(uiconst::CBS_OK, TAG_IDCLASH_OK);
+    addIcon(uiconst::ICON_STOP, TAG_IDCLASH_FAIL);
 
     QStringList fields{FORENAME_FIELD, SURNAME_FIELD, DOB_FIELD, SEX_FIELD};
 #ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
@@ -905,7 +897,12 @@ void Patient::addIdNum()
     const QVector<int> possible = m_app.whichIdNumsAvailable();
     const QVector<int> unused = containers::setSubtract(possible, present);
     if (unused.isEmpty()) {
-        uifunc::alert(tr("All ID numbers offered by the server are already here"));
+        QString msg = tr("All ID numbers offered by the server are already here!");
+        if (present.isEmpty()) {
+            msg += tr(" (There are no ID numbers at all – have you "
+                      "registered with a server?)");
+        }
+        uifunc::alert(msg);
         return;
     }
     NameValueOptions options;

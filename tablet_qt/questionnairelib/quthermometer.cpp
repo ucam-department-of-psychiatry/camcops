@@ -56,10 +56,14 @@ void QuThermometer::commonConstructor()
 }
 
 
-QuThermometer* QuThermometer::setRescale(bool rescale, double rescale_factor)
+QuThermometer* QuThermometer::setRescale(bool rescale, double rescale_factor,
+                                         bool adjust_for_dpi)
 {
     m_rescale = rescale;
     m_rescale_factor = rescale_factor;
+    if (adjust_for_dpi) {
+        m_rescale_factor *= uiconst::DPI / uiconst::DEFAULT_DPI;
+    }
     return this;
 }
 

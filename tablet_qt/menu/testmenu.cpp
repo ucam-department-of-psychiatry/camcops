@@ -278,11 +278,11 @@ void TestMenu::testScrollMessageBox()
                             "ScrollMessageBox, with some lengthy text",
                             textconst::TERMS_CONDITIONS,
                             this);
-    QAbstractButton* one = msgbox.addButton("Response One (Yes role)",
+    QAbstractButton* one = msgbox.addButton("One (Yes)",
                                             QMessageBox::YesRole);
-    QAbstractButton* two = msgbox.addButton("Response Two (No role)",
+    QAbstractButton* two = msgbox.addButton("Two (No)",
                                             QMessageBox::NoRole);
-    QAbstractButton* three = msgbox.addButton("Response Three (Reject role)",
+    QAbstractButton* three = msgbox.addButton("Three (Reject)",
                                               QMessageBox::RejectRole);
     const int ret = msgbox.exec();
     qInfo() << "exec() returned" << ret;

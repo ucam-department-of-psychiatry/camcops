@@ -26,9 +26,10 @@ from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
 
+from ..cc_modules.cc_ctvinfo import CtvInfo
 from ..cc_modules.cc_html import answer
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import CtvInfo, Task
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================

@@ -27,8 +27,8 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quboolean.h"
+#include "questionnairelib/quflowcontainer.h"
 #include "questionnairelib/qugridcontainer.h"
-#include "questionnairelib/quhorizontalcontainer.h"
 #include "questionnairelib/quverticalcontainer.h"
 #include "questionnairelib/qucountdown.h"
 #include "questionnairelib/questionnaire.h"
@@ -247,31 +247,31 @@ QString Ace3::menusubtitle() const
 bool Ace3::isComplete() const
 {
     return noneNull(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME))) &&
-            noneNull(values(strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE))) &&
-            noneNull(values(strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD))) &&
-            noneNull(values(strseq(FP_ATTN_SERIAL7, 1, N_ATTN_SERIAL7))) &&
-            noneNull(values(strseq(FP_MEM_RECALL_WORD, 1, N_MEM_RECALL_WORD))) &&
-            !valueIsNull(FN_FLUENCY_LETTERS_SCORE) &&
-            !valueIsNull(FN_FLUENCY_ANIMALS_SCORE) &&
-            noneNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR))) &&
-            noneNull(values(strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS))) &&
-            !valueIsNull(FN_LANG_FOLLOW_CMD_PRACTICE) &&
-            (eq(value(FN_LANG_FOLLOW_CMD_PRACTICE), 0) ||
-                noneNull(values(strseq(FP_LANG_FOLLOW_CMD, 1, N_LANG_FOLLOW_CMD)))) &&
-            // ... failed practice, or completed all three actual tests
-            noneNull(values(strseq(FP_LANG_WRITE_SENTENCES_POINT, 1, N_LANG_WRITE_SENTENCES_POINT))) &&
-            noneNull(values(strseq(FP_LANG_REPEAT_WORD, 1, N_LANG_REPEAT_WORD))) &&
-            noneNull(values(strseq(FP_LANG_REPEAT_SENTENCE, 1, N_LANG_REPEAT_SENTENCE))) &&
-            noneNull(values(strseq(FP_LANG_NAME_PICTURE, 1, N_LANG_NAME_PICTURE))) &&
-            noneNull(values(strseq(FP_LANG_IDENTIFY_CONCEPT, 1, N_LANG_IDENTIFY_CONCEPT))) &&
-            !valueIsNull(FN_LANG_READ_WORDS_ALOUD) &&
-            !valueIsNull(FN_VSP_COPY_INFINITY) &&
-            !valueIsNull(FN_VSP_COPY_CUBE) &&
-            !valueIsNull(FN_VSP_DRAW_CLOCK) &&
-            noneNull(values(strseq(FP_VSP_COUNT_DOTS, 1, N_VSP_COUNT_DOTS))) &&
-            noneNull(values(strseq(FP_VSP_IDENTIFY_LETTER, 1, N_VSP_IDENTIFY_LETTER))) &&
-            noneNull(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS))) &&
-            isRecognitionComplete();
+        noneNull(values(strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE))) &&
+        noneNull(values(strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD))) &&
+        noneNull(values(strseq(FP_ATTN_SERIAL7, 1, N_ATTN_SERIAL7))) &&
+        noneNull(values(strseq(FP_MEM_RECALL_WORD, 1, N_MEM_RECALL_WORD))) &&
+        !valueIsNull(FN_FLUENCY_LETTERS_SCORE) &&
+        !valueIsNull(FN_FLUENCY_ANIMALS_SCORE) &&
+        noneNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR))) &&
+        noneNull(values(strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS))) &&
+        !valueIsNull(FN_LANG_FOLLOW_CMD_PRACTICE) &&
+        (eq(value(FN_LANG_FOLLOW_CMD_PRACTICE), 0) ||
+            noneNull(values(strseq(FP_LANG_FOLLOW_CMD, 1, N_LANG_FOLLOW_CMD)))) &&
+        // ... failed practice, or completed all three actual tests
+        noneNull(values(strseq(FP_LANG_WRITE_SENTENCES_POINT, 1, N_LANG_WRITE_SENTENCES_POINT))) &&
+        noneNull(values(strseq(FP_LANG_REPEAT_WORD, 1, N_LANG_REPEAT_WORD))) &&
+        noneNull(values(strseq(FP_LANG_REPEAT_SENTENCE, 1, N_LANG_REPEAT_SENTENCE))) &&
+        noneNull(values(strseq(FP_LANG_NAME_PICTURE, 1, N_LANG_NAME_PICTURE))) &&
+        noneNull(values(strseq(FP_LANG_IDENTIFY_CONCEPT, 1, N_LANG_IDENTIFY_CONCEPT))) &&
+        !valueIsNull(FN_LANG_READ_WORDS_ALOUD) &&
+        !valueIsNull(FN_VSP_COPY_INFINITY) &&
+        !valueIsNull(FN_VSP_COPY_CUBE) &&
+        !valueIsNull(FN_VSP_DRAW_CLOCK) &&
+        noneNull(values(strseq(FP_VSP_COUNT_DOTS, 1, N_VSP_COUNT_DOTS))) &&
+        noneNull(values(strseq(FP_VSP_IDENTIFY_LETTER, 1, N_VSP_IDENTIFY_LETTER))) &&
+        noneNull(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS))) &&
+        isRecognitionComplete();
 }
 
 
@@ -412,7 +412,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         heading("cat_attn"),
         // Orientation
         instruction("attn_q_time"),
-        new QuHorizontalContainer{
+        new QuFlowContainer{
             boolean("attn_time1", strnum(FP_ATTN_TIME, 1)),
             boolean("attn_time2", strnum(FP_ATTN_TIME, 2)),
             boolean("attn_time3", strnum(FP_ATTN_TIME, 3)),
@@ -422,7 +422,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         explanation("instruction_time"),
         (new QuText(correct_date))->setItalic(),
         instruction("attn_q_place"),
-        new QuHorizontalContainer{
+        new QuFlowContainer{
             boolean("attn_place1", strnum(FP_ATTN_PLACE, 1)),
             boolean("attn_place2", strnum(FP_ATTN_PLACE, 2)),
             boolean("attn_place3", strnum(FP_ATTN_PLACE, 3)),
@@ -434,12 +434,12 @@ OpenableWidget* Ace3::editor(bool read_only)
         heading("cat_attn"),
         instruction("attn_q_words"),
         explanation("attn_instruction_words"),
-        new QuHorizontalContainer{
+        new QuFlowContainer{
             boolean("mem_word1", strnum(FP_ATTN_REPEAT_WORD, 1)),
             boolean("mem_word2", strnum(FP_ATTN_REPEAT_WORD, 2)),
             boolean("mem_word3", strnum(FP_ATTN_REPEAT_WORD, 3)),
         },
-        new QuHorizontalContainer{
+        new QuFlowContainer{
             text("attn_q_register_n_trials"),
             (new QuMcq(fieldRef(FN_ATTN_NUM_REGISTRATION_TRIALS, false),  // not mandatory
                                  options_registration))->setHorizontal(true),
@@ -448,7 +448,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         heading("cat_attn"),
         instruction("attn_q_serial_sevens"),
         explanation("attn_instruction_sevens"),
-        new QuHorizontalContainer{
+        new QuFlowContainer{
             boolean("attn_subtraction1", strnum(FP_ATTN_SERIAL7, 1)),
             boolean("attn_subtraction2", strnum(FP_ATTN_SERIAL7, 2)),
             boolean("attn_subtraction3", strnum(FP_ATTN_SERIAL7, 3)),
@@ -459,7 +459,7 @@ OpenableWidget* Ace3::editor(bool read_only)
         heading("cat_mem"),
         instruction("mem_q_recall_words"),
         explanation("mem_instruction_recall"),
-        new QuHorizontalContainer{
+        new QuFlowContainer{
             boolean("mem_word1", strnum(FP_MEM_RECALL_WORD, 1)),
             boolean("mem_word2", strnum(FP_MEM_RECALL_WORD, 2)),
             boolean("mem_word3", strnum(FP_MEM_RECALL_WORD, 3)),
@@ -521,55 +521,51 @@ OpenableWidget* Ace3::editor(bool read_only)
         instruction("memory_q_address"),
         explanation("memory_instruction_address_1"),
         explanation("memory_instruction_address_2"),
-        (new QuHorizontalContainer{
-            // Address 1
-            new QuVerticalContainer{
-                instructionRaw(xstring("trial") + " 1"),
-                new QuHorizontalContainer{
-                    boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 1), false),
-                    boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 2), false),
-                },
-                new QuHorizontalContainer{
-                    boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 3), false),
-                    boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 4), false),
-                    boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 5), false),
-                },
-                boolean("address_6", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 6), false),
-                boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 7), false),
+        // Address 1
+        new QuVerticalContainer{
+            instructionRaw(xstring("trial") + " 1"),
+            new QuFlowContainer{
+                boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 1), false),
+                boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 2), false),
             },
-            // Address 2
-            new QuVerticalContainer{
-                instructionRaw(xstring("trial") + " 2"),
-                new QuHorizontalContainer{
-                    boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 1), false),
-                    boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 2), false),
-                },
-                new QuHorizontalContainer{
-                    boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 3), false),
-                    boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 4), false),
-                    boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 5), false),
-                },
-                boolean("address_6", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 6), false),
-                boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 7), false),
+            new QuFlowContainer{
+                boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 3), false),
+                boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 4), false),
+                boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 5), false),
             },
-            // Address 3
-            new QuVerticalContainer{
-                instructionRaw(xstring("trial") + " 3"),
-                new QuHorizontalContainer{
-                    boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 1), true),
-                    boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 2), true),
-                },
-                new QuHorizontalContainer{
-                    boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 3), true),
-                    boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 4), true),
-                    boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 5), true),
-                },
-                boolean("address_6", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 6), true),
-                boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 7), true),
+            boolean("address_6", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 6), false),
+            boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 7), false),
+        },
+        // Address 2
+        new QuVerticalContainer{
+            instructionRaw(xstring("trial") + " 2"),
+            new QuFlowContainer{
+                boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 1), false),
+                boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 2), false),
             },
-        })
-            ->setWidgetAlignment(Qt::Alignment())
-            ->setAddStretchRight(false),
+            new QuFlowContainer{
+                boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 3), false),
+                boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 4), false),
+                boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 5), false),
+            },
+            boolean("address_6", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 6), false),
+            boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 7), false),
+        },
+        // Address 3
+        new QuVerticalContainer{
+            instructionRaw(xstring("trial") + " 3"),
+            new QuFlowContainer{
+                boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 1), true),
+                boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 2), true),
+            },
+            new QuFlowContainer{
+                boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 3), true),
+                boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 4), true),
+                boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 5), true),
+            },
+            boolean("address_6", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 6), true),
+            boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 7), true),
+        },
         heading("cat_mem"),
         boolean("famous_1", strnum(FP_MEM_FAMOUS, 1), true, true),
         boolean("famous_2", strnum(FP_MEM_FAMOUS, 2), true, true),
@@ -769,7 +765,7 @@ OpenableWidget* Ace3::editor(bool read_only)
 
     QuPagePtr page_back_to_clinician((new QuPage{
         textRaw(tr("Please make sure the subject can’t see the screen "
-                   "before you proceed.")),
+                   "before you proceed. (Memory prompts coming up.)")),
     })
         ->setTitle(makeTitle("[reminder to clinician]"))
         ->setType(QuPage::PageType::Clinician));
@@ -782,11 +778,11 @@ OpenableWidget* Ace3::editor(bool read_only)
         heading("cat_mem"),
         instruction("mem_q_recall_address"),
         new QuVerticalContainer{
-            new QuHorizontalContainer{
+            new QuFlowContainer{
                 boolean("address_1", strnum(FP_MEM_RECALL_ADDRESS, 1)),
                 boolean("address_2", strnum(FP_MEM_RECALL_ADDRESS, 2)),
             },
-            new QuHorizontalContainer{
+            new QuFlowContainer{
                 boolean("address_3", strnum(FP_MEM_RECALL_ADDRESS, 3)),
                 boolean("address_4", strnum(FP_MEM_RECALL_ADDRESS, 4)),
                 boolean("address_5", strnum(FP_MEM_RECALL_ADDRESS, 5)),

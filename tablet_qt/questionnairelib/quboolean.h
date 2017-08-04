@@ -43,6 +43,7 @@ public:
     QuBoolean* setItalic(bool italic = true);
     QuBoolean* setAllowUnset(bool allow_unset = true);
     QuBoolean* setAsTextButton(bool as_text_button = true);
+    QuBoolean* setAdjustImageForDpi(bool adjust_image_for_dpi = true);
 protected:
     void commonConstructor();
     void setFromField();
@@ -55,6 +56,7 @@ protected:
     QString m_text;
     QString m_image_filename;
     QSize m_image_size;
+    bool m_adjust_image_for_dpi;
     FieldRefPtr m_fieldref;
     bool m_content_clickable;
     bool m_indicator_on_left;

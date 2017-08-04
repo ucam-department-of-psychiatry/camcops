@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define DEBUG_SIGNALS
+
 #include "quspinboxdouble.h"
 #include <QDoubleSpinBox>
 #include "lib/uifunc.h"
@@ -63,13 +65,15 @@ QPointer<QWidget> QuSpinBoxDouble::makeWidget(Questionnaire* questionnaire)
     // "no matching function for call to ... unresolved overloaded function
     // type..."
     // Disambiguate like this:
-    void (QDoubleSpinBox::*vc_sig_dbl)(double) = &QDoubleSpinBox::valueChanged;
-    // void (QDoubleSpinBox::*vc_sig_str)(const QString&) = &QDoubleSpinBox::valueChanged;
     if (!read_only) {
+        void (QDoubleSpinBox::*vc_sig_dbl)(double) = &QDoubleSpinBox::valueChanged;
         connect(m_spinbox.data(), vc_sig_dbl,
                 this, &QuSpinBoxDouble::widgetValueChanged);
-        //connect(m_spinbox.data(), vc_sig_str,
-        //        this, &QuSpinBoxDouble::widgetValueChangedString);
+#ifdef DEBUG_SIGNALS
+        void (QDoubleSpinBox::*vc_sig_str)(const QString&) = &QDoubleSpinBox::valueChanged;
+        connect(m_spinbox.data(), vc_sig_str,
+                this, &QuSpinBoxDouble::widgetValueChangedString);
+#endif
     }
     setFromField();
     return QPointer<QWidget>(m_spinbox);
@@ -84,6 +88,9 @@ FieldRefPtrList QuSpinBoxDouble::fieldrefs() const
 
 void QuSpinBoxDouble::widgetValueChanged(double value)
 {
+#ifdef DEBUG_SIGNALS
+    qDebug() << Q_FUNC_INFO << value;
+#endif
     const bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
@@ -91,10 +98,10 @@ void QuSpinBoxDouble::widgetValueChanged(double value)
 }
 
 
-//void QuSpinBoxDouble::widgetValueChangedString(const QString& text)
-//{
-//    qDebug() << Q_FUNC_INFO << text;
-//}
+void QuSpinBoxDouble::widgetValueChangedString(const QString& text)
+{
+    qDebug() << Q_FUNC_INFO << text;
+}
 
 
 void QuSpinBoxDouble::fieldValueChanged(const FieldRef* fieldref,

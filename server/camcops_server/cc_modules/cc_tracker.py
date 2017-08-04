@@ -57,9 +57,10 @@ from .cc_lang import flatten_list
 from .cc_logger import BraceStyleAdapter
 from .cc_plot import matplotlib, set_matplotlib_fontsize
 from .cc_patientidnum import PatientIdNum
-from .cc_pls import pls
-from .cc_session import Session
-from .cc_task import Task, TrackerInfo
+from .cc_config import pls
+from .cc_session import CamcopsSession
+from .cc_task import Task
+from .cc_trackerhelpers import TrackerInfo
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION
 from .cc_xml import get_xml_document, XmlDataTypes, XmlElement
@@ -260,7 +261,7 @@ class TrackerCtvCommon(object):
     """Base class for Tracker and ClinicalTextView."""
 
     def __init__(self,
-                 session: Session,
+                 session: CamcopsSession,
                  task_class_list: List,
                  which_idnum: int,
                  idnum_value: int,
@@ -405,9 +406,9 @@ class TrackerCtvCommon(object):
     # -------------------------------------------------------------------------
 
     def get_xml(self,
-                 indent_spaces: int = 4,
-                 eol: str = '\n',
-                 include_comments: bool = False) -> str:
+                indent_spaces: int = 4,
+                eol: str = '\n',
+                include_comments: bool = False) -> str:
         raise NotImplementedError()
 
     def get_html(self) -> str:
@@ -853,7 +854,7 @@ class Tracker(TrackerCtvCommon):
     """Class representing numerical tracker."""
 
     def __init__(self,
-                 session: Session,
+                 session: CamcopsSession,
                  task_tablename_list: List[str],
                  which_idnum: int,
                  idnum_value: int,
@@ -1120,7 +1121,7 @@ class ClinicalTextView(TrackerCtvCommon):
     """Class representing a clinical text view."""
 
     def __init__(self,
-                 session: Session,
+                 session: CamcopsSession,
                  which_idnum: int,
                  idnum_value: int,
                  start_datetime: Optional[datetime.datetime],
@@ -1333,7 +1334,7 @@ def unit_tests_ctv(c: ClinicalTextView) -> None:
 
 def cctracker_unit_tests() -> None:
     """Unit tests for cc_tracker module."""
-    session = Session()
+    session = CamcopsSession()
     tasktables = []
     for cls in Task.all_subclasses(sort_tablename=True):
         tasktables.append(cls.tablename)

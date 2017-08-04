@@ -24,9 +24,13 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
+from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -53,11 +57,13 @@ class LshsA(Task):
             axis_max=48.5
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT",
-                 value=self.total_score(), comment="Total score"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score"),
         ]
 
     def is_complete(self) -> bool:
@@ -71,7 +77,7 @@ class LshsA(Task):
         answer_dict = {None: "?"}
         for option in range(0, 5):
             answer_dict[option] = (str(option) + " — " +
-                                   WSTRING("lshs_a_option" + str(option)))
+                                   self.wxstring("a_option" + str(option)))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -86,11 +92,11 @@ class LshsA(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            WSTRING("total_score"), score
+            wappstring("total_score"), score
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                WSTRING("lshs_a_q" + str(q) + "_question"),
+                self.wxstring("a_q" + str(q) + "_question"),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """
@@ -128,7 +134,7 @@ class LshsLaroi2005(Task):
         for option in range(0, 5):
             answer_dict[option] = (
                 str(option) + " — " +
-                WSTRING("lshs_laroi2005_option" + str(option)))
+                self.wxstring("option" + str(option)))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -143,12 +149,12 @@ class LshsLaroi2005(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            WSTRING("total_score"), score
+            wappstring("total_score"), score
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 "Q" + str(q) + " – " +
-                WSTRING("lshs_laroi2005_q" + str(q) + "_question"),
+                self.wxstring("q" + str(q) + "_question"),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """

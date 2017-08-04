@@ -374,6 +374,8 @@ class DateTimeAsIsoText(TypeDecorator):
     class comparator_factory(TypeDecorator.Comparator):
         """Process SQL for when we are comparing our column, in the database,
         to something else."""
+
+        # noinspection PyMethodOverriding
         def operate(self, op, other):
             if isinstance(other, datetime.datetime):
                 processed_other = python_datetime_to_utc(other)

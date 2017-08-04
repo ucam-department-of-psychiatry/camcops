@@ -53,6 +53,8 @@ const int SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI = 40;
     // At 96 (approx. 100) dpi, 20 px gives 0.2 inches = 5mm,
     // so perhaps 40. This is slightly "big print", bu that's appropriate.
 int SLIDER_HANDLE_SIZE_PX = SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI;
+const int DIAL_DIAMETER_PX_FOR_DEFAULT_DPI = 192;
+int DIAL_DIAMETER_PX = DIAL_DIAMETER_PX_FOR_DEFAULT_DPI;
 
 const QMargins NO_MARGINS(0, 0, 0, 0);
 

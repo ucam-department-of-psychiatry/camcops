@@ -25,7 +25,6 @@
 #include "dialogs/nvpchoicedialog.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
-// #include "widgets/clickablelabel.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 
 

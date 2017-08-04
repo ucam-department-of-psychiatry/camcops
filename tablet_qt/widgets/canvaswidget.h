@@ -38,10 +38,13 @@ class CanvasWidget : public QFrame
 
     Q_OBJECT
 public:
-    CanvasWidget(QWidget* parent = nullptr);
-    CanvasWidget(const QSize& size, QWidget* parent = nullptr);
+    CanvasWidget(QImage::Format format = QImage::Format_RGB32,
+                 QWidget* parent = nullptr);
+    CanvasWidget(const QSize& size,
+                 QImage::Format format = QImage::Format_RGB32,
+                 QWidget* parent = nullptr);
     ~CanvasWidget();
-    void setSize(const QSize& size);
+    void setImageSizeAndClearImage(const QSize& size);
     void setAllowShrink(bool allow_shrink);
     void setMinimumShrinkHeight(int height);  // applicable if we can shrink
     void setBorderWidth(int width);
@@ -50,31 +53,44 @@ public:
     void setUnusedSpaceColour(const QColor& colour);
     void setPen(const QPen& pen);
     void clear(const QColor& background);
-    void setImage(const QImage& image, bool resize_widget = true);
-    // ... if resize_widget is false, the image will be resized
-    void drawTo(QPoint pt);
+    void setImage(const QImage& image);
+    void setAdjustDisplayForDpi(bool adjust_display_for_dpi);
+    void drawTo(const QPoint& pt);
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
-    QImage image() const;
+    QImage image() const;  // read the image
 signals:
     void imageChanged();
 protected:
-    void commonConstructor(const QSize& size);
+    void commonConstructor(const QSize& size, QImage::Format format);
     virtual void paintEvent(QPaintEvent* event) override;
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void mouseMoveEvent(QMouseEvent* event) override;
     virtual void resizeEvent(QResizeEvent* event) override;
     QPoint transformDisplayToImageCoords(QPoint point) const;
     void setBorderCss();
+    QSize imageSize() const;
+    QSize desiredDisplaySize() const;
 protected:
-    int m_minimum_shrink_height;
-    QSize m_size;  // size on screen
-    double m_image_to_display_ratio;
-    bool m_allow_shrink;
+    // There are three relevant sizes:
+    // - imageSize() = m_image.size(): the size of the image being edited
+    // - the size of the entire canvas area, from contentsRect()
+    // - a third size, displaysize, the display size of the image, such that
+    //      image_size = m_image_to_display_ratio * displaysize
+    //   The displaysize may be different from the widget contentsRect()
+    //   because we maintain the aspect ratio of the image.
+
+    QImage::Format m_format;
     QImage m_image;
-    QPen m_pen;
-    QPoint m_point;
+    bool m_allow_shrink;
+    int m_minimum_shrink_height;
+    bool m_adjust_display_for_dpi;
+
     int m_border_width_px;
     QColor m_border_colour;
     QColor m_unused_space_colour;
+    QPen m_pen;
+
+    double m_image_to_display_ratio;
+    QPoint m_point;
 };

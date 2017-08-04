@@ -25,6 +25,7 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Boolean
 
 from ..cc_modules.cc_dt import format_datetime_string
 from ..cc_modules.cc_constants import (
@@ -32,6 +33,7 @@ from ..cc_modules.cc_constants import (
     ICD10_COPYRIGHT_DIV,
     PV,
 )
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -42,7 +44,8 @@ from ..cc_modules.cc_html import (
 )
 from ..cc_modules.cc_lang import is_false
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -211,39 +214,49 @@ class Icd10SpecPD(Task):
                                 self.has_dependent_pd())]
         return infolist
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="meets_general_criteria", cctype="BOOL",
-                 value=self.has_pd(),
-                 comment="Meets general criteria for personality disorder?"),
-            dict(name="paranoid_pd", cctype="BOOL",
-                 value=self.has_paranoid_pd(),
-                 comment="Meets criteria for paranoid PD?"),
-            dict(name="schizoid_pd", cctype="BOOL",
-                 value=self.has_schizoid_pd(),
-                 comment="Meets criteria for schizoid PD?"),
-            dict(name="dissocial_pd", cctype="BOOL",
-                 value=self.has_dissocial_pd(),
-                 comment="Meets criteria for dissocial PD?"),
-            dict(name="eupd_i", cctype="BOOL",
-                 value=self.has_eupd_i(),
-                 comment="Meets criteria for EUPD (impulsive type)?"),
-            dict(name="eupd_b", cctype="BOOL",
-                 value=self.has_eupd_b(),
-                 comment="Meets criteria for EUPD (borderline type)?"),
-            dict(name="histrionic_pd", cctype="BOOL",
-                 value=self.has_histrionic_pd(),
-                 comment="Meets criteria for histrionic PD?"),
-            dict(name="anankastic_pd", cctype="BOOL",
-                 value=self.has_anankastic_pd(),
-                 comment="Meets criteria for anankastic PD?"),
-            dict(name="anxious_pd", cctype="BOOL",
-                 value=self.has_anxious_pd(),
-                 comment="Meets criteria for anxious PD?"),
-            dict(name="dependent_pd", cctype="BOOL",
-                 value=self.has_dependent_pd(),
-                 comment="Meets criteria for dependent PD?"),
+            SummaryElement(
+                name="meets_general_criteria", coltype=Boolean(),
+                value=self.has_pd(),
+                comment="Meets general criteria for personality disorder?"),
+            SummaryElement(
+                name="paranoid_pd", coltype=Boolean(),
+                value=self.has_paranoid_pd(),
+                comment="Meets criteria for paranoid PD?"),
+            SummaryElement(
+                name="schizoid_pd", coltype=Boolean(),
+                value=self.has_schizoid_pd(),
+                comment="Meets criteria for schizoid PD?"),
+            SummaryElement(
+                name="dissocial_pd", coltype=Boolean(),
+                value=self.has_dissocial_pd(),
+                comment="Meets criteria for dissocial PD?"),
+            SummaryElement(
+                name="eupd_i", coltype=Boolean(),
+                value=self.has_eupd_i(),
+                comment="Meets criteria for EUPD (impulsive type)?"),
+            SummaryElement(
+                name="eupd_b", coltype=Boolean(),
+                value=self.has_eupd_b(),
+                comment="Meets criteria for EUPD (borderline type)?"),
+            SummaryElement(
+                name="histrionic_pd", coltype=Boolean(),
+                value=self.has_histrionic_pd(),
+                comment="Meets criteria for histrionic PD?"),
+            SummaryElement(
+                name="anankastic_pd", coltype=Boolean(),
+                value=self.has_anankastic_pd(),
+                comment="Meets criteria for anankastic PD?"),
+            SummaryElement(
+                name="anxious_pd", coltype=Boolean(),
+                value=self.has_anxious_pd(),
+                comment="Meets criteria for anxious PD?"),
+            SummaryElement(
+                name="dependent_pd", coltype=Boolean(),
+                value=self.has_dependent_pd(),
+                comment="Meets criteria for dependent PD?"),
         ]
 
     def is_pd_excluded(self) -> bool:

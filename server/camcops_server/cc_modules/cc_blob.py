@@ -26,16 +26,23 @@ import datetime
 import logging
 from typing import Optional
 
-import wand.image
-# ... sudo apt-get install libmagickwand-dev; sudo pip install Wand
+import wand.image  # sudo apt-get install libmagickwand-dev; sudo pip install Wand  # noqa
 
-import cardinal_pythonlib.rnc_db as rnc_db
+from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, LargeBinary, Text
 
-from .cc_constants import ERA_NOW, MIMETYPE_PNG, STANDARD_GENERIC_FIELDSPECS
-from . import cc_db
+from .cc_constants import ERA_NOW, MIMETYPE_PNG
+from .cc_db import GenericTabletRecordMixin
 from .cc_html import get_data_url, get_embedded_img_tag
 from .cc_logger import BraceStyleAdapter
-from .cc_pls import pls
+from .cc_sqla_coltypes import (
+    IntUnsigned,
+    MimeTypeColType,
+    # TableNameColType, # *** to be added
+)
+from .cc_request import CamcopsRequest
+from .cc_sqlalchemy import Base
 from .cc_unittest import unit_test_ignore
 from .cc_xml import get_xml_blob_tuple, XmlElement
 
@@ -56,61 +63,96 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Blob class
 # =============================================================================
 
-class Blob(object):
-    """Class representing a binary large object (BLOB).
+class Blob(GenericTabletRecordMixin, Base):
+    """
+    Class representing a binary large object (BLOB).
 
     Has helper functions for PNG image processing.
     """
-    TABLENAME = "blobs"
-    FIELDSPECS_WITHOUT_BLOB = STANDARD_GENERIC_FIELDSPECS + [
-        dict(name="id", cctype="INT_UNSIGNED", notnull=True,
-             comment="BLOB (binary large object) primary key on the source "
-                     "tablet device"),
-        dict(name="tablename", cctype="TEXT", notnull=True,
-             comment="Name of the table referring to this BLOB"),
-        dict(name="tablepk", cctype="INT_UNSIGNED", notnull=True,
-             comment="Primary key (id field) of the row referring to "
-                     "this BLOB"),
-        dict(name="fieldname", cctype="TEXT", notnull=True,
-             comment="Field name of the field referring to this BLOB by ID"),
-        dict(name="filename", cctype="TEXT",
-             comment="Filename of the BLOB on the source tablet device (on "
-                     "the source device, BLOBs are stored in files, not in "
-                     "the database)"),
-        dict(name="mimetype", cctype="MIMETYPE",
-             comment="MIME type of the BLOB"),
-        dict(name="image_rotation_deg_cw", cctype="INT",
-             comment="For images: rotation to be applied, clockwise, in "
-                     "degrees"),
-    ]
-    FIELDSPECS = FIELDSPECS_WITHOUT_BLOB + [
-        dict(name="theblob", cctype="LONGBLOB",
-             comment="The BLOB itself, a binary object containing arbitrary "
-                     "information (such as a picture)"),
-    ]
-    FIELDS_WITHOUT_BLOB = [x["name"] for x in FIELDSPECS_WITHOUT_BLOB]
-    FIELDS = [x["name"] for x in FIELDSPECS]
+    __tablename__ = "blobs"
+    id = Column(
+        "id", IntUnsigned,
+        nullable=False,
+        comment="BLOB (binary large object) primary key on the source "
+                "tablet device"
+    )
+    tablename = Column(
+        "tablename", Text,  # *** change to TableNameColType once Alembic up
+        nullable=False,
+        comment="Name of the table referring to this BLOB"
+    )
+    tablepk = Column(
+        "tablepk", IntUnsigned,
+        nullable=False,
+        comment="Primary key (id field) of the row referring to this BLOB"
+    )
+    fieldname = Column(
+        "fieldname", Text,  # *** change to TableNameColType once Alembic up
+        nullable=False,
+        comment="Field name of the field referring to this BLOB by ID"
+    )
+    filename = Column(
+        "filename", Text,  # Text is correct; filenames can be long
+        comment="Filename of the BLOB on the source tablet device (on "
+                "the source device, BLOBs are stored in files, not in "
+                "the database)"
+    )
+    mimetype = Column(
+        "mimetype", MimeTypeColType,
+        comment="MIME type of the BLOB"
+    )
+    image_rotation_deg_cw = Column(
+        "image_rotation_deg_cw", Integer,
+        comment="For images: rotation to be applied, clockwise, in degrees"
+    )
+    theblob = Column(
+        "theblob", LargeBinary,
+        comment="The BLOB itself, a binary object containing arbitrary "
+                "information (such as a picture)"
+    )
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
-        """Make associated database tables."""
-        cc_db.create_standard_table(
-            cls.TABLENAME, cls.FIELDSPECS,
-            drop_superfluous_columns=drop_superfluous_columns)
+    def get_current_blob_by_client_info(cls,
+                                        dbsession: SqlASession,
+                                        device_id: int,
+                                        clientpk: int,
+                                        era: str) -> Optional['Blob']:
+        """Returns the current Blob object, or None."""
+        blob = dbsession.query(cls)\
+            .filter(cls.id == clientpk)\
+            .filter(cls._device_id == device_id)\
+            .filter(cls._era == era)\
+            .filter(cls._current == True)\
+            .first()  # type: Optional[Blob]  # noqa
+        return blob
 
     @classmethod
-    def drop_views(cls) -> None:
-        pls.db.drop_view(cls.TABLENAME + "_current")
+    def get_contemporaneous_blob_by_client_info(
+            cls,
+            dbsession: SqlASession,
+            device_id: int,
+            clientpk: int,
+            era: str,
+            referrer_added_utc: datetime.datetime,
+            referrer_removed_utc: Optional[datetime.datetime]) \
+            -> Optional['Blob']:
+        """
+        Returns a contemporaneous Blob object, or None.
 
-    def __init__(self, serverpk: Optional[int]) -> None:
-        """Initialize, loading from the database if necessary."""
-        pls.db.fetch_object_from_db_by_pk(self, Blob.TABLENAME, Blob.FIELDS,
-                                          serverpk)
-        # self.dump()
-
-    def dump(self) -> None:
-        """Debugging option to dump the object."""
-        rnc_db.dump_database_object(self, Blob.FIELDS_WITHOUT_BLOB)
+        Use particularly to look up BLOBs matching old task records.
+        """
+        blob = dbsession.query(cls)\
+            .filter(cls.id == clientpk)\
+            .filter(cls._device_id == device_id)\
+            .filter(cls._era == era)\
+            .filter(cls._when_added_batch_utc <= referrer_added_utc)\
+            .filter(cls._when_removed_batch_utc == referrer_removed_utc)\
+            .first()  # type: Optional[Blob]
+        # Note, for referrer_removed_utc: if this is None, then the comparison
+        # "field == None" is made; otherwise "field == value".
+        # Since SQLAlchemy translates "== None" to "IS NULL", we're OK.
+        # https://stackoverflow.com/questions/37445041/sqlalchemy-how-to-filter-column-which-contains-both-null-and-integer-values  # noqa
+        return blob
 
     def get_rotated_image(self) -> Optional[bytes]:
         """Returns a binary image, having rotated if necessary, or None."""
@@ -121,8 +163,8 @@ class Blob(object):
             return self.theblob
         with wand.image.Image(blob=self.theblob) as img:
             img.rotate(rotation)
-            # return img.make_blob('png')
-            return img.make_blob()  # no parameter => return in same format as supplied  # noqa
+            return img.make_blob()
+            # ... no parameter => return in same format as supplied
 
     def get_img_html(self) -> str:
         """Returns an HTML IMG tag encoding the BLOB, or ''."""
@@ -145,56 +187,6 @@ class Blob(object):
 
 
 # =============================================================================
-# Database lookup
-# =============================================================================
-
-def get_current_blob_by_client_info(device_id: int,
-                                    clientpk: int,
-                                    era: str) -> Optional[Blob]:
-    """Returns the current Blob object, or None."""
-    serverpk = cc_db.get_current_server_pk_by_client_info(
-        Blob.TABLENAME, device_id, clientpk, era)
-    if serverpk is None:
-        log.debug("FAILED TO FIND BLOB: {}", clientpk)
-        return None
-    return Blob(serverpk)
-
-
-def get_contemporaneous_blob_by_client_info(
-        device_id: int,
-        clientpk: int,
-        era: str,
-        referrer_added_utc: datetime.datetime,
-        referrer_removed_utc: datetime.datetime) -> Optional[Blob]:
-    """Returns a contemporaneous Blob object, or None.
-
-    Use particularly to look up BLOBs matching old task records.
-    """
-    serverpk = cc_db.get_contemporaneous_server_pk_by_client_info(
-        Blob.TABLENAME, device_id, clientpk, era,
-        referrer_added_utc, referrer_removed_utc)
-    # log.critical(
-    #     "get_contemporaneous_blob_by_client_info: "
-    #     "device_id = {}, "
-    #     "clientpk = {}, "
-    #     "era = {}, "
-    #     "serverpk = {},"
-    #     "referrer_added_utc = {}, "
-    #     "referrer_removed_utc = {}",
-    #     device_id,
-    #     clientpk,
-    #     era,
-    #     serverpk,
-    #     referrer_added_utc,
-    #     referrer_removed_utc,
-    # )
-    if serverpk is None:
-        log.debug("FAILED TO FIND BLOB: {}", clientpk)
-        return None
-    return Blob(serverpk)
-
-
-# =============================================================================
 # Unit tests
 # =============================================================================
 
@@ -208,16 +200,19 @@ def unit_tests_blob(blob: Blob) -> None:
     unit_test_ignore("", blob.get_data_url)
 
 
-def ccblob_unit_tests() -> None:
+def ccblob_unit_tests(request: CamcopsRequest) -> None:
     """Unit tests for the cc_blob module."""
-    current_pks = pls.db.fetchallfirstvalues(
-        "SELECT _pk FROM {} WHERE _current".format(Blob.TABLENAME)
-    )
-    test_pks = [None, current_pks[0]] if current_pks else [None]
-    for pk in test_pks:
-        blob = Blob(pk)
+    dbsession = request.dbsession
+    # noinspection PyProtectedMember
+    blobs = dbsession.query(Blob)\
+        .filter(Blob._current == True)\
+        .all()  # noqa
+    if not blobs:
+        blobs = [Blob()]
+    for blob in blobs:
         unit_tests_blob(blob)
 
-    unit_test_ignore("", get_current_blob_by_client_info, "", 0, ERA_NOW)
-    unit_test_ignore("", get_contemporaneous_blob_by_client_info,
-                     "", 0, ERA_NOW, None, None)
+    unit_test_ignore("", Blob.get_current_blob_by_client_info,
+                     dbsession, 0, 0, ERA_NOW)
+    unit_test_ignore("", Blob.get_contemporaneous_blob_by_client_info,
+                     dbsession, 0, 0, ERA_NOW, None, None)

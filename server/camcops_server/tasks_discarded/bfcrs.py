@@ -24,10 +24,14 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import get_yes_no
-from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
+from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -55,11 +59,11 @@ class Bfcrs(Task):
             axis_max=69.5
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT",
-                 value=self.total_score(), comment="Total score"),
+            SummaryElement(name="total", coltype=Integer(),
+                           value=self.total_score(), comment="Total score"),
         ]
 
     def is_complete(self) -> bool:
@@ -87,7 +91,7 @@ class Bfcrs(Task):
                 if (option != 0 and option != 3) and q in ["q17", "q18", "q19",
                                                            "q20", "q21"]:
                     continue
-                d[option] = WSTRING("bfcrs_" + q + "_option" + str(option))
+                d[option] = self.wxstring(q + "_option" + str(option))
             answer_dicts_dict[q] = d
         h = """
             <div class="summary">
@@ -105,9 +109,9 @@ class Bfcrs(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            WSTRING("total_score"), score,
-            WSTRING("csi_num_symptoms_present"), n_csi_symptoms,
-            WSTRING("csi_catatonia_present"), get_yes_no(csi_catatonia)
+            wappstring("total_score"), score,
+            self.wxstring("num_symptoms_present"), n_csi_symptoms,
+            self.wxstring("catatonia_present"), get_yes_no(csi_catatonia)
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(

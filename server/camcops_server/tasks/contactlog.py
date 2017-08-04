@@ -31,13 +31,14 @@ from ..cc_modules.cc_constants import (
     DATEFORMAT,
     PV,
 )
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
     italic,
     get_yes_no_none,
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================

@@ -24,9 +24,14 @@
 
 from typing import List, Optional
 
+from sqlalchemy.sql.sqltypes import Integer
+
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -80,12 +85,12 @@ class Pswq(Task):
             axis_max=80.5
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total_score", cctype="INT",
-                 value=self.total_score(),
-                 comment="Total score (16-80)"),
+            SummaryElement(name="total_score", coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (16-80)"),
         ]
 
     def get_clinical_text(self) -> List[CtvInfo]:

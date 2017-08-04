@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import SubplotBase
 import numpy
 import scipy.stats  # http://docs.scipy.org/doc/scipy/reference/stats.html
+from sqlalchemy.sql.sqltypes import Float, Integer
 
 from ..cc_modules.cc_constants import (
     FULLWIDTH_PLOT_WIDTH,
@@ -44,6 +45,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
+from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Ancillary, Task
 
 
@@ -437,20 +439,24 @@ class CardinalExpectationDetection(Task):
     def is_complete(self) -> bool:
         return bool(self.finished)
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
-            dict(name="is_complete", cctype="BOOL",
-                 value=self.is_complete()),
-            dict(name="final_score", cctype="INT",
-                 value=self.get_final_score()),
-            dict(name="overall_p_detect_present", cctype="FLOAT",
-                 value=self.get_overall_p_detect_present()),
-            dict(name="overall_p_detect_absent", cctype="FLOAT",
-                 value=self.get_overall_p_detect_absent()),
-            dict(name="overall_c", cctype="FLOAT",
-                 value=self.get_overall_c()),
-            dict(name="overall_d", cctype="FLOAT",
-                 value=self.get_overall_d()),
+            self.is_complete_summary_field()
+            SummaryElement(name="final_score",
+                           coltype=Integer(),
+                           value=self.get_final_score()),
+            SummaryElement(name="overall_p_detect_present",
+                           coltype=Float(),
+                           value=self.get_overall_p_detect_present()),
+            SummaryElement(name="overall_p_detect_absent",
+                           coltype=Float(),
+                           value=self.get_overall_p_detect_absent()),
+            SummaryElement(name="overall_c",
+                           coltype=Float(),
+                           value=self.get_overall_c()),
+            SummaryElement(name="overall_d",
+                           coltype=Float(),
+                           value=self.get_overall_d()),
         ]
 
     def get_final_score(self) -> Optional[int]:

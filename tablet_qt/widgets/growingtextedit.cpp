@@ -18,7 +18,6 @@
 */
 
 #include "growingtextedit.h"
-// #include <QDebug>
 
 
 GrowingTextEdit::GrowingTextEdit(QWidget* parent) :

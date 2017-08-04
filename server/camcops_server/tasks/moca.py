@@ -24,7 +24,10 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer, String
+
 from ..cc_modules.cc_constants import PV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -35,14 +38,9 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    LabelAlignment,
-    Task,
-    TrackerInfo,
-    TrackerLabel,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import LabelAlignment, TrackerInfo, TrackerLabel  # noqa
 
 
 WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
@@ -159,13 +157,17 @@ class Moca(Task):
                                                     self.MAX_SCORE)
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT", value=self.total_score(),
-                 comment="Total score (/{})".format(self.MAX_SCORE)),
-            dict(name="category", cctype="TEXT", value=self.category(),
-                 comment="Categorization"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (/{})".format(self.MAX_SCORE)),
+            SummaryElement(name="category",
+                           coltype=String(50),
+                           value=self.category(),
+                           comment="Categorization"),
         ]
 
     def is_complete(self) -> bool:

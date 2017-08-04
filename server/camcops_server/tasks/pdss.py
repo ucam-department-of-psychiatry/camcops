@@ -25,11 +25,15 @@
 from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Float, Integer
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -76,15 +80,15 @@ class Pdss(Task):
             axis_max=28.5
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total_score", cctype="INT",
-                 value=self.total_score(),
-                 comment="Total score (/ 28)"),
-            dict(name="composite_score", cctype="FLOAT",
-                 value=self.composite_score(),
-                 comment="Composite score (/ 4)"),
+            SummaryElement(name="total_score", coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (/ 28)"),
+            SummaryElement(name="composite_score", coltype=Float(),
+                           value=self.composite_score(),
+                           comment="Composite score (/ 4)"),
         ]
 
     def get_clinical_text(self) -> List[CtvInfo]:

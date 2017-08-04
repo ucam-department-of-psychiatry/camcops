@@ -3,26 +3,44 @@
 KNOWN PROBLEMS
 ===============================================================================
 
-ANY PLATFORM
+ANY PLATFORM: TRICKY/OTHER PEOPLE'S BUGS
 
 -   It seems likely that QLabel::heightForWidth() sometimes gets heights wrong
     for some stylesheets, leading to excessive vertical height. See
     labelwordwrapwide.cpp (and to see the problem: try the demo QuMcqGrid).
     ... I think I've largely compensated for this, though.
 
+-   The spinbox numerical entry fields are weak in terms of NULL values.
+    This is an intrinsic weakness in QSpinBox and QDoubleSpinBox that works
+    like this:
+    - if you send a null value to a QSpinBox, it'll typically show its minimum
+      value; for example, for the range 5-10, if you send it 0, it'll show 5.
+    - If you then delete the "5" and retype "5", it doesn't generate any
+      "changed" signals, either via its string or its integer signals.
+      Therefore, this change isn't detected by the QuSpinBoxInteger or
+      QuSpinBoxDouble framework. You have to delete it, replace it with
+      something else, and re-enter it, for the change to be noticed and they
+      yellow NULL indicator to disappear.
+    There's no clear way round this, except that QuLineEditInteger and
+    QuLineEditDouble do a better job.
+
 ANDROID
 
 -   Occasionally, copy/paste selection cursors appear on screen, far removed
-    from the text they relate to. This is presumably a Qt bug.
+    from the text they relate to. This is a Qt bug:
+    - https://bugreports.qt.io/browse/QTBUG-58503
     Related Qt bugs:
     - https://bugreports.qt.io/browse/QTBUG-34867
     - https://bugreports.qt.io/browse/QTBUG-58700
 
--   Camera functions are slow.
+-   Also potentially related to this: when LogBox or LogMessageBox are used
+    with word_wrap = true on Android, the touch-to-scroll goes wrong.
+    These classes use a QPlainTextEdit.
 
--   There is no camera preview (viewfinder).
-    Known Qt problem: https://bugreports.qt.io/browse/QTBUG-53194
-    ... effectively: "unsupported; use QVideoProbe or QAbstractVideoSurface"
-    Possible solutions:
-    - http://omg-it.works/how-to-grab-video-frames-directly-from-qcamera/
-    - http://developers-club.com/posts/254625/
+-   The arrow markers for the diagnostic trees don't scale with DPI.
+    See discussion in diagnosticcodeselector.cpp; the problem is that it's not
+    obvious how to set them programmatically. In fact, this is very hard
+    indeed; see also my attempts in TreeViewProxyStyle and
+    TreeViewControlDelegate, neither of which can make the changes where
+    they're needed. Reported as a bug:
+    - https://bugreports.qt.io/browse/QTBUG-62323

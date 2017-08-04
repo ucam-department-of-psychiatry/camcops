@@ -159,7 +159,8 @@ from pyramid.view import view_config
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import DateTime, Integer, String
 from wsgiref.simple_server import make_server
@@ -396,7 +397,7 @@ def html_a(url: str, text: str) -> str:
 
 
 @view_config(route_name=Routes.HOME.route)
-def home_view(request: Request) -> Response:
+def home_view(request: CamcopsRequest) -> Response:
     cfg = get_config()  # type: DummyConfig
     task = TASKNAME_1
     stringname = STRINGNAME_2
@@ -430,8 +431,8 @@ def home_view(request: Request) -> Response:
 
 
 @view_config(route_name=Routes.OTHER.route)
-def other_view(request: Request) -> Response:
-    session = request.dbsession  # type: Session
+def other_view(request: CamcopsRequest) -> Response:
+    dbsession = request.dbsession
     lines = [
         "All well. Go <a href='{url_home}'>home</a>?".format(
             url_home=request.route_url(Routes.HOME.route),
@@ -444,7 +445,7 @@ def other_view(request: Request) -> Response:
             repr(request.camcops_session.token)),
     ]
     sql = "DESCRIBE information_schema.columns"
-    result = session.execute(sql)
+    result = dbsession.execute(sql)
     lines.append("Result of SQL " + repr(sql) + ":")
     lines.append(html.escape(repr(result)))
     for row in result:
@@ -453,7 +454,7 @@ def other_view(request: Request) -> Response:
 
 
 @view_config(route_name=Routes.VIEW_WITH_PARAMS.route)
-def view_with_params(request: Request) -> Response:
+def view_with_params(request: CamcopsRequest) -> Response:
     pk = int(request.matchdict[ViewParams.PK])
     patient_id = int(request.matchdict[ViewParams.PATIENT_ID])
     get = request.GET
@@ -465,31 +466,31 @@ def view_with_params(request: Request) -> Response:
 # Database stuff
 # =============================================================================
 
-def dbsession_request_method(request: Request) -> Session:
+def dbsession_request_method(request: CamcopsRequest) -> SqlASession:
     """
     This is very elegant. The function gets plumbed in to the Request object
     by:
         config.add_request_method(dbsession, reify=True).
     when the WSGI app is being made. Then, if and only if a view wants a
     database, it can say
-        session = request.dbsession
+        dbsession = request.dbsession
     and if it requests that, the cleanup callbacks get installed.
     """
     maker = request.registry.dbmaker
     log.info("Making SQLAlchemy session")
-    session = maker()  # type: Session
+    dbsession = maker()  # type: SqlASession
 
     def end_sqlalchemy_session(req: Request) -> None:
         if req.exception is not None:
-            session.rollback()
+            dbsession.rollback()
         else:
-            session.commit()
+            dbsession.commit()
         log.info("Closing SQLAlchemy session")
-        session.close()
+        dbsession.close()
 
     request.add_finished_callback(end_sqlalchemy_session)
 
-    return session
+    return dbsession
 
 
 # =============================================================================
@@ -497,11 +498,11 @@ def dbsession_request_method(request: Request) -> Session:
 # =============================================================================
 
 # noinspection PyUnusedLocal
-def now_arrow_request_method(request: Request) -> arrow.Arrow:
+def now_arrow_request_method(request: CamcopsRequest) -> arrow.Arrow:
     return arrow.now()
 
 
-def now_utc_request_method(request: Request) -> datetime.datetime:
+def now_utc_request_method(request: CamcopsRequest) -> datetime.datetime:
     a = request.now_arrow  # type: arrow.Arrow
     return a.to('utc').datetime
 
@@ -559,8 +560,8 @@ class CamcopsHttpSession(Base):
         self.last_activity_utc = last_activity_utc
 
     @classmethod
-    def get_http_session(cls, request: Request) -> 'CamcopsHttpSession':
-        sqla_session = request.dbsession  # type: Session
+    def get_http_session(cls, request: CamcopsRequest) -> 'CamcopsHttpSession':
+        dbsession = request.dbsession
         pyramid_session = request.session  # type: ISession
         try:
             session_id = int(pyramid_session.get(CookieKeys.SESSION_ID, None))
@@ -572,7 +573,7 @@ class CamcopsHttpSession(Base):
         if session_id and session_token:
             cfg = get_config()  # type: DummyConfig
             oldest_last_activity_allowed = now - cfg.session_expiry_duration
-            candidate = sqla_session.query(cls).\
+            candidate = dbsession.query(cls).\
                 filter(cls.id == session_id).\
                 filter(cls.token == session_token).\
                 filter(cls.ip_address == ip_addr).\
@@ -590,8 +591,8 @@ class CamcopsHttpSession(Base):
         else:
             log.debug("Creating new session")
             new_http_session = cls(ip_addr=ip_addr, last_activity_utc=now)
-            sqla_session.add(new_http_session)
-            sqla_session.flush()  # sets the PK for new_http_session
+            dbsession.add(new_http_session)
+            dbsession.flush()  # sets the PK for new_http_session
             # Write the details back to the Pyramid session (will be persisted
             # via the Response automatically):
             pyramid_session[CookieKeys.SESSION_ID] = str(new_http_session.id)
@@ -605,11 +606,10 @@ def http_session_tween_factory(
         registry: Registry) -> Callable[[Request], Response]:
     cfg = get_config()  # type: DummyConfig
 
-    def http_session_tween(request: Request) -> Response:
+    def http_session_tween(request: CamcopsRequest) -> Response:
         log.debug("Starting http_session_tween")
         request.camcops_session = CamcopsHttpSession.get_http_session(request)
         response = handler(request)
-        # request.camcops_session.set_response_cookies(response, cfg)
         log.debug("Ending http_session_tween")
         return response
 
@@ -727,7 +727,7 @@ def session_context():
     cfg = get_config()  # type: DummyConfig
     engine = cfg.create_engine()
     maker = sessionmaker(bind=engine)
-    session = maker()  # type: Session
+    session = maker()  # type: SqlASession
     # noinspection PyUnusedLocal,PyBroadException
     try:
         yield session
@@ -743,7 +743,7 @@ def session_context():
 
 
 def make_tables() -> None:
-    with session_context() as session:  # type: Session
+    with session_context() as session:  # type: SqlASession
         engine = session.get_bind()  # type: Engine
         # ... get_bind() returns an Engine (or None) unless explicitly bound
         #     to a Connection; see its definition

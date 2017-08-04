@@ -25,15 +25,31 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.sql.schema import Column, ForeignKey
+from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
 
 from .cc_constants import (
     DATEFORMAT,
     ERA_NOW,
     ISO8601_STRING_LENGTH,
 )
+from .cc_config import pls
 from . import cc_db
 from .cc_dt import format_datetime
-from .cc_pls import pls
+from .cc_request import CamcopsRequest
+from .cc_sqla_coltypes import (
+    BigIntUnsigned,
+    DateTimeAsIsoTextColType,
+    EraColType,
+    HostnameColType,
+    IntUnsigned,
+    LongText,
+    SendingFormatColType,
+    TableNameColType,
+)
+from .cc_sqlalchemy import Base, get_orm_column_names
 from .cc_user import get_username_from_id
 from .cc_xml import make_xml_branches_from_fieldspecs, XmlElement
 
@@ -45,53 +61,72 @@ from .cc_xml import make_xml_branches_from_fieldspecs, XmlElement
 SPECIALNOTE_FWD_REF = "SpecialNote"
 
 
-class SpecialNote(object):
+class SpecialNote(Base):
     """Represents a special note, attached server-side to a task.
 
     'Task' means all records representing versions of a single task instance,
     identified by the combination of {id, device, era}.
     """
-    TABLENAME = "_special_notes"
-    FIELDSPECS = [
-        # PK
-        dict(name="note_id", cctype="INT_UNSIGNED", pk=True,
-             autoincrement=True, comment="Arbitrary primary key"),
-        # Composite FK
-        dict(name="basetable", cctype="TABLENAME", indexed=True,
-             comment="Base table of task concerned (part of FK)"),
-        dict(name="task_id", cctype="INT_UNSIGNED", indexed=True,
-             comment="Client-side ID of the task concerned (part of FK)"),
-        dict(name="device_id", cctype="INT_UNSIGNED", indexed=True,
-             comment="Source tablet device (part of FK)"),
-        dict(name="era", cctype="ISO8601", indexed=True,
-             index_nchar=ISO8601_STRING_LENGTH,
-             comment="Era (part of FK)"),
-        # Details of note
-        dict(name="note_at", cctype="ISO8601",
-             comment="Date/time of note entry (ISO 8601)"),
-        dict(name="user_id", cctype="INT_UNSIGNED",
-             comment="User that entered this note"),
-        dict(name="note", cctype="TEXT",
-             comment="Special note, added manually"),
-    ]
-    FIELDS = [x["name"] for x in FIELDSPECS]
+    __tablename__ = "_special_notes"
+
+    # PK:
+    note_id = Column(
+        "note_id", IntUnsigned,
+        primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+    # Composite FK:
+    basetable = Column(
+        "basetable", TableNameColType,
+        index=True,
+        comment="Base table of task concerned (part of FK)"
+    )
+    task_or_patient_id = Column(
+        "task_id", IntUnsigned,
+        index=True,
+        comment="Client-side ID of the task, or patient, concerned "
+                "(part of FK)"
+    )
+    device_id = Column(
+        "device_id", IntUnsigned,
+        index=True,
+        comment="Source tablet device (part of FK)"
+    )
+    era = Column(
+        "era", EraColType,
+        index=True,
+        comment="Era (part of FK)"
+    )
+    # Details of note
+    note_at = Column(
+        "note_at", DateTimeAsIsoTextColType,
+        comment="Date/time of note entry (ISO 8601)"
+    )
+    user_id = Column(
+        "user_id", IntUnsigned, ForeignKey("_security_users.id"),
+        comment="User that entered this note"
+    )
+    user = relationship("User")
+    note = Column(
+        "note", Text,
+        comment="Special note, added manually"
+    )
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
-        """Create underlying database tables."""
-        cc_db.create_or_update_table(
-            cls.TABLENAME, cls.FIELDSPECS,
-            drop_superfluous_columns=drop_superfluous_columns)
-
-    def __init__(self, note_id: int = None) -> None:
-        """Initializes, reading from database if necessary."""
-        pls.db.fetch_object_from_db_by_pk(self, SpecialNote.TABLENAME,
-                                          SpecialNote.FIELDS, note_id)
-
-    def save(self) -> None:
-        """Saves note to database. """
-        pls.db.save_object_to_db(self, self.TABLENAME, self.FIELDS,
-                                 self.note_id is None)
+    def get_all_instances(cls,
+                          dbsession: SqlASession,
+                          basetable: str,
+                          task_or_patient_id: int,
+                          device_id: int,
+                          era: str) -> List[SPECIALNOTE_FWD_REF]:
+        """Return all SpecialNote objects applicable to a task (or patient)."""
+        q = dbsession.query(SpecialNote)
+        q = q.filter(SpecialNote.basetable == basetable)
+        q = q.filter(SpecialNote.task_or_patient_id == task_or_patient_id)
+        q = q.filter(SpecialNote._device_id == device_id)
+        q = q.filter(SpecialNote._era == era)
+        special_notes = q.fetchall()  # type: List[SpecialNote]
+        return special_notes
 
     def get_note_as_string(self) -> str:
         """Return a string-formatted version of the note."""
@@ -110,44 +145,31 @@ class SpecialNote(object):
         )
 
     def get_username(self) -> Optional[str]:
-        return get_username_from_id(self.user_id)
+        if self.user is None:
+            return None
+        return self.user.username
 
     def get_xml_root(self, skip_fields: List[str] = None) -> XmlElement:
         """Get root of XML tree, as an XmlElementTuple."""
         skip_fields = skip_fields or []
         branches = make_xml_branches_from_fieldspecs(
-            self, self.FIELDSPECS, skip_fields=skip_fields)
+            self, skip_fields=skip_fields)
         return XmlElement(name=self.TABLENAME, value=branches)
 
     @classmethod
-    def get_all_instances(cls,
-                          basetable: str,
-                          task_id: int,
-                          device_id: int,
-                          era: str) -> List[SPECIALNOTE_FWD_REF]:
-        """Return all SpecialNote objects applicable to a task."""
-        wheredict = dict(
-            basetable=basetable,
-            task_id=task_id,
-            device_id=device_id,
-            era=era
-        )
-        return pls.db.fetch_all_objects_from_db_where(
-            SpecialNote, SpecialNote.TABLENAME, SpecialNote.FIELDS,
-            True, wheredict)
+    def forcibly_preserve_special_notes(cls, request: CamcopsRequest,
+                                        device_id: int) -> None:
+        """
+        WRITES TO DATABASE.
 
-
-def forcibly_preserve_special_notes(device_id: int) -> None:
-    """WRITES TO DATABASE."""
-    new_era = format_datetime(pls.NOW_UTC_NO_TZ, DATEFORMAT.ERA)
-    query = """
-        UPDATE  {table}
-        SET     era = ?
-        WHERE   device_id = ?
-        AND     era = '{now}'
-    """.format(table=SpecialNote.TABLENAME, now=ERA_NOW)
-    args = [
-        new_era,
-        device_id
-    ]
-    pls.db.db_exec(query, *args)
+        We could do an UPDATE, or something involving the ORM more. See also
+        http://docs.sqlalchemy.org/en/latest/orm/persistence_techniques.html
+        """
+        dbsession = request.dbsession
+        new_era = format_datetime(pls.NOW_UTC_NO_TZ, DATEFORMAT.ERA)
+        notes = dbsession.query(cls)\
+            .filter(cls._device_id == device_id)\
+            .filter(cls._era == ERA_NOW)\
+            .all()
+        for note in notes:
+            note._era = new_era

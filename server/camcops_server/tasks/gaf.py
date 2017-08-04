@@ -25,9 +25,12 @@
 from typing import List, Optional
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -69,7 +72,7 @@ class Gaf(Task):
             return CTV_INCOMPLETE
         return [CtvInfo(content="GAF score {}".format(self.total_score()))]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [self.is_complete_summary_field()]
 
     def total_score(self) -> Optional[int]:

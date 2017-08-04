@@ -33,6 +33,7 @@ from ..cc_modules.cc_constants import (
     PARAM,
     PV,
 )
+from ..cc_modules.cc_ctvinfo import CtvInfo
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no_none,
@@ -47,9 +48,9 @@ from ..cc_modules.cc_nhs import (
     PV_NHS_ETHNIC_CATEGORY,
     PV_NHS_MARITAL_STATUS
 )
-from ..cc_modules.cc_pls import pls
+from ..cc_modules.cc_config import pls
 from ..cc_modules.cc_report import Report, ReportParamSpec, REPORT_RESULT_TYPE
-from ..cc_modules.cc_task import CtvInfo, Task
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================

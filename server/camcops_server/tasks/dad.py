@@ -24,12 +24,15 @@
 
 from typing import Dict, Iterable, List, Tuple
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_html import (
     answer,
     subheading_spanning_two_columns,
     tr,
 )
+from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task
 
 YES = 1
@@ -122,15 +125,19 @@ class Dad(Task):
             comment=item + explan,
         ))
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         d = self.get_score_dict()
         s = [self.is_complete_summary_field()]
         for item in d:
             s.extend([
-                dict(name=item + "_n", cctype="INT",
-                     value=d[item][0], comment=item + " (numerator)"),
-                dict(name=item + "_d", cctype="INT",
-                     value=d[item][1], comment=item + " (denominator)"),
+                SummaryElement(name=item + "_n",
+                               coltype=Integer(),
+                               value=d[item][0],
+                               comment=item + " (numerator)"),
+                SummaryElement(name=item + "_d",
+                               coltype=Integer(),
+                               value=d[item][1],
+                               comment=item + " (denominator)"),
             ])
         return s
 

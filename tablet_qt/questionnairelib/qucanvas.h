@@ -63,7 +63,6 @@ protected:
     virtual FieldRefPtrList fieldrefs() const override;
     virtual void closing() override;
     void resetWidget();
-    QSize canvasSize(const QSize& image_size) const;
 protected slots:
     void fieldValueChanged(const FieldRef* fieldref,
                            const QObject* originator);
@@ -75,7 +74,7 @@ protected:
     QSize m_size;
     bool m_allow_shrink;
     QImage::Format m_format;
-    bool m_adjust_for_dpi;
+    bool m_adjust_display_for_dpi;
     QColor m_background_colour;
     int m_border_width_px;
     QColor m_border_colour;

@@ -150,6 +150,11 @@ def mysql_unknown_field_to_utcdatetime(x):
 
 class DateTimeAsIsoText(TypeDecorator):
     """Stores date/time values as ISO-8601."""
+
+    @property
+    def python_type(self):
+        pass
+
     impl = sqlalchemy.types.String(32)  # underlying SQL type
 
     def process_bind_param(self, value, dialect):

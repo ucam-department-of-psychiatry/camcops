@@ -73,7 +73,9 @@ int main(int argc, char* argv[])
         created. See https://bugreports.qt.io/browse/QTBUG-45517
     */
 
-    QApplication::setStyle(QStyleFactory::create("Fusion"));
+    QStyle* style = QStyleFactory::create("Fusion");
+    // QProxyStyle* proxy_style = new TreeViewProxyStyle(style);
+    QApplication::setStyle(style);
     // ... https://stackoverflow.com/questions/41184723/i-want-qt-app-to-look-like-qt-app-rather-than-android-native
 
 #ifdef DISABLE_ANDROID_NATIVE_DIALOGS

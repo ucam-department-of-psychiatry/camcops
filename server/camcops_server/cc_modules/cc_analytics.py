@@ -22,12 +22,15 @@
 ===============================================================================
 """
 
+from arrow import Arrow
 import datetime
 import logging
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import List, Tuple
+from typing import List, Tuple, TYPE_CHECKING
+
+from sqlalchemy.orm import Session as SqlASession
 
 from .cc_constants import DATEFORMAT
 from .cc_dt import (
@@ -35,10 +38,14 @@ from .cc_dt import (
     get_datetime_from_string,
 )
 from .cc_logger import BraceStyleAdapter
-from .cc_pls import pls
-from .cc_storedvar import ServerStoredVar
+from .cc_request import CamcopsRequest
+from .cc_sqlalchemy import count_star, get_engine_from_session, get_table_names
+from .cc_storedvar import ServerStoredVar, ServerStoredVarNames, StoredVarTypes
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION
+
+if TYPE_CHECKING:
+    from .cc_config import CamcopsConfig
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -54,38 +61,42 @@ ANALYTICS_TIMEOUT_MS = 5000
 ANALYTICS_PERIOD = datetime.timedelta(days=ANALYTICS_FREQUENCY_DAYS)
 
 
-def send_analytics_if_necessary() -> None:
+def send_analytics_if_necessary(request: CamcopsRequest) -> None:
     """Send analytics to the CamCOPS base server, if required.
 
     If analytics reporting is enabled, and analytics have not been sent
     recently, collate and send them to the CamCOPS base server in Cambridge,
     UK.
     """
-    if not pls.SEND_ANALYTICS:
+    cfg = request.config
+    now = request.now_arrow
+    if not cfg.SEND_ANALYTICS:
         # User has disabled analytics reporting.
         return
-    last_sent_var = ServerStoredVar("lastAnalyticsSentAt",
-                                    ServerStoredVar.TYPE_TEXT,
-                                    None)
+    dbsession = request.dbsession
+    last_sent_var = ServerStoredVar.get_or_create(
+        dbsession,
+        ServerStoredVarNames.LAST_ANALYTICS_SENT_AT,
+        StoredVarTypes.TYPE_TEXT,
+        None)
     last_sent_val = last_sent_var.get_value()
     if last_sent_val:
-        elapsed = pls.NOW_UTC_WITH_TZ - get_datetime_from_string(
-            last_sent_val)
+        elapsed = now - get_datetime_from_string(last_sent_val)
         if elapsed < ANALYTICS_PERIOD:
             # We sent analytics recently.
             return
 
     # Compile analytics
-    now_as_utc_iso_string = format_datetime(pls.NOW_UTC_WITH_TZ,
-                                            DATEFORMAT.ISO8601)
-    (table_names, record_counts) = get_all_tables_with_record_counts()
+    now_as_utc_iso_string = format_datetime(now, DATEFORMAT.ISO8601)
+    dbsession = request.dbsession
+    (table_names, record_counts) = get_all_tables_with_record_counts(dbsession)
 
     # This is what's sent:
     d = {
         "source": "server",
         "now": now_as_utc_iso_string,
         "camcops_version": str(CAMCOPS_SERVER_VERSION),
-        "server": pls.SERVER_NAME,
+        "server": request.server_name,
         "table_names": ",".join(table_names),
         "record_counts": ",".join([str(x) for x in record_counts]),
     }
@@ -110,23 +121,25 @@ def send_analytics_if_necessary() -> None:
     last_sent_var.set_value(now_as_utc_iso_string)
 
 
-def get_all_tables_with_record_counts() -> Tuple[List[str], List[int]]:
-    """Returns all database table names ad their associated record counts.
+def get_all_tables_with_record_counts(dbsession: SqlASession) \
+        -> Tuple[List[str], List[int]]:
+    """
+    Returns all database table names ad their associated record counts.
 
     Returns a tuple (table_names, record_counts); the first element is a
     list of table names, and the second is a list of associated record counts.
     """
-    table_names = pls.db.get_all_table_names()
+    engine = get_engine_from_session(dbsession)
+    table_names = get_table_names(engine)
     record_counts = []
-    for table in table_names:
-        # column_names = pls.db.fetch_column_names(table)
-        # No need to distinguish current/non-current, since the "*_current"
-        # views do that already.
-        record_counts.append(pls.db.count_where(table))  # count all records
+    for tablename in table_names:
+        # Doesn't distinguish current/noncurrent; counts all records
+        record_counts.append(count_star(engine, tablename))
     return table_names, record_counts
 
 
-def ccanalytics_unit_tests() -> None:
+def ccanalytics_unit_tests(request: CamcopsRequest) -> None:
     """Unit tests for the cc_analytics module."""
-    unit_test_ignore("", send_analytics_if_necessary)
-    unit_test_ignore("", get_all_tables_with_record_counts)
+    dbsession = request.dbsession
+    unit_test_ignore("", send_analytics_if_necessary, request)
+    unit_test_ignore("", get_all_tables_with_record_counts, dbsession)

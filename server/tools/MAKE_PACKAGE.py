@@ -40,7 +40,7 @@ import string
 import subprocess
 import sys
 import tempfile
-from typing import List
+from typing import Any, Callable, List
 
 from camcops_server.cc_modules.cc_logger import main_only_quicksetup_rootlogger
 from camcops_server.cc_modules.cc_version_string import (
@@ -80,13 +80,13 @@ URLBASE = 'camcops'
 WEBVIEWSCRIPT = 'webview'
 TABLETSCRIPT = 'database'
 DEFAULT_DB_NAME = 'camcops'
-DEFAULT_DB_USER = 'YYYYYY_REPLACE_ME'
-DEFAULT_DB_PASSWORD = 'ZZZZZZ_REPLACE_ME'
-DEFAULT_DB_READONLY_USER = 'QQQQQQ_REPLACE_ME'
-DEFAULT_DB_READONLY_PASSWORD = 'PPPPPP_REPLACE_ME'
+DEFAULT_DB_USER = 'YYY_USERNAME_REPLACE_ME'
+DEFAULT_DB_PASSWORD = 'ZZZ_PASSWORD_REPLACE_ME'
+DEFAULT_DB_READONLY_USER = 'QQQ_USERNAME_REPLACE_ME'
+DEFAULT_DB_READONLY_PASSWORD = 'PPP_PASSWORD_REPLACE_ME'
 DEFAULT_ANONSTAG_DB_NAME = 'anon_staging_camcops'
-DEFAULT_ANONSTAG_DB_USER = 'UUUUUU_REPLACE_ME'
-DEFAULT_ANONSTAG_DB_PASSWORD = 'WWWWWW_REPLACE_ME'
+DEFAULT_ANONSTAG_DB_USER = 'UUU_USERNAME_REPLACE_ME'
+DEFAULT_ANONSTAG_DB_PASSWORD = 'WWW_PASSWORD_REPLACE_ME'
 
 DEFAULT_GUNICORN_PORT = 8006
 DEFAULT_GUNICORN_SOCKET = '/tmp/.camcops_gunicorn.sock'
@@ -170,9 +170,9 @@ def write_zipped_text(basefilename: str, text: str) -> None:
                 tw.write(text)
 
 
-def preserve_cwd(func):
+def preserve_cwd(func: Callable) -> Callable:
     # http://stackoverflow.com/questions/169070/python-how-do-i-write-a-decorator-that-restores-the-cwd  # noqa
-    def decorator(*args_, **kwargs):
+    def decorator(*args_, **kwargs) -> Any:
         cwd = os.getcwd()
         result = func(*args_, **kwargs)
         os.chdir(cwd)
@@ -657,24 +657,27 @@ write_text(WRKCONFIGFILE, string.Template("""
 # Database connection/tools
 # -----------------------------------------------------------------------------
 
-# DB_NAME: MySQL database name.
-# If you didn't call the database 'DEFAULT_DB_NAME}', edit the next line:
+# DB_URL: SQLAlchemy connection URL.
+# See http://docs.sqlalchemy.org/en/latest/core/engines.html
+# Examples:
+# - MySQL under Linux via mysqlclient
+#   $ pip install mysqlclient
+#   DB_URL = mysql+mysqldb://<username>:<password>@<host>:<port>/<database>?charset=utf8
+#
+#   (The default MySQL port is 3306, and 'localhost' is often the right host.)
+#
+# - SQL Server under Windows via ODBC and username/password authentication
+#   C:\> pip install pyodbc
+#   DB_URL = mssql+pyodbc://<username>:<password>@<odbc_dsn_name>
+#
+# - ... or via Windows authentication: 
+#   DB_URL = mssql+pyodbc://@<odbc_dsn_name>
 
-DB_NAME = $DEFAULT_DB_NAME
+DB_URL = mysql+mysqldb://${DEFAULT_DB_USER}:P${DEFAULT_DB_PASSWORD}@localhost:3306/${DEFAULT_DB_NAME}?charset=utf8
 
-# DB_USER: MySQL database username.
-# DB_PASSWORD: MySQL database password.
-# Edit the next two lines:
+# DB_ECHO: echo all SQL?
 
-DB_USER = $DEFAULT_DB_USER
-DB_PASSWORD = $DEFAULT_DB_PASSWORD
-
-# DB_SERVER: MySQL database server (default: localhost).
-# DB_PORT: MySQL database port (default: 3306).
-# These values are unlikely to need modification:
-
-DB_SERVER = localhost
-DB_PORT = 3306
+DB_ECHO = False
 
 # MYSQL: Specify the full path to the mysql executable, by default
 # /usr/bin/mysql (used for data dumps for privileged users).
@@ -970,12 +973,6 @@ CTV_FILENAME_SPEC = CamCOPS_{patient}_{now}_clinicaltextview.{filetype}
 # Apache server log. (Loglevel option; see above.)
 
 WEBVIEW_LOGLEVEL = info
-
-# DBENGINE_LOGLEVEL: Set the level of detail provided from the underlying
-# database transaction handler to the Apache server log. More of a security
-# risk than WEBVIEW_DEBUG_OUTPUT. (Loglevel option; see above.)
-
-DBENGINE_LOGLEVEL = info
 
 # DBCLIENT_LOGLEVEL: Set the log level for the tablet client database access
 # script. (Loglevel option; see above.)

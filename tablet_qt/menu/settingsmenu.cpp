@@ -237,8 +237,8 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
     FieldRefPtr storepw_fr = app.storedVarFieldRef(varconst::STORE_SERVER_PASSWORD);
     const QString storepw_t = tr("Store user’s server password?");
     const QString storepw_h = tr(
-                "NO = fractionally more secure, YES = more convenient/"
-                "fractionally less secure (but still AES-256-encrypted).");
+                "NO = fractionally more secure; YES = more convenient/"
+                "fractionally less secure, but still AES-256-encrypted.");
 
 #ifdef ALLOW_SEND_ANALYTICS
     FieldRefPtr analytics_fr = app.storedVarFieldRef(varconst::SEND_ANALYTICS);
@@ -341,6 +341,12 @@ OpenableWidget* SettingsMenu::configureIntellectualProperty(CamcopsApp& app)
 {
     app.clearCachedVars();  // ... in case any are left over
 
+    const QString label_ip_reason = tr(
+        "The settings here influence whether CamCOPS will consider some "
+        "third-party tasks “permitted” on your behalf, according to their "
+        "published use criteria. They do <b>not</b> remove your "
+        "responsibility to ensure that you use them in accordance with their "
+        "own requirements.");
     const QString label_ip_warning = tr(
         "WARNING. Providing incorrect information here may lead to you "
         "VIOLATING copyright law, by using a task for a purpose that is not "
@@ -364,6 +370,7 @@ OpenableWidget* SettingsMenu::configureIntellectualProperty(CamcopsApp& app)
     // likely to do with FlowLayout (which is Qt code).
     // Probably fixed now; anyway, this is fine.
     QuPagePtr page(new QuPage{
+        new QuText(label_ip_reason),
         (new QuText(label_ip_warning))->setBold(true),
         (new QuText(label_ip_disclaimer))->setItalic(true),
         new QuText(label_ip_preamble),

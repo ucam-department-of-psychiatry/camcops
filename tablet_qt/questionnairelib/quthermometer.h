@@ -41,7 +41,8 @@ public:
                   const QVector<QuThermometerItem>& items);
     QuThermometer(FieldRefPtr fieldref,
                   std::initializer_list<QuThermometerItem> items);
-    QuThermometer* setRescale(bool rescale, double rescale_factor);
+    QuThermometer* setRescale(bool rescale, double rescale_factor,
+                              bool adjust_for_dpi = true);
 protected:
     void commonConstructor();
     void setFromField();

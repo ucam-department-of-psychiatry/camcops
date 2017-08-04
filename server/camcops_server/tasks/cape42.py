@@ -25,10 +25,13 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Float, Integer
 
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr
-from ..cc_modules.cc_task import Task, TrackerInfo
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -173,97 +176,97 @@ class Cape42(Task):
             ),
         ]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         wtr = " ({low}-{high})".format(
             low=MIN_SCORE_PER_Q,
             high=MAX_SCORE_PER_Q)
         return [
             self.is_complete_summary_field(),
-            dict(
-                name="all_freq", cctype="INT",
+            SummaryElement(
+                name="all_freq", coltype=Integer(),
                 value=self.frequency_score(ALL),
                 comment=(
                     "Total score = frequency score for all questions "
                     "({low}-{high})".format(low=ALL_MIN, high=ALL_MAX))),
-            dict(
-                name="all_distress", cctype="INT",
+            SummaryElement(
+                name="all_distress", coltype=Integer(),
                 value=self.distress_score(ALL),
                 comment=(
                     "Distress score for all questions "
                     "({low}-{high})".format(low=ALL_MIN, high=ALL_MAX))),
 
-            dict(
-                name="positive_frequency", cctype="INT",
+            SummaryElement(
+                name="positive_frequency", coltype=Integer(),
                 value=self.frequency_score(POSITIVE),
                 comment=(
                     "Frequency score for positive symptom questions "
                     "({low}-{high})".format(low=POS_MIN, high=POS_MAX))),
-            dict(
-                name="positive_distress", cctype="INT",
+            SummaryElement(
+                name="positive_distress", coltype=Integer(),
                 value=self.distress_score(POSITIVE),
                 comment=(
                     "Distress score for positive symptom questions "
                     "({low}-{high})".format(low=POS_MIN, high=POS_MAX))),
 
-            dict(
-                name="negative_frequency", cctype="INT",
+            SummaryElement(
+                name="negative_frequency", coltype=Integer(),
                 value=self.frequency_score(NEGATIVE),
                 comment=(
                     "Frequency score for negative symptom questions "
                     "({low}-{high})".format(low=NEG_MIN, high=NEG_MAX))),
-            dict(
-                name="negative_distress", cctype="INT",
+            SummaryElement(
+                name="negative_distress", coltype=Integer(),
                 value=self.distress_score(NEGATIVE),
                 comment=(
                     "Distress score for negative symptom questions "
                     "({low}-{high})".format(low=NEG_MIN, high=NEG_MAX))),
 
-            dict(
-                name="depressive_frequency", cctype="INT",
+            SummaryElement(
+                name="depressive_frequency", coltype=Integer(),
                 value=self.frequency_score(DEPRESSIVE),
                 comment=(
                     "Frequency score for depressive symptom questions "
                     "({low}-{high})".format(low=DEP_MIN, high=DEP_MAX))),
-            dict(
-                name="depressive_distress", cctype="INT",
+            SummaryElement(
+                name="depressive_distress", coltype=Integer(),
                 value=self.distress_score(DEPRESSIVE),
                 comment=(
                     "Distress score for depressive symptom questions "
                     "({low}-{high})".format(low=DEP_MIN, high=DEP_MAX))),
 
-            dict(
-                name="wt_all_freq", cctype="FLOAT",
+            SummaryElement(
+                name="wt_all_freq", coltype=Float(),
                 value=self.weighted_frequency_score(ALL),
                 comment="Weighted frequency score: overall" + wtr),
-            dict(
-                name="wt_all_distress", cctype="FLOAT",
+            SummaryElement(
+                name="wt_all_distress", coltype=Float(),
                 value=self.weighted_distress_score(ALL),
                 comment="Weighted distress score: overall" + wtr),
 
-            dict(
-                name="wt_pos_freq", cctype="FLOAT",
+            SummaryElement(
+                name="wt_pos_freq", coltype=Float(),
                 value=self.weighted_frequency_score(POSITIVE),
                 comment="Weighted frequency score: positive symptoms" + wtr),
-            dict(
-                name="wt_pos_distress", cctype="FLOAT",
+            SummaryElement(
+                name="wt_pos_distress", coltype=Float(),
                 value=self.weighted_distress_score(POSITIVE),
                 comment="Weighted distress score: positive symptoms" + wtr),
 
-            dict(
-                name="wt_neg_freq", cctype="FLOAT",
+            SummaryElement(
+                name="wt_neg_freq", coltype=Float(),
                 value=self.weighted_frequency_score(NEGATIVE),
                 comment="Weighted frequency score: negative symptoms" + wtr),
-            dict(
-                name="wt_neg_distress", cctype="FLOAT",
+            SummaryElement(
+                name="wt_neg_distress", coltype=Float(),
                 value=self.weighted_distress_score(NEGATIVE),
                 comment="Weighted distress score: negative symptoms" + wtr),
 
-            dict(
-                name="wt_dep_freq", cctype="FLOAT",
+            SummaryElement(
+                name="wt_dep_freq", coltype=Float(),
                 value=self.weighted_frequency_score(DEPRESSIVE),
                 comment="Weighted frequency score: depressive symptoms" + wtr),
-            dict(
-                name="wt_dep_distress", cctype="FLOAT",
+            SummaryElement(
+                name="wt_dep_distress", coltype=Float(),
                 value=self.weighted_distress_score(DEPRESSIVE),
                 comment="Weighted distress score: depressive symptoms" + wtr),
         ]

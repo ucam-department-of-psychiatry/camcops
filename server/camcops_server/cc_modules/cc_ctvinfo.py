@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+# camcops_server/cc_modules/cc_ctvinfo.py
+
+"""
+===============================================================================
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+===============================================================================
+"""
+
+
+# =============================================================================
+# CtvInfo
+# =============================================================================
+
+class CtvInfo(object):
+    def __init__(self,
+                 heading: str = None,
+                 subheading: str = None,
+                 description: str = None,
+                 content: str = None,
+                 skip_if_no_content: bool = True):
+        """
+        Args:
+            heading: optional text used for heading
+            subheading: optional text used for subheading
+            description: optional text used for field description
+            content: text
+            skip_if_no_content: if True, no other fields will be printed
+                unless content evaluates to True
+
+        These will be NOT webified by the ClinicalTextView class, meaning
+        (a) do it yourself if it's necessary, and
+        (b) you can pass HTML formatting.
+        """
+        self.heading = heading
+        self.subheading = subheading
+        self.description = description
+        self.content = content
+        self.skip_if_no_content = skip_if_no_content
+
+    def get_html(self) -> str:
+        html = ""
+        if self.content or not self.skip_if_no_content:
+            if self.heading:
+                html += """
+                    <div class="ctv_fieldheading">
+                        {}
+                    </div>
+                """.format(self.heading)
+            if self.subheading:
+                html += """
+                    <div class="ctv_fieldsubheading">
+                        {}
+                    </div>
+                """.format(self.subheading)
+            if self.description:
+                html += """
+                    <div class="ctv_fielddescription">
+                        {}
+                    </div>
+                """.format(self.description)
+        if self.content:
+            html += """
+                <div class="ctv_fieldcontent">
+                    {}
+                </div>
+            """.format(self.content)
+        return html
+
+
+CTV_INCOMPLETE = [CtvInfo(description="Incomplete", skip_if_no_content=False)]

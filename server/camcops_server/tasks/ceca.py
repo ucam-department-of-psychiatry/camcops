@@ -25,10 +25,9 @@
 from typing import Any, Dict, List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Boolean, Integer
 
-from ..cc_modules.cc_constants import (
-    PV,
-)
+from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
@@ -37,6 +36,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
+from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 
 
@@ -569,54 +569,84 @@ class CecaQ3(Task):
              comment="Any other comments"),
     ]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="parental_loss_risk", cctype="BOOL",
-                 value=self.parental_loss_risk(),
-                 comment="Parental loss risk factor?"),
-            dict(name="parental_loss_high_risk", cctype="BOOL",
-                 value=self.parental_loss_high_risk(),
-                 comment="Parental loss higher risk factor?"),
-            dict(name="mother_antipathy", cctype="INT",
-                 value=self.mother_antipathy(),
-                 comment="Maternal antipathy score (8-40)"),
-            dict(name="mother_neglect", cctype="INT",
-                 value=self.mother_neglect(),
-                 comment="Maternal neglect score (8-40)"),
-            dict(name="mother_psychological_abuse", cctype="INT",
-                 value=self.mother_psychological_abuse(),
-                 comment="Maternal psychological abuse score (0-85)"),
-            dict(name="father_antipathy", cctype="INT",
-                 value=self.father_antipathy(),
-                 comment="Paternal antipathy score (8-40)"),
-            dict(name="father_neglect", cctype="INT",
-                 value=self.father_neglect(),
-                 comment="Paternal neglect score (8-40)"),
-            dict(name="father_psychological_abuse", cctype="INT",
-                 value=self.father_psychological_abuse(),
-                 comment="Paternal psychological abuse score (0-85)"),
-            dict(name="role_reversal", cctype="INT",
-                 value=self.role_reversal(),
-                 comment="Role reversal score (17-85)"),
-            dict(name="physical_abuse_screen", cctype="INT",
-                 value=self.physical_abuse_screen(),
-                 comment="Physical abuse screen (0-1)"),
-            dict(name="physical_abuse_severity_mother", cctype="INT",
-                 value=self.physical_abuse_severity_mother(),
-                 comment="Maternal physical abuse severity score (0-4)"),
-            dict(name="physical_abuse_severity_father", cctype="INT",
-                 value=self.physical_abuse_severity_father(),
-                 comment="Paternal physical abuse severity score (0-4)"),
-            dict(name="sexual_abuse_screen", cctype="INT",
-                 value=self.sexual_abuse_screen(),
-                 comment="Sexual abuse screen (0-3)"),
-            dict(name="sexual_abuse_score_first", cctype="INT",
-                 value=self.sexual_abuse_score_first(),
-                 comment="First sexual abuse severity score (0-7)"),
-            dict(name="sexual_abuse_score_other", cctype="INT",
-                 value=self.sexual_abuse_score_other(),
-                 comment="Other sexual abuse severity score (0-7)"),
+            SummaryElement(
+                name="parental_loss_risk",
+                coltype=Boolean(),
+                value=self.parental_loss_risk(),
+                comment="Parental loss risk factor?"),
+            SummaryElement(
+                name="parental_loss_high_risk",
+                coltype=Boolean(),
+                value=self.parental_loss_high_risk(),
+                comment="Parental loss higher risk factor?"),
+            SummaryElement(
+                name="mother_antipathy",
+                coltype=Integer(),
+                value=self.mother_antipathy(),
+                comment="Maternal antipathy score (8-40)"),
+            SummaryElement(
+                name="mother_neglect",
+                coltype=Integer(),
+                value=self.mother_neglect(),
+                comment="Maternal neglect score (8-40)"),
+            SummaryElement(
+                name="mother_psychological_abuse",
+                coltype=Integer(),
+                value=self.mother_psychological_abuse(),
+                comment="Maternal psychological abuse score (0-85)"),
+            SummaryElement(
+                name="father_antipathy",
+                coltype=Integer(),
+                value=self.father_antipathy(),
+                comment="Paternal antipathy score (8-40)"),
+            SummaryElement(
+                name="father_neglect",
+                coltype=Integer(),
+                value=self.father_neglect(),
+                comment="Paternal neglect score (8-40)"),
+            SummaryElement(
+                name="father_psychological_abuse",
+                coltype=Integer(),
+                value=self.father_psychological_abuse(),
+                comment="Paternal psychological abuse score (0-85)"),
+            SummaryElement(
+                name="role_reversal",
+                coltype=Integer(),
+                value=self.role_reversal(),
+                comment="Role reversal score (17-85)"),
+            SummaryElement(
+                name="physical_abuse_screen",
+                coltype=Integer(),
+                value=self.physical_abuse_screen(),
+                comment="Physical abuse screen (0-1)"),
+            SummaryElement(
+                name="physical_abuse_severity_mother",
+                coltype=Integer(),
+                value=self.physical_abuse_severity_mother(),
+                comment="Maternal physical abuse severity score (0-4)"),
+            SummaryElement(
+                name="physical_abuse_severity_father",
+                coltype=Integer(),
+                value=self.physical_abuse_severity_father(),
+                comment="Paternal physical abuse severity score (0-4)"),
+            SummaryElement(
+                name="sexual_abuse_screen",
+                coltype=Integer(),
+                value=self.sexual_abuse_screen(),
+                comment="Sexual abuse screen (0-3)"),
+            SummaryElement(
+                name="sexual_abuse_score_first",
+                coltype=Integer(),
+                value=self.sexual_abuse_score_first(),
+                comment="First sexual abuse severity score (0-7)"),
+            SummaryElement(
+                name="sexual_abuse_score_other",
+                coltype=Integer(),
+                value=self.sexual_abuse_score_other(),
+                comment="Other sexual abuse severity score (0-7)"),
         ]
 
     # -------------------------------------------------------------------------

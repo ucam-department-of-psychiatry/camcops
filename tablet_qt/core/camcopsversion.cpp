@@ -21,7 +21,7 @@
 
 namespace camcopsversion {  // http://semver.org/
 
-const Version CAMCOPS_VERSION(2, 0, 1);
+const Version CAMCOPS_VERSION(2, 0, 2);
 const Version MINIMUM_SERVER_VERSION(2, 0, 0);
 
 }  // namespace camcopsversion
@@ -40,5 +40,14 @@ VERSION HISTORY
 - Bugfix to stone/pound/ounce conversion.
 - Bugfix to raw SQL dump.
 - ID numbers generalized so you can have >8 (= table structure change).
+
+2.0.2
+- Cosmetic bug fixes, mainly for phones, including a re-layout of the ACE-III
+  address learning for very small screens.
+- Bugfix: deleting a patient didn't deselect that patient.
+- Default software keyboard for date entry changed.
+- Bugfix for canvas widget on Android (size was going wrong).
+- Automatic adjustment for high-DPI screens as standard in
+  QuBoolean (its image option), QuCanvas, QuImage, QuThermometer.
 
 */

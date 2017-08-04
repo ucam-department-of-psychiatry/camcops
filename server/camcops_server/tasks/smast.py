@@ -24,17 +24,16 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
+from ..cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
+from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    get_from_dict,
-    Task,
-    TrackerInfo,
-    TrackerLabel,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerLabel, TrackerInfo
 
 
 # =============================================================================
@@ -97,14 +96,17 @@ class Smast(Task):
                 self.total_score(), self.likelihood())
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT", value=self.total_score(),
-                 comment="Total score (/13)"),
-            dict(name="likelihood", cctype="TEXT",
-                 value=self.likelihood(),
-                 comment="Likelihood of problem"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (/13)"),
+            SummaryElement(name="likelihood",
+                           coltype=SummaryCategoryColType,
+                           value=self.likelihood(),
+                           comment="Likelihood of problem"),
         ]
 
     def is_complete(self) -> bool:

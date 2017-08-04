@@ -238,7 +238,8 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         new QuHorizontalLine(),
         new QuSpacer(),
         new QuHorizontalLine(),
-        new QuHeading("Flow container:"),
+        new QuHeading("Flow container (generally preferred to horizontal "
+                      "container; better on small screens):"),
         new QuFlowContainer{
             (new QuText("Text 1 (right/top)"))->setAlignment(topright),
             (new QuText("Text 2 (centre/vcentre)"))->setAlignment(centre),
@@ -371,41 +372,41 @@ OpenableWidget* DemoQuestionnaire::editor(bool read_only)
         // Now the ACE-III address example:
         new QuGridContainer{
             QuGridCell(new QuVerticalContainer{
-                (new QuHorizontalContainer{
+                new QuFlowContainer{
                     aceBoolean("address_1", "booltext2"),
                     aceBoolean("address_2", "booltext3"),
-                })->setAddStretchRight(true),
-                (new QuHorizontalContainer{
+                },
+                new QuFlowContainer{
                     aceBoolean("address_3", "booltext4"),
                     aceBoolean("address_4", "booltext5"),
                     aceBoolean("address_5", "booltext6"),
-                })->setAddStretchRight(true),
+                },
                 aceBoolean("address_6", "booltext7"),
                 aceBoolean("address_7", "booltext8"),
             }, 0, 0),
             QuGridCell(new QuVerticalContainer{
-                (new QuHorizontalContainer{
+                new QuFlowContainer{
                     aceBoolean("address_1", "booltext9"),
                     aceBoolean("address_2", "booltext10"),
-                })->setAddStretchRight(true),
-                (new QuHorizontalContainer{
+                },
+                new QuFlowContainer{
                     aceBoolean("address_3", "booltext11"),
                     aceBoolean("address_4", "booltext12"),
                     aceBoolean("address_5", "booltext13"),
-                })->setAddStretchRight(true),
+                },
                 aceBoolean("address_6", "booltext14"),
                 aceBoolean("address_7", "booltext15"),
             }, 0, 1),
             QuGridCell(new QuVerticalContainer{
-                (new QuHorizontalContainer{
+                new QuFlowContainer{
                     aceBoolean("address_1", "booltext16"),
                     aceBoolean("address_2", "booltext17"),
-                })->setAddStretchRight(true),
-                (new QuHorizontalContainer{
+                },
+                new QuFlowContainer{
                     aceBoolean("address_3", "booltext18"),
                     aceBoolean("address_4", "booltext19"),
                     aceBoolean("address_5", "booltext20"),
-                })->setAddStretchRight(true),
+                },
                 aceBoolean("address_6", "booltext21"),
                 aceBoolean("address_7", "booltext22"),
             }, 1, 0),

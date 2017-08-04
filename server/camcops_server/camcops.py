@@ -25,15 +25,27 @@
 import argparse
 import codecs
 import configparser
+import datetime
 import getpass
 import logging
 import os
 import sys
 from typing import Callable, Dict, Iterable
 
+import arrow
+from arrow import Arrow
+from pyramid.config import Configurator
+from pyramid.interfaces import ISession
+from pyramid.registry import Registry
+from pyramid.response import Response
+from pyramid.router import Router
+from pyramid.session import SignedCookieSessionFactory
 from semantic_version import Version
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session as SqlASession
 from werkzeug.contrib.profiler import ProfilerMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
+from wsgiref.simple_server import make_server
 
 import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.rnc_lang import convert_to_bool
@@ -48,9 +60,11 @@ from .cc_modules.cc_audit import (
     SECURITY_AUDIT_FIELDSPECS
 )
 from .cc_modules.cc_constants import (
+    CAMCOPS_LOGO_FILE_WEBREF,
     CAMCOPS_URL,
     ENVVAR_CONFIG_FILE,
     FP_ID_NUM,
+    LOCAL_LOGO_FILE_WEBREF,
     NUMBER_OF_IDNUMS_DEFUNCT,  # allowed, for database upgrade steps
     SEPARATOR_EQUALS,
     SEPARATOR_HYPHENS,
@@ -58,6 +72,7 @@ from .cc_modules.cc_constants import (
     URL_ROOT_DATABASE,
     URL_ROOT_STATIC,
     URL_ROOT_WEBVIEW,
+    WEB_HEAD,
 )
 from .cc_modules.cc_blob import Blob, ccblob_unit_tests
 from .cc_modules import cc_db
@@ -76,12 +91,23 @@ from .cc_modules.cc_hl7core import cchl7core_unit_tests
 from .cc_modules.cc_patient import ccpatient_unit_tests
 from .cc_modules.cc_patient import Patient
 from .cc_modules.cc_patientidnum import PatientIdNum
-from .cc_modules.cc_pls import pls
+from .cc_modules.cc_pyramid import COOKIE_NAME, Routes
+from .cc_modules.cc_config import (
+    CamcopsConfig,
+    get_config,
+    get_config_filename,
+)
 from .cc_modules.cc_policy import ccpolicy_unit_tests
 from .cc_modules.cc_report import ccreport_unit_tests
-from .cc_modules.cc_session import ccsession_unit_tests, Session
+from .cc_modules.cc_request import CamcopsRequest
+from .cc_modules.cc_session import ccsession_unit_tests, CamcopsSession
 from .cc_modules.cc_specialnote import SpecialNote
-from .cc_modules.cc_storedvar import DeviceStoredVar, ServerStoredVar
+from .cc_modules.cc_storedvar import (
+    DeviceStoredVar,
+    ServerStoredVar,
+    ServerStoredVarNames,
+    StoredVarTypes,
+)
 from .cc_modules.cc_task import (
     cctask_unit_tests,
     cctask_unit_tests_basic,
@@ -155,6 +181,9 @@ DEFAULT_CONFIG_FILENAME = "/etc/camcops/camcops.conf"
 # =============================================================================
 # The WSGI framework looks for: def application(environ, start_response)
 # ... must be called "application"
+# ... at least for some servers!
+
+DEFUNCT = '''
 
 # Disable client-side caching for anything non-static
 webview_application = DisableClientSideCachingMiddleware(webview_application)
@@ -230,6 +259,159 @@ if CAMCOPS_SERVE_STATIC_FILES:
     application = SharedDataMiddleware(application, {
         URL_ROOT_STATIC: STATIC_ROOT_DIR
     })
+'''
+
+# -----------------------------------------------------------------------------
+# CamcopsSession and Pyramid HTTP session handling
+# -----------------------------------------------------------------------------
+
+def get_session_factory() -> SignedCookieSessionFactory:
+    """
+    We have to give a Pyramid request a way of making an HTTP session.
+    We must return a session factory.
+    - An example is an instance of SignedCookieSessionFactory().
+    - A session factory has the signature [1]:
+            sessionfactory(request: CamcopsRequest) -> session_object
+      ... where session "is a namespace" [2]
+      ... but more concretely implementis the pyramid.interfaces.ISession 
+          interface
+      [1] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory
+      [2] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session
+    - We want to be able to make the session by reading the CamcopsConfig from
+      the request.
+    """  # noqa
+    def factory(request: CamcopsRequest) -> ISession:
+        cfg = request.config
+        secure_cookies = not cfg.ALLOW_INSECURE_COOKIES
+        pyramid_factory = SignedCookieSessionFactory(
+            secret=cfg.session_cookie_secret,
+            hashalg='sha512',  # the default
+            salt='camcops_pyramid_session.',
+            cookie_name=COOKIE_NAME,
+            max_age=None,  # browser scope; session cookie
+            path='/',  # the default
+            domain=None,  # the default
+            secure=secure_cookies,
+            httponly=secure_cookies,
+            timeout=None,  # we handle timeouts at the database level instead
+            reissue_time=0,  # default; reissue cookie at every request
+            set_on_exception=True,  # (default) cookie even if exception raised
+            serializer=None,  # (default) use pyramid.session.PickleSerializer
+            # As max_age and expires are left at their default of None, these
+            # are session cookies.
+        )
+        return pyramid_factory(request)
+
+    return factory
+
+
+# -----------------------------------------------------------------------------
+# Make the WSGI app, attaching in our special methods
+# -----------------------------------------------------------------------------
+
+def make_wsgi_app() -> Router:
+    """
+    Makes and returns a WSGI application.
+
+    QUESTION: how do we access the WSGI environment (passed to the WSGI app)
+    from within a Pyramid request?
+    ANSWER:
+        Configurator.make_wsgi_app() calls Router.__init__()
+        and returns: app = Router(...)
+        The WSGI framework uses: response = app(environ, start_response)
+        which therefore calls: Router.__call__(environ, start_response)
+        which does:
+              response = self.execution_policy(environ, self)
+              return response(environ, start_response)
+        So something LIKE this will be called:
+              Router.default_execution_policy(environ, router)
+                  with router.request_context(environ) as request:
+                      # ...
+        So the environ is handled by Router.request_context(environ)
+        which will call BaseRequest.__init__()
+        which does:
+              d = self.__dict__
+              d['environ'] = environ
+        so we should be able to use
+              request.environ  # type: Dict[str, str]
+    """
+
+    # -------------------------------------------------------------------------
+    # 0. Settings that transcend the config file
+    # -------------------------------------------------------------------------
+    # Most things should be in the config file. This enables us to run multiple
+    # configs (e.g. multiple CamCOPS databases) through the same process.
+    # However, some things we need to know right now, to make the WSGI app.
+    # Here, OS environment variables and command-line switches are appropriate.
+
+    use_debug_toolbar = True  # *** make env var or CLI or both
+
+    # -------------------------------------------------------------------------
+    # 1. Base app
+    # -------------------------------------------------------------------------
+    with Configurator() as config:
+        # ---------------------------------------------------------------------
+        # Session attributes: config, database, other
+        # ---------------------------------------------------------------------
+        config.set_request_factory(CamcopsRequest)
+
+        # SUMMARY OF IMPORTANT REQUEST PROPERTIES, AND STANDARD NAMES:
+        #
+        # Built in to Pyramid:
+        #       pyramid_session = request.session  # type: ISession
+        #       ...
+        # Added here:  -- see CamcopsRequest
+
+        # ---------------------------------------------------------------------
+        # Routes and accompanying views
+        # ---------------------------------------------------------------------
+        # Most views are using @view_config() which calls add_view().
+        config.scan()
+        for pr in Routes.all_routes():
+            config.add_route(pr.route, pr.path)
+
+        # See also:
+        # https://stackoverflow.com/questions/19184612/how-to-ensure-urls-generated-by-pyramids-route-url-and-route-path-are-valid  # noqa
+
+        # ---------------------------------------------------------------------
+        # Add tweens (inner to outer)
+        # ---------------------------------------------------------------------
+        # We will use implicit positioning:
+        # - https://www.slideshare.net/aconrad/alex-conrad-pyramid-tweens-ploneconf-2011  # noqa
+
+        # config.add_tween('camcops_server.camcops.http_session_tween_factory')
+        config.set_session_factory(get_session_factory())
+
+        # ---------------------------------------------------------------------
+        # Debug toolbar
+        # ---------------------------------------------------------------------
+        if use_debug_toolbar:
+            config.include('pyramid_debugtoolbar')
+            config.add_route(Routes.DEBUG_TOOLBAR.route,
+                             Routes.DEBUG_TOOLBAR.path)
+
+        # ---------------------------------------------------------------------
+        # Make app
+        # ---------------------------------------------------------------------
+        app = config.make_wsgi_app()
+
+    # -------------------------------------------------------------------------
+    # 2. Middleware above the Pyramid level
+    # -------------------------------------------------------------------------
+    # ...
+
+    # -------------------------------------------------------------------------
+    # 3. Done
+    # -------------------------------------------------------------------------
+    return app
+
+
+application = make_wsgi_app()
+
+
+def test_serve(host: str = '0.0.0.0', port: int = 8000) -> None:
+    server = make_server(host, port, application)
+    server.serve_forever()
 
 
 # =============================================================================
@@ -781,10 +963,12 @@ def make_tables(drop_superfluous_columns: bool = False) -> None:
 
     # Read old version number, and perform any special version-specific
     # upgrade tasks
-    sv_version = ServerStoredVar("serverCamcopsVersion",
+    sv_version = ServerStoredVar(ServerStoredVarNames.SERVER_CAMCOPS_VERSION,
                                  ServerStoredVar.TYPE_TEXT)
-    sv_potential_old_version = ServerStoredVar("serverCamcopsVersion",
-                                               ServerStoredVar.TYPE_REAL)
+    sv_potential_old_version = ServerStoredVar(
+        ServerStoredVarNames.SERVER_CAMCOPS_VERSION,
+        ServerStoredVar.TYPE_REAL)
+    ***this bit above is buggered***
     old_version = make_version(sv_version.get_value() or
                                sv_potential_old_version.get_value())
     upgrade_database_first_phase(old_version)
@@ -856,7 +1040,8 @@ def reset_storedvars() -> None:
     script).
     """
     print("Setting database title/ID descriptions from configuration file")
-    dbt = ServerStoredVar("databaseTitle", "text")
+    dbt = ServerStoredVar(ServerStoredVarNames.DATABASE_TITLE,
+                          StoredVarTypes.TYPE_TEXT)
     dbt.set_value(pls.DATABASE_TITLE)
     pls.db.db_exec_literal(
         "DELETE FROM {ssvtable} WHERE name LIKE 'idDescription%'".format(
@@ -954,6 +1139,8 @@ def test() -> None:
     """Run all unit tests."""
     # We do some rollbacks so as not to break performance of ongoing tasks.
 
+    request = CamcopsRequest()
+
     print("-- Ensuring all tasks have basic info")
     cctask_unit_tests_basic()
     pls.db.rollback()
@@ -963,7 +1150,7 @@ def test() -> None:
     pls.db.rollback()
 
     print("-- Testing cc_analytics")
-    ccanalytics_unit_tests()
+    ccanalytics_unit_tests(request)
     pls.db.rollback()
 
     print("-- Testing cc_blob")
@@ -1230,7 +1417,8 @@ Using database: {dbname} ({dbtitle}).
 11) Show HL7 queue without sending
 12) Regenerate anonymisation staging database
 13) Drop all views and summary tables
-14) Exit
+14) Run test web server directly
+15) Exit
 """.format(sep=SEPARATOR_EQUALS,
            version=CAMCOPS_SERVER_VERSION,
            dbname=pls.DB_NAME,
@@ -1272,6 +1460,8 @@ Using database: {dbname} ({dbtitle}).
         elif choice == 13:
             drop_all_views_and_summary_tables()
         elif choice == 14:
+            test_serve()
+        elif choice == 15:
             sys.exit()
 
         # Must commit, or we may lock the database while watching the menu

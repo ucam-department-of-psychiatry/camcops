@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define DEBUG_SIGNALS
+
 #include "quspinboxinteger.h"
 #include <QSpinBox>
 #include "lib/uifunc.h"
@@ -61,10 +63,15 @@ QPointer<QWidget> QuSpinBoxInteger::makeWidget(Questionnaire* questionnaire)
     // "no matching function for call to ... unresolved overloaded function
     // type..."
     // Disambiguate like this:
-    void (QSpinBox::*vc_signal)(int) = &QSpinBox::valueChanged;
     if (!read_only) {
+        void (QSpinBox::*vc_signal)(int) = &QSpinBox::valueChanged;
         connect(m_spinbox.data(), vc_signal,
                 this, &QuSpinBoxInteger::widgetValueChanged);
+#ifdef DEBUG_SIGNALS
+        void (QSpinBox::*vc_sig_str)(const QString&) = &QSpinBox::valueChanged;
+        connect(m_spinbox.data(), vc_sig_str,
+                this, &QuSpinBoxInteger::widgetValueChangedString);
+#endif
     }
     setFromField();
     return QPointer<QWidget>(m_spinbox);
@@ -79,10 +86,19 @@ FieldRefPtrList QuSpinBoxInteger::fieldrefs() const
 
 void QuSpinBoxInteger::widgetValueChanged(int value)
 {
+#ifdef DEBUG_SIGNALS
+    qDebug() << Q_FUNC_INFO << value;
+#endif
     const bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
+}
+
+
+void QuSpinBoxInteger::widgetValueChangedString(const QString& text)
+{
+    qDebug() << Q_FUNC_INFO << text;
 }
 
 

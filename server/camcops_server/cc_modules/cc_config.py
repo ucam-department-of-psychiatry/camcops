@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_pls.py
+# camcops_server/cc_modules/cc_config.py
 
 """
 ===============================================================================
@@ -28,22 +28,22 @@
 
 import codecs
 import configparser
+import contextlib
 import datetime
-from html import escape
 import operator
 import os
-import urllib.error
-import urllib.parse
-import urllib.request
 import logging
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import Dict, Generator, List, Optional
 
-import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_pdf as rnc_pdf
+from sqlalchemy.engine import create_engine, Engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session as SqlASession
 
 from .cc_baseconstants import (
     INTROSPECTABLE_EXTENSIONS,
 )
+from .cc_cache import cache_region_static, fkg
 from .cc_configfile import (
     get_config_parameter,
     get_config_parameter_boolean,
@@ -51,14 +51,10 @@ from .cc_configfile import (
     get_config_parameter_multiline
 )
 from .cc_constants import (
-    CAMCOPS_LOGO_FILE_WEBREF,
     CONFIG_FILE_MAIN_SECTION,
     CONFIG_FILE_RECIPIENTLIST_SECTION,
-    DATEFORMAT,
     DEFAULT_CAMCOPS_LOGO_FILE,
     DEFAULT_DATABASE_TITLE,
-    DEFAULT_DB_PORT,
-    DEFAULT_DB_SERVER,
     DEFAULT_LOCAL_INSTITUTION_URL,
     DEFAULT_LOCAL_LOGO_FILE,
     DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES,
@@ -70,17 +66,8 @@ from .cc_constants import (
     DEFAULT_TIMEOUT_MINUTES,
     ENVVAR_CONFIG_FILE,
     INTROSPECTION_BASE_DIRECTORY,
-    LOCAL_LOGO_FILE_WEBREF,
     PDF_ENGINE,
     PDF_LOGO_HEIGHT,
-    URL_RELATIVE_WEBVIEW,
-    WEB_HEAD,
-)
-from .cc_dt import (
-    convert_datetime_to_utc,
-    convert_datetime_to_utc_notz,
-    format_datetime,
-    get_now_localtz,
 )
 from .cc_filename import (
     filename_spec_is_valid,
@@ -95,192 +82,26 @@ from .cc_policy import (
     upload_id_policy_valid,
 )
 from .cc_recipdef import RecipientDefinition
-
-if TYPE_CHECKING:
-    from .cc_session import Session
+from .cc_sqlalchemy import get_table_names
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
-# Process-local storage class
+# Configuration class. (It gets cached on a per-process basis.)
 # =============================================================================
-# I think:
-# Code that sits here is run once per *process*.
-# The application object is called at least once per *thread*.
-# ... but also more than once per thread.
-# I've not grasped the method of creating proper thread-local storage
-# and having it persist across multiple WSGI calls.
-# So let's use process-local storage.
 
-# class LocalStorage(threading.local):
-class LocalStorage(object):
+class CamcopsConfig(object):
     """Process-local storage class. One instance per process. Persists across
     sessions thanks to mod_wsgi."""
 
-    def __init__(self) -> None:
-        """Initialize with blank values."""
-        self.ALLOW_INSECURE_COOKIES = False
-        self.ALLOW_MOBILEWEB = False
-        self.CAMCOPS_CONFIG_FILE = ""
-        self.CAMCOPS_LOGO_FILE_ABSOLUTE = None
-        self.CTV_FILENAME_SPEC = ""
-        self.DATABASE_TITLE = ""
-        self.DBCLIENT_LOGLEVEL = logging.INFO
-        self.DBENGINE_LOGLEVEL = logging.INFO
-        self.DB_NAME = ""
-        self.db = None
-        self.DB_PORT = DEFAULT_DB_PORT
-        self.DB_SERVER = DEFAULT_DB_SERVER
-        self.DB_USER = ""
-        self.DISABLE_PASSWORD_AUTOCOMPLETE = False
-        self.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE = None  # type: str
-        self.extraStringDicts = None  # type: Dict[str, Dict[str, str]]
-        self.EXTRA_STRING_FILES = None  # type: List[str]
-        self.HL7_LOCKFILE = None  # type: str
-        self.HL7_RECIPIENT_DEFS = []  # type: List[RecipientDefinition]
-        self.IDDESC = {}  # type: Dict[int, str]
-        self.IDSHORTDESC = {}  # type: Dict[int, str]
-        self.ID_POLICY_FINALIZE_STRING = ""
-        self.ID_POLICY_UPLOAD_STRING = ""
-        self.INTROSPECTION = False
-        self.INTROSPECTION_FILES = []  # type: List[IntrospectionFileDetails]
-        self.LOCAL_INSTITUTION_URL = DEFAULT_LOCAL_INSTITUTION_URL
-        self.LOCAL_LOGO_FILE_ABSOLUTE = ""
-        self.LOCKOUT_DURATION_INCREMENT_MINUTES = (
-            DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES
-        )
-        self.LOCKOUT_THRESHOLD = DEFAULT_LOCKOUT_THRESHOLD
-        # self.MAIN_STRING_FILE = DEFAULT_STRING_FILE
-        self.MYSQL = DEFAULT_MYSQL
-        self.MYSQLDUMP = DEFAULT_MYSQLDUMP
-        self.NOW_LOCAL_TZ_ISO8601 = ""
-        self.NOW_LOCAL_TZ = None  # type: datetime.datetime
-        self.NOW_UTC_NO_TZ = None  # type: datetime.datetime
-        self.NOW_UTC_WITH_TZ = None  # type: datetime.datetime
-        self.PASSWORD_CHANGE_FREQUENCY_DAYS = None  # type: int
-        self.PATIENT_SPEC = ""
-        self.PATIENT_SPEC_IF_ANONYMOUS = ""
-        self.PDF_LOGO_LINE = None  # type: str
-        self.PERSISTENT_CONSTANTS_INITIALIZED = False
-        # currently not configurable, but easy to add in the future:
-        self.PLOT_FONTSIZE = DEFAULT_PLOT_FONTSIZE
-        self.remote_addr = None  # type: str
-        self.remote_port = None  # type: str
-        self.SCRIPT_NAME = ""
-        self.SCRIPT_PUBLIC_URL_ESCAPED = ""
-        self.SEND_ANALYTICS = True
-        self.SERVER_NAME = ""
-        self.session = None  # type: Session
-        self.SESSION_TIMEOUT = datetime.timedelta(
-            minutes=DEFAULT_TIMEOUT_MINUTES)
-        self.SUMMARY_TABLES_LOCKFILE = None  # type: str
-        self.TASK_FILENAME_SPEC = ""
-        self.TODAY = None  # type: datetime.date
-        self.TRACKER_FILENAME_SPEC = ""
-        self.useSVG = False
-        self.VALID_TABLE_NAMES = []  # type: List[str]
-        self.WEB_LOGO = None  # type: str
-        self.WEBSTART = None  # type: str
-        self.WEBVIEW_LOGLEVEL = logging.INFO
-        self.WKHTMLTOPDF_FILENAME = None  # type: str
-
-    def get_which_idnums(self) -> List[int]:
-        return list(self.IDDESC.keys())
-
-    def get_id_desc(self, which_idnum: int,
-                    default: str = None) -> Optional[str]:
-        """Get server's ID description."""
-        return self.IDDESC.get(which_idnum, default)
-
-    def get_id_shortdesc(self, which_idnum: int,
-                         default: str = None) -> Optional[str]:
-        """Get server's short ID description."""
-        return self.IDSHORTDESC.get(which_idnum, default)
-
-    def switch_output_to_png(self) -> None:
-        """Switch server to producing figures in PNG."""
-        self.useSVG = False
-
-    def switch_output_to_svg(self) -> None:
-        """Switch server to producing figures in SVG."""
-        self.useSVG = True
-
-    def set_always(self, environ: Dict) -> None:
-        """Set the things we set every time the script is invoked (time!)."""
-
-        # ---------------------------------------------------------------------
-        # Date/time
-        # ---------------------------------------------------------------------
-        self.NOW_LOCAL_TZ = get_now_localtz()
-        # ... we want nearly all our times offset-aware
-        # ... http://stackoverflow.com/questions/4530069
-        self.NOW_UTC_WITH_TZ = convert_datetime_to_utc(self.NOW_LOCAL_TZ)
-        self.NOW_UTC_NO_TZ = convert_datetime_to_utc_notz(self.NOW_LOCAL_TZ)
-        self.NOW_LOCAL_TZ_ISO8601 = format_datetime(self.NOW_LOCAL_TZ,
-                                                    DATEFORMAT.ISO8601)
-        self.TODAY = datetime.date.today()  # fetches the local date
-
-        # ---------------------------------------------------------------------
-        # Read from the WSGI environment
-        # ---------------------------------------------------------------------
-        self.remote_addr = environ.get("REMOTE_ADDR")
-        self.remote_port = environ.get("REMOTE_PORT")
-
-        # http://www.zytrax.com/tech/web/env_var.htm
-        # Apache standard CGI variables:
-        # self.SCRIPT_NAME = environ.get("SCRIPT_NAME", "")
-        self.SCRIPT_NAME = URL_RELATIVE_WEBVIEW
-        self.SERVER_NAME = environ.get("SERVER_NAME")
-
-        # Reconstruct URL:
-        # http://www.python.org/dev/peps/pep-0333/#url-reconstruction
-        protocol = environ.get("wsgi.url_scheme", "")
-        if environ.get("HTTP_HOST"):
-            host = environ.get("HTTP_HOST")
-        else:
-            host = environ.get("SERVER_NAME", "")
-        port = ""
-        server_port = environ.get("SERVER_PORT")
-        if (server_port and
-                ":" not in host and
-                not(protocol == "https" and server_port == "443") and
-                not(protocol == "http" and server_port == "80")):
-            port = ":" + server_port
-        script = urllib.parse.quote(environ.get("SCRIPT_NAME", ""))
-        path = urllib.parse.quote(environ.get("PATH_INFO", ""))
-
-        # But not the query string:
-        # if environ.get("QUERY_STRING"):
-        #    query += "?" + environ.get("QUERY_STRING")
-        # else:
-        #    query = ""
-
-        url = "{protocol}://{host}{port}{script}{path}".format(
-            protocol=protocol,
-            host=host,
-            port=port,
-            script=script,
-            path=path,
-        )
-
-        self.SCRIPT_PUBLIC_URL_ESCAPED = escape(url)
-
-    def set(self, environ: Dict) -> None:
-        """Set all variables from environment and thus config file."""
-
-        self.set_always(environ)
-
-        if self.PERSISTENT_CONSTANTS_INITIALIZED:
-            return
+    def __init__(self, config_filename: str) -> None:
+        """Initialize from config file."""
 
         # ---------------------------------------------------------------------
         # Open config file
         # ---------------------------------------------------------------------
-        self.CAMCOPS_CONFIG_FILE = environ.get(ENVVAR_CONFIG_FILE)  # WSGI env
-        if not self.CAMCOPS_CONFIG_FILE:
-            # fallback to OS environment
-            self.CAMCOPS_CONFIG_FILE = os.environ.get(ENVVAR_CONFIG_FILE)
+        self.CAMCOPS_CONFIG_FILE = config_filename
         if not self.CAMCOPS_CONFIG_FILE:
             raise AssertionError("{} not specified".format(ENVVAR_CONFIG_FILE))
         log.info("Reading from {}", self.CAMCOPS_CONFIG_FILE)
@@ -294,8 +115,9 @@ class LocalStorage(object):
 
         self.ALLOW_INSECURE_COOKIES = get_config_parameter_boolean(
             config, section, "ALLOW_INSECURE_COOKIES", False)
-        self.ALLOW_MOBILEWEB = get_config_parameter_boolean(
-            config, section, "ALLOW_MOBILEWEB", False)
+        # self.ALLOW_MOBILEWEB = get_config_parameter_boolean(
+        #     config, section, "ALLOW_MOBILEWEB", False)
+        self.ALLOW_MOBILEWEB = False  # disabled permanently
 
         self.CAMCOPS_LOGO_FILE_ABSOLUTE = get_config_parameter(
             config, section, "CAMCOPS_LOGO_FILE_ABSOLUTE", str,
@@ -306,24 +128,14 @@ class LocalStorage(object):
 
         self.DATABASE_TITLE = get_config_parameter(
             config, section, "DATABASE_TITLE", str, DEFAULT_DATABASE_TITLE)
-        self.DB_NAME = config.get(section, "DB_NAME")
+        self.DB_URL = config.get(section, "DB_URL")
         # ... no default: will fail if not provided
-        self.DB_USER = config.get(section, "DB_USER")
-        # ... no default: will fail if not provided
-        # DB_PASSWORD: handled later, for security reasons (see below)
-        self.DB_SERVER = get_config_parameter(
-            config, section, "DB_SERVER", str, DEFAULT_DB_SERVER)
-        self.DB_PORT = get_config_parameter(
-            config, section, "DB_PORT", int, DEFAULT_DB_PORT)
-
+        self.DB_ECHO = get_config_parameter_boolean(
+            config, section, "DB_ECHO", False)
         self.DBCLIENT_LOGLEVEL = get_config_parameter_loglevel(
             config, section, "DBCLIENT_LOGLEVEL", logging.INFO)
         logging.getLogger("camcops_server.database")\
             .setLevel(self.DBCLIENT_LOGLEVEL)
-
-        self.DBENGINE_LOGLEVEL = get_config_parameter_loglevel(
-            config, section, "DBENGINE_LOGLEVEL", logging.INFO)
-        rnc_db.set_loglevel(self.DBENGINE_LOGLEVEL)
 
         self.DISABLE_PASSWORD_AUTOCOMPLETE = get_config_parameter_boolean(
             config, section, "DISABLE_PASSWORD_AUTOCOMPLETE", True)
@@ -337,6 +149,8 @@ class LocalStorage(object):
             config, section, "HL7_LOCKFILE", str, None)
 
         # The ConfigParser forces all its keys to lower care.
+        self.IDDESC = {}  # type: Dict[int, str]
+        self.IDSHORTDESC = {}  # type: Dict[int, str]
         descprefix = "iddesc_"
         shortdescprefix = "idshortdesc_"
         for key, desc in config.items(section):
@@ -397,6 +211,8 @@ class LocalStorage(object):
             config, section, "PATIENT_SPEC_IF_ANONYMOUS", str, "anonymous")
         self.PATIENT_SPEC = get_config_parameter(
             config, section, "PATIENT_SPEC", str, None)
+        # currently not configurable, but easy to add in the future:
+        self.PLOT_FONTSIZE = DEFAULT_PLOT_FONTSIZE
 
         self.SEND_ANALYTICS = get_config_parameter_boolean(
             config, section, "SEND_ANALYTICS", True)
@@ -426,6 +242,7 @@ class LocalStorage(object):
         # Read from the config file: 2. HL7 section
         # ---------------------------------------------------------------------
         # http://stackoverflow.com/questions/335695/lists-in-configparser
+        self.HL7_RECIPIENT_DEFS = []  # type: List[RecipientDefinition]
         try:
             hl7_items = config.items(CONFIG_FILE_RECIPIENTLIST_SECTION)
             for key, recipientdef_name in hl7_items:
@@ -442,67 +259,10 @@ class LocalStorage(object):
                      CONFIG_FILE_RECIPIENTLIST_SECTION)
 
         # ---------------------------------------------------------------------
-        # Read from the config file: 3. database password
-        # ---------------------------------------------------------------------
-        # ---------------------------------------------------------------------
-        # SECURITY: in this section (reading the database password from the
-        # config file and connecting to the database), consider the possibility
-        # of a password leaking via a debugging exception handler. This
-        # includes the possibility that the database code will raise an
-        # exception that reveals the password, so we must replace all
-        # exceptions with our own, bland one. In addition, we must obscure the
-        # variable that actually contains the password, in all circumstances.
-        # ---------------------------------------------------------------------
-        try:
-            db_password = config.get(section, "DB_PASSWORD")
-        except:  # deliberately conceal details for security
-            # noinspection PyUnusedLocal
-            db_password = None
-            raise RuntimeError("Problem reading DB_PASSWORD from config")
-
-        if db_password is None:
-            raise RuntimeError("No database password specified")
-            # OK from a security perspective: if there's no password, there's
-            # no password to leak via a debugging exception handler
-
-        # Now connect to the database:
-        try:
-            self.db = rnc_db.DatabaseSupporter()
-            # To generate a password-leak situation, e.g. mis-spell "password"
-            # in the call below. If the exception is not caught,
-            # wsgi_errorreporter.py will announce the password.
-            # So we catch it!
-            self.db.connect_to_database_mysql(
-                server=self.DB_SERVER,
-                port=self.DB_PORT,
-                database=self.DB_NAME,
-                user=self.DB_USER,
-                password=db_password,
-                autocommit=False  # NB therefore need to commit
-                # ... done in camcops.py at the end of a session
-            )
-        except:  # deliberately conceal details for security
-            raise rnc_db.NoDatabaseError(
-                "Problem opening or reading from database; details concealed "
-                "for security reasons")
-        finally:
-            # Executed whether an exception is raised or not.
-            # noinspection PyUnusedLocal
-            db_password = None
-        # ---------------------------------------------------------------------
-        # Password is now re-obscured in all situations. Onwards...
-        # ---------------------------------------------------------------------
-
-        # ---------------------------------------------------------------------
-        # Read from the database
-        # ---------------------------------------------------------------------
-        self.VALID_TABLE_NAMES = self.db.get_all_table_names()
-
-        # ---------------------------------------------------------------------
         # Built from the preceding:
         # ---------------------------------------------------------------------
 
-        self.INTROSPECTION_FILES = []
+        self.INTROSPECTION_FILES = []  # type: List[IntrospectionFileDetails]
         if self.INTROSPECTION:
             # All introspection starts at INTROSPECTION_BASE_DIRECTORY
             rootdir = INTROSPECTION_BASE_DIRECTORY
@@ -545,24 +305,6 @@ class LocalStorage(object):
             raise RuntimeError(
                 "FINALIZE_POLICY invalid in config (policy: {})".format(
                     repr(self.ID_POLICY_FINALIZE_STRING)))
-
-        # Note: HTML4 uses <img ...>; XHTML uses <img ... />;
-        # HTML5 is happy with <img ... />
-
-        # IE float-right problems: http://stackoverflow.com/questions/1820007
-        # Tables are a nightmare in IE (table max-width not working unless you
-        # also specify it for image size, etc.)
-        self.WEB_LOGO = """
-            <div class="web_logo_header">
-                <a href="{}"><img class="logo_left" src="{}" alt="" /></a>
-                <a href="{}"><img class="logo_right" src="{}" alt="" /></a>
-            </div>
-        """.format(
-            self.SCRIPT_NAME, CAMCOPS_LOGO_FILE_WEBREF,
-            self.LOCAL_INSTITUTION_URL, LOCAL_LOGO_FILE_WEBREF
-        )
-
-        self.WEBSTART = WEB_HEAD + self.WEB_LOGO
 
         if PDF_ENGINE in ["weasyprint", "pdfkit"]:
             # weasyprint: div with floating img does not work properly
@@ -675,98 +417,212 @@ class LocalStorage(object):
             raise RuntimeError("Invalid CTV_FILENAME_SPEC in "
                                "[server] section of config file")
 
+        self.VALID_TABLE_NAMES = self._get_all_table_names()  # reads db
+
+        # *** NEED TO BE CONFIGURABLE:
+        self.session_cookie_secret = "hello!"  # *** fix!
+
+        # Moved out from CamcopsConfig:
         # ---------------------------------------------------------------------
-        # Now we can keep that state:
+        # Date/time
         # ---------------------------------------------------------------------
-        self.PERSISTENT_CONSTANTS_INITIALIZED = True
+        # self.TODAY = datetime.date.today()  # fetches the local date
+        #       -> as above, e.g. now_arrow
+        # self.NOW_LOCAL_TZ = get_now_localtz()
+        #       ... we want nearly all our times offset-aware
+        #       ... http://stackoverflow.com/questions/4530069
+        #       -> Request.now_arrow
+        # self.NOW_UTC_WITH_TZ = convert_datetime_to_utc(self.NOW_LOCAL_TZ)
+        #       -> Request.now_arrow
+        # self.NOW_UTC_NO_TZ = convert_datetime_to_utc_notz(self.NOW_LOCAL_TZ)
+        #       -> Request.now_utc_datetime
+        # self.NOW_LOCAL_TZ_ISO8601 = format_datetime(self.NOW_LOCAL_TZ,
+        #                                             DATEFORMAT.ISO8601)
+        #       -> Request.now_arrow, etc.
+        # ---------------------------------------------------------------------
+        # Read from the WSGI environment
+        # ---------------------------------------------------------------------
+        # self.remote_addr = environ.get("REMOTE_ADDR")
+        #       -> Request.remote_addr (Pyramid)
+        # self.remote_port = environ.get("REMOTE_PORT")
+        #       -> not in Pyramid Request object? Unimportant
+        #          Will be available as request.environ["REMOTE_PORT"]
+        # # self.SCRIPT_NAME = environ.get("SCRIPT_NAME", "")
+        # self.SCRIPT_NAME = URL_RELATIVE_WEBVIEW
+        #       -> Request.script_name (Pyramid)
+        #       *** CHECK: script_name is different from URL_RELATIVE_WEBVIEW
+        # self.SERVER_NAME = environ.get("SERVER_NAME")
+        #       -> Request.server_name (Pyramid)
+        # ---------------------------------------------------------------------
+        # More complex, WSGI-derived
+        # ---------------------------------------------------------------------
+        #     # Reconstruct URL:
+        #     # http://www.python.org/dev/peps/pep-0333/#url-reconstruction
+        #     protocol = environ.get("wsgi.url_scheme", "")
+        #     if environ.get("HTTP_HOST"):
+        #         host = environ.get("HTTP_HOST")
+        #     else:
+        #         host = environ.get("SERVER_NAME", "")
+        #     port = ""
+        #     server_port = environ.get("SERVER_PORT")
+        #     if (server_port and
+        #             ":" not in host and
+        #             not(protocol == "https" and server_port == "443") and
+        #             not(protocol == "http" and server_port == "80")):
+        #         port = ":" + server_port
+        #     script = urllib.parse.quote(environ.get("SCRIPT_NAME", ""))
+        #     path = urllib.parse.quote(environ.get("PATH_INFO", ""))
+        #
+        #     # But not the query string:
+        #     # if environ.get("QUERY_STRING"):
+        #     #    query += "?" + environ.get("QUERY_STRING")
+        #     # else:
+        #     #    query = ""
+        #
+        #     url = "{protocol}://{host}{port}{script}{path}".format(
+        #         protocol=protocol,
+        #         host=host,
+        #         port=port,
+        #         script=script,
+        #         path=path,
+        #     )
+        #
+        #     self.SCRIPT_PUBLIC_URL_ESCAPED = escape(url)
+        #
+        #           -> ***
+        #
+        # ---------------------------------------------------------------------
+        # Other
+        # ---------------------------------------------------------------------
+        # self.session = None  # type: Session  -> Request.camcops_session
+        # self.WEBSTART -> Request.webstart_html
+        # self.WEB_LOGO -> Request.web_logo_html
 
-    def set_from_environ_and_ping_db(self, environ: Dict) -> None:
-        """Set up process-local storage from the incoming environment (which
-        may be very fast if already cached) and ensure we have an active
-        database connection."""
+    def create_engine(self) -> Engine:
+        return create_engine(self.DB_URL, echo=self.DB_ECHO,
+                             pool_pre_ping=True)
 
-        # 1. Set up process-local storage
-        self.set(environ)
-        # ... will do almost nothing if its
-        #     PERSISTENT_CONSTANTS_INITIALIZED flag is set
-        # ... so we also have to:
+    def _get_all_table_names(self) -> List[str]:
+        engine = self.create_engine()
+        return get_table_names(engine=engine)
 
-        # 2. Ping MySQL connection, to reconnect if it's timed out.
-        # This should fix:
-        #   Problem: "MySQL server has gone away"
-        #   mysqld --verbose --help | grep wait-timeout
-        #   ... 28,800 seconds = 480 minutes = 8 hours
-        #   http://stackoverflow.com/questions/2582506
-        self.db.ping()
+    def get_which_idnums(self) -> List[int]:
+        return list(self.IDDESC.keys())
 
-    def get_anonymisation_database(self) -> rnc_db.DatabaseSupporter:
-        """Open the anonymisation staging database. That is not performance-
-        critical and the connection does not need to be cached. Will raise
-        an exception upon a connection error."""
-        # Follows same security principles as above.
-        config = configparser.ConfigParser()
-        config.read_file(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
-        section = CONFIG_FILE_MAIN_SECTION
+    def get_id_desc(self, which_idnum: int,
+                    default: str = None) -> Optional[str]:
+        """Get server's ID description."""
+        return self.IDDESC.get(which_idnum, default)
 
-        server = get_config_parameter(
-            config, section, "ANONSTAG_DB_SERVER", str, DEFAULT_DB_SERVER)
-        port = get_config_parameter(
-            config, section, "ANONSTAG_DB_PORT", int, DEFAULT_DB_PORT)
-        database = get_config_parameter(
-            config, section, "ANONSTAG_DB_NAME", str, None)
-        if database is None:
-            raise RuntimeError("ANONSTAG_DB_NAME not specified in config")
-        user = get_config_parameter(
-            config, section, "ANONSTAG_DB_USER", str, None)
-        if user is None:
-            raise RuntimeError("ANONSTAG_DB_USER not specified in config")
-        # It is a potential disaster if the anonymisation database is the same
-        # database as the main database - risk of destroying original data.
-        # We mitigate this risk in two ways.
-        # (1) We check here. Since different server/port combinations could
-        #     resolve to the same host, we take the extremely conservative
-        #     approach of requiring a different database name.
-        if database == self.DB_NAME:
-            raise RuntimeError("ANONSTAG_DB_NAME must be different from "
-                               "DB_NAME")
-        # (2) We prefix all tablenames in the CRIS staging database;
-        #     see cc_task.
+    def get_id_shortdesc(self, which_idnum: int,
+                         default: str = None) -> Optional[str]:
+        """Get server's short ID description."""
+        return self.IDSHORTDESC.get(which_idnum, default)
+
+    @contextlib.contextmanager
+    def get_dbsession_context(self) -> Generator[SqlASession, None, None]:
+        engine = self.create_engine()
+        maker = sessionmaker(bind=engine)
+        session = maker()  # type: SqlASession
+        # noinspection PyBroadException
         try:
-            password = get_config_parameter(
-                config, section, "ANONSTAG_DB_PASSWORD", str, None)
-        except:  # deliberately conceal details for security
-            # noinspection PyUnusedLocal
-            password = None
-            raise RuntimeError("Problem reading ANONSTAG_DB_PASSWORD from "
-                               "config")
-        if password is None:
-            raise RuntimeError("ANONSTAG_DB_PASSWORD not specified in config")
-        try:
-            db = rnc_db.DatabaseSupporter()
-            db.connect_to_database_mysql(
-                server=server,
-                port=port,
-                database=database,
-                user=user,
-                password=password,
-                autocommit=False  # NB therefore need to commit
-                # ... done in camcops.py at the end of a session
-            )
-        except:  # deliberately conceal details for security
-            raise rnc_db.NoDatabaseError(
-                "Problem opening or reading from database; details concealed "
-                "for security reasons")
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
         finally:
-            # Executed whether an exception is raised or not.
-            # noinspection PyUnusedLocal
-            password = None
-        # ---------------------------------------------------------------------
-        # Password is now re-obscured in all situations. Onwards...
-        # ---------------------------------------------------------------------
-        return db
+            session.close()
+
+    # def get_anonymisation_database(self) -> rnc_db.DatabaseSupporter:
+    #     """Open the anonymisation staging database. That is not performance-
+    #     critical and the connection does not need to be cached. Will raise
+    #     an exception upon a connection error."""
+    #     # Follows same security principles as above.
+    #     config = configparser.ConfigParser()
+    #     config.read_file(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
+    #     section = CONFIG_FILE_MAIN_SECTION
+    #
+    #     server = get_config_parameter(
+    #         config, section, "ANONSTAG_DB_SERVER", str, DEFAULT_DB_SERVER)
+    #     port = get_config_parameter(
+    #         config, section, "ANONSTAG_DB_PORT", int, DEFAULT_DB_PORT)
+    #     database = get_config_parameter(
+    #         config, section, "ANONSTAG_DB_NAME", str, None)
+    #     if database is None:
+    #         raise RuntimeError("ANONSTAG_DB_NAME not specified in config")
+    #     user = get_config_parameter(
+    #         config, section, "ANONSTAG_DB_USER", str, None)
+    #     if user is None:
+    #         raise RuntimeError("ANONSTAG_DB_USER not specified in config")
+    #     # It is a potential disaster if the anonymisation database is the same
+    #     # database as the main database - risk of destroying original data.
+    #     # We mitigate this risk in two ways.
+    #     # (1) We check here. Since different server/port combinations could
+    #     #     resolve to the same host, we take the extremely conservative
+    #     #     approach of requiring a different database name.
+    #     if database == self.DB_NAME:
+    #         raise RuntimeError("ANONSTAG_DB_NAME must be different from "
+    #                            "DB_NAME")
+    #     # (2) We prefix all tablenames in the CRIS staging database;
+    #     #     see cc_task.
+    #     try:
+    #         password = get_config_parameter(
+    #             config, section, "ANONSTAG_DB_PASSWORD", str, None)
+    #     except:  # deliberately conceal details for security
+    #         # noinspection PyUnusedLocal
+    #         password = None
+    #         raise RuntimeError("Problem reading ANONSTAG_DB_PASSWORD from "
+    #                            "config")
+    #     if password is None:
+    #         raise RuntimeError("ANONSTAG_DB_PASSWORD not specified in config")
+    #     try:
+    #         db = rnc_db.DatabaseSupporter()
+    #         db.connect_to_database_mysql(
+    #             server=server,
+    #             port=port,
+    #             database=database,
+    #             user=user,
+    #             password=password,
+    #             autocommit=False  # NB therefore need to commit
+    #             # ... done in camcops.py at the end of a session
+    #         )
+    #     except:  # deliberately conceal details for security
+    #         raise rnc_db.NoDatabaseError(
+    #             "Problem opening or reading from database; details concealed "
+    #             "for security reasons")
+    #     finally:
+    #         # Executed whether an exception is raised or not.
+    #         # noinspection PyUnusedLocal
+    #         password = None
+    #     # -------------------------------------------------------------------
+    #     # Password is now re-obscured in all situations. Onwards...
+    #     # -------------------------------------------------------------------
+    #     return db
+
 
 # =============================================================================
-# Process-specific instance
+# Get config filename from an appropriate environment (WSGI or OS)
 # =============================================================================
 
-pls = LocalStorage()
+def get_config_filename(environ: Dict[str, str] = None) -> str:
+    config_filename = None
+    if environ is not None:
+        # This may be used for WSGI environments
+        config_filename = environ.get(ENVVAR_CONFIG_FILE)
+    if config_filename is None:
+        # Fall back to OS environment
+        config_filename = os.environ.get(ENVVAR_CONFIG_FILE)
+    if not config_filename:
+        raise AssertionError(
+            "Neither WSGI nor OS environment provided the required "
+            "environment variable {}".format(ENVVAR_CONFIG_FILE))
+    return config_filename
+
+
+# =============================================================================
+# Cached instance
+# =============================================================================
+
+@cache_region_static.cache_on_arguments(function_key_generator=fkg)
+def get_config(config_filename: str) -> CamcopsConfig:
+    return CamcopsConfig(config_filename)

@@ -24,19 +24,18 @@
 
 from typing import Dict, List
 
+from sqlalchemy.sql.sqltypes import Integer
+
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
     answer,
     italic,
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    get_from_dict,
-    Task,
-    TrackerInfo,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -82,10 +81,12 @@ class Cgi(Task):
             content="CGI total score {}/30".format(self.total_score())
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT", value=self.total_score()),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score()),
         ]
 
     def is_complete(self) -> bool:

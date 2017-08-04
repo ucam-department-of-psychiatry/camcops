@@ -24,19 +24,16 @@
 
 from typing import List
 
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import (
     subheading_spanning_two_columns,
     tr_qa,
     tr_span_col,
 )
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    get_from_dict,
-    Task,
-    TrackerInfo,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -131,7 +128,7 @@ class CgiSch(Task):
             )
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [self.is_complete_summary_field()]
 
     def is_complete(self) -> bool:

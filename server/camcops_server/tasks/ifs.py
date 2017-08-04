@@ -24,11 +24,14 @@
 
 from typing import Dict, List
 
+from sqlalchemy.sql.sqltypes import Float, Integer
+
 from ..cc_modules.cc_constants import (
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     INVALID_VALUE,
     PV,
 )
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
     answer,
     get_correct_incorrect_none,
@@ -36,7 +39,9 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -123,16 +128,20 @@ class Ifs(Task):
             ),
         ]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         scoredict = self.get_score()
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="FLOAT",
-                 value=scoredict['total'],
-                 comment="Total (out of 30, higher better)"),
-            dict(name="wm", cctype="INT",
-                 value=scoredict['wm'],
-                 comment="Working memory index (out of 10; sum of Q4 + Q6"),
+            SummaryElement(
+                name="total",
+                coltype=Float(),
+                value=scoredict['total'],
+                comment="Total (out of 30, higher better)"),
+            SummaryElement(
+                name="wm",
+                coltype=Integer(),
+                value=scoredict['wm'],
+                comment="Working memory index (out of 10; sum of Q4 + Q6"),
         ]
 
     def get_clinical_text(self) -> List[CtvInfo]:

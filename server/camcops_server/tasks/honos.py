@@ -24,6 +24,9 @@
 
 from typing import List, Optional
 
+from sqlalchemy.sql.sqltypes import Integer
+
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -32,13 +35,9 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    get_from_dict,
-    Task,
-    TrackerInfo,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 PV_MAIN = [0, 1, 2, 3, 4, 9]
@@ -110,11 +109,13 @@ class Honos(Task):
             content="HoNOS total score {}/48".format(self.total_score())
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT", value=self.total_score(),
-                 comment="Total score (/48)"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (/48)"),
         ]
 
     def is_complete(self) -> bool:
@@ -263,11 +264,13 @@ class Honos65(Task):
             content="HoNOS-65+ total score {}/48".format(self.total_score())
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT", value=self.total_score(),
-                 comment="Total score (/48)"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (/48)"),
         ]
 
     def is_complete(self) -> bool:
@@ -295,7 +298,7 @@ class Honos65(Task):
     def get_q(self, q: int) -> str:
         return self.wxstring("q" + str(q) + "_s")
 
-    def get_answer(self, q: int, a: int) -> str:
+    def get_answer(self, q: int, a: int) -> Optional[str]:
         if a == 9:
             return self.wxstring("option9")
         if a is None or a < 0 or a > 4:
@@ -414,11 +417,13 @@ class Honosca(Task):
             content="HoNOSCA total score {}/60".format(self.total_score())
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT", value=self.total_score(),
-                 comment="Total score (/60)"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (/60)"),
         ]
 
     def is_complete(self) -> bool:
@@ -439,7 +444,7 @@ class Honosca(Task):
     def get_q(self, q: int) -> str:
         return self.wxstring("q" + str(q) + "_s")
 
-    def get_answer(self, q: int, a: int) -> str:
+    def get_answer(self, q: int, a: int) -> Optional[str]:
         if a == 9:
             return self.wxstring("option9")
         if a is None or a < 0 or a > 4:

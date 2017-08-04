@@ -30,7 +30,7 @@ from typing import Any, Generator, List, Optional
 
 import cardinal_pythonlib.rnc_db as rnc_db
 from .cc_logger import BraceStyleAdapter
-from .cc_pls import pls
+from .cc_config import pls
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

@@ -198,6 +198,9 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     //             [http://doc.qt.io/qt-4.8/model-view-programming.html]
     //          -> QStyledItemDelegate::paint()
     //   - https://superuser.com/questions/638139/whats-the-proper-name-of-that-symbol-to-collapse-expand-nodes-in-a-directory-tr
+    //      "disclosure widget"
+    //      "progressive disclosure controls"
+    //      "rotating triangle"; "plus and minus controls"
     //   UPSHOT: fiddly. The trouble is that the CSS just lets us do
     //   url(filename); see qcssparser.cpp and search for "url".
 
@@ -206,6 +209,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_heading_tree->setObjectName(cssconst::HEADING);
 
     m_treeview = new QTreeView();
+    // TreeViewControlDelegate* delegate = new TreeViewControlDelegate();
+    // m_treeview->setItemDelegate(delegate);
     m_treeview->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_treeview->setModel(m_codeset.data());
     m_treeview->setSelectionModel(m_selection_model.data());

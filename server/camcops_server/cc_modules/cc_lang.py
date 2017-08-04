@@ -25,8 +25,11 @@
 # Misc language-oriented functions
 
 from functools import total_ordering
+import logging
 from typing import Any, Dict, List, Optional, Sequence, Type, TypeVar, Union
 import unicodedata
+
+log = logging.getLogger(__name__)  # no BraceAdapter here; we may use {}
 
 
 # =============================================================================
@@ -150,6 +153,27 @@ def mangle_unicode_to_ascii(s: Any) -> str:
                    .encode('ascii', 'ignore')  # gets rid of accents
                    .decode('ascii')  # back to a string
     )
+
+
+# =============================================================================
+# Object debugging
+# =============================================================================
+
+def simple_repr(obj: object) -> str:
+    return "<{classname}({kvp})>".format(
+        classname=type(obj).__name__,
+        kvp=", ".join("{}={}".format(k, repr(v))
+                      for k, v in obj.__dict__.items())
+    )
+
+
+def debug_thing(obj, log_level = logging.DEBUG) -> None:
+    msgs = ["For {o!r}:".format(o=obj)]
+    for attrname in dir(obj):
+        attribute = getattr(obj, attrname)
+        msgs.append("- {an!r}: {at!r}, of type {t!r}".format(
+            an=attrname, at=attribute, t=type(attribute)))
+    log.log(log_level, "\n".join(msgs))
 
 
 # =============================================================================

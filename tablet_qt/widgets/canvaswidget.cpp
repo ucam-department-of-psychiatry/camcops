@@ -20,7 +20,6 @@
 // #define DEBUG_TRANSLATIONS
 
 #include "canvaswidget.h"
-#include <cmath>
 #include <QColor>
 #include <QDebug>
 #include <QMouseEvent>
@@ -30,6 +29,7 @@
 #include <QStyle>
 #include <QStyleOption>
 #include "common/uiconst.h"
+#include "lib/convert.h"
 #include "lib/margins.h"
 #include "lib/sizehelpers.h"
 
@@ -40,37 +40,41 @@ const QColor DEFAULT_BORDER_COLOR(uiconst::GREY_200);
 const QColor DEFAULT_UNUSED_SPACE_COLOR(uiconst::GREY_200);
 
 
-CanvasWidget::CanvasWidget(QWidget* parent) :
+CanvasWidget::CanvasWidget(QImage::Format format, QWidget* parent) :
     QFrame(parent)
 {
-    commonConstructor(QSize(0, 0));
+    commonConstructor(QSize(0, 0), format);
 }
 
 
-CanvasWidget::CanvasWidget(const QSize& size, QWidget* parent) :
+CanvasWidget::CanvasWidget(const QSize& size,
+                           QImage::Format format,
+                           QWidget* parent) :
     QFrame(parent)
 {
-    commonConstructor(size);
+    commonConstructor(size, format);
 }
 
 
-void CanvasWidget::commonConstructor(const QSize& size)
+void CanvasWidget::commonConstructor(const QSize& size, QImage::Format format)
 {
-    m_point = INVALID_POINT;
-    m_image_to_display_ratio = 1;
+    m_format = format;
+    setAllowShrink(false);
     m_minimum_shrink_height = DEFAULT_MIN_SHRINK_HEIGHT;
+    m_adjust_display_for_dpi = true;
+
     m_border_width_px = 2;
     m_border_colour = DEFAULT_BORDER_COLOR;
     m_unused_space_colour = DEFAULT_UNUSED_SPACE_COLOR;
-
-    setAllowShrink(false);
-    setSize(size);
-
     // Default pen:
     m_pen.setColor(Qt::blue);
     m_pen.setWidth(2);
 
+    m_point = INVALID_POINT;
+    m_image_to_display_ratio = 1;
+
     setBorderCss();
+    setImageSizeAndClearImage(size);
 }
 
 
@@ -79,10 +83,10 @@ CanvasWidget::~CanvasWidget()
 }
 
 
-void CanvasWidget::setSize(const QSize& size)
+void CanvasWidget::setImageSizeAndClearImage(const QSize& size)
 {
     // qDebug() << Q_FUNC_INFO;
-    m_size = size;
+    m_image = QImage(size, m_format);
     update();
 }
 
@@ -153,17 +157,17 @@ QSize CanvasWidget::sizeHint() const
     //   it works!
 
     const Margins m = Margins::getContentsMargins(this);
-    return m.addMarginsTo(m_size);
+    return m.addMarginsTo(desiredDisplaySize());
 }
 
 
 QSize CanvasWidget::minimumSizeHint() const
 {
     if (!m_allow_shrink) {
-        return m_size;
+        return desiredDisplaySize();
     }
-    QSize minsize = m_size;
-    minsize.scale(QSize(m_size.width(), m_minimum_shrink_height),
+    QSize minsize = imageSize();
+    minsize.scale(QSize(minsize.width(), m_minimum_shrink_height),
                   Qt::KeepAspectRatio);
     return minsize;
 }
@@ -183,31 +187,32 @@ void CanvasWidget::clear(const QColor& background)
 }
 
 
-void CanvasWidget::setImage(const QImage& image, bool resize_widget)
+void CanvasWidget::setImage(const QImage& image)
 {
     // qDebug() << Q_FUNC_INFO;
     if (image.isNull()) {
         qWarning() << Q_FUNC_INFO << "Asked to set null image!";
     }
-    if (resize_widget || !m_size.isValid()) {
-        m_image = image;
-        setSize(image.size());  // calls update()
-    } else {
-        // scale image onto m_canvas
-        m_image = image.scaled(m_size);
-        update();
-    }
+    m_image = image;
+    update();
+}
+
+
+void CanvasWidget::setAdjustDisplayForDpi(bool adjust_display_for_dpi)
+{
+    m_adjust_display_for_dpi = adjust_display_for_dpi;
+    update();
 }
 
 
 void CanvasWidget::resizeEvent(QResizeEvent* event)
 {
-    QSize displaysize = m_size;
+    QSize displaysize = imageSize();
     displaysize.scale(contentsRect().size(), Qt::KeepAspectRatio);
     // Store the ratio in a format that allows the most common operations to
     // use multiplication, not division:
     // http://stackoverflow.com/questions/4125033/floating-point-division-vs-floating-point-multiplication
-    m_image_to_display_ratio = (double)m_size.width() / (double)displaysize.width();
+    m_image_to_display_ratio = (double)imageSize().width() / (double)displaysize.width();
 
 #ifdef DEBUG_TRANSLATIONS
     qDebug().nospace()
@@ -240,12 +245,13 @@ void CanvasWidget::paintEvent(QPaintEvent* event)
 
     // 2. Our bits
     const QRect cr = contentsRect();
-    if (m_allow_shrink && cr.size() != m_image.size()) {
+    const QSize imagesize = imageSize();
+    if (m_allow_shrink && cr.size() != imagesize) {
         // Scale
-        QSize displaysize = m_size;
+        QSize displaysize = imagesize;
         displaysize.scale(cr.size(), Qt::KeepAspectRatio);
         const QRect dest_active_rect = QRect(cr.topLeft(), displaysize);
-        const QRect source_all_image(QPoint(0, 0), m_image.size());
+        const QRect source_all_image(QPoint(0, 0), imagesize);
         painter.drawImage(dest_active_rect, m_image, source_all_image);
 
         // Optimizations are possible: we don't have to draw all of it...
@@ -319,7 +325,7 @@ void CanvasWidget::mouseMoveEvent(QMouseEvent* event)
 }
 
 
-void CanvasWidget::drawTo(QPoint pt)
+void CanvasWidget::drawTo(const QPoint& pt)
 {
     // The coordinates are IMAGE coordinates.
     if (m_image.isNull()) {
@@ -344,6 +350,22 @@ void CanvasWidget::drawTo(QPoint pt)
 QImage CanvasWidget::image() const
 {
     return m_image;
+}
+
+
+QSize CanvasWidget::imageSize() const
+{
+    return m_image.size();
+}
+
+
+QSize CanvasWidget::desiredDisplaySize() const
+{
+    if (m_adjust_display_for_dpi) {
+        return convert::convertSizeByDpi(imageSize());
+    } else {
+        return imageSize();
+    }
 }
 
 

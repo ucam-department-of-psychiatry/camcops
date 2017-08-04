@@ -22,19 +22,19 @@
 ===============================================================================
 """
 
-from typing import Optional
+from typing import List, Optional
 
-from ..cc_modules.cc_constants import (
-    PV,
-)
+from sqlalchemy.sql.sqltypes import Float
+
+from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
     subheading_spanning_three_columns,
     tr,
-    tr_qa,
 )
+from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 
 
@@ -130,71 +130,111 @@ class CbiR(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="memory_frequency_pct", cctype="FLOAT",
-                 value=self.frequency_subscore(*self.QNUMS_MEMORY),
-                 comment="Memory/orientation: frequency score (% of max)"),
-            dict(name="memory_distress_pct", cctype="FLOAT",
-                 value=self.distress_subscore(*self.QNUMS_MEMORY),
-                 comment="Memory/orientation: distress score (% of max)"),
-            dict(name="everyday_frequency_pct", cctype="FLOAT",
-                 value=self.frequency_subscore(*self.QNUMS_EVERYDAY),
-                 comment="Everyday skills: frequency score (% of max)"),
-            dict(name="everyday_distress_pct", cctype="FLOAT",
-                 value=self.distress_subscore(*self.QNUMS_EVERYDAY),
-                 comment="Everyday skills: distress score (% of max)"),
-            dict(name="selfcare_frequency_pct", cctype="FLOAT",
-                 value=self.frequency_subscore(*self.QNUMS_SELF),
-                 comment="Self-care: frequency score (% of max)"),
-            dict(name="selfcare_distress_pct", cctype="FLOAT",
-                 value=self.distress_subscore(*self.QNUMS_SELF),
-                 comment="Self-care: distress score (% of max)"),
-            dict(name="behaviour_frequency_pct", cctype="FLOAT",
-                 value=self.frequency_subscore(*self.QNUMS_BEHAVIOUR),
-                 comment="Abnormal behaviour: frequency score (% of max)"),
-            dict(name="behaviour_distress_pct", cctype="FLOAT",
-                 value=self.distress_subscore(*self.QNUMS_BEHAVIOUR),
-                 comment="Abnormal behaviour: distress score (% of max)"),
-            dict(name="mood_frequency_pct", cctype="FLOAT",
-                 value=self.frequency_subscore(*self.QNUMS_MOOD),
-                 comment="Mood: frequency score (% of max)"),
-            dict(name="mood_distress_pct", cctype="FLOAT",
-                 value=self.distress_subscore(*self.QNUMS_MOOD),
-                 comment="Mood: distress score (% of max)"),
-            dict(name="beliefs_frequency_pct", cctype="FLOAT",
-                 value=self.frequency_subscore(*self.QNUMS_BELIEFS),
-                 comment="Beliefs: frequency score (% of max)"),
-            dict(name="beliefs_distress_pct", cctype="FLOAT",
-                 value=self.distress_subscore(*self.QNUMS_BELIEFS),
-                 comment="Beliefs: distress score (% of max)"),
-            dict(name="eating_frequency_pct", cctype="FLOAT",
-                 value=self.frequency_subscore(*self.QNUMS_EATING),
-                 comment="Eating habits: frequency score (% of max)"),
-            dict(name="eating_distress_pct", cctype="FLOAT",
-                 value=self.distress_subscore(*self.QNUMS_EATING),
-                 comment="Eating habits: distress score (% of max)"),
-            dict(name="sleep_frequency_pct", cctype="FLOAT",
-                 value=self.frequency_subscore(*self.QNUMS_SLEEP),
-                 comment="Sleep: frequency score (% of max)"),
-            dict(name="sleep_distress_pct", cctype="FLOAT",
-                 value=self.distress_subscore(*self.QNUMS_SLEEP),
-                 comment="Sleep: distress score (% of max)"),
-            dict(name="stereotypic_frequency_pct", cctype="FLOAT",
-                 value=self.frequency_subscore(*self.QNUMS_STEREOTYPY),
-                 comment="Stereotypic and motor behaviours: frequency "
-                         "score (% of max)"),
-            dict(name="stereotypic_distress_pct", cctype="FLOAT",
-                 value=self.distress_subscore(*self.QNUMS_STEREOTYPY),
-                 comment="Stereotypic and motor behaviours: distress "
-                         "score (% of max)"),
-            dict(name="motivation_frequency_pct", cctype="FLOAT",
-                 value=self.frequency_subscore(*self.QNUMS_MOTIVATION),
-                 comment="Motivation: frequency score (% of max)"),
-            dict(name="motivation_distress_pct", cctype="FLOAT",
-                 value=self.distress_subscore(*self.QNUMS_MOTIVATION),
-                 comment="Motivation: distress score (% of max)"),
+            SummaryElement(
+                name="memory_frequency_pct",
+                coltype=Float(),
+                value=self.frequency_subscore(*self.QNUMS_MEMORY),
+                comment="Memory/orientation: frequency score (% of max)"),
+            SummaryElement(
+                name="memory_distress_pct", 
+                coltype=Float(),
+                value=self.distress_subscore(*self.QNUMS_MEMORY),
+                comment="Memory/orientation: distress score (% of max)"),
+            SummaryElement(
+                name="everyday_frequency_pct", 
+                coltype=Float(),
+                value=self.frequency_subscore(*self.QNUMS_EVERYDAY),
+                comment="Everyday skills: frequency score (% of max)"),
+            SummaryElement(
+                name="everyday_distress_pct", 
+                coltype=Float(),
+                value=self.distress_subscore(*self.QNUMS_EVERYDAY),
+                comment="Everyday skills: distress score (% of max)"),
+            SummaryElement(
+                name="selfcare_frequency_pct", 
+                coltype=Float(),
+                value=self.frequency_subscore(*self.QNUMS_SELF),
+                comment="Self-care: frequency score (% of max)"),
+            SummaryElement(
+                name="selfcare_distress_pct", 
+                coltype=Float(),
+                value=self.distress_subscore(*self.QNUMS_SELF),
+                comment="Self-care: distress score (% of max)"),
+            SummaryElement(
+                name="behaviour_frequency_pct", 
+                coltype=Float(),
+                value=self.frequency_subscore(*self.QNUMS_BEHAVIOUR),
+                comment="Abnormal behaviour: frequency score (% of max)"),
+            SummaryElement(
+                name="behaviour_distress_pct", 
+                coltype=Float(),
+                value=self.distress_subscore(*self.QNUMS_BEHAVIOUR),
+                comment="Abnormal behaviour: distress score (% of max)"),
+            SummaryElement(
+                name="mood_frequency_pct", 
+                coltype=Float(),
+                value=self.frequency_subscore(*self.QNUMS_MOOD),
+                comment="Mood: frequency score (% of max)"),
+            SummaryElement(
+                name="mood_distress_pct", 
+                coltype=Float(),
+                value=self.distress_subscore(*self.QNUMS_MOOD),
+                comment="Mood: distress score (% of max)"),
+            SummaryElement(
+                name="beliefs_frequency_pct", 
+                coltype=Float(),
+                value=self.frequency_subscore(*self.QNUMS_BELIEFS),
+                comment="Beliefs: frequency score (% of max)"),
+            SummaryElement(
+                name="beliefs_distress_pct", 
+                coltype=Float(),
+                value=self.distress_subscore(*self.QNUMS_BELIEFS),
+                comment="Beliefs: distress score (% of max)"),
+            SummaryElement(
+                name="eating_frequency_pct", 
+                coltype=Float(),
+                value=self.frequency_subscore(*self.QNUMS_EATING),
+                comment="Eating habits: frequency score (% of max)"),
+            SummaryElement(
+                name="eating_distress_pct", 
+                coltype=Float(),
+                value=self.distress_subscore(*self.QNUMS_EATING),
+                comment="Eating habits: distress score (% of max)"),
+            SummaryElement(
+                name="sleep_frequency_pct", 
+                coltype=Float(),
+                value=self.frequency_subscore(*self.QNUMS_SLEEP),
+                comment="Sleep: frequency score (% of max)"),
+            SummaryElement(
+                name="sleep_distress_pct", 
+                coltype=Float(),
+                value=self.distress_subscore(*self.QNUMS_SLEEP),
+                comment="Sleep: distress score (% of max)"),
+            SummaryElement(
+                name="stereotypic_frequency_pct", 
+                coltype=Float(),
+                value=self.frequency_subscore(*self.QNUMS_STEREOTYPY),
+                comment="Stereotypic and motor behaviours: frequency "
+                        "score (% of max)"),
+            SummaryElement(
+                name="stereotypic_distress_pct", 
+                coltype=Float(),
+                value=self.distress_subscore(*self.QNUMS_STEREOTYPY),
+                comment="Stereotypic and motor behaviours: distress "
+                        "score (% of max)"),
+            SummaryElement(
+                name="motivation_frequency_pct", 
+                coltype=Float(),
+                value=self.frequency_subscore(*self.QNUMS_MOTIVATION),
+                comment="Motivation: frequency score (% of max)"),
+            SummaryElement(
+                name="motivation_distress_pct", 
+                coltype=Float(),
+                value=self.distress_subscore(*self.QNUMS_MOTIVATION),
+                comment="Motivation: distress score (% of max)"),
         ]
 
     def subscore(self, first: int, last: int, fieldprefix: str) \

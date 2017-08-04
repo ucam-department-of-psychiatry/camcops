@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define USE_NUMERIC_DATES
+
 #include "qudatetime.h"
 #include <QCalendarWidget>
 #include <QDateTimeEdit>
@@ -28,11 +30,27 @@
 #include "widgets/spacer.h"
 
 // http://doc.qt.io/qt-5/qdatetime.html#toString
+#ifdef USE_NUMERIC_DATES
+const QString DEFAULT_DATETIME_FORMAT("yyyy MM dd HH:mm");
+const QString DEFAULT_DATE_FORMAT("yyyy MM dd");
+Qt::InputMethodHints DATETIME_IMH = Qt::ImhPreferNumbers;
+Qt::InputMethodHints DATE_IMH = Qt::ImhPreferNumbers;
+#else
 const QString DEFAULT_DATETIME_FORMAT("dd MMM yyyy HH:mm");
 const QString DEFAULT_DATE_FORMAT("dd MMM yyyy");
+Qt::InputMethodHints DATETIME_IMH = Qt::ImhNone;
+Qt::InputMethodHints DATE_IMH = Qt::ImhNone;
+#endif
 const QString DEFAULT_TIME_FORMAT("HH:mm");
-// const QDate PSEUDONULL_DATE(1752, 9, 14);  // 14 Sep 1752 is usual minimum (Gregorian calendar)
-const QDate PSEUDONULL_DATE(2000, 1, 1);  // ... but 1752 is a long way away from now...
+Qt::InputMethodHints TIME_IMH = Qt::ImhPreferNumbers;
+// Default pseudo-null date (what's display when nothing is selected):
+// - 14 Sep 1752 is usual minimum (Gregorian calendar), but is a long way from now
+// - 01 Jan 2000 is an option, but is too plausible
+// - 01 Jan 1900 is a common choice (e.g. Epic, hence all those 117yo unknown
+//   patients in 2017).
+// const QDate PSEUDONULL_DATE(1752, 9, 14);
+// const QDate PSEUDONULL_DATE(2000, 1, 1);
+const QDate PSEUDONULL_DATE(1900, 1, 1);
 const QTime PSEUDONULL_TIME(0, 0, 0, 0);
 const QDateTime PSEUDONULL_DATETIME(PSEUDONULL_DATE, PSEUDONULL_TIME);
 
@@ -40,6 +58,7 @@ const QDateTime PSEUDONULL_DATETIME(PSEUDONULL_DATE, PSEUDONULL_TIME);
 QuDateTime::QuDateTime(FieldRefPtr fieldref) :
     m_fieldref(fieldref),
     m_mode(Mode::DefaultDateTime),
+    m_custom_input_method_hint(Qt::ImhNone),
     m_offer_now_button(false),
     m_offer_null_button(false),
     m_editor(nullptr),
@@ -60,9 +79,11 @@ QuDateTime* QuDateTime::setMode(QuDateTime::Mode mode)
 }
 
 
-QuDateTime* QuDateTime::setCustomFormat(const QString& format)
+QuDateTime* QuDateTime::setCustomFormat(const QString& format,
+                                        Qt::InputMethodHints input_method_hint)
 {
     m_custom_format = format;
+    m_custom_input_method_hint = input_method_hint;
     return this;
 }
 
@@ -105,29 +126,42 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
 
     QString format;
     bool use_calendar = true;
+    Qt::InputMethodHints input_method_hint = Qt::ImhNone;
     switch (m_mode) {
     case DefaultDateTime:
         format = DEFAULT_DATETIME_FORMAT;
+        input_method_hint = DATETIME_IMH;
         break;
     case DefaultDate:
         format = DEFAULT_DATE_FORMAT;
+        input_method_hint = DATE_IMH;
         break;
     case DefaultTime:
         format = DEFAULT_TIME_FORMAT;
+        input_method_hint = TIME_IMH;
         use_calendar = false;
         break;
     case CustomDateTime:
     case CustomDate:
         format = m_custom_format;
+        input_method_hint = m_custom_input_method_hint;
         break;
     case CustomTime:
         format = m_custom_format;
+        input_method_hint = m_custom_input_method_hint;
         use_calendar = false;
         break;
     }
 
     m_editor = new QDateTimeEdit();
     m_editor->setDisplayFormat(format);
+    m_editor->setInputMethodHints(input_method_hint);
+    // ... or, on Android, you get a numbers-only keyboard even with a format
+    // like "12 Jan 1970".
+    // - That's because QDateTimeEditPrivate::init() calls
+    //   q->setInputMethodHints(Qt::ImhPreferNumbers);
+    // - Note also that Qt::ImhDate and Qt::ImhTime give you numbers plus
+    //   punctuation, for ":"; see qqnxabstractvirtualkeyboard.cpp
 
     m_editor->setCalendarPopup(use_calendar);
     // ... need to call setCalendarPopup(true) BEFORE setCalendarWidget; QTBUG-12300

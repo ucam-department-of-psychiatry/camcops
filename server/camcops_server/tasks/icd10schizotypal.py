@@ -25,12 +25,14 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Boolean
 
 from ..cc_modules.cc_constants import (
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
 )
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_dt import format_datetime_string
 from ..cc_modules.cc_html import (
@@ -40,7 +42,8 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -106,12 +109,12 @@ class Icd10Schizotypal(Task):
             infolist.append(CtvInfo(content=ws.webify(self.comments)))
         return infolist
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="meets_criteria", cctype="BOOL",
-                 value=self.meets_criteria(),
-                 comment="Meets criteria for schizotypal disorder?"),
+            SummaryElement(name="meets_criteria", coltype=Boolean(),
+                           value=self.meets_criteria(),
+                           comment="Meets criteria for schizotypal disorder?"),
         ]
 
     # Meets criteria? These also return null for unknown.

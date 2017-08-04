@@ -24,18 +24,16 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Boolean, Integer
+
+from ..cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
+from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    get_from_dict,
-    Task,
-    TrackerAxisTick,
-    TrackerInfo,
-    TrackerLabel,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerAxisTick, TrackerInfo, TrackerLabel  # noqa
 
 
 # =============================================================================
@@ -118,23 +116,37 @@ class Phq9(Task):
                 self.total_score(), self.severity())
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT", value=self.total_score(),
-                 comment="Total score (/27)"),
-            dict(name="n_core", cctype="INT", value=self.n_core(),
-                 comment="Number of core symptoms"),
-            dict(name="n_other", cctype="INT", value=self.n_other(),
-                 comment="Number of other symptoms"),
-            dict(name="n_total", cctype="INT", value=self.n_total(),
-                 comment="Total number of symptoms"),
-            dict(name="is_mds", cctype="BOOL", value=self.is_mds(),
-                 comment="PHQ9 major depressive syndrome?"),
-            dict(name="is_ods", cctype="BOOL", value=self.is_ods(),
-                 comment="PHQ9 other depressive syndrome?"),
-            dict(name="severity", cctype="TEXT", value=self.severity(),
-                 comment="PHQ9 depression severity"),
+            SummaryElement(
+                name="total", coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (/27)"),
+            SummaryElement(
+                name="n_core", coltype=Integer(),
+                value=self.n_core(),
+                comment="Number of core symptoms"),
+            SummaryElement(
+                name="n_other", coltype=Integer(),
+                value=self.n_other(),
+                comment="Number of other symptoms"),
+            SummaryElement(
+                name="n_total", coltype=Integer(),
+                value=self.n_total(),
+                comment="Total number of symptoms"),
+            SummaryElement(
+                name="is_mds", coltype=Boolean(),
+                value=self.is_mds(),
+                comment="PHQ9 major depressive syndrome?"),
+            SummaryElement(
+                name="is_ods", coltype=Boolean(),
+                value=self.is_ods(),
+                comment="PHQ9 other depressive syndrome?"),
+            SummaryElement(
+                name="severity", coltype=SummaryCategoryColType,
+                value=self.severity(),
+                comment="PHQ9 depression severity"),
         ]
 
     def total_score(self) -> int:

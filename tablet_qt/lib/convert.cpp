@@ -597,6 +597,12 @@ int convertLengthByDpi(int old_length, qreal to_dpi, qreal from_dpi)
 }
 
 
+int convertLengthByDpi(int old_length)
+{
+    return convertLengthByDpi(old_length, uiconst::DPI, uiconst::DEFAULT_DPI);
+}
+
+
 QSize convertSizeByDpi(const QSize& old_size,  qreal to_dpi, qreal from_dpi)
 {
     if (!old_size.isValid()) {
@@ -604,6 +610,12 @@ QSize convertSizeByDpi(const QSize& old_size,  qreal to_dpi, qreal from_dpi)
     }
     return QSize(convertLengthByDpi(old_size.width(), to_dpi, from_dpi),
                  convertLengthByDpi(old_size.height(), to_dpi, from_dpi));
+}
+
+
+QSize convertSizeByDpi(const QSize& old_size)
+{
+    return convertSizeByDpi(old_size, uiconst::DPI, uiconst::DEFAULT_DPI);
 }
 
 

@@ -23,13 +23,17 @@
 """
 
 import base64
+import datetime
 from typing import Any, Dict, List, Optional
 import xml.sax.saxutils
 
-from cardinal_pythonlib.rnc_db import FIELDSPEC_TYPE, FIELDSPECLIST_TYPE
+from arrow import Arrow
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.type_api import TypeEngine
 
-from . import cc_db
 from .cc_simpleobjects import XmlSimpleValue
+from .cc_sqlalchemy import get_orm_columns
+
 
 # =============================================================================
 # Constants
@@ -91,21 +95,24 @@ class XmlElement(object):
 
 def make_xml_branches_from_fieldspecs(
         obj,
-        fieldspecs: FIELDSPECLIST_TYPE,
         skip_fields: List[str] = None) -> List[XmlElement]:
-    """Returns a list of XML branches, each an XmlElementTuple, from an
-    objects and the list of fieldspecs that define/describe its fields."""
+    """
+    Returns a list of XML branches, each an XmlElementTuple, from an object,
+    using the list of SQLAlchemy Column objects that define/describe its
+    fields.
+    """
     skip_fields = skip_fields or []
+    columns = get_orm_columns(obj.__class__)
     branches = []
-    for fs in fieldspecs:
-        name = fs["name"]
+    for column in columns:
+        name = column.name
         if name in skip_fields:
             continue
         branches.append(XmlElement(
             name=name,
             value=getattr(obj, name),
-            datatype=get_xml_datatype_from_fieldspec(fs),
-            comment=fs.get("comment", None)
+            datatype=get_xml_datatype_from_sqla_column(column.type),
+            comment=column.comment
         ))
     return branches
 
@@ -124,7 +131,7 @@ def make_xml_branches_from_summaries(
         branches.append(XmlElement(
             name=name,
             value=d["value"],
-            datatype=get_xml_datatype_from_fieldspec(d),
+            datatype=get_xml_datatype_from_sqla_column(d),
             comment=d.get("comment", None)
         ))
     return branches
@@ -139,23 +146,36 @@ def xml_header(eol: str = '\n') -> str:
     )
 
 
-def get_xml_datatype_from_fieldspec(fs: FIELDSPEC_TYPE) -> Optional[str]:
-    """Returns the XML schema datatype from a fieldspec."""
+def get_xml_datatype_from_sqla_column_type(
+        coltype: TypeEngine) -> Optional[str]:
+    """
+    Returns the XML schema datatype from an SQLAlchemy column type,
+    such as Integer.
+    """
     # http://www.xml.dvint.com/docs/SchemaDataTypesQR-2.pdf
     # http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html
-    t = fs["cctype"]
-    if t in ["ISO8601", "DATETIME"]:
-        return XmlDataTypes.DATETIME
-    if t in ["INT", "INT_UNSIGNED", "BIGINT", "BIGINT_UNSIGNED"]:
-        return XmlDataTypes.INTEGER
-    if t in ["FLOAT"]:
-        return XmlDataTypes.DOUBLE
-    if t in ["BOOL"]:
-        return XmlDataTypes.BOOLEAN
-    if cc_db.cctype_is_string(t):
-        return XmlDataTypes.STRING
-    # BLOBs are handled separately.
+    try:
+        pt = coltype.python_type
+        if isinstance(pt, datetime.datetime) or isinstance(pt, Arrow):
+            return XmlDataTypes.DATETIME
+        if isinstance(pt, int):
+            return XmlDataTypes.INTEGER
+        if isinstance(pt, float):
+            return XmlDataTypes.DOUBLE
+        if isinstance(pt, bool):
+            return XmlDataTypes.BOOLEAN
+        if isinstance(pt, str):
+            return XmlDataTypes.STRING
+        # BLOBs are handled separately.
+    except NotImplementedError:
+        pass
     return None
+
+
+def get_xml_datatype_from_sqla_column(column: Column) -> Optional[str]:
+    """Returns the XML schema datatype from an SQLAlchemy Column."""
+    coltype = column.type  # type: TypeEngine
+    return get_xml_datatype_from_sqla_column_type(coltype)
 
 
 def get_xml_blob_tuple(name: str,

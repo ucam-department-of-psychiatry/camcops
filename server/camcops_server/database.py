@@ -75,8 +75,8 @@ from .cc_modules.cc_hl7 import HL7Run
 from .cc_modules.cc_logger import BraceStyleAdapter
 from .cc_modules.cc_patient import Patient
 from .cc_modules.cc_patientidnum import PatientIdNum
-from .cc_modules.cc_pls import pls
-from .cc_modules.cc_session import Session
+from .cc_modules.cc_config import pls
+from .cc_modules.cc_session import CamcopsSession
 from .cc_modules.cc_specialnote import SpecialNote
 from .cc_modules.cc_storedvar import ServerStoredVar
 from .cc_modules.cc_unittest import (
@@ -139,7 +139,7 @@ RESERVED_TABLES = [
     Device.TABLENAME,
     SECURITY_LOGIN_FAILURE_TABLENAME,
     User.TABLENAME,
-    Session.TABLENAME,
+    CamcopsSession.TABLENAME,
     ServerStoredVar.TABLENAME,
     SpecialNote.TABLENAME,
 ]

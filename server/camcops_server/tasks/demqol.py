@@ -25,7 +25,9 @@
 from typing import List, Optional, Tuple, Union
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Float
 
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -33,13 +35,9 @@ from ..cc_modules.cc_html import (
     subheading_spanning_two_columns,
     tr_qa,
 )
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    get_from_dict,
-    Task,
-    TrackerInfo,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 # =============================================================================
 # Constants
@@ -130,16 +128,14 @@ class Demqol(Task):
                 self.MIN_SCORE, self.MAX_SCORE)
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(
-                name="total", cctype="FLOAT",
-                value=self.total_score(),
-                comment=(
-                    "Total score ({}-{})".format(
-                        self.MIN_SCORE, self.MAX_SCORE))
-                ),
+            SummaryElement(name="total",
+                           coltype=Float(),
+                           value=self.total_score(),
+                           comment="Total score ({}-{})".format(
+                               self.MIN_SCORE, self.MAX_SCORE)),
         ]
 
     def totalscore_extrapolated(self) -> Tuple[float, bool]:
@@ -292,14 +288,14 @@ class DemqolProxy(Task):
                 self.MIN_SCORE, self.MAX_SCORE)
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(
-                name="total", cctype="FLOAT",
-                value=self.total_score(),
-                comment="Total score ({}-{})".format(
-                    self.MIN_SCORE, self.MAX_SCORE)),
+            SummaryElement(name="total",
+                           coltype=Float(),
+                           value=self.total_score(),
+                           comment="Total score ({}-{})".format(
+                               self.MIN_SCORE, self.MAX_SCORE)),
         ]
 
     def totalscore_extrapolated(self) -> Tuple[float, bool]:

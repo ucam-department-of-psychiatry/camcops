@@ -173,6 +173,7 @@ void ChoosePatientMenu::deletePatient()
     qInfo() << "Deleting patient:" << patient_details;
     patient->deleteFromDatabase();
     qInfo() << "... patient deleted";
+    m_app.deselectPatient();
     build();
 }
 

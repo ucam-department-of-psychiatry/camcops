@@ -24,10 +24,14 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import get_yes_no
-from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo, TrackerLabel
+from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 
 
 # =============================================================================
@@ -61,11 +65,12 @@ class Epds(Task):
             ]
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT",
-                 value=self.total_score(), comment="Total score"),
+            SummaryElement(name="total", coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score"),
         ]
 
     def is_complete(self) -> bool:
@@ -84,7 +89,7 @@ class Epds(Task):
             for option in range(0, 4):
                 d[option] = (
                     str(option) + " — " +
-                    WSTRING("epds_q" + str(q) + "_option" + str(option)))
+                    self.wxstring("q" + str(q) + "_option" + str(option)))
             answer_dicts.append(d)
         h = """
             <div class="summary">
@@ -106,14 +111,14 @@ class Epds(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            WSTRING("total_score"), score,
-            WSTRING("epds_above_cutoff_1"), get_yes_no(above_cutoff_1),
-            WSTRING("epds_above_cutoff_2"), get_yes_no(above_cutoff_2),
-            WSTRING("epds_always_look_at_suicide")
+            wappstring("total_score"), score,
+            self.wxstring("above_cutoff_1"), get_yes_no(above_cutoff_1),
+            self.wxstring("above_cutoff_2"), get_yes_no(above_cutoff_2),
+            self.wxstring("always_look_at_suicide")
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                WSTRING("epds_q" + str(q) + "_question"),
+                self.wxstring("q" + str(q) + "_question"),
                 get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
         h += """

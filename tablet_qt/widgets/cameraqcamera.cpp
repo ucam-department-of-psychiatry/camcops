@@ -79,7 +79,6 @@
 #include <QTimer>
 #include <QtQml/QQmlEngine>
 #include <QtQuick/QQuickItem>
-// #include <QtQuick/QQuickView>
 #include <QVBoxLayout>
 #include <QVideoFrame>
 #include "common/cssconst.h"

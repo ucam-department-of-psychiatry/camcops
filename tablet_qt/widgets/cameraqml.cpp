@@ -30,7 +30,6 @@
 #include <QMimeType>
 #include <QtQml/QQmlEngine>
 #include <QtQuick/QQuickItem>
-// #include <QtQuick/QQuickView>
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
 

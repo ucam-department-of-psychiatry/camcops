@@ -35,9 +35,12 @@ import sys
 import typing
 from typing import Any, List, Optional, Tuple, Union
 
-import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_net import ping
+from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.sql.schema import Column, ForeignKey
+from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
 
 from .cc_constants import (
     ACTION,
@@ -71,8 +74,17 @@ from .cc_html import (
 )
 from .cc_logger import BraceStyleAdapter
 from .cc_simpleobjects import HL7PatientIdentifier
-from .cc_pls import pls
+from .cc_config import CamcopsConfig
 from .cc_recipdef import RecipientDefinition
+from .cc_sqla_coltypes import (
+    BigIntUnsigned,
+    HostnameColType,
+    IntUnsigned,
+    LongText,
+    SendingFormatColType,
+    TableNameColType,
+)
+from .cc_sqlalchemy import Base, get_orm_column_names
 from .cc_task import get_base_tables, get_url_task_html, task_factory
 from .cc_unittest import unit_test_ignore
 
@@ -147,52 +159,165 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # HL7Run class
 # =============================================================================
 
-class HL7Run(object):
-    """Class representing an HL7/file run for a specific recipient.
+class HL7Run(Base):
+    """
+    Class representing an HL7/file run for a specific recipient.
 
     May be associated with multiple HL7/file messages.
     """
-    TABLENAME = "_hl7_run_log"
-    FIELDSPECS = [
-        dict(name="run_id", cctype="BIGINT_UNSIGNED", pk=True,
-             autoincrement=True, comment="Arbitrary primary key"),
-        # 4294967296 values, so at 1/minute, 8165 years.
-        dict(name="start_at_utc", cctype="DATETIME",
-             comment="Time run was started (UTC)"),
-        dict(name="finish_at_utc", cctype="DATETIME",
-             comment="Time run was finished (UTC)"),
-    ] + RecipientDefinition.FIELDSPECS + [
-        dict(name="script_retcode", cctype="INT",
-             comment="Return code from the script_after_file_export script"),
-        dict(name="script_stdout", cctype="TEXT",
-             comment="stdout from the script_after_file_export script"),
-        dict(name="script_stderr", cctype="TEXT",
-             comment="stderr from the script_after_file_export script"),
-    ]
-    FIELDS = [x["name"] for x in FIELDSPECS]
+    __tablename__ = "_hl7_run_log"
 
-    @classmethod
-    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
-        cc_db.create_or_update_table(
-            cls.TABLENAME, cls.FIELDSPECS,
-            drop_superfluous_columns=drop_superfluous_columns)
+    run_id = Column(
+        "run_id", BigIntUnsigned,
+        primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+    start_at_utc = Column(
+        "start_at_utc", DateTime,
+        comment="Time run was started (UTC)"
+    )
+    finish_at_utc = Column(
+        "finish_at_utc", DateTime,
+        comment="Time run was finished (UTC)"
+    )
+    recipient = Column(
+        "recipient", HostnameColType,
+        index=True,
+        comment="Recipient definition name (determines uniqueness)"
+    )
 
-    def __init__(self, param: Union[RecipientDefinition, int]) -> None:
-        if isinstance(param, RecipientDefinition):
-            rnc_db.blank_object(self, HL7Run.FIELDS)
-            # Copy all attributes from the RecipientDefinition
-            self.__dict__.update(param.__dict__)
+    # Common to all ways of sending:
+    type = Column(
+        "type", SendingFormatColType,
+        comment="Recipient type (e.g. hl7, file)"
+    )
+    primary_idnum = Column(
+        "primary_idnum", IntUnsigned,
+        comment="Which ID number was used as the primary ID?"
+    )
+    require_idnum_mandatory = Column(
+        "require_idnum_mandatory", Boolean,
+        comment="Must the primary ID number be mandatory in the relevant "
+                "policy?"
+    )
+    start_date = Column(
+        "start_date", DateTime,
+        comment="Start date for tasks (UTC)"
+    )
+    end_date = Column(
+        "end_date", DateTime,
+        comment="End date for tasks (UTC)"
+    )
+    finalized_only = Column(
+        "finalized_only", Boolean,
+        comment="Send only finalized tasks"
+    )
+    task_format = Column(
+        "task_format", SendingFormatColType,
+        comment="Format that task information was sent in (e.g. PDF)"
+    )
+    xml_field_comments = Column(
+        "xml_field_comments", Boolean,
+        comment="Whether to include field comments in XML output"
+    )
 
-            self.start_at_utc = get_now_utc_notz()
-            self.finish_at_utc = None
-            self.save()
-        else:
-            pls.db.fetch_object_from_db_by_pk(self, HL7Run.TABLENAME,
-                                              HL7Run.FIELDS, param)
+    # For HL7 method:
+    host = Column(
+        "host", HostnameColType,
+        comment="(HL7) Destination host name/IP address"
+    )
+    port = Column(
+        "port", IntUnsigned,
+        comment="(HL7) Destination port number"
+    )
+    divert_to_file = Column(
+        "divert_to_file", Text,
+        comment="(HL7) Divert to file"
+    )
+    treat_diverted_as_sent = Column(
+        "treat_diverted_as_sent", Boolean,
+        comment="(HL7) Treat messages diverted to file as sent"
+    )
 
-    def save(self) -> None:
-        pls.db.save_object_to_db(self, HL7Run.TABLENAME, HL7Run.FIELDS,
-                                 self.run_id is None)
+    # For file method:
+    include_anonymous = Column(
+        "include_anonymous", Boolean,
+        comment="(FILE) Include anonymous tasks"
+    )
+    overwrite_files = Column(
+        "overwrite_files", Boolean,
+        comment="(FILE) Overwrite existing files"
+    )
+    rio_metadata = Column(
+        "rio_metadata", Boolean,
+        comment="(FILE) Export RiO metadata file along with main file?"
+    )
+    rio_idnum = Column(
+        "rio_idnum", Integer,
+        comment="(FILE) RiO metadata: which ID number is the RiO ID?"
+    )
+    rio_uploading_user = Column(
+        "rio_uploading_user", Text,
+        comment="(FILE) RiO metadata: name of automatic upload user"
+    )
+    rio_document_type = Column(
+        "rio_document_type", Text,
+        comment="(FILE) RiO metadata: document type for RiO"
+    )
+    script_after_file_export = Column(
+        "script_after_file_export", Text,
+        comment="(FILE) Command/script to run after file export"
+    )
+
+    # More, beyond the recipient definition:
+    script_retcode = Column(
+        "script_retcode", Integer,
+        comment="Return code from the script_after_file_export script"
+    )
+    script_stdout = Column(
+        "script_stdout", Text,
+        comment="stdout from the script_after_file_export script"
+    )
+    script_stderr = Column(
+        "script_stderr", Text,
+        comment="stderr from the script_after_file_export script"
+    )
+
+    def __init__(self, recipdef: RecipientDefinition, *args, **kwargs) -> None:
+        """
+        Initialize from a RecipientDefinition, copying its fields.
+        """
+        super().__init__(*args, **kwargs)
+        # Copy:
+        # ... common
+        self.recipient = recipdef.recipient
+        self.type = recipdef.type
+        self.primary_idnum = recipdef.primary_idnum
+        self.require_idnum_mandatory = recipdef.require_idnum_mandatory
+        self.start_date = recipdef.start_date
+        self.end_date = recipdef.end_date
+        self.finalized_only = recipdef.finalized_only
+        self.task_format = recipdef.task_format
+        self.xml_field_comments = recipdef.xml_field_comments
+
+        # ... HL7
+        self.host = recipdef.host
+        self.port = recipdef.port
+        self.divert_to_file = recipdef.divert_to_file
+        self.treat_diverted_as_sent = recipdef.treat_diverted_as_sent
+
+        # ... File
+        self.include_anonymous = recipdef.include_anonymous
+        self.overwrite_files = recipdef.overwrite_files
+        self.rio_metadata = recipdef.rio_metadata
+        self.rio_idnum = recipdef.rio_idnum
+        self.rio_uploading_user = recipdef.rio_uploading_user
+        self.rio_document_type = recipdef.rio_document_type
+        self.script_after_file_export = recipdef.script_after_file_export
+
+        # New things:
+        self.start_at_utc = get_now_utc_notz()
+        self.finish_at_utc = None
 
     def call_script(self, files_exported: Optional[List[str]]) -> None:
         if not self.script_after_file_export:
@@ -214,7 +339,6 @@ class HL7Run(object):
 
     def finish(self) -> None:
         self.finish_at_utc = get_now_utc_notz()
-        self.save()
 
     @classmethod
     def get_html_header_row(cls) -> str:
@@ -238,123 +362,133 @@ class HL7Run(object):
 # HL7Message class
 # =============================================================================
 
-class HL7Message(object):
-    TABLENAME = HL7MESSAGE_TABLENAME
-    FIELDSPECS = [
-        dict(name="msg_id", cctype="INT_UNSIGNED", pk=True,
-             autoincrement=True, comment="Arbitrary primary key"),
-        dict(name="run_id", cctype="INT_UNSIGNED",
-             comment="FK to _hl7_run_log.run_id"),
-        dict(name="basetable", cctype="TABLENAME", indexed=True,
-             comment="Base table of task concerned"),
-        dict(name="serverpk", cctype="INT_UNSIGNED", indexed=True,
-             comment="Server PK of task in basetable (_pk field)"),
-        dict(name="sent_at_utc", cctype="DATETIME",
-             comment="Time message was sent at (UTC)"),
-        dict(name="reply_at_utc", cctype="DATETIME",
-             comment="(HL7) Time message was replied to (UTC)"),
-        dict(name="success", cctype="BOOL",
-             comment="Message sent successfully (and, for HL7, acknowledged)"),
-        dict(name="failure_reason", cctype="TEXT",
-             comment="Reason for failure"),
-        dict(name="message", cctype="LONGTEXT",
-             comment="(HL7) Message body, if kept"),
-        dict(name="reply", cctype="TEXT",
-             comment="(HL7) Server's reply, if kept"),
-        dict(name="filename", cctype="TEXT",
-             comment="(FILE) Destination filename"),
-        dict(name="rio_metadata_filename", cctype="TEXT",
-             comment="(FILE) RiO metadata filename, if used"),
-        dict(name="cancelled", cctype="BOOL",
-             comment="Message subsequently invalidated (may trigger resend)"),
-        dict(name="cancelled_at_utc", cctype="DATETIME",
-             comment="Time message was cancelled at (UTC)"),
-    ]
-    FIELDS = [x["name"] for x in FIELDSPECS]
+class HL7Message(Base):
+    __tablename__ = HL7MESSAGE_TABLENAME
 
-    @classmethod
-    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
-        """Creates underlying database tables."""
-        cc_db.create_or_update_table(
-            cls.TABLENAME, cls.FIELDSPECS,
-            drop_superfluous_columns=drop_superfluous_columns)
+    msg_id = Column(
+        "msg_id", IntUnsigned,
+        primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+    run_id = Column(
+        "run_id", IntUnsigned, ForeignKey("_hl7_run_log.run_id"),
+        comment="FK to _hl7_run_log.run_id"
+    )
+    hl7run = relationship("HL7Run")
+    basetable = Column(
+        "basetable", TableNameColType,
+        index=True,
+        comment="Base table of task concerned"
+    )
+    serverpk = Column(
+        "serverpk", IntUnsigned,
+        index=True,
+        comment="Server PK of task in basetable (_pk field)"
+    )
+    sent_at_utc = Column(
+        "sent_at_utc", DateTime,
+        comment="Time message was sent at (UTC)"
+    )
+    reply_at_utc = Column(
+        "reply_at_utc", DateTime,
+        comment="(HL7) Time message was replied to (UTC)"
+    )
+    success = Column(
+        "success", Boolean,
+        comment="Message sent successfully (and, for HL7, acknowledged)"
+    )
+    failure_reason = Column(
+        "failure_reason", Text,
+        comment="Reason for failure"
+    )
+    message = Column(
+        "message", LongText,
+        comment="(HL7) Message body, if kept"
+    )
+    reply = Column(
+        "reply", Text,
+        comment="(HL7) Server's reply, if kept"
+    )
+    filename = Column(
+        "filename", Text,
+        comment="(FILE) Destination filename"
+    )
+    rio_metadata_filename = Column(
+        "rio_metadata_filename", Text,
+        comment="(FILE) RiO metadata filename, if used"
+    )
+    cancelled = Column(
+        "cancelled", Boolean,
+        comment="Message subsequently invalidated (may trigger resend)"
+    )
+    cancelled_at_utc = Column(
+        "cancelled_at_utc", DateTime,
+        comment="Time message was cancelled at (UTC)"
+    )
 
     def __init__(self,
-                 msg_id: int = None,
-                 basetable: str = None,
-                 serverpk: int = None,
+                 basetable: str,
+                 serverpk: int,
+                 recipient_def: RecipientDefinition,
                  hl7run: HL7Run = None,
-                 recipient_def: RecipientDefinition = None,
                  show_queue_only: bool = False) -> None:
-        """Initializes.
+        super().__init__()
+        self._common_init()
+        assert basetable and serverpk and recipient_def
+        # HL7Message(basetable, serverpk, hl7run, recipient_def)
+        self.basetable = basetable
+        self.serverpk = serverpk
+        self.hl7run = hl7run
+        self._recipient_def = recipient_def
+        self._show_queue_only = show_queue_only
+        self._task = task_factory(self.basetable, self.serverpk)
 
-        Use either:
-            HL7Message(msg_id)
-        or:
-            HL7Message(basetable, serverpk, hl7run, recipient_def)
-        """
-        if basetable and serverpk and recipient_def:
-            # HL7Message(basetable, serverpk, hl7run, recipient_def)
-            rnc_db.blank_object(self, HL7Message.FIELDS)
-            self.basetable = basetable
-            self.serverpk = serverpk
-            self.hl7run = hl7run
-            if self.hl7run:
-                self.run_id = self.hl7run.run_id
-            self.recipient_def = recipient_def
-            self.show_queue_only = show_queue_only
-            self.no_saving = show_queue_only
-            self.task = task_factory(self.basetable, self.serverpk)
-        else:
-            # HL7Message(msg_id)
-            pls.db.fetch_object_from_db_by_pk(self, HL7Message.TABLENAME,
-                                              HL7Message.FIELDS, msg_id)
-            self.hl7run = HL7Run(self.run_id)
+    @reconstructor
+    def init_on_load(self) -> None:
+        self._common_init()
+
+    def _common_init(self) -> None:
+        self._recipient_def = None  # type: RecipientDefinition
+        self._show_queue_only = True
+        self._host = None  # type: str
+        self._port = None  # type: int
+        self._msg = None  # type: str
+        self._task = None  # type: Task
 
     def valid(self) -> bool:
         """Checks for internal validity; returns Boolean."""
-        if not self.recipient_def or not self.recipient_def.valid:
+        if not self._recipient_def or not self._recipient_def.valid:
             return False
         if not self.basetable or self.serverpk is None:
             return False
-        if not self.task:
+        if not self._task:
             return False
-        anonymous_ok = (self.recipient_def.using_file() and
-                        self.recipient_def.include_anonymous)
-        task_is_anonymous = self.task.is_anonymous
+        anonymous_ok = (self._recipient_def.using_file() and
+                        self._recipient_def.include_anonymous)
+        task_is_anonymous = self._task.is_anonymous
         if task_is_anonymous and not anonymous_ok:
             return False
         # After this point, all anonymous tasks must be OK. So:
-        task_has_primary_id = self.task.get_patient_idnum_value(
-            self.recipient_def.primary_idnum) is not None
+        task_has_primary_id = self._task.get_patient_idnum_value(
+            self._recipient_def.primary_idnum) is not None
         if not task_is_anonymous and not task_has_primary_id:
             return False
         return True
-
-    def save(self) -> None:
-        """Writes to database, unless saving is prohibited."""
-        if self.no_saving:
-            return
-        if self.basetable is None or self.serverpk is None:
-            return
-        is_new_record = self.msg_id is None
-        pls.db.save_object_to_db(self, HL7Message.TABLENAME,
-                                 HL7Message.FIELDS, is_new_record)
 
     def divert_to_file(self, f: typing.io.TextIO) -> None:
         """Write an HL7 message to a file."""
         infomsg = (
             "OUTBOUND MESSAGE DIVERTED FROM RECIPIENT {} AT {}\n".format(
-                self.recipient_def.recipient,
+                self._recipient_def.recipient,
                 format_datetime(self.sent_at_utc, DATEFORMAT.ISO8601)
             )
         )
         print(infomsg, file=f)
-        print(str(self.msg), file=f)
+        print(str(self._msg), file=f)
         print("\n", file=f)
         log.debug(infomsg)
-        self.host = self.recipient_def.divert_to_file
-        if self.recipient_def.treat_diverted_as_sent:
+        self._host = self._recipient_def.divert_to_file
+        if self._recipient_def.treat_diverted_as_sent:
             self.success = True
 
     def send(self,
@@ -365,60 +499,60 @@ class HL7Message(object):
         if not self.valid():
             return False, False
 
-        if self.show_queue_only:
+        if self._show_queue_only:
             print("{},{},{},{},{}".format(
-                self.recipient_def.recipient,
-                self.recipient_def.type,
+                self._recipient_def.recipient,
+                self._recipient_def.type,
                 self.basetable,
                 self.serverpk,
-                self.task.when_created
+                self._task.when_created
             ), file=queue_file)
             return False, True
 
         if not self.hl7run:
             return True, False
 
-        self.save()  # creates self.msg_id
+        assert self.msg_id is not None # *** check!
         now = get_now_localtz()
         self.sent_at_utc = convert_datetime_to_utc_notz(now)
 
-        if self.recipient_def.using_hl7():
+        if self._recipient_def.using_hl7():
             self.make_hl7_message(now)  # will write its own error msg/flags
-            if self.recipient_def.divert_to_file:
+            if self._recipient_def.divert_to_file:
                 self.divert_to_file(divert_file)
             else:
                 self.transmit_hl7()
-        elif self.recipient_def.using_file():
+        elif self._recipient_def.using_file():
             self.send_to_filestore()
         else:
             raise AssertionError("HL7Message.send: invalid recipient_def.type")
         self.save()
 
         log.debug("HL7Message.send: recipient={}, basetable={}, serverpk={}",
-                  self.recipient_def.recipient,
+                  self._recipient_def.recipient,
                   self.basetable,
                   self.serverpk)
         return True, self.success
 
     def send_to_filestore(self) -> None:
         """Send a file to a filestore."""
-        self.filename = self.recipient_def.get_filename(
-            is_anonymous=self.task.is_anonymous,
-            surname=self.task.get_patient_surname(),
-            forename=self.task.get_patient_forename(),
-            dob=self.task.get_patient_dob(),
-            sex=self.task.get_patient_sex(),
-            idnum_objects=self.task.get_patient_idnum_objects(),
-            creation_datetime=self.task.get_creation_datetime(),
+        self.filename = self._recipient_def.get_filename(
+            is_anonymous=self._task.is_anonymous,
+            surname=self._task.get_patient_surname(),
+            forename=self._task.get_patient_forename(),
+            dob=self._task.get_patient_dob(),
+            sex=self._task.get_patient_sex(),
+            idnum_objects=self._task.get_patient_idnum_objects(),
+            creation_datetime=self._task.get_creation_datetime(),
             basetable=self.basetable,
             serverpk=self.serverpk,
         )
 
         filename = self.filename
         directory = os.path.dirname(filename)
-        task = self.task
-        task_format = self.recipient_def.task_format
-        allow_overwrite = self.recipient_def.overwrite_files
+        task = self._task
+        task_format = self._recipient_def.task_format
+        allow_overwrite = self._recipient_def.overwrite_files
 
         if task_format == VALUE.OUTPUTTYPE_PDF:
             data = task.get_pdf()
@@ -433,7 +567,7 @@ class HL7Message(object):
             self.failure_reason = "File already exists"
             return
 
-        if self.recipient_def.make_directory:
+        if self._recipient_def.make_directory:
             try:
                 make_sure_path_exists(directory)
             except Exception as e:
@@ -455,15 +589,15 @@ class HL7Message(object):
             return
 
         # RiO metadata too?
-        if self.recipient_def.rio_metadata:
+        if self._recipient_def.rio_metadata:
             # No spaces in filename
             self.rio_metadata_filename = change_filename_ext(
                 self.filename, ".metadata").replace(" ", "")
             self.rio_metadata_filename = self.rio_metadata_filename
             metadata = task.get_rio_metadata(
-                self.recipient_def.rio_idnum,
-                self.recipient_def.rio_uploading_user,
-                self.recipient_def.rio_document_type
+                self._recipient_def.rio_idnum,
+                self._recipient_def.rio_uploading_user,
+                self._recipient_def.rio_document_type
             )
             try:
                 dos_newline = "\r\n"
@@ -482,7 +616,8 @@ class HL7Message(object):
         self.success = True
 
     def make_hl7_message(self, now: datetime.datetime) -> None:
-        """Stores HL7 message in self.msg.
+        """
+        Stores HL7 message in self.msg.
 
         May also store it in self.message (which is saved to the database), if
         we're saving HL7 messages.
@@ -493,16 +628,16 @@ class HL7Message(object):
             message_datetime=now,
             message_control_id=str(self.msg_id)
         )
-        pid_segment = self.task.get_patient_hl7_pid_segment(self.recipient_def)
-        other_segments = self.task.get_hl7_data_segments(self.recipient_def)
+        pid_segment = self._task.get_patient_hl7_pid_segment(self._recipient_def)
+        other_segments = self._task.get_hl7_data_segments(self._recipient_def)
 
         # ---------------------------------------------------------------------
         # Whole message
         # ---------------------------------------------------------------------
         segments = [msh_segment, pid_segment] + other_segments
-        self.msg = hl7.Message(SEGMENT_SEPARATOR, segments)
-        if self.recipient_def.keep_message:
-            self.message = str(self.msg)
+        self._msg = hl7.Message(SEGMENT_SEPARATOR, segments)
+        if self._recipient_def.keep_message:
+            self.message = str(self._msg)
 
     def transmit_hl7(self) -> None:
         """Sends HL7 message over TCP/IP."""
@@ -513,18 +648,18 @@ class HL7Message(object):
         # Essentially just a TCP socket with a minimal wrapper:
         #   http://stackoverflow.com/questions/11126918
 
-        self.host = self.recipient_def.host
-        self.port = self.recipient_def.port
+        self._host = self._recipient_def.host
+        self._port = self._recipient_def.port
         self.success = False
 
         # http://python-hl7.readthedocs.org/en/latest/api.html
         # ... but we've modified that
         try:
-            with MLLPTimeoutClient(self.recipient_def.host,
-                                   self.recipient_def.port,
-                                   self.recipient_def.network_timeout_ms) \
+            with MLLPTimeoutClient(self._recipient_def.host,
+                                   self._recipient_def.port,
+                                   self._recipient_def.network_timeout_ms) \
                     as client:
-                server_replied, reply = client.send_message(self.msg)
+                server_replied, reply = client.send_message(self._msg)
         except socket.timeout:
             self.failure_reason = "Failed to send message via MLLP: timeout"
             return
@@ -537,7 +672,7 @@ class HL7Message(object):
             self.failure_reason = "No response from server"
             return
         self.reply_at_utc = get_now_utc_notz()
-        if self.recipient_def.keep_reply:
+        if self._recipient_def.keep_reply:
             self.reply = reply
         try:
             replymsg = hl7.parse(reply)
@@ -553,10 +688,10 @@ class HL7Message(object):
                             showreply: bool = False) -> str:
         """Returns HTML table header row for this class."""
         html = "<tr>"
-        for fs in cls.FIELDSPECS:
-            if fs["name"] == "message" and not showmessage:
+        for colname in get_orm_column_names(cls):
+            if colname == "message" and not showmessage:
                 continue
-            if fs["name"] == "reply" and not showreply:
+            if colname == "reply" and not showreply:
                 continue
             html += "<th>{}</th>".format(fs["name"])
         html += "</tr>\n"
@@ -567,8 +702,7 @@ class HL7Message(object):
                           showreply: bool = False) -> bool:
         """Returns HTML table data row for this instance."""
         html = "<tr>"
-        for fs in self.FIELDSPECS:
-            name = fs["name"]
+        for name in get_orm_column_names(self.__class__):
             if name == "message" and not showmessage:
                 continue
             if name == "reply" and not showreply:
@@ -589,6 +723,7 @@ class HL7Message(object):
             html += "<td>{}</td>".format(contents)
         html += "</tr>\n"
         return html
+
 
 # =============================================================================
 # MLLPTimeoutClient
@@ -659,34 +794,36 @@ class MLLPTimeoutClient(object):
 # Main functions
 # =============================================================================
 
-def send_all_pending_hl7_messages(show_queue_only: bool = False) -> None:
+def send_all_pending_hl7_messages(cfg: CamcopsConfig,
+                                  show_queue_only: bool = False) -> None:
     """Sends all pending HL7 or file messages.
 
     Obtains a file lock, then iterates through all recipients.
     """
     queue_stdout = sys.stdout
-    if not pls.HL7_LOCKFILE:
+    if not cfg.HL7_LOCKFILE:
         log.error("send_all_pending_hl7_messages: No HL7_LOCKFILE specified"
                   " in config; can't proceed")
         return
     # On UNIX, lockfile uses LinkLockFile
     # https://github.com/smontanaro/pylockfile/blob/master/lockfile/
     #         linklockfile.py
-    lock = lockfile.FileLock(pls.HL7_LOCKFILE)
+    lock = lockfile.FileLock(cfg.HL7_LOCKFILE)
     if lock.is_locked():
         log.warning("send_all_pending_hl7_messages: locked by another"
                     " process; aborting")
         return
     with lock:
-        if show_queue_only:
-            print("recipient,basetable,_pk,when_created", file=queue_stdout)
-        for recipient_def in pls.HL7_RECIPIENT_DEFS:
-            send_pending_hl7_messages(recipient_def, show_queue_only,
-                                      queue_stdout)
-        pls.db.commit()  # HL7 commit (prior to releasing file lock)
+        with cfg.get_dbsession_context() as dbsession:
+            if show_queue_only:
+                print("recipient,basetable,_pk,when_created", file=queue_stdout)
+            for recipient_def in cfg.HL7_RECIPIENT_DEFS:
+                send_pending_hl7_messages(dbsession, recipient_def,
+                                          show_queue_only, queue_stdout)
 
 
-def send_pending_hl7_messages(recipient_def: RecipientDefinition,
+def send_pending_hl7_messages(dbsession: SqlASession,
+                              recipient_def: RecipientDefinition,
                               show_queue_only: bool,
                               queue_stdout: typing.io.TextIO) -> None:
     """Pings recipient if necessary, opens any files required, creates an
@@ -723,26 +860,32 @@ def send_pending_hl7_messages(recipient_def: RecipientDefinition,
     if use_divert:
         try:
             with codecs.open(recipient_def.divert_to_file, "a", "utf8") as f:
-                send_pending_hl7_messages_2(recipient_def, show_queue_only,
+                send_pending_hl7_messages_2(dbsession, recipient_def,
+                                            show_queue_only,
                                             queue_stdout, hl7run, f)
         except Exception as e:
             log.error("Couldn't open file {} for appending: {}",
                       recipient_def.divert_to_file, e)
             return
     else:
-        send_pending_hl7_messages_2(recipient_def, show_queue_only,
+        send_pending_hl7_messages_2(dbsession, recipient_def, show_queue_only,
                                     queue_stdout, hl7run, None)
 
 
 def send_pending_hl7_messages_2(
+        dbsession: SqlASession,
         recipient_def: RecipientDefinition,
         show_queue_only: bool,
         queue_stdout: typing.io.TextIO,
         hl7run: HL7Run,
         divert_file: Optional[typing.io.TextIO]) -> None:
-    """Sends all pending HL7/file messages to a specific recipient."""
-    # Also called once per recipient, but after diversion files safely
-    # opened and recipient pinged successfully (if desired).
+    """
+    Sends all pending HL7/file messages to a specific recipient.
+
+    Also called once per recipient, but after diversion files safely
+    opened and recipient pinged successfully (if desired).
+    """
+    raise NotImplementedError() # ***
     n_hl7_sent = 0
     n_hl7_successful = 0
     n_file_sent = 0
@@ -867,21 +1010,21 @@ def get_url_hl7_run(run_id: Any) -> str:
 # Unit tests
 # =============================================================================
 
-def unit_tests() -> None:
+def unit_tests(dbsession: SqlASession) -> None:
     """Unit tests for cc_hl7 module."""
     # -------------------------------------------------------------------------
     # DELAYED IMPORTS (UNIT TESTING ONLY)
     # -------------------------------------------------------------------------
-    import tasks.phq9 as phq9
+    from ..tasks.phq9 import Phq9
 
     # skip: send_all_pending_hl7_messages
     # skip: send_pending_hl7_messages
 
-    current_pks = pls.db.fetchallfirstvalues(
-        "SELECT _pk FROM {} WHERE _current".format(phq9.Phq9.tablename)
-    )
-    pk = current_pks[0] if current_pks else None
-    task = phq9.Phq9(pk)
+    task = dbsession.query(Phq9)\
+        .filter(Phq9._current == True)\
+        .first()  # type: Optional[Phq9]
+    if task is None:
+        task = Phq9()
     pitlist = [
         HL7PatientIdentifier(id="1", id_type="TT", assigning_authority="AA")
     ]

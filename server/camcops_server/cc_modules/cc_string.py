@@ -25,7 +25,7 @@
 from collections import OrderedDict
 import glob
 import logging
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 import xml.etree.cElementTree as ElementTree
 # ... cElementTree is a faster implementation
 # ... http://docs.python.org/2/library/xml.etree.elementtree.html
@@ -33,9 +33,10 @@ import xml.etree.cElementTree as ElementTree
 
 import cardinal_pythonlib.rnc_web as ws
 
+from .cc_cache import cache_region_static, fkg
 from .cc_convert import unescape_newlines
 from .cc_logger import BraceStyleAdapter
-from .cc_pls import pls
+from .cc_config import pls
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -47,9 +48,19 @@ APPSTRING_TASKNAME = "camcops"
 # Localization strings
 # =============================================================================
 
-def cache_extra_strings() -> None:
+@cache_region_static.cache_on_arguments(function_key_generator=fkg)
+def all_extra_strings_as_dicts() -> Dict[str, Dict[str, str]]:
     """
-    Caches strings from the all the extra XML string files.
+    Returns strings from the all the extra XML string files.
+    Caching is now via a proper cache.
+
+    Returns a dictionary whose keys are tasknames,
+        and whose values are each a dictionary
+            whose keys are string names
+            and whose values are strings.
+    For example, result['phq9']['q5'] == "5. Poor appetite or overeating".
+    There is also a top-level dictionary with the key APPSTRING_TASKNAME.
+
     The extra string files look like this:
         <?xml version="1.0" encoding="UTF-8"?>
         <resources>
@@ -61,14 +72,12 @@ def cache_extra_strings() -> None:
             <!-- ... -->
         </resources>
     """
-    if pls.extraStringDicts is not None:
-        return
     if pls.EXTRA_STRING_FILES is None:
         raise AssertionError(
             "pls.EXTRA_STRING_FILES is None -- likely use of "
             "XSTRING/WXSTRING in classmethod, before initialization via "
             "the WSGI application entry point")
-    pls.extraStringDicts = OrderedDict()
+    allstrings = OrderedDict()
     # Glob support added 2016-01-04.
     # for filename in pls.EXTRA_STRING_FILES:
     filenames = []
@@ -83,13 +92,12 @@ def cache_extra_strings() -> None:
         root = tree.getroot()
         for taskroot in root.findall("./task[@name]"):
             taskname = taskroot.attrib.get("name")
-            if taskname not in pls.extraStringDicts:
-                pls.extraStringDicts[taskname] = OrderedDict()
+            if taskname not in allstrings:
+                allstrings[taskname] = OrderedDict()
             for e in taskroot.findall("./string[@name]"):
                 stringname = e.attrib.get("name")
-                pls.extraStringDicts[taskname][stringname] = (
-                    unescape_newlines(e.text)
-                )
+                allstrings[taskname][stringname] = unescape_newlines(e.text)
+    return allstrings
 
 
 # noinspection PyPep8Naming
@@ -99,10 +107,10 @@ def XSTRING(taskname: str,
             provide_default_if_none: bool = True) -> Optional[str]:
     """Looks up a string from one of the optional extra XML string files."""
     # For speed, calculate default only if needed:
-    cache_extra_strings()
-    if taskname in pls.extraStringDicts:
-        if stringname in pls.extraStringDicts[taskname]:
-            return pls.extraStringDicts[taskname].get(stringname)
+    allstrings = all_extra_strings_as_dicts()
+    if taskname in allstrings:
+        if stringname in allstrings[taskname]:
+            return allstrings[taskname].get(stringname)
     if default is None and provide_default_if_none:
         default = "EXTRA_STRING_NOT_FOUND({}.{})".format(taskname, stringname)
     return default
@@ -123,9 +131,9 @@ def WXSTRING(taskname: str,
 
 def get_all_extra_strings() -> List[Tuple[str, str, str]]:
     """Returns all extra strings, as a list of (task, name, value) tuples."""
-    cache_extra_strings()
+    allstrings = all_extra_strings_as_dicts()
     rows = []
-    for task, subdict in pls.extraStringDicts.items():
+    for task, subdict in allstrings.items():
         for name, value in subdict.items():
             rows.append((task, name, value))
     return rows
@@ -133,8 +141,8 @@ def get_all_extra_strings() -> List[Tuple[str, str, str]]:
 
 def task_extrastrings_exist(taskname: str) -> bool:
     """Has the server been supplied with extra strings for a specific task?"""
-    cache_extra_strings()
-    return taskname in pls.extraStringDicts
+    allstrings = all_extra_strings_as_dicts()
+    return taskname in allstrings
 
 
 def wappstring(stringname: str,

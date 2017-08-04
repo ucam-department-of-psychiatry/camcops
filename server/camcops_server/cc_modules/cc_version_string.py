@@ -29,6 +29,6 @@
 # Version constants and configuration variables read by shell scripts
 # =============================================================================
 
-CAMCOPS_SERVER_VERSION_STRING = "2.0.1"
+CAMCOPS_SERVER_VERSION_STRING = "2.1.0"
 CAMCOPS_CHANGEDATE = "2017-07-27"
 MINIMUM_TABLET_VERSION_STRING = "1.14.0"

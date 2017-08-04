@@ -24,18 +24,16 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    get_from_dict,
-    Task,
-    TrackerInfo,
-    TrackerLabel,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -150,20 +148,29 @@ class Panss(Task):
             )
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT", value=self.total_score(),
-                 comment="Total score (30-210)"),
-            dict(name="p", cctype="INT", value=self.score_p(),
-                 comment="Positive symptom (P) score (7-49)"),
-            dict(name="n", cctype="INT", value=self.score_n(),
-                 comment="Negative symptom (N) score (7-49)"),
-            dict(name="g", cctype="INT", value=self.score_g(),
-                 comment="General symptom (G) score (16-112)"),
-            dict(name="composite", cctype="INT",
-                 value=self.composite(),
-                 comment="Composite score (P - N)"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (30-210)"),
+            SummaryElement(name="p",
+                           coltype=Integer(),
+                           value=self.score_p(),
+                           comment="Positive symptom (P) score (7-49)"),
+            SummaryElement(name="n",
+                           coltype=Integer(),
+                           value=self.score_n(),
+                           comment="Negative symptom (N) score (7-49)"),
+            SummaryElement(name="g",
+                           coltype=Integer(),
+                           value=self.score_g(),
+                           comment="General symptom (G) score (16-112)"),
+            SummaryElement(name="composite",
+                           coltype=Integer(),
+                           value=self.composite(),
+                           comment="Composite score (P - N)"),
         ]
 
     def is_complete(self) -> bool:

@@ -24,6 +24,9 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Boolean, Integer
+
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -33,13 +36,9 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    get_from_dict,
-    Task,
-    TrackerInfo,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -109,29 +108,43 @@ class PclCommon(object):
             content="PCL total score {}".format(self.total_score())
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT", value=self.total_score(),
-                 comment="Total score (17-85)"),
-            dict(name="num_symptomatic", cctype="INT",
-                 value=self.num_symptomatic(),
-                 comment="Total number of symptoms considered symptomatic "
-                 "(meaning scoring 3 or more)"),
-            dict(name="num_symptomatic_B", cctype="INT",
-                 value=self.num_symptomatic_b(),
-                 comment="Number of group B symptoms considered symptomatic "
-                 "(meaning scoring 3 or more)"),
-            dict(name="num_symptomatic_C", cctype="INT",
-                 value=self.num_symptomatic_c(),
-                 comment="Number of group C symptoms considered symptomatic "
-                 "(meaning scoring 3 or more)"),
-            dict(name="num_symptomatic_D", cctype="INT",
-                 value=self.num_symptomatic_d(),
-                 comment="Number of group D symptoms considered symptomatic "
-                 "(meaning scoring 3 or more)"),
-            dict(name="ptsd", cctype="BOOL", value=self.ptsd(),
-                 comment="Meets DSM-IV criteria for PTSD"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (17-85)"),
+            SummaryElement(
+                name="num_symptomatic",
+                coltype=Integer(),
+                value=self.num_symptomatic(),
+                comment="Total number of symptoms considered symptomatic "
+                        "(meaning scoring 3 or more)"),
+            SummaryElement(
+                name="num_symptomatic_B",
+                coltype=Integer(),
+                value=self.num_symptomatic_b(),
+                comment="Number of group B symptoms considered symptomatic "
+                        "(meaning scoring 3 or more)"),
+            SummaryElement(
+                name="num_symptomatic_C",
+                coltype=Integer(),
+                value=self.num_symptomatic_c(),
+                comment="Number of group C symptoms considered symptomatic "
+                        "(meaning scoring 3 or more)"),
+            SummaryElement(
+                name="num_symptomatic_D",
+                coltype=Integer(),
+                value=self.num_symptomatic_d(),
+                comment="Number of group D symptoms considered symptomatic "
+                        "(meaning scoring 3 or more)"),
+            SummaryElement(
+                name="ptsd",
+                coltype=Boolean(),
+                value=self.ptsd(),
+                comment="Meets DSM-IV criteria for PTSD"),
         ]
 
     def get_num_symptomatic(self, first: int, last: int) -> int:

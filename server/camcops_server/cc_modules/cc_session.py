@@ -22,21 +22,28 @@
 ===============================================================================
 """
 
+import base64
 import cgi
 import datetime
-import http.cookies
 import json
 import logging
 import math
-from typing import Any, Dict, List, Optional, Tuple
+import os
+from typing import Any, List, Optional, Tuple, TYPE_CHECKING
 
-import cardinal_pythonlib.rnc_crypto as rnc_crypto
-import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
+from pyramid.interfaces import ISession
+from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy.sql.schema import Column, ForeignKey
+from sqlalchemy.sql.sqltypes import Boolean, DateTime, Text
 
 from .cc_analytics import send_analytics_if_necessary
-from .cc_constants import ACTION, DATEFORMAT, NUMBER_OF_IDNUMS_DEFUNCT, PARAM
-from . import cc_db
+from .cc_constants import (
+    ACTION,
+    DATEFORMAT,
+    PARAM,
+)
 from .cc_dt import format_datetime, get_datetime_from_string
 from .cc_html import (
     get_database_title_string,
@@ -46,17 +53,29 @@ from .cc_html import (
     get_yes_no_none,
 )
 from .cc_logger import BraceStyleAdapter
-from .cc_pls import pls
+from .cc_pyramid import CookieKeys
+from .cc_sqla_coltypes import (
+    DateTimeAsIsoTextColType,
+    FilterTextColType,
+    IntUnsigned,
+    IPAddressColType,
+    PatientNameColType,
+    SessionTokenColType,
+    SexColType,
+    TableNameColType,
+)
+from .cc_sqlalchemy import Base
 from .cc_task import get_task_filter_dropdown
 from .cc_unittest import unit_test_ignore
 from .cc_user import (
-    clear_dummy_login_failures_if_necessary,
-    delete_old_account_lockouts,
-    get_user,
     get_user_filter_dropdown,
-    get_username_from_id,
+    SecurityAccountLockout,
+    SecurityLoginFailure,
     User,
 )
+
+if TYPE_CHECKING:
+    from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -72,68 +91,50 @@ DEFAULT_NUMBER_OF_TASKS_TO_VIEW = 25
 # Security for web sessions
 # =============================================================================
 
-def delete_old_sessions() -> None:
-    """Delete all expired sessions."""
-    log.info("Deleting expired sessions")
-    cutoff = pls.NOW_UTC_NO_TZ - pls.SESSION_TIMEOUT
-    pls.db.db_exec("DELETE FROM " + Session.TABLENAME +
-                   " WHERE last_activity_utc < ?", cutoff)
-
-
-def is_token_in_use(token: str) -> bool:
-    """Is the session token already present in the database?"""
-    return pls.db.does_row_exist(Session.TABLENAME, "token", token)
+def create_base64encoded_randomness(num_bytes: int) -> str:
+    """Create num_bytes of random data.
+    Result is encoded in a string with URL-safe base64 encoding.
+    Used (for example) to generate session tokens.
+    Which generator to use? See
+        https://cryptography.io/en/latest/random-numbers/
+    NOT: randbytes = M2Crypto.m2.rand_bytes(num_bytes)
+    NOT: randbytes = Crypto.Random.get_random_bytes(num_bytes)
+    """
+    randbytes = os.urandom(num_bytes)  # YES
+    return base64.urlsafe_b64encode(randbytes).decode('ascii')
 
 
 def generate_token(num_bytes: int = 16) -> str:
-    """Make a new session token that's not in use."""
+    """
+    Make a new session token that's not in use.
+    It doesn't matter if it's already in use by a session with a different ID,
+    because the ID/token pair is unique. (Removing that constraint gets rid of
+    an in-principle-but-rare locking problem.)
+    """
     # http://stackoverflow.com/questions/817882/unique-session-id-in-python
-    while True:
-        token = rnc_crypto.create_base64encoded_randomness(num_bytes)
-        if not is_token_in_use(token):
-            return token
-        # ... otherwise try another one
-    # NB code not flawless (locking with other processes; no lock held) but
-    # 2^(8*16) = 2^128 = 3.4e38 so the chances of a problem are small!
+    return create_base64encoded_randomness(num_bytes)
 
 
 # =============================================================================
 # Establishing sessions
 # =============================================================================
 
-def establish_session(env: Dict) -> None:
-    """Look up details from the HTTP environment. Load existing session or
-    create a new one. Session is then stored in pls.session (pls being
-    process-local storage)."""
-    log.debug("establish_session")
-    ip_address = env["REMOTE_ADDR"]
-    try:
-        # log.debug('HTTP_COOKIE: {0!r}', env["HTTP_COOKIE"])
-        cookie = http.cookies.SimpleCookie(env["HTTP_COOKIE"])
-        session_id = int(cookie["session_id"].value)
-        session_token = cookie["session_token"].value
-        log.debug("Found cookie token: ID {}, token {}",
-                  session_id, session_token)
-    except (http.cookies.CookieError, KeyError):
-        log.debug("No cookie yet. Creating new one.")
-        session_id = None
-        session_token = None
-    pls.session = Session(session_id, session_token, ip_address)
-    # Creates a new session if necessary
-
-
-def establish_session_for_tablet(session_id: Optional[int],
+def establish_session_for_tablet(request: CamcopsRequest,
+                                 session_id: Optional[int],
                                  session_token: Optional[str],
                                  ip_address: str,
                                  username: str,
                                  password: str) -> None:
-    """As for establish_session, but without using HTTP cookies.
-    Resulting session is stored in pls.session."""
+    """
+    As for establish_session, but without using HTTP cookies.
+    Resulting session is stored in pls.session.
+    """ # **************************************************************************
+
     if not session_id or not session_token:
         log.debug("No session yet for tablet. Creating new one.")
         session_id = None
         session_token = None
-    pls.session = Session(session_id, session_token, ip_address)
+    pls.session = CamcopsSession(session_id, session_token, ip_address)
     # Creates a new session if necessary
     if pls.session.userobject and pls.session.username != username:
         # We found a session, and it's associated with a user, but with
@@ -141,7 +142,7 @@ def establish_session_for_tablet(session_id: Optional[int],
         # Wipe the old one:
         pls.session.logout()
         # Create a fresh session.
-        pls.session = Session(None, None, ip_address)
+        pls.session = CamcopsSession(None, None, ip_address)
     if not pls.session.userobject and username:
         userobject = get_user(username, password)  # checks password
         if userobject is not None and (userobject.may_upload or
@@ -154,277 +155,324 @@ def establish_session_for_tablet(session_id: Optional[int],
 # Session class
 # =============================================================================
 
-class Session:
-    """Class representing HTTPS session."""
-    TABLENAME = "_security_webviewer_sessions"
-    FIELDSPECS = [
-        # no TEXT fields here; this is a performance-critical table
-        dict(name="id", cctype="INT_UNSIGNED", pk=True,
-             autoincrement=True,
-             comment="Session ID (internal number for insertion speed)"),
-        dict(name="token", cctype="TOKEN",
-             comment="Token (base 64 encoded random number)"),
-        # ... not unique, for speed (slows down updates markedly)
-        dict(name="user_id", cctype="INT_UNSIGNED",
-             comment="User ID"),
-        dict(name="ip_address", cctype="IPADDRESS",
-             comment="IP address of user"),
-        dict(name="last_activity_utc", cctype="DATETIME",
-             comment="Date/time of last activity (UTC)"),
-        dict(name="filter_surname", cctype="PATIENTNAME",
-             comment="Task filter in use: surname"),
-        dict(name="filter_forename", cctype="PATIENTNAME",
-             comment="Task filter in use: forename"),
-        dict(name="filter_dob_iso8601", cctype="ISO8601",
-             comment="Task filter in use: DOB"),  # e.g. "2013-02-04"
-        dict(name="filter_sex", cctype="SEX",
-             comment="Task filter in use: sex"),
-        dict(name="filter_task", cctype="TABLENAME",
-             comment="Task filter in use: task type"),
-        dict(name="filter_complete", cctype="BOOL",
-             comment="Task filter in use: task complete?"),
-        dict(name="filter_include_old_versions", cctype="BOOL",
-             comment="Task filter in use: allow old versions?"),
-        dict(name="filter_device_id", cctype="INT_UNSIGNED",
-             comment="Task filter in use: source device ID"),
-        dict(name="filter_user_id", cctype="INT_UNSIGNED",
-             comment="Task filter in use: adding user ID"),
-        dict(name="filter_start_datetime_iso8601", cctype="ISO8601",
-             comment="Task filter in use: start date/time (UTC as ISO8601)"),
-        dict(name="filter_end_datetime_iso8601", cctype="ISO8601",
-             comment="Task filter in use: end date/time (UTC as ISO8601)"),
-        dict(name="filter_text", cctype="FILTER_TEXT",
-             comment="Task filter in use: filter text fields"),
-        dict(name="number_to_view", cctype="INT_UNSIGNED",
-             comment="Number of records to view"),
-        dict(name="first_task_to_view", cctype="INT_UNSIGNED",
-             comment="First record number to view"),
-        dict(name="filter_idnums_json", cctype="TEXT",  # new in v2.0.1
-             comment="ID filters as JSON"),
-    ]
-    # DEFUNCT as of v2.0.1; NEED DELETING ONCE ALEMBIC RUNNING:
-    for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
-        nstr = str(n)
-        FIELDSPECS.append(
-            dict(name="filter_idnum" + nstr,
-                 cctype="INT_UNSIGNED",
-                 comment="Task filter in use: ID#" + nstr + " number")
-        )
-    FIELDS = [x["name"] for x in FIELDSPECS]
+class CamcopsSession(Base):
+    """
+    Class representing an HTTPS session.
+    """
+
+    __tablename__ = "_security_webviewer_sessions"
+
+    # no TEXT fields here; this is a performance-critical table
+    id = Column(
+        "id", IntUnsigned,
+        primary_key=True, autoincrement=True, index=True,
+        comment="Session ID (internal number for insertion speed)"
+    )
+    token = Column(
+        "token", SessionTokenColType,
+        comment="Token (base 64 encoded random number)"
+    )
+    ip_address = Column(
+        "ip_address", IPAddressColType,
+        comment="IP address of user"
+    )
+    user_id = Column(
+        "user_id", IntUnsigned, ForeignKey("_security_users.id"),
+        comment="User ID"
+    )
+    user = relationship("User")
+    last_activity_utc = Column(
+        "last_activity_utc", DateTime,
+        comment="Date/time of last activity (UTC)"
+    )
+    filter_surname = Column(
+        "filter_surname", PatientNameColType,
+        comment="Task filter in use: surname"
+    )
+    filter_forename = Column(
+        "filter_forename", PatientNameColType,
+        comment="Task filter in use: forename"
+    )
+    filter_dob_iso8601 = Column(
+        "filter_dob_iso8601", DateTimeAsIsoTextColType,
+        comment="Task filter in use: DOB"
+        # *** Suboptimal: using a lengthy ISO field for a date only.
+        # Could be just a Date?
+    )
+    filter_sex = Column(
+        "filter_sex", SexColType,
+        comment="Task filter in use: sex"
+    )
+    filter_task = Column(
+        "filter_task", TableNameColType,
+        comment="Task filter in use: task type"
+    )
+    filter_complete = Column(
+        "filter_complete", Boolean,
+        comment="Task filter in use: task complete?"
+    )
+    filter_include_old_versions = Column(
+        "filter_include_old_versions", Boolean,
+        comment="Task filter in use: allow old versions?"
+    )
+    filter_device_id = Column(
+        "filter_device_id", IntUnsigned,
+        comment="Task filter in use: source device ID"
+    )
+    filter_user_id = Column(
+        "filter_user_id", IntUnsigned,
+        comment="Task filter in use: adding user ID"
+    )
+    filter_start_datetime_iso8601 = Column(
+        "filter_start_datetime_iso8601", DateTimeAsIsoTextColType,
+        comment="Task filter in use: start date/time (UTC as ISO8601)"
+    )
+    filter_end_datetime_iso8601 = Column(
+        "filter_end_datetime_iso8601", DateTimeAsIsoTextColType,
+        comment="Task filter in use: end date/time (UTC as ISO8601)"
+    )
+    filter_text = Column(
+        "filter_text", FilterTextColType,
+        comment="Task filter in use: filter text fields"
+    )
+    number_to_view = Column(
+        "number_to_view", IntUnsigned,
+        comment="Number of records to view"
+    )
+    first_task_to_view = Column(
+        "first_task_to_view", IntUnsigned,
+        comment="First record number to view"
+    )
+    filter_idnums_json = Column(  # new in v2.0.1
+        "filter_idnums_json", Text,  # *** suboptimal! Text in high-speed table
+        comment="ID filters as JSON"
+    )
+
+    # *** DEFUNCT as of v2.0.1; NEED DELETING ONCE ALEMBIC RUNNING:
+    filter_idnum1 = Column("filter_idnum1", IntUnsigned)
+    filter_idnum2 = Column("filter_idnum2", IntUnsigned)
+    filter_idnum3 = Column("filter_idnum3", IntUnsigned)
+    filter_idnum4 = Column("filter_idnum4", IntUnsigned)
+    filter_idnum5 = Column("filter_idnum5", IntUnsigned)
+    filter_idnum6 = Column("filter_idnum6", IntUnsigned)
+    filter_idnum7 = Column("filter_idnum7", IntUnsigned)
+    filter_idnum8 = Column("filter_idnum8", IntUnsigned)
 
     @classmethod
-    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
-        """Make underlying tables."""
-        cc_db.create_or_update_table(
-            cls.TABLENAME, cls.FIELDSPECS,
-            drop_superfluous_columns=drop_superfluous_columns)
+    def get_http_session(cls, request: CamcopsRequest) -> 'CamcopsSession':
+        """
+        Makes, or retrieves, a new CamcopsSession for this Pyramid Request.
+        """
+        # ---------------------------------------------------------------------
+        # Starting variables
+        # ---------------------------------------------------------------------
+        dbsession = request.dbsession
+        pyramid_session = request.session  # type: ISession
+        try:
+            session_id = int(pyramid_session.get(CookieKeys.SESSION_ID, None))
+        except (TypeError, ValueError):
+            session_id = None
+        session_token = pyramid_session.get(CookieKeys.SESSION_TOKEN, '')
+        ip_addr = request.remote_addr
+        now = request.now_utc_datetime
+
+        # ---------------------------------------------------------------------
+        # Fetch or create
+        # ---------------------------------------------------------------------
+        if session_id and session_token:
+            oldest_last_activity_allowed = \
+                cls.get_oldest_last_activity_allowed(request)
+            candidate = dbsession.query(cls).\
+                filter(cls.id == session_id).\
+                filter(cls.token == session_token).\
+                filter(cls.ip_address == ip_addr).\
+                filter(cls.last_activity_utc >= oldest_last_activity_allowed).\
+                first()  # type: Optional[CamcopsSession]
+            if candidate is None:
+                log.debug("Session not found in database")
+        else:
+            log.debug("Session ID and/or session token is missing.")
+            candidate = None
+        found = candidate is not None
+        if found:
+            candidate.last_activity_utc = now
+            ccsession = candidate
+        else:
+            log.debug("Creating new session")
+            new_http_session = cls(ip_addr=ip_addr, last_activity_utc=now)
+            dbsession.add(new_http_session)
+            dbsession.flush()  # sets the PK for new_http_session
+            # Write the details back to the Pyramid session (will be persisted
+            # via the Response automatically):
+            pyramid_session[CookieKeys.SESSION_ID] = str(new_http_session.id)
+            pyramid_session[CookieKeys.SESSION_TOKEN] = new_http_session.token
+            ccsession = new_http_session
+
+        # ---------------------------------------------------------------------
+        # Done.
+        # ---------------------------------------------------------------------
+        return ccsession
+
+    @classmethod
+    def get_oldest_last_activity_allowed(
+            cls, request: CamcopsRequest) -> datetime.datetime:
+        cfg = request.config
+        now = request.now_utc_datetime
+        oldest_last_activity_allowed = now - cfg.SESSION_TIMEOUT
+        return oldest_last_activity_allowed
+
+    @classmethod
+    def delete_old_sessions(cls, request: CamcopsRequest) -> None:
+        """Delete all expired sessions."""
+        oldest_last_activity_allowed = \
+            cls.get_oldest_last_activity_allowed(request)
+        dbsession = request.dbsession
+        log.info("Deleting expired sessions")
+        dbsession.delete(cls).filter(cls.last_activity_utc <
+                                     oldest_last_activity_allowed)
 
     def __init__(self,
-                 pk: int = None,
-                 token: str = None,
-                 ip_address: str = None) -> None:
-        """Initialize. Fetch existing session from database, or create a new
-        session. Perform security checks if retrieving an existing session."""
-        # Fetch-or-create process. Fetching requires a PK and a matching token.
-        pls.db.fetch_object_from_db_by_pk(self, Session.TABLENAME,
-                                          Session.FIELDS, pk)
-        expiry_if_before = pls.NOW_UTC_NO_TZ - pls.SESSION_TIMEOUT
-        make_new_session = False
-        if self.id is None:  # couldn't find one...
-            log.debug("session id missing")
-            make_new_session = True
-        elif self.token is None:  # something went wrong...
-            log.debug("no token")
-            make_new_session = True
-        elif self.token != token:  # token not what we were expecting
-            log.debug("token mismatch (existing = {}, incoming = {})",
-                      self.token, token)
-            make_new_session = True
-        elif self.ip_address != ip_address:  # from wrong IP address
-            log.debug("IP address mismatch (existing = {}, incoming = {}",
-                      self.ip_address, ip_address)
-            make_new_session = True
-        elif self.last_activity_utc < expiry_if_before:  # expired
-            log.debug("session expired")
-            make_new_session = True
-        else:
-            log.debug("session {} successfully loaded", pk)
+                 ip_addr: str,
+                 last_activity_utc: datetime.datetime):
+        self.use_svg = False
+        self.token = generate_token()
+        self.ip_address = ip_addr
+        self.last_activity_utc = last_activity_utc
 
-        if make_new_session:
-            # new one (meaning new not-logged-in one) for you!
-            rnc_db.blank_object(self, Session.FIELDS)
-            self.__set_defaults()
-            self.token = generate_token()
-            self.ip_address = ip_address
-        self.save()  # assigns self.id if it was blank
-        if make_new_session:  # after self.id has been set
-            log.debug("Making new session. ID: {}. Token: {}",
-                      self.id, self.token)
+    @reconstructor
+    def init_on_load(self) -> None:
+        self.use_svg = False
 
-        if self.user_id:
-            self.userobject = User(self.user_id)
-            if self.userobject.id is not None:
-                log.debug("found user: {}", self.username)
-            else:
-                log.debug("userobject had blank ID; wiping user")
-                self.userobject = None
-        else:
-            log.debug("no user yet associated with this session")
-            self.userobject = None
+    def switch_output_to_png(self) -> None:
+        """Switch server to producing figures in PNG."""
+        self.use_svg = False
+
+    def switch_output_to_svg(self) -> None:
+        """Switch server to producing figures in SVG."""
+        self.use_svg = True
 
     @property
     def username(self) -> Optional[str]:
-        if self.userobject:
-            return self.userobject.username
+        if self.user:
+            return self.user.username
         return None
 
     def __set_defaults(self) -> None:
-        """Set some sensible default values."""
+        """
+        Set some sensible default values.
+        """
         self.number_to_view = DEFAULT_NUMBER_OF_TASKS_TO_VIEW
         self.first_task_to_view = 0
 
-    def logout(self) -> None:
-        """Log out, wiping session details. Also, perform periodic
-        maintenance for the server, as this is a good time."""
+    def logout(self, request: CamcopsRequest) -> None:
+        """
+        Log out, wiping session details. Also, perform periodic
+        maintenance for the server, as this is a good time.
+        """
         # First, the logout process.
-        pk = self.id
-        rnc_db.blank_object(self, Session.FIELDS)
-        # ... wipes out any user details, plus the token, so there's no way
-        # this token is being re-used
-        self.id = pk
-        self.save()
+        self.user_id = None
+        self.token = ''  # so there's no way this token can be re-used
 
         # Secondly, some other things unrelated to logging out. Users will not
         # always log out manually. But sometimes they will. So we may as well
         # do some slow non-critical things:
-        delete_old_sessions()
-        delete_old_account_lockouts()
-        clear_dummy_login_failures_if_necessary()
-        send_analytics_if_necessary()
+        self.delete_old_sessions(request)
+        SecurityAccountLockout.delete_old_account_lockouts(request)
+        SecurityLoginFailure.clear_dummy_login_failures_if_necessary(request)
+        send_analytics_if_necessary(request)
 
-    def save(self) -> None:
-        """Save to database."""
-        self.last_activity_utc = pls.NOW_UTC_NO_TZ
-        if self.id is None:
-            pls.db.insert_object_into_db_pk_unknown(self, Session.TABLENAME,
-                                                    Session.FIELDS)
-        else:
-            pls.db.update_object_in_db(self, Session.TABLENAME, Session.FIELDS)
-
-    def get_cookies(self):
-        """Get list of cookies, each a tuple of ("Set-Cookie", datastring)."""
-        # Use cookies for session security:
-        # http://security.stackexchange.com/questions/9133
-        cookie = http.cookies.SimpleCookie()
-        # No expiration date, making it a session cookie
-        cookie["session_id"] = self.id
-        cookie["session_id"]["HttpOnly"] = True  # HTTP(S) only; no Javascript
-        cookie["session_token"] = self.token
-        cookie["session_token"]["HttpOnly"] = True  # HTTP(S) only; no JS; etc.
-        if not pls.ALLOW_INSECURE_COOKIES:
-            cookie["session_id"]["secure"] = True  # HTTPS only
-            cookie["session_token"]["secure"] = True  # HTTPS only
-        return [
-            ("Set-Cookie", morsel.OutputString())
-            for morsel in cookie.values()
-        ]
-        # http://stackoverflow.com/questions/14107260
-
-    def login(self, userobject: User) -> None:
+    def login(self, user: User) -> None:
         """Log in. Associates the user with the session and makes a new
         token."""
-        log.debug("login: username = {}", userobject.username)
-        self.user_id = userobject.id
-        self.userobject = userobject
+        log.debug("login: username = {}", user.username)
+        self.user = user  # will set our user_id FK
         self.token = generate_token()
         # fresh token: https://www.owasp.org/index.php/Session_fixation
-        self.save()
 
     def authorized_as_viewer(self) -> bool:
         """Is the user authorized as a viewer?"""
-        if self.userobject is None:
-            log.debug("not authorized as viewer: userobject is None")
+        if self.user is None:
+            log.debug("not authorized as viewer: user is None")
             return False
-        return self.userobject.may_use_webviewer or self.userobject.superuser
+        return self.user.may_use_webviewer or self.user.superuser
 
     def authorized_to_add_special_note(self) -> bool:
         """Is the user authorized to add special notes?"""
-        if self.userobject is None:
+        if self.user is None:
             return False
-        return self.userobject.may_add_notes or self.userobject.superuser
+        return self.user.may_add_notes or self.user.superuser
 
     def authorized_to_upload(self) -> bool:
         """Is the user authorized to upload from tablet devices?"""
-        if self.userobject is None:
+        if self.user is None:
             return False
-        return self.userobject.may_upload or self.userobject.superuser
+        return self.user.may_upload or self.user.superuser
 
     def authorized_for_webstorage(self) -> bool:
         """Is the user authorized to upload for web storage?"""
-        if self.userobject is None:
+        if self.user is None:
             return False
-        return self.userobject.may_use_webstorage or self.userobject.superuser
+        return self.user.may_use_webstorage or self.user.superuser
 
     def authorized_for_registration(self) -> bool:
         """Is the user authorized to register tablet devices??"""
-        if self.userobject is None:
+        if self.user is None:
             return False
-        return (self.userobject.may_register_devices or
-                self.userobject.superuser)
+        return self.user.may_register_devices or self.user.superuser
 
     def user_must_change_password(self) -> bool:
         """Must the user change their password now?"""
-        if self.userobject is None:
+        if self.user is None:
             return False
-        return self.userobject.must_change_password
+        return self.user.must_change_password
 
     def user_must_agree_terms(self) -> bool:
         """Must the user agree to the terms/conditions now?"""
-        if self.userobject is None:
+        if self.user is None:
             return False
-        return self.userobject.must_agree_terms()
+        return self.user.must_agree_terms()
 
     def agree_terms(self) -> None:
         """Marks the user as having agreed to the terms/conditions now."""
-        if self.userobject is None:
+        if self.user is None:
             return
-        self.userobject.agree_terms()
+        self.user.agree_terms()
 
     def authorized_as_superuser(self) -> bool:
         """Is the user authorized as a superuser?"""
-        if self.userobject is None:
+        if self.user is None:
             return False
-        return self.userobject.superuser
+        return self.user.superuser
 
     def authorized_to_dump(self) -> bool:
         """Is the user authorized to dump data?"""
-        if self.userobject is None:
+        if self.user is None:
             return False
-        return self.userobject.may_dump_data or self.userobject.superuser
+        return self.user.may_dump_data or self.user.superuser
 
     def authorized_for_reports(self) -> bool:
         """Is the user authorized to run reports?"""
-        if self.userobject is None:
+        if self.user is None:
             return False
-        return self.userobject.may_run_reports or self.userobject.superuser
+        return self.user.may_run_reports or self.user.superuser
 
     def restricted_to_viewing_user(self) -> Optional[str]:
         """If the user is restricted to viewing only their own records, returns
         the name of the user to which they're restricted. Otherwise, returns
         None."""
-        if self.userobject is None:
+        if self.user is None:
             return None
-        if self.userobject.may_view_other_users_records:
+        if self.user.may_view_other_users_records:
             return None
-        if self.userobject.superuser:
+        if self.user.superuser:
             return None
-        return self.userobject.id
+        return self.user.id  # *** type bug?
 
     def user_may_view_all_patients_when_unfiltered(self) -> bool:
         """May the user view all patients when no filters are applied?"""
-        if self.userobject is None:
+        if self.user is None:
             return False
-        return self.userobject.view_all_patients_when_unfiltered
+        return self.user.view_all_patients_when_unfiltered
         # For superusers, this is a preference.
 
     def get_current_user_html(self, offer_main_menu: bool = True) -> str:
@@ -1077,7 +1125,7 @@ def get_filter_html(filter_name: str,
 # Unit tests
 # =============================================================================
 
-def unit_tests_session(s: Session) -> None:
+def unit_tests_session(s: CamcopsSession) -> None:
     """Unit tests for Session class."""
     ntasks = 75
 
@@ -1149,17 +1197,11 @@ def unit_tests_session(s: Session) -> None:
     # get_filter_html: tested implicitly
 
 
-def ccsession_unit_tests() -> None:
+def ccsession_unit_tests(request: 'CamcopsRequest') -> None:
     """Unit tests for cc_session module."""
-    unit_test_ignore("", delete_old_sessions)
-    unit_test_ignore("", is_token_in_use, "dummytoken")
+    unit_test_ignore("", CamcopsSession.delete_old_sessions, request)
     unit_test_ignore("", generate_token)
     # skip: establish_session
 
-    current_pks = pls.db.fetchallfirstvalues(
-        "SELECT id FROM {}".format(Session.TABLENAME)
-    )
-    test_pks = [None, current_pks[0]] if current_pks else [None]
-    for pk in test_pks:
-        s = Session(pk)
-        unit_tests_session(s)
+    ccsession = request.camcops_session
+    unit_tests_session(ccsession)

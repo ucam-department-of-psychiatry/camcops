@@ -43,7 +43,9 @@ public:
 public:
     QuDateTime(FieldRefPtr fieldref);
     QuDateTime* setMode(QuDateTime::Mode mode);
-    QuDateTime* setCustomFormat(const QString& format);
+    QuDateTime* setCustomFormat(
+            const QString& format,
+            Qt::InputMethodHints input_method_hint = Qt::ImhNone);
     QuDateTime* setOfferNowButton(bool offer_now_button);
     QuDateTime* setOfferNullButton(bool offer_null_button);
 protected:
@@ -62,6 +64,7 @@ protected:
     FieldRefPtr m_fieldref;
     Mode m_mode;
     QString m_custom_format;
+    Qt::InputMethodHints m_custom_input_method_hint;
     bool m_offer_now_button;
     bool m_offer_null_button;
 

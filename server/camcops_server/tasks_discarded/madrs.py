@@ -24,9 +24,13 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
-from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo, TrackerLabel
+from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 
 
 # =============================================================================
@@ -59,17 +63,19 @@ class Madrs(Task):
                 6.5,
             ],
             horizontal_labels=[
-                TrackerLabel(35, WSTRING("severe")),
-                TrackerLabel(25, WSTRING("moderate")),
-                TrackerLabel(14, WSTRING("mild")),
-                TrackerLabel(3, WSTRING("normal"))
+                TrackerLabel(35, wappstring("severe")),
+                TrackerLabel(25, wappstring("moderate")),
+                TrackerLabel(14, wappstring("mild")),
+                TrackerLabel(3, wappstring("normal"))
             ]
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
-            dict(name="is_complete", cctype="BOOL", value=self.is_complete()),
-            dict(name="total", cctype="INT", value=self.total_score()),
+            self.is_complete_summary_field(),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score()),
         ]
 
     def is_complete(self) -> bool:
@@ -81,13 +87,13 @@ class Madrs(Task):
     def get_task_html(self) -> str:
         score = self.total_score()
         if score > 34:
-            category = WSTRING("severe")
+            category = wappstring("severe")
         elif score >= 20:
-            category = WSTRING("moderate")
+            category = wappstring("moderate")
         elif score >= 7:
-            category = WSTRING("mild")
+            category = wappstring("mild")
         else:
-            category = WSTRING("normal")
+            category = wappstring("normal")
         answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
             d = {None: "?"}
@@ -95,8 +101,8 @@ class Madrs(Task):
                 if option == 1 or option == 3 or option == 5:
                     d[option] = option
                 else:
-                    d[option] = WSTRING("madrs_q" + str(q) + "_option" +
-                                        str(option))
+                    d[option] = self.wxstring("q" + str(q) + "_option" +
+                                              str(option))
             answer_dicts.append(d)
         h = """
             <div class="summary">
@@ -117,13 +123,13 @@ class Madrs(Task):
                 <tr><td>{}</td><td><b>{}</b></td></tr>
         """.format(
             self.get_is_complete_tr(),
-            WSTRING("total_score"), score,
-            WSTRING("category"), category,
-            WSTRING("madrs_q_period_rated"), self.period_rated
+            wappstring("total_score"), score,
+            wappstring("category"), category,
+            self.wxstring("q_period_rated"), self.period_rated
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                WSTRING("madrs_q" + str(q) + "_s"),
+                self.wxstring("madrs_q" + str(q) + "_s"),
                 get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
         h += """

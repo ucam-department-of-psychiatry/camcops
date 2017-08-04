@@ -24,16 +24,15 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Boolean, Integer
+
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    get_from_dict,
-    Task,
-    TrackerInfo,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -72,15 +71,17 @@ class Fast(Task):
                 self.total_score(), classification)
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT",
-                 value=self.total_score(),
-                 comment="Total score (/16)"),
-            dict(name="positive", cctype="BOOL",
-                 value=self.is_positive(),
-                 comment="FAST positive?"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (/16)"),
+            SummaryElement(name="positive",
+                           coltype=Boolean(),
+                           value=self.is_positive(),
+                           comment="FAST positive?"),
         ]
 
     def is_complete(self) -> bool:

@@ -24,11 +24,15 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, get_from_dict, Task
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
@@ -68,12 +72,12 @@ class Zbi12(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total_score", cctype="INT",
-                 value=self.total_score(),
-                 comment="Total score (/ 48)"),
+            SummaryElement(name="total_score", coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (/ 48)"),
         ]
 
     def get_clinical_text(self) -> List[CtvInfo]:

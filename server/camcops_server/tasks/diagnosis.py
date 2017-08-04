@@ -31,7 +31,7 @@ from ..cc_modules.cc_hl7core import make_dg1_segment
 from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_nlp import guess_name_components
 from ..cc_modules.cc_task import Ancillary, CtvInfo, Task
-from ..cc_modules.cc_pls import pls
+from ..cc_modules.cc_config import pls
 from ..cc_modules.cc_recipdef import RecipientDefinition
 from ..cc_modules.cc_report import (
     expand_id_descriptions,

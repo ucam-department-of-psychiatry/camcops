@@ -24,12 +24,13 @@
 
 from typing import List, Optional
 
+import cardinal_pythonlib.rnc_web as ws
 import matplotlib.pyplot as plt
 import numpy
-from semantic_version import Version
-import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH, PV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import (
     answer,
@@ -40,7 +41,9 @@ from ..cc_modules.cc_html import (
     tr_qa,
     tr_span_col,
 )
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -277,27 +280,33 @@ class Ace3(Task):
                  fmax=FLUENCY_MAX, lmax=LANG_MAX, vmax=VSP_MAX)
         return [CtvInfo(content=text)]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT",
-                 value=self.total_score(),
-                 comment="Total score (/{})".format(TOTAL_MAX)),
-            dict(name="attn", cctype="INT",
-                 value=self.attn_score(),
-                 comment="Attention (/{})".format(ATTN_MAX)),
-            dict(name="mem", cctype="INT",
-                 value=self.mem_score(),
-                 comment="Memory (/{})".format(MEMORY_MAX)),
-            dict(name="fluency", cctype="INT",
-                 value=self.fluency_score(),
-                 comment="Fluency (/{})".format(FLUENCY_MAX)),
-            dict(name="lang", cctype="INT",
-                 value=self.lang_score(),
-                 comment="Language (/{})".format(LANG_MAX)),
-            dict(name="vsp", cctype="INT",
-                 value=self.vsp_score(),
-                 comment="Visuospatial (/{})".format(VSP_MAX)),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (/{})".format(TOTAL_MAX)),
+            SummaryElement(name="attn",
+                           coltype=Integer(),
+                           value=self.attn_score(),
+                           comment="Attention (/{})".format(ATTN_MAX)),
+            SummaryElement(name="mem",
+                           coltype=Integer(),
+                           value=self.mem_score(),
+                           comment="Memory (/{})".format(MEMORY_MAX)),
+            SummaryElement(name="fluency",
+                           coltype=Integer(),
+                           value=self.fluency_score(),
+                           comment="Fluency (/{})".format(FLUENCY_MAX)),
+            SummaryElement(name="lang",
+                           coltype=Integer(),
+                           value=self.lang_score(),
+                           comment="Language (/{})".format(LANG_MAX)),
+            SummaryElement(name="vsp",
+                           coltype=Integer(),
+                           value=self.vsp_score(),
+                           comment="Visuospatial (/{})".format(VSP_MAX)),
         ]
 
     def attn_score(self) -> int:

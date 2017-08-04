@@ -24,10 +24,13 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import get_yes_no, get_yes_no_unknown
-from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import Task, TrackerInfo
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -40,6 +43,7 @@ class Csi(Task):
     longname = "Catatonia Screening Instrument"
     has_clinician = True  # !!! not implemented on tablet; should be
     provides_trackers = True
+    extrastring_taskname = "bfcrs"  # shares with BFCRS
 
     NQUESTIONS = 14
     fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
@@ -55,11 +59,13 @@ class Csi(Task):
             horizontal_lines=[1.5]
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT",
-                 value=self.total_score(), comment="Total score"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score"),
         ]
 
     def is_complete(self) -> bool:
@@ -86,12 +92,12 @@ class Csi(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            WSTRING("csi_num_symptoms_present"), n_csi_symptoms,
-            WSTRING("csi_catatonia_present"), get_yes_no(csi_catatonia)
+            self.wxstring("num_symptoms_present"), n_csi_symptoms,
+            self.wxstring("catatonia_present"), get_yes_no(csi_catatonia)
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                "Q" + str(q) + " — " + WSTRING("bfcrs_q" + str(q) + "_title"),
+                "Q" + str(q) + " — " + self.wxstring("q" + str(q) + "_title"),
                 get_yes_no_unknown(getattr(self, "q" + str(q)))
             )
         h += """

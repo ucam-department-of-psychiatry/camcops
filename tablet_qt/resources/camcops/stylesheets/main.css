@@ -29,6 +29,10 @@ LogBox QPlainTextEdit {
     color: white;
 }
 
+LogMessageBox QPlainTextEdit {
+    font-family: 'Dejavu Sans Mono', 'Courier';
+}
+
 QScrollArea {
     border: none;
 }

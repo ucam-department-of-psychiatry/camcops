@@ -25,12 +25,15 @@
 from typing import Any, Dict, List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Float, Integer
 
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_lang import BetweenDict
-# from ..cc_modules.cc_math import safe_logit
+from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -201,25 +204,30 @@ class Frs(Task):
     fieldspecs.append(dict(name="comments", cctype="TEXT",
                            comment="Clinician's comments"))
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         scoredict = self.get_score()
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT",
-                 value=scoredict['total'],
-                 comment="Total (0-n, higher better)"),
-            dict(name="n", cctype="INT",
-                 value=scoredict['n'],
-                 comment="Number of applicable questions"),
-            dict(name="score", cctype="FLOAT",
-                 value=scoredict['score'],
-                 comment="tcore / n"),
-            dict(name="logit", cctype="FLOAT",
-                 value=scoredict['logit'],
-                 comment="log(score / (1 - score))"),
-            dict(name="severity", cctype="TEXT",
-                 value=scoredict['severity'],
-                 comment="Severity"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=scoredict['total'],
+                           comment="Total (0-n, higher better)"),
+            SummaryElement(name="n",
+                           coltype=Integer(),
+                           value=scoredict['n'],
+                           comment="Number of applicable questions"),
+            SummaryElement(name="score",
+                           coltype=Float(),
+                           value=scoredict['score'],
+                           comment="tcore / n"),
+            SummaryElement(name="logit",
+                           coltype=Float(),
+                           value=scoredict['logit'],
+                           comment="log(score / (1 - score))"),
+            SummaryElement(name="severity",
+                           coltype=SummaryCategoryColType,
+                           value=scoredict['severity'],
+                           comment="Severity"),
         ]
 
     def get_clinical_text(self) -> List[CtvInfo]:

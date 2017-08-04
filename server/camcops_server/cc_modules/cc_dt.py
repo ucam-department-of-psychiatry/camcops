@@ -27,6 +27,7 @@ import re
 import typing.re
 from typing import Optional, Union
 
+from arrow import Arrow
 import dateutil
 import dateutil.parser
 import dateutil.tz
@@ -52,7 +53,7 @@ def get_date_from_string(s: str) -> Optional[datetime.date]:
     return dateutil.parser.parse(s).date()  # deals with ISO8601 automatically
 
 
-def format_datetime(d: Union[datetime.datetime, datetime.date],
+def format_datetime(d: Union[datetime.datetime, datetime.date, Arrow],
                     fmt: str,
                     default: str = None) -> Optional[str]:
     """Format a datetime with a format string, or return default if None."""

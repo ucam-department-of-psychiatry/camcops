@@ -38,7 +38,7 @@ from .cc_constants import (
     WEBEND,
     WKHTMLTOPDF_CSS,
 )
-from .cc_pls import pls
+from .cc_request import CamcopsRequest
 from .cc_string import wappstring
 
 
@@ -349,9 +349,10 @@ def tr_span_col(x: str,
     )
 
 
-def get_html_from_pyplot_figure(fig) -> str:
+def get_html_from_pyplot_figure(request: CamcopsRequest, fig) -> str:
     """Make HTML (as PNG or SVG) from pyplot figure."""
-    if USE_SVG_IN_HTML and pls.useSVG:
+    ccsession = request.camcops_session
+    if USE_SVG_IN_HTML and ccsession.use_svg:
         return (
             rnc_plot.svg_html_from_pyplot_figure(fig) +
             rnc_plot.png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI,
@@ -364,19 +365,21 @@ def get_html_from_pyplot_figure(fig) -> str:
         return rnc_plot.png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI)
 
 
-def get_html_which_idnum_picker(param: str = PARAM.WHICH_IDNUM,
+def get_html_which_idnum_picker(request: CamcopsRequest,
+                                param: str = PARAM.WHICH_IDNUM,
                                 selected: int = None) -> str:
+    cfg = request.config
     html = """
         <select name="{param}">
     """.format(
         param=param,
     )
-    for n in pls.get_which_idnums():
+    for n in cfg.get_which_idnums():
         html += """
             <option value="{value}"{selected}>{description}</option>
         """.format(
             value=str(n),
-            description=pls.get_id_desc(n),
+            description=cfg.get_id_desc(n),
             selected=ws.option_selected(selected, n),
         )
     html += """
@@ -512,14 +515,15 @@ def get_correct_incorrect_none(x: Any) -> Optional[str]:
 # Pages referred to in this module by simple success/failure messages
 # =============================================================================
 
-def login_page(extra_msg: str = "", redirect=None):
+def login_page(request: CamcopsRequest, extra_msg: str = "", redirect=None):
     """HTML for main login page."""
+    cfg = request.config
     disable_autocomplete = (' autocomplete="off"'
-                            if pls.DISABLE_PASSWORD_AUTOCOMPLETE
+                            if cfg.DISABLE_PASSWORD_AUTOCOMPLETE
                             else '')
     # http://stackoverflow.com/questions/2530
     # Note that e.g. Chrome may ignore this.
-    return pls.WEBSTART + """
+    return request.webstart_html + """
         <div>{dbtitle}</div>
         <div>
             <b>Unauthorized access prohibited.</b>
@@ -535,9 +539,9 @@ def login_page(extra_msg: str = "", redirect=None):
             <input type="submit" value="Submit">
         </form>
     """.format(
-        dbtitle=get_database_title_string(),
+        dbtitle=get_database_title_string(request),
         extramsg=extra_msg,
-        script=pls.SCRIPT_NAME,
+        script=request.script_name,
         da=disable_autocomplete,
         ACTION=ACTION,
         PARAM=PARAM,
@@ -549,9 +553,10 @@ def login_page(extra_msg: str = "", redirect=None):
 # Common page components
 # =============================================================================
 
-def simple_success_message(msg, extra_html=""):
+def simple_success_message(request: CamcopsRequest, msg: str,
+                           extra_html: str = ""):
     """HTML for simple success message."""
-    return pls.WEBSTART + """
+    return request.webstart_html + """
         <h1>Success</h1>
         <div>{}</div>
         {}
@@ -559,56 +564,59 @@ def simple_success_message(msg, extra_html=""):
     """.format(
         ws.webify(msg),
         extra_html,
-        get_return_to_main_menu_line()
+        get_return_to_main_menu_line(request)
     ) + WEBEND
 
 
-def error_msg(msg):
+def error_msg(msg: str) -> str:
     """HTML for error message."""
     return """<h2 class="error">{}</h2>""".format(msg)
 
 
-def fail_with_error_not_logged_in(error: str, redirect: str = None) -> str:
+def fail_with_error_not_logged_in(request: CamcopsRequest,
+                                  error: str, redirect: str = None) -> str:
     """HTML for you-have-failed-and-are-not-logged-in message."""
-    return login_page(error_msg(error), redirect)
+    return login_page(request, error_msg(error), redirect)
 
 
-def fail_with_error_stay_logged_in(error: str, extra_html: str = "") -> str:
+def fail_with_error_stay_logged_in(request: CamcopsRequest,
+                                   error: str, extra_html: str = "") -> str:
     """HTML for errors where the user stays logged in."""
-    return pls.WEBSTART + """
+    return request.webstart_html + """
         {}
         {}
         {}
     """.format(
         error_msg(error),
-        get_return_to_main_menu_line(),
+        get_return_to_main_menu_line(request),
         extra_html
     ) + WEBEND
 
 
-def get_return_to_main_menu_line() -> str:
+def get_return_to_main_menu_line(request: CamcopsRequest) -> str:
     """HTML DIV for returning to the main menu."""
     return """
         <div>
             <a href="{}">Return to main menu</a>
         </div>
-    """.format(get_url_main_menu())
+    """.format(get_url_main_menu(request))
 
 
-def get_database_title_string() -> str:
+def get_database_title_string(request: CamcopsRequest) -> str:
     """Database title as HTML-safe unicode."""
-    if not pls.DATABASE_TITLE:
+    cfg = request.config
+    if not cfg.DATABASE_TITLE:
         return ""
-    return "Database: <b>{}</b>.".format(ws.webify(pls.DATABASE_TITLE))
+    return "Database: <b>{}</b>.".format(ws.webify(cfg.DATABASE_TITLE))
 
 
 # =============================================================================
 # URLs
 # =============================================================================
 
-def get_generic_action_url(action: str) -> str:
+def get_generic_action_url(request: CamcopsRequest, action: str) -> str:
     """Make generic URL with initial action name/value pair."""
-    return "{}?{}={}".format(pls.SCRIPT_NAME, PARAM.ACTION, action)
+    return "{}?{}={}".format(request.script_name, PARAM.ACTION, action)
 
 
 def get_url_field_value_pair(field: str, value: Any) -> str:
@@ -616,13 +624,13 @@ def get_url_field_value_pair(field: str, value: Any) -> str:
     return "&amp;{}={}".format(field, value)
 
 
-def get_url_main_menu() -> str:
-    return get_generic_action_url(ACTION.MAIN_MENU)
+def get_url_main_menu(request: CamcopsRequest) -> str:
+    return get_generic_action_url(request, ACTION.MAIN_MENU)
 
 
-def get_url_enter_new_password(username: str) -> str:
+def get_url_enter_new_password(request: CamcopsRequest, username: str) -> str:
     """URL to enter new password."""
     return (
-        get_generic_action_url(ACTION.ENTER_NEW_PASSWORD) +
+        get_generic_action_url(request, ACTION.ENTER_NEW_PASSWORD) +
         get_url_field_value_pair(PARAM.USERNAME, username)
     )

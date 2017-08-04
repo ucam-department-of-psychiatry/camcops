@@ -66,7 +66,7 @@ QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QString& template_filename,
 void QuCanvas::commonConstructor()
 {
     Q_ASSERT(m_fieldref);
-    m_adjust_for_dpi = true;
+    m_adjust_display_for_dpi = true;
     m_border_width_px = 2;
     m_border_colour = uiconst::GREY_200;
     m_unused_space_colour = uiconst::TRANSPARENT;
@@ -88,7 +88,7 @@ void QuCanvas::commonConstructor()
 
 QuCanvas* QuCanvas::setAdjustForDpi(bool adjust_for_dpi)
 {
-    m_adjust_for_dpi = adjust_for_dpi;
+    m_adjust_display_for_dpi = adjust_for_dpi;
     return this;
 }
 
@@ -156,6 +156,7 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
     m_canvas->setUnusedSpaceColour(m_unused_space_colour);
     m_canvas->setEnabled(!read_only);
     m_canvas->setAllowShrink(m_allow_shrink);
+    m_canvas->setAdjustDisplayForDpi(m_adjust_display_for_dpi);
     if (!read_only) {
         connect(m_canvas.data(), &CanvasWidget::imageChanged,
                 this, &QuCanvas::imageChanged);
@@ -199,7 +200,7 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
 void QuCanvas::imageChanged()
 {
     m_field_write_pending = true;
-    m_timer->start(WRITE_DELAY_MS);  // goes to timerComplete
+    m_timer->start(WRITE_DELAY_MS);  // goes to completePendingFieldWrite
 }
 
 
@@ -260,8 +261,7 @@ void QuCanvas::fieldValueChanged(const FieldRef* fieldref,
             bool success;
             QImage img = fieldref->image(&success);
             if (success) {
-                m_canvas->setSize(canvasSize(img.size()));
-                m_canvas->setImage(img, false);
+                m_canvas->setImage(img);
             } else {
                 qWarning() << Q_FUNC_INFO
                            << "- bad image data in field; resetting";
@@ -317,8 +317,7 @@ void QuCanvas::resetWidget()
     }
 
     // All ready. Set the canvas.
-    m_canvas->setSize(canvasSize(img.size()));
-    m_canvas->setImage(img, false);
+    m_canvas->setImage(img);
 }
 
 
@@ -327,24 +326,4 @@ void QuCanvas::resetFieldToNull()
     resetWidget();
     m_fieldref->setValue(QVariant(), this);
     emit elementValueChanged();
-}
-
-
-QSize QuCanvas::canvasSize(const QSize& image_size) const
-{
-    if (!m_adjust_for_dpi) {
-#ifdef DEBUG_SIZE
-        qDebug() << Q_FUNC_INFO <<
-                    "Canvas size same as image size at" << image_size;
-#endif
-        return image_size;
-    }
-    const QSize canvas_size = convert::convertSizeByDpi(
-                image_size, uiconst::DPI, uiconst::DEFAULT_DPI);
-#ifdef DEBUG_SIZE
-    qDebug()
-            << Q_FUNC_INFO << "Image size" << image_size
-            << "-> altering canvas size for display DPI -> canvas size" << canvas_size;
-#endif
-    return canvas_size;
 }

@@ -50,7 +50,7 @@ QuImage::QuImage(FieldRefPtr fieldref, const QSize& size) :
 void QuImage::commonConstructor()
 {
     m_label = nullptr;
-    m_adjust_for_dpi = false;
+    m_adjust_for_dpi = true;
     m_allow_shrink = true;
 }
 
@@ -135,5 +135,5 @@ void QuImage::valueChanged(const FieldRef* fieldref)
 
 QSize QuImage::dpiScaledSize(const QSize& size) const
 {
-    return convert::convertSizeByDpi(size, uiconst::DPI, uiconst::DEFAULT_DPI);
+    return convert::convertSizeByDpi(size);
 }

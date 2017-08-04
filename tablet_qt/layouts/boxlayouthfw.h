@@ -64,7 +64,6 @@
 #include <QLayout>
 #include <QHash>
 #include <QVector>
-// #include <limits.h>
 #include "layouts/qtlayouthelpers.h"
 #include "lib/margins.h"
 

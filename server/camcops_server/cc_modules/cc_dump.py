@@ -32,7 +32,7 @@ from .cc_audit import audit
 from .cc_blob import Blob
 from .cc_constants import CONFIG_FILE_MAIN_SECTION
 from .cc_patient import Patient
-from .cc_pls import pls
+from .cc_config import pls
 from .cc_task import Task
 from .cc_unittest import unit_test_ignore
 

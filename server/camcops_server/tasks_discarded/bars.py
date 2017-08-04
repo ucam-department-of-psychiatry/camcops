@@ -24,9 +24,13 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_string import WSTRING
-from ..cc_modules.cc_task import get_from_dict, Task, TrackerInfo
+from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -37,11 +41,11 @@ class Bars(Task):
     tablename = "bars"
     shortname = "BARS"
     longname = "Barnes Akathisia Rating Scale"
-    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
     has_clinician = True
     provides_trackers = True
 
     NQUESTIONS = 4
+    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
     def get_trackers(self) -> List[TrackerInfo]:
@@ -53,11 +57,13 @@ class Bars(Task):
             axis_max=14.5
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT",
-                 value=self.total_score(), comment="Total score"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score"),
         ]
 
     def is_complete(self) -> bool:
@@ -74,7 +80,7 @@ class Bars(Task):
             for option in range(0, 6):
                 if option > 3 and q == "q4":
                     continue
-                d[option] = WSTRING("bars_" + q + "_option" + str(option))
+                d[option] = self.wxstring(q + "_option" + str(option))
             answer_dicts_dict[q] = d
         h = self.get_standard_clinician_block() + """
             <div class="summary">
@@ -90,11 +96,11 @@ class Bars(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            WSTRING("total_score"), score
+            wappstring("total_score"), score
         )
         for q in self.TASK_FIELDS:
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                WSTRING("bars_" + q + "_s"),
+                self.wxstring(q + "_s"),
                 get_from_dict(answer_dicts_dict[q], getattr(self, q))
             )
         h += """

@@ -55,7 +55,17 @@ import cardinal_pythonlib.rnc_pdf as rnc_pdf
 import cardinal_pythonlib.rnc_web as ws
 import hl7
 from semantic_version import Version
+from sqlalchemy.orm import reconstructor
+from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Boolean, Text
 
+from .cc_anon import (
+    get_cris_dd_row,
+    get_cris_dd_rows_from_fieldspecs,
+    get_literal_regex,
+    get_type_size_as_text_from_sqltype,
+)
 from .cc_audit import audit
 from .cc_blob import Blob, get_contemporaneous_blob_by_client_info
 from .cc_constants import (
@@ -88,7 +98,8 @@ from .cc_constants import (
     VALUE,
     WKHTMLTOPDF_OPTIONS,
 )
-from . import cc_db
+from .cc_ctvinfo import CtvInfo
+from .cc_db import GenericTabletRecordMixin
 from .cc_device import Device
 from .cc_dt import (
     convert_datetime_to_utc,
@@ -122,14 +133,31 @@ from .cc_lang import (
     MinType,
 )
 from .cc_logger import BraceStyleAdapter
-from .cc_patient import get_current_version_of_patient_by_client_info, Patient
+from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
 from .cc_plot import set_matplotlib_fontsize
-from .cc_pls import pls
+from .cc_config import pls
 from .cc_recipdef import RecipientDefinition
 from .cc_report import Report, REPORT_RESULT_TYPE
+from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
 from .cc_string import task_extrastrings_exist, wappstring, WXSTRING
+from .cc_sqla_coltypes import (
+    BigIntUnsigned,
+    CamcopsColumn,
+    DateTimeAsIsoTextColType,
+    get_column_attr_names,
+    get_camcops_blob_column_attr_names,
+    IdDescriptorColType,
+    IntUnsigned,
+    PatientNameColType,
+    permitted_value_failure_msgs,
+    permitted_values_ok,
+    SexColType,
+)
+from .cc_sqlalchemy import Base, get_rows_fieldnames_from_raw_sql
+from .cc_summaryelement import SummaryElement
+from .cc_trackerhelpers import TrackerInfo
 from .cc_unittest import (
     get_object_name,
     unit_test_ignore,
@@ -155,7 +183,7 @@ from .cc_xml import (
 )
 
 if TYPE_CHECKING:
-    from .cc_session import Session
+    from .cc_session import CamcopsSession
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -164,362 +192,263 @@ TASK_FWD_REF = "Task"
 
 
 # =============================================================================
-# Constants
+# Patient mixin
 # =============================================================================
 
-DEFAULT_TRACKER_ASPECT_RATIO = 2.0  # width / height
-
-
-# =============================================================================
-# For anonymisation
-# =============================================================================
-
-def get_literal_regex(x: str) -> typing.re.Pattern:
-    """Regex for anonymisation. Literal at word boundaries."""
-    # http://stackoverflow.com/questions/919056
-    wb = "\\b"  # word boundary; escape the slash
-    return re.compile(wb + re.escape(x) + wb, re.IGNORECASE)
-
-
-# =============================================================================
-# For anonymisation staging database
-# =============================================================================
-
-def get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
-    size = ""
-    finaltype = sqltype
-    m = re.match("(\w+)\((\w+)\)", sqltype)  # e.g. VARCHAR(10)
-    if m:
-        finaltype = m.group(1)
-        size = m.group(2)
-    return finaltype, size
-
-
-def get_cris_dd_row(taskname: str,
-                    tablename: str,
-                    fieldspec: FIELDSPEC_TYPE) -> Dict:
-    """Returns an OrderedDict with information for a CRIS Data Dictionary row,
-    given a fieldspec."""
-
-    cc_db.add_sqltype_to_fieldspec_in_place(fieldspec)
-    cctype = fieldspec["cctype"]
-    sqltype = fieldspec["sqltype"]
-    colname = fieldspec["name"]
-    anon = fieldspec.get("anon", False)  # optional
-    comment = fieldspec.get("comment", "")  # optional
-    identifies_patient = fieldspec.get("identifies_patient", False)
-
-    patientlen = len(TSV_PATIENT_FIELD_PREFIX)
-    patientfield = (colname[:patientlen] == TSV_PATIENT_FIELD_PREFIX)
-
-    finaltype, size = get_type_size_as_text_from_sqltype(sqltype)
-
-    if "pv" in fieldspec:
-        valid_values = ",".join([str(x) for x in fieldspec["pv"]])
-    else:
-        valid_values = ""
-
-    might_need_scrubbing = cctype in ["TEXT"] and not anon
-    tlfa = "Y" if might_need_scrubbing else ""
-
-    system_id = (
-        colname == "id" or
-        colname == "patient_id" or
-        colname == TSV_PATIENT_FIELD_PREFIX + "id" or
-        (colname[:1] == "_" and colname[-3:] == "_pk")
-    )
-    internal_field = (
-        colname[:1] == "_" and not patientfield
-    ) or (
-        patientfield and colname[patientlen:patientlen + 1] == "_"
+class TaskHasPatientMixin(object):
+    patient_id = Column(
+        "patient_id", IntUnsigned,
+        nullable=False, index=True,
+        comment="(TASK) Foreign key to patient.id (for this device/era)"
     )
 
-    if system_id or internal_field:
-        security_status = "1"  # drop (e.g. for pointless internal keys)
-    elif identifies_patient and colname == TSV_PATIENT_FIELD_PREFIX + "dob":
-        security_status = "3"  # truncate (e.g. DOB, postcode)
-    elif identifies_patient:
-        security_status = "2"  # use to scrub
-    else:
-        security_status = "4"  # bring through
+    def __init__(self, *args, **kwargs) -> None:
+        self._patient = None
+        # noinspection PyArgumentList
+        super().__init__(*args, **kwargs)  # call next class in MRO
 
-    if system_id:
-        feft = "34"  # patient ID; other internal keys
-    elif cc_db.cctype_is_date(cctype):
-        feft = "4"  # dates
-    else:
-        feft = "1"  # text, numbers
+    @reconstructor
+    def init_on_load(self) -> None:
+        self._patient = None
 
-    return collections.OrderedDict([
-        ("Tab", "CamCOPS"),
-        ("Form name", taskname),
-        ("CRIS tree label", colname),
-        ("Source system table name", tablename),
-        ("SQL column name", colname),
-        ("Front end field type", feft),
-        ("Valid values", valid_values),
-        ("Result column name", colname),
-        ("Family doc tab name", ""),
-        ("Family doc form name", ""),
-        ("Security status", security_status),
-        ("Exclude", ""),
-        ("End SQL Type", finaltype),
-        ("Header field (Y/N)", ""),
-        ("Header field name", ""),
-        ("Header field active (Y/N)", ""),
-        ("View name", ""),
-        ("Exclude from family doc", ""),
-        ("Tag list - fields anon", tlfa),
-        ("Anon type", ""),  # formerly "Additional info"
-        ("Form start date", ""),
-        ("Form end date", ""),
-        ("Source", ""),
-        ("Size", size),
-        ("Header logic", ""),
-        ("Patient/contact", ""),
-        ("Comments", comment),
-    ])
+    @classmethod
+    @property
+    def is_anonymous(cls) -> bool:
+        return False
 
+    # noinspection PyProtectedMember
+    @property
+    def patient(self) -> Optional[Patient]:
+        # This function refers to fields like _device_id that must be created
+        # by OTHER classes/mixins (specifically, GenericTabletRecordMixin).
+        if self._patient is None:
+            dbsession = SqlASession.object_session(self)  # type: SqlASession
+            q = dbsession.query(Patient)
+            q = q.filter(Patient.id == self.patient_id)
+            # noinspection PyUnresolvedReferences
+            q = q.filter(Patient._device_id == self._device_id)
+            # noinspection PyUnresolvedReferences
+            q = q.filter(Patient._era == self._era)
+            q = q.filter(Patient._current == True)  # noqa
 
-def get_cris_dd_rows_from_fieldspecs(
-        taskname: str,
-        tablename: str,
-        fieldspecs: FIELDSPECLIST_TYPE) -> List[Dict]:
-    rows = []
-    for fs in fieldspecs:
-        rows.append(get_cris_dd_row(taskname, tablename, fs))
-    return rows
+            self._patient = q.first()  # type: Optional[Patient]
+        # NOTE: this retrieves the most recent (i.e. the current) information
+        # on that patient. Consequently, task version history doesn't show the
+        # history of patient edits.
+        return self._patient
 
 
 # =============================================================================
-# CtvInfo
+# Clinician mixin
 # =============================================================================
 
-class CtvInfo(object):
-    def __init__(self,
-                 heading: str = None,
-                 subheading: str = None,
-                 description: str = None,
-                 content: str = None,
-                 skip_if_no_content: bool = True):
-        """
-        Args:
-            heading: optional text used for heading
-            subheading: optional text used for subheading
-            description: optional text used for field description
-            content: text
-            skip_if_no_content: if True, no other fields will be printed
-                unless content evaluates to True
+class TaskHasClinicianMixin(object):
+    """
+    Mixin to add clinician columns and override clinician-related methods.
+    Must be to the LEFT of Task in the class's base class list.
+    """
+    clinician_specialty = CamcopsColumn(
+        "clinician_specialty", Text,
+        anon=True,
+        comment="(CLINICIAN) Clinician's specialty (e.g. Liaison Psychiatry)"
+    )
+    clinician_name = CamcopsColumn(
+        "clinician_name", Text,
+        anon=True,
+        comment="(CLINICIAN) Clinician's name (e.g. Dr X)"
+    )
+    clinician_professional_registration = Column(
+        "clinician_professional_registration", Text,
+        comment="(CLINICIAN) Clinician's professional registration (e.g. "
+                "GMC# 12345)"
+    )
+    clinician_post = CamcopsColumn(
+        "clinician_post", Text,
+        anon=True,
+        comment="(CLINICIAN) Clinician's post (e.g. Consultant)"
+    )
+    clinician_service = CamcopsColumn(
+        "clinician_service", Text,
+        anon=True,
+        comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
+                "Service)"
+    )
+    clinician_contact_details = CamcopsColumn(
+        "clinician_contact_details", Text,
+        anon=True,
+        comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
+                "extension)"
+    )
+    # For field order, see also:
+    # https://stackoverflow.com/questions/3923910/sqlalchemy-move-mixin-columns-to-end  # noqa
 
-        These will be NOT webified by the ClinicalTextView class, meaning
-        (a) do it yourself if it's necessary, and
-        (b) you can pass HTML formatting.
-        """
-        self.heading = heading
-        self.subheading = subheading
-        self.description = description
-        self.content = content
-        self.skip_if_no_content = skip_if_no_content
+    def get_clinician_name(self) -> str:
+        return self.clinician_name
 
-    def get_html(self) -> str:
-        html = ""
-        if self.content or not self.skip_if_no_content:
-            if self.heading:
-                html += """
-                    <div class="ctv_fieldheading">
-                        {}
-                    </div>
-                """.format(self.heading)
-            if self.subheading:
-                html += """
-                    <div class="ctv_fieldsubheading">
-                        {}
-                    </div>
-                """.format(self.subheading)
-            if self.description:
-                html += """
-                    <div class="ctv_fielddescription">
-                        {}
-                    </div>
-                """.format(self.description)
-        if self.content:
-            html += """
-                <div class="ctv_fieldcontent">
-                    {}
-                </div>
-            """.format(self.content)
+    def get_standard_clinician_block(self) -> str:
+        html = """
+            <div class="clinician">
+                <table class="taskdetail">
+                    <tr>
+                        <td width="50%">Clinician’s specialty:</td>
+                        <td width="50%"><b>{}</b></td>
+                    </tr>
+                    <tr>
+                        <td>Clinician’s name:</td>
+                        <td><b>{}</b></td>
+                    </tr>
+                    <tr>
+                        <td>Clinician’s professional registration:</td>
+                        <td><b>{}</b></td>
+                    </tr>
+                    <tr>
+                        <td>Clinician’s post:</td>
+                        <td><b>{}</b></td>
+                    </tr>
+                    <tr>
+                        <td>Clinician’s service:</td>
+                        <td><b>{}</b></td>
+                    </tr>
+                    <tr>
+                        <td>Clinician’s contact details:</td>
+                        <td><b>{}</b></td>
+                    </tr>
+        """.format(
+            ws.webify(self.clinician_specialty),
+            ws.webify(self.clinician_name),
+            ws.webify(self.clinician_professional_registration),
+            ws.webify(self.clinician_post),
+            ws.webify(self.clinician_service),
+            ws.webify(self.clinician_contact_details),
+        )
+        html += """
+                </table>
+            </div>
+        """
         return html
 
 
-CTV_INCOMPLETE = [CtvInfo(description="Incomplete",
-                          skip_if_no_content=False)]
-
-
 # =============================================================================
-# TrackerInfo
+# Respondent mixin
 # =============================================================================
 
-class LabelAlignment(Enum):
-    center = "center"
-    top = "top"
-    bottom = "bottom"
-    baseline = "baseline"
+class TaskHasRespondentMixin(object):
+    """
+    Mixin to add respondent columns and override respondent-related methods.
+    Must be to the LEFT of Task in the class's base class list.
+    """
+    respondent_name = CamcopsColumn(
+        "respondent_name", Text,
+        anon=True,
+        comment="(RESPONDENT) Respondent's name"
+    )
+    respondent_relationship = Column(
+        "respondent_relationship", Text,
+        comment="(RESPONDENT) Respondent's relationship to patient"
+    )
 
+    def is_respondent_complete(self) -> bool:
+        return self.respondent_name and self.respondent_relationship
 
-class TrackerLabel(object):
-    def __init__(self,
-                 y: float,
-                 label: str,
-                 vertical_alignment: LabelAlignment = LabelAlignment.center):
-        self.y = y
-        self.label = label
-        self.vertical_alignment = vertical_alignment
-
-
-class TrackerAxisTick(object):
-    def __init__(self, y: float, label: str):
-        self.y = y
-        self.label = label
-
-
-class TrackerInfo(object):
-    def __init__(self,
-                 value: float,
-                 plot_label: str = None,
-                 axis_label: str = None,
-                 axis_min: float = None,
-                 axis_max: float = None,
-                 axis_ticks: Optional[List[TrackerAxisTick]] = None,
-                 horizontal_lines: Optional[List[float]] = None,
-                 horizontal_labels: Optional[List[TrackerLabel]] = None,
-                 aspect_ratio: Optional[float] = DEFAULT_TRACKER_ASPECT_RATIO):
-        self.value = value
-        self.plot_label = plot_label
-        self.axis_label = axis_label
-        self.axis_min = axis_min
-        self.axis_max = axis_max
-        self.axis_ticks = axis_ticks or []
-        self.horizontal_lines = horizontal_lines or []
-        self.horizontal_labels = horizontal_labels or []
-        self.aspect_ratio = aspect_ratio
+    def get_standard_respondent_block(self) -> str:
+        return """
+            <div class="respondent">
+                <table class="taskdetail">
+                    <tr>
+                        <td width="50%">Respondent’s name:</td>
+                        <td width="50%"><b>{name}</b></td>
+                    </tr>
+                    <tr>
+                        <td>Respondent’s relationship to patient:</td>
+                        <td><b>{relationship}</b></td>
+                    </tr>
+                </table>
+            </div>
+        """.format(
+            name=ws.webify(self.respondent_name),
+            relationship=ws.webify(self.respondent_relationship),
+        )
 
 
 # =============================================================================
 # Task base class
 # =============================================================================
 
-class Task(object):  # new-style classes inherit from (e.g.) object
+class Task(GenericTabletRecordMixin):
     """
     Abstract base class for all tasks.
 
-    Overridable attributes:
+    - Column definitions:
 
-    fieldspecs
-        Override to provide a list of database field specifications.
+        Use CamcopsColumn, not Column, if you have fields that need to define
+        permitted values, mark them as BLOB-referencing fields, or do other
+        CamCOPS-specific things.
 
-        A field specification is a dictionary; for details of its contents,
-        see rnc_db.py
+    - Overridable attributes:
 
-        In addition, the following optional fields may be defined:
-            min: Minimum permissible value.
-            max: Maximum permissible value.
-            pv: List of permitted values.
-            anon: If True, field is guaranteed to contain anonymous
-                (non-patient-identifiable) information only.
+        dependent_classes
+            Override this if your task uses sub-tables (or sub-sub-tables,
+            etc.). Give a list of classes that inherit from Ancillary, e.g.
 
-    dependent_classes
-        Override this if your task uses sub-tables (or sub-sub-tables,
-        etc.). Give a list of classes that inherit from Ancillary, e.g.
+                dependent_classes = [ClassRepresentingObject]
 
-            dependent_classes = [ClassRepresentingObject]
+            Each class MUST derive from Ancillary, overriding: ********
+                tablename
+                fieldspecs
+                fkname  # FK to main task table
 
-        Each class MUST derive from Ancillary, overriding:
-            tablename
-            fieldspecs
-            fkname  # FK to main task table
+        extra_summary_table_info *************
+            Does the task provide extra summary tables? If so, override.
+            Example:
 
-    blob_name_idfield_list
-        Returns a list of (name, blobid_field) tuples, giving all
-        the PNG BLOBs attached to the task. The blobid_field is a fieldname
-        whose field contains a FK to the blob table.
-        (The name is used for XML.)
-
-        Should be overridden by tasks including simple BLOBs.
-
-    extra_summary_table_info
-        Does the task provide extra summary tables? If so, override.
-        Example:
-
-            extra_summary_table_info = [
-                {
-                    tablename: XXX,
-                    fieldspecs: [ ... ]
-                },
-                {
-                    tablename: XXX,
-                    fieldspecs: [ ... ]
-                },
-            ]
+                extra_summary_table_info = [
+                    {
+                        tablename: XXX,
+                        fieldspecs: [ ... ]
+                    },
+                    {
+                        tablename: XXX,
+                        fieldspecs: [ ... ]
+                    },
+                ]
     """
+
+    # =========================================================================
+    # PART 1: THINGS THAT DERIVED CLASSES MAY CARE ABOUT
+    # =========================================================================
 
     # -------------------------------------------------------------------------
     # Attributes that must be provided
     # -------------------------------------------------------------------------
-    tablename = None  # type: str
+    __tablename__ = None  # type: str  # also the SQLAlchemy table name
     shortname = None  # type: str
     longname = None  # type: str
-    fieldspecs = []  # type: List[Dict]
 
     # -------------------------------------------------------------------------
     # Attributes that can be overridden
     # -------------------------------------------------------------------------
     extrastring_taskname = None  # type: str  # if None, tablename is used instead  # noqa
-    is_anonymous = False  # Alters fields/HTML
-    has_clinician = False  # Will add fields/HTML
-    has_respondent = False  # Will add fields/HTML
     provides_trackers = False
     use_landscape_for_pdf = False
     dependent_classes = []
-    blob_name_idfield_list = []  # type: List[Tuple[str, str]]
     extra_summary_table_info = []  # type: List[Dict[str, Any]]
 
-    def __init__(self, serverpk: Optional[int]) -> None:
-        """Initialize (loading details from database)."""
-        # in derived classes: avoid super()?: https://fuhm.net/super-harmful/
-        # or not: http://stackoverflow.com/questions/3694371
-
-        # Fetch from database
-        pls.db.fetch_object_from_db_by_pk(self, self.tablename,
-                                          self.get_fields(), serverpk)
-        # Load associated patient details
-        if self.is_anonymous:
-            self._patient = None
-        else:
-            self._patient = \
-                get_current_version_of_patient_by_client_info(
-                    self._device_id, self.patient_id, self._era)
-        # NOTE: this retrieves the most recent (i.e. the current) information
-        # on that patient. Consequently, task version history doesn't show the
-        # history of patient edits.
-
-        # Don't load special notes, for speed (retrieved on demand)
-        self._special_notes = None  # type: List[SpecialNote]
-
     # -------------------------------------------------------------------------
-    # Methods always overridden
+    # Methods always overridden by the actual task
     # -------------------------------------------------------------------------
 
     def is_complete(self) -> bool:
-        """Is the task instance complete?
-
+        """
+        Is the task instance complete?
         Must be overridden.
         """
         raise NotImplementedError("Task.is_complete must be overridden")
 
     def get_task_html(self) -> str:
-        """HTML for the main task content.
-
-        Overridden by derived classes."""
+        """
+        HTML for the main task content.
+        Overridden by derived classes.
+        """
         raise NotImplementedError(
             "No get_task_html() HTML generator for this task class!")
 
@@ -548,14 +477,6 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             full_fieldspecs.extend(RESPONDENT_FIELDSPECS)
         full_fieldspecs.extend(cls.fieldspecs)
         return full_fieldspecs
-
-    # -------------------------------------------------------------------------
-    # Optionally overridden, but sensible defaults
-    # -------------------------------------------------------------------------
-
-    @classmethod
-    def get_fieldnames(cls) -> List[str]:
-        return [x["name"] for x in cls.get_full_fieldspecs()]
 
     # -------------------------------------------------------------------------
     # Dealing with ancillary items
@@ -659,21 +580,6 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return [depclass.tablename for depclass in cls.dependent_classes]
 
     # -------------------------------------------------------------------------
-    # Way to fetch all task types
-    # -------------------------------------------------------------------------
-
-    @classmethod
-    def all_subclasses(cls,
-                       sort_tablename: bool = False,
-                       sort_shortname: bool = False) -> List[Type["Task"]]:
-        classes = all_subclasses(cls)
-        if sort_tablename:
-            classes.sort(key=lambda c: c.tablename)
-        elif sort_shortname:
-            classes.sort(key=lambda c: c.shortname)
-        return classes
-
-    # -------------------------------------------------------------------------
     # Implement if you provide trackers
     # -------------------------------------------------------------------------
 
@@ -709,13 +615,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic
-    def get_summaries(self) -> List[Dict]:
-        """Return a list of summaries.
-
-        Each summary is a dictionary, with keys as for fieldspecs, but also
-        with the "value" key.
+    def get_summaries(self) -> List[SummaryElement]:
         """
-        return []
+        Return a list of summary value objects, for this database object
+        (not any dependent classes/tables).
+        """
+        return []  # type: List[SummaryElement]
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def get_extra_summary_table_data(self, now: datetime.datetime) \
@@ -747,14 +652,65 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """
         pass
 
+    # =========================================================================
+    # PART 2: INTERNALS
+    # =========================================================================
+
+    # -------------------------------------------------------------------------
+    # Way to fetch all task types
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def all_subclasses(cls,
+                       sort_tablename: bool = False,
+                       sort_shortname: bool = False) -> List[Type["Task"]]:
+        classes = all_subclasses(cls)
+        if sort_tablename:
+            classes.sort(key=lambda c: c.tablename)
+        elif sort_shortname:
+            classes.sort(key=lambda c: c.shortname)
+        return classes
+
+    # -------------------------------------------------------------------------
+    # Methods that may be overridden by mixins
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    @property
+    def is_anonymous(cls) -> bool:
+        """
+        May be overridden by TaskHasPatientMixin.
+        """
+        return True
+
+    # -------------------------------------------------------------------------
+    # Other classmethods
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    @property
+    def tablename(cls) -> str:
+        return cls.__tablename__
+
+    # -------------------------------------------------------------------------
+    # Constructors
+    # -------------------------------------------------------------------------
+
+    def __init__(self, *args, **kwargs) -> None:
+        # noinspection PyArgumentList
+        super().__init__(*args, **kwargs)
+        self._special_notes = None  # type: List[SpecialNote]
+
+    @reconstructor
+    def init_on_load(self) -> None:
+        self._special_notes = None  # type: List[SpecialNote]
+
     # -------------------------------------------------------------------------
     # More on fields
     # -------------------------------------------------------------------------
 
-    @classmethod
-    def get_fields(cls) -> List[str]:
-        """Returns a list of database field names."""
-        return [x["name"] for x in cls.get_full_fieldspecs()]
+    def get_fieldnames(self) -> List[str]:
+        return get_column_attr_names(self)
 
     def field_contents_valid(self) -> bool:
         """
@@ -762,50 +718,14 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         This is a high-speed function that doesn't bother with explanations,
         since we use it for lots of task is_complete() calculations.
         """
-        fieldspecs = self.get_full_fieldspecs()
-        for fs in fieldspecs:
-            value = getattr(self, fs["name"])
-            if "notnull" in fs and value is None:
-                return False
-            if value is None:
-                continue
-            if "min" in fs and value < fs["min"]:
-                return False
-            if "max" in fs and value > fs["max"]:
-                return False
-            if "pv" in fs and value not in fs["pv"]:
-                return False
-        return True
+        return permitted_values_ok(self)
 
     def field_contents_invalid_because(self) -> List[str]:
         """Explains why contents are invalid."""
-        fieldspecs = self.get_full_fieldspecs()
-        explanations = []
-        for fs in fieldspecs:
-            value = getattr(self, fs["name"])
-            if "notnull" in fs and value is None:
-                explanations.append(
-                    "Field is notnull: value={}, fs={}".format(value, fs)
-                )
-            if value is None:
-                continue
-            if "min" in fs and value < fs["min"]:
-                explanations.append(
-                    "Value < minimum: value={}, fs={}".format(value, fs)
-                )
-            if "max" in fs and value > fs["max"]:
-                explanations.append(
-                    "Value > maximum: value={}, fs={}".format(value, fs)
-                )
-            if "pv" in fs and value not in fs["pv"]:
-                explanations.append(
-                    "Value not permitted: value={}, fs={}".format(value, fs)
-                )
-        return explanations
+        return permitted_value_failure_msgs(self)
 
-    @classmethod
-    def get_blob_fields(cls) -> List[str]:
-        return [x[1] for x in cls.blob_name_idfield_list]
+    def get_blob_fields(self) -> List[str]:
+        return get_camcops_blob_column_attr_names(self)
 
     # -------------------------------------------------------------------------
     # Server field calculations
@@ -986,13 +906,17 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                                                                basetable,
                                                                pkfieldname)
 
-    def is_complete_summary_field(self) -> Dict:
-        return dict(name="is_complete", cctype="BOOL",
-                    value=self.is_complete(), comment=COMMENT_IS_COMPLETE)
+    def is_complete_summary_field(self) -> SummaryElement:
+        return SummaryElement(name="is_complete",
+                              coltype=Boolean(),
+                              value=self.is_complete(),
+                              comment=COMMENT_IS_COMPLETE)
 
     def get_summary_names(self) -> List[str]:
-        """Returns a list of summary field names."""
-        return [x["name"] for x in self.get_summaries()]
+        """
+        Returns a list of summary field names.
+        """
+        return [x.name for x in self.get_summaries()]
 
     # -------------------------------------------------------------------------
     # More on tables
@@ -1048,7 +972,12 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def dump(self) -> None:
         """Dump to log."""
-        rnc_db.dump_database_object(self, self.get_fields())
+        line_equals = "=" * 79
+        lines = ["", line_equals]
+        for f in self.get_fieldnames():
+            lines.append("{f}: {v!r}".format(f=f, v=getattr(self, f)))
+        lines.append(line_equals)
+        log.info("\n".join(lines))
 
     # -------------------------------------------------------------------------
     # Anonymisation
@@ -1098,11 +1027,16 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Special notes
     # -------------------------------------------------------------------------
 
-    def get_special_notes(self) -> List[SpecialNote]:
+    def get_special_notes(self, request: CamcopsRequest) -> List[SpecialNote]:
         if self._special_notes is None:
             self._special_notes = SpecialNote.get_all_instances(
-                self.tablename, self.id, self._device_id, self._era)  # type: List[SpecialNote]  # noqa
-            # Will now be a list (though possibly an empty one).
+                dbsession=request.dbsession,
+                basetable=self.__tablename__,
+                task_or_patient_id=self.id,
+                device_id=self._device_id,
+                era=self._era
+            )
+            # *** change to a relationship() ?
         return self._special_notes
 
     def apply_special_note(self,
@@ -1116,7 +1050,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         """
         sn = SpecialNote()
         sn.basetable = self.tablename
-        sn.task_id = self.id
+        sn.task_or_patient_id = self.id
         sn.device_id = self._device_id
         sn.era = self._era
         sn.note_at = format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601)
@@ -1131,35 +1065,43 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # Clinician
     # -------------------------------------------------------------------------
 
+    # noinspection PyMethodMayBeStatic
     def get_clinician_name(self) -> str:
-        """Get the clinician's name, or ''."""
-        if not self.has_clinician:
-            return ""
-        return self.clinician_name
+        """
+        Get the clinician's name.
+        May be overridden by TaskHasClinicianMixin.
+        """
+        return ""
 
     # -------------------------------------------------------------------------
     # Respondent
     # -------------------------------------------------------------------------
 
+    # noinspection PyMethodMayBeStatic
     def is_respondent_complete(self) -> bool:
-        return (getattr(self, "respondent_name") and
-                getattr(self, "respondent_relationship"))
+        """
+        May be overridden by TaskHasRespondentMixin.
+        """
+        return False
 
     # -------------------------------------------------------------------------
     # About the associated patient
     # -------------------------------------------------------------------------
 
+    @property
+    def patient(self) -> Optional[Patient]:
+        """
+        Overridden by TaskHasPatientMixin.
+        """
+        return None
+
     def is_female(self) -> bool:
         """Is the patient female?"""
-        if self.is_anonymous:
-            return False
-        return self._patient.is_female()
+        return self.patient.is_female() if self.patient else False
 
     def is_male(self) -> bool:
         """Is the patient male?"""
-        if self.is_anonymous:
-            return False
-        return self._patient.is_male()
+        return self.patient.is_male() if self.patient else False
 
     def get_patient_server_pk(self) -> Optional[int]:
         """Get the server PK of the patient, or None."""
@@ -1169,60 +1111,48 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_patient(self) -> Optional[Patient]:
         """Get the associated Patient() object."""
-        return self._patient
+        log.critical("Deprecated; remove")
+        return self.patient
 
     def get_patient_forename(self) -> str:
         """Get the patient's forename, in upper case, or ""."""
-        if not self._patient:
-            return ""
-        return self._patient.get_forename()
+        return self.patient.get_forename() if self.patient else ""
 
     def get_patient_surname(self) -> str:
         """Get the patient's surname, in upper case, or ""."""
-        if not self._patient:
-            return ""
-        return self._patient.get_surname()
+        return self.patient.get_surname() if self.patient else ""
 
     def get_patient_dob(self) -> Optional[datetime.date]:
         """Get the patient's DOB, or None."""
-        if not self._patient:
-            return None
-        return self._patient.get_dob()
+        return self.patient.get_surname() if self.patient else None
 
     def get_patient_dob_first11chars(self) -> Optional[str]:
         """For example: '29 Dec 1999'."""
-        if not self._patient:
+        if not self.patient:
             return None
-        dob_str = self._patient.get_dob_str()
+        dob_str = self.patient.get_dob_str()
         if not dob_str:
             return None
         return dob_str[:11]
 
     def get_patient_sex(self) -> str:
         """Get the patient's sex, or ""."""
-        if not self._patient:
-            return ""
-        return self._patient.get_sex()
+        return self.patient.get_sex() if self.patient else ""
 
     def get_patient_address(self) -> str:
         """Get the patient's address, or ""."""
-        if not self._patient:
-            return ""
-        return self._patient.get_address()
+        return self.patient.get_address() if self.patient else ""
 
     def get_patient_idnum_objects(self) -> List[PatientIdNum]:
-        if not self._patient:
-            return []
-        return self._patient.get_idnum_objects()
+        return self.patient.get_idnum_objects() if self.patient else []
 
     def get_patient_idnum_object(self,
                                  which_idnum: int) -> Optional[PatientIdNum]:
         """
         Get the patient's ID number, or None.
         """
-        if not self._patient:
-            return None
-        return self._patient.get_idnum_object(which_idnum)
+        return (self.patient.get_idnum_object(which_idnum) if self.patient
+                else None)
 
     def get_patient_idnum_value(self, which_idnum: int) -> Optional[int]:
         idobj = self.get_patient_idnum_object(which_idnum=which_idnum)
@@ -1232,9 +1162,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                                     recipient_def: RecipientDefinition) \
             -> Union[hl7.Segment, str]:
         """Get patient HL7 PID segment, or ""."""
-        if not self._patient:
-            return ""
-        return self._patient.get_hl7_pid_segment(recipient_def)
+        return (self.patient.get_hl7_pid_segment(recipient_def) if self.patient
+                else "")
 
     # -------------------------------------------------------------------------
     # HL7
@@ -1565,7 +1494,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     @classmethod
     def get_session_candidate_task_pks_whencreated(
             cls,
-            session: 'Session',
+            session: 'CamcopsSession',
             sort: bool = False,
             reverse: bool = False) -> List[Tuple[int, datetime.datetime]]:
         """Get all current server PKs/creation dates for this task that are
@@ -1679,7 +1608,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 query += " DESC"
         return pls.db.fetchall(query, *args)
 
-    def allowed_to_user(self, session: 'Session') -> bool:
+    def allowed_to_user(self, session: 'CamcopsSession') -> bool:
         """Is the current user allowed to see this task?"""
         if (session.restricted_to_viewing_user() is not None and
                 session.restricted_to_viewing_user() != self._adding_user):
@@ -1687,11 +1616,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         return True
 
     @classmethod
-    def filter_allows_task_type(cls, session: 'Session') -> bool:
+    def filter_allows_task_type(cls, session: 'CamcopsSession') -> bool:
         return (session.filter_task is None or
                 session.filter_task == cls.tablename)
 
-    def is_compatible_with_filter(self, session: 'Session') -> bool:
+    def is_compatible_with_filter(self, session: 'CamcopsSession') -> bool:
         """Is this task allowed through the filter?"""
         # 1. Quick things
         if not self.allowed_to_user(session):
@@ -1914,7 +1843,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     @classmethod
     def gen_all_tasks_matching_session_filter(
             cls,
-            session: 'Session',
+            session: 'CamcopsSession',
             sort: bool = False,
             reverse: bool = False) -> Generator[TASK_FWD_REF, None, None]:
         if not cls.filter_allows_task_type(session):
@@ -2085,6 +2014,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # -------------------------------------------------------------------------
 
     def get_xml(self,
+                request: CamcopsRequest,
                 include_calculated: bool = True,
                 include_blobs: bool = True,
                 include_patient: bool = True,
@@ -2094,7 +2024,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
                 include_comments: bool = False) -> str:
         """Returns XML UTF-8 document representing task."""
         skip_fields = skip_fields or []
-        tree = self.get_xml_root(include_calculated=include_calculated,
+        tree = self.get_xml_root(request=request,
+                                 include_calculated=include_calculated,
                                  include_blobs=include_blobs,
                                  include_patient=include_patient,
                                  skip_fields=skip_fields)
@@ -2106,6 +2037,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         )
 
     def get_xml_root(self,
+                     request: CamcopsRequest,
                      include_calculated: bool = True,
                      include_blobs: bool = True,
                      include_patient: bool = True,
@@ -2119,6 +2051,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
         # Core (inc. core BLOBs)
         branches = self.get_xml_core_branches(
+            request=request,
             include_calculated=include_calculated,
             include_blobs=include_blobs,
             include_patient=include_patient,
@@ -2130,21 +2063,22 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             fieldspecs = depclass.get_full_fieldspecs()
             itembranches = []
             items = self.get_ancillary_items(depclass)
-            blobinfo = depclass.blob_name_idfield_list
-            for it in items:
-                # Simple fields for ancillary items
-                itembranches.append(XmlElement(
-                    name=tablename,
-                    value=make_xml_branches_from_fieldspecs(
-                        it,
-                        fieldspecs,
-                        skip_fields=skip_fields)
-                ))
-                # BLOBs for ancillary items
-                if include_blobs and blobinfo:
-                    itembranches.append(XML_COMMENT_BLOBS)
-                    itembranches.extend(it.make_xml_branches_for_blob_fields(
-                        skip_fields=skip_fields))
+            if items:
+                blobinfo = get_camcops_blob_column_attr_names(items[0])
+                for it in items:
+                    # Simple fields for ancillary items
+                    itembranches.append(XmlElement(
+                        name=tablename,
+                        value=make_xml_branches_from_fieldspecs(
+                            it,
+                            skip_fields=skip_fields)
+                    ))
+                    # BLOBs for ancillary items
+                    if include_blobs and blobinfo:
+                        itembranches.append(XML_COMMENT_BLOBS)
+                        itembranches.extend(
+                            it.make_xml_branches_for_blob_fields(
+                                skip_fields=skip_fields))
             branches.append("<!-- Items for {} -->\n".format(tablename))
             branches.append(XmlElement(
                 name=tablename,
@@ -2155,6 +2089,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def get_xml_core_branches(
             self,
+            request: CamcopsRequest,
             include_calculated: bool = True,
             include_blobs: bool = True,
             include_patient: bool = True,
@@ -2165,10 +2100,10 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         # Stored
         branches = [XML_COMMENT_STORED]
         branches.extend(make_xml_branches_from_fieldspecs(
-            self, self.get_full_fieldspecs(), skip_fields=skip_fields))
+            self, skip_fields=skip_fields))
         # Special notes
         branches.append(XML_COMMENT_SPECIAL_NOTES)
-        for sn in self.get_special_notes():
+        for sn in self.get_special_notes(request=request):
             branches.append(sn.get_xml_root())
         # Calculated
         if include_calculated:
@@ -2491,7 +2426,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             wappstring("anonymous_task")
         )
 
-    def get_task_header_html(self) -> str:
+    def get_task_header_html(self, request: CamcopsRequest) -> str:
         """HTML for task header, giving details of task type, creation date
         (with patient age), etc."""
         anonymous = self.is_anonymous
@@ -2527,7 +2462,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             pt_info +
             main_task_header +
             self.get_erasure_notice() +  # if applicable
-            self.get_special_notes_html() +  # if applicable
+            self.get_special_notes_html(request) +  # if applicable
             self.get_not_current_warning()  # if applicable
         )
 
@@ -2585,8 +2520,8 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             self._manually_erased_at,
         )
 
-    def get_special_notes_html(self) -> str:
-        special_notes = self.get_special_notes()
+    def get_special_notes_html(self, request: CamcopsRequest) -> str:
+        special_notes = self.get_special_notes(request=request)
         if not special_notes:
             return ""
         note_html = "<br>".join([
@@ -2683,6 +2618,7 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         )
 
     def get_superuser_nav_options(self,
+                                  request: CamcopsRequest,
                                   offer_add_note: bool,
                                   offer_erase: bool,
                                   offer_edit_patient: bool) -> str:
@@ -2690,14 +2626,16 @@ class Task(object):  # new-style classes inherit from (e.g.) object
         if offer_add_note:
             options.append(
                 '<a href="{}">Apply special note</a>'.format(
-                    get_url_add_special_note(self.tablename, self._pk),
+                    get_url_add_special_note(request,
+                                             self.tablename, self._pk),
                 )
             )
         if offer_erase and not self.is_erased() and self._era != ERA_NOW:
             # Note: prohibit manual erasure for non-finalized tasks.
             options.append(
                 '<a href="{}">Erase task instance</a>'.format(
-                    get_url_erase_task(self.tablename, self._pk),
+                    get_url_erase_task(request,
+                                       self.tablename, self._pk),
                 )
             )
         if (offer_edit_patient and
@@ -2747,50 +2685,13 @@ class Task(object):  # new-style classes inherit from (e.g.) object
     # HTML elements used by tasks
     # -------------------------------------------------------------------------
 
+    # noinspection PyMethodMayBeStatic
     def get_standard_clinician_block(self) -> str:
-        """HTML DIV for clinician information, or ""."""
-        if not self.has_clinician:
-            return ""
-        html = """
-            <div class="clinician">
-                <table class="taskdetail">
-                    <tr>
-                        <td width="50%">Clinician’s specialty:</td>
-                        <td width="50%"><b>{}</b></td>
-                    </tr>
-                    <tr>
-                        <td>Clinician’s name:</td>
-                        <td><b>{}</b></td>
-                    </tr>
-                    <tr>
-                        <td>Clinician’s professional registration:</td>
-                        <td><b>{}</b></td>
-                    </tr>
-                    <tr>
-                        <td>Clinician’s post:</td>
-                        <td><b>{}</b></td>
-                    </tr>
-                    <tr>
-                        <td>Clinician’s service:</td>
-                        <td><b>{}</b></td>
-                    </tr>
-                    <tr>
-                        <td>Clinician’s contact details:</td>
-                        <td><b>{}</b></td>
-                    </tr>
-        """.format(
-            ws.webify(self.clinician_specialty),
-            ws.webify(self.clinician_name),
-            ws.webify(self.clinician_professional_registration),
-            ws.webify(self.clinician_post),
-            ws.webify(self.clinician_service),
-            ws.webify(self.clinician_contact_details),
-        )
-        html += """
-                </table>
-            </div>
         """
-        return html
+        HTML DIV for clinician information.
+        Overridden by TaskHasClinicianMixin.
+        """
+        return ""
 
     # noinspection PyMethodMayBeStatic
     def get_standard_clinician_comments_block(self, comments: str) -> str:
@@ -2808,27 +2709,13 @@ class Task(object):  # new-style classes inherit from (e.g.) object
             ws.bold_if_not_blank(ws.webify(comments))
         )
 
+    # noinspection PyMethodMayBeStatic
     def get_standard_respondent_block(self) -> str:
-        """HTML DIV for respondent information, or ""."""
-        if not self.has_respondent:
-            return ""
-        return """
-            <div class="respondent">
-                <table class="taskdetail">
-                    <tr>
-                        <td width="50%">Respondent’s name:</td>
-                        <td width="50%"><b>{name}</b></td>
-                    </tr>
-                    <tr>
-                        <td>Respondent’s relationship to patient:</td>
-                        <td><b>{relationship}</b></td>
-                    </tr>
-                </table>
-            </div>
-        """.format(
-            name=ws.webify(self.respondent_name),
-            relationship=ws.webify(self.respondent_relationship),
-        )
+        """
+        HTML DIV for respondent information.
+        Overridden by TaskHasRespondentMixin
+        """
+        return ""
 
     def get_is_complete_td_pair(self) -> str:
         """HTML to indicate whether task is complete or not, and to make it
@@ -2984,9 +2871,11 @@ class Task(object):  # new-style classes inherit from (e.g.) object
 
     def mean_fields(self,
                     fields: List[str],
-                    ignorevalue: Any = None) -> Union[int, float]:
-        """Mean of values stored in all fields (skipping any whose value is
-        ignorevalue)."""
+                    ignorevalue: Any = None) -> Union[int, float, None]:
+        """
+        Mean of values stored in all fields (skipping any whose value is
+        ignorevalue).
+        """
         values = []
         for f in fields:
             value = getattr(self, f)
@@ -3166,7 +3055,7 @@ def second_item_or_min(x: Tuple[Any, int, Optional[datetime.datetime]]) -> \
 
 
 def gen_tasks_matching_session_filter(
-        session: 'Session') -> Generator[Task, None, None]:
+        session: 'CamcopsSession') -> Generator[Task, None, None]:
     """Generate tasks that match the session's filter settings."""
 
     # Find candidate tasks meeting the filters
@@ -3370,28 +3259,32 @@ class TaskCountReport(Report):
 # URLs
 # =============================================================================
 
-def get_url_task(tablename: str, serverpk: int, outputtype: str) -> str:
+def get_url_task(request: CamcopsRequest,
+                 tablename: str, serverpk: int, outputtype: str) -> str:
     """URL to view a particular task."""
-    url = get_generic_action_url(ACTION.TASK)
+    url = get_generic_action_url(request, ACTION.TASK)
     url += get_url_field_value_pair(PARAM.OUTPUTTYPE, outputtype)
     url += get_url_field_value_pair(PARAM.TABLENAME, tablename)
     url += get_url_field_value_pair(PARAM.SERVERPK, serverpk)
     return url
 
 
-def get_url_task_pdf(tablename: str, serverpk: int) -> str:
+def get_url_task_pdf(request: CamcopsRequest,
+                     tablename: str, serverpk: int) -> str:
     """URL to view a particular task as PDF."""
-    return get_url_task(tablename, serverpk, VALUE.OUTPUTTYPE_PDF)
+    return get_url_task(request, tablename, serverpk, VALUE.OUTPUTTYPE_PDF)
 
 
-def get_url_task_html(tablename: str, serverpk: int) -> str:
+def get_url_task_html(request: CamcopsRequest,
+                      tablename: str, serverpk: int) -> str:
     """URL to view a particular task as HTML."""
-    return get_url_task(tablename, serverpk, VALUE.OUTPUTTYPE_HTML)
+    return get_url_task(request, tablename, serverpk, VALUE.OUTPUTTYPE_HTML)
 
 
-def get_url_task_xml(tablename: str, serverpk: int) -> str:
+def get_url_task_xml(request: CamcopsRequest,
+                     tablename: str, serverpk: int) -> str:
     """URL to view a particular task as XML (with default options)."""
-    url = get_url_task(tablename, serverpk, VALUE.OUTPUTTYPE_XML)
+    url = get_url_task(request, tablename, serverpk, VALUE.OUTPUTTYPE_XML)
     url += get_url_field_value_pair(PARAM.INCLUDE_BLOBS, 1)
     url += get_url_field_value_pair(PARAM.INCLUDE_CALCULATED, 1)
     url += get_url_field_value_pair(PARAM.INCLUDE_PATIENT, 1)
@@ -3399,15 +3292,17 @@ def get_url_task_xml(tablename: str, serverpk: int) -> str:
     return url
 
 
-def get_url_erase_task(tablename: str, serverpk: int) -> str:
-    url = get_generic_action_url(ACTION.ERASE_TASK)
+def get_url_erase_task(request: CamcopsRequest,
+                       tablename: str, serverpk: int) -> str:
+    url = get_generic_action_url(request, ACTION.ERASE_TASK)
     url += get_url_field_value_pair(PARAM.TABLENAME, tablename)
     url += get_url_field_value_pair(PARAM.SERVERPK, serverpk)
     return url
 
 
-def get_url_add_special_note(tablename: str, serverpk: int) -> str:
-    url = get_generic_action_url(ACTION.ADD_SPECIAL_NOTE)
+def get_url_add_special_note(request: CamcopsRequest,
+                             tablename: str, serverpk: int) -> str:
+    url = get_generic_action_url(request, ACTION.ADD_SPECIAL_NOTE)
     url += get_url_field_value_pair(PARAM.TABLENAME, tablename)
     url += get_url_field_value_pair(PARAM.SERVERPK, serverpk)
     return url

@@ -25,10 +25,14 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Float
 
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import answer, identity, tr
 from ..cc_modules.cc_lang import mean
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -92,15 +96,17 @@ class QolBasic(Task):
             )
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="tto_qol", cctype="FLOAT",
-                 value=self.get_tto_qol(),
-                 comment="Quality of life (0-1), from time trade-off method"),
-            dict(name="rs_qol", cctype="FLOAT",
-                 value=self.get_rs_qol(),
-                 comment="Quality of life (0-1), from rating scale method"),
+            SummaryElement(
+                name="tto_qol", coltype=Float(),
+                value=self.get_tto_qol(),
+                comment="Quality of life (0-1), from time trade-off method"),
+            SummaryElement(
+                name="rs_qol", coltype=Float(),
+                value=self.get_rs_qol(),
+                comment="Quality of life (0-1), from rating scale method"),
         ]
 
     def is_complete(self) -> bool:

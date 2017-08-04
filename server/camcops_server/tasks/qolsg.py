@@ -27,8 +27,10 @@ from typing import List
 import cardinal_pythonlib.rnc_web as ws
 
 from ..cc_modules.cc_constants import PV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import get_yes_no_none, tr_qa
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================

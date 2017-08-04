@@ -25,11 +25,16 @@
 import logging
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr_qa
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task, TrackerInfo
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 log = logging.getLogger(__name__)
 
@@ -89,14 +94,15 @@ class Hads(Task):
                 self.anxiety_score(), self.depression_score())
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="anxiety", cctype="INT",
-                 value=self.anxiety_score(), comment="Anxiety score (/21)"),
-            dict(name="depression", cctype="INT",
-                 value=self.depression_score(),
-                 comment="Depression score (/21)"),
+            SummaryElement(name="anxiety", coltype=Integer(),
+                           value=self.anxiety_score(),
+                           comment="Anxiety score (/21)"),
+            SummaryElement(name="depression", coltype=Integer(),
+                           value=self.depression_score(),
+                           comment="Depression score (/21)"),
         ]
 
     def score(self, questions: List[int]) -> int:

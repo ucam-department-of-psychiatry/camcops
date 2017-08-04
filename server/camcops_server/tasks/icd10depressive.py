@@ -25,12 +25,14 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from ..cc_modules.cc_constants import (
     DATEFORMAT,
     ICD10_COPYRIGHT_DIV,
     PV,
 )
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_dt import format_datetime_string
 from ..cc_modules.cc_html import (
     answer,
@@ -39,8 +41,10 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
+from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import CtvInfo, CTV_INCOMPLETE, Task
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -172,24 +176,39 @@ class Icd10Depressive(Task):
             infolist.append(CtvInfo(content=ws.webify(self.comments)))
         return infolist
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="n_core", cctype="INT", value=self.n_core(),
-                 comment="Number of core diagnostic symptoms (/3)"),
-            dict(name="n_additional", cctype="INT",
-                 value=self.n_additional(),
-                 comment="Number of additional diagnostic symptoms (/7)"),
-            dict(name="n_total", cctype="INT", value=self.n_total(),
-                 comment="Total number of diagnostic symptoms (/10)"),
-            dict(name="n_somatic", cctype="INT", value=self.n_somatic(),
-                 comment="Number of somatic syndrome symptoms (/8)"),
-            dict(name="category", cctype="TEXT",
-                 value=self.get_full_description(),
-                 comment="Diagnostic category"),
-            dict(name="psychosis_or_stupor", cctype="BOOL",
-                 value=self.is_psychotic_or_stupor(),
-                 comment="Psychotic symptoms or stupor present?"),
+            SummaryElement(
+                name="n_core",
+                coltype=Integer(),
+                value=self.n_core(),
+                comment="Number of core diagnostic symptoms (/3)"),
+            SummaryElement(
+                name="n_additional",
+                coltype=Integer(),
+                value=self.n_additional(),
+                comment="Number of additional diagnostic symptoms (/7)"),
+            SummaryElement(
+                name="n_total",
+                coltype=Integer(),
+                value=self.n_total(),
+                comment="Total number of diagnostic symptoms (/10)"),
+            SummaryElement(
+                name="n_somatic",
+                coltype=Integer(),
+                value=self.n_somatic(),
+                comment="Number of somatic syndrome symptoms (/8)"),
+            SummaryElement(
+                name="category",
+                coltype=SummaryCategoryColType,
+                value=self.get_full_description(),
+                comment="Diagnostic category"),
+            SummaryElement(
+                name="psychosis_or_stupor",
+                coltype=Boolean(),
+                value=self.is_psychotic_or_stupor(),
+                comment="Psychotic symptoms or stupor present?"),
         ]
 
     # Scoring

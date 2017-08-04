@@ -25,9 +25,7 @@
 import configparser
 import datetime
 import logging
-from typing import List, Optional, TYPE_CHECKING
-
-import cardinal_pythonlib.rnc_db as rnc_db
+from typing import Dict, List, Optional, TYPE_CHECKING
 
 from .cc_dt import get_date_from_string
 from .cc_filename import (
@@ -70,7 +68,8 @@ ALL_RECIPIENT_TYPES = [
 # =============================================================================
 
 class RecipientDefinition(object):
-    """Class representing HL7/file recipient.
+    """
+    Class representing HL7/file recipient.
 
     Full details of parameters are in the demonstration config file.
     """
@@ -138,19 +137,45 @@ class RecipientDefinition(object):
             config: configparser INI file object
             section: name of recipient and of INI file section
         """
-        rnc_db.blank_object(self, RecipientDefinition.FIELDS)
+        # Copy:
+        # ... common
+        self.recipient = None  # type: str
+        self.type = None  # type: str
+        self.primary_idnum = None  # type: int
+        self.require_idnum_mandatory = True
+        self.start_date = None  # type: datetime.datetime
+        self.end_date = None  # type: datetime.datetime
+        self.finalized_only = True
+        self.task_format = None  # type: str
+        self.xml_field_comments = True
+
+        # ... HL7
+        self.host = ''
+        self.port = None  # type: int
+        self.divert_to_file = None  # type: str
+        self.treat_diverted_as_sent = False
+
+        # ... File
+        self.include_anonymous = False
+        self.overwrite_files = False
+        self.rio_metadata = True
+        self.rio_idnum = None  # type: int
+        self.rio_uploading_user = None  # type: str
+        self.rio_document_type = None  # type: str
+        self.script_after_file_export = None  # type: str
+
         # HL7 fields not copied to database
-        self.ping_first = None
-        self.network_timeout_ms = None
+        self.ping_first = True
+        self.network_timeout_ms = None  # type: int
         self.idnum_type_list = {}  # type: Dict[int, str]
         self.idnum_aa_list = {}  # type: Dict[int, str]
-        self.keep_message = None
-        self.keep_reply = None
+        self.keep_message = True
+        self.keep_reply = True
         # File fields not copied to database (because actual filename stored):
-        self.patient_spec_if_anonymous = None
-        self.patient_spec = None
-        self.filename_spec = None
-        self.make_directory = None
+        self.patient_spec_if_anonymous = None  # type: str
+        self.patient_spec = None  # type: str
+        self.filename_spec = None  # type: str
+        self.make_directory = True
         # Some default values we never want to be None
         self.include_anonymous = False
         # Internal use

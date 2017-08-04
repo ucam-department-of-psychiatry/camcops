@@ -24,7 +24,10 @@
 
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_constants import PV
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no_none,
@@ -33,14 +36,11 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
+from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
 from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import (
-    CtvInfo,
-    CTV_INCOMPLETE,
-    Task,
-    TrackerInfo,
-    TrackerLabel,
-)
+from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 
 
 # =============================================================================
@@ -157,13 +157,17 @@ class Slums(Task):
                 self.total_score(), self.category())
         )]
 
-    def get_summaries(self):
+    def get_summaries(self) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            dict(name="total", cctype="INT", value=self.total_score(),
-                 comment="Total score (/30)"),
-            dict(name="category", cctype="TEXT", value=self.category(),
-                 comment="Category"),
+            SummaryElement(name="total",
+                           coltype=Integer(),
+                           value=self.total_score(),
+                           comment="Total score (/30)"),
+            SummaryElement(name="category",
+                           coltype=SummaryCategoryColType,
+                           value=self.category(),
+                           comment="Category"),
         ]
 
     def is_complete(self) -> bool:

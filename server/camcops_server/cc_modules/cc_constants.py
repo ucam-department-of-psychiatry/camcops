@@ -310,10 +310,6 @@ YES_CHAR = 'Y'
 # Field names/specifications
 # =============================================================================
 
-ISO8601_STRING_LENGTH = 32
-# ... max length e.g. 2013-07-24T20:04:07.123456+01:00
-# (microseconds, colon in timezone).
-
 PKNAME = "_pk"
 MOVE_OFF_TABLET_FIELD = "_move_off_tablet"
 CLIENT_DATE_FIELD = "when_last_modified"
@@ -426,30 +422,6 @@ STANDARD_ANCILLARY_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
          indexed=True),
 ]
 
-CLINICIAN_FIELDSPECS = [  # see also has_clinician
-    dict(name="clinician_specialty", cctype="TEXT", anon=True,
-         comment="(CLINICIAN) Clinician's specialty (e.g. Liaison "
-                 "Psychiatry)"),
-    dict(name="clinician_name", cctype="TEXT", anon=True,
-         comment="(CLINICIAN) Clinician's name (e.g. Dr X)"),
-    dict(name="clinician_professional_registration", cctype="TEXT",
-         comment="(CLINICIAN) Clinician's professional registration (e.g. "
-                 "GMC# 12345)"),
-    dict(name="clinician_post", cctype="TEXT", anon=True,
-         comment="(CLINICIAN) Clinician's post (e.g. Consultant)"),
-    dict(name="clinician_service", cctype="TEXT", anon=True,
-         comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
-                 "Service)"),
-    dict(name="clinician_contact_details", cctype="TEXT", anon=True,
-         comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
-                 "extension)"),
-]
-RESPONDENT_FIELDSPECS = [  # see also has_respondent
-    dict(name="respondent_name", cctype="TEXT",
-         comment="(RESPONDENT) Respondent's name"),
-    dict(name="respondent_relationship", cctype="TEXT",
-         comment="(RESPONDENT) Respondent's relationship to patient"),
-]
 
 CRIS_CLUSTER_KEY_FIELDSPEC = dict(
     name="_task_main_pk", cctype="INT_UNSIGNED",

@@ -25,7 +25,6 @@
 #include <QSharedPointer>
 #include <QStringList>
 #include "common/aliases_camcops.h"
-// #include "lib/cloneable.h"
 
 class QWidget;
 class Questionnaire;
