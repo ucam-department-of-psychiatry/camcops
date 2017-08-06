@@ -38,12 +38,12 @@ Thus, always complete and contemporaneous.
 import logging
 from typing import TYPE_CHECKING
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 
 from .cc_constants import FP_ID_NUM
 from .cc_db import GenericTabletRecordMixin
-from .cc_logger import BraceStyleAdapter
 from .cc_sqla_coltypes import (
     BigIntUnsigned,
     CamcopsColumn,

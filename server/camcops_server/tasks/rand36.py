@@ -24,12 +24,12 @@
 
 from typing import Any, List, Optional
 
+from cardinal_pythonlib.maths_py import mean
 from sqlalchemy.sql.sqltypes import Float
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, identity, tr, tr_span_col
-from ..cc_modules.cc_lang import mean
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task
 from ..cc_modules.cc_trackerhelpers import TrackerInfo

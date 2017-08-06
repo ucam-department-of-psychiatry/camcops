@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_math.py
+# camcops_server/cc_modules/cc_ancillary.py
 
 """
 ===============================================================================
@@ -22,15 +22,15 @@
 ===============================================================================
 """
 
-import math
-from typing import Optional, Union
+from sqlalchemy.sql.schema import Column
+
+from .cc_db import GenericTabletRecordMixin
+from .cc_sqla_coltypes import IntUnsigned
 
 
-def safe_logit(x: Union[float, int]) -> Optional[float]:
-    if x > 1 or x < 0:
-        return None  # can't take log of negative number
-    if x == 1:
-        return float("inf")
-    if x == 0:
-        return float("-inf")
-    return math.log(x / (1 - x))
+class AncillaryMixin(GenericTabletRecordMixin):
+    id = Column(
+        "id", IntUnsigned,
+        nullable=True, index=True,
+        comment="(ANCILLARY) Primary key on the tablet device"
+    )

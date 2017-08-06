@@ -27,6 +27,7 @@ from typing import TYPE_CHECKING
 
 import arrow
 from arrow import Arrow
+from cardinal_pythonlib.logs import BraceStyleAdapter
 import datetime
 from pyramid.decorator import reify
 from pyramid.request import Request
@@ -41,7 +42,6 @@ from .cc_constants import (
     WEB_HEAD,
 )
 from .cc_dt import format_datetime
-from .cc_logger import BraceStyleAdapter
 
 if TYPE_CHECKING:
     from .cc_session import CamcopsSession

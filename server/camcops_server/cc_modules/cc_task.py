@@ -37,31 +37,36 @@ NOTES:
 import collections
 import copy
 import datetime
-from enum import Enum
 import logging
-import re
 import statistics
 import typing
 from typing import (Any, Dict, Iterable, Generator, List, Optional, Sequence,
                     Tuple, Type, TYPE_CHECKING, Union)
 
-import cardinal_pythonlib.rnc_db as rnc_db
+from cardinal_pythonlib.classes import (
+    all_subclasses,
+    derived_class_implements_method,
+)
+from cardinal_pythonlib.lists import flatten_list
+from cardinal_pythonlib.logs import BraceStyleAdapter
+import cardinal_pythonlib.pdf as rnc_pdf
 from cardinal_pythonlib.rnc_db import (
     DatabaseSupporter,
     FIELDSPEC_TYPE,
     FIELDSPECLIST_TYPE,
 )
-import cardinal_pythonlib.rnc_pdf as rnc_pdf
 import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.sort import Min, MinType
+from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
+from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 import hl7
 from semantic_version import Version
 from sqlalchemy.orm import reconstructor
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Text
+from sqlalchemy.sql.sqltypes import Boolean, Float, Text
 
 from .cc_anon import (
-    get_cris_dd_row,
     get_cris_dd_rows_from_fieldspecs,
     get_literal_regex,
     get_type_size_as_text_from_sqltype,
@@ -71,7 +76,6 @@ from .cc_blob import Blob, get_contemporaneous_blob_by_client_info
 from .cc_constants import (
     ACTION,
     ANON_PATIENT,
-    CLINICIAN_FIELDSPECS,
     COMMENT_IS_COMPLETE,
     CRIS_CLUSTER_KEY_FIELDSPEC,
     CRIS_PATIENT_COMMENT_PREFIX,
@@ -88,7 +92,6 @@ from .cc_constants import (
     PDF_HEAD_NO_PAGED_MEDIA,
     PDF_HEAD_PORTRAIT,
     PKNAME,
-    RESPONDENT_FIELDSPECS,
     SIGNATURE_BLOCK,
     STANDARD_ANCILLARY_FIELDSPECS,
     STANDARD_ANONYMOUS_TASK_FIELDSPECS,
@@ -124,19 +127,9 @@ from .cc_html import (
     tr,
     tr_qa,
 )
-from .cc_lang import (
-    all_subclasses,
-    derived_class_implements_method,
-    flatten_list,
-    mangle_unicode_to_ascii,
-    Min,
-    MinType,
-)
-from .cc_logger import BraceStyleAdapter
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
 from .cc_plot import set_matplotlib_fontsize
-from .cc_config import pls
 from .cc_recipdef import RecipientDefinition
 from .cc_report import Report, REPORT_RESULT_TYPE
 from .cc_request import CamcopsRequest
@@ -155,7 +148,7 @@ from .cc_sqla_coltypes import (
     permitted_values_ok,
     SexColType,
 )
-from .cc_sqlalchemy import Base, get_rows_fieldnames_from_raw_sql
+from .cc_sqlalchemy import Base
 from .cc_summaryelement import SummaryElement
 from .cc_trackerhelpers import TrackerInfo
 from .cc_unittest import (
@@ -412,6 +405,35 @@ class Task(GenericTabletRecordMixin):
                     },
                 ]
     """
+
+    # =========================================================================
+    # PART 0: COLUMNS COMMON TO ALL TASKS
+    # =========================================================================
+
+    when_created = Column(
+        "when_created", DateTimeAsIsoTextColType,
+        nullable=False,
+        comment="(TASK) Date/time this task instance was created (ISO 8601)"
+    )
+    when_firstexit = Column(
+        "when_firstexit", DateTimeAsIsoTextColType,
+         comment="(TASK) Date/time of the first exit from this task "
+                 "(ISO 8601)"
+    )
+    firstexit_is_finish = Column(
+        "firstexit_is_finish", Boolean,
+         comment="(TASK) Was the first exit from the task because it was "
+                 "finished (1)?"
+    )
+    firstexit_is_abort = Column(
+        "firstexit_is_abort", Boolean,
+         comment="(TASK) Was the first exit from this task because it was "
+                 "aborted (1)?"
+    )
+    editing_time_s = Column(
+        "editing_time_s", Float,
+         comment="(TASK) Time spent editing (s)"
+    )
 
     # =========================================================================
     # PART 1: THINGS THAT DERIVED CLASSES MAY CARE ABOUT

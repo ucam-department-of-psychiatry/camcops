@@ -26,7 +26,9 @@ import datetime
 import logging
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-import cardinal_pythonlib.rnc_pdf as rnc_pdf
+from cardinal_pythonlib.lists import flatten_list
+from cardinal_pythonlib.logs import BraceStyleAdapter
+import cardinal_pythonlib.pdf as rnc_pdf
 import cardinal_pythonlib.rnc_web as ws
 
 from .cc_audit import audit
@@ -53,8 +55,6 @@ from .cc_html import (
     pdf_footer_content,
     pdf_header_content,
 )
-from .cc_lang import flatten_list
-from .cc_logger import BraceStyleAdapter
 from .cc_plot import matplotlib, set_matplotlib_fontsize
 from .cc_patientidnum import PatientIdNum
 from .cc_config import pls

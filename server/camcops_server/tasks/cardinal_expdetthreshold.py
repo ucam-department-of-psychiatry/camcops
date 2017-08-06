@@ -27,7 +27,7 @@ from typing import List, Optional
 
 import matplotlib.pyplot as plt
 import numpy
-import cardinal_pythonlib.rnc_plot as rnc_plot
+import cardinal_pythonlib.plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
 
 from ..cc_modules.cc_constants import (

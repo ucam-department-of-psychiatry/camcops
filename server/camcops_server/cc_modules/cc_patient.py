@@ -28,11 +28,12 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from arrow import Arrow
-import dateutil.relativedelta
-import hl7
-
+from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
+import dateutil.relativedelta
+import hl7
 from sqlalchemy.orm import reconstructor, relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column
@@ -60,7 +61,6 @@ from .cc_dt import (
 )
 from .cc_hl7core import make_pid_segment
 from .cc_html import answer, get_generic_action_url, get_url_field_value_pair
-from .cc_logger import BraceStyleAdapter
 from .cc_simpleobjects import BarePatientInfo, HL7PatientIdentifier
 from .cc_patientidnum import PatientIdNum
 from .cc_policy import (
@@ -83,7 +83,7 @@ from .cc_sqla_coltypes import (
     PatientNameColType,
     SexColType,
 )
-from .cc_sqlalchemy import Base, get_rows_fieldnames_from_raw_sql
+from .cc_sqlalchemy import Base
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING
 from .cc_xml import (

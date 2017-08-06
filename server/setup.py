@@ -319,7 +319,7 @@ camcops_server
         'Wand==0.4.2',  # ImageMagick for Python; used e.g. for BLOB PNG display  # noqa
         'Werkzeug==0.11.3',  # Profiling middleware
 
-        'cardinal_pythonlib==0.2.3',  # RNC libraries
+        'cardinal_pythonlib==1.0.0',  # RNC libraries
 
         # Adding as part of Pyramid/SQLAlchemy/Alembic upgrade, v2.1.0:
         'arrow==0.10.0',

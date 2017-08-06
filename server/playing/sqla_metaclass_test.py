@@ -48,19 +48,24 @@ Metaclass __new__ vs __init__:
 
 import logging
 from typing import Any, Dict, Tuple, Type
+
+from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.reprfunc import auto_repr
+from cardinal_pythonlib.sqlalchemy.orm_inspect import get_orm_column_names
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer
-from camcops_server.cc_modules.cc_lang import simple_repr
-from camcops_server.cc_modules.cc_logger import main_only_quicksetup_rootlogger
+
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     PermittedValueChecker,
     permitted_value_failure_msgs,
     permitted_values_ok,
 )
-from camcops_server.cc_modules.cc_sqlalchemy import Base, get_orm_column_names
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+
 log = logging.getLogger(__name__)
+
 
 # =============================================================================
 # 1. Explore the metaclass system in detail
@@ -257,7 +262,7 @@ class ComplexTask(ExtraMixin, PretendTaskBase, Base,
     )
 
     def __repr__(self) -> str:
-        return simple_repr(self)
+        return auto_repr(self)
 
     # This override works, but the type checker complains about signature
     # mismatch:

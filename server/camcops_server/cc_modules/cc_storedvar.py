@@ -25,12 +25,12 @@
 import logging
 from typing import Optional, Union
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer, Text
 
 from .cc_db import GenericTabletRecordMixin
-from .cc_logger import BraceStyleAdapter
 from .cc_sqla_coltypes import (
     IntUnsigned,
     StoredVarNameColType,

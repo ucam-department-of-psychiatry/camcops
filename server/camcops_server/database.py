@@ -34,9 +34,15 @@ import time
 from typing import (Any, Callable, Dict, Iterable, List,
                     Optional, Sequence, Tuple, Type)
 
+from cardinal_pythonlib.convert import (
+    base64_64format_encode,
+    hex_xformat_encode,
+)
+from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE
+from cardinal_pythonlib.text import escape_newlines, unescape_newlines
 
 from .cc_modules.cc_dt import format_datetime
 from .cc_modules import cc_audit
@@ -65,14 +71,9 @@ from .cc_modules.cc_convert import (
     decode_values,
     delimit,
     encode_single_value,
-    escape_newlines,
-    special_base64_encode,
-    special_hex_encode,
-    unescape_newlines,
 )
 from .cc_modules.cc_device import Device, get_device_by_name
 from .cc_modules.cc_hl7 import HL7Run
-from .cc_modules.cc_logger import BraceStyleAdapter
 from .cc_modules.cc_patient import Patient
 from .cc_modules.cc_patientidnum import PatientIdNum
 from .cc_modules.cc_config import pls
@@ -1870,8 +1871,8 @@ def database_unit_tests() -> None:
     # Encoding/decoding tests
     # data = bytearray("hello")
     data = b"hello"
-    enc_b64data = special_base64_encode(data)
-    enc_hexdata = special_hex_encode(data)
+    enc_b64data = base64_64format_encode(data)
+    enc_hexdata = hex_xformat_encode(data)
     not_enc_1 = "X'012345'"
     not_enc_2 = "64'aGVsbG8='"
     teststring = """one, two, 3, 4.5, NULL, 'hello "hi

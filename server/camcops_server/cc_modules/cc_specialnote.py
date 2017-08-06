@@ -25,6 +25,7 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.sqlalchemy.orm_inspect import get_orm_column_names
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
@@ -49,7 +50,7 @@ from .cc_sqla_coltypes import (
     SendingFormatColType,
     TableNameColType,
 )
-from .cc_sqlalchemy import Base, get_orm_column_names
+from .cc_sqlalchemy import Base
 from .cc_user import get_username_from_id
 from .cc_xml import make_xml_branches_from_fieldspecs, XmlElement
 

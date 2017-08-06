@@ -40,7 +40,8 @@ import pygments.lexers.web
 import pygments.formatters
 
 # local:
-from cardinal_pythonlib.rnc_lang import import_submodules
+from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.modules import import_submodules
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE, WSGI_TUPLE_TYPE
 
@@ -91,7 +92,6 @@ from .cc_modules.cc_html import (
     login_page,
     simple_success_message,
 )
-from .cc_modules.cc_logger import BraceStyleAdapter
 from .cc_modules.cc_patient import get_patient_server_pks_by_idnum, Patient
 from .cc_modules.cc_plot import ccplot_do_nothing
 from .cc_modules.cc_config import pls

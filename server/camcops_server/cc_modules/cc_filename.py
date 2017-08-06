@@ -26,8 +26,9 @@ import datetime
 import os
 from typing import List, TYPE_CHECKING, Union
 
+from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
+
 from .cc_dt import format_datetime, get_now_localtz
-from .cc_lang import mangle_unicode_to_ascii
 from .cc_constants import (
     DATEFORMAT,
     FP_ID_NUM,

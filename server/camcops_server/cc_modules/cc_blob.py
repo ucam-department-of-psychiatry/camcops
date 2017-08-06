@@ -26,16 +26,15 @@ import datetime
 import logging
 from typing import Optional
 
-import wand.image  # sudo apt-get install libmagickwand-dev; sudo pip install Wand  # noqa
-
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, LargeBinary, Text
+import wand.image  # sudo apt-get install libmagickwand-dev; sudo pip install Wand  # noqa
 
 from .cc_constants import ERA_NOW, MIMETYPE_PNG
 from .cc_db import GenericTabletRecordMixin
 from .cc_html import get_data_url, get_embedded_img_tag
-from .cc_logger import BraceStyleAdapter
 from .cc_sqla_coltypes import (
     IntUnsigned,
     MimeTypeColType,

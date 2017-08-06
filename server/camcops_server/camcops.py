@@ -47,8 +47,12 @@ from werkzeug.contrib.profiler import ProfilerMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
 from wsgiref.simple_server import make_server
 
+from cardinal_pythonlib.logs import (
+    main_only_quicksetup_rootlogger,
+    BraceStyleAdapter,
+)
 import cardinal_pythonlib.rnc_db as rnc_db
-from cardinal_pythonlib.rnc_lang import convert_to_bool
+from cardinal_pythonlib.convert import convert_to_bool
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE
 from cardinal_pythonlib.wsgi_errorreporter import ErrorReportingMiddleware
 from cardinal_pythonlib.wsgi_cache import DisableClientSideCachingMiddleware
@@ -78,10 +82,6 @@ from .cc_modules.cc_blob import Blob, ccblob_unit_tests
 from .cc_modules import cc_db
 from .cc_modules.cc_device import ccdevice_unit_tests, Device
 from .cc_modules.cc_dump import ccdump_unit_tests
-from .cc_modules.cc_logger import (
-    main_only_quicksetup_rootlogger,
-    BraceStyleAdapter,
-)
 from .cc_modules.cc_hl7 import (
     HL7Message,
     HL7Run,

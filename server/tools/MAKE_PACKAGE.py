@@ -42,7 +42,8 @@ import sys
 import tempfile
 from typing import Any, Callable, List
 
-from camcops_server.cc_modules.cc_logger import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
     CAMCOPS_CHANGEDATE,

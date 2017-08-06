@@ -24,12 +24,12 @@
 
 from typing import Any, Dict, List, Optional
 
+from cardinal_pythonlib.betweendict import BetweenDict
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.sqltypes import Float, Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_lang import BetweenDict
 from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
 from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement

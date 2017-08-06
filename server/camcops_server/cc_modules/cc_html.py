@@ -26,7 +26,7 @@ import base64
 import string
 from typing import Any, Callable, List, Optional, Union
 
-import cardinal_pythonlib.rnc_plot as rnc_plot
+import cardinal_pythonlib.plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
 
 from .cc_constants import (

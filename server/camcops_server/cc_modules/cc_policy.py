@@ -27,7 +27,8 @@ import logging
 import tokenize
 from typing import List, Optional, Tuple
 
-from .cc_logger import BraceStyleAdapter
+from cardinal_pythonlib.logs import BraceStyleAdapter
+
 from .cc_simpleobjects import BarePatientInfo
 from .cc_unittest import unit_test_ignore
 

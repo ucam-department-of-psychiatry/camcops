@@ -31,6 +31,8 @@ import math
 import os
 from typing import Any, List, Optional, Tuple, TYPE_CHECKING
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.randomness import create_base64encoded_randomness
 import cardinal_pythonlib.rnc_web as ws
 from pyramid.interfaces import ISession
 from sqlalchemy.orm import Session as SqlASession
@@ -52,7 +54,6 @@ from .cc_html import (
     get_url_main_menu,
     get_yes_no_none,
 )
-from .cc_logger import BraceStyleAdapter
 from .cc_pyramid import CookieKeys
 from .cc_sqla_coltypes import (
     DateTimeAsIsoTextColType,
@@ -90,19 +91,6 @@ DEFAULT_NUMBER_OF_TASKS_TO_VIEW = 25
 # =============================================================================
 # Security for web sessions
 # =============================================================================
-
-def create_base64encoded_randomness(num_bytes: int) -> str:
-    """Create num_bytes of random data.
-    Result is encoded in a string with URL-safe base64 encoding.
-    Used (for example) to generate session tokens.
-    Which generator to use? See
-        https://cryptography.io/en/latest/random-numbers/
-    NOT: randbytes = M2Crypto.m2.rand_bytes(num_bytes)
-    NOT: randbytes = Crypto.Random.get_random_bytes(num_bytes)
-    """
-    randbytes = os.urandom(num_bytes)  # YES
-    return base64.urlsafe_b64encode(randbytes).decode('ascii')
-
 
 def generate_token(num_bytes: int = 16) -> str:
     """

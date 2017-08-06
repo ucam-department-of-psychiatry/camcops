@@ -148,6 +148,8 @@ import traceback
 from typing import Callable, Dict, List, Tuple
 
 import arrow
+from cardinal_pythonlib.randomness import create_base64encoded_randomness
+from cardinal_pythonlib.reprfunc import auto_repr
 from dogpile.cache import make_region
 from pyramid.config import Configurator
 from pyramid.registry import Registry
@@ -195,14 +197,6 @@ SessionTokenColType = String(length=50)
 # =============================================================================
 # Helpers
 # =============================================================================
-
-def simple_repr(obj: object) -> str:
-    return "<{classname}({kvp})>".format(
-        classname=type(obj).__name__,
-        kvp=", ".join("{}={}".format(k, repr(v))
-                      for k, v in obj.__dict__.items())
-    )
-
 
 RE_VALID_REPLACEMENT_MARKER = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
 # All characters must be a-z, A-Z, _, or 0-9.
@@ -327,7 +321,7 @@ class DummyConfig(object):
         self.session_cookie_secret = 'xyz'
 
     def __repr__(self) -> str:
-        return simple_repr(self)
+        return auto_repr(self)
 
     def create_engine(self) -> Engine:
         return create_engine(self.dburl)
@@ -397,7 +391,7 @@ def html_a(url: str, text: str) -> str:
 
 
 @view_config(route_name=Routes.HOME.route)
-def home_view(request: CamcopsRequest) -> Response:
+def home_view(request: Request) -> Response:
     cfg = get_config()  # type: DummyConfig
     task = TASKNAME_1
     stringname = STRINGNAME_2
@@ -431,7 +425,7 @@ def home_view(request: CamcopsRequest) -> Response:
 
 
 @view_config(route_name=Routes.OTHER.route)
-def other_view(request: CamcopsRequest) -> Response:
+def other_view(request: Request) -> Response:
     dbsession = request.dbsession
     lines = [
         "All well. Go <a href='{url_home}'>home</a>?".format(
@@ -454,7 +448,7 @@ def other_view(request: CamcopsRequest) -> Response:
 
 
 @view_config(route_name=Routes.VIEW_WITH_PARAMS.route)
-def view_with_params(request: CamcopsRequest) -> Response:
+def view_with_params(request: Request) -> Response:
     pk = int(request.matchdict[ViewParams.PK])
     patient_id = int(request.matchdict[ViewParams.PATIENT_ID])
     get = request.GET
@@ -466,7 +460,7 @@ def view_with_params(request: CamcopsRequest) -> Response:
 # Database stuff
 # =============================================================================
 
-def dbsession_request_method(request: CamcopsRequest) -> SqlASession:
+def dbsession_request_method(request: Request) -> SqlASession:
     """
     This is very elegant. The function gets plumbed in to the Request object
     by:
@@ -498,11 +492,11 @@ def dbsession_request_method(request: CamcopsRequest) -> SqlASession:
 # =============================================================================
 
 # noinspection PyUnusedLocal
-def now_arrow_request_method(request: CamcopsRequest) -> arrow.Arrow:
+def now_arrow_request_method(request: Request) -> arrow.Arrow:
     return arrow.now()
 
 
-def now_utc_request_method(request: CamcopsRequest) -> datetime.datetime:
+def now_utc_request_method(request: Request) -> datetime.datetime:
     a = request.now_arrow  # type: arrow.Arrow
     return a.to('utc').datetime
 
@@ -510,19 +504,6 @@ def now_utc_request_method(request: CamcopsRequest) -> datetime.datetime:
 # =============================================================================
 # HTTP sessions via a tween
 # =============================================================================
-
-def create_base64encoded_randomness(num_bytes: int) -> str:
-    """Create num_bytes of random data.
-    Result is encoded in a string with URL-safe base64 encoding.
-    Used (for example) to generate session tokens.
-    Which generator to use? See
-        https://cryptography.io/en/latest/random-numbers/
-    NOT: randbytes = M2Crypto.m2.rand_bytes(num_bytes)
-    NOT: randbytes = Crypto.Random.get_random_bytes(num_bytes)
-    """
-    randbytes = os.urandom(num_bytes)  # YES
-    return base64.urlsafe_b64encode(randbytes).decode('ascii')
-
 
 def generate_token(num_bytes: int = 16) -> str:
     """
@@ -560,7 +541,7 @@ class CamcopsHttpSession(Base):
         self.last_activity_utc = last_activity_utc
 
     @classmethod
-    def get_http_session(cls, request: CamcopsRequest) -> 'CamcopsHttpSession':
+    def get_http_session(cls, request: Request) -> 'CamcopsHttpSession':
         dbsession = request.dbsession
         pyramid_session = request.session  # type: ISession
         try:
@@ -606,7 +587,7 @@ def http_session_tween_factory(
         registry: Registry) -> Callable[[Request], Response]:
     cfg = get_config()  # type: DummyConfig
 
-    def http_session_tween(request: CamcopsRequest) -> Response:
+    def http_session_tween(request: Request) -> Response:
         log.debug("Starting http_session_tween")
         request.camcops_session = CamcopsHttpSession.get_http_session(request)
         response = handler(request)

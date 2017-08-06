@@ -27,18 +27,22 @@ import datetime
 import logging
 from typing import Dict, List, Optional, TYPE_CHECKING
 
+from cardinal_pythonlib.configfiles import (
+    get_config_parameter,
+    get_config_parameter_boolean,
+)
+from cardinal_pythonlib.logs import BraceStyleAdapter
+
 from .cc_dt import get_date_from_string
 from .cc_filename import (
     filename_spec_is_valid,
     get_export_filename,
     patient_spec_for_filename_is_valid,
 )
-from .cc_logger import BraceStyleAdapter
 from .cc_policy import (
     is_idnum_mandatory_in_finalize_policy,
     is_idnum_mandatory_in_upload_policy,
 )
-from .cc_configfile import get_config_parameter, get_config_parameter_boolean
 from .cc_constants import VALUE
 
 if TYPE_CHECKING:

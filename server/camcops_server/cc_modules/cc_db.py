@@ -24,8 +24,9 @@
 
 import datetime
 import logging
-from typing import Any, Iterable, List, Optional, Union, Type, TypeVar
+from typing import Any, Dict, Iterable, List, Optional, Union, Type, TypeVar
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.rnc_db import (
     DatabaseSupporter,
@@ -34,7 +35,7 @@ from cardinal_pythonlib.rnc_db import (
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, DateTime
+from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from .cc_config import pls
 from .cc_constants import (
@@ -44,11 +45,12 @@ from .cc_constants import (
     STANDARD_TASK_FIELDSPECS,
 )
 from .cc_dt import format_datetime
-from .cc_logger import BraceStyleAdapter
 from .cc_sqla_coltypes import (
+    CamcopsColumn,
     DateTimeAsIsoTextColType,
     EraColType,
     IntUnsigned,
+    PermittedValueChecker,
     SemanticVersionColType,
 )
 
@@ -193,18 +195,20 @@ class GenericTabletRecordMixin(object):
 # Field creation assistance
 # =============================================================================
 
-# noinspection PyShadowingBuiltins
-def repeat_fieldspec(prefix: str,
-                     start: int,
-                     end: int,
-                     cctype: str = "INT",
-                     comment_fmt: str = None,
-                     comment_strings: List[str] = None,
-                     min: int = None,  # TODO: float?
-                     max: int = None,  # TODO: float?
-                     pv: List[Any] = None) -> FIELDSPECLIST_TYPE:
-    """Return a list of field specifications for numerically sequenced
-    fields.
+def add_multiple_columns(cls: Type,
+                         prefix: str,
+                         start: int,
+                         end: int,
+                         coltype: Type = Integer,
+                         colkwargs: Dict[str, Any] = None,
+                         comment_fmt: str = None,
+                         comment_strings: List[str] = None,
+                         minimum: Union[int, float] = None,
+                         maximum: Union[int, float] = None,
+                         pv: List[Any] = None) -> None:
+    """
+    Add a sequence of SQLAlchemy columns to a class.
+    Called from a metaclass.
 
     Args:
         prefix: Fieldname will be prefix + str(n), where n defined as below.
@@ -212,37 +216,39 @@ def repeat_fieldspec(prefix: str,
         end: End of range. Thus:
             ... i will range from 0 to (end - start) inclusive
             ... n will range from start to end inclusive
-        cctype: CamCOPS type of field (must be a key in SQLTYPE).
+        coltype: SQLAlchemy column type
+        colkwargs: SQLAlchemy column arguments
+            ... as in: Column(name, coltype, **colkwargs)
         comment_fmt: Format string defining field comments. Substitutable
             values are:
                 {n}     field number (from range)
                 {s}     comment_strings[i], or "" if out of range
         comment_strings: see comment_fmt
-        min: minimum permitted value, or None
-        max: maximum permitted value, or None
+        minimum: minimum permitted value, or None
+        maximum: maximum permitted value, or None
         pv: list of permitted values, or None
     """
+    colkwargs = {} if colkwargs is None else colkwargs  # type: Dict[str, Any]
     comment_strings = comment_strings or []
     fieldspecs = []
     for n in range(start, end + 1):
+        nstr = str(n)
         i = n - start
-        d = dict(
-            name=prefix + str(n),
-            cctype=cctype
-        )
+        colname = prefix + nstr
         if comment_fmt:
             s = ""
             if 0 <= i < len(comment_strings):
                 s = comment_strings[i] or ""
-            d["comment"] = comment_fmt.format(n=n, s=s)
-        if min is not None:
-            d["min"] = min
-        if max is not None:
-            d["max"] = max
-        if pv is not None:
-            d["pv"] = pv
-        fieldspecs.append(d)
-    return fieldspecs
+            colkwargs["comment"] = comment_fmt.format(n=n, s=s)
+        if minimum is not None or maximum is not None or pv is not None:
+            colkwargs["permitted_value_checker"] = PermittedValueChecker(
+                minimum=minimum,
+                maximum=maximum,
+                permitted_values=pv
+            )
+            setattr(cls, colname, CamcopsColumn(colname, coltype, **colkwargs))
+        else:
+            setattr(cls, colname, Column(colname, coltype, **colkwargs))
 
 
 def repeat_fieldname(prefix: str, start: int, end: int) -> List[str]:

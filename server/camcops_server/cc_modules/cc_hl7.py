@@ -35,8 +35,10 @@ import sys
 import typing
 from typing import Any, List, Optional, Tuple, Union
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.network import ping
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.rnc_net import ping
+from cardinal_pythonlib.sqlalchemy.orm_inspect import get_orm_column_names
 from sqlalchemy.orm import reconstructor, relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
@@ -72,7 +74,6 @@ from .cc_html import (
     get_url_field_value_pair,
     get_generic_action_url,
 )
-from .cc_logger import BraceStyleAdapter
 from .cc_simpleobjects import HL7PatientIdentifier
 from .cc_config import CamcopsConfig
 from .cc_recipdef import RecipientDefinition
@@ -84,7 +85,7 @@ from .cc_sqla_coltypes import (
     SendingFormatColType,
     TableNameColType,
 )
-from .cc_sqlalchemy import Base, get_orm_column_names
+from .cc_sqlalchemy import Base
 from .cc_task import get_base_tables, get_url_task_html, task_factory
 from .cc_unittest import unit_test_ignore
 

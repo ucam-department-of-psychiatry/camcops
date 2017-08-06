@@ -26,7 +26,7 @@
 
 import os
 import string
-from cardinal_pythonlib.rnc_lang import merge_dicts
+from cardinal_pythonlib.dicts import merge_dicts
 
 from .cc_baseconstants import (
     CAMCOPS_SERVER_DIRECTORY,
@@ -318,110 +318,6 @@ CLIENT_DATE_FIELD = "when_last_modified"
 FP_ID_NUM = "idnum"
 FP_ID_DESC = "iddesc"
 FP_ID_SHORT_DESC = "idshortdesc"
-
-# VALID KEYS FOR FIELDSPECS:
-# - all those listed in rnc_db.py
-# - cctype
-# - identifies_patient (Boolean)
-STANDARD_GENERIC_FIELDSPECS = [
-    # server side:
-    dict(name=PKNAME, cctype="INT_UNSIGNED", pk=True,
-         autoincrement=True, comment="(SERVER) Primary key (on the server)"),
-    # ... server PK; must always be first in the fieldlist
-    dict(name="_device_id", cctype="INT_UNSIGNED", notnull=True,
-         comment="(SERVER) ID of the source tablet device",
-         indexed=True),
-    dict(name="_era", cctype="ISO8601", notnull=True,
-         comment="(SERVER) 'NOW', or when this row was preserved and removed "
-                 "from the source device (UTC ISO 8601)",
-         indexed=True, index_nchar=ISO8601_STRING_LENGTH),
-    # ... note that _era is textual so that plain comparison
-    # with "=" always works, i.e. no NULLs -- for USER comparison too, not
-    # just in CamCOPS code
-    dict(name="_current", cctype="BOOL", notnull=True,
-         comment="(SERVER) Is the row current (1) or not (0)?", indexed=True),
-    dict(name="_when_added_exact", cctype="ISO8601",
-         comment="(SERVER) Date/time this row was added (ISO 8601)"),
-    dict(name="_when_added_batch_utc", cctype="DATETIME",
-         comment="(SERVER) Date/time of the upload batch that added this "
-                 "row (DATETIME in UTC)"),
-    dict(name="_adding_user_id", cctype="INT_UNSIGNED",
-         comment="(SERVER) ID of user that added this row"),
-    dict(name="_when_removed_exact", cctype="ISO8601",
-         comment="(SERVER) Date/time this row was removed, i.e. made "
-                 "not current (ISO 8601)"),
-    dict(name="_when_removed_batch_utc", cctype="DATETIME",
-         comment="(SERVER) Date/time of the upload batch that removed "
-                 "this row (DATETIME in UTC)"),
-    dict(name="_removing_user_id", cctype="INT_UNSIGNED",
-         comment="(SERVER) ID of user that removed this row"),
-    dict(name="_preserving_user_id", cctype="INT_UNSIGNED",
-         comment="(SERVER) ID of user that preserved this row"),
-    dict(name="_forcibly_preserved", cctype="BOOL",
-         comment="(SERVER) Forcibly preserved by superuser (rather than "
-                 "normally preserved by tablet)?"),
-    dict(name="_predecessor_pk", cctype="INT_UNSIGNED",
-         comment="(SERVER) PK of predecessor record, prior to modification"),
-    dict(name="_successor_pk", cctype="INT_UNSIGNED",
-         comment="(SERVER) PK of successor record  (after modification) "
-                 "or NULL (after deletion)"),
-    dict(name="_manually_erased", cctype="BOOL",
-         comment="(SERVER) Record manually erased (content destroyed)?"),
-    dict(name="_manually_erased_at", cctype="ISO8601",
-         comment="(SERVER) Date/time of manual erasure (ISO 8601)"),
-    dict(name="_manually_erasing_user_id", cctype="INT_UNSIGNED",
-         comment="(SERVER) ID of user that erased this row manually"),
-    dict(name="_camcops_version", cctype="SEMANTICVERSIONTYPE",
-         comment="(SERVER) CamCOPS version number of the uploading device"),
-    dict(name="_addition_pending", cctype="BOOL",
-         notnull=True, comment="(SERVER) Addition pending?"),
-    dict(name="_removal_pending", cctype="BOOL",
-         notnull=True, comment="(SERVER) Removal pending?"),
-    dict(name=MOVE_OFF_TABLET_FIELD, cctype="BOOL",
-         comment="(SERVER/TABLET) Record-specific preservation pending?"),
-    # fields that *all* client tables have:
-    dict(name=CLIENT_DATE_FIELD, cctype="ISO8601",
-         comment="(STANDARD) Date/time this row was last modified on the "
-                 "source tablet device (ISO 8601)"),
-]
-
-STANDARD_TASK_COMMON_FIELDSPECS = [
-    dict(name="when_created", cctype="ISO8601", notnull=True,
-         comment="(TASK) Date/time this task instance was created (ISO 8601)"),
-    dict(name="when_firstexit", cctype="ISO8601",
-         comment="(TASK) Date/time of the first exit from this "
-                 "task (ISO 8601)"),
-    dict(name="firstexit_is_finish", cctype="BOOL",
-         comment="(TASK) Was the first exit from the task because it was "
-                 "finished (1)?"),
-    dict(name="firstexit_is_abort", cctype="BOOL",
-         comment="(TASK) Was the first exit from this task because it was "
-                 "aborted (1)?"),
-    dict(name="editing_time_s", cctype="FLOAT",
-         comment="(TASK) Time spent editing (s)"),
-]
-
-STANDARD_TASK_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
-    dict(name="id", cctype="INT_UNSIGNED", notnull=True,
-         comment="(TASK) Primary key (task ID) on the tablet device",
-         indexed=True),
-    dict(name="patient_id", cctype="INT_UNSIGNED", notnull=True,
-         comment="(TASK) Foreign key to patient.id for this device",
-         indexed=True),
-] + STANDARD_TASK_COMMON_FIELDSPECS
-
-STANDARD_ANONYMOUS_TASK_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
-    dict(name="id", cctype="INT_UNSIGNED", notnull=True,
-         comment="(TASK) Primary key (task ID) on the tablet device",
-         indexed=True),
-] + STANDARD_TASK_COMMON_FIELDSPECS
-
-STANDARD_ANCILLARY_FIELDSPECS = STANDARD_GENERIC_FIELDSPECS + [
-    dict(name="id", cctype="INT_UNSIGNED", notnull=True,
-         comment="(ANCILLARY) Primary key on the tablet device",
-         indexed=True),
-]
-
 
 CRIS_CLUSTER_KEY_FIELDSPEC = dict(
     name="_task_main_pk", cctype="INT_UNSIGNED",

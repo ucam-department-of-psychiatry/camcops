@@ -24,6 +24,7 @@
 
 from typing import List, Optional
 
+from cardinal_pythonlib.typetests import is_false
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.sqltypes import Boolean
 
@@ -38,7 +39,6 @@ from ..cc_modules.cc_html import (
     get_true_false_none,
     tr_qa,
 )
-from ..cc_modules.cc_lang import is_false
 from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task

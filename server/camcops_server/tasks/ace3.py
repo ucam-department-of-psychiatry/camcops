@@ -27,11 +27,13 @@ from typing import List, Optional
 import cardinal_pythonlib.rnc_web as ws
 import matplotlib.pyplot as plt
 import numpy
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
 
 from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH, PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns, repeat_fieldname
 from ..cc_modules.cc_html import (
     answer,
     get_html_from_pyplot_figure,
@@ -41,8 +43,10 @@ from ..cc_modules.cc_html import (
     tr_qa,
     tr_span_col,
 )
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task, TaskHasClinicianMixin, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -75,123 +79,137 @@ def score_zero_for_absent(x: Optional[int]) -> int:
 # ACE-III
 # =============================================================================
 
-class Ace3(Task):
-    tablename = "ace3"
-    shortname = "ACE-III"
-    longname = "Addenbrooke’s Cognitive Examination III"
-    has_clinician = True
-    provides_trackers = True
-
-    fieldspecs = (
-        [
-            dict(name="age_at_leaving_full_time_education",
-                 cctype="INT",
-                 comment="Age at leaving full time education"),
-            dict(name="occupation", cctype="TEXT",
-                 comment="Occupation"),
-            dict(name="handedness", cctype="TEXT",
-                 comment="Handedness (L or R)",
-                 pv=["L", "R"]),
-        ] +
-        repeat_fieldspec(
-            "attn_time", 1, 5, pv=PV.BIT,
+class Ace3Metaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls, name, bases, classdict):
+        add_multiple_columns(
+            cls, "attn_time", 1, 5, pv=PV.BIT,
             comment_fmt="Attention, time, {n}/5, {s} (0 or 1)",
             comment_strings=["day", "date", "month", "year", "season"],
-        ) +
-        repeat_fieldspec(
-            "attn_place", 1, 5, pv=PV.BIT,
+        )
+        add_multiple_columns(
+            cls, "attn_place", 1, 5, pv=PV.BIT,
             comment_fmt="Attention, place, {n}/5, {s} (0 or 1)",
             comment_strings=["house number/floor", "street/hospital",
                              "town", "county", "country"],
-        ) +
-        repeat_fieldspec(
-            "attn_repeat_word", 1, 3, pv=PV.BIT,
+        )
+        add_multiple_columns(
+            cls, "attn_repeat_word", 1, 3, pv=PV.BIT,
             comment_fmt="Attention, repeat word, {n}/3, {s} (0 or 1)",
             comment_strings=RECALL_WORDS,
-        ) +
-        [
-            dict(name="attn_num_registration_trials", cctype="INT",
-                 comment="Attention, repetition, number of trials "
-                 "(not scored)"),
-        ] +
-        repeat_fieldspec(
-            "attn_serial7_subtraction", 1, 5, pv=PV.BIT,
+        )
+        add_multiple_columns(
+            cls, "attn_serial7_subtraction", 1, 5, pv=PV.BIT,
             comment_fmt="Attention, serial sevens, {n}/5 (0 or 1)",
-        ) +
-        repeat_fieldspec(
-            "mem_recall_word", 1, 3, pv=PV.BIT,
-            comment_fmt="Memory, recall word, {n}/3, {s} (0 or 1",
+        )
+        add_multiple_columns(
+            cls, "mem_recall_word", 1, 3, pv=PV.BIT,
+            comment_fmt="Memory, recall word, {n}/3, {s} (0 or 1)",
             comment_strings=RECALL_WORDS,
-        ) +
-        [
-            dict(name="fluency_letters_score", cctype="INT",
-                 comment="Fluency, words beginning with P, score 0-7",
-                 min=0, max=7),
-            dict(name="fluency_animals_score", cctype="INT",
-                 comment="Fluency, animals, score 0-7",
-                 min=0, max=7),
-        ] +
-        repeat_fieldspec(
-            "mem_repeat_address_trial1_", 1, 7, pv=PV.BIT,
+        )
+        add_multiple_columns(
+            cls, "mem_repeat_address_trial1_", 1, 7, pv=PV.BIT,
             comment_fmt="Memory, address registration trial 1/3 "
-            "(not scored), {s} (0 or 1)", comment_strings=ADDRESS_PARTS,
-        ) +
-        repeat_fieldspec(
-            "mem_repeat_address_trial2_", 1, 7, pv=PV.BIT,
+                        "(not scored), {s} (0 or 1)",
+            comment_strings=ADDRESS_PARTS,
+        )
+        add_multiple_columns(
+            cls, "mem_repeat_address_trial2_", 1, 7, pv=PV.BIT,
             comment_fmt="Memory, address registration trial 2/3 "
-            "(not scored), {s} (0 or 1)", comment_strings=ADDRESS_PARTS,
-        ) +
-        repeat_fieldspec(
-            "mem_repeat_address_trial3_", 1, 7, pv=PV.BIT,
+                        "(not scored), {s} (0 or 1)",
+            comment_strings=ADDRESS_PARTS,
+        )
+        add_multiple_columns(
+            cls, "mem_repeat_address_trial3_", 1, 7, pv=PV.BIT,
             comment_fmt="Memory, address registration trial 3/3 "
-            "(scored), {s} (0 or 1)", comment_strings=ADDRESS_PARTS,
-        ) +
-        repeat_fieldspec(
-            "mem_famous", 1, 4, pv=PV.BIT,
+                        "(scored), {s} (0 or 1)",
+            comment_strings=ADDRESS_PARTS,
+        )
+        add_multiple_columns(
+            cls, "mem_famous", 1, 4, pv=PV.BIT,
             comment_fmt="Memory, famous people, {n}/4, {s} (0 or 1)",
-            comment_strings=["current PM", "woman PM", "USA president",
-                             "JFK"],
-        ) +
-        [
-            dict(name="lang_follow_command_practice", cctype="INT",
-                 comment="Language, command, practice trial (not scored)",
-                 pv=PV.BIT),
-        ] +
-        repeat_fieldspec(
-            "lang_follow_command", 1, 3, pv=PV.BIT,
+            comment_strings=["current PM", "woman PM", "USA president", "JFK"],
+        )
+        add_multiple_columns(
+            cls, "lang_follow_command", 1, 3, pv=PV.BIT,
             comment_fmt="Language, command {n}/3 (0 or 1)",
-        ) +
-        repeat_fieldspec(
-            "lang_write_sentences_point", 1, 2, pv=PV.BIT,
+        )
+        add_multiple_columns(
+            cls, "lang_write_sentences_point", 1, 2, pv=PV.BIT,
             comment_fmt="Language, write sentences, {n}/2, {s} (0 or 1)",
             comment_strings=["two sentences on same topic",
                              "grammar/spelling"],
-        ) +
-        repeat_fieldspec(
-            "lang_repeat_word", 1, 4, pv=PV.BIT,
+        )
+        add_multiple_columns(
+            cls, "lang_repeat_word", 1, 4, pv=PV.BIT,
             comment_fmt="Language, repeat word, {n}/4, {s} (0 or 1)",
             comment_strings=["caterpillar", "eccentricity",
                              "unintelligible", "statistician"],
-        ) +
-        repeat_fieldspec(
-            "lang_repeat_sentence", 1, 2, pv=PV.BIT,
+        )
+        add_multiple_columns(
+            cls, "lang_repeat_sentence", 1, 2, pv=PV.BIT,
             comment_fmt="Language, repeat sentence, {n}/2, {s} (0 or 1)",
             comment_strings=["glitters_gold", "stitch_time"],
-        ) +
-        repeat_fieldspec(
-            "lang_name_picture", 1, 12, pv=PV.BIT,
+        )
+        add_multiple_columns(
+            cls, "lang_name_picture", 1, 12, pv=PV.BIT,
             comment_fmt="Language, name picture, {n}/12, {s} (0 or 1)",
             comment_strings=["spoon", "book", "kangaroo/wallaby",
                              "penguin", "anchor", "camel/dromedary",
                              "harp", "rhinoceros", "barrel/keg/tub",
                              "crown", "alligator/crocodile",
                              "accordion/piano accordion/squeeze box"],
-        ) +
-        repeat_fieldspec(
-            "lang_identify_concept", 1, 4, pv=PV.BIT,
+        )
+        add_multiple_columns(
+            cls, "lang_identify_concept", 1, 4, pv=PV.BIT,
             comment_fmt="Language, identify concept, {n}/4, {s} (0 or 1)",
             comment_strings=["monarchy", "marsupial", "Antarctic", "nautical"],
-        ) +
+        )
+
+        super().__init__(name, bases, classdict)
+
+
+class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+           metaclass=Ace3Metaclass):
+    tablename = "ace3"
+    shortname = "ACE-III"
+    longname = "Addenbrooke’s Cognitive Examination III"
+    has_clinician = True
+    provides_trackers = True
+
+    age_at_leaving_full_time_education = Column(
+        "age_at_leaving_full_time_education", Integer,
+        comment="Age at leaving full time education"
+    )
+    occupation = Column(
+        "occupation", Text,
+        comment="Occupation"
+    )
+    handedness = CamcopsColumn(
+        "handedness", Text,
+        comment="Handedness (L or R)",
+        pv=["L", "R"]
+    )
+    attn_num_registration_trials = Column(
+        "attn_num_registration_trials", Integer,
+        comment="Attention, repetition, number of trials (not scored)"
+    )
+    fluency_letters_score = CamcopsColumn(
+        "fluency_letters_score", Integer,
+        comment="Fluency, words beginning with P, score 0-7",
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7)
+    )
+    fluency_animals_score = CamcopsColumn(
+        "fluency_animals_score", Integer,
+        comment="Fluency, animals, score 0-7",
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7)
+    )
+    lang_follow_command_practice = CamcopsColumn(
+        "lang_follow_command_practice", Integer,
+        comment="Language, command, practice trial (not scored)",
+        permitted_value_checker=PermittedValueChecker(permitted_values=PV.BIT)
+    )
+*** am here!
         [
             dict(name="lang_read_words_aloud", cctype="INT", pv=PV.BIT,
                  comment="Language, read five irregular words (0 or 1)"),

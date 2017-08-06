@@ -27,8 +27,9 @@ import logging
 import os
 import subprocess
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
+
 from camcops_server.cc_modules.cc_constants import ENVVAR_CONFIG_FILE
-from camcops_server.cc_modules.cc_logger import BraceStyleAdapter
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

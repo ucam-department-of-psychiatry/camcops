@@ -32,9 +32,8 @@ import os
 import shutil
 import tempfile
 
-import cardinal_pythonlib.rnc_plot as rnc_plot
-
-from .cc_logger import BraceStyleAdapter
+from cardinal_pythonlib.logs import BraceStyleAdapter
+import cardinal_pythonlib.plot as rnc_plot
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

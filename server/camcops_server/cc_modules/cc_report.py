@@ -28,6 +28,7 @@ import re
 from typing import (Any, Dict, Iterable, List, Optional, Sequence, Tuple,
                     Type, Union)
 
+from cardinal_pythonlib.classes import all_subclasses
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import WSGI_TUPLE_TYPE
 
@@ -45,7 +46,6 @@ from .cc_html import (
     get_generic_action_url,
     get_url_field_value_pair,
 )
-from .cc_lang import all_subclasses
 from .cc_request import CamcopsRequest
 from .cc_unittest import (
     unit_test_ignore,

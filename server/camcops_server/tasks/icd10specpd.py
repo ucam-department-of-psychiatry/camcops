@@ -25,6 +25,7 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.typetests import is_false
 from sqlalchemy.sql.sqltypes import Boolean
 
 from ..cc_modules.cc_dt import format_datetime_string
@@ -42,7 +43,6 @@ from ..cc_modules.cc_html import (
     subheading_spanning_two_columns,
     tr_qa,
 )
-from ..cc_modules.cc_lang import is_false
 from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task

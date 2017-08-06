@@ -63,18 +63,18 @@ from typing import Any, Generator, List, Optional, Tuple, Union
 
 import arrow
 from arrow import Arrow
+from cardinal_pythonlib.reprfunc import auto_repr
+from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 import dateutil.parser
 import pytz
 from semantic_version import Version
 from sqlalchemy.dialects.mysql import BIGINT, INTEGER, LONGTEXT
 from sqlalchemy.engine.interfaces import Dialect
-from sqlalchemy.orm import Mapper
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.schema import Column, Table
 from sqlalchemy.sql.sqltypes import String, Unicode
 from sqlalchemy.sql.type_api import TypeDecorator
 
-from .cc_lang import simple_repr
 from .cc_version import make_version
 
 log = logging.getLogger(__name__)  # don't use BraceAdapter here; we use {}
@@ -386,7 +386,7 @@ class PermittedValueChecker(object):
         return ""
 
     def __repr__(self):
-        return simple_repr(self)
+        return auto_repr(self)
 
 
 # =============================================================================
@@ -401,21 +401,21 @@ class CamcopsColumn(Column):
     and which values are permitted in the field (in a soft sense: duff values
     cause errors to be reported, but they're still stored.
     """
-    def __init__(self, *args, **kwargs) -> None:
-        self.cris_include = bool(kwargs.pop('cris_include', False))
-        self.exempt_from_anonymisation = bool(
-            kwargs.pop('exempt_from_anonymisation', False))
-        self.identifies_patient = bool(kwargs.pop('identifies_patient', False))
-
-        self.is_blob_id_field = bool(kwargs.pop('is_blob_id_field', False))
-        self.blob_field_xml_name = str(kwargs.pop('blob_field_xml_name', ""))
-
-        self.permitted_value_checker = kwargs.pop(
-            'permitted_value_checker', None)  # type: Optional[PermittedValueChecker]  # noqa
-        assert (self.permitted_value_checker is None or
-                isinstance(self.permitted_value_checker,
-                           PermittedValueChecker))
-
+    def __init__(self,
+                 *args,
+                 cris_include: bool = False,
+                 exempt_from_anonymisation: bool = False,
+                 identifies_patient: bool = False,
+                 is_blob_id_field: bool = False,
+                 blob_field_xml_name: str = "",
+                 permitted_value_checker: PermittedValueChecker = None,
+                 **kwargs) -> None:
+        self.cris_include = cris_include
+        self.exempt_from_anonymisation = exempt_from_anonymisation
+        self.identifies_patient = identifies_patient
+        self.is_blob_id_field = is_blob_id_field
+        self.blob_field_xml_name = blob_field_xml_name
+        self.permitted_value_checker = permitted_value_checker
         super().__init__(*args, **kwargs)
 
     def __repr__(self) -> str:
@@ -431,28 +431,6 @@ class CamcopsColumn(Column):
             super().__repr__(),
         ]
         return "CamcopsColumn<{}>".format(",".join(elements))
-
-
-def gen_columns(obj) -> Generator[Tuple[str, Column], None, None]:
-    """
-    Yields tuples of (attr_name, Column) from an object.
-    """
-    mapper = obj.__mapper__ # type: Mapper
-    assert mapper, "gen_columns called on {!r} which is not an " \
-                   "SQLAlchemy ORM object".format(obj)
-    if not mapper.columns:
-        return
-    for attrname, column in mapper.columns.items():
-        # NB: column.name is the SQL column name, not the attribute name
-        yield attrname, column
-
-    # Don't bother using
-    #   cls = obj.__class_
-    #   for attrname in dir(cls):
-    #       cls_attr = getattr(cls, attrname)
-    #       # ... because, for columns, these will all be instances of
-    #       # sqlalchemy.orm.attributes.InstrumentedAttribute.
-
 
 
 def gen_camcops_columns(obj) -> Generator[Tuple[str, CamcopsColumn],

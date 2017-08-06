@@ -28,11 +28,11 @@ from typing import Any, Dict, List, Optional
 import xml.sax.saxutils
 
 from arrow import Arrow
+from cardinal_pythonlib.sqlalchemy.orm_inspect import get_orm_columns
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
 from .cc_simpleobjects import XmlSimpleValue
-from .cc_sqlalchemy import get_orm_columns
 
 
 # =============================================================================

@@ -26,11 +26,11 @@ import argparse
 import logging
 import os
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
 import cherrypy
 
 from ..camcops import application as wsgi_application
 from ..cc_modules.cc_constants import STATIC_ROOT_DIR, URL_ROOT_STATIC
-from ..cc_modules.cc_logger import BraceStyleAdapter
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

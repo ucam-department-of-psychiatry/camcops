@@ -25,6 +25,7 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
@@ -39,7 +40,7 @@ from .cc_sqla_coltypes import (
     IntUnsigned,
     SemanticVersionColType,
 )
-from .cc_sqlalchemy import Base, get_rows_fieldnames_from_query
+from .cc_sqlalchemy import Base
 
 
 # =============================================================================
