@@ -23,14 +23,17 @@
 """
 
 import logging
-from typing import TYPE_CHECKING
+from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 
 import arrow
 from arrow import Arrow
 from cardinal_pythonlib.logs import BraceStyleAdapter
+import cardinal_pythonlib.rnc_web as ws
 import datetime
 from pyramid.decorator import reify
+from pyramid.interfaces import ISession
 from pyramid.request import Request
+from pyramid.response import Response
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session as SqlASession
 
@@ -42,6 +45,8 @@ from .cc_constants import (
     WEB_HEAD,
 )
 from .cc_dt import format_datetime
+from .cc_pyramid import CookieKeys
+from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
 
 if TYPE_CHECKING:
     from .cc_session import CamcopsSession
@@ -61,14 +66,51 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 class CamcopsRequest(Request):
+    def __init__(self, *args, **kwargs):
+        """
+        This is called as the Pyramid request factory; see
+            config.set_request_factory(CamcopsRequest)
+
+        What's the best way of handling the database client?
+        - With Titanium, we were constrained not to use cookies. With Qt, we
+          have the option.
+        - But are cookies a good idea?
+          Probably not; they are somewhat overcomplicated for this.
+          See also
+          https://softwareengineering.stackexchange.com/questions/141019/
+          https://stackoverflow.com/questions/6068113/do-sessions-really-violate-restfulness  # noqa
+        - Let's continue to avoid cookies.
+        - We don't have to cache any information (we still send username/
+          password details with each request, and that is RESTful) but it
+          does save authentication time to do so on calls after the first.
+        - What we could try to do is:
+          - look up a session here, at Request creation time;
+          - add a new session if there wasn't one;
+          - but allow the database API code to replace that session (BEFORE
+            it's saved to the database and gains its PK) with another,
+            determined by the content.
+          - This gives one more database hit, but avoids the bcrypt time.
+
+        """
+        super().__init__(*args, **kwargs)
+        self.use_svg = False
+        self.add_response_callback(complete_request_add_cookies)
+        self.camcops_session = CamcopsSession.get_session_using_cookies(self)
+
+    @reify
+    def config_filename(self) -> str:
+        """
+        Gets the config filename in use.
+        """
+        return get_config_filename(environ=self.environ)
+
     @reify
     def config(self) -> CamcopsConfig:
         """
         Return an instance of CamcopsConfig for the request.
         Access it as request.config, with no brackets.
         """
-        config_filename = get_config_filename(environ=self.environ)
-        config = get_config(config_filename=config_filename)
+        config = get_config(config_filename=self.config_filename)
         return config
 
     @reify
@@ -151,6 +193,111 @@ class CamcopsRequest(Request):
         """
         return WEB_HEAD + self.web_logo_html
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.camcops_session = CamcopsSession.get_http_session(self)
+    @reify
+    def _all_extra_strings(self) -> Dict[str, Dict[str, str]]:
+        return all_extra_strings_as_dicts(self.config_filename)
+
+    def xstring(self,
+                taskname: str,
+                stringname: str,
+                default: str = None,
+                provide_default_if_none: bool = True) -> Optional[str]:
+        """
+        Looks up a string from one of the optional extra XML string files.
+        """
+        # For speed, calculate default only if needed:
+        allstrings = self._all_extra_strings
+        if taskname in allstrings:
+            if stringname in allstrings[taskname]:
+                return allstrings[taskname].get(stringname)
+        if default is None and provide_default_if_none:
+            default = "EXTRA_STRING_NOT_FOUND({}.{})".format(taskname,
+                                                             stringname)
+        return default
+
+    def wxstring(self,
+                 taskname: str,
+                 stringname: str,
+                 default: str = None,
+                 provide_default_if_none: bool = True) -> Optional[str]:
+        """Returns a web-safe version of an xstring (see above)."""
+        value = self.xstring(taskname, stringname, default,
+                             provide_default_if_none=provide_default_if_none)
+        if value is None and not provide_default_if_none:
+            return None
+        return ws.webify(value)
+
+    def wappstring(self,
+                   stringname: str,
+                   default: str = None,
+                   provide_default_if_none: bool = True) -> Optional[str]:
+        """
+        Returns a web-safe version of an appstring (an app-wide extra string.
+        """
+        value = self.xstring(APPSTRING_TASKNAME, stringname, default,
+                             provide_default_if_none=provide_default_if_none)
+        if value is None and not provide_default_if_none:
+            return None
+        return ws.webify(value)
+
+    def get_all_extra_strings(self) -> List[Tuple[str, str, str]]:
+        """
+        Returns all extra strings, as a list of (task, name, value) tuples.
+        """
+        allstrings = self._all_extra_strings
+        rows = []
+        for task, subdict in allstrings.items():
+            for name, value in subdict.items():
+                rows.append((task, name, value))
+        return rows
+
+    def task_extrastrings_exist(self, taskname: str) -> bool:
+        """
+        Has the server been supplied with extra strings for a specific task?
+        """
+        allstrings = self._all_extra_strings
+        return taskname in allstrings
+
+    def switch_output_to_png(self) -> None:
+        """Switch server to producing figures in PNG."""
+        self.use_svg = False
+
+    def switch_output_to_svg(self) -> None:
+        """Switch server to producing figures in SVG."""
+        self.use_svg = True
+
+    def replace_camcops_session(self, ccsession: CamcopsSession) -> None:
+        # We may have created a new HTTP session because the request had no
+        # cookies (added to the DB session but not yet saved), but we might
+        # then enter the database/tablet upload API and find session details,
+        # not from the cookies, but from the POST data. At that point, we
+        # want to replace the session in the Request, without committing the
+        # first one to disk.
+        self.dbsession.expunge(self.camcops_session)
+        self.camcops_session = ccsession
+
+
+# noinspection PyUnusedLocal
+def complete_request_add_cookies(req: CamcopsRequest, response: Response):
+    """
+    Finializes the response by adding session cookies.
+    We do this late so that we can hot-swap the session if we're using the
+    database/tablet API rather than a human web browser.
+
+    Response callbacks are called in the order first-to-most-recently-added.
+    See pyramid.request.CallbackMethodsMixin.
+
+    That looks like we can add a callback in the process of running a callback.
+    And when we add a cookie to a Pyramid session, that sets a callback.
+    Let's give it a go...
+    """
+    dbsession = req.dbsession
+    dbsession.flush()  # sets the PK for ccsession, if it wasn't set
+    # Write the details back to the Pyramid session (will be persisted
+    # via the Response automatically):
+    pyramid_session = req.session  # type: ISession
+    ccsession = req.camcops_session
+    pyramid_session[CookieKeys.SESSION_ID] = str(ccsession.id)
+    pyramid_session[CookieKeys.SESSION_TOKEN] = ccsession.token
+    # ... should cause the ISession to add a callback to add cookies,
+    # which will be called immediately after this one.

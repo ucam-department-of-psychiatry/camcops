@@ -37,7 +37,6 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task
 from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
@@ -126,7 +125,7 @@ class Slums(Task):
         ("shapespicture", "shapespicture_blobid"),
     ]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         if self.highschooleducation == 1:
             hlines = [26.5, 20.5]
             y_upper = 28.25
@@ -143,13 +142,13 @@ class Slums(Task):
             axis_max=30.5,
             horizontal_lines=hlines,
             horizontal_labels=[
-                TrackerLabel(y_upper, wappstring("normal")),
-                TrackerLabel(y_middle, self.wxstring("category_mci")),
-                TrackerLabel(17, self.wxstring("category_dementia")),
+                TrackerLabel(y_upper, req.wappstring("normal")),
+                TrackerLabel(y_middle, self.wxstring(req, "category_mci")),
+                TrackerLabel(17, self.wxstring(req, "category_dementia")),
             ]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -157,7 +156,7 @@ class Slums(Task):
                 self.total_score(), self.category())
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -184,28 +183,28 @@ class Slums(Task):
         score = self.total_score()
         if self.highschooleducation == 1:
             if score >= 27:
-                return wappstring("normal")
+                return req.wappstring("normal")
             elif score >= 21:
-                return self.wxstring("category_mci")
+                return self.wxstring(req, "category_mci")
             else:
-                return self.wxstring("category_dementia")
+                return self.wxstring(req, "category_dementia")
         else:
             if score >= 25:
-                return wappstring("normal")
+                return req.wappstring("normal")
             elif score >= 20:
-                return self.wxstring("category_mci")
+                return self.wxstring(req, "category_mci")
             else:
-                return self.wxstring("category_dementia")
+                return self.wxstring(req, "category_dementia")
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         category = self.category()
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score"), answer(score) + " / 30")
-        h += tr_qa(wappstring("category") + " <sup>[1]</sup>", category)
+        h += tr(req.wappstring("total_score"), answer(score) + " / 30")
+        h += tr_qa(req.wappstring("category") + " <sup>[1]</sup>", category)
         h += """
                 </table>
             </div>
@@ -215,12 +214,12 @@ class Slums(Task):
                     <th width="20%">Score</th>
                 </tr>
         """
-        h += tr_qa(self.wxstring("alert_s"), get_yes_no_none(self.alert))
-        h += tr_qa(self.wxstring("highschool_s"),
+        h += tr_qa(self.wxstring(req, "alert_s"), get_yes_no_none(self.alert))
+        h += tr_qa(self.wxstring(req, "highschool_s"),
                    get_yes_no_none(self.highschooleducation))
-        h += tr_qa(self.wxstring("q1_s"), self.q1)
-        h += tr_qa(self.wxstring("q2_s"), self.q2)
-        h += tr_qa(self.wxstring("q3_s"), self.q3)
+        h += tr_qa(self.wxstring(req, "q1_s"), self.q1)
+        h += tr_qa(self.wxstring(req, "q2_s"), self.q2)
+        h += tr_qa(self.wxstring(req, "q3_s"), self.q3)
         h += tr("Q5 <sup>[2]</sup> (money spent, money left "
                 "[<i>scores 2</i>]",
                 ", ".join([answer(x) for x in [self.q5a, self.q5b]]))

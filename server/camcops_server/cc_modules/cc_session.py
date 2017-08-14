@@ -107,7 +107,7 @@ def generate_token(num_bytes: int = 16) -> str:
 # Establishing sessions
 # =============================================================================
 
-def establish_session_for_tablet(request: CamcopsRequest,
+def establish_session_for_tablet(req: CamcopsRequest,
                                  session_id: Optional[int],
                                  session_token: Optional[str],
                                  ip_address: str,
@@ -247,29 +247,42 @@ class CamcopsSession(Base):
     filter_idnum8 = Column("filter_idnum8", IntUnsigned)
 
     @classmethod
-    def get_http_session(cls, request: CamcopsRequest) -> 'CamcopsSession':
+    def get_session_using_cookies(cls,
+                                  req: CamcopsRequest) -> 'CamcopsSession':
         """
         Makes, or retrieves, a new CamcopsSession for this Pyramid Request.
+        """
+        pyramid_session = req.session  # type: ISession
+        session_id_str = pyramid_session.get(CookieKeys.SESSION_ID, '')
+        session_token = pyramid_session.get(CookieKeys.SESSION_TOKEN, '')
+        return cls.get_session(req, session_id_str, session_token)
+
+    @classmethod
+    def get_session(cls,
+                    req: CamcopsRequest,
+                    session_id_str: str,
+                    session_token: str) -> 'CamcopsSession':
+        """
+        Retrieves, or makes, a new CamcopsSession for this Pyramid Request,
+        for a specific session_id and session_token.
         """
         # ---------------------------------------------------------------------
         # Starting variables
         # ---------------------------------------------------------------------
-        dbsession = request.dbsession
-        pyramid_session = request.session  # type: ISession
         try:
-            session_id = int(pyramid_session.get(CookieKeys.SESSION_ID, None))
+            session_id = int(session_id_str)
         except (TypeError, ValueError):
             session_id = None
-        session_token = pyramid_session.get(CookieKeys.SESSION_TOKEN, '')
-        ip_addr = request.remote_addr
-        now = request.now_utc_datetime
+        dbsession = req.dbsession
+        ip_addr = req.remote_addr
+        now = req.now_utc_datetime
 
         # ---------------------------------------------------------------------
         # Fetch or create
         # ---------------------------------------------------------------------
         if session_id and session_token:
             oldest_last_activity_allowed = \
-                cls.get_oldest_last_activity_allowed(request)
+                cls.get_oldest_last_activity_allowed(req)
             candidate = dbsession.query(cls).\
                 filter(cls.id == session_id).\
                 filter(cls.token == session_token).\
@@ -289,32 +302,26 @@ class CamcopsSession(Base):
             log.debug("Creating new session")
             new_http_session = cls(ip_addr=ip_addr, last_activity_utc=now)
             dbsession.add(new_http_session)
-            dbsession.flush()  # sets the PK for new_http_session
-            # Write the details back to the Pyramid session (will be persisted
-            # via the Response automatically):
-            pyramid_session[CookieKeys.SESSION_ID] = str(new_http_session.id)
-            pyramid_session[CookieKeys.SESSION_TOKEN] = new_http_session.token
+            # But we DO NOT FLUSH and we DO NOT SET THE COOKIES YET, because
+            # we might hot-swap the session.
+            # See complete_request_add_cookies().
             ccsession = new_http_session
-
-        # ---------------------------------------------------------------------
-        # Done.
-        # ---------------------------------------------------------------------
         return ccsession
 
     @classmethod
     def get_oldest_last_activity_allowed(
-            cls, request: CamcopsRequest) -> datetime.datetime:
-        cfg = request.config
-        now = request.now_utc_datetime
+            cls, req: CamcopsRequest) -> datetime.datetime:
+        cfg = req.config
+        now = req.now_utc_datetime
         oldest_last_activity_allowed = now - cfg.SESSION_TIMEOUT
         return oldest_last_activity_allowed
 
     @classmethod
-    def delete_old_sessions(cls, request: CamcopsRequest) -> None:
+    def delete_old_sessions(cls, req: CamcopsRequest) -> None:
         """Delete all expired sessions."""
         oldest_last_activity_allowed = \
-            cls.get_oldest_last_activity_allowed(request)
-        dbsession = request.dbsession
+            cls.get_oldest_last_activity_allowed(req)
+        dbsession = req.dbsession
         log.info("Deleting expired sessions")
         dbsession.delete(cls).filter(cls.last_activity_utc <
                                      oldest_last_activity_allowed)
@@ -322,22 +329,9 @@ class CamcopsSession(Base):
     def __init__(self,
                  ip_addr: str,
                  last_activity_utc: datetime.datetime):
-        self.use_svg = False
         self.token = generate_token()
         self.ip_address = ip_addr
         self.last_activity_utc = last_activity_utc
-
-    @reconstructor
-    def init_on_load(self) -> None:
-        self.use_svg = False
-
-    def switch_output_to_png(self) -> None:
-        """Switch server to producing figures in PNG."""
-        self.use_svg = False
-
-    def switch_output_to_svg(self) -> None:
-        """Switch server to producing figures in SVG."""
-        self.use_svg = True
 
     @property
     def username(self) -> Optional[str]:
@@ -352,7 +346,7 @@ class CamcopsSession(Base):
         self.number_to_view = DEFAULT_NUMBER_OF_TASKS_TO_VIEW
         self.first_task_to_view = 0
 
-    def logout(self, request: CamcopsRequest) -> None:
+    def logout(self, req: CamcopsRequest) -> None:
         """
         Log out, wiping session details. Also, perform periodic
         maintenance for the server, as this is a good time.
@@ -364,10 +358,10 @@ class CamcopsSession(Base):
         # Secondly, some other things unrelated to logging out. Users will not
         # always log out manually. But sometimes they will. So we may as well
         # do some slow non-critical things:
-        self.delete_old_sessions(request)
-        SecurityAccountLockout.delete_old_account_lockouts(request)
-        SecurityLoginFailure.clear_dummy_login_failures_if_necessary(request)
-        send_analytics_if_necessary(request)
+        self.delete_old_sessions(req)
+        SecurityAccountLockout.delete_old_account_lockouts(req)
+        SecurityLoginFailure.clear_dummy_login_failures_if_necessary(req)
+        send_analytics_if_necessary(req)
 
     def login(self, user: User) -> None:
         """Log in. Associates the user with the session and makes a new

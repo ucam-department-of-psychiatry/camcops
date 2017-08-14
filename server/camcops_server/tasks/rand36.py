@@ -149,31 +149,31 @@ class Rand36(Task):
             axis_max=100.5
         )
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [
             self.tracker_element(self.score_overall(),
-                                 self.wxstring("score_overall")),
+                                 self.wxstring(req, "score_overall")),
             self.tracker_element(self.score_physical_functioning(),
-                                 self.wxstring("score_physical_functioning")),
+                                 self.wxstring(req, "score_physical_functioning")),
             self.tracker_element(
                 self.score_role_limitations_physical(),
-                self.wxstring("score_role_limitations_physical")),
+                self.wxstring(req, "score_role_limitations_physical")),
             self.tracker_element(
                 self.score_role_limitations_emotional(),
-                self.wxstring("score_role_limitations_emotional")),
+                self.wxstring(req, "score_role_limitations_emotional")),
             self.tracker_element(self.score_energy(),
-                                 self.wxstring("score_energy")),
+                                 self.wxstring(req, "score_energy")),
             self.tracker_element(self.score_emotional_wellbeing(),
-                                 self.wxstring("score_emotional_wellbeing")),
+                                 self.wxstring(req, "score_emotional_wellbeing")),
             self.tracker_element(self.score_social_functioning(),
-                                 self.wxstring("score_social_functioning")),
+                                 self.wxstring(req, "score_social_functioning")),
             self.tracker_element(self.score_pain(),
-                                 self.wxstring("score_pain")),
+                                 self.wxstring(req, "score_pain")),
             self.tracker_element(self.score_general_health(),
-                                 self.wxstring("score_general_health")),
+                                 self.wxstring(req, "score_general_health")),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -196,7 +196,7 @@ class Rand36(Task):
             )
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(
@@ -330,20 +330,20 @@ class Rand36(Task):
             return None
         # wxstring has its own validity checking, so we can do:
         if q == 1 or q == 2 or (20 <= q <= 22) or q == 32:
-            return self.wxstring("q" + str(q) + "_option" + str(v))
+            return self.wxstring(req, "q" + str(q) + "_option" + str(v))
         elif 3 <= q <= 12:
-            return self.wxstring("activities_option" + str(v))
+            return self.wxstring(req, "activities_option" + str(v))
         elif 13 <= q <= 19:
-            return self.wxstring("yesno_option" + str(v))
+            return self.wxstring(req, "yesno_option" + str(v))
         elif 23 <= q <= 31:
-            return self.wxstring("last4weeks_option" + str(v))
+            return self.wxstring(req, "last4weeks_option" + str(v))
         elif 33 <= q <= 36:
-            return self.wxstring("q33to36_option" + str(v))
+            return self.wxstring(req, "q33to36_option" + str(v))
         else:
             return None
 
     def answer_row_html(self, q: int) -> str:
-        qtext = self.wxstring("q" + str(q))
+        qtext = self.wxstring(req, "q" + str(q))
         v = getattr(self, "q" + str(q))
         atext = self.answer_text(q, v)
         s = self.recode(q)
@@ -360,39 +360,39 @@ class Rand36(Task):
             answer(score) + " / 100"
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += self.scoreline(
-            self.wxstring("score_overall"), 1,
+            self.wxstring(req, "score_overall"), 1,
             self.format_float_for_display(self.score_overall()))
         h += self.scoreline(
-            self.wxstring("score_physical_functioning"), 2,
+            self.wxstring(req, "score_physical_functioning"), 2,
             self.format_float_for_display(self.score_physical_functioning()))
         h += self.scoreline(
-            self.wxstring("score_role_limitations_physical"), 3,
+            self.wxstring(req, "score_role_limitations_physical"), 3,
             self.format_float_for_display(
                 self.score_role_limitations_physical()))
         h += self.scoreline(
-            self.wxstring("score_role_limitations_emotional"), 4,
+            self.wxstring(req, "score_role_limitations_emotional"), 4,
             self.format_float_for_display(
                 self.score_role_limitations_emotional()))
         h += self.scoreline(
-            self.wxstring("score_energy"), 5,
+            self.wxstring(req, "score_energy"), 5,
             self.format_float_for_display(self.score_energy()))
         h += self.scoreline(
-            self.wxstring("score_emotional_wellbeing"), 6,
+            self.wxstring(req, "score_emotional_wellbeing"), 6,
             self.format_float_for_display(self.score_emotional_wellbeing()))
         h += self.scoreline(
-            self.wxstring("score_social_functioning"), 7,
+            self.wxstring(req, "score_social_functioning"), 7,
             self.format_float_for_display(self.score_social_functioning()))
         h += self.scoreline(
-            self.wxstring("score_pain"), 8,
+            self.wxstring(req, "score_pain"), 8,
             self.format_float_for_display(self.score_pain()))
         h += self.scoreline(
-            self.wxstring("score_general_health"), 9,
+            self.wxstring(req, "score_general_health"), 9,
             self.format_float_for_display(self.score_general_health()))
         h += """
                 </table>
@@ -406,15 +406,15 @@ class Rand36(Task):
         """
         for q in range(1, 2 + 1):
             h += self.answer_row_html(q)
-        h += self.section_row_html(self.wxstring("activities_q"))
+        h += self.section_row_html(self.wxstring(req, "activities_q"))
         for q in range(3, 12 + 1):
             h += self.answer_row_html(q)
         h += self.section_row_html(
-            self.wxstring("work_activities_physical_q"))
+            self.wxstring(req, "work_activities_physical_q"))
         for q in range(13, 16 + 1):
             h += self.answer_row_html(q)
         h += self.section_row_html(
-            self.wxstring("work_activities_emotional_q"))
+            self.wxstring(req, "work_activities_emotional_q"))
         for q in range(17, 19 + 1):
             h += self.answer_row_html(q)
         h += self.section_row_html("<br>")
@@ -422,14 +422,14 @@ class Rand36(Task):
         h += self.section_row_html("<br>")
         for q in range(21, 22 + 1):
             h += self.answer_row_html(q)
-        h += self.section_row_html(self.wxstring("last4weeks_q_a") + " " +
-                                   self.wxstring("last4weeks_q_b"))
+        h += self.section_row_html(self.wxstring(req, "last4weeks_q_a") + " " +
+                                   self.wxstring(req, "last4weeks_q_b"))
         for q in range(23, 31 + 1):
             h += self.answer_row_html(q)
         h += self.section_row_html("<br>")
         for q in [32]:
             h += self.answer_row_html(q)
-        h += self.section_row_html(self.wxstring("q33to36stem"))
+        h += self.section_row_html(self.wxstring(req, "q33to36stem"))
         for q in range(33, 36 + 1):
             h += self.answer_row_html(q)
         h += """

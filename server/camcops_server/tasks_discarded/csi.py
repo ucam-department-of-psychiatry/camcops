@@ -49,7 +49,7 @@ class Csi(Task):
     fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="CSI total score",
@@ -59,7 +59,7 @@ class Csi(Task):
             horizontal_lines=[1.5]
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -74,7 +74,7 @@ class Csi(Task):
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         n_csi_symptoms = self.total_score()
         csi_catatonia = n_csi_symptoms >= 2
         h = """
@@ -92,12 +92,12 @@ class Csi(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            self.wxstring("num_symptoms_present"), n_csi_symptoms,
-            self.wxstring("catatonia_present"), get_yes_no(csi_catatonia)
+            self.wxstring(req, "num_symptoms_present"), n_csi_symptoms,
+            self.wxstring(req, "catatonia_present"), get_yes_no(csi_catatonia)
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                "Q" + str(q) + " — " + self.wxstring("q" + str(q) + "_title"),
+                "Q" + str(q) + " — " + self.wxstring(req, "q" + str(q) + "_title"),
                 get_yes_no_unknown(getattr(self, "q" + str(q)))
             )
         h += """

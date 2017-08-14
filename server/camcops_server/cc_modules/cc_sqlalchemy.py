@@ -23,21 +23,6 @@
 """
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm.query import Query
-from sqlalchemy.sql import func
 
 # The base of all our model classes:
 Base = declarative_base()
-
-
-# noinspection PyAbstractClass
-class SpecializedQuery(Query):
-    """
-    Optimizes COUNT(*) queries.
-    See
-        https://stackoverflow.com/questions/12941416/how-to-count-rows-with-select-count-with-sqlalchemy  # noqa
-    """
-    def count_star(self):
-        count_query = (self.statement.with_only_columns([func.count()])
-                       .order_by(None))
-        return self.session.execute(count_query).scalar()

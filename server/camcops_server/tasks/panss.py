@@ -30,7 +30,6 @@ from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
@@ -95,7 +94,7 @@ class Panss(Task):
     G_FIELDS = repeat_fieldname("g", 1, 16)
     TASK_FIELDS = P_FIELDS + N_FIELDS + G_FIELDS
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [
             TrackerInfo(
                 value=self.total_score(),
@@ -132,7 +131,7 @@ class Panss(Task):
             ),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -148,7 +147,7 @@ class Panss(Task):
             )
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -194,7 +193,7 @@ class Panss(Task):
     def composite(self) -> int:
         return self.score_p() - self.score_n()
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         p = self.score_p()
         n = self.score_n()
         g = self.score_g()
@@ -202,24 +201,24 @@ class Panss(Task):
         total = p + n + g
         answers = {
             None: None,
-            1: self.wxstring("option1"),
-            2: self.wxstring("option2"),
-            3: self.wxstring("option3"),
-            4: self.wxstring("option4"),
-            5: self.wxstring("option5"),
-            6: self.wxstring("option6"),
-            7: self.wxstring("option7"),
+            1: self.wxstring(req, "option1"),
+            2: self.wxstring(req, "option2"),
+            3: self.wxstring(req, "option3"),
+            4: self.wxstring(req, "option4"),
+            5: self.wxstring(req, "option5"),
+            6: self.wxstring(req, "option6"),
+            7: self.wxstring(req, "option7"),
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr_qa("{} (30–210)".format(wappstring("total_score")), total)
-        h += tr_qa("{} (7–49)".format(self.wxstring("p")), p)
-        h += tr_qa("{} (7–49)".format(self.wxstring("n")), n)
-        h += tr_qa("{} (16–112)".format(self.wxstring("g")), g)
-        h += tr_qa(self.wxstring("composite"), composite)
+        h += tr_qa("{} (30–210)".format(req.wappstring("total_score")), total)
+        h += tr_qa("{} (7–49)".format(self.wxstring(req, "p")), p)
+        h += tr_qa("{} (7–49)".format(self.wxstring(req, "n")), n)
+        h += tr_qa("{} (16–112)".format(self.wxstring(req, "g")), g)
+        h += tr_qa(self.wxstring(req, "composite"), composite)
         h += """
                 </table>
             </div>
@@ -231,7 +230,7 @@ class Panss(Task):
         """
         for q in self.TASK_FIELDS:
             h += tr_qa(
-                self.wxstring("" + q + "_s"),
+                self.wxstring(req, "" + q + "_s"),
                 get_from_dict(answers, getattr(self, q))
             )
         h += """

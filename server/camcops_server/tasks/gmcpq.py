@@ -23,7 +23,9 @@
 """
 
 import cardinal_pythonlib.rnc_web as ws
-from ..cc_modules.cc_constants import PV
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
+
 from ..cc_modules.cc_html import (
     get_yes_no_none,
     subheading_spanning_two_columns,
@@ -31,7 +33,15 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn,
+    ONE_TO_FIVE_CHECKER,
+    PermittedValueChecker,
+    ZERO_TO_FIVE_CHECKER,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import get_from_dict, Task
 
 
@@ -39,87 +49,154 @@ from ..cc_modules.cc_task import get_from_dict, Task
 # GMCPQ
 # =============================================================================
 
-class GMCPQ(Task):
-    tablename = "gmcpq"
+class GMCPQ(Task, Base):
+    __tablename__ = "gmcpq"
     shortname = "GMC-PQ"
     longname = "GMC Patient Questionnaire"
-    is_anonymous = True
 
     RATING_TEXT = " (1 poor - 5 very good, 0 does not apply)"
-    AGREE_TEXT = (
-        " (1 strongly disagree - 5 strongly agree, 0 does not apply)"
+    AGREE_TEXT = " (1 strongly disagree - 5 strongly agree, 0 does not apply)"
+
+    doctor = Column(
+        "doctor", Text,
+        comment="Doctor's name"
     )
-    fieldspecs = [
-        dict(name="doctor", cctype="TEXT",
-             comment="Doctor's name"),
-        dict(name="q1", cctype="INT", min=1, max=4,
-             comment="Filling in questionnaire for... (1 yourself, "
-             "2 child, 3 spouse/partner, 4 other relative/friend)"),
-        dict(name="q2a", cctype="INT", pv=PV.BIT,
-             comment="Reason: advice? (0 no, 1 yes)"),
-        dict(name="q2b", cctype="INT", pv=PV.BIT,
-             comment="Reason: one-off problem? (0 no, 1 yes)"),
-        dict(name="q2c", cctype="INT", pv=PV.BIT,
-             comment="Reason: ongoing problem? (0 no, 1 yes)"),
-        dict(name="q2d", cctype="INT", pv=PV.BIT,
-             comment="Reason: routine check? (0 no, 1 yes)"),
-        dict(name="q2e", cctype="INT", pv=PV.BIT,
-             comment="Reason: treatment? (0 no, 1 yes)"),
-        dict(name="q2f", cctype="INT", pv=PV.BIT,
-             comment="Reason: other? (0 no, 1 yes)"),
-        dict(name="q2f_details", cctype="TEXT",
-             comment="Reason, other, details"),
-        dict(name="q3", cctype="INT", min=1, max=5,
-             comment="How important to health/wellbeing was the reason "
-             "(1 not very - 5 very)"),
-        dict(name="q4a", cctype="INT", min=0, max=5,
-             comment="How good: being polite" + RATING_TEXT),
-        dict(name="q4b", cctype="INT", min=0, max=5,
-             comment="How good: making you feel at ease" + RATING_TEXT),
-        dict(name="q4c", cctype="INT", min=0, max=5,
-             comment="How good: listening" + RATING_TEXT),
-        dict(name="q4d", cctype="INT", min=0, max=5,
-             comment="How good: assessing medical condition" +
-             RATING_TEXT),
-        dict(name="q4e", cctype="INT", min=0, max=5,
-             comment="How good: explaining" + RATING_TEXT),
-        dict(name="q4f", cctype="INT", min=0, max=5,
-             comment="How good: involving you in decisions" + RATING_TEXT),
-        dict(name="q4g", cctype="INT", min=0, max=5,
-             comment="How good: providing/arranging treatment" +
-             RATING_TEXT),
-        dict(name="q5a", cctype="INT", min=0, max=5,
-             comment="Agree/disagree: will keep info confidential" +
-             AGREE_TEXT),
-        dict(name="q5b", cctype="INT", min=0, max=5,
-             comment="Agree/disagree: honest/trustworthy" + AGREE_TEXT),
-        dict(name="q6", cctype="INT", pv=PV.BIT,
-             comment="Confident in doctor's ability to provide care "
-             "(0 no, 1 yes)"),
-        dict(name="q7", cctype="INT", pv=PV.BIT,
-             comment="Would be completely happy to see this doctor again "
-             "(0 no, 1 yes)"),
-        dict(name="q8", cctype="INT", pv=PV.BIT,
-             comment="Was this visit with your usual doctor "
-             "(0 no, 1 yes)"),
-        dict(name="q9", cctype="TEXT",
-             comments="Other comments"),
-        dict(name="q10", cctype="TEXT", pv=["M", "F"],
-             comment="Sex of rater (M, F)"),
-        dict(name="q11", cctype="INT", min=1, max=5,
-             comment="Age (1 = under 15, 2 = 15-20, 3 = 21-40, "
-             "4 = 40-60, 5 = 60 or over"),  # yes, I know it's daft
-        dict(name="q12", cctype="INT", min=1, max=16,
-             comment="Ethnicity (1 = White British, 2 = White Irish, "
-             "3 = White other, 4 = Mixed W/B Caribbean, "
-             "5 = Mixed W/B African, 6 = Mixed W/Asian, 7 = Mixed other, "
-             "8 = Asian/Asian British - Indian, 9 = A/AB - Pakistani, "
-             "10 = A/AB - Bangladeshi, 11 = A/AB - other, "
-             "12 = Black/Black British - Caribbean, 13 = B/BB - African, "
-             "14 = B/BB - other, 15 = Chinese, 16 = other)"),
-        dict(name="q12_details", cctype="TEXT",
-             comment="Ethnic group, other, details"),
-    ]
+    q1 = CamcopsColumn(
+        "q1", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=1, maximum=4),
+        comment="Filling in questionnaire for... (1 yourself, "
+                "2 child, 3 spouse/partner, 4 other relative/friend)"
+    )
+    q2a = CamcopsColumn(
+        "q2a", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Reason: advice? (0 no, 1 yes)"
+    )
+    q2b = CamcopsColumn(
+        "q2b", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Reason: one-off problem? (0 no, 1 yes)"
+    )
+    q2c = CamcopsColumn(
+        "q2c", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Reason: ongoing problem? (0 no, 1 yes)")
+    q2d = CamcopsColumn(
+        "q2d", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Reason: routine check? (0 no, 1 yes)"
+    )
+    q2e = CamcopsColumn(
+        "q2e", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Reason: treatment? (0 no, 1 yes)"
+    )
+    q2f = CamcopsColumn(
+        "q2f", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Reason: other? (0 no, 1 yes)"
+    )
+    q2f_details = Column(
+        "q2f_details", Text,
+        comment="Reason, other, details"
+    )
+    q3 = CamcopsColumn(
+        "q3", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="How important to health/wellbeing was the reason "
+                "(1 not very - 5 very)"
+    )
+    q4a = CamcopsColumn(
+        "q4a", Integer,
+        permitted_value_checker=ZERO_TO_FIVE_CHECKER,
+        comment="How good: being polite" + RATING_TEXT
+    )
+    q4b = CamcopsColumn(
+        "q4b", Integer,
+        permitted_value_checker=ZERO_TO_FIVE_CHECKER,
+        comment="How good: making you feel at ease" + RATING_TEXT
+    )
+    q4c = CamcopsColumn(
+        "q4c", Integer,
+        permitted_value_checker=ZERO_TO_FIVE_CHECKER,
+        comment="How good: listening" + RATING_TEXT
+    )
+    q4d = CamcopsColumn(
+        "q4d", Integer,
+        permitted_value_checker=ZERO_TO_FIVE_CHECKER,
+        comment="How good: assessing medical condition" + RATING_TEXT
+    )
+    q4e = CamcopsColumn(
+        "q4e", Integer,
+        permitted_value_checker=ZERO_TO_FIVE_CHECKER,
+        comment="How good: explaining" + RATING_TEXT
+    )
+    q4f = CamcopsColumn(
+        "q4f", Integer,
+        permitted_value_checker=ZERO_TO_FIVE_CHECKER,
+        comment="How good: involving you in decisions" + RATING_TEXT
+    )
+    q4g = CamcopsColumn(
+        "q4g", Integer,
+        permitted_value_checker=ZERO_TO_FIVE_CHECKER,
+        comment="How good: providing/arranging treatment" + RATING_TEXT
+    )
+    q5a = CamcopsColumn(
+        "q5a", Integer,
+        permitted_value_checker=ZERO_TO_FIVE_CHECKER,
+        comment="Agree/disagree: will keep info confidential" + AGREE_TEXT
+    )
+    q5b = CamcopsColumn(
+        "q5b", Integer,
+        permitted_value_checker=ZERO_TO_FIVE_CHECKER,
+        comment="Agree/disagree: honest/trustworthy" + AGREE_TEXT
+    )
+    q6 = CamcopsColumn(
+        "q6", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Confident in doctor's ability to provide care (0 no, 1 yes)"
+    )
+    q7 = CamcopsColumn(
+        "q7", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Would be completely happy to see this doctor again "
+                "(0 no, 1 yes)"
+    )
+    q8 = CamcopsColumn(
+        "q8", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Was this visit with your usual doctor (0 no, 1 yes)"
+    )
+    q9 = Column(
+        "q9", Text,
+        comments="Other comments"
+    )
+    q10 = CamcopsColumn(
+        "q10", Text,
+        pv=["M", "F"],
+        comment="Sex of rater (M, F)"
+    )
+    q11 = CamcopsColumn(
+        "q11", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Age (1 = under 15, 2 = 15-20, 3 = 21-40, "
+                "4 = 40-60, 5 = 60 or over"  # yes, I know it's daft
+    )
+    q12 = CamcopsColumn(
+        "q12", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=1, maximum=16),
+        comment="Ethnicity (1 = White British, 2 = White Irish, "
+                "3 = White other, 4 = Mixed W/B Caribbean, "
+                "5 = Mixed W/B African, 6 = Mixed W/Asian, 7 = Mixed other, "
+                "8 = Asian/Asian British - Indian, 9 = A/AB - Pakistani, "
+                "10 = A/AB - Bangladeshi, 11 = A/AB - other, "
+                "12 = Black/Black British - Caribbean, 13 = B/BB - African, "
+                "14 = B/BB - other, 15 = Chinese, 16 = other)"
+    )
+    q12_details = Column(
+        "q12_details", Text,
+        comment="Ethnic group, other, details"
+    )
 
     def is_complete(self) -> bool:
         return (
@@ -140,7 +217,7 @@ class GMCPQ(Task):
             self.field_contents_valid()
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         dict_q1 = {None: None}
         dict_q3 = {None: None}
         dict_q4 = {None: None}
@@ -148,16 +225,19 @@ class GMCPQ(Task):
         dict_q11 = {None: None}
         dict_q12 = {None: None}
         for option in range(1, 5):
-            dict_q1[option] = self.wxstring("q1_option" + str(option))
+            dict_q1[option] = self.wxstring(req, "q1_option" + str(option))
         for option in range(1, 6):
-            dict_q3[option] = self.wxstring("q3_option" + str(option))
-            dict_q11[option] = self.wxstring("q11_option" + str(option))
+            dict_q3[option] = self.wxstring(req, "q3_option" + str(option))
+            dict_q11[option] = self.wxstring(req, "q11_option" + str(option))
         for option in range(0, 6):
             prefix = str(option) + " – " if option > 0 else ""
-            dict_q4[option] = prefix + self.wxstring("q4_option" + str(option))
-            dict_q5[option] = prefix + self.wxstring("q5_option" + str(option))
+            dict_q4[option] = prefix + self.wxstring(req,
+                                                     "q4_option" + str(option))
+            dict_q5[option] = prefix + self.wxstring(req,
+                                                     "q5_option" + str(option))
         for option in range(1, 17):
-            dict_q12[option] = self.wxstring("ethnicity_option" + str(option))
+            dict_q12[option] = self.wxstring(req,
+                                             "ethnicity_option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -173,54 +253,54 @@ class GMCPQ(Task):
         ell = "&hellip; "  # horizontal ellipsis
         sep_row = subheading_spanning_two_columns("<br>")
         blank_cell = td("", td_class="subheading")
-        h += tr_qa(self.wxstring("q_doctor"), ws.webify(self.doctor))
+        h += tr_qa(self.wxstring(req, "q_doctor"), ws.webify(self.doctor))
         h += sep_row
-        h += tr_qa(self.wxstring("q1"), get_from_dict(dict_q1, self.q1))
-        h += tr(td(self.wxstring("q2")), blank_cell, literal=True)
-        h += tr_qa(ell + self.wxstring("q2_a"), get_yes_no_none(self.q2a),
+        h += tr_qa(self.wxstring(req, "q1"), get_from_dict(dict_q1, self.q1))
+        h += tr(td(self.wxstring(req, "q2")), blank_cell, literal=True)
+        h += tr_qa(ell + self.wxstring(req, "q2_a"), get_yes_no_none(self.q2a),
                    default="")
-        h += tr_qa(ell + self.wxstring("q2_b"), get_yes_no_none(self.q2b),
+        h += tr_qa(ell + self.wxstring(req, "q2_b"), get_yes_no_none(self.q2b),
                    default="")
-        h += tr_qa(ell + self.wxstring("q2_c"), get_yes_no_none(self.q2c),
+        h += tr_qa(ell + self.wxstring(req, "q2_c"), get_yes_no_none(self.q2c),
                    default="")
-        h += tr_qa(ell + self.wxstring("q2_d"), get_yes_no_none(self.q2d),
+        h += tr_qa(ell + self.wxstring(req, "q2_d"), get_yes_no_none(self.q2d),
                    default="")
-        h += tr_qa(ell + self.wxstring("q2_e"), get_yes_no_none(self.q2e),
+        h += tr_qa(ell + self.wxstring(req, "q2_e"), get_yes_no_none(self.q2e),
                    default="")
-        h += tr_qa(ell + self.wxstring("q2_f"), get_yes_no_none(self.q2f),
+        h += tr_qa(ell + self.wxstring(req, "q2_f"), get_yes_no_none(self.q2f),
                    default="")
-        h += tr_qa(ell + ell + self.wxstring("q2f_s"),
+        h += tr_qa(ell + ell + self.wxstring(req, "q2f_s"),
                    ws.webify(self.q2f_details))
-        h += tr_qa(self.wxstring("q3"), get_from_dict(dict_q3, self.q3))
-        h += tr(td(self.wxstring("q4")), blank_cell, literal=True)
-        h += tr_qa(ell + self.wxstring("q4_a"),
+        h += tr_qa(self.wxstring(req, "q3"), get_from_dict(dict_q3, self.q3))
+        h += tr(td(self.wxstring(req, "q4")), blank_cell, literal=True)
+        h += tr_qa(ell + self.wxstring(req, "q4_a"),
                    get_from_dict(dict_q4, self.q4a))
-        h += tr_qa(ell + self.wxstring("q4_b"),
+        h += tr_qa(ell + self.wxstring(req, "q4_b"),
                    get_from_dict(dict_q4, self.q4b))
-        h += tr_qa(ell + self.wxstring("q4_c"),
+        h += tr_qa(ell + self.wxstring(req, "q4_c"),
                    get_from_dict(dict_q4, self.q4c))
-        h += tr_qa(ell + self.wxstring("q4_d"),
+        h += tr_qa(ell + self.wxstring(req, "q4_d"),
                    get_from_dict(dict_q4, self.q4d))
-        h += tr_qa(ell + self.wxstring("q4_e"),
+        h += tr_qa(ell + self.wxstring(req, "q4_e"),
                    get_from_dict(dict_q4, self.q4e))
-        h += tr_qa(ell + self.wxstring("q4_f"),
+        h += tr_qa(ell + self.wxstring(req, "q4_f"),
                    get_from_dict(dict_q4, self.q4f))
-        h += tr_qa(ell + self.wxstring("q4_g"),
+        h += tr_qa(ell + self.wxstring(req, "q4_g"),
                    get_from_dict(dict_q4, self.q4g))
-        h += tr(td(self.wxstring("q5")), blank_cell, literal=True)
-        h += tr_qa(ell + self.wxstring("q5_a"),
+        h += tr(td(self.wxstring(req, "q5")), blank_cell, literal=True)
+        h += tr_qa(ell + self.wxstring(req, "q5_a"),
                    get_from_dict(dict_q5, self.q5a))
-        h += tr_qa(ell + self.wxstring("q5_b"),
+        h += tr_qa(ell + self.wxstring(req, "q5_b"),
                    get_from_dict(dict_q5, self.q5b))
-        h += tr_qa(self.wxstring("q6"), get_yes_no_none(self.q6))
-        h += tr_qa(self.wxstring("q7"), get_yes_no_none(self.q7))
-        h += tr_qa(self.wxstring("q8"), get_yes_no_none(self.q8))
-        h += tr_qa(self.wxstring("q9_s"), ws.webify(self.q9))
+        h += tr_qa(self.wxstring(req, "q6"), get_yes_no_none(self.q6))
+        h += tr_qa(self.wxstring(req, "q7"), get_yes_no_none(self.q7))
+        h += tr_qa(self.wxstring(req, "q8"), get_yes_no_none(self.q8))
+        h += tr_qa(self.wxstring(req, "q9_s"), ws.webify(self.q9))
         h += sep_row
-        h += tr_qa(wappstring("sex"), ws.webify(self.q10))
-        h += tr_qa(self.wxstring("q11"), get_from_dict(dict_q11, self.q11))
-        h += tr_qa(self.wxstring("q12"), get_from_dict(dict_q12, self.q12))
-        h += tr_qa(ell + self.wxstring("ethnicity_other_s"),
+        h += tr_qa(req.wappstring("sex"), ws.webify(self.q10))
+        h += tr_qa(self.wxstring(req, "q11"), get_from_dict(dict_q11, self.q11))
+        h += tr_qa(self.wxstring(req, "q12"), get_from_dict(dict_q12, self.q12))
+        h += tr_qa(ell + self.wxstring(req, "ethnicity_other_s"),
                    ws.webify(self.q12_details))
         h += """
             </table>

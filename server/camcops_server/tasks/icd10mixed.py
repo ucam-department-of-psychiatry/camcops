@@ -39,7 +39,6 @@ from ..cc_modules.cc_html import (
     get_true_false_none,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task
 
@@ -73,7 +72,7 @@ class Icd10Mixed(Task):
              " most of the time during a period of at least two weeks."),
     ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         category = (
@@ -91,7 +90,7 @@ class Icd10Mixed(Task):
             infolist.append(CtvInfo(content=ws.webify(self.comments)))
         return infolist
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(
@@ -118,22 +117,22 @@ class Icd10Mixed(Task):
             self.field_contents_valid()
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr_qa(wappstring("date_pertains_to"),
+        h += tr_qa(req.wappstring("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
-        h += tr_qa(wappstring("meets_criteria"),
+        h += tr_qa(req.wappstring("meets_criteria"),
                    get_true_false_none(self.meets_criteria()))
         h += """
                 </table>
             </div>
             <div class="explanation">
         """
-        h += wappstring("icd10_symptomatic_disclaimer")
+        h += req.wappstring("icd10_symptomatic_disclaimer")
         h += """
             </div>
             <table class="taskdetail">
@@ -144,9 +143,9 @@ class Icd10Mixed(Task):
         """
 
         h += self.get_twocol_bool_row_true_false(
-            "mixture_or_rapid_alternation", self.wxstring("a"))
+            "mixture_or_rapid_alternation", self.wxstring(req, "a"))
         h += self.get_twocol_bool_row_true_false(
-            "duration_at_least_2_weeks", self.wxstring("b"))
+            "duration_at_least_2_weeks", self.wxstring(req, "b"))
 
         h += """
             </table>

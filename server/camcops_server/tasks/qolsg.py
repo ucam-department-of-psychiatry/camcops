@@ -80,7 +80,7 @@ class QolSG(Task):
              comment="Calculated utility, h"),
     ]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.utility,
             plot_label="Quality of life: standard gamble",
@@ -89,7 +89,7 @@ class QolSG(Task):
             axis_max=1
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -103,7 +103,7 @@ class QolSG(Task):
             self.field_contents_valid()
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

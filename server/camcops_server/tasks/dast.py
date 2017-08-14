@@ -22,21 +22,25 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CharColType
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -44,67 +48,79 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # DAST
 # =============================================================================
 
-class Dast(Task):
-    tablename = "dast"
+class DastMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Dast'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS, CharColType,
+            pv=['Y', 'N'],
+            comment_fmt='Q{n}. {s} ("+" = Y scores 1, "-" = N scores 1)',
+            comment_strings=[
+                "non-medical drug use (+)",
+                "abused prescription drugs (+)",
+                "abused >1 drug at a time (+)",
+                "get through week without drugs (-)",
+                "stop when want to (-)",
+                "abuse drugs continuously (+)",
+                "try to limit to certain situations (-)",
+                "blackouts/flashbacks (+)",
+                "feel bad about drug abuse (-)",
+                "spouse/parents complain (+)",
+                "friends/relative know/suspect (+)",
+                "caused problems with spouse (+)",
+                "family sought help (+)",
+                "lost friends (+)",
+                "neglected family/missed work (+)",
+                "trouble at work (+)",
+                "lost job (+)",
+                "fights under influence (+)",
+                "arrested for unusual behaviour under influence (+)",
+                "arrested for driving under influence (+)",
+                "illegal activities to obtain (+)",
+                "arrested for possession (+)",
+                "withdrawal symptoms (+)",
+                "medical problems (+)",
+                "sought help (+)",
+                "hospital for medical problems (+)",
+                "drug treatment program (+)",
+                "outpatient treatment for drug abuse (+)",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Dast(TaskHasPatientMixin, Task, Base,
+           metaclass=DastMetaclass):
+    __tablename__ = "dast"
     shortname = "DAST"
     longname = "Drug Abuse Screening Test"
     provides_trackers = True
 
     NQUESTIONS = 28
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, "CHAR", pv=['Y', 'N'],
-        comment_fmt='Q{n}. {s} ("+" = Y scores 1, "-" = N scores 1)',
-        comment_strings=[
-            "non-medical drug use (+)",
-            "abused prescription drugs (+)",
-            "abused >1 drug at a time (+)",
-            "get through week without drugs (-)",
-            "stop when want to (-)",
-            "abuse drugs continuously (+)",
-            "try to limit to certain situations (-)",
-            "blackouts/flashbacks (+)",
-            "feel bad about drug abuse (-)",
-            "spouse/parents complain (+)",
-            "friends/relative know/suspect (+)",
-            "caused problems with spouse (+)",
-            "family sought help (+)",
-            "lost friends (+)",
-            "neglected family/missed work (+)",
-            "trouble at work (+)",
-            "lost job (+)",
-            "fights under influence (+)",
-            "arrested for unusual behaviour under influence (+)",
-            "arrested for driving under influence (+)",
-            "illegal activities to obtain (+)",
-            "arrested for possession (+)",
-            "withdrawal symptoms (+)",
-            "medical problems (+)",
-            "sought help (+)",
-            "hospital for medical problems (+)",
-            "drug treatment program (+)",
-            "outpatient treatment for drug abuse (+)",
-        ])
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
-
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="DAST total score",
-            axis_label="Total score (out of 28)",
+            axis_label="Total score (out of {})".format(self.NQUESTIONS),
             axis_min=-0.5,
-            axis_max=28.5,
+            axis_max=self.NQUESTIONS + 0.5,
             horizontal_lines=[10.5, 5.5]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="DAST total score {}/28".format(self.total_score())
+            content="DAST total score {}/{}".format(self.total_score(),
+                                                    self.NQUESTIONS)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -135,23 +151,24 @@ class Dast(Task):
             total += self.get_score(q)
         return total
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         exceeds_cutoff_1 = score >= 6
         exceeds_cutoff_2 = score >= 11
         main_dict = {
             None: None,
-            "Y": wappstring("yes"),
-            "N": wappstring("no")
+            "Y": req.wappstring("yes"),
+            "N": req.wappstring("no")
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score"), answer(score) + " / 28")
-        h += tr_qa(self.wxstring("exceeds_standard_cutoff_1"),
+        h += tr(req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.NQUESTIONS))
+        h += tr_qa(self.wxstring(req, "exceeds_standard_cutoff_1"),
                    get_yes_no(exceeds_cutoff_1))
-        h += tr_qa(self.wxstring("exceeds_standard_cutoff_2"),
+        h += tr_qa(self.wxstring(req, "exceeds_standard_cutoff_2"),
                    get_yes_no(exceeds_cutoff_2))
         h += """
                 </table>
@@ -164,7 +181,7 @@ class Dast(Task):
         """
         for q in range(1, Dast.NQUESTIONS + 1):
             h += tr(
-                self.wxstring("q" + str(q)),
+                self.wxstring(req, "q" + str(q)),
                 answer(get_from_dict(main_dict, getattr(self, "q" + str(q)))) +
                 " — " + answer(str(self.get_score(q)))
             )

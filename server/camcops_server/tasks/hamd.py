@@ -22,17 +22,30 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    SummaryCategoryColType,
+    ZERO_TO_TWO_CHECKER,
+    ZERO_TO_THREE_CHECKER,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict, 
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 
 
@@ -47,19 +60,17 @@ MAX_SCORE = (
 )  # ... and not scored beyond Q17... total 52
 
 
-class Hamd(Task):
-    tablename = "hamd"
-    shortname = "HAM-D"
-    longname = "Hamilton Rating Scale for Depression"
-    has_clinician = True
-    provides_trackers = True
-
-    NSCOREDQUESTIONS = 17
-    NQUESTIONS = 21
-    fieldspecs = (
-        repeat_fieldspec(
-            "q", 1, 15, comment_fmt="Q{n}, {s} (scored 0-4, except 0-2 for "
-            "Q4-6/12-14, higher worse)", min=0, max=4,  # amended below
+class HamdMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Hamd'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, 15,
+            comment_fmt="Q{n}, {s} (scored 0-4, except 0-2 for "
+                        "Q4-6/12-14, higher worse)",
+            minimum=0, maximum=4,  # amended below
             comment_strings=[
                 "depressed mood", "guilt", "suicide", "early insomnia",
                 "middle insomnia", "late insomnia", "work/activities",
@@ -68,44 +79,74 @@ class Hamd(Task):
                 "somatic symptoms, gastointestinal",
                 "somatic symptoms, general", "genital symptoms",
                 "hypochondriasis"
-            ]) +
-        [
-            dict(name="whichq16", cctype="INT", min=0, max=1,
-                 comment="Method of assessing weight loss (0 = A, by history; "
-                 "1 = B, by measured change)"),
-            dict(name="q16a", cctype="INT", min=0, max=3,
-                 comment="Q16A, weight loss, by history (0 none - 2 definite,"
-                 " or 3 not assessed [not scored])"),
-            dict(name="q16b", cctype="INT", min=0, max=3,
-                 comment="Q16B, weight loss, by measurement (0 none - "
-                 "2 more than 2lb, or 3 not assessed [not scored])"),
-            dict(name="q17", cctype="INT", min=0, max=2,
-                 comment="Q17, lack of insight (0-2, higher worse)"),
-            dict(name="q18a", cctype="INT", min=0, max=2,
-                 comment="Q18A (not scored), diurnal variation, presence "
-                 "(0 none, 1 worse AM, 2 worse PM)"),
-            dict(name="q18b", cctype="INT", min=0, max=2,
-                 comment="Q18B (not scored), diurnal variation, severity "
-                 "(0-2, higher more severe)"),
-        ] +
-        repeat_fieldspec(
-            "q", 19, 21, comment_fmt="Q{n} (not scored), {s} (0-4 for Q19, "
-            "0-3 for Q20, 0-2 for Q21, higher worse)", min=0, max=4,  # below
+            ]
+        )
+        add_multiple_columns(
+            cls, "q", 19, 21,
+            comment_fmt="Q{n} (not scored), {s} (0-4 for Q19, "
+                        "0-3 for Q20, 0-2 for Q21, higher worse)",
+            minimum=0, maximum=4,  # below
             comment_strings=["depersonalization/derealization",
                              "paranoid symptoms",
-                             "obsessional/compulsive symptoms"])
-    )
-    # Now fix the wrong bits. Hardly elegant!
-    for item in fieldspecs:
-        name = item["name"]
-        if (name == "q4" or name == "q5" or name == "q6" or
-                name == "q12" or name == "q13" or name == "q14" or
-                name == "q21"):
-            item["max"] = 2
-        if name == "q20":
-            item["max"] = 3
+                             "obsessional/compulsive symptoms"]
+        )
+        # Now fix the wrong bits. Hardly elegant!
+        for qnum in [4, 5, 6, 12, 13, 14, 21]:
+            qname = "q" + str(qnum)
+            col = getattr(cls, qname)
+            col.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)
+        cls.q20.set_permitted_value_checker(ZERO_TO_THREE_CHECKER)
 
-    def get_trackers(self) -> List[TrackerInfo]:
+        super().__init__(name, bases, classdict)
+
+
+class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+           metaclass=HamdMetaclass):
+    __tablename__ = "hamd"
+    shortname = "HAM-D"
+    longname = "Hamilton Rating Scale for Depression"
+    provides_trackers = True
+
+    NSCOREDQUESTIONS = 17
+    NQUESTIONS = 21
+
+    whichq16 = CamcopsColumn(
+        "whichq16", Integer,
+        min=0, max=1,
+        comment="Method of assessing weight loss (0 = A, by history; "
+                "1 = B, by measured change)"
+    )
+    q16a = CamcopsColumn(
+        "q16a", Integer,
+        min=0, max=3,
+        comment="Q16A, weight loss, by history (0 none - 2 definite,"
+                " or 3 not assessed [not scored])"
+    )
+    q16b = CamcopsColumn(
+        "q16b", Integer,
+        min=0, max=3,
+        comment="Q16B, weight loss, by measurement (0 none - "
+                "2 more than 2lb, or 3 not assessed [not scored])"
+    )
+    q17 = CamcopsColumn(
+        "q17", Integer,
+        min=0, max=2,
+        comment="Q17, lack of insight (0-2, higher worse)"
+    )
+    q18a = CamcopsColumn(
+        "q18a", Integer,
+        min=0, max=2,
+        comment="Q18A (not scored), diurnal variation, presence "
+                "(0 none, 1 worse AM, 2 worse PM)"
+    )
+    q18b = CamcopsColumn(
+        "q18b", Integer,
+        min=0, max=2,
+        comment="Q18B (not scored), diurnal variation, severity "
+                "(0-2, higher more severe)"
+    )
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="HAM-D total score",
@@ -114,23 +155,23 @@ class Hamd(Task):
             axis_max=MAX_SCORE + 0.5,
             horizontal_lines=[22.5, 19.5, 14.5, 7.5],
             horizontal_labels=[
-                TrackerLabel(25, self.wxstring("severity_verysevere")),
-                TrackerLabel(21, self.wxstring("severity_severe")),
-                TrackerLabel(17, self.wxstring("severity_moderate")),
-                TrackerLabel(11, self.wxstring("severity_mild")),
-                TrackerLabel(3.75, self.wxstring("severity_none")),
+                TrackerLabel(25, self.wxstring(req, "severity_verysevere")),
+                TrackerLabel(21, self.wxstring(req, "severity_severe")),
+                TrackerLabel(17, self.wxstring(req, "severity_moderate")),
+                TrackerLabel(11, self.wxstring(req, "severity_mild")),
+                TrackerLabel(3.75, self.wxstring(req, "severity_none")),
             ]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
             content="HAM-D total score {}/{} ({})".format(
-                self.total_score(), MAX_SCORE, self.severity())
+                self.total_score(), MAX_SCORE, self.severity(req))
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -139,7 +180,7 @@ class Hamd(Task):
                            comment="Total score (/{})".format(MAX_SCORE)),
             SummaryElement(name="severity",
                            coltype=SummaryCategoryColType,
-                           value=self.severity(),
+                           value=self.severity(req),
                            comment="Severity"),
         ]
 
@@ -180,24 +221,24 @@ class Hamd(Task):
                 total += self.sum_fields(["q" + str(i)])
         return total
 
-    def severity(self) -> str:
+    def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         if score >= 23:
-            return self.wxstring("severity_verysevere")
+            return self.wxstring(req, "severity_verysevere")
         elif score >= 19:
-            return self.wxstring("severity_severe")
+            return self.wxstring(req, "severity_severe")
         elif score >= 14:
-            return self.wxstring("severity_moderate")
+            return self.wxstring(req, "severity_moderate")
         elif score >= 8:
-            return self.wxstring("severity_mild")
+            return self.wxstring(req, "severity_mild")
         else:
-            return self.wxstring("severity_none")
+            return self.wxstring(req, "severity_none")
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        severity = self.severity()
+        severity = self.severity(req)
         task_field_list_for_display = (
-            repeat_fieldname("q", 1, 15) +
+            strseq("q", 1, 15) +
             [
                 "whichq16",
                 "q16a" if self.whichq16 == 0 else "q16b",  # funny one
@@ -205,7 +246,7 @@ class Hamd(Task):
                 "q18a",
                 "q18b"
             ] +
-            repeat_fieldname("q", 19, 21)
+            strseq("q", 19, 21)
         )
         answer_dicts_dict = {}
         for q in task_field_list_for_display:
@@ -215,15 +256,15 @@ class Hamd(Task):
                         q == "q13" or q == "q14" or q == "q17" or
                         q == "q18" or q == "q21") and option > 2:
                     continue
-                d[option] = self.wxstring("" + q + "_option" + str(option))
+                d[option] = self.wxstring(req, "" + q + "_option" + str(option))
             answer_dicts_dict[q] = d
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score") + " <sup>[1]</sup>",
+        h += tr(req.wappstring("total_score") + " <sup>[1]</sup>",
                 answer(score) + " / {}".format(MAX_SCORE))
-        h += tr_qa(self.wxstring("severity") + " <sup>[2]</sup>", severity)
+        h += tr_qa(self.wxstring(req, "severity") + " <sup>[2]</sup>", severity)
         h += """
                 </table>
             </div>
@@ -235,7 +276,7 @@ class Hamd(Task):
         """
         for q in task_field_list_for_display:
             if q == "whichq16":
-                qstr = self.wxstring("whichq16_title")
+                qstr = self.wxstring(req, "whichq16_title")
             else:
                 if q == "q16a" or q == "q16b":
                     rangestr = " <sup>range 0–2; ‘3’ not scored</sup>"
@@ -248,7 +289,7 @@ class Hamd(Task):
                         if item["name"] == q
                     ), "")
                     # http://stackoverflow.com/questions/8653516
-                qstr = self.wxstring("" + q + "_s") + rangestr
+                qstr = self.wxstring(req, "" + q + "_s") + rangestr
             h += tr_qa(qstr, get_from_dict(answer_dicts_dict[q],
                                            getattr(self, q)))
         h += """

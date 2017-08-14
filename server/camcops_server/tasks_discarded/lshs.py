@@ -27,7 +27,6 @@ from typing import List
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
@@ -48,7 +47,7 @@ class LshsA(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="LSHS-A total score",
@@ -57,7 +56,7 @@ class LshsA(Task):
             axis_max=48.5
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -72,12 +71,12 @@ class LshsA(Task):
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         answer_dict = {None: "?"}
         for option in range(0, 5):
             answer_dict[option] = (str(option) + " — " +
-                                   self.wxstring("a_option" + str(option)))
+                                   self.wxstring(req, "a_option" + str(option)))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -92,11 +91,11 @@ class LshsA(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            wappstring("total_score"), score
+            req.wappstring("total_score"), score
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                self.wxstring("a_q" + str(q) + "_question"),
+                self.wxstring(req, "a_q" + str(q) + "_question"),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """
@@ -128,13 +127,13 @@ class LshsLaroi2005(Task):
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         answer_dict = {None: "?"}
         for option in range(0, 5):
             answer_dict[option] = (
                 str(option) + " — " +
-                self.wxstring("option" + str(option)))
+                self.wxstring(req, "option" + str(option)))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -149,12 +148,12 @@ class LshsLaroi2005(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            wappstring("total_score"), score
+            req.wappstring("total_score"), score
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 "Q" + str(q) + " – " +
-                self.wxstring("q" + str(q) + "_question"),
+                self.wxstring(req, "q" + str(q) + "_question"),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """

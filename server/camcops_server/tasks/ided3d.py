@@ -34,7 +34,6 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import Ancillary, Task
 
 
@@ -315,7 +314,7 @@ class IDED3D(Task):
         # Fetch trial details
         return self.get_ancillary_items(IDED3DTrial)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         stagearray = self.get_stage_array()
         trialarray = self.get_trial_array()
         # THIS IS A NON-EDITABLE TASK, so we *ignore* the problem
@@ -344,24 +343,24 @@ class IDED3D(Task):
         """.format(
             self.get_is_complete_tr(),
         )
-        h += tr_qa(self.wxstring("last_stage"), self.last_stage)
-        h += tr_qa(self.wxstring("max_trials_per_stage"),
+        h += tr_qa(self.wxstring(req, "last_stage"), self.last_stage)
+        h += tr_qa(self.wxstring(req, "max_trials_per_stage"),
                    self.max_trials_per_stage)
-        h += tr_qa(self.wxstring("progress_criterion_x"),
+        h += tr_qa(self.wxstring(req, "progress_criterion_x"),
                    self.progress_criterion_x)
-        h += tr_qa(self.wxstring("progress_criterion_y"),
+        h += tr_qa(self.wxstring(req, "progress_criterion_y"),
                    self.progress_criterion_y)
-        h += tr_qa(self.wxstring("min_number"), self.min_number)
-        h += tr_qa(self.wxstring("max_number"), self.max_number)
-        h += tr_qa(self.wxstring("pause_after_beep_ms"),
+        h += tr_qa(self.wxstring(req, "min_number"), self.min_number)
+        h += tr_qa(self.wxstring(req, "max_number"), self.max_number)
+        h += tr_qa(self.wxstring(req, "pause_after_beep_ms"),
                    self.pause_after_beep_ms)
-        h += tr_qa(self.wxstring("iti_ms"), self.iti_ms)
+        h += tr_qa(self.wxstring(req, "iti_ms"), self.iti_ms)
         h += tr_qa(
-            self.wxstring("counterbalance_dimensions") + "<sup>[1]</sup>",
+            self.wxstring(req, "counterbalance_dimensions") + "<sup>[1]</sup>",
             self.counterbalance_dimensions)
-        h += tr_qa(wappstring("volume_0_to_1"), self.volume)
-        h += tr_qa(self.wxstring("offer_abort"), self.offer_abort)
-        h += tr_qa(self.wxstring("debug_display_stimuli_only"),
+        h += tr_qa(req.wappstring("volume_0_to_1"), self.volume)
+        h += tr_qa(self.wxstring(req, "offer_abort"), self.offer_abort)
+        h += tr_qa(self.wxstring(req, "debug_display_stimuli_only"),
                    self.debug_display_stimuli_only)
         h += tr_qa("Shapes (as a JSON-encoded array of SVG "
                    "definitions; X and Y range both –60 to +60)",

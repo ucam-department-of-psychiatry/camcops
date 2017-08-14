@@ -109,7 +109,7 @@ class Ifs(Task):
                  comment="Q8. Hayling, sentence {}".format(n)),
         ])
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         scoredict = self.get_score()
         return [
             TrackerInfo(
@@ -128,7 +128,7 @@ class Ifs(Task):
             ),
         ]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         scoredict = self.get_score()
         return [
             self.is_complete_summary_field(),
@@ -144,7 +144,7 @@ class Ifs(Task):
                 comment="Working memory index (out of 10; sum of Q4 + Q6"),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         scoredict = self.get_score()
         if not self.is_complete():
             return CTV_INCOMPLETE
@@ -193,15 +193,15 @@ class Ifs(Task):
         return True
 
     def get_simple_tr_qa(self, qprefix: str) -> str:
-        q = self.wxstring(qprefix + "_title")
+        q = self.wxstring(req, qprefix + "_title")
         val = getattr(self, qprefix)
         if val is not None:
-            a = self.wxstring(qprefix + "_a" + str(val))
+            a = self.wxstring(req, qprefix + "_a" + str(val))
         else:
             a = None
         return tr_qa(q, a)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         scoredict = self.get_score()
         h = """
             <div class="summary">
@@ -235,7 +235,7 @@ class Ifs(Task):
         # Q3
         h += self.get_simple_tr_qa("q3")
         # Q4
-        h += tr(td(self.wxstring("q4_title")), td("", td_class="subheading"),
+        h += tr(td(self.wxstring(req, "q4_title")), td("", td_class="subheading"),
                 literal=True)
         required = True
         for n in self.Q4_DIGIT_LENGTHS:
@@ -243,8 +243,8 @@ class Ifs(Task):
             val2 = getattr(self, "q4_len{}_2".format(n))
             q = (
                 "… " +
-                self.wxstring("q4_seq_len{}_1".format(n)) +
-                " / " + self.wxstring("q4_seq_len{}_2".format(n))
+                self.wxstring(req, "q4_seq_len{}_1".format(n)) +
+                " / " + self.wxstring(req, "q4_seq_len{}_2".format(n))
             )
             if required:
                 score = 1 if val1 or val2 else 0
@@ -261,40 +261,40 @@ class Ifs(Task):
         # Q5
         h += self.get_simple_tr_qa("q5")
         # Q6
-        h += tr(td(self.wxstring("q6_title")), td("", td_class="subheading"),
+        h += tr(td(self.wxstring(req, "q6_title")), td("", td_class="subheading"),
                 literal=True)
         for n in self.Q6_SEQUENCE_NUMS:
             nstr = str(n)
             val = getattr(self, "q6_seq" + nstr)
-            h += tr_qa("… " + self.wxstring("q6_seq" + nstr), val)
+            h += tr_qa("… " + self.wxstring(req, "q6_seq" + nstr), val)
         # Q7
         q7map = {
             None: None,
-            1: self.wxstring("q7_a_1"),
-            0.5: self.wxstring("q7_a_half"),
-            0: self.wxstring("q7_a_0"),
+            1: self.wxstring(req, "q7_a_1"),
+            0.5: self.wxstring(req, "q7_a_half"),
+            0: self.wxstring(req, "q7_a_0"),
         }
-        h += tr(td(self.wxstring("q7_title")), td("", td_class="subheading"),
+        h += tr(td(self.wxstring(req, "q7_title")), td("", td_class="subheading"),
                 literal=True)
         for n in self.Q7_PROVERB_NUMS:
             nstr = str(n)
             val = getattr(self, "q7_proverb" + nstr)
             a = q7map.get(val, INVALID_VALUE)
-            h += tr_qa("… " + self.wxstring("q7_proverb" + nstr), a)
+            h += tr_qa("… " + self.wxstring(req, "q7_proverb" + nstr), a)
         # Q8
         q8map = {
             None: None,
-            2: self.wxstring("q8_a2"),
-            1: self.wxstring("q8_a1"),
-            0: self.wxstring("q8_a0"),
+            2: self.wxstring(req, "q8_a2"),
+            1: self.wxstring(req, "q8_a1"),
+            0: self.wxstring(req, "q8_a0"),
         }
-        h += tr(td(self.wxstring("q8_title")), td("", td_class="subheading"),
+        h += tr(td(self.wxstring(req, "q8_title")), td("", td_class="subheading"),
                 literal=True)
         for n in self.Q8_SENTENCE_NUMS:
             nstr = str(n)
             val = getattr(self, "q8_sentence" + nstr)
             a = q8map.get(val, INVALID_VALUE)
-            h += tr_qa("… " + self.wxstring("q8_sentence_" + nstr), a)
+            h += tr_qa("… " + self.wxstring(req, "q8_sentence_" + nstr), a)
 
         h += """
             </table>

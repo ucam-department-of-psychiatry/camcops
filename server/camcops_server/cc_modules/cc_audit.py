@@ -105,7 +105,7 @@ class AuditEntry(Base):
 
 def audit(details: str,
           dbsession: SqlASession = None,
-          request: CamcopsRequest = None,
+          req: CamcopsRequest = None,
           patient_server_pk: int = None,
           table: str = None,
           server_pk: int = None,
@@ -115,15 +115,15 @@ def audit(details: str,
           from_console: bool = False,
           from_dbclient: bool = False) -> None:
     """Write an entry to the audit log."""
-    assert dbsession or request
+    assert dbsession or req
     if dbsession is None:
         # noinspection PyUnresolvedReferences
-        dbsession = request.dbsession
+        dbsession = req.dbsession
     if not remote_addr:
-        remote_addr = request.remote_addr if request else None
+        remote_addr = req.remote_addr if req else None
     if not user_id:
-        if request:
-            ccsession = request.camcops_session
+        if req:
+            ccsession = req.camcops_session
             if ccsession.user_id is not None:
                 user_id = ccsession.user_id
     if from_console:
@@ -132,8 +132,8 @@ def audit(details: str,
         source = "tablet"
     else:
         source = "webviewer"
-    if request:
-        now = request.now_utc_datetime
+    if req:
+        now = req.now_utc_datetime
     else:
         now = get_now_utc_notz()
     entry = AuditEntry(

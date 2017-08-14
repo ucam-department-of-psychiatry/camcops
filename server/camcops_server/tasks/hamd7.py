@@ -22,17 +22,28 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    SummaryCategoryColType,
+    ZERO_TO_TWO_CHECKER,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 
 
@@ -40,63 +51,72 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 # HAMD-7
 # =============================================================================
 
-class Hamd7(Task):
-    tablename = "hamd7"
+class Hamd7Metaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Hamd7'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=0, maximum=4,  # see below
+            comment_fmt="Q{n}, {s} (0-4, except Q6 0-2; higher worse)",
+            comment_strings=["depressed mood", "guilt",
+                             "interest/pleasure/level of activities",
+                             "psychological anxiety", "somatic anxiety",
+                             "energy/somatic symptoms", "suicide"]
+        )
+        # Now fix the wrong bits. Hardly elegant!
+        cls.q6.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)
+
+        super().__init__(name, bases, classdict)
+
+
+class Hamd7(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+            metaclass=Hamd7Metaclass):
+    __tablename__ = "hamd7"
     shortname = "HAMD-7"
     longname = "Hamilton Rating Scale for Depression (7-item scale)"
     provides_trackers = True
-    has_clinician = True
 
     NQUESTIONS = 7
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=4,  # see below
-        comment_fmt="Q{n}, {s} (0-4, except Q6 0-2; higher worse)",
-        comment_strings=["depressed mood", "guilt",
-                         "interest/pleasure/level of activities",
-                         "psychological anxiety", "somatic anxiety",
-                         "energy/somatic symptoms", "suicide"]
-    )
-    # Now fix the wrong bits. Hardly elegant!
-    for item in fieldspecs:
-        if item["name"] == "q6":
-            item["max"] = 2
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_SCORE = 26
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
-
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="HAM-D-7 total score",
-            axis_label="Total score (out of 26)",
+            axis_label="Total score (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=26.5,
+            axis_max=self.MAX_SCORE + 0.5,
             horizontal_lines=[19.5, 11.5, 3.5],
             horizontal_labels=[
-                TrackerLabel(23, self.wxstring("severity_severe")),
-                TrackerLabel(15.5, self.wxstring("severity_moderate")),
-                TrackerLabel(7.5, self.wxstring("severity_mild")),
-                TrackerLabel(1.75, self.wxstring("severity_none")),
+                TrackerLabel(23, self.wxstring(req, "severity_severe")),
+                TrackerLabel(15.5, self.wxstring(req, "severity_moderate")),
+                TrackerLabel(7.5, self.wxstring(req, "severity_mild")),
+                TrackerLabel(1.75, self.wxstring(req, "severity_none")),
             ]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="HAM-D-7 total score {}/26 ({})".format(
-                self.total_score(), self.severity())
+            content="HAM-D-7 total score {}/{} ({})".format(
+                self.total_score(), self.MAX_SCORE, self.severity(req))
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/26)"),
+                           comment="Total score (/{})".format(self.MAX_SCORE)),
             SummaryElement(name="severity",
                            coltype=SummaryCategoryColType,
-                           value=self.severity(),
+                           value=self.severity(req),
                            comment="Severity"),
         ]
 
@@ -109,35 +129,36 @@ class Hamd7(Task):
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def severity(self) -> str:
+    def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         if score >= 20:
-            return self.wxstring("severity_severe")
+            return self.wxstring(req, "severity_severe")
         elif score >= 12:
-            return self.wxstring("severity_moderate")
+            return self.wxstring(req, "severity_moderate")
         elif score >= 4:
-            return self.wxstring("severity_mild")
+            return self.wxstring(req, "severity_mild")
         else:
-            return self.wxstring("severity_none")
+            return self.wxstring(req, "severity_none")
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        severity = self.severity()
+        severity = self.severity(req)
         answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
             d = {None: None}
             for option in range(0, 5):
                 if q == 6 and option > 2:
                     continue
-                d[option] = self.wxstring("q" + str(q) + "_option" +
+                d[option] = self.wxstring(req, "q" + str(q) + "_option" +
                                           str(option))
             answer_dicts.append(d)
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score"), answer(score) + " / 26")
-        h += tr_qa(self.wxstring("severity") + " <sup>[1]</sup>", severity)
+        h += tr(req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE))
+        h += tr_qa(self.wxstring(req, "severity") + " <sup>[1]</sup>", severity)
         h += """
                 </table>
             </div>
@@ -149,7 +170,7 @@ class Hamd7(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                self.wxstring("q" + str(q) + "_s"),
+                self.wxstring(req, "q" + str(q) + "_s"),
                 get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
         h += """

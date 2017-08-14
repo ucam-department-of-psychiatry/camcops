@@ -28,7 +28,6 @@ from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import get_yes_no
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
@@ -50,7 +49,7 @@ class Bfcrs(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="BFCRS total score",
@@ -59,7 +58,7 @@ class Bfcrs(Task):
             axis_max=69.5
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total", coltype=Integer(),
@@ -80,7 +79,7 @@ class Bfcrs(Task):
                 n += 1
         return n
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         n_csi_symptoms = self.get_num_csi_symptoms()
         csi_catatonia = n_csi_symptoms >= 2
@@ -91,7 +90,7 @@ class Bfcrs(Task):
                 if (option != 0 and option != 3) and q in ["q17", "q18", "q19",
                                                            "q20", "q21"]:
                     continue
-                d[option] = self.wxstring(q + "_option" + str(option))
+                d[option] = self.wxstring(req, q + "_option" + str(option))
             answer_dicts_dict[q] = d
         h = """
             <div class="summary">
@@ -109,9 +108,9 @@ class Bfcrs(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            wappstring("total_score"), score,
-            self.wxstring("num_symptoms_present"), n_csi_symptoms,
-            self.wxstring("catatonia_present"), get_yes_no(csi_catatonia)
+            req.wappstring("total_score"), score,
+            self.wxstring(req, "num_symptoms_present"), n_csi_symptoms,
+            self.wxstring(req, "catatonia_present"), get_yes_no(csi_catatonia)
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(

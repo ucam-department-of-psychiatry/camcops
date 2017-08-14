@@ -25,7 +25,6 @@
 from typing import Optional
 
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import get_from_dict, Task
 
 
@@ -53,11 +52,11 @@ class AbstractSatisfaction(object):
     def get_rating_text(self) -> Optional[str]:
         ratingdict = {
             None: None,
-            0: wappstring("satis_rating_a0"),
-            1: wappstring("satis_rating_a1"),
-            2: wappstring("satis_rating_a2"),
-            3: wappstring("satis_rating_a3"),
-            4: wappstring("satis_rating_a4"),
+            0: req.wappstring("satis_rating_a0"),
+            1: req.wappstring("satis_rating_a1"),
+            2: req.wappstring("satis_rating_a2"),
+            3: req.wappstring("satis_rating_a3"),
+            4: req.wappstring("satis_rating_a4"),
         }
         return get_from_dict(ratingdict, self.rating)
 
@@ -81,7 +80,7 @@ class AbstractSatisfaction(object):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(wappstring("satis_service_being_rated"), self.service)
+        h += tr_qa(req.wappstring("satis_service_being_rated"), self.service)
         h += tr_qa("{} {}?".format(rating_q, self.service), r)
         h += tr_qa(good_q, self.good)
         h += tr_qa(bad_q, self.bad)
@@ -100,11 +99,11 @@ class PatientSatisfaction(AbstractSatisfaction, Task):
     shortname = "PatientSatisfaction"
     longname = "Patient Satisfaction Scale"
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         return self.get_common_task_html(
-            wappstring("satis_pt_rating_q"),
-            wappstring("satis_good_q"),
-            wappstring("satis_bad_q")
+            req.wappstring("satis_pt_rating_q"),
+            req.wappstring("satis_good_q"),
+            req.wappstring("satis_bad_q")
         )
 
 
@@ -118,11 +117,11 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
     longname = "Referrer Satisfaction Scale, survey"
     is_anonymous = True
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         return self.get_common_task_html(
-            wappstring("satis_ref_gen_rating_q"),
-            wappstring("satis_good_q"),
-            wappstring("satis_bad_q")
+            req.wappstring("satis_ref_gen_rating_q"),
+            req.wappstring("satis_good_q"),
+            req.wappstring("satis_bad_q")
         )
 
 
@@ -135,9 +134,9 @@ class ReferrerSatisfactionSpec(AbstractSatisfaction, Task):
     shortname = "ReferrerSatisfactionSpecific"
     longname = "Referrer Satisfaction Scale, patient-specific"
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         return self.get_common_task_html(
-            wappstring("satis_ref_spec_rating_q"),
-            wappstring("satis_good_q"),
-            wappstring("satis_bad_q")
+            req.wappstring("satis_ref_spec_rating_q"),
+            req.wappstring("satis_good_q"),
+            req.wappstring("satis_bad_q")
         )

@@ -35,7 +35,7 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
@@ -92,7 +92,7 @@ class PclCommon(object):
     def total_score(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 1, self.NQUESTIONS))
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PCL total score",
@@ -101,14 +101,14 @@ class PclCommon(object):
             axis_max=85.5
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
             content="PCL total score {}".format(self.total_score())
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(
@@ -174,7 +174,7 @@ class PclCommon(object):
         return num_symptomatic_b >= 1 and num_symptomatic_c >= 3 and \
             num_symptomatic_d >= 2
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         tasktype = self.TASK_TYPE
         score = self.total_score()
         num_symptomatic = self.num_symptomatic()
@@ -185,20 +185,20 @@ class PclCommon(object):
         answer_dict = {None: None}
         for option in range(1, 6):
             answer_dict[option] = str(option) + " – " + \
-                self.wxstring("option" + str(option))
+                self.wxstring(req, "option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr_qa("{} (17–85)".format(wappstring("total_score")),
+        h += tr_qa("{} (17–85)".format(req.wappstring("total_score")),
                    score)
         h += tr("Number symptomatic <sup>[1]</sup>: B, C, D (total)",
                 answer(num_symptomatic_b) + ", " +
                 answer(num_symptomatic_c) + ", " +
                 answer(num_symptomatic_d) +
                 " (" + answer(num_symptomatic) + ")")
-        h += tr_qa(self.wxstring("dsm_criteria_met") + " <sup>[2]</sup>",
+        h += tr_qa(self.wxstring(req, "dsm_criteria_met") + " <sup>[2]</sup>",
                    get_yes_no(ptsd))
         h += """
                 </table>
@@ -210,8 +210,8 @@ class PclCommon(object):
                 </tr>
         """
         if tasktype == "S":
-            h += tr_qa(self.wxstring("s_event_s"), self.event)
-            h += tr_qa(self.wxstring("s_eventdate_s"), self.eventdate)
+            h += tr_qa(self.wxstring(req, "s_event_s"), self.event)
+            h += tr_qa(self.wxstring(req, "s_eventdate_s"), self.eventdate)
         for q in range(1, self.NQUESTIONS + 1):
             if q == 1 or q == 6 or q == 13:
                 section = "B" if q == 1 else ("C" if q == 6 else "D")
@@ -219,7 +219,7 @@ class PclCommon(object):
                     "DSM section {}".format(section)
                 )
             h += tr_qa(
-                self.wxstring("q" + str(q) + "_s"),
+                self.wxstring(req, "q" + str(q) + "_s"),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """

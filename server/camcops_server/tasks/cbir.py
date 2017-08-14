@@ -22,81 +22,130 @@
 ===============================================================================
 """
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Float
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Float, Integer, Text
 
 from ..cc_modules.cc_constants import PV
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
     subheading_spanning_three_columns,
     tr,
 )
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn,
+    PermittedValueChecker,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+)
 
 
 # =============================================================================
 # CBI-R
 # =============================================================================
 
-class CbiR(Task):
-    tablename = "cbir"
+QUESTION_SNIPPETS = [
+    "memory: poor day to day memory",  # 1
+    "memory: asks same questions",
+    "memory: loses things",
+    "memory: forgets familiar names",
+    "memory: forgets names of objects",  # 5
+    "memory: poor concentration",
+    "memory: forgets day",
+    "memory: confused in unusual surroundings",
+    "everyday: electrical appliances",
+    "everyday: writing",  # 10
+    "everyday: using telephone",
+    "everyday: making hot drink",
+    "everyday: money",
+    "self-care: grooming",
+    "self-care: dressing",  # 15
+    "self-care: feeding",
+    "self-care: bathing",
+    "behaviour: inappropriate humour",
+    "behaviour: temper outbursts",
+    "behaviour: uncooperative",  # 20
+    "behaviour: socially embarrassing",
+    "behaviour: tactless/suggestive",
+    "behaviour: impulsive",
+    "mood: cries",
+    "mood: sad/depressed",  # 25
+    "mood: restless/agitated",
+    "mood: irritable",
+    "beliefs: visual hallucinations",
+    "beliefs: auditory hallucinations",
+    "beliefs: delusions",  # 30
+    "eating: sweet tooth",
+    "eating: repetitive",
+    "eating: increased appetite",
+    "eating: table manners",
+    "sleep: disturbed at night",  # 35
+    "sleep: daytime sleep increased",
+    "stereotypy/motor: rigid/fixed opinions",
+    "stereotypy/motor: routines",
+    "stereotypy/motor: preoccupied with time",
+    "stereotypy/motor:  expression/catchphrase",  # 40
+    "motivation: less enthusiasm in usual interests",
+    "motivation: no interest in new things",
+    "motivation: fails to contact friends/family",
+    "motivation: indifferent to family/friend concerns",
+    "motivation: reduced affection",  # 45
+]
+
+
+class CbiRMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['CbiR'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "frequency", 1, cls.NQUESTIONS,
+            comment_fmt="Frequency Q{n}, {s} (0-4, higher worse)",
+            minimum=cls.MIN_SCORE, maximum=cls.MAX_SCORE,
+            comment_strings=QUESTION_SNIPPETS
+        )
+        add_multiple_columns(
+            cls, "distress", 1, cls.NQUESTIONS,
+            comment_fmt="Distress Q{n}, {s} (0-4, higher worse)",
+            minimum=cls.MIN_SCORE, maximum=cls.MAX_SCORE,
+            comment_strings=QUESTION_SNIPPETS
+        )
+        super().__init__(name, bases, classdict)
+
+
+class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task, Base,
+           metaclass=CbiRMetaclass):
+    __tablename__ = "cbir"
     shortname = "CBI-R"
     longname = "Cambridge Behavioural Inventory, Revised"
-    has_respondent = True
+
+    confirm_blanks = CamcopsColumn(
+        "confirm_blanks", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Respondent confirmed that blanks are deliberate (N/A) "
+                "(0/NULL no, 1 yes)"
+    )
+    comments = Column(
+        "comments", Text,
+         comment="Additional comments"
+    )
 
     MIN_SCORE = 0
     MAX_SCORE = 4
-    QUESTION_SNIPPETS = [
-        "memory: poor day to day memory",  # 1
-        "memory: asks same questions",
-        "memory: loses things",
-        "memory: forgets familiar names",
-        "memory: forgets names of objects",  # 5
-        "memory: poor concentration",
-        "memory: forgets day",
-        "memory: confused in unusual surroundings",
-        "everyday: electrical appliances",
-        "everyday: writing",  # 10
-        "everyday: using telephone",
-        "everyday: making hot drink",
-        "everyday: money",
-        "self-care: grooming",
-        "self-care: dressing",  # 15
-        "self-care: feeding",
-        "self-care: bathing",
-        "behaviour: inappropriate humour",
-        "behaviour: temper outbursts",
-        "behaviour: uncooperative",  # 20
-        "behaviour: socially embarrassing",
-        "behaviour: tactless/suggestive",
-        "behaviour: impulsive",
-        "mood: cries",
-        "mood: sad/depressed",  # 25
-        "mood: restless/agitated",
-        "mood: irritable",
-        "beliefs: visual hallucinations",
-        "beliefs: auditory hallucinations",
-        "beliefs: delusions",  # 30
-        "eating: sweet tooth",
-        "eating: repetitive",
-        "eating: increased appetite",
-        "eating: table manners",
-        "sleep: disturbed at night",  # 35
-        "sleep: daytime sleep increased",
-        "stereotypy/motor: rigid/fixed opinions",
-        "stereotypy/motor: routines",
-        "stereotypy/motor: preoccupied with time",
-        "stereotypy/motor:  expression/catchphrase",  # 40
-        "motivation: less enthusiasm in usual interests",
-        "motivation: no interest in new things",
-        "motivation: fails to contact friends/family",
-        "motivation: indifferent to family/friend concerns",
-        "motivation: reduced affection",  # 45
-    ]
     QNUMS_MEMORY = (1, 8)  # tuple: first, last
     QNUMS_EVERYDAY = (9, 13)
     QNUMS_SELF = (14, 17)
@@ -109,28 +158,10 @@ class CbiR(Task):
     QNUMS_MOTIVATION = (41, 45)
 
     NQUESTIONS = 45
+    TASK_FIELDS = (strseq("frequency", 1, NQUESTIONS) +
+                   strseq("distress", 1, NQUESTIONS))
 
-    fieldspecs = [
-        dict(name="confirm_blanks", cctype="INT", pv=PV.BIT,
-             comment="Respondent confirmed that blanks are deliberate (N/A) "
-                     "(0/NULL no, 1 yes)"),
-        dict(name="comments", cctype="TEXT",
-             comment="Additional comments"),
-    ] + repeat_fieldspec(
-        "frequency", 1, NQUESTIONS,
-        comment_fmt="Frequency Q{n}, {s} (0-4, higher worse)",
-        min=MIN_SCORE, max=MAX_SCORE,
-        comment_strings=QUESTION_SNIPPETS
-    ) + repeat_fieldspec(
-        "distress", 1, NQUESTIONS,
-        comment_fmt="Distress Q{n}, {s} (0-4, higher worse)",
-        min=MIN_SCORE, max=MAX_SCORE,
-        comment_strings=QUESTION_SNIPPETS
-    )
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
-
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(
@@ -262,23 +293,23 @@ class CbiR(Task):
             return True
         return self.are_all_fields_complete(self.TASK_FIELDS)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         freq_dict = {None: None}
         distress_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            freq_dict[a] = self.wxstring("f" + str(a))
-            distress_dict[a] = self.wxstring("d" + str(a))
+            freq_dict[a] = self.wxstring(req, "f" + str(a))
+            distress_dict[a] = self.wxstring(req, "d" + str(a))
 
-        heading_memory = self.wxstring("h_memory")
-        heading_everyday = self.wxstring("h_everyday")
-        heading_selfcare = self.wxstring("h_selfcare")
-        heading_behaviour = self.wxstring("h_abnormalbehaviour")
-        heading_mood = self.wxstring("h_mood")
-        heading_beliefs = self.wxstring("h_beliefs")
-        heading_eating = self.wxstring("h_eating")
-        heading_sleep = self.wxstring("h_sleep")
-        heading_motor = self.wxstring("h_stereotypy_motor")
-        heading_motivation = self.wxstring("h_motivation")
+        heading_memory = self.wxstring(req, "h_memory")
+        heading_everyday = self.wxstring(req, "h_everyday")
+        heading_selfcare = self.wxstring(req, "h_selfcare")
+        heading_behaviour = self.wxstring(req, "h_abnormalbehaviour")
+        heading_mood = self.wxstring(req, "h_mood")
+        heading_beliefs = self.wxstring(req, "h_beliefs")
+        heading_eating = self.wxstring(req, "h_eating")
+        heading_sleep = self.wxstring(req, "h_sleep")
+        heading_motor = self.wxstring(req, "h_stereotypy_motor")
+        heading_motivation = self.wxstring(req, "h_motivation")
 
         def get_question_rows(first, last):
             html = ""
@@ -290,7 +321,7 @@ class CbiR(Task):
                 da = ("{}: {}".format(d, get_from_dict(distress_dict, d))
                       if d is not None else None)
                 html += tr(
-                    self.wxstring("q" + str(q)),
+                    self.wxstring(req, "q" + str(q)),
                     answer(fa),
                     answer(da),
                 )

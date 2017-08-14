@@ -243,7 +243,7 @@ class Patient(GenericTabletRecordMixin, Base):
     def get_idnum_raw_values_only(self) -> List[int]:
         return [x.idnum_value for x in self.get_idnum_objects()]
 
-    def get_xml_root(self, request: CamcopsRequest,
+    def get_xml_root(self, req: CamcopsRequest,
                      skip_fields: List[str] = None) -> XmlElement:
         """Get root of XML tree, as an XmlElementTuple."""
         skip_fields = skip_fields or []
@@ -256,18 +256,18 @@ class Patient(GenericTabletRecordMixin, Base):
         branches = make_xml_branches_from_fieldspecs(
             self, skip_fields=skip_fields)
         # Now add newer IDs:
-        cfg = request.config
+        cfg = req.config
         for n in cfg.get_which_idnums():
             branches.append(XmlElement(name=FP_ID_NUM + nstr,
                                        value=self.get_idnum_value(n),
                                        datatype=XmlDataTypes.INTEGER,
                                        comment="ID number " + nstr))
             branches.append(XmlElement(name=FP_ID_DESC + nstr,
-                                       value=self.get_iddesc(request, n),
+                                       value=self.get_iddesc(req, n),
                                        datatype=XmlDataTypes.STRING,
                                        comment="ID description " + nstr))
             branches.append(XmlElement(name=FP_ID_SHORT_DESC + nstr,
-                                       value=self.get_idshortdesc(request, n),
+                                       value=self.get_idshortdesc(req, n),
                                        datatype=XmlDataTypes.STRING,
                                        comment="ID short description " + nstr))
         # Special notes
@@ -276,7 +276,7 @@ class Patient(GenericTabletRecordMixin, Base):
             branches.append(sn.get_xml_root())
         return XmlElement(name=self.TABLENAME, value=branches)
 
-    def get_dict_for_tsv(self, request: CamcopsRequest) -> Dict[str, Any]:
+    def get_dict_for_tsv(self, req: CamcopsRequest) -> Dict[str, Any]:
         d = collections.OrderedDict()
         for f in self.FIELDS:
             # Exclude old ID fields:
@@ -285,15 +285,15 @@ class Patient(GenericTabletRecordMixin, Base):
                     not f.startswith(FP_ID_SHORT_DESC)):
                 d[TSV_PATIENT_FIELD_PREFIX + f] = getattr(self, f)
         # Now the ID fields:
-        cfg = request.config
+        cfg = req.config
         for n in cfg.get_which_idnums():
             nstr = str(n)
             d[TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr] = \
                 self.get_idnum_value(n)
             d[TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr] = \
-                self.get_iddesc(request, n)
+                self.get_iddesc(req, n)
             d[TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC + nstr] = \
-                self.get_idshortdesc(request, n)
+                self.get_idshortdesc(req, n)
         return d
 
     def anonymise(self) -> None:
@@ -404,10 +404,10 @@ class Patient(GenericTabletRecordMixin, Base):
         return "DOB: {}.".format(format_datetime_string(
             self.dob, DATEFORMAT.SHORT_DATE))
 
-    def get_age(self, request: CamcopsRequest,
+    def get_age(self, req: CamcopsRequest,
                 default: str = "") -> Union[int, str]:
         """Age (in whole years) today, or default."""
-        now = request.now_arrow
+        now = req.now_arrow
         return self.get_age_at(now, default=default)
 
     def get_dob(self) -> Optional[datetime.date]:
@@ -526,10 +526,10 @@ class Patient(GenericTabletRecordMixin, Base):
         idobj = self.get_idnum_object(which_idnum)
         return idobj.idnum_value if idobj else None
 
-    def set_idnum_value(self, request: CamcopsRequest,
+    def set_idnum_value(self, req: CamcopsRequest,
                         which_idnum: int, idnum_value: int) -> None:
-        dbsession = request.dbsession
-        ccsession = request.camcops_session
+        dbsession = req.dbsession
+        ccsession = req.camcops_session
         idobjs = self.get_idnum_objects()
         for idobj in idobjs:
             if idobj.which_idnum == which_idnum:
@@ -541,41 +541,41 @@ class Patient(GenericTabletRecordMixin, Base):
         newid._device_id = self._device_id
         newid._era = self._era
         newid._current = True
-        newid._when_added_exact = request.now_iso8601_era_format
-        newid._when_added_batch_utc = request.now_utc_datetime
+        newid._when_added_exact = req.now_iso8601_era_format
+        newid._when_added_batch_utc = req.now_utc_datetime
         newid._adding_user_id = ccsession.user_id
         newid._camcops_version = CAMCOPS_SERVER_VERSION_STRING
         dbsession.add(newid)
         self.idnums.append(newid)
 
-    def get_iddesc(self, request: CamcopsRequest,
+    def get_iddesc(self, req: CamcopsRequest,
                    which_idnum: int) -> Optional[str]:
         """Get value of a specific ID description, if present."""
-        cfg = request.config
+        cfg = req.config
         idobj = self.get_idnum_object(which_idnum)
         return idobj.description(cfg) if idobj else None
 
-    def get_idshortdesc(self, request: CamcopsRequest,
+    def get_idshortdesc(self, req: CamcopsRequest,
                         which_idnum: int) -> Optional[str]:
         """Get value of a specific ID short description, if present."""
-        cfg = request.config
+        cfg = req.config
         idobj = self.get_idnum_object(which_idnum)
         return idobj.short_description(cfg) if idobj else None
 
     def get_idnum_html(self,
-                       request: CamcopsRequest,
+                       req: CamcopsRequest,
                        which_idnum: int,
                        longform: bool,
                        label_id_numbers: bool = False) -> str:
         """Returns description HTML.
 
         Args:
-            request: Pyramid request
+            req: Pyramid request
             which_idnum: which ID number? From 1 to NUMBER_OF_IDNUMS inclusive.
             longform: see get_id_generic
             label_id_numbers: whether to use prefix
         """
-        cfg = request.config
+        cfg = req.config
         idobj = self.get_idnum_object(which_idnum)
         if not idobj:
             return ""
@@ -613,10 +613,10 @@ class Patient(GenericTabletRecordMixin, Base):
             return "<br>Address: <b>{}</b>".format(ws.webify(self.address))
         return ws.webify(self.address)
 
-    def get_html_for_page_header(self, request: CamcopsRequest) -> str:
+    def get_html_for_page_header(self, req: CamcopsRequest) -> str:
         """Get HTML used for PDF page header."""
         longform = False
-        cfg = request.config
+        cfg = req.config
         h = "<b>{}</b> ({}). {}".format(
             self.get_surname_forename_upper(),
             self.get_sex_verbose(),
@@ -627,11 +627,11 @@ class Patient(GenericTabletRecordMixin, Base):
         h += " " + self.get_idother_html(longform=longform)
         return h
 
-    def get_html_for_task_header(self, request: CamcopsRequest,
+    def get_html_for_task_header(self, req: CamcopsRequest,
                                  label_id_numbers: bool = False) -> str:
         """Get HTML used for patient details in tasks."""
         longform = True
-        cfg = request.config
+        cfg = req.config
         h = """
             <div class="patient">
                 <b>{name}</b> ({sex})
@@ -663,8 +663,7 @@ class Patient(GenericTabletRecordMixin, Base):
         h += self.get_special_notes_html()
         return h
 
-    def get_html_for_webview_patient_column(
-            self, request: CamcopsRequest) -> str:
+    def get_html_for_webview_patient_column(self, req: CamcopsRequest) -> str:
         """Get HTML for patient details in task summary view."""
         return """
             <b>{}</b> ({}, {}, aged {})
@@ -673,21 +672,21 @@ class Patient(GenericTabletRecordMixin, Base):
             self.get_sex_verbose(),
             format_datetime_string(self.dob, DATEFORMAT.SHORT_DATE,
                                    default="?"),
-            self.get_age(request=request, default="?"),
+            self.get_age(req=req, default="?"),
         )
 
-    def get_html_for_id_col(self, request: CamcopsRequest) -> str:
+    def get_html_for_id_col(self, req: CamcopsRequest) -> str:
         """Returns HTML used for patient ID column in task summary view."""
         hlist = []
         longform = False
-        cfg = request.config
+        cfg = req.config
         for idobj in self.get_idnum_objects():
             hlist.append(idobj.get_html(cfg=cfg, longform=longform))
         hlist.append(self.get_idother_html(longform=longform))
         return " ".join(hlist)
 
-    def get_url_edit_patient(self, request: CamcopsRequest) -> str:
-        url = get_generic_action_url(request, ACTION.EDIT_PATIENT)
+    def get_url_edit_patient(self, req: CamcopsRequest) -> str:
+        url = get_generic_action_url(req, ACTION.EDIT_PATIENT)
         url += get_url_field_value_pair(PARAM.SERVERPK, self._pk)
         return url
 
@@ -727,7 +726,7 @@ class Patient(GenericTabletRecordMixin, Base):
 
     def apply_special_note(
             self,
-            request: CamcopsRequest,
+            req: CamcopsRequest,
             note: str,
             audit_msg: str = "Special note applied manually") -> None:
         """
@@ -739,10 +738,10 @@ class Patient(GenericTabletRecordMixin, Base):
         sn.task_or_patient_id = self.id
         sn.device_id = self._device_id
         sn.era = self._era
-        sn.note_at = request.now_iso8601_era_format
-        sn.user_id = request.camcops_session.user_id
+        sn.note_at = req.now_iso8601_era_format
+        sn.user_id = req.camcops_session.user_id
         sn.note = note
-        request.dbsession.add(sn)
+        req.dbsession.add(sn)
         self.audit(audit_msg)
         # HL7 deletion of corresponding tasks is done in camcops.py
         self._special_notes = None   # will be reloaded if needed
@@ -774,8 +773,8 @@ class DistinctPatientReport(Report):
                     "numbers")
     param_spec_list = []
 
-    def get_rows_descriptions(self, request: CamcopsRequest,
-                              **kwargs) -> REPORT_RESULT_TYPE:
+    def get_rows_descriptions(self, req: CamcopsRequest,
+                              **kwargs: Any) -> REPORT_RESULT_TYPE:
         # Not easy to get UTF-8 fields out of a query in the column headings!
         # So don't do SELECT idnum8 AS 'idnum8 (Addenbrooke's number)';
         # change it post hoc using cc_report.expand_id_descriptions()
@@ -787,7 +786,7 @@ class DistinctPatientReport(Report):
             "p.sex AS sex"
         ]
         from_tables = ["{} AS p".format(patienttable)]
-        for n in request.config.get_which_idnums():
+        for n in req.config.get_which_idnums():
             nstr = str(n)
             fieldalias = FP_ID_NUM + nstr  # idnum7
             idtablealias = "i" + nstr  # e.g. i7
@@ -823,7 +822,7 @@ class DistinctPatientReport(Report):
             select_fields=", ".join(select_fields),
             from_tables=" ".join(from_tables),
         )
-        dbsession = request.dbsession
+        dbsession = req.dbsession
         rows, fieldnames = get_rows_fieldnames_from_raw_sql(dbsession, sql)
         fieldnames = expand_id_descriptions(fieldnames)
         return rows, fieldnames
@@ -833,7 +832,7 @@ class DistinctPatientReport(Report):
 # Unit tests
 # =============================================================================
 
-def unit_tests_patient(p: Patient, request: CamcopsRequest) -> None:
+def unit_tests_patient(p: Patient, req: CamcopsRequest) -> None:
     """Unit tests for Patient class."""
     # skip make_tables
     unit_test_ignore("", p.get_xml_root)
@@ -873,16 +872,16 @@ def unit_tests_patient(p: Patient, request: CamcopsRequest) -> None:
     unit_test_ignore("", p.get_html_for_task_header, True)
     unit_test_ignore("", p.get_html_for_task_header, False)
     unit_test_ignore("", p.get_html_for_webview_patient_column)
-    unit_test_ignore("", p.get_url_edit_patient, request)
+    unit_test_ignore("", p.get_url_edit_patient, req)
     unit_test_ignore("", p.get_special_notes_html)
 
     # Lastly:
     unit_test_ignore("", p.anonymise)
 
 
-def ccpatient_unit_tests(request: CamcopsRequest) -> None:
+def ccpatient_unit_tests(req: CamcopsRequest) -> None:
     """Unit tests for cc_patient module."""
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     q = dbsession.query(Patient)
     # noinspection PyProtectedMember
     q = q.filter(Patient._current == True)  # noqa
@@ -890,6 +889,6 @@ def ccpatient_unit_tests(request: CamcopsRequest) -> None:
     if patient is None:
         patient = Patient()
         dbsession.add(patient)
-    unit_tests_patient(patient, request)
+    unit_tests_patient(patient, req)
 
     # Patient_Report_Distinct: tested via cc_report

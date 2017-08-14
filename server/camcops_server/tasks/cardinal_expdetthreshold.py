@@ -38,7 +38,6 @@ from ..cc_modules.cc_html import (
     get_yes_no_none,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import Ancillary, Task
 
 
@@ -352,11 +351,11 @@ class CardinalExpDetThreshold(Task):
         except (TypeError, ValueError):
             return None
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         if self.modality == MODALITY_AUDITORY:
-            modality = wappstring("auditory")
+            modality = req.wappstring("auditory")
         elif self.modality == MODALITY_VISUAL:
-            modality = wappstring("visual")
+            modality = req.wappstring("visual")
         else:
             modality = None
         h = """

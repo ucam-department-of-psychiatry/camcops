@@ -212,7 +212,7 @@ class MdsUpdrs(Task):
             (self.q3c1 is not None or not self.q3c)
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

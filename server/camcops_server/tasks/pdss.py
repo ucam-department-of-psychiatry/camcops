@@ -71,7 +71,7 @@ class Pdss(Task):
 
     QUESTION_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PDSS total score (lower is better)",
@@ -80,7 +80,7 @@ class Pdss(Task):
             axis_max=28.5
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total_score", coltype=Integer(),
@@ -91,7 +91,7 @@ class Pdss(Task):
                            comment="Composite score (/ 4)"),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         t = self.total_score()
@@ -113,7 +113,7 @@ class Pdss(Task):
             self.are_all_fields_complete(self.QUESTION_FIELDS)
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
@@ -140,9 +140,9 @@ class Pdss(Task):
                                              default="?")),
         )
         for q in range(1, self.NQUESTIONS + 1):
-            qtext = self.wxstring("q" + str(q))
+            qtext = self.wxstring(req, "q" + str(q))
             a = getattr(self, "q" + str(q))
-            atext = (self.wxstring("q{}_option{}".format(q, a), str(a))
+            atext = (self.wxstring(req, "q{}_option{}".format(q, a), str(a))
                      if a is not None else None)
             h += tr(qtext, answer(atext))
         h += """

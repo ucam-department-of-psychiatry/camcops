@@ -23,7 +23,8 @@
 """
 
 from typing import Dict, Optional
-from .cc_string import wappstring
+
+from .cc_request import CamcopsRequest
 
 
 # =============================================================================
@@ -38,36 +39,38 @@ PV_NHS_ETHNIC_CATEGORY = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
                           'L', 'M', 'N', 'P', 'R', 'S', 'Z']
 
 
-def get_nhs_dd_person_marital_status() -> Dict[Optional[str], Optional[str]]:
+def get_nhs_dd_person_marital_status(
+        req: CamcopsRequest) -> Dict[Optional[str], Optional[str]]:
     return {
         None: None,
-        "S": wappstring("nhs_person_marital_status_code_S"),
-        "M": wappstring("nhs_person_marital_status_code_M"),
-        "D": wappstring("nhs_person_marital_status_code_D"),
-        "W": wappstring("nhs_person_marital_status_code_W"),
-        "P": wappstring("nhs_person_marital_status_code_P"),
-        "N": wappstring("nhs_person_marital_status_code_N"),
+        "S": req.wappstring("nhs_person_marital_status_code_S"),
+        "M": req.wappstring("nhs_person_marital_status_code_M"),
+        "D": req.wappstring("nhs_person_marital_status_code_D"),
+        "W": req.wappstring("nhs_person_marital_status_code_W"),
+        "P": req.wappstring("nhs_person_marital_status_code_P"),
+        "N": req.wappstring("nhs_person_marital_status_code_N"),
     }
 
 
-def get_nhs_dd_ethnic_category_code() -> Dict[Optional[str], Optional[str]]:
+def get_nhs_dd_ethnic_category_code(
+        req: CamcopsRequest) -> Dict[Optional[str], Optional[str]]:
     return {
         None: None,
-        "A": wappstring("nhs_ethnic_category_code_A"),
-        "B": wappstring("nhs_ethnic_category_code_B"),
-        "C": wappstring("nhs_ethnic_category_code_C"),
-        "D": wappstring("nhs_ethnic_category_code_D"),
-        "E": wappstring("nhs_ethnic_category_code_E"),
-        "F": wappstring("nhs_ethnic_category_code_F"),
-        "G": wappstring("nhs_ethnic_category_code_G"),
-        "H": wappstring("nhs_ethnic_category_code_H"),
-        "J": wappstring("nhs_ethnic_category_code_J"),
-        "K": wappstring("nhs_ethnic_category_code_K"),
-        "L": wappstring("nhs_ethnic_category_code_L"),
-        "M": wappstring("nhs_ethnic_category_code_M"),
-        "N": wappstring("nhs_ethnic_category_code_N"),
-        "P": wappstring("nhs_ethnic_category_code_P"),
-        "R": wappstring("nhs_ethnic_category_code_R"),
-        "S": wappstring("nhs_ethnic_category_code_S"),
-        "Z": wappstring("nhs_ethnic_category_code_Z"),
+        "A": req.wappstring("nhs_ethnic_category_code_A"),
+        "B": req.wappstring("nhs_ethnic_category_code_B"),
+        "C": req.wappstring("nhs_ethnic_category_code_C"),
+        "D": req.wappstring("nhs_ethnic_category_code_D"),
+        "E": req.wappstring("nhs_ethnic_category_code_E"),
+        "F": req.wappstring("nhs_ethnic_category_code_F"),
+        "G": req.wappstring("nhs_ethnic_category_code_G"),
+        "H": req.wappstring("nhs_ethnic_category_code_H"),
+        "J": req.wappstring("nhs_ethnic_category_code_J"),
+        "K": req.wappstring("nhs_ethnic_category_code_K"),
+        "L": req.wappstring("nhs_ethnic_category_code_L"),
+        "M": req.wappstring("nhs_ethnic_category_code_M"),
+        "N": req.wappstring("nhs_ethnic_category_code_N"),
+        "P": req.wappstring("nhs_ethnic_category_code_P"),
+        "R": req.wappstring("nhs_ethnic_category_code_R"),
+        "S": req.wappstring("nhs_ethnic_category_code_S"),
+        "Z": req.wappstring("nhs_ethnic_category_code_Z"),
     }

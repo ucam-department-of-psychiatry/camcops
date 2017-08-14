@@ -98,6 +98,28 @@ class MetaSomeThing(DeclarativeMeta):
     #       TypeError: metaclass conflict: the metaclass of a derived class
     #       must be a (non-strict) subclass of the metaclasses of all its bases
 
+    log.debug("MetaSomeThing: first line of declaration")
+
+    def __prepare__(name: str,
+                    bases: Tuple[Type, ...],
+                    **kwds: Dict[str, Any]) -> Dict:
+        """
+
+        Args:
+            name: name of the class being created, e.g. 'SomeThing'
+            bases: tuple of the new class's base classes, e.g.
+                (<class 'sqlalchemy.ext.declarative.api.Base'>,)
+            **kwds: arbitrary keyword arguments specified by the user in the
+                class definition
+
+        Returns:
+            a dictionary-like object to store the class member definitions;
+            see https://www.python.org/dev/peps/pep-3115/
+        """
+        log.debug("MetaSomething.__prepare__: name={!r}, bases={!r}, "
+                  "kwds={!r}".format(name, bases, kwds))
+        return dict()
+
     def __new__(mcs: Type,
                 name: str,
                 bases: Tuple[Type, ...],
@@ -114,16 +136,19 @@ class MetaSomeThing(DeclarativeMeta):
                 {
                     '__qualname__': 'SomeThing', 
                     '__tablename__': 'some_table', 
-                    '__init__': <function SomeThing.__init__ at 0x7fd8065647b8>, 
-                    'a': Column('a', Integer(), table=None, primary_key=True, nullable=False), 
-                    'somefunc': <function SomeThing.somefunc at 0x7fd806564840>, 
+                    '__init__':
+                        <function SomeThing.__init__ at 0x7fd8065647b8>,
+                    'a': Column('a', Integer(), table=None, primary_key=True,
+                                nullable=False),
+                    'somefunc':
+                        <function SomeThing.somefunc at 0x7fd806564840>,
                     '__module__': '__main__', 
                     'c': Column('c', Integer(), table=None)
                 }
 
         Returns:
             the class being created, e.g. <class '__main__.SomeThing'>
-        """  # noqa
+        """
         log.debug("MetaSomeThing.__new__: mcs={0!r}, name={1!r}, bases={2!r}, "
                   "classdict={3!r}".format(mcs, name, bases, classdict))
         if MODIFY_CLASS:
@@ -144,7 +169,6 @@ class MetaSomeThing(DeclarativeMeta):
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
         """
-
         Args:
             cls: the class being created (not the metaclass), e.g.
                 <class '__main__.SomeThing'>
@@ -156,13 +180,16 @@ class MetaSomeThing(DeclarativeMeta):
                 {
                     '__qualname__': 'SomeThing', 
                     '__tablename__': 'some_table', 
-                    '__init__': <function SomeThing.__init__ at 0x7fd8065647b8>, 
-                    'a': Column('a', Integer(), table=None, primary_key=True, nullable=False), 
-                    'somefunc': <function SomeThing.somefunc at 0x7fd806564840>, 
+                    '__init__':
+                        <function SomeThing.__init__ at 0x7fd8065647b8>,
+                    'a': Column('a', Integer(), table=None, primary_key=True,
+                                nullable=False),
+                    'somefunc':
+                        <function SomeThing.somefunc at 0x7fd806564840>,
                     '__module__': '__main__', 
                     'c': Column('c', Integer(), table=None)
                 }
-        """  # noqa
+        """
         log.debug("MetaSomeThing.__init__: cls={0!r}, name={1!r}, "
                   "bases={2!r}, classdict={3!r}".format(cls, name, bases,
                                                         classdict))
@@ -185,6 +212,9 @@ class MetaSomeThing(DeclarativeMeta):
 
 
 class SomeThing(Base, metaclass=MetaSomeThing):
+
+    log.debug("SomeThing: first line of declaration")
+
     __tablename__ = "some_table"
     a = Column("a", Integer, primary_key=True)
     c = Column("c", Integer)

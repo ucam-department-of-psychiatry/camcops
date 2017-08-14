@@ -41,7 +41,6 @@ from ..cc_modules.cc_html import (
     subheading_spanning_two_columns,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task
 
@@ -220,7 +219,7 @@ class Icd10Schizophrenia(Task):
         H_FIELDSPECS
     )
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         c = self.meets_general_criteria()
@@ -244,7 +243,7 @@ class Icd10Schizophrenia(Task):
             infolist.append(CtvInfo(content=ws.webify(self.comments)))
         return infolist
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(
@@ -293,37 +292,37 @@ class Icd10Schizophrenia(Task):
 
     def heading_row(self, wstringname: str, extra: str = None) -> str:
         return heading_spanning_two_columns(
-            self.wxstring(wstringname) + (extra or "")
+            self.wxstring(req, wstringname) + (extra or "")
         )
 
     def text_row(self, wstringname: str) -> str:
-        return subheading_spanning_two_columns(self.wxstring(wstringname))
+        return subheading_spanning_two_columns(self.wxstring(req, wstringname))
 
     def row_true_false(self, fieldname: str) -> str:
         return self.get_twocol_bool_row_true_false(
-            fieldname, self.wxstring(fieldname))
+            fieldname, self.wxstring(req, fieldname))
 
     def row_present_absent(self, fieldname: str) -> str:
         return self.get_twocol_bool_row_present_absent(
-            fieldname, self.wxstring(fieldname))
+            fieldname, self.wxstring(req, fieldname))
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr_qa(wappstring("date_pertains_to"),
+        h += tr_qa(req.wappstring("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
         h += tr_qa(
-            self.wxstring("meets_general_criteria") + " <sup>[1]</sup>",
+            self.wxstring(req, "meets_general_criteria") + " <sup>[1]</sup>",
             get_true_false_none(self.meets_general_criteria()))
         h += """
                 </table>
             </div>
             <div class="explanation">
         """
-        h += self.wxstring("comments")
+        h += self.wxstring(req, "comments")
         h += """
             </div>
             <table class="taskdetail">

@@ -23,83 +23,106 @@
 """
 
 import logging
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr_qa
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 log = logging.getLogger(__name__)
 
 
 # =============================================================================
-# HADS (crippled unless upgraded locally)
+# HADS (crippled unless upgraded locally) - base classes
 # =============================================================================
 
-class Hads(Task):
-    tablename = "hads"
-    shortname = "HADS"
-    longname = "Hospital Anxiety and Depression Scale (data collection only)"
+class HadsMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['HadsBase'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=0, maximum=3,
+            comment_fmt="Q{n}: {s} (0-3)",
+            comment_strings=[
+                "tense", "enjoy usual", "apprehensive", "laugh", "worry",
+                "cheerful", "relaxed", "slow", "butterflies", "appearance",
+                "restless", "anticipate", "panic", "book/TV/radio"
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class HadsBase(TaskHasPatientMixin, Task,
+               metaclass=HadsMetaclass):
+    # This is an abstract class and does not inherit from Base.
     provides_trackers = True
 
     NQUESTIONS = 14
     ANXIETY_QUESTIONS = [1, 3, 5, 7, 9, 11, 13]
     DEPRESSION_QUESTIONS = [2, 4, 6, 8, 10, 12, 14]
-
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=3,
-        comment_fmt="Q{n}: {s} (0-3)",
-        comment_strings=[
-            "tense", "enjoy usual", "apprehensive", "laugh", "worry",
-            "cheerful", "relaxed", "slow", "butterflies", "appearance",
-            "restless", "anticipate", "panic", "book/TV/radio"
-        ])
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_ANX_SCORE = 21
+    MAX_DEP_SCORE = 21
 
     def is_complete(self) -> bool:
-        return self.field_contents_valid() and self.are_all_fields_complete(
-            repeat_fieldname("q", 1, self.NQUESTIONS))
+        return (
+            self.field_contents_valid() and
+            self.are_all_fields_complete(self.TASK_FIELDS)
+        )
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [
             TrackerInfo(
                 value=self.anxiety_score(),
                 plot_label="HADS anxiety score",
-                axis_label="Anxiety score (out of 21)",
+                axis_label="Anxiety score (out of {})".format(
+                    self.MAX_ANX_SCORE),
                 axis_min=-0.5,
-                axis_max=21.5,
+                axis_max=self.MAX_ANX_SCORE + 0.5,
             ),
             TrackerInfo(
                 value=self.depression_score(),
                 plot_label="HADS depression score",
-                axis_label="Depression score (out of 21)",
+                axis_label="Depression score (out of {})".format(
+                    self.MAX_DEP_SCORE),
                 axis_min=-0.5,
-                axis_max=21.5
+                axis_max=self.MAX_DEP_SCORE + 0.5
             ),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="anxiety score {}/21, depression score {}/21".format(
-                self.anxiety_score(), self.depression_score())
+            content="anxiety score {}/{}, depression score {}/21".format(
+                self.anxiety_score(), self.MAX_ANX_SCORE,
+                self.depression_score())
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="anxiety", coltype=Integer(),
-                           value=self.anxiety_score(),
-                           comment="Anxiety score (/21)"),
+            SummaryElement(
+                name="anxiety", coltype=Integer(),
+                value=self.anxiety_score(),
+                comment="Anxiety score (/{})".format(self.MAX_ANX_SCORE)),
             SummaryElement(name="depression", coltype=Integer(),
                            value=self.depression_score(),
                            comment="Depression score (/21)"),
@@ -115,7 +138,7 @@ class Hads(Task):
     def depression_score(self) -> int:
         return self.score(self.DEPRESSION_QUESTIONS)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         min_score = 0
         max_score = 3
         crippled = not self.extrastrings_exist()
@@ -126,7 +149,7 @@ class Hads(Task):
                 <table class="summary">
                     {is_complete_tr}
                     <tr>
-                        <td>{sa}</td><td>{a} / 21</td>
+                        <td>{sa}</td><td>{a} / {maxa}</td>
                     </tr>
                     <tr>
                         <td>{sd}</td><td>{d} / 21</td>
@@ -144,9 +167,10 @@ class Hads(Task):
                 </tr>
         """.format(
             is_complete_tr=self.get_is_complete_tr(),
-            sa=wappstring("hads_anxiety_score"),
+            sa=req.wappstring("hads_anxiety_score"),
             a=answer(a),
-            sd=wappstring("hads_depression_score"),
+            maxa=self.MAX_ANX_SCORE,
+            sd=req.wappstring("hads_depression_score"),
             d=answer(d),
         )
         for n in range(1, self.NQUESTIONS + 1):
@@ -155,7 +179,7 @@ class Hads(Task):
             else:
                 q = "Q{}. {}".format(
                     n,
-                    self.wxstring("q" + str(n) + "_stem")
+                    self.wxstring(req, "q" + str(n) + "_stem")
                 )
             if n in self.ANXIETY_QUESTIONS:
                 q += " (A)"
@@ -165,7 +189,8 @@ class Hads(Task):
             if crippled or v is None or v < min_score or v > max_score:
                 a = v
             else:
-                a = "{}: {}".format(v, self.wxstring("q{}_a{}".format(n, v)))
+                a = "{}: {}".format(
+                    v, self.wxstring(req, "q{}_a{}".format(n, v)))
             h += tr_qa(q, a)
         h += """
             </table>
@@ -174,13 +199,22 @@ class Hads(Task):
 
 
 # =============================================================================
+# Hads
+# =============================================================================
+
+class Hads(HadsBase, Base):
+    __tablename__ = "hads"
+    shortname = "HADS"
+    longname = "Hospital Anxiety and Depression Scale (data collection only)"
+
+
+# =============================================================================
 # HadsRespondent
 # =============================================================================
 
-class HadsRespondent(Hads):
-    tablename = "hads_respondent"
+class HadsRespondent(TaskHasRespondentMixin, HadsBase, Base):
+    __tablename__ = "hads_respondent"
     shortname = "HADS-Respondent"
     longname = "Hospital Anxiety and Depression Scale (data collection " \
                "only), non-patient respondent version"
     extrastring_taskname = "hads"
-    has_respondent = True

@@ -22,23 +22,76 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
 
-from ..cc_modules.cc_constants import PV
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import tr_qa
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    BIT_CHECKER,
+    PermittedValueChecker,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 
 
 # =============================================================================
 # COPE_Brief
 # =============================================================================
 
-class CopeBrief(Task):
-    tablename = "cope_brief"
+class CopeBriefMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['CopeBrief'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=0, maximum=3,
+            comment_fmt="Q{n}, {s} (0 not at all - 3 a lot)",
+            comment_strings=[
+                "work/activities to take mind off",  # 1
+                "concentrating efforts on doing something about it",
+                "saying it's unreal",
+                "alcohol/drugs to feel better",
+                "emotional support from others",  # 5
+                "given up trying to deal with it",
+                "taking action to make situation better",
+                "refusing to believe it's happened",
+                "saying things to let unpleasant feelings escape",
+                "getting help/advice from others",  # 10
+                "alcohol/drugs to get through it",
+                "trying to see it in a more positive light",
+                "criticizing myself",
+                "trying to come up with a strategy",
+                "getting comfort/understanding from someone",  # 15
+                "giving up the attempt to cope",
+                "looking for something good in what's happening",
+                "making jokes about it",
+                "doing something to think about it less",
+                "accepting reality of the fact it's happened",  # 20
+                "expressing negative feelings",
+                "seeking comfort in religion/spirituality",
+                "trying to get help/advice from others about what to do",
+                "learning to live with it",
+                "thinking hard about what steps to take",  # 25
+                "blaming myself",
+                "praying/meditating",
+                "making fun of the situation"  # 28
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class CopeBrief(TaskHasPatientMixin, Task, Base,
+                metaclass=CopeBriefMetaclass):
+    __tablename__ = "cope_brief"
     shortname = "COPE-Brief"
     longname = "Brief COPE Inventory"
     extrastring_taskname = "cope"
@@ -49,54 +102,28 @@ class CopeBrief(Task):
     RELATIONSHIPS_FIRST_NON_OTHER = 1
     RELATIONSHIPS_LAST = 9
 
-    fieldspecs = [
-        dict(name="completed_by_patient", cctype="INT", pv=PV.BIT,
-             comment="Task completed by patient? (0 no, 1 yes)"),
-        dict(name="completed_by", cctype="TEXT",
-             comment="Name of person task completed by (if not by patient)"),
-        dict(name="relationship_to_patient", cctype="INT", min=0, max=9,
-             comment="Relationship of responder to patient (0 other, 1 wife, "
-                     "2 husband, 3 daughter, 4 son, 5 sister, 6 brother, "
-                     "7 mother, 8 father, 9 friend)"),
-        dict(name="relationship_to_patient_other", cctype="TEXT",
-             comment="Relationship of responder to patient (if OTHER chosen)"),
-    ] + repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=3,
-        comment_fmt="Q{n}, {s} (0 not at all - 3 a lot)",
-        comment_strings=[
-            "work/activities to take mind off",  # 1
-            "concentrating efforts on doing something about it",
-            "saying it's unreal",
-            "alcohol/drugs to feel better",
-            "emotional support from others",  # 5
-            "given up trying to deal with it",
-            "taking action to make situation better",
-            "refusing to believe it's happened",
-            "saying things to let unpleasant feelings escape",
-            "getting help/advice from others",  # 10
-            "alcohol/drugs to get through it",
-            "trying to see it in a more positive light",
-            "criticizing myself",
-            "trying to come up with a strategy",
-            "getting comfort/understanding from someone",  # 15
-            "giving up the attempt to cope",
-            "looking for something good in what's happening",
-            "making jokes about it",
-            "doing something to think about it less",
-            "accepting reality of the fact it's happened",  # 20
-            "expressing negative feelings",
-            "seeking comfort in religion/spirituality",
-            "trying to get help/advice from others about what to do",
-            "learning to live with it",
-            "thinking hard about what steps to take",  # 25
-            "blaming myself",
-            "praying/meditating",
-            "making fun of the situation"  # 28
-        ])
+    completed_by_patient = CamcopsColumn(
+        "completed_by_patient", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Task completed by patient? (0 no, 1 yes)"
+    )
+    completed_by = Column(
+        "completed_by", Text,
+        comment="Name of person task completed by (if not by patient)"
+    )
+    relationship_to_patient = CamcopsColumn(
+        "relationship_to_patient", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=9),
+        comment="Relationship of responder to patient (0 other, 1 wife, "
+                "2 husband, 3 daughter, 4 son, 5 sister, 6 brother, "
+                "7 mother, 8 father, 9 friend)"
+    )
+    relationship_to_patient_other = Column(
+        "relationship_to_patient_other", Text,
+        comment="Relationship of responder to patient (if OTHER chosen)"
+    )
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
-
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="self_distraction",
@@ -219,11 +246,11 @@ class CopeBrief(Task):
     def self_blame(self) -> int:
         return self.sum_fields(["q13", "q26"])
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         answer_dict = {None: None}
         for option in range(0, 3 + 1):
             answer_dict[option] = (
-                str(option) + " — " + self.wxstring("a" + str(option))
+                str(option) + " — " + self.wxstring(req, "a" + str(option))
             )
         h = """
             <div class="summary">
@@ -264,7 +291,7 @@ class CopeBrief(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                "Q{}. {}".format(q, self.wxstring("q" + str(q))),
+                "Q{}. {}".format(q, self.wxstring(req, "q" + str(q))),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """

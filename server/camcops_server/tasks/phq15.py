@@ -30,7 +30,6 @@ from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
@@ -84,7 +83,7 @@ class Phq15(Task):
         else:
             return True
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PHQ-15 total score (rating somatic symptoms)",
@@ -93,14 +92,14 @@ class Phq15(Task):
             axis_max=30.5,
             horizontal_lines=[14.5, 9.5, 4.5],
             horizontal_labels=[
-                TrackerLabel(22, wappstring("severe")),
-                TrackerLabel(12, wappstring("moderate")),
-                TrackerLabel(7, wappstring("mild")),
-                TrackerLabel(2.25, wappstring("none")),
+                TrackerLabel(22, req.wappstring("severe")),
+                TrackerLabel(12, req.wappstring("moderate")),
+                TrackerLabel(7, req.wappstring("mild")),
+                TrackerLabel(2.25, req.wappstring("none")),
             ]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -108,7 +107,7 @@ class Phq15(Task):
                 self.total_score(), self.severity())
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -135,15 +134,15 @@ class Phq15(Task):
     def severity(self) -> str:
         score = self.total_score()
         if score >= 15:
-            return wappstring("severe")
+            return req.wappstring("severe")
         elif score >= 10:
-            return wappstring("moderate")
+            return req.wappstring("moderate")
         elif score >= 5:
-            return wappstring("mild")
+            return req.wappstring("mild")
         else:
-            return wappstring("none")
+            return req.wappstring("none")
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         nsevere = self.num_severe()
         somatoform_likely = nsevere >= 3
@@ -151,20 +150,20 @@ class Phq15(Task):
         answer_dict = {None: None}
         for option in range(0, 3):
             answer_dict[option] = str(option) + " – " + \
-                self.wxstring("a" + str(option))
+                self.wxstring(req, "a" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(wappstring("total_score") + " <sup>[1]</sup>",
+        h += tr(req.wappstring("total_score") + " <sup>[1]</sup>",
                 answer(score) + " / 30")
-        h += tr_qa(self.wxstring("n_severe_symptoms") + " <sup>[2]</sup>",
+        h += tr_qa(self.wxstring(req, "n_severe_symptoms") + " <sup>[2]</sup>",
                    nsevere)
         h += tr_qa(
-            self.wxstring("exceeds_somatoform_cutoff") + " <sup>[3]</sup>",
+            self.wxstring(req, "exceeds_somatoform_cutoff") + " <sup>[3]</sup>",
             get_yes_no(somatoform_likely))
-        h += tr_qa(self.wxstring("symptom_severity") + " <sup>[4]</sup>",
+        h += tr_qa(self.wxstring(req, "symptom_severity") + " <sup>[4]</sup>",
                    severity)
         h += """
                 </table>
@@ -177,7 +176,7 @@ class Phq15(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                self.wxstring("q" + str(q)),
+                self.wxstring(req, "q" + str(q)),
                 get_from_dict(answer_dict, getattr(self, "q" + str(q)))
             )
         h += """

@@ -42,9 +42,9 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Import matplotlib
 # =============================================================================
 
-# We need to use os.environ, since pls won't be initialized yet. That goes
-# for anything that affects imports (to avoid the complexity of delayed
-# imports).
+# We need to use os.environ, since per-request stuff won't be initialized yet.
+# That goes for anything that affects imports (to avoid the complexity of
+# delayed imports).
 if 'MPLCONFIGDIR' in os.environ:
     # 1+2. Use a writable static directory (speeds pyplot loads hugely).
     MPLCONFIGDIR = os.environ['MPLCONFIGDIR']
@@ -72,7 +72,7 @@ if 'HOME' in os.environ:
     del os.environ['HOME']
 
 # 5. Import matplotlib
-log.info("importing matplotlib (can be slow) (MPLCONFIGDIR={})...",
+log.info("Importing matplotlib (can be slow) (MPLCONFIGDIR={})...",
          MPLCONFIGDIR)
 import matplotlib  # noqa
 

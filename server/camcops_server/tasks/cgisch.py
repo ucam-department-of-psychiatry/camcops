@@ -22,17 +22,27 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
+
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     subheading_spanning_two_columns,
     tr_qa,
     tr_span_col,
 )
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -44,27 +54,37 @@ QUESTION_FRAGMENTS = ["positive", "negative", "depressive", "cognitive",
                       "overall"]
 
 
-class CgiSch(Task):
-    tablename = "cgisch"
+class CgiSchMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['CgiSch'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "severity", 1, 5,
+            minimum=1, maximum=7,
+            comment_fmt="Severity Q{n}, {s} (1-7, higher worse)",
+            comment_strings=QUESTION_FRAGMENTS
+        )
+        add_multiple_columns(
+            cls, "change", 1, 5,
+            pv=list(range(1, 7 + 1)) + [9],
+            comment_fmt="Change Q{n}, {s} (1-7, higher worse, or 9 N/A)",
+            comment_strings=QUESTION_FRAGMENTS
+        )
+        super().__init__(name, bases, classdict)
+
+
+class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+             metaclass=CgiSchMetaclass):
+    __tablename__ = "cgisch"
     shortname = "CGI-SCH"
     longname = "Clinical Global Impression – Schizophrenia"
-    has_clinician = True
     provides_trackers = True
 
-    fieldspecs = (
-        repeat_fieldspec(
-            "severity", 1, 5, min=1, max=7,
-            comment_fmt="Severity Q{n}, {s} (1-7, higher worse)",
-            comment_strings=QUESTION_FRAGMENTS) +
-        repeat_fieldspec(
-            "change", 1, 5, pv=list(range(1, 7 + 1)) + [9],
-            comment_fmt="Change Q{n}, {s} (1-7, higher worse, or 9 N/A)",
-            comment_strings=QUESTION_FRAGMENTS)
-    )
+    TASK_FIELDS = strseq("severity", 1, 5) + strseq("change", 1, 5)
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
-
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         prefix = "CGI-SCH severity: "
         ylabel = "Score (1-7)"
         return [
@@ -105,7 +125,7 @@ class CgiSch(Task):
             ),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -128,7 +148,7 @@ class CgiSch(Task):
             )
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [self.is_complete_summary_field()]
 
     def is_complete(self) -> bool:
@@ -137,27 +157,27 @@ class CgiSch(Task):
             self.field_contents_valid()
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         severity_dict = {
             None: None,
-            1: self.wxstring("i_option1"),
-            2: self.wxstring("i_option2"),
-            3: self.wxstring("i_option3"),
-            4: self.wxstring("i_option4"),
-            5: self.wxstring("i_option5"),
-            6: self.wxstring("i_option6"),
-            7: self.wxstring("i_option7"),
+            1: self.wxstring(req, "i_option1"),
+            2: self.wxstring(req, "i_option2"),
+            3: self.wxstring(req, "i_option3"),
+            4: self.wxstring(req, "i_option4"),
+            5: self.wxstring(req, "i_option5"),
+            6: self.wxstring(req, "i_option6"),
+            7: self.wxstring(req, "i_option7"),
         }
         change_dict = {
             None: None,
-            1: self.wxstring("ii_option1"),
-            2: self.wxstring("ii_option2"),
-            3: self.wxstring("ii_option3"),
-            4: self.wxstring("ii_option4"),
-            5: self.wxstring("ii_option5"),
-            6: self.wxstring("ii_option6"),
-            7: self.wxstring("ii_option7"),
-            9: self.wxstring("ii_option9"),
+            1: self.wxstring(req, "ii_option1"),
+            2: self.wxstring(req, "ii_option2"),
+            3: self.wxstring(req, "ii_option3"),
+            4: self.wxstring(req, "ii_option4"),
+            5: self.wxstring(req, "ii_option5"),
+            6: self.wxstring(req, "ii_option6"),
+            7: self.wxstring(req, "ii_option7"),
+            9: self.wxstring(req, "ii_option9"),
         }
         h = """
             <div class="summary">
@@ -171,29 +191,29 @@ class CgiSch(Task):
                     <th width="30%">Answer <sup>[1]</sup></th>
                 </tr>
         """.format(self.get_is_complete_tr())
-        h += subheading_spanning_two_columns(self.wxstring("i_title"))
-        h += tr_span_col(self.wxstring("i_question"), cols=2)
-        h += tr_qa(self.wxstring("q1"),
+        h += subheading_spanning_two_columns(self.wxstring(req, "i_title"))
+        h += tr_span_col(self.wxstring(req, "i_question"), cols=2)
+        h += tr_qa(self.wxstring(req, "q1"),
                    get_from_dict(severity_dict, self.severity1))
-        h += tr_qa(self.wxstring("q2"),
+        h += tr_qa(self.wxstring(req, "q2"),
                    get_from_dict(severity_dict, self.severity2))
-        h += tr_qa(self.wxstring("q3"),
+        h += tr_qa(self.wxstring(req, "q3"),
                    get_from_dict(severity_dict, self.severity3))
-        h += tr_qa(self.wxstring("q4"),
+        h += tr_qa(self.wxstring(req, "q4"),
                    get_from_dict(severity_dict, self.severity4))
-        h += tr_qa(self.wxstring("q5"),
+        h += tr_qa(self.wxstring(req, "q5"),
                    get_from_dict(severity_dict, self.severity5))
-        h += subheading_spanning_two_columns(self.wxstring("ii_title"))
-        h += tr_span_col(self.wxstring("ii_question"), cols=2)
-        h += tr_qa(self.wxstring("q1"),
+        h += subheading_spanning_two_columns(self.wxstring(req, "ii_title"))
+        h += tr_span_col(self.wxstring(req, "ii_question"), cols=2)
+        h += tr_qa(self.wxstring(req, "q1"),
                    get_from_dict(change_dict, self.change1))
-        h += tr_qa(self.wxstring("q2"),
+        h += tr_qa(self.wxstring(req, "q2"),
                    get_from_dict(change_dict, self.change2))
-        h += tr_qa(self.wxstring("q3"),
+        h += tr_qa(self.wxstring(req, "q3"),
                    get_from_dict(change_dict, self.change3))
-        h += tr_qa(self.wxstring("q4"),
+        h += tr_qa(self.wxstring(req, "q4"),
                    get_from_dict(change_dict, self.change4))
-        h += tr_qa(self.wxstring("q5"),
+        h += tr_qa(self.wxstring(req, "q5"),
                    get_from_dict(change_dict, self.change5))
         h += """
             </table>
@@ -203,6 +223,6 @@ class CgiSch(Task):
                 {postscript}
             </div>
         """.format(
-            postscript=self.wxstring("ii_postscript"),
+            postscript=self.wxstring(req, "ii_postscript"),
         )
         return h

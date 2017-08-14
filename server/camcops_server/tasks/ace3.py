@@ -22,8 +22,9 @@
 ===============================================================================
 """
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
 import matplotlib.pyplot as plt
 import numpy
@@ -33,7 +34,7 @@ from sqlalchemy.sql.sqltypes import Integer, Text
 
 from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH, PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import add_multiple_columns, repeat_fieldname
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
     get_html_from_pyplot_figure,
@@ -43,10 +44,19 @@ from ..cc_modules.cc_html import (
     tr_qa,
     tr_span_col,
 )
-from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn,
+    PermittedValueChecker,
+)
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task, TaskHasClinicianMixin, TaskHasPatientMixin
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -81,7 +91,10 @@ def score_zero_for_absent(x: Optional[int]) -> int:
 
 class Ace3Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls, name, bases, classdict):
+    def __init__(cls: Type['Ace3'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
         add_multiple_columns(
             cls, "attn_time", 1, 5, pv=PV.BIT,
             comment_fmt="Attention, time, {n}/5, {s} (0 or 1)",
@@ -102,6 +115,7 @@ class Ace3Metaclass(DeclarativeMeta):
             cls, "attn_serial7_subtraction", 1, 5, pv=PV.BIT,
             comment_fmt="Attention, serial sevens, {n}/5 (0 or 1)",
         )
+
         add_multiple_columns(
             cls, "mem_recall_word", 1, 3, pv=PV.BIT,
             comment_fmt="Memory, recall word, {n}/3, {s} (0 or 1)",
@@ -130,6 +144,7 @@ class Ace3Metaclass(DeclarativeMeta):
             comment_fmt="Memory, famous people, {n}/4, {s} (0 or 1)",
             comment_strings=["current PM", "woman PM", "USA president", "JFK"],
         )
+
         add_multiple_columns(
             cls, "lang_follow_command", 1, 3, pv=PV.BIT,
             comment_fmt="Language, command {n}/3 (0 or 1)",
@@ -166,12 +181,41 @@ class Ace3Metaclass(DeclarativeMeta):
             comment_strings=["monarchy", "marsupial", "Antarctic", "nautical"],
         )
 
+        add_multiple_columns(
+            cls, "vsp_count_dots", 1, 4, pv=PV.BIT,
+            comment_fmt="Visuospatial, count dots {n}/4, {s} dots (0-1)",
+            comment_strings=["8", "10", "7", "9"],
+        )
+        add_multiple_columns(
+            cls, "vsp_identify_letter", 1, 4, pv=PV.BIT,
+            comment_fmt="Visuospatial, identify letter {n}/4, {s} (0-1)",
+            comment_strings=["K", "M", "A", "T"],
+        )
+        add_multiple_columns(
+            cls, "mem_recall_address", 1, 7, pv=PV.BIT,
+            comment_fmt="Memory, recall address {n}/7, {s} (0-1)",
+            comment_strings=ADDRESS_PARTS,
+        )
+        add_multiple_columns(
+            cls, "mem_recognize_address", 1, 5, pv=PV.BIT,
+            comment_fmt="Memory, recognize address {n}/5 (if "
+            "applicable) ({s}) (0-1)",
+            comment_strings=["name", "number", "street", "town", "county"],
+        )
+        add_multiple_columns(  # tablet version 2.0.0 onwards
+            cls, "mem_recognize_address_choice", 1, 5,
+            coltype=Text,
+            comment_fmt="Memory, recognize address {n}/5, CHOICE (if "
+                        "applicable) ({s}) (A/B/C)",
+            comment_strings=["name", "number", "street", "town", "county"],
+        )
+
         super().__init__(name, bases, classdict)
 
 
 class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
            metaclass=Ace3Metaclass):
-    tablename = "ace3"
+    __tablename__ = "ace3"
     shortname = "ACE-III"
     longname = "Addenbrooke’s Cognitive Examination III"
     has_clinician = True
@@ -207,70 +251,94 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
     lang_follow_command_practice = CamcopsColumn(
         "lang_follow_command_practice", Integer,
         comment="Language, command, practice trial (not scored)",
-        permitted_value_checker=PermittedValueChecker(permitted_values=PV.BIT)
+        permitted_value_checker=BIT_CHECKER
     )
-*** am here!
-        [
-            dict(name="lang_read_words_aloud", cctype="INT", pv=PV.BIT,
-                 comment="Language, read five irregular words (0 or 1)"),
-            dict(name="vsp_copy_infinity", cctype="INT", pv=PV.BIT,
-                 comment="Visuospatial, copy infinity (0-1)"),
-            dict(name="vsp_copy_cube", cctype="INT",
-                 comment="Visuospatial, copy cube (0-2)",
-                 min=0, max=2),
-            dict(name="vsp_draw_clock", cctype="INT",
-                 comment="Visuospatial, draw clock (0-5)",
-                 min=0, max=5),
-        ] +
-        repeat_fieldspec(
-            "vsp_count_dots", 1, 4, pv=PV.BIT,
-            comment_fmt="Visuospatial, count dots {n}/4, {s} dots (0-1)",
-            comment_strings=["8", "10", "7", "9"],
-        ) +
-        repeat_fieldspec(
-            "vsp_identify_letter", 1, 4, pv=PV.BIT,
-            comment_fmt="Visuospatial, identify letter {n}/4, {s} (0-1)",
-            comment_strings=["K", "M", "A", "T"],
-        ) +
-        repeat_fieldspec(
-            "mem_recall_address", 1, 7, pv=PV.BIT,
-            comment_fmt="Memory, recall address {n}/7, {s} (0-1)",
-            comment_strings=ADDRESS_PARTS,
-        ) +
-        repeat_fieldspec(
-            "mem_recognize_address", 1, 5, pv=PV.BIT,
-            comment_fmt="Memory, recognize address {n}/5 (if "
-            "applicable) ({s}) (0-1)",
-            comment_strings=["name", "number", "street", "town", "county"],
-        ) +
-        repeat_fieldspec(  # tablet version 2.0.0 onwards
-            "mem_recognize_address_choice", 1, 5,
-            cctype="TEXT",
-            comment_fmt="Memory, recognize address {n}/5, CHOICE (if "
-                        "applicable) ({s}) (A/B/C)",
-            comment_strings=["name", "number", "street", "town", "county"],
-        ) +
-        [
-            dict(name="picture1_blobid", cctype="INT",
-                 comment="Photo 1/2 PNG BLOB ID"),
-            # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-            dict(name="picture1_rotation", cctype="INT",
-                 comment="Photo 1/2 rotation (degrees clockwise)"),  # *** DEFUNCT as of v2.0.0  # noqa
-            dict(name="picture2_blobid", cctype="INT",
-                 comment="Photo 2/2 PNG BLOB ID"),
-            # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-            dict(name="picture2_rotation", cctype="INT",
-                 comment="Photo 2/2 rotation (degrees clockwise)"),  # *** DEFUNCT as of v2.0.0  # noqa
-            dict(name="comments", cctype="TEXT",
-                 comment="Clinician's comments"),
-        ]
+    lang_read_words_aloud = CamcopsColumn(
+        "lang_read_words_aloud", Integer,
+        comment="Language, read five irregular words (0 or 1)",
+        permitted_value_checker=BIT_CHECKER
     )
-    blob_name_idfield_list = [
-        ("picture1", "picture1_blobid"),
-        ("picture2", "picture2_blobid"),
-    ]
+    vsp_copy_infinity = CamcopsColumn(
+        "vsp_copy_infinity", Integer,
+        comment="Visuospatial, copy infinity (0-1)",
+        permitted_value_checker=BIT_CHECKER
+    )
+    vsp_copy_cube = CamcopsColumn(
+        "vsp_copy_cube", Integer,
+        comment="Visuospatial, copy cube (0-2)",
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=2)
+    )
+    vsp_draw_clock = CamcopsColumn(
+        "vsp_draw_clock", Integer,
+        comment="Visuospatial, draw clock (0-5)",
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=5)
+    )
+    picture1_blobid = CamcopsColumn(
+        "picture1_blobid", Integer,
+        comment="Photo 1/2 PNG BLOB ID",
+        is_blob_id_field=True,
+    )
+    picture1_rotation = Column(
+        # DEFUNCT as of v2.0.0
+        # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE
+        "picture1_rotation", Integer,
+        comment="Photo 1/2 rotation (degrees clockwise)"
+    )
+    picture2_blobid = CamcopsColumn(
+        "picture2_blobid", Integer,
+        comment="Photo 2/2 PNG BLOB ID",
+        is_blob_id_field=True,
+    )
+    picture2_rotation = Column(
+        # DEFUNCT as of v2.0.0
+        # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE
+        "picture2_rotation", Integer,
+        comment="Photo 2/2 rotation (degrees clockwise)"
+    )
+    comments = Column(
+        "comments", Text,
+        comment="Clinician's comments"
+    )
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    ATTN_SCORE_FIELDS = (strseq("attn_time", 1, 5) +
+                         strseq("attn_place", 1, 5) +
+                         strseq("attn_repeat_word", 1, 3) +
+                         strseq("attn_serial7_subtraction", 1, 5))
+    MEM_NON_RECOG_SCORE_FIELDS = (strseq("mem_recall_word", 1, 3) +
+                                  strseq("mem_repeat_address_trial3_", 1, 7) +
+                                  strseq("mem_famous", 1, 4) +
+                                  strseq("mem_recall_address", 1, 7))
+    LANG_SIMPLE_SCORE_FIELDS = (strseq("lang_write_sentences_point", 1, 2) +
+                                strseq("lang_repeat_sentence", 1, 2) +
+                                strseq("lang_name_picture", 1, 12) +
+                                strseq("lang_identify_concept", 1, 4))
+    LANG_FOLLOW_CMD_FIELDS = strseq("lang_follow_command", 1, 3)
+    LANG_REPEAT_WORD_FIELDS = strseq("lang_repeat_word", 1, 4)
+    VSP_SIMPLE_SCORE_FIELDS = (strseq("vsp_count_dots", 1, 4) +
+                               strseq("vsp_identify_letter", 1, 4))
+    BASIC_COMPLETENESS_FIELDS = (
+        ATTN_SCORE_FIELDS +
+        MEM_NON_RECOG_SCORE_FIELDS +
+        [
+            "fluency_letters_score",
+            "fluency_animals_score"
+        ] +
+        [
+            "lang_follow_command_practice"
+        ] +
+        LANG_SIMPLE_SCORE_FIELDS +
+        LANG_REPEAT_WORD_FIELDS +
+        [
+            "lang_read_words_aloud",
+            "vsp_copy_infinity",
+            "vsp_copy_cube",
+            "vsp_draw_clock"
+        ] +
+        VSP_SIMPLE_SCORE_FIELDS +
+        strseq("mem_recall_address", 1, 7)
+    )
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="ACE-III total score",
@@ -280,7 +348,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
             horizontal_lines=[82.5, 88.5]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         a = self.attn_score()
@@ -298,7 +366,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
                  fmax=FLUENCY_MAX, lmax=LANG_MAX, vmax=VSP_MAX)
         return [CtvInfo(content=text)]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -328,11 +396,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
         ]
 
     def attn_score(self) -> int:
-        fields = (repeat_fieldname("attn_time", 1, 5) +
-                  repeat_fieldname("attn_place", 1, 5) +
-                  repeat_fieldname("attn_repeat_word", 1, 3) +
-                  repeat_fieldname("attn_serial7_subtraction", 1, 5))
-        return self.sum_fields(fields)
+        return self.sum_fields(self.ATTN_SCORE_FIELDS)
 
     @staticmethod
     def get_recog_score(recalled: Optional[int],
@@ -368,11 +432,10 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
         return score
 
     def mem_score(self) -> int:
-        fields = (repeat_fieldname("mem_recall_word", 1, 3) +
-                  repeat_fieldname("mem_repeat_address_trial3_", 1, 7) +
-                  repeat_fieldname("mem_famous", 1, 4) +
-                  repeat_fieldname("mem_recall_address", 1, 7))
-        return self.sum_fields(fields) + self.get_mem_recognition_score()
+        return (
+            self.sum_fields(self.MEM_NON_RECOG_SCORE_FIELDS) +
+            self.get_mem_recognition_score()
+        )
 
     def fluency_score(self) -> int:
         return (
@@ -383,26 +446,20 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
     def get_follow_command_score(self) -> int:
         if self.lang_follow_command_practice != 1:
             return 0
-        return self.sum_fields(repeat_fieldname("lang_follow_command", 1, 3))
+        return self.sum_fields(self.LANG_FOLLOW_CMD_FIELDS)
 
     def get_repeat_word_score(self) -> int:
-        n = self.sum_fields(repeat_fieldname("lang_repeat_word", 1, 4))
+        n = self.sum_fields(self.LANG_REPEAT_WORD_FIELDS)
         return 2 if n >= 4 else (1 if n == 3 else 0)
 
     def lang_score(self) -> int:
-        fields = (repeat_fieldname("lang_write_sentences_point", 1, 2) +
-                  repeat_fieldname("lang_repeat_sentence", 1, 2) +
-                  repeat_fieldname("lang_name_picture", 1, 12) +
-                  repeat_fieldname("lang_identify_concept", 1, 4))
-        return (self.sum_fields(fields) +
+        return (self.sum_fields(self.LANG_SIMPLE_SCORE_FIELDS) +
                 self.get_follow_command_score() +
                 self.get_repeat_word_score() +
                 score_zero_for_absent(self.lang_read_words_aloud))
 
     def vsp_score(self) -> int:
-        fields = (repeat_fieldname("vsp_count_dots", 1, 4) +
-                  repeat_fieldname("vsp_identify_letter", 1, 4))
-        return (self.sum_fields(fields) +
+        return (self.sum_fields(self.VSP_SIMPLE_SCORE_FIELDS) +
                 score_zero_for_absent(self.vsp_copy_infinity) +
                 score_zero_for_absent(self.vsp_copy_cube) +
                 score_zero_for_absent(self.vsp_draw_clock))
@@ -431,45 +488,16 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
         )
 
     def is_complete(self) -> bool:
+        if not self.are_all_fields_complete(self.BASIC_COMPLETENESS_FIELDS):
+            return False
         if not self.field_contents_valid():
             return False
-        if not self.are_all_fields_complete(
-                repeat_fieldname("attn_place", 1, 5) +
-                repeat_fieldname("attn_repeat_word", 1, 3) +
-                # not scored: # ["attn_num_registration_trials"] +
-                repeat_fieldname("attn_serial7_subtraction", 1, 5) +
-                repeat_fieldname("mem_recall_word", 1, 3) +
-                [
-                    "fluency_letters_score",
-                    "fluency_animals_score"
-                ] +
-                repeat_fieldname("mem_repeat_address_trial3_", 1, 7) +
-                repeat_fieldname("mem_famous", 1, 4) +
-                [
-                    "lang_follow_command_practice"
-                ] +
-                repeat_fieldname("lang_follow_command", 1, 3) +
-                repeat_fieldname("lang_repeat_word", 1, 4) +
-                repeat_fieldname("lang_repeat_sentence", 1, 2) +
-                repeat_fieldname("lang_name_picture", 1, 12) +
-                repeat_fieldname("lang_identify_concept", 1, 4) +
-                [
-                    "lang_read_words_aloud",
-                    "vsp_copy_infinity",
-                    "vsp_copy_cube",
-                    "vsp_draw_clock"
-                ] +
-                repeat_fieldname("vsp_count_dots", 1, 4) +
-                repeat_fieldname("vsp_identify_letter", 1, 4) +
-                repeat_fieldname("mem_recall_address", 1, 7)):
-            return False
-        if self.lang_follow_command_practice == 1 \
-                and not self.are_all_fields_complete(
-                    repeat_fieldname("lang_write_sentences_point", 1, 2)):
+        if (self.lang_follow_command_practice == 1 and
+                not self.are_all_fields_complete(self.LANG_FOLLOW_CMD_FIELDS)):
             return False
         return self.is_recognition_complete()
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         def percent(score: int, maximum: int) -> str:
             return ws.number_to_dp(100 * score / maximum, PERCENT_DP)
 
@@ -501,7 +529,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
             ax.set_xticklabels(x_labels)
             plt.tight_layout()  # or the ylabel drops off the figure
             # fig.autofmt_xdate()
-            figurehtml = get_html_from_pyplot_figure(fig)
+            figurehtml = get_html_from_pyplot_figure(request, fig)
         return (
             self.get_standard_clinician_comments_block(self.comments) +
             """

@@ -22,7 +22,7 @@
 ===============================================================================
 """
 
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
@@ -137,10 +137,10 @@ class Device(Base):
 # Support functions
 # =============================================================================
 
-def get_device_filter_dropdown(request: CamcopsRequest,
+def get_device_filter_dropdown(req: CamcopsRequest,
                                currently_selected_id: int = None) -> str:
     """Get HTML list of all known tablet devices."""
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     devices = dbsession.query(Device)\
         .order_by(Device.friendly_name, Device.name)\
         .all()  # type: List[Device]
@@ -169,9 +169,9 @@ class DeviceReport(Report):
     report_title = "(Server) Devices registered with the server"
     param_spec_list = []
 
-    def get_rows_descriptions(self, request: CamcopsRequest,
-                              **kwargs) -> REPORT_RESULT_TYPE:
-        dbsession = request.dbsession
+    def get_rows_descriptions(self, req: CamcopsRequest,
+                              **kwargs: Any) -> REPORT_RESULT_TYPE:
+        dbsession = req.dbsession
         query = dbsession.query(Device.id,
                                 Device.name,
                                 Device.registered_by_user_id,

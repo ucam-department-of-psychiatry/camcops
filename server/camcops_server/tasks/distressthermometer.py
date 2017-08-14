@@ -22,76 +22,100 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
+
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
 
 from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     get_yes_no_none,
     subheading_spanning_two_columns,
     tr_qa,
 )
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 # =============================================================================
 # Distress Thermometer
 # =============================================================================
 
-class DistressThermometer(Task):
-    tablename = "distressthermometer"
+class DistressThermometerMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['DistressThermometer'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            pv=PV.BIT,
+            comment_fmt="{n}. {s} (0 no, 1 yes)",
+            comment_strings=[
+                "child care",
+                "housing",
+                "insurance/financial",
+                "transportation",
+                "work/school",
+                "children",
+                "partner",
+                "close friend/relative",
+                "depression",
+                "fears",
+                "nervousness",
+                "sadness",
+                "worry",
+                "loss of interest",
+                "spiritual/religious",
+                "appearance",
+                "bathing/dressing",
+                "breathing",
+                "urination",
+                "constipation",
+                "diarrhoea",
+                "eating",
+                "fatigue",
+                "feeling swollen",
+                "fevers",
+                "getting around",
+                "indigestion",
+                "memory/concentration",
+                "mouth sores",
+                "nausea",
+                "nose dry/congested",
+                "pain",
+                "sexual",
+                "skin dry/itchy",
+                "sleep",
+                "tingling in hands/feet",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class DistressThermometer(TaskHasPatientMixin, Task, Base,
+                          metaclass=DistressThermometerMetaclass):
+    __tablename__ = "distressthermometer"
     shortname = "Distress Thermometer"
     longname = "Distress Thermometer"
 
-    NQUESTIONS = 36
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, pv=PV.BIT, comment_fmt="{n}. {s} (0 no, 1 yes)",
-        comment_strings=[
-            "child care",
-            "housing",
-            "insurance/financial",
-            "transportation",
-            "work/school",
-            "children",
-            "partner",
-            "close friend/relative",
-            "depression",
-            "fears",
-            "nervousness",
-            "sadness",
-            "worry",
-            "loss of interest",
-            "spiritual/religious",
-            "appearance",
-            "bathing/dressing",
-            "breathing",
-            "urination",
-            "constipation",
-            "diarrhoea",
-            "eating",
-            "fatigue",
-            "feeling swollen",
-            "fevers",
-            "getting around",
-            "indigestion",
-            "memory/concentration",
-            "mouth sores",
-            "nausea",
-            "nose dry/congested",
-            "pain",
-            "sexual",
-            "skin dry/itchy",
-            "sleep",
-            "tingling in hands/feet",
-        ]
-    ) + [
-        dict(name="distress", cctype="INT", min=0, max=10,
-             comment="Distress (0 none - 10 extreme)"),
-        dict(name="other", cctype="TEXT", comment="Other problems"),
-    ]
+    distress = CamcopsColumn(
+        "distress", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=10),
+        comment="Distress (0 none - 10 extreme)"
+    )
+    other = Column("other", Text, comment="Other problems")
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    NQUESTIONS = 36
+    COMPLETENESS_FIELDS = strseq("q", 1, NQUESTIONS) + ["distress"]
+
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if self.distress is None:
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -100,12 +124,11 @@ class DistressThermometer(Task):
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(repeat_fieldname(
-                "q", 1, self.NQUESTIONS) + ["distress"]) and
+            self.are_all_fields_complete(self.COMPLETENESS_FIELDS) and
             self.field_contents_valid()
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
@@ -130,35 +153,35 @@ class DistressThermometer(Task):
         h += subheading_spanning_two_columns("Practical problems")
         for i in range(1, 5 + 1):
             h += tr_qa(
-                "{}. {}".format(i, self.wxstring("q" + str(i))),
+                "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Family problems")
         for i in range(6, 8 + 1):
             h += tr_qa(
-                "{}. {}".format(i, self.wxstring("q" + str(i))),
+                "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Emotional problems")
         for i in range(9, 14 + 1):
             h += tr_qa(
-                "{}. {}".format(i, self.wxstring("q" + str(i))),
+                "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Spiritual problems")
         for i in range(15, 15 + 1):
             h += tr_qa(
-                "{}. {}".format(i, self.wxstring("q" + str(i))),
+                "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Physical problems")
         for i in range(16, self.NQUESTIONS + 1):
             h += tr_qa(
-                "{}. {}".format(i, self.wxstring("q" + str(i))),
+                "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
                 get_yes_no_none(getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Other problems")
-        h += tr_qa(self.wxstring("other_s"), self.other)
+        h += tr_qa(self.wxstring(req, "other_s"), self.other)
         h += """
             </table>
         """

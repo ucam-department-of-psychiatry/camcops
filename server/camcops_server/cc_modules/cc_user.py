@@ -31,8 +31,10 @@ from typing import Optional, TYPE_CHECKING
 import cardinal_pythonlib.crypto as rnc_crypto
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.sqlalchemy.orm_query import exists_orm
-from arrow import Arrow
+from cardinal_pythonlib.sqlalchemy.orm_query import (
+    CountStarSpecializedQuery,
+    exists_orm,
+)
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql import func
 from sqlalchemy.sql.schema import Column
@@ -62,7 +64,7 @@ from .cc_sqla_coltypes import (
     IntUnsigned,
     UserNameColType,
 )
-from .cc_sqlalchemy import Base, SpecializedQuery
+from .cc_sqlalchemy import Base
 from .cc_storedvar import ServerStoredVar
 from .cc_unittest import unit_test_ignore
 
@@ -136,30 +138,30 @@ class SecurityAccountLockout(Base):
     )
 
     @classmethod
-    def delete_old_account_lockouts(cls, request: CamcopsRequest) -> None:
+    def delete_old_account_lockouts(cls, req: CamcopsRequest) -> None:
         """Delete all expired account lockouts."""
-        dbsession = request.dbsession
-        now = request.now_utc_datetime
+        dbsession = req.dbsession
+        now = req.now_utc_datetime
         dbsession.delete(cls).filter(cls.locked_until <= now)
 
     @classmethod
-    def is_user_locked_out(cls, request: CamcopsRequest, username: str) -> bool:
-        dbsession = request.dbsession
-        now = request.now_utc_datetime
+    def is_user_locked_out(cls, req: CamcopsRequest, username: str) -> bool:
+        dbsession = req.dbsession
+        now = req.now_utc_datetime
         return exists_orm(dbsession, cls,
                           cls.username == username,
                           cls.locked_until > now)
 
     @classmethod
-    def user_locked_out_until(cls, request: CamcopsRequest,
+    def user_locked_out_until(cls, req: CamcopsRequest,
                               username: str) -> Optional[datetime.datetime]:
         """
         When is the user locked out until?
 
         Returns datetime in local timezone (or None).
         """
-        dbsession = request.dbsession
-        now = request.now_utc_datetime
+        dbsession = req.dbsession
+        now = req.now_utc_datetime
         utc_no_tz = dbsession.query(func.max(cls.locked_until))\
             .filter(cls.username == username)\
             .filter(cls.locked_until > now)\
@@ -169,13 +171,13 @@ class SecurityAccountLockout(Base):
         return convert_utc_datetime_without_tz_to_local(utc_no_tz)
 
     @classmethod
-    def lock_user_out(cls, request: CamcopsRequest,
+    def lock_user_out(cls, req: CamcopsRequest,
                       username: str, lockout_minutes: int) -> None:
         """
         Lock user out for a specified number of minutes.
         """
-        dbsession = request.dbsession
-        now = request.now_utc_datetime
+        dbsession = req.dbsession
+        now = req.now_utc_datetime
         lock_until = now + datetime.timedelta(minutes=lockout_minutes)
         lock = cls(username=username, lock_until=lock_until)
         dbsession.add(lock)
@@ -183,8 +185,8 @@ class SecurityAccountLockout(Base):
             username, lockout_minutes))
 
     @classmethod
-    def unlock_user(cls, request: CamcopsRequest, username: str) -> None:
-        dbsession = request.dbsession
+    def unlock_user(cls, req: CamcopsRequest, username: str) -> None:
+        dbsession = req.dbsession
         dbsession.delete(cls).filter(cls.username == username)
 
 
@@ -207,53 +209,53 @@ class SecurityLoginFailure(Base):
     )
 
     @classmethod
-    def record_login_failure(cls, request: CamcopsRequest, username: str) -> None:
+    def record_login_failure(cls, req: CamcopsRequest, username: str) -> None:
         """Record that a user has failed to log in."""
-        dbsession = request.dbsession
-        now = request.now_utc_datetime
+        dbsession = req.dbsession
+        now = req.now_utc_datetime
         failure = cls(username=username, login_failure_at=now)
         dbsession.add(failure)
 
     @classmethod
-    def act_on_login_failure(cls, request: CamcopsRequest, username: str) -> None:
+    def act_on_login_failure(cls, req: CamcopsRequest, username: str) -> None:
         """Record login failure and lock out user if necessary."""
-        cfg = request.config
+        cfg = req.config
         audit("Failed login as user: {}".format(username))
-        cls.record_login_failure(request, username)
-        nfailures = cls.how_many_login_failures(request, username)
+        cls.record_login_failure(req, username)
+        nfailures = cls.how_many_login_failures(req, username)
         nlockouts = nfailures // cfg.LOCKOUT_THRESHOLD
         nfailures_since_last_lockout = nfailures % cfg.LOCKOUT_THRESHOLD
         if nlockouts >= 1 and nfailures_since_last_lockout == 0:
             # new lockout required
             lockout_minutes = nlockouts * \
                               cfg.LOCKOUT_DURATION_INCREMENT_MINUTES
-            SecurityAccountLockout.lock_user_out(request, username,
+            SecurityAccountLockout.lock_user_out(req, username,
                                                  lockout_minutes)
 
     @classmethod
-    def clear_login_failures(cls, request: CamcopsRequest, username: str) -> None:
+    def clear_login_failures(cls, req: CamcopsRequest, username: str) -> None:
         """Clear login failures for a user."""
-        dbsession = request.dbsession
+        dbsession = req.dbsession
         dbsession.delete(cls).filter(username == username)
 
     @classmethod
-    def how_many_login_failures(cls, request: CamcopsRequest, username: str) -> int:
+    def how_many_login_failures(cls, req: CamcopsRequest, username: str) -> int:
         """How many times has the user failed to log in (recently)?"""
-        dbsession = request.dbsession
-        q = SpecializedQuery([cls], session=dbsession)\
+        dbsession = req.dbsession
+        q = CountStarSpecializedQuery([cls], session=dbsession)\
             .filter(cls.username == username)
         return q.count_star()
 
     @classmethod
-    def enable_user(cls, request: CamcopsRequest, username: str) -> None:
+    def enable_user(cls, req: CamcopsRequest, username: str) -> None:
         """Unlock user and clear login failures."""
-        SecurityAccountLockout.unlock_user(request, username)
-        cls.clear_login_failures(request, username)
+        SecurityAccountLockout.unlock_user(req, username)
+        cls.clear_login_failures(req, username)
         audit("User {} re-enabled".format(username))
 
     @classmethod
-    def clear_login_failures_for_nonexistent_users(cls,
-                                                   request: CamcopsRequest) -> None:
+    def clear_login_failures_for_nonexistent_users(
+            cls, req: CamcopsRequest) -> None:
         """
         Clear login failures for nonexistent users.
 
@@ -261,18 +263,19 @@ class SecurityLoginFailure(Base):
         seen for real users, i.e. to reduce the potential for username
         discovery.
         """
-        dbsession = request.dbsession
+        dbsession = req.dbsession
         all_user_names = dbsession.query(User.username)
         dbsession.delete(cls).filter(~cls.username.in_(all_user_names))
         # https://stackoverflow.com/questions/26182027/how-to-use-not-in-clause-in-sqlalchemy-orm-query  # noqa
 
     @classmethod
-    def clear_dummy_login_failures_if_necessary(cls, request: CamcopsRequest) -> None:
+    def clear_dummy_login_failures_if_necessary(cls,
+                                                req: CamcopsRequest) -> None:
         """Clear dummy login failures if we haven't done so for a while.
 
         Not too often! See CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS.
         """
-        now = request.now_arrow
+        now = req.now_arrow
         last_cleared_var = ServerStoredVar(
             "lastDummyLoginFailureClearanceAt", "text", None)
         last_cleared_val = last_cleared_var.get_value()
@@ -282,7 +285,7 @@ class SecurityLoginFailure(Base):
                 # We cleared it recently.
                 return
 
-        cls.clear_login_failures_for_nonexistent_users(request)
+        cls.clear_login_failures_for_nonexistent_users(req)
         log.debug("Dummy login failures cleared.")
         now_as_utc_iso_string = format_datetime(now, DATEFORMAT.ISO8601)
         last_cleared_var.set_value(now_as_utc_iso_string)
@@ -429,9 +432,9 @@ class User(Base):
         return True
 
     @classmethod
-    def get_username_from_id(cls, request: CamcopsRequest,
+    def get_username_from_id(cls, req: CamcopsRequest,
                              user_id: int) -> Optional[str]:
-        dbsession = request.dbsession
+        dbsession = req.dbsession
         return dbsession.query(cls.username)\
             .filter(cls.id == user_id)\
             .first()\
@@ -440,7 +443,7 @@ class User(Base):
     @classmethod
     def get_user_from_username_password(
             cls,
-            request: CamcopsRequest,
+            req: CamcopsRequest,
             username: str,
             password: str,
             take_time_for_nonexistent_user: bool = True) -> Optional['User']:
@@ -448,7 +451,7 @@ class User(Base):
         Retrieve a User object from the supplied username, if the password is
         correct; otherwise, return None.
         """
-        dbsession = request.dbsession
+        dbsession = req.dbsession
         user = cls.get_user_by_name(dbsession, username)
         if user is None:
             if take_time_for_nonexistent_user:
@@ -492,22 +495,23 @@ class User(Base):
         """Make the user change their password at next login."""
         self.must_change_password = True
 
-    def login(self, request: CamcopsRequest) -> None:
+    def login(self, req: CamcopsRequest) -> None:
         """Called when the framework has determined a successful login.
 
         Clears any login failures.
         Requires the user to change their password if policies say they should.
         """
-        self.clear_login_failures(request)
-        self.set_password_change_flag_if_necessary(request)
+        self.clear_login_failures(req)
+        self.set_password_change_flag_if_necessary(req)
 
-    def set_password_change_flag_if_necessary(self, request: CamcopsRequest) -> None:
+    def set_password_change_flag_if_necessary(self,
+                                              req: CamcopsRequest) -> None:
         """If we're requiring users to change their passwords, then check to
         see if they must do so now."""
         if self.must_change_password:
             # already required, pointless to check again
             return
-        cfg = request.config
+        cfg = req.config
         if cfg.PASSWORD_CHANGE_FREQUENCY_DAYS <= 0:
             # changes never required
             return
@@ -515,7 +519,7 @@ class User(Base):
             # we don't know when the last change was, so it's overdue
             self.force_password_change()
             return
-        delta = request.now_utc_datetime - self.last_password_change_utc
+        delta = req.now_utc_datetime - self.last_password_change_utc
         if delta.days >= cfg.PASSWORD_CHANGE_FREQUENCY_DAYS:
             self.force_password_change()
 
@@ -523,45 +527,44 @@ class User(Base):
         """Does the user still need to agree the terms/conditions of use?"""
         return self.when_agreed_terms_of_use is None
 
-    def agree_terms(self, request: CamcopsRequest) -> None:
+    def agree_terms(self, req: CamcopsRequest) -> None:
         """Mark the user as having agreed to the terms/conditions of use
         now."""
-        self.when_agreed_terms_of_use = request.now_arrow
+        self.when_agreed_terms_of_use = req.now_arrow
 
-    def clear_login_failures(self, request: CamcopsRequest) -> None:
+    def clear_login_failures(self, req: CamcopsRequest) -> None:
         """Clear login failures."""
         if not self.username:
             return
-        SecurityLoginFailure.clear_login_failures(request, self.username)
+        SecurityLoginFailure.clear_login_failures(req, self.username)
 
-    def is_locked_out(self, request: CamcopsRequest) -> bool:
+    def is_locked_out(self, req: CamcopsRequest) -> bool:
         """Is the user locked out because of multiple login failures?"""
-        return SecurityAccountLockout.is_user_locked_out(request,
-                                                         self.username)
+        return SecurityAccountLockout.is_user_locked_out(req, self.username)
 
     def locked_out_until(self,
-                         request: CamcopsRequest) -> Optional[datetime.datetime]:
+                         req: CamcopsRequest) -> Optional[datetime.datetime]:
         """
         When is the user locked out until (or None)?
 
         Returns datetime in local timezone (or None).
         """
-        return SecurityAccountLockout.user_locked_out_until(request,
+        return SecurityAccountLockout.user_locked_out_until(req,
                                                             self.username)
 
-    def enable(self, request: CamcopsRequest) -> None:
+    def enable(self, req: CamcopsRequest) -> None:
         """Re-enables a user, unlocking them and clearing login failures."""
-        SecurityLoginFailure.enable_user(request, self.username)
+        SecurityLoginFailure.enable_user(req, self.username)
 
 
 # =============================================================================
 # Support functions
 # =============================================================================
 
-def get_user_filter_dropdown(request: CamcopsRequest,
+def get_user_filter_dropdown(req: CamcopsRequest,
                              currently_selected_id: int = None) -> str:
     """Get HTML list of all known users."""
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     id_username_tuples = dbsession.query(User.id, User.username)\
         .order_by(User.username)\
         .all()
@@ -607,13 +610,13 @@ def get_url_enable_user(username: str) -> str:
     )
 
 
-def enter_new_password_html(request: CamcopsRequest,
+def enter_new_password_html(req: CamcopsRequest,
                             username: str,
                             as_manager: bool = False,
                             because_password_expired: bool = False) -> str:
     """HTML to change password."""
-    cfg = request.config
-    ccsession = request.camcops_session
+    cfg = req.config
+    ccsession = req.camcops_session
     if as_manager:
         changepw = """
             <label>
@@ -627,7 +630,7 @@ def enter_new_password_html(request: CamcopsRequest,
         )
     else:
         changepw = ""
-    return request.webstart_html + """
+    return req.webstart_html + """
         {userdetails}
         {if_expired}
         <h1>Change password for {username}</h1>
@@ -652,7 +655,7 @@ def enter_new_password_html(request: CamcopsRequest,
             </div>""" if because_password_expired else ""),
         username=username,
         ACTION=ACTION,
-        script=request.script_name,
+        script=req.script_name,
         oldpw="" if as_manager else """
             Old password: <input type="password" name="{}"><br>
         """.format(PARAM.OLD_PASSWORD),
@@ -662,12 +665,12 @@ def enter_new_password_html(request: CamcopsRequest,
     ) + WEBEND
 
 
-def change_password(request: CamcopsRequest,
+def change_password(req: CamcopsRequest,
                     username: str,
                     form: cgi.FieldStorage,
                     as_manager: bool = False) -> str:
     """Change password, and return success/failure HTML."""
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     user = User.get_user_by_name(dbsession, username)
     if not user:
         return user_management_failure_message(
@@ -697,7 +700,7 @@ def change_password(request: CamcopsRequest,
                                                as_manager)
 
     # OK
-    user.set_password(request.now_utc_datetime, new_password_1)
+    user.set_password(req.now_utc_datetime, new_password_1)
 
     if not as_manager:
         must_change_password = False
@@ -715,26 +718,26 @@ def change_password(request: CamcopsRequest,
     )
 
 
-def set_password_directly(request: CamcopsRequest,
+def set_password_directly(req: CamcopsRequest,
                           username: str, password: str) -> bool:
     """If the user exists, set its password. Returns Boolean success."""
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     user = User.get_user_by_name(dbsession, username)
     if not user:
         return False
-    user.set_password(request.now_utc_datetime, password)
-    user.enable(request)
+    user.set_password(req.now_utc_datetime, password)
+    user.enable(req)
     audit("Password changed for user " + user.username, from_console=True)
     return True
 
 
-def manage_users_html(request: CamcopsRequest) -> str:
+def manage_users_html(req: CamcopsRequest) -> str:
     """HTML to view/edit users."""
-    cfg = request.config
-    ccsession = request.camcops_session
-    dbsession = request.dbsession
+    cfg = req.config
+    ccsession = req.camcops_session
+    dbsession = req.dbsession
     allusers = dbsession.query(User).order_by(User.username).all()
-    output = request.webstart_html + """
+    output = req.webstart_html + """
         {}
         <h1>Manage users</h1>
         <ul>
@@ -823,15 +826,15 @@ def manage_users_html(request: CamcopsRequest) -> str:
     return output
 
 
-def edit_user_form(request: CamcopsRequest, username: str) -> str:
+def edit_user_form(req: CamcopsRequest, username: str) -> str:
     """HTML form to edit a single user's permissions."""
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     user = User.get_user_by_name(dbsession, username)
-    ccsession = request.camcops_session
-    cfg = request.config
+    ccsession = req.camcops_session
+    cfg = req.config
     if not user:
         return user_management_failure_message("Invalid user: " + username)
-    return request.webstart_html + """
+    return req.webstart_html + """
         {userdetails}
         <h1>Edit user {username}</h1>
         <form name="myform" action="{script}" method="POST">
@@ -906,7 +909,7 @@ def edit_user_form(request: CamcopsRequest, username: str) -> str:
         may_run_reports=ws.checkbox_checked(user.may_run_reports),
         may_add_notes=ws.checkbox_checked(user.may_add_notes),
         userdetails=ccsession.get_current_user_html(),
-        script=request.script_name,
+        script=req.script_name,
         username=user.username,
         PARAM=PARAM,
         ACTION=ACTION,
@@ -914,7 +917,7 @@ def edit_user_form(request: CamcopsRequest, username: str) -> str:
     ) + WEBEND
 
 
-def change_user(request: CamcopsRequest, form: cgi.FieldStorage) -> str:
+def change_user(req: CamcopsRequest, form: cgi.FieldStorage) -> str:
     """Apply changes to a user, and return success/failure HTML."""
     username = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
     may_use_webviewer = ws.get_cgi_parameter_bool(
@@ -933,7 +936,7 @@ def change_user(request: CamcopsRequest, form: cgi.FieldStorage) -> str:
     may_run_reports = ws.get_cgi_parameter_bool(form, PARAM.MAY_RUN_REPORTS)
     may_add_notes = ws.get_cgi_parameter_bool(form, PARAM.MAY_ADD_NOTES)
 
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     user = User.get_user_by_name(dbsession, username)
     if not user:
         return user_management_failure_message("Invalid user: " + username)
@@ -980,11 +983,11 @@ def change_user(request: CamcopsRequest, form: cgi.FieldStorage) -> str:
         "Details updated for user " + user.username)
 
 
-def ask_to_add_user_html(request: CamcopsRequest) -> str:
+def ask_to_add_user_html(req: CamcopsRequest) -> str:
     """HTML form to add a user."""
-    cfg = request.config
-    ccsession = request.camcops_session
-    return request.webstart_html + """
+    cfg = req.config
+    ccsession = req.camcops_session
+    return req.webstart_html + """
         {userdetails}
         <h1>Add user</h1>
         <form name="myform" action="{script}" method="POST">
@@ -1066,14 +1069,14 @@ def ask_to_add_user_html(request: CamcopsRequest) -> str:
         FALSE=ws.checkbox_checked(False),
         LABEL=LABEL,
         userdetails=ccsession.get_current_user_html(),
-        script=request.script_name,
+        script=req.script_name,
         PARAM=PARAM,
         ACTION=ACTION,
         MINIMUM_PASSWORD_LENGTH=MINIMUM_PASSWORD_LENGTH,
     ) + WEBEND
 
 
-def add_user(request: CamcopsRequest, form: cgi.FieldStorage) -> str:
+def add_user(req: CamcopsRequest, form: cgi.FieldStorage) -> str:
     """Add a user, and return HTML success/failure message."""
     username = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
     password_1 = ws.get_cgi_parameter_str(form, PARAM.PASSWORD_1)
@@ -1097,7 +1100,7 @@ def add_user(request: CamcopsRequest, form: cgi.FieldStorage) -> str:
     may_run_reports = ws.get_cgi_parameter_bool(form, PARAM.MAY_RUN_REPORTS)
     may_add_notes = ws.get_cgi_parameter_bool(form, PARAM.MAY_ADD_NOTES)
 
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     user = User.get_user_by_name(dbsession, username, False)
     if user:
         return user_management_failure_message(
@@ -1114,7 +1117,7 @@ def add_user(request: CamcopsRequest, form: cgi.FieldStorage) -> str:
             ))
 
     user = User.get_user_by_name(dbsession, username, True)  # create user
-    user.set_password(request.now_utc_datetime, password_1)
+    user.set_password(req.now_utc_datetime, password_1)
 
     user.may_use_webviewer = may_use_webviewer
     user.may_view_other_users_records = may_view_other_users_records
@@ -1163,11 +1166,11 @@ def add_user(request: CamcopsRequest, form: cgi.FieldStorage) -> str:
                                            " created")
 
 
-def ask_delete_user_html(request: CamcopsRequest, username: str) -> str:
+def ask_delete_user_html(req: CamcopsRequest, username: str) -> str:
     """HTML form to delete a user."""
-    cfg = request.config
-    ccsession = request.camcops_session
-    return request.webstart_html + """
+    cfg = req.config
+    ccsession = req.camcops_session
+    return req.webstart_html + """
         {userdetails}
         <h1>You are about to delete user {username}</h1>
         <form name="myform" action="{script}" method="POST">
@@ -1179,36 +1182,36 @@ def ask_delete_user_html(request: CamcopsRequest, username: str) -> str:
     """.format(
         userdetails=ccsession.get_current_user_html(),
         username=username,
-        script=request.script_name,
+        script=req.script_name,
         ACTION=ACTION,
         PARAM=PARAM,
     ) + WEBEND
 
 
-def delete_user(request: CamcopsRequest, username: str) -> str:
+def delete_user(req: CamcopsRequest, username: str) -> str:
     """Delete a user, and return HTML success/failure message."""
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     user = User.get_user_by_name(dbsession, username)
     if not user:
         return user_management_failure_message("No such user: " + username)
     dbsession.delete(user)
     audit("User deleted: #{} ({})".format(user.id, user.username))
     return user_management_success_message(
-        request, "User " + user.username + " deleted")
+        req, "User " + user.username + " deleted")
 
 
-def enable_user_webview(request: CamcopsRequest, username: str) -> str:
+def enable_user_webview(req: CamcopsRequest, username: str) -> str:
     """Enable a user, and return HTML success/failure message."""
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     user = User.get_user_by_name(dbsession, username)
     if not user:
         return user_management_failure_message("No such user: " + username)
-    user.enable(request)
+    user.enable(req)
     return user_management_success_message(
-        request, "User " + user.username + " enabled")
+        req, "User " + user.username + " enabled")
 
 
-def user_management_success_message(request: CamcopsRequest,
+def user_management_success_message(req: CamcopsRequest,
                                     msg: str,
                                     as_manager: bool = True,
                                     additional_html: str = "") -> str:
@@ -1219,11 +1222,11 @@ def user_management_success_message(request: CamcopsRequest,
             <div>
                 <a href={}>Return to user menu</a>
             </div>
-        """.format(get_generic_action_url(request, ACTION.MANAGE_USERS))
-    return simple_success_message(request, msg, additional_html + extra_html)
+        """.format(get_generic_action_url(req, ACTION.MANAGE_USERS))
+    return simple_success_message(req, msg, additional_html + extra_html)
 
 
-def user_management_failure_message(request: CamcopsRequest,
+def user_management_failure_message(req: CamcopsRequest,
                                     msg: str, as_manager: bool = True) -> str:
     """Generic failure HTML for user management."""
     extra_html = ""
@@ -1233,24 +1236,24 @@ def user_management_failure_message(request: CamcopsRequest,
                 <a href={}>Return to user menu</a>
             </div>
         """.format(
-            get_generic_action_url(request, ACTION.MANAGE_USERS)
+            get_generic_action_url(req, ACTION.MANAGE_USERS)
         )
-    return fail_with_error_stay_logged_in(request, msg, extra_html)
+    return fail_with_error_stay_logged_in(req, msg, extra_html)
 
 
 # =============================================================================
 # Unit testing
 # =============================================================================
 
-def ccuser_unit_tests(request: CamcopsRequest) -> None:
+def ccuser_unit_tests(req: CamcopsRequest) -> None:
     """Unit tests for cc_user module."""
-    dbsession = request.dbsession
+    dbsession = req.dbsession
 
     unit_test_ignore("", SecurityAccountLockout.delete_old_account_lockouts)
     unit_test_ignore("", SecurityAccountLockout.is_user_locked_out,
-                     request, "dummy_user")
+                     req, "dummy_user")
     unit_test_ignore("", SecurityAccountLockout.user_locked_out_until,
-                     request, "dummy_user")
+                     req, "dummy_user")
     # skip: lock_user_out
     # skip: unlock_user
 
@@ -1258,7 +1261,7 @@ def ccuser_unit_tests(request: CamcopsRequest) -> None:
     # skip: act_on_login_failure
     # skip: clear_login_failures
     unit_test_ignore("", SecurityLoginFailure.how_many_login_failures,
-                     request, "dummy_user")
+                     req, "dummy_user")
     # skip: enable_user
     unit_test_ignore("", SecurityLoginFailure.clear_login_failures_for_nonexistent_users)  # noqa
     unit_test_ignore("", SecurityLoginFailure.clear_dummy_login_failures_if_necessary)  # noqa
@@ -1281,25 +1284,25 @@ def ccuser_unit_tests(request: CamcopsRequest) -> None:
                      dbsession, "dummy_user")
     # skip: create_superuser
     unit_test_ignore("", User.get_user_from_username_password,
-                     request, "dummy_user", "dummy_password")
+                     req, "dummy_user", "dummy_password")
     unit_test_ignore("", User.is_username_permissible,
                      "dummy_user")
 
-    unit_test_ignore("", enter_new_password_html, request, "dummy_user")
+    unit_test_ignore("", enter_new_password_html, req, "dummy_user")
     # skip: change_password
     # skip: set_password_directly
-    unit_test_ignore("", manage_users_html, request)
-    unit_test_ignore("", edit_user_form, request, "dummy_user")
+    unit_test_ignore("", manage_users_html, req)
+    unit_test_ignore("", edit_user_form, req, "dummy_user")
     # skip: change_user
-    unit_test_ignore("", ask_to_add_user_html, request)
+    unit_test_ignore("", ask_to_add_user_html, req)
     # skip: add_user
-    unit_test_ignore("", ask_delete_user_html, request, "dummy_user")
+    unit_test_ignore("", ask_delete_user_html, req, "dummy_user")
     # skip: delete_user
     unit_test_ignore("", user_management_success_message,
-                     request, "test_msg", True)
+                     req, "test_msg", True)
     unit_test_ignore("", user_management_success_message,
-                     request, "test_msg", False)
+                     req, "test_msg", False)
     unit_test_ignore("", user_management_failure_message,
-                     request, "test_msg", True)
+                     req, "test_msg", True)
     unit_test_ignore("", user_management_failure_message,
-                     request, "test_msg", False)
+                     req, "test_msg", False)

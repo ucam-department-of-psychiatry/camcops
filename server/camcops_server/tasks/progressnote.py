@@ -28,7 +28,6 @@ import cardinal_pythonlib.rnc_web as ws
 
 from ..cc_modules.cc_ctvinfo import CtvInfo
 from ..cc_modules.cc_html import answer
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_task import Task
 
 
@@ -47,13 +46,13 @@ class ProgressNote(Task):
         dict(name="note", cctype="TEXT", comment="Clinical note"),
     ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         return [CtvInfo(content=ws.webify(self.note))]
 
     def is_complete(self) -> bool:
         return self.note is not None
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         # Avoid tables - PDF generator crashes if text is too long.
         h = """
             <div class="heading">
@@ -69,10 +68,10 @@ class ProgressNote(Task):
                 {note}
             </div>
         """.format(
-            heading_location=wappstring("location"),
+            heading_location=req.wappstring("location"),
             location=answer(ws.webify(self.location),
                             default_for_blank_strings=True),
-            heading_note=wappstring("note"),
+            heading_note=req.wappstring("note"),
             note=answer(self.note, default_for_blank_strings=True),
         )
         return h

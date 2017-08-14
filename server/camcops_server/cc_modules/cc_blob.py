@@ -199,9 +199,9 @@ def unit_tests_blob(blob: Blob) -> None:
     unit_test_ignore("", blob.get_data_url)
 
 
-def ccblob_unit_tests(request: CamcopsRequest) -> None:
+def ccblob_unit_tests(req: CamcopsRequest) -> None:
     """Unit tests for the cc_blob module."""
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     # noinspection PyProtectedMember
     blobs = dbsession.query(Blob)\
         .filter(Blob._current == True)\

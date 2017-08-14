@@ -324,6 +324,8 @@ CRIS_CLUSTER_KEY_FIELDSPEC = dict(
     comment="(CRIS) Server primary key for task and linked records"
 )
 
+# DEFUNCT NOTE ABOUT FIELDSPEC LISTS:
+#
 # BEWARE when using these, esp. if you perform modifications. For example:
 #
 #   x = [{"a": 1}]
@@ -348,13 +350,6 @@ CRIS_CLUSTER_KEY_FIELDSPEC = dict(
 # However, our problem comes about when we modify comments; it'll be OK if we
 # never modify a comment when there's an existing comment.
 
-TEXT_FILTER_EXEMPT_FIELDS = [
-    item["name"] for item in (
-        STANDARD_GENERIC_FIELDSPECS +
-        STANDARD_TASK_COMMON_FIELDSPECS +
-        CLINICIAN_FIELDSPECS
-    ) if item["cctype"] == "TEXT" or item["name"].startswith("_")
-]
 
 # =============================================================================
 # Other special values

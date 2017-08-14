@@ -22,16 +22,24 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import wappstring, WXSTRING
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -39,51 +47,64 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # BPRS-E
 # =============================================================================
 
-class Bprse(Task):
-    tablename = "bprse"
+class BprseMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Bprse'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=0, maximum=7,
+            comment_fmt="Q{n}, {s} (1-7, higher worse, or 0 for not assessed)",
+            comment_strings=[
+                "somatic concern", "anxiety", "depression", "suicidality",
+                "guilt", "hostility", "elevated mood", "grandiosity",
+                "suspiciousness", "hallucinations", "unusual thought content",
+                "bizarre behaviour", "self-neglect", "disorientation",
+                "conceptual disorganisation", "blunted affect",
+                "emotional withdrawal", "motor retardation", "tension",
+                "uncooperativeness", "excitement", "distractibility",
+                "motor hyperactivity", "mannerisms and posturing"]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Bprse(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+            metaclass=BprseMetaclass):
+    __tablename__ = "bprse"
     shortname = "BPRS-E"
     longname = "Brief Psychiatric Rating Scale, Expanded"
-    has_clinician = True
     provides_trackers = True
 
     NQUESTIONS = 24
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=7,
-        comment_fmt="Q{n}, {s} (1-7, higher worse, or 0 for not assessed)",
-        comment_strings=[
-            "somatic concern", "anxiety", "depression", "suicidality",
-            "guilt", "hostility", "elevated mood", "grandiosity",
-            "suspiciousness", "hallucinations", "unusual thought content",
-            "bizarre behaviour", "self-neglect", "disorientation",
-            "conceptual disorganisation", "blunted affect",
-            "emotional withdrawal", "motor retardation", "tension",
-            "uncooperativeness", "excitement", "distractibility",
-            "motor hyperactivity", "mannerisms and posturing"])
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_SCORE = 168
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="BPRS-E total score",
-            axis_label="Total score (out of 168)",
+            axis_label="Total score (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=168.5,
+            axis_max=self.MAX_SCORE + 0.5,
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="BPRS-E total score {}/168".format(self.total_score())
+            content="BPRS-E total score {}/{}".format(self.total_score(),
+                                                      self.MAX_SCORE)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/168)"),
+                           comment="Total score (/{})".format(self.MAX_SCORE)),
         ]
 
     def is_complete(self) -> bool:
@@ -95,7 +116,7 @@ class Bprse(Task):
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         def bprs_string(x: str) -> str:
             return WXSTRING("bprs", x)
 
@@ -114,8 +135,9 @@ class Bprse(Task):
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score") +
-                " (0–168; 24–168 if all rated)",
+        h += tr(req.wappstring("total_score") +
+                " (0–{maxscore}; 24–{maxscore} if all "
+                "rated)".format(maxscore=self.MAX_SCORE),
                 answer(self.total_score()))
         h += """
                 </table>
@@ -132,7 +154,7 @@ class Bprse(Task):
         """
         for i in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                self.wxstring("q" + str(i) + "_s"),
+                self.wxstring(req, "q" + str(i) + "_s"),
                 get_from_dict(main_dict, getattr(self, "q" + str(i)))
             )
         h += """

@@ -41,7 +41,6 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task
 
@@ -85,7 +84,7 @@ class Icd10Schizotypal(Task):
         )
     )
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         c = self.meets_criteria()
@@ -109,7 +108,7 @@ class Icd10Schizotypal(Task):
             infolist.append(CtvInfo(content=ws.webify(self.comments)))
         return infolist
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="meets_criteria", coltype=Boolean(),
@@ -137,19 +136,19 @@ class Icd10Schizotypal(Task):
         )
 
     def text_row(self, wstringname: str) -> str:
-        return tr(td(self.wxstring(wstringname)),
+        return tr(td(self.wxstring(req, wstringname)),
                   td("", td_class="subheading"),
                   literal=True)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr_qa(wappstring("date_pertains_to"),
+        h += tr_qa(req.wappstring("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
-        h += tr_qa(wappstring("meets_criteria"),
+        h += tr_qa(req.wappstring("meets_criteria"),
                    get_yes_no_none(self.meets_criteria()))
         h += """
                 </table>
@@ -163,9 +162,9 @@ class Icd10Schizotypal(Task):
         h += self.text_row("a")
         for i in range(1, Icd10Schizotypal.N_A + 1):
             h += self.get_twocol_bool_row_true_false(
-                "a" + str(i), self.wxstring("a" + str(i)))
+                "a" + str(i), self.wxstring(req, "a" + str(i)))
         h += self.get_twocol_bool_row_true_false(
-            "b", self.wxstring("b"))
+            "b", self.wxstring(req, "b"))
         h += """
             </table>
         """ + ICD10_COPYRIGHT_DIV

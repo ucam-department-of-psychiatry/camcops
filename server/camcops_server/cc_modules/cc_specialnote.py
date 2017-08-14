@@ -158,7 +158,7 @@ class SpecialNote(Base):
         return XmlElement(name=self.TABLENAME, value=branches)
 
     @classmethod
-    def forcibly_preserve_special_notes(cls, request: CamcopsRequest,
+    def forcibly_preserve_special_notes(cls, req: CamcopsRequest,
                                         device_id: int) -> None:
         """
         WRITES TO DATABASE.
@@ -166,7 +166,7 @@ class SpecialNote(Base):
         We could do an UPDATE, or something involving the ORM more. See also
         http://docs.sqlalchemy.org/en/latest/orm/persistence_techniques.html
         """
-        dbsession = request.dbsession
+        dbsession = req.dbsession
         new_era = format_datetime(pls.NOW_UTC_NO_TZ, DATEFORMAT.ERA)
         notes = dbsession.query(cls)\
             .filter(cls._device_id == device_id)\

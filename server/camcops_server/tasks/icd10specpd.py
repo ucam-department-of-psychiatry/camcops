@@ -43,7 +43,6 @@ from ..cc_modules.cc_html import (
     subheading_spanning_two_columns,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task
 
@@ -189,32 +188,32 @@ class Icd10SpecPD(Task):
                              "everyday decisions require advice/reassurance"])
     )
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        infolist = [ctv_info_pd(self.wxstring("meets_general_criteria"),
+        infolist = [ctv_info_pd(self.wxstring(req, "meets_general_criteria"),
                                 self.has_pd()),
-                    ctv_info_pd(self.wxstring("paranoid_pd_title"),
+                    ctv_info_pd(self.wxstring(req, "paranoid_pd_title"),
                                 self.has_paranoid_pd()),
-                    ctv_info_pd(self.wxstring("schizoid_pd_title"),
+                    ctv_info_pd(self.wxstring(req, "schizoid_pd_title"),
                                 self.has_schizoid_pd()),
-                    ctv_info_pd(self.wxstring("dissocial_pd_title"),
+                    ctv_info_pd(self.wxstring(req, "dissocial_pd_title"),
                                 self.has_dissocial_pd()),
-                    ctv_info_pd(self.wxstring("eu_pd_i_title"),
+                    ctv_info_pd(self.wxstring(req, "eu_pd_i_title"),
                                 self.has_eupd_i()),
-                    ctv_info_pd(self.wxstring("eu_pd_b_title"),
+                    ctv_info_pd(self.wxstring(req, "eu_pd_b_title"),
                                 self.has_eupd_b()),
-                    ctv_info_pd(self.wxstring("histrionic_pd_title"),
+                    ctv_info_pd(self.wxstring(req, "histrionic_pd_title"),
                                 self.has_histrionic_pd()),
-                    ctv_info_pd(self.wxstring("anankastic_pd_title"),
+                    ctv_info_pd(self.wxstring(req, "anankastic_pd_title"),
                                 self.has_anankastic_pd()),
-                    ctv_info_pd(self.wxstring("anxious_pd_title"),
+                    ctv_info_pd(self.wxstring(req, "anxious_pd_title"),
                                 self.has_anxious_pd()),
-                    ctv_info_pd(self.wxstring("dependent_pd_title"),
+                    ctv_info_pd(self.wxstring(req, "dependent_pd_title"),
                                 self.has_dependent_pd())]
         return infolist
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(
@@ -429,33 +428,33 @@ class Icd10SpecPD(Task):
     def pd_heading(self, wstringname: str) -> str:
         return """
             <tr class="heading"><td colspan="2">{}</td></tr>
-        """.format(self.wxstring(wstringname))
+        """.format(self.wxstring(req, wstringname))
 
     def pd_skiprow(self, stem: str) -> str:
         return self.get_twocol_bool_row("skip_" + stem,
-                                        label=self.wxstring("skip_this_pd"))
+                                        label=self.wxstring(req, "skip_this_pd"))
 
     def pd_subheading(self, wstringname: str) -> str:
         return """
             <tr class="subheading"><td colspan="2">{}</td></tr>
-        """.format(self.wxstring(wstringname))
+        """.format(self.wxstring(req, wstringname))
 
     def pd_general_criteria_bits(self) -> str:
         return """
             <tr><td>{}</td><td><i><b>{}</b></i></td></tr>
         """.format(
-            self.wxstring("general_criteria_must_be_met"),
+            self.wxstring(req, "general_criteria_must_be_met"),
             get_yes_no_unknown(self.has_pd())
         )
 
     def pd_b_text(self, wstringname: str) -> str:
         return """
             <tr><td>{}</td><td class="subheading"></td></tr>
-        """.format(self.wxstring(wstringname))
+        """.format(self.wxstring(req, wstringname))
 
     def pd_basic_row(self, stem: str, i: int) -> str:
         return self.get_twocol_bool_row_true_false(
-            stem + str(i), self.wxstring(stem + str(i)))
+            stem + str(i), self.wxstring(req, stem + str(i)))
 
     def standard_pd_html(self, stem: str, n: int) -> str:
         html = self.pd_heading(stem + "_pd_title")
@@ -466,33 +465,33 @@ class Icd10SpecPD(Task):
             html += self.pd_basic_row(stem, i)
         return html
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr_qa(wappstring("date_pertains_to"),
+        h += tr_qa(req.wappstring("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
-        h += tr_qa(self.wxstring("meets_general_criteria"),
+        h += tr_qa(self.wxstring(req, "meets_general_criteria"),
                    get_yes_no_none(self.has_pd()))
-        h += tr_qa(self.wxstring("paranoid_pd_title"),
+        h += tr_qa(self.wxstring(req, "paranoid_pd_title"),
                    get_yes_no_none(self.has_paranoid_pd()))
-        h += tr_qa(self.wxstring("schizoid_pd_title"),
+        h += tr_qa(self.wxstring(req, "schizoid_pd_title"),
                    get_yes_no_none(self.has_schizoid_pd()))
-        h += tr_qa(self.wxstring("dissocial_pd_title"),
+        h += tr_qa(self.wxstring(req, "dissocial_pd_title"),
                    get_yes_no_none(self.has_dissocial_pd()))
-        h += tr_qa(self.wxstring("eu_pd_i_title"),
+        h += tr_qa(self.wxstring(req, "eu_pd_i_title"),
                    get_yes_no_none(self.has_eupd_i()))
-        h += tr_qa(self.wxstring("eu_pd_b_title"),
+        h += tr_qa(self.wxstring(req, "eu_pd_b_title"),
                    get_yes_no_none(self.has_eupd_b()))
-        h += tr_qa(self.wxstring("histrionic_pd_title"),
+        h += tr_qa(self.wxstring(req, "histrionic_pd_title"),
                    get_yes_no_none(self.has_histrionic_pd()))
-        h += tr_qa(self.wxstring("anankastic_pd_title"),
+        h += tr_qa(self.wxstring(req, "anankastic_pd_title"),
                    get_yes_no_none(self.has_anankastic_pd()))
-        h += tr_qa(self.wxstring("anxious_pd_title"),
+        h += tr_qa(self.wxstring(req, "anxious_pd_title"),
                    get_yes_no_none(self.has_anxious_pd()))
-        h += tr_qa(self.wxstring("dependent_pd_title"),
+        h += tr_qa(self.wxstring(req, "dependent_pd_title"),
                    get_yes_no_none(self.has_dependent_pd()))
 
         h += """
@@ -512,15 +511,15 @@ class Icd10SpecPD(Task):
         )
 
         # General
-        h += subheading_spanning_two_columns(self.wxstring("general"))
-        h += self.get_twocol_bool_row_true_false("g1", self.wxstring("G1"))
+        h += subheading_spanning_two_columns(self.wxstring(req, "general"))
+        h += self.get_twocol_bool_row_true_false("g1", self.wxstring(req, "G1"))
         h += self.pd_b_text("G1b")
         for i in range(1, Icd10SpecPD.N_GENERAL_1 + 1):
             h += self.get_twocol_bool_row_true_false(
-                "g1_" + str(i), self.wxstring("G1_" + str(i)))
+                "g1_" + str(i), self.wxstring(req, "G1_" + str(i)))
         for i in range(2, Icd10SpecPD.N_GENERAL + 1):
             h += self.get_twocol_bool_row_true_false(
-                "g" + str(i), self.wxstring("G" + str(i)))
+                "g" + str(i), self.wxstring(req, "G" + str(i)))
 
         # Paranoid, etc.
         h += self.standard_pd_html("paranoid", Icd10SpecPD.N_PARANOID)

@@ -72,9 +72,10 @@ from sqlalchemy.dialects.mysql import BIGINT, INTEGER, LONGTEXT
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.schema import Column, Table
-from sqlalchemy.sql.sqltypes import String, Unicode
+from sqlalchemy.sql.sqltypes import Boolean, String, Unicode
 from sqlalchemy.sql.type_api import TypeDecorator
 
+from .cc_constants import PV
 from .cc_version import make_version
 
 log = logging.getLogger(__name__)  # don't use BraceAdapter here; we use {}
@@ -389,6 +390,19 @@ class PermittedValueChecker(object):
         return auto_repr(self)
 
 
+# Specific instances, to reduce object duplication:
+
+MIN_ZERO_CHECKER = PermittedValueChecker(minimum=0)
+
+BIT_CHECKER = PermittedValueChecker(permitted_values=PV.BIT)
+ZERO_TO_TWO_CHECKER = PermittedValueChecker(minimum=0, maximum=2)
+ZERO_TO_THREE_CHECKER = PermittedValueChecker(minimum=0, maximum=3)
+ZERO_TO_FOUR_CHECKER = PermittedValueChecker(minimum=0, maximum=4)
+ZERO_TO_FIVE_CHECKER = PermittedValueChecker(minimum=0, maximum=5)
+
+ONE_TO_FIVE_CHECKER = PermittedValueChecker(minimum=1, maximum=5)
+
+
 # =============================================================================
 # CamcopsColumn: provides extra functions over Column.
 # =============================================================================
@@ -432,6 +446,14 @@ class CamcopsColumn(Column):
         ]
         return "CamcopsColumn<{}>".format(",".join(elements))
 
+    def set_permitted_value_checker(
+            self, permitted_value_checker: PermittedValueChecker) -> None:
+        self.permitted_value_checker = permitted_value_checker
+
+
+# =============================================================================
+# Operate on Column/CamcopsColumn properties
+# =============================================================================
 
 def gen_camcops_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
                                           None, None]:
@@ -497,3 +519,16 @@ def permitted_values_ok(obj) -> bool:
         if not pv_checker.is_ok(value):
             return False
     return True
+
+
+# =============================================================================
+# Specializations of CamcopsColumn to save typing
+# =============================================================================
+
+# noinspection PyAbstractClass
+class BoolColumn(CamcopsColumn):
+    def __init__(self, name: str):
+        super().__init__(
+            name, Boolean,
+            permitted_value_checker=BIT_CHECKER
+        )

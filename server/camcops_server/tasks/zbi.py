@@ -30,7 +30,6 @@ from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 
@@ -72,7 +71,7 @@ class Zbi12(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total_score", coltype=Integer(),
@@ -80,7 +79,7 @@ class Zbi12(Task):
                            comment="Total score (/ 48)"),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(content="ZBI-12 total score {}/48".format(
@@ -96,10 +95,10 @@ class Zbi12(Task):
             self.are_all_fields_complete(self.TASK_FIELDS)
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         option_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            option_dict[a] = wappstring("zbi_a" + str(a))
+            option_dict[a] = req.wappstring("zbi_a" + str(a))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -123,7 +122,7 @@ class Zbi12(Task):
             a = getattr(self, "q" + str(q))
             fa = ("{}: {}".format(a, get_from_dict(option_dict, a))
                   if a is not None else None)
-            h += tr(self.wxstring("q" + str(q)), answer(fa))
+            h += tr(self.wxstring(req, "q" + str(q)), answer(fa))
         h += """
             </table>
         """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV

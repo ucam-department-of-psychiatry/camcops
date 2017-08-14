@@ -110,7 +110,7 @@ class DiagnosisBase(object):
     def is_complete(self) -> bool:
         return self.get_num_items() > 0
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         items = self.get_items()
         html = """
             <div class="summary">
@@ -135,7 +135,7 @@ class DiagnosisBase(object):
         """
         return html
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         infolist = []
         items = self.get_items()
         for item in items:

@@ -22,32 +22,57 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_constants import (
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
 )
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
     tr,
 )
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CharColType
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+)
 
 
 # =============================================================================
 # BADLS
 # =============================================================================
 
-class Badls(Task):
-    tablename = "badls"
+class BadlsMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Badls'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS, CharColType,
+            comment_fmt="Q{n}, {s} ('a' best [0] to 'd' worst [3]; "
+                        "'e'=N/A [scored 0])",
+            pv=list(cls.SCORING.keys()),
+            comment_strings=cls.QUESTION_SNIPPETS
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task, Base,
+           metaclass=BadlsMetaclass):
+    __tablename__ = "badls"
     shortname = "BADLS"
     longname = "Bristol Activities of Daily Living Scale"
-    has_respondent = True
     provides_trackers = True
 
     SCORING = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 0}
@@ -74,16 +99,9 @@ class Badls(Task):
         "games/hobbies",
         "transport",  # 20
     ]
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, cctype="CHAR",
-        comment_fmt="Q{n}, {s} ('a' best [0] to 'd' worst [3]; "
-                    "'e'=N/A [scored 0])",
-        pv=list(SCORING.keys()),
-        comment_strings=QUESTION_SNIPPETS
-    )
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total_score",
@@ -92,7 +110,7 @@ class Badls(Task):
                            comment="Total score (/ 48)"),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -114,7 +132,7 @@ class Badls(Task):
             self.are_all_fields_complete(self.TASK_FIELDS)
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
@@ -137,9 +155,9 @@ class Badls(Task):
         )
         for q in range(1, self.NQUESTIONS + 1):
             fieldname = "q" + str(q)
-            qtext = self.wxstring(fieldname)  # happens to be the same
+            qtext = self.wxstring(req, fieldname)  # happens to be the same
             avalue = getattr(self, "q" + str(q))
-            atext = (self.wxstring("q{}_{}".format(q, avalue))
+            atext = (self.wxstring(req, "q{}_{}".format(q, avalue))
                      if q is not None else None)
             score = self.score(fieldname)
             h += tr(qtext, answer(atext), score)

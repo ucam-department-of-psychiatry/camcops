@@ -25,6 +25,8 @@
 from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
 
 from ..cc_modules.cc_dt import format_datetime_string, get_duration_h_m
 from ..cc_modules.cc_constants import (
@@ -38,36 +40,58 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, BIT_CHECKER
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 
 
 # =============================================================================
 # ContactLog
 # =============================================================================
 
-class ContactLog(Task):
-    tablename = "contactlog"
+class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+    __tablename__ = "contactlog"
     shortname = "ContactLog"
     longname = "Clinical contact log"
-    has_clinician = True
 
-    fieldspecs = [
-        dict(name="location", cctype="TEXT", comment="Location"),
-        dict(name="start", cctype="TEXT",
-             comment="Date/time that contact started"),
-        dict(name="end", cctype="TEXT",
-             comment="Date/time that contact ended"),
-        dict(name="patient_contact", cctype="INT", pv=PV.BIT,
-             comment="Patient contact involved (0 no, 1 yes)?"),
-        dict(name="staff_liaison", cctype="INT", pv=PV.BIT,
-             comment="Liaison with staff involved (0 no, 1 yes)?"),
-        dict(name="other_liaison", cctype="INT", pv=PV.BIT,
-             comment="Liaison with others (e.g. family) involved "
-             "(0 no, 1 yes)?"),
-        dict(name="comment", cctype="TEXT", comment="Comment"),
-    ]
+    location = Column(
+        "location", Text,
+        comment="Location"
+    )
+    start = Column(
+        "start", Text,
+        comment="Date/time that contact started"
+    )
+    end = Column(
+        "end", Text,
+        comment="Date/time that contact ended"
+    )
+    patient_contact = CamcopsColumn(
+        "patient_contact", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Patient contact involved (0 no, 1 yes)?"
+    )
+    staff_liaison = CamcopsColumn(
+        "staff_liaison", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Liaison with staff involved (0 no, 1 yes)?"
+    )
+    other_liaison = CamcopsColumn(
+        "other_liaison", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Liaison with others (e.g. family) involved (0 no, 1 yes)?"
+    )
+    comment = Column(
+        "comment", Text,
+        comment="Comment"
+    )
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         contact_type = "Patient" if self.patient_contact else "Non-patient"
@@ -83,7 +107,7 @@ class ContactLog(Task):
             self.field_contents_valid()
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <table class="taskdetail">
                 <tr>

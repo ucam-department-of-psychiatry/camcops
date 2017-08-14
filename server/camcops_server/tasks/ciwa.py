@@ -22,22 +22,35 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Float, Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
     subheading_spanning_two_columns,
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    MIN_ZERO_CHECKER,
+    PermittedValueChecker,
+    SummaryCategoryColType,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerLabel, TrackerInfo
 
 
@@ -45,69 +58,98 @@ from ..cc_modules.cc_trackerhelpers import TrackerLabel, TrackerInfo
 # CIWA
 # =============================================================================
 
-class Ciwa(Task):
-    tablename = "ciwa"
+class CiwaMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Ciwa'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NSCOREDQUESTIONS - 1,
+            minimum=0, maximum=7,
+            comment_fmt="Q{n}, {s} (0-7, higher worse)",
+            comment_strings=[
+                "nausea/vomiting", "tremor", "paroxysmal sweats", "anxiety",
+                "agitation", "tactile disturbances", "auditory disturbances",
+                "visual disturbances", "headache/fullness in head"
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+           metaclass=CiwaMetaclass):
+    __tablename__ = "ciwa"
     shortname = "CIWA-Ar"
     longname = ("Clinical Institute Withdrawal Assessment for Alcohol "
                 "Scale, Revised")
-    has_clinician = True
     provides_trackers = True
 
     NSCOREDQUESTIONS = 10
+    SCORED_QUESTIONS = strseq("q", 1, NSCOREDQUESTIONS)
 
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NSCOREDQUESTIONS - 1, min=0, max=7,
-        comment_fmt="Q{n}, {s} (0-7, higher worse)",
-        comment_strings=[
-            "nausea/vomiting", "tremor", "paroxysmal sweats", "anxiety",
-            "agitation", "tactile disturbances", "auditory disturbances",
-            "visual disturbances", "headache/fullness in head"
-        ]
-    ) + [
-        dict(name="q10", cctype="INT", min=0, max=4,
-             comment="Q10, orientation/clouding of sensorium "
-             "(0-4, higher worse)"),
-        dict(name="t", cctype="FLOAT",
-             comment="Temperature (degrees C)"),
-        dict(name="hr", cctype="INT", min=0,
-             comment="Heart rate (beats/minute)"),
-        dict(name="sbp", cctype="INT", min=0,
-             comment="Systolic blood pressure (mmHg)"),
-        dict(name="dbp", cctype="INT", min=0,
-             comment="Diastolic blood pressure (mmHg)"),
-        dict(name="rr", cctype="INT", min=0,
-             comment="Respiratory rate (breaths/minute)"),
-    ]
+    q10 = CamcopsColumn(
+        "q10", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=4),
+        comment="Q10, orientation/clouding of sensorium (0-4, higher worse)"
+    )
+    t = Column(
+        "t", Float,
+        comment="Temperature (degrees C)"
+    )
+    hr = CamcopsColumn(
+        "hr", Integer,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Heart rate (beats/minute)"
+    )
+    sbp = CamcopsColumn(
+        "sbp", Integer,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Systolic blood pressure (mmHg)"
+    )
+    dbp = CamcopsColumn(
+        "dbp", Integer,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Diastolic blood pressure (mmHg)"
+    )
+    rr = CamcopsColumn(
+        "rr", Integer,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Respiratory rate (breaths/minute)"
+    )
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    MAX_SCORE = 67
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="CIWA total score",
-            axis_label="Total score (out of 67)",
+            axis_label="Total score (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=67.5,
+            axis_max=self.MAX_SCORE + 0.5,
             horizontal_lines=[14.5, 7.5],
             horizontal_labels=[
-                TrackerLabel(17, wappstring("severe")),
-                TrackerLabel(11, wappstring("moderate")),
-                TrackerLabel(3.75, wappstring("mild")),
+                TrackerLabel(17, req.wappstring("severe")),
+                TrackerLabel(11, req.wappstring("moderate")),
+                TrackerLabel(3.75, req.wappstring("mild")),
             ]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="CIWA total score: {}/67".format(self.total_score())
+            content="CIWA total score: {}/{}".format(self.total_score(),
+                                                     self.MAX_SCORE)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/67)"),
+                           comment="Total score (/{})".format(self.MAX_SCORE)),
             SummaryElement(name="severity",
                            coltype=SummaryCategoryColType,
                            value=self.severity(),
@@ -115,42 +157,40 @@ class Ciwa(Task):
         ]
 
     def is_complete(self) -> bool:
-        return (
-            self.are_all_fields_complete(repeat_fieldname(
-                "q", 1, Ciwa.NSCOREDQUESTIONS)) and
-            self.field_contents_valid()
-        )
+        return (self.are_all_fields_complete(self.SCORED_QUESTIONS) and
+                self.field_contents_valid())
 
     def total_score(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 1, Ciwa.NSCOREDQUESTIONS))
+        return self.sum_fields(self.SCORED_QUESTIONS)
 
     def severity(self) -> str:
         score = self.total_score()
         if score >= 15:
-            severity = self.wxstring("category_severe")
+            severity = self.wxstring(req, "category_severe")
         elif score >= 8:
-            severity = self.wxstring("category_moderate")
+            severity = self.wxstring(req, "category_moderate")
         else:
-            severity = self.wxstring("category_mild")
+            severity = self.wxstring(req, "category_mild")
         return severity
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         severity = self.severity()
         answer_dicts_dict = {}
-        for q in repeat_fieldname("q", 1, Ciwa.NSCOREDQUESTIONS):
+        for q in self.SCORED_QUESTIONS:
             d = {None: None}
             for option in range(0, 8):
                 if option > 4 and q == "q10":
                     continue
-                d[option] = self.wxstring(q + "_option" + str(option))
+                d[option] = self.wxstring(req, q + "_option" + str(option))
             answer_dicts_dict[q] = d
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score"), answer(score) + " / 67")
-        h += tr_qa(self.wxstring("severity") + " <sup>[1]</sup>", severity)
+        h += tr(req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE))
+        h += tr_qa(self.wxstring(req, "severity") + " <sup>[1]</sup>", severity)
         h += """
                 </table>
             </div>
@@ -162,16 +202,16 @@ class Ciwa(Task):
         """
         for q in range(1, Ciwa.NSCOREDQUESTIONS + 1):
             h += tr_qa(
-                self.wxstring("q" + str(q) + "_s"),
+                self.wxstring(req, "q" + str(q) + "_s"),
                 get_from_dict(answer_dicts_dict["q" + str(q)],
                               getattr(self, "q" + str(q)))
             )
-        h += subheading_spanning_two_columns(self.wxstring("vitals_title"))
-        h += tr_qa(self.wxstring("t"), self.t)
-        h += tr_qa(self.wxstring("hr"), self.hr)
-        h += tr(self.wxstring("bp"),
+        h += subheading_spanning_two_columns(self.wxstring(req, "vitals_title"))
+        h += tr_qa(self.wxstring(req, "t"), self.t)
+        h += tr_qa(self.wxstring(req, "hr"), self.hr)
+        h += tr(self.wxstring(req, "bp"),
                 answer(self.sbp) + " / " + answer(self.dbp))
-        h += tr_qa(self.wxstring("rr"), self.rr)
+        h += tr_qa(self.wxstring(req, "rr"), self.rr)
         h += """
             </table>
             <div class="footnotes">

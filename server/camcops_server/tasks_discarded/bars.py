@@ -27,7 +27,6 @@ from typing import List
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
@@ -48,7 +47,7 @@ class Bars(Task):
     fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="BARS total score",
@@ -57,7 +56,7 @@ class Bars(Task):
             axis_max=14.5
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -72,7 +71,7 @@ class Bars(Task):
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         answer_dicts_dict = {}
         for q in self.TASK_FIELDS:
@@ -80,7 +79,7 @@ class Bars(Task):
             for option in range(0, 6):
                 if option > 3 and q == "q4":
                     continue
-                d[option] = self.wxstring(q + "_option" + str(option))
+                d[option] = self.wxstring(req, q + "_option" + str(option))
             answer_dicts_dict[q] = d
         h = self.get_standard_clinician_block() + """
             <div class="summary">
@@ -96,11 +95,11 @@ class Bars(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            wappstring("total_score"), score
+            req.wappstring("total_score"), score
         )
         for q in self.TASK_FIELDS:
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                self.wxstring(q + "_s"),
+                self.wxstring(req, q + "_s"),
                 get_from_dict(answer_dicts_dict[q], getattr(self, q))
             )
         h += """

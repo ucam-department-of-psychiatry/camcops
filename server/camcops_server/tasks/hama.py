@@ -22,17 +22,25 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr, tr_qa
+from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 
 
@@ -40,61 +48,72 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 # HAM-A
 # =============================================================================
 
-class Hama(Task):
-    tablename = "hama"
+class HamaMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Hama'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
+            minimum=0, maximum=4,
+            comment_strings=[
+                "anxious mood", "tension", "fears", "insomnia",
+                "concentration/memory", "depressed mood", "somatic, muscular",
+                "somatic, sensory", "cardiovascular", "respiratory",
+                "gastrointestinal", "genitourinary", "other autonomic",
+                "behaviour in interview"
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Hama(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+           metaclass=HamaMetaclass):
+    __tablename__ = "hama"
     shortname = "HAM-A"
     longname = "Hamilton Rating Scale for Anxiety"
-    has_clinician = True
     provides_trackers = True
 
     NQUESTIONS = 14
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS,
-        comment_fmt="Q{n}, {s} (0-4, higher worse)", min=0, max=4,
-        comment_strings=[
-            "anxious mood", "tension", "fears", "insomnia",
-            "concentration/memory", "depressed mood", "somatic, muscular",
-            "somatic, sensory", "cardiovascular", "respiratory",
-            "gastrointestinal", "genitourinary", "other autonomic",
-            "behaviour in interview"
-        ])
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_SCORE = 56
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
-
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="HAM-A total score",
-            axis_label="Total score (out of 56)",
+            axis_label="Total score (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=56.5,
+            axis_max=self.MAX_SCORE + 0.5,
             horizontal_lines=[30.5, 24.5, 17.5],
             horizontal_labels=[
-                TrackerLabel(33, wappstring("very_severe")),
-                TrackerLabel(27.5, wappstring("moderate_to_severe")),
-                TrackerLabel(21, wappstring("mild_to_moderate")),
-                TrackerLabel(8.75, wappstring("mild")),
+                TrackerLabel(33, req.wappstring("very_severe")),
+                TrackerLabel(27.5, req.wappstring("moderate_to_severe")),
+                TrackerLabel(21, req.wappstring("mild_to_moderate")),
+                TrackerLabel(8.75, req.wappstring("mild")),
             ]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="HAM-A total score {}/56 ({})".format(
-                self.total_score(), self.severity())
+            content="HAM-A total score {}/{} ({})".format(
+                self.total_score(), self.MAX_SCORE, self.severity(req))
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/56)"),
+                           comment="Total score (/{})".format(self.MAX_SCORE)),
             SummaryElement(name="severity",
                            coltype=SummaryCategoryColType,
-                           value=self.severity(),
+                           value=self.severity(req),
                            comment="Severity"),
         ]
 
@@ -107,33 +126,34 @@ class Hama(Task):
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def severity(self) -> str:
+    def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         if score >= 31:
-            return wappstring("very_severe")
+            return req.wappstring("very_severe")
         elif score >= 25:
-            return wappstring("moderate_to_severe")
+            return req.wappstring("moderate_to_severe")
         elif score >= 18:
-            return wappstring("mild_to_moderate")
+            return req.wappstring("mild_to_moderate")
         else:
-            return wappstring("mild")
+            return req.wappstring("mild")
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        severity = self.severity()
+        severity = self.severity(req)
         answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
             d = {None: None}
             for option in range(0, 4 + 1):
-                d[option] = self.wxstring("q" + str(q) + "_option" +
+                d[option] = self.wxstring(req, "q" + str(q) + "_option" +
                                           str(option))
             answer_dicts.append(d)
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score"), answer(score) + " / 56")
-        h += tr_qa(self.wxstring("symptom_severity") + " <sup>[1]</sup>",
+        h += tr(req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE))
+        h += tr_qa(self.wxstring(req, "symptom_severity") + " <sup>[1]</sup>",
                    severity)
         h += """
                 </table>
@@ -146,8 +166,8 @@ class Hama(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr_qa(
-                self.wxstring("q" + str(q) + "_s") + " " +
-                self.wxstring("q" + str(q) + "_question"),
+                self.wxstring(req, "q" + str(q) + "_s") + " " +
+                self.wxstring(req, "q" + str(q) + "_question"),
                 get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
         h += """

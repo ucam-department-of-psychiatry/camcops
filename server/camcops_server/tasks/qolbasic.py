@@ -61,7 +61,7 @@ class QolBasic(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [
             TrackerInfo(
                 value=self.get_tto_qol(),
@@ -79,7 +79,7 @@ class QolBasic(Task):
             ),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         tto_qol = self.get_tto_qol()
@@ -96,7 +96,7 @@ class QolBasic(Task):
             )
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(
@@ -121,7 +121,7 @@ class QolBasic(Task):
     def get_rs_qol(self) -> Optional[float]:
         return self.rs / 100 if self.rs is not None else None
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         tto_qol = self.get_tto_qol()
         rs_qol = self.get_rs_qol()
         mean_qol = mean([tto_qol, rs_qol])
@@ -146,11 +146,11 @@ class QolBasic(Task):
                     <td width="33%">Implied QoL</th>
                 </tr>
         """
-        h += tr(self.wxstring("tto_q_s"),
+        h += tr(self.wxstring(req, "tto_q_s"),
                 answer(ws.number_to_dp(self.tto, DP, default=None)),
                 answer(ws.number_to_dp(tto_qol, DP, default=None),
                        formatter_answer=identity))
-        h += tr(self.wxstring("rs_q_s"),
+        h += tr(self.wxstring(req, "rs_q_s"),
                 answer(ws.number_to_dp(self.rs, DP, default=None)),
                 answer(ws.number_to_dp(rs_qol, DP, default=None),
                        formatter_answer=identity))

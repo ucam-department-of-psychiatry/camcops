@@ -49,15 +49,16 @@ from cardinal_pythonlib.classes import (
 )
 from cardinal_pythonlib.lists import flatten_list
 from cardinal_pythonlib.logs import BraceStyleAdapter
-import cardinal_pythonlib.pdf as rnc_pdf
 from cardinal_pythonlib.rnc_db import (
     DatabaseSupporter,
     FIELDSPEC_TYPE,
     FIELDSPECLIST_TYPE,
 )
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.sort import Min, MinType
+from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
 from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
+from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
+from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 import hl7
 from semantic_version import Version
@@ -96,7 +97,6 @@ from .cc_constants import (
     STANDARD_ANCILLARY_FIELDSPECS,
     STANDARD_ANONYMOUS_TASK_FIELDSPECS,
     STANDARD_TASK_FIELDSPECS,
-    TEXT_FILTER_EXEMPT_FIELDS,
     TSV_PATIENT_FIELD_PREFIX,
     VALUE,
     WKHTMLTOPDF_OPTIONS,
@@ -129,6 +129,7 @@ from .cc_html import (
 )
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
+from .cc_pdf import pdf_from_html
 from .cc_plot import set_matplotlib_fontsize
 from .cc_recipdef import RecipientDefinition
 from .cc_report import Report, REPORT_RESULT_TYPE
@@ -206,8 +207,8 @@ class TaskHasPatientMixin(object):
 
     @classmethod
     @property
-    def is_anonymous(cls) -> bool:
-        return False
+    def has_patient(cls) -> bool:
+        return True
 
     # noinspection PyProtectedMember
     @property
@@ -275,6 +276,11 @@ class TaskHasClinicianMixin(object):
     # For field order, see also:
     # https://stackoverflow.com/questions/3923910/sqlalchemy-move-mixin-columns-to-end  # noqa
 
+    @classmethod
+    @property
+    def has_clinician(cls) -> bool:
+        return True
+
     def get_clinician_name(self) -> str:
         return self.clinician_name
 
@@ -340,6 +346,11 @@ class TaskHasRespondentMixin(object):
         comment="(RESPONDENT) Respondent's relationship to patient"
     )
 
+    @classmethod
+    @property
+    def has_respondent(cls) -> bool:
+        return True
+
     def is_respondent_complete(self) -> bool:
         return self.respondent_name and self.respondent_relationship
 
@@ -361,7 +372,6 @@ class TaskHasRespondentMixin(object):
             name=ws.webify(self.respondent_name),
             relationship=ws.webify(self.respondent_relationship),
         )
-
 
 # =============================================================================
 # Task base class
@@ -466,39 +476,13 @@ class Task(GenericTabletRecordMixin):
         """
         raise NotImplementedError("Task.is_complete must be overridden")
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         """
         HTML for the main task content.
         Overridden by derived classes.
         """
         raise NotImplementedError(
             "No get_task_html() HTML generator for this task class!")
-
-    # -------------------------------------------------------------------------
-    # Methods optionally overridden
-    # -------------------------------------------------------------------------
-
-    @classmethod
-    def get_full_fieldspecs(cls) -> FIELDSPECLIST_TYPE:
-        """
-        Uses the following attributes:
-            is_anonymous
-            has_clinician
-            has_respondent
-            fieldspecs [from derived class]
-        to build the full fieldspec list.
-        """
-
-        if cls.is_anonymous:
-            full_fieldspecs = list(STANDARD_ANONYMOUS_TASK_FIELDSPECS)  # copy
-        else:
-            full_fieldspecs = list(STANDARD_TASK_FIELDSPECS)  # copy
-        if cls.has_clinician:
-            full_fieldspecs.extend(CLINICIAN_FIELDSPECS)
-        if cls.has_respondent:
-            full_fieldspecs.extend(RESPONDENT_FIELDSPECS)
-        full_fieldspecs.extend(cls.fieldspecs)
-        return full_fieldspecs
 
     # -------------------------------------------------------------------------
     # Dealing with ancillary items
@@ -605,7 +589,7 @@ class Task(GenericTabletRecordMixin):
     # Implement if you provide trackers
     # -------------------------------------------------------------------------
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         """
         Tasks that provide quantitative information for tracking over time
         should override this and return a list of TrackerInfo, one per tracker.
@@ -623,7 +607,7 @@ class Task(GenericTabletRecordMixin):
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic
-    def get_clinical_text(self) -> Optional[List[CtvInfo]]:
+    def get_clinical_text(self, req: CamcopsRequest) -> Optional[List[CtvInfo]]:
         """Tasks that provide clinical text information should override this
         to provide a list of dictionaries.
 
@@ -637,7 +621,7 @@ class Task(GenericTabletRecordMixin):
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         """
         Return a list of summary value objects, for this database object
         (not any dependent classes/tables).
@@ -699,11 +683,35 @@ class Task(GenericTabletRecordMixin):
 
     @classmethod
     @property
-    def is_anonymous(cls) -> bool:
+    def has_patient(cls) -> bool:
         """
         May be overridden by TaskHasPatientMixin.
         """
-        return True
+        return False
+
+    @classmethod
+    @property
+    def is_anonymous(cls) -> bool:
+        """
+        Antonym for has_patient.
+        """
+        return not cls.has_patient
+
+    @classmethod
+    @property
+    def has_clinician(cls) -> bool:
+        """
+        May be overridden by TaskHasClinicianMixin.
+        """
+        return False
+
+    @classmethod
+    @property
+    def has_respondent(cls) -> bool:
+        """
+        May be overridden by TaskHasRespondentMixin.
+        """
+        return False
 
     # -------------------------------------------------------------------------
     # Other classmethods
@@ -1049,10 +1057,10 @@ class Task(GenericTabletRecordMixin):
     # Special notes
     # -------------------------------------------------------------------------
 
-    def get_special_notes(self, request: CamcopsRequest) -> List[SpecialNote]:
+    def get_special_notes(self, req: CamcopsRequest) -> List[SpecialNote]:
         if self._special_notes is None:
             self._special_notes = SpecialNote.get_all_instances(
-                dbsession=request.dbsession,
+                dbsession=req.dbsession,
                 basetable=self.__tablename__,
                 task_or_patient_id=self.id,
                 device_id=self._device_id,
@@ -1703,18 +1711,21 @@ class Task(GenericTabletRecordMixin):
         return True
 
     def compatible_with_text_filter(self, filtertext: str) -> bool:
-        """Is this task allowed through the text contents filter?"""
-        # Search all text fields. Is the filter text within one?
-        # filter will not be None (checked beforehand)
+        """
+        Is this task allowed through the text contents filter?
+        Does one of its text fields contain the filtertext?
+
+        (Searches all text fields, ignoring "administrative" ones.)
+        """
         filtertext = filtertext.upper()
-        fieldspecs = self.get_full_fieldspecs()
-        for fs in fieldspecs:
-            if fs["name"] in TEXT_FILTER_EXEMPT_FIELDS:
+        for attrname, column in gen_columns(self):
+            if attrname in TEXT_FILTER_EXEMPT_FIELDS:
                 continue
-            if not cc_db.cctype_is_string(fs["cctype"]):
+            if not is_sqlatype_string(column.type):
                 continue
-            value = getattr(self, fs["name"])
-            if value is None:
+            value = getattr(self, attrname)
+            if not isinstance(value, str):
+                # handles None and anything unexpectedly odd
                 continue
             if filtertext in value.upper():
                 return True
@@ -2036,7 +2047,7 @@ class Task(GenericTabletRecordMixin):
     # -------------------------------------------------------------------------
 
     def get_xml(self,
-                request: CamcopsRequest,
+                req: CamcopsRequest,
                 include_calculated: bool = True,
                 include_blobs: bool = True,
                 include_patient: bool = True,
@@ -2046,7 +2057,7 @@ class Task(GenericTabletRecordMixin):
                 include_comments: bool = False) -> str:
         """Returns XML UTF-8 document representing task."""
         skip_fields = skip_fields or []
-        tree = self.get_xml_root(request=request,
+        tree = self.get_xml_root(req=req,
                                  include_calculated=include_calculated,
                                  include_blobs=include_blobs,
                                  include_patient=include_patient,
@@ -2059,7 +2070,7 @@ class Task(GenericTabletRecordMixin):
         )
 
     def get_xml_root(self,
-                     request: CamcopsRequest,
+                     req: CamcopsRequest,
                      include_calculated: bool = True,
                      include_blobs: bool = True,
                      include_patient: bool = True,
@@ -2073,7 +2084,7 @@ class Task(GenericTabletRecordMixin):
 
         # Core (inc. core BLOBs)
         branches = self.get_xml_core_branches(
-            request=request,
+            req=req,
             include_calculated=include_calculated,
             include_blobs=include_blobs,
             include_patient=include_patient,
@@ -2111,7 +2122,7 @@ class Task(GenericTabletRecordMixin):
 
     def get_xml_core_branches(
             self,
-            request: CamcopsRequest,
+            req: CamcopsRequest,
             include_calculated: bool = True,
             include_blobs: bool = True,
             include_patient: bool = True,
@@ -2125,7 +2136,7 @@ class Task(GenericTabletRecordMixin):
             self, skip_fields=skip_fields))
         # Special notes
         branches.append(XML_COMMENT_SPECIAL_NOTES)
-        for sn in self.get_special_notes(request=request):
+        for sn in self.get_special_notes(req=req):
             branches.append(sn.get_xml_root())
         # Calculated
         if include_calculated:
@@ -2164,25 +2175,27 @@ class Task(GenericTabletRecordMixin):
     # HTML view
     # -------------------------------------------------------------------------
 
-    def get_core_html(self) -> str:
+    def get_core_html(self, req: CamcopsRequest) -> str:
         html = ""
         if self.has_clinician:
             html += self.get_standard_clinician_block()
         if self.has_respondent:
             html += self.get_standard_respondent_block()
-        html += self.get_task_html()
+        html += self.get_task_html(req)
         return html
 
     def get_html(self,
+                 req: CamcopsRequest,
                  offer_add_note: bool = False,
                  offer_erase: bool = False,
                  offer_edit_patient: bool = False) -> str:
         """Returns HTML representing task."""
-        set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
-        pls.switch_output_to_svg()
+        cfg = req.config
+        set_matplotlib_fontsize(cfg.PLOT_FONTSIZE)
+        req.switch_output_to_svg()
         return (
             self.get_html_start() +
-            self.get_core_html() +
+            self.get_core_html(req) +
             self.get_office_html() +
             self.get_xml_nav_html() +
             self.get_superuser_nav_options(offer_add_note, offer_erase,
@@ -2208,30 +2221,26 @@ class Task(GenericTabletRecordMixin):
     # PDF view
     # -------------------------------------------------------------------------
 
-    def get_pdf(self) -> bytes:
+    def get_pdf(self, req: CamcopsRequest) -> bytes:
         """Returns PDF representing task."""
-        set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
+        cfg = req.config
+        set_matplotlib_fontsize(cfg.PLOT_FONTSIZE)
         if CSS_PAGED_MEDIA:
-            pls.switch_output_to_png()
+            req.switch_output_to_png()
             # ... even weasyprint's SVG handling is inadequate
             html = self.get_pdf_html()
-            return rnc_pdf.pdf_from_html(html)
+            return pdf_from_html(req, html)
         else:
-            pls.switch_output_to_svg()  # wkhtmltopdf can cope
-            html = self.get_pdf_html()
-            header = self.get_pdf_header_content()
-            footer = self.get_pdf_footer_content()
+            req.switch_output_to_svg()  # wkhtmltopdf can cope
             orientation = (
                 "Landscape" if self.use_landscape_for_pdf else "Portrait"
             )
-            options = WKHTMLTOPDF_OPTIONS
-            options.update({
-                "orientation": orientation,
-            })
-            return rnc_pdf.pdf_from_html(html,
-                                         header_html=header,
-                                         footer_html=footer,
-                                         wkhtmltopdf_options=options)
+            return pdf_from_html(
+                req,
+                html=self.get_pdf_html(),
+                header_html=self.get_pdf_header_content(),
+                footer_html=self.get_pdf_footer_content(),
+                extra_wkhtmltopdf_options={"orientation": orientation})
 
     def suggested_pdf_filename(self) -> str:
         """Suggested filename for PDF."""
@@ -2431,13 +2440,13 @@ class Task(GenericTabletRecordMixin):
         )
 
     # noinspection PyMethodMayBeStatic
-    def get_anonymous_page_header_html(self) -> str:
+    def get_anonymous_page_header_html(self, req: CamcopsRequest) -> str:
         """Page header for anonymous tasks. Goes in the page margins for PDFs.
         """
-        return wappstring("anonymous_task")
+        return req.wappstring("anonymous_task")
 
     # noinspection PyMethodMayBeStatic
-    def get_anonymous_task_header_html(self) -> str:
+    def get_anonymous_task_header_html(self, req: CamcopsRequest) -> str:
         """Task header for anonymous tasks. Goes on the main page at the top of
         the task."""
         return """
@@ -2445,10 +2454,10 @@ class Task(GenericTabletRecordMixin):
                 {}
             </div>
         """.format(
-            wappstring("anonymous_task")
+            req.wappstring("anonymous_task")
         )
 
-    def get_task_header_html(self, request: CamcopsRequest) -> str:
+    def get_task_header_html(self, req: CamcopsRequest) -> str:
         """HTML for task header, giving details of task type, creation date
         (with patient age), etc."""
         anonymous = self.is_anonymous
@@ -2484,7 +2493,7 @@ class Task(GenericTabletRecordMixin):
             pt_info +
             main_task_header +
             self.get_erasure_notice() +  # if applicable
-            self.get_special_notes_html(request) +  # if applicable
+            self.get_special_notes_html(req) +  # if applicable
             self.get_not_current_warning()  # if applicable
         )
 
@@ -2542,8 +2551,8 @@ class Task(GenericTabletRecordMixin):
             self._manually_erased_at,
         )
 
-    def get_special_notes_html(self, request: CamcopsRequest) -> str:
-        special_notes = self.get_special_notes(request=request)
+    def get_special_notes_html(self, req: CamcopsRequest) -> str:
+        special_notes = self.get_special_notes(req=req)
         if not special_notes:
             return ""
         note_html = "<br>".join([
@@ -2640,7 +2649,7 @@ class Task(GenericTabletRecordMixin):
         )
 
     def get_superuser_nav_options(self,
-                                  request: CamcopsRequest,
+                                  req: CamcopsRequest,
                                   offer_add_note: bool,
                                   offer_erase: bool,
                                   offer_edit_patient: bool) -> str:
@@ -2648,7 +2657,7 @@ class Task(GenericTabletRecordMixin):
         if offer_add_note:
             options.append(
                 '<a href="{}">Apply special note</a>'.format(
-                    get_url_add_special_note(request,
+                    get_url_add_special_note(req,
                                              self.tablename, self._pk),
                 )
             )
@@ -2656,7 +2665,7 @@ class Task(GenericTabletRecordMixin):
             # Note: prohibit manual erasure for non-finalized tasks.
             options.append(
                 '<a href="{}">Erase task instance</a>'.format(
-                    get_url_erase_task(request,
+                    get_url_erase_task(req,
                                        self.tablename, self._pk),
                 )
             )
@@ -2928,17 +2937,47 @@ class Task(GenericTabletRecordMixin):
         return task_extrastrings_exist(self.get_extrastring_taskname())
 
     def wxstring(self,
+                 req: CamcopsRequest,
                  name: str,
                  defaultvalue: str = None,
                  provide_default_if_none: bool = True) -> str:
         if defaultvalue is None and provide_default_if_none:
             defaultvalue = "[{}: {}]".format(self.get_extrastring_taskname(),
                                              name)
-        return WXSTRING(self.get_extrastring_taskname(),
-                        name,
-                        defaultvalue,
-                        provide_default_if_none=provide_default_if_none)
+        return req.wxstring(
+            self.get_extrastring_taskname(),
+            name,
+            defaultvalue,
+            provide_default_if_none=provide_default_if_none)
 
+
+# =============================================================================
+# Fieldnames to auto-exempt from text filtering
+# =============================================================================
+
+TEXT_FILTER_EXEMPT_FIELDS = []  # type: List[str]
+
+
+def collect_text_filter_exempt_fields():
+    global TEXT_FILTER_EXEMPT_FIELDS
+
+    # noinspection PyAbstractClass
+    class Dummy(TaskHasClinicianMixin, TaskHasRespondentMixin,
+                TaskHasPatientMixin, Task):
+        pass
+
+    dummy = Dummy()
+    for attrname, column in gen_columns(dummy):
+        if attrname.startswith("_") or not is_sqlatype_string(column.type):
+            TEXT_FILTER_EXEMPT_FIELDS.append(attrname)
+
+
+collect_text_filter_exempt_fields()
+
+
+# =============================================================================
+# Ancillary
+# =============================================================================
 
 class Ancillary(object):
     """
@@ -3073,7 +3112,7 @@ def second_item_or_min(x: Tuple[Any, int, Optional[datetime.datetime]]) -> \
         Union[datetime.datetime, MinType]:
     # For sorting of tasks
     when_created = x[2]
-    return Min if when_created is None else when_created
+    return MINTYPE_SINGLETON if when_created is None else when_created
 
 
 def gen_tasks_matching_session_filter(
@@ -3281,32 +3320,32 @@ class TaskCountReport(Report):
 # URLs
 # =============================================================================
 
-def get_url_task(request: CamcopsRequest,
+def get_url_task(req: CamcopsRequest,
                  tablename: str, serverpk: int, outputtype: str) -> str:
     """URL to view a particular task."""
-    url = get_generic_action_url(request, ACTION.TASK)
+    url = get_generic_action_url(req, ACTION.TASK)
     url += get_url_field_value_pair(PARAM.OUTPUTTYPE, outputtype)
     url += get_url_field_value_pair(PARAM.TABLENAME, tablename)
     url += get_url_field_value_pair(PARAM.SERVERPK, serverpk)
     return url
 
 
-def get_url_task_pdf(request: CamcopsRequest,
+def get_url_task_pdf(req: CamcopsRequest,
                      tablename: str, serverpk: int) -> str:
     """URL to view a particular task as PDF."""
-    return get_url_task(request, tablename, serverpk, VALUE.OUTPUTTYPE_PDF)
+    return get_url_task(req, tablename, serverpk, VALUE.OUTPUTTYPE_PDF)
 
 
-def get_url_task_html(request: CamcopsRequest,
+def get_url_task_html(req: CamcopsRequest,
                       tablename: str, serverpk: int) -> str:
     """URL to view a particular task as HTML."""
-    return get_url_task(request, tablename, serverpk, VALUE.OUTPUTTYPE_HTML)
+    return get_url_task(req, tablename, serverpk, VALUE.OUTPUTTYPE_HTML)
 
 
-def get_url_task_xml(request: CamcopsRequest,
+def get_url_task_xml(req: CamcopsRequest,
                      tablename: str, serverpk: int) -> str:
     """URL to view a particular task as XML (with default options)."""
-    url = get_url_task(request, tablename, serverpk, VALUE.OUTPUTTYPE_XML)
+    url = get_url_task(req, tablename, serverpk, VALUE.OUTPUTTYPE_XML)
     url += get_url_field_value_pair(PARAM.INCLUDE_BLOBS, 1)
     url += get_url_field_value_pair(PARAM.INCLUDE_CALCULATED, 1)
     url += get_url_field_value_pair(PARAM.INCLUDE_PATIENT, 1)
@@ -3314,17 +3353,17 @@ def get_url_task_xml(request: CamcopsRequest,
     return url
 
 
-def get_url_erase_task(request: CamcopsRequest,
+def get_url_erase_task(req: CamcopsRequest,
                        tablename: str, serverpk: int) -> str:
-    url = get_generic_action_url(request, ACTION.ERASE_TASK)
+    url = get_generic_action_url(req, ACTION.ERASE_TASK)
     url += get_url_field_value_pair(PARAM.TABLENAME, tablename)
     url += get_url_field_value_pair(PARAM.SERVERPK, serverpk)
     return url
 
 
-def get_url_add_special_note(request: CamcopsRequest,
+def get_url_add_special_note(req: CamcopsRequest,
                              tablename: str, serverpk: int) -> str:
-    url = get_generic_action_url(request, ACTION.ADD_SPECIAL_NOTE)
+    url = get_generic_action_url(req, ACTION.ADD_SPECIAL_NOTE)
     url += get_url_field_value_pair(PARAM.TABLENAME, tablename)
     url += get_url_field_value_pair(PARAM.SERVERPK, serverpk)
     return url
@@ -3382,6 +3421,9 @@ def ancillary_class_unit_test(cls: Type[Ancillary]) -> None:
 
 def task_instance_unit_test(name: str, instance: Task) -> None:
     """Unit test for an named instance of Task."""
+
+    # *** req: CamcopsRequest
+
     recipient_def = RecipientDefinition(
         valid_which_idnums=pls.get_which_idnums())
 

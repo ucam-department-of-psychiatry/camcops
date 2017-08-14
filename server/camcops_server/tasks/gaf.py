@@ -24,12 +24,20 @@
 
 from typing import List, Optional
 
+from sqlalchemy.sql.sqltypes import Integer
+
 from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import answer, tr
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -37,28 +45,26 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # GAF (crippled)
 # =============================================================================
 
-class Gaf(Task):
-    tablename = "gaf"
+class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+    __tablename__ = "gaf"
     shortname = "GAF"
     longname = "Global Assessment of Functioning (data collection only)"
-    has_clinician = True
     provides_trackers = True
 
-    fieldspecs = [
-        dict(name="score", cctype="INT", min=0, max=100,
-             comment="GAF score (1-100 or 0 for insufficient information)"),
-    ]
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    score = CamcopsColumn(
+        "score", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
+        comment="GAF score (1-100 or 0 for insufficient information)"
+    )
 
     def is_complete(self) -> bool:
         return (
             self.score is not None and
-            self.field_contents_valid() and
-            self.score != 0
+            self.score != 0 and
+            self.field_contents_valid()
         )
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="GAF score (rating overall functioning)",
@@ -67,12 +73,12 @@ class Gaf(Task):
             axis_max=100.5
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(content="GAF score {}".format(self.total_score()))]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [self.is_complete_summary_field()]
 
     def total_score(self) -> Optional[int]:
@@ -80,12 +86,12 @@ class Gaf(Task):
             return None
         return self.score
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("gaf_score"), answer(self.score))
+        h += tr(req.wappstring("gaf_score"), answer(self.score))
         h += """
                 </table>
             </div>

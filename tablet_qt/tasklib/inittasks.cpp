@@ -243,6 +243,7 @@ void InitTasks(TaskFactory& factory)
     // *** new: CIS-R (see software + PDF, need permissions)
     // *** new: mini-ACE
     // *** new: Andy Foster / eating disorders; e-mail of 24/5/16
+    // *** AQ10 autistic spectrum screening
 
     // *** discarded tasks - revitalize: ASRM
     // *** discarded tasks - revitalize: BARS

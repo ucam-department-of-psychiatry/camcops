@@ -22,16 +22,19 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -39,45 +42,59 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # FAST
 # =============================================================================
 
-class Fast(Task):
-    tablename = "fast"
+class FastMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Fast'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=0, maximum=4,
+            comment_fmt="Q{n}. {s} (0-4, higher worse)",
+            comment_strings=[
+                "M>8, F>6 drinks", "unable to remember",
+                "failed to do what was expected", "others concerned"
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Fast(TaskHasPatientMixin, Task, Base,
+           metaclass=FastMetaclass):
+    __tablename__ = "fast"
     shortname = "FAST"
     longname = "Fast Alcohol Screening Test"
 
     NQUESTIONS = 4
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=4,
-        comment_fmt="Q{n}. {s} (0-4, higher worse)",
-        comment_strings=["M>8, F>6 drinks", "unable to remember",
-                         "failed to do what was expected", "others concerned"])
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_SCORE = 16
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
-
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="FAST total score",
-            axis_label="Total score (out of 16)",
+            axis_label="Total score (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=16.5
+            axis_max=self.MAX_SCORE + 0.5
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         classification = "positive" if self.is_positive() else "negative"
         return [CtvInfo(
-            content="FAST total score {}/16 ({})".format(
-                self.total_score(), classification)
+            content="FAST total score {}/{} ({})".format(
+                self.total_score(), self.MAX_SCORE, classification)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/16)"),
+                           comment="Total score (/{})".format(self.MAX_SCORE)),
             SummaryElement(name="positive",
                            coltype=Boolean(),
                            value=self.is_positive(),
@@ -100,27 +117,28 @@ class Fast(Task):
             return True
         return self.total_score() >= 3
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         main_dict = {
             None: None,
-            0: "0 — " + self.wxstring("q1to3_option0"),
-            1: "1 — " + self.wxstring("q1to3_option1"),
-            2: "2 — " + self.wxstring("q1to3_option2"),
-            3: "3 — " + self.wxstring("q1to3_option3"),
-            4: "4 — " + self.wxstring("q1to3_option4"),
+            0: "0 — " + self.wxstring(req, "q1to3_option0"),
+            1: "1 — " + self.wxstring(req, "q1to3_option1"),
+            2: "2 — " + self.wxstring(req, "q1to3_option2"),
+            3: "3 — " + self.wxstring(req, "q1to3_option3"),
+            4: "4 — " + self.wxstring(req, "q1to3_option4"),
         }
         q4_dict = {
             None: None,
-            0: "0 — " + self.wxstring("q4_option0"),
-            2: "2 — " + self.wxstring("q4_option2"),
-            4: "4 — " + self.wxstring("q4_option4"),
+            0: "0 — " + self.wxstring(req, "q4_option0"),
+            2: "2 — " + self.wxstring(req, "q4_option2"),
+            4: "4 — " + self.wxstring(req, "q4_option4"),
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score"), answer(self.total_score()) + " / 16")
-        h += tr_qa(self.wxstring("positive") + " <sup>[1]</sup>",
+        h += tr(req.wappstring("total_score"),
+                answer(self.total_score()) + " / {}".format(self.MAX_SCORE))
+        h += tr_qa(self.wxstring(req, "positive") + " <sup>[1]</sup>",
                    get_yes_no(self.is_positive()))
         h += """
                 </table>
@@ -131,10 +149,10 @@ class Fast(Task):
                     <th width="40%">Answer</th>
                 </tr>
         """
-        h += tr_qa(self.wxstring("q1"), get_from_dict(main_dict, self.q1))
-        h += tr_qa(self.wxstring("q2"), get_from_dict(main_dict, self.q2))
-        h += tr_qa(self.wxstring("q3"), get_from_dict(main_dict, self.q3))
-        h += tr_qa(self.wxstring("q4"), get_from_dict(q4_dict, self.q4))
+        h += tr_qa(self.wxstring(req, "q1"), get_from_dict(main_dict, self.q1))
+        h += tr_qa(self.wxstring(req, "q2"), get_from_dict(main_dict, self.q2))
+        h += tr_qa(self.wxstring(req, "q3"), get_from_dict(main_dict, self.q3))
+        h += tr_qa(self.wxstring(req, "q4"), get_from_dict(q4_dict, self.q4))
         h += """
             </table>
             <div class="footnotes">

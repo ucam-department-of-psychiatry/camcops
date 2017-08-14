@@ -39,7 +39,6 @@ from .cc_constants import (
     WKHTMLTOPDF_CSS,
 )
 from .cc_request import CamcopsRequest
-from .cc_string import wappstring
 
 
 # =============================================================================
@@ -349,9 +348,9 @@ def tr_span_col(x: str,
     )
 
 
-def get_html_from_pyplot_figure(request: CamcopsRequest, fig) -> str:
+def get_html_from_pyplot_figure(req: CamcopsRequest, fig) -> str:
     """Make HTML (as PNG or SVG) from pyplot figure."""
-    ccsession = request.camcops_session
+    ccsession = req.camcops_session
     if USE_SVG_IN_HTML and ccsession.use_svg:
         return (
             rnc_plot.svg_html_from_pyplot_figure(fig) +
@@ -365,10 +364,10 @@ def get_html_from_pyplot_figure(request: CamcopsRequest, fig) -> str:
         return rnc_plot.png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI)
 
 
-def get_html_which_idnum_picker(request: CamcopsRequest,
+def get_html_which_idnum_picker(req: CamcopsRequest,
                                 param: str = PARAM.WHICH_IDNUM,
                                 selected: int = None) -> str:
-    cfg = request.config
+    cfg = req.config
     html = """
         <select name="{param}">
     """.format(
@@ -440,7 +439,7 @@ def get_embedded_img_tag(mimetype: str, data: Union[bytes, memoryview]) -> str:
 
 def get_yes_no(x: Any) -> str:
     """'Yes' if x else 'No'"""
-    return wappstring("yes") if x else wappstring("no")
+    return req.wappstring("yes") if x else req.wappstring("no")
 
 
 def get_yes_no_none(x: Any) -> Optional[str]:
@@ -459,7 +458,7 @@ def get_yes_no_unknown(x: Any) -> str:
 
 def get_true_false(x: Any) -> str:
     """'True' if x else 'False'"""
-    return wappstring("true") if x else wappstring("false")
+    return req.wappstring("true") if x else req.wappstring("false")
 
 
 def get_true_false_none(x: Any) -> Optional[str]:
@@ -478,7 +477,7 @@ def get_true_false_unknown(x: Any) -> str:
 
 def get_present_absent(x: Any) -> str:
     """'Present' if x else 'Absent'"""
-    return wappstring("present") if x else wappstring("absent")
+    return req.wappstring("present") if x else req.wappstring("absent")
 
 
 def get_present_absent_none(x: Any) -> Optional[str]:
@@ -515,15 +514,15 @@ def get_correct_incorrect_none(x: Any) -> Optional[str]:
 # Pages referred to in this module by simple success/failure messages
 # =============================================================================
 
-def login_page(request: CamcopsRequest, extra_msg: str = "", redirect=None):
+def login_page(req: CamcopsRequest, extra_msg: str = "", redirect=None):
     """HTML for main login page."""
-    cfg = request.config
+    cfg = req.config
     disable_autocomplete = (' autocomplete="off"'
                             if cfg.DISABLE_PASSWORD_AUTOCOMPLETE
                             else '')
     # http://stackoverflow.com/questions/2530
     # Note that e.g. Chrome may ignore this.
-    return request.webstart_html + """
+    return req.webstart_html + """
         <div>{dbtitle}</div>
         <div>
             <b>Unauthorized access prohibited.</b>
@@ -539,9 +538,9 @@ def login_page(request: CamcopsRequest, extra_msg: str = "", redirect=None):
             <input type="submit" value="Submit">
         </form>
     """.format(
-        dbtitle=get_database_title_string(request),
+        dbtitle=get_database_title_string(req),
         extramsg=extra_msg,
-        script=request.script_name,
+        script=req.script_name,
         da=disable_autocomplete,
         ACTION=ACTION,
         PARAM=PARAM,
@@ -553,10 +552,10 @@ def login_page(request: CamcopsRequest, extra_msg: str = "", redirect=None):
 # Common page components
 # =============================================================================
 
-def simple_success_message(request: CamcopsRequest, msg: str,
+def simple_success_message(req: CamcopsRequest, msg: str,
                            extra_html: str = ""):
     """HTML for simple success message."""
-    return request.webstart_html + """
+    return req.webstart_html + """
         <h1>Success</h1>
         <div>{}</div>
         {}
@@ -564,7 +563,7 @@ def simple_success_message(request: CamcopsRequest, msg: str,
     """.format(
         ws.webify(msg),
         extra_html,
-        get_return_to_main_menu_line(request)
+        get_return_to_main_menu_line(req)
     ) + WEBEND
 
 
@@ -573,38 +572,38 @@ def error_msg(msg: str) -> str:
     return """<h2 class="error">{}</h2>""".format(msg)
 
 
-def fail_with_error_not_logged_in(request: CamcopsRequest,
+def fail_with_error_not_logged_in(req: CamcopsRequest,
                                   error: str, redirect: str = None) -> str:
     """HTML for you-have-failed-and-are-not-logged-in message."""
-    return login_page(request, error_msg(error), redirect)
+    return login_page(req, error_msg(error), redirect)
 
 
-def fail_with_error_stay_logged_in(request: CamcopsRequest,
+def fail_with_error_stay_logged_in(req: CamcopsRequest,
                                    error: str, extra_html: str = "") -> str:
     """HTML for errors where the user stays logged in."""
-    return request.webstart_html + """
+    return req.webstart_html + """
         {}
         {}
         {}
     """.format(
         error_msg(error),
-        get_return_to_main_menu_line(request),
+        get_return_to_main_menu_line(req),
         extra_html
     ) + WEBEND
 
 
-def get_return_to_main_menu_line(request: CamcopsRequest) -> str:
+def get_return_to_main_menu_line(req: CamcopsRequest) -> str:
     """HTML DIV for returning to the main menu."""
     return """
         <div>
             <a href="{}">Return to main menu</a>
         </div>
-    """.format(get_url_main_menu(request))
+    """.format(get_url_main_menu(req))
 
 
-def get_database_title_string(request: CamcopsRequest) -> str:
+def get_database_title_string(req: CamcopsRequest) -> str:
     """Database title as HTML-safe unicode."""
-    cfg = request.config
+    cfg = req.config
     if not cfg.DATABASE_TITLE:
         return ""
     return "Database: <b>{}</b>.".format(ws.webify(cfg.DATABASE_TITLE))
@@ -614,9 +613,9 @@ def get_database_title_string(request: CamcopsRequest) -> str:
 # URLs
 # =============================================================================
 
-def get_generic_action_url(request: CamcopsRequest, action: str) -> str:
+def get_generic_action_url(req: CamcopsRequest, action: str) -> str:
     """Make generic URL with initial action name/value pair."""
-    return "{}?{}={}".format(request.script_name, PARAM.ACTION, action)
+    return "{}?{}={}".format(req.script_name, PARAM.ACTION, action)
 
 
 def get_url_field_value_pair(field: str, value: Any) -> str:
@@ -624,13 +623,13 @@ def get_url_field_value_pair(field: str, value: Any) -> str:
     return "&amp;{}={}".format(field, value)
 
 
-def get_url_main_menu(request: CamcopsRequest) -> str:
-    return get_generic_action_url(request, ACTION.MAIN_MENU)
+def get_url_main_menu(req: CamcopsRequest) -> str:
+    return get_generic_action_url(req, ACTION.MAIN_MENU)
 
 
-def get_url_enter_new_password(request: CamcopsRequest, username: str) -> str:
+def get_url_enter_new_password(req: CamcopsRequest, username: str) -> str:
     """URL to enter new password."""
     return (
-        get_generic_action_url(request, ACTION.ENTER_NEW_PASSWORD) +
+        get_generic_action_url(req, ACTION.ENTER_NEW_PASSWORD) +
         get_url_field_value_pair(PARAM.USERNAME, username)
     )

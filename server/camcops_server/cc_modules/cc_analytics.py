@@ -63,19 +63,19 @@ ANALYTICS_TIMEOUT_MS = 5000
 ANALYTICS_PERIOD = datetime.timedelta(days=ANALYTICS_FREQUENCY_DAYS)
 
 
-def send_analytics_if_necessary(request: CamcopsRequest) -> None:
+def send_analytics_if_necessary(req: CamcopsRequest) -> None:
     """Send analytics to the CamCOPS base server, if required.
 
     If analytics reporting is enabled, and analytics have not been sent
     recently, collate and send them to the CamCOPS base server in Cambridge,
     UK.
     """
-    cfg = request.config
-    now = request.now_arrow
+    cfg = req.config
+    now = req.now_arrow
     if not cfg.SEND_ANALYTICS:
         # User has disabled analytics reporting.
         return
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     last_sent_var = ServerStoredVar.get_or_create(
         dbsession,
         ServerStoredVarNames.LAST_ANALYTICS_SENT_AT,
@@ -90,7 +90,7 @@ def send_analytics_if_necessary(request: CamcopsRequest) -> None:
 
     # Compile analytics
     now_as_utc_iso_string = format_datetime(now, DATEFORMAT.ISO8601)
-    dbsession = request.dbsession
+    dbsession = req.dbsession
     (table_names, record_counts) = get_all_tables_with_record_counts(dbsession)
 
     # This is what's sent:
@@ -98,7 +98,7 @@ def send_analytics_if_necessary(request: CamcopsRequest) -> None:
         "source": "server",
         "now": now_as_utc_iso_string,
         "camcops_version": str(CAMCOPS_SERVER_VERSION),
-        "server": request.server_name,
+        "server": req.server_name,
         "table_names": ",".join(table_names),
         "record_counts": ",".join([str(x) for x in record_counts]),
     }
@@ -109,9 +109,9 @@ def send_analytics_if_necessary(request: CamcopsRequest) -> None:
 
     # Send it.
     encoded_dict = urllib.parse.urlencode(d).encode('ascii')
-    request = urllib.request.Request(ANALYTICS_URL, encoded_dict)
+    req = urllib.request.Request(ANALYTICS_URL, encoded_dict)
     try:
-        urllib.request.urlopen(request, timeout=ANALYTICS_TIMEOUT_MS)
+        urllib.request.urlopen(req, timeout=ANALYTICS_TIMEOUT_MS)
         # don't care about any response
     except (urllib.error.URLError, urllib.error.HTTPError):
         # something broke; try again next time
@@ -140,8 +140,8 @@ def get_all_tables_with_record_counts(dbsession: SqlASession) \
     return table_names, record_counts
 
 
-def ccanalytics_unit_tests(request: CamcopsRequest) -> None:
+def ccanalytics_unit_tests(req: CamcopsRequest) -> None:
     """Unit tests for the cc_analytics module."""
-    dbsession = request.dbsession
-    unit_test_ignore("", send_analytics_if_necessary, request)
+    dbsession = req.dbsession
+    unit_test_ignore("", send_analytics_if_necessary, req)
     unit_test_ignore("", get_all_tables_with_record_counts, dbsession)

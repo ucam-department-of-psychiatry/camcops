@@ -251,14 +251,6 @@ def add_multiple_columns(cls: Type,
             setattr(cls, colname, Column(colname, coltype, **colkwargs))
 
 
-def repeat_fieldname(prefix: str, start: int, end: int) -> List[str]:
-    """Return a list of fieldnames for numerically sequenced fields."""
-    fd = []
-    for i in range(start, end + 1):  # iterate from start to end inclusive
-        fd.append(prefix + str(i))
-    return fd
-
-
 # =============================================================================
 # Add sqltype field to fieldspecs defined by cctype
 # =============================================================================

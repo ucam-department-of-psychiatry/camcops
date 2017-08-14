@@ -30,7 +30,6 @@ from ..cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
 from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import TrackerLabel, TrackerInfo
@@ -70,7 +69,7 @@ class Smast(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="SMAST total score",
@@ -82,13 +81,13 @@ class Smast(Task):
                 1.5,
             ],
             horizontal_labels=[
-                TrackerLabel(4, self.wxstring("problem_probable")),
-                TrackerLabel(2, self.wxstring("problem_possible")),
-                TrackerLabel(0.75, self.wxstring("problem_unlikely")),
+                TrackerLabel(4, self.wxstring(req, "problem_probable")),
+                TrackerLabel(2, self.wxstring(req, "problem_possible")),
+                TrackerLabel(0.75, self.wxstring(req, "problem_unlikely")),
             ]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -96,7 +95,7 @@ class Smast(Task):
                 self.total_score(), self.likelihood())
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -134,27 +133,27 @@ class Smast(Task):
     def likelihood(self) -> str:
         score = self.total_score()
         if score >= 3:
-            return self.wxstring("problem_probable")
+            return self.wxstring(req, "problem_probable")
         elif score >= 2:
-            return self.wxstring("problem_possible")
+            return self.wxstring(req, "problem_possible")
         else:
-            return self.wxstring("problem_unlikely")
+            return self.wxstring(req, "problem_unlikely")
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         likelihood = self.likelihood()
         main_dict = {
             None: None,
-            "Y": wappstring("yes"),
-            "N": wappstring("no")
+            "Y": req.wappstring("yes"),
+            "N": req.wappstring("no")
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(wappstring("total_score"), answer(score) + " / 13")
-        h += tr_qa(self.wxstring("problem_likelihood") + " <sup>[1]</sup>",
+        h += tr(req.wappstring("total_score"), answer(score) + " / 13")
+        h += tr_qa(self.wxstring(req, "problem_likelihood") + " <sup>[1]</sup>",
                    likelihood)
         h += """
                 </table>
@@ -167,7 +166,7 @@ class Smast(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr(
-                self.wxstring("q" + str(q)),
+                self.wxstring(req, "q" + str(q)),
                 answer(get_from_dict(main_dict, getattr(self, "q" + str(q)))) +
                 " — " + str(self.get_score(q))
             )

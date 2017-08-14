@@ -110,7 +110,7 @@ class Ybocs(Task):
     OBSESSION_QUESTIONS = ["q" + str(x) for x in range(1, 5 + 1)]
     COMPULSION_QUESTIONS = ["q" + str(x) for x in range(6, 10 + 1)]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [
             TrackerInfo(
                 value=self.total_score(),
@@ -135,7 +135,7 @@ class Ybocs(Task):
             ),
         ]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total_score",
@@ -152,7 +152,7 @@ class Ybocs(Task):
                            comment="Compulsion score (/ 20)"),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         t = self.total_score()
@@ -176,7 +176,7 @@ class Ybocs(Task):
             self.are_all_fields_complete(self.SCORED_QUESTIONS)
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
@@ -223,8 +223,8 @@ class Ybocs(Task):
             fieldname = "q" + qi[0]
             value = getattr(self, fieldname)
             h += tr(
-                self.wxstring(fieldname + "_title"),
-                answer(self.wxstring(fieldname + "_a" + str(value), value)
+                self.wxstring(req, fieldname + "_title"),
+                answer(self.wxstring(req, fieldname + "_a" + str(value), value)
                        if value is not None else None)
             )
         h += """
@@ -386,7 +386,7 @@ class YbocsSc(Task):
     has_clinician = True
     extrastring_taskname = "ybocs"  # shares with Y-BOCS
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         current_list = []
@@ -413,7 +413,7 @@ class YbocsSc(Task):
     def is_complete() -> bool:
         return True
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <table class="taskdetail">
                 <tr>
@@ -425,12 +425,12 @@ class YbocsSc(Task):
         """
         for group in self.GROUPS:
             h += subheading_spanning_four_columns(
-                self.wxstring(self.SC_PREFIX + group))
+                self.wxstring(req, self.SC_PREFIX + group))
             for item in self.ITEMS:
                 if not item.startswith(group):
                     continue
                 h += tr(
-                    self.wxstring(self.SC_PREFIX + item),
+                    self.wxstring(req, self.SC_PREFIX + item),
                     answer(get_ternary(getattr(self,
                                                item + self.SUFFIX_CURRENT),
                                        value_true="Current",

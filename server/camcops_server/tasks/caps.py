@@ -22,21 +22,24 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_constants import PV
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no_none,
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -63,34 +66,51 @@ QUESTION_SNIPPETS = [
 ]
 
 
-class Caps(Task):
-    tablename = "caps"
+class CapsMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Caps'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "endorse", 1, cls.NQUESTIONS,
+            pv=PV.BIT,
+            comment_fmt="Q{n} ({s}): endorsed? (0 no, 1 yes)",
+            comment_strings=QUESTION_SNIPPETS
+        )
+        add_multiple_columns(
+            cls, "distress", 1, cls.NQUESTIONS,
+            minimum=1, maximum=5,
+            comment_fmt="Q{n} ({s}): distress (1 low - 5 high), if endorsed",
+            comment_strings=QUESTION_SNIPPETS
+        )
+        add_multiple_columns(
+            cls, "intrusiveness", 1, cls.NQUESTIONS,
+            minimum=1, maximum=5,
+            comment_fmt="Q{n} ({s}): intrusiveness (1 low - 5 high), "
+                        "if endorsed",
+            comment_strings=QUESTION_SNIPPETS
+        )
+        add_multiple_columns(
+            cls, "frequency", 1, cls.NQUESTIONS,
+            minimum=1, maximum=5,
+            comment_fmt="Q{n} ({s}): frequency (1 low - 5 high), if endorsed",
+            comment_strings=QUESTION_SNIPPETS
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Caps(TaskHasPatientMixin, Task, Base,
+           metaclass=CapsMetaclass):
+    __tablename__ = "caps"
     shortname = "CAPS"
     longname = "Cardiff Anomalous Perceptions Scale"
     provides_trackers = True
 
     NQUESTIONS = 32
-    fieldspecs = (
-        repeat_fieldspec(
-            "endorse", 1, NQUESTIONS, pv=PV.BIT,
-            comment_fmt="Q{n} ({s}): endorsed? (0 no, 1 yes)",
-            comment_strings=QUESTION_SNIPPETS) +
-        repeat_fieldspec(
-            "distress", 1, NQUESTIONS, min=1, max=5,
-            comment_fmt="Q{n} ({s}): distress (1 low - 5 high), if endorsed",
-            comment_strings=QUESTION_SNIPPETS) +
-        repeat_fieldspec(
-            "intrusiveness", 1, NQUESTIONS, min=1, max=5,
-            comment_fmt="Q{n} ({s}): intrusiveness (1 low - 5 high), "
-            "if endorsed",
-            comment_strings=QUESTION_SNIPPETS) +
-        repeat_fieldspec(
-            "frequency", 1, NQUESTIONS, min=1, max=5,
-            comment_fmt="Q{n} ({s}): frequency (1 low - 5 high), if endorsed",
-            comment_strings=QUESTION_SNIPPETS)
-    )
+    ENDORSE_FIELDS = strseq("endorse", 1, NQUESTIONS)
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="CAPS total score",
@@ -99,7 +119,7 @@ class Caps(Task):
             axis_max=32.5
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(
@@ -141,8 +161,7 @@ class Caps(Task):
         return True
 
     def total_score(self) -> int:
-        return self.count_booleans(repeat_fieldname("endorse", 1,
-                                                    Caps.NQUESTIONS))
+        return self.count_booleans(self.ENDORSE_FIELDS)
 
     def distress_score(self) -> int:
         score = 0
@@ -168,7 +187,7 @@ class Caps(Task):
                 score += self.sum_fields(["frequency" + str(q)])
         return score
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         total = self.total_score()
         distress = self.distress_score()
         intrusiveness = self.intrusiveness_score()
@@ -178,13 +197,13 @@ class Caps(Task):
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr_qa(
-            "{} <sup>[1]</sup> (0–32)".format(wappstring("total_score")),
+            "{} <sup>[1]</sup> (0–32)".format(req.wappstring("total_score")),
             total)
-        h += tr_qa("{} (0–160)".format(self.wxstring("distress")),
+        h += tr_qa("{} (0–160)".format(self.wxstring(req, "distress")),
                    distress)
-        h += tr_qa("{} (0–160)".format(self.wxstring("intrusiveness")),
+        h += tr_qa("{} (0–160)".format(self.wxstring(req, "intrusiveness")),
                    intrusiveness)
-        h += tr_qa("{} (0–160)".format(self.wxstring("frequency")),
+        h += tr_qa("{} (0–160)".format(self.wxstring(req, "frequency")),
                    frequency)
         h += """
                 </table>
@@ -203,16 +222,16 @@ class Caps(Task):
                     <th width="10%">Frequency (1–5)</th>
                 </tr>
         """.format(
-            distress1=self.wxstring("distress_option1"),
-            distress5=self.wxstring("distress_option5"),
-            intrusiveness1=self.wxstring("intrusiveness_option1"),
-            intrusiveness5=self.wxstring("intrusiveness_option5"),
-            frequency1=self.wxstring("frequency_option1"),
-            frequency5=self.wxstring("frequency_option5"),
+            distress1=self.wxstring(req, "distress_option1"),
+            distress5=self.wxstring(req, "distress_option5"),
+            intrusiveness1=self.wxstring(req, "intrusiveness_option1"),
+            intrusiveness5=self.wxstring(req, "intrusiveness_option5"),
+            frequency1=self.wxstring(req, "frequency_option1"),
+            frequency5=self.wxstring(req, "frequency_option5"),
         )
         for q in range(1, Caps.NQUESTIONS + 1):
             h += tr(
-                self.wxstring("q" + str(q)),
+                self.wxstring(req, "q" + str(q)),
                 answer(get_yes_no_none(getattr(self, "endorse" + str(q)))),
                 answer(getattr(self, "distress" + str(q))
                        if getattr(self, "endorse" + str(q)) else ""),

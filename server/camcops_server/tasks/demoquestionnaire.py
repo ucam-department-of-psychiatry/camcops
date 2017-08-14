@@ -22,10 +22,20 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
-from ..cc_modules.cc_db import repeat_fieldspec
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Float, Integer, Text, Time
+
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    DateTimeAsIsoTextColType,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import Task
 
 
@@ -46,63 +56,62 @@ def divtest(divname: str) -> str:
     return '<div class="{d}">.{d}</div>\n'.format(d=divname)
 
 
-class DemoQuestionnaire(Task):
-    tablename = "demoquestionnaire"
+class DemoQuestionnaireMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['DemoQuestionnaire'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(cls, "mcq", 1, N_MCQ)
+        add_multiple_columns(cls, "mcqbool", 1, N_MCQBOOL)
+        add_multiple_columns(cls, "multipleresponse", 1, N_MULTIPLERESPONSE)
+        add_multiple_columns(cls, "booltext", 1, N_BOOLTEXT)
+        add_multiple_columns(cls, "boolimage", 1, N_BOOLIMAGE)
+        add_multiple_columns(cls, "picker", 1, N_PICKER)
+        add_multiple_columns(cls, "slider", 1, N_SLIDER, Float)
+        super().__init__(name, bases, classdict)
+
+
+class DemoQuestionnaire(Task, Base,
+                        metaclass=DemoQuestionnaireMetaclass):
+    __tablename__ = "demoquestionnaire"
     shortname = "Demo"
     longname = "Demonstration Questionnaire"
     is_anonymous = True
 
-    fieldspecs = (
-        repeat_fieldspec("mcq", 1, N_MCQ) +
-        repeat_fieldspec("mcqbool", 1, N_MCQBOOL) +
-        repeat_fieldspec("multipleresponse", 1, N_MULTIPLERESPONSE) +
-        repeat_fieldspec("booltext", 1, N_BOOLTEXT) +
-        repeat_fieldspec("boolimage", 1, N_BOOLIMAGE) +
-        repeat_fieldspec("picker", 1, N_PICKER) +
-        repeat_fieldspec("slider", 1, N_SLIDER, "FLOAT") +
-        [
-            dict(name="mcqtext_1a", cctype="TEXT"),
-            dict(name="mcqtext_1b", cctype="TEXT"),
-            dict(name="mcqtext_2a", cctype="TEXT"),
-            dict(name="mcqtext_2b", cctype="TEXT"),
-            dict(name="mcqtext_3a", cctype="TEXT"),
-            dict(name="mcqtext_3b", cctype="TEXT"),
-            dict(name="typedvar_text", cctype="TEXT"),
-            dict(name="typedvar_text_multiline", cctype="TEXT"),
-            dict(name="typedvar_text_rich", cctype="TEXT"),  # v2
-            dict(name="typedvar_int", cctype="INT"),
-            dict(name="typedvar_real", cctype="FLOAT"),
-            dict(name="date_only", cctype="ISO8601"),
-            dict(name="date_time", cctype="ISO8601"),
-            dict(name="thermometer", cctype="INT"),
-            dict(name="diagnosticcode_code", cctype="TEXT"),
-            dict(name="diagnosticcode_description", cctype="TEXT"),
-            dict(name="diagnosticcode2_code", cctype="TEXT"),  # v2
-            dict(name="diagnosticcode2_description", cctype="TEXT"),  # v2
-            dict(name="photo_blobid", cctype="INT"),
-            # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-            dict(name="photo_rotation", cctype="INT"),  # *** DEFUNCT as of v2.0.0  # noqa
-            dict(name="canvas_blobid", cctype="INT"),
-            dict(name="canvas2_blobid", cctype="INT"),  # v2
-            dict(name="spinbox_int", cctype="INT"),  # v2
-            dict(name="spinbox_real", cctype="FLOAT"),  # v2
-            dict(name="time_only", cctype="TIME"),  # v2
-        ]
-    )
-    for d in fieldspecs:
-        if "comment" not in d:
-            d["comment"] = d["name"]
-    blob_name_idfield_list = [
-        ("photo", "photo_blobid"),
-        ("canvas", "canvas_blobid"),
-    ]
+    mcqtext_1a = Column("mcqtext_1a", Text)
+    mcqtext_1b = Column("mcqtext_1b", Text)
+    mcqtext_2a = Column("mcqtext_2a", Text)
+    mcqtext_2b = Column("mcqtext_2b", Text)
+    mcqtext_3a = Column("mcqtext_3a", Text)
+    mcqtext_3b = Column("mcqtext_3b", Text)
+    typedvar_text = Column("typedvar_text", Text)
+    typedvar_text_multiline = Column("typedvar_text_multiline", Text)
+    typedvar_text_rich = Column("typedvar_text_rich", Text)  # v2
+    typedvar_int = Column("typedvar_int", Integer)
+    typedvar_real = Column("typedvar_real", Float)
+    date_only = Column("date_only", DateTimeAsIsoTextColType)
+    date_time = Column("date_time", DateTimeAsIsoTextColType)
+    thermometer = Column("thermometer", Integer)
+    diagnosticcode_code = Column("diagnosticcode_code", Text)
+    diagnosticcode_description = Column("diagnosticcode_description", Text)
+    diagnosticcode2_code = Column("diagnosticcode2_code", Text)  # v2
+    diagnosticcode2_description = Column("diagnosticcode2_description", Text)  # v2
+    photo_blobid = CamcopsColumn("photo_blobid", Integer, is_blob_id_field=True)  # noqa
+    # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
+    photo_rotation = Column("photo_rotation", Integer)  # *** DEFUNCT as of v2.0.0  # noqa
+    canvas_blobid = CamcopsColumn("canvas_blobid", Integer, is_blob_id_field=True)  # noqa
+    canvas2_blobid = CamcopsColumn("canvas2_blobid", Integer, is_blob_id_field=True)  # noqa # v2
+    spinbox_int = Column("spinbox_int", Integer)  # v2
+    spinbox_real = Column("spinbox_real", Float)  # v2
+    time_only = Column("time_only", Time)  # v2
 
     # noinspection PyMethodOverriding
     @staticmethod
     def is_complete() -> bool:
         return True
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

@@ -117,23 +117,23 @@ class PsychiatricClerking(Task):
 
     def get_ctv_heading(self, wstringname) -> CtvInfo:
         return CtvInfo(
-            heading=self.wxstring(wstringname),
+            heading=self.wxstring(req, wstringname),
             skip_if_no_content=False
         )
 
     def get_ctv_subheading(self, wstringname) -> CtvInfo:
         return CtvInfo(
-            subheading=self.wxstring(wstringname),
+            subheading=self.wxstring(req, wstringname),
             skip_if_no_content=False
         )
 
     def get_ctv_description_content(self, x: str) -> CtvInfo:
         return CtvInfo(
-            description=self.wxstring(x),
+            description=self.wxstring(req, x),
             content=ws.webify(getattr(self, x))
         )
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         fields_b = [x["name"] for x in self.FIELDSPEC_B]
         fields_c = [x["name"] for x in self.FIELDSPEC_C]
         fields_mse = [x["name"] for x in self.FIELDSPEC_MSE]
@@ -178,15 +178,15 @@ class PsychiatricClerking(Task):
 
     def heading(self, wstringname: str) -> str:
         return '<div class="heading">{}</div>'.format(
-            self.wxstring(wstringname))
+            self.wxstring(req, wstringname))
 
     def subheading(self, wstringname: str) -> str:
         return '<div class="subheading">{}</div>'.format(
-            self.wxstring(wstringname))
+            self.wxstring(req, wstringname))
 
     def subsubheading(self, wstringname: str) -> str:
         return '<div class="subsubheading">{}</div>'.format(
-            self.wxstring(wstringname))
+            self.wxstring(req, wstringname))
 
     def subhead_text(self, fieldname: str) -> str:
         return self.subheading(fieldname) + '<div><b>{}</b></div>'.format(
@@ -198,7 +198,7 @@ class PsychiatricClerking(Task):
             ws.webify(getattr(self, fieldname))
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         # Avoid tables - PDF generator crashes if text is too long.
         fields_b = [x["name"] for x in self.FIELDSPEC_B]
         fields_c = [x["name"] for x in self.FIELDSPEC_C]

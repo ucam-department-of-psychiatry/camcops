@@ -24,48 +24,51 @@
 
 from typing import List
 
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
+
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_string import wappstring
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 
 
 # =============================================================================
 # FFT
 # =============================================================================
 
-class Fft(Task):
+class Fft(TaskHasPatientMixin, Task, Base):
     tablename = "fft"
     shortname = "FFT"
     longname = "Friends and Family Test"
 
-    fieldspecs = [
-        dict(name="service", cctype="TEXT",
-             comment="Clinical service being rated"),
-        dict(name="rating", cctype="INT", min=1, max=6,
-             comment="Likelihood of recommendation to friends/family (1 "
-                     "extremely likely - 5 extremely unlikely, 6 don't know)"),
-    ]
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    service = Column("service", Text, comment="Clinical service being rated")
+    rating = CamcopsColumn(
+        "rating", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=1, maximum=6),
+        comment="Likelihood of recommendation to friends/family (1 "
+                "extremely likely - 5 extremely unlikely, 6 don't know)"
+    )
 
     def is_complete(self) -> bool:
         return self.rating is not None and self.field_contents_valid()
 
-    def get_rating_text(self) -> str:
+    def get_rating_text(self, req: CamcopsRequest) -> str:
         ratingdict = {
             None: None,
-            1: self.wxstring("a1"),
-            2: self.wxstring("a2"),
-            3: self.wxstring("a3"),
-            4: self.wxstring("a4"),
-            5: self.wxstring("a5"),
-            6: self.wxstring("a6"),
+            1: self.wxstring(req, "a1"),
+            2: self.wxstring(req, "a2"),
+            3: self.wxstring(req, "a3"),
+            4: self.wxstring(req, "a4"),
+            5: self.wxstring(req, "a5"),
+            6: self.wxstring(req, "a6"),
         }
         return get_from_dict(ratingdict, self.rating)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         if self.rating is not None:
-            r = "{}. {}".format(self.rating, self.get_rating_text())
+            r = "{}. {}".format(self.rating, self.get_rating_text(req))
         else:
             r = None
         h = """
@@ -80,8 +83,8 @@ class Fft(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(wappstring("satis_service_being_rated"), self.service)
-        h += tr_qa(self.wxstring("q"), r)
+        h += tr_qa(req.wappstring("satis_service_being_rated"), self.service)
+        h += tr_qa(self.wxstring(req, "q"), r)
         h += """
             </table>
         """

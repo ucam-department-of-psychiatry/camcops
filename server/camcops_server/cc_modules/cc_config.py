@@ -136,6 +136,7 @@ class CamcopsConfig(object):
             config, section, "DBCLIENT_LOGLEVEL", logging.INFO)
         logging.getLogger("camcops_server.database")\
             .setLevel(self.DBCLIENT_LOGLEVEL)
+        # ... MUTABLE GLOBAL STATE (if relatively unimportant)
 
         self.DISABLE_PASSWORD_AUTOCOMPLETE = get_config_parameter_boolean(
             config, section, "DISABLE_PASSWORD_AUTOCOMPLETE", True)
@@ -232,11 +233,10 @@ class CamcopsConfig(object):
         self.WEBVIEW_LOGLEVEL = get_config_parameter_loglevel(
             config, section, "WEBVIEW_LOGLEVEL", logging.INFO)
         logging.getLogger().setLevel(self.WEBVIEW_LOGLEVEL)  # root logger
+        # ... MUTABLE GLOBAL STATE (if relatively unimportant)  # noqa
 
         self.WKHTMLTOPDF_FILENAME = get_config_parameter(
             config, section, "WKHTMLTOPDF_FILENAME", str, None)
-        rnc_pdf.set_processor(PDF_ENGINE,
-                              wkhtmltopdf_filename=self.WKHTMLTOPDF_FILENAME)
 
         # ---------------------------------------------------------------------
         # Read from the config file: 2. HL7 section

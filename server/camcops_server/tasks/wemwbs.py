@@ -29,7 +29,6 @@ from sqlalchemy.sql.sqltypes import Integer
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
@@ -78,7 +77,7 @@ class Wemwbs(Task):
         return self.are_all_fields_complete(repeat_fieldname(
             "q", 1, self.N_QUESTIONS))
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="WEMWBS total score (rating mental well-being)",
@@ -88,7 +87,7 @@ class Wemwbs(Task):
             axis_max=self.MAXTOTALSCORE + 0.5
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -98,7 +97,7 @@ class Wemwbs(Task):
                 self.MAXTOTALSCORE)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -113,21 +112,21 @@ class Wemwbs(Task):
     def total_score(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 1, self.N_QUESTIONS))
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         main_dict = {
             None: None,
-            1: "1 — " + self.wxstring("wemwbs_a1"),
-            2: "2 — " + self.wxstring("wemwbs_a2"),
-            3: "3 — " + self.wxstring("wemwbs_a3"),
-            4: "4 — " + self.wxstring("wemwbs_a4"),
-            5: "5 — " + self.wxstring("wemwbs_a5")
+            1: "1 — " + self.wxstring(req, "wemwbs_a1"),
+            2: "2 — " + self.wxstring(req, "wemwbs_a2"),
+            3: "3 — " + self.wxstring(req, "wemwbs_a3"),
+            4: "4 — " + self.wxstring(req, "wemwbs_a4"),
+            5: "5 — " + self.wxstring(req, "wemwbs_a5")
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(
-            wappstring("total_score"),
+            req.wappstring("total_score"),
             answer(self.total_score()) + " (range {}–{})".format(
                 self.MINTOTALSCORE,
                 self.MAXTOTALSCORE
@@ -147,7 +146,7 @@ class Wemwbs(Task):
         """
         for i in range(1, self.N_QUESTIONS + 1):
             nstr = str(i)
-            h += tr_qa(self.wxstring("wemwbs_q" + nstr),
+            h += tr_qa(self.wxstring(req, "wemwbs_q" + nstr),
                        get_from_dict(main_dict, getattr(self, "q" + nstr)))
         h += """
             </table>
@@ -203,7 +202,7 @@ class Swemwbs(Task):
         return self.are_all_fields_complete(repeat_fieldname(
             "q", 1, self.N_QUESTIONS))
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="SWEMWBS total score (rating mental well-being)",
@@ -213,7 +212,7 @@ class Swemwbs(Task):
             axis_max=self.MAXTOTALSCORE + 0.5
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -223,7 +222,7 @@ class Swemwbs(Task):
                 self.MAXTOTALSCORE)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -238,21 +237,21 @@ class Swemwbs(Task):
     def total_score(self) -> int:
         return self.sum_fields(repeat_fieldname("q", 1, self.N_QUESTIONS))
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         main_dict = {
             None: None,
-            1: "1 — " + self.wxstring("wemwbs_a1"),
-            2: "2 — " + self.wxstring("wemwbs_a2"),
-            3: "3 — " + self.wxstring("wemwbs_a3"),
-            4: "4 — " + self.wxstring("wemwbs_a4"),
-            5: "5 — " + self.wxstring("wemwbs_a5")
+            1: "1 — " + self.wxstring(req, "wemwbs_a1"),
+            2: "2 — " + self.wxstring(req, "wemwbs_a2"),
+            3: "3 — " + self.wxstring(req, "wemwbs_a3"),
+            4: "4 — " + self.wxstring(req, "wemwbs_a4"),
+            5: "5 — " + self.wxstring(req, "wemwbs_a5")
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(
-            wappstring("total_score"),
+            req.wappstring("total_score"),
             answer(self.total_score()) + " (range {}–{})".format(
                 self.MINTOTALSCORE,
                 self.MAXTOTALSCORE
@@ -272,7 +271,7 @@ class Swemwbs(Task):
         """
         for i in range(1, self.N_QUESTIONS + 1):
             nstr = str(i)
-            h += tr_qa(self.wxstring("swemwbs_q" + nstr),
+            h += tr_qa(self.wxstring(req, "swemwbs_q" + nstr),
                        get_from_dict(main_dict, getattr(self, "q" + nstr)))
         h += """
             </table>

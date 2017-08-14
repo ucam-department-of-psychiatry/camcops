@@ -27,7 +27,6 @@ from typing import Dict, List
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_db import repeat_fieldspec
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
@@ -56,7 +55,7 @@ class Lunsers(Task):
 
     fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="LUNSERS total score",
@@ -65,7 +64,7 @@ class Lunsers(Task):
             axis_max=0.5 + self.max_score()
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total", 
@@ -108,7 +107,7 @@ class Lunsers(Task):
 
     def get_row(self, q: int, answer_dict: Dict) -> str:
         return """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-            "Q" + str(q) + " — " + self.wxstring("q" + str(q)),
+            "Q" + str(q) + " — " + self.wxstring(req, "q" + str(q)),
             get_from_dict(answer_dict, getattr(self, "q" + str(q)))
         )
 
@@ -128,12 +127,12 @@ class Lunsers(Task):
     def max_score(self) -> int:
         return 204 if self.is_female() else 196
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
 
         answer_dict = {None: "?"}
         for option in range(0, 5):
-            answer_dict[option] = self.wxstring("option" + str(option))
+            answer_dict[option] = self.wxstring(req, "option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -151,38 +150,38 @@ class Lunsers(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            wappstring("total_score"), score, self.max_score()
+            req.wappstring("total_score"), score, self.max_score()
         )
         h += self.get_group_html(self.list_epse,
-                                 self.wxstring("group_epse"),
+                                 self.wxstring(req, "group_epse"),
                                  answer_dict)
         h += self.get_group_html(self.list_anticholinergic,
-                                 self.wxstring("group_anticholinergic"),
+                                 self.wxstring(req, "group_anticholinergic"),
                                  answer_dict)
         h += self.get_group_html(self.list_allergic,
-                                 self.wxstring("group_allergic"),
+                                 self.wxstring(req, "group_allergic"),
                                  answer_dict)
         h += self.get_group_html(self.list_miscellaneous,
-                                 self.wxstring("group_miscellaneous"),
+                                 self.wxstring(req, "group_miscellaneous"),
                                  answer_dict)
         h += self.get_group_html(self.list_psychic,
-                                 self.wxstring("group_psychic"),
+                                 self.wxstring(req, "group_psychic"),
                                  answer_dict)
         h += self.get_group_html(self.list_otherautonomic,
-                                 self.wxstring("group_otherautonomic"),
+                                 self.wxstring(req, "group_otherautonomic"),
                                  answer_dict)
         if self.is_female():
             h += self.get_group_html(self.list_hormonal_female,
-                                     self.wxstring("group_hormonal") + " (" +
-                                     wappstring("female") + ")",
+                                     self.wxstring(req, "group_hormonal") + " (" +
+                                     req.wappstring("female") + ")",
                                      answer_dict)
         else:
             h += self.get_group_html(self.list_hormonal_male,
-                                     self.wxstring("group_hormonal") + " (" +
-                                     wappstring("male") + ")",
+                                     self.wxstring(req, "group_hormonal") + " (" +
+                                     req.wappstring("male") + ")",
                                      answer_dict)
         h += self.get_group_html(self.list_redherrings,
-                                 self.wxstring("group_redherrings"),
+                                 self.wxstring(req, "group_redherrings"),
                                  answer_dict)
         h += """
             </table>

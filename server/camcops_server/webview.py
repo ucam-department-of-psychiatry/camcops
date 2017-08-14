@@ -41,11 +41,11 @@ import pygments.formatters
 
 # local:
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from cardinal_pythonlib.modules import import_submodules
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE, WSGI_TUPLE_TYPE
 
 # CamCOPS support modules
+import camcops_server.cc_modules.cc_all_models  # register all tasks
 from .cc_modules.cc_audit import (
     audit,
     SECURITY_AUDIT_TABLENAME,
@@ -108,7 +108,6 @@ from .cc_modules.cc_report import (
 from .cc_modules.cc_session import establish_session, CamcopsSession
 from .cc_modules.cc_specialnote import forcibly_preserve_special_notes
 from .cc_modules.cc_storedvar import DeviceStoredVar
-from .cc_modules.cc_string import wappstring
 from .cc_modules.cc_task import (
     gen_tasks_for_patient_deletion,
     gen_tasks_live_on_tablet,
@@ -140,9 +139,6 @@ from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 ccplot_do_nothing()
-
-# Task imports
-import_submodules(".tasks", __package__)
 
 
 WSGI_TUPLE_TYPE_WITH_STATUS = Tuple[str, HEADERS_TYPE, bytes, str]
@@ -459,13 +455,13 @@ def offer_terms(session: CamcopsSession, form: cgi.FieldStorage) -> str:
         </form>
     """.format(
         user=session.get_current_user_html(),
-        title=wappstring("disclaimer_title"),
-        subtitle=wappstring("disclaimer_subtitle"),
-        content=wappstring("disclaimer_content"),
+        title=req.wappstring("disclaimer_title"),
+        subtitle=req.wappstring("disclaimer_subtitle"),
+        content=req.wappstring("disclaimer_content"),
         script=pls.SCRIPT_NAME,
         PARAM=PARAM,
         ACTION=ACTION,
-        agree=wappstring("disclaimer_agree"),
+        agree=req.wappstring("disclaimer_agree"),
     ) + WEBEND
     return html
 

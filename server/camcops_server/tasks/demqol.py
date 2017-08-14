@@ -22,21 +22,32 @@
 ===============================================================================
 """
 
-from typing import List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
+from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.sqltypes import Float
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.sqltypes import Float, Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
     subheading_spanning_two_columns,
     tr_qa,
 )
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 # =============================================================================
@@ -65,12 +76,52 @@ COPYRIGHT_DIV = """
 # DEMQOL
 # =============================================================================
 
-class Demqol(Task):
-    tablename = "demqol"
+class DemqolMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Demqol'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.N_SCORED_QUESTIONS,
+            pv=PERMITTED_VALUES,
+            comment_fmt="Q{n}. {s} (1 a lot - 4 not at all; -99 no response)",
+            comment_strings=[
+                # 1-13
+                "cheerful", "worried/anxious", "enjoying life", "frustrated",
+                "confident", "full of energy", "sad", "lonely", "distressed",
+                "lively", "irritable", "fed up", "couldn't do things",
+                # 14-19
+                "worried: forget recent", "worried: forget people",
+                "worried: forget day", "worried: muddled",
+                "worried: difficulty making decisions",
+                "worried: poor concentration",
+                # 20-28
+                "worried: not enough company",
+                "worried: get on with people close",
+                "worried: affection", "worried: people not listening",
+                "worried: making self understood", "worried: getting help",
+                "worried: toilet", "worried: feel in self",
+                "worried: health overall",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+             metaclass=DemqolMetaclass):
+    __tablename__ = "demqol"
     shortname = "DEMQOL"
     longname = "Dementia Quality of Life measure, self-report version"
-    has_clinician = True
     provides_trackers = True
+
+    q29 = CamcopsColumn(
+        "q29", Integer,
+        permitted_value_checker=PermittedValueChecker(
+            permitted_values=PERMITTED_VALUES),
+         comment="Q29. Overall quality of life (1 very good - 4 poor; "
+                 "-99 no response)."
+    )
 
     NQUESTIONS = 29
     N_SCORED_QUESTIONS = 28
@@ -79,37 +130,15 @@ class Demqol(Task):
     MIN_SCORE = N_SCORED_QUESTIONS
     MAX_SCORE = MIN_SCORE * 4
 
-    fieldspecs = repeat_fieldspec(
-        "q", 1, N_SCORED_QUESTIONS, pv=PERMITTED_VALUES,
-        comment_fmt="Q{n}. {s} (1 a lot - 4 not at all; -99 no response)",
-        comment_strings=[
-            # 1-13
-            "cheerful", "worried/anxious", "enjoying life", "frustrated",
-            "confident", "full of energy", "sad", "lonely", "distressed",
-            "lively", "irritable", "fed up", "couldn't do things",
-            # 14-19
-            "worried: forget recent", "worried: forget people",
-            "worried: forget day", "worried: muddled",
-            "worried: difficulty making decisions",
-            "worried: poor concentration",
-            # 20-28
-            "worried: not enough company", "worried: get on with people close",
-            "worried: affection", "worried: people not listening",
-            "worried: making self understood", "worried: getting help",
-            "worried: toilet", "worried: feel in self",
-            "worried: health overall",
-        ]
-    ) + [
-        dict(name="q29", cctype="INT", pv=PERMITTED_VALUES,
-             comment="Q29. Overall quality of life (1 very good - 4 poor; "
-                     "-99 no response)."),
-    ]
+    COMPLETENESS_FIELDS = strseq("q", 1, NQUESTIONS)
 
     def is_complete(self) -> bool:
-        return self.field_contents_valid() and self.are_all_fields_complete(
-            repeat_fieldname("q", 1, self.NQUESTIONS))
+        return (
+            self.are_all_fields_complete(self.COMPLETENESS_FIELDS) and
+            self.field_contents_valid()
+        )
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="DEMQOL total score",
@@ -119,7 +148,7 @@ class Demqol(Task):
             axis_max=self.MAX_SCORE + 0.5
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -128,7 +157,7 @@ class Demqol(Task):
                 self.MIN_SCORE, self.MAX_SCORE)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -150,33 +179,33 @@ class Demqol(Task):
         (total, extrapolated) = self.totalscore_extrapolated()
         return total
 
-    def get_q(self, n: int) -> str:
+    def get_q(self, req: CamcopsRequest, n: int) -> str:
         nstr = str(n)
-        return "Q" + nstr + ". " + self.wxstring("proxy_q" + nstr)
+        return "Q" + nstr + ". " + self.wxstring(req, "proxy_q" + nstr)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         (total, extrapolated) = self.totalscore_extrapolated()
         main_dict = {
             None: None,
-            1: "1 — " + self.wxstring("a1"),
-            2: "2 — " + self.wxstring("a2"),
-            3: "3 — " + self.wxstring("a3"),
-            4: "4 — " + self.wxstring("a4"),
-            MISSING_VALUE: self.wxstring("no_response")
+            1: "1 — " + self.wxstring(req, "a1"),
+            2: "2 — " + self.wxstring(req, "a2"),
+            3: "3 — " + self.wxstring(req, "a3"),
+            4: "4 — " + self.wxstring(req, "a4"),
+            MISSING_VALUE: self.wxstring(req, "no_response")
         }
         last_q_dict = {
             None: None,
-            1: "1 — " + self.wxstring("q29_a1"),
-            2: "2 — " + self.wxstring("q29_a2"),
-            3: "3 — " + self.wxstring("q29_a3"),
-            4: "4 — " + self.wxstring("q29_a4"),
-            MISSING_VALUE: self.wxstring("no_response")
+            1: "1 — " + self.wxstring(req, "q29_a1"),
+            2: "2 — " + self.wxstring(req, "q29_a2"),
+            3: "3 — " + self.wxstring(req, "q29_a3"),
+            4: "4 — " + self.wxstring(req, "q29_a4"),
+            MISSING_VALUE: self.wxstring(req, "no_response")
         }
         instruction_dict = {
-            1: self.wxstring("instruction11"),
-            14: self.wxstring("instruction12"),
-            20: self.wxstring("instruction13"),
-            29: self.wxstring("instruction14"),
+            1: self.wxstring(req, "instruction11"),
+            14: self.wxstring(req, "instruction12"),
+            20: self.wxstring(req, "instruction13"),
+            29: self.wxstring(req, "instruction14"),
         }
         # https://docs.python.org/2/library/stdtypes.html#mapping-types-dict
         # http://paltman.com/try-except-performance-in-python-a-simple-test/
@@ -211,7 +240,7 @@ class Demqol(Task):
             if n in instruction_dict:
                 h += subheading_spanning_two_columns(instruction_dict.get(n))
             d = main_dict if n <= self.N_SCORED_QUESTIONS else last_q_dict
-            q = self.get_q(n)
+            q = self.get_q(req, n)
             a = get_from_dict(d, getattr(self, "q" + str(n)))
             h += tr_qa(q, a)
         h += END_DIV + COPYRIGHT_DIV
@@ -222,7 +251,58 @@ class Demqol(Task):
 # DEMQOL-Proxy
 # =============================================================================
 
-class DemqolProxy(Task):
+class DemqolProxyMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['DemqolProxy'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.N_SCORED_QUESTIONS,
+            pv=PERMITTED_VALUES,
+            comment_fmt="Q{n}. {s} (1 a lot - 4 not at all; -99 no response)",
+            comment_strings=[
+                # 1-11
+                "cheerful", "worried/anxious", "frustrated", "full of energy",
+                "sad", "content", "distressed", "lively", "irritable",
+                "fed up", "things to look forward to",
+                # 12-20
+                "worried: memory in general", "worried: forget distant",
+                "worried: forget recent", "worried: forget people",
+                "worried: forget place", "worried: forget day",
+                "worried: muddled",
+                "worried: difficulty making decisions",
+                "worried: making self understood",
+                # 21-31
+                "worried: keeping clean", "worried: keeping self looking nice",
+                "worried: shopping", "worried: using money to pay",
+                "worried: looking after finances", "worried: taking longer",
+                "worried: getting in touch with people",
+                "worried: not enough company",
+                "worried: not being able to help others",
+                "worried: not playing a useful part",
+                "worried: physical health",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
+                  TaskHasClinicianMixin, Task, Base,
+                  metaclass=DemqolProxyMetaclass):
+    __tablename__ = "demqolproxy"
+    shortname = "DEMQOL-Proxy"
+    longname = "Dementia Quality of Life measure, proxy version"
+    extrastring_taskname = "demqol"
+
+    q32 = CamcopsColumn(
+        "q32", Integer,
+        permitted_value_checker=PermittedValueChecker(
+            permitted_values=PERMITTED_VALUES),
+        comment="Q32. Overall quality of life (1 very good - 4 poor; "
+                "-99 no response)."
+    )
+
     NQUESTIONS = 32
     N_SCORED_QUESTIONS = 31
     MINIMUM_N_FOR_TOTAL_SCORE = 16
@@ -230,46 +310,15 @@ class DemqolProxy(Task):
     MIN_SCORE = N_SCORED_QUESTIONS
     MAX_SCORE = MIN_SCORE * 4
 
-    tablename = "demqolproxy"
-    shortname = "DEMQOL-Proxy"
-    longname = "Dementia Quality of Life measure, proxy version"
-    extrastring_taskname = "demqol"
-    fieldspecs = repeat_fieldspec(
-        "q", 1, N_SCORED_QUESTIONS, pv=PERMITTED_VALUES,
-        comment_fmt="Q{n}. {s} (1 a lot - 4 not at all; -99 no response)",
-        comment_strings=[
-            # 1-11
-            "cheerful", "worried/anxious", "frustrated", "full of energy",
-            "sad", "content", "distressed", "lively", "irritable", "fed up",
-            "things to look forward to",
-            # 12-20
-            "worried: memory in general", "worried: forget distant",
-            "worried: forget recent", "worried: forget people",
-            "worried: forget place", "worried: forget day", "worried: muddled",
-            "worried: difficulty making decisions",
-            "worried: making self understood",
-            # 21-31
-            "worried: keeping clean", "worried: keeping self looking nice",
-            "worried: shopping", "worried: using money to pay",
-            "worried: looking after finances", "worried: taking longer",
-            "worried: getting in touch with people",
-            "worried: not enough company",
-            "worried: not being able to help others",
-            "worried: not playing a useful part", "worried: physical health",
-        ]
-    ) + [
-        dict(name="q32", cctype="INT", pv=PERMITTED_VALUES,
-             comment="Q32. Overall quality of life (1 very good - 4 poor; "
-                     "-99 no response)."),
-    ]
-    has_clinician = True
-    has_respondent = True
+    COMPLETENESS_FIELDS = strseq("q", 1, NQUESTIONS)
 
     def is_complete(self) -> bool:
-        return self.field_contents_valid() and self.are_all_fields_complete(
-            repeat_fieldname("q", 1, self.NQUESTIONS))
+        return (
+            self.are_all_fields_complete(self.COMPLETENESS_FIELDS) and
+            self.field_contents_valid()
+        )
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="DEMQOL-Proxy total score",
@@ -279,7 +328,7 @@ class DemqolProxy(Task):
             axis_max=self.MAX_SCORE + 0.5
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -288,7 +337,7 @@ class DemqolProxy(Task):
                 self.MIN_SCORE, self.MAX_SCORE)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -310,33 +359,33 @@ class DemqolProxy(Task):
         (total, extrapolated) = self.totalscore_extrapolated()
         return total
 
-    def get_q(self, n: int) -> str:
+    def get_q(self, req: CamcopsRequest, n: int) -> str:
         nstr = str(n)
-        return "Q" + nstr + ". " + self.wxstring("proxy_q" + nstr)
+        return "Q" + nstr + ". " + self.wxstring(req, "proxy_q" + nstr)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         (total, extrapolated) = self.totalscore_extrapolated()
         main_dict = {
             None: None,
-            1: "1 — " + self.wxstring("a1"),
-            2: "2 — " + self.wxstring("a2"),
-            3: "3 — " + self.wxstring("a3"),
-            4: "4 — " + self.wxstring("a4"),
-            MISSING_VALUE: self.wxstring("no_response")
+            1: "1 — " + self.wxstring(req, "a1"),
+            2: "2 — " + self.wxstring(req, "a2"),
+            3: "3 — " + self.wxstring(req, "a3"),
+            4: "4 — " + self.wxstring(req, "a4"),
+            MISSING_VALUE: self.wxstring(req, "no_response")
         }
         last_q_dict = {
             None: None,
-            1: "1 — " + self.wxstring("q29_a1"),
-            2: "2 — " + self.wxstring("q29_a2"),
-            3: "3 — " + self.wxstring("q29_a3"),
-            4: "4 — " + self.wxstring("q29_a4"),
-            MISSING_VALUE: self.wxstring("no_response")
+            1: "1 — " + self.wxstring(req, "q29_a1"),
+            2: "2 — " + self.wxstring(req, "q29_a2"),
+            3: "3 — " + self.wxstring(req, "q29_a3"),
+            4: "4 — " + self.wxstring(req, "q29_a4"),
+            MISSING_VALUE: self.wxstring(req, "no_response")
         }
         instruction_dict = {
-            1: self.wxstring("proxy_instruction11"),
-            12: self.wxstring("proxy_instruction12"),
-            21: self.wxstring("proxy_instruction13"),
-            32: self.wxstring("proxy_instruction14"),
+            1: self.wxstring(req, "proxy_instruction11"),
+            12: self.wxstring(req, "proxy_instruction12"),
+            21: self.wxstring(req, "proxy_instruction13"),
+            32: self.wxstring(req, "proxy_instruction14"),
         }
         h = """
             <div class="summary">
@@ -369,7 +418,7 @@ class DemqolProxy(Task):
             if n in instruction_dict:
                 h += subheading_spanning_two_columns(instruction_dict.get(n))
             d = main_dict if n <= self.N_SCORED_QUESTIONS else last_q_dict
-            q = self.get_q(n)
+            q = self.get_q(req, n)
             a = get_from_dict(d, getattr(self, "q" + str(n)))
             h += tr_qa(q, a)
         h += END_DIV + COPYRIGHT_DIV

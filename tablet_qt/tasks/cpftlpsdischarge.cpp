@@ -139,7 +139,7 @@ CPFTLPSDischarge::CPFTLPSDischarge(CamcopsApp& app, DatabaseManager& db, int loa
 
     addField(LEAFLET_OR_DISCHARGE_CARD_GIVEN, QVariant::Bool);
     addField(FREQUENT_ATTENDER, QVariant::Bool);
-    addField(PATIENT_WANTED_COPY_OF_LETTER, QVariant::String);
+    addField(PATIENT_WANTED_COPY_OF_LETTER, QVariant::Bool);  // was erroneously String prior to 2.0.3
     addField(GAF_AT_FIRST_ASSESSMENT, QVariant::Int);
     addField(GAF_AT_DISCHARGE, QVariant::Int);
 

@@ -22,22 +22,30 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no_none,
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -45,33 +53,43 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # AIMS
 # =============================================================================
 
-class Aims(Task):
-    tablename = "aims"
-    shortname = "AIMS"
-    longname = "Abnormal Involuntary Movement Scale"
-    provides_trackers = True
-    has_clinician = True
-
-    NQUESTIONS = 12
-    NSCOREDQUESTIONS = 10
-
-    fieldspecs = (
-        repeat_fieldspec(
-            "q", 1, NSCOREDQUESTIONS,
-            min=0, max=4,
+class AimsMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Aims'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NSCOREDQUESTIONS,
+            minimum=0, maximum=4,
             comment_fmt="Q{n}, {s} (0 none - 4 severe)",
             comment_strings=["facial_expression", "lips", "jaw", "tongue",
                              "upper_limbs", "lower_limbs", "trunk", "global",
-                             "incapacitation", "awareness"]) +
-        repeat_fieldspec(
-            "q", NSCOREDQUESTIONS + 1, NQUESTIONS, pv=PV.BIT,
+                             "incapacitation", "awareness"]
+        )
+        add_multiple_columns(
+            cls, "q", cls.NSCOREDQUESTIONS + 1, cls.NQUESTIONS, pv=PV.BIT,
             comment_fmt="Q{n}, {s} (not scored) (0 no, 1 yes)",
             comment_strings=["problems_teeth_dentures",
-                             "usually_wears_dentures"])
-    )
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+                             "usually_wears_dentures"]
+        )
 
-    def get_trackers(self) -> List[TrackerInfo]:
+        super().__init__(name, bases, classdict)
+
+
+class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+           metaclass=AimsMetaclass):
+    __tablename__ = "aims"
+    shortname = "AIMS"
+    longname = "Abnormal Involuntary Movement Scale"
+    provides_trackers = True
+
+    NQUESTIONS = 12
+    NSCOREDQUESTIONS = 10
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    SCORED_FIELDS = strseq("q", 1, NSCOREDQUESTIONS)
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="AIMS total score",
@@ -80,14 +98,14 @@ class Aims(Task):
             axis_max=40.5
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
             content="AIMS total score {}/40".format(self.total_score())
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -101,23 +119,23 @@ class Aims(Task):
                 self.field_contents_valid())
 
     def total_score(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 1, Aims.NSCOREDQUESTIONS))
+        return self.sum_fields(self.SCORED_FIELDS)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         main_dict = {None: None}
         q10_dict = {None: None}
         for option in range(0, 5):
             main_dict[option] = str(option) + " — " + \
-                self.wxstring("main_option" + str(option))
+                self.wxstring(req, "main_option" + str(option))
             q10_dict[option] = str(option) + " — " + \
-                self.wxstring("q10_option" + str(option))
+                self.wxstring(req, "q10_option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(wappstring("total_score") + " <sup>[1]</sup>",
+        h += tr(req.wappstring("total_score") + " <sup>[1]</sup>",
                 answer(score) + " / 40")
         h += """
                 </table>
@@ -129,12 +147,12 @@ class Aims(Task):
                 </tr>
         """
         for q in range(1, 10):
-            h += tr_qa(self.wxstring("q" + str(q) + "_s"),
+            h += tr_qa(self.wxstring(req, "q" + str(q) + "_s"),
                        get_from_dict(main_dict, getattr(self, "q" + str(q))))
         h += (
-            tr_qa(self.wxstring("q10_s"), get_from_dict(q10_dict, self.q10)) +
-            tr_qa(self.wxstring("q11_s"), get_yes_no_none(self.q11)) +
-            tr_qa(self.wxstring("q12_s"), get_yes_no_none(self.q12)) +
+            tr_qa(self.wxstring(req, "q10_s"), get_from_dict(q10_dict, self.q10)) +
+            tr_qa(self.wxstring(req, "q11_s"), get_yes_no_none(self.q11)) +
+            tr_qa(self.wxstring(req, "q12_s"), get_yes_no_none(self.q12)) +
             """
                 </table>
                 <div class="footnotes">

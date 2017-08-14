@@ -22,80 +22,95 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Integer
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.sqltypes import Integer, Text
 
 from ..cc_modules.cc_constants import NO_CHAR, YES_CHAR
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
-# GAD-7
+# GDS-15
 # =============================================================================
 
-class Gds15(Task):
-    tablename = "gds15"
+class Gds15Metaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Gds15'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS, Text,
+            pv=[NO_CHAR, YES_CHAR],
+            comment_fmt="Q{n}, {s} ('Y' or 'N')",
+            comment_strings=[
+                "satisfied",
+                "dropped activities",
+                "life empty",
+                "bored",
+                "good spirits",  # 5
+                "afraid",
+                "happy",
+                "helpless",
+                "stay at home",
+                "memory problems",  # 10
+                "wonderful to be alive",
+                "worthless",
+                "full of energy",
+                "hopeless",
+                "others better off",  # 15
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Gds15(TaskHasPatientMixin, Task, Base,
+            metaclass=Gds15Metaclass):
+    __tablename__ = "gds15"
     shortname = "GDS-15"
     longname = "Geriatric Depression Scale, 15-item version"
     provides_trackers = True
 
     NQUESTIONS = 15
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, cctype="TEXT", pv=[NO_CHAR, YES_CHAR],
-        comment_fmt="Q{n}, {s} ('Y' or 'N')",
-        comment_strings=[
-            "satisfied",
-            "dropped activities",
-            "life empty",
-            "bored",
-            "good spirits",  # 5
-            "afraid",
-            "happy",
-            "helpless",
-            "stay at home",
-            "memory problems",  # 10
-            "wonderful to be alive",
-            "worthless",
-            "full of energy",
-            "hopeless",
-            "others better off",  # 15
-        ])
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORE_IF_YES = [2, 3, 4, 6, 8, 9, 10, 12, 14, 15]
     SCORE_IF_NO = [1, 5, 7, 11, 13]
+    MAX_SCORE = 15
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="GDS-15 total score",
-            axis_label="Total score (out of 15)",
+            axis_label="Total score (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=15.5
+            axis_max=self.MAX_SCORE + 0.5
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="GDS-15 total score {}/15".format(
-                self.total_score())
+            content="GDS-15 total score {}/{}".format(
+                self.total_score(), self.MAX_SCORE)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/15)"),
+                           comment="Total score (/{})".format(self.MAX_SCORE)),
         ]
 
     def is_complete(self) -> bool:
@@ -114,14 +129,15 @@ class Gds15(Task):
                 score += 1
         return score
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(wappstring("total_score"), answer(score) + " / 15")
+        h += tr(req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE))
         h += """
                 </table>
             </div>
@@ -137,7 +153,7 @@ class Gds15(Task):
         for q in range(1, self.NQUESTIONS + 1):
             suffix = " †" if q in self.SCORE_IF_YES else " *"
             h += tr_qa(
-                str(q) + ". " + self.wxstring("q" + str(q)) + suffix,
+                str(q) + ". " + self.wxstring(req, "q" + str(q)) + suffix,
                 getattr(self, "q" + str(q))
             )
         h += """

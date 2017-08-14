@@ -36,7 +36,7 @@ import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.text import unescape_newlines
 
 from .cc_cache import cache_region_static, fkg
-from .cc_config import pls
+from .cc_config import get_config
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -47,9 +47,17 @@ APPSTRING_TASKNAME = "camcops"
 # =============================================================================
 # Localization strings
 # =============================================================================
+# In a change to thinking... Pyramid emphasizes: NO MUTABLE GLOBAL STATE.
+# https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/advanced-features.html  # noqa
+# This is a good thing. But it means that:
+# - because we configure our XML files in our config...
+# - and in principle even two different threads coming here may have different
+#   configs...
+# - ... that string requests need to be attached to a Pyramid Request.
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-def all_extra_strings_as_dicts() -> Dict[str, Dict[str, str]]:
+def all_extra_strings_as_dicts(
+        config_filename: str) -> Dict[str, Dict[str, str]]:
     """
     Returns strings from the all the extra XML string files.
     Caching is now via a proper cache.
@@ -72,19 +80,14 @@ def all_extra_strings_as_dicts() -> Dict[str, Dict[str, str]]:
             <!-- ... -->
         </resources>
     """
-    if pls.EXTRA_STRING_FILES is None:
-        raise AssertionError(
-            "pls.EXTRA_STRING_FILES is None -- likely use of "
-            "XSTRING/WXSTRING in classmethod, before initialization via "
-            "the WSGI application entry point")
-    allstrings = OrderedDict()
-    # Glob support added 2016-01-04.
-    # for filename in pls.EXTRA_STRING_FILES:
-    filenames = []
-    for filespec in pls.EXTRA_STRING_FILES:
+    cfg = get_config(config_filename)
+    assert cfg.EXTRA_STRING_FILES is not None
+    filenames = []  # type: List [str]
+    for filespec in cfg.EXTRA_STRING_FILES:
         possibles = glob.glob(filespec)
         filenames.extend(possibles)
     filenames = sorted(set(filenames))  # just unique ones
+    allstrings = {}  # type: Dict[str, Dict[str, str]]
     for filename in filenames:
         log.info("Loading XML file: " + filename)
         parser = ElementTree.XMLParser(encoding="UTF-8")
@@ -93,63 +96,8 @@ def all_extra_strings_as_dicts() -> Dict[str, Dict[str, str]]:
         for taskroot in root.findall("./task[@name]"):
             taskname = taskroot.attrib.get("name")
             if taskname not in allstrings:
-                allstrings[taskname] = OrderedDict()
+                allstrings[taskname] = {}  # type: Dict[str, str]
             for e in taskroot.findall("./string[@name]"):
                 stringname = e.attrib.get("name")
                 allstrings[taskname][stringname] = unescape_newlines(e.text)
     return allstrings
-
-
-# noinspection PyPep8Naming
-def XSTRING(taskname: str,
-            stringname: str,
-            default: str = None,
-            provide_default_if_none: bool = True) -> Optional[str]:
-    """Looks up a string from one of the optional extra XML string files."""
-    # For speed, calculate default only if needed:
-    allstrings = all_extra_strings_as_dicts()
-    if taskname in allstrings:
-        if stringname in allstrings[taskname]:
-            return allstrings[taskname].get(stringname)
-    if default is None and provide_default_if_none:
-        default = "EXTRA_STRING_NOT_FOUND({}.{})".format(taskname, stringname)
-    return default
-
-
-# noinspection PyPep8Naming
-def WXSTRING(taskname: str,
-             stringname: str,
-             default: str = None,
-             provide_default_if_none: bool = True) -> Optional[str]:
-    """Returns a web-safe version of an XSTRING (see above)."""
-    value = XSTRING(taskname, stringname, default,
-                    provide_default_if_none=provide_default_if_none)
-    if value is None and not provide_default_if_none:
-        return None
-    return ws.webify(value)
-
-
-def get_all_extra_strings() -> List[Tuple[str, str, str]]:
-    """Returns all extra strings, as a list of (task, name, value) tuples."""
-    allstrings = all_extra_strings_as_dicts()
-    rows = []
-    for task, subdict in allstrings.items():
-        for name, value in subdict.items():
-            rows.append((task, name, value))
-    return rows
-
-
-def task_extrastrings_exist(taskname: str) -> bool:
-    """Has the server been supplied with extra strings for a specific task?"""
-    allstrings = all_extra_strings_as_dicts()
-    return taskname in allstrings
-
-
-def wappstring(stringname: str,
-               default: str = None,
-               provide_default_if_none: bool = True) -> Optional[str]:
-    value = XSTRING(APPSTRING_TASKNAME, stringname, default,
-                    provide_default_if_none=provide_default_if_none)
-    if value is None and not provide_default_if_none:
-        return None
-    return ws.webify(value)

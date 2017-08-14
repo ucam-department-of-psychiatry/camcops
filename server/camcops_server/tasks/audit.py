@@ -22,21 +22,28 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -44,23 +51,36 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # AUDIT
 # =============================================================================
 
-class Audit(Task):
-    tablename = "audit"
+class AuditMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Audit'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=0, maximum=4,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
+            comment_strings=[
+                "how often drink", "drinks per day", "how often six drinks",
+                "unable to stop", "unable to do what was expected",
+                "eye opener", "guilt", "unable to remember", "injuries",
+                "others concerned"]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Audit(TaskHasPatientMixin, Task, Base,
+            metaclass=AuditMetaclass):
+    __tablename__ = "audit"
     shortname = "AUDIT"
     longname = "WHO Alcohol Use Disorders Identification Test"
     provides_trackers = True
 
     NQUESTIONS = 10
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=4,
-        comment_fmt="Q{n}, {s} (0-4, higher worse)",
-        comment_strings=[
-            "how often drink", "drinks per day", "how often six drinks",
-            "unable to stop", "unable to do what was expected", "eye opener",
-            "guilt", "unable to remember", "injuries", "others concerned"])
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="AUDIT total score",
@@ -70,14 +90,14 @@ class Audit(Task):
             horizontal_lines=[7.5]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
             content="AUDIT total score {}/40".format(self.total_score())
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -105,7 +125,7 @@ class Audit(Task):
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         exceeds_cutoff = score >= 8
         q1_dict = {None: None}
@@ -114,21 +134,21 @@ class Audit(Task):
         q9_to_10_dict = {None: None}
         for option in range(0, 5):
             q1_dict[option] = str(option) + " – " + \
-                self.wxstring("q1_option" + str(option))
+                self.wxstring(req, "q1_option" + str(option))
             q2_dict[option] = str(option) + " – " + \
-                self.wxstring("q2_option" + str(option))
+                self.wxstring(req, "q2_option" + str(option))
             q3_to_8_dict[option] = str(option) + " – " + \
-                self.wxstring("q3to8_option" + str(option))
+                self.wxstring(req, "q3to8_option" + str(option))
             if option != 1 and option != 3:
                 q9_to_10_dict[option] = str(option) + " – " + \
-                    self.wxstring("q9to10_option" + str(option))
+                    self.wxstring(req, "q9to10_option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(wappstring("total_score"), answer(score) + " / 40")
-        h += tr_qa(self.wxstring("exceeds_standard_cutoff"),
+        h += tr(req.wappstring("total_score"), answer(score) + " / 40")
+        h += tr_qa(self.wxstring(req, "exceeds_standard_cutoff"),
                    get_yes_no(exceeds_cutoff))
         h += """
                 </table>
@@ -139,16 +159,16 @@ class Audit(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(self.wxstring("q1_s"), get_from_dict(q1_dict, self.q1))
-        h += tr_qa(self.wxstring("q2_s"), get_from_dict(q2_dict, self.q2))
+        h += tr_qa(self.wxstring(req, "q1_s"), get_from_dict(q1_dict, self.q1))
+        h += tr_qa(self.wxstring(req, "q2_s"), get_from_dict(q2_dict, self.q2))
         for q in range(3, 8 + 1):
             h += tr_qa(
-                self.wxstring("q" + str(q) + "_s"),
+                self.wxstring(req, "q" + str(q) + "_s"),
                 get_from_dict(q3_to_8_dict, getattr(self, "q" + str(q)))
             )
-        h += tr_qa(self.wxstring("q9_s"),
+        h += tr_qa(self.wxstring(req, "q9_s"),
                    get_from_dict(q9_to_10_dict, self.q9))
-        h += tr_qa(self.wxstring("q10_s"),
+        h += tr_qa(self.wxstring(req, "q10_s"),
                    get_from_dict(q9_to_10_dict, self.q10))
         h += """
             </table>
@@ -166,24 +186,34 @@ class Audit(Task):
 # AUDIT-C
 # =============================================================================
 
-class AuditC(Task):
-    NQUESTIONS = 3
+class AuditCMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['AuditC'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=0, maximum=4,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
+            comment_strings=[
+                "how often drink", "drinks per day", "how often six drinks"
+            ]
+        )
+        super().__init__(name, bases, classdict)
 
-    tablename = "audit_c"
+
+class AuditC(TaskHasPatientMixin, Task, Base,
+             metaclass=AuditMetaclass):
+    __tablename__ = "audit_c"
     shortname = "AUDIT-C"
     longname = "AUDIT Alcohol Consumption Questions"
     extrastring_taskname = "audit"  # shares strings with AUDIT
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=4,
-        comment_fmt="Q{n}, {s} (0-4, higher worse)",
-        comment_strings=[
-            "how often drink", "drinks per day", "how often six drinks"
-        ]
-    )
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    NQUESTIONS = 3
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="AUDIT-C total score",
@@ -192,14 +222,14 @@ class AuditC(Task):
             axis_max=12.5,
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
             content="AUDIT-C total score {}/12".format(self.total_score())
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -214,28 +244,28 @@ class AuditC(Task):
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         q1_dict = {None: None}
         q2_dict = {None: None}
         q3_dict = {None: None}
         for option in range(0, 5):
             q1_dict[option] = str(option) + " – " + \
-                self.wxstring("q1_option" + str(option))
+                self.wxstring(req, "q1_option" + str(option))
             if option == 0:  # special!
                 q2_dict[option] = str(option) + " – " + \
-                    self.wxstring("c_q2_option0")
+                    self.wxstring(req, "c_q2_option0")
             else:
                 q2_dict[option] = str(option) + " – " + \
-                    self.wxstring("q2_option" + str(option))
+                    self.wxstring(req, "q2_option" + str(option))
             q3_dict[option] = str(option) + " – " + \
-                self.wxstring("q3to8_option" + str(option))
+                self.wxstring(req, "q3to8_option" + str(option))
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(wappstring("total_score"), answer(score) + " / 12")
+        h += tr(req.wappstring("total_score"), answer(score) + " / 12")
         h += """
                 </table>
             </div>
@@ -245,11 +275,11 @@ class AuditC(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(self.wxstring("c_q1_question"),
+        h += tr_qa(self.wxstring(req, "c_q1_question"),
                    get_from_dict(q1_dict, self.q1))
-        h += tr_qa(self.wxstring("c_q2_question"),
+        h += tr_qa(self.wxstring(req, "c_q2_question"),
                    get_from_dict(q2_dict, self.q2))
-        h += tr_qa(self.wxstring("c_q3_question"),
+        h += tr_qa(self.wxstring(req, "c_q3_question"),
                    get_from_dict(q3_dict, self.q3))
         h += """
             </table>

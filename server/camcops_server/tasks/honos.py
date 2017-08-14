@@ -22,21 +22,35 @@
 ===============================================================================
 """
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Integer
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
     subheading_spanning_two_columns,
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    CharColType,
+    PermittedValueChecker,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -45,45 +59,17 @@ PV_PROBLEMTYPE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
 
 # =============================================================================
-# HoNOS
+# HoNOS abstract base class
 # =============================================================================
 
-class Honos(Task):
-    tablename = "honos"
-    shortname = "HoNOS"
-    longname = "Health of the Nation Outcome Scales, working age adults"
-    has_clinician = True
+# noinspection PyAbstractClass
+class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     provides_trackers = True
 
-    NQUESTIONS = 12
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, pv=PV_MAIN,
-        comment_fmt="Q{n}, {s} (0-4, higher worse)",
-        comment_strings=[
-            "overactive/aggressive/disruptive/agitated",
-            "deliberate self-harm",
-            "problem-drinking/drug-taking",
-            "cognitive problems",
-            "physical illness/disability",
-            "hallucinations/delusions",
-            "depressed mood",
-            "other mental/behavioural problem",
-            "relationship problems",
-            "activities of daily living",
-            "problems with living conditions",
-            "occupation/activities",
-        ]
-    ) + [
-        dict(name="period_rated", cctype="TEXT",
-             comment="Period being rated"),
-        dict(name="q8problemtype", cctype="CHAR", pv=PV_PROBLEMTYPE,
-             comment="Q8: type of problem (A phobic; B anxiety; "
-             "C obsessive-compulsive; D mental strain/tension; "
-             "E dissociative; F somatoform; G eating; H sleep; "
-             "I sexual; J other, specify)"),
-        dict(name="q8otherproblem", cctype="TEXT",
-             comment="Q8: other problem: specify"),
-    ]
+    period_rated = Column(
+        "period_rated", Text,
+        comment="Period being rated"
+    )
 
     COPYRIGHT_DIV = """
         <div class="copyright">
@@ -93,36 +79,115 @@ class Honos(Task):
         </div>
     """
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    QFIELDS = None  # type: List[str]  # must be overridden
+    MAX_SCORE = None  # type: int  # must be overridden
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
-            plot_label="HoNOS total score",
-            axis_label="Total score (out of 48)",
+            plot_label="{} total score".format(self.shortname),
+            axis_label="Total score (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=48.5
+            axis_max=self.MAX_SCORE + 0.5
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="HoNOS total score {}/48".format(self.total_score())
+            content="{} total score {}/{}".format(
+                self.shortname, self.total_score(), self.MAX_SCORE)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/48)"),
+                           comment="Total score (/{})".format(self.MAX_SCORE)),
         ]
 
+    def total_score(self) -> int:
+        total = 0
+        for qname in self.QFIELDS:
+            value = getattr(self, qname)
+            if value is not None and 0 <= value <= 4:
+                # i.e. ignore null values and 9 (= not known)
+                total += value
+        return total
+
+    def get_q(self, req: CamcopsRequest, q: int) -> str:
+        return self.wxstring(req, "q" + str(q) + "_s")
+
+    def get_answer(self, req: CamcopsRequest, q: int, a: int) -> Optional[str]:
+        if a == 9:
+            return self.wxstring(req, "option9")
+        if a is None or a < 0 or a > 4:
+            return None
+        return self.wxstring(req, "q" + str(q) + "_option" + str(a))
+
+
+# =============================================================================
+# HoNOS
+# =============================================================================
+
+class HonosMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Honos'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            pv=PV_MAIN,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
+            comment_strings=[
+                "overactive/aggressive/disruptive/agitated",
+                "deliberate self-harm",
+                "problem-drinking/drug-taking",
+                "cognitive problems",
+                "physical illness/disability",
+                "hallucinations/delusions",
+                "depressed mood",
+                "other mental/behavioural problem",
+                "relationship problems",
+                "activities of daily living",
+                "problems with living conditions",
+                "occupation/activities",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Honos(HonosBase, Base,
+            metaclass=HonosMetaclass):
+    __tablename__ = "honos"
+    shortname = "HoNOS"
+    longname = "Health of the Nation Outcome Scales, working age adults"
+
+    q8problemtype = CamcopsColumn(
+        "q8problemtype", CharColType,
+        permitted_value_checker=PermittedValueChecker(
+            permitted_values=PV_PROBLEMTYPE),
+        comment="Q8: type of problem (A phobic; B anxiety; "
+                "C obsessive-compulsive; D mental strain/tension; "
+                "E dissociative; F somatoform; G eating; H sleep; "
+                "I sexual; J other, specify)"
+    )
+    q8otherproblem = Column(
+        "q8otherproblem", Text,
+        comment="Q8: other problem: specify"
+    )
+
+    NQUESTIONS = 12
+    QFIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_SCORE = 48
+
     def is_complete(self) -> bool:
-        if not self.field_contents_valid():
+        if not self.are_all_fields_complete(self.QFIELDS):
             return False
-        if not self.are_all_fields_complete(
-                repeat_fieldname("q", 1, self.NQUESTIONS)):
+        if not self.field_contents_valid():
             return False
         if self.q8 != 0 and self.q8 != 9 and self.q8problemtype is None:
             return False
@@ -131,45 +196,26 @@ class Honos(Task):
             return False
         return self.period_rated is not None
 
-    def total_score(self) -> int:
-        total = 0
-        for q in range(1, self.NQUESTIONS + 1):
-            value = getattr(self, "q" + str(q))
-            if value is not None and 0 <= value <= 4:
-                # i.e. ignore null values and 9 (= not known)
-                total += value
-        return total
-
-    def get_q(self, q: int) -> str:
-        return self.wxstring("q" + str(q) + "_s")
-
-    def get_answer(self, q: int, a: int) -> Optional[str]:
-        if a == 9:
-            return self.wxstring("option9")
-        if a is None or a < 0 or a > 4:
-            return None
-        return self.wxstring("q" + str(q) + "_option" + str(a))
-
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         q8_problem_type_dict = {
             None: None,
-            "A": self.wxstring("q8problemtype_option_a"),
-            "B": self.wxstring("q8problemtype_option_b"),
-            "C": self.wxstring("q8problemtype_option_c"),
-            "D": self.wxstring("q8problemtype_option_d"),
-            "E": self.wxstring("q8problemtype_option_e"),
-            "F": self.wxstring("q8problemtype_option_f"),
-            "G": self.wxstring("q8problemtype_option_g"),
-            "H": self.wxstring("q8problemtype_option_h"),
-            "I": self.wxstring("q8problemtype_option_i"),
-            "J": self.wxstring("q8problemtype_option_j"),
+            "A": self.wxstring(req, "q8problemtype_option_a"),
+            "B": self.wxstring(req, "q8problemtype_option_b"),
+            "C": self.wxstring(req, "q8problemtype_option_c"),
+            "D": self.wxstring(req, "q8problemtype_option_d"),
+            "E": self.wxstring(req, "q8problemtype_option_e"),
+            "F": self.wxstring(req, "q8problemtype_option_f"),
+            "G": self.wxstring(req, "q8problemtype_option_g"),
+            "H": self.wxstring(req, "q8problemtype_option_h"),
+            "I": self.wxstring(req, "q8problemtype_option_i"),
+            "J": self.wxstring(req, "q8problemtype_option_j"),
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score"),
-                answer(self.total_score()) + " / 48")
+        h += tr(req.wappstring("total_score"),
+                answer(self.total_score()) + " / {}".format(self.MAX_SCORE))
         h += """
                 </table>
             </div>
@@ -179,20 +225,20 @@ class Honos(Task):
                     <th width="50%">Answer <sup>[1]</sup></th>
                 </tr>
         """
-        h += tr_qa(self.wxstring("period_rated"), self.period_rated)
+        h += tr_qa(self.wxstring(req, "period_rated"), self.period_rated)
         for i in range(1, 8 + 1):
             h += tr_qa(
-                self.get_q(i),
-                self.get_answer(i, getattr(self, "q" + str(i)))
+                self.get_q(req, i),
+                self.get_answer(req, i, getattr(self, "q" + str(i)))
             )
-        h += tr_qa(self.wxstring("q8problemtype_s"),
+        h += tr_qa(self.wxstring(req, "q8problemtype_s"),
                    get_from_dict(q8_problem_type_dict, self.q8problemtype))
-        h += tr_qa(self.wxstring("q8otherproblem_s"),
+        h += tr_qa(self.wxstring(req, "q8otherproblem_s"),
                    self.q8otherproblem)
         for i in range(9, self.NQUESTIONS + 1):
             h += tr_qa(
-                self.get_q(i),
-                self.get_answer(i, getattr(self, "q" + str(i)))
+                self.get_q(req, i),
+                self.get_answer(req, i, getattr(self, "q" + str(i)))
             )
         h += """
             </table>
@@ -212,72 +258,62 @@ class Honos(Task):
 # HoNOS 65+
 # =============================================================================
 
-class Honos65(Task):
-    NQUESTIONS = 12
+class Honos65Metaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Honos65'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            pv=PV_MAIN,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
+            comment_strings=[  # not exactly identical to HoNOS
+                "behavioural disturbance",
+                "deliberate self-harm",
+                "problem drinking/drug-taking",
+                "cognitive problems",
+                "physical illness/disability",
+                "hallucinations/delusions",
+                "depressive symptoms",
+                "other mental/behavioural problem",
+                "relationship problems",
+                "activities of daily living",
+                "living conditions",
+                "occupation/activities",
+            ]
+        )
+        super().__init__(name, bases, classdict)
 
-    tablename = "honos65"
+
+class Honos65(HonosBase, Base,
+              metaclass=Honos65Metaclass):
+    __tablename__ = "honos65"
     shortname = "HoNOS 65+"
     longname = "Health of the Nation Outcome Scales, older adults"
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, pv=PV_MAIN,
-        comment_fmt="Q{n}, {s} (0-4, higher worse)",
-        comment_strings=[  # not exactly identical to HoNOS
-            "behavioural disturbance",
-            "deliberate self-harm",
-            "problem drinking/drug-taking",
-            "cognitive problems",
-            "physical illness/disability",
-            "hallucinations/delusions",
-            "depressive symptoms",
-            "other mental/behavioural problem",
-            "relationship problems",
-            "activities of daily living",
-            "living conditions",
-            "occupation/activities",
-        ]
-    ) + [
-        dict(name="period_rated", cctype="TEXT",
-             comment="Period being rated"),
-        dict(name="q8problemtype", cctype="CHAR", pv=PV_PROBLEMTYPE,
-             comment="Q8: type of problem (A phobic; B anxiety; "
-             "C obsessive-compulsive; D stress; "  # NB slight difference (D)
-             "E dissociative; F somatoform; G eating; H sleep; "
-             "I sexual; J other, specify)"),
-        dict(name="q8otherproblem", cctype="TEXT",
-             comment="Q8: other problem: specify"),
-    ]
-    has_clinician = True
 
-    def get_trackers(self) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="HoNOS-65+ total score",
-            axis_label="Total score (out of 48)",
-            axis_min=-0.5,
-            axis_max=48.5
-        )]
+    q8problemtype = CamcopsColumn(
+        "q8problemtype", CharColType,
+        permitted_value_checker=PermittedValueChecker(
+            permitted_values=PV_PROBLEMTYPE),
+        comment="Q8: type of problem (A phobic; B anxiety; "
+                "C obsessive-compulsive; D stress; "  # NB slight difference: D
+                "E dissociative; F somatoform; G eating; H sleep; "
+                "I sexual; J other, specify)"
+    )
+    q8otherproblem = Column(
+        "q8otherproblem", Text,
+        comment="Q8: other problem: specify"
+    )
 
-    def get_clinical_text(self) -> List[CtvInfo]:
-        if not self.is_complete():
-            return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="HoNOS-65+ total score {}/48".format(self.total_score())
-        )]
-
-    def get_summaries(self) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (/48)"),
-        ]
+    NQUESTIONS = 12
+    QFIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_SCORE = 48
 
     def is_complete(self) -> bool:
-        if not self.field_contents_valid():
+        if not self.are_all_fields_complete(self.QFIELDS):
             return False
-        if not self.are_all_fields_complete(
-                repeat_fieldname("q", 1, self.NQUESTIONS)):
+        if not self.field_contents_valid():
             return False
         if self.q8 != 0 and self.q8 != 9 and self.q8problemtype is None:
             return False
@@ -286,45 +322,26 @@ class Honos65(Task):
             return False
         return self.period_rated is not None
 
-    def total_score(self) -> int:
-        total = 0
-        for q in range(1, self.NQUESTIONS + 1):
-            value = getattr(self, "q" + str(q))
-            if value is not None and 0 <= value <= 4:
-                # i.e. ignore null values and 9 (= not known)
-                total += value
-        return total
-
-    def get_q(self, q: int) -> str:
-        return self.wxstring("q" + str(q) + "_s")
-
-    def get_answer(self, q: int, a: int) -> Optional[str]:
-        if a == 9:
-            return self.wxstring("option9")
-        if a is None or a < 0 or a > 4:
-            return None
-        return self.wxstring("q" + str(q) + "_option" + str(a))
-
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         q8_problem_type_dict = {
             None: None,
-            "A": self.wxstring("q8problemtype_option_a"),
-            "B": self.wxstring("q8problemtype_option_b"),
-            "C": self.wxstring("q8problemtype_option_c"),
-            "D": self.wxstring("q8problemtype_option_d"),
-            "E": self.wxstring("q8problemtype_option_e"),
-            "F": self.wxstring("q8problemtype_option_f"),
-            "G": self.wxstring("q8problemtype_option_g"),
-            "H": self.wxstring("q8problemtype_option_h"),
-            "I": self.wxstring("q8problemtype_option_i"),
-            "J": self.wxstring("q8problemtype_option_j"),
+            "A": self.wxstring(req, "q8problemtype_option_a"),
+            "B": self.wxstring(req, "q8problemtype_option_b"),
+            "C": self.wxstring(req, "q8problemtype_option_c"),
+            "D": self.wxstring(req, "q8problemtype_option_d"),
+            "E": self.wxstring(req, "q8problemtype_option_e"),
+            "F": self.wxstring(req, "q8problemtype_option_f"),
+            "G": self.wxstring(req, "q8problemtype_option_g"),
+            "H": self.wxstring(req, "q8problemtype_option_h"),
+            "I": self.wxstring(req, "q8problemtype_option_i"),
+            "J": self.wxstring(req, "q8problemtype_option_j"),
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score"),
-                answer(self.total_score()) + " / 48")
+        h += tr(req.wappstring("total_score"),
+                answer(self.total_score()) + " / {}".format(self.MAX_SCORE))
         h += """
                 </table>
             </div>
@@ -334,20 +351,20 @@ class Honos65(Task):
                     <th width="50%">Answer <sup>[1]</sup></th>
                 </tr>
         """
-        h += tr_qa(self.wxstring("period_rated"), self.period_rated)
+        h += tr_qa(self.wxstring(req, "period_rated"), self.period_rated)
         for i in range(1, 8 + 1):
             h += tr_qa(
-                self.get_q(i),
-                self.get_answer(i, getattr(self, "q" + str(i)))
+                self.get_q(req, i),
+                self.get_answer(req, i, getattr(self, "q" + str(i)))
             )
-        h += tr_qa(self.wxstring("q8problemtype_s"),
+        h += tr_qa(self.wxstring(req, "q8problemtype_s"),
                    get_from_dict(q8_problem_type_dict, self.q8problemtype))
-        h += tr_qa(self.wxstring("q8otherproblem_s"),
+        h += tr_qa(self.wxstring(req, "q8otherproblem_s"),
                    self.q8otherproblem)
         for i in range(9, Honos.NQUESTIONS + 1):
             h += tr_qa(
-                self.get_q(i),
-                self.get_answer(i, getattr(self, "q" + str(i)))
+                self.get_q(req, i),
+                self.get_answer(req, i, getattr(self, "q" + str(i)))
             )
         h += """
             </table>
@@ -359,7 +376,7 @@ class Honos65(Task):
                 4 = severe to very severe problem;
                 9 = not known.
             </div>
-        """ + Honos.COPYRIGHT_DIV
+        """ + self.COPYRIGHT_DIV
         return h
 
 
@@ -367,64 +384,47 @@ class Honos65(Task):
 # HoNOSCA
 # =============================================================================
 
-class Honosca(Task):
-    NQUESTIONS = 15
+class HonoscaMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Honosca'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            pv=PV_MAIN,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
+            comment_strings=[
+                "disruptive/antisocial/aggressive",
+                "overactive/inattentive",
+                "self-harm",
+                "alcohol/drug misuse",
+                "scholastic/language problems",
+                "physical illness/disability",
+                "delusions/hallucinations",
+                "non-organic somatic symptoms",
+                "emotional symptoms",
+                "peer relationships",
+                "self-care and independence",
+                "family life/relationships",
+                "school attendance",
+                "problems with knowledge/understanding of child's problems",
+                "lack of information about services",
+            ]
+        )
+        super().__init__(name, bases, classdict)
 
-    tablename = "honosca"
+
+class Honosca(HonosBase, Base,
+              metaclass=HonoscaMetaclass):
+    __tablename__ = "honosca"
     shortname = "HoNOSCA"
     longname = "Health of the Nation Outcome Scales, Children and Adolescents"
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, pv=PV_MAIN,
-        comment_fmt="Q{n}, {s} (0-4, higher worse)",
-        comment_strings=[
-            "disruptive/antisocial/aggressive",
-            "overactive/inattentive",
-            "self-harm",
-            "alcohol/drug misuse",
-            "scholastic/language problems",
-            "physical illness/disability",
-            "delusions/hallucinations",
-            "non-organic somatic symptoms",
-            "emotional symptoms",
-            "peer relationships",
-            "self-care and independence",
-            "family life/relationships",
-            "school attendance",
-            "problems with knowledge/understanding of child's problems",
-            "lack of information about services",
-        ]
-    ) + [
-        dict(name="period_rated", cctype="TEXT",
-             comment="Period being rated"),
-    ]
-    has_clinician = True
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
-
-    def get_trackers(self) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="HoNOSCA total score",
-            axis_label="Total score (out of 60)",
-            axis_min=-0.5,
-            axis_max=60.5
-        )]
-
-    def get_clinical_text(self) -> List[CtvInfo]:
-        if not self.is_complete():
-            return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="HoNOSCA total score {}/60".format(self.total_score())
-        )]
-
-    def get_summaries(self) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (/60)"),
-        ]
+    NQUESTIONS = 15
+    QFIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_SCORE = 60
+    TASK_FIELDS = QFIELDS + ["period_rated"]
 
     def is_complete(self) -> bool:
         return (
@@ -432,32 +432,13 @@ class Honosca(Task):
             self.field_contents_valid()
         )
 
-    def total_score(self) -> int:
-        total = 0
-        for q in range(1, self.NQUESTIONS + 1):
-            value = getattr(self, "q" + str(q))
-            if value is not None and 0 <= value <= 4:
-                # i.e. ignore null values and 9 (= not known)
-                total += value
-        return total
-
-    def get_q(self, q: int) -> str:
-        return self.wxstring("q" + str(q) + "_s")
-
-    def get_answer(self, q: int, a: int) -> Optional[str]:
-        if a == 9:
-            return self.wxstring("option9")
-        if a is None or a < 0 or a > 4:
-            return None
-        return self.wxstring("q" + str(q) + "_option" + str(a))
-
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score"),
-                answer(self.total_score()) + " / 60")
+        h += tr(req.wappstring("total_score"),
+                answer(self.total_score()) + " / {}".format(self.MAX_SCORE))
         h += """
                 </table>
             </div>
@@ -467,20 +448,20 @@ class Honosca(Task):
                     <th width="50%">Answer <sup>[1]</sup></th>
                 </tr>
         """
-        h += tr_qa(self.wxstring("period_rated"), self.period_rated)
+        h += tr_qa(self.wxstring(req, "period_rated"), self.period_rated)
         h += subheading_spanning_two_columns(
-            self.wxstring("section_a_title"))
+            self.wxstring(req, "section_a_title"))
         for i in range(1, 13 + 1):
             h += tr_qa(
-                self.get_q(i),
-                self.get_answer(i, getattr(self, "q" + str(i)))
+                self.get_q(req, i),
+                self.get_answer(req, i, getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns(
-            self.wxstring("section_b_title"))
+            self.wxstring(req, "section_b_title"))
         for i in range(14, self.NQUESTIONS + 1):
             h += tr_qa(
-                self.get_q(i),
-                self.get_answer(i, getattr(self, "q" + str(i)))
+                self.get_q(req, i),
+                self.get_answer(req, i, getattr(self, "q" + str(i)))
             )
         h += """
             </table>
@@ -492,5 +473,5 @@ class Honosca(Task):
                 4 = severe to very severe problem;
                 9 = not known.
             </div>
-        """ + Honos.COPYRIGHT_DIV
+        """ + self.COPYRIGHT_DIV
         return h

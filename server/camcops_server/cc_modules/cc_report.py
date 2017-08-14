@@ -109,8 +109,8 @@ class Report(object):
     report_title = None
     param_spec_list = []
 
-    def get_rows_descriptions(self, request: CamcopsRequest,
-                              **kwargs) -> REPORT_RESULT_TYPE:
+    def get_rows_descriptions(self, req: CamcopsRequest,
+                              **kwargs: Any) -> REPORT_RESULT_TYPE:
         """Execute the report. Must override. Parameters are passed in via
         **kwargs."""
         return [], []
@@ -128,11 +128,11 @@ class Report(object):
 # Report framework
 # =============================================================================
 
-def offer_report_menu(request: CamcopsRequest) -> str:
+def offer_report_menu(req: CamcopsRequest) -> str:
     """HTML page offering available reports."""
-    cfg = request.config
-    ccsession = request.camcops_session
-    html = request.webstart_html + """
+    cfg = req.config
+    ccsession = req.camcops_session
+    html = req.webstart_html + """
         {}
         <h1>Reports</h1>
         <ul>
@@ -141,8 +141,8 @@ def offer_report_menu(request: CamcopsRequest) -> str:
     )
     for cls in get_all_report_classes():
         html += "<li><a href={}>{}</a></li>".format(
-            get_generic_action_url(request, ACTION.OFFER_REPORT) +
-                get_url_field_value_pair(PARAM.REPORT_ID, cls.report_id),
+            get_generic_action_url(req, ACTION.OFFER_REPORT) +
+            get_url_field_value_pair(PARAM.REPORT_ID, cls.report_id),
             cls.report_title
         )
     return html + "</ul>" + WEBEND
@@ -170,11 +170,11 @@ def get_param_html(paramspec: ReportParamSpec) -> str:
         return ""
 
 
-def get_params_from_form(request: CamcopsRequest,
+def get_params_from_form(req: CamcopsRequest,
                          paramspeclist: List[ReportParamSpec],
                          form: cgi.FieldStorage) -> Dict:
     """Returns key/value dictionary of applicable parameters from form."""
-    cfg = request.config
+    cfg = req.config
     kwargs = {}
     for paramspec in paramspeclist:
         if paramspec.type == PARAM.WHICH_IDNUM:
@@ -204,16 +204,16 @@ def get_report_instance(report_id: str) -> Optional[Report]:
     return None
 
 
-def offer_individual_report(request: CamcopsRequest,
+def offer_individual_report(req: CamcopsRequest,
                             form: cgi.FieldStorage) -> str:
     """For a specific report (specified within the CGI form), offers an HTML
     page with the parameters to be configured for that report."""
     # Which report?
-    ccsession = request.camcops_session
+    ccsession = req.camcops_session
     report_id = ws.get_cgi_parameter_str(form, PARAM.REPORT_ID)
     report = get_report_instance(report_id)
     if not report:
-        return fail_with_error_stay_logged_in(request, "Invalid report_id")
+        return fail_with_error_stay_logged_in(req, "Invalid report_id")
 
     html = pls.WEBSTART + """
         {userdetails}
@@ -227,7 +227,7 @@ def offer_individual_report(request: CamcopsRequest,
     """.format(
         userdetails=ccsession.get_current_user_html(),
         reporttitle=report.report_title,
-        script=request.script_name,
+        script=req.script_name,
         ACTION=ACTION,
         PARAM=PARAM,
         report_id=report_id
@@ -281,17 +281,17 @@ def tsv_from_query(rows: Iterable[Iterable[Any]],
     return tsv
 
 
-def serve_report(request: CamcopsRequest,
+def serve_report(req: CamcopsRequest,
                  form: cgi.FieldStorage) -> Union[str, WSGI_TUPLE_TYPE]:
     """Extracts report type, report parameters, and output type from the CGI
     form; offers up the results in the chosen format."""
-    ccsession = request.camcops_session
+    ccsession = req.camcops_session
 
     # Which report?
     report_id = ws.get_cgi_parameter_str(form, PARAM.REPORT_ID)
     report = get_report_instance(report_id)
     if not report:
-        return fail_with_error_stay_logged_in(request, "Invalid report_id")
+        return fail_with_error_stay_logged_in(req, "Invalid report_id")
 
     # What output type?
     outputtype = ws.get_cgi_parameter_str(form, PARAM.OUTPUTTYPE)
@@ -299,10 +299,10 @@ def serve_report(request: CamcopsRequest,
         outputtype = outputtype.lower()
     if (outputtype != VALUE.OUTPUTTYPE_HTML and
             outputtype != VALUE.OUTPUTTYPE_TSV):
-        return fail_with_error_stay_logged_in(request, "Unknown outputtype")
+        return fail_with_error_stay_logged_in(req, "Unknown outputtype")
 
     # Get parameters
-    params = get_params_from_form(request=request,
+    params = get_params_from_form(req=req,
                                   paramspeclist=report.param_spec_list,
                                   form=form)
 
@@ -310,7 +310,7 @@ def serve_report(request: CamcopsRequest,
     rows, descriptions = report.get_rows_descriptions(**params)
     if rows is None or descriptions is None:
         return fail_with_error_stay_logged_in(
-            request,
+            req,
             "Report failed to return a list of descriptions/results")
 
     if outputtype == VALUE.OUTPUTTYPE_TSV:
@@ -379,7 +379,7 @@ def task_unit_test_report(name: str, r: Report) -> None:
                      r.get_rows_descriptions)
 
 
-def ccreport_unit_tests(request: CamcopsRequest) -> None:
+def ccreport_unit_tests(req: CamcopsRequest) -> None:
     """Unit tests for cc_report module."""
     # -------------------------------------------------------------------------
     # DELAYED IMPORTS (UNIT TESTING ONLY)
@@ -399,16 +399,16 @@ def ccreport_unit_tests(request: CamcopsRequest) -> None:
     ]
     descriptions = ["one", "two", "three"]
 
-    unit_test_ignore("", offer_report_menu, request)
+    unit_test_ignore("", offer_report_menu, req)
     unit_test_ignore("", get_param_html, paramspec)
-    unit_test_ignore("", get_params_from_form, request, [paramspec], form)
+    unit_test_ignore("", get_params_from_form, req, [paramspec], form)
     unit_test_ignore("", get_all_report_ids)
     unit_test_ignore("", get_report_instance, "hello")
-    unit_test_ignore("", offer_individual_report, request, form)
+    unit_test_ignore("", offer_individual_report, req, form)
     unit_test_ignore("", ws.html_table_from_query, rows, descriptions)
     unit_test_ignore("", escape_for_tsv, "x")
     unit_test_ignore("", tsv_from_query, rows, descriptions)
-    unit_test_ignore("", serve_report, request, form)
+    unit_test_ignore("", serve_report, req, form)
     unit_test_ignore("", get_param_html, paramspec)
     unit_test_ignore("", get_param_html, paramspec)
 

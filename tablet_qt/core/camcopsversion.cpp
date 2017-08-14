@@ -21,7 +21,7 @@
 
 namespace camcopsversion {  // http://semver.org/
 
-const Version CAMCOPS_VERSION(2, 0, 2);
+const Version CAMCOPS_VERSION(2, 0, 3);
 const Version MINIMUM_SERVER_VERSION(2, 0, 0);
 
 }  // namespace camcopsversion
@@ -49,5 +49,10 @@ VERSION HISTORY
 - Bugfix for canvas widget on Android (size was going wrong).
 - Automatic adjustment for high-DPI screens as standard in
   QuBoolean (its image option), QuCanvas, QuImage, QuThermometer.
+
+2.0.3
+- 2018-08-07
+- Trivial type fix to patient_wanted_copy_of_letter (String -> Bool) in the
+  unused task CPFTLPSDischarge.
 
 */

@@ -22,18 +22,22 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -41,75 +45,88 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # BDI (crippled)
 # =============================================================================
 
-class Bdi(Task):
-    tablename = "bdi"
+class BdiMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Bdi'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=0, maximum=3,
+            comment_fmt="Q{n} [in BDI-II: {s}] (0-3, higher worse)",
+            comment_strings=["sadness", "pessimism", "past failure",
+                             "loss of pleasure", "guilt", "punishment",
+                             "self-dislike", "self-criticality", "suicidality",
+                             "crying", "agitation", "loss of interest",
+                             "indecisive", "worthless", "energy", "sleep",
+                             "irritability", "appetite", "concentration",
+                             "fatigue", "libido"]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Bdi(TaskHasPatientMixin, Task, Base,
+          metaclass=BdiMetaclass):
+    __tablename__ = "bdi"
     shortname = "BDI"
     longname = "Beck Depression Inventory (data collection only)"
     provides_trackers = True
 
     NQUESTIONS = 21
-    TASK_SCORED_FIELDSPECS = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=3,
-        comment_fmt="Q{n} [in BDI-II: {s}] (0-3, higher worse)",
-        comment_strings=["sadness", "pessimism", "past failure",
-                         "loss of pleasure", "guilt", "punishment",
-                         "self-dislike", "self-criticality", "suicidality",
-                         "crying", "agitation", "loss of interest",
-                         "indecisive", "worthless", "energy", "sleep",
-                         "irritability", "appetite", "concentration",
-                         "fatigue", "libido"])
-    TASK_SCORED_FIELDS = [x["name"] for x in TASK_SCORED_FIELDSPECS]
-    fieldspecs = [
-        dict(name="bdi_scale", cctype="TEXT",
-             comment="Which BDI scale (BDI-I, BDI-IA, BDI-II)?"),
-    ] + TASK_SCORED_FIELDSPECS
+    TASK_SCORED_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_SCORE = NQUESTIONS * 3
+
+    bdi_scale = Column(
+        "bdi_scale", Text,
+        comment="Which BDI scale (BDI-I, BDI-IA, BDI-II)?"
+    )
 
     def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
             self.bdi_scale is not None and
-            self.are_all_fields_complete(
-                repeat_fieldname("q", 1, self.NQUESTIONS)
-            )
+            self.are_all_fields_complete(self.TASK_SCORED_FIELDS)
         )
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="BDI total score (rating depressive symptoms)",
-            axis_label="Score for Q1-21 (out of 63)",
+            axis_label="Score for Q1-21 (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=63.5
+            axis_max=self.MAX_SCORE + 0.5
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="{} total score {}/63".format(
-                ws.webify(self.bdi_scale), self.total_score())
+            content="{} total score {}/{}".format(
+                ws.webify(self.bdi_scale), self.total_score(), self.MAX_SCORE)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/63)"),
+                           comment="Total score (/{})".format(self.MAX_SCORE)),
         ]
 
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_SCORED_FIELDS)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         h = """
             <div class="summary">
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(wappstring("total_score"), answer(score) + " / 63")
+        h += tr(req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE))
         h += """
                 </table>
             </div>
@@ -123,10 +140,10 @@ class Bdi(Task):
                     <th width="30%">Answer</th>
                 </tr>
         """
-        h += tr_qa(wappstring("bdi_which_scale"), ws.webify(self.bdi_scale))
+        h += tr_qa(req.wappstring("bdi_which_scale"), ws.webify(self.bdi_scale))
 
         for q in range(1, self.NQUESTIONS + 1):
-            h += tr_qa("{} {}".format(wappstring("question"), q),
+            h += tr_qa("{} {}".format(req.wappstring("question"), q),
                        getattr(self, "q" + str(q)))
         h += """
             </table>

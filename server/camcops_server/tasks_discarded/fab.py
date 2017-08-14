@@ -28,7 +28,6 @@ from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import get_yes_no
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
@@ -49,7 +48,7 @@ class Fab(Task):
     fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="FAB total score",
@@ -64,7 +63,7 @@ class Fab(Task):
             ]
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -79,7 +78,7 @@ class Fab(Task):
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         below_cutoff = score <= 12
         answer_dicts = []
@@ -88,7 +87,7 @@ class Fab(Task):
             for option in range(0, 5):
                 d[option] = (
                     str(option) + " — " +
-                    self.wxstring("q" + str(q) + "_option" + str(option)))
+                    self.wxstring(req, "q" + str(q) + "_option" + str(option)))
             answer_dicts.append(d)
         h = """
             <div class="summary">
@@ -105,12 +104,12 @@ class Fab(Task):
                 </tr>
         """.format(
             self.get_is_complete_tr(),
-            wappstring("total_score"), score,
-            self.wxstring("below_cutoff"), get_yes_no(below_cutoff),
+            req.wappstring("total_score"), score,
+            self.wxstring(req, "below_cutoff"), get_yes_no(below_cutoff),
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                self.wxstring("q" + str(q) + "_title"),
+                self.wxstring(req, "q" + str(q) + "_title"),
                 get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
             )
         h += """

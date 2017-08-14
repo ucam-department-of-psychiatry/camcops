@@ -25,9 +25,9 @@
 from typing import Any, Dict, List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.sqltypes import Boolean, Integer
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
-from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
@@ -36,8 +36,21 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn,
+    MIN_ZERO_CHECKER,
+    ONE_TO_FIVE_CHECKER,
+    PermittedValueChecker,
+    ZERO_TO_TWO_CHECKER,
+    ZERO_TO_THREE_CHECKER,
+    ZERO_TO_FOUR_CHECKER,
+    ZERO_TO_FIVE_CHECKER
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 
 
 # =============================================================================
@@ -45,531 +58,1204 @@ from ..cc_modules.cc_task import get_from_dict, Task
 # =============================================================================
 
 FREQUENCY_COMMENT = "Frequency (0 never - 3 often)"
-PV_0_TO_2 = [0, 1, 2]
 
 
-class CecaQ3(Task):
-    tablename = "cecaq3"
+class CecaQ3(TaskHasPatientMixin, Task, Base):
+    __tablename__ = "cecaq3"
     shortname = "CECA-Q3"
     longname = "Childhood Experience of Care and Abuse Questionnaire"
 
-    fieldspecs = [
-        dict(name="s1a_motherfigure_birthmother", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, maternal, birth mother?"),
-        dict(name="s1a_motherfigure_stepmother", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, maternal, stepmother?"),
-        dict(name="s1a_motherfigure_femalerelative", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, maternal, female relative?"),
-        dict(name="s1a_motherfigure_femalerelative_detail",
-             cctype="TEXT",
-             comment="Raised by, maternal, female relative, detail"),
-        dict(name="s1a_motherfigure_familyfriend", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, maternal, family friend?"),
-        dict(name="s1a_motherfigure_fostermother", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, maternal, foster mother?"),
-        dict(name="s1a_motherfigure_adoptivemother", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, maternal, adoptive mother?"),
-        dict(name="s1a_motherfigure_other", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, maternal, other?"),
-        dict(name="s1a_motherfigure_other_detail", cctype="TEXT",
-             comment="Raised by, maternal, other, detail"),
-        dict(name="s1a_fatherfigure_birthfather", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, paternal, birth father?"),
-        dict(name="s1a_fatherfigure_stepfather", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, paternal, stepfather?"),
-        dict(name="s1a_fatherfigure_malerelative", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, paternal, male relative?"),
-        dict(name="s1a_fatherfigure_malerelative_detail",
-             cctype="TEXT",
-             comment="Raised by, paternal, male relative, detail"),
-        dict(name="s1a_fatherfigure_familyfriend", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, paternal, family friend?"),
-        dict(name="s1a_fatherfigure_fosterfather", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, paternal, foster father?"),
-        dict(name="s1a_fatherfigure_adoptivefather", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, paternal, adoptive father?"),
-        dict(name="s1a_fatherfigure_other", cctype="BOOL",
-             pv=PV.BIT, comment="Raised by, paternal, other?"),
-        dict(name="s1a_fatherfigure_other_detail", cctype="TEXT",
-             comment="Raised by, paternal, other, detail"),
+    # -------------------------------------------------------------------------
+    # Section 1(A)
+    # -------------------------------------------------------------------------
+    s1a_motherfigure_birthmother = CamcopsColumn(
+        "s1a_motherfigure_birthmother", Boolean,
+        permitted_value_checker=BIT_CHECKER, 
+        comment="Raised by, maternal, birth mother?"
+    )
+    s1a_motherfigure_stepmother = CamcopsColumn(
+        "s1a_motherfigure_stepmother", Boolean,
+        permitted_value_checker=BIT_CHECKER, 
+        comment="Raised by, maternal, stepmother?"
+    )
+    s1a_motherfigure_femalerelative = CamcopsColumn(
+        "s1a_motherfigure_femalerelative", Boolean,
+        permitted_value_checker=BIT_CHECKER, 
+        comment="Raised by, maternal, female relative?"
+    )
+    s1a_motherfigure_femalerelative_detail = Column(
+        "s1a_motherfigure_femalerelative_detail", Text,
+        comment="Raised by, maternal, female relative, detail"
+    )
+    s1a_motherfigure_familyfriend = CamcopsColumn(
+        "s1a_motherfigure_familyfriend", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Raised by, maternal, family friend?"
+    )
+    s1a_motherfigure_fostermother = CamcopsColumn(
+        "s1a_motherfigure_fostermother", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Raised by, maternal, foster mother?"
+    )
+    s1a_motherfigure_adoptivemother = CamcopsColumn(
+        "s1a_motherfigure_adoptivemother", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Raised by, maternal, adoptive mother?"
+    )
+    s1a_motherfigure_other = CamcopsColumn(
+        "s1a_motherfigure_other", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Raised by, maternal, other?"
+    )
+    s1a_motherfigure_other_detail = Column(
+        "s1a_motherfigure_other_detail", Text,
+        comment="Raised by, maternal, other, detail"
+    )
+    s1a_fatherfigure_birthfather = CamcopsColumn(
+        "s1a_fatherfigure_birthfather", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Raised by, paternal, birth father?"
+    )
+    s1a_fatherfigure_stepfather = CamcopsColumn(
+        "s1a_fatherfigure_stepfather", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Raised by, paternal, stepfather?"
+    )
+    s1a_fatherfigure_malerelative = CamcopsColumn(
+        "s1a_fatherfigure_malerelative", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Raised by, paternal, male relative?"
+    )
+    s1a_fatherfigure_malerelative_detail = Column(
+        "s1a_fatherfigure_malerelative_detail", Text,
+        comment="Raised by, paternal, male relative, detail"
+    )
+    s1a_fatherfigure_familyfriend = CamcopsColumn(
+        "s1a_fatherfigure_familyfriend", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Raised by, paternal, family friend?"
+    )
+    s1a_fatherfigure_fosterfather = CamcopsColumn(
+        "s1a_fatherfigure_fosterfather", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Raised by, paternal, foster father?"
+    )
+    s1a_fatherfigure_adoptivefather = CamcopsColumn(
+        "s1a_fatherfigure_adoptivefather", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Raised by, paternal, adoptive father?"
+    )
+    s1a_fatherfigure_other = CamcopsColumn(
+        "s1a_fatherfigure_other", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Raised by, paternal, other?"
+    )
+    s1a_fatherfigure_other_detail = Column(
+        "s1a_fatherfigure_other_detail", Text,
+        comment="Raised by, paternal, other, detail"
+    )
 
-        dict(name="s1b_institution", cctype="BOOL",
-             pv=PV.BIT, comment="In institution before 17?"),
-        dict(name="s1b_institution_time_years", cctype="FLOAT",
-             min=0, comment="In institution, time (years)"),
+    # -------------------------------------------------------------------------
+    # Section 1(B)
+    # -------------------------------------------------------------------------
+    s1b_institution = CamcopsColumn(
+        "s1b_institution", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="In institution before 17?"
+    )
+    s1b_institution_time_years = CamcopsColumn(
+        "s1b_institution_time_years", Float,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="In institution, time (years)"
+    )
 
-        dict(name="s1c_mother_died", cctype="BOOL",
-             pv=PV.BIT, comment="Mother died before 17?"),
-        dict(name="s1c_father_died", cctype="BOOL",
-             pv=PV.BIT, comment="Father died before 17?"),
-        dict(name="s1c_mother_died_subject_aged", cctype="FLOAT",
-             min=0, comment="Age when mother died (years)"),
-        dict(name="s1c_father_died_subject_aged", cctype="FLOAT",
-             min=0, comment="Age when father died (years)"),
-        dict(name="s1c_separated_from_mother", cctype="BOOL",
-             pv=PV.BIT, comment="Separated from mother for >=1y before 17?"),
-        dict(name="s1c_separated_from_father", cctype="BOOL",
-             pv=PV.BIT, comment="Separated from father for >=1y before 17?"),
-        dict(name="s1c_first_separated_from_mother_aged",
-             cctype="FLOAT", min=0,
-             comment="Maternal separation, age (years)"),
-        dict(name="s1c_first_separated_from_father_aged",
-             cctype="FLOAT", min=0,
-             comment="Paternal separation, age (years)"),
-        dict(name="s1c_mother_how_long_first_separation_years",
-             cctype="FLOAT", min=0,
-             comment="Maternal separation, how long first separation (y)"),
-        dict(name="s1c_father_how_long_first_separation_years",
-             cctype="FLOAT", min=0,
-             comment="Paternal separation, how long first separation (y)"),
-        dict(name="s1c_mother_separation_reason", cctype="INT",
-             min=1, max=6, comment="Maternal separation, reason "
-             "(1 illness, 2 work, 3 divorce/separation, 4 never knew, "
-             "5 abandoned, 6 other)"),
-        dict(name="s1c_father_separation_reason", cctype="INT",
-             min=1, max=6, comment="Paternal separation, reason "
-             "(1 illness, 2 work, 3 divorce/separation, 4 never knew, "
-             "5 abandoned, 6 other)"),
-        dict(name="s1c_describe_experience", cctype="TEXT",
-             comment="Loss of/separation from parent, description"),
+    # -------------------------------------------------------------------------
+    # Section 1(C)
+    # -------------------------------------------------------------------------
+    s1c_mother_died = CamcopsColumn(
+        "s1c_mother_died", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Mother died before 17?"
+    )
+    s1c_father_died = CamcopsColumn(
+        "s1c_father_died", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Father died before 17?"
+    )
+    s1c_mother_died_subject_aged = CamcopsColumn(
+        "s1c_mother_died_subject_aged", Float,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Age when mother died (years)"
+    )
+    s1c_father_died_subject_aged = CamcopsColumn(
+        "s1c_father_died_subject_aged", Float,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Age when father died (years)"
+    )
+    s1c_separated_from_mother = CamcopsColumn(
+        "s1c_separated_from_mother", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Separated from mother for >=1y before 17?"
+    )
+    s1c_separated_from_father = CamcopsColumn(
+        "s1c_separated_from_father", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Separated from father for >=1y before 17?"
+    )
+    s1c_first_separated_from_mother_aged = CamcopsColumn(
+        "s1c_first_separated_from_mother_aged", Float,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Maternal separation, age (years)"
+    )
+    s1c_first_separated_from_father_aged = CamcopsColumn(
+        "s1c_first_separated_from_father_aged", Float,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Paternal separation, age (years)"
+    )
+    s1c_mother_how_long_first_separation_years = CamcopsColumn(
+        "s1c_mother_how_long_first_separation_years", Float,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Maternal separation, how long first separation (y)"
+    )
+    s1c_father_how_long_first_separation_years = CamcopsColumn(
+        "s1c_father_how_long_first_separation_years", Float,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Paternal separation, how long first separation (y)"
+    )
+    s1c_mother_separation_reason = CamcopsColumn(
+        "s1c_mother_separation_reason", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=1, maximum=6),
+        comment="Maternal separation, reason "
+                "(1 illness, 2 work, 3 divorce/separation, 4 never knew, "
+                "5 abandoned, 6 other)"
+    )
+    s1c_father_separation_reason = CamcopsColumn(
+        "s1c_father_separation_reason", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=1, maximum=6),
+        comment="Paternal separation, reason "
+                "(1 illness, 2 work, 3 divorce/separation, 4 never knew, "
+                "5 abandoned, 6 other)"
+    )
+    s1c_describe_experience = Column(
+        "s1c_describe_experience", Text,
+        comment="Loss of/separation from parent, description"
+    )
 
-        dict(name="s2a_which_mother_figure", cctype="INT",
-             min=0, max=5,
-             comment="Mother figure, which one (0 none/skip, 1 birth mother, "
-             "2 stepmother, 3 other relative, 4 other non-relative, 5 other)"),
-        dict(name="s2a_which_mother_figure_other_detail",
-             cctype="TEXT",
-             comment="Mother figure, other, detail"),
-        dict(name="s2a_q1", cctype="INT", min=1, max=5,
-             comment="Mother figure, difficult to please (1 no - 5 yes)"),
-        dict(name="s2a_q2", cctype="INT", min=1, max=5,
-             comment="Mother figure, concerned re my worries (1 no - 5 yes)"),
-        dict(name="s2a_q3", cctype="INT", min=1, max=5,
-             comment="Mother figure, interested re school (1 no - 5 yes)"),
-        dict(name="s2a_q4", cctype="INT", min=1, max=5,
-             comment="Mother figure, made me feel unwanted (1 no - 5 yes)"),
-        dict(name="s2a_q5", cctype="INT", min=1, max=5,
-             comment="Mother figure, better when upset (1 no - 5 yes)"),
-        dict(name="s2a_q6", cctype="INT", min=1, max=5,
-             comment="Mother figure, critical (1 no - 5 yes)"),
-        dict(name="s2a_q7", cctype="INT", min=1, max=5,
-             comment="Mother figure, unsupervised <10y (1 no - 5 yes)"),
-        dict(name="s2a_q8", cctype="INT", min=1, max=5,
-             comment="Mother figure, time to talk (1 no - 5 yes)"),
-        dict(name="s2a_q9", cctype="INT", min=1, max=5,
-             comment="Mother figure, nuisance (1 no - 5 yes)"),
-        dict(name="s2a_q10", cctype="INT", min=1, max=5,
-             comment="Mother figure, picked on unfairly (1 no - 5 yes)"),
-        dict(name="s2a_q11", cctype="INT", min=1, max=5,
-             comment="Mother figure, there if needed (1 no - 5 yes)"),
-        dict(name="s2a_q12", cctype="INT", min=1, max=5,
-             comment="Mother figure, interested in friends (1 no - 5 yes)"),
-        dict(name="s2a_q13", cctype="INT", min=1, max=5,
-             comment="Mother figure, concerned re whereabouts (1 no - 5 yes)"),
-        dict(name="s2a_q14", cctype="INT", min=1, max=5,
-             comment="Mother figure, cared when ill (1 no - 5 yes)"),
-        dict(name="s2a_q15", cctype="INT", min=1, max=5,
-             comment="Mother figure, neglected basic needs (1 no - 5 yes)"),
-        dict(name="s2a_q16", cctype="INT", min=1, max=5,
-             comment="Mother figure, preferred siblings (1 no - 5 yes)"),
-        dict(name="s2a_extra", cctype="TEXT",
-             comment="Mother figure, extra detail"),
+    # -------------------------------------------------------------------------
+    # Section 2(A)
+    # -------------------------------------------------------------------------
+    s2a_which_mother_figure = CamcopsColumn(
+        "s2a_which_mother_figure", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=5),
+        comment="Mother figure, which one (0 none/skip, 1 birth mother, "
+                "2 stepmother, 3 other relative, 4 other non-relative, "
+                "5 other)"
+    )
+    s2a_which_mother_figure_other_detail = Column(
+        "s2a_which_mother_figure_other_detail", Text,
+        comment="Mother figure, other, detail"
+    )
+    s2a_q1 = CamcopsColumn(
+        "s2a_q1", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, difficult to please (1 no - 5 yes)"
+    )
+    s2a_q2 = CamcopsColumn(
+        "s2a_q2", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, concerned re my worries (1 no - 5 yes)"
+    )
+    s2a_q3 = CamcopsColumn(
+        "s2a_q3", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, interested re school (1 no - 5 yes)"
+    )
+    s2a_q4 = CamcopsColumn(
+        "s2a_q4", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, made me feel unwanted (1 no - 5 yes)"
+    )
+    s2a_q5 = CamcopsColumn(
+        "s2a_q5", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, better when upset (1 no - 5 yes)"
+    )
+    s2a_q6 = CamcopsColumn(
+        "s2a_q6", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, critical (1 no - 5 yes)"
+    )
+    s2a_q7 = CamcopsColumn(
+        "s2a_q7", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, unsupervised <10y (1 no - 5 yes)"
+    )
+    s2a_q8 = CamcopsColumn(
+        "s2a_q8", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, time to talk (1 no - 5 yes)"
+    )
+    s2a_q9 = CamcopsColumn(
+        "s2a_q9", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, nuisance (1 no - 5 yes)"
+    )
+    s2a_q10 = CamcopsColumn(
+        "s2a_q10", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, picked on unfairly (1 no - 5 yes)"
+    )
+    s2a_q11 = CamcopsColumn(
+        "s2a_q11", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, there if needed (1 no - 5 yes)"
+    )
+    s2a_q12 = CamcopsColumn(
+        "s2a_q12", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, interested in friends (1 no - 5 yes)"
+    )
+    s2a_q13 = CamcopsColumn(
+        "s2a_q13", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, concerned re whereabouts (1 no - 5 yes)"
+    )
+    s2a_q14 = CamcopsColumn(
+        "s2a_q14", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, cared when ill (1 no - 5 yes)"
+    )
+    s2a_q15 = CamcopsColumn(
+        "s2a_q15", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, neglected basic needs (1 no - 5 yes)"
+    )
+    s2a_q16 = CamcopsColumn(
+        "s2a_q16", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Mother figure, preferred siblings (1 no - 5 yes)"
+    )
+    s2a_extra = Column(
+        "s2a_extra", Text,
+        comment="Mother figure, extra detail"
+    )
 
-        dict(name="s2b_q1", cctype="INT", min=0, max=2,
-             comment="Mother figure, tease me (0 no - 2 yes)"),
-        dict(name="s2b_q2", cctype="INT", min=0, max=2,
-             comment="Mother figure, made me keep secrets (0 no - 2 yes)"),
-        dict(name="s2b_q3", cctype="INT", min=0, max=2,
-             comment="Mother figure, undermined confidence (0 no - 2 yes)"),
-        dict(name="s2b_q4", cctype="INT", min=0, max=2,
-             comment="Mother figure, contradictory (0 no - 2 yes)"),
-        dict(name="s2b_q5", cctype="INT", min=0, max=2,
-             comment="Mother figure, played on fears (0 no - 2 yes)"),
-        dict(name="s2b_q6", cctype="INT", min=0, max=2,
-             comment="Mother figure, liked to see me suffer (0 no - 2 yes)"),
-        dict(name="s2b_q7", cctype="INT", min=0, max=2,
-             comment="Mother figure, humiliated me (0 no - 2 yes)"),
-        dict(name="s2b_q8", cctype="INT", min=0, max=2,
-             comment="Mother figure, shamed me before others (0 no - 2 yes)"),
-        dict(name="s2b_q9", cctype="INT", min=0, max=2,
-             comment="Mother figure, rejecting (0 no - 2 yes)"),
-        dict(name="s2b_q10", cctype="INT", min=0, max=2,
-             comment="Mother figure, took things I cherished (0 no - 2 yes)"),
-        dict(name="s2b_q11", cctype="INT", min=0, max=2,
-             comment="Mother figure, eat disliked until sick (0 no - 2 yes)"),
-        dict(name="s2b_q12", cctype="INT", min=0, max=2,
-             comment="Mother figure, deprived light/food/company "
-             "(0 no - 2 yes)"),
-        dict(name="s2b_q13", cctype="INT", min=0, max=2,
-             comment="Mother figure, wouldn't let me mix (0 no - 2 yes)"),
-        dict(name="s2b_q14", cctype="INT", min=0, max=2,
-             comment="Mother figure, obedience through guilt (0 no - 2 yes)"),
-        dict(name="s2b_q15", cctype="INT", min=0, max=2,
-             comment="Mother figure, threatened to hurt people dear to me "
-             "(0 no - 2 yes)"),
-        dict(name="s2b_q16", cctype="INT", min=0, max=2,
-             comment="Mother figure, forced to break law (0 no - 2 yes)"),
-        dict(name="s2b_q17", cctype="INT", min=0, max=2,
-             comment="Mother figure, said wanted me dead (0 no - 2 yes)"),
-        dict(name="s2b_q1_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q2_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q3_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q4_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q5_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q6_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q7_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q8_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q9_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q10_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q11_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q12_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q13_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q14_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q15_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q16_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_q17_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s2b_age_began", cctype="FLOAT", min=0,
-             comment="Age these experienced began (years)"),
-        dict(name="s2b_extra", cctype="TEXT",
-             comment="Extra detail"),
+    # -------------------------------------------------------------------------
+    # Section 2(B)
+    # -------------------------------------------------------------------------
+    s2b_q1 = CamcopsColumn(
+        "s2b_q1", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, tease me (0 no - 2 yes)"
+    )
+    s2b_q2 = CamcopsColumn(
+        "s2b_q2", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, made me keep secrets (0 no - 2 yes)"
+    )
+    s2b_q3 = CamcopsColumn(
+        "s2b_q3", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, undermined confidence (0 no - 2 yes)"
+    )
+    s2b_q4 = CamcopsColumn(
+        "s2b_q4", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, contradictory (0 no - 2 yes)"
+    )
+    s2b_q5 = CamcopsColumn(
+        "s2b_q5", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, played on fears (0 no - 2 yes)"
+    )
+    s2b_q6 = CamcopsColumn(
+        "s2b_q6", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, liked to see me suffer (0 no - 2 yes)"
+    )
+    s2b_q7 = CamcopsColumn(
+        "s2b_q7", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, humiliated me (0 no - 2 yes)"
+    )
+    s2b_q8 = CamcopsColumn(
+        "s2b_q8", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, shamed me before others (0 no - 2 yes)"
+    )
+    s2b_q9 = CamcopsColumn(
+        "s2b_q9", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, rejecting (0 no - 2 yes)"
+    )
+    s2b_q10 = CamcopsColumn(
+        "s2b_q10", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, took things I cherished (0 no - 2 yes)"
+    )
+    s2b_q11 = CamcopsColumn(
+        "s2b_q11", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, eat disliked until sick (0 no - 2 yes)"
+    )
+    s2b_q12 = CamcopsColumn(
+        "s2b_q12", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, deprived light/food/company (0 no - 2 yes)"
+    )
+    s2b_q13 = CamcopsColumn(
+        "s2b_q13", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, wouldn't let me mix (0 no - 2 yes)"
+    )
+    s2b_q14 = CamcopsColumn(
+        "s2b_q14", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, obedience through guilt (0 no - 2 yes)"
+    )
+    s2b_q15 = CamcopsColumn(
+        "s2b_q15", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, threatened to hurt people dear to me "
+                "(0 no - 2 yes)"
+    )
+    s2b_q16 = CamcopsColumn(
+        "s2b_q16", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, forced to break law (0 no - 2 yes)"
+    )
+    s2b_q17 = CamcopsColumn(
+        "s2b_q17", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Mother figure, said wanted me dead (0 no - 2 yes)"
+    )
+    s2b_q1_frequency = CamcopsColumn(
+        "s2b_q1_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q2_frequency = CamcopsColumn(
+        "s2b_q2_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q3_frequency = CamcopsColumn(
+        "s2b_q3_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q4_frequency = CamcopsColumn(
+        "s2b_q4_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q5_frequency = CamcopsColumn(
+        "s2b_q5_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q6_frequency = CamcopsColumn(
+        "s2b_q6_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q7_frequency = CamcopsColumn(
+        "s2b_q7_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q8_frequency = CamcopsColumn(
+        "s2b_q8_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q9_frequency = CamcopsColumn(
+        "s2b_q9_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q10_frequency = CamcopsColumn(
+        "s2b_q10_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q11_frequency = CamcopsColumn(
+        "s2b_q11_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q12_frequency = CamcopsColumn(
+        "s2b_q12_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q13_frequency = CamcopsColumn(
+        "s2b_q13_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q14_frequency = CamcopsColumn(
+        "s2b_q14_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q15_frequency = CamcopsColumn(
+        "s2b_q15_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q16_frequency = CamcopsColumn(
+        "s2b_q16_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_q17_frequency = CamcopsColumn(
+        "s2b_q17_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s2b_age_began = CamcopsColumn(
+        "s2b_age_began", Float, 
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Age these experienced began (years)"
+    )
+    s2b_extra = Column(
+        "s2b_extra", Text,
+        comment="Extra detail"
+    )
 
-        dict(name="s3a_which_father_figure", cctype="INT",
-             min=0, max=5,
-             comment="Father figure, which one (0 none/skip, 1 birth father, "
-             "2 stepfather, 3 other relative, 4 other non-relative, 5 other)"),
-        dict(name="s3a_which_father_figure_other_detail",
-             cctype="TEXT",
-             comment="Father figure, other, detail"),
-        dict(name="s3a_q1", cctype="INT", min=1, max=5,
-             comment="Father figure, difficult to please (1 no - 5 yes)"),
-        dict(name="s3a_q2", cctype="INT", min=1, max=5,
-             comment="Father figure, concerned re my worries (1 no - 5 yes)"),
-        dict(name="s3a_q3", cctype="INT", min=1, max=5,
-             comment="Father figure, interested re school (1 no - 5 yes)"),
-        dict(name="s3a_q4", cctype="INT", min=1, max=5,
-             comment="Father figure, made me feel unwanted (1 no - 5 yes)"),
-        dict(name="s3a_q5", cctype="INT", min=1, max=5,
-             comment="Father figure, better when upset (1 no - 5 yes)"),
-        dict(name="s3a_q6", cctype="INT", min=1, max=5,
-             comment="Father figure, critical (1 no - 5 yes)"),
-        dict(name="s3a_q7", cctype="INT", min=1, max=5,
-             comment="Father figure, unsupervised <10y (1 no - 5 yes)"),
-        dict(name="s3a_q8", cctype="INT", min=1, max=5,
-             comment="Father figure, time to talk (1 no - 5 yes)"),
-        dict(name="s3a_q9", cctype="INT", min=1, max=5,
-             comment="Father figure, nuisance (1 no - 5 yes)"),
-        dict(name="s3a_q10", cctype="INT", min=1, max=5,
-             comment="Father figure, picked on unfairly (1 no - 5 yes)"),
-        dict(name="s3a_q11", cctype="INT", min=1, max=5,
-             comment="Father figure, there if needed (1 no - 5 yes)"),
-        dict(name="s3a_q12", cctype="INT", min=1, max=5,
-             comment="Father figure, interested in friends (1 no - 5 yes)"),
-        dict(name="s3a_q13", cctype="INT", min=1, max=5,
-             comment="Father figure, concerned re whereabouts (1 no - 5 yes)"),
-        dict(name="s3a_q14", cctype="INT", min=1, max=5,
-             comment="Father figure, cared when ill (1 no - 5 yes)"),
-        dict(name="s3a_q15", cctype="INT", min=1, max=5,
-             comment="Father figure, neglected basic needs (1 no - 5 yes)"),
-        dict(name="s3a_q16", cctype="INT", min=1, max=5,
-             comment="Father figure, preferred siblings (1 no - 5 yes)"),
-        dict(name="s3a_extra", cctype="TEXT",
-             comment="Father figure, extra detail"),
+    # -------------------------------------------------------------------------
+    # Section 3(A)
+    # -------------------------------------------------------------------------
+    s3a_which_father_figure = CamcopsColumn(
+        "s3a_which_father_figure", Integer,
+        permitted_value_checker=ZERO_TO_FIVE_CHECKER,
+        comment="Father figure, which one (0 none/skip, 1 birth father, "
+                "2 stepfather, 3 other relative, 4 other non-relative, "
+                "5 other)"
+    )
+    s3a_which_father_figure_other_detail = Column(
+        "s3a_which_father_figure_other_detail", Text,
+        comment="Father figure, other, detail"
+    )
+    s3a_q1 = CamcopsColumn(
+        "s3a_q1", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, difficult to please (1 no - 5 yes)"
+    )
+    s3a_q2 = CamcopsColumn(
+        "s3a_q2", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, concerned re my worries (1 no - 5 yes)"
+    )
+    s3a_q3 = CamcopsColumn(
+        "s3a_q3", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, interested re school (1 no - 5 yes)"
+    )
+    s3a_q4 = CamcopsColumn(
+        "s3a_q4", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, made me feel unwanted (1 no - 5 yes)"
+    )
+    s3a_q5 = CamcopsColumn(
+        "s3a_q5", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, better when upset (1 no - 5 yes)"
+    )
+    s3a_q6 = CamcopsColumn(
+        "s3a_q6", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, critical (1 no - 5 yes)"
+    )
+    s3a_q7 = CamcopsColumn(
+        "s3a_q7", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, unsupervised <10y (1 no - 5 yes)"
+    )
+    s3a_q8 = CamcopsColumn(
+        "s3a_q8", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, time to talk (1 no - 5 yes)"
+    )
+    s3a_q9 = CamcopsColumn(
+        "s3a_q9", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, nuisance (1 no - 5 yes)"
+    )
+    s3a_q10 = CamcopsColumn(
+        "s3a_q10", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, picked on unfairly (1 no - 5 yes)"
+    )
+    s3a_q11 = CamcopsColumn(
+        "s3a_q11", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, there if needed (1 no - 5 yes)"
+    )
+    s3a_q12 = CamcopsColumn(
+        "s3a_q12", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, interested in friends (1 no - 5 yes)"
+    )
+    s3a_q13 = CamcopsColumn(
+        "s3a_q13", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, concerned re whereabouts (1 no - 5 yes)"
+    )
+    s3a_q14 = CamcopsColumn(
+        "s3a_q14", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, cared when ill (1 no - 5 yes)"
+    )
+    s3a_q15 = CamcopsColumn(
+        "s3a_q15", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, neglected basic needs (1 no - 5 yes)"
+    )
+    s3a_q16 = CamcopsColumn(
+        "s3a_q16", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Father figure, preferred siblings (1 no - 5 yes)"
+    )
+    s3a_extra = Column(
+        "s3a_extra", Text,
+        comment="Father figure, extra detail"
+    )
 
-        dict(name="s3b_q1", cctype="INT", min=0, max=2,
-             comment="Father figure, tease me (0 no - 2 yes)"),
-        dict(name="s3b_q2", cctype="INT", min=0, max=2,
-             comment="Father figure, made me keep secrets (0 no - 2 yes)"),
-        dict(name="s3b_q3", cctype="INT", min=0, max=2,
-             comment="Father figure, undermined confidence (0 no - 2 yes)"),
-        dict(name="s3b_q4", cctype="INT", min=0, max=2,
-             comment="Father figure, contradictory (0 no - 2 yes)"),
-        dict(name="s3b_q5", cctype="INT", min=0, max=2,
-             comment="Father figure, played on fears (0 no - 2 yes)"),
-        dict(name="s3b_q6", cctype="INT", min=0, max=2,
-             comment="Father figure, liked to see me suffer (0 no - 2 yes)"),
-        dict(name="s3b_q7", cctype="INT", min=0, max=2,
-             comment="Father figure, humiliated me (0 no - 2 yes)"),
-        dict(name="s3b_q8", cctype="INT", min=0, max=2,
-             comment="Father figure, shamed me before others (0 no - 2 yes)"),
-        dict(name="s3b_q9", cctype="INT", min=0, max=2,
-             comment="Father figure, rejecting (0 no - 2 yes)"),
-        dict(name="s3b_q10", cctype="INT", min=0, max=2,
-             comment="Father figure, took things I cherished (0 no - 2 yes)"),
-        dict(name="s3b_q11", cctype="INT", min=0, max=2,
-             comment="Father figure, eat disliked until sick (0 no - 2 yes)"),
-        dict(name="s3b_q12", cctype="INT", min=0, max=2,
-             comment="Father figure, deprived light/food/company "
-             "(0 no - 2 yes)"),
-        dict(name="s3b_q13", cctype="INT", min=0, max=2,
-             comment="Father figure, wouldn't let me mix (0 no - 2 yes)"),
-        dict(name="s3b_q14", cctype="INT", min=0, max=2,
-             comment="Father figure, obedience through guilt (0 no - 2 yes)"),
-        dict(name="s3b_q15", cctype="INT", min=0, max=2,
-             comment="Father figure, threatened to hurt people dear to me "
-             "(0 no - 2 yes)"),
-        dict(name="s3b_q16", cctype="INT", min=0, max=2,
-             comment="Father figure, forced to break law (0 no - 2 yes)"),
-        dict(name="s3b_q17", cctype="INT", min=0, max=2,
-             comment="Father figure, said wanted me dead (0 no - 2 yes)"),
-        dict(name="s3b_q1_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q2_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q3_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q4_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q5_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q6_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q7_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q8_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q9_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q10_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q11_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q12_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q13_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q14_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q15_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q16_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_q17_frequency", cctype="INT", min=0, max=3,
-             comment=FREQUENCY_COMMENT),
-        dict(name="s3b_age_began", cctype="FLOAT", min=0,
-             comment="Age these experienced began (years)"),
-        dict(name="s3b_extra", cctype="TEXT",
-             comment="Extra detail"),
+    # -------------------------------------------------------------------------
+    # Section 3(B)
+    # -------------------------------------------------------------------------
+    s3b_q1 = CamcopsColumn(
+        "s3b_q1", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, tease me (0 no - 2 yes)"
+    )
+    s3b_q2 = CamcopsColumn(
+        "s3b_q2", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, made me keep secrets (0 no - 2 yes)"
+    )
+    s3b_q3 = CamcopsColumn(
+        "s3b_q3", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, undermined confidence (0 no - 2 yes)"
+    )
+    s3b_q4 = CamcopsColumn(
+        "s3b_q4", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, contradictory (0 no - 2 yes)"
+    )
+    s3b_q5 = CamcopsColumn(
+        "s3b_q5", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, played on fears (0 no - 2 yes)"
+    )
+    s3b_q6 = CamcopsColumn(
+        "s3b_q6", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, liked to see me suffer (0 no - 2 yes)"
+    )
+    s3b_q7 = CamcopsColumn(
+        "s3b_q7", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, humiliated me (0 no - 2 yes)"
+    )
+    s3b_q8 = CamcopsColumn(
+        "s3b_q8", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, shamed me before others (0 no - 2 yes)"
+    )
+    s3b_q9 = CamcopsColumn(
+        "s3b_q9", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, rejecting (0 no - 2 yes)"
+    )
+    s3b_q10 = CamcopsColumn(
+        "s3b_q10", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, took things I cherished (0 no - 2 yes)"
+    )
+    s3b_q11 = CamcopsColumn(
+        "s3b_q11", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, eat disliked until sick (0 no - 2 yes)"
+    )
+    s3b_q12 = CamcopsColumn(
+        "s3b_q12", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, deprived light/food/company (0 no - 2 yes)"
+    )
+    s3b_q13 = CamcopsColumn(
+        "s3b_q13", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, wouldn't let me mix (0 no - 2 yes)"
+    )
+    s3b_q14 = CamcopsColumn(
+        "s3b_q14", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, obedience through guilt (0 no - 2 yes)"
+    )
+    s3b_q15 = CamcopsColumn(
+        "s3b_q15", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, threatened to hurt people dear to me "
+                "(0 no - 2 yes)"
+    )
+    s3b_q16 = CamcopsColumn(
+        "s3b_q16", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, forced to break law (0 no - 2 yes)"
+    )
+    s3b_q17 = CamcopsColumn(
+        "s3b_q17", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Father figure, said wanted me dead (0 no - 2 yes)"
+    )
+    s3b_q1_frequency = CamcopsColumn(
+        "s3b_q1_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q2_frequency = CamcopsColumn(
+        "s3b_q2_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q3_frequency = CamcopsColumn(
+        "s3b_q3_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q4_frequency = CamcopsColumn(
+        "s3b_q4_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q5_frequency = CamcopsColumn(
+        "s3b_q5_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q6_frequency = CamcopsColumn(
+        "s3b_q6_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q7_frequency = CamcopsColumn(
+        "s3b_q7_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q8_frequency = CamcopsColumn(
+        "s3b_q8_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q9_frequency = CamcopsColumn(
+        "s3b_q9_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q10_frequency = CamcopsColumn(
+        "s3b_q10_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q11_frequency = CamcopsColumn(
+        "s3b_q11_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q12_frequency = CamcopsColumn(
+        "s3b_q12_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q13_frequency = CamcopsColumn(
+        "s3b_q13_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q14_frequency = CamcopsColumn(
+        "s3b_q14_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q15_frequency = CamcopsColumn(
+        "s3b_q15_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q16_frequency = CamcopsColumn(
+        "s3b_q16_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_q17_frequency = CamcopsColumn(
+        "s3b_q17_frequency", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    s3b_age_began = CamcopsColumn(
+        "s3b_age_began", Float,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Age these experienced began (years)"
+    )
+    s3b_extra = Column(
+        "s3b_extra", Text,
+        comment="Extra detail"
+    )
 
-        dict(name="s3c_q1", cctype="INT", min=1, max=5,
-             comment="Responsibility (1 no - 5 yes)"),
-        dict(name="s3c_q2", cctype="INT", min=1, max=5,
-             comment="Housework (1 no - 5 yes)"),
-        dict(name="s3c_q3", cctype="INT", min=1, max=5,
-             comment="Look after young siblings (1 no - 5 yes)"),
-        dict(name="s3c_q4", cctype="INT", min=1, max=5,
-             comment="Cooking/cleaning (1 no - 5 yes)"),
-        dict(name="s3c_q5", cctype="INT", min=1, max=5,
-             comment="Miss school for domestic responsibilities "
-             "(1 no - 5 yes)"),
-        dict(name="s3c_q6", cctype="INT", min=1, max=5,
-             comment="Miss seeing friends for domestic responsibilities "
-             "(1 no - 5 yes)"),
-        dict(name="s3c_q7", cctype="INT", min=1, max=5,
-             comment="Parents said they couldn't cope (1 no - 5 yes)"),
-        dict(name="s3c_q8", cctype="INT", min=1, max=5,
-             comment="Parents looked to you for help (1 no - 5 yes)"),
-        dict(name="s3c_q9", cctype="INT", min=1, max=5,
-             comment="Parents coped if you were hurt/ill (1 no - 5 yes)"),
-        dict(name="s3c_q10", cctype="INT", min=1, max=5,
-             comment="Parents confided their problems (1 no - 5 yes)"),
-        dict(name="s3c_q11", cctype="INT", min=1, max=5,
-             comment="Parents relied on you for emotional support "
-             "(1 no - 5 yes)"),
-        dict(name="s3c_q12", cctype="INT", min=1, max=5,
-             comment="Parents cried in front of you (1 no - 5 yes)"),
-        dict(name="s3c_q13", cctype="INT", min=1, max=5,
-             comment="Concerned/worried re parent (1 no - 5 yes)"),
-        dict(name="s3c_q14", cctype="INT", min=1, max=5,
-             comment="Tried to support/care for parent (1 no - 5 yes)"),
-        dict(name="s3c_q15", cctype="INT", min=1, max=5,
-             comment="Try to make parent smile when upset (1 no - 5 yes)"),
-        dict(name="s3c_q16", cctype="INT", min=1, max=5,
-             comment="Parents made you feel guilty for their sacrifices "
-             "(1 no - 5 yes)"),
-        dict(name="s3c_q17", cctype="INT", min=1, max=5,
-             comment="Had to keep secrets for parent (1 no - 5 yes)"),
-        dict(name="s3c_which_parent_cared_for", cctype="INT",
-             min=0, max=4,
-             comment="Which parent did you have to provide care for (0 none, "
-             "1 mother, 2 father, 3 both, 4 other)"),
-        dict(name="s3c_parent_mental_problem", cctype="INT",
-             min=0, max=2, comment="Parent/s had emotional/mental health "
-             "problems (0 no - 2 yes)"),
-        dict(name="s3c_parent_physical_problem", cctype="INT",
-             min=0, max=2, comment="Parent/s had disability/physical "
-             "illness (0 no - 2 yes)"),
+    # -------------------------------------------------------------------------
+    # Section 3(C)
+    # -------------------------------------------------------------------------
+    s3c_q1 = CamcopsColumn(
+        "s3c_q1", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Responsibility (1 no - 5 yes)"
+    )
+    s3c_q2 = CamcopsColumn(
+        "s3c_q2", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Housework (1 no - 5 yes)"
+    )
+    s3c_q3 = CamcopsColumn(
+        "s3c_q3", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Look after young siblings (1 no - 5 yes)"
+    )
+    s3c_q4 = CamcopsColumn(
+        "s3c_q4", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Cooking/cleaning (1 no - 5 yes)"
+    )
+    s3c_q5 = CamcopsColumn(
+        "s3c_q5", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Miss school for domestic responsibilities (1 no - 5 yes)"
+    )
+    s3c_q6 = CamcopsColumn(
+        "s3c_q6", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Miss seeing friends for domestic responsibilities "
+                "(1 no - 5 yes)"
+    )
+    s3c_q7 = CamcopsColumn(
+        "s3c_q7", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Parents said they couldn't cope (1 no - 5 yes)"
+    )
+    s3c_q8 = CamcopsColumn(
+        "s3c_q8", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Parents looked to you for help (1 no - 5 yes)"
+    )
+    s3c_q9 = CamcopsColumn(
+        "s3c_q9", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Parents coped if you were hurt/ill (1 no - 5 yes)"
+    )
+    s3c_q10 = CamcopsColumn(
+        "s3c_q10", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Parents confided their problems (1 no - 5 yes)"
+    )
+    s3c_q11 = CamcopsColumn(
+        "s3c_q11", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Parents relied on you for emotional support (1 no - 5 yes)"
+    )
+    s3c_q12 = CamcopsColumn(
+        "s3c_q12", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Parents cried in front of you (1 no - 5 yes)"
+    )
+    s3c_q13 = CamcopsColumn(
+        "s3c_q13", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Concerned/worried re parent (1 no - 5 yes)"
+    )
+    s3c_q14 = CamcopsColumn(
+        "s3c_q14", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Tried to support/care for parent (1 no - 5 yes)"
+    )
+    s3c_q15 = CamcopsColumn(
+        "s3c_q15", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Try to make parent smile when upset (1 no - 5 yes)"
+    )
+    s3c_q16 = CamcopsColumn(
+        "s3c_q16", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Parents made you feel guilty for their sacrifices "
+                "(1 no - 5 yes)"
+    )
+    s3c_q17 = CamcopsColumn(
+        "s3c_q17", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Had to keep secrets for parent (1 no - 5 yes)"
+    )
+    s3c_which_parent_cared_for = CamcopsColumn(
+        "s3c_which_parent_cared_for", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment="Which parent did you have to provide care for (0 none, "
+                "1 mother, 2 father, 3 both, 4 other)"
+    )
+    s3c_parent_mental_problem = CamcopsColumn(
+        "s3c_parent_mental_problem", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Parent/s had emotional/mental health problems (0 no - 2 yes)"
+    )
+    s3c_parent_physical_problem = CamcopsColumn(
+        "s3c_parent_physical_problem", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Parent/s had disability/physical illness (0 no - 2 yes)"
+    )
 
-        dict(name="s4a_adultconfidant", cctype="BOOL",
-             pv=PV.BIT, comment="Adult confidant?"),
-        dict(name="s4a_adultconfidant_mother", cctype="BOOL",
-             pv=PV.BIT, comment="Adult confidant, mother?"),
-        dict(name="s4a_adultconfidant_father", cctype="BOOL",
-             pv=PV.BIT, comment="Adult confidant, father?"),
-        dict(name="s4a_adultconfidant_otherrelative", cctype="BOOL",
-             pv=PV.BIT, comment="Adult confidant, other relative?"),
-        dict(name="s4a_adultconfidant_familyfriend", cctype="BOOL",
-             pv=PV.BIT, comment="Adult confidant, family friend?"),
-        dict(name="s4a_adultconfidant_responsibleadult", cctype="BOOL",
-             pv=PV.BIT, comment="Adult confidant, teacher/vicar/etc.?"),
-        dict(name="s4a_adultconfidant_other", cctype="BOOL",
-             pv=PV.BIT, comment="Adult confidant, other?"),
-        dict(name="s4a_adultconfidant_other_detail", cctype="TEXT",
-             comment="Adult confidant, other, detail"),
-        dict(name="s4a_adultconfidant_additional", cctype="TEXT",
-             comment="Adult confidant, additional notes"),
+    # -------------------------------------------------------------------------
+    # Section 4(A)
+    # -------------------------------------------------------------------------
+    s4a_adultconfidant = CamcopsColumn(
+        "s4a_adultconfidant", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Adult confidant?"
+    )
+    s4a_adultconfidant_mother = CamcopsColumn(
+        "s4a_adultconfidant_mother", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Adult confidant, mother?"
+    )
+    s4a_adultconfidant_father = CamcopsColumn(
+        "s4a_adultconfidant_father", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Adult confidant, father?"
+    )
+    s4a_adultconfidant_otherrelative = CamcopsColumn(
+        "s4a_adultconfidant_otherrelative", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Adult confidant, other relative?"
+    )
+    s4a_adultconfidant_familyfriend = CamcopsColumn(
+        "s4a_adultconfidant_familyfriend", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Adult confidant, family friend?"
+    )
+    s4a_adultconfidant_responsibleadult = CamcopsColumn(
+        "s4a_adultconfidant_responsibleadult", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Adult confidant, teacher/vicar/etc.?"
+    )
+    s4a_adultconfidant_other = CamcopsColumn(
+        "s4a_adultconfidant_other", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Adult confidant, other?"
+    )
+    s4a_adultconfidant_other_detail = Column(
+        "s4a_adultconfidant_other_detail", Text,
+        comment="Adult confidant, other, detail"
+    )
+    s4a_adultconfidant_additional = Column(
+        "s4a_adultconfidant_additional", Text,
+        comment="Adult confidant, additional notes"
+    )
 
-        dict(name="s4b_childconfidant", cctype="BOOL",
-             pv=PV.BIT, comment="Child confidant?"),
-        dict(name="s4b_childconfidant_sister", cctype="BOOL",
-             pv=PV.BIT, comment="Child confidant, sister?"),
-        dict(name="s4b_childconfidant_brother", cctype="BOOL",
-             pv=PV.BIT, comment="Child confidant, brother?"),
-        dict(name="s4b_childconfidant_otherrelative", cctype="BOOL",
-             pv=PV.BIT, comment="Child confidant, other relative?"),
-        dict(name="s4b_childconfidant_closefriend", cctype="BOOL",
-             pv=PV.BIT, comment="Child confidant, close friend?"),
-        dict(name="s4b_childconfidant_otherfriend", cctype="BOOL",
-             pv=PV.BIT,
-             comment="Child confidant, other less close friend(s)?"),
-        dict(name="s4b_childconfidant_other", cctype="BOOL",
-             pv=PV.BIT, comment="Child confidant, other person?"),
-        dict(name="s4b_childconfidant_other_detail", cctype="TEXT",
-             comment="Child confidant, other person, detail"),
-        dict(name="s4b_childconfidant_additional", cctype="TEXT",
-             comment="Child confidant, additional notes"),
+    # -------------------------------------------------------------------------
+    # Section 4(B)
+    # -------------------------------------------------------------------------
+    s4b_childconfidant = CamcopsColumn(
+        "s4b_childconfidant", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Child confidant?"
+    )
+    s4b_childconfidant_sister = CamcopsColumn(
+        "s4b_childconfidant_sister", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Child confidant, sister?"
+    )
+    s4b_childconfidant_brother = CamcopsColumn(
+        "s4b_childconfidant_brother", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Child confidant, brother?"
+    )
+    s4b_childconfidant_otherrelative = CamcopsColumn(
+        "s4b_childconfidant_otherrelative", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Child confidant, other relative?"
+    )
+    s4b_childconfidant_closefriend = CamcopsColumn(
+        "s4b_childconfidant_closefriend", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Child confidant, close friend?"
+    )
+    s4b_childconfidant_otherfriend = CamcopsColumn(
+        "s4b_childconfidant_otherfriend", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Child confidant, other less close friend(s)?"
+    )
+    s4b_childconfidant_other = CamcopsColumn(
+        "s4b_childconfidant_other", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Child confidant, other person?"
+    )
+    s4b_childconfidant_other_detail = Column(
+        "s4b_childconfidant_other_detail", Text,
+        comment="Child confidant, other person, detail"
+    )
+    s4b_childconfidant_additional = Column(
+        "s4b_childconfidant_additional", Text,
+        comment="Child confidant, additional notes"
+    )
 
-        dict(name="s4c_closest_mother", cctype="BOOL",
-             pv=PV.BIT, comment="Two closest people include: mother?"),
-        dict(name="s4c_closest_father", cctype="BOOL",
-             pv=PV.BIT, comment="Two closest people include: father?"),
-        dict(name="s4c_closest_sibling", cctype="BOOL",
-             pv=PV.BIT, comment="Two closest people include: sibling?"),
-        dict(name="s4c_closest_otherrelative", cctype="BOOL",
-             pv=PV.BIT, comment="Two closest people include: other relative?"),
-        dict(name="s4c_closest_adultfriend", cctype="BOOL", pv=PV.BIT,
-             comment="Two closest people include: adult family friend?"),
-        dict(name="s4c_closest_childfriend", cctype="BOOL", pv=PV.BIT,
-             comment="Two closest people include: friend your age?"),
-        dict(name="s4c_closest_other", cctype="BOOL",
-             pv=PV.BIT, comment="Two closest people include: other?"),
-        dict(name="s4c_closest_other_detail", cctype="TEXT",
-             comment="Two closest people include: other, detail"),
-        dict(name="s4c_closest_additional", cctype="TEXT",
-             comment="Two closest people include: additional notes"),
+    # -------------------------------------------------------------------------
+    # Section 4(C)
+    # -------------------------------------------------------------------------
+    s4c_closest_mother = CamcopsColumn(
+        "s4c_closest_mother", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Two closest people include: mother?"
+    )
+    s4c_closest_father = CamcopsColumn(
+        "s4c_closest_father", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Two closest people include: father?"
+    )
+    s4c_closest_sibling = CamcopsColumn(
+        "s4c_closest_sibling", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Two closest people include: sibling?"
+    )
+    s4c_closest_otherrelative = CamcopsColumn(
+        "s4c_closest_otherrelative", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Two closest people include: other relative?"
+    )
+    s4c_closest_adultfriend = CamcopsColumn(
+        "s4c_closest_adultfriend", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Two closest people include: adult family friend?"
+    )
+    s4c_closest_childfriend = CamcopsColumn(
+        "s4c_closest_childfriend", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Two closest people include: friend your age?"
+    )
+    s4c_closest_other = CamcopsColumn(
+        "s4c_closest_other", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Two closest people include: other?"
+    )
+    s4c_closest_other_detail = Column(
+        "s4c_closest_other_detail", Text,
+        comment="Two closest people include: other, detail"
+    )
+    s4c_closest_additional = Column(
+        "s4c_closest_additional", Text,
+        comment="Two closest people include: additional notes"
+    )
 
-        dict(name="s5c_physicalabuse", cctype="BOOL", pv=PV.BIT,
-             comment="Physical abuse?"),
-        dict(name="s5c_abused_by_mother", cctype="BOOL", pv=PV.BIT,
-             comment="Physical abuse, by mother?"),
-        dict(name="s5c_abused_by_father", cctype="BOOL", pv=PV.BIT,
-             comment="Physical abuse, by father?"),
-        dict(name="s5c_mother_abuse_age_began", cctype="FLOAT",
-             comment="Physical abuse, by mother, age began (y)"),
-        dict(name="s5c_father_abuse_age_began", cctype="FLOAT",
-             comment="Physical abuse, by father, age began (y)"),
-        dict(name="s5c_mother_hit_more_than_once", cctype="BOOL",
-             pv=PV.BIT,
-             comment="Physical abuse, by mother, hit on >1 occasion"),
-        dict(name="s5c_father_hit_more_than_once", cctype="BOOL",
-             pv=PV.BIT,
-             comment="Physical abuse, by father, hit on >1 occasion"),
-        dict(name="s5c_mother_hit_how", cctype="INT",
-             min=1, max=4,
-             comment="Physical abuse, by mother, hit how (1 belt/stick, "
-             "2 punched/kicked, 3 hit with hand, 4 other)"),
-        dict(name="s5c_father_hit_how", cctype="INT",
-             min=1, max=4,
-             comment="Physical abuse, by father, hit how (1 belt/stick, "
-             "2 punched/kicked, 3 hit with hand, 4 other)"),
-        dict(name="s5c_mother_injured", cctype="BOOL", pv=PV.BIT,
-             comment="Physical abuse, by mother, injured?"),
-        dict(name="s5c_father_injured", cctype="BOOL", pv=PV.BIT,
-             comment="Physical abuse, by father, injured?"),
-        dict(name="s5c_mother_out_of_control", cctype="BOOL", pv=PV.BIT,
-             comment="Physical abuse, by mother, out of control?"),
-        dict(name="s5c_father_out_of_control", cctype="BOOL", pv=PV.BIT,
-             comment="Physical abuse, by father, out of control?"),
-        dict(name="s5c_parental_abuse_description", cctype="TEXT",
-             comment="Physical abuse, description"),
-        dict(name="s5c_abuse_by_nonparent", cctype="BOOL", pv=PV.BIT,
-             comment="Physical abuse, by anyone else in household?"),
-        dict(name="s5c_nonparent_abuse_description", cctype="TEXT",
-             comment="Physical abuse, nonparent, description"),
+    # -------------------------------------------------------------------------
+    # Section 5(C)
+    # -------------------------------------------------------------------------
+    s5c_physicalabuse = CamcopsColumn(
+        "s5c_physicalabuse", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Physical abuse?"
+    )
+    s5c_abused_by_mother = CamcopsColumn(
+        "s5c_abused_by_mother", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Physical abuse, by mother?"
+    )
+    s5c_abused_by_father = CamcopsColumn(
+        "s5c_abused_by_father", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Physical abuse, by father?"
+    )
+    s5c_mother_abuse_age_began = CamcopsColumn(
+        "s5c_mother_abuse_age_began", Float,
+        comment="Physical abuse, by mother, age began (y)"
+    )
+    s5c_father_abuse_age_began = CamcopsColumn(
+        "s5c_father_abuse_age_began", Float,
+        comment="Physical abuse, by father, age began (y)"
+    )
+    s5c_mother_hit_more_than_once = CamcopsColumn(
+        "s5c_mother_hit_more_than_once", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Physical abuse, by mother, hit on >1 occasion"
+    )
+    s5c_father_hit_more_than_once = CamcopsColumn(
+        "s5c_father_hit_more_than_once", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Physical abuse, by father, hit on >1 occasion"
+    )
+    s5c_mother_hit_how = CamcopsColumn(
+        "s5c_mother_hit_how", Integer,
+        min=1, max=4,
+        comment="Physical abuse, by mother, hit how (1 belt/stick, "
+                "2 punched/kicked, 3 hit with hand, 4 other)"
+    )
+    s5c_father_hit_how = CamcopsColumn(
+        "s5c_father_hit_how", Integer,
+        min=1, max=4,
+        comment="Physical abuse, by father, hit how (1 belt/stick, "
+                "2 punched/kicked, 3 hit with hand, 4 other)"
+    )
+    s5c_mother_injured = CamcopsColumn(
+        "s5c_mother_injured", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Physical abuse, by mother, injured?"
+    )
+    s5c_father_injured = CamcopsColumn(
+        "s5c_father_injured", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Physical abuse, by father, injured?"
+    )
+    s5c_mother_out_of_control = CamcopsColumn(
+        "s5c_mother_out_of_control", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Physical abuse, by mother, out of control?"
+    )
+    s5c_father_out_of_control = CamcopsColumn(
+        "s5c_father_out_of_control", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Physical abuse, by father, out of control?"
+    )
+    s5c_parental_abuse_description = Column(
+        "s5c_parental_abuse_description", Text,
+        comment="Physical abuse, description"
+    )
+    s5c_abuse_by_nonparent = CamcopsColumn(
+        "s5c_abuse_by_nonparent", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Physical abuse, by anyone else in household?"
+    )
+    s5c_nonparent_abuse_description = Column(
+        "s5c_nonparent_abuse_description", Text,
+        comment="Physical abuse, nonparent, description"
+    )
 
-        dict(name="s6_any_unwanted_sexual_experience", cctype="BOOL",
-             pv=PV_0_TO_2,
-             comment="Any unwanted sexual experiences (0 no - 2 yes)"),
-        dict(name="s6_unwanted_intercourse", cctype="BOOL", pv=PV_0_TO_2,
-             comment="Unwanted intercourse before 17yo (0 no - 2 yes)"),
-        dict(name="s6_upsetting_sexual_adult_authority", cctype="BOOL",
-             pv=PV_0_TO_2,
-             comment="Upsetting sexual experiences under 17yo with "
-                     "related adult or someone in authority (0 no - 2 yes)"),
-        dict(name="s6_first_age", cctype="FLOAT", min=0,
-             comment="Sexual abuse, first experience, age it began"),
-        dict(name="s6_other_age", cctype="FLOAT", min=0,
-             comment="Sexual abuse, other experience, age it began"),
-        dict(name="s6_first_person_known", cctype="BOOL", pv=PV.BIT,
-             comment="Sexual abuse, first experience, knew the person?"),
-        dict(name="s6_other_person_known", cctype="BOOL", pv=PV.BIT,
-             comment="Sexual abuse, other experience, knew the person?"),
-        dict(name="s6_first_relative", cctype="BOOL", pv=PV.BIT,
-             comment="Sexual abuse, first experience, person was a relative?"),
-        dict(name="s6_other_relative", cctype="BOOL", pv=PV.BIT,
-             comment="Sexual abuse, other experience, person was a relative?"),
-        dict(name="s6_first_in_household", cctype="BOOL", pv=PV.BIT,
-             comment="Sexual abuse, first experience, person lived in "
-             "household?"),
-        dict(name="s6_other_in_household", cctype="BOOL", pv=PV.BIT,
-             comment="Sexual abuse, other experience, person lived in "
-             "household?"),
-        dict(name="s6_first_more_than_once", cctype="BOOL", pv=PV.BIT,
-             comment="Sexual abuse, first experience, happened more than "
-             "once?"),
-        dict(name="s6_other_more_than_once", cctype="BOOL", pv=PV.BIT,
-             comment="Sexual abuse, other experience, happened more than "
-             "once?"),
-        dict(name="s6_first_touch_privates_subject", cctype="BOOL",
-             pv=PV.BIT, comment="Sexual abuse, first experience, touched your "
-             "private parts?"),
-        dict(name="s6_other_touch_privates_subject", cctype="BOOL",
-             pv=PV.BIT, comment="Sexual abuse, other experience, touched your "
-             "private parts?"),
-        dict(name="s6_first_touch_privates_other", cctype="BOOL",
-             pv=PV.BIT, comment="Sexual abuse, first experience, touched their"
-             " private parts?"),
-        dict(name="s6_other_touch_privates_other", cctype="BOOL",
-             pv=PV.BIT, comment="Sexual abuse, other experience, touched their"
-             " private parts?"),
-        dict(name="s6_first_intercourse", cctype="BOOL", pv=PV.BIT,
-             comment="Sexual abuse, first experience, sexual intercourse?"),
-        dict(name="s6_other_intercourse", cctype="BOOL", pv=PV.BIT,
-             comment="Sexual abuse, other experience, sexual intercourse?"),
-        dict(name="s6_unwanted_sexual_description", cctype="TEXT",
-             comment="Sexual abuse, description"),
+    # -------------------------------------------------------------------------
+    # Section 6
+    # -------------------------------------------------------------------------
+    s6_any_unwanted_sexual_experience = CamcopsColumn(
+        # Prior to 2.1.0: was cctype="BOOL" on the server, but this gave
+        # TINYINT(1), which can store -128 to 128. Corrected to Integer.
+        "s6_any_unwanted_sexual_experience", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Any unwanted sexual experiences (0 no - 2 yes)"
+    )
+    s6_unwanted_intercourse = CamcopsColumn(
+        # Prior to 2.1.0: was cctype="BOOL" on the server, but this gave
+        # TINYINT(1), which can store -128 to 128. Corrected to Integer.
+        "s6_unwanted_intercourse", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Unwanted intercourse before 17yo (0 no - 2 yes)"
+    )
+    s6_upsetting_sexual_adult_authority = CamcopsColumn(
+        # Prior to 2.1.0: was cctype="BOOL" on the server, but this gave
+        # TINYINT(1), which can store -128 to 128. Corrected to Integer.
+        "s6_upsetting_sexual_adult_authority", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Upsetting sexual experiences under 17yo with "
+                "related adult or someone in authority (0 no - 2 yes)"
+    )
+    s6_first_age = CamcopsColumn(
+        "s6_first_age", Float,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Sexual abuse, first experience, age it began"
+    )
+    s6_other_age = CamcopsColumn(
+        "s6_other_age", Float,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Sexual abuse, other experience, age it began"
+    )
+    s6_first_person_known = CamcopsColumn(
+        "s6_first_person_known", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Sexual abuse, first experience, knew the person?"
+    )
+    s6_other_person_known = CamcopsColumn(
+        "s6_other_person_known", Boolean, 
+        permitted_value_checker=BIT_CHECKER,
+        comment="Sexual abuse, other experience, knew the person?"
+    )
+    s6_first_relative = CamcopsColumn(
+        "s6_first_relative", Boolean, 
+        permitted_value_checker=BIT_CHECKER,
+        comment="Sexual abuse, first experience, person was a relative?"
+    )
+    s6_other_relative = CamcopsColumn(
+        "s6_other_relative", Boolean, 
+        permitted_value_checker=BIT_CHECKER,
+        comment="Sexual abuse, other experience, person was a relative?"
+    )
+    s6_first_in_household = CamcopsColumn(
+        "s6_first_in_household", Boolean, 
+        permitted_value_checker=BIT_CHECKER,
+        comment="Sexual abuse, first experience, person lived in household?"
+    )
+    s6_other_in_household = CamcopsColumn(
+        "s6_other_in_household", Boolean, 
+        permitted_value_checker=BIT_CHECKER,
+        comment="Sexual abuse, other experience, person lived in household?"
+    )
+    s6_first_more_than_once = CamcopsColumn(
+        "s6_first_more_than_once", Boolean, 
+        permitted_value_checker=BIT_CHECKER,
+        comment="Sexual abuse, first experience, happened more than once?"
+    )
+    s6_other_more_than_once = CamcopsColumn(
+        "s6_other_more_than_once", Boolean, 
+        permitted_value_checker=BIT_CHECKER,
+        comment="Sexual abuse, other experience, happened more than once?"
+    )
+    s6_first_touch_privates_subject = CamcopsColumn(
+        "s6_first_touch_privates_subject", Boolean,
+        permitted_value_checker=BIT_CHECKER, 
+        comment="Sexual abuse, first experience, touched your private parts?"
+    )
+    s6_other_touch_privates_subject = CamcopsColumn(
+        "s6_other_touch_privates_subject", Boolean,
+        permitted_value_checker=BIT_CHECKER, 
+        comment="Sexual abuse, other experience, touched your private parts?"
+    )
+    s6_first_touch_privates_other = CamcopsColumn(
+        "s6_first_touch_privates_other", Boolean,
+        permitted_value_checker=BIT_CHECKER, 
+        comment="Sexual abuse, first experience, touched their private parts?"
+    )
+    s6_other_touch_privates_other = CamcopsColumn(
+        "s6_other_touch_privates_other", Boolean,
+        permitted_value_checker=BIT_CHECKER, 
+        comment="Sexual abuse, other experience, touched their private parts?"
+    )
+    s6_first_intercourse = CamcopsColumn(
+        "s6_first_intercourse", Boolean, 
+        permitted_value_checker=BIT_CHECKER,
+        comment="Sexual abuse, first experience, sexual intercourse?"
+    )
+    s6_other_intercourse = CamcopsColumn(
+        "s6_other_intercourse", Boolean, 
+        permitted_value_checker=BIT_CHECKER,
+        comment="Sexual abuse, other experience, sexual intercourse?"
+    )
+    s6_unwanted_sexual_description = Column(
+        "s6_unwanted_sexual_description", Text,
+        comment="Sexual abuse, description"
+    )
 
-        dict(name="any_other_comments", cctype="TEXT",
-             comment="Any other comments"),
-    ]
+    # -------------------------------------------------------------------------
+    # Final
+    # -------------------------------------------------------------------------
+    any_other_comments = CamcopsColumn(
+        "any_other_comments", Text,
+        comment="Any other comments"
+    )
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(
@@ -1164,69 +1850,69 @@ class CecaQ3(Task):
     # HTML
     # -------------------------------------------------------------------------
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         separation_map = {
             None: None,
-            1: "1 — " + self.wxstring("1c_separation_reason1"),
-            2: "2 — " + self.wxstring("1c_separation_reason2"),
-            3: "3 — " + self.wxstring("1c_separation_reason3"),
-            4: "4 — " + self.wxstring("1c_separation_reason4"),
-            5: "5 — " + self.wxstring("1c_separation_reason5"),
-            6: "6 — " + self.wxstring("1c_separation_reason6"),
+            1: "1 — " + self.wxstring(req, "1c_separation_reason1"),
+            2: "2 — " + self.wxstring(req, "1c_separation_reason2"),
+            3: "3 — " + self.wxstring(req, "1c_separation_reason3"),
+            4: "4 — " + self.wxstring(req, "1c_separation_reason4"),
+            5: "5 — " + self.wxstring(req, "1c_separation_reason5"),
+            6: "6 — " + self.wxstring(req, "1c_separation_reason6"),
         }
         motherfigure_map = {
             None: None,
-            0: "0 — " + self.wxstring("2a_which_option0"),
-            1: "1 — " + self.wxstring("2a_which_option1"),
-            2: "2 — " + self.wxstring("2a_which_option2"),
-            3: "3 — " + self.wxstring("2a_which_option3"),
-            4: "4 — " + self.wxstring("2a_which_option4"),
-            5: "5 — " + self.wxstring("2a_which_option5"),
+            0: "0 — " + self.wxstring(req, "2a_which_option0"),
+            1: "1 — " + self.wxstring(req, "2a_which_option1"),
+            2: "2 — " + self.wxstring(req, "2a_which_option2"),
+            3: "3 — " + self.wxstring(req, "2a_which_option3"),
+            4: "4 — " + self.wxstring(req, "2a_which_option4"),
+            5: "5 — " + self.wxstring(req, "2a_which_option5"),
         }
         fatherfigure_map = {
             None: None,
-            0: "0 — " + self.wxstring("3a_which_option0"),
-            1: "1 — " + self.wxstring("3a_which_option1"),
-            2: "2 — " + self.wxstring("3a_which_option2"),
-            3: "3 — " + self.wxstring("3a_which_option3"),
-            4: "4 — " + self.wxstring("3a_which_option4"),
-            5: "5 — " + self.wxstring("3a_which_option5"),
+            0: "0 — " + self.wxstring(req, "3a_which_option0"),
+            1: "1 — " + self.wxstring(req, "3a_which_option1"),
+            2: "2 — " + self.wxstring(req, "3a_which_option2"),
+            3: "3 — " + self.wxstring(req, "3a_which_option3"),
+            4: "4 — " + self.wxstring(req, "3a_which_option4"),
+            5: "5 — " + self.wxstring(req, "3a_which_option5"),
         }
         no_yes_5way_map = {
             None: None,
-            1: "1 — " + self.wxstring("options5way_notoyes_1"),
+            1: "1 — " + self.wxstring(req, "options5way_notoyes_1"),
             2: "2 — (between not-at-all and unsure)",
-            3: "3 — " + self.wxstring("options5way_notoyes_3"),
+            3: "3 — " + self.wxstring(req, "options5way_notoyes_3"),
             4: "4 — (between unsure and yes-definitely)",
-            5: "5 — " + self.wxstring("options5way_notoyes_5"),
+            5: "5 — " + self.wxstring(req, "options5way_notoyes_5"),
         }
         no_yes_3way_map = {
             None: None,
-            0: "0 — " + self.wxstring("options3way_noto_yes_0"),
-            1: "1 — " + self.wxstring("options3way_noto_yes_1"),
-            2: "2 — " + self.wxstring("options3way_noto_yes_2"),
+            0: "0 — " + self.wxstring(req, "options3way_noto_yes_0"),
+            1: "1 — " + self.wxstring(req, "options3way_noto_yes_1"),
+            2: "2 — " + self.wxstring(req, "options3way_noto_yes_2"),
         }
         frequency_map = {
             None: None,
-            0: "0 — " + self.wxstring("optionsfrequency0"),
-            1: "1 — " + self.wxstring("optionsfrequency1"),
-            2: "2 — " + self.wxstring("optionsfrequency2"),
-            3: "3 — " + self.wxstring("optionsfrequency3"),
+            0: "0 — " + self.wxstring(req, "optionsfrequency0"),
+            1: "1 — " + self.wxstring(req, "optionsfrequency1"),
+            2: "2 — " + self.wxstring(req, "optionsfrequency2"),
+            3: "3 — " + self.wxstring(req, "optionsfrequency3"),
         }
         parent_cared_for_map = {
             None: None,
-            0: "0 — " + self.wxstring("3c_whichparentcaredfor_option0"),
-            1: "1 — " + self.wxstring("3c_whichparentcaredfor_option1"),
-            2: "2 — " + self.wxstring("3c_whichparentcaredfor_option2"),
-            3: "3 — " + self.wxstring("3c_whichparentcaredfor_option3"),
-            4: "4 — " + self.wxstring("3c_whichparentcaredfor_option4"),
+            0: "0 — " + self.wxstring(req, "3c_whichparentcaredfor_option0"),
+            1: "1 — " + self.wxstring(req, "3c_whichparentcaredfor_option1"),
+            2: "2 — " + self.wxstring(req, "3c_whichparentcaredfor_option2"),
+            3: "3 — " + self.wxstring(req, "3c_whichparentcaredfor_option3"),
+            4: "4 — " + self.wxstring(req, "3c_whichparentcaredfor_option4"),
         }
         hitting_map = {
             None: None,
-            1: "1 — " + self.wxstring("5_hit_option_1"),
-            2: "2 — " + self.wxstring("5_hit_option_2"),
-            3: "3 — " + self.wxstring("5_hit_option_3"),
-            4: "4 — " + self.wxstring("5_hit_option_4"),
+            1: "1 — " + self.wxstring(req, "5_hit_option_1"),
+            2: "2 — " + self.wxstring(req, "5_hit_option_2"),
+            3: "3 — " + self.wxstring(req, "5_hit_option_3"),
+            4: "4 — " + self.wxstring(req, "5_hit_option_4"),
         }
         html = (
             """
@@ -1272,7 +1958,7 @@ class CecaQ3(Task):
                 <table class="taskdetail">
             """ +
 
-            subheading_spanning_two_columns("1A: " + self.wxstring("1a_q")) +
+            subheading_spanning_two_columns("1A: " + self.wxstring(req, "1a_q")) +
             self.subsubheading_from_wstring("1a_motherfigures") +
             self.wstring_boolean("1a_mf_birthmother",
                                  self.s1a_motherfigure_birthmother) +
@@ -1311,12 +1997,12 @@ class CecaQ3(Task):
             string_string("(Other, details)",
                           self.s1a_fatherfigure_other_detail) +
 
-            subheading_from_string("1B: " + self.wxstring("1b_q")) +
+            subheading_from_string("1B: " + self.wxstring(req, "1b_q")) +
             self.wstring_boolean("1b_q", self.s1b_institution) +
             self.wstring_numeric("1b_q_how_long",
                                  self.s1b_institution_time_years) +
 
-            subheading_from_string("1C: " + self.wxstring("1c_heading")) +
+            subheading_from_string("1C: " + self.wxstring(req, "1c_heading")) +
             self.subsubheading_from_wstring("mother") +
 
             string_boolean("Mother died before age 17",
@@ -1351,24 +2037,24 @@ class CecaQ3(Task):
             self.wstring_string("please_describe_experience",
                                 self.s1c_describe_experience) +
 
-            subheading_from_string("2A: " + self.wxstring("2a_heading")) +
+            subheading_from_string("2A: " + self.wxstring(req, "2a_heading")) +
             self.wstring_dict("2a_which",
                               self.s2a_which_mother_figure, motherfigure_map) +
             self.wstring_string("rnc_if_other_describe",
                                 self.s2a_which_mother_figure_other_detail)
         )
         for i in range(1, 17):
-            html += string_dict(str(i) + ". " + self.wxstring("2a_q" +
+            html += string_dict(str(i) + ". " + self.wxstring(req, "2a_q" +
                                                               str(i)),
                                 getattr(self, "s2a_q" + str(i)),
                                 no_yes_5way_map)
         html += (
             self.wstring_string("2a_add_anything", self.s2a_extra) +
-            subheading_from_string("2B: " + self.wxstring("2b_heading"))
+            subheading_from_string("2B: " + self.wxstring(req, "2b_heading"))
         )
         for i in range(1, 18):
             html += tr(
-                str(i) + ". " + self.wxstring("2b_q" + str(i)),
+                str(i) + ". " + self.wxstring(req, "2b_q" + str(i)),
                 answer(get_from_dict(no_yes_3way_map,
                                      getattr(self, "s2b_q" + str(i)))) +
                 " (" +
@@ -1382,7 +2068,7 @@ class CecaQ3(Task):
             self.wstring_string("is_there_more_you_want_to_say",
                                 self.s2b_extra) +
 
-            subheading_from_string("3A: " + self.wxstring("3a_heading")) +
+            subheading_from_string("3A: " + self.wxstring(req, "3a_heading")) +
             self.wstring_dict("2a_which",
                               self.s3a_which_father_figure, fatherfigure_map) +
             self.wstring_string("rnc_if_other_describe",
@@ -1390,15 +2076,15 @@ class CecaQ3(Task):
         )
         for i in range(1, 17):
             html += string_dict(
-                str(i) + ". " + self.wxstring("3a_q" + str(i)),
+                str(i) + ". " + self.wxstring(req, "3a_q" + str(i)),
                 getattr(self, "s3a_q" + str(i)), no_yes_5way_map)
         html += (
             self.wstring_string("3a_add_anything", self.s3a_extra) +
-            subheading_from_string("3B: " + self.wxstring("3b_heading"))
+            subheading_from_string("3B: " + self.wxstring(req, "3b_heading"))
         )
         for i in range(1, 18):
             html += tr(
-                str(i) + ". " + self.wxstring("3b_q" + str(i)),
+                str(i) + ". " + self.wxstring(req, "3b_q" + str(i)),
                 answer(get_from_dict(no_yes_3way_map,
                                      getattr(self, "s3b_q" + str(i)))) +
                 " (" +
@@ -1411,11 +2097,11 @@ class CecaQ3(Task):
             self.wstring_boolean("if_any_what_age", self.s3b_age_began) +
             self.wstring_string("is_there_more_you_want_to_say",
                                 self.s3b_extra) +
-            subheading_from_string("3C: " + self.wxstring("3c_heading"))
+            subheading_from_string("3C: " + self.wxstring(req, "3c_heading"))
         )
         for i in range(1, 18):
             html += string_dict(
-                str(i) + ". " + self.wxstring("3c_q" + str(i)),
+                str(i) + ". " + self.wxstring(req, "3c_q" + str(i)),
                 getattr(self, "s3c_q" + str(i)), no_yes_5way_map)
         html += (
             self.wstring_dict("3c_which_parent_cared_for",
@@ -1426,7 +2112,7 @@ class CecaQ3(Task):
             self.wstring_boolean("3c_parent_physical_problem",
                                  self.s3c_parent_physical_problem) +
 
-            subheading_from_string("4: " + self.wxstring("4_heading")) +
+            subheading_from_string("4: " + self.wxstring(req, "4_heading")) +
             subsubheading_from_string("(Adult confidant)") +
             self.wstring_boolean("4a_q", self.s4a_adultconfidant) +
             self.subsubheading_from_wstring("4_if_so_who") +
@@ -1483,7 +2169,7 @@ class CecaQ3(Task):
             self.wstring_string("4_note_anything",
                                 self.s4c_closest_additional) +
 
-            subheading_from_string("4: " + self.wxstring("5_heading")) +
+            subheading_from_string("4: " + self.wxstring(req, "5_heading")) +
             self.wstring_boolean("5_mainq", self.s5c_physicalabuse) +
             self.subsubheading_from_wstring("5_motherfigure") +
             self.wstring_boolean("5_did_this_person_hurt_you",
@@ -1517,7 +2203,7 @@ class CecaQ3(Task):
             self.wstring_string("5_can_you_describe_2",
                                 self.s5c_nonparent_abuse_description) +
 
-            subheading_from_string("6: " + self.wxstring("6_heading")) +
+            subheading_from_string("6: " + self.wxstring(req, "6_heading")) +
             self.wstring_dict("6_any_unwanted",
                               self.s6_any_unwanted_sexual_experience,
                               no_yes_3way_map) +
@@ -1585,22 +2271,22 @@ class CecaQ3(Task):
         return html
 
     def subheading_from_wstring(self, wstringname: str) -> str:
-        return subheading_from_string(self.wxstring(wstringname))
+        return subheading_from_string(self.wxstring(req, wstringname))
 
     def subsubheading_from_wstring(self, wstringname: str) -> str:
-        return subsubheading_from_string(self.wxstring(wstringname))
+        return subsubheading_from_string(self.wxstring(req, wstringname))
 
     def wstring_boolean(self, wstring: str, value: Any) -> str:
-        return string_boolean(self.wxstring(wstring), value)
+        return string_boolean(self.wxstring(req, wstring), value)
     
     def wstring_numeric(self, wstring: str, value: Any) -> str:
-        return string_numeric(self.wxstring(wstring), value)
+        return string_numeric(self.wxstring(req, wstring), value)
 
     def wstring_string(self, wstring: str, value: str) -> str:
-        return string_string(self.wxstring(wstring), value)
+        return string_string(self.wxstring(req, wstring), value)
 
     def wstring_dict(self, wstring: str, value: Any, d: Dict) -> str:
-        return string_dict(self.wxstring(wstring), value, d)
+        return string_dict(self.wxstring(req, wstring), value, d)
 
 
 # =============================================================================

@@ -30,7 +30,6 @@ from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, get_true_false, tr, tr_qa
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
@@ -72,7 +71,7 @@ class Wsas(Task):
     TASK_FIELDS = [x["name"] for x in fieldspecs]
     QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="WSAS total score (lower is better)",
@@ -81,7 +80,7 @@ class Wsas(Task):
             axis_max=40.5
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total_score",
@@ -90,7 +89,7 @@ class Wsas(Task):
                            comment="Total score (/ 40)"),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(content="WSAS total score {t}/40".format(
@@ -106,10 +105,10 @@ class Wsas(Task):
             self.are_all_fields_complete(self.QUESTION_FIELDS)
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         option_dict = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
-            option_dict[a] = wappstring("wsas_a" + str(a))
+            option_dict[a] = req.wappstring("wsas_a" + str(a))
         h = """
             <div class="summary">
                 <table class="summary">
@@ -135,13 +134,13 @@ class Wsas(Task):
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
-            retired_row=tr_qa(self.wxstring("q_retired_etc"),
+            retired_row=tr_qa(self.wxstring(req, "q_retired_etc"),
                               get_true_false(self.retired_etc)),
         )
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))
             fa = get_from_dict(option_dict, a) if a is not None else None
-            h += tr(self.wxstring("q" + str(q)), answer(fa))
+            h += tr(self.wxstring(req, "q" + str(q)), answer(fa))
         h += """
             </table>
         """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV

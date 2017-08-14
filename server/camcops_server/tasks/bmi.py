@@ -25,12 +25,16 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.sqltypes import Float
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Float, Text
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import tr_qa
+from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import LabelAlignment, TrackerInfo, TrackerLabel  # noqa
 
 
@@ -43,20 +47,26 @@ KG_DP = 2
 M_DP = 3
 
 
-class Bmi(Task):
-    tablename = "bmi"
+class Bmi(TaskHasPatientMixin, Task, Base):
+    __tablename__ = "bmi"
     shortname = "BMI"
     longname = "Body mass index"
     provides_trackers = True
 
-    fieldspecs = [
-        dict(name="height_m", cctype="FLOAT", min=0,
-             comment="height (m)"),
-        dict(name="mass_kg", cctype="FLOAT", min=0,
-             comment="mass (kg)"),
-        dict(name="comment", cctype="TEXT",
-             comment="Clinician's comment"),
-    ]
+    height_m = CamcopsColumn(
+        "height_m", Float,
+        permitted_value_checker=PermittedValueChecker(minimum=0),
+        comment="height (m)"
+    )
+    mass_kg = CamcopsColumn(
+        "mass_kg", Float,
+        permitted_value_checker=PermittedValueChecker(minimum=0),
+        comment="mass (kg)"
+    )
+    comment = Column(
+        "comment", Text,
+        comment="Clinician's comment"
+    )
 
     def is_complete(self) -> bool:
         return (
@@ -65,7 +75,7 @@ class Bmi(Task):
             self.field_contents_valid()
         )
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         # $ signs enable TEX mode for matplotlib, e.g. "$BMI (kg/m^2)$"
         return [
             TrackerInfo(
@@ -88,18 +98,18 @@ class Bmi(Task):
                 ],
                 horizontal_labels=[
                     # positioned near the mid-range for some:
-                    TrackerLabel(12.5, self.wxstring("underweight_under_13"),
+                    TrackerLabel(12.5, self.wxstring(req, "underweight_under_13"),
                                  LabelAlignment.top),
-                    TrackerLabel(14, self.wxstring("underweight_13_15")),
-                    TrackerLabel(15.5, self.wxstring("underweight_15_16")),
-                    TrackerLabel(16.5, self.wxstring("underweight_16_17")),
-                    TrackerLabel(17.25, self.wxstring("underweight_17_17.5")),
-                    TrackerLabel(18, self.wxstring("underweight_17.5_18.5")),
-                    TrackerLabel(21.75, self.wxstring("normal")),
-                    TrackerLabel(27.5, self.wxstring("overweight")),
-                    TrackerLabel(32.5, self.wxstring("obese_1")),
-                    TrackerLabel(37.6, self.wxstring("obese_2")),
-                    TrackerLabel(40.5, self.wxstring("obese_3"),
+                    TrackerLabel(14, self.wxstring(req, "underweight_13_15")),
+                    TrackerLabel(15.5, self.wxstring(req, "underweight_15_16")),
+                    TrackerLabel(16.5, self.wxstring(req, "underweight_16_17")),
+                    TrackerLabel(17.25, self.wxstring(req, "underweight_17_17.5")),
+                    TrackerLabel(18, self.wxstring(req, "underweight_17.5_18.5")),
+                    TrackerLabel(21.75, self.wxstring(req, "normal")),
+                    TrackerLabel(27.5, self.wxstring(req, "overweight")),
+                    TrackerLabel(32.5, self.wxstring(req, "obese_1")),
+                    TrackerLabel(37.6, self.wxstring(req, "obese_2")),
+                    TrackerLabel(40.5, self.wxstring(req, "obese_3"),
                                  LabelAlignment.bottom),
                 ],
                 aspect_ratio=1.0,
@@ -111,7 +121,7 @@ class Bmi(Task):
             ),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -126,7 +136,7 @@ class Bmi(Task):
             )
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="bmi", coltype=Float(),
@@ -143,29 +153,29 @@ class Bmi(Task):
         if bmi is None:
             return "?"
         elif bmi >= 40:
-            return self.wxstring("obese_3")
+            return self.wxstring(req, "obese_3")
         elif bmi >= 35:
-            return self.wxstring("obese_2")
+            return self.wxstring(req, "obese_2")
         elif bmi >= 30:
-            return self.wxstring("obese_1")
+            return self.wxstring(req, "obese_1")
         elif bmi >= 25:
-            return self.wxstring("overweight")
+            return self.wxstring(req, "overweight")
         elif bmi >= 18.5:
-            return self.wxstring("normal")
+            return self.wxstring(req, "normal")
         elif bmi >= 17.5:
-            return self.wxstring("underweight_17.5_18.5")
+            return self.wxstring(req, "underweight_17.5_18.5")
         elif bmi >= 17:
-            return self.wxstring("underweight_17_17.5")
+            return self.wxstring(req, "underweight_17_17.5")
         elif bmi >= 16:
-            return self.wxstring("underweight_16_17")
+            return self.wxstring(req, "underweight_16_17")
         elif bmi >= 15:
-            return self.wxstring("underweight_15_16")
+            return self.wxstring(req, "underweight_15_16")
         elif bmi >= 13:
-            return self.wxstring("underweight_13_15")
+            return self.wxstring(req, "underweight_13_15")
         else:
-            return self.wxstring("underweight_under_13")
+            return self.wxstring(req, "underweight_under_13")
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

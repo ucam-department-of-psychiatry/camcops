@@ -59,14 +59,14 @@ class Photo(Task):
     def is_complete(self) -> bool:
         return self.photo_blobid is not None
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         if not self.description:
             return []
         return [CtvInfo(content=self.description)]
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         return """
             <table class="taskdetail">
                 <tr class="subheading"><td>Description</td></tr>
@@ -142,7 +142,7 @@ class PhotoSequence(Task):
     ]
     dependent_classes = [PhotoSequenceSinglePhoto]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         photos = self.get_photos()
         infolist = [CtvInfo(content=self.sequence_description)]
         for p in photos:
@@ -158,7 +158,7 @@ class PhotoSequence(Task):
     def is_complete(self) -> bool:
         return bool(self.sequence_description and self.get_num_photos() > 0)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         photos = self.get_photos()
         html = """
             <div class="summary">

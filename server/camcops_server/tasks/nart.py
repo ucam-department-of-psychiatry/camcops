@@ -109,7 +109,7 @@ class Nart(Task):
                  comment="Pronounced {} correctly "
                  "(0 no, 1 yes)".format(w)))
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -117,7 +117,7 @@ class Nart(Task):
                 self.fsiq(), self.viq(), self.piq())
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="fsiq",
@@ -163,7 +163,7 @@ class Nart(Task):
             return None
         return 123.5 - 0.645 * self.n_errors()
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">

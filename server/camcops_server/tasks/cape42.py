@@ -22,15 +22,18 @@
 ===============================================================================
 """
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float, Integer
 
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -82,32 +85,40 @@ DEP_MAX = MAX_SCORE_PER_Q * len(DEPRESSIVE)
 DP = 2
 
 
-class Cape42(Task):
-    tablename = "cape42"
-    shortname = "CAPE-42"
-    longname = "Community Assessment of Psychic Experiences"
-    provides_trackers = True
-
-    fieldspecs = (
-        repeat_fieldspec(
-            "frequency", 1, NQUESTIONS,
-            min=MIN_SCORE_PER_Q, max=MAX_SCORE_PER_Q,
+class Cape42Metaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Cape42'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "frequency", 1, NQUESTIONS,
+            minimum=MIN_SCORE_PER_Q, maximum=MAX_SCORE_PER_Q,
             comment_fmt=(
                 "Q{n} ({s}): frequency? (1 never, 2 sometimes, 3 often, "
                 "4 nearly always)"
             ),
-            comment_strings=QUESTION_SNIPPETS) +
-        repeat_fieldspec(
-            "distress", 1, NQUESTIONS,
-            min=MIN_SCORE_PER_Q, max=MAX_SCORE_PER_Q,
+            comment_strings=QUESTION_SNIPPETS
+        )
+        add_multiple_columns(
+            cls, "distress", 1, NQUESTIONS,
+            minimum=MIN_SCORE_PER_Q, maximum=MAX_SCORE_PER_Q,
             comment_fmt=(
                 "Q{n} ({s}): distress (1 not, 2 a bit, 3 quite, 4 very), if "
                 "frequency > 1"
             ),
             comment_strings=QUESTION_SNIPPETS)
-    )
+        super().__init__(name, bases, classdict)
 
-    def get_trackers(self) -> List[TrackerInfo]:
+
+class Cape42(TaskHasPatientMixin, Task, Base,
+             metaclass=Cape42Metaclass):
+    __tablename__ = "cape42"
+    shortname = "CAPE-42"
+    longname = "Community Assessment of Psychic Experiences"
+    provides_trackers = True
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         fstr1 = "CAPE-42 weighted frequency score: "
         dstr1 = "CAPE-42 weighted distress score: "
         wtr = " ({low}–{high})".format(
@@ -176,7 +187,7 @@ class Cape42(Task):
             ),
         ]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         wtr = " ({low}-{high})".format(
             low=MIN_SCORE_PER_Q,
             high=MAX_SCORE_PER_Q)
@@ -353,7 +364,7 @@ class Cape42(Task):
             return "D"
         return "?"
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
@@ -432,21 +443,21 @@ class Cape42(Task):
                     <th width="15%">Distress ({low}–{high}) <sup>[2]</sup></th>
                 </tr>
         """.format(
-            f1=self.wxstring("frequency_option1"),
-            f2=self.wxstring("frequency_option2"),
-            f3=self.wxstring("frequency_option3"),
-            f4=self.wxstring("frequency_option4"),
-            d1=self.wxstring("distress_option1"),
-            d2=self.wxstring("distress_option2"),
-            d3=self.wxstring("distress_option3"),
-            d4=self.wxstring("distress_option4"),
+            f1=self.wxstring(req, "frequency_option1"),
+            f2=self.wxstring(req, "frequency_option2"),
+            f3=self.wxstring(req, "frequency_option3"),
+            f4=self.wxstring(req, "frequency_option4"),
+            d1=self.wxstring(req, "distress_option1"),
+            d2=self.wxstring(req, "distress_option2"),
+            d3=self.wxstring(req, "distress_option3"),
+            d4=self.wxstring(req, "distress_option4"),
             low=MIN_SCORE_PER_Q,
             high=MAX_SCORE_PER_Q,
         )
         for q in ALL:
             h += tr(
                 "{q}. ".format(q=q) +
-                self.wxstring("q" + str(q)) +
+                self.wxstring(req, "q" + str(q)) +
                 " (<i>" + self.question_category(q) + "</i>)",
                 answer(self.get_frequency(q)),
                 answer(

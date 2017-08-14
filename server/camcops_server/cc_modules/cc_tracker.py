@@ -28,7 +28,6 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 from cardinal_pythonlib.lists import flatten_list
 from cardinal_pythonlib.logs import BraceStyleAdapter
-import cardinal_pythonlib.pdf as rnc_pdf
 import cardinal_pythonlib.rnc_web as ws
 
 from .cc_audit import audit
@@ -44,7 +43,6 @@ from .cc_constants import (
     PDF_HEAD_PORTRAIT,
     RESTRICTED_WARNING_SINGULAR,
     VALUE,
-    WKHTMLTOPDF_OPTIONS,
 )
 from .cc_dt import format_datetime
 from .cc_filename import get_export_filename
@@ -56,8 +54,10 @@ from .cc_html import (
     pdf_header_content,
 )
 from .cc_plot import matplotlib, set_matplotlib_fontsize
+from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
-from .cc_config import pls
+from .cc_pdf import pdf_from_html
+from .cc_request import CamcopsRequest
 from .cc_session import CamcopsSession
 from .cc_task import Task
 from .cc_trackerhelpers import TrackerInfo
@@ -486,10 +486,11 @@ class TrackerCtvCommon(object):
     # HTML view
     # -------------------------------------------------------------------------
 
-    def _get_html(self, main_html: str) -> str:
+    def _get_html(self, req: CamcopsRequest, main_html: str) -> str:
         """Get HTML representing tracker."""
-        set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
-        pls.switch_output_to_svg()
+        cfg = req.config
+        set_matplotlib_fontsize(cfg.PLOT_FONTSIZE)
+        req.switch_output_to_svg()
         return (
             self.get_html_start() +
             main_html +
@@ -504,25 +505,21 @@ class TrackerCtvCommon(object):
     # PDF view
     # -------------------------------------------------------------------------
 
-    def get_pdf(self) -> bytes:
+    def get_pdf(self, req: CamcopsRequest) -> bytes:
         """Get PDF representing tracker."""
-        set_matplotlib_fontsize(pls.PLOT_FONTSIZE)
+        cfg = req.config
+        set_matplotlib_fontsize(cfg.PLOT_FONTSIZE)
         if CSS_PAGED_MEDIA:
-            pls.switch_output_to_png()
-            return rnc_pdf.pdf_from_html(self.get_pdf_html())
+            req.switch_output_to_png()
+            return pdf_from_html(req, self.get_pdf_html())
         else:
-            pls.switch_output_to_svg()  # wkhtmltopdf can cope
-            html = self.get_pdf_html()  # main content comes here
-            header = self.get_pdf_header_content()
-            footer = self.get_pdf_footer_content()
-            options = WKHTMLTOPDF_OPTIONS
-            options.update({
-                "orientation": "Portrait",
-            })
-            return rnc_pdf.pdf_from_html(html,
-                                         header_html=header,
-                                         footer_html=footer,
-                                         wkhtmltopdf_options=options)
+            req.switch_output_to_svg()  # wkhtmltopdf can cope
+            return pdf_from_html(
+                req,
+                html=self.get_pdf_html(),  # main content comes here
+                header_html=self.get_pdf_header_content(),
+                footer_html=self.get_pdf_footer_content(),
+                extra_wkhtmltopdf_options={"orientation": "Portrait"})
 
     def _get_pdf_html(self, main_html: str) -> str:
         """Get HTML used to generate PDF representing tracker/CTV."""
@@ -533,12 +530,13 @@ class TrackerCtvCommon(object):
             PDFEND
         )
 
-    def suggested_pdf_filename(self) -> str:
+    def suggested_pdf_filename(self, req: CamcopsRequest) -> str:
         """Get suggested filename for tracker/CTV PDF."""
+        cfg = req.config
         return get_export_filename(
-            pls.PATIENT_SPEC_IF_ANONYMOUS,
-            pls.PATIENT_SPEC,
-            pls.CTV_FILENAME_SPEC if self.as_ctv else pls.TRACKER_FILENAME_SPEC,  # noqa
+            cfg.PATIENT_SPEC_IF_ANONYMOUS,
+            cfg.PATIENT_SPEC,
+            cfg.CTV_FILENAME_SPEC if self.as_ctv else cfg.TRACKER_FILENAME_SPEC,  # noqa
             VALUE.OUTPUTTYPE_PDF,
             is_anonymous=self._patient is None,
             surname=self._patient.get_surname() if self._patient else "",
@@ -596,20 +594,21 @@ class TrackerCtvCommon(object):
             restricted_warning=self.restricted_warning,
         )
 
-    def get_html_start(self) -> str:
+    def get_html_start(self, req: CamcopsRequest) -> str:
         """HTML with CSS and header."""
-        return pls.WEBSTART + self.get_header_html()
+        return req.webstart_html + self.get_header_html()
 
-    def get_pdf_footer_content(self) -> str:
-        accessed = format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.LONG_DATETIME)
+    def get_pdf_footer_content(self, req: CamcopsRequest) -> str:
+        accessed = format_datetime(req.now_arrow, DATEFORMAT.LONG_DATETIME)
         content = "{thing} accessed {accessed}.".format(
             thing="CTV" if self.as_ctv else "Tracker",
             accessed=accessed
         )
         return pdf_footer_content(content)
 
-    def get_pdf_start(self) -> str:
+    def get_pdf_start(self, req: CamcopsRequest) -> str:
         """Opening HTML for PDF, including CSS."""
+        cfg = req.config
         if CSS_PAGED_MEDIA:
             head = PDF_HEAD_PORTRAIT
             pdf_header_footer = (
@@ -621,7 +620,7 @@ class TrackerCtvCommon(object):
         return (
             head +
             pdf_header_footer +
-            pls.PDF_LOGO_LINE +
+            cfg.PDF_LOGO_LINE +
             self.get_header_html()
         )
 
@@ -632,7 +631,7 @@ class TrackerCtvCommon(object):
             ptinfo = ""
         return pdf_header_content(ptinfo)
 
-    def _get_office_html(self, preamble: str) -> str:
+    def _get_office_html(self, req: CamcopsRequest, preamble: str) -> str:
         """Tedious HTML listing sources."""
         if len(self.task_tablename_list) == 0:
             request = "None"
@@ -653,7 +652,7 @@ class TrackerCtvCommon(object):
             summary=self.summary,
             url=pls.SCRIPT_PUBLIC_URL_ESCAPED,
             server_version=CAMCOPS_SERVER_VERSION,
-            when=format_datetime(pls.NOW_LOCAL_TZ,
+            when=format_datetime(req.now_arrow,
                                  DATEFORMAT.SHORT_DATETIME_SECONDS),
         )
 

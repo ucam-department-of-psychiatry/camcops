@@ -57,6 +57,13 @@ from cardinal_pythonlib.rnc_web import HEADERS_TYPE
 from cardinal_pythonlib.wsgi_errorreporter import ErrorReportingMiddleware
 from cardinal_pythonlib.wsgi_cache import DisableClientSideCachingMiddleware
 
+# SET UP LOGGING BEFORE WE IMPORT CAMCOPS MODULES, allowing them to log during
+# imports (see e.g. cc_plot).
+# Currently sets up colour logging even if under WSGI environment. This is fine
+# for gunicorn from the command line; I'm less clear about whether the disk
+# logs look polluted by ANSI codes; needs checking.
+main_only_quicksetup_rootlogger(logging.INFO)
+
 from .cc_modules.cc_analytics import ccanalytics_unit_tests
 from .cc_modules.cc_audit import (
     audit,
@@ -271,7 +278,7 @@ def get_session_factory() -> SignedCookieSessionFactory:
     We must return a session factory.
     - An example is an instance of SignedCookieSessionFactory().
     - A session factory has the signature [1]:
-            sessionfactory(request: CamcopsRequest) -> session_object
+            sessionfactory(req: CamcopsRequest) -> session_object
       ... where session "is a namespace" [2]
       ... but more concretely implementis the pyramid.interfaces.ISession 
           interface
@@ -280,8 +287,27 @@ def get_session_factory() -> SignedCookieSessionFactory:
     - We want to be able to make the session by reading the CamcopsConfig from
       the request.
     """  # noqa
-    def factory(request: CamcopsRequest) -> ISession:
-        cfg = request.config
+    def factory(req: CamcopsRequest) -> ISession:
+        """
+        How does the session write the cookies to the response?
+
+            SignedCookieSessionFactory
+                BaseCookieSessionFactory  # pyramid/session.py
+                    CookieSession
+                        def changed():
+                            if not self._dirty:
+                                self._dirty = True
+                                def set_cookie_callback(request, response):
+                                    self._set_cookie(response)
+                                    # ...
+                                self.request.add_response_callback(set_cookie_callback)  # noqa
+
+                        def _set_cookie(self, response):
+                            # ...
+                            response.set_cookie(...)
+
+        """
+        cfg = req.config
         secure_cookies = not cfg.ALLOW_INSECURE_COOKIES
         pyramid_factory = SignedCookieSessionFactory(
             secret=cfg.session_cookie_secret,
@@ -300,7 +326,7 @@ def get_session_factory() -> SignedCookieSessionFactory:
             # As max_age and expires are left at their default of None, these
             # are session cookies.
         )
-        return pyramid_factory(request)
+        return pyramid_factory(req)
 
     return factory
 
@@ -1471,11 +1497,6 @@ Using database: {dbname} ({dbtitle}).
 # =============================================================================
 # Command-line entry point
 # =============================================================================
-
-# Currently sets up colour logging even if under WSGI environment. This is fine
-# for gunicorn from the command line; I'm less clear about whether the disk
-# logs look polluted by ANSI codes; needs checking.
-main_only_quicksetup_rootlogger(logging.INFO)
 
 if __name__ == '__main__':
     cli_main()

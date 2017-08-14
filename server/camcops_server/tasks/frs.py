@@ -22,18 +22,31 @@
 ===============================================================================
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.betweendict import BetweenDict
+from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.sqltypes import Float, Integer
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Float, Integer, Text
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    PermittedValueChecker,
+    SummaryCategoryColType,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+)
 
 
 # =============================================================================
@@ -173,38 +186,49 @@ def get_tabular_logit(score: float) -> float:
 #     print(",".join(str(q) for q in [x, logit, severity]))
 
 
-def make_frs_fieldspec(n: int) -> Dict[str, Any]:
-    pv = [NEVER, ALWAYS]
-    pc = ["{} = never".format(NEVER), "{} = always".format(ALWAYS)]
-    if n not in NO_SOMETIMES_QUESTIONS:
-        pv.append(SOMETIMES)
-        pc.append("{} = sometimes".format(SOMETIMES))
-    if n in NA_QUESTIONS:
-        pv.append(NA)
-        pc.append("{} = N/A".format(NA))
-    comment = "Q{}, {} ({})".format(n, QUESTION_SNIPPETS[n - 1],
-                                    ", ".join(pc))
-    return dict(
-        name="q" + str(n),
-        cctype="INT",
-        comment=comment,
-        pv=pv
-    )
+class FrsMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Frs'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        for n in range(1, NQUESTIONS + 1):
+            pv = [NEVER, ALWAYS]
+            pc = ["{} = never".format(NEVER), "{} = always".format(ALWAYS)]
+            if n not in NO_SOMETIMES_QUESTIONS:
+                pv.append(SOMETIMES)
+                pc.append("{} = sometimes".format(SOMETIMES))
+            if n in NA_QUESTIONS:
+                pv.append(NA)
+                pc.append("{} = N/A".format(NA))
+            comment = "Q{}, {} ({})".format(n, QUESTION_SNIPPETS[n - 1],
+                                            ", ".join(pc))
+            name = "q" + str(n)
+            setattr(
+                cls,
+                name,
+                CamcopsColumn(
+                    name, Integer,
+                    permitted_value_checker=PermittedValueChecker(
+                        permitted_values=pv),
+                    comment=comment
+                )
+            )
+        super().__init__(name, bases, classdict)
 
 
-class Frs(Task):
-    tablename = "frs"
+class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
+          Task, Base,
+          metaclass=FrsMetaclass):
+    __tablename__ = "frs"
     shortname = "FRS"
     longname = "Frontotemporal Dementia Rating Scale"
-    has_clinician = True
-    has_respondent = True
 
-    TASK_FIELDS = ["q" + str(n) for n in range(1, NQUESTIONS + 1)]
-    fieldspecs = [make_frs_fieldspec(n) for n in range(1, NQUESTIONS + 1)]
-    fieldspecs.append(dict(name="comments", cctype="TEXT",
-                           comment="Clinician's comments"))
+    comments = Column("comments", Text, comment="Clinician's comments")
 
-    def get_summaries(self) -> List[SummaryElement]:
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         scoredict = self.get_score()
         return [
             self.is_complete_summary_field(),
@@ -230,7 +254,7 @@ class Frs(Task):
                            comment="Severity"),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         scoredict = self.get_score()
@@ -281,18 +305,18 @@ class Frs(Task):
             return None
         prefix = "q" + qstr + "_a_"
         if value == ALWAYS:
-            return self.wxstring(prefix + "always")
+            return self.wxstring(req, prefix + "always")
         if value == SOMETIMES:
-            return self.wxstring(prefix + "sometimes")
+            return self.wxstring(req, prefix + "sometimes")
         if value == NEVER:
-            return self.wxstring(prefix + "never")
+            return self.wxstring(req, prefix + "never")
         if value == NA:
             if q in SPECIAL_NA_TEXT_QUESTIONS:
-                return self.wxstring(prefix + "na")
-            return wappstring("NA")
+                return self.wxstring(req, prefix + "na")
+            return req.wappstring("NA")
         return None
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         scoredict = self.get_score()
         h = """
             <div class="summary">
@@ -334,7 +358,7 @@ class Frs(Task):
             severity=scoredict['severity'],
         )
         for q in range(1, NQUESTIONS + 1):
-            qtext = self.wxstring("q" + str(q) + "_q")
+            qtext = self.wxstring(req, "q" + str(q) + "_q")
             atext = self.get_answer(q)
             h += tr_qa(qtext, atext)
         h += """

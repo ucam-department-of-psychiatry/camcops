@@ -53,13 +53,13 @@ class Irac(Task):
     def get_achieved_text(self) -> str:
         achieveddict = {
             None: None,
-            0: self.wxstring("achieved_0"),
-            1: self.wxstring("achieved_1"),
-            2: self.wxstring("achieved_2"),
+            0: self.wxstring(req, "achieved_0"),
+            1: self.wxstring(req, "achieved_1"),
+            2: self.wxstring(req, "achieved_2"),
         }
         return get_from_dict(achieveddict, self.achieved)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         if self.achieved is not None:
             achieved = "{}. {}".format(self.achieved,
                                        self.get_achieved_text())
@@ -77,8 +77,8 @@ class Irac(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(self.wxstring("q_aim"), ws.webify(self.aim))
-        h += tr_qa(self.wxstring("q_achieved"), achieved)
+        h += tr_qa(self.wxstring(req, "q_aim"), ws.webify(self.aim))
+        h += tr_qa(self.wxstring(req, "q_achieved"), achieved)
         h += """
             </table>
         """

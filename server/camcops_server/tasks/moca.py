@@ -37,7 +37,6 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task
 from ..cc_modules.cc_trackerhelpers import LabelAlignment, TrackerInfo, TrackerLabel  # noqa
@@ -135,7 +134,7 @@ class Moca(Task):
         ("clockpicture", "clockpicture_blobid"),
     ]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="MOCA total score",
@@ -144,12 +143,12 @@ class Moca(Task):
             axis_max=(self.MAX_SCORE + 0.5),
             horizontal_lines=[25.5],
             horizontal_labels=[
-                TrackerLabel(26, wappstring("normal"), LabelAlignment.bottom),
-                TrackerLabel(25, wappstring("abnormal"), LabelAlignment.top),
+                TrackerLabel(26, req.wappstring("normal"), LabelAlignment.bottom),
+                TrackerLabel(25, req.wappstring("abnormal"), LabelAlignment.top),
             ]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -157,7 +156,7 @@ class Moca(Task):
                                                     self.MAX_SCORE)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -211,10 +210,10 @@ class Moca(Task):
 
     def category(self) -> str:
         totalscore = self.total_score()
-        return (wappstring("normal") if totalscore >= 26 
-                else wappstring("abnormal"))
+        return (req.wappstring("normal") if totalscore >= 26
+                else req.wappstring("abnormal"))
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         vsp = self.score_vsp()
         naming = self.score_naming()
         attention = self.score_attention()
@@ -229,9 +228,9 @@ class Moca(Task):
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score"),
+        h += tr(req.wappstring("total_score"),
                 answer(totalscore) + " / {}".format(self.MAX_SCORE))
-        h += tr_qa(self.wxstring("category") + " <sup>[1]</sup>",
+        h += tr_qa(self.wxstring(req, "category") + " <sup>[1]</sup>",
                    category)
         h += """
                 </table>
@@ -243,20 +242,20 @@ class Moca(Task):
                 </tr>
         """
 
-        h += tr(self.wxstring("subscore_visuospatial"),
+        h += tr(self.wxstring(req, "subscore_visuospatial"),
                 answer(vsp) + " / 5",
                 tr_class="subheading")
         h += tr("Path, cube, clock/contour, clock/numbers, clock/hands",
                 ", ".join([answer(x) for x in [self.q1, self.q2, self.q3,
                                                self.q4, self.q5]]))
 
-        h += tr(self.wxstring("subscore_naming"),
+        h += tr(self.wxstring(req, "subscore_naming"),
                 answer(naming) + " / 3",
                 tr_class="subheading")
         h += tr("Lion, rhino, camel",
                 ", ".join([answer(x) for x in [self.q6, self.q7, self.q8]]))
 
-        h += tr(self.wxstring("subscore_attention"),
+        h += tr(self.wxstring(req, "subscore_attention"),
                 answer(attention) + " / 6",
                 tr_class="subheading")
         h += tr("5 digits forwards, 3 digits backwards, tapping, serial 7s "
@@ -264,19 +263,19 @@ class Moca(Task):
                 ", ".join([answer(x) for x in [self.q9, self.q10, self.q11,
                                                self.q12]]))
 
-        h += tr(self.wxstring("subscore_language"),
+        h += tr(self.wxstring(req, "subscore_language"),
                 answer(language) + " / 3",
                 tr_class="subheading")
         h += tr("Repeat sentence 1, repeat sentence 2, fluency to letter ‘F’",
                 ", ".join([answer(x) for x in [self.q13, self.q14, self.q15]]))
 
-        h += tr(self.wxstring("subscore_abstraction"),
+        h += tr(self.wxstring(req, "subscore_abstraction"),
                 answer(abstraction) + " / 2",
                 tr_class="subheading")
         h += tr("Means of transportation, measuring instruments",
                 ", ".join([answer(x) for x in [self.q16, self.q17]]))
 
-        h += tr(self.wxstring("subscore_memory"),
+        h += tr(self.wxstring(req, "subscore_memory"),
                 answer(memory) + " / 5",
                 tr_class="subheading")
         h += tr(
@@ -340,7 +339,7 @@ class Moca(Task):
             ])
         )
 
-        h += tr(self.wxstring("subscore_orientation"),
+        h += tr(self.wxstring(req, "subscore_orientation"),
                 answer(orientation) + " / 6",
                 tr_class="subheading")
         h += tr(
@@ -352,7 +351,7 @@ class Moca(Task):
             ])
         )
 
-        h += subheading_spanning_two_columns(self.wxstring("education_s"))
+        h += subheading_spanning_two_columns(self.wxstring(req, "education_s"))
         h += tr_qa("≤12 years’ education?", self.education12y_or_less)
         h += """
             </table>

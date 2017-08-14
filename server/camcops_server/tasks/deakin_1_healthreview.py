@@ -22,11 +22,20 @@
 ===============================================================================
 """
 
-from typing import List
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
 
-from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BoolColumn,
+    CamcopsColumn,
+    MIN_ZERO_CHECKER,
+    PermittedValueChecker,
+    ZERO_TO_FOUR_CHECKER,
+)
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 # =============================================================================
@@ -38,173 +47,229 @@ FREQUENCY_COMMENT = (
 )
 
 
-class Deakin1HealthReview(Task):
-    tablename = "deakin_1_healthreview"
+class Deakin1HealthReview(TaskHasPatientMixin, Task, Base):
+    __tablename__ = "deakin_1_healthreview"
     shortname = "Deakin_1_HealthReview"
     longname = "Deakin JB – 1 – Health Review"
 
-    fieldspecs = [
-        dict(name="ethnicity", cctype="INT", min=1, max=16,
-             comment="Ethnicity code, per GMC Patient Questionnaire (1-16)"),
-        dict(name="ethnicity_text", cctype="TEXT",
-             comment="Ethnicity, description"),
-        dict(name="ethnicity_other_details", cctype="TEXT",
-             comment="Ethnicity, other, details"),
+    ethnicity = CamcopsColumn(
+        "ethnicity", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=1, maximum=16),
+        comment="Ethnicity code, per GMC Patient Questionnaire (1-16)"
+    )
+    ethnicity_text = Column(
+        "ethnicity_text", Text,
+        comment="Ethnicity, description"
+    )
+    ethnicity_other_details = Column(
+        "ethnicity_other_details", Text,
+        comment="Ethnicity, other, details"
+    )
 
-        dict(name="handedness", cctype="TEXT", pv=["L", "R"],
-             comment="Handedness (L, R)"),
+    handedness = CamcopsColumn(
+        "handedness", Text,
+        permitted_value_checker=PermittedValueChecker(permitted_values=["L", "R"]),  # noqa
+        comment="Handedness (L, R)"
+    )
+    education = Column("education", Text)
 
-        dict(name="education", cctype="TEXT"),
+    allergies = BoolColumn("allergies")
+    allergy_asthma = BoolColumn("allergy_asthma")
+    allergy_pollen_dust = BoolColumn("allergy_pollen_dust")
+    allergy_dermatitis = BoolColumn("allergy_dermatitis")
+    allergy_food = BoolColumn("allergy_food")
+    allergy_dander = BoolColumn("allergy_dander")
+    allergy_other = BoolColumn("allergy_other")
+    allergy_details = Column("allergy_details", Text),
 
-        dict(name="allergies", cctype="BOOL", pv=PV.BIT),
-        dict(name="allergy_asthma", cctype="BOOL", pv=PV.BIT),
-        dict(name="allergy_pollen_dust", cctype="BOOL", pv=PV.BIT),
-        dict(name="allergy_dermatitis", cctype="BOOL", pv=PV.BIT),
-        dict(name="allergy_food", cctype="BOOL", pv=PV.BIT),
-        dict(name="allergy_dander", cctype="BOOL", pv=PV.BIT),
-        dict(name="allergy_other", cctype="BOOL", pv=PV.BIT),
-        dict(name="allergy_details", cctype="TEXT"),
+    vaccinations_last3months = BoolColumn("vaccinations_last3months")
+    vaccination_details = Column("vaccination_details", Text),
 
-        dict(name="vaccinations_last3months", cctype="BOOL", pv=PV.BIT),
-        dict(name="vaccination_details", cctype="TEXT"),
+    infections_last3months = BoolColumn("infections_last3months")
+    infection_recent_respiratory = BoolColumn("infection_recent_respiratory")
+    infection_recent_gastroenteritis = BoolColumn("infection_recent_gastroenteritis")  # noqa
+    infection_recent_urinary = BoolColumn("infection_recent_urinary")
+    infection_recent_sexual = BoolColumn("infection_recent_sexual")
+    infection_recent_hepatitis = BoolColumn("infection_recent_hepatitis")
+    infection_recent_other = BoolColumn("infection_recent_other")
+    infection_recent_details = Column("infection_recent_details", Text),
 
-        dict(name="infections_last3months", cctype="BOOL", pv=PV.BIT),
-        dict(name="infection_recent_respiratory", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="infection_recent_gastroenteritis", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="infection_recent_urinary", cctype="BOOL", pv=PV.BIT),
-        dict(name="infection_recent_sexual", cctype="BOOL", pv=PV.BIT),
-        dict(name="infection_recent_hepatitis", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="infection_recent_other", cctype="BOOL", pv=PV.BIT),
-        dict(name="infection_recent_details", cctype="TEXT"),
+    infections_chronic = BoolColumn("infections_chronic")
+    infection_chronic_respiratory = BoolColumn("infection_chronic_respiratory")
+    infection_chronic_gastroenteritis = BoolColumn("infection_chronic_gastroenteritis")  # noqa
+    infection_chronic_urinary = BoolColumn("infection_chronic_urinary")
+    infection_chronic_sexual = BoolColumn("infection_chronic_sexual")
+    infection_chronic_hepatitis = BoolColumn("infection_chronic_hepatitis")
+    infection_chronic_other = BoolColumn("infection_chronic_other")
+    infection_chronic_details = Column("infection_chronic_details", Text)
 
-        dict(name="infections_chronic", cctype="BOOL", pv=PV.BIT),
-        dict(name="infection_chronic_respiratory", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="infection_chronic_gastroenteritis", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="infection_chronic_urinary", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="infection_chronic_sexual", cctype="BOOL", pv=PV.BIT),
-        dict(name="infection_chronic_hepatitis", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="infection_chronic_other", cctype="BOOL", pv=PV.BIT),
-        dict(name="infection_chronic_details", cctype="TEXT"),
+    immune_disorders = BoolColumn("immune_disorders")
+    immunity_ms = BoolColumn("immunity_ms")
+    immunity_sle = BoolColumn("immunity_sle")
+    immunity_arthritis = BoolColumn("immunity_arthritis")
+    immunity_hiv = BoolColumn("immunity_hiv")
+    immunity_graves = BoolColumn("immunity_graves")
+    immunity_diabetes = BoolColumn("immunity_diabetes")
+    immunity_other = BoolColumn("immunity_other")
+    immunity_details = Column("immunity_details", Text)
 
-        dict(name="immune_disorders", cctype="BOOL", pv=PV.BIT),
-        dict(name="immunity_ms", cctype="BOOL", pv=PV.BIT),
-        dict(name="immunity_sle", cctype="BOOL", pv=PV.BIT),
-        dict(name="immunity_arthritis", cctype="BOOL", pv=PV.BIT),
-        dict(name="immunity_hiv", cctype="BOOL", pv=PV.BIT),
-        dict(name="immunity_graves", cctype="BOOL", pv=PV.BIT),
-        dict(name="immunity_diabetes", cctype="BOOL", pv=PV.BIT),
-        dict(name="immunity_other", cctype="BOOL", pv=PV.BIT),
-        dict(name="immunity_details", cctype="TEXT"),
+    family_history = BoolColumn("family_history")
+    familyhistory_ms = BoolColumn("familyhistory_ms")
+    familyhistory_sle = BoolColumn("familyhistory_sle")
+    familyhistory_arthritis = BoolColumn("familyhistory_arthritis")
+    familyhistory_graves = BoolColumn("familyhistory_graves")
+    familyhistory_diabetes = BoolColumn("familyhistory_diabetes")
+    familyhistory_psychosis_sz = BoolColumn("familyhistory_psychosis_sz")
+    familyhistory_bipolar = BoolColumn("familyhistory_bipolar")
+    familyhistory_details = Column("familyhistory_details", Text)
 
-        dict(name="family_history", cctype="BOOL", pv=PV.BIT),
-        dict(name="familyhistory_ms", cctype="BOOL", pv=PV.BIT),
-        dict(name="familyhistory_sle", cctype="BOOL", pv=PV.BIT),
-        dict(name="familyhistory_arthritis", cctype="BOOL", pv=PV.BIT),
-        dict(name="familyhistory_graves", cctype="BOOL", pv=PV.BIT),
-        dict(name="familyhistory_diabetes", cctype="BOOL", pv=PV.BIT),
-        dict(name="familyhistory_psychosis_sz", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="familyhistory_bipolar", cctype="BOOL", pv=PV.BIT),
-        dict(name="familyhistory_details", cctype="TEXT"),
+    health_anything_else = BoolColumn("health_anything_else")
+    health_anything_else_details = Column("health_anything_else_details", Text)
 
-        dict(name="health_anything_else", cctype="BOOL", pv=PV.BIT),
-        dict(name="health_anything_else_details", cctype="TEXT"),
+    drug_history = Column("drug_history", Text)
+    first_antipsychotic_medication = Column(
+        "first_antipsychotic_medication", Text
+    )
 
-        dict(name="drug_history", cctype="TEXT"),
-        dict(name="first_antipsychotic_medication", cctype="TEXT"),
+    recreational_drug_in_last_3_months = BoolColumn(
+        "recreational_drug_in_last_3_months"
+    )
 
-        dict(name="recreational_drug_in_last_3_months", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="recdrug_tobacco_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_tobacco_cigsperweek", cctype="INT", min=0,
-             comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_tobacco_prevheavy", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="recdrug_cannabis_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_cannabis_jointsperweek", cctype="INT", min=0,
-             comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_cannabis_prevheavy", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="recdrug_alcohol_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_alcohol_unitsperweek", cctype="INT", min=0,
-             comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_alcohol_prevheavy", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="recdrug_mdma_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_mdma_prevheavy", cctype="BOOL", pv=PV.BIT),
-        dict(name="recdrug_cocaine_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_cocaine_prevheavy", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="recdrug_crack_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_crack_prevheavy", cctype="BOOL", pv=PV.BIT),
-        dict(name="recdrug_heroin_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_heroin_prevheavy", cctype="BOOL", pv=PV.BIT),
-        dict(name="recdrug_methadone_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_methadone_prevheavy", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="recdrug_amphetamines_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_amphetamines_prevheavy", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="recdrug_benzodiazepines_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_benzodiazepines_prevheavy", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="recdrug_ketamine_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_ketamine_prevheavy", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="recdrug_legalhighs_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_legalhighs_prevheavy", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="recdrug_inhalants_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_inhalants_prevheavy", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="recdrug_hallucinogens_frequency", cctype="INT",
-             min=0, max=4, comment=FREQUENCY_COMMENT),
-        dict(name="recdrug_hallucinogens_prevheavy", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="recdrug_details", cctype="TEXT"),
-        dict(name="recdrug_prevheavy", cctype="BOOL", pv=PV.BIT),
-        dict(name="recdrug_prevheavy_details", cctype="TEXT"),
+    recdrug_tobacco_frequency = CamcopsColumn(
+        "recdrug_tobacco_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_tobacco_cigsperweek = CamcopsColumn(
+        "recdrug_tobacco_cigsperweek", Integer,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Tobacco: cigarettes per week"
+    )
+    recdrug_tobacco_prevheavy = BoolColumn("recdrug_tobacco_prevheavy")
 
-        dict(name="mri_claustrophobic", cctype="BOOL", pv=PV.BIT),
-        dict(name="mri_difficulty_lying_1_hour", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="mri_nonremovable_metal", cctype="BOOL", pv=PV.BIT),
-        dict(name="mri_metal_from_operations", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="mri_tattoos_nicotine_patches", cctype="BOOL",
-             pv=PV.BIT),
-        dict(name="mri_worked_with_metal", cctype="BOOL", pv=PV.BIT),
-        dict(name="mri_previous_brain_scan", cctype="BOOL", pv=PV.BIT),
-        dict(name="mri_previous_brain_scan_details", cctype="TEXT"),
-        dict(name="other_relevant_things", cctype="BOOL", pv=PV.BIT),
-        dict(name="other_relevant_things_details", cctype="TEXT"),
+    recdrug_cannabis_frequency = CamcopsColumn(
+        "recdrug_cannabis_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_cannabis_jointsperweek = CamcopsColumn(
+        "recdrug_cannabis_jointsperweek", Integer,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Cannabis: joints per week"
+    )
+    recdrug_cannabis_prevheavy = BoolColumn("recdrug_cannabis_prevheavy")
 
-        dict(name="willing_to_participate_in_further_studies",
-             cctype="BOOL", pv=PV.BIT),
-    ]
-    for d in fieldspecs:
-        if "comment" not in d:
-            d["comment"] = d["name"]
+    recdrug_alcohol_frequency = CamcopsColumn(
+        "recdrug_alcohol_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_alcohol_unitsperweek = CamcopsColumn(
+        "recdrug_alcohol_unitsperweek", Integer,
+        permitted_value_checker=MIN_ZERO_CHECKER,
+        comment="Alcohol: units per week")
+    recdrug_alcohol_prevheavy = BoolColumn("recdrug_alcohol_prevheavy")
+
+    recdrug_mdma_frequency = CamcopsColumn(
+        "recdrug_mdma_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_mdma_prevheavy = BoolColumn("recdrug_mdma_prevheavy")
+
+    recdrug_cocaine_frequency = CamcopsColumn(
+        "recdrug_cocaine_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_cocaine_prevheavy = BoolColumn("recdrug_cocaine_prevheavy")
+
+    recdrug_crack_frequency = CamcopsColumn(
+        "recdrug_crack_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_crack_prevheavy = BoolColumn("recdrug_crack_prevheavy")
+
+    recdrug_heroin_frequency = CamcopsColumn(
+        "recdrug_heroin_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_heroin_prevheavy = BoolColumn("recdrug_heroin_prevheavy")
+
+    recdrug_methadone_frequency = CamcopsColumn(
+        "recdrug_methadone_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_methadone_prevheavy = BoolColumn("recdrug_methadone_prevheavy")
+
+    recdrug_amphetamines_frequency = CamcopsColumn(
+        "recdrug_amphetamines_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_amphetamines_prevheavy = BoolColumn("recdrug_amphetamines_prevheavy")  # noqa
+
+    recdrug_benzodiazepines_frequency = CamcopsColumn(
+        "recdrug_benzodiazepines_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_benzodiazepines_prevheavy = BoolColumn("recdrug_benzodiazepines_prevheavy")  # noqa
+
+    recdrug_ketamine_frequency = CamcopsColumn(
+        "recdrug_ketamine_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_ketamine_prevheavy = BoolColumn("recdrug_ketamine_prevheavy")
+
+    recdrug_legalhighs_frequency = CamcopsColumn(
+        "recdrug_legalhighs_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_legalhighs_prevheavy = BoolColumn("recdrug_legalhighs_prevheavy")
+
+    recdrug_inhalants_frequency = CamcopsColumn(
+        "recdrug_inhalants_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_inhalants_prevheavy = BoolColumn("recdrug_inhalants_prevheavy")
+
+    recdrug_hallucinogens_frequency = CamcopsColumn(
+        "recdrug_hallucinogens_frequency", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment=FREQUENCY_COMMENT
+    )
+    recdrug_hallucinogens_prevheavy = BoolColumn("recdrug_hallucinogens_prevheavy")  # noqa
+
+    recdrug_details = Column("recdrug_details", Text)
+
+    recdrug_prevheavy = BoolColumn("recdrug_prevheavy")
+    recdrug_prevheavy_details = Column("recdrug_prevheavy_details", Text)
+
+    mri_claustrophobic = BoolColumn("mri_claustrophobic")
+    mri_difficulty_lying_1_hour = BoolColumn("mri_difficulty_lying_1_hour")
+    mri_nonremovable_metal = BoolColumn("mri_nonremovable_metal")
+    mri_metal_from_operations = BoolColumn("mri_metal_from_operations")
+    mri_tattoos_nicotine_patches = BoolColumn("mri_tattoos_nicotine_patches")
+    mri_worked_with_metal = BoolColumn("mri_worked_with_metal")
+    mri_previous_brain_scan = BoolColumn("mri_previous_brain_scan")
+    mri_previous_brain_scan_details = Column(
+        "mri_previous_brain_scan_details", Text
+    )
+    other_relevant_things = BoolColumn("other_relevant_things")
+    other_relevant_things_details = Column(
+        "other_relevant_things_details", Text
+    )
+
+    willing_to_participate_in_further_studies = BoolColumn(
+        "willing_to_participate_in_further_studies"
+    )
 
     def is_complete(self) -> bool:
         return (
@@ -244,7 +309,7 @@ class Deakin1HealthReview(Task):
         frequency = drug_frequency_dict.get(getattr(self, fieldname), None)
         return tr_qa(fieldname, frequency)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         return """
             <div class="summary">
                 <table class="summary">

@@ -439,7 +439,7 @@ class CardinalExpectationDetection(Task):
     def is_complete(self) -> bool:
         return bool(self.finished)
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field()
             SummaryElement(name="final_score",
@@ -695,7 +695,7 @@ class CardinalExpectationDetection(Task):
         # Fetch trial details
         return self.get_ancillary_items(ExpDetTrial)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         grouparray = self.get_group_array()
         trialarray = self.get_trial_array()
         # THIS IS A NON-EDITABLE TASK, so we *ignore* the problem

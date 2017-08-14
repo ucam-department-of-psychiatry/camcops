@@ -29,7 +29,6 @@ from sqlalchemy.sql.sqltypes import Boolean, Integer
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import repeat_fieldspec
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import LabelAlignment, TrackerInfo, TrackerLabel  # noqa
@@ -79,7 +78,7 @@ class Mast(Task):
 
     TASK_FIELDS = [x["name"] for x in fieldspecs]
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="MAST total score",
@@ -92,14 +91,14 @@ class Mast(Task):
             ]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
             content="MAST total score {}/53".format(self.total_score())
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(
@@ -147,20 +146,20 @@ class Mast(Task):
         score = self.total_score()
         return score >= 13
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         exceeds_threshold = self.exceeds_ross_threshold()
         main_dict = {
             None: None,
-            "Y": wappstring("yes"),
-            "N": wappstring("no")
+            "Y": req.wappstring("yes"),
+            "N": req.wappstring("no")
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score"), answer(score) + " / 53")
-        h += tr_qa(self.wxstring("exceeds_threshold"),
+        h += tr(req.wappstring("total_score"), answer(score) + " / 53")
+        h += tr_qa(self.wxstring(req, "exceeds_threshold"),
                    get_yes_no(exceeds_threshold))
         h += """
                 </table>
@@ -173,7 +172,7 @@ class Mast(Task):
         """
         for q in range(1, self.NQUESTIONS + 1):
             h += tr(
-                self.wxstring("q" + str(q)),
+                self.wxstring(req, "q" + str(q)),
                 (
                     answer(get_from_dict(main_dict,
                                          getattr(self, "q" + str(q)))) +

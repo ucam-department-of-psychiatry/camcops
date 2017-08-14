@@ -30,7 +30,6 @@ from ..cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
-from ..cc_modules.cc_string import wappstring
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task
 from ..cc_modules.cc_trackerhelpers import TrackerAxisTick, TrackerInfo, TrackerLabel  # noqa
@@ -77,7 +76,7 @@ class Phq9(Task):
             return False
         return True
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PHQ-9 total score (rating depressive symptoms)",
@@ -100,15 +99,15 @@ class Phq9(Task):
                 4.5
             ],
             horizontal_labels=[
-                TrackerLabel(23, wappstring("severe")),
-                TrackerLabel(17, wappstring("moderately_severe")),
-                TrackerLabel(12, wappstring("moderate")),
-                TrackerLabel(7, wappstring("mild")),
-                TrackerLabel(2.25, wappstring("none")),
+                TrackerLabel(23, req.wappstring("severe")),
+                TrackerLabel(17, req.wappstring("moderately_severe")),
+                TrackerLabel(12, req.wappstring("moderate")),
+                TrackerLabel(7, req.wappstring("mild")),
+                TrackerLabel(2.25, req.wappstring("none")),
             ]
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -116,7 +115,7 @@ class Phq9(Task):
                 self.total_score(), self.severity())
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(
@@ -182,38 +181,38 @@ class Phq9(Task):
     def severity(self) -> str:
         total = self.total_score()
         if total >= 20:
-            return wappstring("severe")
+            return req.wappstring("severe")
         elif total >= 15:
-            return wappstring("moderately_severe")
+            return req.wappstring("moderately_severe")
         elif total >= 10:
-            return wappstring("moderate")
+            return req.wappstring("moderate")
         elif total >= 5:
-            return wappstring("mild")
+            return req.wappstring("mild")
         else:
-            return wappstring("none")
+            return req.wappstring("none")
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         main_dict = {
             None: None,
-            0: "0 — " + self.wxstring("a0"),
-            1: "1 — " + self.wxstring("a1"),
-            2: "2 — " + self.wxstring("a2"),
-            3: "3 — " + self.wxstring("a3")
+            0: "0 — " + self.wxstring(req, "a0"),
+            1: "1 — " + self.wxstring(req, "a1"),
+            2: "2 — " + self.wxstring(req, "a2"),
+            3: "3 — " + self.wxstring(req, "a3")
         }
         q10_dict = {
             None: None,
-            0: "0 — " + self.wxstring("fa0"),
-            1: "1 — " + self.wxstring("fa1"),
-            2: "2 — " + self.wxstring("fa2"),
-            3: "3 — " + self.wxstring("fa3")
+            0: "0 — " + self.wxstring(req, "fa0"),
+            1: "1 — " + self.wxstring(req, "fa1"),
+            2: "2 — " + self.wxstring(req, "fa2"),
+            3: "3 — " + self.wxstring(req, "fa3")
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score") + " <sup>[1]</sup>",
+        h += tr(req.wappstring("total_score") + " <sup>[1]</sup>",
                 answer(self.total_score()) + " / 27")
-        h += tr_qa(self.wxstring("depression_severity") + " <sup>[2]</sup>",
+        h += tr_qa(self.wxstring(req, "depression_severity") + " <sup>[2]</sup>",
                    self.severity())
         h += tr(
             "Number of symptoms: core <sup>[3]</sup>, other <sup>[4]</sup>, "
@@ -222,9 +221,9 @@ class Phq9(Task):
             answer(self.n_other()) + "/7, " +
             answer(self.n_total()) + "/9"
         )
-        h += tr_qa(self.wxstring("mds") + " <sup>[5]</sup>",
+        h += tr_qa(self.wxstring(req, "mds") + " <sup>[5]</sup>",
                    get_yes_no(self.is_mds()))
-        h += tr_qa(self.wxstring("ods") + " <sup>[6]</sup>",
+        h += tr_qa(self.wxstring(req, "ods") + " <sup>[6]</sup>",
                    get_yes_no(self.is_ods()))
         h += """
                 </table>
@@ -240,9 +239,9 @@ class Phq9(Task):
         """
         for i in range(1, self.N_MAIN_QUESTIONS + 1):
             nstr = str(i)
-            h += tr_qa(self.wxstring("q" + nstr),
+            h += tr_qa(self.wxstring(req, "q" + nstr),
                        get_from_dict(main_dict, getattr(self, "q" + nstr)))
-        h += tr_qa("10. " + self.wxstring("finalq"),
+        h += tr_qa("10. " + self.wxstring(req, "finalq"),
                    get_from_dict(q10_dict, self.q10))
         h += """
             </table>

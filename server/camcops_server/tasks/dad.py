@@ -22,8 +22,9 @@
 ===============================================================================
 """
 
-from typing import Dict, Iterable, List, Tuple
+from typing import Any, Dict, Iterable, List, Tuple, Type
 
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
@@ -32,24 +33,51 @@ from ..cc_modules.cc_html import (
     subheading_spanning_two_columns,
     tr,
 )
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+)
 
 YES = 1
 NO = 0
 NA = -99
+YN_NA_CHECKER = PermittedValueChecker(permitted_values=[YES, NO, NA])
+
 
 # =============================================================================
 # DAD
 # =============================================================================
 
+class DadMetaClass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Dad'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        explan = " ({} yes, {} no, {} not applicable)".format(YES, NO, NA)
+        for colname in cls.ITEMS:
+            setattr(
+                cls,
+                colname,
+                CamcopsColumn(colname, Integer,
+                              permitted_value_checker=YN_NA_CHECKER,
+                              comment=colname + explan)
+            )
+        super().__init__(name, bases, classdict)
 
-class Dad(Task):
-    tablename = "dad"
+
+class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
+          Task, Base,
+          metaclass=DadMetaClass):
+    __tablename__ = "dad"
     shortname = "DAD"
     longname = "Disability Assessment for Dementia"
-    has_clinician = True
-    has_respondent = True
 
     GROUPS = [
         "hygiene",
@@ -114,18 +142,8 @@ class Dad(Task):
         "leisure_exec_complete_chores",
         "leisure_exec_safe_at_home"
     ]
-    explan = " ({} yes, {} no, {} not applicable)".format(YES, NO, NA)
 
-    fieldspecs = []
-    for item in ITEMS:
-        fieldspecs.append(dict(
-            name=item,
-            cctype="INT",
-            pv=[YES, NO, NA],
-            comment=item + explan,
-        ))
-
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         d = self.get_score_dict()
         s = [self.is_complete_summary_field()]
         for item in d:
@@ -220,7 +238,7 @@ class Dad(Task):
             text = None
         return answer(text)
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         d = self.get_score_dict()
         h = """
             <div class="summary">
@@ -292,11 +310,11 @@ class Dad(Task):
             execution=self.report_score(d['execution']),
         )
         for group in self.GROUPS:
-            h += subheading_spanning_two_columns(self.wxstring(group))
+            h += subheading_spanning_two_columns(self.wxstring(req, group))
             for item in self.ITEMS:
                 if not item.startswith(group):
                     continue
-                q = self.wxstring(item)
+                q = self.wxstring(req, item)
                 if '_init_' in item:
                     q += " (I)"
                 elif '_plan_' in item:

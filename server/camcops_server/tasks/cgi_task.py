@@ -33,8 +33,16 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -42,46 +50,59 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # CGI
 # =============================================================================
 
-class Cgi(Task):
-    tablename = "cgi"
+class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
+    __tablename__ = "cgi"
     shortname = "CGI"
     longname = "Clinical Global Impressions"
-    has_clinician = True
     provides_trackers = True
 
-    fieldspecs = [
-        dict(name="q1", cctype="INT", min=0, max=7,
-             comment="Q1. Severity (1-7, higher worse, 0 not assessed)"),
-        dict(name="q2", cctype="INT", min=0, max=7,
-             comment="Q2. Global improvement (1-7, higher worse, "
-             "0 not assessed)"),
-        dict(name="q3t", cctype="INT", min=0, max=4,
-             comment="Q3T. Therapeutic effects (1-4, higher worse, "
-             "0 not assessed)"),
-        dict(name="q3s", cctype="INT", min=0, max=4,
-             comment="Q3S. Side effects (1-4, higher worse, 0 not assessed)"),
-        dict(name="q3", cctype="INT", min=0, max=16,
-             comment="Q3 (calculated). Efficacy index [(Q3T - 1) * 4 + Q3S]."),
-    ]
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    q1 = CamcopsColumn(
+        "q1", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
+        comment="Q1. Severity (1-7, higher worse, 0 not assessed)"
+    )
+    q2 = CamcopsColumn(
+        "q2", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
+        comment="Q2. Global improvement (1-7, higher worse, 0 not assessed)"
+    )
+    q3t = CamcopsColumn(
+        "q3t", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=4),
+        comment="Q3T. Therapeutic effects (1-4, higher worse, 0 not assessed)"
+    )
+    q3s = CamcopsColumn(
+        "q3s", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=4),
+        comment="Q3S. Side effects (1-4, higher worse, 0 not assessed)"
+    )
+    q3 = CamcopsColumn(
+        "q3", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=16),
+        comment="Q3 (calculated). Efficacy index [(Q3T - 1) * 4 + Q3S]."
+    )
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    TASK_FIELDS = ["q1", "q2", "q3t", "q3s", "qe"]
+    MAX_SCORE = 30
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="CGI total score",
-            axis_label="Total score (out of 30)",
+            axis_label="Total score (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=30.5
+            axis_max=self.MAX_SCORE + 0.5
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="CGI total score {}/30".format(self.total_score())
+            content="CGI total score {}/{}".format(self.total_score(),
+                                                   self.MAX_SCORE)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total",
@@ -101,44 +122,44 @@ class Cgi(Task):
     def total_score(self) -> int:
         return self.sum_fields(["q1", "q2", "q3"])
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         q1_dict = {
             None: None,
-            0: self.wxstring("q1_option0"),
-            1: self.wxstring("q1_option1"),
-            2: self.wxstring("q1_option2"),
-            3: self.wxstring("q1_option3"),
-            4: self.wxstring("q1_option4"),
-            5: self.wxstring("q1_option5"),
-            6: self.wxstring("q1_option6"),
-            7: self.wxstring("q1_option7"),
+            0: self.wxstring(req, "q1_option0"),
+            1: self.wxstring(req, "q1_option1"),
+            2: self.wxstring(req, "q1_option2"),
+            3: self.wxstring(req, "q1_option3"),
+            4: self.wxstring(req, "q1_option4"),
+            5: self.wxstring(req, "q1_option5"),
+            6: self.wxstring(req, "q1_option6"),
+            7: self.wxstring(req, "q1_option7"),
         }
         q2_dict = {
             None: None,
-            0: self.wxstring("q2_option0"),
-            1: self.wxstring("q2_option1"),
-            2: self.wxstring("q2_option2"),
-            3: self.wxstring("q2_option3"),
-            4: self.wxstring("q2_option4"),
-            5: self.wxstring("q2_option5"),
-            6: self.wxstring("q2_option6"),
-            7: self.wxstring("q2_option7"),
+            0: self.wxstring(req, "q2_option0"),
+            1: self.wxstring(req, "q2_option1"),
+            2: self.wxstring(req, "q2_option2"),
+            3: self.wxstring(req, "q2_option3"),
+            4: self.wxstring(req, "q2_option4"),
+            5: self.wxstring(req, "q2_option5"),
+            6: self.wxstring(req, "q2_option6"),
+            7: self.wxstring(req, "q2_option7"),
         }
         q3t_dict = {
             None: None,
-            0: self.wxstring("q3t_option0"),
-            1: self.wxstring("q3t_option1"),
-            2: self.wxstring("q3t_option2"),
-            3: self.wxstring("q3t_option3"),
-            4: self.wxstring("q3t_option4"),
+            0: self.wxstring(req, "q3t_option0"),
+            1: self.wxstring(req, "q3t_option1"),
+            2: self.wxstring(req, "q3t_option2"),
+            3: self.wxstring(req, "q3t_option3"),
+            4: self.wxstring(req, "q3t_option4"),
         }
         q3s_dict = {
             None: None,
-            0: self.wxstring("q3s_option0"),
-            1: self.wxstring("q3s_option1"),
-            2: self.wxstring("q3s_option2"),
-            3: self.wxstring("q3s_option3"),
-            4: self.wxstring("q3s_option4"),
+            0: self.wxstring(req, "q3s_option0"),
+            1: self.wxstring(req, "q3s_option1"),
+            2: self.wxstring(req, "q3s_option2"),
+            3: self.wxstring(req, "q3s_option3"),
+            4: self.wxstring(req, "q3s_option4"),
         }
         h = """
             <div class="summary">
@@ -154,13 +175,13 @@ class Cgi(Task):
                     <th width="70%">Answer</th>
                 </tr>
         """
-        h += tr_qa(self.wxstring("q1_s") + " <sup>[2]</sup>",
+        h += tr_qa(self.wxstring(req, "q1_s") + " <sup>[2]</sup>",
                    get_from_dict(q1_dict, self.q1))
-        h += tr_qa(self.wxstring("q2_s") + " <sup>[2]</sup>",
+        h += tr_qa(self.wxstring(req, "q2_s") + " <sup>[2]</sup>",
                    get_from_dict(q2_dict, self.q2))
-        h += tr_qa(self.wxstring("q3t_s") + " <sup>[3]</sup>",
+        h += tr_qa(self.wxstring(req, "q3t_s") + " <sup>[3]</sup>",
                    get_from_dict(q3t_dict, self.q3t))
-        h += tr_qa(self.wxstring("q3s_s") + " <sup>[3]</sup>",
+        h += tr_qa(self.wxstring(req, "q3s_s") + " <sup>[3]</sup>",
                    get_from_dict(q3s_dict, self.q3s))
         h += tr(
             """
@@ -168,7 +189,7 @@ class Cgi(Task):
                 <div class="smallprint">
                     [(Q3T – 1) × 4 + Q3S]
                 </div>
-            """.format(self.wxstring("q3_s")),
+            """.format(self.wxstring(req, "q3_s")),
             answer(self.q3, formatter_answer=italic)
         )
         h += """
@@ -187,20 +208,21 @@ class Cgi(Task):
 # CGI-I
 # =============================================================================
 
-class CgiI(Task):
-    tablename = "cgi_i"
+class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
+    __tablename__ = "cgi_i"
     shortname = "CGI-I"
     longname = "Clinical Global Impressions – Improvement"
     extrastring_taskname = "cgi"  # shares with CGI
-    fieldspecs = [
-        dict(name="q", cctype="INT", min=0, max=7,
-             comment="Global improvement (1-7, higher worse)"),
-    ]
-    has_clinician = True
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    q = CamcopsColumn(
+        "q", Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
+        comment="Global improvement (1-7, higher worse)"
+    )
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    TASK_FIELDS = ["q"]
+
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -218,17 +240,17 @@ class CgiI(Task):
     def get_q_dict(self) -> Dict:
         return {
             None: None,
-            0: self.wxstring("q2_option0"),
-            1: self.wxstring("q2_option1"),
-            2: self.wxstring("q2_option2"),
-            3: self.wxstring("q2_option3"),
-            4: self.wxstring("q2_option4"),
-            5: self.wxstring("q2_option5"),
-            6: self.wxstring("q2_option6"),
-            7: self.wxstring("q2_option7"),
+            0: self.wxstring(req, "q2_option0"),
+            1: self.wxstring(req, "q2_option1"),
+            2: self.wxstring(req, "q2_option2"),
+            3: self.wxstring(req, "q2_option3"),
+            4: self.wxstring(req, "q2_option4"),
+            5: self.wxstring(req, "q2_option5"),
+            6: self.wxstring(req, "q2_option6"),
+            7: self.wxstring(req, "q2_option7"),
         }
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
@@ -241,7 +263,7 @@ class CgiI(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(self.wxstring("i_q"), self.get_rating_text())
+        h += tr_qa(self.wxstring(req, "i_q"), self.get_rating_text())
         h += """
             </table>
         """

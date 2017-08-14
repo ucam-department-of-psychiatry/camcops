@@ -22,16 +22,24 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_string import wappstring
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -39,51 +47,63 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # BPRS
 # =============================================================================
 
-class Bprs(Task):
-    tablename = "bprs"
+class BprsMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Bprs'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=0, maximum=7,
+            comment_fmt="Q{n}, {s} (1-7, higher worse, 0 for unable to rate)",
+            comment_strings=[
+                "somatic concern", "anxiety", "emotional withdrawal",
+                "conceptual disorganisation", "guilt", "tension",
+                "mannerisms/posturing", "grandiosity", "depressive mood",
+                "hostility", "suspiciousness", "hallucinatory behaviour",
+                "motor retardation", "uncooperativeness",
+                "unusual thought content", "blunted affect", "excitement",
+                "disorientation", "severity of illness", "global improvement"]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+           metaclass=BprsMetaclass):
+    __tablename__ = "bprs"
     shortname = "BPRS"
     longname = "Brief Psychiatric Rating Scale"
-    has_clinician = True
     provides_trackers = True
 
     NQUESTIONS = 20
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=7,
-        comment_fmt="Q{n}, {s} (1-7, higher worse, 0 for unable to rate)",
-        comment_strings=[
-            "somatic concern", "anxiety", "emotional withdrawal",
-            "conceptual disorganisation", "guilt", "tension",
-            "mannerisms/posturing", "grandiosity", "depressive mood",
-            "hostility", "suspiciousness", "hallucinatory behaviour",
-            "motor retardation", "uncooperativeness",
-            "unusual thought content", "blunted affect", "excitement",
-            "disorientation", "severity of illness", "global improvement"])
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORED_FIELDS = [x for x in TASK_FIELDS if (x != "q19" and x != "q20")]
+    MAX_SCORE = 126
 
-    def get_trackers(self) -> List[TrackerInfo]:
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="BPRS total score",
-            axis_label="Total score (out of 126)",
+            axis_label="Total score (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=126.5,
+            axis_max=self.MAX_SCORE + 0.5,
         )]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="BPRS total score {}/126".format(self.total_score())
+            content="BPRS total score {}/{}".format(self.total_score(),
+                                                    self.MAX_SCORE)
         )]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="total", coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/126)"),
+                           comment="Total score (/{})".format(self.MAX_SCORE)),
         ]
 
     def is_complete(self) -> bool:
@@ -96,45 +116,46 @@ class Bprs(Task):
         return self.sum_fields(Bprs.SCORED_FIELDS, ignorevalue=0)
         # "0" means "not rated"
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         main_dict = {
             None: None,
-            0: "0 — " + self.wxstring("old_option0"),
-            1: "1 — " + self.wxstring("old_option1"),
-            2: "2 — " + self.wxstring("old_option2"),
-            3: "3 — " + self.wxstring("old_option3"),
-            4: "4 — " + self.wxstring("old_option4"),
-            5: "5 — " + self.wxstring("old_option5"),
-            6: "6 — " + self.wxstring("old_option6"),
-            7: "7 — " + self.wxstring("old_option7")
+            0: "0 — " + self.wxstring(req, "old_option0"),
+            1: "1 — " + self.wxstring(req, "old_option1"),
+            2: "2 — " + self.wxstring(req, "old_option2"),
+            3: "3 — " + self.wxstring(req, "old_option3"),
+            4: "4 — " + self.wxstring(req, "old_option4"),
+            5: "5 — " + self.wxstring(req, "old_option5"),
+            6: "6 — " + self.wxstring(req, "old_option6"),
+            7: "7 — " + self.wxstring(req, "old_option7")
         }
         q19_dict = {
             None: None,
-            1: self.wxstring("q19_option1"),
-            2: self.wxstring("q19_option2"),
-            3: self.wxstring("q19_option3"),
-            4: self.wxstring("q19_option4"),
-            5: self.wxstring("q19_option5"),
-            6: self.wxstring("q19_option6"),
-            7: self.wxstring("q19_option7")
+            1: self.wxstring(req, "q19_option1"),
+            2: self.wxstring(req, "q19_option2"),
+            3: self.wxstring(req, "q19_option3"),
+            4: self.wxstring(req, "q19_option4"),
+            5: self.wxstring(req, "q19_option5"),
+            6: self.wxstring(req, "q19_option6"),
+            7: self.wxstring(req, "q19_option7")
         }
         q20_dict = {
             None: None,
-            0: self.wxstring("q20_option0"),
-            1: self.wxstring("q20_option1"),
-            2: self.wxstring("q20_option2"),
-            3: self.wxstring("q20_option3"),
-            4: self.wxstring("q20_option4"),
-            5: self.wxstring("q20_option5"),
-            6: self.wxstring("q20_option6"),
-            7: self.wxstring("q20_option7")
+            0: self.wxstring(req, "q20_option0"),
+            1: self.wxstring(req, "q20_option1"),
+            2: self.wxstring(req, "q20_option2"),
+            3: self.wxstring(req, "q20_option3"),
+            4: self.wxstring(req, "q20_option4"),
+            5: self.wxstring(req, "q20_option5"),
+            6: self.wxstring(req, "q20_option6"),
+            7: self.wxstring(req, "q20_option7")
         }
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(wappstring("total_score") +
-                " (0–126; 18–126 if all rated) <sup>[1]</sup>",
+        h += tr(req.wappstring("total_score") +
+                " (0–{maxscore}; 18–{maxscore} if all rated) "
+                "<sup>[1]</sup>".format(maxscore=self.MAX_SCORE),
                 answer(self.total_score()))
         h += """
                 </table>
@@ -152,12 +173,12 @@ class Bprs(Task):
         """
         for i in range(1, Bprs.NQUESTIONS - 1):  # only does 1-18
             h += tr_qa(
-                self.wxstring("q" + str(i) + "_title"),
+                self.wxstring(req, "q" + str(i) + "_title"),
                 get_from_dict(main_dict, getattr(self, "q" + str(i)))
             )
-        h += tr_qa(self.wxstring("q19_title"),
+        h += tr_qa(self.wxstring(req, "q19_title"),
                    get_from_dict(q19_dict, self.q19))
-        h += tr_qa(self.wxstring("q20_title"),
+        h += tr_qa(self.wxstring(req, "q20_title"),
                    get_from_dict(q20_dict, self.q20))
         h += """
             </table>

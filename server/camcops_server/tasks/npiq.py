@@ -80,7 +80,7 @@ class NpiQ(Task):
 
     ENDORSED_FIELDS = [ENDORSED + str(n) for n in range(1, NQUESTIONS + 1)]
 
-    def get_summaries(self) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
             SummaryElement(name="n_endorsed", coltype=Integer(),
@@ -94,7 +94,7 @@ class NpiQ(Task):
                            comment="Distress score (/ 60)"),
         ]
 
-    def get_clinical_text(self) -> List[CtvInfo]:
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
@@ -151,7 +151,7 @@ class NpiQ(Task):
             all(self.q_complete(q) for q in range(1, self.NQUESTIONS + 1))
         )
 
-    def get_task_html(self) -> str:
+    def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
@@ -189,14 +189,14 @@ class NpiQ(Task):
             s = getattr(self, SEVERITY + qstr)
             d = getattr(self, DISTRESS + qstr)
             qtext = "<b>{}:</b> {}".format(
-                self.wxstring("t" + qstr),
-                self.wxstring("q" + qstr),
+                self.wxstring(req, "t" + qstr),
+                self.wxstring(req, "q" + qstr),
             )
             etext = get_yes_no_unknown(e)
             if e:
-                stext = self.wxstring("severity_{}".format(s), s,
+                stext = self.wxstring(req, "severity_{}".format(s), s,
                                       provide_default_if_none=False)
-                dtext = self.wxstring("distress_{}".format(d), d,
+                dtext = self.wxstring(req, "distress_{}".format(d), d,
                                       provide_default_if_none=False)
             else:
                 stext = ""
