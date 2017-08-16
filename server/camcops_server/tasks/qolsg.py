@@ -25,11 +25,20 @@
 from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Float, Integer, Text
 
-from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import get_yes_no_none, tr_qa
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn,
+    # DateTimeAsIsoTextColType,
+    ZERO_TO_ONE_CHECKER,
+)
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -40,45 +49,76 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class QolSG(Task):
-    tablename = "qolsg"
+class QolSG(TaskHasPatientMixin, Task, Base):
+    __tablename__ = "qolsg"
     shortname = "QoL-SG"
     longname = "Quality of Life: Standard Gamble"
     provides_trackers = True
 
-    fieldspecs = [
-        dict(name="category_start_time", cctype="TEXT",
-             comment="Time categories were offered (ISO-8601)"),
-        dict(name="category_responded", cctype="INT", pv=PV.BIT,
-             comment="Responded to category choice? (0 no, 1 yes)"),
-        dict(name="category_response_time", cctype="TEXT",
-             comment="Time category was chosen (ISO-8601)"),
-        dict(name="category_chosen", cctype="TEXT",
-             comment="Category chosen: high (QoL > 1), "
-             "medium (0 <= QoL <= 1), low (QoL < 0)"),
-        dict(name="gamble_fixed_option", cctype="TEXT",
-             comment="Fixed option in gamble (current, healthy, dead)"),
-        dict(name="gamble_lottery_option_p", cctype="TEXT",
-             comment="Gamble: option corresponding to p  "
-             "(current, healthy, dead)"),
-        dict(name="gamble_lottery_option_q", cctype="TEXT",
-             comment="Gamble: option corresponding to q  "
-             "(current, healthy, dead) (q = 1 - p)"),
-        dict(name="gamble_lottery_on_left", cctype="INT", pv=PV.BIT,
-             comment="Gamble: lottery shown on the left (0 no, 1 yes)"),
-        dict(name="gamble_starting_p", cctype="FLOAT", min=0, max=1,
-             comment="Gamble: starting value of p"),
-        dict(name="gamble_start_time", cctype="TEXT",
-             comment="Time gamble was offered (ISO-8601)"),
-        dict(name="gamble_responded", cctype="INT", pv=PV.BIT,
-             comment="Gamble was responded to? (0 no, 1 yes)"),
-        dict(name="gamble_response_time", cctype="TEXT",
-             comment="Time subject responded to gamble (ISO-8601)"),
-        dict(name="gamble_p", cctype="FLOAT", min=0, max=1,
-             comment="Final value of p"),
-        dict(name="utility", cctype="FLOAT",
-             comment="Calculated utility, h"),
-    ]
+    category_start_time = Column(
+        "category_start_time", Text,  # *** change to DateTimeAsIsoTextColType
+        comment="Time categories were offered (ISO-8601)"
+    )
+    category_responded = CamcopsColumn(
+        "category_responded", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Responded to category choice? (0 no, 1 yes)"
+    )
+    category_response_time = Column(
+        "category_response_time", Text,  # *** change to DateTimeAsIsoTextColType  # noqa
+        comment="Time category was chosen (ISO-8601)"
+    )
+    category_chosen = Column(
+        "category_chosen", Text,
+        comment="Category chosen: high (QoL > 1) "
+                "medium (0 <= QoL <= 1) low (QoL < 0)"
+    )
+    gamble_fixed_option = Column(
+        "gamble_fixed_option", Text,
+        comment="Fixed option in gamble (current, healthy, dead)"
+    )
+    gamble_lottery_option_p = Column(
+        "gamble_lottery_option_p", Text,
+        comment="Gamble: option corresponding to p  "
+                "(current, healthy, dead)"
+    )
+    gamble_lottery_option_q = Column(
+        "gamble_lottery_option_q", Text,
+        comment="Gamble: option corresponding to q  "
+                "(current, healthy, dead) (q = 1 - p)"
+    )
+    gamble_lottery_on_left = CamcopsColumn(
+        "gamble_lottery_on_left", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Gamble: lottery shown on the left (0 no, 1 yes)"
+    )
+    gamble_starting_p = CamcopsColumn(
+        "gamble_starting_p", Float,
+        permitted_value_checker=ZERO_TO_ONE_CHECKER,
+        comment="Gamble: starting value of p"
+    )
+    gamble_start_time = Column(
+        "gamble_start_time", Text,  # *** change to DateTimeAsIsoTextColType
+        comment="Time gamble was offered (ISO-8601)"
+    )
+    gamble_responded = CamcopsColumn(
+        "gamble_responded", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Gamble was responded to? (0 no, 1 yes)"
+    )
+    gamble_response_time = Column(
+        "gamble_response_time", Text,  # *** change to DateTimeAsIsoTextColType
+        comment="Time subject responded to gamble (ISO-8601)"
+    )
+    gamble_p = CamcopsColumn(
+        "gamble_p", Float,
+        permitted_value_checker=ZERO_TO_ONE_CHECKER,
+        comment="Final value of p"
+    )
+    utility = Column(
+        "utility", Float,
+        comment="Calculated utility, h"
+    )
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(

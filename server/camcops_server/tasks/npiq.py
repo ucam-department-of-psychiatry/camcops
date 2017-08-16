@@ -22,16 +22,24 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Integer
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV, PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, get_yes_no_unknown, tr
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+)
 
 
 # =============================================================================
@@ -43,55 +51,73 @@ SEVERITY = "severity"
 DISTRESS = "distress"
 
 
-class NpiQ(Task):
-    tablename = "npiq"
+class NpiQMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['NpiQ'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        question_snippets = [
+            "delusions",  # 1
+            "hallucinations",
+            "agitation/aggression",
+            "depression/dysphoria",
+            "anxiety",  # 5
+            "elation/euphoria",
+            "apathy/indifference",
+            "disinhibition",
+            "irritability/lability",
+            "motor disturbance",  # 10
+            "night-time behaviour",
+            "appetite/eating",
+        ]
+        add_multiple_columns(
+            cls, ENDORSED, 1, cls.NQUESTIONS, Boolean,
+            pv=PV.BIT,
+            comment_fmt="Q{n}, {s}, endorsed?",
+            comment_strings=question_snippets
+        )
+        add_multiple_columns(
+            cls, SEVERITY, 1, cls.NQUESTIONS,
+            pv=list(range(1, 3 + 1)),
+            comment_fmt="Q{n}, {s}, severity (1-3), if endorsed",
+            comment_strings=question_snippets
+        )
+        add_multiple_columns(
+            cls, DISTRESS, 1, cls.NQUESTIONS,
+            pv=list(range(0, 5 + 1)),
+            comment_fmt="Q{n}, {s}, distress (0-5), if endorsed",
+            comment_strings=question_snippets
+        )
+        super().__init__(name, bases, classdict)
+
+
+class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task, Base,
+           metaclass=NpiQMetaclass):
+    __tablename__ = "npiq"
     shortname = "NPI-Q"
     longname = "Neuropsychiatric Inventory Questionnaire"
-    has_respondent = True
 
     NQUESTIONS = 12
-    QUESTION_SNIPPETS = [
-        "delusions",  # 1
-        "hallucinations",
-        "agitation/aggression",
-        "depression/dysphoria",
-        "anxiety",  # 5
-        "elation/euphoria",
-        "apathy/indifference",
-        "disinhibition",
-        "irritability/lability",
-        "motor disturbance",  # 10
-        "night-time behaviour",
-        "appetite/eating",
-    ]
-    fieldspecs = repeat_fieldspec(
-        ENDORSED, 1, NQUESTIONS, cctype="BOOL", pv=PV.BIT,
-        comment_fmt="Q{n}, {s}, endorsed?",
-        comment_strings=QUESTION_SNIPPETS
-    ) + repeat_fieldspec(
-        SEVERITY, 1, NQUESTIONS, pv=list(range(1, 3 + 1)),
-        comment_fmt="Q{n}, {s}, severity (1-3), if endorsed",
-        comment_strings=QUESTION_SNIPPETS
-    ) + repeat_fieldspec(
-        DISTRESS, 1, NQUESTIONS, pv=list(range(0, 5 + 1)),
-        comment_fmt="Q{n}, {s}, distress (0-5), if endorsed",
-        comment_strings=QUESTION_SNIPPETS
-    )
-
-    ENDORSED_FIELDS = [ENDORSED + str(n) for n in range(1, NQUESTIONS + 1)]
+    ENDORSED_FIELDS = strseq(ENDORSED, 1, NQUESTIONS)
+    MAX_SEVERITY = 3 * NQUESTIONS
+    MAX_DISTRESS = 5 * NQUESTIONS
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="n_endorsed", coltype=Integer(),
-                           value=self.n_endorsed(),
-                           comment="Number endorsed (/ 12)"),
-            SummaryElement(name="severity_score", coltype=Integer(),
-                           value=self.severity_score(),
-                           comment="Severity score (/ 36)"),
-            SummaryElement(name="distress_score", coltype=Integer(),
-                           value=self.distress_score(),
-                           comment="Distress score (/ 60)"),
+            SummaryElement(
+                name="n_endorsed", coltype=Integer(),
+                value=self.n_endorsed(),
+                comment="Number endorsed (/ {})".format(self.NQUESTIONS)),
+            SummaryElement(
+                name="severity_score", coltype=Integer(),
+                value=self.severity_score(),
+                comment="Severity score (/ {})".format(self.MAX_SEVERITY)),
+            SummaryElement(
+                name="distress_score", coltype=Integer(),
+                value=self.distress_score(),
+                comment="Distress score (/ {})".format(self.MAX_DISTRESS)),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -99,10 +125,14 @@ class NpiQ(Task):
             return CTV_INCOMPLETE
         return [CtvInfo(
             content=(
-                "Endorsed: {e}/12; severity {s}/36; distress {d}/60".format(
+                "Endorsed: {e}/{me}; severity {s}/{ms}; "
+                "distress {d}/{md}".format(
                     e=self.n_endorsed(),
+                    me=self.NQUESTIONS,
                     s=self.severity_score(),
+                    ms=self.MAX_SEVERITY,
                     d=self.distress_score(),
+                    md=self.MAX_DISTRESS,
                 )
             )
         )]
@@ -146,9 +176,9 @@ class NpiQ(Task):
 
     def is_complete(self) -> bool:
         return (
-            self.field_contents_valid() and
             self.is_respondent_complete() and
-            all(self.q_complete(q) for q in range(1, self.NQUESTIONS + 1))
+            all(self.q_complete(q) for q in range(1, self.NQUESTIONS + 1)) and
+            self.field_contents_valid()
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:

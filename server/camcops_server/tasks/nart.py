@@ -23,19 +23,26 @@
 """
 
 import math
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Float
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.sqltypes import Boolean, Float
 
-from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import answer, td, tr_qa
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import BIT_CHECKER, CamcopsColumn
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 
 
-WORDLIST = [
-    "chord",  # True for CORRECT, False for INCORRECT
+WORDLIST = [  # Value is true/1 for CORRECT, false/0 for INCORRECT
+    "chord",
     "ache",
     "depot",
     "aisle",
@@ -48,7 +55,7 @@ WORDLIST = [
     "courteous",
     "rarefy",
     "equivocal",
-    "naive",
+    "naive",  # accent required
     "catacomb",
     "gaoled",
     "thyme",
@@ -65,13 +72,13 @@ WORDLIST = [
     "banal",
     "quadruped",
     "cellist",
-    "facade",
+    "facade",  # accent required
     "zealot",
     "drachm",
     "aeon",
     "placebo",
     "abstemious",
-    "detente",
+    "detente",  # accent required
     "idyll",
     "puerperal",
     "aver",
@@ -96,43 +103,108 @@ ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("detente")] = "détente"
 # NART
 # =============================================================================
 
-class Nart(Task):
-    tablename = "nart"
+class NartMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Nart'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        for w in WORDLIST:
+            setattr(
+                cls,
+                w,
+                CamcopsColumn(
+                    w, Boolean,
+                    permitted_value_checker=BIT_CHECKER,
+                    comment="Pronounced {} correctly (0 no, 1 yes)".format(w)
+                )
+            )
+        super().__init__(name, bases, classdict)
+
+
+class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+           metaclass=NartMetaclass):
+    __tablename__ = "nart"
     shortname = "NART"
     longname = "National Adult Reading Test"
-    has_clinician = True
-
-    fieldspecs = []
-    for w in WORDLIST:
-        fieldspecs.append(
-            dict(name=w, cctype="BOOL", pv=PV.BIT,
-                 comment="Pronounced {} correctly "
-                 "(0 no, 1 yes)".format(w)))
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="NART predicted FSIQ {}, VIQ {}, PIQ {}".format(
-                self.fsiq(), self.viq(), self.piq())
+            content=(
+                "NART predicted WAIS FSIQ {n_fsiq}, WAIS VIQ {n_viq}, "
+                "WAIS PIQ {n_piq}, WAIS-R FSIQ {nw_fsiq}, "
+                "WAIS-IV FSIQ {b_fsiq}, WAIS-IV GAI {b_gai}, "
+                "WAIS-IV VCI {b_vci}, WAIS-IV PRI {b_pri}, "
+                "WAIS_IV WMI {b_wmi}, WAIS-IV PSI {b_psi}".format(
+                    n_fsiq=self.nelson_full_scale_iq(),
+                    n_viq=self.nelson_verbal_iq(),
+                    n_piq=self.nelson_performance_iq(),
+                    nw_fsiq=self.nelson_willison_full_scale_iq(),
+                    b_fsiq=self.bright_full_scale_iq(),
+                    b_gai=self.bright_general_ability(),
+                    b_vci=self.bright_verbal_comprehension(),
+                    b_pri=self.bright_perceptual_reasoning(),
+                    b_wmi=self.bright_working_memory(),
+                    b_psi=self.bright_perceptual_speed(),
+                )
+            )
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="fsiq",
-                           coltype=Float(),
-                           value=self.fsiq(),
-                           comment="Predicted full-scale IQ"),
-            SummaryElement(name="viq",
-                           coltype=Float(),
-                           value=self.viq(),
-                           comment="Predicted verbal IQ"),
-            SummaryElement(name="piq",
-                           coltype=Float(),
-                           value=self.piq(),
-                           comment="Predicted performance IQ"),
-            # *** implement all other IQ measures for NART
+            SummaryElement(
+                name="nelson_full_scale_iq",
+                coltype=Float(),
+                value=self.nelson_full_scale_iq(),
+                comment="Predicted WAIS full-scale IQ (Nelson 1982)"),
+            SummaryElement(
+                name="nelson_verbal_iq",
+                coltype=Float(),
+                value=self.nelson_verbal_iq(),
+                comment="Predicted WAIS verbal IQ (Nelson 1982)"),
+            SummaryElement(
+                name="nelson_performance_iq",
+                coltype=Float(),
+                value=self.nelson_performance_iq(),
+                comment="Predicted WAIS performance IQ (Nelson 1982"),
+            SummaryElement(
+                name="nelson_willison_full_scale_iq",
+                coltype=Float(),
+                value=self.nelson_willison_full_scale_iq(),
+                comment="Predicted WAIS-R full-scale IQ (Nelson & Willison 1991"),  # noqa
+            SummaryElement(
+                name="bright_full_scale_iq",
+                coltype=Float(),
+                value=self.bright_full_scale_iq(),
+                comment="Predicted WAIS-IV full-scale IQ (Bright 2016)"),
+            SummaryElement(
+                name="bright_general_ability",
+                coltype=Float(),
+                value=self.bright_general_ability(),
+                comment="Predicted WAIS-IV General Ability Index (Bright 2016)"),  # noqa
+            SummaryElement(
+                name="bright_verbal_comprehension",
+                coltype=Float(),
+                value=self.bright_verbal_comprehension(),
+                comment="Predicted WAIS-IV Verbal Comprehension Index (Bright 2016)"),  # noqa
+            SummaryElement(
+                name="bright_perceptual_reasoning",
+                coltype=Float(),
+                value=self.bright_perceptual_reasoning(),
+                comment="Predicted WAIS-IV Perceptual Reasoning Index (Bright 2016)"),  # noqa
+            SummaryElement(
+                name="bright_working_memory",
+                coltype=Float(),
+                value=self.bright_working_memory(),
+                comment="Predicted WAIS-IV Working Memory Index (Bright 2016)"),  # noqa
+            SummaryElement(
+                name="bright_perceptual_speed",
+                coltype=Float(),
+                value=self.bright_perceptual_speed(),
+                comment="Predicted WAIS-IV Perceptual Speed Index (Bright 2016)"),  # noqa
         ]
 
     def is_complete(self) -> bool:
@@ -148,30 +220,62 @@ class Nart(Task):
                 e += 1
         return e
 
-    def fsiq(self) -> Optional[float]:
-        if not self.is_complete():
-            return None
-        return 127.7 - 0.826 * self.n_errors()
-
-    def viq(self) -> Optional[float]:
-        if not self.is_complete():
-            return None
-        return 129.0 - 0.919 * self.n_errors()
-
-    def piq(self) -> Optional[float]:
-        if not self.is_complete():
-            return None
-        return 123.5 - 0.645 * self.n_errors()
-
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr_qa("Total errors", self.n_errors())
-        h += tr_qa("Predicted full-scale IQ <sup>[1]</sup>", self.fsiq())
-        h += tr_qa("Predicted verbal IQ <sup>[2]</sup>", self.viq())
-        h += tr_qa("Predicted performance IQ <sup>[3]</sup>", self.piq())
+        nelson = "; Nelson 1982 <sup>[1]</sup>"
+        nelson_willison = "; Nelson &amp; Willison 1991 <sup>[2]</sup>"
+        bright = "; Bright 2016 <sup>[3]</sup>"
+        h += tr_qa(
+            "Predicted WAIS full-scale IQ = 127.7 – 0.826 × errors" + nelson,
+            self.nelson_full_scale_iq()
+        )
+        h += tr_qa(
+            "Predicted WAIS verbal IQ = 129.0 – 0.919 × errors" + nelson,
+            self.nelson_verbal_iq()
+        )
+        h += tr_qa(
+            "Predicted WAIS performance IQ = 123.5 – 0.645 × errors" + nelson,
+            self.nelson_performance_iq()
+        )
+        h += tr_qa(
+            "Predicted WAIS-R full-scale IQ "
+            "= 130.6 – 1.24 × errors" + nelson_willison,
+            self.nelson_willison_full_scale_iq()
+        )
+        h += tr_qa(
+            "Predicted WAIS-IV full-scale IQ "
+            "= 126.41 – 0.9775 × errors" + bright,
+            self.bright_full_scale_iq()
+        )
+        h += tr_qa(
+            "Predicted WAIS-IV General Ability Index "
+            "= 126.5 – 0.9656 × errors" + bright,
+            self.bright_general_ability()
+        )
+        h += tr_qa(
+            "Predicted WAIS-IV Verbal Comprehension Index "
+            "= 126.81 – 1.0745 × errors" + bright,
+            self.bright_verbal_comprehension()
+        )
+        h += tr_qa(
+            "Predicted WAIS-IV Perceptual Reasoning Index "
+            "= 120.18 – 0.6242 × errors" + bright,
+            self.bright_perceptual_reasoning()
+        )
+        h += tr_qa(
+            "Predicted WAIS-IV Working Memory Index "
+            "= 120.53 – 0.7901 × errors" + bright,
+            self.bright_working_memory()
+        )
+        h += tr_qa(
+            "Predicted WAIS-IV Perceptual Speed Index "
+            "= 114.53 – 0.5285 × errors" + bright,
+            self.bright_perceptual_speed()
+        )
         h += """
                 </table>
             </div>
@@ -205,12 +309,55 @@ class Nart(Task):
         h += """
             </table>
             <div class="footnotes">
-                [1] Full-scale IQ ≈ 127.7 – 0.826 × errors.
-                [2] Verbal IQ ≈ 129.0 – 0.919 × errors.
-                [3] Performance IQ ≈ 123.5 – 0.645 × errors.
+                [1] Nelson HE (1982), <i>National Adult Reading Test (NART): 
+                    For the Assessment of Premorbid Intelligence in Patients 
+                    with Dementia: Test Manual</i>, NFER-Nelson, Windsor, UK.
+                [2] Nelson HE, Wilson J (1991) 
+                    <i>National Adult Reading Test (NART)</i>,
+                    NFER-Nelson, Windsor, UK; see [3].
+                [3] Bright P et al (2016). The National Adult Reading Test: 
+                    restandardisation against the Wechsler Adult Intelligence 
+                    Scale—Fourth edition.
+                    <a href="https://www.ncbi.nlm.nih.gov/pubmed/27624393">PMID 
+                    27624393</a>.
             </div>
             <div class="copyright">
                 NART: Copyright © Hazel E. Nelson. Used with permission.
             </div>
         """
         return h
+
+    def predict(self, intercept: float, slope: float) -> Optional[float]:
+        if not self.is_complete():
+            return None
+        return intercept + slope * self.n_errors()
+
+    def nelson_full_scale_iq(self) -> Optional[float]:
+        return self.predict(intercept=127.7, slope=-0.826)
+
+    def nelson_verbal_iq(self) -> Optional[float]:
+        return self.predict(intercept=129.0, slope=-0.919)
+
+    def nelson_performance_iq(self) -> Optional[float]:
+        return self.predict(intercept=123.5, slope=-0.645)
+
+    def nelson_willison_full_scale_iq(self) -> Optional[float]:
+        return self.predict(intercept=130.6, slope=-1.24)
+
+    def bright_full_scale_iq(self) -> Optional[float]:
+        return self.predict(intercept=126.41, slope=-0.9775)
+
+    def bright_general_ability(self) -> Optional[float]:
+        return self.predict(intercept=126.5, slope=-0.9656)
+
+    def bright_verbal_comprehension(self) -> Optional[float]:
+        return self.predict(intercept=126.81, slope=-1.0745)
+
+    def bright_perceptual_reasoning(self) -> Optional[float]:
+        return self.predict(intercept=120.18, slope=-0.6242)
+
+    def bright_working_memory(self) -> Optional[float]:
+        return self.predict(intercept=120.53, slope=-0.7901)
+
+    def bright_perceptual_speed(self) -> Optional[float]:
+        return self.predict(intercept=114.53, slope=-0.5285)

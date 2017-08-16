@@ -22,16 +22,25 @@
 ===============================================================================
 """
 
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.maths_py import mean
-from sqlalchemy.sql.sqltypes import Float
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.sqltypes import Float, Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, identity, tr, tr_span_col
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    ONE_TO_FIVE_CHECKER,
+    ONE_TO_SIX_CHECKER,
+)
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -39,103 +48,137 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # RAND-36
 # =============================================================================
 
-class Rand36(Task):
-    tablename = "rand36"
+class Rand36MetaClass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Rand36'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 3, 12, 
+            minimum=1, maximum=3,
+            comment_fmt="Q{n} ({s}) (1 limited a lot - 3 not limited at all)",
+            comment_strings=[
+                "Vigorous activities",
+                "Moderate activities",
+                "Lifting or carrying groceries",
+                "Climbing several flights of stairs",
+                "Climbing one flight of stairs",
+                "Bending, kneeling, or stooping",
+                "Walking more than a mile",
+                "Walking several blocks",
+                "Walking one block",
+                "Bathing or dressing yourself",
+            ]
+        )
+        add_multiple_columns(
+            cls, "q", 13, 16, 
+            minimum=1, maximum=2,
+            comment_fmt="Q{n} (physical health: {s}) (1 yes, 2 no)",
+            comment_strings=[
+                "Cut down work/other activities",
+                "Accomplished less than would like",
+                "Were limited in the kind of work or other activities",
+                "Had difficulty performing the work or other activities",
+            ]
+        )
+        add_multiple_columns(
+            cls, "q", 17, 19, 
+            minimum=1, maximum=2,
+            comment_fmt="Q{n} (emotional problems: {s}) (1 yes, 2 no)",
+            comment_strings=[
+                "Cut down work/other activities",
+                "Accomplished less than would like",
+                "Didn't do work or other activities as carefully as usual",
+                "Had difficulty performing the work or other activities",
+            ]
+        )
+        add_multiple_columns(
+            cls, "q", 23, 31, 
+            minimum=1, maximum=6,
+            comment_fmt="Q{n} (past 4 weeks: {s}) (1 all of the time - "
+                        "6 none of the time)",
+            comment_strings=[
+                "Did you feel full of pep?",
+                "Have you been a very nervous person?",
+                "Have you felt so down in the dumps that nothing could cheer "
+                "you up?",
+                "Have you felt calm and peaceful?",
+                "Did you have a lot of energy?",
+                "Have you felt downhearted and blue?",
+                "Did you feel worn out?",
+                "Have you been a happy person?",
+                "Did you feel tired?",
+            ]
+        )
+        add_multiple_columns(
+            cls, "q", 33, 36, 
+            minimum=1, maximum=5,
+            comment_fmt="Q{n} (how true/false: {s}) (1 definitely true - "
+                        "5 definitely false)",
+            comment_strings=[
+                "I seem to get sick a little easier than other people",
+                "I am as healthy as anybody I know",
+                "I expect my health to get worse",
+                "My health is excellent",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Rand36(TaskHasPatientMixin, Task, Base,
+             metaclass=Rand36MetaClass):
+    __tablename__ = "rand36"
     shortname = "RAND-36"
     longname = "RAND 36-Item Short Form Health Survey 1.0"
     provides_trackers = True
 
     NQUESTIONS = 36
 
-    fieldspecs = [
-        dict(name="q1", cctype="INT", min=1, max=5,
-             comment="Q1 (general health) (1 excellent - 5 poor)"),
-        dict(name="q2", cctype="INT", min=1, max=5,
-             comment="Q2 (health cf. 1y ago) (1 much better - 5 much worse)"),
-    ] + repeat_fieldspec(
-        "q", 3, 12, min=1, max=3,
-        comment_fmt="Q{n} ({s}) (1 limited a lot - 3 not limited at all)",
-        comment_strings=[
-            "Vigorous activities",
-            "Moderate activities",
-            "Lifting or carrying groceries",
-            "Climbing several flights of stairs",
-            "Climbing one flight of stairs",
-            "Bending, kneeling, or stooping",
-            "Walking more than a mile",
-            "Walking several blocks",
-            "Walking one block",
-            "Bathing or dressing yourself",
-        ]
-    ) + repeat_fieldspec(
-        "q", 13, 16, min=1, max=2,
-        comment_fmt="Q{n} (physical health: {s}) (1 yes, 2 no)",
-        comment_strings=[
-            "Cut down work/other activities",
-            "Accomplished less than would like",
-            "Were limited in the kind of work or other activities",
-            "Had difficulty performing the work or other activities",
-        ]
-    ) + repeat_fieldspec(
-        "q", 17, 19, min=1, max=2,
-        comment_fmt="Q{n} (emotional problems: {s}) (1 yes, 2 no)",
-        comment_strings=[
-            "Cut down work/other activities",
-            "Accomplished less than would like",
-            "Didn't do work or other activities as carefully as usual",
-            "Had difficulty performing the work or other activities",
-        ]
-    ) + [
-        dict(name="q20", cctype="INT", min=1, max=5,
-             comment="Q20 (past 4 weeks, to what extent physical health/"
-             "emotional problems interfered with social activity) "
-             "(1 not at all - 5 extremely)"),
-        dict(name="q21", cctype="INT", min=1, max=6,
-             comment="Q21 (past 4 weeks, how much pain (1 none - 6 very "
-             "severe)"),
-        dict(name="q22", cctype="INT", min=1, max=5,
-             comment="Q22 (past 4 weeks, pain interfered with normal activity "
-             "(1 not at all - 5 extremely)"),
-    ] + repeat_fieldspec(
-        "q", 23, 31, min=1, max=6,
-        comment_fmt="Q{n} (past 4 weeks: {s}) (1 all of the time - 6 none of "
-        "the time)",
-        comment_strings=[
-            "Did you feel full of pep?",
-            "Have you been a very nervous person?",
-            "Have you felt so down in the dumps that nothing could cheer you "
-            "up?",
-            "Have you felt calm and peaceful?",
-            "Did you have a lot of energy?",
-            "Have you felt downhearted and blue?",
-            "Did you feel worn out?",
-            "Have you been a happy person?",
-            "Did you feel tired?",
-        ]
-    ) + [
-        dict(name="q32", cctype="INT", min=1, max=5,
-             comment="Q32 (past 4 weeks, how much of the time has physical "
-             "health/emotional problems interfered with social activities "
-             "(1 all of the time - 5 none of the time)"),
-        # ... note Q32 extremely similar to Q20.
-    ] + repeat_fieldspec(
-        "q", 33, 36, min=1, max=5,
-        comment_fmt="Q{n} (how true/false: {s}) (1 definitely true - "
-        "5 definitely false)",
-        comment_strings=[
-            "I seem to get sick a little easier than other people",
-            "I am as healthy as anybody I know",
-            "I expect my health to get worse",
-            "My health is excellent",
-        ]
+    q1 = CamcopsColumn(
+        "q1", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Q1 (general health) (1 excellent - 5 poor)"
+    )
+    q2 = CamcopsColumn(
+        "q2", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Q2 (health cf. 1y ago) (1 much better - 5 much worse)"
     )
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    q20 = CamcopsColumn(
+        "q20", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Q20 (past 4 weeks, to what extent physical health/"
+                "emotional problems interfered with social activity) "
+                "(1 not at all - 5 extremely)"
+    )
+    q21 = CamcopsColumn(
+        "q21", Integer,
+        permitted_value_checker=ONE_TO_SIX_CHECKER,
+        comment="Q21 (past 4 weeks, how much pain (1 none - 6 very severe)"
+    )
+    q22 = CamcopsColumn(
+        "q22", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Q22 (past 4 weeks, pain interfered with normal activity "
+                "(1 not at all - 5 extremely)"
+    )
+
+    q32 = CamcopsColumn(
+        "q32", Integer,
+        permitted_value_checker=ONE_TO_FIVE_CHECKER,
+        comment="Q32 (past 4 weeks, how much of the time has physical "
+                "health/emotional problems interfered with social activities "
+                "(1 all of the time - 5 none of the time)"
+    )
+    # ... note Q32 extremely similar to Q20.
+
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(
-                repeat_fieldname("q", 1, self.NQUESTIONS)) and
+            self.are_all_fields_complete(self.TASK_FIELDS) and
             self.field_contents_valid()
         )
 
@@ -151,26 +194,33 @@ class Rand36(Task):
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [
-            self.tracker_element(self.score_overall(),
-                                 self.wxstring(req, "score_overall")),
-            self.tracker_element(self.score_physical_functioning(),
-                                 self.wxstring(req, "score_physical_functioning")),
+            self.tracker_element(
+                self.score_overall(),
+                self.wxstring(req, "score_overall")),
+            self.tracker_element(
+                self.score_physical_functioning(),
+                self.wxstring(req, "score_physical_functioning")),
             self.tracker_element(
                 self.score_role_limitations_physical(),
                 self.wxstring(req, "score_role_limitations_physical")),
             self.tracker_element(
                 self.score_role_limitations_emotional(),
                 self.wxstring(req, "score_role_limitations_emotional")),
-            self.tracker_element(self.score_energy(),
-                                 self.wxstring(req, "score_energy")),
-            self.tracker_element(self.score_emotional_wellbeing(),
-                                 self.wxstring(req, "score_emotional_wellbeing")),
-            self.tracker_element(self.score_social_functioning(),
-                                 self.wxstring(req, "score_social_functioning")),
-            self.tracker_element(self.score_pain(),
-                                 self.wxstring(req, "score_pain")),
-            self.tracker_element(self.score_general_health(),
-                                 self.wxstring(req, "score_general_health")),
+            self.tracker_element(
+                self.score_energy(),
+                self.wxstring(req, "score_energy")),
+            self.tracker_element(
+                self.score_emotional_wellbeing(),
+                self.wxstring(req, "score_emotional_wellbeing")),
+            self.tracker_element(
+                self.score_social_functioning(),
+                self.wxstring(req, "score_social_functioning")),
+            self.tracker_element(
+                self.score_pain(),
+                self.wxstring(req, "score_pain")),
+            self.tracker_element(
+                self.score_general_health(),
+                self.wxstring(req, "score_general_health")),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -178,20 +228,20 @@ class Rand36(Task):
             return CTV_INCOMPLETE
         return [CtvInfo(
             content=(
-                "RAND-36 (scores out of 100, 100 best): overall {}, "
-                "physical functioning {}, physical role "
-                "limitations {}, emotional role limitations {}, "
-                "energy {}, emotional wellbeing {}, social "
-                "functioning {}, pain {}, general health {}.".format(
-                    self.score_overall(),
-                    self.score_physical_functioning(),
-                    self.score_role_limitations_physical(),
-                    self.score_role_limitations_emotional(),
-                    self.score_energy(),
-                    self.score_emotional_wellbeing(),
-                    self.score_social_functioning(),
-                    self.score_pain(),
-                    self.score_general_health(),
+                "RAND-36 (scores out of 100, 100 best): overall {ov}, "
+                "physical functioning {pf}, physical role "
+                "limitations {prl}, emotional role limitations {erl}, "
+                "energy {e}, emotional wellbeing {ew}, social "
+                "functioning {sf}, pain {p}, general health {gh}.".format(
+                    ov=self.score_overall(),
+                    pf=self.score_physical_functioning(),
+                    prl=self.score_role_limitations_physical(),
+                    erl=self.score_role_limitations_emotional(),
+                    e=self.score_energy(),
+                    ew=self.score_emotional_wellbeing(),
+                    sf=self.score_social_functioning(),
+                    p=self.score_pain(),
+                    gh=self.score_general_health(),
                 )
             )
         )]
@@ -325,7 +375,8 @@ class Rand36(Task):
     def section_row_html(text: str) -> str:
         return tr_span_col(text, cols=3, tr_class="subheading")
 
-    def answer_text(self, q: int, v: Any) -> Optional[str]:
+    def answer_text(self, req: CamcopsRequest,
+                    q: int, v: Any) -> Optional[str]:
         if v is None:
             return None
         # wxstring has its own validity checking, so we can do:
@@ -342,10 +393,10 @@ class Rand36(Task):
         else:
             return None
 
-    def answer_row_html(self, q: int) -> str:
+    def answer_row_html(self, req: CamcopsRequest, q: int) -> str:
         qtext = self.wxstring(req, "q" + str(q))
         v = getattr(self, "q" + str(q))
-        atext = self.answer_text(q, v)
+        atext = self.answer_text(req, q, v)
         s = self.recode(q)
         return tr(
             qtext,
@@ -405,33 +456,33 @@ class Rand36(Task):
                 </tr>
         """
         for q in range(1, 2 + 1):
-            h += self.answer_row_html(q)
+            h += self.answer_row_html(req, q)
         h += self.section_row_html(self.wxstring(req, "activities_q"))
         for q in range(3, 12 + 1):
-            h += self.answer_row_html(q)
+            h += self.answer_row_html(req, q)
         h += self.section_row_html(
             self.wxstring(req, "work_activities_physical_q"))
         for q in range(13, 16 + 1):
-            h += self.answer_row_html(q)
+            h += self.answer_row_html(req, q)
         h += self.section_row_html(
             self.wxstring(req, "work_activities_emotional_q"))
         for q in range(17, 19 + 1):
-            h += self.answer_row_html(q)
+            h += self.answer_row_html(req, q)
         h += self.section_row_html("<br>")
-        h += self.answer_row_html(20)
+        h += self.answer_row_html(req, 20)
         h += self.section_row_html("<br>")
         for q in range(21, 22 + 1):
-            h += self.answer_row_html(q)
+            h += self.answer_row_html(req, q)
         h += self.section_row_html(self.wxstring(req, "last4weeks_q_a") + " " +
                                    self.wxstring(req, "last4weeks_q_b"))
         for q in range(23, 31 + 1):
-            h += self.answer_row_html(q)
+            h += self.answer_row_html(req, q)
         h += self.section_row_html("<br>")
         for q in [32]:
-            h += self.answer_row_html(q)
+            h += self.answer_row_html(req, q)
         h += self.section_row_html(self.wxstring(req, "q33to36stem"))
         for q in range(33, 36 + 1):
-            h += self.answer_row_html(q)
+            h += self.answer_row_html(req, q)
         h += """
             </table>
             <div class="copyright">

@@ -22,14 +22,18 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import get_yes_no
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -37,33 +41,46 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # ASRM
 # =============================================================================
 
-class Asrm(Task):
-    tablename = "asrm"
+class AsrmMetaClass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Asrm'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
+        super().__init__(name, bases, classdict)
+
+
+class Asrm(TaskHasPatientMixin, Task, Base,
+           metaclass=AsrmMetaClass):
+    __tablename__ = "asrm"
     shortname = "ASRM"
     longname = "Altman Self-Rating Mania Scale"
     provides_trackers = True
 
     NQUESTIONS = 5
-    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_TOTAL = 20
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="ASRM total score",
-            axis_label="Total score (out of 20)",
+            axis_label="Total score (out of {})".format(self.MAX_TOTAL),
             axis_min=-0.5,
-            axis_max=20.5,
+            axis_max=self.MAX_TOTAL + 0.5,
             horizontal_lines=[5.5]
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (out of {})".format(self.self.MAX_TOTAL)
+            ),
         ]
 
     def is_complete(self) -> bool:
@@ -86,9 +103,15 @@ class Asrm(Task):
         h = """
             <div class="summary">
                 <table class="summary">
-                    {}
-                    <tr><td>{}</td><td><b>{}</b> / 20</td></tr>
-                    <tr><td>{} <sup>[1]</sup></td><td><b>{}</b></td></tr>
+                    {is_complete}
+                    <tr>
+                        <td>{total_score_str}</td>
+                        <td><b>{score}</b> / {maxtotal}</td>
+                    </tr>
+                    <tr>
+                        <td>{above_cutoff_str} <sup>[1]</sup></td>
+                        <td><b>{above_cutoff}</b></td>
+                    </tr>
                 </table>
             </div>
             <div class="explanation">
@@ -100,9 +123,12 @@ class Asrm(Task):
                     <th width="70%">Answer</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(),
-            req.wappstring("total_score"), score,
-            self.wxstring(req, "above_cutoff"), get_yes_no(above_cutoff),
+            is_complete=self.get_is_complete_tr(),
+            total_score_str=req.wappstring("total_score"),
+            score=score,
+            above_cutoff_str=self.wxstring(req, "above_cutoff"),
+            above_cutoff=get_yes_no(above_cutoff),
+            maxtotal=self.MAX_TOTAL,
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(

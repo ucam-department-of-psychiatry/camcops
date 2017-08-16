@@ -24,32 +24,45 @@
 
 from typing import Optional
 
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
+
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, ZERO_TO_FOUR_CHECKER
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 
 
 # =============================================================================
 # Abstract base class
 # =============================================================================
 
-class AbstractSatisfaction(object):
-    fieldspecs = [
-        dict(name="service", cctype="TEXT",
-             comment="Clinical service being rated"),
-        dict(name="rating", cctype="INT", min=0, max=4,
-             comment="Rating (0 very poor - 4 excellent)"),
-        dict(name="good", cctype="TEXT",
-             comment="What has been good?"),
-        dict(name="bad", cctype="TEXT",
-             comment="What could be improved?"),
-    ]
+class AbstractSatisfaction(Task):
+    service = Column(
+        "service", Text,
+        comment="Clinical service being rated"
+    )
+    rating = CamcopsColumn(
+        "rating", Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment="Rating (0 very poor - 4 excellent)"
+    )
+    good = Column(
+        "good", Text,
+        comment="What has been good?"
+    )
+    bad = Column(
+        "bad", Text,
+        comment="What could be improved?"
+    )
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = ["service", "rating", "good", "bad"]
 
     def is_complete(self) -> bool:
         return self.rating is not None and self.field_contents_valid()
 
-    def get_rating_text(self) -> Optional[str]:
+    def get_rating_text(self, req: CamcopsRequest) -> Optional[str]:
         ratingdict = {
             None: None,
             0: req.wappstring("satis_rating_a0"),
@@ -61,11 +74,12 @@ class AbstractSatisfaction(object):
         return get_from_dict(ratingdict, self.rating)
 
     def get_common_task_html(self,
+                             req: CamcopsRequest,
                              rating_q: str,
                              good_q: str,
                              bad_q: str) -> str:
         if self.rating is not None:
-            r = "{}. {}".format(self.rating, self.get_rating_text())
+            r = "{}. {}".format(self.rating, self.get_rating_text(req))
         else:
             r = None
         h = """
@@ -89,18 +103,22 @@ class AbstractSatisfaction(object):
         """
         return h
 
+    def get_task_html(self, req: CamcopsRequest) -> str:
+        raise NotImplementedError()
+
 
 # =============================================================================
 # PatientSatisfaction
 # =============================================================================
 
-class PatientSatisfaction(AbstractSatisfaction, Task):
-    tablename = "pt_satis"
+class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Base):
+    __tablename__ = "pt_satis"
     shortname = "PatientSatisfaction"
     longname = "Patient Satisfaction Scale"
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         return self.get_common_task_html(
+            req,
             req.wappstring("satis_pt_rating_q"),
             req.wappstring("satis_good_q"),
             req.wappstring("satis_bad_q")
@@ -111,14 +129,14 @@ class PatientSatisfaction(AbstractSatisfaction, Task):
 # ReferrerSatisfactionGen
 # =============================================================================
 
-class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
-    tablename = "ref_satis_gen"
+class ReferrerSatisfactionGen(AbstractSatisfaction, Base):
+    __tablename__ = "ref_satis_gen"
     shortname = "ReferrerSatisfactionSurvey"
     longname = "Referrer Satisfaction Scale, survey"
-    is_anonymous = True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         return self.get_common_task_html(
+            req,
             req.wappstring("satis_ref_gen_rating_q"),
             req.wappstring("satis_good_q"),
             req.wappstring("satis_bad_q")
@@ -130,12 +148,13 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
 # =============================================================================
 
 class ReferrerSatisfactionSpec(AbstractSatisfaction, Task):
-    tablename = "ref_satis_spec"
+    __tablename__ = "ref_satis_spec"
     shortname = "ReferrerSatisfactionSpecific"
     longname = "Referrer Satisfaction Scale, patient-specific"
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         return self.get_common_task_html(
+            req,
             req.wappstring("satis_ref_spec_rating_q"),
             req.wappstring("satis_good_q"),
             req.wappstring("satis_bad_q")

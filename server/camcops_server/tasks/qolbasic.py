@@ -30,8 +30,11 @@ from sqlalchemy.sql.sqltypes import Float
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import answer, identity, tr
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -42,24 +45,28 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class QolBasic(Task):
-    tablename = "qolbasic"
+class QolBasic(TaskHasPatientMixin, Task, Base):
+    __tablename__ = "qolbasic"
     shortname = "QoL-Basic"
     longname = "Quality of Life: basic assessment"
     provides_trackers = True
 
-    fieldspecs = [
-        dict(name="tto", cctype="FLOAT", min=0, max=10,
-             comment="Time trade-off (QoL * 10). Prompt: ... Indicate... the "
-             "number of years in full health [0-10] that you think is of "
-             "equal value to 10 years in your current health state."),
-        dict(name="rs", cctype="FLOAT", min=0, max=100,
-             comment="Rating scale (QoL * 100). Prompt: Mark the point on the "
-             "scale [0-100] that you feel best illustrates your current "
-             "quality of life."),
-    ]
+    tto = CamcopsColumn(
+        "tto", Float,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=10),
+        comment="Time trade-off (QoL * 10). Prompt: ... Indicate... the "
+                "number of years in full health [0-10] that you think is "
+                "of equal value to 10 years in your current health state."
+    )
+    rs = CamcopsColumn(
+        "rs", Float,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
+        comment="Rating scale (QoL * 100). Prompt: Mark the point on the "
+                "scale [0-100] that you feel best illustrates your current "
+                "quality of life."
+    )
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = ["tto", "rs"]
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [

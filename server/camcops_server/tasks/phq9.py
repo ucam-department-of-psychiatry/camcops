@@ -22,16 +22,24 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from ..cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
-from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    SummaryCategoryColType,
+    ZERO_TO_THREE_CHECKER,
+)
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerAxisTick, TrackerInfo, TrackerLabel  # noqa
 
 
@@ -39,40 +47,55 @@ from ..cc_modules.cc_trackerhelpers import TrackerAxisTick, TrackerInfo, Tracker
 # PHQ-9
 # =============================================================================
 
-class Phq9(Task):
-    tablename = "phq9"
+class Phq9MetaClass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Phq9'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.N_MAIN_QUESTIONS,
+            minimum=0, maximum=3,
+            comment_fmt="Q{n} ({s}) (0 not at all - 3 nearly every day)",
+            comment_strings=[
+                "anhedonia",
+                "mood",
+                "sleep",
+                "energy",
+                "appetite",
+                "self-esteem/guilt",
+                "concentration",
+                "psychomotor",
+                "death/self-harm",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Phq9(TaskHasPatientMixin, Task, Base,
+           metaclass=Phq9MetaClass):
+    __tablename__ = "phq9"
     shortname = "PHQ-9"
     longname = "Patient Health Questionnaire-9"
     provides_trackers = True
 
-    fieldspecs = repeat_fieldspec(
-        "q", 1, 9, min=0, max=3,
-        comment_fmt="Q{n} ({s}) (0 not at all - 3 nearly every day)",
-        comment_strings=[
-            "anhedonia",
-            "mood",
-            "sleep",
-            "energy",
-            "appetite",
-            "self-esteem/guilt",
-            "concentration",
-            "psychomotor",
-            "death/self-harm",
-        ]
-    ) + [
-        dict(name="q10", cctype="INT", min=0, max=3,
-             comment="Q10 (difficulty in activities) (0 not difficult at "
-                     "all - 3 extremely difficult)"),
-    ]
+    q10 = CamcopsColumn(
+        "q10", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment="Q10 (difficulty in activities) (0 not difficult at "
+                "all - 3 extremely difficult)"
+    )
 
     N_MAIN_QUESTIONS = 9
+    MAX_SCORE_MAIN = 3 * N_MAIN_QUESTIONS
+    MAIN_QUESTIONS = strseq("q", 1, N_MAIN_QUESTIONS)
 
     def is_complete(self) -> bool:
-        if not self.field_contents_valid():
-            return False
-        if not self.are_all_fields_complete(repeat_fieldname("q", 1, 9)):
+        if not self.are_all_fields_complete(self.MAIN_QUESTIONS):
             return False
         if self.total_score() > 0 and self.q10 is None:
+            return False
+        if not self.field_contents_valid():
             return False
         return True
 
@@ -80,9 +103,10 @@ class Phq9(Task):
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PHQ-9 total score (rating depressive symptoms)",
-            axis_label="Score for Q1-9 (out of 27)",
+            axis_label="Score for Q1-9 (out of {})".format(
+                self.MAX_SCORE_MAIN),
             axis_min=-0.5,
-            axis_max=27.5,
+            axis_max=self.MAX_SCORE_MAIN + 0.5,
             axis_ticks=[
                 TrackerAxisTick(27, "27"),
                 TrackerAxisTick(25, "25"),
@@ -111,8 +135,8 @@ class Phq9(Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="PHQ-9 total score {}/27 ({})".format(
-                self.total_score(), self.severity())
+            content="PHQ-9 total score {}/{} ({})".format(
+                self.total_score(), self.MAX_SCORE_MAIN, self.severity(req))
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -121,7 +145,7 @@ class Phq9(Task):
             SummaryElement(
                 name="total", coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (/27)"),
+                comment="Total score (/{})".format(self.MAX_SCORE_MAIN)),
             SummaryElement(
                 name="n_core", coltype=Integer(),
                 value=self.n_core(),
@@ -144,12 +168,12 @@ class Phq9(Task):
                 comment="PHQ9 other depressive syndrome?"),
             SummaryElement(
                 name="severity", coltype=SummaryCategoryColType,
-                value=self.severity(),
+                value=self.severity(req),
                 comment="PHQ9 depression severity"),
         ]
 
     def total_score(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 1, 9))
+        return self.sum_fields(self.MAIN_QUESTIONS)
 
     def one_if_q_ge(self, qnum: int, threshold: int) -> int:
         value = getattr(self, "q" + str(qnum))
@@ -178,7 +202,7 @@ class Phq9(Task):
     def is_ods(self) -> bool:
         return self.n_core() >= 1 and 2 <= self.n_total() <= 4
 
-    def severity(self) -> str:
+    def severity(self, req: CamcopsRequest) -> str:
         total = self.total_score()
         if total >= 20:
             return req.wappstring("severe")
@@ -211,9 +235,11 @@ class Phq9(Task):
                 <table class="summary">
         """ + self.get_is_complete_tr()
         h += tr(req.wappstring("total_score") + " <sup>[1]</sup>",
-                answer(self.total_score()) + " / 27")
-        h += tr_qa(self.wxstring(req, "depression_severity") + " <sup>[2]</sup>",
-                   self.severity())
+                answer(self.total_score()) +
+                " / {}".format(self.MAX_SCORE_MAIN))
+        h += tr_qa(self.wxstring(req, "depression_severity") +
+                   " <sup>[2]</sup>",
+                   self.severity(req))
         h += tr(
             "Number of symptoms: core <sup>[3]</sup>, other <sup>[4]</sup>, "
             "total",

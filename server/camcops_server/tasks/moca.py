@@ -22,13 +22,16 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Integer, String
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, String, Text
 
 from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
     italic,
@@ -37,8 +40,19 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER, 
+    CamcopsColumn,
+    ZERO_TO_THREE_CHECKER,
+)
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import LabelAlignment, TrackerInfo, TrackerLabel  # noqa
 
 
@@ -49,19 +63,15 @@ WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
 # MoCA
 # =============================================================================
 
-class Moca(Task):
-    tablename = "moca"
-    shortname = "MoCA"
-    longname = "Montreal Cognitive Assessment"
-    has_clinician = True
-    provides_trackers = True
-
-    NQUESTIONS = 28
-    MAX_SCORE = 30
-
-    fieldspecs = (
-        repeat_fieldspec(
-            "q", 1, NQUESTIONS, min=0, max=1,  # see below
+class MocaMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Moca'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS, 
+            minimum=0, maximum=1,  # see below
             comment_fmt="{s}",
             comment_strings=[
                 "Q1 (VSE/path) (0-1)",
@@ -93,46 +103,87 @@ class Moca(Task):
                 "Q27 (orientation/place) (0-1)",
                 "Q28 (orientation/city) (0-1)",
             ]
-        ) + [
-            dict(name="education12y_or_less", cctype="INT", pv=PV.BIT,
-                 comment="<=12 years of education (0 no, 1 yes)"),
-            dict(name="trailpicture_blobid", cctype="INT",
-                 comment="BLOB ID of trail picture"),
-            dict(name="cubepicture_blobid", cctype="INT",
-                 comment="BLOB ID of cube picture"),
-            dict(name="clockpicture_blobid", cctype="INT",
-                 comment="BLOB ID of clock picture"),
-        ] +
-        repeat_fieldspec(
-            "register_trial1_", 1, 5, pv=PV.BIT,
+        )
+        # Fix maximum for Q12:
+        cls.q12.set_permitted_value_checker(ZERO_TO_THREE_CHECKER)
+        
+        add_multiple_columns(
+            cls, "register_trial1_", 1, 5, 
+            pv=PV.BIT,
             comment_fmt="Registration, trial 1 (not scored), {n}: {s} "
-            "(0 or 1)", comment_strings=WORDLIST) +
-        repeat_fieldspec(
-            "register_trial2_", 1, 5, pv=PV.BIT,
+                        "(0 or 1)", 
+            comment_strings=WORDLIST
+        )
+        add_multiple_columns(
+            cls, "register_trial2_", 1, 5, 
+            pv=PV.BIT,
             comment_fmt="Registration, trial 2 (not scored), {n}: {s} "
-            "(0 or 1)", comment_strings=WORDLIST) +
-        repeat_fieldspec(
-            "recall_category_cue_", 1, 5, pv=PV.BIT,
+                        "(0 or 1)", 
+            comment_strings=WORDLIST
+        )
+        add_multiple_columns(
+            cls, "recall_category_cue_", 1, 5, 
+            pv=PV.BIT,
             comment_fmt="Recall with category cue (not scored), {n}: {s} "
-            "(0 or 1)", comment_strings=WORDLIST) +
-        repeat_fieldspec(
-            "recall_mc_cue_", 1, 5, pv=PV.BIT,
+                        "(0 or 1)", 
+            comment_strings=WORDLIST
+        )
+        add_multiple_columns(
+            cls, "recall_mc_cue_", 1, 5, 
+            pv=PV.BIT,
             comment_fmt="Recall with multiple-choice cue (not scored), "
-            "{n}: {s} (0 or 1)", comment_strings=WORDLIST) +
-        [
-            dict(name="comments", cctype="TEXT",
-                 comment="Clinician's comments"),
-        ]
+                        "{n}: {s} (0 or 1)", 
+            comment_strings=WORDLIST
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+           metaclass=MocaMetaclass):
+    tablename = "moca"
+    shortname = "MoCA"
+    longname = "Montreal Cognitive Assessment"
+    provides_trackers = True
+
+    education12y_or_less = CamcopsColumn(
+        "education12y_or_less", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="<=12 years of education (0 no, 1 yes)"
     )
-    # Fix error above. Hardly elegant!
-    for item in fieldspecs:
-        if item["name"] == "q12":
-            item["max"] = 3
-    blob_name_idfield_list = [
-        ("trailpicture", "trailpicture_blobid"),
-        ("cubepicture", "cubepicture_blobid"),
-        ("clockpicture", "clockpicture_blobid"),
-    ]
+    trailpicture_blobid = CamcopsColumn(
+        "trailpicture_blobid", Integer,
+        is_blob_id_field=True,
+        blob_field_xml_name="trailpicture",
+        comment="BLOB ID of trail picture"
+    )
+    cubepicture_blobid = CamcopsColumn(
+        "cubepicture_blobid", Integer,
+        is_blob_id_field=True,
+        blob_field_xml_name="cubepicture",
+        comment="BLOB ID of cube picture"
+    )
+    clockpicture_blobid = CamcopsColumn(
+        "clockpicture_blobid", Integer,
+        is_blob_id_field=True,
+        blob_field_xml_name="clockpicture",
+        comment="BLOB ID of clock picture"
+    )
+    comments = Column(
+        "comments", Text,
+        comment="Clinician's comments"
+    )
+
+    NQUESTIONS = 28
+    MAX_SCORE = 30
+
+    QFIELDS = strseq("q", 1, NQUESTIONS)
+    VSP_FIELDS = strseq("q", 1, 5)
+    NAMING_FIELDS = strseq("q", 6, 8)
+    ATTN_FIELDS = strseq("q", 9, 12)
+    LANG_FIELDS = strseq("q", 13, 15)
+    ABSTRACTION_FIELDS = strseq("q", 16, 17)
+    MEM_FIELDS = strseq("q", 18, 22)
+    ORIENTATION_FIELDS = strseq("q", 23, 28)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
@@ -143,8 +194,10 @@ class Moca(Task):
             axis_max=(self.MAX_SCORE + 0.5),
             horizontal_lines=[25.5],
             horizontal_labels=[
-                TrackerLabel(26, req.wappstring("normal"), LabelAlignment.bottom),
-                TrackerLabel(25, req.wappstring("abnormal"), LabelAlignment.top),
+                TrackerLabel(26, req.wappstring("normal"),
+                             LabelAlignment.bottom),
+                TrackerLabel(25, req.wappstring("abnormal"),
+                             LabelAlignment.top),
             ]
         )]
 
@@ -165,20 +218,18 @@ class Moca(Task):
                            comment="Total score (/{})".format(self.MAX_SCORE)),
             SummaryElement(name="category",
                            coltype=String(50),
-                           value=self.category(),
+                           value=self.category(req),
                            comment="Categorization"),
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(
-                repeat_fieldname("q", 1, self.NQUESTIONS)) and
+            self.are_all_fields_complete(self.QFIELDS) and
             self.field_contents_valid()
         )
 
     def total_score(self) -> int:
-        score = self.sum_fields(
-            repeat_fieldname("q", 1, self.NQUESTIONS))
+        score = self.sum_fields(self.QFIELDS)
         # Interpretation of the educational extra point: see moca.cpp; we have
         # a choice of allowing 31/30 or capping at 30. I think the instructions
         # imply a cap of 30.
@@ -188,27 +239,27 @@ class Moca(Task):
         return score
 
     def score_vsp(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 1, 5))
+        return self.sum_fields(self.VSP_FIELDS)
 
     def score_naming(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 6, 8))
+        return self.sum_fields(self.NAMING_FIELDS)
 
     def score_attention(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 9, 12))
+        return self.sum_fields(self.ATTN_FIELDS)
 
     def score_language(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 13, 15))
+        return self.sum_fields(self.LANG_FIELDS)
 
     def score_abstraction(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 16, 17))
+        return self.sum_fields(self.ABSTRACTION_FIELDS)
 
     def score_memory(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 18, 22))
+        return self.sum_fields(self.MEM_FIELDS)
 
     def score_orientation(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 23, 28))
+        return self.sum_fields(self.ORIENTATION_FIELDS)
 
-    def category(self) -> str:
+    def category(self, req: CamcopsRequest) -> str:
         totalscore = self.total_score()
         return (req.wappstring("normal") if totalscore >= 26
                 else req.wappstring("abnormal"))
@@ -222,7 +273,7 @@ class Moca(Task):
         memory = self.score_memory()
         orientation = self.score_orientation()
         totalscore = self.total_score()
-        category = self.category()
+        category = self.category(req)
 
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">

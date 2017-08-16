@@ -395,12 +395,14 @@ class PermittedValueChecker(object):
 MIN_ZERO_CHECKER = PermittedValueChecker(minimum=0)
 
 BIT_CHECKER = PermittedValueChecker(permitted_values=PV.BIT)
+ZERO_TO_ONE_CHECKER = PermittedValueChecker(minimum=0, maximum=1)
 ZERO_TO_TWO_CHECKER = PermittedValueChecker(minimum=0, maximum=2)
 ZERO_TO_THREE_CHECKER = PermittedValueChecker(minimum=0, maximum=3)
 ZERO_TO_FOUR_CHECKER = PermittedValueChecker(minimum=0, maximum=4)
 ZERO_TO_FIVE_CHECKER = PermittedValueChecker(minimum=0, maximum=5)
 
 ONE_TO_FIVE_CHECKER = PermittedValueChecker(minimum=1, maximum=5)
+ONE_TO_SIX_CHECKER = PermittedValueChecker(minimum=1, maximum=6)
 
 
 # =============================================================================
@@ -455,6 +457,13 @@ class CamcopsColumn(Column):
 # Operate on Column/CamcopsColumn properties
 # =============================================================================
 
+def gen_columns_matching_attrnames(obj, attrnames: List[str]) \
+        -> Generator[Tuple[str, Column], None, None]:
+    for attrname, column in gen_columns(obj):
+        if attrname in attrnames:
+            yield attrname, column
+
+
 def gen_camcops_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
                                           None, None]:
     """
@@ -481,6 +490,10 @@ def gen_camcops_blob_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
 
 def get_column_attr_names(obj) -> List[str]:
     return [attrname for attrname, _ in gen_columns(obj)]
+
+
+def get_camcops_column_attr_names(obj) -> List[str]:
+    return [attrname for attrname, _ in gen_camcops_columns(obj)]
 
 
 def get_camcops_blob_column_attr_names(obj) -> List[str]:

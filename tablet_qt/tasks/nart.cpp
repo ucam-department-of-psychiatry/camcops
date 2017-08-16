@@ -45,7 +45,7 @@ const QStringList WORDLIST{
     "bouquet",
     "psalm",
     "capon",
-    "deny",
+    "deny",  // NB reserved word in SQL (auto-handled)
     "nausea",
     "debt",
     "courteous",

@@ -22,14 +22,14 @@
 ===============================================================================
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Float, Integer
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
 from ..cc_modules.cc_constants import (
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     INVALID_VALUE,
-    PV,
 )
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
@@ -39,8 +39,21 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn,
+    ZERO_TO_ONE_CHECKER,
+    ZERO_TO_TWO_CHECKER,
+    ZERO_TO_THREE_CHECKER,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -48,12 +61,99 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # IFS
 # =============================================================================
 
-class Ifs(Task):
-    tablename = "ifs"
+class IfsMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Ifs'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        for seqlen in cls.Q4_DIGIT_LENGTHS:
+            fname1 = "q4_len{}_1".format(seqlen)
+            fname2 = "q4_len{}_2".format(seqlen)
+            setattr(
+                cls,
+                fname1,
+                CamcopsColumn(
+                    fname1, Boolean,
+                    permitted_value_checker=BIT_CHECKER,
+                    comment="Q4. Digits backward, length {}, trial 1".format(
+                        seqlen)
+                )
+            )
+            setattr(
+                cls,
+                fname2,
+                CamcopsColumn(
+                    fname2, Boolean,
+                    permitted_value_checker=BIT_CHECKER,
+                    comment="Q4. Digits backward, length {}, trial 2".format(
+                        seqlen)
+                )
+            )
+        for n in cls.Q6_SEQUENCE_NUMS:
+            fname = "q6_seq{}".format(n)
+            setattr(
+                cls,
+                fname,
+                CamcopsColumn(
+                    fname, Integer,
+                    permitted_value_checker=BIT_CHECKER,
+                    comment="Q6. Spatial working memory, sequence {}".format(n)
+                )
+            )
+        for n in cls.Q7_PROVERB_NUMS:
+            fname = "q7_proverb{}".format(n)
+            setattr(
+                cls,
+                fname,
+                CamcopsColumn(
+                    fname, Float,
+                    permitted_value_checker=ZERO_TO_ONE_CHECKER,
+                    comment="Q7. Proverb {} (1 = correct explanation, "
+                            "0.5 = example, 0 = neither)".format(n)
+                )
+            )
+        for n in cls.Q8_SENTENCE_NUMS:
+            fname = "q8_sentence{}".format(n)
+            setattr(
+                cls,
+                fname,
+                CamcopsColumn(
+                    fname, Integer,
+                    permitted_value_checker=ZERO_TO_TWO_CHECKER,
+                    comment="Q8. Hayling, sentence {}".format(n)
+                )
+            )
+        super().__init__(name, bases, classdict)
+
+
+class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+          metaclass=IfsMetaclass):
+    __tablename__ = "ifs"
     shortname = "IFS"
     longname = "INECO Frontal Screening"
-    has_clinician = True
     provides_trackers = True
+
+    q1 = CamcopsColumn(
+        "q1", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment="Q1. Motor series (motor programming)"
+    )
+    q2 = CamcopsColumn(
+        "q2", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment="Q2. Conflicting instructions (interference sensitivity)"
+    )
+    q3 = CamcopsColumn(
+        "q3", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment="Q3. Go/no-go (inhibitory control)"
+    )
+    q5 = CamcopsColumn(
+        "q5", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Q5. Verbal working memory"
+    )
 
     Q4_DIGIT_LENGTHS = list(range(2, 7 + 1))
     Q6_SEQUENCE_NUMS = list(range(1, 4 + 1))
@@ -65,49 +165,8 @@ class Ifs(Task):
         ["q7_proverb{}".format(n) for n in Q7_PROVERB_NUMS] +
         ["q8_sentence{}".format(n) for n in Q8_SENTENCE_NUMS]
     )
-
-    fieldspecs = [
-        dict(name="q1", cctype="INT", pv=[0, 1, 2, 3],
-             comment="Q1. Motor series (motor programming)"),
-        dict(name="q2", cctype="INT", pv=[0, 1, 2, 3],
-             comment="Q2. Conflicting instructions "
-                     "(interference sensitivity)"),
-        dict(name="q3", cctype="INT", pv=[0, 1, 2, 3],
-             comment="Q3. Go/no-go (inhibitory control)"),
-    ]
-    for seqlen in Q4_DIGIT_LENGTHS:
-        fieldspecs.extend([
-            dict(
-                name="q4_len{}_1".format(seqlen), cctype="BOOL", pv=PV.BIT,
-                comment="Q4. Digits backward, length {}, trial 1".format(
-                    seqlen)),
-            dict(
-                name="q4_len{}_2".format(seqlen), cctype="BOOL", pv=PV.BIT,
-                comment="Q4. Digits backward, length {}, trial 2".format(
-                    seqlen)),
-        ])
-    fieldspecs.extend([
-        dict(name="q5", cctype="INT", pv=[0, 1, 2],
-             comment="Q5. Verbal working memory"),
-    ])
-    for n in Q6_SEQUENCE_NUMS:
-        fieldspecs.extend([
-            dict(
-                name="q6_seq{}".format(n), cctype="INT", pv=[0, 1],
-                comment="Q6. Spatial working memory, sequence {}".format(n)),
-        ])
-    for n in Q7_PROVERB_NUMS:
-        fieldspecs.extend([
-            dict(name="q7_proverb{}".format(n), cctype="FLOAT",
-                 min=0, max=1,
-                 comment="Q7. Proverb {} (1 = correct explanation, "
-                         "0.5 = example, 0 = neither)".format(n)),
-        ])
-    for n in Q8_SENTENCE_NUMS:
-        fieldspecs.extend([
-            dict(name="q8_sentence{}".format(n), cctype="INT", pv=[0, 1, 2],
-                 comment="Q8. Hayling, sentence {}".format(n)),
-        ])
+    MAX_TOTAL = 30
+    MAX_WM = 10
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         scoredict = self.get_score()
@@ -115,16 +174,16 @@ class Ifs(Task):
             TrackerInfo(
                 value=scoredict['total'],
                 plot_label="IFS total score (higher is better)",
-                axis_label="Total score (out of 30)",
+                axis_label="Total score (out of {})".format(self.MAX_TOTAL),
                 axis_min=-0.5,
-                axis_max=30.5
+                axis_max=self.MAX_TOTAL + 0.5
             ),
             TrackerInfo(
                 value=scoredict['wm'],
                 plot_label="IFS working memory index (higher is better)",
-                axis_label="Total score (out of 10)",
+                axis_label="Total score (out of {})".format(self.MAX_WM),
                 axis_min=-0.5,
-                axis_max=10.5
+                axis_max=self.MAX_WM + 0.5
             ),
         ]
 
@@ -136,12 +195,14 @@ class Ifs(Task):
                 name="total",
                 coltype=Float(),
                 value=scoredict['total'],
-                comment="Total (out of 30, higher better)"),
+                comment="Total (out of {}, higher better)".format(
+                    self.MAX_TOTAL)),
             SummaryElement(
                 name="wm",
                 coltype=Integer(),
                 value=scoredict['wm'],
-                comment="Working memory index (out of 10; sum of Q4 + Q6"),
+                comment="Working memory index (out of {}; "
+                        "sum of Q4 + Q6".format(self.MAX_WM)),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -149,9 +210,13 @@ class Ifs(Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="Total: {t}/30; working memory index {w}/10".format(
-                t=scoredict['total'],
-                w=scoredict['wm'],
+            content=(
+                "Total: {t}/{tmax}; working memory index {w}/{wmax}".format(
+                    t=scoredict['total'],
+                    tmax=self.MAX_TOTAL,
+                    w=scoredict['wm'],
+                    wmax=self.MAX_WM,
+                )
             )
         )]
 
@@ -192,7 +257,7 @@ class Ifs(Task):
                 return True  # all done
         return True
 
-    def get_simple_tr_qa(self, qprefix: str) -> str:
+    def get_simple_tr_qa(self, req: CamcopsRequest, qprefix: str) -> str:
         q = self.wxstring(req, qprefix + "_title")
         val = getattr(self, qprefix)
         if val is not None:
@@ -209,11 +274,11 @@ class Ifs(Task):
                     {complete_tr}
                     <tr>
                         <td>Total (higher better)</td>
-                        <td>{total} / 30</td>
+                        <td>{total} / {tmax}</td>
                     </td>
                     <tr>
                         <td>Working memory index <sup>1</sup></td>
-                        <td>{wm} / 10</td>
+                        <td>{wm} / {wmax}</td>
                     </td>
                 </table>
             </div>
@@ -225,17 +290,20 @@ class Ifs(Task):
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(scoredict['total']),
+            tmax=self.MAX_TOTAL,
             wm=answer(scoredict['wm']),
+            wmax=self.MAX_WM,
         )
 
         # Q1
-        h += self.get_simple_tr_qa("q1")
+        h += self.get_simple_tr_qa(req, "q1")
         # Q2
-        h += self.get_simple_tr_qa("q2")
+        h += self.get_simple_tr_qa(req, "q2")
         # Q3
-        h += self.get_simple_tr_qa("q3")
+        h += self.get_simple_tr_qa(req, "q3")
         # Q4
-        h += tr(td(self.wxstring(req, "q4_title")), td("", td_class="subheading"),
+        h += tr(td(self.wxstring(req, "q4_title")),
+                td("", td_class="subheading"),
                 literal=True)
         required = True
         for n in self.Q4_DIGIT_LENGTHS:
@@ -259,9 +327,10 @@ class Ifs(Task):
             if not val1 and not val2:
                 required = False
         # Q5
-        h += self.get_simple_tr_qa("q5")
+        h += self.get_simple_tr_qa(req, "q5")
         # Q6
-        h += tr(td(self.wxstring(req, "q6_title")), td("", td_class="subheading"),
+        h += tr(td(self.wxstring(req, "q6_title")),
+                td("", td_class="subheading"),
                 literal=True)
         for n in self.Q6_SEQUENCE_NUMS:
             nstr = str(n)
@@ -274,7 +343,8 @@ class Ifs(Task):
             0.5: self.wxstring(req, "q7_a_half"),
             0: self.wxstring(req, "q7_a_0"),
         }
-        h += tr(td(self.wxstring(req, "q7_title")), td("", td_class="subheading"),
+        h += tr(td(self.wxstring(req, "q7_title")),
+                td("", td_class="subheading"),
                 literal=True)
         for n in self.Q7_PROVERB_NUMS:
             nstr = str(n)
@@ -288,7 +358,8 @@ class Ifs(Task):
             1: self.wxstring(req, "q8_a1"),
             0: self.wxstring(req, "q8_a0"),
         }
-        h += tr(td(self.wxstring(req, "q8_title")), td("", td_class="subheading"),
+        h += tr(td(self.wxstring(req, "q8_title")),
+                td("", td_class="subheading"),
                 literal=True)
         for n in self.Q8_SENTENCE_NUMS:
             nstr = str(n)

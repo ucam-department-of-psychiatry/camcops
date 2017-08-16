@@ -26,51 +26,64 @@ from typing import List, Optional
 
 from cardinal_pythonlib.typetests import is_false
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.sqltypes import Boolean
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Boolean, Text
 
 from ..cc_modules.cc_dt import format_datetime_string
-from ..cc_modules.cc_constants import (
-    DATEFORMAT,
-    ICD10_COPYRIGHT_DIV,
-    PV,
-)
+from ..cc_modules.cc_constants import DATEFORMAT, ICD10_COPYRIGHT_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
     get_true_false_none,
     tr_qa,
 )
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn,
+    DateTimeAsIsoTextColType,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 
 
 # =============================================================================
 # Icd10Mixed
 # =============================================================================
 
-class Icd10Mixed(Task):
-    tablename = "icd10mixed"
+class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+    __tablename__ = "icd10mixed"
     shortname = "ICD10-MIXED"
     longname = (
         "ICD-10 symptomatic criteria for a mixed affective episode "
         "(as in e.g. F06.3, F25, F38.00, F31.6)"
     )
-    has_clinician = True
 
-    fieldspecs = [
-        dict(name="date_pertains_to", cctype="ISO8601",
-             comment="Date the assessment pertains to"),
-        dict(name="comments", cctype="TEXT",
-             comment="Clinician's comments"),
-        dict(name="mixture_or_rapid_alternation", cctype="BOOL",
-             pv=PV.BIT,
-             comment="The episode is characterized by either a mixture or "
-             "a rapid alternation (i.e. within a few hours) of hypomanic, "
-             "manic and depressive symptoms."),
-        dict(name="duration_at_least_2_weeks", cctype="BOOL",
-             pv=PV.BIT,
-             comment="Both manic and depressive symptoms must be prominent"
-             " most of the time during a period of at least two weeks."),
-    ]
+    date_pertains_to = Column(
+        "date_pertains_to", DateTimeAsIsoTextColType,
+        comment="Date the assessment pertains to"
+    )
+    comments = Column(
+        "comments", Text,
+        comment="Clinician's comments"
+    )
+    mixture_or_rapid_alternation = CamcopsColumn(
+        "mixture_or_rapid_alternation", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="The episode is characterized by either a mixture or "
+                "a rapid alternation (i.e. within a few hours) of hypomanic, "
+                "manic and depressive symptoms."
+    )
+    duration_at_least_2_weeks = CamcopsColumn(
+        "duration_at_least_2_weeks", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Both manic and depressive symptoms must be prominent"
+                " most of the time during a period of at least two weeks."
+    )
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

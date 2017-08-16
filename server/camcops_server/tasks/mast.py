@@ -22,15 +22,20 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CharColType
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import LabelAlignment, TrackerInfo, TrackerLabel  # noqa
 
 
@@ -38,56 +43,69 @@ from ..cc_modules.cc_trackerhelpers import LabelAlignment, TrackerInfo, TrackerL
 # MAST
 # =============================================================================
 
-class Mast(Task):
-    tablename = "mast"
+class MastMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Mast'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS, CharColType,
+            pv=['Y', 'N'],
+            comment_fmt="Q{n}: {s} (Y or N)",
+            comment_strings=[
+                "feel you are a normal drinker",
+                "couldn't remember evening before",
+                "relative worries/complains",
+                "stop drinking after 1-2 drinks",
+                "feel guilty",
+                "friends/relatives think you are a normal drinker",
+                "can stop drinking when you want",
+                "attended Alcoholics Anonymous",
+                "physical fights",
+                "drinking caused problems with relatives",
+                "family have sought help",
+                "lost friends",
+                "trouble at work/school",
+                "lost job",
+                "neglected obligations for >=2 days",
+                "drink before noon often",
+                "liver trouble",
+                "delirium tremens",
+                "sought help",
+                "hospitalized",
+                "psychiatry admission",
+                "clinic visit or professional help",
+                "arrested for drink-driving",
+                "arrested for other drunk behaviour",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Mast(TaskHasPatientMixin, Task, Base,
+           metaclass=MastMetaclass):
+    __tablename__ = "mast"
     shortname = "MAST"
     longname = "Michigan Alcohol Screening Test"
     provides_trackers = True
 
     NQUESTIONS = 24
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, "CHAR", pv=['Y', 'N'],
-        comment_fmt="Q{n}: {s} (Y or N)",
-        comment_strings=[
-            "feel you are a normal drinker",
-            "couldn't remember evening before",
-            "relative worries/complains",
-            "stop drinking after 1-2 drinks",
-            "feel guilty",
-            "friends/relatives think you are a normal drinker",
-            "can stop drinking when you want",
-            "attended Alcoholics Anonymous",
-            "physical fights",
-            "drinking caused problems with relatives",
-            "family have sought help",
-            "lost friends",
-            "trouble at work/school",
-            "lost job",
-            "neglected obligations for >=2 days",
-            "drink before noon often",
-            "liver trouble",
-            "delirium tremens",
-            "sought help",
-            "hospitalized",
-            "psychiatry admission",
-            "clinic visit or professional help",
-            "arrested for drink-driving",
-            "arrested for other drunk behaviour",
-        ]
-    )
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_SCORE = 53
+    ROSS_THRESHOLD = 13
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="MAST total score",
-            axis_label="Total score (out of 53)",
+            axis_label="Total score (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=53.5,
-            horizontal_lines=[12.5],
+            axis_max=self.MAX_SCORE + 0.5,
+            horizontal_lines=[self.ROSS_THRESHOLD - 0.5],
             horizontal_labels=[
-                TrackerLabel(13, "Ross threshold", LabelAlignment.bottom)
+                TrackerLabel(self.ROSS_THRESHOLD,
+                             "Ross threshold", LabelAlignment.bottom)
             ]
         )]
 
@@ -95,7 +113,8 @@ class Mast(Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="MAST total score {}/53".format(self.total_score())
+            content="MAST total score {}/{}".format(self.total_score(),
+                                                    self.MAX_SCORE)
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -105,12 +124,13 @@ class Mast(Task):
                 name="total",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (/53)"),
+                comment="Total score (/{})".format(self.MAX_SCORE)),
             SummaryElement(
                 name="exceeds_threshold",
                 coltype=Boolean(),
                 value=self.exceeds_ross_threshold(),
-                comment="Exceeds Ross threshold (total score >= 13)"),
+                comment="Exceeds Ross threshold (total score >= {})".format(
+                    self.ROSS_THRESHOLD)),
         ]
 
     def is_complete(self) -> bool:
@@ -144,7 +164,7 @@ class Mast(Task):
 
     def exceeds_ross_threshold(self) -> bool:
         score = self.total_score()
-        return score >= 13
+        return score >= self.ROSS_THRESHOLD
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -158,7 +178,8 @@ class Mast(Task):
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(req.wappstring("total_score"), answer(score) + " / 53")
+        h += tr(req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE))
         h += tr_qa(self.wxstring(req, "exceeds_threshold"),
                    get_yes_no(exceeds_threshold))
         h += """

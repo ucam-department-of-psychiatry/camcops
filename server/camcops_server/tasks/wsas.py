@@ -22,16 +22,21 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Integer
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, get_true_false, tr, tr_qa
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -39,61 +44,71 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # WSAS
 # =============================================================================
 
-class Wsas(Task):
-    tablename = "wsas"
+class WsasMetaClass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Wsas'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=cls.MIN_PER_Q, maximum=cls.MAX_PER_Q,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
+            comment_strings=[
+                "work",
+                "home management",
+                "social leisure",
+                "private leisure",
+                "relationships",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Wsas(TaskHasPatientMixin, Task, Base,
+           metaclass=WsasMetaClass):
+    __tablename__ = "wsas"
     shortname = "WSAS"
     longname = "Work and Social Adjustment Scale"
     provides_trackers = True
 
-    MIN_SCORE = 0
-    MAX_SCORE = 8
-    QUESTION_SNIPPETS = [
-        "work",
-        "home management",
-        "social leisure",
-        "private leisure",
-        "relationships",
-    ]
-    NQUESTIONS = 5
-    QUESTION_FIELDSPECS = repeat_fieldspec(
-        "q", 1, NQUESTIONS,
-        comment_fmt="Q{n}, {s} (0-4, higher worse)",
-        min=MIN_SCORE, max=MAX_SCORE,
-        comment_strings=QUESTION_SNIPPETS
+    retired_etc = Column(
+        "retired_etc", Boolean,
+        comment="Retired or choose not to have job for reason unrelated "
+                "to problem"
     )
 
-    fieldspecs = [
-        dict(name="retired_etc", cctype="BOOL",
-             comment="Retired or choose not to have job for reason unrelated "
-             "to problem"),
-    ] + QUESTION_FIELDSPECS
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
-    QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
+    MIN_PER_Q = 0
+    MAX_PER_Q = 8
+    NQUESTIONS = 5
+    QUESTION_FIELDS = strseq("q", 1, NQUESTIONS)
+    TASK_FIELDS = QUESTION_FIELDS + ["retired_etc"]
+    MAX_TOTAL = MAX_PER_Q * NQUESTIONS
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="WSAS total score (lower is better)",
-            axis_label="Total score (out of 40)",
+            axis_label="Total score (out of {})".format(self.MAX_TOTAL),
             axis_min=-0.5,
-            axis_max=40.5
+            axis_max=self.MAX_TOTAL + 0.5
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total_score",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (/ 40)"),
+            SummaryElement(
+                name="total_score",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (/ {})".format(self.MAX_TOTAL)),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content="WSAS total score {t}/40".format(
-            t=self.total_score())
+        return [CtvInfo(content="WSAS total score {t}/{tm}".format(
+            t=self.total_score(), tm=self.MAX_TOTAL)
         )]
 
     def total_score(self) -> int:
@@ -101,13 +116,13 @@ class Wsas(Task):
 
     def is_complete(self) -> bool:
         return (
-            self.field_contents_valid() and
-            self.are_all_fields_complete(self.QUESTION_FIELDS)
+            self.are_all_fields_complete(self.QUESTION_FIELDS) and
+            self.field_contents_valid()
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         option_dict = {None: None}
-        for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
+        for a in range(self.MIN_PER_Q, self.MAX_PER_Q + 1):
             option_dict[a] = req.wappstring("wsas_a" + str(a))
         h = """
             <div class="summary">

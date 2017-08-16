@@ -22,16 +22,25 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import tr_qa
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -39,94 +48,123 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # PANSS
 # =============================================================================
 
-class Panss(Task):
-    tablename = "panss"
+class PanssMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Panss'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "p", 1, cls.NUM_P,
+            minimum=1, maximum=7,
+            comment_fmt="P{n}: {s} (1 absent - 7 extreme)",
+            comment_strings=[
+                "delusions", "conceptual disorganisation",
+                "hallucinatory behaviour", "excitement",
+                "grandiosity", "suspiciousness/persecution",
+                "hostility",
+            ]
+        )
+        add_multiple_columns(
+            cls, "n", 1, cls.NUM_N,
+            minimum=1, maximum=7,
+            comment_fmt="N{n}: {s} (1 absent - 7 extreme)",
+            comment_strings=[
+                "blunted affect", "emotional withdrawal",
+                "poor rapport", "passive/apathetic social withdrawal",
+                "difficulty in abstract thinking",
+                "lack of spontaneity/conversation flow",
+                "stereotyped thinking",
+            ]
+        )
+        add_multiple_columns(
+            cls, "g", 1, cls.NUM_G,
+            minimum=1, maximum=7,
+            comment_fmt="G{n}: {s} (1 absent - 7 extreme)",
+            comment_strings=[
+                "somatic concern",
+                "anxiety",
+                "guilt feelings",
+                "tension",
+                "mannerisms/posturing",
+                "depression",
+                "motor retardation",
+                "uncooperativeness",
+                "unusual thought content",
+                "disorientation",
+                "poor attention",
+                "lack of judgement/insight",
+                "disturbance of volition",
+                "poor impulse control",
+                "preoccupation",
+                "active social avoidance",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+            metaclass=PanssMetaclass):
+    __tablename__ = "panss"
     shortname = "PANSS"
     longname = "Positive and Negative Syndrome Scale"
-    has_clinician = True
     provides_trackers = True
 
-    P_FIELDSPECS = repeat_fieldspec(
-        "p", 1, 7, min=1, max=7,
-        comment_fmt="P{n}: {s} (1 absent - 7 extreme)",
-        comment_strings=[
-            "delusions", "conceptual disorganisation",
-            "hallucinatory behaviour", "excitement",
-            "grandiosity", "suspiciousness/persecution",
-            "hostility",
-        ])
-    N_FIELDSPECS = repeat_fieldspec(
-        "n", 1, 7, min=1, max=7,
-        comment_fmt="N{n}: {s} (1 absent - 7 extreme)",
-        comment_strings=[
-            "blunted affect", "emotional withdrawal",
-            "poor rapport", "passive/apathetic social withdrawal",
-            "difficulty in abstract thinking",
-            "lack of spontaneity/conversation flow",
-            "stereotyped thinking",
-        ])
-    G_FIELDSPECS = repeat_fieldspec(
-        "g", 1, 16, min=1, max=7,
-        comment_fmt="G{n}: {s} (1 absent - 7 extreme)",
-        comment_strings=[
-            "somatic concern",
-            "anxiety",
-            "guilt feelings",
-            "tension",
-            "mannerisms/posturing",
-            "depression",
-            "motor retardation",
-            "uncooperativeness",
-            "unusual thought content",
-            "disorientation",
-            "poor attention",
-            "lack of judgement/insight",
-            "disturbance of volition",
-            "poor impulse control",
-            "preoccupation",
-            "active social avoidance",
-        ])
+    NUM_P = 7
+    NUM_N = 7
+    NUM_G = 16
 
-    fieldspecs = P_FIELDSPECS + N_FIELDSPECS + G_FIELDSPECS
-
-    P_FIELDS = repeat_fieldname("p", 1, 7)
-    N_FIELDS = repeat_fieldname("n", 1, 7)
-    G_FIELDS = repeat_fieldname("g", 1, 16)
+    P_FIELDS = strseq("p", 1, NUM_P)
+    N_FIELDS = strseq("n", 1, NUM_N)
+    G_FIELDS = strseq("g", 1, NUM_G)
     TASK_FIELDS = P_FIELDS + N_FIELDS + G_FIELDS
+
+    MIN_P = 1 * NUM_P
+    MAX_P = 7 * NUM_P
+    MIN_N = 1 * NUM_N
+    MAX_N = 7 * NUM_N
+    MIN_G = 1 * NUM_G
+    MAX_G = 7 * NUM_G
+    MIN_TOTAL = MIN_P + MIN_N + MIN_G
+    MAX_TOTAL = MAX_P + MAX_N + MAX_G
+    MIN_P_MINUS_N = MIN_P - MAX_N
+    MAX_P_MINUS_N = MAX_P - MIN_N
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [
             TrackerInfo(
                 value=self.total_score(),
                 plot_label="PANSS total score",
-                axis_label="Total score (30-210)",
-                axis_min=-0.5,
-                axis_max=210.5
+                axis_label="Total score ({}-{})".format(
+                    self.MIN_TOTAL, self.MAX_TOTAL),
+                axis_min=self.MIN_TOTAL - 0.5,
+                axis_max=self.MAX_TOTAL + 0.5
             ),
             TrackerInfo(
                 value=self.score_p(),
                 plot_label="PANSS P score",
-                axis_label="P score (7-49)",
-                axis_min=6.5,
-                axis_max=49.5
+                axis_label="P score ({}-{})".format(self.MIN_P, self.MAX_P),
+                axis_min=self.MIN_P - 0.5,
+                axis_max=self.MAX_P + 0.5
             ),
             TrackerInfo(
                 value=self.score_n(),
                 plot_label="PANSS N score",
-                axis_label="N score (7-49)",
-                axis_min=6.5,
-                axis_max=49.5
+                axis_label="N score ({}-{})".format(self.MIN_N, self.MAX_N),
+                axis_min=self.MIN_N - 0.5,
+                axis_max=self.MAX_N + 0.5
             ),
             TrackerInfo(
                 value=self.score_g(),
                 plot_label="PANSS G score",
-                axis_label="G score (16-112)",
-                axis_min=15.5,
-                axis_max=112.5
+                axis_label="G score ({}-{})".format(self.MIN_G, self.MAX_G),
+                axis_min=self.MIN_G - 0.5,
+                axis_max=self.MAX_G + 0.5
             ),
             TrackerInfo(
                 value=self.composite(),
-                plot_label="PANSS composite score",
+                plot_label="PANSS composite score ({}-{})".format(
+                    self.MIN_P_MINUS_N, self.MAX_P_MINUS_N),
                 axis_label="P - N"
             ),
         ]
@@ -150,26 +188,41 @@ class Panss(Task):
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (30-210)"),
-            SummaryElement(name="p",
-                           coltype=Integer(),
-                           value=self.score_p(),
-                           comment="Positive symptom (P) score (7-49)"),
-            SummaryElement(name="n",
-                           coltype=Integer(),
-                           value=self.score_n(),
-                           comment="Negative symptom (N) score (7-49)"),
-            SummaryElement(name="g",
-                           coltype=Integer(),
-                           value=self.score_g(),
-                           comment="General symptom (G) score (16-112)"),
-            SummaryElement(name="composite",
-                           coltype=Integer(),
-                           value=self.composite(),
-                           comment="Composite score (P - N)"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score ({}-{})".format(
+                    self.MIN_TOTAL, self.MAX_TOTAL)
+            ),
+            SummaryElement(
+                name="p",
+                coltype=Integer(),
+                value=self.score_p(),
+                comment="Positive symptom (P) score ({}-{})".format(
+                    self.MIN_P, self.MAX_P)
+            ),
+            SummaryElement(
+                name="n",
+                coltype=Integer(),
+                value=self.score_n(),
+                comment="Negative symptom (N) score ({}-{})".format(
+                    self.MIN_N, self.MAX_N)
+            ),
+            SummaryElement(
+                name="g",
+                coltype=Integer(),
+                value=self.score_g(),
+                comment="General symptom (G) score ({}-{})".format(
+                    self.MIN_G, self.MAX_G)
+            ),
+            SummaryElement(
+                name="composite",
+                coltype=Integer(),
+                value=self.composite(),
+                comment="Composite score (P - N) ({}-{})".format(
+                    self.MIN_P_MINUS_N, self.MAX_P_MINUS_N)
+            ),
         ]
 
     def is_complete(self) -> bool:
@@ -214,11 +267,21 @@ class Panss(Task):
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr_qa("{} (30–210)".format(req.wappstring("total_score")), total)
-        h += tr_qa("{} (7–49)".format(self.wxstring(req, "p")), p)
-        h += tr_qa("{} (7–49)".format(self.wxstring(req, "n")), n)
-        h += tr_qa("{} (16–112)".format(self.wxstring(req, "g")), g)
-        h += tr_qa(self.wxstring(req, "composite"), composite)
+        h += tr_qa("{} ({}–{})".format(req.wappstring("total_score"),
+                                       self.MIN_TOTAL, self.MAX_TOTAL),
+                   total)
+        h += tr_qa("{} ({}–{})".format(self.wxstring(req, "p"),
+                                       self.MIN_P, self.MAX_P),
+                   p)
+        h += tr_qa("{} ({}–{})".format(self.wxstring(req, "n"),
+                                       self.MIN_N, self.MAX_N),
+                   n)
+        h += tr_qa("{} ({}–{})".format(self.wxstring(req, "g"),
+                                       self.MIN_G, self.MAX_G),
+                   g)
+        h += tr_qa("{} ({}–{})".format(self.wxstring(req, "composite"),
+                                       self.MIN_P_MINUS_N, self.MAX_P_MINUS_N),
+                   composite)
         h += """
                 </table>
             </div>

@@ -25,150 +25,162 @@
 from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Text
 
 from ..cc_modules.cc_ctvinfo import CtvInfo
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 
 
 # =============================================================================
 # PsychiatricClerking
 # =============================================================================
 
-class PsychiatricClerking(Task):
-    tablename = "psychiatricclerking"
+class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+                          Base):
+    __tablename__ = "psychiatricclerking"
     shortname = "Clerking"
     longname = "Psychiatric clerking"
-    has_clinician = True
 
-    # FIELDSPEC_A = CLINICIAN_FIELDSPECS  # replaced by has_clinician
-    FIELDSPEC_B = [
-        dict(name="location", cctype="TEXT"),
-        dict(name="contact_type", cctype="TEXT"),
-        dict(name="reason_for_contact", cctype="TEXT"),
-        dict(name="presenting_issue", cctype="TEXT"),
-        dict(name="systems_review", cctype="TEXT"),
-        dict(name="collateral_history", cctype="TEXT"),
-    ]
-    FIELDSPEC_C = [
-        dict(name="diagnoses_psychiatric", cctype="TEXT"),
-        dict(name="diagnoses_medical", cctype="TEXT"),
-        dict(name="operations_procedures", cctype="TEXT"),
-        dict(name="allergies_adverse_reactions", cctype="TEXT"),
-        dict(name="medications", cctype="TEXT"),
-        dict(name="recreational_drug_use", cctype="TEXT"),
-        dict(name="family_history", cctype="TEXT"),
-        dict(name="developmental_history", cctype="TEXT"),
-        dict(name="personal_history", cctype="TEXT"),
-        dict(name="premorbid_personality", cctype="TEXT"),
-        dict(name="forensic_history", cctype="TEXT"),
-        dict(name="current_social_situation", cctype="TEXT"),
-    ]
-    FIELDSPEC_MSE = [
-        dict(name="mse_appearance_behaviour", cctype="TEXT"),
-        dict(name="mse_speech", cctype="TEXT"),
-        dict(name="mse_mood_subjective", cctype="TEXT"),
-        dict(name="mse_mood_objective", cctype="TEXT"),
-        dict(name="mse_thought_form", cctype="TEXT"),
-        dict(name="mse_thought_content", cctype="TEXT"),
-        dict(name="mse_perception", cctype="TEXT"),
-        dict(name="mse_cognition", cctype="TEXT"),
-        dict(name="mse_insight", cctype="TEXT"),
-    ]
-    FIELDSPEC_PE = [
-        dict(name="physical_examination_general", cctype="TEXT"),
-        dict(name="physical_examination_cardiovascular", cctype="TEXT"),
-        dict(name="physical_examination_respiratory", cctype="TEXT"),
-        dict(name="physical_examination_abdominal", cctype="TEXT"),
-        dict(name="physical_examination_neurological", cctype="TEXT"),
-    ]
-    FIELDSPEC_D = [
-        dict(name="assessment_scales", cctype="TEXT"),
-        dict(name="investigations_results", cctype="TEXT"),
-    ]
-    FIELDSPEC_E = [
-        dict(name="safety_alerts", cctype="TEXT"),
-        dict(name="risk_assessment", cctype="TEXT"),
-        dict(name="relevant_legal_information", cctype="TEXT"),
-    ]
-    FIELDSPEC_F = [
-        dict(name="current_problems", cctype="TEXT"),
-        dict(name="patient_carer_concerns", cctype="TEXT"),
-        dict(name="impression", cctype="TEXT"),
-        dict(name="management_plan", cctype="TEXT"),
-        dict(name="information_given", cctype="TEXT"),
-    ]
-    for fslist in [FIELDSPEC_B, FIELDSPEC_C,
-                   FIELDSPEC_MSE, FIELDSPEC_PE,
-                   FIELDSPEC_D, FIELDSPEC_E, FIELDSPEC_F]:
-        for d in fslist:
-            d["comment"] = d["name"]
-        # DO NOT write to FIELDSPEC_A like this, because that overwrite
-        # CLINICIAN_FIELDSPECS.
+    # FIELDSPEC_A = CLINICIAN_FIELDSPECS  # replaced by has_clinician, then by TaskHasClinicianMixin  # noqa
 
-    fieldspecs = (
-        FIELDSPEC_B +
-        FIELDSPEC_C +
-        FIELDSPEC_MSE +
-        FIELDSPEC_PE +
-        FIELDSPEC_D +
-        FIELDSPEC_E +
-        FIELDSPEC_F
-    )
+    location = Column("location", Text)
+    contact_type = Column("contact_type", Text)
+    reason_for_contact = Column("reason_for_contact", Text)
+    presenting_issue = Column("presenting_issue", Text)
+    systems_review = Column("systems_review", Text)
+    collateral_history = Column("collateral_history", Text)
 
-    def get_ctv_heading(self, wstringname) -> CtvInfo:
+    diagnoses_psychiatric = Column("diagnoses_psychiatric", Text)
+    diagnoses_medical = Column("diagnoses_medical", Text)
+    operations_procedures = Column("operations_procedures", Text)
+    allergies_adverse_reactions = Column("allergies_adverse_reactions", Text)
+    medications = Column("medications", Text)
+    recreational_drug_use = Column("recreational_drug_use", Text)
+    family_history = Column("family_history", Text)
+    developmental_history = Column("developmental_history", Text)
+    personal_history = Column("personal_history", Text)
+    premorbid_personality = Column("premorbid_personality", Text)
+    forensic_history = Column("forensic_history", Text)
+    current_social_situation = Column("current_social_situation", Text)
+
+    mse_appearance_behaviour = Column("mse_appearance_behaviour", Text)
+    mse_speech = Column("mse_speech", Text)
+    mse_mood_subjective = Column("mse_mood_subjective", Text)
+    mse_mood_objective = Column("mse_mood_objective", Text)
+    mse_thought_form = Column("mse_thought_form", Text)
+    mse_thought_content = Column("mse_thought_content", Text)
+    mse_perception = Column("mse_perception", Text)
+    mse_cognition = Column("mse_cognition", Text)
+    mse_insight = Column("mse_insight", Text)
+
+    physical_examination_general = Column("physical_examination_general", Text)
+    physical_examination_cardiovascular = Column("physical_examination_cardiovascular", Text)  # noqa
+    physical_examination_respiratory = Column("physical_examination_respiratory", Text)  # noqa
+    physical_examination_abdominal = Column("physical_examination_abdominal", Text)  # noqa
+    physical_examination_neurological = Column("physical_examination_neurological", Text)  # noqa
+
+    assessment_scales = Column("assessment_scales", Text)
+    investigations_results = Column("investigations_results", Text)
+
+    safety_alerts = Column("safety_alerts", Text)
+    risk_assessment = Column("risk_assessment", Text)
+    relevant_legal_information = Column("relevant_legal_information", Text)
+
+    current_problems = Column("current_problems", Text)
+    patient_carer_concerns = Column("patient_carer_concerns", Text)
+    impression = Column("impression", Text)
+    management_plan = Column("management_plan", Text)
+    information_given = Column("information_given", Text)
+    
+    FIELDS_B = [
+        "location", "contact_type", "reason_for_contact",
+        "presenting_issue", "systems_review", "collateral_history"
+    ]
+    FIELDS_C = [
+        "diagnoses_psychiatric", "diagnoses_medical", "operations_procedures",
+        "allergies_adverse_reactions", "medications", "recreational_drug_use",
+        "family_history", "developmental_history", "personal_history",
+        "premorbid_personality", "forensic_history", "current_social_situation"
+    ]
+    FIELDS_MSE = [
+        "mse_appearance_behaviour", "mse_speech", "mse_mood_subjective",
+        "mse_mood_objective", "mse_thought_form", "mse_thought_content",
+        "mse_perception", "mse_cognition", "mse_insight"
+    ]
+    FIELDS_PE = [
+        "physical_examination_general", "physical_examination_cardiovascular",
+        "physical_examination_respiratory", "physical_examination_abdominal",
+        "physical_examination_neurological"
+    ]
+    FIELDS_D = [
+        "assessment_scales", "investigations_results"
+    ]
+    FIELDS_E = [
+        "safety_alerts", "risk_assessment", "relevant_legal_information"
+    ]
+    FIELDS_F = [
+        "current_problems", "patient_carer_concerns", "impression",
+        "management_plan", "information_given"
+    ]
+    
+    def get_ctv_heading(self, req: CamcopsRequest,
+                        wstringname: str) -> CtvInfo:
         return CtvInfo(
             heading=self.wxstring(req, wstringname),
             skip_if_no_content=False
         )
 
-    def get_ctv_subheading(self, wstringname) -> CtvInfo:
+    def get_ctv_subheading(self, req: CamcopsRequest,
+                           wstringname: str) -> CtvInfo:
         return CtvInfo(
             subheading=self.wxstring(req, wstringname),
             skip_if_no_content=False
         )
 
-    def get_ctv_description_content(self, x: str) -> CtvInfo:
+    def get_ctv_description_content(self, req: CamcopsRequest,
+                                    x: str) -> CtvInfo:
         return CtvInfo(
             description=self.wxstring(req, x),
             content=ws.webify(getattr(self, x))
         )
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
-        fields_b = [x["name"] for x in self.FIELDSPEC_B]
-        fields_c = [x["name"] for x in self.FIELDSPEC_C]
-        fields_mse = [x["name"] for x in self.FIELDSPEC_MSE]
-        fields_pe = [x["name"] for x in self.FIELDSPEC_PE]
-        fields_d = [x["name"] for x in self.FIELDSPEC_D]
-        fields_e = [x["name"] for x in self.FIELDSPEC_E]
-        fields_f = [x["name"] for x in self.FIELDSPEC_F]
         infolist = [self.get_ctv_heading(
-            "psychiatricclerking_heading_current_contact")]
-        for x in fields_b:
-            infolist.append(self.get_ctv_description_content(x))
+            req, "psychiatricclerking_heading_current_contact")]
+        for x in self.FIELDS_B:
+            infolist.append(self.get_ctv_description_content(req, x))
         infolist.append(self.get_ctv_heading(
-            "psychiatricclerking_heading_background"))
-        for x in fields_c:
-            infolist.append(self.get_ctv_description_content(x))
+            req, "psychiatricclerking_heading_background"))
+        for x in self.FIELDS_C:
+            infolist.append(self.get_ctv_description_content(req, x))
         infolist.append(self.get_ctv_heading(
-            "psychiatricclerking_heading_examination_investigations"))
-        infolist.append(self.get_ctv_subheading("mental_state_examination"))
-        for x in fields_mse:
-            infolist.append(self.get_ctv_description_content(x))
-        infolist.append(self.get_ctv_subheading("physical_examination"))
-        for x in fields_pe:
-            infolist.append(self.get_ctv_description_content(x))
+            req, "psychiatricclerking_heading_examination_investigations"))
         infolist.append(self.get_ctv_subheading(
-            "assessments_and_investigations"))
-        for x in fields_d:
-            infolist.append(self.get_ctv_description_content(x))
+            req, "mental_state_examination"))
+        for x in self.FIELDS_MSE:
+            infolist.append(self.get_ctv_description_content(req, x))
+        infolist.append(self.get_ctv_subheading(req, "physical_examination"))
+        for x in self.FIELDS_PE:
+            infolist.append(self.get_ctv_description_content(req, x))
+        infolist.append(self.get_ctv_subheading(
+            req, "assessments_and_investigations"))
+        for x in self.FIELDS_D:
+            infolist.append(self.get_ctv_description_content(req, x))
         infolist.append(self.get_ctv_heading(
-            "psychiatricclerking_heading_risk_legal"))
-        for x in fields_e:
-            infolist.append(self.get_ctv_description_content(x))
+            req, "psychiatricclerking_heading_risk_legal"))
+        for x in self.FIELDS_E:
+            infolist.append(self.get_ctv_description_content(req, x))
         infolist.append(self.get_ctv_heading(
-            "psychiatricclerking_heading_summary_plan"))
-        for x in fields_f:
-            infolist.append(self.get_ctv_description_content(x))
+            req, "psychiatricclerking_heading_summary_plan"))
+        for x in self.FIELDS_F:
+            infolist.append(self.get_ctv_description_content(req, x))
         return infolist
 
     # noinspection PyMethodOverriding
@@ -176,58 +188,53 @@ class PsychiatricClerking(Task):
     def is_complete() -> bool:
         return True
 
-    def heading(self, wstringname: str) -> str:
+    def heading(self, req: CamcopsRequest, wstringname: str) -> str:
         return '<div class="heading">{}</div>'.format(
             self.wxstring(req, wstringname))
 
-    def subheading(self, wstringname: str) -> str:
+    def subheading(self, req: CamcopsRequest, wstringname: str) -> str:
         return '<div class="subheading">{}</div>'.format(
             self.wxstring(req, wstringname))
 
-    def subsubheading(self, wstringname: str) -> str:
+    def subsubheading(self, req: CamcopsRequest, wstringname: str) -> str:
         return '<div class="subsubheading">{}</div>'.format(
             self.wxstring(req, wstringname))
 
-    def subhead_text(self, fieldname: str) -> str:
-        return self.subheading(fieldname) + '<div><b>{}</b></div>'.format(
+    def subhead_text(self, req: CamcopsRequest, fieldname: str) -> str:
+        return self.subheading(req, fieldname) + '<div><b>{}</b></div>'.format(
             ws.webify(getattr(self, fieldname))
         )
 
-    def subsubhead_text(self, fieldname: str) -> str:
-        return self.subsubheading(fieldname) + '<div><b>{}</b></div>'.format(
-            ws.webify(getattr(self, fieldname))
+    def subsubhead_text(self, req: CamcopsRequest, fieldname: str) -> str:
+        return (
+            self.subsubheading(req, fieldname) +
+            '<div><b>{}</b></div>'.format(ws.webify(getattr(self, fieldname)))
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         # Avoid tables - PDF generator crashes if text is too long.
-        fields_b = [x["name"] for x in self.FIELDSPEC_B]
-        fields_c = [x["name"] for x in self.FIELDSPEC_C]
-        fields_mse = [x["name"] for x in self.FIELDSPEC_MSE]
-        fields_pe = [x["name"] for x in self.FIELDSPEC_PE]
-        fields_d = [x["name"] for x in self.FIELDSPEC_D]
-        fields_e = [x["name"] for x in self.FIELDSPEC_E]
-        fields_f = [x["name"] for x in self.FIELDSPEC_F]
         html = ""
-        html += self.heading("psychiatricclerking_heading_current_contact")
-        for x in fields_b:
-            html += self.subhead_text(x)
-        html += self.heading("psychiatricclerking_heading_background")
-        for x in fields_c:
-            html += self.subhead_text(x)
         html += self.heading(
-            "psychiatricclerking_heading_examination_investigations")
-        html += self.subheading("mental_state_examination")
-        for x in fields_mse:
-            html += self.subsubhead_text(x)
-        html += self.subheading("physical_examination")
-        for x in fields_pe:
-            html += self.subsubhead_text(x)
-        for x in fields_d:
-            html += self.subhead_text(x)
-        html += self.heading("psychiatricclerking_heading_risk_legal")
-        for x in fields_e:
-            html += self.subhead_text(x)
-        html += self.heading("psychiatricclerking_heading_summary_plan")
-        for x in fields_f:
-            html += self.subhead_text(x)
+            req, "psychiatricclerking_heading_current_contact")
+        for x in self.FIELDS_B:
+            html += self.subhead_text(req, x)
+        html += self.heading(req, "psychiatricclerking_heading_background")
+        for x in self.FIELDS_C:
+            html += self.subhead_text(req, x)
+        html += self.heading(
+            req, "psychiatricclerking_heading_examination_investigations")
+        html += self.subheading(req, "mental_state_examination")
+        for x in self.FIELDS_MSE:
+            html += self.subsubhead_text(req, x)
+        html += self.subheading(req, "physical_examination")
+        for x in self.FIELDS_PE:
+            html += self.subsubhead_text(req, x)
+        for x in self.FIELDS_D:
+            html += self.subhead_text(req, x)
+        html += self.heading(req, "psychiatricclerking_heading_risk_legal")
+        for x in self.FIELDS_E:
+            html += self.subhead_text(req, x)
+        html += self.heading(req, "psychiatricclerking_heading_summary_plan")
+        for x in self.FIELDS_F:
+            html += self.subhead_text(req, x)
         return html

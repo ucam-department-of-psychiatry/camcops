@@ -22,16 +22,21 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Integer
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr, tr_qa
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -39,109 +44,130 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # IES-R
 # =============================================================================
 
-class Iesr(Task):
-    tablename = "iesr"
+class IesrMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Iesr'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=cls.MIN_SCORE, maximum=cls.MAX_SCORE,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
+            comment_strings=[
+                "reminder feelings",  # 1
+                "sleep maintenance",
+                "reminder thinking",
+                "irritable",
+                "avoided getting upset",  # 5
+                "thought unwanted",
+                "unreal",
+                "avoided reminder",
+                "mental pictures",
+                "jumpy",  # 10
+                "avoided thinking",
+                "feelings undealt",
+                "numb",
+                "as if then",
+                "sleep initiation",  # 15
+                "waves of emotion",
+                "tried forgetting",
+                "concentration",
+                "reminder physical",
+                "dreams",  # 20
+                "vigilant",
+                "avoided talking",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Iesr(TaskHasPatientMixin, Task, Base,
+           metaclass=IesrMetaclass):
+    __tablename__ = "iesr"
     shortname = "IES-R"
     longname = "Impact of Events Scale – Revised"
     provides_trackers = True
 
-    MIN_SCORE = 0
-    MAX_SCORE = 4
-    QUESTION_SNIPPETS = [
-        "reminder feelings",  # 1
-        "sleep maintenance",
-        "reminder thinking",
-        "irritable",
-        "avoided getting upset",  # 5
-        "thought unwanted",
-        "unreal",
-        "avoided reminder",
-        "mental pictures",
-        "jumpy",  # 10
-        "avoided thinking",
-        "feelings undealt",
-        "numb",
-        "as if then",
-        "sleep initiation",  # 15
-        "waves of emotion",
-        "tried forgetting",
-        "concentration",
-        "reminder physical",
-        "dreams",  # 20
-        "vigilant",
-        "avoided talking",
-    ]
+    event = Column("event", Text, comment="Relevant event")
+
     NQUESTIONS = 22
-    QUESTION_FIELDSPECS = repeat_fieldspec(
-        "q", 1, NQUESTIONS,
-        comment_fmt="Q{n}, {s} (0-4, higher worse)",
-        min=MIN_SCORE, max=MAX_SCORE,
-        comment_strings=QUESTION_SNIPPETS
-    )
+    MIN_SCORE = 0  # per question
+    MAX_SCORE = 4  # per question
 
-    fieldspecs = [
-        dict(name="event", cctype="TEXT",
-             comment="Relevant event"),
-    ] + QUESTION_FIELDSPECS
+    MAX_TOTAL = 88
+    MAX_AVOIDANCE = 32
+    MAX_INTRUSION = 28
+    MAX_HYPERAROUSAL = 28
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
-    QUESTION_FIELDS = [x["name"] for x in QUESTION_FIELDSPECS]
-    EXTRASTRING_TASKNAME = "iesr"
+    QUESTION_FIELDS = strseq("q", 1, NQUESTIONS)
     AVOIDANCE_QUESTIONS = [5, 7, 8, 11, 12, 13, 17, 22]
+    AVOIDANCE_FIELDS = Task.fieldnames_from_list("q", AVOIDANCE_QUESTIONS)
     INTRUSION_QUESTIONS = [1, 2, 3, 6, 9, 16, 20]
+    INTRUSION_FIELDS = Task.fieldnames_from_list("q", INTRUSION_QUESTIONS)
     HYPERAROUSAL_QUESTIONS = [4, 10, 14, 15, 18, 19, 21]
+    HYPERAROUSAL_FIELDS = Task.fieldnames_from_list(
+        "q", HYPERAROUSAL_QUESTIONS)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [
             TrackerInfo(
                 value=self.total_score(),
                 plot_label="IES-R total score (lower is better)",
-                axis_label="Total score (out of 88)",
+                axis_label="Total score (out of {})".format(self.MAX_TOTAL),
                 axis_min=-0.5,
-                axis_max=88.5
+                axis_max=self.MAX_TOTAL + 0.5
             ),
             TrackerInfo(
                 value=self.avoidance_score(),
                 plot_label="IES-R avoidance score",
-                axis_label="Avoidance score (out of 32)",
+                axis_label="Avoidance score (out of {})".format(
+                    self.MAX_AVOIDANCE),
                 axis_min=-0.5,
-                axis_max=32.5
+                axis_max=self.MAX_AVOIDANCE + 0.5
             ),
             TrackerInfo(
                 value=self.intrusion_score(),
                 plot_label="IES-R intrusion score",
-                axis_label="Intrusion score (out of 28)",
+                axis_label="Intrusion score (out of {})".format(
+                    self.MAX_INTRUSION),
                 axis_min=-0.5,
-                axis_max=28.5
+                axis_max=self.MAX_INTRUSION + 0.5
             ),
             TrackerInfo(
                 value=self.hyperarousal_score(),
                 plot_label="IES-R hyperarousal score",
-                axis_label="Hyperarousal score (out of 28)",
+                axis_label="Hyperarousal score (out of {})".format(
+                    self.MAX_HYPERAROUSAL),
                 axis_min=-0.5,
-                axis_max=28.5
+                axis_max=self.MAX_HYPERAROUSAL + 0.5
             ),
         ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total_score",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (/ 88)"),
-            SummaryElement(name="avoidance_score",
-                           coltype=Integer(),
-                           value=self.avoidance_score(),
-                           comment="Avoidance score (/ 32)"),
-            SummaryElement(name="intrusion_score",
-                           coltype=Integer(),
-                           value=self.intrusion_score(),
-                           comment="Intrusion score (/ 28)"),
-            SummaryElement(name="hyperarousal_score",
-                           coltype=Integer(),
-                           value=self.hyperarousal_score(),
-                           comment="Hyperarousal score (/ 28)"),
+            SummaryElement(
+                name="total_score",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (/ {})".format(self.MAX_TOTAL)),
+            SummaryElement(
+                name="avoidance_score",
+                coltype=Integer(),
+                value=self.avoidance_score(),
+                comment="Avoidance score (/ {})".format(self.MAX_AVOIDANCE)),
+            SummaryElement(
+                name="intrusion_score",
+                coltype=Integer(),
+                value=self.intrusion_score(),
+                comment="Intrusion score (/ {})".format(self.MAX_INTRUSION)),
+            SummaryElement(
+                name="hyperarousal_score",
+                coltype=Integer(),
+                value=self.hyperarousal_score(),
+                comment="Hyperarousal score (/ {})".format(
+                    self.MAX_HYPERAROUSAL)),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -153,9 +179,13 @@ class Iesr(Task):
         h = self.hyperarousal_score()
         return [CtvInfo(
             content=(
-                "IES-R total score {t}/48 (avoidance {a}/32 "
-                "intrusion {i}/28, hyperarousal {h}/28)".format(
-                    t=t, a=a, i=i, h=h
+                "IES-R total score {t}/{tmax} (avoidance {a}/{amax} "
+                "intrusion {i}/{imax}, hyperarousal {h}/{hmax})".format(
+                    t=t, a=a, i=i, h=h,
+                    tmax=self.MAX_TOTAL,
+                    amax=self.MAX_AVOIDANCE,
+                    imax=self.MAX_INTRUSION,
+                    hmax=self.MAX_HYPERAROUSAL,
                 )
             )
         )]
@@ -164,16 +194,13 @@ class Iesr(Task):
         return self.sum_fields(self.QUESTION_FIELDS)
 
     def avoidance_score(self) -> int:
-        return self.sum_fields(
-            self.fieldnames_from_list("q", self.AVOIDANCE_QUESTIONS))
+        return self.sum_fields(self.AVOIDANCE_FIELDS)
 
     def intrusion_score(self) -> int:
-        return self.sum_fields(
-            self.fieldnames_from_list("q", self.INTRUSION_QUESTIONS))
+        return self.sum_fields(self.INTRUSION_FIELDS)
 
     def hyperarousal_score(self) -> int:
-        return self.sum_fields(
-            self.fieldnames_from_list("q", self.HYPERAROUSAL_QUESTIONS))
+        return self.sum_fields(self.HYPERAROUSAL_FIELDS)
 
     def is_complete(self) -> bool:
         return (
@@ -192,19 +219,19 @@ class Iesr(Task):
                     {complete_tr}
                     <tr>
                         <td>Total score</td>
-                        <td>{total} / 88</td>
+                        <td>{total} / {maxtotal}</td>
                     </td>
                     <tr>
                         <td>Avoidance score</td>
-                        <td>{avoidance} / 32</td>
+                        <td>{avoidance} / {maxavoidance}</td>
                     </td>
                     <tr>
                         <td>Intrusion score</td>
-                        <td>{intrusion} / 28</td>
+                        <td>{intrusion} / {maxintrusion}</td>
                     </td>
                     <tr>
                         <td>Hyperarousal score</td>
-                        <td>{hyperarousal} / 28</td>
+                        <td>{hyperarousal} / {maxhyperarousal}</td>
                     </td>
                 </table>
             </div>
@@ -219,9 +246,13 @@ class Iesr(Task):
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
+            maxtotal=self.MAX_TOTAL,
             avoidance=answer(self.avoidance_score()),
+            maxavoidance=self.MAX_AVOIDANCE,
             intrusion=answer(self.intrusion_score()),
+            maxintrusion=self.MAX_INTRUSION,
             hyperarousal=answer(self.hyperarousal_score()),
+            maxhyperarousal=self.MAX_HYPERAROUSAL,
             tr_event=tr_qa(req.wappstring("event"), self.event),
         )
         for q in range(1, self.NQUESTIONS + 1):

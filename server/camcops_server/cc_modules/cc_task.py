@@ -74,6 +74,7 @@ from .cc_anon import (
 )
 from .cc_audit import audit
 from .cc_blob import Blob, get_contemporaneous_blob_by_client_info
+from .cc_cache import cache_region_static, fkg
 from .cc_constants import (
     ACTION,
     ANON_PATIENT,
@@ -667,14 +668,34 @@ class Task(GenericTabletRecordMixin):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def all_subclasses(cls,
-                       sort_tablename: bool = False,
-                       sort_shortname: bool = False) -> List[Type["Task"]]:
-        classes = all_subclasses(cls)
-        if sort_tablename:
-            classes.sort(key=lambda c: c.tablename)
-        elif sort_shortname:
-            classes.sort(key=lambda c: c.shortname)
+    def all_subclasses(cls) -> List[Type[TASK_FWD_REF]]:
+        """
+        We require that actual tasks are subclasses of both Task and Base
+
+        ... so we can (a) inherit from Task to make a base class for actual
+        tasks, as with PCL, HADS, HoNOS, etc.; and (b) not have those
+        intermediate classes appear in the task list. Since all actual classes
+        must be SQLAlchemy ORM objects inheriting from Base, that common
+        inheritance is an excellent way to define them.
+        """
+        classes = []  # type: List[Type[TASK_FWD_REF]]
+        for c in all_subclasses(cls):
+            if issubclass(cls, Base):
+                classes.append(cls)
+        return classes
+
+    @classmethod
+    @cache_region_static.cache_on_arguments(function_key_generator=fkg)
+    def all_subclasses_by_taskname(cls) -> List[Type[TASK_FWD_REF]]:
+        classes = cls.all_subclasses()
+        classes.sort(key=lambda c: c.tablename)
+        return classes
+
+    @classmethod
+    @cache_region_static.cache_on_arguments(function_key_generator=fkg)
+    def all_subclasses_by_shortname(cls) -> List[Type[TASK_FWD_REF]]:
+        classes = cls.all_subclasses()
+        classes.sort(key=lambda c: c.shortname)
         return classes
 
     # -------------------------------------------------------------------------

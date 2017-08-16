@@ -22,14 +22,18 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import get_yes_no
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -37,32 +41,45 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # BFCRS
 # =============================================================================
 
-class Bfcrs(Task):
-    tablename = "bfcrs"
+class BfcrsMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Bfcrs'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
+        super().__init__(name, bases, classdict)
+
+
+class Bfcrs(TaskHasPatientMixin, Task, Base,
+            metaclass=BfcrsMetaclass):
+    __tablename__ = "bfcrs"
     shortname = "BFCRS"
     longname = "Bush–Francis Catatonia Rating Scale"
     provides_trackers = True
 
     NQUESTIONS = 23
     N_CSI_QUESTIONS = 14  # the first 14
-    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_TOTAL = 69
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="BFCRS total score",
-            axis_label="Total score (out of 69)",
+            axis_label="Total score (out of {})".format(self.MAX_TOTAL),
             axis_min=-0.5,
-            axis_max=69.5
+            axis_max=self.MAX_TOTAL + 0.5
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total", coltype=Integer(),
-                           value=self.total_score(), comment="Total score"),
+            SummaryElement(
+                name="total", coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (out of {})".format(self.MAX_TOTAL)
+            ),
         ]
 
     def is_complete(self) -> bool:
@@ -95,10 +112,19 @@ class Bfcrs(Task):
         h = """
             <div class="summary">
                 <table class="summary">
-                    {}
-                    <tr><td>{}</td><td><b>{}</b> / 69</td></tr>
-                    <tr><td>{} <sup>[1]</sup></td><td><b>{}</b></td></tr>
-                    <tr><td>{} <sup>[2]</sup></td><td><b>{}</b></td></tr>
+                    {is_complete}
+                    <tr>
+                        <td>{total_score_str}</td>
+                        <td><b>{score}</b> / {maxtotal}</td>
+                    </tr>
+                    <tr>
+                        <td>{num_symptoms_present} <sup>[1]</sup></td>
+                        <td><b>{n_csi_symptoms}</b></td>
+                    </tr>
+                    <tr>
+                        <td>{catatonia_present} <sup>[2]</sup></td>
+                        <td><b>{csi_catatonia}</b></td>
+                    </tr>
                 </table>
             </div>
             <table class="taskdetail">
@@ -107,14 +133,19 @@ class Bfcrs(Task):
                     <th width="65%">Answer</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(),
-            req.wappstring("total_score"), score,
-            self.wxstring(req, "num_symptoms_present"), n_csi_symptoms,
-            self.wxstring(req, "catatonia_present"), get_yes_no(csi_catatonia)
+            is_complete=self.get_is_complete_tr(),
+            total_score_str=req.wappstring("total_score"),
+            score=score,
+            maxtotal=self.MAX_TOTAL,
+            num_symptoms_present=self.wxstring(req, "num_symptoms_present"),
+            n_csi_symptoms=n_csi_symptoms,
+            catatonia_present=self.wxstring(req, "catatonia_present"),
+            csi_catatonia=get_yes_no(csi_catatonia)
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                "Q" + str(q) + " — " + WSTRING("bfcrs_q" + str(q) + "_title"),
+                "Q" + str(q) + " — " + self.wxstring(
+                    req, "q" + str(q) + "_title"),
                 get_from_dict(answer_dicts_dict["q" + str(q)],
                               getattr(self, "q" + str(q)))
             )

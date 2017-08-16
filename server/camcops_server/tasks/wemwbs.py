@@ -22,15 +22,19 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr, tr_qa
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -38,8 +42,39 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # WEMWBS
 # =============================================================================
 
-class Wemwbs(Task):
-    tablename = "wemwbs"
+class WemwbsMetaClass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Wemwbs'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.N_QUESTIONS,
+            minimum=1, maximum=5,
+            comment_fmt="Q{n} ({s}) (1 none of the time - 5 all of the time)",
+            comment_strings=[
+                "optimistic",
+                "useful",
+                "relaxed",
+                "interested in other people",
+                "energy",
+                "dealing with problems well",
+                "thinking clearly",
+                "feeling good about myself",
+                "feeling close to others",
+                "confident",
+                "able to make up my own mind",
+                "feeling loved",
+                "interested in new things",
+                "cheerful",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Wemwbs(TaskHasPatientMixin, Task, Base,
+             metaclass=WemwbsMetaClass):
+    __tablename__ = "wemwbs"
     shortname = "WEMWBS"
     longname = "Warwick–Edinburgh Mental Well-Being Scale"
     provides_trackers = True
@@ -49,33 +84,13 @@ class Wemwbs(Task):
     N_QUESTIONS = 14
     MINTOTALSCORE = N_QUESTIONS * MINQSCORE
     MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
-
-    fieldspecs = repeat_fieldspec(
-        "q", 1, N_QUESTIONS, min=1, max=5,
-        comment_fmt="Q{n} ({s}) (1 none of the time - 5 all of the time)",
-        comment_strings=[
-            "optimistic",
-            "useful",
-            "relaxed",
-            "interested in other people",
-            "energy",
-            "dealing with problems well",
-            "thinking clearly",
-            "feeling good about myself",
-            "feeling close to others",
-            "confident",
-            "able to make up my own mind",
-            "feeling loved",
-            "interested in new things",
-            "cheerful",
-        ]
-    )
+    TASK_FIELDS = strseq("q", 1, N_QUESTIONS)
 
     def is_complete(self) -> bool:
-        if not self.field_contents_valid():
-            return False
-        return self.are_all_fields_complete(repeat_fieldname(
-            "q", 1, self.N_QUESTIONS))
+        return (
+            self.are_all_fields_complete(self.TASK_FIELDS) and
+            self.field_contents_valid()
+        )
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
@@ -110,7 +125,7 @@ class Wemwbs(Task):
         ]
 
     def total_score(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 1, self.N_QUESTIONS))
+        return self.sum_fields(self.TASK_FIELDS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         main_dict = {
@@ -164,43 +179,55 @@ class Wemwbs(Task):
 # SWEMWBS
 # =============================================================================
 
-class Swemwbs(Task):
+class SwemwbsMetaClass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Swemwbs'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.N_QUESTIONS,
+            minimum=1, maximum=5,
+            comment_fmt="Q{n} ({s}) (1 none of the time - 5 all of the time)",
+            comment_strings=[
+                "optimistic",
+                "useful",
+                "relaxed",
+                "interested in other people",
+                "energy",
+                "dealing with problems well",
+                "thinking clearly",
+                "feeling good about myself",
+                "feeling close to others",
+                "confident",
+                "able to make up my own mind",
+                "feeling loved",
+                "interested in new things",
+                "cheerful",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Swemwbs(TaskHasPatientMixin, Task, Base,
+              metaclass=SwemwbsMetaClass):
+    __tablename__ = "swemwbs"
+    shortname = "SWEMWBS"
+    longname = "Short Warwick–Edinburgh Mental Well-Being Scale"
+    extrastring_taskname = "wemwbs"  # shares
+
     MINQSCORE = 1
     MAXQSCORE = 5
     N_QUESTIONS = 7
     MINTOTALSCORE = N_QUESTIONS * MINQSCORE
     MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
-
-    tablename = "swemwbs"
-    shortname = "SWEMWBS"
-    longname = "Short Warwick–Edinburgh Mental Well-Being Scale"
-    extrastring_taskname = "wemwbs"  # shares
-    fieldspecs = repeat_fieldspec(
-        "q", 1, N_QUESTIONS, min=1, max=5,
-        comment_fmt="Q{n} ({s}) (1 none of the time - 5 all of the time)",
-        comment_strings=[
-            "optimistic",
-            "useful",
-            "relaxed",
-            "interested in other people",
-            "energy",
-            "dealing with problems well",
-            "thinking clearly",
-            "feeling good about myself",
-            "feeling close to others",
-            "confident",
-            "able to make up my own mind",
-            "feeling loved",
-            "interested in new things",
-            "cheerful",
-        ]
-    )
+    TASK_FIELDS = strseq("q", 1, N_QUESTIONS)
 
     def is_complete(self) -> bool:
-        if not self.field_contents_valid():
-            return False
-        return self.are_all_fields_complete(repeat_fieldname(
-            "q", 1, self.N_QUESTIONS))
+        return (
+            self.are_all_fields_complete(self.TASK_FIELDS) and
+            self.field_contents_valid()
+        )
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
@@ -235,7 +262,7 @@ class Swemwbs(Task):
         ]
 
     def total_score(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 1, self.N_QUESTIONS))
+        return self.sum_fields(self.TASK_FIELDS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         main_dict = {

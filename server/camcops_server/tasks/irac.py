@@ -24,33 +24,42 @@
 
 import cardinal_pythonlib.rnc_web as ws
 
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
+
 from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, ZERO_TO_TWO_CHECKER
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 
 
 # =============================================================================
 # IRAC
 # =============================================================================
 
-class Irac(Task):
-    tablename = "irac"
+class Irac(TaskHasPatientMixin, Task, Base):
+    __tablename__ = "irac"
     shortname = "IRAC"
     longname = "Identify and Rate the Aim of the Contact"
 
-    fieldspecs = [
-        dict(name="aim", cctype="TEXT",
-             comment="Main aim of the contact"),
-        dict(name="achieved", cctype="INT", min=0, max=2,
-             comment="Was the aim achieved? (0 not, 1 partially, 2 fully)"),
-    ]
+    aim = Column(
+        "aim", Text,
+        comment="Main aim of the contact"
+    )
+    achieved = CamcopsColumn(
+        "achieved", Integer,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+        comment="Was the aim achieved? (0 not, 1 partially, 2 fully)"
+    )
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = ["aim", "achieved"]
 
     def is_complete(self) -> bool:
         return (self.are_all_fields_complete(self.TASK_FIELDS) and
                 self.field_contents_valid())
 
-    def get_achieved_text(self) -> str:
+    def get_achieved_text(self, req: CamcopsRequest) -> str:
         achieveddict = {
             None: None,
             0: self.wxstring(req, "achieved_0"),
@@ -62,7 +71,7 @@ class Irac(Task):
     def get_task_html(self, req: CamcopsRequest) -> str:
         if self.achieved is not None:
             achieved = "{}. {}".format(self.achieved,
-                                       self.get_achieved_text())
+                                       self.get_achieved_text(req))
         else:
             achieved = None
         h = """

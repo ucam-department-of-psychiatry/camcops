@@ -22,18 +22,17 @@
 ===============================================================================
 """
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.sqltypes import Boolean
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Boolean, Text
 
-from ..cc_modules.cc_constants import (
-    DATEFORMAT,
-    ICD10_COPYRIGHT_DIV,
-    PV,
-)
+from ..cc_modules.cc_constants import DATEFORMAT, ICD10_COPYRIGHT_DIV, PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_dt import format_datetime_string
 from ..cc_modules.cc_html import (
     get_yes_no_none,
@@ -41,33 +40,34 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn,
+    DateTimeAsIsoTextColType,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 
 
 # =============================================================================
 # Icd10Schizotypal
 # =============================================================================
 
-class Icd10Schizotypal(Task):
-    tablename = "icd10schizotypal"
-    shortname = "ICD10-SZTYP"
-    longname = "ICD-10 criteria for schizotypal disorder (F21)"
-    has_clinician = True
-
-    N_A = 9
-    fieldspecs = (
-        [
-            dict(name="date_pertains_to", cctype="ISO8601",
-                 comment="Date the assessment pertains to"),
-            dict(name="comments", cctype="TEXT",
-                 comment="Clinician's comments"),
-            dict(name="b", cctype="BOOL", pv=PV.BIT,
-                 comment="Criterion (B). True if: the subject has never met "
-                 "the criteria for any disorder in F20 (Schizophrenia)."),
-        ] +
-        repeat_fieldspec(
-            "a", 1, N_A, "BOOL", pv=PV.BIT,
+class Icd10SchizotypalMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Icd10Schizotypal'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "a", 1, cls.N_A, Boolean,
+            pv=PV.BIT,
             comment_fmt="Criterion A({n}), {s}",
             comment_strings=[
                 "inappropriate/constricted affect",
@@ -82,7 +82,32 @@ class Icd10Schizotypal(Task):
                 "occasional transient quasi-psychotic episodes",
             ]
         )
+        super().__init__(name, bases, classdict)
+
+
+class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
+                       metaclass=Icd10SchizotypalMetaclass):
+    __tablename__ = "icd10schizotypal"
+    shortname = "ICD10-SZTYP"
+    longname = "ICD-10 criteria for schizotypal disorder (F21)"
+
+    date_pertains_to = Column(
+        "date_pertains_to", DateTimeAsIsoTextColType,
+        comment="Date the assessment pertains to"
     )
+    comments = Column(
+        "comments", Text,
+        comment="Clinician's comments"
+    )
+    b = CamcopsColumn(
+        "b", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Criterion (B). True if: the subject has never met "
+                "the criteria for any disorder in F20 (Schizophrenia)."
+    )
+
+    N_A = 9
+    A_FIELDS = strseq("a", 1, N_A)
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
@@ -118,24 +143,19 @@ class Icd10Schizotypal(Task):
 
     # Meets criteria? These also return null for unknown.
     def meets_criteria(self) -> Optional[bool]:
-        if not self.is_complete:
+        if not self.is_complete():
             return None
-        return (
-            self.count_booleans(
-                repeat_fieldname("a", 1, Icd10Schizotypal.N_A)) >= 4 and
-            self.b
-        )
+        return self.count_booleans(self.A_FIELDS) >= 4 and self.b
 
     def is_complete(self) -> bool:
         return (
             self.date_pertains_to is not None and
-            self.are_all_fields_complete(repeat_fieldname(
-                "a", 1, Icd10Schizotypal.N_A)) and
+            self.are_all_fields_complete(self.A_FIELDS) and
             self.b is not None and
             self.field_contents_valid()
         )
 
-    def text_row(self, wstringname: str) -> str:
+    def text_row(self, req: CamcopsRequest, wstringname: str) -> str:
         return tr(td(self.wxstring(req, wstringname)),
                   td("", td_class="subheading"),
                   literal=True)
@@ -159,8 +179,8 @@ class Icd10Schizotypal(Task):
                     <th width="20%">Answer</th>
                 </tr>
         """
-        h += self.text_row("a")
-        for i in range(1, Icd10Schizotypal.N_A + 1):
+        h += self.text_row(req, "a")
+        for i in range(1, self.N_A + 1):
             h += self.get_twocol_bool_row_true_false(
                 "a" + str(i), self.wxstring(req, "a" + str(i)))
         h += self.get_twocol_bool_row_true_false(

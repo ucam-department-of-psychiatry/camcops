@@ -25,26 +25,31 @@
 from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Text
 
 from ..cc_modules.cc_ctvinfo import CtvInfo
 from ..cc_modules.cc_html import answer
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 
 
 # =============================================================================
 # ProgressNote
 # =============================================================================
 
-class ProgressNote(Task):
-    tablename = "progressnote"
+class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
+    __tablename__ = "progressnote"
     shortname = "ProgressNote"
     longname = "Clinical progress note"
-    has_clinician = True
 
-    fieldspecs = [
-        dict(name="location", cctype="TEXT", comment="Location"),
-        dict(name="note", cctype="TEXT", comment="Clinical note"),
-    ]
+    location = Column("location", Text, comment="Location")
+    note = Column("note", Text, comment="Clinical note")
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         return [CtvInfo(content=ws.webify(self.note))]

@@ -24,9 +24,9 @@
 
 from typing import List
 
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
 
-from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
     answer,
@@ -36,9 +36,21 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn,
+    PermittedValueChecker,
+    SummaryCategoryColType,
+    ZERO_TO_THREE_CHECKER,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task, 
+    TaskHasClinicianMixin, 
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 
 
@@ -46,84 +58,159 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 # SLUMS
 # =============================================================================
 
-class Slums(Task):
-    tablename = "slums"
+ZERO_OR_TWO_CHECKER = PermittedValueChecker(permitted_values=[0, 2])
+
+
+class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+    __tablename__ = "slums"
     shortname = "SLUMS"
     longname = "St Louis University Mental Status"
-    has_clinician = True
     provides_trackers = True
 
-    PREAMBLE_FIELDSPECS = [
-        dict(name="alert", cctype="INT", pv=PV.BIT,
-             comment="Is the patient alert? (0 no, 1 yes)"),
-        dict(name="highschooleducation", cctype="INT", pv=PV.BIT,
-             comment="Does that patient have at least a high-school level of "
-             "education? (0 no, 1 yes"),
-    ]
-    PREAMBLE_FIELDS = [x["name"] for x in PREAMBLE_FIELDSPECS]
-    SCORED_FIELDSPECS = [
-        dict(name="q1", cctype="INT", pv=PV.BIT,
-             comment="Q1 (day) (0-1)"),
-        dict(name="q2", cctype="INT", pv=PV.BIT,
-             comment="Q2 (year) (0-1)"),
-        dict(name="q3", cctype="INT", pv=PV.BIT,
-             comment="Q3 (state) (0-1)"),
-        dict(name="q5a", cctype="INT", pv=PV.BIT,
-             comment="Q5a (money spent) (0-1)"),
-        dict(name="q5b", cctype="INT", pv=[0, 2],
-             comment="Q5b (money left) (0 or 2)"),  # worth 2 points
-        dict(name="q6", cctype="INT", min=0, max=3,
-             comment="Q6 (animal naming) (0-3)"),  # from 0 to 3 points
-        dict(name="q7a", cctype="INT", pv=PV.BIT,
-             comment="Q7a (recall apple) (0-1)"),
-        dict(name="q7b", cctype="INT", pv=PV.BIT,
-             comment="Q7b (recall pen) (0-1)"),
-        dict(name="q7c", cctype="INT", pv=PV.BIT,
-             comment="Q7c (recall tie) (0-1)"),
-        dict(name="q7d", cctype="INT", pv=PV.BIT,
-             comment="Q7d (recall house) (0-1)"),
-        dict(name="q7e", cctype="INT", pv=PV.BIT,
-             comment="Q7e (recall car) (0-1)"),
-        dict(name="q8b", cctype="INT", pv=PV.BIT,
-             comment="Q8b (reverse 648) (0-1)"),
-        dict(name="q8c", cctype="INT", pv=PV.BIT,
-             comment="Q8c (reverse 8537) (0-1)"),
-        dict(name="q9a", cctype="INT", pv=[0, 2],
-             comment="Q9a (clock - hour markers) (0 or 2)"),  # worth 2 points
-        dict(name="q9b", cctype="INT", pv=[0, 2],
-             comment="Q9b (clock - time) (0 or 2)"),  # worth 2 points
-        dict(name="q10a", cctype="INT", pv=PV.BIT,
-             comment="Q10a (X in triangle) (0-1)"),
-        dict(name="q10b", cctype="INT", pv=PV.BIT,
-             comment="Q10b (biggest figure) (0-1)"),
-        dict(name="q11a", cctype="INT", pv=[0, 2],
-             comment="Q11a (story - name) (0 or 2)"),  # worth 2 points
-        dict(name="q11b", cctype="INT", pv=[0, 2],
-             comment="Q11b (story - occupation) (0 or 2)"),  # worth 2 points
-        dict(name="q11c", cctype="INT", pv=[0, 2],
-             comment="Q11c (story - back to work) (0 or 2)"),  # worth 2 points
-        dict(name="q11d", cctype="INT", pv=[0, 2],
-             comment="Q11d (story - state) (0 or 2)"),  # worth 2 points
-    ]
-    SCORED_FIELDS = [x["name"] for x in SCORED_FIELDSPECS]
-    OTHER_FIELDSPECS = [
-        dict(name="clockpicture_blobid", cctype="INT",
-             comment="BLOB ID of clock picture"),
-        dict(name="shapespicture_blobid", cctype="INT",
-             comment="BLOB ID of shapes picture"),
-        dict(name="comments", cctype="TEXT",
-             comments="Clinician's comments"),
-    ]
-
-    fieldspecs = (
-        PREAMBLE_FIELDSPECS +
-        SCORED_FIELDSPECS +
-        OTHER_FIELDSPECS
+    alert = CamcopsColumn(
+        "alert", Integer, 
+        permitted_value_checker=BIT_CHECKER,
+        comment="Is the patient alert? (0 no, 1 yes)")
+    highschooleducation = CamcopsColumn(
+        "highschooleducation", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Does that patient have at least a high-school level of "
+                "education? (0 no, 1 yes)"
     )
-    blob_name_idfield_list = [
-        ("clockpicture", "clockpicture_blobid"),
-        ("shapespicture", "shapespicture_blobid"),
+
+    q1 = CamcopsColumn(
+        "q1", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q1 (day) (0-1)"
+    )
+    q2 = CamcopsColumn(
+        "q2", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q2 (year) (0-1)"
+    )
+    q3 = CamcopsColumn(
+        "q3", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q3 (state) (0-1)"
+    )
+    q5a = CamcopsColumn(
+        "q5a", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q5a (money spent) (0-1)"
+    )
+    q5b = CamcopsColumn(
+        "q5b", Integer,
+        permitted_value_checker=ZERO_OR_TWO_CHECKER,
+        comment="Q5b (money left) (0 or 2)"
+    )  # worth 2 points
+    q6 = CamcopsColumn(
+        "q6", Integer,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
+        comment="Q6 (animal naming) (0-3)"
+    )  # from 0 to 3 points
+    q7a = CamcopsColumn(
+        "q7a", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q7a (recall apple) (0-1)"
+    )
+    q7b = CamcopsColumn(
+        "q7b", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q7b (recall pen) (0-1)"
+    )
+    q7c = CamcopsColumn(
+        "q7c", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q7c (recall tie) (0-1)"
+    )
+    q7d = CamcopsColumn(
+        "q7d", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q7d (recall house) (0-1)"
+    )
+    q7e = CamcopsColumn(
+        "q7e", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q7e (recall car) (0-1)"
+    )
+    q8b = CamcopsColumn(
+        "q8b", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q8b (reverse 648) (0-1)"
+    )
+    q8c = CamcopsColumn(
+        "q8c", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q8c (reverse 8537) (0-1)"
+    )
+    q9a = CamcopsColumn(
+        "q9a", Integer,
+        permitted_value_checker=ZERO_OR_TWO_CHECKER,
+        comment="Q9a (clock - hour markers) (0 or 2)"
+    )  # worth 2 points
+    q9b = CamcopsColumn(
+        "q9b", Integer,
+        permitted_value_checker=ZERO_OR_TWO_CHECKER,
+        comment="Q9b (clock - time) (0 or 2)"
+    )  # worth 2 points
+    q10a = CamcopsColumn(
+        "q10a", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q10a (X in triangle) (0-1)"
+    )
+    q10b = CamcopsColumn(
+        "q10b", Integer,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Q10b (biggest figure) (0-1)"
+    )
+    q11a = CamcopsColumn(
+        "q11a", Integer,
+        permitted_value_checker=ZERO_OR_TWO_CHECKER,
+        comment="Q11a (story - name) (0 or 2)"
+    )  # worth 2 points
+    q11b = CamcopsColumn(
+        "q11b", Integer,
+        permitted_value_checker=ZERO_OR_TWO_CHECKER,
+        comment="Q11b (story - occupation) (0 or 2)"
+    )  # worth 2 points
+    q11c = CamcopsColumn(
+        "q11c", Integer,
+        permitted_value_checker=ZERO_OR_TWO_CHECKER,
+        comment="Q11c (story - back to work) (0 or 2)"
+    )  # worth 2 points
+    q11d = CamcopsColumn(
+        "q11d", Integer,
+        permitted_value_checker=ZERO_OR_TWO_CHECKER,
+        comment="Q11d (story - state) (0 or 2)"
+    )  # worth 2 points
+
+    clockpicture_blobid = CamcopsColumn(
+        "clockpicture_blobid", Integer,
+        is_blob_id_field=True, blob_field_xml_name="clockpicture",
+        comment="BLOB ID of clock picture"
+    )
+    shapespicture_blobid = CamcopsColumn(
+        "shapespicture_blobid", Integer,
+        is_blob_id_field=True, blob_field_xml_name="shapespicture",
+        comment="BLOB ID of shapes picture"
+    )
+    comments = Column(
+        "comments", Text,
+        comments="Clinician's comments"
+    )
+
+    PREAMBLE_FIELDS = ["alert", "highschooleducation"]
+    SCORED_FIELDS = [
+        "q1", "q2", "q3", 
+        "q5a", "q5b",
+        "q6", 
+        "q7a", "q7b", "q7c", "q7d", "q7e",
+        "q8b", "q8c",
+        "q9a", "q9b",
+        "q10a", "q10b",
+        "q11a", "q11b", "q11c", "q11d"
     ]
+    MAX_SCORE = 30
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         if self.highschooleducation == 1:
@@ -137,9 +224,9 @@ class Slums(Task):
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="SLUMS total score",
-            axis_label="Total score (out of 30)",
+            axis_label="Total score (out of {})".format(self.MAX_SCORE),
             axis_min=-0.5,
-            axis_max=30.5,
+            axis_max=self.MAX_SCORE + 0.5,
             horizontal_lines=hlines,
             horizontal_labels=[
                 TrackerLabel(y_upper, req.wappstring("normal")),
@@ -152,8 +239,8 @@ class Slums(Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="SLUMS total score {}/30 ({})".format(
-                self.total_score(), self.category())
+            content="SLUMS total score {}/{} ({})".format(
+                self.total_score(), self.MAX_SCORE, self.category(req))
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -162,10 +249,10 @@ class Slums(Task):
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/30)"),
+                           comment="Total score (/{})".format(self.MAX_SCORE)),
             SummaryElement(name="category",
                            coltype=SummaryCategoryColType,
-                           value=self.category(),
+                           value=self.category(req),
                            comment="Category"),
         ]
 
@@ -179,7 +266,7 @@ class Slums(Task):
     def total_score(self) -> int:
         return self.sum_fields(self.SCORED_FIELDS)
 
-    def category(self) -> str:
+    def category(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         if self.highschooleducation == 1:
             if score >= 27:
@@ -198,12 +285,13 @@ class Slums(Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        category = self.category()
+        category = self.category(req)
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
         """ + self.get_is_complete_tr()
-        h += tr(req.wappstring("total_score"), answer(score) + " / 30")
+        h += tr(req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.MAX_SCORE))
         h += tr_qa(req.wappstring("category") + " <sup>[1]</sup>", category)
         h += """
                 </table>

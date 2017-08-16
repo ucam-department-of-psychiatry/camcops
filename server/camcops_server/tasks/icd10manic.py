@@ -26,14 +26,11 @@ from typing import List, Optional
 
 from cardinal_pythonlib.typetests import is_false
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.sqltypes import Boolean
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Boolean, Text
 
 from ..cc_modules.cc_dt import format_datetime_string
-from ..cc_modules.cc_constants import (
-    DATEFORMAT,
-    ICD10_COPYRIGHT_DIV,
-    PV,
-)
+from ..cc_modules.cc_constants import DATEFORMAT, ICD10_COPYRIGHT_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
     get_present_absent_none,
@@ -41,123 +38,195 @@ from ..cc_modules.cc_html import (
     subheading_spanning_two_columns,
     tr_qa,
 )
-from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn,
+    DateTimeAsIsoTextColType,
+    SummaryCategoryColType,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 
 
 # =============================================================================
 # Icd10Manic
 # =============================================================================
 
-class Icd10Manic(Task):
-    tablename = "icd10manic"
+class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+    __tablename__ = "icd10manic"
     shortname = "ICD10-MANIC"
     longname = (
         "ICD-10 symptomatic criteria for a manic/hypomanic episode "
         "(as in e.g. F06.3, F25, F30, F31)"
     )
-    has_clinician = True
 
-    CORE_FIELDSPECS = [
-        dict(name="mood_elevated", cctype="BOOL", pv=PV.BIT,
-             comment="The mood is 'elevated' [hypomania] or 'predominantly "
-             "elevated [or] expansive' [mania] to a degree that is definitely "
-             "abnormal for the individual concerned."),
-        dict(name="mood_irritable", cctype="BOOL", pv=PV.BIT,
-             comment="The mood is 'irritable' [hypomania] or 'predominantly "
-             "irritable' [mania] to a degree that is definitely abnormal for "
-             "the individual concerned."),
-    ]
-    HYPOMANIA_MANIA_FIELDSPECS = [
-        dict(name="distractible", cctype="BOOL", pv=PV.BIT,
-             comment="Difficulty in concentration or distractibility [from "
-             "the criteria for hypomania]; distractibility or constant "
-             "changes in activity or plans [from the criteria for mania]."),
-        dict(name="activity", cctype="BOOL", pv=PV.BIT,
-             comment="Increased activity or physical restlessness."),
-        dict(name="sleep", cctype="BOOL", pv=PV.BIT,
-             comment="Decreased need for sleep."),
-        dict(name="talkativeness", cctype="BOOL", pv=PV.BIT,
-             comment="Increased talkativeness (pressure of speech)."),
-        dict(name="recklessness", cctype="BOOL", pv=PV.BIT,
-             comment="Mild spending sprees, or other types of reckless or "
-             "irresponsible behaviour [hypomania]; behaviour which is "
-             "foolhardy or reckless and whose risks the subject does not "
-             "recognize e.g. spending sprees, foolish enterprises, reckless "
-             "driving [mania]."),
-        dict(name="social_disinhibition", cctype="BOOL", pv=PV.BIT,
-             comment="Increased sociability or over-familiarity [hypomania]; "
-             "loss of normal social inhibitions resulting in behaviour which "
-             "is inappropriate to the circumstances [mania]."),
-        dict(name="sexual", cctype="BOOL", pv=PV.BIT,
-             comment="Increased sexual energy [hypomania]; marked sexual "
-             "energy or sexual indiscretions [mania]."),
-    ]
-    MANIA_FIELDSPECS = [
-        dict(name="grandiosity", cctype="BOOL", pv=PV.BIT,
-             comment="Inflated self-esteem or grandiosity."),
-        dict(name="flight_of_ideas", cctype="BOOL", pv=PV.BIT,
-             comment="Flight of ideas or the subjective experience of "
-             "thoughts racing."),
-    ]
-    OTHER_CRITERIA_FIELDSPECS = [
-        dict(name="sustained4days", cctype="BOOL", pv=PV.BIT,
-             comment="Elevated/irritable mood sustained for at least 4 days."),
-        dict(name="sustained7days", cctype="BOOL", pv=PV.BIT,
-             comment="Elevated/irritable mood sustained for at least 7 days."),
-        dict(name="admission_required", cctype="BOOL", pv=PV.BIT,
-             comment="Elevated/irritable mood severe enough to require "
-             "hospital admission."),
-        dict(name="some_interference_functioning", cctype="BOOL",
-             pv=PV.BIT, comment="Some interference with personal functioning "
-             "in daily living."),
-        dict(name="severe_interference_functioning", cctype="BOOL",
-             pv=PV.BIT, comment="Severe interference with personal "
-             "functioning in daily living."),
-    ]
-    PSYCHOSIS_FIELDSPECS = [
-        dict(name="perceptual_alterations", cctype="BOOL", pv=PV.BIT,
-             comment="Perceptual alterations (e.g. subjective hyperacusis, "
-             "appreciation of colours as specially vivid, etc.)."),
-        # ... not psychotic
-        dict(name="hallucinations_schizophrenic", cctype="BOOL",
-             pv=PV.BIT,
-             comment="Hallucinations that are 'typically schizophrenic' "
-             "(hallucinatory voices giving a running commentary on the "
-             "patient's behaviour, or discussing him between themselves, or "
-             "other types of hallucinatory voices coming from some part of "
-             "the body)."),
-        dict(name="hallucinations_other", cctype="BOOL", pv=PV.BIT,
-             comment="Hallucinations (of any other kind)."),
-        dict(name="delusions_schizophrenic", cctype="BOOL", pv=PV.BIT,
-             comment="Delusions that are 'typically schizophrenic' (delusions "
-             "of control, influence or passivity, clearly referred to body or "
-             "limb movements or specific thoughts, actions, or sensations; "
-             "delusional perception; persistent delusions of other kinds that "
-             "are culturally inappropriate and completely impossible)."),
-        dict(name="delusions_other", cctype="BOOL", pv=PV.BIT,
-             comment="Delusions (of any other kind)."),
-    ]
-    CORE_NAMES = [x["name"] for x in CORE_FIELDSPECS]
-    HYPOMANIA_MANIA_NAMES = [x["name"] for x in HYPOMANIA_MANIA_FIELDSPECS]
-    MANIA_NAMES = [x["name"] for x in MANIA_FIELDSPECS]
-    OTHER_CRITERIA_NAMES = [x["name"] for x in OTHER_CRITERIA_FIELDSPECS]
-    PSYCHOSIS_NAMES = [x["name"] for x in PSYCHOSIS_FIELDSPECS]
-
-    fieldspecs = (
-        [
-            dict(name="date_pertains_to", cctype="ISO8601",
-                 comment="Date the assessment pertains to"),
-            dict(name="comments", cctype="TEXT",
-                 comment="Clinician's comments"),
-        ] +
-        CORE_FIELDSPECS +
-        HYPOMANIA_MANIA_FIELDSPECS +
-        MANIA_FIELDSPECS +
-        OTHER_CRITERIA_FIELDSPECS +
-        PSYCHOSIS_FIELDSPECS
+    mood_elevated = CamcopsColumn(
+        "mood_elevated", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="The mood is 'elevated' [hypomania] or 'predominantly "
+                "elevated [or] expansive' [mania] to a degree that is "
+                "definitely abnormal for the individual concerned."
     )
+    mood_irritable = CamcopsColumn(
+        "mood_irritable", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="The mood is 'irritable' [hypomania] or 'predominantly "
+                "irritable' [mania] to a degree that is definitely abnormal "
+                "for the individual concerned."
+    )
+
+    distractible = CamcopsColumn(
+        "distractible", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Difficulty in concentration or distractibility [from "
+                "the criteria for hypomania]; distractibility or constant "
+                "changes in activity or plans [from the criteria for mania]."
+    )
+    activity = CamcopsColumn(
+        "activity", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Increased activity or physical restlessness."
+    )
+    sleep = CamcopsColumn(
+        "sleep", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Decreased need for sleep."
+    )
+    talkativeness = CamcopsColumn(
+        "talkativeness", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Increased talkativeness (pressure of speech)."
+    )
+    recklessness = CamcopsColumn(
+        "recklessness", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Mild spending sprees, or other types of reckless or "
+                "irresponsible behaviour [hypomania]; behaviour which is "
+                "foolhardy or reckless and whose risks the subject does not "
+                "recognize e.g. spending sprees, foolish enterprises, "
+                "reckless driving [mania]."
+    )
+    social_disinhibition = CamcopsColumn(
+        "social_disinhibition", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Increased sociability or over-familiarity [hypomania]; "
+                "loss of normal social inhibitions resulting in behaviour "
+                "which is inappropriate to the circumstances [mania]."
+    )
+    sexual = CamcopsColumn(
+        "sexual", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Increased sexual energy [hypomania]; marked sexual "
+                "energy or sexual indiscretions [mania]."
+    )
+
+    grandiosity = CamcopsColumn(
+        "grandiosity", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Inflated self-esteem or grandiosity."
+    )
+    flight_of_ideas = CamcopsColumn(
+        "flight_of_ideas", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Flight of ideas or the subjective experience of "
+                "thoughts racing."
+    )
+
+    sustained4days = CamcopsColumn(
+        "sustained4days", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Elevated/irritable mood sustained for at least 4 days."
+    )
+    sustained7days = CamcopsColumn(
+        "sustained7days", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Elevated/irritable mood sustained for at least 7 days."
+    )
+    admission_required = CamcopsColumn(
+        "admission_required", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Elevated/irritable mood severe enough to require "
+                "hospital admission."
+    )
+    some_interference_functioning = CamcopsColumn(
+        "some_interference_functioning", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Some interference with personal functioning "
+                "in daily living."
+    )
+    severe_interference_functioning = CamcopsColumn(
+        "severe_interference_functioning", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Severe interference with personal "
+                "functioning in daily living."
+    )
+
+    perceptual_alterations = CamcopsColumn(
+        "perceptual_alterations", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Perceptual alterations (e.g. subjective hyperacusis, "
+                "appreciation of colours as specially vivid, etc.)."
+    )  # ... not psychotic
+    hallucinations_schizophrenic = CamcopsColumn(
+        "hallucinations_schizophrenic", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Hallucinations that are 'typically schizophrenic' "
+                "(hallucinatory voices giving a running commentary on the "
+                "patient's behaviour, or discussing him between themselves, "
+                "or other types of hallucinatory voices coming from some part "
+                "of the body)."
+    )
+    hallucinations_other = CamcopsColumn(
+        "hallucinations_other", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Hallucinations (of any other kind)."
+    )
+    delusions_schizophrenic = CamcopsColumn(
+        "delusions_schizophrenic", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Delusions that are 'typically schizophrenic' (delusions "
+                "of control, influence or passivity, clearly referred to body "
+                "or limb movements or specific thoughts, actions, or "
+                "sensations; delusional perception; persistent delusions of "
+                "other kinds that are culturally inappropriate and completely "
+                "impossible)."
+    )
+    delusions_other = CamcopsColumn(
+        "delusions_other", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Delusions (of any other kind)."
+    )
+
+    date_pertains_to = Column(
+        "date_pertains_to", DateTimeAsIsoTextColType,
+        comment="Date the assessment pertains to"
+    )
+    comments = Column(
+        "comments", Text,
+        comment="Clinician's comments"
+    )
+    
+    CORE_NAMES = ["mood_elevated", "mood_irritable"]
+    HYPOMANIA_MANIA_NAMES = [
+        "distractible", "activity", "sleep",
+        "talkativeness", "recklessness", "social_disinhibition", "sexual"
+    ]
+    MANIA_NAMES = ["grandiosity", "flight_of_ideas"]
+    OTHER_CRITERIA_NAMES = [
+        "sustained4days", "sustained7days", "admission_required",
+        "some_interference_functioning", "severe_interference_functioning"
+    ]
+    PSYCHOSIS_NAMES = [
+        "perceptual_alterations",  # not psychotic
+        "hallucinations_schizophrenic", "hallucinations_other",
+        "delusions_schizophrenic", "delusions_other"
+    ] 
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
@@ -166,7 +235,7 @@ class Icd10Manic(Task):
             content="Pertains to: {}. Category: {}.".format(
                 format_datetime_string(self.date_pertains_to,
                                        DATEFORMAT.LONG_DATE),
-                self.get_description()
+                self.get_description(req)
             )
         )]
         if self.comments:
@@ -178,7 +247,7 @@ class Icd10Manic(Task):
             self.is_complete_summary_field(),
             SummaryElement(name="category",
                            coltype=SummaryCategoryColType,
-                           value=self.get_description(),
+                           value=self.get_description(req),
                            comment="Diagnostic category"),
             SummaryElement(name="psychotic_symptoms",
                            coltype=Boolean(),
@@ -234,10 +303,10 @@ class Icd10Manic(Task):
             return False
         if is_false(self.sustained7days) and is_false(self.admission_required):
             return False
-        t = self.count_booleans(Icd10Manic.HYPOMANIA_MANIA_NAMES) + \
-            self.count_booleans(Icd10Manic.MANIA_NAMES)
-        u = self.n_incomplete(Icd10Manic.HYPOMANIA_MANIA_NAMES) + \
-            self.n_incomplete(Icd10Manic.MANIA_NAMES)
+        t = self.count_booleans(self.HYPOMANIA_MANIA_NAMES) + \
+            self.count_booleans(self.MANIA_NAMES)
+        u = self.n_incomplete(self.HYPOMANIA_MANIA_NAMES) + \
+            self.n_incomplete(self.MANIA_NAMES)
         if self.mood_elevated and (t + u < 3):
             # With elevated mood, need at least 3 symptoms
             return False
@@ -263,8 +332,8 @@ class Icd10Manic(Task):
             return False
         if is_false(self.sustained4days):
             return False
-        t = self.count_booleans(Icd10Manic.HYPOMANIA_MANIA_NAMES)
-        u = self.n_incomplete(Icd10Manic.HYPOMANIA_MANIA_NAMES)
+        t = self.count_booleans(self.HYPOMANIA_MANIA_NAMES)
+        u = self.n_incomplete(self.HYPOMANIA_MANIA_NAMES)
         if t + u < 3:
             # Need at least 3 symptoms
             return False
@@ -300,7 +369,7 @@ class Icd10Manic(Task):
             return None
         return False
 
-    def get_description(self) -> str:
+    def get_description(self, req: CamcopsRequest) -> str:
         if self.meets_criteria_mania_psychotic_schizophrenic():
             return self.wxstring(req, "category_manic_psychotic_schizophrenic")
         elif self.meets_criteria_mania_psychotic_icd():
@@ -321,10 +390,10 @@ class Icd10Manic(Task):
             self.field_contents_valid()
         )
 
-    def text_row(self, wstringname: str) -> str:
+    def text_row(self, req: CamcopsRequest, wstringname: str) -> str:
         return heading_spanning_two_columns(self.wxstring(req, wstringname))
 
-    def row_true_false(self, fieldname: str) -> str:
+    def row_true_false(self, req: CamcopsRequest, fieldname: str) -> str:
         return self.get_twocol_bool_row_true_false(
             fieldname, self.wxstring(req, "" + fieldname))
 
@@ -337,7 +406,7 @@ class Icd10Manic(Task):
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
         h += tr_qa(req.wappstring("category") + " <sup>[1,2]</sup>",
-                   self.get_description())
+                   self.get_description(req))
         h += tr_qa(
             self.wxstring(req, "psychotic_symptoms") + " <sup>[2]</sup>",
             get_present_absent_none(self.psychosis_present()))
@@ -356,25 +425,25 @@ class Icd10Manic(Task):
                 </tr>
         """
 
-        h += self.text_row("core")
-        for x in Icd10Manic.CORE_NAMES:
-            h += self.row_true_false(x)
+        h += self.text_row(req, "core")
+        for x in self.CORE_NAMES:
+            h += self.row_true_false(req, x)
 
-        h += self.text_row("hypomania_mania")
-        for x in Icd10Manic.HYPOMANIA_MANIA_NAMES:
-            h += self.row_true_false(x)
+        h += self.text_row(req, "hypomania_mania")
+        for x in self.HYPOMANIA_MANIA_NAMES:
+            h += self.row_true_false(req, x)
 
-        h += self.text_row("other_mania")
-        for x in Icd10Manic.MANIA_NAMES:
-            h += self.row_true_false(x)
+        h += self.text_row(req, "other_mania")
+        for x in self.MANIA_NAMES:
+            h += self.row_true_false(req, x)
 
-        h += self.text_row("other_criteria")
-        for x in Icd10Manic.OTHER_CRITERIA_NAMES:
-            h += self.row_true_false(x)
+        h += self.text_row(req, "other_criteria")
+        for x in self.OTHER_CRITERIA_NAMES:
+            h += self.row_true_false(req, x)
 
         h += subheading_spanning_two_columns(self.wxstring(req, "psychosis"))
-        for x in Icd10Manic.PSYCHOSIS_NAMES:
-            h += self.row_true_false(x)
+        for x in self.PSYCHOSIS_NAMES:
+            h += self.row_true_false(req, x)
 
         h += """
             </table>

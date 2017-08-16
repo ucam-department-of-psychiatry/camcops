@@ -22,11 +22,14 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Integer
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Boolean, Integer, Text
 
-from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV, PV
+from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
     answer,
@@ -34,8 +37,19 @@ from ..cc_modules.cc_html import (
     subheading_spanning_four_columns,
     tr,
 )
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn,
+    PermittedValueChecker,
+)
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -43,33 +57,46 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # Y-BOCS
 # =============================================================================
 
-class Ybocs(Task):
-    tablename = "ybocs"
+class YbocsMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Ybocs'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        cls.TARGET_COLUMNS = []  # type: List[Column]
+        for target in ["obsession", "compulsion", "avoidance"]:
+            for n in range(1, cls.NTARGETS + 1):
+                fname = "target_{}_{}".format(target, n)
+                col = Column(
+                    fname, Text,
+                    comment="Target symptoms: {} {}".format(target, n)
+                )
+                setattr(cls, fname, col)
+                cls.TARGET_COLUMNS.append(col)
+        for qnumstr, maxscore, comment in cls.QINFO:
+            fname = "q" + qnumstr
+            setattr(
+                cls,
+                fname,
+                CamcopsColumn(
+                    fname, Integer,
+                    permitted_value_checker=PermittedValueChecker(
+                        minimum=0, maximum=maxscore),
+                    comment="Q{n}, {s} (0-{m}, higher worse)".format(
+                        n=qnumstr, s=comment, m=maxscore)
+                )
+            )
+        super().__init__(name, bases, classdict)
+
+
+class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
+            metaclass=YbocsMetaclass):
+    __tablename__ = "ybocs"
     shortname = "Y-BOCS"
     longname = "Yale–Brown Obsessive Compulsive Scale"
-    has_clinician = True
     provides_trackers = True
 
-    TARGET_FIELDSPECS = [
-        dict(name="target_obsession_1", cctype="TEXT",
-             comment="Target symptoms: obsession 1"),
-        dict(name="target_obsession_2", cctype="TEXT",
-             comment="Target symptoms: obsession 2"),
-        dict(name="target_obsession_3", cctype="TEXT",
-             comment="Target symptoms: obsession 3"),
-        dict(name="target_compulsion_1", cctype="TEXT",
-             comment="Target symptoms: compulsion 1"),
-        dict(name="target_compulsion_2", cctype="TEXT",
-             comment="Target symptoms: compulsion 2"),
-        dict(name="target_compulsion_3", cctype="TEXT",
-             comment="Target symptoms: compulsion 3"),
-        dict(name="target_avoidance_1", cctype="TEXT",
-             comment="Target symptoms: avoidance 1"),
-        dict(name="target_avoidance_2", cctype="TEXT",
-             comment="Target symptoms: avoidance 2"),
-        dict(name="target_avoidance_3", cctype="TEXT",
-             comment="Target symptoms: avoidance 3"),
-    ]
+    NTARGETS = 3
     QINFO = [  # number, max score, minimal comment
         ('1',  4, "obsessions: time"),
         ('1b', 4, "obsessions: obsession-free interval"),
@@ -93,63 +120,60 @@ class Ybocs(Task):
         ('18', 6, "global improvement"),
         ('19', 3, "reliability"),
     ]
-
-    fieldspecs = list(TARGET_FIELDSPECS)  # copy
-    for qnumstr, maxscore, comment in QINFO:
-        fieldspecs.append({
-            'name': 'q' + qnumstr,
-            'cctype': 'INT',
-            'comment': "Q{n}, {s} (0-{m}, higher worse)".format(
-                n=qnumstr, s=comment, m=maxscore),
-            'min': 0,
-            'max': maxscore,
-        })
-
     QUESTION_FIELDS = ["q" + x[0] for x in QINFO]
-    SCORED_QUESTIONS = ["q" + str(x) for x in range(1, 10 + 1)]
-    OBSESSION_QUESTIONS = ["q" + str(x) for x in range(1, 5 + 1)]
-    COMPULSION_QUESTIONS = ["q" + str(x) for x in range(6, 10 + 1)]
+    SCORED_QUESTIONS = strseq("q", 1, 10)
+    OBSESSION_QUESTIONS = strseq("q", 1, 5)
+    COMPULSION_QUESTIONS = strseq("q", 6, 10)
+    MAX_TOTAL = 40
+    MAX_OBS = 20
+    MAX_COM = 20
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [
             TrackerInfo(
                 value=self.total_score(),
                 plot_label="Y-BOCS total score (lower is better)",
-                axis_label="Total score (out of 40)",
+                axis_label="Total score (out of {})".format(self.MAX_TOTAL),
                 axis_min=-0.5,
-                axis_max=40.5
+                axis_max=self.MAX_TOTAL + 0.5
             ),
             TrackerInfo(
                 value=self.obsession_score(),
                 plot_label="Y-BOCS obsession score (lower is better)",
-                axis_label="Total score (out of 20)",
+                axis_label="Total score (out of {})".format(self.MAX_OBS),
                 axis_min=-0.5,
-                axis_max=20.5
+                axis_max=self.MAX_OBS + 0.5
             ),
             TrackerInfo(
                 value=self.compulsion_score(),
                 plot_label="Y-BOCS compulsion score (lower is better)",
-                axis_label="Total score (out of 20)",
+                axis_label="Total score (out of {})".format(self.MAX_COM),
                 axis_min=-0.5,
-                axis_max=20.5
+                axis_max=self.MAX_COM + 0.5
             ),
         ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total_score",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (/ 40)"),
-            SummaryElement(name="obsession_score",
-                           coltype=Integer(),
-                           value=self.obsession_score(),
-                           comment="Obsession score (/ 20)"),
-            SummaryElement(name="compulsion_score",
-                           coltype=Integer(),
-                           value=self.compulsion_score(),
-                           comment="Compulsion score (/ 20)"),
+            SummaryElement(
+                name="total_score",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (/ {})".format(self.MAX_TOTAL)
+            ),
+            SummaryElement(
+                name="obsession_score",
+                coltype=Integer(),
+                value=self.obsession_score(),
+                comment="Obsession score (/ {})".format(self.MAX_OBS)
+            ),
+            SummaryElement(
+                name="compulsion_score",
+                coltype=Integer(),
+                value=self.compulsion_score(),
+                comment="Compulsion score (/ {})".format(self.MAX_COM)
+            ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -158,8 +182,14 @@ class Ybocs(Task):
         t = self.total_score()
         o = self.obsession_score()
         c = self.compulsion_score()
-        return [CtvInfo(content="Y-BOCS total score {t}/40 (obsession {o}/20, "
-                                "compulsion {c}/20)".format(t=t, o=o, c=c))]
+        return [CtvInfo(content=(
+            "Y-BOCS total score {t}/{mt} (obsession {o}/{mo}, "
+            "compulsion {c}/{mc})".format(
+                t=t, mt=self.MAX_TOTAL,
+                o=o, mo=self.MAX_OBS,
+                c=c, mc=self.MAX_COM,
+            )
+        ))]
 
     def total_score(self) -> int:
         return self.sum_fields(self.SCORED_QUESTIONS)
@@ -183,15 +213,15 @@ class Ybocs(Task):
                     {complete_tr}
                     <tr>
                         <td>Total score</td>
-                        <td>{total_score} / 40</td>
+                        <td>{total_score} / {mt}</td>
                     </td>
                     <tr>
                         <td>Obsession score</td>
-                        <td>{obsession_score} / 20</td>
+                        <td>{obsession_score} / {mo}</td>
                     </td>
                     <tr>
                         <td>Compulsion score</td>
-                        <td>{compulsion_score} / 20</td>
+                        <td>{compulsion_score} / {mc}</td>
                     </td>
                 </table>
             </div>
@@ -203,14 +233,14 @@ class Ybocs(Task):
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total_score=answer(self.total_score()),
+            mt=self.MAX_TOTAL,
             obsession_score=answer(self.obsession_score()),
+            mo=self.MAX_OBS,
             compulsion_score=answer(self.compulsion_score()),
+            mc=self.MAX_COM,
         )
-        for tsdict in self.TARGET_FIELDSPECS:
-            h += tr(
-                tsdict['comment'],
-                answer(getattr(self, tsdict['name']))
-            )
+        for col in self.TARGET_COLUMNS:
+            h += tr(col.comment, answer(getattr(self, col.name)))
         h += """
             </table>
             <table class="taskdetail">
@@ -237,7 +267,59 @@ class Ybocs(Task):
 # Y-BOCS-SC
 # =============================================================================
 
-class YbocsSc(Task):
+class YbocsScMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['YbocsSc'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        for item in cls.ITEMS:
+            setattr(
+                cls,
+                item + cls.SUFFIX_CURRENT,
+                CamcopsColumn(
+                    item + cls.SUFFIX_CURRENT, Boolean,
+                    permitted_value_checker=BIT_CHECKER,
+                    comment=item + " (current symptom)"
+                )
+            )
+            setattr(
+                cls,
+                item + cls.SUFFIX_PAST,
+                CamcopsColumn(
+                    item + cls.SUFFIX_PAST, Boolean,
+                    permitted_value_checker=BIT_CHECKER,
+                    comment=item + " (past symptom)"
+                )
+            )
+            setattr(
+                cls,
+                item + cls.SUFFIX_PRINCIPAL,
+                CamcopsColumn(
+                    item + cls.SUFFIX_PRINCIPAL, Boolean,
+                    permitted_value_checker=BIT_CHECKER,
+                    comment=item + " (principal symptom)"
+                )
+            )
+            if item.endswith(cls.SUFFIX_OTHER):
+                setattr(
+                    cls,
+                    item + cls.SUFFIX_DETAIL,
+                    Column(
+                        item + cls.SUFFIX_DETAIL, Text,
+                        comment=item + " (details)"
+                    )
+                )
+        super().__init__(name, bases, classdict)
+
+
+class YbocsSc(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
+              metaclass=YbocsScMetaclass):
+    __tablename__ = "ybocssc"
+    shortname = "Y-BOCS-SC"
+    longname = "Y-BOCS Symptom Checklist"
+    extrastring_taskname = "ybocs"  # shares with Y-BOCS
+
     SC_PREFIX = "sc_"
     SUFFIX_CURRENT = "_current"
     SUFFIX_PAST = "_past"
@@ -353,38 +435,6 @@ class YbocsSc(Task):
         "com_misc_self_harm",
         "com_misc_other"
     ]
-
-    tablename = "ybocssc"
-    shortname = "Y-BOCS-SC"
-    longname = "Y-BOCS Symptom Checklist"
-    fieldspecs = []
-    for item in ITEMS:
-        fieldspecs.append(dict(
-            name=item + SUFFIX_CURRENT,
-            cctype="BOOL",
-            pv=PV.BIT,
-            comment=item + " (current symptom)"
-        ))
-        fieldspecs.append(dict(
-            name=item + SUFFIX_PAST,
-            cctype="BOOL",
-            pv=PV.BIT,
-            comment=item + " (past symptom)"
-        ))
-        fieldspecs.append(dict(
-            name=item + SUFFIX_PRINCIPAL,
-            cctype="BOOL",
-            pv=PV.BIT,
-            comment=item + " (principal symptom)"
-        ))
-        if item.endswith(SUFFIX_OTHER):
-            fieldspecs.append(dict(
-                name=item + SUFFIX_DETAIL,
-                cctype="TEXT",
-                comment=item + " (details)"
-            ))
-    has_clinician = True
-    extrastring_taskname = "ybocs"  # shares with Y-BOCS
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

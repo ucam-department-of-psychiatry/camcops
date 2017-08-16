@@ -22,16 +22,20 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr, tr_qa
-from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_sqla_coltypes import CharColType, SummaryCategoryColType
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerLabel, TrackerInfo
 
 
@@ -39,43 +43,52 @@ from ..cc_modules.cc_trackerhelpers import TrackerLabel, TrackerInfo
 # SMAST
 # =============================================================================
 
-class Smast(Task):
-    tablename = "smast"
+class SmastMetaClass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Smast'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS, CharColType,
+            pv=['Y', 'N'],
+            comment_fmt="Q{n}: {s} (Y or N)",
+            comment_strings=[
+                "believe you are a normal drinker",
+                "near relative worries/complains",
+                "feel guilty",
+                "friends/relative think you are a normal drinker",
+                "stop when you want to",
+                "ever attended Alcoholics Anonymous",
+                "problems with close relative",
+                "trouble at work",
+                "neglected obligations for >=2 days",
+                "sought help",
+                "hospitalized",
+                "arrested for drink-driving",
+                "arrested for other drunken behaviour",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Smast(TaskHasPatientMixin, Task, Base,
+            metaclass=SmastMetaClass):
+    __tablename__ = "smast"
     shortname = "SMAST"
     longname = "Short Michigan Alcohol Screening Test"
     provides_trackers = True
 
     NQUESTIONS = 13
-
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, "CHAR", pv=['Y', 'N'],
-        comment_fmt="Q{n}: {s} (Y or N)",
-        comment_strings=[
-            "believe you are a normal drinker",
-            "near relative worries/complains",
-            "feel guilty",
-            "friends/relative think you are a normal drinker",
-            "stop when you want to",
-            "ever attended Alcoholics Anonymous",
-            "problems with close relative",
-            "trouble at work",
-            "neglected obligations for >=2 days",
-            "sought help",
-            "hospitalized",
-            "arrested for drink-driving",
-            "arrested for other drunken behaviour",
-        ]
-    )
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="SMAST total score",
-            axis_label="Total score (out of 13)",
+            axis_label="Total score (out of {})".format(self.NQUESTIONS),
             axis_min=-0.5,
-            axis_max=13.5,
+            axis_max=self.NQUESTIONS + 0.5,
             horizontal_lines=[
                 2.5,
                 1.5,
@@ -91,21 +104,23 @@ class Smast(Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="SMAST total score {}/13 ({})".format(
-                self.total_score(), self.likelihood())
+            content="SMAST total score {}/{} ({})".format(
+                self.total_score(), self.NQUESTIONS, self.likelihood(req))
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (/13)"),
-            SummaryElement(name="likelihood",
-                           coltype=SummaryCategoryColType,
-                           value=self.likelihood(),
-                           comment="Likelihood of problem"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (/{})".format(self.NQUESTIONS)),
+            SummaryElement(
+                name="likelihood",
+                coltype=SummaryCategoryColType,
+                value=self.likelihood(req),
+                comment="Likelihood of problem"),
         ]
 
     def is_complete(self) -> bool:
@@ -130,7 +145,7 @@ class Smast(Task):
             total += self.get_score(q)
         return total
 
-    def likelihood(self) -> str:
+    def likelihood(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         if score >= 3:
             return self.wxstring(req, "problem_probable")
@@ -141,7 +156,7 @@ class Smast(Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        likelihood = self.likelihood()
+        likelihood = self.likelihood(req)
         main_dict = {
             None: None,
             "Y": req.wappstring("yes"),
@@ -152,9 +167,11 @@ class Smast(Task):
                 <table class="summary">
         """
         h += self.get_is_complete_tr()
-        h += tr(req.wappstring("total_score"), answer(score) + " / 13")
-        h += tr_qa(self.wxstring(req, "problem_likelihood") + " <sup>[1]</sup>",
-                   likelihood)
+        h += tr(req.wappstring("total_score"),
+                answer(score) + " / {}".format(self.NQUESTIONS))
+        h += tr_qa(
+            self.wxstring(req, "problem_likelihood") + " <sup>[1]</sup>",
+            likelihood)
         h += """
                 </table>
             </div>

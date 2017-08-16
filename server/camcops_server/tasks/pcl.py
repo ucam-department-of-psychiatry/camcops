@@ -22,12 +22,15 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Boolean, Integer
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Boolean, Integer, Text
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no,
@@ -36,8 +39,9 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -45,43 +49,51 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # PCL
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# PCL: common class
-# -----------------------------------------------------------------------------
-# This derives from object, not Task (so the base class doesn't appear in the
-# main task list itself), and serves as a mixin for other classes.
-# As a result, it calls "self" methods that it doesn't actually possess.
+class PclMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['PclCommon'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=1, maximum=5,
+            comment_fmt="Q{n} ({s}) (1 not at all - 5 extremely)",
+            comment_strings=[
+                "disturbing memories/thoughts/images",
+                "disturbing dreams",
+                "reliving",
+                "upset at reminders",
+                "physical reactions to reminders",
+                "avoid thinking/talking/feelings relating to experience",
+                "avoid activities/situations because they remind",
+                "trouble remembering important parts of stressful event",
+                "loss of interest in previously enjoyed activities",
+                "feeling distant/cut off from people",
+                "feeling emotionally numb",
+                "feeling future will be cut short",
+                "hard to sleep",
+                "irritable",
+                "difficulty concentrating",
+                "super alert/on guard",
+                "jumpy/easily startled",
+            ]
+        )
+        super().__init__(name, bases, classdict)
 
-class PclCommon(object):
+
+class PclCommon(TaskHasPatientMixin, Task,
+                metaclass=PclMetaclass):
     provides_trackers = True
+    extrastring_taskname = "pcl"
 
     NQUESTIONS = 17
-    CORE_FIELDSPECS = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=1, max=5,
-        comment_fmt="Q{n} ({s}) (1 not at all - 5 extremely)",
-        comment_strings=[
-            "disturbing memories/thoughts/images",
-            "disturbing dreams",
-            "reliving",
-            "upset at reminders",
-            "physical reactions to reminders",
-            "avoid thinking/talking/feelings relating to experience",
-            "avoid activities/situations because they remind",
-            "trouble remembering important parts of stressful event",
-            "loss of interest in previously enjoyed activities",
-            "feeling distant/cut off from people",
-            "feeling emotionally numb",
-            "feeling future will be cut short",
-            "hard to sleep",
-            "irritable",
-            "difficulty concentrating",
-            "super alert/on guard",
-            "jumpy/easily startled",
-        ]
-    )
-    TASK_FIELDS = []
-    TASK_TYPE = "?"
-    extrastring_taskname = "pcl"
+    SCORED_FIELDS = strseq("q", 1, NQUESTIONS)
+    TASK_FIELDS = SCORED_FIELDS  # may be overridden
+    TASK_TYPE = "?"  # will be overridden
+    # ... not really used; we display the generic question forms on the server
+    MIN_SCORE = NQUESTIONS
+    MAX_SCORE = 5 * NQUESTIONS
 
     def is_complete(self) -> bool:
         return (
@@ -90,15 +102,16 @@ class PclCommon(object):
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 1, self.NQUESTIONS))
+        return self.sum_fields(self.SCORED_FIELDS)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PCL total score",
-            axis_label="Total score (17-85)",
-            axis_min=16.5,
-            axis_max=85.5
+            axis_label="Total score ({}-{})".format(self.MIN_SCORE,
+                                                    self.MAX_SCORE),
+            axis_min=self.MIN_SCORE - 0.5,
+            axis_max=self.MAX_SCORE + 0.5
         )]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -115,7 +128,8 @@ class PclCommon(object):
                 name="total",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (17-85)"),
+                comment="Total score ({}-{})".format(self.MIN_SCORE,
+                                                     self.MAX_SCORE)),
             SummaryElement(
                 name="num_symptomatic",
                 coltype=Integer(),
@@ -175,7 +189,6 @@ class PclCommon(object):
             num_symptomatic_d >= 2
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        tasktype = self.TASK_TYPE
         score = self.total_score()
         num_symptomatic = self.num_symptomatic()
         num_symptomatic_b = self.num_symptomatic_b()
@@ -209,7 +222,8 @@ class PclCommon(object):
                     <th width="30%">Answer</th>
                 </tr>
         """
-        if tasktype == "S":
+        if hasattr(self, "event") and hasattr(self, "eventdate"):
+            # PCL-S
             h += tr_qa(self.wxstring(req, "s_event_s"), self.event)
             h += tr_qa(self.wxstring(req, "s_eventdate_s"), self.eventdate)
         for q in range(1, self.NQUESTIONS + 1):
@@ -237,14 +251,11 @@ class PclCommon(object):
 # PCL-C
 # -----------------------------------------------------------------------------
 
-class PclC(PclCommon, Task):
-    tablename = "pclc"
+class PclC(PclCommon, Base):
+    __tablename__ = "pclc"
     shortname = "PCL-C"
     longname = "PTSD Checklist, Civilian version"
 
-    fieldspecs = PclCommon.CORE_FIELDSPECS
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
     TASK_TYPE = "C"
 
 
@@ -252,14 +263,11 @@ class PclC(PclCommon, Task):
 # PCL-M
 # -----------------------------------------------------------------------------
 
-class PclM(PclCommon, Task):
-    tablename = "pclm"
+class PclM(PclCommon, Base):
+    __tablename__ = "pclm"
     shortname = "PCL-M"
     longname = "PTSD Checklist, Military version"
 
-    fieldspecs = PclCommon.CORE_FIELDSPECS
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
     TASK_TYPE = "M"
 
 
@@ -267,17 +275,19 @@ class PclM(PclCommon, Task):
 # PCL-S
 # -----------------------------------------------------------------------------
 
-class PclS(PclCommon, Task):
-    tablename = "pcls"
+class PclS(PclCommon, Base):
+    __tablename__ = "pcls"
     shortname = "PCL-S"
     longname = "PTSD Checklist, Stressor-specific version"
 
-    fieldspecs = PclCommon.CORE_FIELDSPECS + [
-        dict(name="event", cctype="TEXT",
-             comment="Traumatic event"),
-        dict(name="eventdate", cctype="TEXT",
-             comment="Date of traumatic event (free text)"),
-    ]
+    event = Column(
+        "event", Text,
+        comment="Traumatic event"
+    )
+    eventdate = Column(
+        "eventdate", Text,
+        comment="Date of traumatic event (free text)"
+    )
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = PclCommon.SCORED_FIELDS + ["event", "eventdate"]
     TASK_TYPE = "S"

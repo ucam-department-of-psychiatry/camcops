@@ -22,17 +22,21 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
 import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float, Integer
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -43,52 +47,65 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class Pdss(Task):
-    tablename = "pdss"
+class PdssMetaClass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Pdss'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=cls.MIN_PER_Q, maximum=cls.MAX_PER_Q,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
+            comment_strings=[
+                "frequency",
+                "distressing during",
+                "anxiety about panic",
+                "places or situations avoided",
+                "activities avoided",
+                "interference with responsibilities",
+                "interference with social life",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Pdss(TaskHasPatientMixin, Task, Base,
+           metaclass=PdssMetaClass):
+    __tablename__ = "pdss"
     shortname = "PDSS"
     longname = "Panic Disorder Severity Scale"
     provides_trackers = True
 
-    MIN_SCORE = 0
-    MAX_SCORE = 4
-    QUESTION_SNIPPETS = [
-        "frequency",
-        "distressing during",
-        "anxiety about panic",
-        "places or situations avoided",
-        "activities avoided",
-        "interference with responsibilities",
-        "interference with social life",
-    ]
+    MIN_PER_Q = 0
+    MAX_PER_Q = 4
     NQUESTIONS = 7
-
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS,
-        comment_fmt="Q{n}, {s} (0-4, higher worse)",
-        min=MIN_SCORE, max=MAX_SCORE,
-        comment_strings=QUESTION_SNIPPETS
-    )
-
-    QUESTION_FIELDS = [x["name"] for x in fieldspecs]
+    QUESTION_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_TOTAL = MAX_PER_Q * NQUESTIONS
+    MAX_COMPOSITE = 4
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PDSS total score (lower is better)",
-            axis_label="Total score (out of 28)",
+            axis_label="Total score (out of {})".format(self.MAX_TOTAL),
             axis_min=-0.5,
-            axis_max=28.5
+            axis_max=self.MAX_TOTAL + 0.5
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total_score", coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (/ 28)"),
-            SummaryElement(name="composite_score", coltype=Float(),
-                           value=self.composite_score(),
-                           comment="Composite score (/ 4)"),
+            SummaryElement(
+                name="total_score", coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (/ {})".format(self.MAX_TOTAL)
+            ),
+            SummaryElement(
+                name="composite_score", coltype=Float(),
+                value=self.composite_score(),
+                comment="Composite score (/ {})".format(self.MAX_COMPOSITE)
+            ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -97,8 +114,12 @@ class Pdss(Task):
         t = self.total_score()
         c = ws.number_to_dp(self.composite_score(), DP, default="?")
         return [CtvInfo(
-            content="PDSS total score {t}/48 (composite {c}/4)".format(
-                t=t, c=c)
+            content="PDSS total score {t}/{mt} (composite {c}/{mc})".format(
+                t=t,
+                mt=self.MAX_TOTAL,
+                c=c,
+                mc=self.MAX_COMPOSITE
+            )
         )]
 
     def total_score(self) -> int:
@@ -120,24 +141,28 @@ class Pdss(Task):
                     {complete_tr}
                     <tr>
                         <td>Total score</td>
-                        <td>{total} / 28</td>
+                        <td>{total} / {tmax}</td>
                     </td>
                     <tr>
                         <td>Composite (mean) score</td>
-                        <td>{composite} / 4</td>
+                        <td>{composite} / {cmax}</td>
                     </td>
                 </table>
             </div>
             <table class="taskdetail">
                 <tr>
                     <th width="60%">Question</th>
-                    <th width="40%">Answer (0–4)</th>
+                    <th width="40%">Answer ({qmin}–{qmax})</th>
                 </tr>
         """.format(
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
+            tmax=self.MAX_TOTAL,
             composite=answer(ws.number_to_dp(self.composite_score(), DP,
                                              default="?")),
+            cmax=self.MAX_COMPOSITE,
+            qmin=self.MIN_PER_Q,
+            qmax=self.MAX_PER_Q,
         )
         for q in range(1, self.NQUESTIONS + 1):
             qtext = self.wxstring(req, "q" + str(q))

@@ -22,16 +22,20 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_sqla_coltypes import SummaryCategoryColType
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 
 
@@ -39,44 +43,58 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 # PHQ-15
 # =============================================================================
 
-class Phq15(Task):
-    tablename = "phq15"
+class Phq15MetaClass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Phq15'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=0, maximum=2,
+            comment_fmt="Q{n} ({s}) (0 not bothered at all - "
+                        "2 bothered a lot)",
+            comment_strings=[
+                "stomach pain",
+                "back pain",
+                "limb/joint pain",
+                "F - menstrual",
+                "headaches",
+                "chest pain",
+                "dizziness",
+                "fainting",
+                "palpitations",
+                "breathless",
+                "sex",
+                "constipation/diarrhoea",
+                "nausea/indigestion",
+                "energy",
+                "sleep",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Phq15(TaskHasPatientMixin, Task, Base,
+            metaclass=Phq15MetaClass):
+    __tablename__ = "phq15"
     shortname = "PHQ-15"
     longname = "Patient Health Questionnaire-15"
     provides_trackers = True
 
     NQUESTIONS = 15
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS, min=0, max=2,
-        comment_fmt="Q{n} ({s}) (0 not bothered at all - 2 bothered a lot)",
-        comment_strings=[
-            "stomach pain",
-            "back pain",
-            "limb/joint pain",
-            "F - menstrual",
-            "headaches",
-            "chest pain",
-            "dizziness",
-            "fainting",
-            "palpitations",
-            "breathless",
-            "sex",
-            "constipation/diarrhoea",
-            "nausea/indigestion",
-            "energy",
-            "sleep",
-        ]
-    )
+    MAX_TOTAL = 30
 
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    ONE_TO_THREE = strseq("q", 1, 3)
+    FIVE_TO_END = strseq("q", 5, NQUESTIONS)
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
-        if not self.are_all_fields_complete(repeat_fieldname("q", 1, 3)):
+        if not self.are_all_fields_complete(self.ONE_TO_THREE):
             return False
-        if not self.are_all_fields_complete(repeat_fieldname(
-                                            "q", 5, self.NQUESTIONS)):
+        if not self.are_all_fields_complete(self.FIVE_TO_END):
             return False
         if self.is_female():
             return self.q4 is not None
@@ -87,9 +105,9 @@ class Phq15(Task):
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PHQ-15 total score (rating somatic symptoms)",
-            axis_label="Score for Q1-15 (out of 30)",
+            axis_label="Score for Q1-15 (out of {})".format(self.MAX_TOTAL),
             axis_min=-0.5,
-            axis_max=30.5,
+            axis_max=self.MAX_TOTAL + 0.5,
             horizontal_lines=[14.5, 9.5, 4.5],
             horizontal_labels=[
                 TrackerLabel(22, req.wappstring("severe")),
@@ -103,8 +121,8 @@ class Phq15(Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="PHQ-15 total score {}/30 ({})".format(
-                self.total_score(), self.severity())
+            content="PHQ-15 total score {}/{} ({})".format(
+                self.total_score(), self.MAX_TOTAL, self.severity(req))
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -113,10 +131,10 @@ class Phq15(Task):
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
-                           comment="Total score (/30)"),
+                           comment="Total score (/{})".format(self.MAX_TOTAL)),
             SummaryElement(name="severity",
                            coltype=SummaryCategoryColType,
-                           value=self.severity(),
+                           value=self.severity(req),
                            comment="Severity"),
         ]
 
@@ -131,7 +149,7 @@ class Phq15(Task):
                 n += 1
         return n
 
-    def severity(self) -> str:
+    def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         if score >= 15:
             return req.wappstring("severe")
@@ -146,7 +164,7 @@ class Phq15(Task):
         score = self.total_score()
         nsevere = self.num_severe()
         somatoform_likely = nsevere >= 3
-        severity = self.severity()
+        severity = self.severity(req)
         answer_dict = {None: None}
         for option in range(0, 3):
             answer_dict[option] = str(option) + " – " + \
@@ -157,7 +175,7 @@ class Phq15(Task):
         """
         h += self.get_is_complete_tr()
         h += tr(req.wappstring("total_score") + " <sup>[1]</sup>",
-                answer(score) + " / 30")
+                answer(score) + " / {}".format(self.MAX_TOTAL))
         h += tr_qa(self.wxstring(req, "n_severe_symptoms") + " <sup>[2]</sup>",
                    nsevere)
         h += tr_qa(

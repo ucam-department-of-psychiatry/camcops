@@ -32,6 +32,10 @@ they're registered (and also Task knows about all its subclasses).
 
 from cardinal_pythonlib.modules import import_submodules
 
+# =============================================================================
+# Non-task model imports
+# =============================================================================
+
 # noinspection PyUnresolvedReferences
 from .cc_audit import AuditEntry
 # noinspection PyUnresolvedReferences
@@ -49,5 +53,9 @@ from .cc_storedvar import DeviceStoredVar, ServerStoredVar
 # noinspection PyUnresolvedReferences
 from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 
-# Task imports
+
+# =============================================================================
+# Task imports (indirectly)
+# =============================================================================
+
 import_submodules("..tasks", __package__)

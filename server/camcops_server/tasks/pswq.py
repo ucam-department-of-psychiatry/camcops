@@ -22,67 +22,81 @@
 ===============================================================================
 """
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
-# IES-R
+# PSWQ
 # =============================================================================
 
-class Pswq(Task):
-    tablename = "pswq"
+class PswqMetaClass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Pswq'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(
+            cls, "q", 1, cls.NQUESTIONS,
+            minimum=cls.MIN_PER_Q, maximum=cls.MAX_PER_Q,
+            comment_fmt="Q{n}, {s} (1-5)",
+            comment_strings=[
+                "OK if not enough time [REVERSE SCORE]",  # 1
+                "worries overwhelm",
+                "do not tend to worry [REVERSE SCORE]",
+                "many situations make me worry",
+                "cannot help worrying",  # 5
+                "worry under pressure",
+                "always worrying",
+                "easily dismiss worries [REVERSE SCORE]",
+                "finish then worry about next thing",
+                "never worry [REVERSE SCORE]",  # 10
+                "if nothing more to do, I do not worry [REVERSE SCORE]",
+                "lifelong worrier",
+                "have been worrying",
+                "when start worrying cannot stop",
+                "worry all the time",  # 15
+                "worry about projects until done",
+            ]
+        )
+        super().__init__(name, bases, classdict)
+
+
+class Pswq(TaskHasPatientMixin, Task, Base,
+           metaclass=PswqMetaClass):
+    __tablename__ = "pswq"
     shortname = "PSWQ"
     longname = "Penn State Worry Questionnaire"
     provides_trackers = True
 
-    MIN_SCORE = 1
-    MAX_SCORE = 5
-    QUESTION_SNIPPETS = [
-        "OK if not enough time [REVERSE SCORE]",  # 1
-        "worries overwhelm",
-        "do not tend to worry [REVERSE SCORE]",
-        "many situations make me worry",
-        "cannot help worrying",  # 5
-        "worry under pressure",
-        "always worrying",
-        "easily dismiss worries [REVERSE SCORE]",
-        "finish then worry about next thing",
-        "never worry [REVERSE SCORE]",  # 10
-        "if nothing more to do, I do not worry [REVERSE SCORE]",
-        "lifelong worrier",
-        "have been worrying",
-        "when start worrying cannot stop",
-        "worry all the time",  # 15
-        "worry about projects until done",
-    ]
+    MIN_PER_Q = 1
+    MAX_PER_Q = 5
     NQUESTIONS = 16
     REVERSE_SCORE = [1, 3, 8, 10, 11]
-
-    fieldspecs = repeat_fieldspec(
-        "q", 1, NQUESTIONS,
-        comment_fmt="Q{n}, {s} (1-5)",
-        min=MIN_SCORE, max=MAX_SCORE,
-        comment_strings=QUESTION_SNIPPETS
-    )
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MIN_TOTAL = MIN_PER_Q * NQUESTIONS
+    MAX_TOTAL = MAX_PER_Q * NQUESTIONS
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="PSWQ total score (lower is better)",
-            axis_label="Total score (16–80)",
-            axis_min=15.5,
-            axis_max=80.5
+            axis_label="Total score ({}–{})".format(self.MIN_TOTAL,
+                                                    self.MAX_TOTAL),
+            axis_min=self.MIN_TOTAL - 0.5,
+            axis_max=self.MAX_TOTAL + 0.5
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -97,8 +111,8 @@ class Pswq(Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="PSWQ total score {t} (range 16–80)".format(
-                t=self.total_score())
+            content="PSWQ total score {} (range {}–{})".format(
+                self.total_score(), self.MIN_TOTAL, self.MAX_TOTAL)
         )]
 
     def score(self, q: int) -> Optional[int]:
@@ -106,7 +120,7 @@ class Pswq(Task):
         if value is None:
             return None
         if q in self.REVERSE_SCORE:
-            return self.MAX_SCORE + 1 - value
+            return self.MAX_PER_Q + 1 - value
         else:
             return value
 
@@ -116,8 +130,8 @@ class Pswq(Task):
 
     def is_complete(self) -> bool:
         return (
-            self.field_contents_valid() and
-            self.are_all_fields_complete(self.TASK_FIELDS)
+            self.are_all_fields_complete(self.TASK_FIELDS) and
+            self.field_contents_valid()
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
