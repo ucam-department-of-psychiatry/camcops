@@ -22,14 +22,23 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import get_yes_no
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 
 
@@ -37,24 +46,34 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 # FAB
 # =============================================================================
 
-class Fab(Task):
-    tablename = "fab"
+class FabMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Fab'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
+        super().__init__(name, bases, classdict)
+
+
+class Fab(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+          metaclass=FabMetaclass):
+    __tablename__ = "fab"
     shortname = "FAB"
     longname = "Frontal Assessment Battery"
-    has_clinician = True
     provides_trackers = True
 
     NQUESTIONS = 6
-    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_TOTAL = 18
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="FAB total score",
-            axis_label="Total score (out of 18)",
+            axis_label="Total score (out of {})".format(self.MAX_TOTAL),
             axis_min=-0.5,
-            axis_max=30.5,
+            axis_max=self.MAX_TOTAL + 0.5,
             horizontal_lines=[
                 12.5,
             ],
@@ -66,10 +85,12 @@ class Fab(Task):
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (out of {})".format(self.MAX_TOTAL)
+            ),
         ]
 
     def is_complete(self) -> bool:
@@ -92,9 +113,15 @@ class Fab(Task):
         h = """
             <div class="summary">
                 <table class="summary">
-                    {}
-                    <tr><td>{}</td><td><b>{}</b> / 18</td></tr>
-                    <tr><td>{} <sup>[1]</sup></td><td><b>{}</b></td></tr>
+                    {is_complete}
+                    <tr>
+                        <td>{total_score_str}</td>
+                        <td><b>{score}</b> / {max_total}</td>
+                    </tr>
+                    <tr>
+                        <td>{cutoff_str} <sup>[1]</sup></td>
+                        <td><b>{below_cutoff}</b></td>
+                    </tr>
                 </table>
             </div>
             <table class="taskdetail">
@@ -103,9 +130,12 @@ class Fab(Task):
                     <th width="60%">Score</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(),
-            req.wappstring("total_score"), score,
-            self.wxstring(req, "below_cutoff"), get_yes_no(below_cutoff),
+            is_complete=self.get_is_complete_tr(),
+            total_score_str=req.wappstring("total_score"),
+            score=score,
+            max_total=self.MAX_TOTAL,
+            cutoff_str=self.wxstring(req, "below_cutoff"),
+            below_cutoff=get_yes_no(below_cutoff),
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(

@@ -43,7 +43,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerLabel, TrackerInfo
 # SMAST
 # =============================================================================
 
-class SmastMetaClass(DeclarativeMeta):
+class SmastMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
     def __init__(cls: Type['Smast'],
                  name: str,
@@ -73,7 +73,7 @@ class SmastMetaClass(DeclarativeMeta):
 
 
 class Smast(TaskHasPatientMixin, Task, Base,
-            metaclass=SmastMetaClass):
+            metaclass=SmastMetaclass):
     __tablename__ = "smast"
     shortname = "SMAST"
     longname = "Short Michigan Alcohol Screening Test"

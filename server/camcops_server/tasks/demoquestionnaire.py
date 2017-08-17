@@ -28,6 +28,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer, Text, Time
 
+from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
 from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer
 from ..cc_modules.cc_request import CamcopsRequest
@@ -97,14 +98,27 @@ class DemoQuestionnaire(Task, Base,
     diagnosticcode_description = Column("diagnosticcode_description", Text)
     diagnosticcode2_code = Column("diagnosticcode2_code", Text)  # v2
     diagnosticcode2_description = Column("diagnosticcode2_description", Text)  # v2
-    photo_blobid = CamcopsColumn("photo_blobid", Integer, is_blob_id_field=True)  # noqa
+    photo_blobid = CamcopsColumn(
+        "photo_blobid", Integer,
+        is_blob_id_field=True, blob_relationship_attr_name="photo"
+    )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
     photo_rotation = Column("photo_rotation", Integer)  # *** DEFUNCT as of v2.0.0  # noqa
-    canvas_blobid = CamcopsColumn("canvas_blobid", Integer, is_blob_id_field=True)  # noqa
-    canvas2_blobid = CamcopsColumn("canvas2_blobid", Integer, is_blob_id_field=True)  # noqa # v2
+    canvas_blobid = CamcopsColumn(
+        "canvas_blobid", Integer,
+        is_blob_id_field=True, blob_relationship_attr_name="canvas"
+    )
+    canvas2_blobid = CamcopsColumn(
+        "canvas2_blobid", Integer,
+        is_blob_id_field=True, blob_relationship_attr_name="canvas2"
+    )
     spinbox_int = Column("spinbox_int", Integer)  # v2
     spinbox_real = Column("spinbox_real", Float)  # v2
     time_only = Column("time_only", Time)  # v2
+
+    photo = blob_relationship("DemoQuestionnaire", "photo_blobid")
+    canvas = blob_relationship("DemoQuestionnaire", "canvas_blobid")
+    canvas2 = blob_relationship("DemoQuestionnaire", "canvas2_blobid")
 
     # noinspection PyMethodOverriding
     @staticmethod
@@ -162,9 +176,9 @@ class DemoQuestionnaire(Task, Base,
         h += self.get_twocol_string_row("diagnosticcode_description")
         h += self.get_twocol_string_row("diagnosticcode2_code")
         h += self.get_twocol_string_row("diagnosticcode2_description")
-        h += self.get_twocol_picture_row("photo_blobid")
-        h += self.get_twocol_picture_row("canvas_blobid")
-        h += self.get_twocol_picture_row("canvas2_blobid")
+        h += self.get_twocol_picture_row(self.photo, "photo")
+        h += self.get_twocol_picture_row(self.canvas, "canvas")
+        h += self.get_twocol_picture_row(self.canvas2, "canvas2")
         h += """
             </table>
 

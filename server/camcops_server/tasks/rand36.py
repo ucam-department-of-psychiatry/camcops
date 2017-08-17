@@ -48,7 +48,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # RAND-36
 # =============================================================================
 
-class Rand36MetaClass(DeclarativeMeta):
+class Rand36Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
     def __init__(cls: Type['Rand36'],
                  name: str,
@@ -127,7 +127,7 @@ class Rand36MetaClass(DeclarativeMeta):
 
 
 class Rand36(TaskHasPatientMixin, Task, Base,
-             metaclass=Rand36MetaClass):
+             metaclass=Rand36Metaclass):
     __tablename__ = "rand36"
     shortname = "RAND-36"
     longname = "RAND 36-Item Short Form Health Survey 1.0"

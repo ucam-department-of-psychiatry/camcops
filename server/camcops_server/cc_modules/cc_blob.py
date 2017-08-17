@@ -27,7 +27,9 @@ import logging
 from typing import Optional
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, LargeBinary, Text
 import wand.image  # sudo apt-get install libmagickwand-dev; sudo pip install Wand  # noqa
@@ -183,6 +185,58 @@ class Blob(GenericTabletRecordMixin, Base):
         if not self.theblob:
             return ""
         return get_data_url(self.mimetype or MIMETYPE_PNG, self.theblob)
+
+
+# =============================================================================
+# Relationships
+# =============================================================================
+
+def blob_relationship(classname: str,
+                      blob_id_col_attr_name: str) -> RelationshipProperty:
+    """
+    Simplifies creation of BLOB relationships.
+    In a class definition, use like this:
+
+        class Something(Base):
+
+            photo_blobid = CamcopsColumn(
+                "photo_blobid", Integer,
+                is_blob_id_field=True, blob_field_xml_name="photo_blob"
+            )
+
+            photo = blob_relationship("Something", "photo_blobid")
+
+            # ... can't use Something directly as it's not yet been fully
+            #     defined, but we want the convenience of defining this
+            #     relationship here without the need to use metaclasses.
+            # ... SQLAlchemy's primaryjoin uses Python-side names (class and
+            #     attribute), rather than SQL-side names (table and column),
+            #     at least for its fancier things:
+            # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa
+
+    """
+    return relationship(
+        Blob,
+        primaryjoin=(
+            "and_("
+            " remote(Blob.id) == foreign({cls}.{fk}), "
+            " remote(Blob._device_id) == foreign({cls}._device_id), "
+            " remote(Blob._era) == foreign({cls}._era), "
+            " remote(Blob._current) == True "
+            ")".format(cls=classname, fk=blob_id_col_attr_name)
+        )
+    )
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+
+def get_blob_img_html(blob: Optional[Blob]) -> str:
+    """Get HTML IMG tag with embedded data, or HTML error message."""
+    if blob is None:
+        return "<i>(No picture)</i>"
+    return blob.get_img_html()
 
 
 # =============================================================================

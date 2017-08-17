@@ -22,13 +22,23 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
-from sqlalchemy.sql.sqltypes import Integer
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
 
-from ..cc_modules.cc_db import repeat_fieldname, repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 
 
@@ -36,26 +46,37 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 # MADRS
 # =============================================================================
 
-class Madrs(Task):
-    tablename = "madrs"
+class MadrsMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Madrs'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
+        super().__init__(name, bases, classdict)
+
+
+class Madrs(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+            metaclass=MadrsMetaclass):
+    __tablename__ = "madrs"
     shortname = "MADRS"
     longname = "Montgomery–Åsberg Depression Rating Scale"
-    has_clinician = True
     provides_trackers = True
 
+    period_rated = Column("period_rated", Text)
+
     NQUESTIONS = 10
-    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS) + [
-        dict(name="period_rated", cctype="TEXT"),
-    ]
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    QFIELDS = strseq("q", 1, NQUESTIONS)
+    TASK_FIELDS = QFIELDS + ["period_rated"]
+    MAX_TOTAL = 60
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="MADRS total score",
-            axis_label="Total score (out of 60)",
+            axis_label="Total score (out of {})".format(self.MAX_TOTAL),
             axis_min=-0.5,
-            axis_max=60.5,
+            axis_max=self.MAX_TOTAL + 0.5,
             horizontal_lines=[
                 33.5,
                 19.5,
@@ -81,7 +102,7 @@ class Madrs(Task):
         return self.are_all_fields_complete(self.TASK_FIELDS)
 
     def total_score(self) -> int:
-        return self.sum_fields(repeat_fieldname("q", 1, self.NQUESTIONS))
+        return self.sum_fields(self.QFIELDS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -106,9 +127,15 @@ class Madrs(Task):
         h = """
             <div class="summary">
                 <table class="summary">
-                    {}
-                    <tr><td>{}</td><td><b>{}</b> / 60</td></tr>
-                    <tr><td>{} <sup>[1]</sup></td><td><b>{}</b></tr>
+                    {is_complete}
+                    <tr>
+                        <td>{total_score_str}</td>
+                        <td><b>{score}</b> / {max_total}</td>
+                    </tr>
+                    <tr>
+                        <td>{category_str} <sup>[1]</sup></td>
+                        <td><b>{category}</b>
+                    </tr>
                 </table>
             </div>
             <div class="explanation">
@@ -119,12 +146,19 @@ class Madrs(Task):
                     <th width="30%">Question</th>
                     <th width="70%">Answer</th>
                 </tr>
-                <tr><td>{}</td><td><b>{}</b></td></tr>
+                <tr>
+                    <td>{q_period_rated}</td>
+                    <td><b>{period_rated}</b></td>
+                </tr>
         """.format(
-            self.get_is_complete_tr(),
-            req.wappstring("total_score"), score,
-            req.wappstring("category"), category,
-            self.wxstring(req, "q_period_rated"), self.period_rated
+            is_complete=self.get_is_complete_tr(),
+            total_score_str=req.wappstring("total_score"),
+            score=score,
+            max_total=self.MAX_TOTAL,
+            category_str=req.wappstring("category"),
+            category=category,
+            q_period_rated=self.wxstring(req, "q_period_rated"),
+            period_rated=self.period_rated,
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(

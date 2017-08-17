@@ -32,6 +32,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text
 
+from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
 from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH, PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import add_multiple_columns
@@ -276,7 +277,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
     picture1_blobid = CamcopsColumn(
         "picture1_blobid", Integer,
         comment="Photo 1/2 PNG BLOB ID",
-        is_blob_id_field=True,
+        is_blob_id_field=True, blob_relationship_attr_name="picture1"
     )
     picture1_rotation = Column(
         # DEFUNCT as of v2.0.0
@@ -287,7 +288,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
     picture2_blobid = CamcopsColumn(
         "picture2_blobid", Integer,
         comment="Photo 2/2 PNG BLOB ID",
-        is_blob_id_field=True,
+        is_blob_id_field=True, blob_relationship_attr_name="picture2"
     )
     picture2_rotation = Column(
         # DEFUNCT as of v2.0.0
@@ -299,6 +300,9 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
         "comments", Text,
         comment="Clinician's comments"
     )
+
+    picture1 = blob_relationship("Ace3", "picture1_blobid")
+    picture2 = blob_relationship("Ace3", "picture2_blobid")
 
     ATTN_SCORE_FIELDS = (strseq("attn_time", 1, 5) +
                          strseq("attn_place", 1, 5) +
@@ -738,10 +742,8 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
                                    self.mem_recognize_address5)) +
 
             subheading_spanning_two_columns("Photos of test sheet") +
-            tr_span_col(self.get_blob_img_html(self.picture1_blobid),
-                        td_class="photo") +
-            tr_span_col(self.get_blob_img_html(self.picture2_blobid),
-                        td_class="photo") +
+            tr_span_col(get_blob_img_html(self.picture1), td_class="photo") +
+            tr_span_col(get_blob_img_html(self.picture2), td_class="photo") +
             """
                 </table>
                 <div class="footnotes">

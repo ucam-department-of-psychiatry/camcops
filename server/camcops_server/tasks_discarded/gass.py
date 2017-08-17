@@ -22,15 +22,19 @@
 ===============================================================================
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List, Tuple, Type
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
 
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import get_yes_no
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -38,11 +42,25 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # GASS
 # =============================================================================
 
-class Gass(Task):
-    tablename = "gass"
+class GassMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Gass'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
+        add_multiple_columns(cls, "d", 1, cls.NQUESTIONS)
+        super().__init__(name, bases, classdict)
+
+
+class Gass(TaskHasPatientMixin, Task, Base,
+           metaclass=GassMetaclass):
+    __tablename__ = "gass"
     shortname = "GASS"
     longname = "Glasgow Antipsychotic Side-effect Scale"
     provides_trackers = True
+
+    medication = Column("medication", Text)
 
     NQUESTIONS = 22
     list_sedation = [1, 2]
@@ -54,29 +72,26 @@ class Gass(Task):
     list_prolactinaemic_female = [17, 18, 19, 21]
     list_prolactinaemic_male = [17, 18, 19, 20]
     list_weightgain = [22]
-
-    fieldspecs = (
-        [dict(name="medication", cctype="TEXT")] +
-        repeat_fieldspec("q", 1, NQUESTIONS) +
-        repeat_fieldspec("d", 1, NQUESTIONS)
-    )
+    MAX_TOTAL = 63
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="GASS total score",
-            axis_label="Total score (out of 63)",
+            axis_label="Total score (out of {})".format(self.MAX_TOTAL),
             axis_min=-0.5,
-            axis_max=63.5
+            axis_max=self.MAX_TOTAL + 0.5
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total", 
-                           coltype=Integer(),
-                           value=self.total_score(), 
-                           comment="Total score"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (out of {})".format(self.MAX_TOTAL)
+            ),
         ]
 
     @staticmethod
@@ -88,7 +103,7 @@ class Gass(Task):
         return ["d" + str(q) for q in group]
 
     def get_relevant_q_fieldlist(self) -> List[str]:
-        qnums = range(1, self.NQUESTIONS + 1)
+        qnums = list(range(1, self.NQUESTIONS + 1))
         if self.is_female():
             qnums.remove(20)
         else:
@@ -117,7 +132,7 @@ class Gass(Task):
             max_score
         )
 
-    def get_row(self, q: int, answer_dict: Dict) -> str:
+    def get_row(self, req: CamcopsRequest, q: int, answer_dict: Dict) -> str:
         return """<tr><td>{}</td><td><b>{}</b></td><td>{}</td></tr>""".format(
             self.wxstring(req, "q" + str(q)),
             get_from_dict(answer_dict, getattr(self, "q" + str(q))),
@@ -125,6 +140,7 @@ class Gass(Task):
         )
 
     def get_group_html(self,
+                       req: CamcopsRequest,
                        qnums: List[int],
                        subtitle: str,
                        answer_dict: Dict) -> str:
@@ -134,7 +150,7 @@ class Gass(Task):
             len(qnums) * 3
         )
         for q in qnums:
-            h += self.get_row(q, answer_dict)
+            h += self.get_row(req, q, answer_dict)
         return h
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -142,12 +158,17 @@ class Gass(Task):
         answer_dict = {None: "?"}
         for option in range(0, 4):
             answer_dict[option] = (
-                str(option) + " — " + self.wxstring(req, "option" + str(option)))
+                str(option) + " — " +
+                self.wxstring(req, "option" + str(option))
+            )
         h = """
             <div class="summary">
                 <table class="summary">
-                    {}
-                    <tr><td>{}</td><td><b>{}</b> / 63</td></tr>
+                    {is_complete}
+                    <tr>
+                        <td>{total_score_str}</td>
+                        <td><b>{score}</b> / {max_total}</td>
+                    </tr>
                 </table>
             </div>
             <div class="explanation">
@@ -160,38 +181,51 @@ class Gass(Task):
                     <th width="15%">Distressing?</th><
                 /tr>
         """.format(
-            self.get_is_complete_tr(),
-            req.wappstring("total_score"), score
+            is_complete=self.get_is_complete_tr(),
+            total_score_str=req.wappstring("total_score"),
+            score=score,
+            max_total=self.MAX_TOTAL,
         )
-        h += self.get_group_html(self.list_sedation,
+        h += self.get_group_html(req,
+                                 self.list_sedation,
                                  self.wxstring(req, "group_sedation"),
                                  answer_dict)
-        h += self.get_group_html(self.list_cardiovascular,
+        h += self.get_group_html(req,
+                                 self.list_cardiovascular,
                                  self.wxstring(req, "group_cardiovascular"),
                                  answer_dict)
-        h += self.get_group_html(self.list_epse,
+        h += self.get_group_html(req,
+                                 self.list_epse,
                                  self.wxstring(req, "group_epse"),
                                  answer_dict)
-        h += self.get_group_html(self.list_anticholinergic,
+        h += self.get_group_html(req,
+                                 self.list_anticholinergic,
                                  self.wxstring(req, "group_anticholinergic"),
                                  answer_dict)
-        h += self.get_group_html(self.list_gastrointestinal,
+        h += self.get_group_html(req,
+                                 self.list_gastrointestinal,
                                  self.wxstring(req, "group_gastrointestinal"),
                                  answer_dict)
-        h += self.get_group_html(self.list_genitourinary,
+        h += self.get_group_html(req,
+                                 self.list_genitourinary,
                                  self.wxstring(req, "group_genitourinary"),
                                  answer_dict)
         if self.is_female():
-            h += self.get_group_html(self.list_prolactinaemic_female,
-                                     self.wxstring(req, "group_prolactinaemic") +
-                                     " (" + req.wappstring("female") + ")",
-                                     answer_dict)
+            h += self.get_group_html(
+                req,
+                self.list_prolactinaemic_female,
+                self.wxstring(req, "group_prolactinaemic") +
+                " (" + req.wappstring("female") + ")",
+                answer_dict)
         else:
-            h += self.get_group_html(self.list_prolactinaemic_male,
-                                     self.wxstring(req, "group_prolactinaemic") +
-                                     " (" + req.wappstring("male") + ")",
-                                     answer_dict)
-        h += self.get_group_html(self.list_weightgain,
+            h += self.get_group_html(
+                req,
+                self.list_prolactinaemic_male,
+                self.wxstring(req, "group_prolactinaemic") +
+                " (" + req.wappstring("male") + ")",
+                answer_dict)
+        h += self.get_group_html(req,
+                                 self.list_weightgain,
                                  self.wxstring(req, "group_weightgain"),
                                  answer_dict)
         h += """

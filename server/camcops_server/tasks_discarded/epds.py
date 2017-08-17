@@ -22,14 +22,18 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import get_yes_no
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 
 
@@ -37,23 +41,34 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 # EPDS
 # =============================================================================
 
-class Epds(Task):
-    tablename = "epds"
+class EpdsMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Epds'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
+        super().__init__(name, bases, classdict)
+
+
+class Epds(TaskHasPatientMixin, Task, Base,
+           metaclass=EpdsMetaclass):
+    __tablename__ = "epds"
     shortname = "EPDS"
     longname = "Edinburgh Postnatal Depression Scale"
     provides_trackers = True
 
     NQUESTIONS = 10
-    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_TOTAL = 30
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="EPDS total score (rating depressive symptoms)",
-            axis_label="Total score (out of 30)",
+            axis_label="Total score (out of {})".format(self.MAX_TOTAL),
             axis_min=-0.5,
-            axis_max=30.5,
+            axis_max=self.MAX_TOTAL + 0.5,
             horizontal_lines=[
                 12.5,
                 9.5,
@@ -67,9 +82,11 @@ class Epds(Task):
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total", coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score"),
+            SummaryElement(
+                name="total", coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (out of {})".format(self.MAX_TOTAL)
+            ),
         ]
 
     def is_complete(self) -> bool:
@@ -93,15 +110,24 @@ class Epds(Task):
         h = """
             <div class="summary">
                 <table class="summary">
-                    {}
-                    <tr><td>{}</td><td><b>{}</b> / 30</td></tr>
-                    <tr><td>{} <sup>[1]</sup></td><td><b>{}</b></td></tr>
-                    <tr><td>{} <sup>[2]</sup></td><td><b>{}</b></td></tr>
+                    {is_complete}
+                    <tr>
+                        <td>{total_score_str}</td>
+                        <td><b>{score}</b> / {max_total}</td>
+                    </tr>
+                    <tr>
+                        <td>{ac1str} <sup>[1]</sup></td>
+                        <td><b>{above_cutoff_1}</b></td>
+                    </tr>
+                    <tr>
+                        <td>{ac2str} <sup>[2]</sup></td>
+                        <td><b>{above_cutoff_2}</b></td>
+                    </tr>
                 </table>
             </div>
             <div class="explanation">
                 Ratings are over the last week.
-                <b>{}</b>
+                <b>{suicide}</b>
             </div>
             <table class="taskdetail">
                 <tr>
@@ -109,11 +135,15 @@ class Epds(Task):
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(),
-            req.wappstring("total_score"), score,
-            self.wxstring(req, "above_cutoff_1"), get_yes_no(above_cutoff_1),
-            self.wxstring(req, "above_cutoff_2"), get_yes_no(above_cutoff_2),
-            self.wxstring(req, "always_look_at_suicide")
+            is_complete=self.get_is_complete_tr(),
+            total_score_str=req.wappstring("total_score"),
+            score=score,
+            max_total=self.MAX_TOTAL,
+            ac1str=self.wxstring(req, "above_cutoff_1"),
+            above_cutoff_1=get_yes_no(above_cutoff_1),
+            ac2str=self.wxstring(req, "above_cutoff_2"),
+            above_cutoff_2=get_yes_no(above_cutoff_2),
+            suicide=self.wxstring(req, "always_look_at_suicide")
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(

@@ -42,7 +42,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # WEMWBS
 # =============================================================================
 
-class WemwbsMetaClass(DeclarativeMeta):
+class WemwbsMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
     def __init__(cls: Type['Wemwbs'],
                  name: str,
@@ -73,7 +73,7 @@ class WemwbsMetaClass(DeclarativeMeta):
 
 
 class Wemwbs(TaskHasPatientMixin, Task, Base,
-             metaclass=WemwbsMetaClass):
+             metaclass=WemwbsMetaclass):
     __tablename__ = "wemwbs"
     shortname = "WEMWBS"
     longname = "Warwick–Edinburgh Mental Well-Being Scale"
@@ -179,7 +179,7 @@ class Wemwbs(TaskHasPatientMixin, Task, Base,
 # SWEMWBS
 # =============================================================================
 
-class SwemwbsMetaClass(DeclarativeMeta):
+class SwemwbsMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
     def __init__(cls: Type['Swemwbs'],
                  name: str,
@@ -210,7 +210,7 @@ class SwemwbsMetaClass(DeclarativeMeta):
 
 
 class Swemwbs(TaskHasPatientMixin, Task, Base,
-              metaclass=SwemwbsMetaClass):
+              metaclass=SwemwbsMetaclass):
     __tablename__ = "swemwbs"
     shortname = "SWEMWBS"
     longname = "Short Warwick–Edinburgh Mental Well-Being Scale"

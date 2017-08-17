@@ -47,7 +47,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class PdssMetaClass(DeclarativeMeta):
+class PdssMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
     def __init__(cls: Type['Pdss'],
                  name: str,
@@ -71,7 +71,7 @@ class PdssMetaClass(DeclarativeMeta):
 
 
 class Pdss(TaskHasPatientMixin, Task, Base,
-           metaclass=PdssMetaClass):
+           metaclass=PdssMetaclass):
     __tablename__ = "pdss"
     shortname = "PDSS"
     longname = "Panic Disorder Severity Scale"

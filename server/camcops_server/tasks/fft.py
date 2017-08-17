@@ -39,7 +39,7 @@ from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 # =============================================================================
 
 class Fft(TaskHasPatientMixin, Task, Base):
-    tablename = "fft"
+    __tablename__ = "fft"
     shortname = "FFT"
     longname = "Friends and Family Test"
 

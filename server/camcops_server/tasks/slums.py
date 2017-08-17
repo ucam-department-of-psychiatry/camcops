@@ -27,6 +27,7 @@ from typing import List
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text
 
+from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
     answer,
@@ -186,18 +187,21 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
 
     clockpicture_blobid = CamcopsColumn(
         "clockpicture_blobid", Integer,
-        is_blob_id_field=True, blob_field_xml_name="clockpicture",
+        is_blob_id_field=True, blob_relationship_attr_name="clockpicture",
         comment="BLOB ID of clock picture"
     )
     shapespicture_blobid = CamcopsColumn(
         "shapespicture_blobid", Integer,
-        is_blob_id_field=True, blob_field_xml_name="shapespicture",
+        is_blob_id_field=True, blob_relationship_attr_name="shapespicture",
         comment="BLOB ID of shapes picture"
     )
     comments = Column(
         "comments", Text,
         comments="Clinician's comments"
     )
+
+    clockpicture = blob_relationship("Slums", "clockpicture_blobid")
+    shapespicture = blob_relationship("Slums", "shapespicture_blobid")
 
     PREAMBLE_FIELDS = ["alert", "highschooleducation"]
     SCORED_FIELDS = [
@@ -333,9 +337,9 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
         """
         h += subheading_spanning_two_columns("Images of tests: clock, shapes")
         h += tr(
-            td(self.get_blob_img_html(self.clockpicture_blobid),
+            td(get_blob_img_html(self.clockpicture),
                td_width="50%", td_class="photo"),
-            td(self.get_blob_img_html(self.shapespicture_blobid),
+            td(get_blob_img_html(self.shapespicture),
                td_width="50%", td_class="photo"),
             literal=True
         )

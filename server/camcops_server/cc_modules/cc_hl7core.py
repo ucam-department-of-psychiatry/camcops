@@ -479,7 +479,7 @@ def make_obx_segment(task: TASK_FWD_REF,
 
 
 def make_dg1_segment(set_id: int,
-                     diagnosis_datetime: datetime.date,
+                     diagnosis_datetime: datetime.datetime,
                      coding_system: str,
                      diagnosis_identifier: str,
                      diagnosis_text: str,

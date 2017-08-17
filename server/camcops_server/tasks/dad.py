@@ -54,7 +54,7 @@ YN_NA_CHECKER = PermittedValueChecker(permitted_values=[YES, NO, NA])
 # DAD
 # =============================================================================
 
-class DadMetaClass(DeclarativeMeta):
+class DadMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
     def __init__(cls: Type['Dad'],
                  name: str,
@@ -74,7 +74,7 @@ class DadMetaClass(DeclarativeMeta):
 
 class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
           Task, Base,
-          metaclass=DadMetaClass):
+          metaclass=DadMetaclass):
     __tablename__ = "dad"
     shortname = "DAD"
     longname = "Disability Assessment for Dementia"

@@ -44,7 +44,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # WSAS
 # =============================================================================
 
-class WsasMetaClass(DeclarativeMeta):
+class WsasMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
     def __init__(cls: Type['Wsas'],
                  name: str,
@@ -66,7 +66,7 @@ class WsasMetaClass(DeclarativeMeta):
 
 
 class Wsas(TaskHasPatientMixin, Task, Base,
-           metaclass=WsasMetaClass):
+           metaclass=WsasMetaclass):
     __tablename__ = "wsas"
     shortname = "WSAS"
     longname = "Work and Social Adjustment Scale"

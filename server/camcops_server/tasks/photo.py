@@ -22,39 +22,52 @@
 ===============================================================================
 """
 
-from typing import List, Optional
+from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer, Text
 
-from ..cc_modules.cc_blob import Blob
+from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
+from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
+from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
 from ..cc_modules.cc_html import answer, tr_qa
-from ..cc_modules.cc_task import Ancillary, CtvInfo, CTV_INCOMPLETE, Task
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import CamcopsColumn
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 
 
 # =============================================================================
 # Photo
 # =============================================================================
 
-class Photo(Task):
-    tablename = "photo"
+class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+    __tablename__ = "photo"
     shortname = "Photo"
     longname = "Photograph"
-    has_clinician = True
 
-    fieldspecs = [
-        dict(name="description", cctype="TEXT",
-             comment="Description of the photograph"),
-        dict(name="photo_blobid", cctype="INT",
-             comment="ID of the BLOB (foreign key to blobs.id, given "
-             "matching device and current/frozen record status)"),
-        # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-        dict(name="rotation", cctype="INT",  # *** DEFUNCT as of v2.0.0  # noqa
-             comment="Rotation (clockwise, in degrees) to be applied for "
-                     "viewing"),
-    ]
-    blob_name_idfield_list = [
-        ("photo_blob", "photo_blobid")
-    ]
+    description = Column(
+        "description", Text,
+        comment="Description of the photograph"
+    )
+    photo_blobid = CamcopsColumn(
+        "photo_blobid", Integer,
+        is_blob_id_field=True, blob_relationship_attr_name="photo",
+        comment="ID of the BLOB (foreign key to blobs.id, given "
+                "matching device and current/frozen record status)"
+    )
+    # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
+    rotation = Column(  # *** DEFUNCT as of v2.0.0  # noqa
+        "rotation", Integer,
+        comment="Rotation (clockwise, in degrees) to be applied for viewing"
+    )
+
+    photo = blob_relationship("Photo", "photo_blobid")
 
     def is_complete(self) -> bool:
         return self.photo_blobid is not None
@@ -78,7 +91,7 @@ class Photo(Task):
             answer(ws.webify(self.description), default="(No description)",
                    default_for_blank_strings=True),
             # ... xhtml2pdf crashes if the contents are empty...
-            self.get_blob_img_html(self.photo_blobid)
+            get_blob_img_html(self.photo)
         )
 
 
@@ -86,28 +99,35 @@ class Photo(Task):
 # PhotoSequence
 # =============================================================================
 
-class PhotoSequenceSinglePhoto(Ancillary):
-    tablename = "photosequence_photos"
-    fkname = "photosequence_id"
-    fieldspecs = [
-        dict(name="photosequence_id", notnull=True, cctype="INT",
-             comment="FK to photosequence"),
-        dict(name="seqnum", notnull=True, cctype="INT",
-             comment="Sequence number of this photo"),
-        dict(name="description", cctype="TEXT",
-             comment="Description of the photograph"),
-        dict(name="photo_blobid", cctype="INT",
-             comment="ID of the BLOB (foreign key to blobs.id, given "
-             "matching device and current/frozen record status)"),
-        # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-        dict(name="rotation", cctype="INT",  # *** DEFUNCT as of v2.0.0  # noqa
-             comment="Rotation (clockwise, in degrees) to be applied for "
-                     "viewing"),
-    ]
-    sortfield = "seqnum"
-    blob_name_idfield_list = [
-        ("photo_blob", "photo_blobid")
-    ]
+class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
+    __tablename__ = "photosequence_photos"
+    # *** fkname = "photosequence_id"
+
+    photosequence_id = Column(
+        "photosequence_id", Integer, nullable=False,
+        comment="Tablet FK to photosequence"
+    )
+    seqnum = Column(
+        "seqnum", Integer, nullable=False,
+        comment="Sequence number of this photo"
+    )
+    description = Column(
+        "description", Text,
+        comment="Description of the photograph"
+    )
+    photo_blobid = CamcopsColumn(
+        "photo_blobid", Integer,
+        is_blob_id_field=True, blob_relationship_attr_name="photo",
+        comment="ID of the BLOB (foreign key to blobs.id, given "
+                "matching device and current/frozen record status)"
+    )
+    # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
+    rotation = Column(  # *** DEFUNCT as of v2.0.0  # noqa
+        "rotation", Integer,
+        comment="Rotation (clockwise, in degrees) to be applied for viewing"
+    )
+
+    photo = blob_relationship("PhotoSequenceSinglePhoto", "photo_blobid")
 
     def get_html_table_rows(self) -> str:
         return """
@@ -115,51 +135,40 @@ class PhotoSequenceSinglePhoto(Ancillary):
             <tr><td>{}</td></tr>
         """.format(
             self.seqnum + 1, ws.webify(self.description),
-            self.get_blob_html(),
+            get_blob_img_html(self.photo)
         )
 
-    def get_blob(self) -> Optional[Blob]:
-        return self.get_blob_by_id(self.photo_blobid)
 
-    def get_blob_html(self) -> str:
-        if self.photo_blobid is None:
-            return "<i>(No picture)</i>"
-        blob = self.get_blob()
-        if blob is None:
-            return "<i>(Missing picture)</i>"
-        return blob.get_img_html()
-
-
-class PhotoSequence(Task):
-    tablename = "photosequence"
+class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+    __tablename__ = "photosequence"
     shortname = "PhotoSequence"
     longname = "Photograph sequence"
-    has_clinician = True
 
-    fieldspecs = [
-        dict(name="sequence_description", cctype="TEXT",
-             comment="Description of the sequence of photographs"),
-    ]
-    dependent_classes = [PhotoSequenceSinglePhoto]
+    sequence_description = Column(
+        "sequence_description", Text,
+        comment="Description of the sequence of photographs"
+    )
+
+    photos = ancillary_relationship(
+        parent_class_name="PhotoSequence",
+        ancillary_class_name="PhotoSequenceSinglePhoto",
+        ancillary_fk_to_parent_attr_name="photosequence_id",
+        ancillary_order_by_attr_name="seqnum"
+    )
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
-        photos = self.get_photos()
         infolist = [CtvInfo(content=self.sequence_description)]
-        for p in photos:
+        for p in self.photos:
             infolist.append(CtvInfo(content=p.description))
         return infolist
 
     def get_num_photos(self) -> int:
-        return self.get_ancillary_item_count(PhotoSequenceSinglePhoto)
-
-    def get_photos(self) -> List[PhotoSequenceSinglePhoto]:
-        return self.get_ancillary_items(PhotoSequenceSinglePhoto)
+        return len(self.photos) > 0
 
     def is_complete(self) -> bool:
-        return bool(self.sequence_description and self.get_num_photos() > 0)
+        return bool(self.sequence_description) and self.get_num_photos() > 0
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        photos = self.get_photos()
         html = """
             <div class="summary">
                 <table class="summary">
@@ -171,10 +180,10 @@ class PhotoSequence(Task):
             <table class="taskdetail">
         """.format(
             is_complete=self.get_is_complete_tr(),
-            num_photos=tr_qa("Number of photos", len(photos)),
+            num_photos=tr_qa("Number of photos", self.get_num_photos()),
             description=tr_qa("Description", self.sequence_description),
         )
-        for p in photos:
+        for p in self.photos:
             html += p.get_html_table_rows()
         html += """
             </table>

@@ -34,6 +34,7 @@ from cardinal_pythonlib.rnc_db import (
     FIELDSPECLIST_TYPE,
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
@@ -189,6 +190,38 @@ class GenericTabletRecordMixin(object):
 
 
     # *** DEFINE MEMBER FUNCTIONS TO DO JOIN QUERIES
+
+
+# =============================================================================
+# Relationships
+# =============================================================================
+
+def ancillary_relationship(
+        parent_class_name: str,
+        ancillary_class_name: str,
+        ancillary_fk_to_parent_attr_name: str,
+        ancillary_order_by_attr_name: str = None) -> RelationshipProperty:
+    """
+    Implements a one-to-many relationship, i.e. one parent to many ancillaries.
+    """
+    parent_pk_attr_name = "id"  # always
+    return relationship(
+        ancillary_class_name,
+        primaryjoin=(
+            "and_("
+            " remote({a}.{fk}) == foreign({p}.{pk}), "
+            " remote({a}._device_id) == foreign({p}._device_id), "
+            " remote({a}._era) == foreign({p}._era), "
+            " remote({a}._current) == True "
+            ")".format(
+                a=ancillary_class_name,
+                fk=ancillary_fk_to_parent_attr_name,
+                p=parent_class_name,
+                pk=parent_pk_attr_name,
+            )
+        ),
+        order_by=ancillary_order_by_attr_name
+    )
 
 
 # =============================================================================

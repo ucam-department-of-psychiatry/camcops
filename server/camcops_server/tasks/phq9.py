@@ -47,7 +47,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerAxisTick, TrackerInfo, Tracker
 # PHQ-9
 # =============================================================================
 
-class Phq9MetaClass(DeclarativeMeta):
+class Phq9Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
     def __init__(cls: Type['Phq9'],
                  name: str,
@@ -73,7 +73,7 @@ class Phq9MetaClass(DeclarativeMeta):
 
 
 class Phq9(TaskHasPatientMixin, Task, Base,
-           metaclass=Phq9MetaClass):
+           metaclass=Phq9Metaclass):
     __tablename__ = "phq9"
     shortname = "PHQ-9"
     longname = "Patient Health Questionnaire-9"

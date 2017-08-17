@@ -42,7 +42,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # PSWQ
 # =============================================================================
 
-class PswqMetaClass(DeclarativeMeta):
+class PswqMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
     def __init__(cls: Type['Pswq'],
                  name: str,
@@ -75,7 +75,7 @@ class PswqMetaClass(DeclarativeMeta):
 
 
 class Pswq(TaskHasPatientMixin, Task, Base,
-           metaclass=PswqMetaClass):
+           metaclass=PswqMetaclass):
     __tablename__ = "pswq"
     shortname = "PSWQ"
     longname = "Penn State Worry Questionnaire"

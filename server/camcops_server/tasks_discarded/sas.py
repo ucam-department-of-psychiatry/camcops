@@ -22,13 +22,17 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task
+from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -36,33 +40,45 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # SAS
 # =============================================================================
 
-class Sas(Task):
+class SasMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Sas'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
+        super().__init__(name, bases, classdict)
+
+
+class Sas(TaskHasPatientMixin, Task, Base,
+          metaclass=SasMetaclass):
     tablename = "sas"
     shortname = "SAS"
     longname = "Simpson–Angus Extrapyramidal Side Effects Scale"
     provides_trackers = True
 
     NQUESTIONS = 10
-    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
-
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_TOTAL = 40
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="SAS total score",
-            axis_label="Total score (out of 40)",
+            axis_label="Total score (out of {})".format(self.MAX_TOTAL),
             axis_min=-0.5,
-            axis_max=40.5
+            axis_max=self.MAX_TOTAL + 0.5
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (out of {})".format(self.MAX_TOTAL)
+            ),
         ]
 
     def is_complete(self) -> bool:
@@ -83,8 +99,11 @@ class Sas(Task):
         h = """
             <div class="summary">
                 <table class="summary">
-                    {}
-                    <tr><td>{}</td><td><b>{}</b> / 40</td></tr>
+                    {is_complete}
+                    <tr>
+                        <td>{total_score_str}</td>
+                        <td><b>{score}</b> / {max_total}</td>
+                    </tr>
                 </table>
             </div>
             <table class="taskdetail">
@@ -93,8 +112,10 @@ class Sas(Task):
                     <th width="70%">Answer</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(),
-            req.wappstring("total_score"), score
+            is_complete=self.get_is_complete_tr(),
+            total_score_str=req.wappstring("total_score"),
+            score=score,
+            max_total=self.MAX_TOTAL,
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(

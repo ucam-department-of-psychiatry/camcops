@@ -22,14 +22,22 @@
 ===============================================================================
 """
 
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from ..cc_modules.cc_db import repeat_fieldspec
+from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import get_yes_no, get_yes_no_unknown
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import Task
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -37,35 +45,47 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # CSI
 # =============================================================================
 
-class Csi(Task):
-    tablename = "csi"
+class CsiMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type['Csi'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
+        super().__init__(name, bases, classdict)
+
+
+class Csi(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+          metaclass=CsiMetaclass):
+    __tablename__ = "csi"
     shortname = "CSI"
     longname = "Catatonia Screening Instrument"
-    has_clinician = True  # !!! not implemented on tablet; should be
+    # *** !!! has_clinician not implemented on tablet; should be
     provides_trackers = True
     extrastring_taskname = "bfcrs"  # shares with BFCRS
 
     NQUESTIONS = 14
-    fieldspecs = repeat_fieldspec("q", 1, NQUESTIONS)
-    TASK_FIELDS = [x["name"] for x in fieldspecs]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="CSI total score",
-            axis_label="Total score (out of 14)",
+            axis_label="Total score (out of {})".format(self.NQUESTIONS),
             axis_min=-0.5,
-            axis_max=14.5,
+            axis_max=self.NQUESTIONS + 0.5,
             horizontal_lines=[1.5]
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return [
             self.is_complete_summary_field(),
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (out of {})".format(self.NQUESTIONS)
+            ),
         ]
 
     def is_complete(self) -> bool:
@@ -80,9 +100,15 @@ class Csi(Task):
         h = """
             <div class="summary">
                 <table class="summary">
-                    {}
-                    <tr><td>{}</td><td><b>{}</b> / 14</td></tr>
-                    <tr><td>{} <sup>[1]</sup></td><td><b>{}</b></td></tr>
+                    {is_complete}
+                    <tr>
+                        <td>{num_sx_str}</td>
+                        <td><b>{n_csi_symptoms}</b> / {max_total}</td>
+                    </tr>
+                    <tr>
+                        <td>{catatonia_str} <sup>[1]</sup></td>
+                        <td><b>{csi_catatonia}</b></td>
+                    </tr>
                 </table>
             </div>
             <table class="taskdetail">
@@ -91,13 +117,17 @@ class Csi(Task):
                     <th width="50%">Present?</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(),
-            self.wxstring(req, "num_symptoms_present"), n_csi_symptoms,
-            self.wxstring(req, "catatonia_present"), get_yes_no(csi_catatonia)
+            is_complete=self.get_is_complete_tr(),
+            num_sx_str=self.wxstring(req, "num_symptoms_present"),
+            n_csi_symptoms=n_csi_symptoms,
+            max_total=self.NQUESTIONS,
+            catatonia_str=self.wxstring(req, "catatonia_present"),
+            csi_catatonia=get_yes_no(csi_catatonia)
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
-                "Q" + str(q) + " — " + self.wxstring(req, "q" + str(q) + "_title"),
+                "Q" + str(q) + " — " +
+                self.wxstring(req, "q" + str(q) + "_title"),
                 get_yes_no_unknown(getattr(self, "q" + str(q)))
             )
         h += """

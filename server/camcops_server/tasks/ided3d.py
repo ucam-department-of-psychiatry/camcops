@@ -22,11 +22,13 @@
 ===============================================================================
 """
 
-from typing import Any, List
+from typing import Any
 
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
-from ..cc_modules.cc_constants import PV
+from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no_none,
@@ -34,7 +36,14 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_task import Ancillary, Task
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn, 
+    DateTimeAsIsoTextColType,
+)
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 def a(x: Any) -> str:
@@ -46,51 +55,92 @@ def a(x: Any) -> str:
 # IDED3D
 # =============================================================================
 
-class IDED3DTrial(Ancillary):
-    tablename = "ided3d_trials"
-    fkname = "ided3d_id"
-    fieldspecs = [
-        dict(name="ided3d_id", notnull=True,
-             cctype="INT", comment="FK to ided3d"),
-        dict(name="trial", notnull=True, cctype="INT",
-             comment="Trial number (1-based)"),
-        dict(name="stage", cctype="INT", comment="Stage number (1-based)"),
-        # Locations
-        dict(name="correct_location", cctype="INT",
-             comment="Location of correct stimulus "
-                     "(0 top, 1 right, 2 bottom, 3 left)"),
-        dict(name="incorrect_location", cctype="INT",
-             comment="Location of incorrect stimulus "
-                     "(0 top, 1 right, 2 bottom, 3 left)"),
-        # Stimuli
-        dict(name="correct_shape", cctype="INT",
-             comment="Shape# of correct stimulus"),
-        dict(name="correct_colour", cctype="TEXT",
-             comment="HTML colour of correct stimulus"),
-        dict(name="correct_number", cctype="INT",
-             comment="Number of copies of correct stimulus"),
-        dict(name="incorrect_shape", cctype="INT",
-             comment="Shape# of incorrect stimulus"),
-        dict(name="incorrect_colour", cctype="TEXT",
-             comment="HTML colour of incorrect stimulus"),
-        dict(name="incorrect_number", cctype="INT",
-             comment="Number of copies of incorrect stimulus"),
-        # Trial
-        dict(name="trial_start_time", cctype="ISO8601",
-             comment="Trial start time / stimuli presented at (ISO-8601)"),
-        # Response
-        dict(name="responded", cctype="BOOL", pv=PV.BIT,
-             comment="Trial start time / stimuli presented at (ISO-8601)"),
-        dict(name="response_time", cctype="ISO8601",
-             comment="Time of response (ISO-8601)"),
-        dict(name="response_latency_ms", cctype="INT",
-             comment="Response latency (ms)"),
-        dict(name="correct", cctype="BOOL", pv=PV.BIT,
-             comment="Response was correct"),
-        dict(name="incorrect", cctype="BOOL", pv=PV.BIT,
-             comment="Response was incorrect"),
-    ]
-    sortfield = "trial"
+class IDED3DTrial(GenericTabletRecordMixin, Base):
+    __tablename__ = "ided3d_trials"
+
+    ided3d_id = Column(
+        "ided3d_id", Integer, 
+        nullable=False,
+        comment="FK to ided3d"
+    )
+    trial = Column(
+        "trial", Integer,
+        nullable=False,
+        comment="Trial number (1-based)"
+    )
+    stage = Column(
+        "stage", Integer, 
+        comment="Stage number (1-based)"
+    )
+    
+    # Locations
+    correct_location = Column(
+        "correct_location", Integer,
+        comment="Location of correct stimulus "
+                "(0 top, 1 right, 2 bottom, 3 left)"
+    )
+    incorrect_location = Column(
+        "incorrect_location", Integer,
+        comment="Location of incorrect stimulus "
+                "(0 top, 1 right, 2 bottom, 3 left)"
+    )
+    
+    # Stimuli
+    correct_shape = Column(
+        "correct_shape", Integer,
+        comment="Shape# of correct stimulus"
+    )
+    correct_colour = Column(
+        "correct_colour", Text,
+        comment="HTML colour of correct stimulus"
+    )
+    correct_number = Column(
+        "correct_number", Integer,
+        comment="Number of copies of correct stimulus"
+    )
+    incorrect_shape = Column(
+        "incorrect_shape", Integer,
+        comment="Shape# of incorrect stimulus"
+    )
+    incorrect_colour = Column(
+        "incorrect_colour", Text,
+        comment="HTML colour of incorrect stimulus"
+    )
+    incorrect_number = Column(
+        "incorrect_number", Integer,
+        comment="Number of copies of incorrect stimulus"
+    )
+    
+    # Trial
+    trial_start_time = Column(
+        "trial_start_time", DateTimeAsIsoTextColType,
+        comment="Trial start time / stimuli presented at (ISO-8601)"
+    )
+    
+    # Response
+    responded = CamcopsColumn(
+        "responded", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Did the subject respond?"
+    )
+    response_time = Column(
+        "response_time", DateTimeAsIsoTextColType,
+        comment="Time of response (ISO-8601)"
+    )
+    response_latency_ms = Column(
+        "response_latency_ms", Integer,
+        comment="Response latency (ms)"
+    )
+    correct = CamcopsColumn(
+        "correct", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Response was correct"
+    )
+    incorrect = CamcopsColumn(
+        "incorrect", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Response was incorrect"
+    )
 
     @classmethod
     def get_html_table_header(cls) -> str:
@@ -137,56 +187,95 @@ class IDED3DTrial(Ancillary):
         )
 
 
-class IDED3DStage(Ancillary):
-    tablename = "ided3d_stages"
-    fkname = "ided3d_id"
-    fieldspecs = [
-        dict(name="ided3d_id", notnull=True,
-             cctype="INT", comment="FK to ided3d"),
-        dict(name="stage", notnull=True, cctype="INT",
-             comment="Stage number (1-based)"),
-        # Config
-        dict(name="stage_name", cctype="TEXT",
-             comment="Name of the stage (e.g. SD, EDr)"),
-        dict(name="relevant_dimension", cctype="TEXT",
-             comment="Relevant dimension (e.g. shape, colour, number)"),
-        dict(name="correct_exemplar", cctype="TEXT",
-             comment="Correct exemplar (from relevant dimension)"),
-        dict(name="incorrect_exemplar", cctype="TEXT",
-             comment="Incorrect exemplar (from relevant dimension)"),
-        dict(name="correct_stimulus_shapes", cctype="TEXT",
-             comment="Possible shapes for correct stimulus "
-                     "(CSV list of shape numbers)"),
-        dict(name="correct_stimulus_colours", cctype="TEXT",
-             comment="Possible colours for correct stimulus "
-                     "(CSV list of HTML colours)"),
-        dict(name="correct_stimulus_numbers", cctype="TEXT",
-             comment="Possible numbers for correct stimulus "
-                     "(CSV list of numbers)"),
-        dict(name="incorrect_stimulus_shapes", cctype="TEXT",
-             comment="Possible shapes for incorrect stimulus "
-                     "(CSV list of shape numbers)"),
-        dict(name="incorrect_stimulus_colours", cctype="TEXT",
-             comment="Possible colours for incorrect stimulus "
-                     "(CSV list of HTML colours)"),
-        dict(name="incorrect_stimulus_numbers", cctype="TEXT",
-             comment="Possible numbers for incorrect stimulus "
-                     "(CSV list of numbers)"),
-        # Results
-        dict(name="first_trial_num", cctype="INT",
-             comment="Number of the first trial of the stage (1-based)"),
-        dict(name="n_completed_trials", cctype="INT",
-             comment="Number of trials completed"),
-        dict(name="n_correct", cctype="INT",
-             comment="Number of trials performed correctly"),
-        dict(name="n_incorrect", cctype="INT",
-             comment="Number of trials performed incorrectly"),
-        dict(name="stage_passed", cctype="BOOL", pv=PV.BIT,
-             comment="Subject met criterion and passed stage"),
-        dict(name="stage_failed", cctype="BOOL", pv=PV.BIT,
-             comment="Subject took too many trials and failed stage"),
-    ]
-    sortfield = "stage"
+class IDED3DStage(GenericTabletRecordMixin, Base):
+    __tablename__ = "ided3d_stages"
+
+    ided3d_id = Column(
+        "ided3d_id", Integer,
+        nullable=False,
+        comment="FK to ided3d"
+    )
+    stage = Column(
+        "stage", Integer,
+        nullable=False,
+        comment="Stage number (1-based)"
+    )
+    
+    # Config
+    stage_name = Column(
+        "stage_name", Text,
+        comment="Name of the stage (e.g. SD, EDr)"
+    )
+    relevant_dimension = Column(
+        "relevant_dimension", Text,
+        comment="Relevant dimension (e.g. shape, colour, number)"
+    )
+    correct_exemplar = Column(
+        "correct_exemplar", Text,
+        comment="Correct exemplar (from relevant dimension)"
+    )
+    incorrect_exemplar = Column(
+        "incorrect_exemplar", Text,
+        comment="Incorrect exemplar (from relevant dimension)"
+    )
+    correct_stimulus_shapes = Column(
+        "correct_stimulus_shapes", Text,
+        comment="Possible shapes for correct stimulus "
+                "(CSV list of shape numbers)"
+    )
+    correct_stimulus_colours = Column(
+        "correct_stimulus_colours", Text,
+        comment="Possible colours for correct stimulus "
+                "(CSV list of HTML colours)"
+    )
+    correct_stimulus_numbers = Column(
+        "correct_stimulus_numbers", Text,
+        comment="Possible numbers for correct stimulus "
+                "(CSV list of numbers)"
+    )
+    incorrect_stimulus_shapes = Column(
+        "incorrect_stimulus_shapes", Text,
+        comment="Possible shapes for incorrect stimulus "
+                "(CSV list of shape numbers)"
+    )
+    incorrect_stimulus_colours = Column(
+        "incorrect_stimulus_colours", Text,
+        comment="Possible colours for incorrect stimulus "
+                "(CSV list of HTML colours)"
+    )
+    incorrect_stimulus_numbers = Column(
+        "incorrect_stimulus_numbers", Text,
+        comment="Possible numbers for incorrect stimulus "
+                "(CSV list of numbers)"
+    )
+    
+    # Results
+    first_trial_num = Column(
+        "first_trial_num", Integer,
+        comment="Number of the first trial of the stage (1-based)"
+    )
+    n_completed_trials = Column(
+        "n_completed_trials", Integer,
+        comment="Number of trials completed"
+    )
+    n_correct = Column(
+        "n_correct", Integer,
+        comment="Number of trials performed correctly"
+    )
+    n_incorrect = Column(
+        "n_incorrect", Integer,
+        comment="Number of trials performed incorrectly"
+    )
+    stage_passed = CamcopsColumn(
+        "stage_passed", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Subject met criterion and passed stage"
+    )
+    stage_failed = CamcopsColumn(
+        "stage_failed", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Subject took too many trials and failed stage"
+    )
 
     @classmethod
     def get_html_table_header(cls) -> str:
@@ -235,94 +324,125 @@ class IDED3DStage(Ancillary):
         )
 
 
-class IDED3D(Task):
-    tablename = "ided3d"
+class IDED3D(TaskHasPatientMixin, Task, Base):
+    __tablename__ = "ided3d"
     shortname = "ID/ED-3D"
     longname = "Three-dimensional ID/ED task"
-    dependent_classes = [IDED3DTrial, IDED3DStage]
 
-    fieldspecs = [
-        # Config
-        dict(name="last_stage", cctype="INT",
-             comment="Last stage to offer (1 [SD] - 8 [EDR])"),
-        dict(name="max_trials_per_stage", cctype="INT",
-             comment="Maximum number of trials allowed per stage before "
-                     "the task aborts"),
-        dict(name="progress_criterion_x", cctype="INT",
-             comment='Criterion to proceed to next stage: X correct out of'
-                     ' the last Y trials, where this is X'),
-        dict(name="progress_criterion_y", cctype="INT",
-             comment='Criterion to proceed to next stage: X correct out of'
-                     ' the last Y trials, where this is Y'),
-        dict(name="min_number", cctype="INT",
-             comment="Minimum number of stimulus element to use"),
-        dict(name="max_number", cctype="INT",
-             comment="Maximum number of stimulus element to use"),
-        dict(name="pause_after_beep_ms", cctype="INT",
-             comment="Time to continue visual feedback after auditory "
-                     "feedback finished (ms)"),
-        dict(name="iti_ms", cctype="INT",
-             comment="Intertrial interval (ms)"),
-        dict(name="counterbalance_dimensions", cctype="INT",
-             comment="Dimensional counterbalancing condition (0-5)"),
-        dict(name="volume", cctype="FLOAT",
-             comment="Sound volume (0.0-1.0)"),
-        dict(name="offer_abort", cctype="BOOL", pv=PV.BIT,
-             comment="Offer an abort button?"),
-        dict(name="debug_display_stimuli_only", cctype="BOOL", pv=PV.BIT,
-             comment="DEBUG: show stimuli only, don't run task"),
-        # Intrinsic config
-        dict(name="shape_definitions_svg", cctype="TEXT",
-             comment="JSON-encoded version of shape definition"
-                     " array in SVG format (with arbitrary scale of -60 to"
-                     " +60 in both X and Y dimensions)"),
-        dict(name="colour_definitions_rgb", cctype="TEXT",  # v2.0.0
-             comment="JSON-encoded version of colour RGB definitions"),
-        # Results
-        dict(name="aborted", cctype="INT",
-             comment="Was the task aborted? (0 no, 1 yes)"),
-        dict(name="finished", cctype="INT",
-             comment="Was the task finished? (0 no, 1 yes)"),
-        dict(name="last_trial_completed", cctype="INT",
-             comment="Number of last trial completed"),
-    ]
+    # Config
+    last_stage = Column(
+        "last_stage", Integer,
+        comment="Last stage to offer (1 [SD] - 8 [EDR])"
+    )
+    max_trials_per_stage = Column(
+        "max_trials_per_stage", Integer,
+        comment="Maximum number of trials allowed per stage before "
+                "the task aborts"
+    )
+    progress_criterion_x = Column(
+        "progress_criterion_x", Integer,
+        comment='Criterion to proceed to next stage: X correct out of'
+                ' the last Y trials, where this is X'
+    )
+    progress_criterion_y = Column(
+        "progress_criterion_y", Integer,
+        comment='Criterion to proceed to next stage: X correct out of'
+                ' the last Y trials, where this is Y'
+    )
+    min_number = Column(
+        "min_number", Integer,
+        comment="Minimum number of stimulus element to use"
+    )
+    max_number = Column(
+        "max_number", Integer,
+        comment="Maximum number of stimulus element to use"
+    )
+    pause_after_beep_ms = Column(
+        "pause_after_beep_ms", Integer,
+        comment="Time to continue visual feedback after auditory "
+                "feedback finished (ms)"
+    )
+    iti_ms = Column(
+        "iti_ms", Integer,
+        comment="Intertrial interval (ms)"
+    )
+    counterbalance_dimensions = Column(
+        "counterbalance_dimensions", Integer,
+        comment="Dimensional counterbalancing condition (0-5)"
+    )
+    volume = Column(
+        "volume", Float,
+        comment="Sound volume (0.0-1.0)"
+    )
+    offer_abort = CamcopsColumn(
+        "offer_abort", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Offer an abort button?"
+    )
+    debug_display_stimuli_only = CamcopsColumn(
+        "debug_display_stimuli_only", Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="DEBUG: show stimuli only, don't run task"
+    )
+
+    # Intrinsic config
+    shape_definitions_svg = Column(
+        "shape_definitions_svg", Text,
+        comment="JSON-encoded version of shape definition"
+                " array in SVG format (with arbitrary scale of -60 to"
+                " +60 in both X and Y dimensions)"
+    )
+    colour_definitions_rgb = Column(  # v2.0.0
+        "colour_definitions_rgb", Text,
+        comment="JSON-encoded version of colour RGB definitions"
+    )
+    
+    # Results
+    aborted = Column(
+        "aborted", Integer,
+        comment="Was the task aborted? (0 no, 1 yes)"
+    )
+    finished = Column(
+        "finished", Integer,
+        comment="Was the task finished? (0 no, 1 yes)"
+    )
+    last_trial_completed = Column(
+        "last_trial_completed", Integer,
+        comment="Number of last trial completed"
+    )
+
+    # Relationships
+    trials = ancillary_relationship(
+        parent_class_name="IDED3D",
+        ancillary_class_name="IDED3DTrial",
+        ancillary_fk_to_parent_attr_name="ided3d_id",
+        ancillary_order_by_attr_name="trial"
+    )
+    stages = ancillary_relationship(
+        parent_class_name="IDED3D",
+        ancillary_class_name="IDED3DStage",
+        ancillary_fk_to_parent_attr_name="ided3d_id",
+        ancillary_order_by_attr_name="stage"
+    )
 
     def is_complete(self) -> bool:
         return bool(self.debug_display_stimuli_only) or bool(self.finished)
 
-    @staticmethod
-    def get_stage_html(stagearray: List[IDED3DStage]) -> str:
+    def get_stage_html(self) -> str:
         html = IDED3DStage.get_html_table_header()
-        for s in stagearray:
+        for s in self.stages:
             html += s.get_html_table_row()
         html += """</table>"""
         return html
 
-    @staticmethod
-    def get_trial_html(trialarray: List[IDED3DTrial]) -> str:
+    def get_trial_html(self) -> str:
         html = IDED3DTrial.get_html_table_header()
-        for t in trialarray:
+        for t in self.trials:
             html += t.get_html_table_row()
         html += """</table>"""
         return html
 
-    def get_stage_array(self) -> List[IDED3DStage]:
-        # Fetch group details
-        return self.get_ancillary_items(IDED3DStage)
-
-    def get_trial_array(self) -> List[IDED3DTrial]:
-        # Fetch trial details
-        return self.get_ancillary_items(IDED3DTrial)
-
     def get_task_html(self, req: CamcopsRequest) -> str:
-        stagearray = self.get_stage_array()
-        trialarray = self.get_trial_array()
-        # THIS IS A NON-EDITABLE TASK, so we *ignore* the problem
-        # of matching to no-longer-current records.
-        # (See PhotoSequence.py for a task that does it properly.)
-
-        # Provide HTML
-        # HTML
         h = """
             <div class="summary">
                 <table class="summary">
@@ -378,9 +498,9 @@ class IDED3D(Task):
                 </table>
                 <div>Stage specifications and results:</div>
             """ +
-            self.get_stage_html(stagearray) +
+            self.get_stage_html() +
             "<div>Trial-by-trial results:</div>" +
-            self.get_trial_html(trialarray) +
+            self.get_trial_html() +
             """
                 <div class="footnotes">
                     [1] Counterbalancing of dimensions is as follows, with

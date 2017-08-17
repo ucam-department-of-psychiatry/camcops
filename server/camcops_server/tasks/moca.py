@@ -29,6 +29,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, String, Text
 
+from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
 from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import add_multiple_columns
@@ -140,7 +141,7 @@ class MocaMetaclass(DeclarativeMeta):
 
 class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
            metaclass=MocaMetaclass):
-    tablename = "moca"
+    __tablename__ = "moca"
     shortname = "MoCA"
     longname = "Montreal Cognitive Assessment"
     provides_trackers = True
@@ -152,26 +153,27 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
     )
     trailpicture_blobid = CamcopsColumn(
         "trailpicture_blobid", Integer,
-        is_blob_id_field=True,
-        blob_field_xml_name="trailpicture",
+        is_blob_id_field=True, blob_relationship_attr_name="trailpicture",
         comment="BLOB ID of trail picture"
     )
     cubepicture_blobid = CamcopsColumn(
         "cubepicture_blobid", Integer,
-        is_blob_id_field=True,
-        blob_field_xml_name="cubepicture",
+        is_blob_id_field=True, blob_relationship_attr_name="cubepicture",
         comment="BLOB ID of cube picture"
     )
     clockpicture_blobid = CamcopsColumn(
         "clockpicture_blobid", Integer,
-        is_blob_id_field=True,
-        blob_field_xml_name="clockpicture",
+        is_blob_id_field=True, blob_relationship_attr_name="clockpicture",
         comment="BLOB ID of clock picture"
     )
     comments = Column(
         "comments", Text,
         comment="Clinician's comments"
     )
+
+    trailpicture = blob_relationship("Moca", "trailpicture_blobid")
+    cubepicture = blob_relationship("Moca", "cubepicture_blobid")
+    clockpicture = blob_relationship("Moca", "clockpicture_blobid")
 
     NQUESTIONS = 28
     MAX_SCORE = 30
@@ -412,14 +414,14 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
             "Images of tests: trail, cube, clock",
             th_not_td=True)
         h += tr(
-            td(self.get_blob_img_html(self.trailpicture_blobid),
+            td(get_blob_img_html(self.trailpicture),
                td_class="photo", td_width="50%"),
-            td(self.get_blob_img_html(self.cubepicture_blobid),
+            td(get_blob_img_html(self.cubepicture),
                td_class="photo", td_width="50%"),
             literal=True,
         )
         h += tr(
-            td(self.get_blob_img_html(self.trailpicture_blobid),
+            td(get_blob_img_html(self.trailpicture),
                td_class="photo", td_width="50%"),
             td("", td_class="subheading"),
             literal=True,

@@ -73,7 +73,11 @@ from .cc_anon import (
     get_type_size_as_text_from_sqltype,
 )
 from .cc_audit import audit
-from .cc_blob import Blob, get_contemporaneous_blob_by_client_info
+from .cc_blob import (
+    Blob,
+    get_blob_img_html,
+    get_contemporaneous_blob_by_client_info,
+)
 from .cc_cache import cache_region_static, fkg
 from .cc_constants import (
     ACTION,
@@ -2783,15 +2787,6 @@ class Task(GenericTabletRecordMixin):
         make it very obvious visually when it isn't."""
         return "<tr>" + self.get_is_complete_td_pair() + "</tr>"
 
-    def get_blob_img_html(self, blobid: Optional[int]) -> str:
-        """Get HTML IMG tag with embedded data, or HTML error message."""
-        if blobid is None:
-            return "<i>(No picture)</i>"
-        blob = self.get_blob_by_id(blobid)
-        if blob is None:
-            return "<i>(Missing picture)</i>"
-        return blob.get_img_html()
-
     def get_twocol_val_row(self,
                            fieldname: str,
                            default: str = None,
@@ -2836,13 +2831,10 @@ class Task(GenericTabletRecordMixin):
             label = fieldname
         return tr_qa(label, get_present_absent_none(getattr(self, fieldname)))
 
-    def get_twocol_picture_row(self,
-                               fieldname: str,
-                               label: str = None) -> str:
+    def get_twocol_picture_row(self, blob: Optional[Blob],
+                               label: str) -> str:
         """HTML table row, two columns, with PNG on right."""
-        if label is None:
-            label = fieldname
-        return tr(label, self.get_blob_img_html(getattr(self, fieldname)))
+        return tr(label, get_blob_img_html(blob))
 
     # -------------------------------------------------------------------------
     # Field helper functions for subclasses
@@ -3040,22 +3032,26 @@ class Ancillary(object):
                 self.get_fieldnames(),
                 serverpk)
 
+    *** move to GenericTabletRecordMixin
     def make_xml_branches_for_blob_fields(
             self, skip_fields: List[str] = None) -> List[XmlElement]:
         """Returns list of XmlElementTuple elements for BLOB fields."""
         skip_fields = skip_fields or []
         return make_xml_branches_for_blob_fields(self, skip_fields=skip_fields)
 
+    *** move to GenericTabletRecordMixin
     def get_blob_xml_tuple(self,
                            blobid: int,
                            name: str) -> XmlElement:
         """Get XmlElementTuple for a PNG BLOB."""
         return get_blob_xml_tuple(self, blobid, name)
 
+    *** move to GenericTabletRecordMixin
     def get_blob_by_id(self, blobid: int) -> Optional[Blob]:
         """Get Blob() object from blob ID, or None."""
         return get_blob_by_id(self, blobid)
 
+    *** move to GenericTabletRecordMixin
     def get_cris_fieldspecs_values(self, common_fsv: FIELDSPECLIST_TYPE) \
             -> FIELDSPECLIST_TYPE:
         fieldspecs = copy.deepcopy(self.get_full_fieldspecs())

@@ -22,53 +22,63 @@
 ===============================================================================
 """
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
 import hl7
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import DateTime, Integer, Text
 
+from ..cc_modules.cc_ctvinfo import CtvInfo
+from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
 from ..cc_modules.cc_hl7core import make_dg1_segment
 from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_nlp import guess_name_components
-from ..cc_modules.cc_task import Ancillary, CtvInfo, Task
-from ..cc_modules.cc_config import pls
+from ..cc_modules.cc_task import (
+    Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+)
 from ..cc_modules.cc_recipdef import RecipientDefinition
+from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_report import (
     expand_id_descriptions,
     Report,
     REPORT_RESULT_TYPE,
 )
+from ..cc_modules.cc_sqlalchemy import Base
 
 
 # =============================================================================
 # Helpers
 # =============================================================================
 
-def make_diagnosis_item_base_fieldspecs(fkname: str) -> List[Dict[str, Any]]:
-    return [
-        dict(name=fkname, notnull=True, cctype="INT",
-             comment="FK to parent table"),
-        # ... FK
-        dict(name="seqnum", notnull=True, cctype="INT",
-             comment="Sequence number"),
-        dict(name="code", cctype="TEXT", comment="Diagnostic code"),
-        dict(name="description", cctype="TEXT",
-             comment="Description of the diagnostic code"),
-        dict(name="comment", cctype="TEXT",
-             comment="Clinician's comment"),  # new in v2.0.0
-    ]
+FK_COMMENT = "FK to parent table"
 
 
 # =============================================================================
 # DiagnosisBase
 # =============================================================================
 
-class DiagnosisItemBase(Ancillary):
-    sortfield = "seqnum"
-
-    @classmethod
-    def get_fkname(cls) -> str:
-        return cls.fkname
+class DiagnosisItemBase(GenericTabletRecordMixin):
+    seqnum = Column(
+        "seqnum", Integer,
+        nullable=False,
+        comment="Sequence number"
+    )
+    code = Column(
+        "code", Text,
+        comment="Diagnostic code"
+    )
+    description = Column(
+        "description", Text,
+        comment="Description of the diagnostic code"
+    )
+    comment = Column(  # new in v2.0.0
+        "comment", Text,
+        comment="Clinician's comment"
+    )
 
     def get_html_table_row(self) -> str:
         return tr(
@@ -88,30 +98,24 @@ class DiagnosisItemBase(Ancillary):
         return self.description or ""
 
 
-class DiagnosisBase(object):
-    has_clinician = True
+class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+    relates_to_date = Column(  # new in v2.0.0
+        "relates_to_date", DateTime,
+        comment="Date that diagnoses relate to"
+    )
+
+    items = None  # type: List[DiagnosisItemBase]  # must be overridden by a relationship  # noqa
 
     MUST_OVERRIDE = "DiagnosisBase: must override fn in derived class"
-    fieldspecs = [
-        dict(name="relates_to_date",
-             cctype="DATETIME",
-             comment="Date that diagnoses relate to"),  # new in v2.0.0
-    ]
     hl7_coding_system = "?"
 
     def get_num_items(self) -> int:
-        itemclass = self.dependent_classes[0]
-        return self.get_ancillary_item_count(itemclass)
-
-    def get_items(self) -> List[DiagnosisItemBase]:
-        itemclass = self.dependent_classes[0]
-        return self.get_ancillary_items(itemclass)
+        return len(self.items)
 
     def is_complete(self) -> bool:
         return self.get_num_items() > 0
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        items = self.get_items()
         html = """
             <div class="summary">
                 <table class="summary">
@@ -128,7 +132,7 @@ class DiagnosisBase(object):
         """.format(
             self.get_is_complete_tr(),
         )
-        for item in items:
+        for item in self.items:
             html += item.get_html_table_row()
         html += """
             </table>
@@ -137,8 +141,7 @@ class DiagnosisBase(object):
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         infolist = []
-        items = self.get_items()
-        for item in items:
+        for item in self.items:
             infolist.append(CtvInfo(
                 content="<b>{}</b>: {}".format(ws.webify(item.code),
                                                ws.webify(item.description))
@@ -149,11 +152,10 @@ class DiagnosisBase(object):
     def get_hl7_extra_data_segments(self, recipient_def: RecipientDefinition) \
             -> List[hl7.Segment]:
         segments = []
-        items = self.get_items()
         clinician = guess_name_components(self.clinician_name)
-        for i in range(len(items)):
+        for i in range(len(self.items)):
             set_id = i + 1  # make it 1-based, not 0-based
-            item = items[i]
+            item = self.items[i]
             segments.append(make_dg1_segment(
                 set_id=set_id,
                 diagnosis_datetime=self.get_creation_datetime(),
@@ -172,15 +174,27 @@ class DiagnosisBase(object):
 # DiagnosisIcd10
 # =============================================================================
 
-class DiagnosisIcd10Item(DiagnosisItemBase):
-    tablename = "diagnosis_icd10_item"
-    fkname = "diagnosis_icd10_id"
-    fieldspecs = make_diagnosis_item_base_fieldspecs(fkname)
+class DiagnosisIcd10Item(DiagnosisItemBase, Base):
+    __tablename__ = "diagnosis_icd10_item"
+
+    diagnosis_icd10_id = Column(
+        "diagnosis_icd10_id", Integer,
+        nullable=False,
+        comment=FK_COMMENT,
+    )
 
 
-class DiagnosisIcd10(DiagnosisBase, Task):
+class DiagnosisIcd10(DiagnosisBase, Base):
     # Inheritance order crucial (search is from left to right)
-    tablename = "diagnosis_icd10"
+    __tablename__ = "diagnosis_icd10"
+
+    items = ancillary_relationship(
+        parent_class_name="DiagnosisIcd10",
+        ancillary_class_name="DiagnosisIcd10Item",
+        ancillary_fk_to_parent_attr_name="diagnosis_icd10_id",
+        ancillary_order_by_attr_name="seqnum"
+    )
+
     shortname = "Diagnosis_ICD10"
     longname = "Diagnostic codes, ICD-10"
     dependent_classes = [DiagnosisIcd10Item]
@@ -192,14 +206,26 @@ class DiagnosisIcd10(DiagnosisBase, Task):
 # DiagnosisIcd9CM
 # =============================================================================
 
-class DiagnosisIcd9CMItem(DiagnosisItemBase):
-    tablename = "diagnosis_icd9cm_item"
-    fkname = "diagnosis_icd9cm_id"
-    fieldspecs = make_diagnosis_item_base_fieldspecs(fkname)
+class DiagnosisIcd9CMItem(DiagnosisItemBase, Base):
+    __tablename__ = "diagnosis_icd9cm_item"
+
+    diagnosis_icd9cm_id = Column(
+        "diagnosis_icd9cm_id", Integer,
+        nullable=False,
+        comment=FK_COMMENT,
+    )
 
 
-class DiagnosisIcd9CM(DiagnosisBase, Task):
-    tablename = "diagnosis_icd9cm"
+class DiagnosisIcd9CM(DiagnosisBase, Base):
+    __tablename__ = "diagnosis_icd9cm"
+
+    items = ancillary_relationship(
+        parent_class_name="DiagnosisIcd9CM",
+        ancillary_class_name="DiagnosisIcd9CMItem",
+        ancillary_fk_to_parent_attr_name="diagnosis_icd9cm_id",
+        ancillary_order_by_attr_name="seqnum"
+    )
+
     shortname = "Diagnosis_ICD9CM"
     longname = "Diagnostic codes, ICD-9-CM (DSM-IV-TR)"
     dependent_classes = [DiagnosisIcd9CMItem]
@@ -255,13 +281,15 @@ def get_diagnosis_report_sql(diagnosis_table: str,
     return sql
 
 
-def get_diagnosis_report(diagnosis_table: str,
+def get_diagnosis_report(req: CamcopsRequest,
+                         diagnosis_table: str,
                          item_table: str,
                          item_fk_fieldname: str,
                          system: str) -> REPORT_RESULT_TYPE:
     sql = get_diagnosis_report_sql(diagnosis_table, item_table,
                                    item_fk_fieldname, system)
-    (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
+    dbsession = req.dbsession
+    rows, fieldnames = get_rows_fieldnames_from_raw_sql(dbsession, sql)
     fieldnames = expand_id_descriptions(fieldnames)
     return rows, fieldnames
 
@@ -274,8 +302,10 @@ class DiagnosisICD9CMReport(Report):
     param_spec_list = []
 
     @staticmethod
-    def get_rows_descriptions() -> REPORT_RESULT_TYPE:
+    def get_rows_descriptions(self, req: CamcopsRequest,
+                              **kwargs: Any) -> REPORT_RESULT_TYPE:
         return get_diagnosis_report(
+            req,
             diagnosis_table='diagnosis_icd9cm',
             item_table='diagnosis_icd9cm_item',
             item_fk_fieldname='diagnosis_icd9cm_id',
@@ -290,8 +320,10 @@ class DiagnosisICD10Report(Report):
     param_spec_list = []
 
     @staticmethod
-    def get_rows_descriptions() -> REPORT_RESULT_TYPE:
+    def get_rows_descriptions(self, req: CamcopsRequest,
+                              **kwargs: Any) -> REPORT_RESULT_TYPE:
         return get_diagnosis_report(
+            req,
             diagnosis_table='diagnosis_icd10',
             item_table='diagnosis_icd10_item',
             item_fk_fieldname='diagnosis_icd10_id',
@@ -306,7 +338,8 @@ class DiagnosisAllReport(Report):
     param_spec_list = []
 
     @staticmethod
-    def get_rows_descriptions() -> REPORT_RESULT_TYPE:
+    def get_rows_descriptions(self, req: CamcopsRequest,
+                              **kwargs: Any) -> REPORT_RESULT_TYPE:
         sql_icd9cm = get_diagnosis_report_sql(
             diagnosis_table='diagnosis_icd9cm',
             item_table='diagnosis_icd9cm_item',
@@ -335,6 +368,7 @@ class DiagnosisAllReport(Report):
             sql_icd9cm=sql_icd9cm,
             sql_icd10=sql_icd10,
         )
-        (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
+        dbsession = req.dbsession
+        rows, fieldnames = get_rows_fieldnames_from_raw_sql(dbsession, sql)
         fieldnames = expand_id_descriptions(fieldnames)
         return rows, fieldnames

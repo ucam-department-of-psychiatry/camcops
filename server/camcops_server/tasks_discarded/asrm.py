@@ -41,7 +41,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # ASRM
 # =============================================================================
 
-class AsrmMetaClass(DeclarativeMeta):
+class AsrmMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
     def __init__(cls: Type['Asrm'],
                  name: str,
@@ -52,7 +52,7 @@ class AsrmMetaClass(DeclarativeMeta):
 
 
 class Asrm(TaskHasPatientMixin, Task, Base,
-           metaclass=AsrmMetaClass):
+           metaclass=AsrmMetaclass):
     __tablename__ = "asrm"
     shortname = "ASRM"
     longname = "Altman Self-Rating Mania Scale"

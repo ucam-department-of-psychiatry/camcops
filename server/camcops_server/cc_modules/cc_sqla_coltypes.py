@@ -423,15 +423,19 @@ class CamcopsColumn(Column):
                  exempt_from_anonymisation: bool = False,
                  identifies_patient: bool = False,
                  is_blob_id_field: bool = False,
-                 blob_field_xml_name: str = "",
+                 blob_relationship_attr_name: str = "",
                  permitted_value_checker: PermittedValueChecker = None,
                  **kwargs) -> None:
         self.cris_include = cris_include
         self.exempt_from_anonymisation = exempt_from_anonymisation
         self.identifies_patient = identifies_patient
         self.is_blob_id_field = is_blob_id_field
-        self.blob_field_xml_name = blob_field_xml_name
+        self.blob_relationship_attr_name = blob_relationship_attr_name
         self.permitted_value_checker = permitted_value_checker
+        if is_blob_id_field:
+            assert blob_relationship_attr_name, (
+                "If specifying a BLOB ID field, must give the attribute name "
+                "of the relationship too")
         super().__init__(*args, **kwargs)
 
     def __repr__(self) -> str:
