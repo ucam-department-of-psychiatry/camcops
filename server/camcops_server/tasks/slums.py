@@ -197,7 +197,7 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
     )
     comments = Column(
         "comments", Text,
-        comments="Clinician's comments"
+        comment="Clinician's comments"
     )
 
     clockpicture = blob_relationship("Slums", "clockpicture_blobid")

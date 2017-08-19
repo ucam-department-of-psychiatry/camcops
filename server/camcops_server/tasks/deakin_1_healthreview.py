@@ -80,10 +80,10 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task, Base):
     allergy_food = BoolColumn("allergy_food")
     allergy_dander = BoolColumn("allergy_dander")
     allergy_other = BoolColumn("allergy_other")
-    allergy_details = Column("allergy_details", Text),
+    allergy_details = Column("allergy_details", Text)
 
     vaccinations_last3months = BoolColumn("vaccinations_last3months")
-    vaccination_details = Column("vaccination_details", Text),
+    vaccination_details = Column("vaccination_details", Text)
 
     infections_last3months = BoolColumn("infections_last3months")
     infection_recent_respiratory = BoolColumn("infection_recent_respiratory")
@@ -92,7 +92,7 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task, Base):
     infection_recent_sexual = BoolColumn("infection_recent_sexual")
     infection_recent_hepatitis = BoolColumn("infection_recent_hepatitis")
     infection_recent_other = BoolColumn("infection_recent_other")
-    infection_recent_details = Column("infection_recent_details", Text),
+    infection_recent_details = Column("infection_recent_details", Text)
 
     infections_chronic = BoolColumn("infections_chronic")
     infection_chronic_respiratory = BoolColumn("infection_chronic_respiratory")

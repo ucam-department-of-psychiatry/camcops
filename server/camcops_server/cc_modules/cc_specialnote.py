@@ -25,33 +25,21 @@
 from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.sqlalchemy.orm_inspect import get_orm_column_names
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
+from sqlalchemy.sql.sqltypes import Text
 
-from .cc_constants import (
-    DATEFORMAT,
-    ERA_NOW,
-    ISO8601_STRING_LENGTH,
-)
-from .cc_config import pls
-from . import cc_db
+from .cc_constants import DATEFORMAT, ERA_NOW
 from .cc_dt import format_datetime
 from .cc_request import CamcopsRequest
 from .cc_sqla_coltypes import (
-    BigIntUnsigned,
     DateTimeAsIsoTextColType,
     EraColType,
-    HostnameColType,
     IntUnsigned,
-    LongText,
-    SendingFormatColType,
     TableNameColType,
 )
 from .cc_sqlalchemy import Base
-from .cc_user import get_username_from_id
 from .cc_xml import make_xml_branches_from_fieldspecs, XmlElement
 
 
@@ -63,7 +51,8 @@ SPECIALNOTE_FWD_REF = "SpecialNote"
 
 
 class SpecialNote(Base):
-    """Represents a special note, attached server-side to a task.
+    """
+    Represents a special note, attached server-side to a task.
 
     'Task' means all records representing versions of a single task instance,
     identified by the combination of {id, device, era}.
@@ -82,7 +71,7 @@ class SpecialNote(Base):
         index=True,
         comment="Base table of task concerned (part of FK)"
     )
-    task_or_patient_id = Column(
+    task_id = Column(
         "task_id", IntUnsigned,
         index=True,
         comment="Client-side ID of the task, or patient, concerned "
@@ -123,7 +112,7 @@ class SpecialNote(Base):
         """Return all SpecialNote objects applicable to a task (or patient)."""
         q = dbsession.query(SpecialNote)
         q = q.filter(SpecialNote.basetable == basetable)
-        q = q.filter(SpecialNote.task_or_patient_id == task_or_patient_id)
+        q = q.filter(SpecialNote.task_id == task_or_patient_id)
         q = q.filter(SpecialNote._device_id == device_id)
         q = q.filter(SpecialNote._era == era)
         special_notes = q.fetchall()  # type: List[SpecialNote]

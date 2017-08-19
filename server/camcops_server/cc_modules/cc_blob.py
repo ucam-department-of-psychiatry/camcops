@@ -192,7 +192,8 @@ class Blob(GenericTabletRecordMixin, Base):
 # =============================================================================
 
 def blob_relationship(classname: str,
-                      blob_id_col_attr_name: str) -> RelationshipProperty:
+                      blob_id_col_attr_name: str,
+                      read_only: bool = True) -> RelationshipProperty:
     """
     Simplifies creation of BLOB relationships.
     In a class definition, use like this:
@@ -224,7 +225,8 @@ def blob_relationship(classname: str,
             " remote(Blob._era) == foreign({cls}._era), "
             " remote(Blob._current) == True "
             ")".format(cls=classname, fk=blob_id_col_attr_name)
-        )
+        ),
+        viewonly=read_only
     )
 
 

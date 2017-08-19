@@ -233,7 +233,8 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
     handedness = CamcopsColumn(
         "handedness", Text,
         comment="Handedness (L or R)",
-        pv=["L", "R"]
+        permitted_value_checker=PermittedValueChecker(
+            permitted_values=["L", "R"])
     )
     attn_num_registration_trials = Column(
         "attn_num_registration_trials", Integer,

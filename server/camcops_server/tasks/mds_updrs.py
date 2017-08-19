@@ -22,11 +22,12 @@
 ===============================================================================
 """
 
-from typing import Any, Dict, Tuple, Type
+from typing import Any, Dict, List, Tuple, Type
 
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
+from ..cc_modules.cc_cache import cache_region_static, fkg
 from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_request import CamcopsRequest
@@ -50,20 +51,7 @@ from ..cc_modules.cc_task import (
 # MDS-UPDRS (crippled)
 # =============================================================================
 
-class MdsUpdrsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(cls: Type['MdsUpdrs'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
-        cls.TASK_FIELDS = get_camcops_column_attr_names(cls)
-        cls.TASK_FIELDS_EXCEPT_3C1 = [x for x in cls.TASK_FIELDS
-                                      if x != "q3c1"]
-        super().__init__(name, bases, classdict)
-
-
-class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
-               metaclass=MdsUpdrsMetaclass):
+class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
     __tablename__ = "mds_updrs"
     shortname = "MDS-UPDRS"
     longname = (
@@ -383,6 +371,12 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
         "q4_6", Integer, permitted_value_checker=main_pv,
         comment="Part IV, Q4.6 " + main_cmt
     )
+
+    @classmethod
+    @cache_region_static.cache_on_arguments(function_key_generator=fkg)
+    def task_fields_except_3c1(cls) -> List[str]:
+        task_fields = get_camcops_column_attr_names(cls)
+        return [x for x in task_fields if x != "q3c1"]
 
     def is_complete(self) -> bool:
         return (

@@ -107,7 +107,7 @@ def generate_token(num_bytes: int = 16) -> str:
 # Establishing sessions
 # =============================================================================
 
-def establish_session_for_tablet(req: CamcopsRequest,
+def establish_session_for_tablet(req: "CamcopsRequest",
                                  session_id: Optional[int],
                                  session_token: Optional[str],
                                  ip_address: str,
@@ -248,7 +248,7 @@ class CamcopsSession(Base):
 
     @classmethod
     def get_session_using_cookies(cls,
-                                  req: CamcopsRequest) -> 'CamcopsSession':
+                                  req: "CamcopsRequest") -> 'CamcopsSession':
         """
         Makes, or retrieves, a new CamcopsSession for this Pyramid Request.
         """
@@ -259,7 +259,7 @@ class CamcopsSession(Base):
 
     @classmethod
     def get_session(cls,
-                    req: CamcopsRequest,
+                    req: "CamcopsRequest",
                     session_id_str: str,
                     session_token: str) -> 'CamcopsSession':
         """
@@ -310,14 +310,14 @@ class CamcopsSession(Base):
 
     @classmethod
     def get_oldest_last_activity_allowed(
-            cls, req: CamcopsRequest) -> datetime.datetime:
+            cls, req: "CamcopsRequest") -> datetime.datetime:
         cfg = req.config
         now = req.now_utc_datetime
         oldest_last_activity_allowed = now - cfg.SESSION_TIMEOUT
         return oldest_last_activity_allowed
 
     @classmethod
-    def delete_old_sessions(cls, req: CamcopsRequest) -> None:
+    def delete_old_sessions(cls, req: "CamcopsRequest") -> None:
         """Delete all expired sessions."""
         oldest_last_activity_allowed = \
             cls.get_oldest_last_activity_allowed(req)
@@ -346,7 +346,7 @@ class CamcopsSession(Base):
         self.number_to_view = DEFAULT_NUMBER_OF_TASKS_TO_VIEW
         self.first_task_to_view = 0
 
-    def logout(self, req: CamcopsRequest) -> None:
+    def logout(self, req: "CamcopsRequest") -> None:
         """
         Log out, wiping session details. Also, perform periodic
         maintenance for the server, as this is a good time.

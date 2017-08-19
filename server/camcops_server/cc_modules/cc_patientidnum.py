@@ -81,19 +81,19 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
     )
     idnum_value = CamcopsColumn(
         "idnum_value", BigIntUnsigned,
-        anon=True,
+        identifies_patient=True,
         comment="The value of the ID number"
     )
 
-    def description(self, cfg: CamcopsConfig) -> str:
+    def description(self, cfg: "CamcopsConfig") -> str:
         which_idnum = self.which_idnum  # type: int
         return cfg.get_id_desc(which_idnum, default="?")
 
-    def short_description(self, cfg: CamcopsConfig) -> str:
+    def short_description(self, cfg: "CamcopsConfig") -> str:
         which_idnum = self.which_idnum  # type: int
         return cfg.get_id_shortdesc(which_idnum, default="?")
 
-    def get_html(self, cfg: CamcopsConfig,
+    def get_html(self, cfg: "CamcopsConfig",
                  longform: bool, label_id_numbers: bool = False) -> str:
         """
         Returns description HTML.
@@ -121,7 +121,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
                 self.idnum_value
             )
 
-    def get_filename_component(self, cfg: CamcopsConfig) -> str:
+    def get_filename_component(self, cfg: "CamcopsConfig") -> str:
         if self.which_idnum is None or self.idnum_value is None:
             return ""
         return "{}-{}".format(self.short_description(cfg),

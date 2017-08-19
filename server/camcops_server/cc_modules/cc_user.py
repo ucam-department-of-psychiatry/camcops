@@ -38,11 +38,10 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql import func
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, DateTime
+from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from .cc_audit import audit
 from .cc_constants import ACTION, PARAM, DATEFORMAT, WEBEND
-from .cc_config import CamcopsConfig
 from .cc_dt import (
     convert_utc_datetime_without_tz_to_local,
     format_datetime,
@@ -67,9 +66,6 @@ from .cc_sqla_coltypes import (
 from .cc_sqlalchemy import Base
 from .cc_storedvar import ServerStoredVar
 from .cc_unittest import unit_test_ignore
-
-if TYPE_CHECKING:
-    from .cc_session import CamcopsSession
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -125,6 +121,8 @@ CLEAR_DUMMY_LOGIN_PERIOD = datetime.timedelta(
 
 class SecurityAccountLockout(Base):
     __tablename__ = "_security_account_lockouts"
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    # ... NEW for SQLAlchemy as ORM tables must have a primary key
     username = Column(
         "username", UserNameColType,
         # NB: not a PK
@@ -196,6 +194,8 @@ class SecurityAccountLockout(Base):
 
 class SecurityLoginFailure(Base):
     __tablename__ = "_security_login_failures"
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    # ... NEW for SQLAlchemy as ORM tables must have a primary key
     username = Column(
         "username", UserNameColType,
         # NB: not a PK

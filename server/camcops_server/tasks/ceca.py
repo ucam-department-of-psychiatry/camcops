@@ -41,6 +41,7 @@ from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
     MIN_ZERO_CHECKER,
+    ONE_TO_FOUR_CHECKER,
     ONE_TO_FIVE_CHECKER,
     PermittedValueChecker,
     ZERO_TO_TWO_CHECKER,
@@ -1093,13 +1094,13 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
     )
     s5c_mother_hit_how = CamcopsColumn(
         "s5c_mother_hit_how", Integer,
-        min=1, max=4,
+        permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment="Physical abuse, by mother, hit how (1 belt/stick, "
                 "2 punched/kicked, 3 hit with hand, 4 other)"
     )
     s5c_father_hit_how = CamcopsColumn(
         "s5c_father_hit_how", Integer,
-        min=1, max=4,
+        permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment="Physical abuse, by father, hit how (1 belt/stick, "
                 "2 punched/kicked, 3 hit with hand, 4 other)"
     )

@@ -22,7 +22,40 @@
 ===============================================================================
 """
 
+from typing import TYPE_CHECKING
+
+from cardinal_pythonlib.sqlalchemy.dump import dump_ddl
+
+from sqlalchemy.engine import create_engine
+from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.declarative import declarative_base
+
+if TYPE_CHECKING:
+    from sqlalchemy.sql.schema import MetaData
+
 
 # The base of all our model classes:
 Base = declarative_base()
+
+
+def make_memory_sqlite_engine() -> Engine:
+    return create_engine('sqlite://')
+
+
+def make_debug_sqlite_engine() -> Engine:
+    return create_engine('sqlite://', echo=True)
+
+
+def print_all_ddl(dialect_name: str = "mysql"):
+    metadata = Base.metadata  # type: MetaData
+    dump_ddl(metadata, dialect_name=dialect_name)
+
+
+TEST_CODE = """
+
+from camcops_server.cc_modules.cc_sqlalchemy import print_all_ddl
+from camcops_server.cc_modules.cc_all_models import *
+
+print_all_ddl()
+
+"""

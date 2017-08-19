@@ -163,7 +163,9 @@ class Patient(GenericTabletRecordMixin, Base):
             # " remote(PatientIdNum._when_added_batch_utc) <= foreign(Patient._when_added_batch_utc), "  # noqa
             # " remote(PatientIdNum._when_removed_batch_utc) == foreign(Patient._when_removed_batch_utc), "  # noqa # *** check logic! Wrong!
             ")"
-        )
+        ),
+        viewonly=True,
+        lazy="joined"
     )
 
     # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN
@@ -735,7 +737,7 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         sn = SpecialNote()
         sn.basetable = self.__tablename__
-        sn.task_or_patient_id = self.id
+        sn.task_id = self.id
         sn.device_id = self._device_id
         sn.era = self._era
         sn.note_at = req.now_iso8601_era_format

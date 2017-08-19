@@ -35,6 +35,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     SummaryCategoryColType,
+    ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
     ZERO_TO_THREE_CHECKER,
 )
@@ -112,36 +113,36 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
 
     whichq16 = CamcopsColumn(
         "whichq16", Integer,
-        min=0, max=1,
+        permitted_value_checker=ZERO_TO_ONE_CHECKER,
         comment="Method of assessing weight loss (0 = A, by history; "
                 "1 = B, by measured change)"
     )
     q16a = CamcopsColumn(
         "q16a", Integer,
-        min=0, max=3,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q16A, weight loss, by history (0 none - 2 definite,"
                 " or 3 not assessed [not scored])"
     )
     q16b = CamcopsColumn(
         "q16b", Integer,
-        min=0, max=3,
+        permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q16B, weight loss, by measurement (0 none - "
                 "2 more than 2lb, or 3 not assessed [not scored])"
     )
     q17 = CamcopsColumn(
         "q17", Integer,
-        min=0, max=2,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q17, lack of insight (0-2, higher worse)"
     )
     q18a = CamcopsColumn(
         "q18a", Integer,
-        min=0, max=2,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q18A (not scored), diurnal variation, presence "
                 "(0 none, 1 worse AM, 2 worse PM)"
     )
     q18b = CamcopsColumn(
         "q18b", Integer,
-        min=0, max=2,
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q18B (not scored), diurnal variation, severity "
                 "(0-2, higher more severe)"
     )

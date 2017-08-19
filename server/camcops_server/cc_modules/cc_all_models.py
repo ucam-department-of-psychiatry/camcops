@@ -30,8 +30,6 @@ they're registered (and also Task knows about all its subclasses).
 # https://stackoverflow.com/questions/21139329/false-unused-import-statement-in-pycharm  # noqa
 # http://codeoptimism.com/blog/pycharm-suppress-inspections-list/
 
-from cardinal_pythonlib.modules import import_submodules
-
 # =============================================================================
 # Non-task model imports
 # =============================================================================
@@ -55,7 +53,16 @@ from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 
 
 # =============================================================================
-# Task imports (indirectly)
+# Task imports
 # =============================================================================
 
-import_submodules("..tasks", __package__)
+# import_submodules("..tasks", __package__)
+#
+# ... NO LONGER SUFFICIENT as we are using SQLAlchemy relationship clauses that
+# are EVALUATED and so require the class names to be in the relevant namespace
+# at the time. So doing something equivalent to "import tasks.phq9" -- which is
+# what we get from 'import_submodules("..tasks", __package__)' -- isn't enough.
+# We need something equivalent to "from tasks.phq9 import Phq9".
+
+# noinspection PyUnresolvedReferences
+from ..tasks import *

@@ -49,21 +49,17 @@ from cardinal_pythonlib.classes import (
 )
 from cardinal_pythonlib.lists import flatten_list
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from cardinal_pythonlib.rnc_db import (
-    DatabaseSupporter,
-    FIELDSPEC_TYPE,
-    FIELDSPECLIST_TYPE,
-)
+from cardinal_pythonlib.rnc_db import DatabaseSupporter, FIELDSPECLIST_TYPE
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
-from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 import hl7
 from semantic_version import Version
-from sqlalchemy.orm import reconstructor
-from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Float, Text
 
@@ -73,11 +69,7 @@ from .cc_anon import (
     get_type_size_as_text_from_sqltype,
 )
 from .cc_audit import audit
-from .cc_blob import (
-    Blob,
-    get_blob_img_html,
-    get_contemporaneous_blob_by_client_info,
-)
+from .cc_blob import Blob, get_blob_img_html
 from .cc_cache import cache_region_static, fkg
 from .cc_constants import (
     ACTION,
@@ -99,12 +91,8 @@ from .cc_constants import (
     PDF_HEAD_PORTRAIT,
     PKNAME,
     SIGNATURE_BLOCK,
-    STANDARD_ANCILLARY_FIELDSPECS,
-    STANDARD_ANONYMOUS_TASK_FIELDSPECS,
-    STANDARD_TASK_FIELDSPECS,
     TSV_PATIENT_FIELD_PREFIX,
     VALUE,
-    WKHTMLTOPDF_OPTIONS,
 )
 from .cc_ctvinfo import CtvInfo
 from .cc_db import GenericTabletRecordMixin
@@ -140,19 +128,14 @@ from .cc_recipdef import RecipientDefinition
 from .cc_report import Report, REPORT_RESULT_TYPE
 from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
-from .cc_string import task_extrastrings_exist, wappstring, WXSTRING
 from .cc_sqla_coltypes import (
-    BigIntUnsigned,
     CamcopsColumn,
     DateTimeAsIsoTextColType,
     get_column_attr_names,
     get_camcops_blob_column_attr_names,
-    IdDescriptorColType,
     IntUnsigned,
-    PatientNameColType,
     permitted_value_failure_msgs,
     permitted_values_ok,
-    SexColType,
 )
 from .cc_sqlalchemy import Base
 from .cc_summaryelement import SummaryElement
@@ -195,46 +178,68 @@ TASK_FWD_REF = "Task"
 # =============================================================================
 
 class TaskHasPatientMixin(object):
-    patient_id = Column(
-        "patient_id", IntUnsigned,
-        nullable=False, index=True,
-        comment="(TASK) Foreign key to patient.id (for this device/era)"
-    )
+    # http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html#using-advanced-relationship-arguments-e-g-primaryjoin-etc  # noqa
 
-    def __init__(self, *args, **kwargs) -> None:
-        self._patient = None
-        # noinspection PyArgumentList
-        super().__init__(*args, **kwargs)  # call next class in MRO
+    @declared_attr
+    def patient_id(cls) -> Column:
+        return Column(
+            "patient_id", IntUnsigned,
+            nullable=False, index=True,
+            comment="(TASK) Foreign key to patient.id (for this device/era)"
+        )
 
-    @reconstructor
-    def init_on_load(self) -> None:
-        self._patient = None
+    @declared_attr
+    def patient(cls) -> RelationshipProperty:
+        return relationship(
+            "Patient",
+            primaryjoin=(
+                "and_("
+                " remote(Patient.id) == foreign({task}.patient_id), "
+                " remote(Patient._device_id) == foreign({task}._device_id), "
+                " remote(Patient._era) == foreign({task}._era), "
+                " remote(Patient._current) == True "
+                ")".format(
+                    task=cls.__name__,
+                )
+            ),
+            viewonly=True,
+            lazy="joined"
+        )
 
     @classmethod
     @property
     def has_patient(cls) -> bool:
         return True
 
-    # noinspection PyProtectedMember
-    @property
-    def patient(self) -> Optional[Patient]:
-        # This function refers to fields like _device_id that must be created
-        # by OTHER classes/mixins (specifically, GenericTabletRecordMixin).
-        if self._patient is None:
-            dbsession = SqlASession.object_session(self)  # type: SqlASession
-            q = dbsession.query(Patient)
-            q = q.filter(Patient.id == self.patient_id)
-            # noinspection PyUnresolvedReferences
-            q = q.filter(Patient._device_id == self._device_id)
-            # noinspection PyUnresolvedReferences
-            q = q.filter(Patient._era == self._era)
-            q = q.filter(Patient._current == True)  # noqa
-
-            self._patient = q.first()  # type: Optional[Patient]
-        # NOTE: this retrieves the most recent (i.e. the current) information
-        # on that patient. Consequently, task version history doesn't show the
-        # history of patient edits.
-        return self._patient
+    # def __init__(self, *args, **kwargs) -> None:
+    #     self._patient = None
+    #     # noinspection PyArgumentList
+    #     super().__init__(*args, **kwargs)  # call next class in MRO
+    #
+    # @reconstructor
+    # def init_on_load(self) -> None:
+    #     self._patient = None
+    #
+    # # noinspection PyProtectedMember
+    # @property
+    # def patient(self) -> Optional[Patient]:
+    #     # This function refers to fields like _device_id that must be created
+    #     # by OTHER classes/mixins (specifically, GenericTabletRecordMixin).
+    #     if self._patient is None:
+    #         dbsession = SqlASession.object_session(self)  # type: SqlASession
+    #         q = dbsession.query(Patient)
+    #         q = q.filter(Patient.id == self.patient_id)
+    #         # noinspection PyUnresolvedReferences
+    #         q = q.filter(Patient._device_id == self._device_id)
+    #         # noinspection PyUnresolvedReferences
+    #         q = q.filter(Patient._era == self._era)
+    #         q = q.filter(Patient._current == True)  # noqa
+    #
+    #         self._patient = q.first()  # type: Optional[Patient]
+    #     # NOTE: this retrieves the most recent (i.e. the current) information
+    #     # on that patient. Consequently, task version history doesn't show the
+    #     # history of patient edits.
+    #     return self._patient
 
 
 # =============================================================================
@@ -248,12 +253,12 @@ class TaskHasClinicianMixin(object):
     """
     clinician_specialty = CamcopsColumn(
         "clinician_specialty", Text,
-        anon=True,
+        exempt_from_anonymisation=True,
         comment="(CLINICIAN) Clinician's specialty (e.g. Liaison Psychiatry)"
     )
     clinician_name = CamcopsColumn(
         "clinician_name", Text,
-        anon=True,
+        exempt_from_anonymisation=True,
         comment="(CLINICIAN) Clinician's name (e.g. Dr X)"
     )
     clinician_professional_registration = Column(
@@ -263,18 +268,18 @@ class TaskHasClinicianMixin(object):
     )
     clinician_post = CamcopsColumn(
         "clinician_post", Text,
-        anon=True,
+        exempt_from_anonymisation=True,
         comment="(CLINICIAN) Clinician's post (e.g. Consultant)"
     )
     clinician_service = CamcopsColumn(
         "clinician_service", Text,
-        anon=True,
+        exempt_from_anonymisation=True,
         comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
                 "Service)"
     )
     clinician_contact_details = CamcopsColumn(
         "clinician_contact_details", Text,
-        anon=True,
+        exempt_from_anonymisation=True,
         comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
                 "extension)"
     )
@@ -343,7 +348,7 @@ class TaskHasRespondentMixin(object):
     """
     respondent_name = CamcopsColumn(
         "respondent_name", Text,
-        anon=True,
+        identifies_patient=True,
         comment="(RESPONDENT) Respondent's name"
     )
     respondent_relationship = Column(
@@ -425,6 +430,7 @@ class Task(GenericTabletRecordMixin):
     # PART 0: COLUMNS COMMON TO ALL TASKS
     # =========================================================================
 
+    # Columns
     when_created = Column(
         "when_created", DateTimeAsIsoTextColType,
         nullable=False,
@@ -449,6 +455,26 @@ class Task(GenericTabletRecordMixin):
         "editing_time_s", Float,
          comment="(TASK) Time spent editing (s)"
     )
+
+    # Relationships
+    @declared_attr
+    def special_notes(cls) -> RelationshipProperty:
+        return relationship(
+            SpecialNote,
+            primaryjoin=(
+                "and_("
+                " remote(SpecialNote.basetable) == {task_tablename}, "
+                " remote(SpecialNote.task_id) == foreign({task}.id), "
+                " remote(SpecialNote.device_id) == foreign({task}._device_id), "  # noqa
+                " remote(SpecialNote.era) == foreign({task}._era) "
+                ")".format(
+                    task=cls.__name__,
+                    task_tablename=cls.__tablename__,
+                )
+            ),
+            order_by="SpecialNote.note_at",
+            viewonly=True,  # *** for now!
+        )
 
     # =========================================================================
     # PART 1: THINGS THAT DERIVED CLASSES MAY CARE ABOUT
@@ -746,19 +772,6 @@ class Task(GenericTabletRecordMixin):
     @property
     def tablename(cls) -> str:
         return cls.__tablename__
-
-    # -------------------------------------------------------------------------
-    # Constructors
-    # -------------------------------------------------------------------------
-
-    def __init__(self, *args, **kwargs) -> None:
-        # noinspection PyArgumentList
-        super().__init__(*args, **kwargs)
-        self._special_notes = None  # type: List[SpecialNote]
-
-    @reconstructor
-    def init_on_load(self) -> None:
-        self._special_notes = None  # type: List[SpecialNote]
 
     # -------------------------------------------------------------------------
     # More on fields
@@ -1082,18 +1095,6 @@ class Task(GenericTabletRecordMixin):
     # Special notes
     # -------------------------------------------------------------------------
 
-    def get_special_notes(self, req: CamcopsRequest) -> List[SpecialNote]:
-        if self._special_notes is None:
-            self._special_notes = SpecialNote.get_all_instances(
-                dbsession=req.dbsession,
-                basetable=self.__tablename__,
-                task_or_patient_id=self.id,
-                device_id=self._device_id,
-                era=self._era
-            )
-            # *** change to a relationship() ?
-        return self._special_notes
-
     def apply_special_note(self,
                            note: str,
                            user_id: int,
@@ -1103,9 +1104,10 @@ class Task(GenericTabletRecordMixin):
         Applies it to all predecessor/successor versions as well.
         WRITES TO DATABASE.
         """
+        # *** needs fixing
         sn = SpecialNote()
         sn.basetable = self.tablename
-        sn.task_or_patient_id = self.id
+        sn.task_id = self.id
         sn.device_id = self._device_id
         sn.era = self._era
         sn.note_at = format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601)
@@ -2161,7 +2163,7 @@ class Task(GenericTabletRecordMixin):
             self, skip_fields=skip_fields))
         # Special notes
         branches.append(XML_COMMENT_SPECIAL_NOTES)
-        for sn in self.get_special_notes(req=req):
+        for sn in self.special_notes:
             branches.append(sn.get_xml_root())
         # Calculated
         if include_calculated:
@@ -2577,11 +2579,10 @@ class Task(GenericTabletRecordMixin):
         )
 
     def get_special_notes_html(self, req: CamcopsRequest) -> str:
-        special_notes = self.get_special_notes(req=req)
-        if not special_notes:
+        if not self.special_notes:
             return ""
         note_html = "<br>".join([
-            x.get_note_as_html() for x in special_notes])
+            x.get_note_as_html() for x in self.special_notes])
         return """
             <div class="specialnote">
                 <b>TASK SPECIAL NOTES:</b><br>
@@ -2968,24 +2969,13 @@ class Task(GenericTabletRecordMixin):
 # Fieldnames to auto-exempt from text filtering
 # =============================================================================
 
-TEXT_FILTER_EXEMPT_FIELDS = []  # type: List[str]
-
-
-def collect_text_filter_exempt_fields():
-    global TEXT_FILTER_EXEMPT_FIELDS
-
-    # noinspection PyAbstractClass
-    class Dummy(TaskHasClinicianMixin, TaskHasRespondentMixin,
-                TaskHasPatientMixin, Task):
-        pass
-
-    dummy = Dummy()
-    for attrname, column in gen_columns(dummy):
+@cache_region_static.cache_on_arguments(function_key_generator=fkg)
+def text_filter_exempt_fields(task: Type[Task]) -> List[str]:
+    exempt = []  # type: List[str]
+    for attrname, column in gen_columns(task):
         if attrname.startswith("_") or not is_sqlatype_string(column.type):
-            TEXT_FILTER_EXEMPT_FIELDS.append(attrname)
-
-
-collect_text_filter_exempt_fields()
+            exempt.append(attrname)
+    return exempt
 
 
 # =============================================================================
@@ -3032,26 +3022,26 @@ class Ancillary(object):
                 self.get_fieldnames(),
                 serverpk)
 
-    *** move to GenericTabletRecordMixin
+    # *** move to GenericTabletRecordMixin
     def make_xml_branches_for_blob_fields(
             self, skip_fields: List[str] = None) -> List[XmlElement]:
         """Returns list of XmlElementTuple elements for BLOB fields."""
         skip_fields = skip_fields or []
         return make_xml_branches_for_blob_fields(self, skip_fields=skip_fields)
 
-    *** move to GenericTabletRecordMixin
+    # *** move to GenericTabletRecordMixin
     def get_blob_xml_tuple(self,
                            blobid: int,
                            name: str) -> XmlElement:
         """Get XmlElementTuple for a PNG BLOB."""
         return get_blob_xml_tuple(self, blobid, name)
 
-    *** move to GenericTabletRecordMixin
+    # *** move to GenericTabletRecordMixin
     def get_blob_by_id(self, blobid: int) -> Optional[Blob]:
         """Get Blob() object from blob ID, or None."""
         return get_blob_by_id(self, blobid)
 
-    *** move to GenericTabletRecordMixin
+    # *** move to GenericTabletRecordMixin
     def get_cris_fieldspecs_values(self, common_fsv: FIELDSPECLIST_TYPE) \
             -> FIELDSPECLIST_TYPE:
         fieldspecs = copy.deepcopy(self.get_full_fieldspecs())

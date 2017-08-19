@@ -169,11 +169,12 @@ class GMCPQ(Task, Base):
     )
     q9 = Column(
         "q9", Text,
-        comments="Other comments"
+        comment="Other comments"
     )
     q10 = CamcopsColumn(
         "q10", Text,
-        pv=["M", "F"],
+        permitted_value_checker=PermittedValueChecker(
+            permitted_values=["M", "F"]),
         comment="Sex of rater (M, F)"
     )
     q11 = CamcopsColumn(

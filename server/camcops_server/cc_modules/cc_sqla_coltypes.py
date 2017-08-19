@@ -401,6 +401,7 @@ ZERO_TO_THREE_CHECKER = PermittedValueChecker(minimum=0, maximum=3)
 ZERO_TO_FOUR_CHECKER = PermittedValueChecker(minimum=0, maximum=4)
 ZERO_TO_FIVE_CHECKER = PermittedValueChecker(minimum=0, maximum=5)
 
+ONE_TO_FOUR_CHECKER = PermittedValueChecker(minimum=1, maximum=4)
 ONE_TO_FIVE_CHECKER = PermittedValueChecker(minimum=1, maximum=5)
 ONE_TO_SIX_CHECKER = PermittedValueChecker(minimum=1, maximum=6)
 
@@ -446,7 +447,7 @@ class CamcopsColumn(Column):
             kvp("exempt_from_anonymisation"),
             kvp("identifies_patient"),
             kvp("is_blob_id_field"),
-            kvp("blob_field_xml_name"),
+            kvp("blob_relationship_attr_name"),
             kvp("permitted_value_checker"),
             super().__repr__(),
         ]

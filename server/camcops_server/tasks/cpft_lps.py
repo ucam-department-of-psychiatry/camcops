@@ -319,7 +319,7 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
     reset_start_time_to = Column(
         "reset_start_time_to", DateTimeAsIsoTextColType
     )
-    reason = Column("reason", Text),
+    reason = Column("reason", Text)
 
     def is_complete(self) -> bool:
         return (
@@ -365,8 +365,8 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
     shortname = "CPFT_LPS_Discharge"
     longname = "Discharge from CPFT Liaison Psychiatry Service"
 
-    discharge_date = Column("discharge_date", cctype="ISO8601")
-    discharge_reason_code = Column("discharge_reason_code", cctype="TEXT")
+    discharge_date = Column("discharge_date", DateTimeAsIsoTextColType)
+    discharge_reason_code = Column("discharge_reason_code", Text)
 
     leaflet_or_discharge_card_given = BoolColumn(
         "leaflet_or_discharge_card_given"

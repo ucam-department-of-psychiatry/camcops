@@ -266,7 +266,7 @@ class CamcopsRequest(Request):
         """Switch server to producing figures in SVG."""
         self.use_svg = True
 
-    def replace_camcops_session(self, ccsession: CamcopsSession) -> None:
+    def replace_camcops_session(self, ccsession: "CamcopsSession") -> None:
         # We may have created a new HTTP session because the request had no
         # cookies (added to the DB session but not yet saved), but we might
         # then enter the database/tablet upload API and find session details,

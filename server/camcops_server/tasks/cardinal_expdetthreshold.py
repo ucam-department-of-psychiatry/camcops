@@ -29,16 +29,20 @@ import matplotlib.pyplot as plt
 import numpy
 import cardinal_pythonlib.plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Float, Integer, Text
 
-from ..cc_modules.cc_constants import (
-    FULLWIDTH_PLOT_WIDTH,
-)
+from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH
+from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
 from ..cc_modules.cc_html import (
     get_html_from_pyplot_figure,
     get_yes_no_none,
     tr_qa,
 )
-from ..cc_modules.cc_task import Ancillary, Task
+from ..cc_modules.cc_request import CamcopsRequest
+from ..cc_modules.cc_sqla_coltypes import DateTimeAsIsoTextColType
+from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 LOWER_MARKER = 0.25
@@ -56,43 +60,69 @@ DP = 3
 # CardinalExpDetThreshold
 # =============================================================================
 
-class CardinalExpDetThresholdTrial(Ancillary):
-    tablename = "cardinal_expdetthreshold_trials"
-    fkname = "cardinal_expdetthreshold_id"
-    fieldspecs = [
-        dict(name="cardinal_expdetthreshold_id", notnull=True,
-             cctype="INT",
-             comment="FK to CardinalExpDetThreshold"),
-        dict(name="trial", notnull=True, cctype="INT",
-             comment="Trial number"),
-        # Results
-        dict(name="trial_ignoring_catch_trials", cctype="INT",
-             comment="Trial number, ignoring catch trials"),
-        dict(name="target_presented", cctype="INT",
-             comment="Target presented? (0 no, 1 yes)"),
-        dict(name="target_time", cctype="ISO8601",
-             comment="Target presentation time (ISO-8601)"),
-        dict(name="intensity", cctype="FLOAT",
-             comment="Target intensity (0.0-1.0)"),
-        dict(name="choice_time", cctype="ISO8601",
-             comment="Time choice offered (ISO-8601)"),
-        dict(name="responded", cctype="INT",
-             comment="Responded? (0 no, 1 yes)"),
-        dict(name="response_time", cctype="ISO8601",
-             comment="Time of response (ISO-8601)"),
-        dict(name="response_latency_ms", cctype="INT",
-             comment="Response latency (ms)"),
-        dict(name="yes", cctype="INT",
-             comment="Subject chose YES? (0 didn't, 1 did)"),
-        dict(name="no", cctype="INT",
-             comment="Subject chose NO? (0 didn't, 1 did)"),
-        dict(name="caught_out_reset", cctype="INT",
-             comment="Caught out on catch trial, thus reset? (0 no, "
-             "1 yes)"),
-        dict(name="trial_num_in_calculation_sequence", cctype="INT",
-             comment="Trial number as used for threshold calculation"),
-    ]
-    sortfield = "trial"
+class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
+    __tablename__ = "cardinal_expdetthreshold_trials"
+
+    cardinal_expdetthreshold_id = Column(
+        "cardinal_expdetthreshold_id", Integer,
+        nullable=False,
+        comment="FK to CardinalExpDetThreshold"
+    )
+    trial = Column(
+        "trial", Integer,
+        nullable=False,
+        comment="Trial number"
+    )
+    
+    # Results
+    trial_ignoring_catch_trials = Column(
+        "trial_ignoring_catch_trials", Integer,
+        comment="Trial number, ignoring catch trials"
+    )
+    target_presented = Column(
+        "target_presented", Integer,
+        comment="Target presented? (0 no, 1 yes)"
+    )
+    target_time = Column(
+        "target_time", DateTimeAsIsoTextColType,
+        comment="Target presentation time (ISO-8601)"
+    )
+    intensity = Column(
+        "intensity", Float,
+        comment="Target intensity (0.0-1.0)"
+    )
+    choice_time = Column(
+        "choice_time", DateTimeAsIsoTextColType,
+        comment="Time choice offered (ISO-8601)"
+    )
+    responded = Column(
+        "responded", Integer,
+        comment="Responded? (0 no, 1 yes)"
+    )
+    response_time = Column(
+        "response_time", DateTimeAsIsoTextColType,
+        comment="Time of response (ISO-8601)"
+    )
+    response_latency_ms = Column(
+        "response_latency_ms", Integer,
+        comment="Response latency (ms)"
+    )
+    yes = Column(
+        "yes", Integer,
+        comment="Subject chose YES? (0 didn't, 1 did)"
+    )
+    no = Column(
+        "no", Integer,
+        comment="Subject chose NO? (0 didn't, 1 did)"
+    )
+    caught_out_reset = Column(
+        "caught_out_reset", Integer,
+        comment="Caught out on catch trial, thus reset? (0 no, 1 yes)"
+    )
+    trial_num_in_calculation_sequence = Column(
+        "trial_num_in_calculation_sequence", Integer,
+        comment="Trial number as used for threshold calculation"
+    )
 
     @classmethod
     def get_html_table_header(cls) -> str:
@@ -133,70 +163,108 @@ class CardinalExpDetThresholdTrial(Ancillary):
         )
 
 
-class CardinalExpDetThreshold(Task):
-    tablename = "cardinal_expdetthreshold"
+class CardinalExpDetThreshold(TaskHasPatientMixin, Task, Base):
+    __tablename__ = "cardinal_expdetthreshold"
     shortname = "Cardinal_ExpDetThreshold"
     longname = ("Cardinal RN – Threshold determination for "
                 "Expectation–Detection task")
     use_landscape_for_pdf = True
-    dependent_classes = [CardinalExpDetThresholdTrial]
+    
+    # *** replace mechanism - for XML etc *** dependent_classes = [CardinalExpDetThresholdTrial]
 
-    fieldspecs = [
-        # Config
-        dict(name="modality", cctype="INT",
-             comment="Modality (0 auditory, 1 visual)"),
-        dict(name="target_number", cctype="INT",
-             comment="Target number (within available targets of that "
-             "modality)"),
-        dict(name="background_filename", cctype="TEXT",
-             comment="Filename of media used for background"),
-        dict(name="target_filename", cctype="TEXT",
-             comment="Filename of media used for target"),
-        dict(name="visual_target_duration_s", cctype="FLOAT",
-             comment="Visual target duration (s)"),
-        dict(name="background_intensity", cctype="FLOAT",
-             comment="Intensity of background (0.0-1.0)"),
-        dict(name="start_intensity_min", cctype="FLOAT",
-             comment="Minimum starting intensity (0.0-1.0)"),
-        dict(name="start_intensity_max", cctype="FLOAT",
-             comment="Maximum starting intensity (0.0-1.0)"),
-        dict(name="initial_large_intensity_step", cctype="FLOAT",
-             comment="Initial, large, intensity step (0.0-1.0)"),
-        dict(name="main_small_intensity_step", cctype="FLOAT",
-             comment="Main, small, intensity step (0.0-1.0)"),
-        dict(name="num_trials_in_main_sequence", cctype="INT",
-             comment="Number of trials required in main sequence"),
-        dict(name="p_catch_trial", cctype="FLOAT",
-             comment="Probability of catch trial"),
-        dict(name="prompt", cctype="TEXT",
-             comment="Prompt given to subject"),
-        dict(name="iti_s", cctype="FLOAT",
-             comment="Intertrial interval (s)"),
-        # Results
-        dict(name="finished", cctype="INT",
-             comment="Subject finished successfully (0 no, 1 yes)"),
-        dict(name="intercept", cctype="FLOAT",
-             comment=EQUATION_COMMENT),
-        dict(name="slope", cctype="FLOAT",
-             comment=EQUATION_COMMENT),
-        dict(name="k", cctype="FLOAT",
-             comment=EQUATION_COMMENT + "; k = slope"),
-        dict(name="theta", cctype="FLOAT",
-             comment=EQUATION_COMMENT +
-             "; theta = -intercept/k = -intercept/slope "),
-    ]
+    # Config
+    modality = Column(
+        "modality", Integer,
+        comment="Modality (0 auditory, 1 visual)"
+    )
+    target_number = Column(
+        "target_number", Integer,
+        comment="Target number (within available targets of that modality)"
+    )
+    background_filename = Column(
+        "background_filename", Text,
+        comment="Filename of media used for background"
+    )
+    target_filename = Column(
+        "target_filename", Text,
+        comment="Filename of media used for target"
+    )
+    visual_target_duration_s = Column(
+        "visual_target_duration_s", Float,
+        comment="Visual target duration (s)"
+    )
+    background_intensity = Column(
+        "background_intensity", Float,
+        comment="Intensity of background (0.0-1.0)"
+    )
+    start_intensity_min = Column(
+        "start_intensity_min", Float,
+        comment="Minimum starting intensity (0.0-1.0)"
+    )
+    start_intensity_max = Column(
+        "start_intensity_max", Float,
+        comment="Maximum starting intensity (0.0-1.0)"
+    )
+    initial_large_intensity_step = Column(
+        "initial_large_intensity_step", Float,
+        comment="Initial, large, intensity step (0.0-1.0)"
+    )
+    main_small_intensity_step = Column(
+        "main_small_intensity_step", Float,
+        comment="Main, small, intensity step (0.0-1.0)"
+    )
+    num_trials_in_main_sequence = Column(
+        "num_trials_in_main_sequence", Integer,
+        comment="Number of trials required in main sequence"
+    )
+    p_catch_trial = Column(
+        "p_catch_trial", Float,
+        comment="Probability of catch trial"
+    )
+    prompt = Column(
+        "prompt", Text,
+        comment="Prompt given to subject"
+    )
+    iti_s = Column(
+        "iti_s", Float,
+        comment="Intertrial interval (s)"
+    )
+    
+    # Results
+    finished = Column(
+        "finished", Integer,
+        comment="Subject finished successfully (0 no, 1 yes)"
+    )
+    intercept = Column(
+        "intercept", Float,
+        comment=EQUATION_COMMENT
+    )
+    slope = Column(
+        "slope", Float,
+        comment=EQUATION_COMMENT
+    )
+    k = Column(
+        "k", Float,
+        comment=EQUATION_COMMENT + "; k = slope"
+    )
+    theta = Column(
+        "theta", Float,
+        comment=EQUATION_COMMENT + "; theta = -intercept/k = -intercept/slope "
+    )
+
+    # Relationships
+    trials = ancillary_relationship(
+        parent_class_name="CardinalExpDetThreshold",
+        ancillary_class_name="CardinalExpDetThresholdTrial",
+        ancillary_fk_to_parent_attr_name="cardinal_expdetthreshold_id",
+        ancillary_order_by_attr_name="trial"
+    )
 
     def is_complete(self) -> bool:
         return bool(self.finished)
 
-    def get_trial_array(self) -> List[CardinalExpDetThresholdTrial]:
-        return self.get_ancillary_items(CardinalExpDetThresholdTrial)
-
-    def get_trial_html(self) -> str:
-        # Fetch trial details
-        trialarray = self.get_trial_array()
-
-        # Provide HTML
+    def get_trial_html(self, req: CamcopsRequest) -> str:
+        trialarray = self.trials  # type: List[CardinalExpDetThresholdTrial]  # for type hinter!  # noqa
         html = CardinalExpDetThresholdTrial.get_html_table_header()
         for t in trialarray:
             html += t.get_html_table_row()
@@ -339,8 +407,8 @@ class CardinalExpDetThreshold(Task):
                 </tr>
             </table>
         """.format(
-            get_html_from_pyplot_figure(trialfig),
-            get_html_from_pyplot_figure(fitfig)
+            get_html_from_pyplot_figure(req, trialfig),
+            get_html_from_pyplot_figure(req, fitfig)
         )
 
         return html
@@ -422,5 +490,5 @@ class CardinalExpDetThreshold(Task):
         h += """
             </table>
         """
-        h += self.get_trial_html()
+        h += self.get_trial_html(req)
         return h
