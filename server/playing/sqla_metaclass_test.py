@@ -100,6 +100,7 @@ class MetaSomeThing(DeclarativeMeta):
 
     log.debug("MetaSomeThing: first line of declaration")
 
+    # noinspection PyMethodParameters
     def __prepare__(name: str,
                     bases: Tuple[Type, ...],
                     **kwds: Dict[str, Any]) -> Dict:

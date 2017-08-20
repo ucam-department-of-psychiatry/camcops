@@ -182,7 +182,9 @@ class DateTimeAsIsoText(TypeDecorator):
     class comparator_factory(TypeDecorator.Comparator):
         """Process SQL for when we are comparing our column, in the database,
         to something else."""
-        def operate(self, op, other):
+        def operate(self, op, *other, **kwargs):
+            assert len(other) == 1
+            other = other[0]
             if isinstance(other, datetime.datetime):
                 processed_other = python_datetime_to_utc(other)
             else:
@@ -200,8 +202,7 @@ class DateTimeAsIsoText(TypeDecorator):
             # NOT YET IMPLEMENTED: dialects other than MySQL, and how to
             # detect the dialect at this point.
 
-        # noinspection PyMethodMayBeStatic,PyUnusedLocal
-        def reverse_operate(self, op, other):
+        def reverse_operate(self, op, other, **kwargs):
             assert False, "I don't think this is ever being called"
 
 

@@ -23,7 +23,8 @@
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
+import os
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
 import arrow
 from arrow import Arrow
@@ -32,21 +33,26 @@ import cardinal_pythonlib.rnc_web as ws
 import datetime
 from pyramid.decorator import reify
 from pyramid.interfaces import ISession
+from pyramid.registry import Registry
 from pyramid.request import Request
 from pyramid.response import Response
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session as SqlASession
 
+# Note: everything uder the sun imports this file, so keep the intra-package
+# imports as minimal as possible.
 from .cc_config import CamcopsConfig, get_config, get_config_filename
 from .cc_constants import (
     CAMCOPS_LOGO_FILE_WEBREF,
     DATEFORMAT,
+    ENVVAR_CONFIG_FILE,
     LOCAL_LOGO_FILE_WEBREF,
     WEB_HEAD,
 )
 from .cc_dt import format_datetime
 from .cc_pyramid import CookieKeys
 from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
+from .cc_tabletsession import TabletSession
 
 if TYPE_CHECKING:
     from .cc_session import CamcopsSession
@@ -95,7 +101,17 @@ class CamcopsRequest(Request):
         super().__init__(*args, **kwargs)
         self.use_svg = False
         self.add_response_callback(complete_request_add_cookies)
-        self.camcops_session = CamcopsSession.get_session_using_cookies(self)
+        self._camcops_session = None
+        # Don't make the _camcops_session yet; it will want a Registry, and
+        # we may not have one yet; see command_line_request().
+
+    @property
+    def camcops_session(self) -> "CamcopsSession":
+        if self._camcops_session is None:
+            from .cc_session import CamcopsSession  # delayed import
+            self._camcops_session = CamcopsSession.get_session_using_cookies(
+                self)
+        return self._camcops_session
 
     @reify
     def config_filename(self) -> str:
@@ -139,6 +155,21 @@ class CamcopsRequest(Request):
         self.add_finished_callback(end_sqlalchemy_session)
 
         return session
+
+    @reify
+    def tabletsession(self) -> TabletSession:
+        """
+        Request a TabletSession, which is an information structure geared to
+        client (tablet) database accesses.
+        If we're using this interface, we also want to ensure we're using
+        the CamcopsSession for the information provided by the tablet in the
+        POST request, not anything already loaded/reset via cookies.
+        """
+        from .cc_session import CamcopsSession  # delayed import
+        ts = TabletSession(self)
+        new_cc_session = CamcopsSession.get_session_for_tablet(ts)
+        self.replace_camcops_session(new_cc_session)
+        return ts
 
     @reify
     def now_arrow(self) -> Arrow:
@@ -196,6 +227,27 @@ class CamcopsRequest(Request):
     @reify
     def _all_extra_strings(self) -> Dict[str, Dict[str, str]]:
         return all_extra_strings_as_dicts(self.config_filename)
+
+    @reify
+    def remote_port(self) -> Optional[int]:
+        """
+        The remote_port variable is an optional WSGI extra provided by some
+        frameworks, such as mod_wsgi.
+
+        The WSGI spec:
+        - https://www.python.org/dev/peps/pep-0333/
+
+        The CGI spec:
+        - https://en.wikipedia.org/wiki/Common_Gateway_Interface
+
+        The Pyramid Request object:
+        - https://docs.pylonsproject.org/projects/pyramid/en/latest/api/request.html#pyramid.request.Request  # noqa
+        - ... note: that includes remote_addr, but not remote_port.
+        """
+        try:
+            return int(self.environ.get("REMOTE_PORT", ""))
+        except (TypeError, ValueError):
+            return None
 
     def xstring(self,
                 taskname: str,
@@ -276,6 +328,30 @@ class CamcopsRequest(Request):
         self.dbsession.expunge(self.camcops_session)
         self.camcops_session = ccsession
 
+    def route_url_params(self, route_name: str,
+                         paramdict: Dict[str, Any]) -> str:
+        """
+        Provides a simplified interface to Request.route_url when you have
+        parameters to pass.
+
+        It does two things:
+            (1) convert all params to their str() form;
+            (2) allow you to pass parameters more easily using a string
+                parameter name.
+
+        The normal Pyramid Request use is:
+            Request.route_url(route_name, param1=value1, param2=value2)
+
+        where "param1" is the literal name of the parameter, but here we can do
+
+            CamcopsRequest.route_url_params(route_name, {
+                PARAM1_NAME: value1_not_necessarily_str,
+                PARAM2_NAME: value2
+            })
+        """
+        strparamdict = {k: str(v) for k, v in paramdict.items()}
+        return self.route_url(route_name, **strparamdict)
+
 
 # noinspection PyUnusedLocal
 def complete_request_add_cookies(req: CamcopsRequest, response: Response):
@@ -301,3 +377,20 @@ def complete_request_add_cookies(req: CamcopsRequest, response: Response):
     pyramid_session[CookieKeys.SESSION_TOKEN] = ccsession.token
     # ... should cause the ISession to add a callback to add cookies,
     # which will be called immediately after this one.
+
+
+def command_line_request() -> CamcopsRequest:
+    """
+    Creates a dummy CamcopsRequest for use on the command line.
+    Presupposes that os.environ[ENVVAR_CONFIG_FILE] has been set, as it is
+    in camcops.cli_main().
+    """
+    os_env_dict = {
+        ENVVAR_CONFIG_FILE: os.environ[ENVVAR_CONFIG_FILE],
+    }
+    registry = Registry()
+    req = CamcopsRequest(environ=os_env_dict)
+    # ... must pass an actual dict; os.environ itself isn't OK ("TypeError:
+    # WSGI environ must be a dict; you passed environ({'key1': 'value1', ...})
+    req.registry = registry
+    return req

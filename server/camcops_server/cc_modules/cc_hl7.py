@@ -33,7 +33,7 @@ import socket
 import subprocess
 import sys
 import typing
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.network import ping
@@ -77,6 +77,7 @@ from .cc_html import (
 from .cc_simpleobjects import HL7PatientIdentifier
 from .cc_config import CamcopsConfig
 from .cc_recipdef import RecipientDefinition
+from .cc_request import CamcopsRequest
 from .cc_sqla_coltypes import (
     BigIntUnsigned,
     HostnameColType,
@@ -88,6 +89,9 @@ from .cc_sqla_coltypes import (
 from .cc_sqlalchemy import Base
 from .cc_task import get_base_tables, get_url_task_html, task_factory
 from .cc_unittest import unit_test_ignore
+
+if TYPE_CHECKING:
+    from .cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -434,7 +438,9 @@ class HL7Message(Base):
                  hl7run: HL7Run = None,
                  show_queue_only: bool = False) -> None:
         super().__init__()
-        self._common_init()
+        self._host = None  # type: str
+        self._port = None  # type: int
+        self._msg = None  # type: str
         assert basetable and serverpk and recipient_def
         # HL7Message(basetable, serverpk, hl7run, recipient_def)
         self.basetable = basetable
@@ -446,9 +452,6 @@ class HL7Message(Base):
 
     @reconstructor
     def init_on_load(self) -> None:
-        self._common_init()
-
-    def _common_init(self) -> None:
         self._recipient_def = None  # type: RecipientDefinition
         self._show_queue_only = True
         self._host = None  # type: str
@@ -493,6 +496,7 @@ class HL7Message(Base):
             self.success = True
 
     def send(self,
+             req: CamcopsRequest,
              queue_file: typing.io.TextIO = None,
              divert_file: typing.io.TextIO = None) -> Tuple[bool, bool]:
         """Send an outbound HL7/file message, by the appropriate method."""
@@ -524,7 +528,7 @@ class HL7Message(Base):
             else:
                 self.transmit_hl7()
         elif self._recipient_def.using_file():
-            self.send_to_filestore()
+            self.send_to_filestore(req)
         else:
             raise AssertionError("HL7Message.send: invalid recipient_def.type")
         self.save()
@@ -535,7 +539,7 @@ class HL7Message(Base):
                   self.serverpk)
         return True, self.success
 
-    def send_to_filestore(self) -> None:
+    def send_to_filestore(self, req: CamcopsRequest) -> None:
         """Send a file to a filestore."""
         self.filename = self._recipient_def.get_filename(
             is_anonymous=self._task.is_anonymous,
@@ -556,11 +560,11 @@ class HL7Message(Base):
         allow_overwrite = self._recipient_def.overwrite_files
 
         if task_format == VALUE.OUTPUTTYPE_PDF:
-            data = task.get_pdf()
+            data = task.get_pdf(req)
         elif task_format == VALUE.OUTPUTTYPE_HTML:
-            data = task.get_html()
+            data = task.get_html(req)
         elif task_format == VALUE.OUTPUTTYPE_XML:
-            data = task.get_xml()
+            data = task.get_xml(req)
         else:
             raise AssertionError("write_to_filestore_file: bug")
 
@@ -699,6 +703,7 @@ class HL7Message(Base):
         return html
 
     def get_html_data_row(self,
+                          req: CamcopsRequest,
                           showmessage: bool = False,
                           showreply: bool = False) -> bool:
         """Returns HTML table data row for this instance."""
@@ -711,12 +716,12 @@ class HL7Message(Base):
             value = ws.webify(getattr(self, name))
             if name == "serverpk":
                 contents = "<a href={}>{}</a>".format(
-                    get_url_task_html(self.basetable, self.serverpk),
+                    get_url_task_html(req, self.basetable, self.serverpk),
                     value
                 )
             elif name == "run_id":
                 contents = "<a href={}>{}</a>".format(
-                    get_url_hl7_run(value),
+                    get_url_hl7_run(req, value),
                     value
                 )
             else:
@@ -1000,9 +1005,9 @@ def make_sure_path_exists(path: str) -> None:
 # URLs
 # =============================================================================
 
-def get_url_hl7_run(run_id: Any) -> str:
+def get_url_hl7_run(req: CamcopsRequest, run_id: Any) -> str:
     """URL to view an HL7Run instance."""
-    url = get_generic_action_url(ACTION.VIEW_HL7_RUN)
+    url = get_generic_action_url(req, ACTION.VIEW_HL7_RUN)
     url += get_url_field_value_pair(PARAM.HL7RUNID, run_id)
     return url
 
@@ -1021,6 +1026,7 @@ def unit_tests(dbsession: SqlASession) -> None:
     # skip: send_all_pending_hl7_messages
     # skip: send_pending_hl7_messages
 
+    # noinspection PyProtectedMember
     task = dbsession.query(Phq9)\
         .filter(Phq9._current == True)\
         .first()  # type: Optional[Phq9]

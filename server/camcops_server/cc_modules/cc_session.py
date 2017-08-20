@@ -22,21 +22,18 @@
 ===============================================================================
 """
 
-import base64
 import cgi
 import datetime
 import json
 import logging
 import math
-import os
 from typing import Any, List, Optional, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 import cardinal_pythonlib.rnc_web as ws
 from pyramid.interfaces import ISession
-from sqlalchemy.orm import Session as SqlASession
-from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Text
 
@@ -77,6 +74,7 @@ from .cc_user import (
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
+    from .cc_tabletsession import TabletSession
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -104,42 +102,6 @@ def generate_token(num_bytes: int = 16) -> str:
 
 
 # =============================================================================
-# Establishing sessions
-# =============================================================================
-
-def establish_session_for_tablet(req: "CamcopsRequest",
-                                 session_id: Optional[int],
-                                 session_token: Optional[str],
-                                 ip_address: str,
-                                 username: str,
-                                 password: str) -> None:
-    """
-    As for establish_session, but without using HTTP cookies.
-    Resulting session is stored in pls.session.
-    """ # **************************************************************************
-
-    if not session_id or not session_token:
-        log.debug("No session yet for tablet. Creating new one.")
-        session_id = None
-        session_token = None
-    pls.session = CamcopsSession(session_id, session_token, ip_address)
-    # Creates a new session if necessary
-    if pls.session.userobject and pls.session.username != username:
-        # We found a session, and it's associated with a user, but with
-        # the wrong user. This is unlikely to happen!
-        # Wipe the old one:
-        pls.session.logout()
-        # Create a fresh session.
-        pls.session = CamcopsSession(None, None, ip_address)
-    if not pls.session.userobject and username:
-        userobject = get_user(username, password)  # checks password
-        if userobject is not None and (userobject.may_upload or
-                                       userobject.may_use_webstorage):
-            # Successful login.
-            pls.session.login(userobject)
-
-
-# =============================================================================
 # Session class
 # =============================================================================
 
@@ -147,7 +109,6 @@ class CamcopsSession(Base):
     """
     Class representing an HTTPS session.
     """
-
     __tablename__ = "_security_webviewer_sessions"
 
     # no TEXT fields here; this is a performance-critical table
@@ -231,10 +192,10 @@ class CamcopsSession(Base):
         "first_task_to_view", IntUnsigned,
         comment="First record number to view"
     )
-    filter_idnums_json = Column(  # new in v2.0.1
-        "filter_idnums_json", Text,  # *** suboptimal! Text in high-speed table
-        comment="ID filters as JSON"
-    )
+    # filter_idnums_json = Column(  # new in v2.0.1
+    #     "filter_idnums_json", Text,  # *** suboptimal! Text in high-speed table
+    #     comment="ID filters as JSON"
+    # )
 
     # *** DEFUNCT as of v2.0.1; NEED DELETING ONCE ALEMBIC RUNNING:
     filter_idnum1 = Column("filter_idnum1", IntUnsigned)
@@ -248,14 +209,38 @@ class CamcopsSession(Base):
 
     @classmethod
     def get_session_using_cookies(cls,
-                                  req: "CamcopsRequest") -> 'CamcopsSession':
+                                  req: "CamcopsRequest") -> "CamcopsSession":
         """
         Makes, or retrieves, a new CamcopsSession for this Pyramid Request.
         """
         pyramid_session = req.session  # type: ISession
+        # noinspection PyArgumentList
         session_id_str = pyramid_session.get(CookieKeys.SESSION_ID, '')
+        # noinspection PyArgumentList
         session_token = pyramid_session.get(CookieKeys.SESSION_TOKEN, '')
         return cls.get_session(req, session_id_str, session_token)
+
+    @classmethod
+    def get_session_for_tablet(cls, ts: "TabletSession") -> "CamcopsSession":
+        session = cls.get_session(req=ts.req,
+                                  session_id_str=ts.session_id,
+                                  session_token=ts.session_token)
+        if session.user and session.user.username != ts.username:
+            # We found a session, and it's associated with a user, but with
+            # the wrong user. This is unlikely to happen!
+            # Wipe the old one:
+            session.logout()
+            # Create a fresh session.
+            session = cls.get_session(req=ts.req, session_id_str=None,
+                                      session_token=None)
+            if ts.username:
+                user = User.get_user_from_username_password(
+                    ts.req, ts.username, ts.password)
+                if user and user.may_login_as_tablet:
+                    # Successful login.
+                    session.login(user)
+
+        return session
 
     @classmethod
     def get_session(cls,
@@ -414,11 +399,11 @@ class CamcopsSession(Base):
             return False
         return self.user.must_agree_terms()
 
-    def agree_terms(self) -> None:
+    def agree_terms(self, req: "CamcopsRequest") -> None:
         """Marks the user as having agreed to the terms/conditions now."""
         if self.user is None:
             return
-        self.user.agree_terms()
+        self.user.agree_terms(req)
 
     def authorized_as_superuser(self) -> bool:
         """Is the user authorized as a superuser?"""
@@ -457,16 +442,18 @@ class CamcopsSession(Base):
         return self.user.view_all_patients_when_unfiltered
         # For superusers, this is a preference.
 
-    def get_current_user_html(self, offer_main_menu: bool = True) -> str:
+    def get_current_user_html(self,
+                              req: "CamcopsRequest",
+                              offer_main_menu: bool = True) -> str:
         """HTML showing current database/user, +/- link to main menu."""
         if self.username:
             user = "Logged in as <b>{}</b>.".format(ws.webify(self.username))
         else:
             user = ""
-        database = get_database_title_string()
+        database = get_database_title_string(req)
         if offer_main_menu:
             menu = """ <a href="{}">Return to main menu</a>.""".format(
-                get_url_main_menu())
+                get_url_main_menu(req))
         else:
             menu = ""
         if not user and not database and not menu:
@@ -1179,7 +1166,7 @@ def unit_tests_session(s: CamcopsSession) -> None:
     # get_filter_html: tested implicitly
 
 
-def ccsession_unit_tests(request: 'CamcopsRequest') -> None:
+def ccsession_unit_tests(request: "CamcopsRequest") -> None:
     """Unit tests for cc_session module."""
     unit_test_ignore("", CamcopsSession.delete_old_sessions, request)
     unit_test_ignore("", generate_token)

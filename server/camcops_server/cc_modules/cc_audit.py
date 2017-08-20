@@ -22,7 +22,6 @@
 ===============================================================================
 """
 
-import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import relationship
@@ -31,7 +30,6 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime, Text
 
 from .cc_dt import get_now_utc_notz
-from .cc_request import CamcopsRequest
 from .cc_sqla_coltypes import (
     AuditSourceColType,
     IntUnsigned,
@@ -41,7 +39,7 @@ from .cc_sqla_coltypes import (
 from .cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
-    from .cc_session import CamcopsSession
+    from .cc_request import CamcopsRequest
 
 
 # =============================================================================
@@ -105,7 +103,7 @@ class AuditEntry(Base):
 
 def audit(details: str,
           dbsession: SqlASession = None,
-          req: CamcopsRequest = None,
+          req: "CamcopsRequest" = None,
           patient_server_pk: int = None,
           table: str = None,
           server_pk: int = None,

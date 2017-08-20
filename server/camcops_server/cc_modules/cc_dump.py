@@ -31,8 +31,6 @@ import zipfile
 from .cc_audit import audit
 from .cc_blob import Blob
 from .cc_constants import CONFIG_FILE_MAIN_SECTION
-from .cc_patient import Patient
-from .cc_config import pls
 from .cc_task import Task
 from .cc_unittest import unit_test_ignore
 
@@ -41,12 +39,12 @@ from .cc_unittest import unit_test_ignore
 # =============================================================================
 
 NOTHING_VALID_SPECIFIED = "No valid tables or views specified"
-POSSIBLE_SYSTEM_TABLES = [  # always exist
-    Blob.TABLENAME,
-    Patient.TABLENAME,
-]
-POSSIBLE_SYSTEM_VIEWS = [
-]
+# POSSIBLE_SYSTEM_TABLES = [  # always exist
+#     Blob.TABLENAME,
+#     Patient.TABLENAME,
+# ]
+# POSSIBLE_SYSTEM_VIEWS = [
+# ]
 
 
 # =============================================================================
@@ -57,7 +55,7 @@ def get_possible_task_tables_views() -> Tuple[List[str], List[str]]:
     """Returns (tables, views) pertaining to tasks."""
     tables = []
     views = []
-    for cls in Task.all_subclasses(sort_tablename=True):
+    for cls in Task.all_subclasses_by_tablename():
         (tasktables, taskviews) = cls.get_all_table_and_view_names()
         tables.extend(tasktables)
         views.extend(taskviews)
@@ -66,6 +64,7 @@ def get_possible_task_tables_views() -> Tuple[List[str], List[str]]:
 
 def get_permitted_tables_and_views() -> List[str]:
     """Returns list of tables/views suitable for downloading."""
+    raise NotImplementedError()
     tables_that_exist = pls.db.get_all_table_names()
     (tasktables, taskviews) = get_possible_task_tables_views()
     return list(set(tables_that_exist).intersection(POSSIBLE_SYSTEM_TABLES +

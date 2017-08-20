@@ -41,13 +41,12 @@ from .cc_dt import (
     format_datetime,
     get_datetime_from_string,
 )
-from .cc_request import CamcopsRequest
 from .cc_storedvar import ServerStoredVar, ServerStoredVarNames, StoredVarTypes
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
-    from .cc_config import CamcopsConfig
+    from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -63,7 +62,7 @@ ANALYTICS_TIMEOUT_MS = 5000
 ANALYTICS_PERIOD = datetime.timedelta(days=ANALYTICS_FREQUENCY_DAYS)
 
 
-def send_analytics_if_necessary(req: CamcopsRequest) -> None:
+def send_analytics_if_necessary(req: "CamcopsRequest") -> None:
     """Send analytics to the CamCOPS base server, if required.
 
     If analytics reporting is enabled, and analytics have not been sent
@@ -140,7 +139,7 @@ def get_all_tables_with_record_counts(dbsession: SqlASession) \
     return table_names, record_counts
 
 
-def ccanalytics_unit_tests(req: CamcopsRequest) -> None:
+def ccanalytics_unit_tests(req: "CamcopsRequest") -> None:
     """Unit tests for the cc_analytics module."""
     dbsession = req.dbsession
     unit_test_ignore("", send_analytics_if_necessary, req)

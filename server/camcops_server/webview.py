@@ -46,10 +46,7 @@ from cardinal_pythonlib.rnc_web import HEADERS_TYPE, WSGI_TUPLE_TYPE
 
 # CamCOPS support modules
 import camcops_server.cc_modules.cc_all_models  # register all tasks
-from .cc_modules.cc_audit import (
-    audit,
-    SECURITY_AUDIT_TABLENAME,
-)
+from .cc_modules.cc_audit import audit, AuditEntry
 from .cc_modules.cc_constants import (
     ACTION,
     CAMCOPS_URL,
@@ -92,9 +89,8 @@ from .cc_modules.cc_html import (
     login_page,
     simple_success_message,
 )
-from .cc_modules.cc_patient import get_patient_server_pks_by_idnum, Patient
+from .cc_modules.cc_patient import Patient
 from .cc_modules.cc_plot import ccplot_do_nothing
-from .cc_modules.cc_config import pls
 from .cc_modules.cc_policy import (
     get_finalize_id_policy_principal_numeric_id,
     get_upload_id_policy_principal_numeric_id,
@@ -105,15 +101,15 @@ from .cc_modules.cc_report import (
     offer_report_menu,
     serve_report,
 )
-from .cc_modules.cc_session import establish_session, CamcopsSession
-from .cc_modules.cc_specialnote import forcibly_preserve_special_notes
+from .cc_modules.cc_request import CamcopsRequest
+from .cc_modules.cc_session import CamcopsSession
+from .cc_modules.cc_specialnote import SpecialNote
 from .cc_modules.cc_storedvar import DeviceStoredVar
 from .cc_modules.cc_task import (
     gen_tasks_for_patient_deletion,
     gen_tasks_live_on_tablet,
     gen_tasks_matching_session_filter,
     gen_tasks_using_patient,
-    get_all_task_classes,
     get_url_task_html,
     Task,
     task_factory,
@@ -121,7 +117,6 @@ from .cc_modules.cc_task import (
 from .cc_modules.cc_tracker import ClinicalTextView, Tracker
 from .cc_modules.cc_unittest import unit_test_ignore
 from .cc_modules.cc_user import (
-    act_on_login_failure,
     add_user,
     ask_delete_user_html,
     ask_to_add_user_html,
@@ -131,8 +126,6 @@ from .cc_modules.cc_user import (
     edit_user_form,
     enable_user_webview,
     enter_new_password_html,
-    get_user,
-    is_user_locked_out,
     manage_users_html,
 )
 from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
@@ -226,27 +219,29 @@ def fail_not_user(action: str, redirect: str = None) -> str:
     # cause cookies not to be saved (because they're HTTPS only).
 
 
-def fail_not_authorized_for_task() -> str:
+def fail_not_authorized_for_task(req: CamcopsRequest) -> str:
     """HTML given when user isn't allowed to see a specific task."""
     return fail_with_error_stay_logged_in(
-        "Not authorized to view that task.")
+        req, "Not authorized to view that task.")
 
 
-def fail_task_not_found() -> str:
+def fail_task_not_found(req: CamcopsRequest) -> str:
     """HTML given when task not found."""
-    return fail_with_error_stay_logged_in("Task not found.")
+    return fail_with_error_stay_logged_in(req, "Task not found.")
 
 
-def fail_not_manager(action: str) -> str:
+def fail_not_manager(req: CamcopsRequest, action: str) -> str:
     """HTML given when user doesn't have management rights."""
     return fail_with_error_stay_logged_in(
+        req,
         "Can't process action {} - not logged in as a manager.".format(action)
     )
 
 
-def fail_unknown_action(action: str) -> str:
+def fail_unknown_action(req: CamcopsRequest, action: str) -> str:
     """HTML given when action unknown."""
     return fail_with_error_stay_logged_in(
+        req,
         "Can't process action {} - action not recognized.".format(action)
     )
 
@@ -318,10 +313,9 @@ def logout(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     return login_page()
 
 
-def agree_terms(session: CamcopsSession, form: cgi.FieldStorage) -> str:
+def agree_terms(req: CamcopsRequest, form: cgi.FieldStorage) -> str:
     """The user has agreed the terms. Log this, then offer the main menu."""
-
-    session.agree_terms()
+    req.camcops_session.agree_terms(req)
     return main_menu(session, form)
 
 
@@ -1600,9 +1594,9 @@ def view_audit_trail(session: CamcopsSession, form: cgi.FieldStorage) -> str:
             , {details}
         FROM {table}
     """.format(
-        table=SECURITY_AUDIT_TABLENAME,
+        table=AuditEntry.__tablename__,
         details=details,
-    )
+    ) # *** change this!
     if start_datetime:
         wheres.append("when_access_utc >= ?")
         args.append(start_datetime)
@@ -2984,13 +2978,6 @@ def get_descriptions_comments_html(include_views: bool = False) -> str:
     f = io.StringIO()
     write_descriptions_comments(f, include_views)
     return f.getvalue()
-
-
-def get_database_title() -> str:
-    """Returns database title, or ""."""
-    if not pls.DATABASE_TITLE:
-        return ""
-    return pls.DATABASE_TITLE
 
 
 def make_summary_tables(from_console: bool = True) -> Tuple[bool, str]:

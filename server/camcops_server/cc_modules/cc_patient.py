@@ -34,8 +34,10 @@ import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
 import dateutil.relativedelta
 import hl7
-from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Text
 
@@ -197,6 +199,29 @@ class Patient(GenericTabletRecordMixin, Base):
     idshortdesc7 = Column("idshortdesc7", IdDescriptorColType, comment="ID short description 7")  # noqa
     idshortdesc8 = Column("idshortdesc8", IdDescriptorColType, comment="ID short description 8")  # noqa
 
+    # Relationships
+
+    # noinspection PyMethodParameters
+    @declared_attr
+    def special_notes(cls) -> RelationshipProperty:
+        # The SpecialNote also allows a link to patients, not just tasks,
+        # like this:
+        return relationship(
+            SpecialNote,
+            primaryjoin=(
+                "and_("
+                " remote(SpecialNote.basetable) == {patient_tablename}, "
+                " remote(SpecialNote.task_id) == foreign(Patient.id), "
+                " remote(SpecialNote.device_id) == foreign(Patient._device_id), "  # noqa
+                " remote(SpecialNote.era) == foreign(Patient._era) "
+                ")".format(
+                    patient_tablename=cls.__tablename__,
+                )
+            ),
+            order_by="SpecialNote.note_at",
+            viewonly=True,  # *** for now!
+        )
+
     @classmethod
     def get_patients_by_idnum(cls,
                               dbsession: SqlASession,
@@ -213,37 +238,14 @@ class Patient(GenericTabletRecordMixin, Base):
         patients = q.all()  # type: List[Patient]
         return patients
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self._idnums = None  # type: List[PatientIdNum]
-        self._special_notes = None  # type: List[SpecialNote]
-
-    @reconstructor
-    def init_on_load(self) -> None:
-        # http://docs.sqlalchemy.org/en/latest/orm/constructors.html
-        self._idnums = None  # type: List[PatientIdNum]
-        self._special_notes = None  # type: List[SpecialNote]
-
-    def get_idnum_objects(self) -> List[PatientIdNum]:
-        return self.idnums
-        # if self._idnums is None:
-        #     dbsession = SqlASession.object_session(self)  # type: SqlASession
-        #     q = dbsession.query(PatientIdNum)
-        #     q = q.filter(PatientIdNum.patient_id == self.id)
-        #     q = q.filter(PatientIdNum._device_id == self._device_id)
-        #     q = q.filter(PatientIdNum._era == self._era)
-        #     q = q.filter(PatientIdNum._when_added_batch_utc <= self._when_added_batch_utc)  # noqa
-        #     q = q.filter(PatientIdNum._when_removed_batch_utc == self._when_removed_batch_utc)  # noqa # *** check logic! Wrong!
-        #     self._idnums = q.fetchall()  # type: List[PatientIdNum]
-        # return self._idnums
-
     def get_idnum_which_value_tuples(self) \
             -> List[Tuple[int, int]]:
-        return [(x.which_idnum, x.idnum_value)
-                for x in self.get_idnum_objects()]
+        idnums = self.idnums  # type: List[PatientIdNum]
+        return [(x.which_idnum, x.idnum_value) for x in idnums]
 
     def get_idnum_raw_values_only(self) -> List[int]:
-        return [x.idnum_value for x in self.get_idnum_objects()]
+        idnums = self.idnums  # type: List[PatientIdNum]
+        return [x.idnum_value for x in idnums]
 
     def get_xml_root(self, req: CamcopsRequest,
                      skip_fields: List[str] = None) -> XmlElement:
@@ -274,7 +276,8 @@ class Patient(GenericTabletRecordMixin, Base):
                                        comment="ID short description " + nstr))
         # Special notes
         branches.append(XML_COMMENT_SPECIAL_NOTES)
-        for sn in self.get_special_notes():
+        special_notes = self.special_notes  # type: List[SpecialNote]
+        for sn in special_notes:
             branches.append(sn.get_xml_root())
         return XmlElement(name=self.TABLENAME, value=branches)
 
@@ -351,7 +354,8 @@ class Patient(GenericTabletRecordMixin, Base):
     def get_whichidnum_idnumvalue_tuples(self) -> List[Tuple[int, int]]:
         """Return list of (which_idnum, idnum_value) tuples."""
         arr = []  # type: List[Tuple[int, int]]
-        for idobj in self.get_idnum_objects():
+        idnums = self.idnums  # type: List[PatientIdNum]
+        for idobj in idnums:
             if idobj.which_idnum is not None and idobj.idnum_value is not None:
                 arr.append((idobj.which_idnum, idobj.idnum_value))
         return arr
@@ -491,7 +495,8 @@ class Patient(GenericTabletRecordMixin, Base):
             )
         ]
         # Then the rest:
-        for idobj in self.get_idnum_objects():
+        idnums = self.idnums  # type: List[PatientIdNum]
+        for idobj in self.idnums:
             which_idnum = idobj.which_idnum
             if which_idnum == recipient_def.primary_idnum:
                 continue
@@ -518,7 +523,8 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         Gets the PatientIdNum object for a specified which_idnum, or None.
         """
-        for x in self.get_idnum_objects():
+        idnums = self.idnums  # type: List[PatientIdNum]
+        for x in idnums:
             if x.which_idnum == which_idnum:
                 return x
         return None
@@ -532,8 +538,8 @@ class Patient(GenericTabletRecordMixin, Base):
                         which_idnum: int, idnum_value: int) -> None:
         dbsession = req.dbsession
         ccsession = req.camcops_session
-        idobjs = self.get_idnum_objects()
-        for idobj in idobjs:
+        idnums = self.idnums  # type: List[PatientIdNum]
+        for idobj in idnums:
             if idobj.which_idnum == which_idnum:
                 idobj.idnum_value = idnum_value
                 return
@@ -624,7 +630,8 @@ class Patient(GenericTabletRecordMixin, Base):
             self.get_sex_verbose(),
             self.get_dob_html(longform=longform),
         )
-        for idobj in self.get_idnum_objects():
+        idnums = self.idnums  # type: List[PatientIdNum]
+        for idobj in idnums:
             h += " " + idobj.get_html(cfg=cfg, longform=longform)
         h += " " + self.get_idother_html(longform=longform)
         return h
@@ -643,7 +650,8 @@ class Patient(GenericTabletRecordMixin, Base):
             sex=self.get_sex_verbose(),
             dob=self.get_dob_html(longform=longform),
         )
-        for idobj in self.get_idnum_objects():
+        idnums = self.idnums  # type: List[PatientIdNum]
+        for idobj in idnums:
             h += """
                 {} <!-- ID{} -->
             """.format(
@@ -682,7 +690,8 @@ class Patient(GenericTabletRecordMixin, Base):
         hlist = []
         longform = False
         cfg = req.config
-        for idobj in self.get_idnum_objects():
+        idnums = self.idnums  # type: List[PatientIdNum]
+        for idobj in idnums:
             hlist.append(idobj.get_html(cfg=cfg, longform=longform))
         hlist.append(self.get_idother_html(longform=longform))
         return " ".join(hlist)
@@ -712,20 +721,6 @@ class Patient(GenericTabletRecordMixin, Base):
     # Special notes
     # -------------------------------------------------------------------------
 
-    def get_special_notes(self) -> List[SpecialNote]:
-        if self._special_notes is None:
-            dbsession = SqlASession.object_session(self)  # type: SqlASession
-            patient_id = self.id  # type: int
-            self._special_notes = SpecialNote.get_all_instances(
-                dbsession=dbsession,
-                basetable=self.__tablename__,
-                task_or_patient_id=patient_id,
-                device_id=self._device_id,
-                era=self._era
-            )  # type: List[SpecialNote]
-        # noinspection PyTypeChecker
-        return self._special_notes
-
     def apply_special_note(
             self,
             req: CamcopsRequest,
@@ -744,13 +739,12 @@ class Patient(GenericTabletRecordMixin, Base):
         sn.user_id = req.camcops_session.user_id
         sn.note = note
         req.dbsession.add(sn)
+        self.special_notes.append(sn)
         self.audit(audit_msg)
         # HL7 deletion of corresponding tasks is done in camcops.py
-        self._special_notes = None   # will be reloaded if needed
-        # *** alter this to an SQLAlchemy relationship?
 
     def get_special_notes_html(self) -> str:
-        special_notes = self.get_special_notes()
+        special_notes = self.special_notes  # type: List[SpecialNote]
         if not special_notes:
             return ""
         note_html = "<br>".join([x.get_note_as_html() for x in special_notes])

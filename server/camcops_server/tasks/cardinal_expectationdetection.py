@@ -738,6 +738,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task, Base):
         }
 
     def get_roc_figure_by_group(self,
+                                req: CamcopsRequest,
                                 trialarray: List[ExpDetTrial],
                                 grouparray: List[ExpDetTrialGroupSpec],
                                 plainroc: bool) -> str:
@@ -770,10 +771,11 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task, Base):
             )
         title = PLAIN_ROC_TITLE if plainroc else Z_ROC_TITLE
         fig.suptitle(title, weight="bold")
-        html += get_html_from_pyplot_figure(fig)
+        html += get_html_from_pyplot_figure(req, fig)
         return html
 
     def get_roc_figure_firsthalf_lasthalf(self,
+                                          req: CamcopsRequest,
                                           trialarray: List[ExpDetTrial],
                                           plainroc: bool) -> str:
         if not trialarray or not self.num_blocks:
@@ -807,7 +809,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task, Base):
             )
         title = PLAIN_ROC_TITLE if plainroc else Z_ROC_TITLE
         fig.suptitle(title, weight="bold")
-        html += get_html_from_pyplot_figure(fig)
+        html += get_html_from_pyplot_figure(req, fig)
         return html
 
     def get_trial_html(self) -> str:
@@ -920,10 +922,10 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task, Base):
                     Receiver operating characteristic (ROC) curves by group:
                 </div>
             """ +
-            self.get_roc_figure_by_group(trialarray, grouparray, True) +
-            self.get_roc_figure_by_group(trialarray, grouparray, False) +
+            self.get_roc_figure_by_group(req, trialarray, grouparray, True) +
+            self.get_roc_figure_by_group(req, trialarray, grouparray, False) +
             "<div>First-half/last-half ROCs:</div>" +
-            self.get_roc_figure_firsthalf_lasthalf(trialarray, True) +
+            self.get_roc_figure_firsthalf_lasthalf(req, trialarray, True) +
             "<div>Trial-by-trial results:</div>" +
             self.get_trial_html()
         )

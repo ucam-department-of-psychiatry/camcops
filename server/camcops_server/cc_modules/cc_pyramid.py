@@ -73,6 +73,8 @@ class UrlParam(object):
             return r'\d+'  # digits
         elif self.paramtype == UrlParamType.PLAIN_STRING:
             return r'[a-zA-Z0-9_]+'
+        else:
+            raise RuntimeError("Bug in UrlParam")
 
     def markerdef(self) -> str:
         marker = self.name
@@ -88,48 +90,59 @@ def make_url_path(base: str, *args: UrlParam) -> str:
     return "/" + "/".join(parts)
 
 
-
 # =============================================================================
 # Routes
 # =============================================================================
 
 # Class to collect constants together
 # See also http://xion.io/post/code/python-enums-are-ok.html
+class Routes(object):
+    HOME = "home"
+
+
 class ViewParams(object):
-    # Used as parameter placeholders in URLs, and fetched from the matchdict.
+    """
+    Used as parameter placeholders in URLs, and fetched from the matchdict.
+    """
     PK = 'pk'
     PATIENT_ID = 'pid'
     QUERY = '_query'  # built in to Pyramid
 
 
 class QueryParams(object):
-    # Parameters for the request.GET dictionary, and in URL as '...?key=value'
+    """
+    Parameters for the request.GET dictionary, and in URL as '...?key=value'
+    """
     SORT = 'sort'
 
 
-COOKIE_NAME = 'camcops'
-
-
-class CookieKeys:
-    SESSION_ID = 'session_id'
-    SESSION_TOKEN = 'session_token'
-
-
 class RoutePath(object):
-    # - Pyramid route names are just strings used internally for convenience.
-    # - Pyramid URL paths are URL fragments, like '/thing', and can contain
-    #   placeholders, like '/thing/{bork_id}', which will result in the
-    #   request.matchdict object containing a 'bork_id' key. Those can be
-    #   further constrained by regular expressions, like '/thing/{bork_id:\d+}'
-    #   to restrict to digits.
+    """
+    Class to hold a route/path pair.
+    - Pyramid route names are just strings used internally for convenience.
+    - Pyramid URL paths are URL fragments, like '/thing', and can contain
+      placeholders, like '/thing/{bork_id}', which will result in the
+      request.matchdict object containing a 'bork_id' key. Those can be
+      further constrained by regular expressions, like '/thing/{bork_id:\d+}'
+      to restrict to digits.
+    """
     def __init__(self, route: str, path: str) -> None:
         self.route = route
         self.path = path
 
 
-class Routes(object):
+class RouteCollection(object):
+    """
+    All routes, with their paths, for CamCOPS.
+
+    To make a URL on the fly, use Request.route_url() or
+    CamcopsRequest.route_url_params().
+
+    To associate a view with a route, use the Pyramid @view_config decorator.
+    """
     DEBUG_TOOLBAR = RoutePath('debug_toolbar', '/_debug_toolbar/')  # hard-coded path  # noqa
-    HOME = RoutePath('home', '/')
+
+    HOME = RoutePath(Routes.HOME, '/')
     OTHER = RoutePath('other', '/other')
     VIEW_WITH_PARAMS = RoutePath(
         'vwp',
@@ -142,8 +155,10 @@ class Routes(object):
 
     @classmethod
     def all_routes(cls) -> List[RoutePath]:
+        """
+        Fetch all routes.
+        """
         return [v for k, v in cls.__dict__.items()
-                if not (k.startswith('_') or
-                        k == 'all_routes' or
-                        k == 'DEBUG_TOOLBAR')]
-
+                if not (k.startswith('_') or  # class hidden things
+                        k == 'all_routes' or  # this function
+                        k == 'DEBUG_TOOLBAR')]  # hard-coded/invisible

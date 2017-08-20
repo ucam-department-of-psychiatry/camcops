@@ -68,11 +68,11 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 import dateutil.parser
 import pytz
 from semantic_version import Version
-from sqlalchemy.dialects.mysql import BIGINT, INTEGER, LONGTEXT
+from sqlalchemy.dialects import mysql
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.sql.expression import func
-from sqlalchemy.sql.schema import Column, Table
-from sqlalchemy.sql.sqltypes import Boolean, String, Unicode
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Boolean, Integer, String, Text, Unicode
 from sqlalchemy.sql.type_api import TypeDecorator
 
 from .cc_constants import PV
@@ -96,7 +96,7 @@ ISO8601_STRING_LENGTH = 32
 # If you insert something too long into a VARCHAR, it just gets truncated.
 
 AuditSourceColType = String(length=20)
-BigIntUnsigned = BIGINT(unsigned=True)  # *** DEPRECATED; MySQL-specific
+BigIntUnsigned = Integer().with_variant(mysql.BIGINT(unsigned=True), 'mysql')
 
 CharColType = String(length=1)
 
@@ -110,12 +110,12 @@ HashedPasswordColType = String(length=255)
 HostnameColType = String(length=255)
 
 IdDescriptorColType = Unicode(length=255)
-IntUnsigned = INTEGER(unsigned=True)  # *** DEPRECATED; MySQL-specific
+IntUnsigned = Integer().with_variant(mysql.INTEGER(unsigned=True), 'mysql')
 IPAddressColType = String(length=45)  # http://stackoverflow.com/questions/166132  # noqa
 # This is a plain string.
 # See also e.g. http://sqlalchemy-utils.readthedocs.io/en/latest/_modules/sqlalchemy_utils/types/ip_address.html  # noqa
 
-LongText = LONGTEXT()
+LongText = Text().with_variant(mysql.LONGTEXT, 'mysql')
 
 MimeTypeColType = String(length=255)  # https://stackoverflow.com/questions/643690  # noqa
 

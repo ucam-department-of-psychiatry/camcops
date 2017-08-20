@@ -157,8 +157,8 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task, Base):
         """.format(q, default if a is None else a)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        person_marital_status = get_nhs_dd_person_marital_status()
-        ethnic_category_code = get_nhs_dd_ethnic_category_code()
+        person_marital_status = get_nhs_dd_person_marital_status(req)
+        ethnic_category_code = get_nhs_dd_ethnic_category_code(req)
         if self.lps_division == "G":
             banner_class = "banner_referral_general_adult"
             division_name = self.wxstring(req, "service_G")

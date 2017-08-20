@@ -28,9 +28,7 @@ import os
 import string
 from cardinal_pythonlib.dicts import merge_dicts
 
-from .cc_baseconstants import (
-    CAMCOPS_SERVER_DIRECTORY,
-)
+from .cc_baseconstants import CAMCOPS_SERVER_DIRECTORY
 
 # =============================================================================
 # Number of ID numbers. Don't alter this lightly; influences database fields.
@@ -268,6 +266,30 @@ class VALUE(object):
     OUTPUTTYPE_XML = "xml"
 
 
+class TABLET_PARAM(object):
+    CAMCOPS_VERSION = "camcops_version"
+    DATEVALUES = "datevalues"
+    DEVICE = "device"
+    FIELDS = "fields"
+    NRECORDS = "nrecords"
+    OPERATION = "operation"
+    PASSWORD = "password"
+    PKNAME = "pkname"
+    PKVALUES = "pkvalues"
+    RESULT = "result"   # server to tablet
+    SESSION_ID = "session_id"   # bidirectional
+    SESSION_TOKEN = "session_token"   # bidirectional
+    SUCCESS = "success"   # server to tablet
+    ERROR = "error"   # server to tablet
+    TABLE = "table"
+    TABLES = "tables"
+    USER = "user"
+    WHEREFIELDS = "wherefields"
+    WHERENOTFIELDS = "wherenotfields"
+    WHERENOTVALUES = "wherenotvalues"
+    WHEREVALUES = "wherevalues"
+    VALUES = "values"
+
 # =============================================================================
 # Date formats
 # =============================================================================
@@ -311,6 +333,7 @@ YES_CHAR = 'Y'
 # =============================================================================
 
 PKNAME = "_pk"
+TABLET_ID_FIELD = "id"
 MOVE_OFF_TABLET_FIELD = "_move_off_tablet"
 CLIENT_DATE_FIELD = "when_last_modified"
 

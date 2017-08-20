@@ -1,3 +1,11 @@
+
+*** finish Alembic framework, i.e.
+    reading database URL from config, in turn from env var
+
+*** make first migration, then add back filter_idnums_json
+
+*** routing and URLs
+
 ===============================================================================
 CAMCOPS SERVER THINGS TO DO NOW
 ===============================================================================
@@ -56,15 +64,6 @@ CAMCOPS SERVER THINGS TO DO
   (In any case, the fields are indexed on the server; see Patient.)
   On the tablet side, may be worthwhile, though, as the number of tasks grows.
   Defer until we try Qt/C++.
-
-===============================================================================
-TABLET THINGS TO DO
-===============================================================================
-
-- Get "attributed strings" working (= HTML support, for bold/italic, etc.).
-  In progress on tablet side (see the bugtest directory) but support (HTML
-  parser) module not installing properly via gittio.
-  -- may be able to replace with Qt.
 
 ===============================================================================
 THOUGHTS/POTENTIAL THINGS TO DO
@@ -136,170 +135,10 @@ CONSIDERED BUT NOT IMPLEMENTED
   ... No current clear demand; therefore follow YAGNI principle.
       https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it
 
+
 ===============================================================================
 Notes
 ===============================================================================
-
--------------------------------------------------------------------------------
-xhtml2pdf notes - SUPERSEDED
--------------------------------------------------------------------------------
-
-... "align" may be deprecated, but xhtml2pdf struggles with CSS
-float:right (or, I may have got the CSS wrong!)
-... Closing img tags or not: http://tiffanybbrown.com/2011/03/23
-
-Borders are happily absent on egret (xhtml2pdf.__version__ =
-"3.0.33", installed via pip) but appear on the CentOS machine
-(same version). Strange!
-Closer inspection: egret's /usr/local/lib/python2.7/dist-packages
-contains xhtml2pdf, xhtml2pdf-0-0-4.egg-info
-... and has requires.txt containing: html5lib, pypdf, pil
-while centos's /usr/local/lib/python2.7/site-packages contains
-xhtml2pdf-0.0.5-py2.7.egg
-... and has requires.txt containing: html5lib, pyPdf, Pillow,
-reportlab
-Differences between 0.0.4 and 0.0.5 include performance improvements,
-and indeed the centos one was much faster.
-Since that's important, upgraded egret's to 0.0.5
-(pip uninstall xhtml2pdf; pip install xhtml2pdf)
-But, no change to the border problem.
-So, dependencies:
-                      egret           centos
-      html5lib        0.95            1.0b3
-... egret: pip uninstall html5lib; pip install html5lib
-      pyPdf           1.13            1.13
-      Pillow (PIL)    2.3.0 (1.1.7)   2.3.0
-      reportlab       2.5             2.7
-... egret: apt-get remove python-reportlab; pip install reportlab
-OK. Now they match -- but are wrong as regards borders.
-Using the self.WEB_LOGO version in the PDF fails (logo line vanishes)
-So: in xhtml2pdf: util.py contains getBorderStyle(),
-    used by tables.py
-... suggests (as do the docs) trying border-top-style,
-      ... individually.
-... main site: http://www.xhtml2pdf.com/
-... docs at
-  https://github.com/chrisglass/xhtml2pdf/blob/master/doc/usage.rst
-No help. So, into the depths:
-document.py calls
-  parser.py/pisaParser calls
-      context.py/parseCSS
-      html5lib.HTMLParser
-But the problem is tables:
-  tables.py: pisaTagTABLE enforces solid borders (if any) and
-              calls add_cell_styles
-Others' problems:
-  http://stackoverflow.com/questions/20758305
-  http://groups.google.com/group/xhtml2pdf
-Testing via command line:
-  xhtml2pdf --css-dump > its_default_settings.css
-  xhtml2pdf test.html makes test.pdf
-New: <pdf:pagecount>
-Anyway, lines (all) go away if the top-level table/th/td/tr styles
-all have "border: none;", but have only achieved a return of lines
-for a <tr class="signature"> and not its child td.
-#
-UPSHOT (5 Jan 2014): BORDER INHERITANCE FOR TABLES IS BROKEN
-(and doesn't match Chrome rendering of the same HTML).
-- Better to have all lines than none.
-- So ideally need to fix logo.
-- Floating divs don't work.
-- Workaround: logos above each other?
-No, not achieved anything that looks better.
-- Downgrade html5lib: pip install -I html5lib==0.95 ... no change
-- Downgrade reportlab: pip install -I reportlab==2.5 ... no change
-- Downgrade xhtml2pdf: pip install -I xhtml2pdf==0.0.4 ... no change
-- ... but that upgraded the others, so then re-downgrade html5lib
-  and reportlab
-- ... fixed. So it's an interdependency.
-- ALSO AFFECTS text-align:center IN SIGNATURE LABELS
-  (old version works, new version broken).
-- Proper sequence, then: pip install xhtml2pdf==0.0.4;
-pip install html5lib==0.95; pip install reportlab==2.5
-
-1 May 2014: new installation problem, as at
-https://groups.google.com/forum/#!topic/xhtml2pdf/mihS51DtZkU
-... despite having installed version 2.5 (according to pip freeze),
-the reportlab.Version is 3.0.
-
--------------------------------------------------------------------------------
-weasyprint notes
--------------------------------------------------------------------------------
-5 Jan 2014: problems include
-- (once more) the logo line: div/float fails, table not yet perfect.
-However, img max-width:100% and max-height:100% within a constrained
-container might sort that out.
-- doesn't handle the SVG output properly; however, PNG remains OK.
-- all the pictures (in e.g. ExpDet output) are huge; would need
-changes, but that's feasible.
-- would need to do headers/footers properly, but that's feasible
-- Table tr background colours BLEED; definitely wrong.
-Reported 5/1/14: https://github.com/Kozea/WeasyPrint/issues/151
-- Note also: table cell widths went a bit funny; think the
-definitions would need to be moved from local to CSS. Or possibly a
-simple fix: https://github.com/Kozea/WeasyPrint/issues/38
-... no, not obviously working. Another bug?
-
--------------------------------------------------------------------------------
-Best current PDF backend
--------------------------------------------------------------------------------
-- 5 Jan 2014: xhtml2pdf (with old library versions) -- perfect.
-- 10 June 2015: wkhtmltopdf, which is better (e.g. ACE-III rendering, SVG),
-  simpler (external installation), more upgradable (compatible with Python 3),
-  and faster than xhtml2pdf. (Weasyprint still has rendering bugs.)
-
--------------------------------------------------------------------------------
-pdfkit, notes 6 June 2015
--------------------------------------------------------------------------------
-
-- https://pypi.python.org/pypi/pdfkit
-- https://github.com/JazzCore/python-pdfkit/wiki/Using-wkhtmltopdf-without-X-server
-- https://github.com/JazzCore/python-pdfkit/blob/master/travis/before-script.sh
-- https://coderwall.com/p/tog9eq/using-wkhtmltopdf-and-an-xvfb-daemon-to-render-html-to-pdf
-
-$ sudo apt-get install wkhtmltopdf
-$ pip install pdfkit
->>> import pdfkit
->>> help(pdfkit.pdfkit)
->>> filename = 'test.html'
->>> url = 'http://egret.psychol.cam.ac.uk/publicworkspace/test_weasyprint_bleed.html'
->>> html = """
-<style type="text/css">
-table { background-color: blue; }
-td { background-color: yellow; }
-tr {
- background-color: red;
- padding: 1cm;
-}
-</style>
-
-<table><tr><td>A</td></tr></table>
-"""
->>> # kit = pdfkit.pdfkit.PDFKit(filename, 'file')
->>> # kit = pdfkit.pdfkit.PDFKit(url, 'url')
->>> # kit = pdfkit.pdfkit.PDFKit(html, 'string')
->>> kit.to_pdf('outfile.pdf')
-
-- CURRENTLY: working fine on command line but not via Apache.
-- POTENTIALLY ALSO: http://aaronvb.com/articles/pdfkit-and-wkhtmltopdf-without-x-server-using-qt.html
-- AH. NEWER VERSION HELPS HUGELY (no reliance on X server either).
-
-$ wget http://downloads.sourceforge.net/project/wkhtmltopdf/0.12.2.1/wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
-$ sudo gdebi wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
-
-- PPA?
-    http://askubuntu.com/questions/556667/how-to-install-wkhtmltopdf-0-12-1-on-ubuntu-server
-
-- Probably best to say that the user has to make a wkhtmltopdf executable
-  available (see option to specify filename in config file).
-- Supports SVG fine. See ACE-III for SVG + bitmap.
-- After a struggle, headers working properly.
-  No support for CSS Paged Media, which is the Weasyprint/XHTML2PDF way, but
-  working nonetheless.
-        https://github.com/FriendsOfCake/CakePdf/issues/77
-        http://madalgo.au.dk/~jakobt/wkhtmltoxdoc/wkhtmltopdf_0.10.0_rc2-doc.html#Footers%20And%20Headers
-        https://github.com/wkhtmltopdf/wkhtmltopdf/issues/2066
-        https://bugs.webkit.org/show_bug.cgi?id=15548
 
 -------------------------------------------------------------------------------
 Generator expressions v. list comprehensions

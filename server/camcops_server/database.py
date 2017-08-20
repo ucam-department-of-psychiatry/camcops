@@ -42,19 +42,16 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE
+from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
 
-from .cc_modules.cc_dt import format_datetime
 from .cc_modules import cc_audit
-from .cc_modules.cc_session import establish_session_for_tablet
-from .cc_modules.cc_string import get_all_extra_strings
-from .cc_modules.cc_version import (
-    CAMCOPS_SERVER_VERSION,
-    FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE,
-    FIRST_TABLET_VER_WITHOUT_IDDESC_IN_PT_TABLE,
-    MINIMUM_TABLET_VERSION,
-)
-from .cc_modules.cc_audit import SECURITY_AUDIT_TABLENAME
+from .cc_modules.cc_cache import cache_region_static, fkg
+from .cc_modules.cc_db import GenericTabletRecordMixin
+from .cc_modules.cc_dirtytables import DirtyTable
+from .cc_modules.cc_dt import format_datetime
+from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
+from .cc_modules.cc_audit import AuditEntry
 from .cc_modules.cc_constants import (
     CLIENT_DATE_FIELD,
     DATEFORMAT,
@@ -62,36 +59,33 @@ from .cc_modules.cc_constants import (
     FP_ID_NUM,
     FP_ID_DESC,
     FP_ID_SHORT_DESC,
-    HL7MESSAGE_TABLENAME,
     MOVE_OFF_TABLET_FIELD,
     NUMBER_OF_IDNUMS_DEFUNCT,  # allowed; for old tablet versions
-    STANDARD_GENERIC_FIELDSPECS
+    TABLET_ID_FIELD,
 )
 from .cc_modules.cc_convert import (
     decode_values,
     delimit,
     encode_single_value,
 )
-from .cc_modules.cc_device import Device, get_device_by_name
-from .cc_modules.cc_hl7 import HL7Run
+from .cc_modules.cc_device import Device
+from .cc_modules.cc_hl7 import HL7Message, HL7Run
 from .cc_modules.cc_patient import Patient
 from .cc_modules.cc_patientidnum import PatientIdNum
-from .cc_modules.cc_config import pls
 from .cc_modules.cc_session import CamcopsSession
 from .cc_modules.cc_specialnote import SpecialNote
 from .cc_modules.cc_storedvar import ServerStoredVar
+from .cc_modules.cc_tabletsession import TabletSession
 from .cc_modules.cc_unittest import (
     unit_test_ignore,
     unit_test_must_raise,
     unit_test_verify
 )
 from .cc_modules.cc_user import (
-    get_user_by_name,
-    SECURITY_ACCOUNT_LOCKOUT_TABLENAME,
-    SECURITY_LOGIN_FAILURE_TABLENAME,
+    SecurityAccountLockout,
+    SecurityLoginFailure,
     User,
 )
-from .cc_modules.cc_version import make_version
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -122,57 +116,32 @@ REGEX_INVALID_TABLE_FIELD_CHARS = re.compile("[^a-zA-Z0-9_]")
 # ... the ^ within the [] means the expression will match any character NOT in
 # the specified range
 
-# System tables without a class representation:
-DIRTY_TABLES_TABLENAME = "_dirty_tables"
-DIRTY_TABLES_FIELDSPECS = [
-    dict(name="device_id", cctype="DEVICE",
-         comment="Source tablet device ID"),
-    dict(name="tablename", cctype="TABLENAME",
-         comment="Table in the process of being preserved"),
-]
-
 RESERVED_TABLES = [
-    DIRTY_TABLES_TABLENAME,
-    HL7MESSAGE_TABLENAME,
-    HL7Run.TABLENAME,
-    SECURITY_ACCOUNT_LOCKOUT_TABLENAME,
-    SECURITY_AUDIT_TABLENAME,
-    Device.TABLENAME,
-    SECURITY_LOGIN_FAILURE_TABLENAME,
-    User.TABLENAME,
-    CamcopsSession.TABLENAME,
-    ServerStoredVar.TABLENAME,
-    SpecialNote.TABLENAME,
-]
-RESERVED_FIELDS = [
-    x["name"] for x in STANDARD_GENERIC_FIELDSPECS
-    if x["name"] not in [MOVE_OFF_TABLET_FIELD, CLIENT_DATE_FIELD]
-]
+    AuditEntry.__tablename__,
+    CamcopsSession.__tablename__,
+    Device.__tablename__,
+    DirtyTable.__tablename__,
+    HL7Message.__tablename__,
+    HL7Run.__tablename__,
+    SecurityAccountLockout.__tablename__,
+    SecurityLoginFailure.__tablename__,
+    ServerStoredVar.__tablename__,
+    SpecialNote.__tablename__,
+    User.__tablename__,
+]  # *** switch to "approved", not "reserved"?
 
 
-class PARAM(object):
-    CAMCOPS_VERSION = "camcops_version" 
-    DATEVALUES = "datevalues" 
-    DEVICE = "device" 
-    FIELDS = "fields" 
-    NRECORDS = "nrecords" 
-    OPERATION = "operation" 
-    PASSWORD = "password" 
-    PKNAME = "pkname" 
-    PKVALUES = "pkvalues" 
-    RESULT = "result"   # server to tablet
-    SESSION_ID = "session_id"   # bidirectional
-    SESSION_TOKEN = "session_token"   # bidirectional
-    SUCCESS = "success"   # server to tablet
-    ERROR = "error"   # server to tablet
-    TABLE = "table" 
-    TABLES = "tables" 
-    USER = "user" 
-    WHEREFIELDS = "wherefields" 
-    WHERENOTFIELDS = "wherenotfields" 
-    WHERENOTVALUES = "wherenotvalues" 
-    WHEREVALUES = "wherevalues" 
-    VALUES = "values" 
+@cache_region_static.cache_on_arguments(function_key_generator=fkg)
+def reserved_fields() -> List[str]:
+    dummy = GenericTabletRecordMixin()
+    fields = []  # type: List[str]
+    for _, col in gen_columns(dummy):
+        fieldname = col.name
+        if fieldname not in [TABLET_ID_FIELD,
+                             MOVE_OFF_TABLET_FIELD,
+                             CLIENT_DATE_FIELD]:
+            fields.append(fieldname)
+    return fields
 
 
 # =============================================================================
@@ -234,108 +203,6 @@ def fail_unsupported_operation(operation: str) -> None:
 # =============================================================================
 # CGI handling
 # =============================================================================
-
-class SessionManager(object):
-    def __init__(self, form: cgi.FieldStorage) -> None:
-        # Read key things
-        self.form = form
-        self.operation = ws.get_cgi_parameter_str(form, PARAM.OPERATION)
-        self.device_name = ws.get_cgi_parameter_str(form, PARAM.DEVICE)
-        self.username = ws.get_cgi_parameter_str(form, PARAM.USER)
-        self.password = ws.get_cgi_parameter_str(form, PARAM.PASSWORD)
-        self.session_id = ws.get_cgi_parameter_int(form, PARAM.SESSION_ID)
-        self.session_token = ws.get_cgi_parameter_str(form,
-                                                      PARAM.SESSION_TOKEN)
-        self.tablet_version_str = ws.get_cgi_parameter_str(
-            form, PARAM.CAMCOPS_VERSION)
-        self.tablet_version_ver = make_version(self.tablet_version_str)
-        # Look up device and user
-        self._device_obj = get_device_by_name(self.device_name)
-        self._user_obj = get_user_by_name(self.username)
-
-        # Ensure table version is OK
-        if self.tablet_version_ver < MINIMUM_TABLET_VERSION:  # noqa
-            fail_user_error(
-                "Tablet CamCOPS version too old: is {v}, need {r}".format(
-                    v=self.tablet_version_str,
-                    r=MINIMUM_TABLET_VERSION))
-        # Other version things
-        self.cope_with_deleted_patient_descriptors = (
-            self.tablet_version_ver <
-            FIRST_TABLET_VER_WITHOUT_IDDESC_IN_PT_TABLE)
-        self.cope_with_old_idnums = (
-            self.tablet_version_ver <
-            FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE)
-
-        # Establish session
-        establish_session_for_tablet(self.session_id, self.session_token,
-                                     pls.remote_addr,
-                                     self.username, self.password)
-        # Report
-        log.info("Incoming connection from IP={i}, port={p}, device_name={dn},"
-                 " device_id={di}, user={u}, operation={o}",
-                 i=pls.remote_addr,
-                 p=pls.remote_port,
-                 dn=self.device_name,
-                 di=self.device_id,
-                 u=self.username,
-                 o=self.operation)
-
-    @property
-    def device_id(self) -> Optional[int]:
-        if not self._device_obj:
-            return None
-        return self._device_obj.get_id()
-
-    @property
-    def user_id(self) -> Optional[int]:
-        if self._user_obj is None:
-            return None
-        return self._user_obj.get_id()
-
-    def is_device_registered(self) -> bool:
-        return self._device_obj is not None
-
-    def reload_device(self):
-        self._device_obj = get_device_by_name(self.device_name)
-
-    def ensure_device_registered(self) -> None:
-        """
-        Ensure the device is registered. Raises UserErrorException on failure.
-        """
-        if not self.is_device_registered():
-            fail_user_error("Unregistered device")
-
-    def ensure_valid_device_and_user_for_uploading(self) -> None:
-        """
-        Ensure the device/username/password combination is valid for uploading.
-        Raises UserErrorException on failure.
-        """
-        if not pls.session.authorized_to_upload():
-            fail_user_error(INVALID_USERNAME_PASSWORD)
-        # Username/password combination found and is valid. Now check device.
-        self.ensure_device_registered()
-
-    def ensure_valid_user_for_webstorage(self) -> None:
-        """
-        Ensure the username/password combination is valid for mobileweb storage
-        access. Raises UserErrorException on failure.
-        """
-        # mobileweb storage is per-user; the device is "mobileweb_USERNAME".
-        if self.device_name != "mobileweb_" + self.username:
-            fail_user_error("Mobileweb device doesn't match username")
-        if not pls.session.authorized_for_webstorage():
-            fail_user_error(INVALID_USERNAME_PASSWORD)
-        # otherwise, happy
-
-    @staticmethod
-    def ensure_valid_user_for_device_registration() -> None:
-        """
-        Ensure the username/password combination is valid for device
-        registration. Raises UserErrorException on failure.
-        """
-        if not pls.session.authorized_for_registration():
-            fail_user_error(INVALID_USERNAME_PASSWORD)
 
 
 def get_post_var(form: cgi.FieldStorage,
@@ -468,7 +335,7 @@ def ensure_valid_field_name(f: str) -> None:
     Raises UserErrorException upon failure."""
     if bool(REGEX_INVALID_TABLE_FIELD_CHARS.search(f)):
         fail_user_error("Field name contains invalid characters: {}".format(f))
-    if f in RESERVED_FIELDS:
+    if f in reserved_fields():
         fail_user_error(
             "Invalid attempt to access a reserved field name: {}".format(f))
 
@@ -526,7 +393,7 @@ def get_select_reply(fields: Sequence[str],
 # CamCOPS table functions
 # =============================================================================
 
-def get_server_pks_of_active_records(sm: SessionManager,
+def get_server_pks_of_active_records(sm: TabletSession,
                                      table: str) -> List[int]:
     """Gets server PKs of active records (_current and in the 'NOW' era) for
     the specified device/table."""
@@ -541,7 +408,7 @@ def get_server_pks_of_active_records(sm: SessionManager,
     return pls.db.fetchallfirstvalues(query, *args)
 
 
-def record_exists(sm: SessionManager,
+def record_exists(sm: TabletSession,
                   table: str,
                   clientpk_name: str,
                   clientpk_value: Any) -> Tuple[bool, Optional[int]]:
@@ -566,7 +433,7 @@ def record_exists(sm: SessionManager,
     # Not currently checked for.
 
 
-def get_server_pks_of_specified_records(sm: SessionManager,
+def get_server_pks_of_specified_records(sm: TabletSession,
                                         table: str,
                                         wheredict: Dict) -> List[int]:
     """Retrieves server PKs for a table, for a given device, given a set of
@@ -612,7 +479,7 @@ def append_where_sql_and_values(query: str,
     return query
 
 
-def count_records(sm: SessionManager,
+def count_records(sm: TabletSession,
                   table: str,
                   wheredict: Dict,
                   wherenotdict: Dict) -> int:
@@ -632,7 +499,7 @@ def count_records(sm: SessionManager,
 
 
 def select_records_with_specified_fields(
-        sm: SessionManager,
+        sm: TabletSession,
         table: str,
         wheredict: Dict,
         wherenotdict: Dict,
@@ -654,7 +521,7 @@ def select_records_with_specified_fields(
     return pls.db.fetchall(query, *args)
 
 
-def get_max_client_pk(sm: SessionManager,
+def get_max_client_pk(sm: TabletSession,
                       table: str,
                       clientpk_name: str) -> Optional[int]:
     """Retrieves the maximum current client PK in a given device/table
@@ -671,7 +538,7 @@ def get_max_client_pk(sm: SessionManager,
     return pls.db.fetchvalue(query, *args)
 
 
-def webclient_delete_records(sm: SessionManager,
+def webclient_delete_records(sm: TabletSession,
                              table: str,
                              wheredict: Dict) -> None:
     """Deletes records from a table, from a mobileweb client's perspective,
@@ -741,7 +608,7 @@ def record_identical_by_date(table: str,
     return count > 0
 
 
-def upload_record_core(sm: SessionManager,
+def upload_record_core(sm: TabletSession,
                        table: str,
                        clientpk_name: str,
                        valuedict: Dict,
@@ -819,7 +686,7 @@ def upload_record_core(sm: SessionManager,
     return oldserverpk, newserverpk
 
 
-def insert_record(sm: SessionManager,
+def insert_record(sm: TabletSession,
                   table: str,
                   valuedict: Dict,
                   predecessor_pk: Optional[int]) -> int:
@@ -837,7 +704,7 @@ def insert_record(sm: SessionManager,
     return pls.db.insert_record_by_dict(table, valuedict)
 
 
-def duplicate_record(sm: SessionManager, table: str, serverpk: int) -> int:
+def duplicate_record(sm: TabletSession, table: str, serverpk: int) -> int:
     """Duplicates the record defined by the table/serverpk combination.
     Will raise an exception if the insert fails. Otherwise...
     The old record then NEEDS MODIFICATION by flag_modified().
@@ -860,7 +727,7 @@ def duplicate_record(sm: SessionManager, table: str, serverpk: int) -> int:
     return pls.db.insert_record_by_dict(table, d)
 
 
-def update_new_copy_of_record(sm: SessionManager,
+def update_new_copy_of_record(sm: TabletSession,
                               table: str,
                               serverpk: int,
                               valuedict: Dict,
@@ -890,7 +757,7 @@ def update_new_copy_of_record(sm: SessionManager,
 # Batch (atomic) upload and preserving
 # =============================================================================
 
-def get_batch_details_start_if_needed(sm: SessionManager) \
+def get_batch_details_start_if_needed(sm: TabletSession) \
         -> Tuple[Optional[datetime.datetime], Optional[bool]]:
     """Gets a (upload_batch_utc, currently_preserving) tuple.
 
@@ -924,7 +791,7 @@ def get_batch_details_start_if_needed(sm: SessionManager) \
     return upload_batch_utc, currently_preserving
 
 
-def start_device_upload_batch(sm: SessionManager) -> None:
+def start_device_upload_batch(sm: TabletSession) -> None:
     """Starts an upload batch for a device."""
     rollback_all(sm)
     query = """
@@ -942,7 +809,7 @@ def start_device_upload_batch(sm: SessionManager) -> None:
                    sm.device_id)
 
 
-def end_device_upload_batch(sm: SessionManager,
+def end_device_upload_batch(sm: TabletSession,
                             batchtime: datetime.datetime,
                             preserving: bool) -> None:
     """Ends an upload batch, committing all changes made thus far."""
@@ -957,7 +824,7 @@ def end_device_upload_batch(sm: SessionManager,
     """.format(table=Device.TABLENAME), sm.device_id)
 
 
-def start_preserving(sm: SessionManager) -> None:
+def start_preserving(sm: TabletSession) -> None:
     """Starts preservation (the process of moving records from the NOW era to
     an older era, so they can be removed safely from the tablet)."""
     pls.db.db_exec("""
@@ -967,7 +834,7 @@ def start_preserving(sm: SessionManager) -> None:
     """.format(table=Device.TABLENAME), sm.device_id)
 
 
-def mark_table_dirty(sm: SessionManager, table: str) -> None:
+def mark_table_dirty(sm: TabletSession, table: str) -> None:
     """Marks a table as having been modified during the current upload."""
     pls.db.db_exec("""
         REPLACE INTO {table}
@@ -977,7 +844,7 @@ def mark_table_dirty(sm: SessionManager, table: str) -> None:
     # http://dev.mysql.com/doc/refman/5.0/en/replace.html
 
 
-def get_dirty_tables(sm: SessionManager) -> Sequence[str]:
+def get_dirty_tables(sm: TabletSession) -> Sequence[str]:
     """Returns tables marked as dirty for this device."""
     return pls.db.fetchallfirstvalues(
         "SELECT tablename FROM {table} WHERE device_id=?".format(
@@ -985,7 +852,7 @@ def get_dirty_tables(sm: SessionManager) -> Sequence[str]:
         sm.device_id)
 
 
-def flag_deleted(sm: SessionManager, table: str, pklist: Iterable[int]) -> None:
+def flag_deleted(sm: TabletSession, table: str, pklist: Iterable[int]) -> None:
     """Marks record(s) as deleted, specified by a list of server PKs."""
     mark_table_dirty(sm, table)
     query = """
@@ -997,7 +864,7 @@ def flag_deleted(sm: SessionManager, table: str, pklist: Iterable[int]) -> None:
         pls.db.db_exec(query, pk)
 
 
-def flag_all_records_deleted(sm: SessionManager, table: str) -> None:
+def flag_all_records_deleted(sm: TabletSession, table: str) -> None:
     """Marks all records in a table as deleted (that are current and in the
     current era)."""
     mark_table_dirty(sm, table)
@@ -1012,7 +879,7 @@ def flag_all_records_deleted(sm: SessionManager, table: str) -> None:
     pls.db.db_exec(query, sm.device_id)
 
 
-def flag_deleted_where_clientpk_not(sm: SessionManager,
+def flag_deleted_where_clientpk_not(sm: TabletSession,
                                     table: str,
                                     clientpk_name: str,
                                     clientpk_values: Sequence[Any]) -> None:
@@ -1037,7 +904,7 @@ def flag_deleted_where_clientpk_not(sm: SessionManager,
     pls.db.db_exec(query, *args)
 
 
-def flag_modified(sm: SessionManager,
+def flag_modified(sm: TabletSession,
                   table: str,
                   pk: int,
                   successor_pk: int) -> None:
@@ -1067,7 +934,7 @@ def flag_record_for_preservation(table: str, pk: int) -> None:
     pls.db.db_exec(query, pk)
 
 
-def commit_all(sm: SessionManager,
+def commit_all(sm: TabletSession,
                batchtime: datetime.datetime,
                preserving: bool) -> None:
     """Commits additions, removals, and preservations for all tables."""
@@ -1091,7 +958,7 @@ def commit_all(sm: SessionManager,
     audit(sm, details)
 
 
-def commit_table(sm: SessionManager,
+def commit_table(sm: TabletSession,
                  batchtime: datetime.datetime,
                  preserving: bool,
                  table: str,
@@ -1199,7 +1066,7 @@ def commit_table(sm: SessionManager,
     return n_added, n_removed, n_preserved
 
 
-def rollback_all(sm: SessionManager) -> None:
+def rollback_all(sm: TabletSession) -> None:
     """Rolls back all pending changes for a device."""
     tables = get_dirty_tables(sm)
     for table in tables:
@@ -1207,7 +1074,7 @@ def rollback_all(sm: SessionManager) -> None:
     clear_dirty_tables(sm)
 
 
-def rollback_table(sm: SessionManager, table: str) -> None:
+def rollback_table(sm: TabletSession, table: str) -> None:
     """Rolls back changes for an individual table for a device."""
     # Pending additions
     pls.db.db_exec(
@@ -1241,7 +1108,7 @@ def rollback_table(sm: SessionManager, table: str) -> None:
     pls.db.db_exec(query, sm.device_id)
 
 
-def clear_dirty_tables(sm: SessionManager) -> None:
+def clear_dirty_tables(sm: TabletSession) -> None:
     """Clears the dirty-table list for a device."""
     pls.db.db_exec("DELETE FROM _dirty_tables WHERE device_id=?", sm.device_id)
 
@@ -1250,7 +1117,7 @@ def clear_dirty_tables(sm: SessionManager) -> None:
 # Audit functions
 # =============================================================================
 
-def audit(sm: SessionManager,
+def audit(sm: TabletSession,
           details: str,
           patient_server_pk: int = None,
           table: str = None,
@@ -1277,7 +1144,7 @@ def audit(sm: SessionManager,
 # the success message. Not returning anything is the same as returning None.
 # Authentication is performed in advance of these.
 
-def check_device_registered(sm: SessionManager) -> None:
+def check_device_registered(sm: TabletSession) -> None:
     """Check that a device is registered, or raise UserErrorException."""
     sm.ensure_device_registered()
 
@@ -1286,7 +1153,7 @@ def check_device_registered(sm: SessionManager) -> None:
 # Action processors that require REGISTRATION privilege
 # =============================================================================
 
-def register(sm: SessionManager) -> Dict:
+def register(sm: TabletSession) -> Dict:
     """Register a device with the server."""
     device_friendly_name = get_post_var(sm.form, "devicefriendlyname",
                                         mandatory=False)
@@ -1335,10 +1202,10 @@ def register(sm: SessionManager) -> Dict:
     return get_server_id_info()
 
 
-def get_extra_strings(sm: SessionManager) -> Dict:
+def get_extra_strings(sm: TabletSession) -> Dict:
     """Fetch all local extra strings from the server."""
     fields = ["task", "name", "value"]
-    rows = get_all_extra_strings()
+    rows = get_all_extra_strings_as_task_name_value_tuples()
     reply = get_select_reply(fields, rows)
     audit(sm, "get_extra_strings")
     return reply
@@ -1349,30 +1216,30 @@ def get_extra_strings(sm: SessionManager) -> Dict:
 # =============================================================================
 
 # noinspection PyUnusedLocal
-def check_upload_user_and_device(sm: SessionManager) -> None:
+def check_upload_user_and_device(sm: TabletSession) -> None:
     """Stub function for the operation to check that a user is valid."""
     pass  # don't need to do anything!
 
 
 # noinspection PyUnusedLocal
-def get_id_info(sm: SessionManager) -> Dict:
+def get_id_info(sm: TabletSession) -> Dict:
     """Fetch server ID information."""
     return get_server_id_info()
 
 
-def start_upload(sm: SessionManager) -> None:
+def start_upload(sm: TabletSession) -> None:
     """Begin an upload."""
     start_device_upload_batch(sm)
 
 
-def end_upload(sm: SessionManager) -> None:
+def end_upload(sm: TabletSession) -> None:
     """Ends an upload and commits changes."""
     batchtime, preserving = get_batch_details_start_if_needed(sm)
     # ensure it's the same user finishing as starting!
     end_device_upload_batch(sm, batchtime, preserving)
 
 
-def upload_table(sm: SessionManager) -> str:
+def upload_table(sm: TabletSession) -> str:
     """Upload a table. Incoming information in the CGI form includes a CSV list
     of fields, a count of the number of records being provided, and a set of
     CGI variables named record0 ... record{nrecords}, each containing a CSV
@@ -1456,7 +1323,7 @@ def upload_table(sm: SessionManager) -> str:
     return "Table {} upload successful".format(table)
 
 
-def upload_record(sm: SessionManager) -> str:
+def upload_record(sm: TabletSession) -> str:
     """Upload an individual record. (Typically used for BLOBs.) Incoming
     CGI information includes a CSV list of fields and a CSV list of values."""
     table = get_table_from_post_var(sm.form, PARAM.TABLE)
@@ -1490,7 +1357,7 @@ def upload_record(sm: SessionManager) -> str:
     # Auditing occurs at commit_all.
 
 
-def upload_empty_tables(sm: SessionManager) -> str:
+def upload_empty_tables(sm: TabletSession) -> str:
     """The tablet supplies a list of tables that are empty at its end, and we
     will 'wipe' all appropriate tables; this reduces the number of HTTP
     requests."""
@@ -1504,7 +1371,7 @@ def upload_empty_tables(sm: SessionManager) -> str:
     return "UPLOAD-EMPTY-TABLES"
 
 
-def start_preservation(sm: SessionManager) -> str:
+def start_preservation(sm: TabletSession) -> str:
     """Marks this upload batch as one in which all records will be preserved
     (i.e. moved from NOW-era to an older era, so they can be deleted safely
     from the tablet).
@@ -1519,7 +1386,7 @@ def start_preservation(sm: SessionManager) -> str:
     return "STARTPRESERVATION"
 
 
-def delete_where_key_not(sm: SessionManager) -> str:
+def delete_where_key_not(sm: TabletSession) -> str:
     """Marks records for deletion, for a device/table, where the client PK
     is not in a specified list."""
     table = get_table_from_post_var(sm.form, PARAM.TABLE)
@@ -1533,7 +1400,7 @@ def delete_where_key_not(sm: SessionManager) -> str:
     return "Trimmed"
 
 
-def which_keys_to_send(sm: SessionManager) -> str:
+def which_keys_to_send(sm: TabletSession) -> str:
     """Intended use: "For my device, and a specified table, here are my client-
     side PKs (as a CSV list), and the modification dates for each corresponding
     record (as a CSV list). Please tell me which records have mismatching dates
@@ -1581,7 +1448,7 @@ def which_keys_to_send(sm: SessionManager) -> str:
 # Action processors that require MOBILEWEB privilege
 # =============================================================================
 
-def mw_count(sm: SessionManager) -> int:
+def mw_count(sm: TabletSession) -> int:
     """Count records in a table, given a set of WHERE/WHERE NOT conditions,
     joined by AND."""
     table = get_table_from_post_var(sm.form, PARAM.TABLE)
@@ -1598,7 +1465,7 @@ def mw_count(sm: SessionManager) -> int:
     return c
 
 
-def mw_select(sm: SessionManager) -> Dict:
+def mw_select(sm: TabletSession) -> Dict:
     """Select fields from a table, specified by WHERE/WHERE NOT criteria,
     joined by AND. Return format: see get_select_reply() help.
     """
@@ -1631,7 +1498,7 @@ def mw_select(sm: SessionManager) -> Dict:
     return reply
 
 
-def mw_insert(sm: SessionManager) -> int:
+def mw_insert(sm: TabletSession) -> int:
     """Mobileweb client non-transactional INSERT."""
     # Non-transactional
     #
@@ -1657,7 +1524,7 @@ def mw_insert(sm: SessionManager) -> int:
     return clientpk_value
 
 
-def mw_update(sm: SessionManager) -> str:
+def mw_update(sm: TabletSession) -> str:
     """Mobileweb client non-transactional UPDATE."""
     # Non-transactional
     table = get_table_from_post_var(sm.form, PARAM.TABLE)
@@ -1688,7 +1555,7 @@ def mw_update(sm: SessionManager) -> str:
     return "Updated"
 
 
-def mw_delete(sm: SessionManager) -> str:
+def mw_delete(sm: TabletSession) -> str:
     """Mobileweb client non-transactional DELETE."""
     # Non-transactional
     table = get_table_from_post_var(sm.form, PARAM.TABLE)
@@ -1751,7 +1618,7 @@ def main_http_processor(env: Dict[str, str]) -> Dict:
     if not ws.cgi_method_is_post(env):
         fail_user_error("Must use POST method")
 
-    sm = SessionManager(form)
+    sm = TabletSession(form)
 
     fn = None
 

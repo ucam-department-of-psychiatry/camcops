@@ -53,9 +53,21 @@ def print_all_ddl(dialect_name: str = "mysql"):
 
 TEST_CODE = """
 
-from camcops_server.cc_modules.cc_sqlalchemy import print_all_ddl
+PRINT_DDL = False
+
+from sqlalchemy.orm.session import sessionmaker
+from camcops_server.cc_modules.cc_sqlalchemy import *
 from camcops_server.cc_modules.cc_all_models import *
 
-print_all_ddl()
+if PRINT_DDL:
+    print_all_ddl()
+
+engine = make_debug_sqlite_engine()
+Base.metadata.create_all(engine)
+session = sessionmaker()(bind=engine)  # will also show DDL (debug engine)
+
+phq9_query = session.query(Phq9)
+
+phq9_query.all()
 
 """

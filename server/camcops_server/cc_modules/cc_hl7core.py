@@ -725,6 +725,7 @@ def cchl7core_unit_tests(dbsession: SqlASession) -> None:
     # skip: send_all_pending_hl7_messages
     # skip: send_pending_hl7_messages
 
+    # noinspection PyProtectedMember
     task = dbsession.query(Phq9)\
         .filter(Phq9._current == True)\
         .first()  # type: Optional[Phq9]

@@ -214,9 +214,11 @@ from sqlalchemy import (
     String,
     TypeDecorator
 )
+from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import func
+from typing import Any, Optional, Type
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -228,13 +230,16 @@ Base = declarative_base()
 # Ancillary functions
 # =============================================================================
 
-def heading(x):
+def heading(x: str) -> None:
     print("=" * 79)
     print(x)
     print("=" * 79)
 
 
-def ask_user(prompt, default=None, returntype=None, mask=False):
+def ask_user(prompt: str,
+             default: str = None,
+             returntype: Type = None,
+             mask: bool = False) -> Any:
     if default is not None:
         fullprompt = "{} [{}]: ".format(prompt, default)
     else:
@@ -257,8 +262,13 @@ def ask_user(prompt, default=None, returntype=None, mask=False):
     return value
 
 
-def engine_mysql(user, password, host, port, database, echo=True,
-                 interface="pymysql"):
+def engine_mysql(user: str,
+                 password: str,
+                 host: str,
+                 port: int,
+                 database: str,
+                 echo: bool = True,
+                 interface: str = "pymysql") -> Engine:
     connectstring = (
         "mysql+{interface}://{user}:{password}@{host}:{port}/"
         "{database}".format(
@@ -276,7 +286,7 @@ def engine_mysql(user, password, host, port, database, echo=True,
     return sqlalchemy.create_engine(connectstring, echo=echo)
 
 
-def engine_mysql_commandline(echo=True):
+def engine_mysql_commandline(echo: bool = True) -> Engine:
     host = ask_user("Host", "localhost")
     port = 3306
     database = ask_user("Database", "testdb")
@@ -289,7 +299,7 @@ def engine_mysql_commandline(echo=True):
 # Custom date/time field as ISO-8601 text including timezone
 # =============================================================================
 
-def python_datetime_to_iso(x):
+def python_datetime_to_iso(x: datetime.datetime) -> Optional[str]:
     """From a Python datetime to an ISO-formatted string in our particular
     format."""
     # https://docs.python.org/3.4/library/datetime.html#strftime-strptime-behavior  # noqa
@@ -301,7 +311,7 @@ def python_datetime_to_iso(x):
         return None
 
 
-def iso_to_python_datetime(x):
+def iso_to_python_datetime(x: str) -> Optional[datetime.datetime]:
     """From an ISO-formatted string to a Python datetime, with timezone."""
     try:
         return dateutil.parser.parse(x)
@@ -309,7 +319,8 @@ def iso_to_python_datetime(x):
         return None
 
 
-def python_datetime_to_utc(x):
+def python_datetime_to_utc(x: datetime.datetime) \
+        -> Optional[datetime.datetime]:
     """From a Python datetime, with timezone, to a UTC Python version."""
     try:
         return x.astimezone(pytz.utc)
@@ -318,8 +329,10 @@ def python_datetime_to_utc(x):
 
 
 def mysql_isotzdatetime_to_utcdatetime(x):
-    """Creates an SQL expression wrapping a field containing our ISO-8601 text,
-    making a DATETIME out of it, in the UTC timezone."""
+    """
+    Creates an SQL expression wrapping a field containing our ISO-8601 text,
+    making a DATETIME out of it, in the UTC timezone.
+    """
     # For format, see
     #   https://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html#function_date-format  # noqa
     # Note the use of "%i" for minutes.
@@ -347,6 +360,11 @@ def mysql_unknown_field_to_utcdatetime(x):
 
 class DateTimeAsIsoText(TypeDecorator):
     """Stores date/time values as ISO-8601."""
+
+    @property
+    def python_type(self):
+        return datetime.datetime
+
     impl = sqlalchemy.types.String(32)  # underlying SQL type
 
     def process_bind_param(self, value, dialect):
@@ -375,8 +393,9 @@ class DateTimeAsIsoText(TypeDecorator):
         """Process SQL for when we are comparing our column, in the database,
         to something else."""
 
-        # noinspection PyMethodOverriding
-        def operate(self, op, other):
+        def operate(self, op, *other, **kwargs):
+            assert len(other) == 1
+            other = other[0]
             if isinstance(other, datetime.datetime):
                 processed_other = python_datetime_to_utc(other)
             else:
@@ -394,8 +413,7 @@ class DateTimeAsIsoText(TypeDecorator):
             # NOT YET IMPLEMENTED: dialects other than MySQL, and how to
             # detect the dialect at this point.
 
-        # noinspection PyMethodMayBeStatic,PyUnusedLocal
-        def reverse_operate(self, op, other):
+        def reverse_operate(self, op, other, **kwargs):
             assert False, "I don't think this is ever being called"
 
 

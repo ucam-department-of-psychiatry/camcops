@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_ancillary.py
+# camcops_server/cc_modules/cc_dirtytables.py
 
 """
 ===============================================================================
@@ -22,15 +22,26 @@
 ===============================================================================
 """
 
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.schema import Column
 
-from .cc_db import GenericTabletRecordMixin
-from .cc_sqla_coltypes import IntUnsigned
+from .cc_sqla_coltypes import DeviceNameColType, TableNameColType
+from .cc_sqlalchemy import Base
 
 
-class AncillaryMixin(GenericTabletRecordMixin):
-    id = Column(
-        "id", IntUnsigned,
-        nullable=True, index=True,
-        comment="(ANCILLARY) Primary key on the tablet device"
+# =============================================================================
+# DirtyTable
+# =============================================================================
+
+class DirtyTable(Base):
+    __tablename__ = "_dirty_tables"
+
+    device_id = Column(
+        "device_id", DeviceNameColType,
+        primary_key=True,  # composite primary key
+        comment="Source tablet device ID"
+    )
+    tablename = Column(
+        "tablename", TableNameColType,
+        primary_key=True,  # composite primary key
+        comment="Table in the process of being preserved"
     )

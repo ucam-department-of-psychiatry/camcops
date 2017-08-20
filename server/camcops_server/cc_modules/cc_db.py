@@ -66,98 +66,132 @@ class GenericTabletRecordMixin(object):
     # -------------------------------------------------------------------------
 
     # Plain columns
-    _pk = Column(
-        "_pk", IntUnsigned,
-        primary_key=True, autoincrement=True, index=True,
-        comment="(SERVER) Primary key (on the server)"
-    )
+    @declared_attr
+    def _pk(self) -> Column:
+        return Column(
+            "_pk", IntUnsigned,
+            primary_key=True, autoincrement=True, index=True,
+            comment="(SERVER) Primary key (on the server)"
+        )
 
     @declared_attr
-    def _device_id(cls) -> Column:
+    def _device_id(self) -> Column:
         return Column(
             "_device_id", IntUnsigned, ForeignKey("_security_devices.id"),
             nullable=False, index=True,
             comment="(SERVER) ID of the source tablet device"
         )
 
-    _era = Column(
-        "_era", EraColType,
-        nullable=False, index=True,
-        comment="(SERVER) 'NOW', or when this row was preserved and removed "
-                "from the source device (UTC ISO 8601)",
-    )
-    # ... note that _era is textual so that plain comparison
-    # with "=" always works, i.e. no NULLs -- for USER comparison too, not
-    # just in CamCOPS code
-    _current = Column(
-        "_current", Boolean,
-        nullable=False, index=True,
-        comment="(SERVER) Is the row current (1) or not (0)?"
-    )
-    _when_added_exact = Column(
-        "_when_added_exact", DateTimeAsIsoTextColType,
-        comment="(SERVER) Date/time this row was added (ISO 8601)"
-    )
-    _when_added_batch_utc = Column(
-        "_when_added_batch_utc", DateTime,
-        comment="(SERVER) Date/time of the upload batch that added this "
-                "row (DATETIME in UTC)"
-    )
+    @declared_attr
+    def _era(self) -> Column:
+        return Column(
+            "_era", EraColType,
+            nullable=False, index=True,
+            comment="(SERVER) 'NOW', or when this row was preserved and "
+                    "removed from the source device (UTC ISO 8601)",
+        )
+        # ... note that _era is textual so that plain comparison
+        # with "=" always works, i.e. no NULLs -- for USER comparison too, not
+        # just in CamCOPS code
 
     @declared_attr
-    def _adding_user_id(cls) -> Column:
+    def _current(self) -> Column:
+        return Column(
+            "_current", Boolean,
+            nullable=False, index=True,
+            comment="(SERVER) Is the row current (1) or not (0)?"
+        )
+
+    @declared_attr
+    def _when_added_exact(self) -> Column:
+        return Column(
+            "_when_added_exact", DateTimeAsIsoTextColType,
+            comment="(SERVER) Date/time this row was added (ISO 8601)"
+        )
+
+    @declared_attr
+    def _when_added_batch_utc(self) -> Column:
+        return Column(
+            "_when_added_batch_utc", DateTime,
+            comment="(SERVER) Date/time of the upload batch that added this "
+                    "row (DATETIME in UTC)"
+        )
+
+    @declared_attr
+    def _adding_user_id(self) -> Column:
         return Column(
             "_adding_user_id", IntUnsigned, ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that added this row",
         )
 
-    _when_removed_exact = Column(
-        "_when_removed_exact", DateTimeAsIsoTextColType,
-        comment="(SERVER) Date/time this row was removed, i.e. made "
-                "not current (ISO 8601)"
-    )
-    _when_removed_batch_utc = Column(
-        "_when_removed_batch_utc", DateTime,
-        comment="(SERVER) Date/time of the upload batch that removed "
-                "this row (DATETIME in UTC)"
-    )
+    @declared_attr
+    def _when_removed_exact(self) -> Column:
+        return Column(
+            "_when_removed_exact", DateTimeAsIsoTextColType,
+            comment="(SERVER) Date/time this row was removed, i.e. made "
+                    "not current (ISO 8601)"
+        )
 
     @declared_attr
-    def _removing_user_id(cls) -> Column:
+    def _when_removed_batch_utc(self) -> Column:
         return Column(
-            "_removing_user_id", IntUnsigned, ForeignKey("_security_users.id"),
+            "_when_removed_batch_utc", DateTime,
+            comment="(SERVER) Date/time of the upload batch that removed "
+                    "this row (DATETIME in UTC)"
+        )
+
+    @declared_attr
+    def _removing_user_id(self) -> Column:
+        return Column(
+            "_removing_user_id", IntUnsigned,
+            ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that removed this row"
         )
 
     @declared_attr
-    def _preserving_user_id(cls) -> Column:
+    def _preserving_user_id(self) -> Column:
         return Column(
-            "_preserving_user_id", IntUnsigned, ForeignKey("_security_users.id"),
+            "_preserving_user_id", IntUnsigned,
+            ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that preserved this row"
         )
 
-    _forcibly_preserved = Column(
-        "_forcibly_preserved", Boolean,
-        comment="(SERVER) Forcibly preserved by superuser (rather than "
-                "normally preserved by tablet)?"
-    )
-    _predecessor_pk = Column(
-        "_predecessor_pk", IntUnsigned,
-        comment="(SERVER) PK of predecessor record, prior to modification"
-    )
-    _successor_pk = Column(
-        "_successor_pk", IntUnsigned,
-        comment="(SERVER) PK of successor record  (after modification) "
-                "or NULL (whilst live, or after deletion)"
-    )
-    _manually_erased = Column(
-        "_manually_erased", Boolean,
-        comment="(SERVER) Record manually erased (content destroyed)?"
-    )
-    _manually_erased_at = Column(
-        "_manually_erased_at", DateTimeAsIsoTextColType,
-        comment="(SERVER) Date/time of manual erasure (ISO 8601)"
-    )
+    @declared_attr
+    def _forcibly_preserved(self) -> Column:
+        return Column(
+            "_forcibly_preserved", Boolean,
+            comment="(SERVER) Forcibly preserved by superuser (rather than "
+                    "normally preserved by tablet)?"
+        )
+
+    @declared_attr
+    def _predecessor_pk(self) -> Column:
+        return Column(
+            "_predecessor_pk", IntUnsigned,
+            comment="(SERVER) PK of predecessor record, prior to modification"
+        )
+
+    @declared_attr
+    def _successor_pk(self) -> Column:
+        return Column(
+            "_successor_pk", IntUnsigned,
+            comment="(SERVER) PK of successor record  (after modification) "
+                    "or NULL (whilst live, or after deletion)"
+        )
+
+    @declared_attr
+    def _manually_erased(cls) -> Column:
+        return Column(
+            "_manually_erased", Boolean,
+            comment="(SERVER) Record manually erased (content destroyed)?"
+        )
+
+    @declared_attr
+    def _manually_erased_at(self) -> Column:
+        return Column(
+            "_manually_erased_at", DateTimeAsIsoTextColType,
+            comment="(SERVER) Date/time of manual erasure (ISO 8601)"
+        )
 
     @declared_attr
     def _manually_erasing_user_id(cls) -> Column:
@@ -167,63 +201,80 @@ class GenericTabletRecordMixin(object):
             comment="(SERVER) ID of user that erased this row manually"
         )
 
-    _camcops_version = Column(
-        "_camcops_version", SemanticVersionColType,
-        comment = "(SERVER) CamCOPS version number of the uploading device"
-    )
-    _addition_pending = Column(
-        "_addition_pending", Boolean,
-        nullable=False,
-        comment="(SERVER) Addition pending?"
-    )
-    _removal_pending = Column(
-        "_removal_pending", Boolean,
-        comment="(SERVER) Removal pending?"
-    )
+    @declared_attr
+    def _camcops_version(self) -> Column:
+        return Column(
+            "_camcops_version", SemanticVersionColType,
+            comment = "(SERVER) CamCOPS version number of the uploading device"
+        )
+
+    @declared_attr
+    def _addition_pending(self) -> Column:
+        return Column(
+            "_addition_pending", Boolean,
+            nullable=False,
+            comment="(SERVER) Addition pending?"
+        )
+
+    @declared_attr
+    def _removal_pending(self) -> Column:
+        return Column(
+            "_removal_pending", Boolean,
+            comment="(SERVER) Removal pending?"
+        )
 
     # -------------------------------------------------------------------------
     # Fields that *all* client tables have:
     # -------------------------------------------------------------------------
-    id = Column(
-        "id", IntUnsigned,
-        nullable=False, index=True,
-        comment="(TASK) Primary key (task ID) on the tablet device"
-    )
-    when_last_modified = Column(
-        "when_last_modified", DateTimeAsIsoTextColType,
-        comment="(STANDARD) Date/time this row was last modified on the "
-                "source tablet device (ISO 8601)"
-        # *** WHEN ALEMBIC UP: INDEX THIS: USED BY DATABASE UPLOAD SCRIPT.
-    )
-    _move_off_tablet = Column(
-        "_move_off_tablet", Boolean,
-        comment="(SERVER/TABLET) Record-specific preservation pending?"
-    )
+    @declared_attr
+    def id(self) -> Column:
+        return Column(
+            "id", IntUnsigned,
+            nullable=False, index=True,
+            comment="(TASK) Primary key (task ID) on the tablet device"
+        )
+
+    @declared_attr
+    def when_last_modified(self) -> Column:
+        return Column(
+            "when_last_modified", DateTimeAsIsoTextColType,
+            comment="(STANDARD) Date/time this row was last modified on the "
+                    "source tablet device (ISO 8601)"
+            # *** WHEN ALEMBIC UP: INDEX THIS: USED BY DATABASE UPLOAD SCRIPT.
+        )
+
+    @declared_attr
+    def _move_off_tablet(self) -> Column:
+        return Column(
+            "_move_off_tablet", Boolean,
+            comment="(SERVER/TABLET) Record-specific preservation pending?"
+        )
 
     # Relationships
     @declared_attr
-    def device(cls) -> RelationshipProperty:
+    def device(self) -> RelationshipProperty:
         return relationship("Device")
 
+    # noinspection PyMethodParameters
     @declared_attr
     def _adding_user(cls) -> RelationshipProperty:
         return relationship("User", foreign_keys=[cls._adding_user_id])
 
+    # noinspection PyMethodParameters
     @declared_attr
     def _removing_user(cls) -> RelationshipProperty:
         return relationship("User", foreign_keys=[cls._removing_user_id])
 
+    # noinspection PyMethodParameters
     @declared_attr
     def _preserving_user(cls) -> RelationshipProperty:
         return relationship("User", foreign_keys=[cls._preserving_user_id])
 
+    # noinspection PyMethodParameters
     @declared_attr
     def _manually_erasing_user(cls) -> RelationshipProperty:
         return relationship("User",
                             foreign_keys=[cls._manually_erasing_user_id])
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
 
 
     # *** DEFINE MEMBER FUNCTIONS TO DO JOIN QUERIES
@@ -284,6 +335,7 @@ def add_multiple_columns(cls: Type,
     Called from a metaclass.
 
     Args:
+        cls: class to which to add columns
         prefix: Fieldname will be prefix + str(n), where n defined as below.
         start: Start of range.
         end: End of range. Thus:

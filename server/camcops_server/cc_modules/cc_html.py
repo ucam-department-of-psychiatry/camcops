@@ -24,7 +24,7 @@
 
 import base64
 import string
-from typing import Any, Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional, TYPE_CHECKING, Union
 
 import cardinal_pythonlib.plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
@@ -38,7 +38,9 @@ from .cc_constants import (
     WEBEND,
     WKHTMLTOPDF_CSS,
 )
-from .cc_request import CamcopsRequest
+
+if TYPE_CHECKING:
+    from .cc_request import CamcopsRequest
 
 
 # =============================================================================
@@ -348,7 +350,7 @@ def tr_span_col(x: str,
     )
 
 
-def get_html_from_pyplot_figure(req: CamcopsRequest, fig) -> str:
+def get_html_from_pyplot_figure(req: "CamcopsRequest", fig) -> str:
     """Make HTML (as PNG or SVG) from pyplot figure."""
     ccsession = req.camcops_session
     if USE_SVG_IN_HTML and ccsession.use_svg:
@@ -364,7 +366,7 @@ def get_html_from_pyplot_figure(req: CamcopsRequest, fig) -> str:
         return rnc_plot.png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI)
 
 
-def get_html_which_idnum_picker(req: CamcopsRequest,
+def get_html_which_idnum_picker(req: "CamcopsRequest",
                                 param: str = PARAM.WHICH_IDNUM,
                                 selected: int = None) -> str:
     cfg = req.config
@@ -514,7 +516,7 @@ def get_correct_incorrect_none(x: Any) -> Optional[str]:
 # Pages referred to in this module by simple success/failure messages
 # =============================================================================
 
-def login_page(req: CamcopsRequest, extra_msg: str = "", redirect=None):
+def login_page(req: "CamcopsRequest", extra_msg: str = "", redirect=None):
     """HTML for main login page."""
     cfg = req.config
     disable_autocomplete = (' autocomplete="off"'
@@ -552,7 +554,7 @@ def login_page(req: CamcopsRequest, extra_msg: str = "", redirect=None):
 # Common page components
 # =============================================================================
 
-def simple_success_message(req: CamcopsRequest, msg: str,
+def simple_success_message(req: "CamcopsRequest", msg: str,
                            extra_html: str = ""):
     """HTML for simple success message."""
     return req.webstart_html + """
@@ -572,13 +574,13 @@ def error_msg(msg: str) -> str:
     return """<h2 class="error">{}</h2>""".format(msg)
 
 
-def fail_with_error_not_logged_in(req: CamcopsRequest,
+def fail_with_error_not_logged_in(req: "CamcopsRequest",
                                   error: str, redirect: str = None) -> str:
     """HTML for you-have-failed-and-are-not-logged-in message."""
     return login_page(req, error_msg(error), redirect)
 
 
-def fail_with_error_stay_logged_in(req: CamcopsRequest,
+def fail_with_error_stay_logged_in(req: "CamcopsRequest",
                                    error: str, extra_html: str = "") -> str:
     """HTML for errors where the user stays logged in."""
     return req.webstart_html + """
@@ -592,7 +594,7 @@ def fail_with_error_stay_logged_in(req: CamcopsRequest,
     ) + WEBEND
 
 
-def get_return_to_main_menu_line(req: CamcopsRequest) -> str:
+def get_return_to_main_menu_line(req: "CamcopsRequest") -> str:
     """HTML DIV for returning to the main menu."""
     return """
         <div>
@@ -601,7 +603,7 @@ def get_return_to_main_menu_line(req: CamcopsRequest) -> str:
     """.format(get_url_main_menu(req))
 
 
-def get_database_title_string(req: CamcopsRequest) -> str:
+def get_database_title_string(req: "CamcopsRequest") -> str:
     """Database title as HTML-safe unicode."""
     cfg = req.config
     if not cfg.DATABASE_TITLE:
@@ -613,7 +615,7 @@ def get_database_title_string(req: CamcopsRequest) -> str:
 # URLs
 # =============================================================================
 
-def get_generic_action_url(req: CamcopsRequest, action: str) -> str:
+def get_generic_action_url(req: "CamcopsRequest", action: str) -> str:
     """Make generic URL with initial action name/value pair."""
     return "{}?{}={}".format(req.script_name, PARAM.ACTION, action)
 
@@ -623,11 +625,11 @@ def get_url_field_value_pair(field: str, value: Any) -> str:
     return "&amp;{}={}".format(field, value)
 
 
-def get_url_main_menu(req: CamcopsRequest) -> str:
+def get_url_main_menu(req: "CamcopsRequest") -> str:
     return get_generic_action_url(req, ACTION.MAIN_MENU)
 
 
-def get_url_enter_new_password(req: CamcopsRequest, username: str) -> str:
+def get_url_enter_new_password(req: "CamcopsRequest", username: str) -> str:
     """URL to enter new password."""
     return (
         get_generic_action_url(req, ACTION.ENTER_NEW_PASSWORD) +

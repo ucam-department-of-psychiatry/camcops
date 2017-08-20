@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_simpleobjects.py
+# camcops_server/alembic/__init__.py
 
 """
 ===============================================================================
@@ -21,27 +21,3 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 ===============================================================================
 """
-
-from typing import Any
-
-from sqlalchemy.sql.type_api import TypeEngine
-
-
-# =============================================================================
-# SummaryElement
-# =============================================================================
-
-class SummaryElement(object):
-    """
-    Returned by tasks to represent extra summary information that they
-    calculate.
-    """
-    def __init__(self,
-                 name: str,
-                 coltype: TypeEngine,  # e.g. Integer(), String(length=50)
-                 value: Any,
-                 comment: str = None) -> None:
-        self.name = name
-        self.coltype = coltype
-        self.value = value
-        self.comment = comment

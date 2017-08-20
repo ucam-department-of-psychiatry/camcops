@@ -38,8 +38,6 @@ import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.sql.literals import gen_items_from_sql_csv, SQUOTE
 from cardinal_pythonlib.text import escape_newlines
 
-from .cc_config import pls
-
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 REGEX_WHITESPACE = re.compile("\s")

@@ -42,7 +42,6 @@ from cardinal_pythonlib.configfiles import (
     get_config_parameter_multiline
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
-import cardinal_pythonlib.pdf as rnc_pdf
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
 from sqlalchemy.engine import create_engine, Engine
 from sqlalchemy.orm import sessionmaker

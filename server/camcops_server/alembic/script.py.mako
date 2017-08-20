@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/cc_simpleobjects.py
+# camcops_server/alembic/versions/${up_revision}.py
 
 """
 ===============================================================================
@@ -20,28 +20,42 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 ===============================================================================
+
+DATABASE REVISION SCRIPT
+
+${message}
+
+Revision ID: ${up_revision}
+Revises: ${down_revision | comma,n}
+Creation date: ${create_date}
+
 """
 
-from typing import Any
+# =============================================================================
+# Imports
+# =============================================================================
 
-from sqlalchemy.sql.type_api import TypeEngine
+from alembic import op
+import sqlalchemy as sa
+${imports if imports else ""}
+
+# =============================================================================
+# Revision identifiers, used by Alembic.
+# =============================================================================
+
+revision = ${repr(up_revision)}
+down_revision = ${repr(down_revision)}
+branch_labels = ${repr(branch_labels)}
+depends_on = ${repr(depends_on)}
 
 
 # =============================================================================
-# SummaryElement
+# The upgrade/downgrade steps
 # =============================================================================
 
-class SummaryElement(object):
-    """
-    Returned by tasks to represent extra summary information that they
-    calculate.
-    """
-    def __init__(self,
-                 name: str,
-                 coltype: TypeEngine,  # e.g. Integer(), String(length=50)
-                 value: Any,
-                 comment: str = None) -> None:
-        self.name = name
-        self.coltype = coltype
-        self.value = value
-        self.comment = comment
+def upgrade():
+    ${upgrades if upgrades else "pass"}
+
+
+def downgrade():
+    ${downgrades if downgrades else "pass"}

@@ -545,9 +545,11 @@ class CamcopsHttpSession(Base):
         dbsession = request.dbsession
         pyramid_session = request.session  # type: ISession
         try:
+            # noinspection PyArgumentList
             session_id = int(pyramid_session.get(CookieKeys.SESSION_ID, None))
         except (TypeError, ValueError):
             session_id = None
+        # noinspection PyArgumentList
         session_token = pyramid_session.get(CookieKeys.SESSION_TOKEN, '')
         ip_addr = request.remote_addr
         now = request.now_utc  # type: datetime.datetime

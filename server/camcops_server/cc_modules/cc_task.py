@@ -45,6 +45,7 @@ from typing import (Any, Dict, Iterable, Generator, List, Optional, Sequence,
 
 from cardinal_pythonlib.classes import (
     all_subclasses,
+    classproperty,
     derived_class_implements_method,
 )
 from cardinal_pythonlib.lists import flatten_list
@@ -52,13 +53,14 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.rnc_db import DatabaseSupporter, FIELDSPECLIST_TYPE
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
+from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 import hl7
 from semantic_version import Version
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Float, Text
@@ -181,13 +183,14 @@ class TaskHasPatientMixin(object):
     # http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html#using-advanced-relationship-arguments-e-g-primaryjoin-etc  # noqa
 
     @declared_attr
-    def patient_id(cls) -> Column:
+    def patient_id(self) -> Column:
         return Column(
             "patient_id", IntUnsigned,
             nullable=False, index=True,
             comment="(TASK) Foreign key to patient.id (for this device/era)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
     def patient(cls) -> RelationshipProperty:
         return relationship(
@@ -206,8 +209,8 @@ class TaskHasPatientMixin(object):
             lazy="joined"
         )
 
-    @classmethod
-    @property
+    # noinspection PyMethodParameters
+    @classproperty
     def has_patient(cls) -> bool:
         return True
 
@@ -251,43 +254,62 @@ class TaskHasClinicianMixin(object):
     Mixin to add clinician columns and override clinician-related methods.
     Must be to the LEFT of Task in the class's base class list.
     """
-    clinician_specialty = CamcopsColumn(
-        "clinician_specialty", Text,
-        exempt_from_anonymisation=True,
-        comment="(CLINICIAN) Clinician's specialty (e.g. Liaison Psychiatry)"
-    )
-    clinician_name = CamcopsColumn(
-        "clinician_name", Text,
-        exempt_from_anonymisation=True,
-        comment="(CLINICIAN) Clinician's name (e.g. Dr X)"
-    )
-    clinician_professional_registration = Column(
-        "clinician_professional_registration", Text,
-        comment="(CLINICIAN) Clinician's professional registration (e.g. "
-                "GMC# 12345)"
-    )
-    clinician_post = CamcopsColumn(
-        "clinician_post", Text,
-        exempt_from_anonymisation=True,
-        comment="(CLINICIAN) Clinician's post (e.g. Consultant)"
-    )
-    clinician_service = CamcopsColumn(
-        "clinician_service", Text,
-        exempt_from_anonymisation=True,
-        comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
-                "Service)"
-    )
-    clinician_contact_details = CamcopsColumn(
-        "clinician_contact_details", Text,
-        exempt_from_anonymisation=True,
-        comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
-                "extension)"
-    )
+    @declared_attr
+    def clinician_specialty(self) -> Column:
+        return CamcopsColumn(
+            "clinician_specialty", Text,
+            exempt_from_anonymisation=True,
+            comment="(CLINICIAN) Clinician's specialty "
+                    "(e.g. Liaison Psychiatry)"
+        )
+
+    @declared_attr
+    def clinician_name(self) -> Column:
+        return CamcopsColumn(
+            "clinician_name", Text,
+            exempt_from_anonymisation=True,
+            comment="(CLINICIAN) Clinician's name (e.g. Dr X)"
+        )
+
+    @declared_attr
+    def clinician_professional_registration(self) -> Column:
+        return Column(
+            "clinician_professional_registration", Text,
+            comment="(CLINICIAN) Clinician's professional registration (e.g. "
+                    "GMC# 12345)"
+        )
+
+    @declared_attr
+    def clinician_post(self) -> Column:
+        return CamcopsColumn(
+            "clinician_post", Text,
+            exempt_from_anonymisation=True,
+            comment="(CLINICIAN) Clinician's post (e.g. Consultant)"
+        )
+
+    @declared_attr
+    def clinician_service(self) -> Column:
+        return CamcopsColumn(
+            "clinician_service", Text,
+            exempt_from_anonymisation=True,
+            comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
+                    "Service)"
+        )
+
+    @declared_attr
+    def clinician_contact_details(self) -> Column:
+        return CamcopsColumn(
+            "clinician_contact_details", Text,
+            exempt_from_anonymisation=True,
+            comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
+                    "extension)"
+        )
+
     # For field order, see also:
     # https://stackoverflow.com/questions/3923910/sqlalchemy-move-mixin-columns-to-end  # noqa
 
-    @classmethod
-    @property
+    # noinspection PyMethodParameters
+    @classproperty
     def has_clinician(cls) -> bool:
         return True
 
@@ -345,19 +367,27 @@ class TaskHasRespondentMixin(object):
     """
     Mixin to add respondent columns and override respondent-related methods.
     Must be to the LEFT of Task in the class's base class list.
-    """
-    respondent_name = CamcopsColumn(
-        "respondent_name", Text,
-        identifies_patient=True,
-        comment="(RESPONDENT) Respondent's name"
-    )
-    respondent_relationship = Column(
-        "respondent_relationship", Text,
-        comment="(RESPONDENT) Respondent's relationship to patient"
-    )
 
-    @classmethod
-    @property
+    If you don't use declared_attr, the "comment" property doesn't work.
+    """
+
+    @declared_attr
+    def respondent_name(self) -> Column:
+        return CamcopsColumn(
+            "respondent_name", Text,
+            identifies_patient=True,
+            comment="(RESPONDENT) Respondent's name"
+        )
+
+    @declared_attr
+    def respondent_relationship(self) -> Column:
+        return Column(
+            "respondent_relationship", Text,
+            comment="(RESPONDENT) Respondent's relationship to patient"
+        )
+
+    # noinspection PyMethodParameters
+    @classproperty
     def has_respondent(cls) -> bool:
         return True
 
@@ -382,6 +412,7 @@ class TaskHasRespondentMixin(object):
             name=ws.webify(self.respondent_name),
             relationship=ws.webify(self.respondent_relationship),
         )
+
 
 # =============================================================================
 # Task base class
@@ -431,32 +462,48 @@ class Task(GenericTabletRecordMixin):
     # =========================================================================
 
     # Columns
-    when_created = Column(
-        "when_created", DateTimeAsIsoTextColType,
-        nullable=False,
-        comment="(TASK) Date/time this task instance was created (ISO 8601)"
-    )
-    when_firstexit = Column(
-        "when_firstexit", DateTimeAsIsoTextColType,
-         comment="(TASK) Date/time of the first exit from this task "
-                 "(ISO 8601)"
-    )
-    firstexit_is_finish = Column(
-        "firstexit_is_finish", Boolean,
-         comment="(TASK) Was the first exit from the task because it was "
-                 "finished (1)?"
-    )
-    firstexit_is_abort = Column(
-        "firstexit_is_abort", Boolean,
-         comment="(TASK) Was the first exit from this task because it was "
-                 "aborted (1)?"
-    )
-    editing_time_s = Column(
-        "editing_time_s", Float,
-         comment="(TASK) Time spent editing (s)"
-    )
+    @declared_attr
+    def when_created(self) -> Column:
+        return Column(
+            "when_created", DateTimeAsIsoTextColType,
+            nullable=False,
+            comment="(TASK) Date/time this task instance was created (ISO 8601)"
+        )
+
+    @declared_attr
+    def when_firstexit(self) -> Column:
+        return Column(
+            "when_firstexit", DateTimeAsIsoTextColType,
+            comment="(TASK) Date/time of the first exit from this task "
+                    "(ISO 8601)"
+        )
+
+    @declared_attr
+    def firstexit_is_finish(self) -> Column:
+        return Column(
+            "firstexit_is_finish", Boolean,
+            comment="(TASK) Was the first exit from the task because it was "
+                    "finished (1)?"
+        )
+
+    @declared_attr
+    def firstexit_is_abort(self) -> Column:
+        return Column(
+            "firstexit_is_abort", Boolean,
+            comment="(TASK) Was the first exit from this task because it was "
+                    "aborted (1)?"
+        )
+
+    @declared_attr
+    def editing_time_s(self) -> Column:
+        return Column(
+            "editing_time_s", Float,
+            comment="(TASK) Time spent editing (s)"
+        )
 
     # Relationships
+
+    # noinspection PyMethodParameters
     @declared_attr
     def special_notes(cls) -> RelationshipProperty:
         return relationship(
@@ -710,13 +757,13 @@ class Task(GenericTabletRecordMixin):
         """
         classes = []  # type: List[Type[TASK_FWD_REF]]
         for c in all_subclasses(cls):
-            if issubclass(cls, Base):
-                classes.append(cls)
+            if issubclass(c, Base):
+                classes.append(c)
         return classes
 
     @classmethod
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-    def all_subclasses_by_taskname(cls) -> List[Type[TASK_FWD_REF]]:
+    def all_subclasses_by_tablename(cls) -> List[Type[TASK_FWD_REF]]:
         classes = cls.all_subclasses()
         classes.sort(key=lambda c: c.tablename)
         return classes
@@ -732,32 +779,32 @@ class Task(GenericTabletRecordMixin):
     # Methods that may be overridden by mixins
     # -------------------------------------------------------------------------
 
-    @classmethod
-    @property
+    # noinspection PyMethodParameters
+    @classproperty
     def has_patient(cls) -> bool:
         """
         May be overridden by TaskHasPatientMixin.
         """
         return False
 
-    @classmethod
-    @property
+    # noinspection PyMethodParameters
+    @classproperty
     def is_anonymous(cls) -> bool:
         """
         Antonym for has_patient.
         """
         return not cls.has_patient
 
-    @classmethod
-    @property
+    # noinspection PyMethodParameters
+    @classproperty
     def has_clinician(cls) -> bool:
         """
         May be overridden by TaskHasClinicianMixin.
         """
         return False
 
-    @classmethod
-    @property
+    # noinspection PyMethodParameters
+    @classproperty
     def has_respondent(cls) -> bool:
         """
         May be overridden by TaskHasRespondentMixin.
@@ -768,8 +815,8 @@ class Task(GenericTabletRecordMixin):
     # Other classmethods
     # -------------------------------------------------------------------------
 
-    @classmethod
-    @property
+    # noinspection PyMethodParameters
+    @classproperty
     def tablename(cls) -> str:
         return cls.__tablename__
 
@@ -777,8 +824,9 @@ class Task(GenericTabletRecordMixin):
     # More on fields
     # -------------------------------------------------------------------------
 
-    def get_fieldnames(self) -> List[str]:
-        return get_column_attr_names(self)
+    @classmethod
+    def get_fieldnames(cls) -> List[str]:
+        return get_column_attr_names(cls)
 
     def field_contents_valid(self) -> bool:
         """
@@ -876,10 +924,10 @@ class Task(GenericTabletRecordMixin):
         return cls.tablename + "_SUMMARY_TEMP"
 
     @classmethod
-    def provides_summaries(cls) -> bool:
+    def provides_summaries(cls, req: CamcopsRequest) -> bool:
         """Does the task provide summary information?"""
         specimen_instance = cls(None)  # blank PK
-        return len(specimen_instance.get_summaries()) > 0
+        return len(specimen_instance.get_summaries(req)) > 0
 
     @classmethod
     def make_summary_table(cls) -> None:
@@ -893,10 +941,12 @@ class Task(GenericTabletRecordMixin):
         # # ... in case the task wants to make extra tables
 
     @classmethod
-    def make_standard_summary_table(cls, now: datetime.datetime) -> None:
+    def make_standard_summary_table(cls,
+                                    req: CamcopsRequest,
+                                    now: datetime.datetime) -> None:
         """Make the task's main summary table."""
         table = cls.tablename
-        if not cls.provides_summaries():
+        if not cls.provides_summaries(req):
             return
         log.info("Generating summary tables for: {}", cls.shortname)
 
@@ -916,7 +966,7 @@ class Task(GenericTabletRecordMixin):
                  cctype="FLOAT",
                  comment="(GENERIC) Time (in seconds) from record creation to "
                          "first exit, if that was a finish not an abort")
-        ] + dummy_instance.get_summaries()
+        ] + dummy_instance.get_summaries(req)
         cc_db.add_sqltype_to_fieldspeclist_in_place(fieldspecs)
         fields = [d["name"] for d in fieldspecs]
         pls.db.make_table(summarytable, fieldspecs, dynamic=True)
@@ -930,7 +980,7 @@ class Task(GenericTabletRecordMixin):
                 i.get_seconds_from_creation_to_first_finish()
                 # ... seconds_from_creation_to_first_finish
             ] + [
-                s["value"] for s in i.get_summaries()
+                s["value"] for s in i.get_summaries(req)
             ]
             pls.db.insert_record(summarytable, fields, values)
         # All records are current (see generator above).
@@ -980,11 +1030,11 @@ class Task(GenericTabletRecordMixin):
                               value=self.is_complete(),
                               comment=COMMENT_IS_COMPLETE)
 
-    def get_summary_names(self) -> List[str]:
+    def get_summary_names(self, req: CamcopsRequest) -> List[str]:
         """
         Returns a list of summary field names.
         """
-        return [x.name for x in self.get_summaries()]
+        return [x.name for x in self.get_summaries(req)]
 
     # -------------------------------------------------------------------------
     # More on tables
@@ -1053,14 +1103,14 @@ class Task(GenericTabletRecordMixin):
 
     def anonymise(self) -> None:
         """Anonymises content. Does NOT write to database."""
-        if self.is_anonymous or not self._patient:
+        if self.is_anonymous or not self.patient:
             return
 
         # What to wipe?
         fieldspecs = self.get_full_fieldspecs()
-        literals = self._patient.get_literals_for_anonymisation()
+        literals = self.patient.get_literals_for_anonymisation()
         literals = [str(x) for x in literals if x]  # remove blanks
-        datetimes = self._patient.get_dates_for_anonymisation()
+        datetimes = self.patient.get_dates_for_anonymisation()
         datetimes = [x for x in datetimes if x]  # remove blanks
         regexes = (
             [get_literal_regex(x) for x in literals] +
@@ -1069,7 +1119,7 @@ class Task(GenericTabletRecordMixin):
 
         # Wipe the core fields
         # General principle: numeric fields are generally fine (patient-related
-        # numeric fields are in the self._patient object instead); date/time
+        # numeric fields are in the self.patient object instead); date/time
         # fields in tasks are similarly usually fine; text fields
         # need scrubbing; fields explicitly marked "anon" are exempt.
         for fs in fieldspecs:
@@ -1089,7 +1139,7 @@ class Task(GenericTabletRecordMixin):
         self.anonymise_subtables(regexes)
 
         # Now wipe the patient information
-        self._patient.anonymise()
+        self.patient.anonymise()
 
     # -------------------------------------------------------------------------
     # Special notes
@@ -1116,7 +1166,6 @@ class Task(GenericTabletRecordMixin):
         sn.save()
         self.audit("Special note applied manually", from_console)
         self.delete_from_hl7_message_log(from_console)
-        self._special_notes = None   # will be reloaded if needed
 
     # -------------------------------------------------------------------------
     # Clinician
@@ -1164,7 +1213,7 @@ class Task(GenericTabletRecordMixin):
         """Get the server PK of the patient, or None."""
         if self.is_anonymous:
             return None
-        return self._patient.get_pk()
+        return self.patient.get_pk()
 
     def get_patient(self) -> Optional[Patient]:
         """Get the associated Patient() object."""
@@ -1484,19 +1533,19 @@ class Task(GenericTabletRecordMixin):
         """Is the instance live on a tablet?"""
         return self._era == ERA_NOW
 
-    def get_task_list_row(self) -> str:
+    def get_task_list_row(self, req: CamcopsRequest) -> str:
         """HTML table row for including in task summary list."""
         complete = self.is_complete()
         anonymous = self.is_anonymous
         if anonymous:
             patient_id = "—"
         else:
-            patient_id = self._patient.get_html_for_webview_patient_column()
+            patient_id = self.patient.get_html_for_webview_patient_column(req)
         satisfies_upload = (
-            anonymous or self._patient.satisfies_upload_id_policy()
+            anonymous or self.patient.satisfies_upload_id_policy()
         )
         satisfies_finalize = (
-            anonymous or self._patient.satisfies_finalize_id_policy()
+            anonymous or self.patient.satisfies_finalize_id_policy()
         )
         # device = Device(self._device_id)
         live_on_tablet = self.is_live_on_tablet()
@@ -1505,8 +1554,8 @@ class Task(GenericTabletRecordMixin):
             # conflict = False
             idmsg = "—"
         else:
-            # conflict, idmsg = self._patient.get_conflict_html_for_id_col()
-            idmsg = self._patient.get_html_for_id_col()
+            # conflict, idmsg = self.patient.get_conflict_html_for_id_col()
+            idmsg = self.patient.get_html_for_id_col(req)
 
         if satisfies_upload and satisfies_finalize:
             colour_policy = ''
@@ -1537,8 +1586,8 @@ class Task(GenericTabletRecordMixin):
             created=format_datetime_string(self.when_created,
                                            DATEFORMAT.SHORT_DATETIME),
             colour_incomplete='' if complete else ' class="incomplete"',
-            html=self.get_hyperlink_html("HTML"),
-            pdf=self.get_hyperlink_pdf("PDF"),
+            html=self.get_hyperlink_html(req, "HTML"),
+            pdf=self.get_hyperlink_pdf(req, "PDF"),
         )
         # Note: target="_blank" is deprecated, but preferred by users (it
         # obviates the need to manually confirm refresh of the view-tasks page,
@@ -1706,29 +1755,29 @@ class Task(GenericTabletRecordMixin):
 
         # 3. Since we've already loaded patient info, not slow:
         if session.filter_surname is not None:
-            if self._patient.surname is None:
+            if self.patient.surname is None:
                 return False
-            temp_pt_surname = self._patient.surname.upper()
+            temp_pt_surname = self.patient.surname.upper()
             if session.filter_surname.upper() != temp_pt_surname:
                 return False
         if session.filter_forename is not None:
-            if self._patient.forename is None:
+            if self.patient.forename is None:
                 return False
-            temp_pt_forename = self._patient.forename.upper()
+            temp_pt_forename = self.patient.forename.upper()
             if session.filter_forename.upper() != temp_pt_forename:
                 return False
         if session.filter_dob_iso8601 is not None:
-            if self._patient.dob != session.filter_dob_iso8601:
+            if self.patient.dob != session.filter_dob_iso8601:
                 return False
         if session.filter_sex is not None:
-            if self._patient.sex is None:
+            if self.patient.sex is None:
                 return False
-            temp_pt_sex = self._patient.sex.upper()
+            temp_pt_sex = self.patient.sex.upper()
             if session.filter_sex.upper() != temp_pt_sex:
                 return False
         for which_idnum, idnum_value in session.get_idnum_filters():
             if (idnum_value is not None and
-                    idnum_value != self._patient.get_idnum_value(which_idnum)):
+                    idnum_value != self.patient.get_idnum_value(which_idnum)):
                 return False
 
         # 4. Slow:
@@ -1922,7 +1971,7 @@ class Task(GenericTabletRecordMixin):
     # TSV export for basic research dump
     # -------------------------------------------------------------------------
 
-    def get_dictlist_for_tsv(self) -> List[Dict]:
+    def get_dictlist_for_tsv(self, req: CamcopsRequest) -> List[Dict]:
         """Returns information for the basic research dump in TSV format.
 
         Returns
@@ -1941,10 +1990,10 @@ class Task(GenericTabletRecordMixin):
 
         mainrow = collections.OrderedDict(
             (f, getattr(self, f)) for f in self.get_fields())
-        if self._patient:
-            mainrow.update(self._patient.get_dict_for_tsv())
+        if self.patient:
+            mainrow.update(self.patient.get_dict_for_tsv(req))
         mainrow.update(collections.OrderedDict(
-            (s["name"], s["value"]) for s in self.get_summaries()))
+            (s["name"], s["value"]) for s in self.get_summaries(req)))
         maindict = {
             "filenamestem": self.tablename,
             "rows": [mainrow]
@@ -1988,20 +2037,20 @@ class Task(GenericTabletRecordMixin):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_cris_dd_rows(cls) -> List[Dict]:
+    def get_cris_dd_rows(cls, req: CamcopsRequest) -> List[Dict]:
         if cls.is_anonymous:
             return []
         taskname = cls.shortname
         tablename = CRIS_TABLENAME_PREFIX + cls.tablename
         instance = cls(None)  # blank PK
         common = instance.get_cris_common_fieldspecs_values()
-        taskfieldspecs = instance.get_cris_fieldspecs_values(common)
+        taskfieldspecs = instance.get_cris_fieldspecs_values(req, common)
         rows = get_cris_dd_rows_from_fieldspecs(taskname, tablename,
                                                 taskfieldspecs)
         for depclass in cls.dependent_classes:
             depinstance = depclass(None)  # blank PK
             deptable = CRIS_TABLENAME_PREFIX + depinstance.tablename
-            depfieldspecs = depinstance.get_cris_fieldspecs_values(common)
+            depfieldspecs = depinstance.get_cris_fieldspecs_values(req, common)
             rows += get_cris_dd_rows_from_fieldspecs(taskname, deptable,
                                                      depfieldspecs)
         return rows
@@ -2011,7 +2060,8 @@ class Task(GenericTabletRecordMixin):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def make_cris_tables(cls, db: DatabaseSupporter) -> None:
+    def make_cris_tables(cls, req: CamcopsRequest,
+                         db: DatabaseSupporter) -> None:
         # DO NOT CONFUSE pls.db and db. HERE WE ONLY USE db.
         log.info("Generating CRIS staging tables for: {}", cls.shortname)
         cc_db.set_db_to_utf8(db)
@@ -2019,7 +2069,7 @@ class Task(GenericTabletRecordMixin):
         created_tables = []
         for task in cls.gen_all_current_tasks():
             common_fsv = task.get_cris_common_fieldspecs_values()
-            task_fsv = task.get_cris_fieldspecs_values(common_fsv)
+            task_fsv = task.get_cris_fieldspecs_values(req, common_fsv)
             cc_db.add_sqltype_to_fieldspeclist_in_place(task_fsv)
             if task_table not in created_tables:
                 db.drop_table(task_table)
@@ -2049,18 +2099,21 @@ class Task(GenericTabletRecordMixin):
         patientfs = copy.deepcopy(Patient.FIELDSPECS)
         for fs in patientfs:
             if fs.get("cris_include", False):
-                fs["value"] = getattr(self._patient, fs["name"])
+                fs["value"] = getattr(self.patient, fs["name"])
                 fs["name"] = TSV_PATIENT_FIELD_PREFIX + fs["name"]
                 fs["comment"] = CRIS_PATIENT_COMMENT_PREFIX + fs.get("comment",
                                                                      "")
                 fieldspecs.append(fs)
         return fieldspecs
 
-    def get_cris_fieldspecs_values(self, common_fsv) -> FIELDSPECLIST_TYPE:
+    def get_cris_fieldspecs_values(
+            self,
+            req: CamcopsRequest,
+            common_fsv: FIELDSPECLIST_TYPE) -> FIELDSPECLIST_TYPE:
         fieldspecs = copy.deepcopy(self.get_full_fieldspecs())
         for fs in fieldspecs:
             fs["value"] = getattr(self, fs["name"])
-        summaries = self.get_summaries()  # summaries include values
+        summaries = self.get_summaries(req)  # summaries include values
         for fs in summaries:
             fs["comment"] = CRIS_SUMMARY_COMMENT_PREFIX + fs.get("comment", "")
         return (
@@ -2169,14 +2222,14 @@ class Task(GenericTabletRecordMixin):
         if include_calculated:
             branches.append(XML_COMMENT_CALCULATED)
             branches.extend(make_xml_branches_from_summaries(
-                self.get_summaries(), skip_fields=skip_fields))
+                self.get_summaries(req), skip_fields=skip_fields))
         # Patient details
         if self.is_anonymous:
             branches.append(XML_COMMENT_ANONYMOUS)
         elif include_patient:
             branches.append(XML_COMMENT_PATIENT)
-            if self._patient:
-                branches.append(self._patient.get_xml_root())
+            if self.patient:
+                branches.append(self.patient.get_xml_root(req))
         # BLOBs
         blobinfo = self.blob_name_idfield_list
         if include_blobs and blobinfo:
@@ -2221,26 +2274,26 @@ class Task(GenericTabletRecordMixin):
         set_matplotlib_fontsize(cfg.PLOT_FONTSIZE)
         req.switch_output_to_svg()
         return (
-            self.get_html_start() +
+            self.get_html_start(req) +
             self.get_core_html(req) +
             self.get_office_html() +
-            self.get_xml_nav_html() +
-            self.get_superuser_nav_options(offer_add_note, offer_erase,
+            self.get_xml_nav_html(req) +
+            self.get_superuser_nav_options(req, offer_add_note, offer_erase,
                                            offer_edit_patient) +
             """<div class="navigation">""" +
-            self.get_predecessor_html_line() +
-            self.get_successor_html_line() +
+            self.get_predecessor_html_line(req) +
+            self.get_successor_html_line(req) +
             "<p>" +
-            self.get_hyperlink_pdf("View PDF for printing/saving") +
+            self.get_hyperlink_pdf(req, "View PDF for printing/saving") +
             "</p>" +
             "</div>" +
             PDFEND
         )
 
-    def get_hyperlink_html(self, text: str) -> str:
+    def get_hyperlink_html(self, req: CamcopsRequest, text: str) -> str:
         """Hyperlink to HTML version."""
         return """<a href="{}" target="_blank">{}</a>""".format(
-            get_url_task_html(self.tablename, self._pk),
+            get_url_task_html(req, self.tablename, self._pk),
             text
         )
 
@@ -2255,7 +2308,7 @@ class Task(GenericTabletRecordMixin):
         if CSS_PAGED_MEDIA:
             req.switch_output_to_png()
             # ... even weasyprint's SVG handling is inadequate
-            html = self.get_pdf_html()
+            html = self.get_pdf_html(req)
             return pdf_from_html(req, html)
         else:
             req.switch_output_to_svg()  # wkhtmltopdf can cope
@@ -2264,8 +2317,8 @@ class Task(GenericTabletRecordMixin):
             )
             return pdf_from_html(
                 req,
-                html=self.get_pdf_html(),
-                header_html=self.get_pdf_header_content(),
+                html=self.get_pdf_html(req),
+                header_html=self.get_pdf_header_content(req),
                 footer_html=self.get_pdf_footer_content(),
                 extra_wkhtmltopdf_options={"orientation": orientation})
 
@@ -2277,35 +2330,35 @@ class Task(GenericTabletRecordMixin):
             pls.TASK_FILENAME_SPEC,
             VALUE.OUTPUTTYPE_PDF,
             is_anonymous=self.is_anonymous,
-            surname=self._patient.get_surname() if self._patient else "",
-            forename=self._patient.get_forename() if self._patient else "",
-            dob=self._patient.get_dob() if self._patient else None,
-            sex=self._patient.get_sex() if self._patient else None,
-            idnum_objects=self._patient.get_idnum_objects() if self._patient else None,  # noqa
+            surname=self.patient.get_surname() if self.patient else "",
+            forename=self.patient.get_forename() if self.patient else "",
+            dob=self.patient.get_dob() if self.patient else None,
+            sex=self.patient.get_sex() if self.patient else None,
+            idnum_objects=self.patient.get_idnum_objects() if self.patient else None,  # noqa
             creation_datetime=self.get_creation_datetime(),
             basetable=self.tablename,
             serverpk=self._pk)
 
-    def write_pdf_to_disk(self, filename: str) -> None:
+    def write_pdf_to_disk(self, req: CamcopsRequest, filename: str) -> None:
         """Writes PDF to disk, using filename."""
         pdffile = open(filename, "wb")
-        pdffile.write(self.get_pdf())
+        pdffile.write(self.get_pdf(req))
 
-    def get_pdf_html(self) -> str:
+    def get_pdf_html(self, req: CamcopsRequest) -> str:
         """Gets HTML used to make PDF (slightly different from plain HTML)."""
         signature = self.has_clinician
         return (
-            self.get_pdf_start() +
-            self.get_core_html() +
+            self.get_pdf_start(req) +
+            self.get_core_html(req) +
             self.get_office_html() +
             (SIGNATURE_BLOCK if signature else "") +
             PDFEND
         )
 
-    def get_hyperlink_pdf(self, text: str) -> str:
+    def get_hyperlink_pdf(self, req: CamcopsRequest, text: str) -> str:
         """Hyperlink to PDF version."""
         return """<a href="{}" target="_blank">{}</a>""".format(
-            get_url_task_pdf(self.tablename, self._pk),
+            get_url_task_pdf(req, self.tablename, self._pk),
             text
         )
 
@@ -2390,7 +2443,7 @@ class Task(GenericTabletRecordMixin):
         """
 
         try:
-            client_id = self._patient.get_idnum_value(which_idnum)
+            client_id = self.patient.get_idnum_value(which_idnum)
         except AttributeError:
             client_id = ""
         title = "CamCOPS_" + self.shortname
@@ -2424,19 +2477,19 @@ class Task(GenericTabletRecordMixin):
     # HTML components
     # -------------------------------------------------------------------------
 
-    def get_html_start(self) -> str:
+    def get_html_start(self, req: CamcopsRequest) -> str:
         """Opening HTML, including CSS."""
         return (
             pls.WEBSTART +
-            self.get_task_header_html()
+            self.get_task_header_html(req)
         )
 
-    def get_pdf_header_content(self) -> str:
+    def get_pdf_header_content(self, req: CamcopsRequest) -> str:
         anonymous = self.is_anonymous
         if anonymous:
-            content = self.get_anonymous_page_header_html()
+            content = self.get_anonymous_page_header_html(req)
         else:
-            content = self._patient.get_html_for_page_header()
+            content = self.patient.get_html_for_page_header(req)
         return pdf_header_content(content)
 
     def get_pdf_footer_content(self) -> str:
@@ -2446,7 +2499,7 @@ class Task(GenericTabletRecordMixin):
         content = "{} created {}.".format(taskname, created)
         return pdf_footer_content(content)
 
-    def get_pdf_start(self) -> str:
+    def get_pdf_start(self, req: CamcopsRequest) -> str:
         """Opening HTML for PDF, including CSS."""
         if CSS_PAGED_MEDIA:
             if self.use_landscape_for_pdf:
@@ -2454,7 +2507,8 @@ class Task(GenericTabletRecordMixin):
             else:
                 head = PDF_HEAD_PORTRAIT
             pdf_header_footer = (
-                self.get_pdf_header_content() + self.get_pdf_footer_content()
+                self.get_pdf_header_content(req) +
+                self.get_pdf_footer_content()
             )
         else:
             head = PDF_HEAD_NO_PAGED_MEDIA
@@ -2463,7 +2517,7 @@ class Task(GenericTabletRecordMixin):
             head +
             pdf_header_footer +
             pls.PDF_LOGO_LINE +
-            self.get_task_header_html()
+            self.get_task_header_html(req)
         )
 
     # noinspection PyMethodMayBeStatic
@@ -2489,13 +2543,13 @@ class Task(GenericTabletRecordMixin):
         (with patient age), etc."""
         anonymous = self.is_anonymous
         if anonymous:
-            pt_info = self.get_anonymous_task_header_html()
+            pt_info = self.get_anonymous_task_header_html(req)
             age = ""
         else:
-            pt_info = self._patient.get_html_for_task_header()
+            pt_info = self.patient.get_html_for_task_header(req)
             age = " (patient aged {})".format(
                 answer(
-                    self._patient.get_age_at(
+                    self.patient.get_age_at(
                         get_datetime_from_string(self.when_created)
                     ),
                     default_for_blank_strings=True
@@ -2520,7 +2574,7 @@ class Task(GenericTabletRecordMixin):
             pt_info +
             main_task_header +
             self.get_erasure_notice() +  # if applicable
-            self.get_special_notes_html(req) +  # if applicable
+            self.get_special_notes_html() +  # if applicable
             self.get_not_current_warning()  # if applicable
         )
 
@@ -2578,7 +2632,7 @@ class Task(GenericTabletRecordMixin):
             self._manually_erased_at,
         )
 
-    def get_special_notes_html(self, req: CamcopsRequest) -> str:
+    def get_special_notes_html(self) -> str:
         if not self.special_notes:
             return ""
         note_html = "<br>".join([
@@ -2664,14 +2718,14 @@ class Task(GenericTabletRecordMixin):
     def get_tablet_version(self) -> Version:
         return make_version(self._camcops_version)
 
-    def get_xml_nav_html(self) -> str:
+    def get_xml_nav_html(self, req: CamcopsRequest) -> str:
         """HTML DIV with hyperlink to XML version."""
         return """
             <div class="office">
                 <a href="{}">View raw data as XML</a>
             </div>
         """.format(
-            get_url_task_xml(self.tablename, self._pk)
+            get_url_task_xml(req, self.tablename, self._pk)
         )
 
     def get_superuser_nav_options(self,
@@ -2697,11 +2751,11 @@ class Task(GenericTabletRecordMixin):
             )
         if (offer_edit_patient and
                 not self.is_anonymous and
-                self._patient and
+                self.patient and
                 self._era != ERA_NOW):
             options.append(
                 '<a href="{}">Edit patient details</a>'.format(
-                    self._patient.get_url_edit_patient()
+                    self.patient.get_url_edit_patient(req)
                 )
             )
         if not options:
@@ -2712,7 +2766,7 @@ class Task(GenericTabletRecordMixin):
             </div>
         """.format("<br>".join(options))
 
-    def get_predecessor_html_line(self) -> str:
+    def get_predecessor_html_line(self, req: CamcopsRequest) -> str:
         """HTML with hyperlink to predecessor version, or ""."""
         if self._predecessor_pk is None:
             return ""
@@ -2722,10 +2776,10 @@ class Task(GenericTabletRecordMixin):
                 <a href="{}">view previous version</a>.
             </i></p>
         """.format(
-            get_url_task_html(self.tablename, self._predecessor_pk)
+            get_url_task_html(req, self.tablename, self._predecessor_pk)
         )
 
-    def get_successor_html_line(self) -> str:
+    def get_successor_html_line(self, req: CamcopsRequest) -> str:
         """HTML with hyperlink to successor version, or ""."""
         if self._successor_pk is None:
             return ""
@@ -2735,7 +2789,7 @@ class Task(GenericTabletRecordMixin):
                 <a href="{}">view next version</a>.
             </b></p>
         """.format(
-            get_url_task_html(self.tablename, self._successor_pk)
+            get_url_task_html(req, self.tablename, self._successor_pk)
         )
 
     # -------------------------------------------------------------------------
@@ -2832,8 +2886,8 @@ class Task(GenericTabletRecordMixin):
             label = fieldname
         return tr_qa(label, get_present_absent_none(getattr(self, fieldname)))
 
-    def get_twocol_picture_row(self, blob: Optional[Blob],
-                               label: str) -> str:
+    @staticmethod
+    def get_twocol_picture_row(blob: Optional[Blob], label: str) -> str:
         """HTML table row, two columns, with PNG on right."""
         return tr(label, get_blob_img_html(blob))
 
@@ -3055,7 +3109,8 @@ class Ancillary(object):
 # =============================================================================
 
 def task_factory(basetable: str, serverpk: int) -> Task:
-    """Make a task, or return None.
+    """
+    Make a task, or return None.
 
     Args:
         basetable: string
@@ -3245,7 +3300,7 @@ def get_base_tables(include_anonymous: bool = True) -> List[str]:
     """Get a list of all tasks' base tables."""
     return [
         cls.tablename
-        for cls in Task.all_subclasses(sort_tablename=True)
+        for cls in Task.all_subclasses_by_tablename()
         if (not cls.is_anonymous or include_anonymous)
     ]
 
@@ -3257,7 +3312,7 @@ def get_base_tables(include_anonymous: bool = True) -> List[str]:
 def get_task_filter_dropdown(currently_selected: str = None) -> str:
     """Iterates through all tasks, generating a drop-down list."""
     taskoptions = []
-    for cls in Task.all_subclasses(sort_shortname=True):
+    for cls in Task.all_subclasses_by_shortname():
         t = ws.webify(cls.tablename)
         taskoptions.append({
             "shortname": cls.shortname,
@@ -3280,12 +3335,6 @@ def get_from_dict(d: Dict, key: str, default: Any = INVALID_VALUE) -> Any:
     return d.get(key, default)
 
 
-def get_all_task_classes(sort_tablename: bool = False,
-                         sort_shortname: bool = True) -> List[Type[Task]]:
-    return Task.all_subclasses(sort_tablename=sort_tablename,
-                               sort_shortname=sort_shortname)
-
-
 # =============================================================================
 # Reports
 # =============================================================================
@@ -3296,10 +3345,12 @@ class TaskCountReport(Report):
     report_title = "(Server) Count current task instances, by creation date"
     param_spec_list = []
 
-    def get_rows_descriptions(self) -> REPORT_RESULT_TYPE:
+    def get_rows_descriptions(self, req: CamcopsRequest,
+                              **kwargs: Any) -> REPORT_RESULT_TYPE:
         final_rows = []
         fieldnames = []
-        classes = Task.all_subclasses(sort_tablename=True)
+        dbsession = req.dbsession
+        classes = Task.all_subclasses_by_tablename()
         for cls in classes:
             sql = """
                 SELECT
@@ -3318,7 +3369,7 @@ class TaskCountReport(Report):
             """.format(
                 tablename=cls.tablename,
             )
-            (rows, fieldnames) = pls.db.fetchall_with_fieldnames(sql)
+            rows, fieldnames = get_rows_fieldnames_from_raw_sql(dbsession, sql)
             final_rows.extend(rows)
         return final_rows, fieldnames
 
@@ -3426,7 +3477,9 @@ def ancillary_class_unit_test(cls: Type[Ancillary]) -> None:
             "Fields conflict with object attributes: {}".format(conflict))
 
 
-def task_instance_unit_test(name: str, instance: Task) -> None:
+def task_instance_unit_test(req: CamcopsRequest,
+                            name: str,
+                            instance: Task) -> None:
     """Unit test for an named instance of Task."""
 
     # *** req: CamcopsRequest
@@ -3592,7 +3645,7 @@ def task_instance_unit_test(name: str, instance: Task) -> None:
 
     unit_test_ignore("Testing {}.get_dictlist_for_tsv".format(
         name), instance.get_dictlist_for_tsv)
-    dictlist = instance.get_dictlist_for_tsv()
+    dictlist = instance.get_dictlist_for_tsv(req)
     if len(dictlist) == 0:
         raise AssertionError("get_dictlist_for_tsv: zero-length result")
     for d in dictlist:
@@ -3705,7 +3758,7 @@ def task_instance_unit_test(name: str, instance: Task) -> None:
     # Ensure the summary names don't overlap with the field names, etc.
     # -------------------------------------------------------------------------
     field_names = instance.get_fields()
-    summary_names = instance.get_summary_names()
+    summary_names = instance.get_summary_names(req)
     if set(field_names).intersection(set(summary_names)):
         raise AssertionError("Summary field names overlap with main field "
                              "names")
@@ -3725,7 +3778,7 @@ def task_instance_unit_test(name: str, instance: Task) -> None:
     fieldspeclist = instance.get_full_fieldspecs()
     for fs in fieldspeclist:
         cc_db.ensure_valid_cctype(fs["cctype"])
-    summarylist = instance.get_summaries()
+    summarylist = instance.get_summaries(req)
     for fs in summarylist:
         cc_db.ensure_valid_cctype(fs["cctype"])
 
@@ -3744,7 +3797,7 @@ def task_instance_unit_test_slow(name: str,
                      instance.get_pdf)
 
 
-def task_unit_test(cls: Type[Task]) -> None:
+def task_unit_test(req: CamcopsRequest, cls: Type[Task]) -> None:
     """Unit test for a Task subclass."""
     name = cls.__name__
     # Test class framework
@@ -3762,7 +3815,7 @@ def task_unit_test(cls: Type[Task]) -> None:
     )
     test_pks = [None, current_pks[0]] if current_pks else [None]
     for pk in test_pks:
-        task_instance_unit_test(name, cls(pk))
+        task_instance_unit_test(req, name, cls(pk))
 
     # Other classmethod tests
 
@@ -3788,7 +3841,7 @@ def cctask_unit_tests() -> None:
     pls.db.rollback()
 
     skip_tasks = []
-    classes = Task.all_subclasses(sort_shortname=True)
+    classes = Task.all_subclasses_by_shortname()
     longnames = set()
     shortnames = set()
     tasktables = set()
@@ -3823,7 +3876,7 @@ def cctask_unit_tests() -> None:
             continue
 
         # Task unit tests
-        task_unit_test(cls)
+        task_unit_test(req, cls)
         pls.db.rollback()
 
     for cls in classes:
@@ -3837,6 +3890,6 @@ def cctask_unit_tests() -> None:
 
 def cctask_unit_tests_basic() -> None:
     "Preliminary quick checks."""
-    classes = Task.all_subclasses()  # Don't sort yet, in case sortname missing
+    classes = Task.all_subclasses_by_tablename()
     for cls in classes:
         task_class_unit_test(cls)

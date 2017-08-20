@@ -24,6 +24,7 @@
 
 from typing import Optional
 
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text
 
@@ -39,23 +40,34 @@ from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 # =============================================================================
 
 class AbstractSatisfaction(Task):
-    service = Column(
-        "service", Text,
-        comment="Clinical service being rated"
-    )
-    rating = CamcopsColumn(
-        "rating", Integer,
-        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment="Rating (0 very poor - 4 excellent)"
-    )
-    good = Column(
-        "good", Text,
-        comment="What has been good?"
-    )
-    bad = Column(
-        "bad", Text,
-        comment="What could be improved?"
-    )
+    @declared_attr
+    def service(self) -> Column:
+        return Column(
+            "service", Text,
+            comment="Clinical service being rated"
+        )
+
+    @declared_attr
+    def rating(self) -> Column:
+        return CamcopsColumn(
+            "rating", Integer,
+            permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+            comment="Rating (0 very poor - 4 excellent)"
+        )
+
+    @declared_attr
+    def good(self) -> Column:
+        return Column(
+            "good", Text,
+            comment="What has been good?"
+        )
+
+    @declared_attr
+    def bad(self) -> Column:
+        return Column(
+            "bad", Text,
+            comment="What could be improved?"
+        )
 
     TASK_FIELDS = ["service", "rating", "good", "bad"]
 

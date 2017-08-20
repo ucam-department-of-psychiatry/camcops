@@ -27,6 +27,7 @@ from typing import Any, List
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
 import hl7
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import DateTime, Integer, Text
 
@@ -62,23 +63,34 @@ FK_COMMENT = "FK to parent table"
 # =============================================================================
 
 class DiagnosisItemBase(GenericTabletRecordMixin):
-    seqnum = Column(
-        "seqnum", Integer,
-        nullable=False,
-        comment="Sequence number"
-    )
-    code = Column(
-        "code", Text,
-        comment="Diagnostic code"
-    )
-    description = Column(
-        "description", Text,
-        comment="Description of the diagnostic code"
-    )
-    comment = Column(  # new in v2.0.0
-        "comment", Text,
-        comment="Clinician's comment"
-    )
+    @declared_attr
+    def seqnum(self) -> Column:
+        return Column(
+            "seqnum", Integer,
+            nullable=False,
+            comment="Sequence number"
+        )
+
+    @declared_attr
+    def code(self) -> Column:
+        return Column(
+            "code", Text,
+            comment="Diagnostic code"
+        )
+
+    @declared_attr
+    def description(self) -> Column:
+        return Column(
+            "description", Text,
+            comment="Description of the diagnostic code"
+        )
+
+    @declared_attr
+    def comment(self) -> Column:
+        return Column(  # new in v2.0.0
+            "comment", Text,
+            comment="Clinician's comment"
+        )
 
     def get_html_table_row(self) -> str:
         return tr(
@@ -99,10 +111,12 @@ class DiagnosisItemBase(GenericTabletRecordMixin):
 
 
 class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
-    relates_to_date = Column(  # new in v2.0.0
-        "relates_to_date", DateTime,
-        comment="Date that diagnoses relate to"
-    )
+    @declared_attr
+    def relates_to_date(self) -> Column:
+        return Column(  # new in v2.0.0
+            "relates_to_date", DateTime,
+            comment="Date that diagnoses relate to"
+        )
 
     items = None  # type: List[DiagnosisItemBase]  # must be overridden by a relationship  # noqa
 

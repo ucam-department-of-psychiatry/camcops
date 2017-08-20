@@ -22,7 +22,7 @@
 ===============================================================================
 """
 
-from typing import Any, List, Optional
+from typing import Any, List, Optional, TYPE_CHECKING
 
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
@@ -33,7 +33,6 @@ from sqlalchemy.sql.sqltypes import Boolean, DateTime, Text
 
 from .cc_constants import PARAM
 from .cc_report import expand_id_descriptions, Report, REPORT_RESULT_TYPE
-from .cc_request import CamcopsRequest
 from .cc_unittest import unit_test_ignore
 from .cc_sqla_coltypes import (
     DeviceNameColType,
@@ -41,6 +40,9 @@ from .cc_sqla_coltypes import (
     SemanticVersionColType,
 )
 from .cc_sqlalchemy import Base
+
+if TYPE_CHECKING:
+    from .cc_request import CamcopsRequest
 
 
 # =============================================================================
@@ -137,7 +139,7 @@ class Device(Base):
 # Support functions
 # =============================================================================
 
-def get_device_filter_dropdown(req: CamcopsRequest,
+def get_device_filter_dropdown(req: "CamcopsRequest",
                                currently_selected_id: int = None) -> str:
     """Get HTML list of all known tablet devices."""
     dbsession = req.dbsession
@@ -169,7 +171,7 @@ class DeviceReport(Report):
     report_title = "(Server) Devices registered with the server"
     param_spec_list = []
 
-    def get_rows_descriptions(self, req: CamcopsRequest,
+    def get_rows_descriptions(self, req: "CamcopsRequest",
                               **kwargs: Any) -> REPORT_RESULT_TYPE:
         dbsession = req.dbsession
         query = dbsession.query(Device.id,

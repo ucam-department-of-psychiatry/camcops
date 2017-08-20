@@ -26,7 +26,7 @@ import cgi
 import datetime
 import re
 from typing import (Any, Dict, Iterable, List, Optional, Sequence, Tuple,
-                    Type, Union)
+                    Type, TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.classes import all_subclasses
 import cardinal_pythonlib.rnc_web as ws
@@ -46,12 +46,13 @@ from .cc_html import (
     get_generic_action_url,
     get_url_field_value_pair,
 )
-from .cc_request import CamcopsRequest
 from .cc_unittest import (
     unit_test_ignore,
     unit_test_require_truthy_attribute,
 )
 
+if TYPE_CHECKING:
+    from .cc_request import CamcopsRequest
 
 SESSION_FWD_REF = "CamcopsSession"
 
@@ -109,7 +110,7 @@ class Report(object):
     report_title = None
     param_spec_list = []
 
-    def get_rows_descriptions(self, req: CamcopsRequest,
+    def get_rows_descriptions(self, req: "CamcopsRequest",
                               **kwargs: Any) -> REPORT_RESULT_TYPE:
         """Execute the report. Must override. Parameters are passed in via
         **kwargs."""
@@ -128,7 +129,7 @@ class Report(object):
 # Report framework
 # =============================================================================
 
-def offer_report_menu(req: CamcopsRequest) -> str:
+def offer_report_menu(req: "CamcopsRequest") -> str:
     """HTML page offering available reports."""
     cfg = req.config
     ccsession = req.camcops_session
@@ -170,7 +171,7 @@ def get_param_html(paramspec: ReportParamSpec) -> str:
         return ""
 
 
-def get_params_from_form(req: CamcopsRequest,
+def get_params_from_form(req: "CamcopsRequest",
                          paramspeclist: List[ReportParamSpec],
                          form: cgi.FieldStorage) -> Dict:
     """Returns key/value dictionary of applicable parameters from form."""
@@ -204,7 +205,7 @@ def get_report_instance(report_id: str) -> Optional[Report]:
     return None
 
 
-def offer_individual_report(req: CamcopsRequest,
+def offer_individual_report(req: "CamcopsRequest",
                             form: cgi.FieldStorage) -> str:
     """For a specific report (specified within the CGI form), offers an HTML
     page with the parameters to be configured for that report."""
@@ -281,7 +282,7 @@ def tsv_from_query(rows: Iterable[Iterable[Any]],
     return tsv
 
 
-def serve_report(req: CamcopsRequest,
+def serve_report(req: "CamcopsRequest",
                  form: cgi.FieldStorage) -> Union[str, WSGI_TUPLE_TYPE]:
     """Extracts report type, report parameters, and output type from the CGI
     form; offers up the results in the chosen format."""
@@ -379,7 +380,7 @@ def task_unit_test_report(name: str, r: Report) -> None:
                      r.get_rows_descriptions)
 
 
-def ccreport_unit_tests(req: CamcopsRequest) -> None:
+def ccreport_unit_tests(req: "CamcopsRequest") -> None:
     """Unit tests for cc_report module."""
     # -------------------------------------------------------------------------
     # DELAYED IMPORTS (UNIT TESTING ONLY)

@@ -22,133 +22,76 @@
 ===============================================================================
 """
 
-import argparse
-import codecs
-import configparser
-import datetime
-import getpass
-import logging
-import os
-import sys
-from typing import Callable, Dict, Iterable
-
-import arrow
-from arrow import Arrow
-from pyramid.config import Configurator
-from pyramid.interfaces import ISession
-from pyramid.registry import Registry
-from pyramid.response import Response
-from pyramid.router import Router
-from pyramid.session import SignedCookieSessionFactory
-from semantic_version import Version
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import Session as SqlASession
-from werkzeug.contrib.profiler import ProfilerMiddleware
-from werkzeug.wsgi import SharedDataMiddleware
-from wsgiref.simple_server import make_server
-
-from cardinal_pythonlib.logs import (
-    main_only_quicksetup_rootlogger,
-    BraceStyleAdapter,
-)
-import cardinal_pythonlib.rnc_db as rnc_db
-from cardinal_pythonlib.convert import convert_to_bool
-from cardinal_pythonlib.rnc_web import HEADERS_TYPE
-from cardinal_pythonlib.wsgi_errorreporter import ErrorReportingMiddleware
-from cardinal_pythonlib.wsgi_cache import DisableClientSideCachingMiddleware
-
 # SET UP LOGGING BEFORE WE IMPORT CAMCOPS MODULES, allowing them to log during
 # imports (see e.g. cc_plot).
 # Currently sets up colour logging even if under WSGI environment. This is fine
 # for gunicorn from the command line; I'm less clear about whether the disk
 # logs look polluted by ANSI codes; needs checking.
-main_only_quicksetup_rootlogger(logging.INFO)
-
-from .cc_modules.cc_analytics import ccanalytics_unit_tests
-from .cc_modules.cc_audit import (
-    audit,
-    SECURITY_AUDIT_TABLENAME,
-    SECURITY_AUDIT_FIELDSPECS
+import logging
+from cardinal_pythonlib.logs import (
+    main_only_quicksetup_rootlogger,
+    BraceStyleAdapter,
 )
+main_only_quicksetup_rootlogger(logging.DEBUG)
+log = BraceStyleAdapter(logging.getLogger(__name__))
+log.info("CamCOPS starting")
+
+import argparse  # nopep8
+import codecs  # nopep8
+import getpass  # nopep8
+import os  # nopep8
+import sys  # nopep8
+
+from pyramid.config import Configurator  # nopep8
+from pyramid.interfaces import ISession  # nopep8
+from pyramid.router import Router  # nopep8
+from pyramid.session import SignedCookieSessionFactory  # nopep8
+from wsgiref.simple_server import make_server  # nopep8
+
+from cardinal_pythonlib.convert import convert_to_bool  # nopep8
+from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_session  # nop3p8
+
+from .cc_modules.cc_analytics import ccanalytics_unit_tests  # nopep8
+from .cc_modules.cc_audit import audit  # nopep8
 from .cc_modules.cc_constants import (
-    CAMCOPS_LOGO_FILE_WEBREF,
     CAMCOPS_URL,
     ENVVAR_CONFIG_FILE,
-    FP_ID_NUM,
-    LOCAL_LOGO_FILE_WEBREF,
-    NUMBER_OF_IDNUMS_DEFUNCT,  # allowed, for database upgrade steps
     SEPARATOR_EQUALS,
-    SEPARATOR_HYPHENS,
-    STATIC_ROOT_DIR,
-    URL_ROOT_DATABASE,
-    URL_ROOT_STATIC,
-    URL_ROOT_WEBVIEW,
-    WEB_HEAD,
-)
-from .cc_modules.cc_blob import Blob, ccblob_unit_tests
-from .cc_modules import cc_db
-from .cc_modules.cc_device import ccdevice_unit_tests, Device
-from .cc_modules.cc_dump import ccdump_unit_tests
-from .cc_modules.cc_hl7 import (
-    HL7Message,
-    HL7Run,
-    send_all_pending_hl7_messages,
-)
-from .cc_modules.cc_hl7core import cchl7core_unit_tests
-from .cc_modules.cc_patient import ccpatient_unit_tests
-from .cc_modules.cc_patient import Patient
-from .cc_modules.cc_patientidnum import PatientIdNum
-from .cc_modules.cc_pyramid import COOKIE_NAME, Routes
-from .cc_modules.cc_config import (
-    CamcopsConfig,
-    get_config,
-    get_config_filename,
-)
-from .cc_modules.cc_policy import ccpolicy_unit_tests
-from .cc_modules.cc_report import ccreport_unit_tests
-from .cc_modules.cc_request import CamcopsRequest
-from .cc_modules.cc_session import ccsession_unit_tests, CamcopsSession
-from .cc_modules.cc_specialnote import SpecialNote
+)  # nopep8
+from .cc_modules.cc_blob import Blob, ccblob_unit_tests  # nopep8
+from .cc_modules.cc_device import ccdevice_unit_tests, Device  # nopep8
+from .cc_modules.cc_dump import ccdump_unit_tests  # nopep8
+from .cc_modules.cc_hl7 import send_all_pending_hl7_messages  # nopep8
+from .cc_modules.cc_hl7core import cchl7core_unit_tests  # nopep8
+from .cc_modules.cc_patient import ccpatient_unit_tests  # nopep8
+from .cc_modules.cc_pyramid import COOKIE_NAME, RouteCollection  # nopep8
+from .cc_modules.cc_policy import ccpolicy_unit_tests  # nopep8
+from .cc_modules.cc_report import ccreport_unit_tests  # nopep8
+from .cc_modules.cc_request import CamcopsRequest, command_line_request  # nopep8
+from .cc_modules.cc_session import ccsession_unit_tests, CamcopsSession  # nopep8
 from .cc_modules.cc_storedvar import (
-    DeviceStoredVar,
     ServerStoredVar,
     ServerStoredVarNames,
     StoredVarTypes,
-)
+)  # nopep8
 from .cc_modules.cc_task import (
     cctask_unit_tests,
     cctask_unit_tests_basic,
-    get_all_task_classes,
-)
-from .cc_modules.cc_tracker import cctracker_unit_tests  # imports matplotlib; SLOW  # noqa
-from .cc_modules.cc_user import ccuser_unit_tests
-from .cc_modules.cc_user import (
-    create_superuser,
-    enable_user,
-    SECURITY_ACCOUNT_LOCKOUT_TABLENAME,
-    SECURITY_LOGIN_FAILURE_TABLENAME,
-    set_password_directly,
-    User,
-    user_exists,
-)
-from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION, make_version
-from .database import (
-    database_application,
-    database_unit_tests,
-    DIRTY_TABLES_TABLENAME,
-    DIRTY_TABLES_FIELDSPECS,
-)
+)  # nopep8
+from .cc_modules.cc_tracker import cctracker_unit_tests  # imports matplotlib; SLOW  # nopep8
+from .cc_modules.cc_user import ccuser_unit_tests  # nopep8
+from .cc_modules.cc_user import set_password_directly  # nopep8
+from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION, make_version  # nopep8
+from .database import database_unit_tests  # nopep8
 from .webview import (
-    get_database_title,
     get_tsv_header_from_dict,
     get_tsv_line_from_dict,
     make_summary_tables,
-    webview_application,
     webview_unit_tests,
     write_descriptions_comments,
-)
+)  # nopep8
 
-log = BraceStyleAdapter(logging.getLogger(__name__))
+log.debug("All imports complete")
 
 
 # =============================================================================
@@ -268,6 +211,7 @@ if CAMCOPS_SERVE_STATIC_FILES:
     })
 '''
 
+
 # -----------------------------------------------------------------------------
 # CamcopsSession and Pyramid HTTP session handling
 # -----------------------------------------------------------------------------
@@ -361,6 +305,7 @@ def make_wsgi_app() -> Router:
         so we should be able to use
               request.environ  # type: Dict[str, str]
     """
+    log.debug("Creating WSGI app")
 
     # -------------------------------------------------------------------------
     # 0. Settings that transcend the config file
@@ -392,9 +337,9 @@ def make_wsgi_app() -> Router:
         # Routes and accompanying views
         # ---------------------------------------------------------------------
         # Most views are using @view_config() which calls add_view().
-        config.scan()
-        for pr in Routes.all_routes():
+        for pr in RouteCollection.all_routes():
             config.add_route(pr.route, pr.path)
+        # *** # config.scan()
 
         # See also:
         # https://stackoverflow.com/questions/19184612/how-to-ensure-urls-generated-by-pyramids-route-url-and-route-path-are-valid  # noqa
@@ -413,8 +358,8 @@ def make_wsgi_app() -> Router:
         # ---------------------------------------------------------------------
         if use_debug_toolbar:
             config.include('pyramid_debugtoolbar')
-            config.add_route(Routes.DEBUG_TOOLBAR.route,
-                             Routes.DEBUG_TOOLBAR.path)
+            config.add_route(RouteCollection.DEBUG_TOOLBAR.route,
+                             RouteCollection.DEBUG_TOOLBAR.path)
 
         # ---------------------------------------------------------------------
         # Make app
@@ -429,6 +374,7 @@ def make_wsgi_app() -> Router:
     # -------------------------------------------------------------------------
     # 3. Done
     # -------------------------------------------------------------------------
+    log.debug("WSGI app created")
     return app
 
 
@@ -437,6 +383,7 @@ application = make_wsgi_app()
 
 def test_serve(host: str = '0.0.0.0', port: int = 8000) -> None:
     server = make_server(host, port, application)
+    log.info("Serving on host={}, port={}".format(host, port))
     server.serve_forever()
 
 
@@ -457,463 +404,6 @@ def ask_user(prompt: str, default: str = None) -> str:
 def ask_user_password(prompt: str) -> str:
     """Read a password from the console."""
     return getpass.getpass(prompt + ": ")
-
-
-# =============================================================================
-# Version-specific database changes
-# =============================================================================
-
-def report_database_upgrade_step(version: str) -> None:
-    print("PERFORMING UPGRADE TASKS FOR VERSION {}".format(version))
-
-
-def modify_column(table: str, field: str, newdef: str) -> None:
-    pls.db.modify_column_if_table_exists(table, field, newdef)
-
-
-def change_column(tablename: str,
-                  oldfieldname: str,
-                  newfieldname: str,
-                  newdef: str) -> None:
-    # Fine to have old/new column with the same name
-    # BUT see also modify_column
-    pls.db.change_column_if_table_exists(tablename, oldfieldname, newfieldname,
-                                         newdef)
-
-
-def rename_table(from_table: str, to_table: str) -> None:
-    pls.db.rename_table(from_table, to_table)
-
-
-def drop_all_views_and_summary_tables() -> None:
-    for cls in get_all_task_classes():
-        cls.drop_views()
-        cls.drop_summary_tables()
-    Blob.drop_views()
-    Patient.drop_views()
-    DeviceStoredVar.drop_views()
-
-
-def v1_5_alter_device_table() -> None:
-    tablename = Device.TABLENAME
-    if not pls.db.table_exists(tablename):
-        return
-    if pls.db.column_exists(tablename, 'id'):
-        log.warning("Column 'id' already exists in table {}", tablename)
-        return
-    ex = pls.db.db_exec_literal
-    ex("ALTER TABLE {table} ADD COLUMN id "
-       "INT UNSIGNED UNIQUE KEY AUTO_INCREMENT".format(table=tablename))
-    # Must be a key to be AUTO_INCREMENT
-    ex("ALTER TABLE {table} DROP PRIMARY KEY".format(table=tablename))
-    # The manual addition of the PRIMARY KEY may be superfluous.
-    ex("ALTER TABLE {table} ADD PRIMARY KEY (id)".format(table=tablename))
-    ex("ALTER TABLE {table} CHANGE COLUMN device name "
-       "VARCHAR(255)".format(table=tablename))
-    ex("ALTER TABLE {table} ADD UNIQUE KEY (name)".format(table=tablename))
-
-
-def v1_5_alter_user_table() -> None:
-    tablename = User.TABLENAME
-    if not pls.db.table_exists(tablename):
-        return
-    if pls.db.column_exists(tablename, 'id'):
-        log.warning("Column 'id' already exists in table {}", tablename)
-        return
-    ex = pls.db.db_exec_literal
-    ex("ALTER TABLE {table} ADD COLUMN id "
-       "INT UNSIGNED UNIQUE KEY AUTO_INCREMENT".format(table=tablename))
-    # Must be a key to be AUTO_INCREMENT
-    ex("ALTER TABLE {table} DROP PRIMARY KEY".format(table=tablename))
-    # The manual addition of the PRIMARY KEY may be superfluous.
-    ex("ALTER TABLE {table} ADD PRIMARY KEY (id)".format(table=tablename))
-    ex("ALTER TABLE {table} CHANGE COLUMN user username "
-       "VARCHAR(255)".format(table=tablename))
-    ex("ALTER TABLE {table} ADD UNIQUE KEY (username)".format(table=tablename))
-
-
-def v1_5_alter_generic_table_devicecol(tablename: str,
-                                       from_col: str,
-                                       to_col: str,
-                                       with_index: bool = True) -> None:
-    if not pls.db.table_exists(tablename):
-        return
-    if pls.db.column_exists(tablename, to_col):
-        log.warning("Column '{}' already exists in table {}",
-                    to_col, tablename)
-        return
-    ex = pls.db.db_exec_literal
-    ex("ALTER TABLE {table} ADD COLUMN {to_col} INT UNSIGNED".format(
-        table=tablename, to_col=to_col))
-    ex("UPDATE {table} AS altering "
-       "INNER JOIN {lookup} AS lookup "
-       "ON altering.{from_col} = lookup.name "
-       "SET altering.{to_col} = lookup.id".format(
-        table=tablename, lookup=Device.TABLENAME,
-        from_col=from_col, to_col=to_col))
-    ex("ALTER TABLE {table} DROP COLUMN {from_col}".format(table=tablename,
-                                                           from_col=from_col))
-    if with_index:
-        ex("CREATE INDEX _idx_{to_col} ON {table} ({to_col})".format(
-            to_col=to_col, table=tablename))
-
-
-def v1_5_alter_generic_table_usercol(tablename: str,
-                                     from_col: str,
-                                     to_col: str) -> None:
-    if not pls.db.table_exists(tablename):
-        return
-    if pls.db.column_exists(tablename, to_col):
-        log.warning("Column '{}' already exists in table {}",
-                    to_col, tablename)
-        return
-    ex = pls.db.db_exec_literal
-    ex("ALTER TABLE {table} ADD COLUMN {to_col} INT UNSIGNED".format(
-        table=tablename, to_col=to_col))
-    ex("UPDATE {table} AS altering "
-       "INNER JOIN {lookup} AS lookup "
-       "ON altering.{from_col} = lookup.username "
-       "SET altering.{to_col} = lookup.id".format(
-        table=tablename, lookup=User.TABLENAME,
-        from_col=from_col, to_col=to_col))
-    ex("ALTER TABLE {table} DROP COLUMN {from_col}".format(table=tablename,
-                                                           from_col=from_col))
-
-
-def v1_5_alter_generic_table(tablename: str) -> None:
-    # Device ID
-    v1_5_alter_generic_table_devicecol(tablename,
-                                       '_device',
-                                       '_device_id')
-    # User IDs
-    v1_5_alter_generic_table_usercol(tablename,
-                                     '_adding_user',
-                                     '_adding_user_id')
-    v1_5_alter_generic_table_usercol(tablename,
-                                     '_removing_user',
-                                     '_removing_user_id')
-    v1_5_alter_generic_table_usercol(tablename,
-                                     '_preserving_user',
-                                     '_preserving_user_id')
-    v1_5_alter_generic_table_usercol(tablename,
-                                     '_manually_erasing_user',
-                                     '_manually_erasing_user_id')
-
-
-def v2_0_0_alter_generic_table(tablename: str) -> None:
-    # Version goes from float (e.g. 1.06) to semantic version (e.g. 2.0.0).
-    modify_column(tablename, "_camcops_version",
-                  cc_db.SQLTYPE.SEMANTICVERSIONTYPE)
-
-
-def v2_0_0_move_png_rotation_field(tablename: str, blob_id_fieldname: str,
-                                   rotation_fieldname: str) -> None:
-    sql = """
-        UPDATE {blobtable} b
-        INNER JOIN {tablename} t ON
-            b.id = t.{blob_id_fieldname}
-            AND b._device_id = t._device_id
-            AND b._era = t._era
-            AND b._when_added_batch_utc <= t._when_added_batch_utc
-            AND (b._when_removed_batch_utc = t._when_removed_batch_utc
-                 OR (b._when_removed_batch_utc IS NULL
-                     AND t._when_removed_batch_utc IS NULL))
-        SET b.image_rotation_deg_cw = t.{rotation_fieldname}
-    """.format(
-        blobtable=Blob.TABLENAME,
-        tablename=tablename,
-        blob_id_fieldname=blob_id_fieldname,
-        rotation_fieldname=rotation_fieldname,
-    )
-    pls.db.db_exec_literal(sql)
-
-
-def upgrade_database_first_phase(old_version: Version) -> None:
-    print("Old database version: {}. New version: {}.".format(
-        old_version,
-        CAMCOPS_SERVER_VERSION
-    ))
-    if old_version is None:
-        log.warning("Don't know old database version; can't upgrade structure")
-        return
-
-    # Proceed IN SEQUENCE from older to newer versions.
-    # Don't assume that tables exist already.
-    # The changes are performed PRIOR to making tables afresh (which will
-    # make any new columns required, and thereby block column renaming).
-    # DO NOT DO THINGS THAT WOULD DESTROY USERS' DATA.
-
-    # -------------------------------------------------------------------------
-    # Older versions, from before semantic versioning system:
-    # -------------------------------------------------------------------------
-
-    if old_version < make_version(1.06):
-        report_database_upgrade_step("1.06")
-        pls.db.drop_table(DIRTY_TABLES_TABLENAME)
-
-    if old_version < make_version(1.07):
-        report_database_upgrade_step("1.07")
-        pls.db.drop_table(Session.TABLENAME)
-
-    if old_version < make_version(1.08):
-        report_database_upgrade_step("1.08")
-        change_column("_security_users",
-                      "may_alter_users", "superuser", "BOOLEAN")
-        change_column("icd10schizophrenia",
-                      "tpah_commentary", "hv_commentary", "BOOLEAN")
-        change_column("icd10schizophrenia",
-                      "tpah_discussing", "hv_discussing", "BOOLEAN")
-        change_column("icd10schizophrenia",
-                      "tpah_from_body", "hv_from_body", "BOOLEAN")
-
-    if old_version < make_version(1.10):
-        report_database_upgrade_step("1.10")
-        modify_column("patient", "forename", "VARCHAR(255) NULL")
-        modify_column("patient", "surname", "VARCHAR(255) NULL")
-        modify_column("patient", "dob", "VARCHAR(32) NULL")
-        modify_column("patient", "sex", "VARCHAR(1) NULL")
-
-    if old_version < make_version(1.11):
-        report_database_upgrade_step("1.11")
-        # session
-        modify_column("session", "ip_address", "VARCHAR(45) NULL")  # was 40
-        # ExpDetThreshold
-        pls.db.rename_table("expdetthreshold",
-                            "cardinal_expdetthreshold")
-        pls.db.rename_table("expdetthreshold_trials",
-                            "cardinal_expdetthreshold_trials")
-        change_column("cardinal_expdetthreshold_trials",
-                      "expdetthreshold_id", "cardinal_expdetthreshold_id",
-                      "INT")
-        pls.db.drop_view("expdetthreshold_current")
-        pls.db.drop_view("expdetthreshold_current_withpt")
-        pls.db.drop_view("expdetthreshold_trials_current")
-        # ExpDet
-        pls.db.rename_table("expectationdetection",
-                            "cardinal_expdet")
-        pls.db.rename_table("expectationdetection_trialgroupspec",
-                            "cardinal_expdet_trialgroupspec")
-        pls.db.rename_table("expectationdetection_trials",
-                            "cardinal_expdet_trials")
-        pls.db.drop_table("expectationdetection_SUMMARY_TEMP")
-        pls.db.drop_table("expectationdetection_BLOCKPROBS_TEMP")
-        pls.db.drop_table("expectationdetection_HALFPROBS_TEMP")
-        pls.db.drop_view("expectationdetection_current")
-        pls.db.drop_view("expectationdetection_current_withpt")
-        pls.db.drop_view("expectationdetection_trialgroupspec_current")
-        pls.db.drop_view("expectationdetection_trials_current")
-        pls.db.drop_view("expectationdetection_SUMMARY_TEMP_current")
-        pls.db.drop_view("expectationdetection_SUMMARY_TEMP_current_withpt")
-        pls.db.drop_view("expectationdetection_BLOCKPROBS_TEMP_current")
-        pls.db.drop_view("expectationdetection_BLOCKPROBS_TEMP_current_withpt")
-        pls.db.drop_view("expectationdetection_HALFPROBS_TEMP_current")
-        pls.db.drop_view("expectationdetection_HALFPROBS_TEMP_current_withpt")
-        change_column("cardinal_expdet_trials",
-                      "expectationdetection_id", "cardinal_expdet_id", "INT")
-        change_column("cardinal_expdet_trialgroupspec",
-                      "expectationdetection_id", "cardinal_expdet_id", "INT")
-
-    if old_version < make_version(1.15):
-        report_database_upgrade_step("1.15")
-        # these were INT UNSIGNED:
-        modify_column("patient", "idnum1", "BIGINT UNSIGNED")
-        modify_column("patient", "idnum2", "BIGINT UNSIGNED")
-        modify_column("patient", "idnum3", "BIGINT UNSIGNED")
-        modify_column("patient", "idnum4", "BIGINT UNSIGNED")
-        modify_column("patient", "idnum5", "BIGINT UNSIGNED")
-        modify_column("patient", "idnum6", "BIGINT UNSIGNED")
-        modify_column("patient", "idnum7", "BIGINT UNSIGNED")
-        modify_column("patient", "idnum8", "BIGINT UNSIGNED")
-
-    if old_version < make_version(1.5):
-        report_database_upgrade_step("1.5")
-        # ---------------------------------------------------------------------
-        # 1.
-        #   Create:
-        #     _security_devices.id INT UNSIGNED (autoincrement)
-        #   Rename:
-        #     _security_devices.device -> _security_devices.name
-        #   Change references in everything else:
-        #     _device VARCHAR(255) -> _device_id INT UNSIGNED
-        # 2.
-        #   Create:
-        #     _security_users.id
-        #   Rename:
-        #     _security_users.user -> _security_users.username
-        #   Change all references:
-        #     _adding_user VARCHAR(255) -> _adding_user_id INT UNSIGNED
-        #     _removing_user VARCHAR(255) -> _removing_user_id INT UNSIGNED
-        #     _preserving_user VARCHAR(255) -> _preserving_user_id INT UNSIGNED
-        #     _manually_erasing_user VARCHAR(255) -> _manually_erasing_user_id INT UNSIGNED  # noqa
-        # ---------------------------------------------------------------------
-        # Note: OK to drop columns even if a view is looking at them,
-        # though the view will then be invalid.
-
-        drop_all_views_and_summary_tables()
-
-        v1_5_alter_device_table()
-        v1_5_alter_user_table()
-        v1_5_alter_generic_table_usercol(Device.TABLENAME,
-                                         'registered_by_user',
-                                         'registered_by_user_id')
-        v1_5_alter_generic_table_usercol(Device.TABLENAME,
-                                         'uploading_user',
-                                         'uploading_user_id')
-        for cls in get_all_task_classes():
-            v1_5_alter_generic_table(cls.tablename)
-            for tablename in cls.get_extra_table_names():
-                v1_5_alter_generic_table(tablename)
-        # Special tables with device or patient references:
-        v1_5_alter_generic_table(Blob.TABLENAME)
-        v1_5_alter_generic_table(Patient.TABLENAME)
-        v1_5_alter_generic_table(DeviceStoredVar.TABLENAME)
-
-        v1_5_alter_generic_table_usercol(
-            SECURITY_AUDIT_TABLENAME, 'user', 'user_id')
-        v1_5_alter_generic_table_devicecol(
-            SECURITY_AUDIT_TABLENAME, 'device', 'device_id', with_index=False)
-        v1_5_alter_generic_table_usercol(
-            SpecialNote.TABLENAME, 'user', 'user_id')
-        v1_5_alter_generic_table_devicecol(
-            SpecialNote.TABLENAME, 'device', 'device_id', with_index=True)
-        change_column(SECURITY_ACCOUNT_LOCKOUT_TABLENAME,
-                      "user", "username", "VARCHAR(255)")
-        change_column(SECURITY_LOGIN_FAILURE_TABLENAME,
-                      "user", "username", "VARCHAR(255)")
-        pls.db.drop_table(DIRTY_TABLES_TABLENAME)
-        pls.db.drop_table(Session.TABLENAME)
-
-    # -------------------------------------------------------------------------
-    # Move to semantic versioning from 2.0.0
-    # -------------------------------------------------------------------------
-
-    if old_version < Version("2.0.0"):
-        report_database_upgrade_step("2.0.0")
-
-        # Server
-        drop_all_views_and_summary_tables()
-        pls.db.db_exec_literal("""
-            UPDATE {table}
-            SET type = 'text',
-                valueText = CAST(valueReal AS CHAR),
-                valueReal = NULL
-            WHERE name = 'serverCamcopsVersion'
-        """.format(table=ServerStoredVar.TABLENAME))
-        # Tablet generic
-        v2_0_0_alter_generic_table(Blob.TABLENAME)
-        v2_0_0_alter_generic_table(Patient.TABLENAME)
-        modify_column(Device.TABLENAME, "camcops_version",
-                      cc_db.SQLTYPE.SEMANTICVERSIONTYPE)
-        v2_0_0_alter_generic_table(DeviceStoredVar.TABLENAME)
-        # Tasks
-        for cls in get_all_task_classes():
-            v2_0_0_alter_generic_table(cls.tablename)
-            for tablename in cls.get_extra_table_names():
-                v2_0_0_alter_generic_table(tablename)
-        # Specifics
-        modify_column("ciwa", "t", "REAL NULL")  # was erroneously INT; temperature (C)  # noqa
-        modify_column("cpft_lps_referral", "marital_status_code",
-                      "VARCHAR(1) NULL")  # was erroneously INT; single-char code  # noqa
-        modify_column("cpft_lps_referral", "ethnic_category_code",
-                      "VARCHAR(1) NULL")  # was erroneously INT; single-char code  # noqa
-
-        # NOTE: from client version 2.0.0, "iddesc{n}" and "idshortdesc{n}"
-        # fields are no longer uploaded - they are just duplicates of the
-        # server's own values - DUE FOR REMOVAL FROM SERVER *** (plus handling
-        # of old clients).
-
-
-def upgrade_database_second_phase(old_version: Version) -> None:
-    if old_version < Version("2.0.0"):
-        report_database_upgrade_step("2.0.0")
-        # BLOBs become more generalized and know about their own image rotation
-        v2_0_0_move_png_rotation_field("ace3", "picture1_blobid", "picture1_rotation")  # noqa
-        v2_0_0_move_png_rotation_field("ace3", "picture2_blobid", "picture2_rotation")  # noqa
-        v2_0_0_move_png_rotation_field("demoquestionnaire", "photo_blobid", "photo_rotation")  # noqa
-        v2_0_0_move_png_rotation_field("photo", "photo_blobid", "rotation")
-        v2_0_0_move_png_rotation_field("photosequence_photos", "photo_blobid", "rotation")  # noqa
-        pls.db.db_exec_literal("""
-            UPDATE {blobtable} SET mimetype = 'image/png'
-        """.format(blobtable=Blob.TABLENAME))
-
-    if old_version < Version("2.0.1"):
-        report_database_upgrade_step("2.0.1")
-        # Move ID numbers into their own table, allowing an arbitrary number.
-        for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
-            nstr = str(n)
-            pls.db.db_exec_literal("""
-                INSERT INTO {idnumtable} (
-                    -- _pk is autogenerated
-                    
-                    _device_id,
-                    _era,
-                    _current,
-                    _when_added_exact,
-                    _when_added_batch_utc,
-                    
-                    _adding_user_id,
-                    _when_removed_exact,
-                    _when_removed_batch_utc,
-                    _removing_user_id,
-                    _preserving_user_id,
-                    
-                    _forcibly_preserved,
-                    _predecessor_pk,
-                    _successor_pk,
-                    _manually_erased,
-                    _manually_erased_at,
-                    _manually_erasing_user_id,
-                    _camcops_version,
-                    
-                    _addition_pending,
-                    _removal_pending,
-                    _move_off_tablet,
-                    
-                    id,
-                    patient_id,
-                    which_idnum,
-                    idnum_value,
-                    when_last_modified
-                )
-                SELECT
-                    _device_id,
-                    _era,
-                    _current,
-                    _when_added_exact,
-                    _when_added_batch_utc,
-                    
-                    _adding_user_id,
-                    _when_removed_exact,
-                    _when_removed_batch_utc,
-                    _removing_user_id,
-                    _preserving_user_id,
-                    
-                    _forcibly_preserved,
-                    NULL,  -- _predecessor_pk
-                    NULL,  -- _successor_pk
-                    _manually_erased,
-                    _manually_erased_at,
-                    _manually_erasing_user_id,
-                    _camcops_version,
-                    
-                    0,  -- _addition_pending
-                    0,  -- _removal_pending
-                    0,  -- _move_off_tablet
-                    
-                    id * 8,  -- goes to id
-                    id,  -- goes to patient_id
-                    {which_idnum},  -- goes to which_idnum
-                    {idnumfield},  -- goes to idnum_value
-                    when_last_modified
-                    
-                FROM {patienttable}
-                WHERE {idnumfield} IS NOT NULL
-            """.format(
-                idnumtable=PatientIdNum.tablename,
-                patienttable=Patient.TABLENAME,
-                which_idnum=nstr,
-                idnumfield=FP_ID_NUM + nstr,
-            ))
 
 
 # =============================================================================
@@ -939,110 +429,6 @@ def upgrade_database_second_phase(old_version: Version) -> None:
 # =============================================================================
 # Command-line functions
 # =============================================================================
-
-def make_tables(drop_superfluous_columns: bool = False) -> None:
-    """Make database tables."""
-
-    print(SEPARATOR_EQUALS)
-    print("Checking +/- modifying database structure.")
-    print("If this pauses, and you are running CamCOPS via Apache/mod_wsgi,"
-          "run 'sudo apachectl restart' in another terminal.")
-    if drop_superfluous_columns:
-        print("DROPPING SUPERFLUOUS COLUMNS")
-    print(SEPARATOR_EQUALS)
-
-    # MySQL engine settings
-    failed = False
-    insertmsg = " into my.cnf [mysqld] section, and restart MySQL"
-    if not pls.db.mysql_using_innodb_strict_mode():
-        log.error("NOT USING innodb_strict_mode; please insert "
-                  "'innodb_strict_mode = 1'" + insertmsg)
-        failed = True
-    max_allowed_packet = pls.db.mysql_get_max_allowed_packet()
-    size_32m = 32 * 1024 * 1024
-    if max_allowed_packet < size_32m:
-        log.error("MySQL max_allowed_packet < 32M (it's {} and needs to be "
-                  "{}); please insert 'max_allowed_packet = 32M'" + insertmsg,
-                  max_allowed_packet,
-                  size_32m)
-        failed = True
-    if not pls.db.mysql_using_file_per_table():
-        log.error("NOT USING innodb_file_per_table; please insert "
-                  "'innodb_file_per_table = 1'" + insertmsg)
-        failed = True
-    if not pls.db.mysql_using_innodb_barracuda():
-        log.error("innodb_file_format IS NOT Barracuda; please insert "
-                  "'innodb_file_per_table = Barracuda'" + insertmsg)
-        failed = True
-    if failed:
-        raise AssertionError("MySQL settings need fixing")
-
-    # Database settings
-    cc_db.set_db_to_utf8(pls.db)
-
-    # Special system table, in which old database version number is kept
-    ServerStoredVar.make_tables(drop_superfluous_columns)
-
-    print(SEPARATOR_HYPHENS)
-    print("Checking database version +/- upgrading.")
-    print(SEPARATOR_HYPHENS)
-
-    # Read old version number, and perform any special version-specific
-    # upgrade tasks
-    sv_version = ServerStoredVar(ServerStoredVarNames.SERVER_CAMCOPS_VERSION,
-                                 ServerStoredVar.TYPE_TEXT)
-    sv_potential_old_version = ServerStoredVar(
-        ServerStoredVarNames.SERVER_CAMCOPS_VERSION,
-        ServerStoredVar.TYPE_REAL)
-    ***this bit above is buggered***
-    old_version = make_version(sv_version.get_value() or
-                               sv_potential_old_version.get_value())
-    upgrade_database_first_phase(old_version)
-    # Important that we write the new version now:
-    sv_version.set_value(str(CAMCOPS_SERVER_VERSION))
-    # This value must only be written in conjunction with the database
-    # upgrade process.
-
-    print(SEPARATOR_HYPHENS)
-    print("Making core tables")
-    print(SEPARATOR_HYPHENS)
-
-    # Other system tables
-    User.make_tables(drop_superfluous_columns)
-    Device.make_tables(drop_superfluous_columns)
-    HL7Run.make_tables(drop_superfluous_columns)
-    HL7Message.make_tables(drop_superfluous_columns)
-    Session.make_tables(drop_superfluous_columns)
-    SpecialNote.make_tables(drop_superfluous_columns)
-
-    # Core client tables
-    Patient.make_tables(drop_superfluous_columns)
-    PatientIdNum.make_tables(drop_superfluous_columns)
-    Blob.make_tables(drop_superfluous_columns)
-    DeviceStoredVar.make_tables(drop_superfluous_columns)
-
-    # System tables without a class representation
-    cc_db.create_or_update_table(
-        DIRTY_TABLES_TABLENAME, DIRTY_TABLES_FIELDSPECS,
-        drop_superfluous_columns=drop_superfluous_columns)
-    pls.db.create_or_replace_primary_key(DIRTY_TABLES_TABLENAME,
-                                         ["device_id", "tablename"])
-    cc_db.create_or_update_table(
-        SECURITY_AUDIT_TABLENAME, SECURITY_AUDIT_FIELDSPECS,
-        drop_superfluous_columns=drop_superfluous_columns)
-
-    upgrade_database_second_phase(old_version)
-
-    # Task tables
-    print(SEPARATOR_HYPHENS)
-    print("Making task tables")
-    print(SEPARATOR_HYPHENS)
-    for cls in get_all_task_classes():
-        print("Making table(s) and view(s) for task: " + cls.shortname)
-        cls.make_tables(drop_superfluous_columns)
-
-    audit("Created/recreated main tables", from_console=True)
-
 
 def export_descriptions_comments() -> None:
     """Export an HTML version of database fields/comments to a file of the
@@ -1142,7 +528,8 @@ def reset_password() -> None:
     if password1 != password2:
         print("... passwords don't match; try again")
         return
-    result = set_password_directly(username, password1)
+    req = command_line_request()
+    result = set_password_directly(req, username, password1)
     print("Success: " + str(result))
 
 
@@ -1165,7 +552,7 @@ def test() -> None:
     """Run all unit tests."""
     # We do some rollbacks so as not to break performance of ongoing tasks.
 
-    request = CamcopsRequest()
+    req = command_line_request()
 
     print("-- Ensuring all tasks have basic info")
     cctask_unit_tests_basic()
@@ -1176,17 +563,17 @@ def test() -> None:
     pls.db.rollback()
 
     print("-- Testing cc_analytics")
-    ccanalytics_unit_tests(request)
+    ccanalytics_unit_tests(req)
     pls.db.rollback()
 
     print("-- Testing cc_blob")
-    ccblob_unit_tests()
+    ccblob_unit_tests(req)
     pls.db.rollback()
 
     # cc_constants: no functions
 
     print("-- Testing cc_device")
-    ccdevice_unit_tests()
+    ccdevice_unit_tests(req.dbsession)
     pls.db.rollback()
 
     print("-- Testing cc_dump")
@@ -1194,13 +581,13 @@ def test() -> None:
     pls.db.rollback()
 
     print("-- Testing cc_hl7core")
-    cchl7core_unit_tests()
+    cchl7core_unit_tests(req.dbsession)
     pls.db.rollback()
 
     # cc_namedtuples: simple, and doesn't need cc_shared
 
     print("-- Testing cc_patient")
-    ccpatient_unit_tests()
+    ccpatient_unit_tests(req)
     pls.db.rollback()
 
     print("-- Testing cc_policy")
@@ -1208,21 +595,21 @@ def test() -> None:
     pls.db.rollback()
 
     print("-- Testing cc_report")
-    ccreport_unit_tests()
+    ccreport_unit_tests(req)
     pls.db.rollback()
 
     print("-- Testing cc_session")
-    ccsession_unit_tests()
+    ccsession_unit_tests(req)
     pls.db.rollback()
 
     # at present only tested implicitly: cc_shared
 
     print("-- Testing cc_tracker")
-    cctracker_unit_tests()
+    cctracker_unit_tests(req)
     pls.db.rollback()
 
     print("-- Testing cc_user")
-    ccuser_unit_tests()
+    ccuser_unit_tests(req)
     pls.db.rollback()
 
     # cc_version: no functions
@@ -1238,9 +625,10 @@ def test() -> None:
 # =============================================================================
 
 def cli_main() -> None:
-    """Command-line entry point."""
+    """
+    Command-line entry point.
+    """
     # Fetch command-line options.
-    silent = False
     parser = argparse.ArgumentParser(
         prog="camcops",  # name the user will use to call it
         description=("CamCOPS command-line tool. "
@@ -1317,44 +705,25 @@ def cli_main() -> None:
     loglevel = logging.DEBUG if args.verbose >= 1 else logging.INFO
     logging.getLogger().setLevel(loglevel)  # set level for root logger
 
-    if args.show_hl7_queue:
-        silent = True
-
     # Say hello
-    if not silent:
-        print("CamCOPS version {}".format(CAMCOPS_SERVER_VERSION))
-        print("By Rudolf Cardinal. See " + CAMCOPS_URL)
+    log.info("CamCOPS version {}".format(CAMCOPS_SERVER_VERSION))
+    log.info("By Rudolf Cardinal. See " + CAMCOPS_URL)
 
     # If we don't know the config filename yet, ask the user
     if not args.configfilename:
         args.configfilename = ask_user(
             "Configuration file",
             os.environ.get(ENVVAR_CONFIG_FILE, DEFAULT_CONFIG_FILENAME))
-    # The set_from_environ_and_ping_db() function wants the config filename in
-    # the environment:
+    # For command-line use, we want the the config filename in the environment:
     os.environ[ENVVAR_CONFIG_FILE] = args.configfilename
-    if not silent:
-        print("Using configuration file: {}".format(args.configfilename))
+    log.info("Using configuration file: {}".format(args.configfilename))
 
-    # Set all other variables (inc. read from config file, open database)
-    try:
-        if not silent:
-            print("Processing configuration information and connecting "
-                  "to database (this may take some time)...")
-        pls.set_from_environ_and_ping_db(os.environ)
-    except configparser.NoSectionError:
-        print("""
-You may not have the necessary privileges to read the configuration file, or it
-may not exist, or be incomplete.
-""")
-        raise
-    except rnc_db.NoDatabaseError:
-        print("""
-If the database failed to open, ensure it has been created. To create a
-database, for example, in MySQL:
-    CREATE DATABASE camcops;
-""")
-        raise
+    # Request objects are ubiquitous, and allow code to refer to the HTTP
+    # request, config, HTTP session, database session, and so on. Here we make
+    # a special sort of request for use from the command line.
+    req = command_line_request()
+    # Note also that any database accesses will be auto-committed via the
+    # request.
 
     # In order:
     n_actions = 0
@@ -1372,7 +741,7 @@ database, for example, in MySQL:
         n_actions += 1
 
     if args.showtitle:
-        print("Database title: {}".format(get_database_title()))
+        print("Database title: {}".format(req.config.DATABASE_TITLE))
         n_actions += 1
 
     if args.summarytables:
@@ -1396,11 +765,11 @@ database, for example, in MySQL:
         n_actions += 1
 
     if args.hl7:
-        send_all_pending_hl7_messages()
+        send_all_pending_hl7_messages(req.config)
         n_actions += 1
 
     if args.show_hl7_queue:
-        send_all_pending_hl7_messages(show_queue_only=True)
+        send_all_pending_hl7_messages(req.config, show_queue_only=True)
         n_actions += 1
 
     if args.anonstaging:
@@ -1416,8 +785,7 @@ database, for example, in MySQL:
         n_actions += 1
 
     if n_actions > 0:
-        pls.db.commit()  # command-line non-interactive route commit
-        sys.exit()
+        sys.exit(0)
         # ... otherwise proceed to the menu
 
     # Menu
@@ -1425,7 +793,7 @@ database, for example, in MySQL:
         print("""
 {sep}
 CamCOPS version {version} (command line).
-Using database: {dbname} ({dbtitle}).
+Using database: {dburl} ({dbtitle}).
 
 1) Make/remake tables and views
    ... MUST be the first action on a new database
@@ -1447,8 +815,8 @@ Using database: {dbname} ({dbtitle}).
 15) Exit
 """.format(sep=SEPARATOR_EQUALS,
            version=CAMCOPS_SERVER_VERSION,
-           dbname=pls.DB_NAME,
-           dbtitle=get_database_title()))
+           dburl=get_safe_url_from_session(req.dbsession),
+           dbtitle=req.config.DATABASE_TITLE))
 
         # avoid input():
         # http://www.gossamer-threads.com/lists/python/python/46911
@@ -1462,7 +830,7 @@ Using database: {dbname} ({dbtitle}).
             make_tables(drop_superfluous_columns=False)
             reset_storedvars()
         elif choice == 2:
-            print("Database title: {}".format(get_database_title()))
+            print("Database title: {}".format(req.config.DATABASE_TITLE))
         elif choice == 3:
             reset_storedvars()
         elif choice == 4:
@@ -1478,9 +846,9 @@ Using database: {dbname} ({dbtitle}).
         elif choice == 9:
             test()
         elif choice == 10:
-            send_all_pending_hl7_messages()
+            send_all_pending_hl7_messages(req.config)
         elif choice == 11:
-            send_all_pending_hl7_messages(show_queue_only=True)
+            send_all_pending_hl7_messages(req.config, show_queue_only=True)
         elif choice == 12:
             generate_anonymisation_staging_db()
         elif choice == 13:
@@ -1488,10 +856,10 @@ Using database: {dbname} ({dbtitle}).
         elif choice == 14:
             test_serve()
         elif choice == 15:
-            sys.exit()
+            sys.exit(0)
 
         # Must commit, or we may lock the database while watching the menu
-        pls.db.commit()  # command-line interactive menu route commit
+        req.dbsession.commit()  # command-line interactive menu route commit
 
 
 # =============================================================================

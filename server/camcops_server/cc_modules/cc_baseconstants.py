@@ -33,6 +33,8 @@ CAMCOPS_SERVER_DIRECTORY = os.path.abspath(
                  os.pardir))  # camcops_server
 TABLET_SOURCE_COPY_DIR = os.path.join(CAMCOPS_SERVER_DIRECTORY,
                                       "tablet_source_copy")
+# ... used by setup.py to copy tablet source files into package
 
 INTROSPECTABLE_EXTENSIONS = [".cpp", ".h", ".html", ".js", ".jsx",
                              ".py", ".pl", ".qml", ".xml"]
+# ... used by setup.py to determine what to copy

@@ -406,18 +406,19 @@ class TrackerCtvCommon(object):
     # -------------------------------------------------------------------------
 
     def get_xml(self,
+                req: CamcopsRequest,
                 indent_spaces: int = 4,
                 eol: str = '\n',
                 include_comments: bool = False) -> str:
         raise NotImplementedError()
 
-    def get_html(self) -> str:
+    def get_html(self, req: CamcopsRequest) -> str:
         raise NotImplementedError()
 
-    def get_pdf_html(self) -> str:
+    def get_pdf_html(self, req: CamcopsRequest) -> str:
         raise NotImplementedError()
 
-    def get_office_html(self) -> str:
+    def get_office_html(self, req: CamcopsRequest) -> str:
         raise NotImplementedError()
 
     # -------------------------------------------------------------------------
@@ -492,11 +493,11 @@ class TrackerCtvCommon(object):
         set_matplotlib_fontsize(cfg.PLOT_FONTSIZE)
         req.switch_output_to_svg()
         return (
-            self.get_html_start() +
+            self.get_html_start(req) +
             main_html +
-            self.get_office_html() +
+            self.get_office_html(req) +
             """<div class="navigation">""" +
-            self.get_hyperlink_pdf("View PDF for printing/saving") +
+            self.get_hyperlink_pdf(req, "View PDF for printing/saving") +
             "</div>" +
             PDFEND
         )
@@ -511,22 +512,22 @@ class TrackerCtvCommon(object):
         set_matplotlib_fontsize(cfg.PLOT_FONTSIZE)
         if CSS_PAGED_MEDIA:
             req.switch_output_to_png()
-            return pdf_from_html(req, self.get_pdf_html())
+            return pdf_from_html(req, self.get_pdf_html(req))
         else:
             req.switch_output_to_svg()  # wkhtmltopdf can cope
             return pdf_from_html(
                 req,
-                html=self.get_pdf_html(),  # main content comes here
+                html=self.get_pdf_html(req),  # main content comes here
                 header_html=self.get_pdf_header_content(),
-                footer_html=self.get_pdf_footer_content(),
+                footer_html=self.get_pdf_footer_content(req),
                 extra_wkhtmltopdf_options={"orientation": "Portrait"})
 
-    def _get_pdf_html(self, main_html: str) -> str:
+    def _get_pdf_html(self, req: CamcopsRequest, main_html: str) -> str:
         """Get HTML used to generate PDF representing tracker/CTV."""
         return (
-            self.get_pdf_start() +
+            self.get_pdf_start(req) +
             main_html +
-            self.get_office_html() +
+            self.get_office_html(req) +
             PDFEND
         )
 
@@ -612,7 +613,8 @@ class TrackerCtvCommon(object):
         if CSS_PAGED_MEDIA:
             head = PDF_HEAD_PORTRAIT
             pdf_header_footer = (
-                self.get_pdf_header_content() + self.get_pdf_footer_content()
+                self.get_pdf_header_content() +
+                self.get_pdf_footer_content(req)
             )
         else:
             head = PDF_HEAD_NO_PAGED_MEDIA
@@ -660,7 +662,7 @@ class TrackerCtvCommon(object):
     # Plotting
     # -------------------------------------------------------------------------
 
-    def get_all_plots_for_all_tasks_html(self) -> str:
+    def get_all_plots_for_all_tasks_html(self, req: CamcopsRequest) -> str:
         """HTML for all plots."""
         if (self.task_tablename_list is None or
                 len(self.task_tablename_list) == 0):
@@ -687,10 +689,12 @@ class TrackerCtvCommon(object):
                 ws.webify(task_instance_list[0].longname),
                 ws.webify(task_instance_list[0].shortname)
             )
-            html += self.get_all_plots_for_one_task_html(task_instance_list)
+            html += self.get_all_plots_for_one_task_html(req,
+                                                         task_instance_list)
         return html
 
     def get_all_plots_for_one_task_html(self,
+                                        req: CamcopsRequest,
                                         task_instance_list: List[Task]) -> str:
         """HTML for all plots for a given task type."""
         html = ""
@@ -701,7 +705,7 @@ class TrackerCtvCommon(object):
             return html
         ntasks = len(task_instance_list)
         task_instance_list.sort(key=lambda task: task.get_creation_datetime())
-        alltrackers = [task.get_trackers() for task in task_instance_list]
+        alltrackers = [task.get_trackers(req) for task in task_instance_list]
         datetimes = [
             task.get_creation_datetime() for task in task_instance_list
         ]
@@ -713,8 +717,7 @@ class TrackerCtvCommon(object):
                 for tasknum in range(ntasks)
             ]
             html += self.get_single_plot_html(
-                datetimes,
-                values,
+                req, datetimes, values,
                 specimen_tracker=alltrackers[0][tracker]
             )
         for task in task_instance_list:
@@ -729,6 +732,7 @@ class TrackerCtvCommon(object):
 
     def get_single_plot_html(
             self,
+            req: CamcopsRequest,
             datetimes: List[datetime.datetime],
             values: List[float],
             specimen_tracker: TrackerInfo) -> str:
@@ -833,14 +837,14 @@ class TrackerCtvCommon(object):
         # check the logger, but visually doesn't help)
         # - http://stackoverflow.com/questions/9126838
         # - http://matplotlib.org/examples/pylab_examples/finance_work2.html
-        return get_html_from_pyplot_figure(fig) + "<br>"
+        return get_html_from_pyplot_figure(req, fig) + "<br>"
         # ... extra line break for the PDF rendering
 
     # -------------------------------------------------------------------------
     # URLs
     # -------------------------------------------------------------------------
 
-    def get_hyperlink_pdf(self, text: str) -> str:
+    def get_hyperlink_pdf(self, req: CamcopsRequest, text: str) -> str:
         """URL to a PDF version of the tracker/CTV."""
         raise NotImplementedError()
 
@@ -862,8 +866,9 @@ class Tracker(TrackerCtvCommon):
         self.task_tablename_list = [t.lower() for t in task_tablename_list
                                     if t]
         task_class_list = [
-            cls for cls in Task.all_subclasses(sort_shortname=True)
-            if cls.provides_trackers and cls.tablename in task_tablename_list]
+            cls for cls in Task.all_subclasses_by_shortname()
+            if cls.provides_trackers and cls.tablename in task_tablename_list
+        ]
         super().__init__(
             session=session,
             task_class_list=task_class_list,
@@ -875,6 +880,7 @@ class Tracker(TrackerCtvCommon):
         )
 
     def get_xml(self,
+                req: CamcopsRequest,
                 indent_spaces: int = 4,
                 eol: str = '\n',
                 include_comments: bool = False) -> str:
@@ -887,17 +893,19 @@ class Tracker(TrackerCtvCommon):
             include_comments=include_comments
         )
 
-    def get_html(self) -> str:
+    def get_html(self, req: CamcopsRequest) -> str:
         """Get HTML representing tracker."""
-        return self._get_html(self.get_all_plots_for_all_tasks_html())
+        return self._get_html(req, self.get_all_plots_for_all_tasks_html(req))
 
-    def get_pdf_html(self) -> str:
+    def get_pdf_html(self, req: CamcopsRequest) -> str:
         """Get HTML used to generate PDF representing tracker."""
-        return self._get_pdf_html(self.get_all_plots_for_all_tasks_html())
+        return self._get_pdf_html(req,
+                                  self.get_all_plots_for_all_tasks_html(req))
 
-    def get_office_html(self) -> str:
+    def get_office_html(self, req: CamcopsRequest) -> str:
         """Tedious HTML listing sources."""
         return self._get_office_html(
+            req,
             "Trackers use only information from tasks that are flagged "
             "CURRENT and COMPLETE.")
 
@@ -905,7 +913,7 @@ class Tracker(TrackerCtvCommon):
     # Plotting
     # -------------------------------------------------------------------------
 
-    def get_all_plots_for_all_tasks_html(self) -> str:
+    def get_all_plots_for_all_tasks_html(self, req: CamcopsRequest) -> str:
         """HTML for all plots."""
         if (self.task_tablename_list is None or
                 len(self.task_tablename_list) == 0):
@@ -932,10 +940,12 @@ class Tracker(TrackerCtvCommon):
                 ws.webify(task_instance_list[0].longname),
                 ws.webify(task_instance_list[0].shortname)
             )
-            html += self.get_all_plots_for_one_task_html(task_instance_list)
+            html += self.get_all_plots_for_one_task_html(req,
+                                                         task_instance_list)
         return html
 
     def get_all_plots_for_one_task_html(self,
+                                        req: CamcopsRequest,
                                         task_instance_list: List[Task]) -> str:
         """HTML for all plots for a given task type."""
         html = ""
@@ -946,7 +956,7 @@ class Tracker(TrackerCtvCommon):
             return html
         ntasks = len(task_instance_list)
         task_instance_list.sort(key=lambda task: task.get_creation_datetime())
-        alltrackers = [task.get_trackers() for task in task_instance_list]
+        alltrackers = [task.get_trackers(req) for task in task_instance_list]
         datetimes = [
             task.get_creation_datetime() for task in task_instance_list
         ]
@@ -958,8 +968,7 @@ class Tracker(TrackerCtvCommon):
                 for tasknum in range(ntasks)
             ]
             html += self.get_single_plot_html(
-                datetimes,
-                values,
+                req, datetimes, values,
                 specimen_tracker=alltrackers[0][tracker]
             )
         for task in task_instance_list:
@@ -974,6 +983,7 @@ class Tracker(TrackerCtvCommon):
 
     def get_single_plot_html(
             self,
+            req: CamcopsRequest,
             datetimes: List[datetime.datetime],
             values: List[float],
             specimen_tracker: TrackerInfo) -> str:
@@ -1078,16 +1088,16 @@ class Tracker(TrackerCtvCommon):
         # check the logger, but visually doesn't help)
         # - http://stackoverflow.com/questions/9126838
         # - http://matplotlib.org/examples/pylab_examples/finance_work2.html
-        return get_html_from_pyplot_figure(fig) + "<br>"
+        return get_html_from_pyplot_figure(req, fig) + "<br>"
         # ... extra line break for the PDF rendering
 
     # -------------------------------------------------------------------------
     # URLs
     # -------------------------------------------------------------------------
 
-    def get_hyperlink_pdf(self, text: str) -> str:
+    def get_hyperlink_pdf(self, req: CamcopsRequest, text: str) -> str:
         """URL to a PDF version of the tracker."""
-        url = get_generic_action_url(ACTION.TRACKER)
+        url = get_generic_action_url(req, ACTION.TRACKER)
         for tt in self.task_tablename_list:
             url += get_url_field_value_pair(PARAM.TASKTYPES, tt)
         url += get_url_field_value_pair(
@@ -1138,6 +1148,7 @@ class ClinicalTextView(TrackerCtvCommon):
         )
 
     def get_xml(self,
+                req: CamcopsRequest,
                 indent_spaces: int = 4,
                 eol: str = '\n',
                 include_comments: bool = False) -> str:
@@ -1150,21 +1161,24 @@ class ClinicalTextView(TrackerCtvCommon):
             include_comments=include_comments
         )
 
-    def get_html(self) -> str:
+    def get_html(self, req: CamcopsRequest) -> str:
         """Get HTML representing CTV."""
         return self._get_html(
-            self.get_clinicaltextview_main_html(as_pdf=False)
+            req,
+            self.get_clinicaltextview_main_html(req, as_pdf=False)
         )
 
-    def get_pdf_html(self) -> str:
+    def get_pdf_html(self, req: CamcopsRequest) -> str:
         """Get HTML used to generate PDF representing CTV."""
         return self._get_pdf_html(
-            self.get_clinicaltextview_main_html(as_pdf=True)
+            req,
+            self.get_clinicaltextview_main_html(req, as_pdf=True)
         )
 
-    def get_office_html(self) -> str:
+    def get_office_html(self, req: CamcopsRequest) -> str:
         """Tedious HTML listing sources."""
         return self._get_office_html(
+            req,
             "The clinical text view uses only information from tasks that are "
             "flagged CURRENT.")
 
@@ -1172,7 +1186,8 @@ class ClinicalTextView(TrackerCtvCommon):
     # Proper content
     # -------------------------------------------------------------------------
 
-    def get_clinicaltextview_main_html(self, as_pdf: bool = False) -> str:
+    def get_clinicaltextview_main_html(self, req: CamcopsRequest,
+                                       as_pdf: bool = False) -> str:
         """HTML for main CTV, with start date, content, end date."""
         if self._patient is None:
             return """
@@ -1190,7 +1205,7 @@ class ClinicalTextView(TrackerCtvCommon):
         )
         for t in range(len(self.flattasklist)):
             html += self.get_textview_for_one_task_instance_html(
-                self.flattasklist[t], as_pdf=as_pdf)
+                req, self.flattasklist[t], as_pdf=as_pdf)
         html += """
             <div class="ctv_datelimit_end">
                 End date for search: {}
@@ -1202,7 +1217,8 @@ class ClinicalTextView(TrackerCtvCommon):
         return html
 
     @staticmethod
-    def get_textview_for_one_task_instance_html(task: Task,
+    def get_textview_for_one_task_instance_html(req: CamcopsRequest,
+                                                task: Task,
                                                 as_pdf: bool = False) -> str:
         """HTML for the CTV contribution of a single task."""
         datetext = format_datetime(task.get_creation_datetime(),
@@ -1212,11 +1228,11 @@ class ClinicalTextView(TrackerCtvCommon):
             links = ""
         else:
             links = "({}, {})".format(
-                task.get_hyperlink_html("HTML"),
-                task.get_hyperlink_pdf("PDF"),
+                task.get_hyperlink_html(req, "HTML"),
+                task.get_hyperlink_pdf(req, "PDF"),
             )
         # Get information from the task.
-        ctvinfo_list = task.get_clinical_text()
+        ctvinfo_list = task.get_clinical_text(req)
         # If it provides none, we offer a line indicating just the existence of
         # the task, with no further details.
         if ctvinfo_list is None:
@@ -1272,9 +1288,9 @@ class ClinicalTextView(TrackerCtvCommon):
     # URLs
     # -------------------------------------------------------------------------
 
-    def get_hyperlink_pdf(self, text: str) -> str:
+    def get_hyperlink_pdf(self, req: CamcopsRequest, text: str) -> str:
         """URL to a PDF version of the CTV."""
-        url = get_generic_action_url(ACTION.CLINICALTEXTVIEW)
+        url = get_generic_action_url(req, ACTION.CLINICALTEXTVIEW)
         url += get_url_field_value_pair(
             PARAM.WHICH_IDNUM,
             "" if self.which_idnum is None else self.which_idnum)
@@ -1331,11 +1347,11 @@ def unit_tests_ctv(c: ClinicalTextView) -> None:
     unit_test_ignore("", c.get_hyperlink_pdf, "hello")
 
 
-def cctracker_unit_tests() -> None:
+def cctracker_unit_tests(req: CamcopsRequest) -> None:
     """Unit tests for cc_tracker module."""
-    session = CamcopsSession()
+    session = req.camcops_session
     tasktables = []
-    for cls in Task.all_subclasses(sort_tablename=True):
+    for cls in Task.all_subclasses_by_tablename():
         tasktables.append(cls.tablename)
     which_idnum = 1
     idnum_value = 3

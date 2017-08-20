@@ -32,7 +32,7 @@ from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, LargeBinary, Text
-import wand.image  # sudo apt-get install libmagickwand-dev; sudo pip install Wand  # noqa
+import wand.image
 
 from .cc_constants import ERA_NOW, MIMETYPE_PNG
 from .cc_db import GenericTabletRecordMixin
@@ -40,7 +40,7 @@ from .cc_html import get_data_url, get_embedded_img_tag
 from .cc_sqla_coltypes import (
     IntUnsigned,
     MimeTypeColType,
-    # TableNameColType, # *** to be added
+    # TableNameColType, # *** to be added once Alembic up
 )
 from .cc_request import CamcopsRequest
 from .cc_sqlalchemy import Base

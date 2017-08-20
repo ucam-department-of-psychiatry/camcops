@@ -22,7 +22,7 @@
 ===============================================================================
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, List, Tuple, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -49,7 +49,10 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # PCL
 # =============================================================================
 
-class PclMetaclass(DeclarativeMeta):
+class PclMetaclass(type):
+    """
+    There is a multilayer metaclass problem; see hads.py for discussion.
+    """
     # noinspection PyInitNewSignature
     def __init__(cls: Type['PclCommon'],
                  name: str,
@@ -247,11 +250,26 @@ class PclCommon(TaskHasPatientMixin, Task,
         return h
 
 
-# -----------------------------------------------------------------------------
-# PCL-C
-# -----------------------------------------------------------------------------
+# =============================================================================
+# Trying to solve the metaclass problem described above
+# =============================================================================
 
-class PclC(PclCommon, Base):
+class PclBlendedMetaclass(PclMetaclass, DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type[Union[PclCommon, DeclarativeMeta]],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        PclMetaclass.__init__(cls, name, bases, classdict)
+        # ... will call DeclarativeMeta.__init__ via its super().__init__()
+
+
+# =============================================================================
+# PCL-C
+# =============================================================================
+
+class PclC(PclCommon, Base,
+           metaclass=PclBlendedMetaclass):
     __tablename__ = "pclc"
     shortname = "PCL-C"
     longname = "PTSD Checklist, Civilian version"
@@ -259,11 +277,12 @@ class PclC(PclCommon, Base):
     TASK_TYPE = "C"
 
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # PCL-M
-# -----------------------------------------------------------------------------
+# =============================================================================
 
-class PclM(PclCommon, Base):
+class PclM(PclCommon, Base,
+           metaclass=PclBlendedMetaclass):
     __tablename__ = "pclm"
     shortname = "PCL-M"
     longname = "PTSD Checklist, Military version"
@@ -271,11 +290,12 @@ class PclM(PclCommon, Base):
     TASK_TYPE = "M"
 
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # PCL-S
-# -----------------------------------------------------------------------------
+# =============================================================================
 
-class PclS(PclCommon, Base):
+class PclS(PclCommon, Base,
+           metaclass=PclBlendedMetaclass):
     __tablename__ = "pcls"
     shortname = "PCL-S"
     longname = "PTSD Checklist, Stressor-specific version"

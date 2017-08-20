@@ -22,17 +22,15 @@
 ===============================================================================
 """
 
-from collections import OrderedDict
 import glob
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 import xml.etree.cElementTree as ElementTree
 # ... cElementTree is a faster implementation
 # ... http://docs.python.org/2/library/xml.etree.elementtree.html
 # ... http://effbot.org/zone/celementtree.htm
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
-import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.text import unescape_newlines
 
 from .cc_cache import cache_region_static, fkg

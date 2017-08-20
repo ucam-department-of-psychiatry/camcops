@@ -34,6 +34,7 @@ from .cc_constants import (
     FP_ID_NUM,
     FP_ID_SHORT_DESC,
 )
+
 if TYPE_CHECKING:
     from .cc_patientidnum import PatientIdNum
 

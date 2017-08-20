@@ -206,6 +206,9 @@ if getattr(our_args, EXTRAS_ARG):
                   EXTRA_FILES, absolute=False, include_n_parents=1)
     # add_all_files(os.path.join(camcops_server_dir, 'extra_strings'),
     #               EXTRA_FILES, absolute=False, include_n_parents=1)
+    EXTRA_FILES.append('alembic.ini')  # *** check this works
+    add_all_files(os.path.join(camcops_server_dir, 'alembic'),
+                  EXTRA_FILES, absolute=False, include_n_parents=1)
 
     EXTRA_FILES.sort()
 
@@ -316,10 +319,10 @@ camcops_server
         'scipy==0.16.1',  # Used by some tasks. SLOW INSTALLATION.
         'semantic_version>=2.6.0',  # semantic versioning; better than semver
         'typing==3.5.2.2',  # part of stdlib in Python 3.5, but not 3.4
-        'Wand==0.4.2',  # ImageMagick for Python; used e.g. for BLOB PNG display  # noqa
+        'Wand==0.4.2',  # ImageMagick for Python; used e.g. for BLOB PNG display; may need "sudo apt-get install libmagickwand-dev"  # noqa
         'Werkzeug==0.11.3',  # Profiling middleware
 
-        'cardinal_pythonlib==1.0.0',  # RNC libraries
+        'cardinal_pythonlib==1.0.2',  # RNC libraries
 
         # Adding as part of Pyramid/SQLAlchemy/Alembic upgrade, v2.1.0:
         'arrow==0.10.0',

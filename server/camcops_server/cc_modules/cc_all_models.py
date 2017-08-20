@@ -39,6 +39,8 @@ from .cc_audit import AuditEntry
 # noinspection PyUnresolvedReferences
 from .cc_blob import Blob
 # noinspection PyUnresolvedReferences
+from .cc_dirtytables import DirtyTable
+# noinspection PyUnresolvedReferences
 from .cc_hl7 import HL7Run
 # noinspection PyUnresolvedReferences
 from .cc_patient import Patient, PatientIdNum
@@ -65,4 +67,5 @@ from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 # We need something equivalent to "from tasks.phq9 import Phq9".
 
 # noinspection PyUnresolvedReferences
-from ..tasks import *
+from ..tasks import *  # see tasks/__init__.py
+

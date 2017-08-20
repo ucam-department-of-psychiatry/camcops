@@ -42,7 +42,11 @@ from .cgisch import CgiSch
 from .ciwa import Ciwa
 from .contactlog import ContactLog
 from .cope import CopeBrief
-from .cpft_lps import CPFTLPSReferral, CPFTLPSResetResponseClock, CPFTLPSDischarge  # noqa
+from .cpft_lps import (
+    CPFTLPSReferral,
+    CPFTLPSResetResponseClock,
+    CPFTLPSDischarge,
+)
 from .dad import Dad
 from .dast import Dast
 from .deakin_1_healthreview import Deakin1HealthReview

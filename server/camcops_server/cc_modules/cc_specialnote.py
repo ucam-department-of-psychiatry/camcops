@@ -26,7 +26,6 @@ from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Text
 
@@ -102,22 +101,6 @@ class SpecialNote(Base):
         comment="Special note, added manually"
     )
 
-    @classmethod
-    def get_all_instances(cls,
-                          dbsession: SqlASession,
-                          basetable: str,
-                          task_or_patient_id: int,
-                          device_id: int,
-                          era: str) -> List[SPECIALNOTE_FWD_REF]:
-        """Return all SpecialNote objects applicable to a task (or patient)."""
-        q = dbsession.query(SpecialNote)
-        q = q.filter(SpecialNote.basetable == basetable)
-        q = q.filter(SpecialNote.task_id == task_or_patient_id)
-        q = q.filter(SpecialNote._device_id == device_id)
-        q = q.filter(SpecialNote._era == era)
-        special_notes = q.fetchall()  # type: List[SpecialNote]
-        return special_notes
-
     def get_note_as_string(self) -> str:
         """Return a string-formatted version of the note."""
         return "[{dt}, {user}]\n{note}".format(
@@ -157,6 +140,7 @@ class SpecialNote(Base):
         """
         dbsession = req.dbsession
         new_era = format_datetime(pls.NOW_UTC_NO_TZ, DATEFORMAT.ERA)
+        # noinspection PyProtectedMember
         notes = dbsession.query(cls)\
             .filter(cls._device_id == device_id)\
             .filter(cls._era == ERA_NOW)\

@@ -23,7 +23,7 @@
 """
 
 import logging
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, List, Tuple, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -50,7 +50,65 @@ log = logging.getLogger(__name__)
 # HADS (crippled unless upgraded locally) - base classes
 # =============================================================================
 
-class HadsMetaclass(DeclarativeMeta):
+class HadsMetaclass(type):
+    """
+    We can't make this metaclass inherit from DeclarativeMeta.
+
+    This works:
+
+        class MyTaskMetaclass(DeclarativeMeta):
+            def __init__(cls, name, bases, classdict):
+                # do useful stuff
+                super().__init__(name, bases, classdict)
+
+        class MyTask(Task, Base, metaclass=MyTaskMetaclass):
+            __tablename__ = "mytask"
+
+    ... but at the point that MyTaskMetaclass calls DeclarativeMeta.__init__,
+    it registers "cls" (in this case MyTask) with the SQLAlchemy class
+    registry. In this example, that's fine, because MyTask wants to be
+    registered. But here it fails:
+
+        class OtherTaskMetaclass(DeclarativeMeta):
+            def __init__(cls, name, bases, classdict):
+                # do useful stuff
+                super().__init__(name, bases, classdict)
+
+        class Intermediate(Task, metaclass=OtherTaskMetaclass): pass
+
+        class OtherTask(Intermediate, Base):
+            __tablename__ = "othertask"
+
+    ... and it fails because OtherTaskMetaclass calls DeclarativeMeta.__init__
+    and this tries to register "Intermediate" with the SQLALchemy ORM.
+
+    So, it's clear that OtherTaskMetaclass shouldn't derive from
+    DeclarativeMeta. But if we make it derive from "object" instead, we get
+    the error
+
+        TypeError: metaclass conflict: the metaclass of a derived class must
+        be a (non-strict) subclass of the metaclasses of all its bases
+
+    because OtherTask inherits from Base, whose metaclass is DeclarativeMeta,
+    but there is another metaclass in the metaclass set that is incompatible
+    with this.
+
+    So, is solution that OtherTaskMetaclass should derive from "type" and then
+    to use CooperativeMeta (q.v.) for OtherTask?
+
+    No, that still seems to fail (and before any CooperativeMeta code is
+    called) -- possibly that framework is for Python 2 only.
+
+    See also
+    https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/
+
+    Alternative solution 1: make a new metaclass that pretends to inherit
+    from HadsMetaclass and DeclarativeMeta.
+
+    Alternative solution 2: continue to have the HadsMetaclass deriving from
+    DeclarativeMeta, but add it in at the last stage.
+
+    """
     # noinspection PyInitNewSignature
     def __init__(cls: Type['HadsBase'],
                  name: str,
@@ -199,10 +257,25 @@ class HadsBase(TaskHasPatientMixin, Task,
 
 
 # =============================================================================
+# Trying to solve the metaclass problem described above
+# =============================================================================
+
+class HadsBlendedMetaclass(HadsMetaclass, DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(cls: Type[Union[HadsBase, DeclarativeMeta]],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+        HadsMetaclass.__init__(cls, name, bases, classdict)
+        # ... will call DeclarativeMeta.__init__ via its super().__init__()
+
+
+# =============================================================================
 # Hads
 # =============================================================================
 
-class Hads(HadsBase, Base):
+class Hads(HadsBase, Base,
+           metaclass=HadsBlendedMetaclass):
     __tablename__ = "hads"
     shortname = "HADS"
     longname = "Hospital Anxiety and Depression Scale (data collection only)"
@@ -212,7 +285,8 @@ class Hads(HadsBase, Base):
 # HadsRespondent
 # =============================================================================
 
-class HadsRespondent(TaskHasRespondentMixin, HadsBase, Base):
+class HadsRespondent(TaskHasRespondentMixin, HadsBase, Base,
+                     metaclass=HadsBlendedMetaclass):
     __tablename__ = "hads_respondent"
     shortname = "HADS-Respondent"
     longname = "Hospital Anxiety and Depression Scale (data collection " \

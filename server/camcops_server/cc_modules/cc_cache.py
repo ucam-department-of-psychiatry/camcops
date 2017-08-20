@@ -70,3 +70,4 @@ cache_region_static.configure(
 # Can now use:
 # @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 
+__all__ = [cache_region_static, fkg]  # prevents "Unused import statement"
