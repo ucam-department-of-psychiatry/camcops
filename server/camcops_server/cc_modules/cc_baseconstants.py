@@ -23,17 +23,29 @@
 
 Constants required during package creation, which therefore can't rely on
 anything except the Python standard library.
+
+By simple extension, also directory/filename definitions within the server
+tree.
 """
 
-import os
+from os import pardir
+from os.path import abspath, dirname, join
 
-_this_directory = os.path.dirname(os.path.abspath(__file__))
-CAMCOPS_SERVER_DIRECTORY = os.path.abspath(
-    os.path.join(_this_directory,  # cc_modules
-                 os.pardir))  # camcops_server
-TABLET_SOURCE_COPY_DIR = os.path.join(CAMCOPS_SERVER_DIRECTORY,
-                                      "tablet_source_copy")
+# =============================================================================
+# Directories and filenames
+# =============================================================================
+
+_this_directory = dirname(abspath(__file__))  # cc_modules
+CAMCOPS_SERVER_DIRECTORY = abspath(join(_this_directory, pardir))  # camcops_server  # noqa
+TABLET_SOURCE_COPY_DIR = join(CAMCOPS_SERVER_DIRECTORY, "tablet_source_copy")
 # ... used by setup.py to copy tablet source files into package
+
+ALEMBIC_BASE_DIR = CAMCOPS_SERVER_DIRECTORY
+ALEMBIC_CONFIG_FILENAME = join(CAMCOPS_SERVER_DIRECTORY, 'alembic.ini')
+
+# =============================================================================
+# Introspectable extensions
+# =============================================================================
 
 INTROSPECTABLE_EXTENSIONS = [".cpp", ".h", ".html", ".js", ".jsx",
                              ".py", ".pl", ".qml", ".xml"]

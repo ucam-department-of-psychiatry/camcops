@@ -36,6 +36,7 @@ from pyramid.interfaces import ISession
 from pyramid.registry import Registry
 from pyramid.request import Request
 from pyramid.response import Response
+from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session as SqlASession
 
@@ -130,6 +131,11 @@ class CamcopsRequest(Request):
         return config
 
     @reify
+    def engine(self) -> Engine:
+        cfg = self.config
+        return cfg.create_engine()
+
+    @reify
     def dbsession(self) -> SqlASession:
         """
         Return an SQLAlchemy session for the relevant request.
@@ -139,8 +145,7 @@ class CamcopsRequest(Request):
         and if it requests that, the cleanup callbacks get installed.
         """
         log.info("Making SQLAlchemy session")
-        cfg = self.config
-        engine = cfg.create_engine()
+        engine = self.engine
         maker = sessionmaker(bind=engine)
         session = maker()  # type: SqlASession
 

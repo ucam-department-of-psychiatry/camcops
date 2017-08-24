@@ -27,10 +27,6 @@ Note that you can get CentOS version/architecture with:
 
 import argparse
 import getpass
-import glob
-import gzip
-from html import escape
-import io
 import logging
 import os
 from os.path import join
@@ -40,8 +36,20 @@ import string
 import subprocess
 import sys
 import tempfile
-from typing import Any, Callable, List
 
+from cardinal_pythonlib.file_io import (
+    get_lines_without_comments,
+    remove_gzip_timestamp,
+    webify_file,
+    write_text,
+    write_gzipped_text,
+)
+from cardinal_pythonlib.fileops import (
+    # chown_r,
+    copyglob,
+    mkdir_p,
+    # preserve_cwd,
+)
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 
 from camcops_server.cc_modules.cc_version_string import (
@@ -55,8 +63,8 @@ from camcops_server.cc_modules.cc_version_string import (
 
 if sys.version_info[0] < 3:
     raise AssertionError("Need Python 3 or higher")
-if sys.version_info[1] < 4:
-    raise AssertionError("Need Python 3.4 or higher")
+if sys.version_info[1] < 5:
+    raise AssertionError("Need Python 3.5 or higher")
 
 log = logging.getLogger(__name__)
 
@@ -109,95 +117,6 @@ def workpath(workdir: str, destpath: str) -> str:
         return join(workdir, destpath[1:])
     else:
         return join(workdir, destpath)
-
-
-def mkdirp(path: str) -> None:
-    os.makedirs(path, exist_ok=True)
-
-
-def copyglob(src: str, dest: str, allow_nothing: bool = False) -> None:
-    something = False
-    for file in glob.glob(src):
-        if os.path.isfile(file):
-            shutil.copy(file, dest)
-            something = True
-    if something or allow_nothing:
-        return
-    log.warning("No files found matching: {}".format(src))
-
-
-def chown_r(path, user, group) -> None:
-    # http://stackoverflow.com/questions/2853723
-    for root, dirs, files in os.walk(path):
-        for x in dirs:
-            shutil.chown(os.path.join(root, x), user, group)
-        for x in files:
-            shutil.chown(os.path.join(root, x), user, group)
-
-
-def get_lines_without_comments(filename: str) -> List[str]:
-    lines = []
-    with open(filename) as f:
-        for line_ in f:
-            line_ = line_.partition('#')[0]
-            line_ = line_.rstrip()
-            line_ = line_.lstrip()
-            if line_:
-                lines.append(line_)
-    return lines
-
-
-def webify_file(srcfilename: str, destfilename: str) -> None:
-    with open(srcfilename) as infile, open(destfilename, 'w') as ofile:
-        for line_ in infile:
-            ofile.write(escape(line_))
-
-
-def write_text(filename: str, text: str) -> None:
-    with open(filename, 'w') as f:
-        print(text, file=f)
-
-
-def write_zipped_text(basefilename: str, text: str) -> None:
-    # Lintian wants non-timestamped gzip files, or it complains:
-    # https://lintian.debian.org/tags/package-contains-timestamped-gzip.html
-    # See http://stackoverflow.com/questions/25728472/python-gzip-omit-the-original-filename-and-timestamp  # noqa
-    zipfilename = basefilename + '.gz'
-    compresslevel = 9
-    mtime = 0
-    with open(zipfilename, 'wb') as f:
-        with gzip.GzipFile(basefilename, 'wb', compresslevel, f, mtime) as gz:
-            with io.TextIOWrapper(gz) as tw:
-                tw.write(text)
-
-
-def preserve_cwd(func: Callable) -> Callable:
-    # http://stackoverflow.com/questions/169070/python-how-do-i-write-a-decorator-that-restores-the-cwd  # noqa
-    def decorator(*args_, **kwargs) -> Any:
-        cwd = os.getcwd()
-        result = func(*args_, **kwargs)
-        os.chdir(cwd)
-        return result
-    return decorator
-
-
-# @preserve_cwd
-def remove_gzip_timestamp(filename: str) -> None:
-    # gzip/gunzip operate on SINGLE files
-    with tempfile.TemporaryDirectory() as dir_:
-        # os.chdir(dir_)
-        basezipfilename = os.path.basename(filename)
-        newzip = os.path.join(dir_, basezipfilename)
-        with open(newzip, 'wb') as z:
-            log.info(
-                "Removing gzip timestamp: "
-                "{} -> gunzip -c -> gzip -n -> {}".format(
-                    basezipfilename, newzip))
-            p1 = subprocess.Popen(["gunzip", "-c", filename],
-                                  stdout=subprocess.PIPE)
-            p2 = subprocess.Popen(["gzip", "-n"], stdin=p1.stdout, stdout=z)
-            p2.communicate()
-        shutil.copyfile(newzip, filename)  # copy back
 
 
 BASHFUNC = r"""
@@ -489,24 +408,24 @@ remove_gzip_timestamp(SRC_SDIST_FILE)
 # =============================================================================
 log.info("Making directories")
 # =============================================================================
-mkdirp(DEBDIR)
-mkdirp(DEBOVERRIDEDIR)
-mkdirp(PACKAGEDIR)
-mkdirp(RPMTOPDIR)
-mkdirp(WRKCONFIGDIR)
-mkdirp(WRKCONSOLEFILEDIR)
-mkdirp(WRKDIR)
-mkdirp(WRKDOCDIR)
-mkdirp(WRKEXTRASTRINGS)
-mkdirp(WRKEXTRASTRINGTEMPLATES)
-mkdirp(WRKMANDIR)
-mkdirp(WRKMPLCONFIGDIR)
-mkdirp(WRKSERVERDIR)
-mkdirp(WRKSTATICDIR)
-mkdirp(WRKSUPERVISORCONFDIR)
-mkdirp(WRKTOOLDIR)
+mkdir_p(DEBDIR)
+mkdir_p(DEBOVERRIDEDIR)
+mkdir_p(PACKAGEDIR)
+mkdir_p(RPMTOPDIR)
+mkdir_p(WRKCONFIGDIR)
+mkdir_p(WRKCONSOLEFILEDIR)
+mkdir_p(WRKDIR)
+mkdir_p(WRKDOCDIR)
+mkdir_p(WRKEXTRASTRINGS)
+mkdir_p(WRKEXTRASTRINGTEMPLATES)
+mkdir_p(WRKMANDIR)
+mkdir_p(WRKMPLCONFIGDIR)
+mkdir_p(WRKSERVERDIR)
+mkdir_p(WRKSTATICDIR)
+mkdir_p(WRKSUPERVISORCONFDIR)
+mkdir_p(WRKTOOLDIR)
 for d in "BUILD,BUILDROOT,RPMS,RPMS/noarch,SOURCES,SPECS,SRPMS".split(","):
-    mkdirp(join(RPMTOPDIR, d))
+    mkdir_p(join(RPMTOPDIR, d))
 
 # =============================================================================
 log.info("Copying files")
@@ -532,7 +451,7 @@ log.info("Creating man page. Will be installed as " + DSTMANFILE)
 # =============================================================================
 # http://www.fnal.gov/docs/products/ups/ReferenceManual/html/manpages.html
 
-write_zipped_text(WRKMANFILE_BASE, r""".\" Manpage for {SETUPSCRIPTNAME}.
+write_gzipped_text(WRKMANFILE_BASE, r""".\" Manpage for {SETUPSCRIPTNAME}.
 .\" Contact rudolf@pobox.com to correct errors or typos.
 .TH man 1 "{CHANGEDATE}" "{MAINVERSION}" "{SETUPSCRIPTNAME} man page"
 
@@ -593,7 +512,7 @@ log.info("Creating man page. Will be installed as " + DSTMETAMANFILE)
 # =============================================================================
 # http://www.fnal.gov/docs/products/ups/ReferenceManual/html/manpages.html
 
-write_zipped_text(WRKMETAMANFILE_BASE, r""".\" Manpage for {METASCRIPTNAME}.
+write_gzipped_text(WRKMETAMANFILE_BASE, r""".\" Manpage for {METASCRIPTNAME}.
 .\" Contact rudolf@pobox.com to correct errors or typos.
 .TH man 1 "{CHANGEDATE}" "{MAINVERSION}" "{METASCRIPTNAME} man page"
 

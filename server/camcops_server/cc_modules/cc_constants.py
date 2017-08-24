@@ -1047,10 +1047,12 @@ SEPARATOR_HYPHENS = "-" * 79
 SEPARATOR_EQUALS = "=" * 79
 
 # =============================================================================
-# Table names used by modules that would otherwise have an interdependency
+# Table names used by modules that would otherwise have an interdependency, or
+# are defined elsewhere
 # =============================================================================
 
 HL7MESSAGE_TABLENAME = "_hl7_message_log"
+ALEMBIC_VERSION_TABLENAME = "alembic_version"
 
 # =============================================================================
 # Task constants

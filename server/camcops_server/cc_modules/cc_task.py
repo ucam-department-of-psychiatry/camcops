@@ -205,6 +205,7 @@ class TaskHasPatientMixin(object):
                     task=cls.__name__,
                 )
             ),
+            uselist=False,
             viewonly=True,
             lazy="joined"
         )
@@ -519,6 +520,7 @@ class Task(GenericTabletRecordMixin):
                     task_tablename=cls.__tablename__,
                 )
             ),
+            uselist=True,
             order_by="SpecialNote.note_at",
             viewonly=True,  # *** for now!
         )

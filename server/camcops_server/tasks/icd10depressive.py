@@ -167,7 +167,10 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
     somatic_weight = CamcopsColumn(
         "somatic_weight", Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Weight loss (5% or more of body weight in the past month)"
+        comment="Weight loss (5 percent or more of body weight in the past "
+                "month)"
+        # 2017-08-24: AVOID A PERCENT SYMBOL (%) FOR NOW; SEE THIS BUG:
+        # https://bitbucket.org/zzzeek/sqlalchemy/issues/4052/comment-attribute-causes-crash-during  # noqa
     )
     somatic_libido = CamcopsColumn(
         "somatic_libido", Boolean,

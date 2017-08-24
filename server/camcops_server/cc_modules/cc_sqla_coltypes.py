@@ -40,9 +40,11 @@ http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types
     SmallInteger
     String          -- VARCHAR
     Text            -- variably sized string type
+                        ... under MySQL, renders as TEXT
     Time
     Unicode         -- implies that the underlying column explicitly supports unicode
-    UnicodeText
+    UnicodeText     -- variably sized version of Unicode
+                        ... under MySQL, renders as TEXT too
     
 Not supported across all platforms:
 
@@ -50,6 +52,18 @@ Not supported across all platforms:
                     -- use sqlalchemy.dialects.mysql.BIGINT(unsigned=True)
     INT UNSIGNED    -- MySQL: 0 to 4294967295
                     -- use sqlalchemy.dialects.mysql.INTEGER(unsigned=True)
+
+Other MySQL sizes:
+    TINYTEXT        -- 255 (2^8 - 1) bytes
+    TEXT            -- 65,535 bytes (2^16 - 1) = 64 KiB
+    MEDIUMTEXT      -- 16,777,215 (2^24 - 1) bytes = 16 MiB
+    LONGTEXT        -- 4,294,967,295 (2^32 - 1) bytes = 4 GiB
+        ... https://stackoverflow.com/questions/13932750/tinytext-text-mediumtext-and-longtext-maximum-storage-sizes
+
+Also:
+
+    Columns may need their character set specified explicitly under MySQL:
+        https://stackoverflow.com/questions/2108824/mysql-incorrect-string-value-error-when-save-unicode-string-in-django
 
 """  # noqa
 
@@ -63,6 +77,7 @@ from typing import Any, Generator, List, Optional, Tuple, Union
 
 import arrow
 from arrow import Arrow
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 import dateutil.parser
@@ -78,14 +93,16 @@ from sqlalchemy.sql.type_api import TypeDecorator
 from .cc_constants import PV
 from .cc_version import make_version
 
-log = logging.getLogger(__name__)  # don't use BraceAdapter here; we use {}
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
 # Constants
 # =============================================================================
 
-DEBUG_CUSTOM_COLTYPES = True
+DEBUG_DATETIME_AS_ISO_TEXT = False
+DEBUG_SEMANTIC_VERSION = False
+
 ISO8601_STRING_LENGTH = 32
 # ... max length e.g. 2013-07-24T20:04:07.123456+01:00
 #     (microseconds, colon in timezone).
@@ -214,31 +231,34 @@ class DateTimeAsIsoTextColType(TypeDecorator):
 
     def process_bind_param(self, value: Any, dialect: Dialect) -> str:
         """Convert things on the way from Python to the database."""
-        if DEBUG_CUSTOM_COLTYPES:
+        retval = arrow_to_isostring(value)
+        if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
                 "DateTimeAsIsoTextColType.process_bind_param("
-                "self={}, value={}, dialect={})".format(
-                    repr(self), repr(value), repr(dialect)))
-        return arrow_to_isostring(value)
+                "self={!r}, value={!r}, dialect={!r}) -> {!r}",
+                self, value, dialect, retval)
+        return retval
 
     def process_literal_param(self, value: Any, dialect: Dialect) -> str:
         """Convert things on the way from Python to the database."""
-        if DEBUG_CUSTOM_COLTYPES:
+        retval = arrow_to_isostring(value)
+        if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
                 "DateTimeAsIsoTextColType.process_literal_param("
-                "self={}, value={}, dialect={})".format(
-                    repr(self), repr(value), repr(dialect)))
-        return arrow_to_isostring(value)
+                "self={!r}, value={!r}, dialect={!r}) -> {!r}",
+                self, value, dialect, retval)
+        return retval
 
     def process_result_value(self, value: Any,
                              dialect: Dialect) -> Optional[Arrow]:
         """Convert things on the way from the database to Python."""
-        if DEBUG_CUSTOM_COLTYPES:
+        retval = isostring_to_arrow(value)
+        if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
                 "DateTimeAsIsoTextColType.process_result_value("
-                "self={}, value={}, dialect={})".format(
-                    repr(self), repr(value), repr(dialect)))
-        return isostring_to_arrow(value)
+                "self={!r}, value={!r}, dialect={!r}) -> {!r}",
+                self, value, dialect, retval)
+        return retval
 
     # noinspection PyPep8Naming
     class comparator_factory(TypeDecorator.Comparator):
@@ -257,10 +277,11 @@ class DateTimeAsIsoTextColType(TypeDecorator):
                 # else that we don't really care about). If it's a DATETIME,
                 # then we assume it is already in UTC.
                 processed_other = mysql_unknown_field_to_utcdatetime(other)
-            log.debug("operate(self={}, op={}, other={})".format(
-                repr(self), repr(op), repr(other)))
-            log.debug("self.expr = {}".format(repr(self.expr)))
-            # traceback.print_stack()
+            if DEBUG_DATETIME_AS_ISO_TEXT:
+                log.debug("operate(self={!r}, op={!r}, other={!r})",
+                          self, op, other)
+                log.debug("self.expr = {!r}", self.expr)
+                # traceback.print_stack()
             return op(mysql_isotzdatetime_to_utcdatetime(self.expr),
                       processed_other)
             # NOT YET IMPLEMENTED: dialects other than MySQL, and how to
@@ -288,36 +309,40 @@ class SemanticVersionColType(TypeDecorator):
 
     def process_bind_param(self, value: Version, dialect: Dialect) -> str:
         """Convert things on the way from Python to the database."""
-        if DEBUG_CUSTOM_COLTYPES:
+        retval = str(value)
+        if DEBUG_SEMANTIC_VERSION:
             log.debug(
                 "SemanticVersionColType.process_bind_param("
-                "self={}, value={}, dialect={})".format(
-                    repr(self), repr(value), repr(dialect)))
-        return str(value)
+                "self={!r}, value={!r}, dialect={!r}) -> {!r}",
+                self, value, dialect, retval)
+        return retval
 
     def process_literal_param(self, value: Version, dialect: Dialect) -> str:
         """Convert things on the way from Python to the database."""
-        if DEBUG_CUSTOM_COLTYPES:
+        retval = str(value)
+        if DEBUG_SEMANTIC_VERSION:
             log.debug(
                 "SemanticVersionColType.process_literal_param("
-                "self={}, value={}, dialect={})".format(
-                    repr(self), repr(value), repr(dialect)))
-        return str(value)
+                "self={!r}, value={!r}, dialect={!r}) -> !r",
+                self, value, dialect, retval)
+        return retval
 
     def process_result_value(self, value: str,
                              dialect: Dialect) -> Optional[Version]:
         """Convert things on the way from the database to Python."""
-        if DEBUG_CUSTOM_COLTYPES:
+        if value is None:
+            retval = None
+        else:
+            # Here we do some slightly fancier conversion to deal with all
+            # sorts of potential rubbish coming in, so we get a properly
+            # ordered Version out:
+            retval = make_version(value)
+        if DEBUG_SEMANTIC_VERSION:
             log.debug(
                 "SemanticVersionColType.process_result_value("
-                "self={}, value={}, dialect={})".format(
-                    repr(self), repr(value), repr(dialect)))
-        if value is None:
-            return None
-        # Here we do some slightly fancier conversion to deal with all sorts
-        # of potential rubbish coming in, so we get a properly ordered Version
-        # out:
-        return make_version(value)
+                "self={!r}, value={!r}, dialect={!r}) -> {!r}",
+                self, value, dialect, retval)
+        return retval
 
     # noinspection PyPep8Naming
     class comparator_factory(TypeDecorator.Comparator):
@@ -489,7 +514,7 @@ def gen_camcops_blob_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
         if column.is_blob_id_field:
             if attrname != column.name:
                 log.warning("BLOB field where attribute name {!r} != SQL "
-                            "column name {!r}".format(attrname, column.name))
+                            "column name {!r}", attrname, column.name)
             yield attrname, column
 
 

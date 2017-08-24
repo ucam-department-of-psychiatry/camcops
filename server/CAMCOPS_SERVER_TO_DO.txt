@@ -1,10 +1,21 @@
 
-*** finish Alembic framework, i.e.
-    reading database URL from config, in turn from env var
 
 *** make first migration, then add back filter_idnums_json
+    *** Variant/Alembic problem: https://bitbucket.org/zzzeek/alembic/issues/131/create-special-rendering-for-variant
+    *** check: should be able to convert everything to Integer/BigInteger
+    *** check Text length and Text vs UnicodeText
+        ... move anything that's Text and supports non-ASCII to UnicodeText
+
+
+*** copy from database
+    - fresh PKs
+    - use Core?
+
+    *** merge two users
+    *** merge two groups
 
 *** routing and URLs
+
 
 ===============================================================================
 CAMCOPS SERVER THINGS TO DO NOW

@@ -288,37 +288,41 @@ class HL7Run(Base):
         comment="stderr from the script_after_file_export script"
     )
 
-    def __init__(self, recipdef: RecipientDefinition, *args, **kwargs) -> None:
+    def __init__(self, recipdef: RecipientDefinition = None,
+                 *args, **kwargs) -> None:
         """
         Initialize from a RecipientDefinition, copying its fields.
+        (However, we must also support a no-parameter constructor, not least
+        for our merge_db() function.)
         """
         super().__init__(*args, **kwargs)
-        # Copy:
-        # ... common
-        self.recipient = recipdef.recipient
-        self.type = recipdef.type
-        self.primary_idnum = recipdef.primary_idnum
-        self.require_idnum_mandatory = recipdef.require_idnum_mandatory
-        self.start_date = recipdef.start_date
-        self.end_date = recipdef.end_date
-        self.finalized_only = recipdef.finalized_only
-        self.task_format = recipdef.task_format
-        self.xml_field_comments = recipdef.xml_field_comments
+        if recipdef:
+            # Copy:
+            # ... common
+            self.recipient = recipdef.recipient
+            self.type = recipdef.type
+            self.primary_idnum = recipdef.primary_idnum
+            self.require_idnum_mandatory = recipdef.require_idnum_mandatory
+            self.start_date = recipdef.start_date
+            self.end_date = recipdef.end_date
+            self.finalized_only = recipdef.finalized_only
+            self.task_format = recipdef.task_format
+            self.xml_field_comments = recipdef.xml_field_comments
 
-        # ... HL7
-        self.host = recipdef.host
-        self.port = recipdef.port
-        self.divert_to_file = recipdef.divert_to_file
-        self.treat_diverted_as_sent = recipdef.treat_diverted_as_sent
+            # ... HL7
+            self.host = recipdef.host
+            self.port = recipdef.port
+            self.divert_to_file = recipdef.divert_to_file
+            self.treat_diverted_as_sent = recipdef.treat_diverted_as_sent
 
-        # ... File
-        self.include_anonymous = recipdef.include_anonymous
-        self.overwrite_files = recipdef.overwrite_files
-        self.rio_metadata = recipdef.rio_metadata
-        self.rio_idnum = recipdef.rio_idnum
-        self.rio_uploading_user = recipdef.rio_uploading_user
-        self.rio_document_type = recipdef.rio_document_type
-        self.script_after_file_export = recipdef.script_after_file_export
+            # ... File
+            self.include_anonymous = recipdef.include_anonymous
+            self.overwrite_files = recipdef.overwrite_files
+            self.rio_metadata = recipdef.rio_metadata
+            self.rio_idnum = recipdef.rio_idnum
+            self.rio_uploading_user = recipdef.rio_uploading_user
+            self.rio_document_type = recipdef.rio_document_type
+            self.script_after_file_export = recipdef.script_after_file_export
 
         # New things:
         self.start_at_utc = get_now_utc_notz()
@@ -368,7 +372,7 @@ class HL7Run(Base):
 # =============================================================================
 
 class HL7Message(Base):
-    __tablename__ = HL7MESSAGE_TABLENAME
+    __tablename__ = HL7MESSAGE_TABLENAME  # indirected to resolve circular dependency  # noqa
 
     msg_id = Column(
         "msg_id", IntUnsigned,
@@ -376,7 +380,7 @@ class HL7Message(Base):
         comment="Arbitrary primary key"
     )
     run_id = Column(
-        "run_id", IntUnsigned, ForeignKey("_hl7_run_log.run_id"),
+        "run_id", BigIntUnsigned, ForeignKey("_hl7_run_log.run_id"),
         comment="FK to _hl7_run_log.run_id"
     )
     hl7run = relationship("HL7Run")
@@ -432,31 +436,34 @@ class HL7Message(Base):
     )
 
     def __init__(self,
-                 basetable: str,
-                 serverpk: int,
-                 recipient_def: RecipientDefinition,
+                 basetable: str = None,
+                 serverpk: int = None,
+                 recipient_def: RecipientDefinition = None,
                  hl7run: HL7Run = None,
                  show_queue_only: bool = False) -> None:
+        """
+        Must support parameter-free construction, not least for merge_db().
+        """
         super().__init__()
         self._host = None  # type: str
         self._port = None  # type: int
         self._msg = None  # type: str
-        assert basetable and serverpk and recipient_def
-        # HL7Message(basetable, serverpk, hl7run, recipient_def)
-        self.basetable = basetable
-        self.serverpk = serverpk
-        self.hl7run = hl7run
         self._recipient_def = recipient_def
         self._show_queue_only = show_queue_only
-        self._task = task_factory(self.basetable, self.serverpk)
+        self._task = None  # type: Task
+        if basetable and serverpk is not None and recipient_def:
+            self.basetable = basetable
+            self.serverpk = serverpk
+            self.hl7run = hl7run
+            self._task = task_factory(basetable, serverpk)
 
     @reconstructor
     def init_on_load(self) -> None:
-        self._recipient_def = None  # type: RecipientDefinition
-        self._show_queue_only = True
         self._host = None  # type: str
         self._port = None  # type: int
         self._msg = None  # type: str
+        self._recipient_def = None  # type: RecipientDefinition
+        self._show_queue_only = True
         self._task = None  # type: Task
 
     def valid(self) -> bool:
@@ -517,7 +524,7 @@ class HL7Message(Base):
         if not self.hl7run:
             return True, False
 
-        assert self.msg_id is not None # *** check!
+        assert self.id is not None # *** check!
         now = get_now_localtz()
         self.sent_at_utc = convert_datetime_to_utc_notz(now)
 
@@ -631,7 +638,7 @@ class HL7Message(Base):
 
         msh_segment = make_msh_segment(
             message_datetime=now,
-            message_control_id=str(self.msg_id)
+            message_control_id=str(self.id)
         )
         pid_segment = self._task.get_patient_hl7_pid_segment(self._recipient_def)
         other_segments = self._task.get_hl7_data_segments(self._recipient_def)

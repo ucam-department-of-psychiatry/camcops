@@ -22,37 +22,41 @@
 ===============================================================================
 """
 
+# =============================================================================
+# Imports
+# =============================================================================
+
 import logging
 
 from alembic import context
+from alembic.config import Config
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from sqlalchemy import engine_from_config, pool
+from sqlalchemy.sql.schema import MetaData
 
 # No relative imports from within the Alembic zone.
+from camcops_server.cc_modules.cc_config import get_default_config_from_os_env
 from camcops_server.cc_modules.cc_sqlalchemy import Base
-from starfeeder.settings import get_database_settings
+from camcops_server.cc_modules.cc_all_models import all_models_no_op
 
 log = logging.getLogger(__name__)
-main_only_quicksetup_rootlogger(level=logging.DEBUG)
-
-config = context.config
-target_metadata = Base.metadata
-settings = get_database_settings()
-config.set_main_option('sqlalchemy.url', settings['url'])
+all_models_no_op()  # to suppress "Unused import statement"
 
 
-def run_migrations_offline() -> None:
+# =============================================================================
+# Migration functions
+# =============================================================================
+
+def run_migrations_offline(config: Config,
+                           target_metadata: MetaData) -> None:
     """
     Run migrations in 'offline' mode.
 
-    This configures the context with just a URL
-    and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
+    This configures the context with just a URL and not an Engine, though an
+    Engine is acceptable here as well.  By skipping the Engine creation we
+    don't even need a DBAPI to be available.
 
-    Calls to context.execute() here emit the given string to the
-    script output.
-
+    Calls to context.execute() here emit the given string to the script output.
     """
     url = config.get_main_option("sqlalchemy.url")
     # RNC
@@ -66,13 +70,13 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def run_migrations_online() -> None:
+def run_migrations_online(config: Config,
+                          target_metadata: MetaData) -> None:
     """
     Run migrations in 'online' mode.
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
+    In this scenario we need to create an Engine and associate a connection
+    with the context.
     """
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
@@ -90,9 +94,24 @@ def run_migrations_online() -> None:
             context.run_migrations()
 
 
+# =============================================================================
+# Main commands
+# =============================================================================
 # We're in a pseudo-"main" environment.
 # We need to reconfigure our logger, but __name__ is not "__main__".
-if context.is_offline_mode():
-    run_migrations_offline()
-else:
-    run_migrations_online()
+
+def run_alembic() -> None:
+    alembic_config = context.config  # type: Config
+    target_metadata = Base.metadata
+    camcops_config = get_default_config_from_os_env()
+    dburl = camcops_config.DB_URL
+    alembic_config.set_main_option('sqlalchemy.url', dburl)
+
+    if context.is_offline_mode():
+        run_migrations_offline(alembic_config, target_metadata)
+    else:
+        run_migrations_online(alembic_config, target_metadata)
+
+
+main_only_quicksetup_rootlogger(level=logging.DEBUG)
+run_alembic()

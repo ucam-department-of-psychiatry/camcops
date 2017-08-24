@@ -22,9 +22,10 @@
 ===============================================================================
 """
 
-from sqlalchemy.schema import Column
+from sqlalchemy.schema import Column, ForeignKey
 
-from .cc_sqla_coltypes import DeviceNameColType, TableNameColType
+from .cc_device import Device
+from .cc_sqla_coltypes import IntUnsigned, TableNameColType
 from .cc_sqlalchemy import Base
 
 
@@ -36,7 +37,8 @@ class DirtyTable(Base):
     __tablename__ = "_dirty_tables"
 
     device_id = Column(
-        "device_id", DeviceNameColType,
+        "device_id", IntUnsigned,
+        ForeignKey(Device.id),
         primary_key=True,  # composite primary key
         comment="Source tablet device ID"
     )

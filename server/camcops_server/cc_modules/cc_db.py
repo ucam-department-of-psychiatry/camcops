@@ -223,6 +223,29 @@ class GenericTabletRecordMixin(object):
             comment="(SERVER) Removal pending?"
         )
 
+    RESERVED_FIELDS = [  # fields that tablets can't upload
+        "_pk",
+        "_device_id",
+        "_era",
+        "_current",
+        "_when_added_exact",
+        "_when_added_batch_utc",
+        "_adding_user_id",
+        "_when_removed_exact",
+        "_when_removed_batch_utc",
+        "_removing_user_id",
+        "_preserving_user_id",
+        "_forcibly_preserved",
+        "_predecessor_pk",
+        "_successor_pk",
+        "_manually_erased",
+        "_manually_erased_at",
+        "_manually_erasing_user_id",
+        "_camcops_version",
+        "_addition_pending",
+        "_removal_pending",
+    ]
+
     # -------------------------------------------------------------------------
     # Fields that *all* client tables have:
     # -------------------------------------------------------------------------
@@ -309,6 +332,7 @@ def ancillary_relationship(
                 pk=parent_pk_attr_name,
             )
         ),
+        uselist=True,
         order_by="{a}.{f}".format(a=ancillary_class_name,
                                   f=ancillary_order_by_attr_name),
         viewonly=read_only

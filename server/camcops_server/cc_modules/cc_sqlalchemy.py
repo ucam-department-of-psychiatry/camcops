@@ -22,21 +22,42 @@
 ===============================================================================
 """
 
-from typing import TYPE_CHECKING
-
 from cardinal_pythonlib.sqlalchemy.dump import dump_ddl
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql.schema import MetaData
 
-if TYPE_CHECKING:
-    from sqlalchemy.sql.schema import MetaData
+# =============================================================================
+# Naming convention; metadata; Base
+# =============================================================================
+# https://alembic.readthedocs.org/en/latest/naming.html
+# http://docs.sqlalchemy.org/en/latest/core/constraints.html#configuring-constraint-naming-conventions  # noqa
 
+NAMING_CONVENTION = {
+    "ix": 'ix_%(column_0_label)s',
+
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+
+    # "ck": "ck_%(table_name)s_%(constraint_name)s",  # too long for MySQL
+    # ... https://groups.google.com/forum/#!topic/sqlalchemy/SIT4D8S9dUg
+    "ck": "ck_%(table_name)s_%(column_0_name)s",
+
+    # "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",  # too long for MySQL sometimes!  # noqa
+    "fk": "fk_%(table_name)s_%(column_0_name)s",
+
+    "pk": "pk_%(table_name)s"
+}
+MASTER_META = MetaData(naming_convention=NAMING_CONVENTION)
 
 # The base of all our model classes:
-Base = declarative_base()
+Base = declarative_base(metadata=MASTER_META)
 
+
+# =============================================================================
+# Convenience functions
+# =============================================================================
 
 def make_memory_sqlite_engine() -> Engine:
     return create_engine('sqlite://')

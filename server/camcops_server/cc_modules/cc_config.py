@@ -42,6 +42,7 @@ from cardinal_pythonlib.configfiles import (
     get_config_parameter_multiline
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.sqlalchemy.logs import pre_disable_sqlalchemy_extra_echo_log  # noqa
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
 from sqlalchemy.engine import create_engine, Engine
 from sqlalchemy.orm import sessionmaker
@@ -84,6 +85,8 @@ from .cc_policy import (
 from .cc_recipdef import RecipientDefinition
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+
+pre_disable_sqlalchemy_extra_echo_log()
 
 
 # =============================================================================
@@ -619,9 +622,17 @@ def get_config_filename(environ: Dict[str, str] = None) -> str:
 
 
 # =============================================================================
-# Cached instance
+# Cached instances
 # =============================================================================
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def get_config(config_filename: str) -> CamcopsConfig:
     return CamcopsConfig(config_filename)
+
+
+# =============================================================================
+# Get default config
+# =============================================================================
+
+def get_default_config_from_os_env() -> CamcopsConfig:
+    return get_config(get_config_filename())

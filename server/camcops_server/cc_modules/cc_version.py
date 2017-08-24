@@ -63,7 +63,9 @@ def make_version(v: Union[str, float, None]) -> Version:
         major = int(parts[0]) if len(parts) > 0 else 0
         # Defaults:
         patch = 0
-        if len(parts) == 2:  # e.g. "1.06"
+        if len(parts) == 1:  # e.g. "1"
+            minor = 0
+        elif len(parts) == 2:  # e.g. "1.06"
             # More tricky: older versions followed float rules, so 1.14 < 1.5.
             # The only way of dealing with this is to enforce a number
             # of digits/decimal places, so either:
@@ -79,6 +81,15 @@ def make_version(v: Union[str, float, None]) -> Version:
             raise
         return Version("{}.{}.{}".format(major, minor, patch))
 
+
+TEST_CODE = """
+
+from camcops_server.cc_modules.cc_version import make_version
+
+for v in ["1.0", "1.01", "1.14", "1.5", "1"]:
+    print(make_version(v))
+
+"""
 
 # =============================================================================
 # Notable previous versions

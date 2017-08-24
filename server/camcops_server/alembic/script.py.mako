@@ -37,7 +37,8 @@ Creation date: ${create_date}
 
 from alembic import op
 import sqlalchemy as sa
-${imports if imports else ""}
+import camcops_server.cc_modules.cc_sqla_coltypes
+
 
 # =============================================================================
 # Revision identifiers, used by Alembic.
@@ -53,9 +54,11 @@ depends_on = ${repr(depends_on)}
 # The upgrade/downgrade steps
 # =============================================================================
 
+# noinspection PyPep8
 def upgrade():
     ${upgrades if upgrades else "pass"}
 
 
+# noinspection PyPep8
 def downgrade():
     ${downgrades if downgrades else "pass"}

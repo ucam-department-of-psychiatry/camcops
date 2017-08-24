@@ -166,6 +166,7 @@ class Patient(GenericTabletRecordMixin, Base):
             # " remote(PatientIdNum._when_removed_batch_utc) == foreign(Patient._when_removed_batch_utc), "  # noqa # *** check logic! Wrong!
             ")"
         ),
+        uselist=True,
         viewonly=True,
         lazy="joined"
     )
@@ -218,6 +219,7 @@ class Patient(GenericTabletRecordMixin, Base):
                     patient_tablename=cls.__tablename__,
                 )
             ),
+            uselist=True,
             order_by="SpecialNote.note_at",
             viewonly=True,  # *** for now!
         )

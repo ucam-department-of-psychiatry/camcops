@@ -312,8 +312,8 @@ class CamcopsSession(Base):
                                      oldest_last_activity_allowed)
 
     def __init__(self,
-                 ip_addr: str,
-                 last_activity_utc: datetime.datetime):
+                 ip_addr: str = None,
+                 last_activity_utc: datetime.datetime = None):
         self.token = generate_token()
         self.ip_address = ip_addr
         self.last_activity_utc = last_activity_utc

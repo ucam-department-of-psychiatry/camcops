@@ -42,17 +42,16 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE
-from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
 
 from .cc_modules import cc_audit
-from .cc_modules.cc_cache import cache_region_static, fkg
 from .cc_modules.cc_db import GenericTabletRecordMixin
 from .cc_modules.cc_dirtytables import DirtyTable
 from .cc_modules.cc_dt import format_datetime
 from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 from .cc_modules.cc_audit import AuditEntry
 from .cc_modules.cc_constants import (
+    ALEMBIC_VERSION_TABLENAME,
     CLIENT_DATE_FIELD,
     DATEFORMAT,
     ERA_NOW,
@@ -117,6 +116,7 @@ REGEX_INVALID_TABLE_FIELD_CHARS = re.compile("[^a-zA-Z0-9_]")
 # the specified range
 
 RESERVED_TABLES = [
+    ALEMBIC_VERSION_TABLENAME,
     AuditEntry.__tablename__,
     CamcopsSession.__tablename__,
     Device.__tablename__,
@@ -128,20 +128,8 @@ RESERVED_TABLES = [
     ServerStoredVar.__tablename__,
     SpecialNote.__tablename__,
     User.__tablename__,
-]  # *** switch to "approved", not "reserved"?
-
-
-@cache_region_static.cache_on_arguments(function_key_generator=fkg)
-def reserved_fields() -> List[str]:
-    dummy = GenericTabletRecordMixin()
-    fields = []  # type: List[str]
-    for _, col in gen_columns(dummy):
-        fieldname = col.name
-        if fieldname not in [TABLET_ID_FIELD,
-                             MOVE_OFF_TABLET_FIELD,
-                             CLIENT_DATE_FIELD]:
-            fields.append(fieldname)
-    return fields
+]
+RESERVED_FIELDS = GenericTabletRecordMixin.RESERVED_FIELDS
 
 
 # =============================================================================
@@ -335,7 +323,7 @@ def ensure_valid_field_name(f: str) -> None:
     Raises UserErrorException upon failure."""
     if bool(REGEX_INVALID_TABLE_FIELD_CHARS.search(f)):
         fail_user_error("Field name contains invalid characters: {}".format(f))
-    if f in reserved_fields():
+    if f in RESERVED_FIELDS:
         fail_user_error(
             "Invalid attempt to access a reserved field name: {}".format(f))
 

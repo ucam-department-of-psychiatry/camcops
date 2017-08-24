@@ -341,6 +341,8 @@ camcops_server
             'camcops_launch_cherrypy_server=camcops_server.tools.launch_cherrypy_server:main',  # noqa
             'camcops_launch_gunicorn_server=camcops_server.tools.launch_gunicorn_server:main',  # noqa
             'camcops_backup_mysql_database=cardinal_pythonlib.tools.camcops_backup_mysql_database:main',  # noqa
+            'camcops_merge_db=camcops_server.tools.merge_db:main',
+            'camcops_create_db_from_scratch=camcops_server.tools.create_db_from_scratch:main',  # noqa
         ],
     },
 )

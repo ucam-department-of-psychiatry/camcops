@@ -69,3 +69,10 @@ from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 # noinspection PyUnresolvedReferences
 from ..tasks import *  # see tasks/__init__.py
 
+
+# =============================================================================
+# A silly way to suppress "Unused import statement"
+# =============================================================================
+
+def all_models_no_op() -> None:
+    pass

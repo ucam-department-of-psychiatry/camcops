@@ -514,7 +514,7 @@ def generate_token(num_bytes: int = 16) -> str:
 
 
 class CamcopsHttpSession(Base):
-    __tablename__ = "_security_webviewer_sessions"
+    __tablename__ = "_pretend_security_webviewer_sessions"
     id = Column(
         "id", Integer,
         primary_key=True, autoincrement=True, index=True,
