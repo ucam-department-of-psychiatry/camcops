@@ -29,14 +29,13 @@ from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_que
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, DateTime, Text
+from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
 
 from .cc_constants import PARAM
 from .cc_report import expand_id_descriptions, Report, REPORT_RESULT_TYPE
 from .cc_unittest import unit_test_ignore
 from .cc_sqla_coltypes import (
     DeviceNameColType,
-    IntUnsigned,
     SemanticVersionColType,
 )
 from .cc_sqlalchemy import Base
@@ -53,7 +52,7 @@ class Device(Base):
     """Represents a tablet device."""
     __tablename__ = "_security_devices"
     id = Column(
-        "id", IntUnsigned,
+        "id", Integer,
         primary_key=True, autoincrement=True,
         comment="ID of the source tablet device"
     )
@@ -63,7 +62,7 @@ class Device(Base):
         comment="Short cryptic name of the source tablet device"
     )
     registered_by_user_id = Column(
-        "registered_by_user_id", IntUnsigned, ForeignKey("_security_users.id"),
+        "registered_by_user_id", Integer, ForeignKey("_security_users.id"),
         comment="ID of user that registered the device"
     )
     registered_by_user = relationship("User",
@@ -90,7 +89,7 @@ class Device(Base):
                 "started (UTC)"
     )
     uploading_user_id = Column(
-        "uploading_user_id", IntUnsigned, ForeignKey("_security_users.id"),
+        "uploading_user_id", Integer, ForeignKey("_security_users.id"),
         comment="ID of user in the process of uploading right now"
     )
     uploading_user = relationship("User", foreign_keys=[uploading_user_id])

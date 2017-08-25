@@ -59,7 +59,6 @@ from .cc_html import (
 from .cc_sqla_coltypes import (
     DateTimeAsIsoTextColType,
     HashedPasswordColType,
-    IntUnsigned,
     UserNameColType,
 )
 from .cc_sqlalchemy import Base
@@ -306,7 +305,7 @@ class User(Base):
     __tablename__ = "_security_users"
 
     id = Column(
-        "id", IntUnsigned,
+        "id", Integer,
         primary_key=True, autoincrement=True, index=True,
         comment="User ID"
     )

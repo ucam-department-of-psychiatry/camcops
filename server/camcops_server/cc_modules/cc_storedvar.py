@@ -32,7 +32,6 @@ from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
 
 from .cc_db import GenericTabletRecordMixin
 from .cc_sqla_coltypes import (
-    IntUnsigned,
     StoredVarNameColType,
     StoredVarTypeColType,
 )
@@ -67,7 +66,7 @@ class DeviceStoredVar(GenericTabletRecordMixin, Base):
     __tablename__ = "storedvars"
 
     id = Column(
-        "id", IntUnsigned,
+        "id", Integer,
         nullable=False,
         comment="Arbitrary numerical primary key on the source tablet device"
         # client PK

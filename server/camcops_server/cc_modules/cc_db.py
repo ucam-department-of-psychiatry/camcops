@@ -45,7 +45,6 @@ from .cc_sqla_coltypes import (
     CamcopsColumn,
     DateTimeAsIsoTextColType,
     EraColType,
-    IntUnsigned,
     PermittedValueChecker,
     SemanticVersionColType,
 )
@@ -69,7 +68,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _pk(self) -> Column:
         return Column(
-            "_pk", IntUnsigned,
+            "_pk", Integer,
             primary_key=True, autoincrement=True, index=True,
             comment="(SERVER) Primary key (on the server)"
         )
@@ -77,7 +76,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _device_id(self) -> Column:
         return Column(
-            "_device_id", IntUnsigned, ForeignKey("_security_devices.id"),
+            "_device_id", Integer, ForeignKey("_security_devices.id"),
             nullable=False, index=True,
             comment="(SERVER) ID of the source tablet device"
         )
@@ -120,7 +119,8 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _adding_user_id(self) -> Column:
         return Column(
-            "_adding_user_id", IntUnsigned, ForeignKey("_security_users.id"),
+            "_adding_user_id", Integer,
+            ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that added this row",
         )
 
@@ -143,7 +143,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _removing_user_id(self) -> Column:
         return Column(
-            "_removing_user_id", IntUnsigned,
+            "_removing_user_id", Integer,
             ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that removed this row"
         )
@@ -151,7 +151,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _preserving_user_id(self) -> Column:
         return Column(
-            "_preserving_user_id", IntUnsigned,
+            "_preserving_user_id", Integer,
             ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that preserved this row"
         )
@@ -167,14 +167,14 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _predecessor_pk(self) -> Column:
         return Column(
-            "_predecessor_pk", IntUnsigned,
+            "_predecessor_pk", Integer,
             comment="(SERVER) PK of predecessor record, prior to modification"
         )
 
     @declared_attr
     def _successor_pk(self) -> Column:
         return Column(
-            "_successor_pk", IntUnsigned,
+            "_successor_pk", Integer,
             comment="(SERVER) PK of successor record  (after modification) "
                     "or NULL (whilst live, or after deletion)"
         )
@@ -196,7 +196,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _manually_erasing_user_id(cls) -> Column:
         return Column(
-            "_manually_erasing_user_id", IntUnsigned,
+            "_manually_erasing_user_id", Integer,
             ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that erased this row manually"
         )
@@ -252,7 +252,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def id(self) -> Column:
         return Column(
-            "id", IntUnsigned,
+            "id", Integer,
             nullable=False, index=True,
             comment="(TASK) Primary key (task ID) on the tablet device"
         )

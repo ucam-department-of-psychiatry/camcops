@@ -35,7 +35,7 @@ import cardinal_pythonlib.rnc_web as ws
 from pyramid.interfaces import ISession
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, DateTime, Text
+from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from .cc_analytics import send_analytics_if_necessary
 from .cc_constants import (
@@ -55,7 +55,6 @@ from .cc_pyramid import CookieKeys
 from .cc_sqla_coltypes import (
     DateTimeAsIsoTextColType,
     FilterTextColType,
-    IntUnsigned,
     IPAddressColType,
     PatientNameColType,
     SessionTokenColType,
@@ -113,7 +112,7 @@ class CamcopsSession(Base):
 
     # no TEXT fields here; this is a performance-critical table
     id = Column(
-        "id", IntUnsigned,
+        "id", Integer,
         primary_key=True, autoincrement=True, index=True,
         comment="Session ID (internal number for insertion speed)"
     )
@@ -126,7 +125,8 @@ class CamcopsSession(Base):
         comment="IP address of user"
     )
     user_id = Column(
-        "user_id", IntUnsigned, ForeignKey("_security_users.id"),
+        "user_id", Integer,
+        ForeignKey("_security_users.id"),
         comment="User ID"
     )
     user = relationship("User")
@@ -165,11 +165,11 @@ class CamcopsSession(Base):
         comment="Task filter in use: allow old versions?"
     )
     filter_device_id = Column(
-        "filter_device_id", IntUnsigned,
+        "filter_device_id", Integer,
         comment="Task filter in use: source device ID"
     )
     filter_user_id = Column(
-        "filter_user_id", IntUnsigned,
+        "filter_user_id", Integer,
         comment="Task filter in use: adding user ID"
     )
     filter_start_datetime_iso8601 = Column(
@@ -185,11 +185,11 @@ class CamcopsSession(Base):
         comment="Task filter in use: filter text fields"
     )
     number_to_view = Column(
-        "number_to_view", IntUnsigned,
+        "number_to_view", Integer,
         comment="Number of records to view"
     )
     first_task_to_view = Column(
-        "first_task_to_view", IntUnsigned,
+        "first_task_to_view", Integer,
         comment="First record number to view"
     )
     # filter_idnums_json = Column(  # new in v2.0.1
@@ -198,14 +198,14 @@ class CamcopsSession(Base):
     # )
 
     # *** DEFUNCT as of v2.0.1; NEED DELETING ONCE ALEMBIC RUNNING:
-    filter_idnum1 = Column("filter_idnum1", IntUnsigned)
-    filter_idnum2 = Column("filter_idnum2", IntUnsigned)
-    filter_idnum3 = Column("filter_idnum3", IntUnsigned)
-    filter_idnum4 = Column("filter_idnum4", IntUnsigned)
-    filter_idnum5 = Column("filter_idnum5", IntUnsigned)
-    filter_idnum6 = Column("filter_idnum6", IntUnsigned)
-    filter_idnum7 = Column("filter_idnum7", IntUnsigned)
-    filter_idnum8 = Column("filter_idnum8", IntUnsigned)
+    filter_idnum1 = Column("filter_idnum1", Integer)
+    filter_idnum2 = Column("filter_idnum2", Integer)
+    filter_idnum3 = Column("filter_idnum3", Integer)
+    filter_idnum4 = Column("filter_idnum4", Integer)
+    filter_idnum5 = Column("filter_idnum5", Integer)
+    filter_idnum6 = Column("filter_idnum6", Integer)
+    filter_idnum7 = Column("filter_idnum7", Integer)
+    filter_idnum8 = Column("filter_idnum8", Integer)
 
     @classmethod
     def get_session_using_cookies(cls,

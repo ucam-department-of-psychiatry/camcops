@@ -24,13 +24,15 @@
 Note these built-in SQLAlchemy types:
 http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types
 
-    BigInteger      -- MySQL: -9223372036854775808 to 9223372036854775807
+    BigInteger      -- MySQL: -9,223,372,036,854,775,808 to 
+                               9,223,372,036,854,775,807 (64-bit)
+                       (compare NHS number: up to 9,999,999,999)
     Boolean
     Date
     DateTime
     Enum
     Float
-    Integer         -- MySQL: -2147483648 to 2147483647
+    Integer         -- MySQL: -2,147,483,648 to 2,147,483,647 (32-bit)
     Interval        -- for datetime.timedelta
     LargeBinary     -- under MySQL, maps to BLOB
     MatchType       -- for the return type of the MATCH operator
@@ -42,15 +44,16 @@ http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types
     Text            -- variably sized string type
                         ... under MySQL, renders as TEXT
     Time
-    Unicode         -- implies that the underlying column explicitly supports unicode
+    Unicode         -- implies that the underlying column explicitly supports 
+                       Unicode
     UnicodeText     -- variably sized version of Unicode
                         ... under MySQL, renders as TEXT too
     
 Not supported across all platforms:
 
-    BIGINT UNSIGNED -- MySQL: 0 to 18446744073709551615
+    BIGINT UNSIGNED -- MySQL: 0 to 18,446,744,073,709,551,615 (64-bit)
                     -- use sqlalchemy.dialects.mysql.BIGINT(unsigned=True)
-    INT UNSIGNED    -- MySQL: 0 to 4294967295
+    INT UNSIGNED    -- MySQL: 0 to 4,294,967,295 (32-bit)
                     -- use sqlalchemy.dialects.mysql.INTEGER(unsigned=True)
 
 Other MySQL sizes:
@@ -127,13 +130,19 @@ ISO8601_STRING_LENGTH = 32
 # ... max length e.g. 2013-07-24T20:04:07.123456+01:00
 #     (microseconds, colon in timezone).
 
+LONGBLOB_LONGTEXT_LENGTH = (2 ** 32) - 1
+
 # =============================================================================
 # Simple derivative column types
 # =============================================================================
 # If you insert something too long into a VARCHAR, it just gets truncated.
 
 AuditSourceColType = String(length=20)
-BigIntUnsigned = Integer().with_variant(mysql.BIGINT(unsigned=True), 'mysql')
+
+# BigIntUnsigned = Integer().with_variant(mysql.BIGINT(unsigned=True), 'mysql')
+# ... partly because Alembic breaks on variants (Aug 2017), and partly because
+#     it's nonstandard and unnecessary, changed all BigIntUnsigned to
+#     BigInteger (2017-08-25).
 
 CharColType = String(length=1)
 
@@ -148,7 +157,7 @@ HashedPasswordColType = String(length=255)
 HostnameColType = String(length=255)
 
 IdDescriptorColType = Unicode(length=255)
-IntUnsigned = Integer().with_variant(mysql.INTEGER(unsigned=True), 'mysql')
+# IntUnsigned = Integer().with_variant(mysql.INTEGER(unsigned=True), 'mysql')
 IPAddressColType = String(length=45)  # http://stackoverflow.com/questions/166132  # noqa
 # This is a plain string.
 # See also e.g. http://sqlalchemy-utils.readthedocs.io/en/latest/_modules/sqlalchemy_utils/types/ip_address.html  # noqa
@@ -157,9 +166,10 @@ IPAddressColType = String(length=45)  # http://stackoverflow.com/questions/16613
 # https://stackoverflow.com/questions/43791725/sqlalchemy-how-to-make-a-longblob-column-in-mysql  # noqa
 # One of these:
 # LongBlob = LargeBinary().with_variant(mysql.LONGBLOB, "mysql")
-LongBlob = LargeBinary(length=(2 ** 32) - 1)
+LongBlob = LargeBinary(length=LONGBLOB_LONGTEXT_LENGTH)
 
-LongText = UnicodeText().with_variant(mysql.LONGTEXT, 'mysql')
+# LongText = UnicodeText().with_variant(mysql.LONGTEXT, 'mysql')
+LongText = UnicodeText(length=LONGBLOB_LONGTEXT_LENGTH)
 
 MimeTypeColType = String(length=255)  # https://stackoverflow.com/questions/643690  # noqa
 

@@ -39,7 +39,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Text, UnicodeText
+from sqlalchemy.sql.sqltypes import BigInteger, Integer, UnicodeText
 
 from .cc_audit import audit
 from .cc_constants import (
@@ -77,11 +77,9 @@ from .cc_report import Report, REPORT_RESULT_TYPE
 from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
-    BigIntUnsigned,
     CamcopsColumn,
     DateTimeAsIsoTextColType,
     IdDescriptorColType,
-    IntUnsigned,
     PatientNameColType,
     SexColType,
 )
@@ -107,7 +105,7 @@ class Patient(GenericTabletRecordMixin, Base):
     __tablename__ = "patient"
 
     id = Column(
-        "id", IntUnsigned,
+        "id", Integer,
         nullable=False,
         comment="Primary key (patient ID) on the source tablet device"
         # client PK
@@ -173,14 +171,14 @@ class Patient(GenericTabletRecordMixin, Base):
 
     # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN
     # THE UPLOAD API; DELETE ONCE SQLALCHEMY/ALEMBIC RUNNING:
-    idnum1 = Column("idnum1", BigIntUnsigned, comment="ID number 1")
-    idnum2 = Column("idnum2", BigIntUnsigned, comment="ID number 2")
-    idnum3 = Column("idnum3", BigIntUnsigned, comment="ID number 3")
-    idnum4 = Column("idnum4", BigIntUnsigned, comment="ID number 4")
-    idnum5 = Column("idnum5", BigIntUnsigned, comment="ID number 5")
-    idnum6 = Column("idnum6", BigIntUnsigned, comment="ID number 6")
-    idnum7 = Column("idnum7", BigIntUnsigned, comment="ID number 7")
-    idnum8 = Column("idnum8", BigIntUnsigned, comment="ID number 8")
+    idnum1 = Column("idnum1", BigInteger, comment="ID number 1")
+    idnum2 = Column("idnum2", BigInteger, comment="ID number 2")
+    idnum3 = Column("idnum3", BigInteger, comment="ID number 3")
+    idnum4 = Column("idnum4", BigInteger, comment="ID number 4")
+    idnum5 = Column("idnum5", BigInteger, comment="ID number 5")
+    idnum6 = Column("idnum6", BigInteger, comment="ID number 6")
+    idnum7 = Column("idnum7", BigInteger, comment="ID number 7")
+    idnum8 = Column("idnum8", BigInteger, comment="ID number 8")
 
     iddesc1 = Column("iddesc1", IdDescriptorColType, comment="ID description 1")  # noqa
     iddesc2 = Column("iddesc2", IdDescriptorColType, comment="ID description 2")  # noqa

@@ -41,14 +41,11 @@ from typing import TYPE_CHECKING
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
 from .cc_constants import FP_ID_NUM
 from .cc_db import GenericTabletRecordMixin
-from .cc_sqla_coltypes import (
-    BigIntUnsigned,
-    CamcopsColumn,
-    IntUnsigned,
-)
+from .cc_sqla_coltypes import CamcopsColumn
 from .cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
@@ -65,22 +62,22 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
     __tablename__ = "patient_idnum"
 
     id = Column(
-        "id", IntUnsigned,
+        "id", Integer,
         nullable=False,
         comment="Primary key on the source tablet device"
     )
     patient_id = Column(
-        "patient_id", IntUnsigned,
+        "patient_id", Integer,
         nullable=False,
         comment="FK to patient.id (for this device/era)"
     )
     which_idnum = Column(
-        "which_idnum", IntUnsigned,
+        "which_idnum", Integer,
         nullable=False,
         comment="Which of the server's ID numbers is this?"
     )
     idnum_value = CamcopsColumn(
-        "idnum_value", BigIntUnsigned,
+        "idnum_value", BigInteger,
         identifies_patient=True,
         comment="The value of the ID number"
     )

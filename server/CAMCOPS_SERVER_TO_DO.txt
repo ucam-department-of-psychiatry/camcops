@@ -1,18 +1,41 @@
 
+*** database upload code
 
-*** make first migration, then add back filter_idnums_json
-    *** Variant/Alembic problem: https://bitbucket.org/zzzeek/alembic/issues/131/create-special-rendering-for-variant
-    *** check: should be able to convert everything to Integer/BigInteger
-    *** check Text length and Text vs UnicodeText
-        ... move anything that's Text and supports non-ASCII to UnicodeText
+*** once first migration stable, add back filter_idnums_json
 
-
-*** copy from database
-    - fresh PKs
-    - use Core?
-
+in merge:
     *** merge two users
     *** merge two groups
+
+DOCUMENT merge warning:
+
+    2017-08-25 22:27:23.234 cardinal_pythonlib.sqlalchemy.merge_db:INFO: Processing table 'blobs' via ORM class <class 'camcops_server.cc_modules.cc_blob.Blob'>
+    /home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, "Invalid utf8 character string: '89504E'")
+      cursor.execute(statement, parameters)
+    /home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, "Invalid utf8 character string: 'FFD8FF'")
+      cursor.execute(statement, parameters)
+
+    ... or with database and SQLA-URL charset set to utf8mb4:
+
+    2017-08-25 22:38:36.628 cardinal_pythonlib.sqlalchemy.merge_db:INFO: Processing table 'blobs' via ORM class <class 'camcops_server.cc_modules.cc_blob.Blob'>
+    /home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, "Invalid utf8mb4 character string: '89504E'")
+      cursor.execute(statement, parameters)
+    /home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, "Invalid utf8mb4 character string: 'FFD8FF'")
+      cursor.execute(statement, parameters)
+
+    Potentially related:
+
+        https://bitbucket.org/zzzeek/sqlalchemy/issues/3291/problem-using-binary-type-with-foreign-key
+        https://bitbucket.org/zzzeek/sqlalchemy/issues/3804/invalid-utf8-character-string-warning-on
+        https://github.com/PyMySQL/mysqlclient-python/issues/81
+        https://github.com/PyMySQL/mysqlclient-python/pull/106
+
+    ... so it's probably a driver issue
+
+    YES; goes away using "pymysql" rather than "mysqldb", so e.g. use
+
+        DB_URL = mysql+pymysql://username:password@127.0.0.1:3306/database?charset=utf8mb4
+
 
 *** routing and URLs
 
@@ -48,12 +71,6 @@ CAMCOPS SERVER THINGS TO DO
   differences and ask for confirmation; audit changes. For BLOBs, allow
   option to upload file (or leave unchanged).
 
-- split pls into config (read at startup - maybe also preload strings for
-  later speed) and WSGI request (e.g. "now").
-
-  ... consider combining with any shift to SQLAlchemy, as the session object
-  relates to this.
-  
 - shift to Arrow for dates/times? (With sqlalchemy-utils?)
 
 - document that anonymisation for research exports is supported as a basic
@@ -85,29 +102,6 @@ THOUGHTS/POTENTIAL THINGS TO DO
 - see also Python modules for unit testing
 
 - internationalization of web interface (framework done)
-
-- SQLAlchemy would be an alternative engine.
-    - CURRENT PREREQUISITES: COMMENTS. Not yet there:
-        http://docs.sqlalchemy.org/en/rel_0_9/core/metadata.html
-        http://docs.sqlalchemy.org/en/latest/core/metadata.html?highlight=metadata
-    - WSGI: would use sessionmaker
-        ... http://stackoverflow.com/questions/860313/sqlalchemy-is-convoluted
-        ... http://stackoverflow.com/questions/2505426/sqlalchemy-layout-with-wsgi-application
-        ... http://docs.sqlalchemy.org/en/rel_0_5/session.html#binding-session-to-an-engine
-    - As yet (2013-05-07), SQL comments are not supported: http://docs.sqlalchemy.org/en/latest/core/schema.html
-    - Dates in ISO8601 format: good exchange (see sqlalchemy_test.py), but restricting SQL modification just to the WHERE clause is tricky (haven't achieved that yet).
-        Answer might be: http://stackoverflow.com/questions/21126371/converting-string-to-date-timestamp-in-sqlalchemy
-    - Indexes: definable as part of the Column() definition: http://docs.sqlalchemy.org/en/latest/core/schema.html#defining-constraints-and-indexes
-    - Won't add columns (creates whole table or nothing): http://docs.sqlalchemy.org/en/latest/core/schema.html#altering-schemas-through-migrations ; http://stackoverflow.com/questions/2103274/sqlalchemy-add-new-field-to-class-and-create-corresponding-column-in-table
-    - Views: easy to add by hand.
-    - For other applications: easily talks to two engines at once: http://docs.sqlalchemy.org/en/rel_0_5/session.html#session-partitioning
-    - get-or-create idiom: http://stackoverflow.com/questions/2546207/does-sqlalchemy-have-an-equivalent-of-djangos-get-or-create
-    - creating n fields programmatically, e.g. id numbers:
-
-- potentially Pyramid or a similar framework; over and above SQLAlchemy, would bring (a) templating, e.g. Mako; (b) URL routing.
-    - PREREQUISITES WOULD BE: correct URL routing when hosted at a sub-path; server-side sessions without too much faff.
-  However, could also make better use of named string.format() arguments, and URL routing has some of its own complexities.
-- Django probably the best, with a good ORM built in.
 
 - MRI triggering on task side
     - e.g. tasks written in Javascript under Titanium on Windows (when
@@ -142,7 +136,6 @@ CONSIDERED BUT NOT IMPLEMENTED
 
 - Filter on multiple patient IDs. Would only be relevant for researchers trying
   to take a subset of data.
-
   ... No current clear demand; therefore follow YAGNI principle.
       https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it
 

@@ -2,6 +2,14 @@
 # camcops_server/alembic/versions/${up_revision}.py
 
 """
+${message}
+
+Revision ID: ${up_revision}
+Revises: ${down_revision | comma,n}
+Creation date: ${create_date}
+
+DATABASE REVISION SCRIPT
+
 ===============================================================================
     Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
 
@@ -20,15 +28,6 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 ===============================================================================
-
-DATABASE REVISION SCRIPT
-
-${message}
-
-Revision ID: ${up_revision}
-Revises: ${down_revision | comma,n}
-Creation date: ${create_date}
-
 """
 
 # =============================================================================

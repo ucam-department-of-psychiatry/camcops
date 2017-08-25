@@ -53,6 +53,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 def main() -> None:
+    # Arguments
     parser = argparse.ArgumentParser(
         description="Merge CamCOPS databases",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -63,7 +64,7 @@ def main() -> None:
              "specified on the command line, the environment variable {} is "
              "examined.".format(ENVVAR_CONFIG_FILE))
     parser.add_argument(
-        '--report_every', type=int, default=1000,
+        '--report_every', type=int, default=10000,
         help="Report progress every n rows"
     )
     parser.add_argument(
@@ -101,9 +102,11 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    # Logging
     loglevel = logging.DEBUG if args.verbose else logging.INFO
     main_only_quicksetup_rootlogger(level=loglevel)
 
+    # Config; database connections
     os.environ[ENVVAR_CONFIG_FILE] = args.config
     req = command_line_request()
     src_engine = create_engine(args.src, echo=args.echo,
@@ -132,10 +135,13 @@ def main() -> None:
     # ]
 
     skip_tables = [
+        # Transient stuff we don't want to copy across, or wouldn't want to
+        # overwrite the destination with:
         TableIdentity(tablename=CamcopsSession.__tablename__),
         TableIdentity(tablename=ServerStoredVar.__tablename__),
     ]
 
+    # Tedious and bulky stuff the user may want to skip:
     if args.skip_hl7_logs:
         skip_tables.extend([
             TableIdentity(tablename=HL7Message.__tablename__),
@@ -170,11 +176,12 @@ def main() -> None:
                          matching_device.name)
                 trcon.newobj = matching_device
 
+    # Merge! It's easy...
     merge_db(
         base_class=Base,
         src_engine=src_engine,
         dst_session=req.dbsession,
-        allow_missing_src_tables=False,
+        allow_missing_src_tables=True,
         allow_missing_src_columns=True,
         translate_fn=translate_fn,
         skip_tables=skip_tables,

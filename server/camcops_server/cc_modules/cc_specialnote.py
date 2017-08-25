@@ -27,7 +27,7 @@ from typing import List, Optional
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import UnicodeText
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from .cc_constants import DATEFORMAT, ERA_NOW
 from .cc_dt import format_datetime
@@ -35,7 +35,6 @@ from .cc_request import CamcopsRequest
 from .cc_sqla_coltypes import (
     DateTimeAsIsoTextColType,
     EraColType,
-    IntUnsigned,
     TableNameColType,
 )
 from .cc_sqlalchemy import Base
@@ -60,7 +59,7 @@ class SpecialNote(Base):
 
     # PK:
     note_id = Column(
-        "note_id", IntUnsigned,
+        "note_id", Integer,
         primary_key=True, autoincrement=True,
         comment="Arbitrary primary key"
     )
@@ -71,13 +70,13 @@ class SpecialNote(Base):
         comment="Base table of task concerned (part of FK)"
     )
     task_id = Column(
-        "task_id", IntUnsigned,
+        "task_id", Integer,
         index=True,
         comment="Client-side ID of the task, or patient, concerned "
                 "(part of FK)"
     )
     device_id = Column(
-        "device_id", IntUnsigned,
+        "device_id", Integer,
         index=True,
         comment="Source tablet device (part of FK)"
     )
@@ -92,7 +91,8 @@ class SpecialNote(Base):
         comment="Date/time of note entry (ISO 8601)"
     )
     user_id = Column(
-        "user_id", IntUnsigned, ForeignKey("_security_users.id"),
+        "user_id", Integer,
+        ForeignKey("_security_users.id"),
         comment="User that entered this note"
     )
     user = relationship("User")

@@ -38,7 +38,6 @@ from .cc_constants import ERA_NOW, MIMETYPE_PNG
 from .cc_db import GenericTabletRecordMixin
 from .cc_html import get_data_url, get_embedded_img_tag
 from .cc_sqla_coltypes import (
-    IntUnsigned,
     MimeTypeColType,
     # TableNameColType, # *** to be added once Alembic up
 )
@@ -73,7 +72,7 @@ class Blob(GenericTabletRecordMixin, Base):
     """
     __tablename__ = "blobs"
     id = Column(
-        "id", IntUnsigned,
+        "id", Integer,
         nullable=False,
         comment="BLOB (binary large object) primary key on the source "
                 "tablet device"
@@ -84,7 +83,7 @@ class Blob(GenericTabletRecordMixin, Base):
         comment="Name of the table referring to this BLOB"
     )
     tablepk = Column(
-        "tablepk", IntUnsigned,
+        "tablepk", Integer,
         nullable=False,
         comment="Primary key (id field) of the row referring to this BLOB"
     )

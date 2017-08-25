@@ -27,12 +27,11 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import DateTime, UnicodeText
+from sqlalchemy.sql.sqltypes import DateTime, Integer, UnicodeText
 
 from .cc_dt import get_now_utc_notz
 from .cc_sqla_coltypes import (
     AuditSourceColType,
-    IntUnsigned,
     IPAddressColType,
     TableNameColType,
 )
@@ -50,7 +49,7 @@ class AuditEntry(Base):
     __tablename__ = "_security_audit"
 
     id = Column(
-        "id", IntUnsigned,
+        "id", Integer,
         primary_key=True, autoincrement=True, index=True,
         comment="Arbitrary primary key"
     )
@@ -69,12 +68,12 @@ class AuditEntry(Base):
         comment="IP address of the remote computer"
     )
     user_id = Column(
-        "user_id", IntUnsigned, ForeignKey("_security_users.id"),
+        "user_id", Integer, ForeignKey("_security_users.id"),
         comment="ID of user, where applicable"
     )
     user = relationship("User")
     device_id = Column(
-        "device_id", IntUnsigned, ForeignKey("_security_devices.id"),
+        "device_id", Integer, ForeignKey("_security_devices.id"),
         comment="Device ID, where applicable"
     )
     device = relationship("Device")
@@ -83,11 +82,11 @@ class AuditEntry(Base):
         comment="Table involved, where applicable"
     )
     server_pk = Column(
-        "server_pk", IntUnsigned,
+        "server_pk", Integer,
         comment="Server PK (table._pk), where applicable"
     )
     patient_server_pk = Column(
-        "patient_server_pk", IntUnsigned,
+        "patient_server_pk", Integer,
         comment="Server PK of the patient (patient._pk) concerned, or "
                 "NULL if not applicable"
     )

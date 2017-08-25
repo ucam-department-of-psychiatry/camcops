@@ -63,7 +63,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Float, Text
+from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
 from .cc_anon import (
     get_cris_dd_rows_from_fieldspecs,
@@ -135,7 +135,6 @@ from .cc_sqla_coltypes import (
     DateTimeAsIsoTextColType,
     get_column_attr_names,
     get_camcops_blob_column_attr_names,
-    IntUnsigned,
     permitted_value_failure_msgs,
     permitted_values_ok,
 )
@@ -185,7 +184,7 @@ class TaskHasPatientMixin(object):
     @declared_attr
     def patient_id(self) -> Column:
         return Column(
-            "patient_id", IntUnsigned,
+            "patient_id", Integer,
             nullable=False, index=True,
             comment="(TASK) Foreign key to patient.id (for this device/era)"
         )

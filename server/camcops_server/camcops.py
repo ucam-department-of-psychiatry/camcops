@@ -51,6 +51,7 @@ from wsgiref.simple_server import make_server  # nopep8
 from cardinal_pythonlib.convert import convert_to_bool  # nopep8
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_session  # nop3p8
 
+from .cc_modules.cc_alembic import upgrade_database_to_head  # nopep8
 from .cc_modules.cc_analytics import ccanalytics_unit_tests  # nopep8
 from .cc_modules.cc_audit import audit  # nopep8
 from .cc_modules.cc_constants import (
@@ -638,19 +639,9 @@ def cli_main() -> None:
         "-v", "--version", action="version",
         version="CamCOPS {}".format(CAMCOPS_SERVER_VERSION))
     parser.add_argument(
-        "-m", "--maketables",
+        "--upgradedb",
         action="store_true", default=False,
         help="Make/remake tables and views")
-    parser.add_argument(
-        "--dropsuperfluous", action="store_true",
-        help="Additional option to --maketables to drop superfluous columns; "
-        "requires both confirmatory flags as well")
-    parser.add_argument(
-        "--confirm_drop_superfluous_1", action="store_true",
-        help="Confirmatory flag 1/2 for --dropsuperfluous")
-    parser.add_argument(
-        "--confirm_drop_superfluous_2", action="store_true",
-        help="Confirmatory flag 2/2 for --dropsuperfluous")
     parser.add_argument(
         "-r", "--resetstoredvars", action="store_true", default=False,
         help="Redefine database title/patient ID number meanings/ID policy")
@@ -728,12 +719,8 @@ def cli_main() -> None:
     # In order:
     n_actions = 0
 
-    if args.maketables:
-        drop_superfluous_columns = False
-        if (args.dropsuperfluous and args.confirm_drop_superfluous_1 and
-                args.confirm_drop_superfluous_2):
-            drop_superfluous_columns = True
-        make_tables(drop_superfluous_columns)
+    if args.upgradedb:
+        upgrade_database_to_head()
         n_actions += 1
 
     if args.resetstoredvars:
@@ -827,7 +814,7 @@ Using database: {dburl} ({dbtitle}).
             choice = None
 
         if choice == 1:
-            make_tables(drop_superfluous_columns=False)
+            upgrade_database_to_head()
             reset_storedvars()
         elif choice == 2:
             print("Database title: {}".format(req.config.DATABASE_TITLE))

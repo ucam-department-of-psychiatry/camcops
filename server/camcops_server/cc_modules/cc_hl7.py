@@ -42,7 +42,14 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import get_orm_column_names
 from sqlalchemy.orm import reconstructor, relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text, UnicodeText  # noqa
+from sqlalchemy.sql.sqltypes import (
+    BigInteger,
+    Boolean,
+    DateTime,
+    Integer,
+    Text,
+    UnicodeText,
+)
 
 from .cc_constants import (
     ACTION,
@@ -79,9 +86,7 @@ from .cc_config import CamcopsConfig
 from .cc_recipdef import RecipientDefinition
 from .cc_request import CamcopsRequest
 from .cc_sqla_coltypes import (
-    BigIntUnsigned,
     HostnameColType,
-    IntUnsigned,
     LongText,
     SendingFormatColType,
     TableNameColType,
@@ -173,7 +178,7 @@ class HL7Run(Base):
     __tablename__ = "_hl7_run_log"
 
     run_id = Column(
-        "run_id", BigIntUnsigned,
+        "run_id", BigInteger,
         primary_key=True, autoincrement=True,
         comment="Arbitrary primary key"
     )
@@ -197,7 +202,7 @@ class HL7Run(Base):
         comment="Recipient type (e.g. hl7, file)"
     )
     primary_idnum = Column(
-        "primary_idnum", IntUnsigned,
+        "primary_idnum", Integer,
         comment="Which ID number was used as the primary ID?"
     )
     require_idnum_mandatory = Column(
@@ -232,7 +237,7 @@ class HL7Run(Base):
         comment="(HL7) Destination host name/IP address"
     )
     port = Column(
-        "port", IntUnsigned,
+        "port", Integer,
         comment="(HL7) Destination port number"
     )
     divert_to_file = Column(
@@ -378,12 +383,12 @@ class HL7Message(Base):
     __tablename__ = HL7MESSAGE_TABLENAME  # indirected to resolve circular dependency  # noqa
 
     msg_id = Column(
-        "msg_id", IntUnsigned,
+        "msg_id", Integer,
         primary_key=True, autoincrement=True,
         comment="Arbitrary primary key"
     )
     run_id = Column(
-        "run_id", BigIntUnsigned, ForeignKey("_hl7_run_log.run_id"),
+        "run_id", BigInteger, ForeignKey("_hl7_run_log.run_id"),
         comment="FK to _hl7_run_log.run_id"
     )
     hl7run = relationship("HL7Run")
@@ -393,7 +398,7 @@ class HL7Message(Base):
         comment="Base table of task concerned"
     )
     serverpk = Column(
-        "serverpk", IntUnsigned,
+        "serverpk", Integer,
         index=True,
         comment="Server PK of task in basetable (_pk field)"
     )
