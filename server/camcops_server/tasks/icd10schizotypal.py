@@ -28,7 +28,7 @@ import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Text
+from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 
 from ..cc_modules.cc_constants import DATEFORMAT, ICD10_COPYRIGHT_DIV, PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -96,7 +96,7 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
         comment="Date the assessment pertains to"
     )
     comments = Column(
-        "comments", Text,
+        "comments", UnicodeText,
         comment="Clinician's comments"
     )
     b = CamcopsColumn(

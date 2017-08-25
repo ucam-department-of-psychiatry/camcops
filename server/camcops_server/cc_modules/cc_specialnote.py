@@ -27,7 +27,7 @@ from typing import List, Optional
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Text
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from .cc_constants import DATEFORMAT, ERA_NOW
 from .cc_dt import format_datetime
@@ -97,7 +97,7 @@ class SpecialNote(Base):
     )
     user = relationship("User")
     note = Column(
-        "note", Text,
+        "note", UnicodeText,
         comment="Special note, added manually"
     )
 

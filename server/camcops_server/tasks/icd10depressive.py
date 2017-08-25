@@ -26,7 +26,7 @@ from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Integer, Text
+from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
 from ..cc_modules.cc_constants import (
     DATEFORMAT,
@@ -217,7 +217,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
         comment="Date the assessment pertains to"
     )
     comments = Column(
-        "comments", Text,
+        "comments", UnicodeText,
         comment="Clinician's comments"
     )
     duration_at_least_2_weeks = CamcopsColumn(

@@ -25,7 +25,7 @@
 from typing import List
 
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_request import CamcopsRequest
@@ -43,7 +43,10 @@ class Fft(TaskHasPatientMixin, Task, Base):
     shortname = "FFT"
     longname = "Friends and Family Test"
 
-    service = Column("service", Text, comment="Clinical service being rated")
+    service = Column(
+        "service", UnicodeText,
+        comment="Clinical service being rated"
+    )
     rating = CamcopsColumn(
         "rating", Integer,
         permitted_value_checker=PermittedValueChecker(minimum=1, maximum=6),

@@ -32,7 +32,7 @@ http://docs.sqlalchemy.org/en/latest/core/type_basics.html#generic-types
     Float
     Integer         -- MySQL: -2147483648 to 2147483647
     Interval        -- for datetime.timedelta
-    LargeBinary
+    LargeBinary     -- under MySQL, maps to BLOB
     MatchType       -- for the return type of the MATCH operator
     Numeric         -- for fixed-precision numbers like NUMERIC or DECIMAL
     PickleType
@@ -54,6 +54,12 @@ Not supported across all platforms:
                     -- use sqlalchemy.dialects.mysql.INTEGER(unsigned=True)
 
 Other MySQL sizes:
+
+    TINYBLOB        -- 2^8 bytes = 256 bytes
+    BLOB            -- 2^16 bytes = 64 KiB
+    MEDIUMBLOB      -- 2^24 bytes = 16 MiB
+    LONGBLOB        -- 2^32 bytes = 4 GiB 
+
     TINYTEXT        -- 255 (2^8 - 1) bytes
     TEXT            -- 65,535 bytes (2^16 - 1) = 64 KiB
     MEDIUMTEXT      -- 16,777,215 (2^24 - 1) bytes = 16 MiB
@@ -87,7 +93,14 @@ from sqlalchemy.dialects import mysql
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Integer, String, Text, Unicode
+from sqlalchemy.sql.sqltypes import (
+    Boolean,
+    Integer,
+    LargeBinary,
+    String,
+    Unicode,
+    UnicodeText,
+)
 from sqlalchemy.sql.type_api import TypeDecorator
 
 from .cc_constants import PV
@@ -103,6 +116,13 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 DEBUG_DATETIME_AS_ISO_TEXT = False
 DEBUG_SEMANTIC_VERSION = False
 
+ICD9_CODE_MAX_LENGTH = 6  # longest is "xxx.xx"; thus, 6; see
+# https://www.cms.gov/Medicare/Quality-Initiatives-Patient-Assessment-Instruments/HospitalQualityInits/Downloads/HospitalAppendix_F.pdf  # noqa
+ICD10_CODE_MAX_LENGTH = 7  # longest is e.g. "F00.000"; "F10.202"; thus, 7
+MAX_DIAGNOSTIC_CODE_LENGTH = max(
+    ICD9_CODE_MAX_LENGTH,
+    ICD10_CODE_MAX_LENGTH
+)
 ISO8601_STRING_LENGTH = 32
 # ... max length e.g. 2013-07-24T20:04:07.123456+01:00
 #     (microseconds, colon in timezone).
@@ -118,6 +138,7 @@ BigIntUnsigned = Integer().with_variant(mysql.BIGINT(unsigned=True), 'mysql')
 CharColType = String(length=1)
 
 DeviceNameColType = String(length=255)
+DiagnosticCodeColType = String(length=MAX_DIAGNOSTIC_CODE_LENGTH)
 
 EraColType = String(length=ISO8601_STRING_LENGTH)  # underlying SQL type
 
@@ -132,7 +153,13 @@ IPAddressColType = String(length=45)  # http://stackoverflow.com/questions/16613
 # This is a plain string.
 # See also e.g. http://sqlalchemy-utils.readthedocs.io/en/latest/_modules/sqlalchemy_utils/types/ip_address.html  # noqa
 
-LongText = Text().with_variant(mysql.LONGTEXT, 'mysql')
+# Large BLOB:
+# https://stackoverflow.com/questions/43791725/sqlalchemy-how-to-make-a-longblob-column-in-mysql  # noqa
+# One of these:
+# LongBlob = LargeBinary().with_variant(mysql.LONGBLOB, "mysql")
+LongBlob = LargeBinary(length=(2 ** 32) - 1)
+
+LongText = UnicodeText().with_variant(mysql.LONGTEXT, 'mysql')
 
 MimeTypeColType = String(length=255)  # https://stackoverflow.com/questions/643690  # noqa
 

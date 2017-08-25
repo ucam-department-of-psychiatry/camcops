@@ -26,7 +26,7 @@ from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -52,7 +52,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
     longname = "Photograph"
 
     description = Column(
-        "description", Text,
+        "description", UnicodeText,
         comment="Description of the photograph"
     )
     photo_blobid = CamcopsColumn(
@@ -112,7 +112,7 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
         comment="Sequence number of this photo"
     )
     description = Column(
-        "description", Text,
+        "description", UnicodeText,
         comment="Description of the photograph"
     )
     photo_blobid = CamcopsColumn(
@@ -145,7 +145,7 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
     longname = "Photograph sequence"
 
     sequence_description = Column(
-        "sequence_description", Text,
+        "sequence_description", UnicodeText,
         comment="Description of the sequence of photographs"
     )
 

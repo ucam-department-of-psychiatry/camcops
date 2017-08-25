@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import DateTime, Text
+from sqlalchemy.sql.sqltypes import DateTime, UnicodeText
 
 from .cc_dt import get_now_utc_notz
 from .cc_sqla_coltypes import (
@@ -92,7 +92,7 @@ class AuditEntry(Base):
                 "NULL if not applicable"
     )
     details = Column(
-        "details", Text,
+        "details", UnicodeText,
         comment="Details of the access"
     )
 

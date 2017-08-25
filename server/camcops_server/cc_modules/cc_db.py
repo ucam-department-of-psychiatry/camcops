@@ -22,9 +22,8 @@
 ===============================================================================
 """
 
-import datetime
 import logging
-from typing import Any, Dict, Iterable, List, Optional, Union, Type, TypeVar
+from typing import Any, Dict, Iterable, List, Union, Type, TypeVar
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
@@ -38,6 +37,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
+# from sqlalchemy.sql.type_api import TypeEngine
 
 from .cc_constants import DATEFORMAT, ERA_NOW
 from .cc_dt import format_datetime
@@ -343,17 +343,23 @@ def ancillary_relationship(
 # Field creation assistance
 # =============================================================================
 
-def add_multiple_columns(cls: Type,
-                         prefix: str,
-                         start: int,
-                         end: int,
-                         coltype: Type = Integer,
-                         colkwargs: Dict[str, Any] = None,
-                         comment_fmt: str = None,
-                         comment_strings: List[str] = None,
-                         minimum: Union[int, float] = None,
-                         maximum: Union[int, float] = None,
-                         pv: List[Any] = None) -> None:
+# TypeEngineBase = TypeVar('TypeEngineBase', bound=TypeEngine)
+
+def add_multiple_columns(
+        cls: Type,
+        prefix: str,
+        start: int,
+        end: int,
+        coltype=Integer,
+        # this type fails: Union[Type[TypeEngineBase], TypeEngine]
+        # ... https://stackoverflow.com/questions/38106227
+        # ... https://github.com/python/typing/issues/266
+        colkwargs: Dict[str, Any] = None,
+        comment_fmt: str = None,
+        comment_strings: List[str] = None,
+        minimum: Union[int, float] = None,
+        maximum: Union[int, float] = None,
+        pv: List[Any] = None) -> None:
     """
     Add a sequence of SQLAlchemy columns to a class.
     Called from a metaclass.
@@ -365,7 +371,9 @@ def add_multiple_columns(cls: Type,
         end: End of range. Thus:
             ... i will range from 0 to (end - start) inclusive
             ... n will range from start to end inclusive
-        coltype: SQLAlchemy column type
+        coltype: SQLAlchemy column type, in either of these formats:
+                Integer     general type: Type[TypeEngine] ?
+                Integer()   general type: TypeEngine
         colkwargs: SQLAlchemy column arguments
             ... as in: Column(name, coltype, **colkwargs)
         comment_fmt: Format string defining field comments. Substitutable

@@ -39,7 +39,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Text
+from sqlalchemy.sql.sqltypes import Text, UnicodeText
 
 from .cc_audit import audit
 from .cc_constants import (
@@ -138,16 +138,16 @@ class Patient(GenericTabletRecordMixin, Base):
         comment="Sex (M, F, X)"
     )
     address = CamcopsColumn(
-        "address", Text,
+        "address", UnicodeText,
         identifies_patient=True,
         comment="Address"
     )
     gp = Column(
-        "gp", Text,
+        "gp", UnicodeText,
         comment="General practitioner (GP)"
     )
     other = CamcopsColumn(
-        "other", Text,
+        "other", UnicodeText,
         identifies_patient=True,
         comment="Other details"
     )

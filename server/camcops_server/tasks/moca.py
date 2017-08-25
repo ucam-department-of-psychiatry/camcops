@@ -27,7 +27,7 @@ from typing import Any, Dict, List, Tuple, Type
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, String, Text
+from sqlalchemy.sql.sqltypes import Integer, String, UnicodeText
 
 from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
 from ..cc_modules.cc_constants import PV
@@ -167,7 +167,7 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
         comment="BLOB ID of clock picture"
     )
     comments = Column(
-        "comments", Text,
+        "comments", UnicodeText,
         comment="Clinician's comments"
     )
 

@@ -26,15 +26,16 @@ from typing import Any, Dict, List, Tuple, Type
 
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer, Text, Time
+from sqlalchemy.sql.sqltypes import Float, Integer, Time, UnicodeText
 
-from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
+from ..cc_modules.cc_blob import blob_relationship
 from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer
 from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     DateTimeAsIsoTextColType,
+    DiagnosticCodeColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import Task
@@ -80,24 +81,30 @@ class DemoQuestionnaire(Task, Base,
     longname = "Demonstration Questionnaire"
     is_anonymous = True
 
-    mcqtext_1a = Column("mcqtext_1a", Text)
-    mcqtext_1b = Column("mcqtext_1b", Text)
-    mcqtext_2a = Column("mcqtext_2a", Text)
-    mcqtext_2b = Column("mcqtext_2b", Text)
-    mcqtext_3a = Column("mcqtext_3a", Text)
-    mcqtext_3b = Column("mcqtext_3b", Text)
-    typedvar_text = Column("typedvar_text", Text)
-    typedvar_text_multiline = Column("typedvar_text_multiline", Text)
-    typedvar_text_rich = Column("typedvar_text_rich", Text)  # v2
+    mcqtext_1a = Column("mcqtext_1a", UnicodeText)
+    mcqtext_1b = Column("mcqtext_1b", UnicodeText)
+    mcqtext_2a = Column("mcqtext_2a", UnicodeText)
+    mcqtext_2b = Column("mcqtext_2b", UnicodeText)
+    mcqtext_3a = Column("mcqtext_3a", UnicodeText)
+    mcqtext_3b = Column("mcqtext_3b", UnicodeText)
+    typedvar_text = Column("typedvar_text", UnicodeText)
+    typedvar_text_multiline = Column("typedvar_text_multiline", UnicodeText)
+    typedvar_text_rich = Column("typedvar_text_rich", UnicodeText)  # v2
     typedvar_int = Column("typedvar_int", Integer)
     typedvar_real = Column("typedvar_real", Float)
     date_only = Column("date_only", DateTimeAsIsoTextColType)
     date_time = Column("date_time", DateTimeAsIsoTextColType)
     thermometer = Column("thermometer", Integer)
-    diagnosticcode_code = Column("diagnosticcode_code", Text)
-    diagnosticcode_description = Column("diagnosticcode_description", Text)
-    diagnosticcode2_code = Column("diagnosticcode2_code", Text)  # v2
-    diagnosticcode2_description = Column("diagnosticcode2_description", Text)  # v2
+    diagnosticcode_code = Column("diagnosticcode_code", DiagnosticCodeColType)
+    diagnosticcode_description = Column(
+        "diagnosticcode_description", UnicodeText
+    )
+    diagnosticcode2_code = Column(
+        "diagnosticcode2_code", DiagnosticCodeColType
+    )  # v2
+    diagnosticcode2_description = Column(
+        "diagnosticcode2_description", UnicodeText
+    )  # v2
     photo_blobid = CamcopsColumn(
         "photo_blobid", Integer,
         is_blob_id_field=True, blob_relationship_attr_name="photo"

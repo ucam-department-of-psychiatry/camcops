@@ -26,7 +26,7 @@ from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer, Text
+from sqlalchemy.sql.sqltypes import Float, Integer, String
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import get_yes_no_none, tr_qa
@@ -34,7 +34,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    # DateTimeAsIsoTextColType,
+    DateTimeAsIsoTextColType,
     ZERO_TO_ONE_CHECKER,
 )
 from ..cc_modules.cc_sqlalchemy import Base
@@ -56,7 +56,7 @@ class QolSG(TaskHasPatientMixin, Task, Base):
     provides_trackers = True
 
     category_start_time = Column(
-        "category_start_time", Text,  # *** change to DateTimeAsIsoTextColType
+        "category_start_time", DateTimeAsIsoTextColType,
         comment="Time categories were offered (ISO-8601)"
     )
     category_responded = CamcopsColumn(
@@ -65,25 +65,25 @@ class QolSG(TaskHasPatientMixin, Task, Base):
         comment="Responded to category choice? (0 no, 1 yes)"
     )
     category_response_time = Column(
-        "category_response_time", Text,  # *** change to DateTimeAsIsoTextColType  # noqa
+        "category_response_time", DateTimeAsIsoTextColType,
         comment="Time category was chosen (ISO-8601)"
     )
     category_chosen = Column(
-        "category_chosen", Text,
+        "category_chosen", String(length=len("medium")),
         comment="Category chosen: high (QoL > 1) "
                 "medium (0 <= QoL <= 1) low (QoL < 0)"
     )
     gamble_fixed_option = Column(
-        "gamble_fixed_option", Text,
+        "gamble_fixed_option", String(length=len("current")),
         comment="Fixed option in gamble (current, healthy, dead)"
     )
     gamble_lottery_option_p = Column(
-        "gamble_lottery_option_p", Text,
+        "gamble_lottery_option_p", String(length=len("current")),
         comment="Gamble: option corresponding to p  "
                 "(current, healthy, dead)"
     )
     gamble_lottery_option_q = Column(
-        "gamble_lottery_option_q", Text,
+        "gamble_lottery_option_q", String(length=len("current")),
         comment="Gamble: option corresponding to q  "
                 "(current, healthy, dead) (q = 1 - p)"
     )
@@ -98,7 +98,7 @@ class QolSG(TaskHasPatientMixin, Task, Base):
         comment="Gamble: starting value of p"
     )
     gamble_start_time = Column(
-        "gamble_start_time", Text,  # *** change to DateTimeAsIsoTextColType
+        "gamble_start_time", DateTimeAsIsoTextColType,
         comment="Time gamble was offered (ISO-8601)"
     )
     gamble_responded = CamcopsColumn(
@@ -107,7 +107,7 @@ class QolSG(TaskHasPatientMixin, Task, Base):
         comment="Gamble was responded to? (0 no, 1 yes)"
     )
     gamble_response_time = Column(
-        "gamble_response_time", Text,  # *** change to DateTimeAsIsoTextColType
+        "gamble_response_time", DateTimeAsIsoTextColType,
         comment="Time subject responded to gamble (ISO-8601)"
     )
     gamble_p = CamcopsColumn(

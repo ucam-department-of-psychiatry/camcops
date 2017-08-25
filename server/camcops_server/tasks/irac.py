@@ -25,7 +25,7 @@
 import cardinal_pythonlib.rnc_web as ws
 
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_request import CamcopsRequest
@@ -44,7 +44,7 @@ class Irac(TaskHasPatientMixin, Task, Base):
     longname = "Identify and Rate the Aim of the Contact"
 
     aim = Column(
-        "aim", Text,
+        "aim", UnicodeText,
         comment="Main aim of the contact"
     )
     achieved = CamcopsColumn(

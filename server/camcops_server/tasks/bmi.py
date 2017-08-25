@@ -26,7 +26,7 @@ from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Text
+from sqlalchemy.sql.sqltypes import Float, UnicodeText
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import tr_qa
@@ -64,7 +64,7 @@ class Bmi(TaskHasPatientMixin, Task, Base):
         comment="mass (kg)"
     )
     comment = Column(
-        "comment", Text,
+        "comment", UnicodeText,
         comment="Clinician's comment"
     )
 

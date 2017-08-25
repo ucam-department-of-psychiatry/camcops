@@ -26,7 +26,7 @@ from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Text
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from ..cc_modules.cc_ctvinfo import CtvInfo
 from ..cc_modules.cc_html import answer
@@ -48,8 +48,8 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
     shortname = "ProgressNote"
     longname = "Clinical progress note"
 
-    location = Column("location", Text, comment="Location")
-    note = Column("note", Text, comment="Clinical note")
+    location = Column("location", UnicodeText, comment="Location")
+    note = Column("note", UnicodeText, comment="Clinical note")
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         return [CtvInfo(content=ws.webify(self.note))]

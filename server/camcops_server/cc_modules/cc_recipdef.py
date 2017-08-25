@@ -254,6 +254,7 @@ class RecipientDefinition(object):
                 self.keep_reply = get_config_parameter_boolean(
                     config, section, "KEEP_REPLY", False)
                 self.divert_to_file = get_config_parameter(
+                    # a filename:
                     config, section, "DIVERT_TO_FILE", str, None)
                 self.treat_diverted_as_sent = get_config_parameter_boolean(
                     config, section, "TREAT_DIVERTED_AS_SENT", False)

@@ -28,7 +28,7 @@ from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, String
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -78,7 +78,7 @@ class Bdi(TaskHasPatientMixin, Task, Base,
     MAX_SCORE = NQUESTIONS * 3
 
     bdi_scale = Column(
-        "bdi_scale", Text,
+        "bdi_scale", String(length=10),  # was Text
         comment="Which BDI scale (BDI-I, BDI-IA, BDI-II)?"
     )
 

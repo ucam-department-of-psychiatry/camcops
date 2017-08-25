@@ -27,7 +27,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import add_multiple_columns
@@ -67,7 +67,7 @@ class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     provides_trackers = True
 
     period_rated = Column(
-        "period_rated", Text,
+        "period_rated", UnicodeText,
         comment="Period being rated"
     )
 
@@ -176,7 +176,7 @@ class Honos(HonosBase, Base,
                 "I sexual; J other, specify)"
     )
     q8otherproblem = Column(
-        "q8otherproblem", Text,
+        "q8otherproblem", UnicodeText,
         comment="Q8: other problem: specify"
     )
 
@@ -302,7 +302,7 @@ class Honos65(HonosBase, Base,
                 "I sexual; J other, specify)"
     )
     q8otherproblem = Column(
-        "q8otherproblem", Text,
+        "q8otherproblem", UnicodeText,
         comment="Q8: other problem: specify"
     )
 

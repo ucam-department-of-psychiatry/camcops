@@ -25,20 +25,31 @@
 import argparse
 import logging
 import os
+from typing import Optional
 
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
-from cardinal_pythonlib.sqlalchemy.merge_db import merge_db, TableIdentity
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
+from cardinal_pythonlib.sqlalchemy.merge_db import (
+    merge_db,
+    TableIdentity,
+    TranslationContext,
+)
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
 from sqlalchemy.engine import create_engine
 
+from ..cc_modules.cc_audit import AuditEntry
 from ..cc_modules.cc_constants import ENVVAR_CONFIG_FILE
+from ..cc_modules.cc_device import Device
 from ..cc_modules.cc_hl7 import HL7Message, HL7Run
 from ..cc_modules.cc_request import command_line_request
 from ..cc_modules.cc_session import CamcopsSession
 from ..cc_modules.cc_storedvar import ServerStoredVar
 from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_user import User
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 def main() -> None:
@@ -73,6 +84,10 @@ def main() -> None:
     )
     parser.add_argument(
         '--skip_hl7_logs', action="store_true",
+        help="Skip the {!r} table".format(HL7Run.__tablename__)
+    )
+    parser.add_argument(
+        '--skip_audit_logs', action="store_true",
         help="Skip the {!r} table".format(HL7Run.__tablename__)
     )
     required_named = parser.add_argument_group('required named arguments')
@@ -126,20 +141,54 @@ def main() -> None:
             TableIdentity(tablename=HL7Message.__tablename__),
             TableIdentity(tablename=HL7Run.__tablename__),
         ])
+    if args.skip_audit_logs:
+        skip_tables.append(TableIdentity(tablename=AuditEntry.__tablename__))
+
+    # The extra logic for this database:
+    def translate_fn(trcon: TranslationContext) -> None:
+        if trcon.tablename == User.__tablename__:
+            # Users with matching usernames are considered to be identical.
+            src_user = trcon.oldobj  # type: User
+            src_username = src_user.username
+            matching_user = trcon.dst_session.query(User)\
+                .filter(User.username == src_username)\
+                .one_or_none()  # type: Optional[User]
+            if matching_user is not None:
+                log.info("Matching User (username {!r}) found; merging",
+                         matching_user.username)
+                trcon.newobj = matching_user  # so that related records will work  # noqa
+
+        elif trcon.tablename == Device.__tablename__:
+            # Users with matching names are considered to be identical.
+            src_device = trcon.oldobj  # type: Device
+            src_devicename = src_device.name
+            matching_device = trcon.dst_session.query(Device)\
+                .filter(Device.name == src_devicename)\
+                .one_or_none()  # type: Optional[Device]
+            if matching_device is not None:
+                log.info("Matching Device (name {!r}) found; merging",
+                         matching_device.name)
+                trcon.newobj = matching_device
+
     merge_db(
         base_class=Base,
         src_engine=src_engine,
         dst_session=req.dbsession,
         allow_missing_src_tables=False,
         allow_missing_src_columns=True,
-        translate_fn=None,
+        translate_fn=translate_fn,
         skip_tables=skip_tables,
         only_tables=None,
+        tables_to_keep_pks_for=None,
         # extra_table_dependencies=test_dependencies,
         extra_table_dependencies=None,
-        info_only=args.info_only,
         dummy_run=args.dummy_run,
-        report_every=args.report_every
+        info_only=args.info_only,
+        report_every=args.report_every,
+        flush_per_table=True,
+        flush_per_record=False,
+        commit_with_flush=False,
+        commit_at_end=True
     )
 
 

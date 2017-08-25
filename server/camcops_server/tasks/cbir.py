@@ -27,9 +27,8 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer, Text
+from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
 
-from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
@@ -38,11 +37,7 @@ from ..cc_modules.cc_html import (
     tr,
 )
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import (
-    BIT_CHECKER,
-    CamcopsColumn,
-    PermittedValueChecker,
-)
+from ..cc_modules.cc_sqla_coltypes import BIT_CHECKER, CamcopsColumn
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
@@ -140,7 +135,7 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task, Base,
                 "(0/NULL no, 1 yes)"
     )
     comments = Column(
-        "comments", Text,
+        "comments", UnicodeText,
          comment="Additional comments"
     )
 

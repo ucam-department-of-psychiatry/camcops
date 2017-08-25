@@ -24,7 +24,7 @@
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from ..cc_modules.cc_html import (
     get_yes_no_none,
@@ -42,6 +42,7 @@ from ..cc_modules.cc_sqla_coltypes import (
     ZERO_TO_FIVE_CHECKER,
 )
 from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_sqla_coltypes import SexColType
 from ..cc_modules.cc_task import get_from_dict, Task
 
 
@@ -58,7 +59,7 @@ class GMCPQ(Task, Base):
     AGREE_TEXT = " (1 strongly disagree - 5 strongly agree, 0 does not apply)"
 
     doctor = Column(
-        "doctor", Text,
+        "doctor", UnicodeText,
         comment="Doctor's name"
     )
     q1 = CamcopsColumn(
@@ -97,7 +98,7 @@ class GMCPQ(Task, Base):
         comment="Reason: other? (0 no, 1 yes)"
     )
     q2f_details = Column(
-        "q2f_details", Text,
+        "q2f_details", UnicodeText,
         comment="Reason, other, details"
     )
     q3 = CamcopsColumn(
@@ -168,11 +169,11 @@ class GMCPQ(Task, Base):
         comment="Was this visit with your usual doctor (0 no, 1 yes)"
     )
     q9 = Column(
-        "q9", Text,
+        "q9", UnicodeText,
         comment="Other comments"
     )
     q10 = CamcopsColumn(
-        "q10", Text,
+        "q10", SexColType,
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["M", "F"]),
         comment="Sex of rater (M, F)"
@@ -195,7 +196,7 @@ class GMCPQ(Task, Base):
                 "14 = B/BB - other, 15 = Chinese, 16 = other)"
     )
     q12_details = Column(
-        "q12_details", Text,
+        "q12_details", UnicodeText,
         comment="Ethnic group, other, details"
     )
 

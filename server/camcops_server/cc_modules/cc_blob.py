@@ -31,7 +31,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, LargeBinary, Text
+from sqlalchemy.sql.sqltypes import Integer, Text
 import wand.image
 
 from .cc_constants import ERA_NOW, MIMETYPE_PNG
@@ -43,6 +43,7 @@ from .cc_sqla_coltypes import (
     # TableNameColType, # *** to be added once Alembic up
 )
 from .cc_request import CamcopsRequest
+from .cc_sqla_coltypes import LongBlob
 from .cc_sqlalchemy import Base
 from .cc_unittest import unit_test_ignore
 from .cc_xml import get_xml_blob_tuple, XmlElement
@@ -107,7 +108,7 @@ class Blob(GenericTabletRecordMixin, Base):
         comment="For images: rotation to be applied, clockwise, in degrees"
     )
     theblob = Column(
-        "theblob", LargeBinary,
+        "theblob", LongBlob,
         comment="The BLOB itself, a binary object containing arbitrary "
                 "information (such as a picture)"
     )

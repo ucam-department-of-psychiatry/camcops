@@ -27,7 +27,7 @@ from typing import List, Optional
 from cardinal_pythonlib.typetests import is_false
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Text
+from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 
 from ..cc_modules.cc_dt import format_datetime_string
 from ..cc_modules.cc_constants import DATEFORMAT, ICD10_COPYRIGHT_DIV
@@ -68,7 +68,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
         comment="Date the assessment pertains to"
     )
     comments = Column(
-        "comments", Text,
+        "comments", UnicodeText,
         comment="Clinician's comments"
     )
     mixture_or_rapid_alternation = CamcopsColumn(

@@ -28,7 +28,7 @@ from typing import Optional, Union
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer, Text
+from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
 
 from .cc_db import GenericTabletRecordMixin
 from .cc_sqla_coltypes import (
@@ -88,7 +88,7 @@ class DeviceStoredVar(GenericTabletRecordMixin, Base):
         comment="Value of an integer variable"
     )
     value_text = Column(
-        "valueText", Text,
+        "valueText", UnicodeText,
         comment="Value of a text variable"
     )
     value_real = Column(
@@ -118,7 +118,7 @@ class ServerStoredVar(Base):
         comment="Value of an integer variable"
     )
     value_text = Column(
-        "valueText", Text,
+        "valueText", UnicodeText,
         comment="Value of a text variable"
     )
     value_real = Column(

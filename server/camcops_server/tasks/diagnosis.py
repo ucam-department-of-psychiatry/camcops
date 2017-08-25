@@ -29,7 +29,7 @@ from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_ra
 import hl7
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import DateTime, Integer, Text
+from sqlalchemy.sql.sqltypes import DateTime, Integer, UnicodeText
 
 from ..cc_modules.cc_ctvinfo import CtvInfo
 from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
@@ -49,6 +49,7 @@ from ..cc_modules.cc_report import (
     REPORT_RESULT_TYPE,
 )
 from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_sqla_coltypes import DiagnosticCodeColType
 
 
 # =============================================================================
@@ -74,21 +75,21 @@ class DiagnosisItemBase(GenericTabletRecordMixin):
     @declared_attr
     def code(self) -> Column:
         return Column(
-            "code", Text,
+            "code", DiagnosticCodeColType,
             comment="Diagnostic code"
         )
 
     @declared_attr
     def description(self) -> Column:
         return Column(
-            "description", Text,
+            "description", UnicodeText,
             comment="Description of the diagnostic code"
         )
 
     @declared_attr
     def comment(self) -> Column:
         return Column(  # new in v2.0.0
-            "comment", Text,
+            "comment", UnicodeText,
             comment="Clinician's comment"
         )
 

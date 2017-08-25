@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 import numpy
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, String, UnicodeText
 
 from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
 from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH, PV
@@ -205,7 +205,7 @@ class Ace3Metaclass(DeclarativeMeta):
         )
         add_multiple_columns(  # tablet version 2.0.0 onwards
             cls, "mem_recognize_address_choice", 1, 5,
-            coltype=Text,
+            coltype=String(length=1),  # was Text
             comment_fmt="Memory, recognize address {n}/5, CHOICE (if "
                         "applicable) ({s}) (A/B/C)",
             comment_strings=["name", "number", "street", "town", "county"],
@@ -227,11 +227,11 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
         comment="Age at leaving full time education"
     )
     occupation = Column(
-        "occupation", Text,
+        "occupation", UnicodeText,
         comment="Occupation"
     )
     handedness = CamcopsColumn(
-        "handedness", Text,
+        "handedness", String(length=1),  # was Text
         comment="Handedness (L or R)",
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["L", "R"])
@@ -298,7 +298,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
         comment="Photo 2/2 rotation (degrees clockwise)"
     )
     comments = Column(
-        "comments", Text,
+        "comments", UnicodeText,
         comment="Clinician's comments"
     )
 

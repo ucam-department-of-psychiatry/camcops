@@ -26,7 +26,7 @@ from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, Text, UnicodeText
 
 from ..cc_modules.cc_dt import format_datetime_string, get_duration_h_m
 from ..cc_modules.cc_constants import (
@@ -41,7 +41,11 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, BIT_CHECKER
+from ..cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    BIT_CHECKER,
+    DateTimeAsIsoTextColType,
+)
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import (
     Task,
@@ -60,15 +64,15 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
     longname = "Clinical contact log"
 
     location = Column(
-        "location", Text,
+        "location", UnicodeText,
         comment="Location"
     )
     start = Column(
-        "start", Text,
+        "start", DateTimeAsIsoTextColType,
         comment="Date/time that contact started"
     )
     end = Column(
-        "end", Text,
+        "end", DateTimeAsIsoTextColType,
         comment="Date/time that contact ended"
     )
     patient_contact = CamcopsColumn(
@@ -87,7 +91,7 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
         comment="Liaison with others (e.g. family) involved (0 no, 1 yes)?"
     )
     comment = Column(
-        "comment", Text,
+        "comment", UnicodeText,
         comment="Comment"
     )
 

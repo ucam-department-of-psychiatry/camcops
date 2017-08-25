@@ -26,7 +26,7 @@ from typing import Any, Dict, List, Tuple, Type
 
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import tr_qa
@@ -108,7 +108,7 @@ class CopeBrief(TaskHasPatientMixin, Task, Base,
         comment="Task completed by patient? (0 no, 1 yes)"
     )
     completed_by = Column(
-        "completed_by", Text,
+        "completed_by", UnicodeText,
         comment="Name of person task completed by (if not by patient)"
     )
     relationship_to_patient = CamcopsColumn(
@@ -119,7 +119,7 @@ class CopeBrief(TaskHasPatientMixin, Task, Base,
                 "7 mother, 8 father, 9 friend)"
     )
     relationship_to_patient_other = Column(
-        "relationship_to_patient_other", Text,
+        "relationship_to_patient_other", UnicodeText,
         comment="Relationship of responder to patient (if OTHER chosen)"
     )
 

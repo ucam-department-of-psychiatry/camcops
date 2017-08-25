@@ -27,7 +27,7 @@ from typing import Any, Dict, List, Tuple, Type
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from ..cc_modules.cc_constants import PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -110,7 +110,7 @@ class DistressThermometer(TaskHasPatientMixin, Task, Base,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=10),
         comment="Distress (0 none - 10 extreme)"
     )
-    other = Column("other", Text, comment="Other problems")
+    other = Column("other", UnicodeText, comment="Other problems")
 
     NQUESTIONS = 36
     COMPLETENESS_FIELDS = strseq("q", 1, NQUESTIONS) + ["distress"]

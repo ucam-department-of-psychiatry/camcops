@@ -26,7 +26,7 @@ from typing import Any, Dict, List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
+from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, UnicodeText
 
 from ..cc_modules.cc_html import (
     answer,
@@ -85,7 +85,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Raised by, maternal, female relative?"
     )
     s1a_motherfigure_femalerelative_detail = Column(
-        "s1a_motherfigure_femalerelative_detail", Text,
+        "s1a_motherfigure_femalerelative_detail", UnicodeText,
         comment="Raised by, maternal, female relative, detail"
     )
     s1a_motherfigure_familyfriend = CamcopsColumn(
@@ -109,7 +109,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Raised by, maternal, other?"
     )
     s1a_motherfigure_other_detail = Column(
-        "s1a_motherfigure_other_detail", Text,
+        "s1a_motherfigure_other_detail", UnicodeText,
         comment="Raised by, maternal, other, detail"
     )
     s1a_fatherfigure_birthfather = CamcopsColumn(
@@ -128,7 +128,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Raised by, paternal, male relative?"
     )
     s1a_fatherfigure_malerelative_detail = Column(
-        "s1a_fatherfigure_malerelative_detail", Text,
+        "s1a_fatherfigure_malerelative_detail", UnicodeText,
         comment="Raised by, paternal, male relative, detail"
     )
     s1a_fatherfigure_familyfriend = CamcopsColumn(
@@ -152,7 +152,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Raised by, paternal, other?"
     )
     s1a_fatherfigure_other_detail = Column(
-        "s1a_fatherfigure_other_detail", Text,
+        "s1a_fatherfigure_other_detail", UnicodeText,
         comment="Raised by, paternal, other, detail"
     )
 
@@ -238,7 +238,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
                 "5 abandoned, 6 other)"
     )
     s1c_describe_experience = Column(
-        "s1c_describe_experience", Text,
+        "s1c_describe_experience", UnicodeText,
         comment="Loss of/separation from parent, description"
     )
 
@@ -253,7 +253,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
                 "5 other)"
     )
     s2a_which_mother_figure_other_detail = Column(
-        "s2a_which_mother_figure_other_detail", Text,
+        "s2a_which_mother_figure_other_detail", UnicodeText,
         comment="Mother figure, other, detail"
     )
     s2a_q1 = CamcopsColumn(
@@ -337,7 +337,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Mother figure, preferred siblings (1 no - 5 yes)"
     )
     s2a_extra = Column(
-        "s2a_extra", Text,
+        "s2a_extra", UnicodeText,
         comment="Mother figure, extra detail"
     )
 
@@ -521,7 +521,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Age these experienced began (years)"
     )
     s2b_extra = Column(
-        "s2b_extra", Text,
+        "s2b_extra", UnicodeText,
         comment="Extra detail"
     )
 
@@ -536,7 +536,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
                 "5 other)"
     )
     s3a_which_father_figure_other_detail = Column(
-        "s3a_which_father_figure_other_detail", Text,
+        "s3a_which_father_figure_other_detail", UnicodeText,
         comment="Father figure, other, detail"
     )
     s3a_q1 = CamcopsColumn(
@@ -620,7 +620,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Father figure, preferred siblings (1 no - 5 yes)"
     )
     s3a_extra = Column(
-        "s3a_extra", Text,
+        "s3a_extra", UnicodeText,
         comment="Father figure, extra detail"
     )
 
@@ -804,7 +804,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Age these experienced began (years)"
     )
     s3b_extra = Column(
-        "s3b_extra", Text,
+        "s3b_extra", UnicodeText,
         comment="Extra detail"
     )
 
@@ -954,11 +954,11 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Adult confidant, other?"
     )
     s4a_adultconfidant_other_detail = Column(
-        "s4a_adultconfidant_other_detail", Text,
+        "s4a_adultconfidant_other_detail", UnicodeText,
         comment="Adult confidant, other, detail"
     )
     s4a_adultconfidant_additional = Column(
-        "s4a_adultconfidant_additional", Text,
+        "s4a_adultconfidant_additional", UnicodeText,
         comment="Adult confidant, additional notes"
     )
 
@@ -1001,11 +1001,11 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Child confidant, other person?"
     )
     s4b_childconfidant_other_detail = Column(
-        "s4b_childconfidant_other_detail", Text,
+        "s4b_childconfidant_other_detail", UnicodeText,
         comment="Child confidant, other person, detail"
     )
     s4b_childconfidant_additional = Column(
-        "s4b_childconfidant_additional", Text,
+        "s4b_childconfidant_additional", UnicodeText,
         comment="Child confidant, additional notes"
     )
 
@@ -1048,11 +1048,11 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Two closest people include: other?"
     )
     s4c_closest_other_detail = Column(
-        "s4c_closest_other_detail", Text,
+        "s4c_closest_other_detail", UnicodeText,
         comment="Two closest people include: other, detail"
     )
     s4c_closest_additional = Column(
-        "s4c_closest_additional", Text,
+        "s4c_closest_additional", UnicodeText,
         comment="Two closest people include: additional notes"
     )
 
@@ -1125,7 +1125,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Physical abuse, by father, out of control?"
     )
     s5c_parental_abuse_description = Column(
-        "s5c_parental_abuse_description", Text,
+        "s5c_parental_abuse_description", UnicodeText,
         comment="Physical abuse, description"
     )
     s5c_abuse_by_nonparent = CamcopsColumn(
@@ -1134,7 +1134,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Physical abuse, by anyone else in household?"
     )
     s5c_nonparent_abuse_description = Column(
-        "s5c_nonparent_abuse_description", Text,
+        "s5c_nonparent_abuse_description", UnicodeText,
         comment="Physical abuse, nonparent, description"
     )
 
@@ -1244,7 +1244,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
         comment="Sexual abuse, other experience, sexual intercourse?"
     )
     s6_unwanted_sexual_description = Column(
-        "s6_unwanted_sexual_description", Text,
+        "s6_unwanted_sexual_description", UnicodeText,
         comment="Sexual abuse, description"
     )
 
@@ -1252,7 +1252,7 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
     # Final
     # -------------------------------------------------------------------------
     any_other_comments = CamcopsColumn(
-        "any_other_comments", Text,
+        "any_other_comments", UnicodeText,
         comment="Any other comments"
     )
 

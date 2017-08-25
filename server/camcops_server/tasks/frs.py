@@ -29,7 +29,7 @@ from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer, Text
+from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import tr_qa
@@ -224,7 +224,10 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
     shortname = "FRS"
     longname = "Frontotemporal Dementia Rating Scale"
 
-    comments = Column("comments", Text, comment="Clinician's comments")
+    comments = Column(
+        "comments", UnicodeText,
+        comment="Clinician's comments"
+    )
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 

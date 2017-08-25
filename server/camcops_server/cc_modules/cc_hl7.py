@@ -42,7 +42,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import get_orm_column_names
 from sqlalchemy.orm import reconstructor, relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
+from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text, UnicodeText  # noqa
 
 from .cc_constants import (
     ACTION,
@@ -237,7 +237,7 @@ class HL7Run(Base):
     )
     divert_to_file = Column(
         "divert_to_file", Text,
-        comment="(HL7) Divert to file"
+        comment="(HL7) Divert to file with this name"
     )
     treat_diverted_as_sent = Column(
         "treat_diverted_as_sent", Boolean,
@@ -280,11 +280,11 @@ class HL7Run(Base):
         comment="Return code from the script_after_file_export script"
     )
     script_stdout = Column(
-        "script_stdout", Text,
+        "script_stdout", UnicodeText,
         comment="stdout from the script_after_file_export script"
     )
     script_stderr = Column(
-        "script_stderr", Text,
+        "script_stderr", UnicodeText,
         comment="stderr from the script_after_file_export script"
     )
 
@@ -338,9 +338,12 @@ class HL7Run(Base):
             return
         args = [self.script_after_file_export] + files_exported
         try:
+            encoding = sys.getdefaultencoding()
             p = subprocess.Popen(args, stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
-            self.script_stdout, self.script_stderr = p.communicate()
+            out, err = p.communicate()
+            self.script_stdout = out.decode(encoding)
+            self.script_stderr = err.decode(encoding)
             self.script_retcode = p.returncode
         except Exception as e:
             self.script_stdout = "Failed to run script"

@@ -30,7 +30,7 @@ import numpy
 import cardinal_pythonlib.plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer, Text
+from sqlalchemy.sql.sqltypes import Float, Integer, Text, UnicodeText
 
 from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH
 from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
@@ -222,7 +222,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task, Base):
         comment="Probability of catch trial"
     )
     prompt = Column(
-        "prompt", Text,
+        "prompt", UnicodeText,
         comment="Prompt given to subject"
     )
     iti_s = Column(

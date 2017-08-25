@@ -26,7 +26,7 @@ from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, String
 
 from ..cc_modules.cc_constants import NO_CHAR, YES_CHAR
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -50,7 +50,7 @@ class Gds15Metaclass(DeclarativeMeta):
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS, Text,
+            cls, "q", 1, cls.NQUESTIONS, String(length=1),
             pv=[NO_CHAR, YES_CHAR],
             comment_fmt="Q{n}, {s} ('Y' or 'N')",
             comment_strings=[

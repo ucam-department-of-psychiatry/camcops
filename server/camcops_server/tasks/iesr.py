@@ -27,7 +27,7 @@ from typing import Any, Dict, List, Tuple, Type
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -89,7 +89,7 @@ class Iesr(TaskHasPatientMixin, Task, Base,
     longname = "Impact of Events Scale – Revised"
     provides_trackers = True
 
-    event = Column("event", Text, comment="Relevant event")
+    event = Column("event", UnicodeText, comment="Relevant event")
 
     NQUESTIONS = 22
     MIN_SCORE = 0  # per question

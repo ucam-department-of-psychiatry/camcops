@@ -26,7 +26,7 @@ from typing import Optional
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_request import CamcopsRequest
@@ -43,7 +43,7 @@ class AbstractSatisfaction(Task):
     @declared_attr
     def service(self) -> Column:
         return Column(
-            "service", Text,
+            "service", UnicodeText,
             comment="Clinical service being rated"
         )
 
@@ -58,14 +58,14 @@ class AbstractSatisfaction(Task):
     @declared_attr
     def good(self) -> Column:
         return Column(
-            "good", Text,
+            "good", UnicodeText,
             comment="What has been good?"
         )
 
     @declared_attr
     def bad(self) -> Column:
         return Column(
-            "bad", Text,
+            "bad", UnicodeText,
             comment="What could be improved?"
         )
 

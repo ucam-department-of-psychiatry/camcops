@@ -25,7 +25,7 @@
 from typing import List
 
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -196,7 +196,7 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
         comment="BLOB ID of shapes picture"
     )
     comments = Column(
-        "comments", Text,
+        "comments", UnicodeText,
         comment="Clinician's comments"
     )
 

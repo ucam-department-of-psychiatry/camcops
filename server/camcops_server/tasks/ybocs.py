@@ -27,7 +27,7 @@ from typing import Any, Dict, List, Tuple, Type
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Integer, Text
+from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
 from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -68,7 +68,7 @@ class YbocsMetaclass(DeclarativeMeta):
             for n in range(1, cls.NTARGETS + 1):
                 fname = "target_{}_{}".format(target, n)
                 col = Column(
-                    fname, Text,
+                    fname, UnicodeText,
                     comment="Target symptoms: {} {}".format(target, n)
                 )
                 setattr(cls, fname, col)
@@ -306,7 +306,7 @@ class YbocsScMetaclass(DeclarativeMeta):
                     cls,
                     item + cls.SUFFIX_DETAIL,
                     Column(
-                        item + cls.SUFFIX_DETAIL, Text,
+                        item + cls.SUFFIX_DETAIL, UnicodeText,
                         comment=item + " (details)"
                     )
                 )

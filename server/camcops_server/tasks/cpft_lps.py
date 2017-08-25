@@ -27,15 +27,10 @@ from typing import Any, List, Optional
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, Text, UnicodeText
 
 from ..cc_modules.cc_dt import format_datetime_string
-from ..cc_modules.cc_constants import (
-    DATEFORMAT,
-    INVALID_VALUE,
-    PARAM,
-    PV,
-)
+from ..cc_modules.cc_constants import DATEFORMAT, INVALID_VALUE, PARAM
 from ..cc_modules.cc_ctvinfo import CtvInfo
 from ..cc_modules.cc_html import (
     answer,
@@ -58,6 +53,7 @@ from ..cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     CharColType,
     DateTimeAsIsoTextColType,
+    DiagnosticCodeColType,
     PermittedValueChecker,
 )
 from ..cc_modules.cc_sqlalchemy import Base
@@ -78,15 +74,15 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task, Base):
     longname = "Referral to CPFT Liaison Psychiatry Service"
 
     referral_date_time = Column("referral_date_time", DateTimeAsIsoTextColType)
-    lps_division = Column("lps_division", Text)
-    referral_priority = Column("referral_priority", Text)
-    referral_method = Column("referral_method", Text)
-    referrer_name = Column("referrer_name", Text)
-    referrer_contact_details = Column("referrer_contact_details", Text)
-    referring_consultant = Column("referring_consultant", Text)
-    referring_specialty = Column("referring_specialty", Text)
-    referring_specialty_other = Column("referring_specialty_other", Text)
-    patient_location = Column("patient_location", Text)
+    lps_division = Column("lps_division", UnicodeText)
+    referral_priority = Column("referral_priority", UnicodeText)
+    referral_method = Column("referral_method", UnicodeText)
+    referrer_name = Column("referrer_name", UnicodeText)
+    referrer_contact_details = Column("referrer_contact_details", UnicodeText)
+    referring_consultant = Column("referring_consultant", UnicodeText)
+    referring_specialty = Column("referring_specialty", UnicodeText)
+    referring_specialty_other = Column("referring_specialty_other", UnicodeText)
+    patient_location = Column("patient_location", UnicodeText)
     admission_date = Column("admission_date", DateTimeAsIsoTextColType)
     estimated_discharge_date = Column(
         "estimated_discharge_date", DateTimeAsIsoTextColType
@@ -116,10 +112,11 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task, Base):
         "admission_reason_poor_adherence"
     )
     admission_reason_other = BoolColumn("admission_reason_other")
-    existing_psychiatric_teams = Column("existing_psychiatric_teams", Text)
-    care_coordinator = Column("care_coordinator", Text)
-    other_contact_details = Column("other_contact_details", Text)
-    referral_reason = Column("referral_reason", Text)
+    existing_psychiatric_teams = Column("existing_psychiatric_teams",
+                                        UnicodeText)
+    care_coordinator = Column("care_coordinator", UnicodeText)
+    other_contact_details = Column("other_contact_details", UnicodeText)
+    referral_reason = Column("referral_reason", UnicodeText)
 
     def is_complete(self) -> bool:
         return (
@@ -319,7 +316,7 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
     reset_start_time_to = Column(
         "reset_start_time_to", DateTimeAsIsoTextColType
     )
-    reason = Column("reason", Text)
+    reason = Column("reason", UnicodeText)
 
     def is_complete(self) -> bool:
         return (
@@ -366,7 +363,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
     longname = "Discharge from CPFT Liaison Psychiatry Service"
 
     discharge_date = Column("discharge_date", DateTimeAsIsoTextColType)
-    discharge_reason_code = Column("discharge_reason_code", Text)
+    discharge_reason_code = Column("discharge_reason_code", UnicodeText)
 
     leaflet_or_discharge_card_given = BoolColumn(
         "leaflet_or_discharge_card_given"
@@ -375,7 +372,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
     patient_wanted_copy_of_letter = Column(
         # *** It's odd that this is text. Fix it. Tablet now using bool.
         # *** ONCE ALEMBIC UP, change from Text to Bool.
-        "patient_wanted_copy_of_letter", Text
+        "patient_wanted_copy_of_letter", UnicodeText
     )
     gaf_at_first_assessment = CamcopsColumn(
         "gaf_at_first_assessment", Integer,
@@ -434,33 +431,43 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
     )
     referral_reason_other = BoolColumn("referral_reason_other")
     referral_reason_transplant_organ = Column(
-        "referral_reason_transplant_organ", Text
+        "referral_reason_transplant_organ", UnicodeText
     )
-    referral_reason_other_detail = Column("referral_reason_other_detail", Text)
+    referral_reason_other_detail = Column(
+        "referral_reason_other_detail", UnicodeText
+    )
 
     diagnosis_no_active_mental_health_problem = BoolColumn(
         "diagnosis_no_active_mental_health_problem"
     )
-    diagnosis_psych_1_icd10code = Column("diagnosis_psych_1_icd10code", Text)
+    diagnosis_psych_1_icd10code = Column(
+        "diagnosis_psych_1_icd10code", DiagnosticCodeColType
+    )
     diagnosis_psych_1_description = Column(
-        "diagnosis_psych_1_description", Text
+        "diagnosis_psych_1_description", UnicodeText
     )
-    diagnosis_psych_2_icd10code = Column("diagnosis_psych_2_icd10code", Text)
+    diagnosis_psych_2_icd10code = Column(
+        "diagnosis_psych_2_icd10code", DiagnosticCodeColType
+    )
     diagnosis_psych_2_description = Column(
-        "diagnosis_psych_2_description", Text
+        "diagnosis_psych_2_description", UnicodeText
     )
-    diagnosis_psych_3_icd10code = Column("diagnosis_psych_3_icd10code", Text)
+    diagnosis_psych_3_icd10code = Column(
+        "diagnosis_psych_3_icd10code", DiagnosticCodeColType
+    )
     diagnosis_psych_3_description = Column(
-        "diagnosis_psych_3_description", Text
+        "diagnosis_psych_3_description", UnicodeText
     )
-    diagnosis_psych_4_icd10code = Column("diagnosis_psych_4_icd10code", Text)
+    diagnosis_psych_4_icd10code = Column(
+        "diagnosis_psych_4_icd10code", DiagnosticCodeColType
+    )
     diagnosis_psych_4_description = Column(
-        "diagnosis_psych_4_description", Text
+        "diagnosis_psych_4_description", UnicodeText
     )
-    diagnosis_medical_1 = Column("diagnosis_medical_1", Text)
-    diagnosis_medical_2 = Column("diagnosis_medical_2", Text)
-    diagnosis_medical_3 = Column("diagnosis_medical_3", Text)
-    diagnosis_medical_4 = Column("diagnosis_medical_4", Text)
+    diagnosis_medical_1 = Column("diagnosis_medical_1", UnicodeText)
+    diagnosis_medical_2 = Column("diagnosis_medical_2", UnicodeText)
+    diagnosis_medical_3 = Column("diagnosis_medical_3", UnicodeText)
+    diagnosis_medical_4 = Column("diagnosis_medical_4", UnicodeText)
 
     management_assessment_diagnostic = BoolColumn(
         "management_assessment_diagnostic"
@@ -495,13 +502,13 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
         "management_complex_case_conference"
     )
     management_other = BoolColumn("management_other")
-    management_other_detail = Column("management_other_detail", Text)
+    management_other_detail = Column("management_other_detail", UnicodeText)
 
-    outcome = Column("outcome", Text)
+    outcome = Column("outcome", UnicodeText)
     outcome_hospital_transfer_detail = Column(
-        "outcome_hospital_transfer_detail", Text
+        "outcome_hospital_transfer_detail", UnicodeText
     )
-    outcome_other_detail = Column("outcome_other_detail", Text)
+    outcome_other_detail = Column("outcome_other_detail", UnicodeText)
 
     def is_complete(self) -> bool:
         return (
@@ -511,7 +518,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
             self.field_contents_valid()
         )
 
-    def get_discharge_reason(self) -> Optional[str]:
+    def get_discharge_reason(self, req: CamcopsRequest) -> Optional[str]:
         if self.discharge_reason_code == "F":
             return self.wxstring(req, "reason_code_F")
         elif self.discharge_reason_code == "A":
@@ -523,7 +530,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
         else:
             return None
 
-    def get_referral_reasons(self) -> List[str]:
+    def get_referral_reasons(self, req: CamcopsRequest) -> List[str]:
         potential_referral_reasons = [
             "referral_reason_self_harm_overdose",
             "referral_reason_self_harm_other",
@@ -553,7 +560,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
                 referral_reasons.append(self.wxstring(req, "" + r))
         return referral_reasons
 
-    def get_managements(self) -> List[str]:
+    def get_managements(self, req: CamcopsRequest) -> List[str]:
         potential_managements = [
             "management_assessment_diagnostic",
             "management_medication",
@@ -585,7 +592,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
                 managements.append(self.wxstring(req, "" + r))
         return managements
 
-    def get_psychiatric_diagnoses(self) -> List[str]:
+    def get_psychiatric_diagnoses(self, req: CamcopsRequest) -> List[str]:
         psychiatric_diagnoses = [
             self.wxstring(req, "diagnosis_no_active_mental_health_problem")
         ] if self.diagnosis_no_active_mental_health_problem else []
@@ -609,17 +616,17 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
         return medical_diagnoses
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
-        diagnoses = self.get_psychiatric_diagnoses() + \
+        diagnoses = self.get_psychiatric_diagnoses(req) + \
             self.get_medical_diagnoses()
         return [
             CtvInfo(
                 heading=ws.webify(self.wxstring(req, "discharge_reason")),
-                content=self.get_discharge_reason()
+                content=self.get_discharge_reason(req)
             ),
             CtvInfo(
                 heading=ws.webify(
                     self.wxstring(req, "referral_reason_t")),
-                content=", ".join(self.get_referral_reasons())
+                content=", ".join(self.get_referral_reasons(req))
             ),
             CtvInfo(
                 heading=ws.webify(self.wxstring(req, "diagnoses_t")),
@@ -627,7 +634,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
             ),
             CtvInfo(
                 heading=ws.webify(self.wxstring(req, "management_t")),
-                content=", ".join(self.get_managements())
+                content=", ".join(self.get_managements(req))
             ),
             CtvInfo(
                 heading=ws.webify(self.wxstring(req, "outcome_t")),
@@ -653,7 +660,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
                                           DATEFORMAT.LONG_DATE_WITH_DAY,
                                           default=None), "")
         h += tr_qa(self.wxstring(req, "discharge_reason"),
-                   self.get_discharge_reason(), "")
+                   self.get_discharge_reason(req), "")
         h += tr_qa(self.wxstring(req, "leaflet_or_discharge_card_given"),
                    get_yes_no_none(self.leaflet_or_discharge_card_given), "")
         h += tr_qa(self.wxstring(req, "frequent_attender"),
@@ -667,7 +674,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
 
         h += subheading_spanning_two_columns(
             self.wxstring(req, "referral_reason_t"))
-        h += tr_span_col(answer(", ".join(self.get_referral_reasons())),
+        h += tr_span_col(answer(", ".join(self.get_referral_reasons(req))),
                          cols=2)
         h += tr_qa(self.wxstring(req, "referral_reason_transplant_organ"),
                    self.referral_reason_transplant_organ, "")
@@ -677,12 +684,12 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
         h += subheading_spanning_two_columns(
             self.wxstring(req, "diagnoses_t"))
         h += tr_qa(self.wxstring(req, "psychiatric_t"),
-                   "<br>".join(self.get_psychiatric_diagnoses()), "")
+                   "<br>".join(self.get_psychiatric_diagnoses(req)), "")
         h += tr_qa(self.wxstring(req, "medical_t"),
                    "<br>".join(self.get_medical_diagnoses()), "")
 
         h += subheading_spanning_two_columns(self.wxstring(req, "management_t"))
-        h += tr_span_col(answer(", ".join(self.get_managements())), cols=2)
+        h += tr_span_col(answer(", ".join(self.get_managements(req))), cols=2)
         h += tr_qa(self.wxstring(req, "management_other_detail"),
                    self.management_other_detail, "")
 

@@ -26,7 +26,7 @@ from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Text
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from ..cc_modules.cc_ctvinfo import CtvInfo
 from ..cc_modules.cc_request import CamcopsRequest
@@ -50,54 +50,54 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     # FIELDSPEC_A = CLINICIAN_FIELDSPECS  # replaced by has_clinician, then by TaskHasClinicianMixin  # noqa
 
-    location = Column("location", Text)
-    contact_type = Column("contact_type", Text)
-    reason_for_contact = Column("reason_for_contact", Text)
-    presenting_issue = Column("presenting_issue", Text)
-    systems_review = Column("systems_review", Text)
-    collateral_history = Column("collateral_history", Text)
+    location = Column("location", UnicodeText)
+    contact_type = Column("contact_type", UnicodeText)
+    reason_for_contact = Column("reason_for_contact", UnicodeText)
+    presenting_issue = Column("presenting_issue", UnicodeText)
+    systems_review = Column("systems_review", UnicodeText)
+    collateral_history = Column("collateral_history", UnicodeText)
 
-    diagnoses_psychiatric = Column("diagnoses_psychiatric", Text)
-    diagnoses_medical = Column("diagnoses_medical", Text)
-    operations_procedures = Column("operations_procedures", Text)
-    allergies_adverse_reactions = Column("allergies_adverse_reactions", Text)
-    medications = Column("medications", Text)
-    recreational_drug_use = Column("recreational_drug_use", Text)
-    family_history = Column("family_history", Text)
-    developmental_history = Column("developmental_history", Text)
-    personal_history = Column("personal_history", Text)
-    premorbid_personality = Column("premorbid_personality", Text)
-    forensic_history = Column("forensic_history", Text)
-    current_social_situation = Column("current_social_situation", Text)
+    diagnoses_psychiatric = Column("diagnoses_psychiatric", UnicodeText)
+    diagnoses_medical = Column("diagnoses_medical", UnicodeText)
+    operations_procedures = Column("operations_procedures", UnicodeText)
+    allergies_adverse_reactions = Column("allergies_adverse_reactions", UnicodeText)  # noqa
+    medications = Column("medications", UnicodeText)
+    recreational_drug_use = Column("recreational_drug_use", UnicodeText)
+    family_history = Column("family_history", UnicodeText)
+    developmental_history = Column("developmental_history", UnicodeText)
+    personal_history = Column("personal_history", UnicodeText)
+    premorbid_personality = Column("premorbid_personality", UnicodeText)
+    forensic_history = Column("forensic_history", UnicodeText)
+    current_social_situation = Column("current_social_situation", UnicodeText)
 
-    mse_appearance_behaviour = Column("mse_appearance_behaviour", Text)
-    mse_speech = Column("mse_speech", Text)
-    mse_mood_subjective = Column("mse_mood_subjective", Text)
-    mse_mood_objective = Column("mse_mood_objective", Text)
-    mse_thought_form = Column("mse_thought_form", Text)
-    mse_thought_content = Column("mse_thought_content", Text)
-    mse_perception = Column("mse_perception", Text)
-    mse_cognition = Column("mse_cognition", Text)
-    mse_insight = Column("mse_insight", Text)
+    mse_appearance_behaviour = Column("mse_appearance_behaviour", UnicodeText)
+    mse_speech = Column("mse_speech", UnicodeText)
+    mse_mood_subjective = Column("mse_mood_subjective", UnicodeText)
+    mse_mood_objective = Column("mse_mood_objective", UnicodeText)
+    mse_thought_form = Column("mse_thought_form", UnicodeText)
+    mse_thought_content = Column("mse_thought_content", UnicodeText)
+    mse_perception = Column("mse_perception", UnicodeText)
+    mse_cognition = Column("mse_cognition", UnicodeText)
+    mse_insight = Column("mse_insight", UnicodeText)
 
-    physical_examination_general = Column("physical_examination_general", Text)
-    physical_examination_cardiovascular = Column("physical_examination_cardiovascular", Text)  # noqa
-    physical_examination_respiratory = Column("physical_examination_respiratory", Text)  # noqa
-    physical_examination_abdominal = Column("physical_examination_abdominal", Text)  # noqa
-    physical_examination_neurological = Column("physical_examination_neurological", Text)  # noqa
+    physical_examination_general = Column("physical_examination_general", UnicodeText)  # noqa
+    physical_examination_cardiovascular = Column("physical_examination_cardiovascular", UnicodeText)  # noqa
+    physical_examination_respiratory = Column("physical_examination_respiratory", UnicodeText)  # noqa
+    physical_examination_abdominal = Column("physical_examination_abdominal", UnicodeText)  # noqa
+    physical_examination_neurological = Column("physical_examination_neurological", UnicodeText)  # noqa
 
-    assessment_scales = Column("assessment_scales", Text)
-    investigations_results = Column("investigations_results", Text)
+    assessment_scales = Column("assessment_scales", UnicodeText)
+    investigations_results = Column("investigations_results", UnicodeText)
 
-    safety_alerts = Column("safety_alerts", Text)
-    risk_assessment = Column("risk_assessment", Text)
-    relevant_legal_information = Column("relevant_legal_information", Text)
+    safety_alerts = Column("safety_alerts", UnicodeText)
+    risk_assessment = Column("risk_assessment", UnicodeText)
+    relevant_legal_information = Column("relevant_legal_information", UnicodeText)  # noqa
 
-    current_problems = Column("current_problems", Text)
-    patient_carer_concerns = Column("patient_carer_concerns", Text)
-    impression = Column("impression", Text)
-    management_plan = Column("management_plan", Text)
-    information_given = Column("information_given", Text)
+    current_problems = Column("current_problems", UnicodeText)
+    patient_carer_concerns = Column("patient_carer_concerns", UnicodeText)
+    impression = Column("impression", UnicodeText)
+    management_plan = Column("management_plan", UnicodeText)
+    information_given = Column("information_given", UnicodeText)
     
     FIELDS_B = [
         "location", "contact_type", "reason_for_contact",

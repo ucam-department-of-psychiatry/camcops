@@ -23,7 +23,7 @@
 """
 
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, String, Text, UnicodeText
 
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_request import CamcopsRequest
@@ -58,16 +58,16 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task, Base):
         comment="Ethnicity code, per GMC Patient Questionnaire (1-16)"
     )
     ethnicity_text = Column(
-        "ethnicity_text", Text,
+        "ethnicity_text", UnicodeText,
         comment="Ethnicity, description"
     )
     ethnicity_other_details = Column(
-        "ethnicity_other_details", Text,
+        "ethnicity_other_details", UnicodeText,
         comment="Ethnicity, other, details"
     )
 
     handedness = CamcopsColumn(
-        "handedness", Text,
+        "handedness", String(length=1),  # was Text
         permitted_value_checker=PermittedValueChecker(permitted_values=["L", "R"]),  # noqa
         comment="Handedness (L, R)"
     )
@@ -124,11 +124,13 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task, Base):
     familyhistory_details = Column("familyhistory_details", Text)
 
     health_anything_else = BoolColumn("health_anything_else")
-    health_anything_else_details = Column("health_anything_else_details", Text)
+    health_anything_else_details = Column(
+        "health_anything_else_details", UnicodeText
+    )
 
-    drug_history = Column("drug_history", Text)
+    drug_history = Column("drug_history", UnicodeText)
     first_antipsychotic_medication = Column(
-        "first_antipsychotic_medication", Text
+        "first_antipsychotic_medication", UnicodeText
     )
 
     recreational_drug_in_last_3_months = BoolColumn(
@@ -247,10 +249,12 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task, Base):
     )
     recdrug_hallucinogens_prevheavy = BoolColumn("recdrug_hallucinogens_prevheavy")  # noqa
 
-    recdrug_details = Column("recdrug_details", Text)
+    recdrug_details = Column("recdrug_details", UnicodeText)
 
     recdrug_prevheavy = BoolColumn("recdrug_prevheavy")
-    recdrug_prevheavy_details = Column("recdrug_prevheavy_details", Text)
+    recdrug_prevheavy_details = Column(
+        "recdrug_prevheavy_details", UnicodeText
+    )
 
     mri_claustrophobic = BoolColumn("mri_claustrophobic")
     mri_difficulty_lying_1_hour = BoolColumn("mri_difficulty_lying_1_hour")
@@ -260,11 +264,11 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task, Base):
     mri_worked_with_metal = BoolColumn("mri_worked_with_metal")
     mri_previous_brain_scan = BoolColumn("mri_previous_brain_scan")
     mri_previous_brain_scan_details = Column(
-        "mri_previous_brain_scan_details", Text
+        "mri_previous_brain_scan_details", UnicodeText
     )
     other_relevant_things = BoolColumn("other_relevant_things")
     other_relevant_things_details = Column(
-        "other_relevant_things_details", Text
+        "other_relevant_things_details", UnicodeText
     )
 
     willing_to_participate_in_further_studies = BoolColumn(

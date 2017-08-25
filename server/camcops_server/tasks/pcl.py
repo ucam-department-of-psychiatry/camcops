@@ -27,7 +27,7 @@ from typing import Any, Dict, List, Tuple, Type, Union
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Integer, Text
+from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import add_multiple_columns
@@ -301,11 +301,11 @@ class PclS(PclCommon, Base,
     longname = "PTSD Checklist, Stressor-specific version"
 
     event = Column(
-        "event", Text,
+        "event", UnicodeText,
         comment="Traumatic event"
     )
     eventdate = Column(
-        "eventdate", Text,
+        "eventdate", UnicodeText,
         comment="Date of traumatic event (free text)"
     )
 
