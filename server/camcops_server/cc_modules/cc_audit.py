@@ -100,9 +100,8 @@ class AuditEntry(Base):
 # Audit function
 # =============================================================================
 
-def audit(details: str,
-          dbsession: SqlASession = None,
-          req: "CamcopsRequest" = None,
+def audit(req: "CamcopsRequest",
+          details: str,
           patient_server_pk: int = None,
           table: str = None,
           server_pk: int = None,
@@ -112,10 +111,7 @@ def audit(details: str,
           from_console: bool = False,
           from_dbclient: bool = False) -> None:
     """Write an entry to the audit log."""
-    assert dbsession or req
-    if dbsession is None:
-        # noinspection PyUnresolvedReferences
-        dbsession = req.dbsession
+    dbsession = req.dbsession
     if not remote_addr:
         remote_addr = req.remote_addr if req else None
     if not user_id:

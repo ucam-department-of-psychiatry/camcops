@@ -42,16 +42,16 @@ from sqlalchemy.orm import Session as SqlASession
 
 # Note: everything uder the sun imports this file, so keep the intra-package
 # imports as minimal as possible.
+from .cc_baseconstants import ENVVAR_CONFIG_FILE
 from .cc_config import CamcopsConfig, get_config, get_config_filename
 from .cc_constants import (
     CAMCOPS_LOGO_FILE_WEBREF,
     DATEFORMAT,
-    ENVVAR_CONFIG_FILE,
     LOCAL_LOGO_FILE_WEBREF,
-    WEB_HEAD,
+    STATIC_URL_PREFIX,
 )
 from .cc_dt import format_datetime
-from .cc_pyramid import CookieKeys
+from .cc_pyramid import CookieKeys, Routes
 from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
 from .cc_tabletsession import TabletSession
 
@@ -108,6 +108,9 @@ class CamcopsRequest(Request):
 
     @property
     def camcops_session(self) -> "CamcopsSession":
+        # Contrast:
+        # ccsession = request.camcops_session  # type: CamcopsSession
+        # pyramid_session = request.session  # type: ISession
         if self._camcops_session is None:
             from .cc_session import CamcopsSession  # delayed import
             self._camcops_session = CamcopsSession.get_session_using_cookies(
@@ -222,14 +225,6 @@ class CamcopsRequest(Request):
         )
 
     @reify
-    def webstart_html(self) -> str:
-        """
-        Returns the time of the request as a UTC datetime.
-        Exposed as the property: request.webstart_html
-        """
-        return WEB_HEAD + self.web_logo_html
-
-    @reify
     def _all_extra_strings(self) -> Dict[str, Dict[str, str]]:
         return all_extra_strings_as_dicts(self.config_filename)
 
@@ -331,7 +326,7 @@ class CamcopsRequest(Request):
         # want to replace the session in the Request, without committing the
         # first one to disk.
         self.dbsession.expunge(self.camcops_session)
-        self.camcops_session = ccsession
+        self._camcops_session = ccsession
 
     def route_url_params(self, route_name: str,
                          paramdict: Dict[str, Any]) -> str:
@@ -356,6 +351,25 @@ class CamcopsRequest(Request):
         """
         strparamdict = {k: str(v) for k, v in paramdict.items()}
         return self.route_url(route_name, **strparamdict)
+
+    @property
+    def url_local_institution(self) -> str:
+        return self.config.LOCAL_INSTITUTION_URL
+
+    @property
+    def url_camcops_favicon(self) -> str:
+        # *** check/revise ***
+        return STATIC_URL_PREFIX + "favicon_camcops.png"
+
+    @property
+    def url_camcops_logo(self) -> str:
+        # *** check/revise ***
+        return STATIC_URL_PREFIX + "logo_camcops.png"
+
+    @property
+    def url_local_logo(self) -> str:
+        # *** check/revise ***
+        return STATIC_URL_PREFIX + "logo_local.png"
 
 
 # noinspection PyUnusedLocal

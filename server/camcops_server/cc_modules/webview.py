@@ -20,6 +20,90 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 ===============================================================================
+
+Quick tutorial on Pyramid views:
+
+-   The configurator registers routes, and routes have URLs associated with
+    them. Those URLs can be templatized, e.g. to accept numerical parameters.
+    The configurator associates view callables ("views" for short) with routes,
+    and one method for doing that is an automatic scan via Venusian for views
+    decorated with @view_config().
+
+-   All views take a Request object and return a Response or raise an exception
+    that Pyramid will translate into a Response.
+
+-   Having matched a route, Pyramid uses its "view lookup" process to choose
+    one from potentially several views. For example, a single route might be
+    associated with:
+
+        @view_config(route_name="myroute")
+        def myroute_default(req: Request) -> Response:
+            pass
+
+        @view_config(route_name="myroute", method="POST")
+        def myroute_post(req: Request) -> Response:
+            pass
+
+    In this example, POST requests will go to the second; everything else will
+    go to the first. Pyramid's view lookup rule is essentially: if multiple
+    views match, choose the one with the most specifiers.
+
+-   Specifiers include:
+
+        route_name=ROUTENAME
+
+            the route
+
+        request_method="POST"
+
+            requires HTTP GET, POST, etc.
+
+        request_param="XXX"
+
+            ... requires the presence of a GET/POST variable with this name in
+            the request.params dictionary
+
+        request_param="XXX=YYY"
+
+            ... requires the presence of a GET/POST variable called XXX whose
+            value is YYY, in the request.params dictionary
+
+        match_param="XXX=YYY"
+
+            .. requires the presence of this key/value pair in
+            request.matchdict, which contains parameters from the URL
+
+    https://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html#pyramid.config.Configurator.add_view  # noqa
+
+-   Getting parameters
+
+        request.params
+
+            ... parameters from HTTP GET or POST, including both the query
+            string (as in http://somewhere/path?key=value) and the body (e.g.
+            POST).
+
+        request.matchdict
+
+            ... parameters from the URL, via URL dispatch; see
+            https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html#urldispatch-chapter  # noqa
+
+-   Regarding rendering:
+
+    There might be some simplicity benefits from converting to a template
+    system like Mako. On the downside, that would entail a bit more work;
+    likely a minor performance hit (relative to plain Python string rendering);
+    and a loss of type checking. The type checking is also why we prefer:
+
+        html = " ... {param_blah} ...".format(param_blah=PARAM.BLAH)
+
+    to
+
+        html = " ... {PARAM.BLAH} ...".format(PARAM=PARAM)
+
+    as in the first situation, PyCharm will check that "BLAH" is present in
+    "PARAM", and in the second it won't. Automatic checking is worth a lot.
+
 """
 
 import cgi
@@ -29,83 +113,78 @@ import datetime
 import io
 import lockfile
 import logging
-import sys
 import typing
 from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Union
 import zipfile
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
+import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.rnc_web import HEADERS_TYPE, WSGI_TUPLE_TYPE
+from deform import ValidationFailure
+import pyramid.httpexceptions as exc
+from pyramid.view import view_config
+from pyramid.renderers import render_to_response
+from pyramid.response import Response
 import pygments
 import pygments.lexers
 import pygments.lexers.web
 import pygments.formatters
 
-# local:
-from cardinal_pythonlib.logs import BraceStyleAdapter
-import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.rnc_web import HEADERS_TYPE, WSGI_TUPLE_TYPE
-
-# CamCOPS support modules
-import camcops_server.cc_modules.cc_all_models  # register all tasks
-from .cc_modules.cc_audit import audit, AuditEntry
-from .cc_modules.cc_constants import (
+from .cc_audit import audit, AuditEntry
+from .cc_constants import (
     ACTION,
     CAMCOPS_URL,
-    COMMON_HEAD,
     DATEFORMAT,
     PARAM,
     RESTRICTED_WARNING,
     TASK_LIST_FOOTER,
     TASK_LIST_HEADER,
     VALUE,
-    WEBEND,
 )
-from .cc_modules.cc_blob import Blob
-from .cc_modules import cc_db
-from .cc_modules.cc_device import (
+from .cc_blob import Blob
+from camcops_server.cc_modules import cc_db
+from .cc_device import (
     Device,
     get_device_filter_dropdown,
 )
-from .cc_modules.cc_dt import (
+from .cc_dt import (
     get_now_localtz,
     format_datetime,
     format_datetime_string
 )
-from .cc_modules.cc_dump import (
+from .cc_dump import (
     get_database_dump_as_sql,
     get_multiple_views_data_as_tsv_zip,
     get_permitted_tables_views_sorted_labelled,
     NOTHING_VALID_SPECIFIED,
 )
-from .cc_modules.cc_hl7 import HL7Message, HL7Run
-from .cc_modules.cc_html import (
-    fail_with_error_not_logged_in,
-    fail_with_error_stay_logged_in,
+from .cc_hl7 import HL7Message, HL7Run
+from .cc_html import (
     get_generic_action_url,
     get_html_sex_picker,
     get_html_which_idnum_picker,
     get_url_enter_new_password,
     get_url_field_value_pair,
     get_url_main_menu,
-    login_page,
-    simple_success_message,
 )
-from .cc_modules.cc_patient import Patient
-from .cc_modules.cc_plot import ccplot_do_nothing
-from .cc_modules.cc_policy import (
+from .cc_patient import Patient
+from .cc_plot import ccplot_do_nothing
+from .cc_policy import (
     get_finalize_id_policy_principal_numeric_id,
     get_upload_id_policy_principal_numeric_id,
     id_policies_valid,
 )
-from .cc_modules.cc_report import (
+from .cc_pyramid import Methods, Routes
+from .cc_report import (
     offer_individual_report,
     offer_report_menu,
     serve_report,
 )
-from .cc_modules.cc_request import CamcopsRequest
-from .cc_modules.cc_session import CamcopsSession
-from .cc_modules.cc_specialnote import SpecialNote
-from .cc_modules.cc_storedvar import DeviceStoredVar
-from .cc_modules.cc_task import (
+from .cc_request import CamcopsRequest
+from .cc_session import CamcopsSession
+from .cc_specialnote import SpecialNote
+from .cc_storedvar import DeviceStoredVar
+from .cc_task import (
     gen_tasks_for_patient_deletion,
     gen_tasks_live_on_tablet,
     gen_tasks_matching_session_filter,
@@ -114,21 +193,26 @@ from .cc_modules.cc_task import (
     Task,
     task_factory,
 )
-from .cc_modules.cc_tracker import ClinicalTextView, Tracker
-from .cc_modules.cc_unittest import unit_test_ignore
-from .cc_modules.cc_user import (
+from .cc_tracker import ClinicalTextView, Tracker
+from .cc_unittest import unit_test_ignore
+from .cc_user import (
     add_user,
     ask_delete_user_html,
     ask_to_add_user_html,
-    change_password,
     change_user,
     delete_user,
     edit_user_form,
     enable_user_webview,
-    enter_new_password_html,
     manage_users_html,
+    SecurityAccountLockout,
+    User,
 )
-from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
+from .cc_version import CAMCOPS_SERVER_VERSION
+from .forms import (
+    # get_form_errors,
+    LoginForm,
+    OfferTermsForm,
+)
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 ccplot_do_nothing()
@@ -136,20 +220,6 @@ ccplot_do_nothing()
 
 WSGI_TUPLE_TYPE_WITH_STATUS = Tuple[str, HEADERS_TYPE, bytes, str]
 # ... contenttype, extraheaders, output, status
-
-# =============================================================================
-# Check Python version (the shebang is not a guarantee)
-# =============================================================================
-
-# if sys.version_info[0] != 2 or sys.version_info[1] != 7:
-#     # ... sys.version_info.major (etc.) require Python 2.7 in any case!
-#     raise RuntimeError(
-#         "CamCOPS needs Python 2.7, and this Python version is: "
-#         + sys.version)
-
-if sys.version_info[0] != 3:
-    raise RuntimeError(
-        "CamCOPS needs Python 3, and this Python version is: " + sys.version)
 
 # =============================================================================
 # Constants
@@ -175,62 +245,72 @@ NOT_ALL_PATIENTS_UNFILTERED_WARNING = """
         patient filters are applied. Only anonymous records will be
         shown. Choose a patient to see their records.
     </div>"""
-ID_POLICY_INVALID_DIV = """
-    <div class="badidpolicy_severe">
-        Server’s ID policies are missing or invalid.
-        This needs fixing urgently by the system administrator.
-    </div>
-"""
 
 
 # =============================================================================
-# Page components
+# Simple success/failure/redirection
 # =============================================================================
 
-def login_failed(redirect: str = None) -> str:
-    """HTML given after login failure."""
-    return fail_with_error_not_logged_in(
-        "Invalid username/password. Try again.",
-        redirect)
+def redirect(req: CamcopsRequest, route_name: str) -> None:
+    raise exc.HTTPFound(req.route_url(route_name))
 
 
-def account_locked(locked_until: datetime.datetime, 
-                   redirect: str = None) -> str:
-    """HTML given when account locked out."""
-    return fail_with_error_not_logged_in(
-        "Account locked until {} due to multiple login failures. "
-        "Try again later or contact your administrator.".format(
-            format_datetime(
-                locked_until,
-                DATEFORMAT.LONG_DATETIME_WITH_DAY,
-                "(never)"
-            )
-        ),
-        redirect)
+def simple_success_message(req: CamcopsRequest, msg: str) -> Response:
+    """Simple success message."""
+    return render_to_response(
+        "success.mako",
+        dict(msg=msg),
+        request=req,
+    )
 
 
-def fail_not_user(action: str, redirect: str = None) -> str:
+def fail_with_error_not_logged_in(req: CamcopsRequest,
+                                  error: str,
+                                  redirect_url: str = None) -> Response:
+    """You-have-failed-and-are-not-logged-in message."""
+    return login_page(req, error_msg(error), redirect_url)
+
+
+def fail_with_error_stay_logged_in(req: CamcopsRequest,
+                                   error: str,
+                                   extra_html: str = "") -> Response:
+    """HTML for errors where the user stays logged in."""
+    html = req.webstart_html + """
+        {error}
+        {main_menu}
+        {extra}
+    """.format(
+        error=error_msg(error),
+        main_menu=get_return_to_main_menu_line(req),
+        extra=extra_html
+    ) + WEBEND
+    return Response(html)
+
+
+def fail_not_user(req: CamcopsRequest,
+                  action: str, redirect_url: str = None) -> Response:
     """HTML given when action failed because not logged in properly."""
     return fail_with_error_not_logged_in(
+        req,
         "Can't process action {} — not logged in as a valid user, "
         "or session has timed out.".format(action),
-        redirect)
+        redirect_url)
     # OR ANOTHER POSSIBILITY: CamCOPS being offered over HTTP, which will
     # cause cookies not to be saved (because they're HTTPS only).
 
 
-def fail_not_authorized_for_task(req: CamcopsRequest) -> str:
+def fail_not_authorized_for_task(req: CamcopsRequest) -> Response:
     """HTML given when user isn't allowed to see a specific task."""
     return fail_with_error_stay_logged_in(
         req, "Not authorized to view that task.")
 
 
-def fail_task_not_found(req: CamcopsRequest) -> str:
+def fail_task_not_found(req: CamcopsRequest) -> Response:
     """HTML given when task not found."""
     return fail_with_error_stay_logged_in(req, "Task not found.")
 
 
-def fail_not_manager(req: CamcopsRequest, action: str) -> str:
+def fail_not_manager(req: CamcopsRequest, action: str) -> Response:
     """HTML given when user doesn't have management rights."""
     return fail_with_error_stay_logged_in(
         req,
@@ -238,7 +318,7 @@ def fail_not_manager(req: CamcopsRequest, action: str) -> str:
     )
 
 
-def fail_unknown_action(req: CamcopsRequest, action: str) -> str:
+def fail_unknown_action(req: CamcopsRequest, action: str) -> Response:
     """HTML given when action unknown."""
     return fail_with_error_stay_logged_in(
         req,
@@ -247,217 +327,288 @@ def fail_unknown_action(req: CamcopsRequest, action: str) -> str:
 
 
 # =============================================================================
-# Pages/actions
+# Test pages
 # =============================================================================
 
-def login(session: CamcopsSession, form: cgi.FieldStorage) \
-        -> Union[str, WSGI_TUPLE_TYPE_WITH_STATUS]:
-    """Processes a login request."""
+# @view_config(route_name=Routes.TESTPAGE)
+def test_page_1(req: CamcopsRequest) -> Response:
+    return Response("hello")
 
-    log.debug("Validating user login.")
-    username = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    password = ws.get_cgi_parameter_str(form, PARAM.PASSWORD)
-    redirect = ws.get_cgi_parameter_str(form, PARAM.REDIRECT)
-    # 1. If we don't have a username, let's stop quickly.
-    if not username:
-        session.logout()
-        return login_failed(redirect)
-    # 2. Is the user locked?
-    if is_user_locked_out(username):
-        return account_locked(user_locked_out_until(username),
-                              redirect)
-    # 3. Is the username/password combination correct?
-    userobject = get_user(username, password)  # checks password
-    # noinspection PyUnresolvedReferences
-    if userobject is not None and userobject.may_use_webviewer:
-        # Successful login.
-        userobject.login()  # will clear login failure record
-        session.login(userobject)
-        audit("Login")
-    elif userobject is not None:
-        # This means a user who can upload from tablet but who cannot log
-        # in via the web front end.
-        return login_failed(redirect)
+
+@view_config(route_name=Routes.TESTPAGE, renderer="testpage.mako")
+def test_page_2(req: CamcopsRequest) -> Dict[str, Any]:
+    return dict(param1="world")
+
+
+# =============================================================================
+# Authorization etc.
+# =============================================================================
+
+log.critical("IMPLEMENT XSRF IN ALL FORMS")
+log.critical("ENSURE ALMOST ALL VIEWS RESTRICTED TO LOGGED IN ONLY")
+
+
+@view_config(route_name=Routes.LOGIN)
+# Do NOT use extra parameters for functions decorated with @view_config;
+# @view_config can take functions like "def view(request)" but also
+# "def view(context, request)", so if you add additional parameters, it thinks
+# you're doing the latter and sends parameters accordingly.
+def login_view(req: CamcopsRequest) -> Response:
+    login_template = "login.mako"
+    cfg = req.config
+    autocomplete_password = not cfg.DISABLE_PASSWORD_AUTOCOMPLETE
+
+    login_form = LoginForm(autocomplete_password=autocomplete_password)
+    appstruct = dict(redirect=redirect)
+    form = None
+
+    if 'submit' in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = login_form.validate(controls)
+            log.debug("Validating user login.")
+            ccsession = req.camcops_session
+            username = appstruct.get(PARAM.USERNAME)
+            password = appstruct.get(PARAM.PASSWORD)
+            redirect_url = appstruct.get(PARAM.REDIRECT_URL)
+            # 1. If we don't have a username, let's stop quickly.
+            if not username:
+                ccsession.logout(req)
+                return login_failed(req)
+            # 2. Is the user locked?
+            if SecurityAccountLockout.is_user_locked_out(req, username):
+                return account_locked(req,
+                                      User.user_locked_out_until(username))
+            # 3. Is the username/password combination correct?
+            user = User.get_user_from_username_password(req, username,
+                                                        password)  # checks password  # noqa
+            if user is not None and user.may_use_webviewer:
+                # Successful login.
+                user.login(req)  # will clear login failure record
+                ccsession.login(user)
+                audit(req, "Login")
+            elif user is not None:
+                # This means a user who can upload from tablet but who cannot
+                # log in via the web front end.
+                return login_failed(req)
+            else:
+                # Unsuccessful. Note that the username may/may not be genuine.
+                User.act_on_login_failure(username)  # may lock the account
+                # ... call audit() before session.logout(), as the latter
+                # will wipe the session IP address
+                ccsession.logout(req)
+                return login_failed(req)
+
+            # OK, logged in.
+
+            # Need to change password?
+            if ccsession.user_must_change_password():
+                return enter_new_password_html(req, ccsession.username,
+                                               as_manager=False,
+                                               because_password_expired=True)
+
+            # Need to agree terms/conditions of use?
+            if ccsession.user_must_agree_terms():
+                return offer_terms(req)
+
+            # Redirect (to where user was trying to get to before timeout),
+            # or main menu
+            if redirect_url:
+                raise exc.HTTPFound(redirect_url)  # redirect
+
+            redirect(req, Routes.HOME)
+
+        except ValidationFailure as e:
+            # log.debug("LoginForm errors: {!r}", get_form_errors(login_form))
+            form = e.render()
+
     else:
-        # Unsuccessful. Note that the username may/may not be genuine.
-        act_on_login_failure(username)  # may lock the account
-        # ... call audit() before session.logout(), as the latter
-        # will wipe the session IP address
-        session.logout()
-        return login_failed(redirect)
+        form = login_form.render(appstruct)
 
-    # OK, logged in.
-
-    # Need to change password?
-    if session.user_must_change_password():
-        return enter_new_password_html(session, session.username,
-                                       as_manager=False,
-                                       because_password_expired=True)
-
-    # Need to agree terms/conditions of use?
-    if session.user_must_agree_terms():
-        return offer_terms(session, form)
-
-    # Redirect (to where user was trying to get to before timeout),
-    # or main menu
-    if redirect:
-        return redirect_to(redirect)
-    return main_menu(session, form)
+    return render_to_response(login_template, dict(form=form), request=req)
 
 
-# noinspection PyUnusedLocal
-def logout(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Logs a session out."""
-    audit("Logout")
-    session.logout()
-    return login_page()
-
-
-def agree_terms(req: CamcopsRequest, form: cgi.FieldStorage) -> str:
-    """The user has agreed the terms. Log this, then offer the main menu."""
-    req.camcops_session.agree_terms(req)
-    return main_menu(session, form)
-
-
-# noinspection PyUnusedLocal
-def main_menu(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Main HTML menu."""
-
-    # Main clinical/task section
-    html = pls.WEBSTART + """
-        {user}
-        <h1>CamCOPS web view: Main menu</h1>
-        <ul>
-            <li><a href="{url_tasks}">View tasks</a></li>
-            <li><a href="{url_tr}">Trackers for numerical information</a></li>
-            <li><a href="{url_ctv}">Clinical text view</a></li>
-        </ul>
-    """.format(
-        user=session.get_current_user_html(offer_main_menu=False),
-        url_tasks=get_generic_action_url(ACTION.VIEW_TASKS),
-        url_tr=get_generic_action_url(ACTION.CHOOSE_TRACKER),
-        url_ctv=get_generic_action_url(ACTION.CHOOSE_CLINICALTEXTVIEW),
+def login_failed(req: CamcopsRequest) -> Response:
+    """HTML given after login failure."""
+    return render_to_response(
+        "login_failed.mako",
+        dict(),
+        request=req
     )
 
-    # Reports, dump
-    if session.authorized_for_reports() or session.authorized_to_dump():
-        html += """<ul>"""
-    if session.authorized_for_reports():
-        html += """
-            <li><a href="{reports}">Run reports</a></li>
-        """.format(
-            reports=get_generic_action_url(ACTION.REPORTS_MENU),
-        )
-    if session.authorized_to_dump():
-        html += """
-            <li><a href="{basic_dump}">
-                Basic research dump (fields and summaries)
-            </a></li>
-            
-            <!-- DISABLED FOR NOW: -->
-            <!-- <li><a href="{regen}">Regenerate summary tables</a></li> -->
-            
-            <li><a href="{table_dump}">Dump table/view data</a></li>
-            <li>
-                <a href="{table_defs}">Inspect table definitions</a>
-                (... <a href="{tv_defs}">including views</a>)
-            </li>
-        """.format(
-            basic_dump=get_generic_action_url(ACTION.OFFER_BASIC_DUMP),
-            regen=get_generic_action_url(ACTION.OFFER_REGENERATE_SUMMARIES),
-            table_dump=get_generic_action_url(ACTION.OFFER_TABLE_DUMP),
-            table_defs=get_generic_action_url(ACTION.INSPECT_TABLE_DEFS),
-            tv_defs=get_generic_action_url(ACTION.INSPECT_TABLE_VIEW_DEFS),
-        )
-    if session.authorized_for_reports() or session.authorized_to_dump():
-        html += """</ul>"""
 
-    # Administrative
-    if session.authorized_as_superuser():
-        html += """
-        <ul>
-            <li><a href="{}">Manage users</a></li>
-            <li><a href="{}">Delete patient entirely</a></li>
-            <li><a href="{}">Forcibly preserve/finalize records for a
-                device</a></li>
-            <li><a href="{}">View audit trail</a></li>
-            <li><a href="{}">View HL7 message log</a></li>
-            <li><a href="{}">View HL7 run log</a></li>
-        </ul>
-        """.format(
-            get_generic_action_url(ACTION.MANAGE_USERS),
-            get_generic_action_url(ACTION.DELETE_PATIENT),
-            get_generic_action_url(ACTION.FORCIBLY_FINALIZE),
-            get_generic_action_url(ACTION.OFFER_AUDIT_TRAIL_OPTIONS),
-            get_generic_action_url(ACTION.OFFER_HL7_LOG_OPTIONS),
-            get_generic_action_url(ACTION.OFFER_HL7_RUN_OPTIONS),
-        )
-
-    # Everybody
-    if pls.INTROSPECTION:
-        introspection = """
-            <li><a href="{}">Introspect source code</a></li>
-        """.format(
-            get_generic_action_url(ACTION.OFFER_INTROSPECTION),
-        )
-    else:
-        introspection = ""
-    html += """
-        <ul>
-            <li><a href="{pol}">Show server identification policies</a></li>
-            {introspection}
-            <li><a href="{chpw}">Change password</a></li>
-            <li><a href="{logout}">Log out</a></li>
-        </ul>
-        <div class="office">
-            It’s {now}.
-            Server version {sv}.
-            See <a href="{camcops_url}">www.camcops.org</a> for more
-            information on CamCOPS.
-            Clicking on the CamCOPS logo will return you to the main menu.
-        </div>
-        {invalid_policy_warning}
-    """.format(
-        pol=get_generic_action_url(ACTION.VIEW_POLICIES),
-        introspection=introspection,
-        chpw=get_url_enter_new_password(session.username),
-        logout=get_generic_action_url(ACTION.LOGOUT),
-        now=format_datetime(pls.NOW_LOCAL_TZ,
-                            DATEFORMAT.SHORT_DATETIME_SECONDS),
-        sv=CAMCOPS_SERVER_VERSION,
-        camcops_url=CAMCOPS_URL,
-        invalid_policy_warning=(
-            "" if id_policies_valid() else ID_POLICY_INVALID_DIV
+def account_locked(req: CamcopsRequest,
+                   locked_until: datetime.datetime) -> Response:
+    """HTML given when account locked out."""
+    return render_to_response(
+        "accounted_locked.mako",
+        dict(
+            locked_until=format_datetime(locked_until,
+                                         DATEFORMAT.LONG_DATETIME_WITH_DAY,
+                                         "(never)")
         ),
-    ) + WEBEND
-    return html
+        request=req
+    )
 
 
-# noinspection PyUnusedLocal
-def offer_terms(session: CamcopsSession, form: cgi.FieldStorage) -> str:
+@view_config(route_name=Routes.LOGOUT, renderer="logged_out.mako")
+def logout(req: CamcopsRequest) -> Dict[str, Any]:
+    """Logs a session out."""
+    audit(req, "Logout")
+    ccsession = req.camcops_session
+    ccsession.logout(req)
+    return dict()
+
+
+@view_config(route_name=Routes.OFFER_TERMS, renderer="offer_terms.mako")
+def offer_terms(req: CamcopsRequest) -> Dict[str, Any]:
     """HTML offering terms/conditions and requesting acknowledgement."""
+    offer_terms_form = OfferTermsForm(
+        agree_button_text=req.wappstring("disclaimer_agree"))
 
-    html = pls.WEBSTART + """
-        {user}
-        <h1>{title}</h1>
-        <h2>{subtitle}</h2>
-        <p>{content}</p>
-        <form name="myform" action="{script}" method="POST">
-            <input type="hidden" name="{PARAM.ACTION}"
-                    value="{ACTION.AGREE_TERMS}">
-            <input type="submit" value="{agree}">
-        </form>
-    """.format(
-        user=session.get_current_user_html(),
+    if 'submit' in req.POST:
+        req.camcops_session.agree_terms(req)
+        redirect(req, Routes.HOME)
+
+    form = offer_terms_form.render()
+    return dict(
         title=req.wappstring("disclaimer_title"),
         subtitle=req.wappstring("disclaimer_subtitle"),
         content=req.wappstring("disclaimer_content"),
-        script=pls.SCRIPT_NAME,
-        PARAM=PARAM,
+        form=form,
+    )
+
+
+def enter_new_password_html(
+        req: CamcopsRequest,
+        username: str,
+        as_manager: bool = False,
+        because_password_expired: bool = False) -> Response:
+    """HTML to change password."""
+    cfg = req.config
+    ccsession = req.camcops_session
+    if as_manager:
+        changepw = """
+            <label>
+                <input type="checkbox" name="{PARAM.MUST_CHANGE_PASSWORD}"
+                        value="1" checked>
+                {LABEL.MUST_CHANGE_PASSWORD}
+            </label><br>
+        """.format(
+            PARAM=PARAM,
+            LABEL=LABEL,
+        )
+    else:
+        changepw = ""
+    html = req.webstart_html + """
+        {userdetails}
+        {if_expired}
+        <h1>Change password for {username}</h1>
+        <form name="myform" action="{script}" method="POST">
+            <input type="hidden" name="{PARAM.ACTION}"
+                    value="{ACTION.CHANGE_PASSWORD}">
+            <input type="hidden" name="{PARAM.USERNAME}" value="{username}">
+            {oldpw}
+            New password:
+            <input type="password" name="{PARAM.NEW_PASSWORD_1}">
+            (minimum length {MINIMUM_PASSWORD_LENGTH} characters)<br>
+            Re-enter new password:
+            <input type="password" name="{PARAM.NEW_PASSWORD_2}"><br>
+            {changepw}
+            <input type="submit" value="Submit">
+        </form>
+    """.format(
+        userdetails=ccsession.get_current_user_html(),
+        if_expired=("""
+            <div class="important">
+                Your password has expired and must be changed.
+            </div>""" if because_password_expired else ""),
+        username=username,
         ACTION=ACTION,
-        agree=req.wappstring("disclaimer_agree"),
+        script=req.script_name,
+        oldpw="" if as_manager else """
+            Old password: <input type="password" name="{}"><br>
+        """.format(PARAM.OLD_PASSWORD),
+        PARAM=PARAM,
+        MINIMUM_PASSWORD_LENGTH=MINIMUM_PASSWORD_LENGTH,
+        changepw=changepw,
     ) + WEBEND
-    return html
+    return Response(html)
+
+
+def change_password(req: "CamcopsRequest",
+                    username: str,
+                    form: cgi.FieldStorage,
+                    as_manager: bool = False) -> str:
+    """Change password, and return success/failure HTML."""
+    dbsession = req.dbsession
+    user = User.get_user_by_name(dbsession, username)
+    if not user:
+        return user_management_failure_message(
+            "Problem: can't find user " + username, as_manager)
+    old_password = ws.get_cgi_parameter_str(form, PARAM.OLD_PASSWORD)
+    new_password_1 = ws.get_cgi_parameter_str(form, PARAM.NEW_PASSWORD_1)
+    new_password_2 = ws.get_cgi_parameter_str(form, PARAM.NEW_PASSWORD_2)
+    must_change_password = ws.get_cgi_parameter_bool(
+        form, PARAM.MUST_CHANGE_PASSWORD)
+    if new_password_1 != new_password_2:
+        return user_management_failure_message("New passwords don't match",
+                                               as_manager)
+    if len(new_password_1) < MINIMUM_PASSWORD_LENGTH:
+        return user_management_failure_message(
+            "New password must be at least {} characters; not changed.".format(
+                MINIMUM_PASSWORD_LENGTH
+            ),
+            as_manager
+        )
+    if old_password == new_password_1 and not as_manager:
+        return user_management_failure_message(
+            "Old/new passwords are the same",
+            as_manager
+        )
+    if (not as_manager) and (not user.is_password_valid(old_password)):
+        return user_management_failure_message("Old password incorrect",
+                                               as_manager)
+
+    # OK
+    user.set_password(req.now_utc_datetime, new_password_1)
+
+    if not as_manager:
+        must_change_password = False
+    if must_change_password:
+        user.force_password_change()
+
+    audit("Password changed for user " + user.username)
+    return user_management_success_message(
+        "Password updated for user {}.".format(user.username),
+        as_manager,
+        """<div class="important">
+            If you store your password in your CamCOPS tablet application,
+            remember to change it there as well.
+        </div>"""
+    )
+
+
+# =============================================================================
+# Main menu
+# =============================================================================
+
+@view_config(route_name=Routes.HOME, renderer="main_menu.mako")
+def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
+    """Main HTML menu."""
+    ccsession = req.camcops_session
+    cfg = req.config
+    return dict(
+        authorized_as_superuser=ccsession.authorized_as_superuser(),
+        authorized_for_reports=ccsession.authorized_for_reports(),
+        authorized_to_dump=ccsession.authorized_to_dump(),
+        camcops_url=CAMCOPS_URL,
+        id_policies_valid=id_policies_valid(),
+        introspection=cfg.INTROSPECTION,
+        now=format_datetime(req.now_arrow,
+                            DATEFORMAT.SHORT_DATETIME_SECONDS),
+        sv=CAMCOPS_SERVER_VERSION,
+    )
 
 
 # noinspection PyUnusedLocal
@@ -2657,10 +2808,9 @@ def enable_user(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     return enable_user_webview(user_to_enable)
 
 
-# noinspection PyUnusedLocal
-def crash(session: CamcopsSession, form: cgi.FieldStorage) -> str:
+@view_config(route_name=Routes.CRASH)
+def crash(req: CamcopsRequest) -> Response:
     """Deliberately raises an exception."""
-
     raise RuntimeError("Deliberately crashed. Should not affect other "
                        "processes.")
 
@@ -2751,23 +2901,6 @@ def get_url_introspect(filename: str) -> str:
 
 
 # =============================================================================
-# Redirection
-# =============================================================================
-
-def redirect_to(location: str) -> WSGI_TUPLE_TYPE_WITH_STATUS:
-    """Return an HTTP response redirecting to another location.
-
-    Typically, this is used to allow a user to log in again after a timeout,
-    but then to redirect where the user was wanting to go.
-    """
-    status = "303 See Other"
-    extraheaders = [("Location", location)]
-    contenttype = "text/plain"
-    output = "Redirecting to {}".format(location)
-    return contenttype, extraheaders, output, status
-
-
-# =============================================================================
 # Main HTTP processor
 # =============================================================================
 
@@ -2847,7 +2980,6 @@ ACTIONDICT = {
 
     # Miscellaneous
     ACTION.VIEW_POLICIES: view_policies,
-    ACTION.AGREE_TERMS: agree_terms,
     ACTION.CRASH: crash,
 }
 

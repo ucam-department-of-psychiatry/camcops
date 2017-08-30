@@ -114,11 +114,11 @@ def send_analytics_if_necessary(req: "CamcopsRequest") -> None:
         # don't care about any response
     except (urllib.error.URLError, urllib.error.HTTPError):
         # something broke; try again next time
-        log.info("Failed to send analytics to {}", ANALYTICS_URL)
+        log.warning("Failed to send analytics to {}", ANALYTICS_URL)
         return
 
     # Store current time as last-sent time
-    log.debug("Analytics sent.")
+    log.info("Analytics sent.")
     last_sent_var.set_value(now_as_utc_iso_string)
 
 

@@ -40,7 +40,7 @@ from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
 from sqlalchemy.engine import create_engine
 
 from ..cc_modules.cc_audit import AuditEntry
-from ..cc_modules.cc_constants import ENVVAR_CONFIG_FILE
+from ..cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 from ..cc_modules.cc_device import Device
 from ..cc_modules.cc_hl7 import HL7Message, HL7Run
 from ..cc_modules.cc_request import command_line_request

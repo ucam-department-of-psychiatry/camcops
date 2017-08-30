@@ -35,8 +35,6 @@ from .cc_constants import (
     DEFAULT_PLOT_DPI,
     PARAM,
     USE_SVG_IN_HTML,
-    WEBEND,
-    WKHTMLTOPDF_CSS,
 )
 
 if TYPE_CHECKING:
@@ -510,105 +508,6 @@ def get_ternary(x: Any,
 def get_correct_incorrect_none(x: Any) -> Optional[str]:
     # noinspection PyTypeChecker
     return get_ternary(x, "Correct", "Incorrect", None)
-
-
-# =============================================================================
-# Pages referred to in this module by simple success/failure messages
-# =============================================================================
-
-def login_page(req: "CamcopsRequest", extra_msg: str = "", redirect=None):
-    """HTML for main login page."""
-    cfg = req.config
-    disable_autocomplete = (' autocomplete="off"'
-                            if cfg.DISABLE_PASSWORD_AUTOCOMPLETE
-                            else '')
-    # http://stackoverflow.com/questions/2530
-    # Note that e.g. Chrome may ignore this.
-    return req.webstart_html + """
-        <div>{dbtitle}</div>
-        <div>
-            <b>Unauthorized access prohibited.</b>
-            All use is recorded and monitored.
-        </div>
-        {extramsg}
-        <h1>Please log in to the CamCOPS web portal</h1>
-        <form method="POST" action="{script}">
-            User name: <input type="text" name="{PARAM.USERNAME}"><br>
-            Password: <input type="password" name="{PARAM.PASSWORD}"{da}><br>
-            <input type="hidden" name="{PARAM.ACTION}" value="{ACTION.LOGIN}">
-            <input type="hidden" name="{PARAM.REDIRECT}" value="{redirect}">
-            <input type="submit" value="Submit">
-        </form>
-    """.format(
-        dbtitle=get_database_title_string(req),
-        extramsg=extra_msg,
-        script=req.script_name,
-        da=disable_autocomplete,
-        ACTION=ACTION,
-        PARAM=PARAM,
-        redirect="" if not redirect else redirect,
-    ) + WEBEND
-
-
-# =============================================================================
-# Common page components
-# =============================================================================
-
-def simple_success_message(req: "CamcopsRequest", msg: str,
-                           extra_html: str = ""):
-    """HTML for simple success message."""
-    return req.webstart_html + """
-        <h1>Success</h1>
-        <div>{}</div>
-        {}
-        {}
-    """.format(
-        ws.webify(msg),
-        extra_html,
-        get_return_to_main_menu_line(req)
-    ) + WEBEND
-
-
-def error_msg(msg: str) -> str:
-    """HTML for error message."""
-    return """<h2 class="error">{}</h2>""".format(msg)
-
-
-def fail_with_error_not_logged_in(req: "CamcopsRequest",
-                                  error: str, redirect: str = None) -> str:
-    """HTML for you-have-failed-and-are-not-logged-in message."""
-    return login_page(req, error_msg(error), redirect)
-
-
-def fail_with_error_stay_logged_in(req: "CamcopsRequest",
-                                   error: str, extra_html: str = "") -> str:
-    """HTML for errors where the user stays logged in."""
-    return req.webstart_html + """
-        {}
-        {}
-        {}
-    """.format(
-        error_msg(error),
-        get_return_to_main_menu_line(req),
-        extra_html
-    ) + WEBEND
-
-
-def get_return_to_main_menu_line(req: "CamcopsRequest") -> str:
-    """HTML DIV for returning to the main menu."""
-    return """
-        <div>
-            <a href="{}">Return to main menu</a>
-        </div>
-    """.format(get_url_main_menu(req))
-
-
-def get_database_title_string(req: "CamcopsRequest") -> str:
-    """Database title as HTML-safe unicode."""
-    cfg = req.config
-    if not cfg.DATABASE_TITLE:
-        return ""
-    return "Database: <b>{}</b>.".format(ws.webify(cfg.DATABASE_TITLE))
 
 
 # =============================================================================

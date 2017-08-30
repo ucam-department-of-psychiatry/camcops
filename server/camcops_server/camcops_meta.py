@@ -68,8 +68,8 @@ def main() -> None:
         for filename in glob.glob(filespec):
             did_something = True
             print("Processing: {}".format(filename))
-            sys.argv = [filename] + [
-                '--{}'.format(x) for x in args.ccargs]
+            sys.argv = ["--config", filename] + ['--{}'.format(x)
+                                                 for x in args.ccargs]
             if args.verbose:
                 print("Executing command: {}".format(sys.argv))
             if args.dummyrun:

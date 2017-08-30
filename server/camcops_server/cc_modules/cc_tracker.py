@@ -38,9 +38,6 @@ from .cc_constants import (
     FP_ID_NUM,
     FULLWIDTH_PLOT_WIDTH,
     PARAM,
-    PDFEND,
-    PDF_HEAD_NO_PAGED_MEDIA,
-    PDF_HEAD_PORTRAIT,
     RESTRICTED_WARNING_SINGULAR,
     VALUE,
 )

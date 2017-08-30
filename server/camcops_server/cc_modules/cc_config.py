@@ -42,6 +42,7 @@ from cardinal_pythonlib.configfiles import (
     get_config_parameter_multiline
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
+import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.logs import pre_disable_sqlalchemy_extra_echo_log  # noqa
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
 from sqlalchemy.engine import create_engine, Engine
@@ -49,6 +50,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session as SqlASession
 
 from .cc_baseconstants import (
+    ENVVAR_CONFIG_FILE,
     INTROSPECTABLE_EXTENSIONS,
 )
 from .cc_cache import cache_region_static, fkg
@@ -66,10 +68,8 @@ from .cc_constants import (
     DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS,
     DEFAULT_PLOT_FONTSIZE,
     DEFAULT_TIMEOUT_MINUTES,
-    ENVVAR_CONFIG_FILE,
     INTROSPECTION_BASE_DIRECTORY,
     PDF_ENGINE,
-    PDF_LOGO_HEIGHT,
 )
 from .cc_filename import (
     filename_spec_is_valid,
@@ -600,6 +600,12 @@ class CamcopsConfig(object):
     #     # Password is now re-obscured in all situations. Onwards...
     #     # -------------------------------------------------------------------
     #     return db
+
+    def get_database_title_html(self) -> str:
+        """Database title as HTML-safe unicode."""
+        if not self.DATABASE_TITLE:
+            return ""
+        return "Database: <b>{}</b>.".format(ws.webify(self.DATABASE_TITLE))
 
 
 # =============================================================================

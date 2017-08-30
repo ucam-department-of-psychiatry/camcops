@@ -28,10 +28,12 @@
 # for gunicorn from the command line; I'm less clear about whether the disk
 # logs look polluted by ANSI codes; needs checking.
 import logging
+
 from cardinal_pythonlib.logs import (
     main_only_quicksetup_rootlogger,
     BraceStyleAdapter,
 )
+
 main_only_quicksetup_rootlogger(logging.DEBUG)
 log = BraceStyleAdapter(logging.getLogger(__name__))
 log.info("CamCOPS starting")
@@ -49,27 +51,37 @@ from pyramid.session import SignedCookieSessionFactory  # nopep8
 from wsgiref.simple_server import make_server  # nopep8
 
 from cardinal_pythonlib.convert import convert_to_bool  # nopep8
-from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_session  # nop3p8
+from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_session  # nopep8
+from cardinal_pythonlib.ui import ask_user, ask_user_password  # nopep8
 
 from .cc_modules.cc_alembic import upgrade_database_to_head  # nopep8
 from .cc_modules.cc_analytics import ccanalytics_unit_tests  # nopep8
 from .cc_modules.cc_audit import audit  # nopep8
+from .cc_modules.cc_baseconstants import (
+    ENVVAR_CONFIG_FILE,
+    ENVVAR_SERVE_STATIC,
+    ENVVAR_WEB_DEBUG,
+    STATIC_ROOT_DIR,
+)  # nopep8
 from .cc_modules.cc_constants import (
     CAMCOPS_URL,
-    ENVVAR_CONFIG_FILE,
     SEPARATOR_EQUALS,
 )  # nopep8
-from .cc_modules.cc_blob import Blob, ccblob_unit_tests  # nopep8
-from .cc_modules.cc_device import ccdevice_unit_tests, Device  # nopep8
+from .cc_modules.cc_blob import ccblob_unit_tests  # nopep8
+from .cc_modules.cc_device import ccdevice_unit_tests  # nopep8
 from .cc_modules.cc_dump import ccdump_unit_tests  # nopep8
 from .cc_modules.cc_hl7 import send_all_pending_hl7_messages  # nopep8
 from .cc_modules.cc_hl7core import cchl7core_unit_tests  # nopep8
 from .cc_modules.cc_patient import ccpatient_unit_tests  # nopep8
-from .cc_modules.cc_pyramid import COOKIE_NAME, RouteCollection  # nopep8
+from .cc_modules.cc_pyramid import (
+    camcops_add_mako_renderer,
+    COOKIE_NAME,
+    RouteCollection,
+)  # nopep8
 from .cc_modules.cc_policy import ccpolicy_unit_tests  # nopep8
 from .cc_modules.cc_report import ccreport_unit_tests  # nopep8
 from .cc_modules.cc_request import CamcopsRequest, command_line_request  # nopep8
-from .cc_modules.cc_session import ccsession_unit_tests, CamcopsSession  # nopep8
+from .cc_modules.cc_session import ccsession_unit_tests  # nopep8
 from .cc_modules.cc_storedvar import (
     ServerStoredVar,
     ServerStoredVarNames,
@@ -82,9 +94,9 @@ from .cc_modules.cc_task import (
 from .cc_modules.cc_tracker import cctracker_unit_tests  # imports matplotlib; SLOW  # nopep8
 from .cc_modules.cc_user import ccuser_unit_tests  # nopep8
 from .cc_modules.cc_user import set_password_directly  # nopep8
-from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION, make_version  # nopep8
-from .database import database_unit_tests  # nopep8
-from .webview import (
+from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
+from camcops_server.cc_modules.database import database_unit_tests  # nopep8
+from camcops_server.cc_modules.webview import (
     get_tsv_header_from_dict,
     get_tsv_line_from_dict,
     make_summary_tables,
@@ -94,6 +106,20 @@ from .webview import (
 
 log.debug("All imports complete")
 
+
+# =============================================================================
+# Check Python version (the shebang is not a guarantee)
+# =============================================================================
+
+# if sys.version_info[0] != 2 or sys.version_info[1] != 7:
+#     # ... sys.version_info.major (etc.) require Python 2.7 in any case!
+#     raise RuntimeError(
+#         "CamCOPS needs Python 2.7, and this Python version is: "
+#         + sys.version)
+
+if sys.version_info[0] != 3:
+    raise RuntimeError(
+        "CamCOPS needs Python 3, and this Python version is: " + sys.version)
 
 # =============================================================================
 # Debugging options
@@ -108,14 +134,10 @@ log.debug("All imports complete")
 # Use caution enabling this on a production system.
 # However, system passwords should be concealed regardless (see cc_shared.py).
 CAMCOPS_DEBUG_TO_HTTP_CLIENT = convert_to_bool(
-    os.environ.get("CAMCOPS_DEBUG_TO_HTTP_CLIENT", False))
-
-# Report profiling information to the HTTPD log? (Adds overhead; do not enable
-# for production systems.)
-CAMCOPS_PROFILE = convert_to_bool(os.environ.get("CAMCOPS_PROFILE", False))
+    os.environ.get(ENVVAR_WEB_DEBUG, False))
 
 CAMCOPS_SERVE_STATIC_FILES = convert_to_bool(
-    os.environ.get("CAMCOPS_SERVE_STATIC_FILES", True))
+    os.environ.get(ENVVAR_SERVE_STATIC, True))
 
 # The other debugging control is in cc_shared: see the log.setLevel() calls,
 # controlled primarily by the configuration file's DEBUG_OUTPUT option.
@@ -130,88 +152,6 @@ DEFAULT_CONFIG_FILENAME = "/etc/camcops/camcops.conf"
 # =============================================================================
 # WSGI entry point
 # =============================================================================
-# The WSGI framework looks for: def application(environ, start_response)
-# ... must be called "application"
-# ... at least for some servers!
-
-DEFUNCT = '''
-
-# Disable client-side caching for anything non-static
-webview_application = DisableClientSideCachingMiddleware(webview_application)
-database_application = DisableClientSideCachingMiddleware(database_application)
-
-# Don't apply ZIP compression here as middleware: it needs to be done
-# selectively by content type, and is best applied automatically by Apache
-# (which is easy).
-if CAMCOPS_DEBUG_TO_HTTP_CLIENT:
-    webview_application = ErrorReportingMiddleware(webview_application)
-if CAMCOPS_PROFILE:
-    webview_application = ProfilerMiddleware(webview_application)
-    database_application = ProfilerMiddleware(database_application)
-
-
-def application(environ: Dict[str, str],
-                start_response: Callable[[str, HEADERS_TYPE], None]) \
-        -> Iterable[bytes]:
-    """
-    Master WSGI entry point.
-
-    Provides a wrapper around the main WSGI application in order to trap
-    database errors, so that a commit or rollback is guaranteed, and so a crash
-    cannot leave the database in a locked state and thereby mess up other
-    processes.
-    """
-
-    if environ["wsgi.multithread"]:
-        log.critical("Error: started in multithreaded mode")
-        raise RuntimeError("Cannot be run in multithreaded mode")
-
-    # Set global variables, connect/reconnect to database, etc.
-    pls.set_from_environ_and_ping_db(environ)
-
-    log.debug("WSGI environment: {0!r}", environ)
-
-    path = environ['PATH_INFO']
-    # log.debug("PATH_INFO: {}", path)
-
-    # Trap any errors from here.
-    # http://doughellmann.com/2009/06/19/python-exception-handling-techniques.html  # noqa
-
-    # noinspection PyBroadException
-    try:
-        if path == URL_ROOT_WEBVIEW:
-            return webview_application(environ, start_response)
-            # ... it will commit (the earlier the better for speed)
-        elif path == URL_ROOT_DATABASE:
-            return database_application(environ, start_response)
-            # ... it will commit (the earlier the better for speed)
-        else:
-            # No URL matches
-            msg = ("URL not found (message from camcops.py). "
-                   "URL path was: {}.".format(path))
-            output = msg.encode('utf-8')
-            start_response('404 Not Found', [
-                ('Content-Type', 'text/plain'),
-                ('Content-Length', str(len(output))),
-            ])
-            return [output]
-    except:
-        try:
-            raise  # re-raise the original error
-        finally:
-            # noinspection PyBroadException
-            try:
-                pls.db.rollback()
-            except:
-                pass  # ignore errors in rollback
-
-
-if CAMCOPS_SERVE_STATIC_FILES:
-    application = SharedDataMiddleware(application, {
-        URL_ROOT_STATIC: STATIC_ROOT_DIR
-    })
-'''
-
 
 # -----------------------------------------------------------------------------
 # CamcopsSession and Pyramid HTTP session handling
@@ -316,34 +256,44 @@ def make_wsgi_app() -> Router:
     # However, some things we need to know right now, to make the WSGI app.
     # Here, OS environment variables and command-line switches are appropriate.
 
-    use_debug_toolbar = True  # *** make env var or CLI or both
+    use_debug_toolbar = CAMCOPS_DEBUG_TO_HTTP_CLIENT
 
     # -------------------------------------------------------------------------
     # 1. Base app
     # -------------------------------------------------------------------------
     with Configurator() as config:
         # ---------------------------------------------------------------------
-        # Session attributes: config, database, other
+        # Factories
         # ---------------------------------------------------------------------
         config.set_request_factory(CamcopsRequest)
+        # ... for request attributes: config, database, etc.
+        config.set_session_factory(get_session_factory())
+        # ... for request.session
 
-        # SUMMARY OF IMPORTANT REQUEST PROPERTIES, AND STANDARD NAMES:
-        #
-        # Built in to Pyramid:
-        #       pyramid_session = request.session  # type: ISession
-        #       ...
-        # Added here:  -- see CamcopsRequest
+        camcops_add_mako_renderer(config, extension='.mako')
 
         # ---------------------------------------------------------------------
         # Routes and accompanying views
         # ---------------------------------------------------------------------
-        # Most views are using @view_config() which calls add_view().
+
+        # Add static views
+        # https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html#serving-static-assets  # noqa
+        if CAMCOPS_SERVE_STATIC_FILES:
+            config.add_static_view(name=RouteCollection.STATIC.route,
+                                   path=STATIC_ROOT_DIR)
+
+        config.add_static_view('deform_static', 'deform:static/')
+
+        # Add all the routes:
         for pr in RouteCollection.all_routes():
             config.add_route(pr.route, pr.path)
-        # *** # config.scan()
-
         # See also:
         # https://stackoverflow.com/questions/19184612/how-to-ensure-urls-generated-by-pyramids-route-url-and-route-path-are-valid  # noqa
+
+        # Most views are using @view_config() which calls add_view().
+        # Scan for @view_config decorators, to map views to routes:
+        # https://docs.pylonsproject.org/projects/venusian/en/latest/api.html
+        config.scan("camcops_server.cc_modules")
 
         # ---------------------------------------------------------------------
         # Add tweens (inner to outer)
@@ -352,12 +302,12 @@ def make_wsgi_app() -> Router:
         # - https://www.slideshare.net/aconrad/alex-conrad-pyramid-tweens-ploneconf-2011  # noqa
 
         # config.add_tween('camcops_server.camcops.http_session_tween_factory')
-        config.set_session_factory(get_session_factory())
 
         # ---------------------------------------------------------------------
         # Debug toolbar
         # ---------------------------------------------------------------------
         if use_debug_toolbar:
+            log.debug("Enabling Pyramid debug toolbar")
             config.include('pyramid_debugtoolbar')
             config.add_route(RouteCollection.DEBUG_TOOLBAR.route,
                              RouteCollection.DEBUG_TOOLBAR.path)
@@ -386,45 +336,6 @@ def test_serve(host: str = '0.0.0.0', port: int = 8000) -> None:
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}".format(host, port))
     server.serve_forever()
-
-
-# =============================================================================
-# User command-line interaction
-# =============================================================================
-
-def ask_user(prompt: str, default: str = None) -> str:
-    """Prompts the user, with a default. Returns a string."""
-    if default is None:
-        prompt += ": "
-    else:
-        prompt += " [" + default + "]: "
-    result = input(prompt)
-    return result if len(result) > 0 else default
-
-
-def ask_user_password(prompt: str) -> str:
-    """Read a password from the console."""
-    return getpass.getpass(prompt + ": ")
-
-
-# =============================================================================
-# Command-line debugging
-# =============================================================================
-
-# a = cc_task.TaskFactory("ace3", 6)
-# a = cc_task.TaskFactory("ace3", 10)
-# a.dump()
-# a.write_pdf_to_disk("ace3test.pdf")
-
-# p = cc_task.TaskFactory("phq9", 86)
-# p = cc_task.TaskFactory("phq9", 1)
-# p = cc_task.TaskFactory("phq9", 15)
-# p.dump()
-# p.write_pdf_to_disk("phq9test.pdf")
-
-# b = Blob(3)
-
-# create_demo_user()
 
 
 # =============================================================================
@@ -677,12 +588,15 @@ def cli_main() -> None:
         "-x", "--test", action="store_true", default=False,
         help="Test internal code")
     parser.add_argument(
+        "--testserve", action="store_true", default=False,
+        help="Test web server")
+    parser.add_argument(
         "--dbunittest", action="store_true", default=False,
         help="Unit tests for database code")
     parser.add_argument('--verbose', action='count', default=0,
                         help="Verbose startup")
     parser.add_argument(
-        "configfilename", nargs="?", default=None,
+        "--config",
         help=(
             "Configuration file. (When run in WSGI mode, this is read from "
             "the {ev} variable in (1) the WSGI environment, "
@@ -701,13 +615,13 @@ def cli_main() -> None:
     log.info("By Rudolf Cardinal. See " + CAMCOPS_URL)
 
     # If we don't know the config filename yet, ask the user
-    if not args.configfilename:
-        args.configfilename = ask_user(
+    if not args.config:
+        args.config = ask_user(
             "Configuration file",
             os.environ.get(ENVVAR_CONFIG_FILE, DEFAULT_CONFIG_FILENAME))
     # For command-line use, we want the the config filename in the environment:
-    os.environ[ENVVAR_CONFIG_FILE] = args.configfilename
-    log.info("Using configuration file: {}".format(args.configfilename))
+    os.environ[ENVVAR_CONFIG_FILE] = args.config
+    log.info("Using configuration file: {}".format(args.config))
 
     # Request objects are ubiquitous, and allow code to refer to the HTTP
     # request, config, HTTP session, database session, and so on. Here we make
@@ -769,6 +683,10 @@ def cli_main() -> None:
 
     if args.dbunittest:
         database_unit_tests()
+        n_actions += 1
+
+    if args.testserve:
+        test_serve()
         n_actions += 1
 
     if n_actions > 0:

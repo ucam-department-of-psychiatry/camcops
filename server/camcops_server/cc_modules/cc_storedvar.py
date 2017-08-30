@@ -179,15 +179,19 @@ class ServerStoredVar(Base):
 
     def set_value(self, value: VALUE_TYPE) -> None:
         """Sets the stored value (and optionally saves it in the database.)"""
-        if self.type == self.TYPE_INTEGER:
+        if value is None:
+            self.value_integer = None
+            self.value_text = None
+            self.value_real = None
+        elif self.type == StoredVarTypes.TYPE_INTEGER:
             self.value_integer = int(value)
             self.value_text = None
             self.value_real = None
-        elif self.type == self.TYPE_TEXT:
+        elif self.type == StoredVarTypes.TYPE_TEXT:
             self.value_integer = None
             self.value_text = str(value)
             self.value_real = None
-        elif self.type == self.TYPE_REAL:
+        elif self.type == StoredVarTypes.TYPE_REAL:
             self.value_integer = None
             self.value_text = None
             self.value_real = float(value)

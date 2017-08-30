@@ -43,14 +43,16 @@ import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
+from pyramid.view import view_config
+from pyramid.response import Response
 
-from .cc_modules import cc_audit
-from .cc_modules.cc_db import GenericTabletRecordMixin
-from .cc_modules.cc_dirtytables import DirtyTable
-from .cc_modules.cc_dt import format_datetime
-from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION
-from .cc_modules.cc_audit import AuditEntry
-from .cc_modules.cc_constants import (
+from ..cc_modules import cc_audit  # avoids "audit" name clash
+from .cc_db import GenericTabletRecordMixin
+from .cc_dirtytables import DirtyTable
+from .cc_dt import format_datetime
+from .cc_version import CAMCOPS_SERVER_VERSION
+from .cc_audit import AuditEntry
+from .cc_constants import (
     ALEMBIC_VERSION_TABLENAME,
     CLIENT_DATE_FIELD,
     DATEFORMAT,
@@ -62,25 +64,27 @@ from .cc_modules.cc_constants import (
     NUMBER_OF_IDNUMS_DEFUNCT,  # allowed; for old tablet versions
     TABLET_ID_FIELD,
 )
-from .cc_modules.cc_convert import (
+from .cc_convert import (
     decode_values,
     delimit,
     encode_single_value,
 )
-from .cc_modules.cc_device import Device
-from .cc_modules.cc_hl7 import HL7Message, HL7Run
-from .cc_modules.cc_patient import Patient
-from .cc_modules.cc_patientidnum import PatientIdNum
-from .cc_modules.cc_session import CamcopsSession
-from .cc_modules.cc_specialnote import SpecialNote
-from .cc_modules.cc_storedvar import ServerStoredVar
-from .cc_modules.cc_tabletsession import TabletSession
-from .cc_modules.cc_unittest import (
+from .cc_device import Device
+from .cc_hl7 import HL7Message, HL7Run
+from .cc_patient import Patient
+from .cc_patientidnum import PatientIdNum
+from .cc_pyramid import Routes
+from .cc_request import CamcopsRequest
+from .cc_session import CamcopsSession
+from .cc_specialnote import SpecialNote
+from .cc_storedvar import ServerStoredVar
+from .cc_tabletsession import TabletSession
+from .cc_unittest import (
     unit_test_ignore,
     unit_test_must_raise,
     unit_test_verify
 )
-from .cc_modules.cc_user import (
+from .cc_user import (
     SecurityAccountLockout,
     SecurityLoginFailure,
     User,
@@ -1640,9 +1644,11 @@ def main_http_processor(env: Dict[str, str]) -> Dict:
 # WSGI application
 # =============================================================================
 
-def database_application(environ: Dict[str, str],
-                         start_response: Callable[[str, HEADERS_TYPE], None]) \
-        -> Iterable[bytes]:
+# @view_config(route_name=Routes.DATABASE)
+def database_application(req: CamcopsRequest) -> Response:
+    # def database_application(environ: Dict[str, str],
+    #                          start_response: Callable[[str, HEADERS_TYPE], None]) \
+    #         -> Iterable[bytes]:
     """Main WSGI application handler. Very simple."""
     # Call main
     t0 = time.time()  # in seconds

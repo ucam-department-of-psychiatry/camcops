@@ -26,10 +26,20 @@ anything except the Python standard library.
 
 By simple extension, also directory/filename definitions within the server
 tree.
+
+Also, for visibility, environment variable names.
 """
 
 from os import pardir
 from os.path import abspath, dirname, join
+
+# =============================================================================
+# Environment variable names
+# =============================================================================
+
+ENVVAR_CONFIG_FILE = "CAMCOPS_CONFIG_FILE"
+ENVVAR_SERVE_STATIC = "CAMCOPS_SERVE_STATIC_FILES"
+ENVVAR_WEB_DEBUG = "CAMCOPS_DEBUG_TO_HTTP_CLIENT"
 
 # =============================================================================
 # Directories and filenames
@@ -37,11 +47,14 @@ from os.path import abspath, dirname, join
 
 _this_directory = dirname(abspath(__file__))  # cc_modules
 CAMCOPS_SERVER_DIRECTORY = abspath(join(_this_directory, pardir))  # camcops_server  # noqa
-TABLET_SOURCE_COPY_DIR = join(CAMCOPS_SERVER_DIRECTORY, "tablet_source_copy")
-# ... used by setup.py to copy tablet source files into package
 
 ALEMBIC_BASE_DIR = CAMCOPS_SERVER_DIRECTORY
-ALEMBIC_CONFIG_FILENAME = join(CAMCOPS_SERVER_DIRECTORY, 'alembic.ini')
+ALEMBIC_CONFIG_FILENAME = join(ALEMBIC_BASE_DIR, 'alembic.ini')
+
+STATIC_ROOT_DIR = join(CAMCOPS_SERVER_DIRECTORY, 'static')
+TEMPLATE_DIR = join(CAMCOPS_SERVER_DIRECTORY, 'templates')
+TABLET_SOURCE_COPY_DIR = join(CAMCOPS_SERVER_DIRECTORY, "tablet_source_copy")
+# ... used by setup.py to copy tablet source files into package
 
 # =============================================================================
 # Introspectable extensions

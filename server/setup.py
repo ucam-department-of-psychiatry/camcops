@@ -209,6 +209,8 @@ if getattr(our_args, EXTRAS_ARG):
     EXTRA_FILES.append('alembic.ini')  # *** check this works
     add_all_files(os.path.join(camcops_server_dir, 'alembic'),
                   EXTRA_FILES, absolute=False, include_n_parents=1)
+    add_all_files(os.path.join(camcops_server_dir, 'templates'),
+                  EXTRA_FILES, absolute=False, include_n_parents=1)
 
     EXTRA_FILES.sort()
 
@@ -302,35 +304,33 @@ camcops_server
     include_package_data=True,  # use MANIFEST.in during install?
 
     install_requires=[
+        'arrow==0.10.0',  # better datetime
+        'cardinal_pythonlib==1.0.2',  # RNC libraries
         'colorlog==2.6.1',  # colour in logs
+        'deform==2.0.4',  # web forms
         'distro==1.0.4',  # detecting Linux distribution
+        'dogpile.cache==0.6.4',  # web caching
         'gunicorn==19.3.0',  # 'Internal' web server
         'hl7==0.3.3',  # For HL7 export
         'lockfile==0.12.2',  # File locking for background tasks
-        'numpy==1.13.1',  # Used by some tasks. SLOW INSTALLATION. Previously 1.10.2. ??? BEFORE MATPLOTLIB ??? See https://stackoverflow.com/questions/37515053  # noqa
         'matplotlib==2.0.2',  # Used for trackers and some tasks. SLOW INSTALLATION. Previously 1.5.0.  # noqa
+        'mysqlclient==1.3.10',  # for mysql+mysqldb://...
+        'numpy==1.13.1',  # Used by some tasks. SLOW INSTALLATION. Previously 1.10.2. ??? BEFORE MATPLOTLIB ??? See https://stackoverflow.com/questions/37515053  # noqa
         'pdfkit==0.5.0',  # wkhtmltopdf interface, for PDF generation from HTML
         'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt
         'Pygments==2.0.2',  # Syntax highlighting for introspection
         'PyMySQL==0.7.1',  # One of the options for MySQL interfacing via rnc_db.py.  # noqa
         'PyPDF2==1.25.1',  # Used by rnc_pdf.py
+        'pyramid==1.9.1',  # web framework
+        'pyramid_debugtoolbar==4.3',  # debugging for Pyramid
         'python-dateutil==2.4.2',  # Date/time extensions.
         'pytz==2015.7',  # Timezone definitions, specifically UTC.
         'scipy==0.16.1',  # Used by some tasks. SLOW INSTALLATION.
         'semantic_version>=2.6.0',  # semantic versioning; better than semver
+        'sqlalchemy==1.2.0b1',  # database access
         'typing==3.5.2.2',  # part of stdlib in Python 3.5, but not 3.4
         'Wand==0.4.2',  # ImageMagick for Python; used e.g. for BLOB PNG display; may need "sudo apt-get install libmagickwand-dev"  # noqa
         'Werkzeug==0.11.3',  # Profiling middleware
-
-        'cardinal_pythonlib==1.0.2',  # RNC libraries
-
-        # Adding as part of Pyramid/SQLAlchemy/Alembic upgrade, v2.1.0:
-        'arrow==0.10.0',
-        'dogpile.cache==0.6.4',
-        'mysqlclient==1.3.10',  # for mysql+mysqldb://...
-        'pyramid==1.9.1',
-        'pyramid_debugtoolbar==4.3',
-        'sqlalchemy==1.2.0b1',
     ],
 
     entry_points={

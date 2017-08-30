@@ -45,7 +45,6 @@ from .cc_constants import (
 )
 from .cc_dt import format_datetime, get_datetime_from_string
 from .cc_html import (
-    get_database_title_string,
     get_html_sex_picker,
     get_html_which_idnum_picker,
     get_url_main_menu,
@@ -284,7 +283,7 @@ class CamcopsSession(Base):
             candidate.last_activity_utc = now
             ccsession = candidate
         else:
-            log.debug("Creating new session")
+            log.debug("Creating new CamcopsSession")
             new_http_session = cls(ip_addr=ip_addr, last_activity_utc=now)
             dbsession.add(new_http_session)
             # But we DO NOT FLUSH and we DO NOT SET THE COOKIES YET, because
@@ -308,8 +307,9 @@ class CamcopsSession(Base):
             cls.get_oldest_last_activity_allowed(req)
         dbsession = req.dbsession
         log.info("Deleting expired sessions")
-        dbsession.delete(cls).filter(cls.last_activity_utc <
-                                     oldest_last_activity_allowed)
+        dbsession.query(cls)\
+            .filter(cls.last_activity_utc < oldest_last_activity_allowed)\
+            .delete(synchronize_session=False)
 
     def __init__(self,
                  ip_addr: str = None,
@@ -450,7 +450,8 @@ class CamcopsSession(Base):
             user = "Logged in as <b>{}</b>.".format(ws.webify(self.username))
         else:
             user = ""
-        database = get_database_title_string(req)
+        cfg = req.config
+        database = cfg.get_database_title_html()
         if offer_main_menu:
             menu = """ <a href="{}">Return to main menu</a>.""".format(
                 get_url_main_menu(req))

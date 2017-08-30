@@ -41,7 +41,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from .cc_audit import audit
-from .cc_constants import ACTION, PARAM, DATEFORMAT, WEBEND
+from .cc_constants import ACTION, PARAM, DATEFORMAT
 from .cc_dt import (
     convert_utc_datetime_without_tz_to_local,
     format_datetime,
@@ -49,12 +49,12 @@ from .cc_dt import (
     get_now_utc_notz,
 )
 from .cc_html import (
-    fail_with_error_stay_logged_in,
+    # *** # fail_with_error_stay_logged_in,
     get_generic_action_url,
     get_url_enter_new_password,
     get_url_field_value_pair,
     get_yes_no,
-    simple_success_message,
+    # *** # simple_success_message,
 )
 from .cc_sqla_coltypes import (
     DateTimeAsIsoTextColType,
@@ -142,7 +142,9 @@ class SecurityAccountLockout(Base):
         """Delete all expired account lockouts."""
         dbsession = req.dbsession
         now = req.now_utc_datetime
-        dbsession.delete(cls).filter(cls.locked_until <= now)
+        dbsession.query(cls)\
+            .filter(cls.locked_until <= now)\
+            .delete(synchronize_session=False)
 
     @classmethod
     def is_user_locked_out(cls, req: "CamcopsRequest", username: str) -> bool:
@@ -187,7 +189,9 @@ class SecurityAccountLockout(Base):
     @classmethod
     def unlock_user(cls, req: "CamcopsRequest", username: str) -> None:
         dbsession = req.dbsession
-        dbsession.delete(cls).filter(cls.username == username)
+        dbsession.query(cls)\
+            .filter(cls.username == username)\
+            .delete(synchronize_session=False)
 
 
 # =============================================================================
@@ -239,7 +243,9 @@ class SecurityLoginFailure(Base):
     def clear_login_failures(cls, req: "CamcopsRequest", username: str) -> None:
         """Clear login failures for a user."""
         dbsession = req.dbsession
-        dbsession.delete(cls).filter(username == username)
+        dbsession.query(cls)\
+            .filter(cls.username == username)\
+            .delete(synchronize_session=False)
 
     @classmethod
     def how_many_login_failures(cls, req: "CamcopsRequest", username: str) -> int:
@@ -268,7 +274,9 @@ class SecurityLoginFailure(Base):
         """
         dbsession = req.dbsession
         all_user_names = dbsession.query(User.username)
-        dbsession.delete(cls).filter(~cls.username.in_(all_user_names))
+        dbsession.query(cls)\
+            .filter(cls.username.notin_(all_user_names))\
+            .delete(synchronize_session=False)
         # https://stackoverflow.com/questions/26182027/how-to-use-not-in-clause-in-sqlalchemy-orm-query  # noqa
 
     @classmethod
@@ -279,11 +287,19 @@ class SecurityLoginFailure(Base):
         Not too often! See CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS.
         """
         now = req.now_arrow
-        last_cleared_var = ServerStoredVar(
-            "lastDummyLoginFailureClearanceAt", "text", None)
-        last_cleared_val = last_cleared_var.get_value()
-        if last_cleared_val:
-            elapsed = now - get_datetime_from_string(last_cleared_val)
+        last_cleared_var = ServerStoredVar.get_or_create(
+            dbsession=req.dbsession,
+            name="lastDummyLoginFailureClearanceAt",
+            type_on_creation="text",
+            default_value=None
+        )
+        try:
+            last_cleared_val = last_cleared_var.get_value()
+            when_last_cleared = get_datetime_from_string(last_cleared_val)
+        except ValueError:
+            when_last_cleared = None
+        if when_last_cleared is not None:
+            elapsed = now - when_last_cleared
             if elapsed < CLEAR_DUMMY_LOGIN_PERIOD:
                 # We cleared it recently.
                 return
@@ -615,127 +631,6 @@ def get_url_enable_user(req: "CamcopsRequest", username: str) -> str:
         get_generic_action_url(req, ACTION.ENABLE_USER) +
         get_url_field_value_pair(PARAM.USERNAME, username)
     )
-
-
-def enter_new_password_html(req: "CamcopsRequest",
-                            username: str,
-                            as_manager: bool = False,
-                            because_password_expired: bool = False) -> str:
-    """HTML to change password."""
-    cfg = req.config
-    ccsession = req.camcops_session
-    if as_manager:
-        changepw = """
-            <label>
-                <input type="checkbox" name="{PARAM.MUST_CHANGE_PASSWORD}"
-                        value="1" checked>
-                {LABEL.MUST_CHANGE_PASSWORD}
-            </label><br>
-        """.format(
-            PARAM=PARAM,
-            LABEL=LABEL,
-        )
-    else:
-        changepw = ""
-    return req.webstart_html + """
-        {userdetails}
-        {if_expired}
-        <h1>Change password for {username}</h1>
-        <form name="myform" action="{script}" method="POST">
-            <input type="hidden" name="{PARAM.ACTION}"
-                    value="{ACTION.CHANGE_PASSWORD}">
-            <input type="hidden" name="{PARAM.USERNAME}" value="{username}">
-            {oldpw}
-            New password:
-            <input type="password" name="{PARAM.NEW_PASSWORD_1}">
-            (minimum length {MINIMUM_PASSWORD_LENGTH} characters)<br>
-            Re-enter new password:
-            <input type="password" name="{PARAM.NEW_PASSWORD_2}"><br>
-            {changepw}
-            <input type="submit" value="Submit">
-        </form>
-    """.format(
-        userdetails=ccsession.get_current_user_html(),
-        if_expired=("""
-            <div class="important">
-                Your password has expired and must be changed.
-            </div>""" if because_password_expired else ""),
-        username=username,
-        ACTION=ACTION,
-        script=req.script_name,
-        oldpw="" if as_manager else """
-            Old password: <input type="password" name="{}"><br>
-        """.format(PARAM.OLD_PASSWORD),
-        PARAM=PARAM,
-        MINIMUM_PASSWORD_LENGTH=MINIMUM_PASSWORD_LENGTH,
-        changepw=changepw,
-    ) + WEBEND
-
-
-def change_password(req: "CamcopsRequest",
-                    username: str,
-                    form: cgi.FieldStorage,
-                    as_manager: bool = False) -> str:
-    """Change password, and return success/failure HTML."""
-    dbsession = req.dbsession
-    user = User.get_user_by_name(dbsession, username)
-    if not user:
-        return user_management_failure_message(
-            "Problem: can't find user " + username, as_manager)
-    old_password = ws.get_cgi_parameter_str(form, PARAM.OLD_PASSWORD)
-    new_password_1 = ws.get_cgi_parameter_str(form, PARAM.NEW_PASSWORD_1)
-    new_password_2 = ws.get_cgi_parameter_str(form, PARAM.NEW_PASSWORD_2)
-    must_change_password = ws.get_cgi_parameter_bool(
-        form, PARAM.MUST_CHANGE_PASSWORD)
-    if new_password_1 != new_password_2:
-        return user_management_failure_message("New passwords don't match",
-                                               as_manager)
-    if len(new_password_1) < MINIMUM_PASSWORD_LENGTH:
-        return user_management_failure_message(
-            "New password must be at least {} characters; not changed.".format(
-                MINIMUM_PASSWORD_LENGTH
-            ),
-            as_manager
-        )
-    if old_password == new_password_1 and not as_manager:
-        return user_management_failure_message(
-            "Old/new passwords are the same",
-            as_manager
-        )
-    if (not as_manager) and (not user.is_password_valid(old_password)):
-        return user_management_failure_message("Old password incorrect",
-                                               as_manager)
-
-    # OK
-    user.set_password(req.now_utc_datetime, new_password_1)
-
-    if not as_manager:
-        must_change_password = False
-    if must_change_password:
-        user.force_password_change()
-
-    audit("Password changed for user " + user.username)
-    return user_management_success_message(
-        "Password updated for user {}.".format(user.username),
-        as_manager,
-        """<div class="important">
-            If you store your password in your CamCOPS tablet application,
-            remember to change it there as well.
-        </div>"""
-    )
-
-
-def set_password_directly(req: "CamcopsRequest",
-                          username: str, password: str) -> bool:
-    """If the user exists, set its password. Returns Boolean success."""
-    dbsession = req.dbsession
-    user = User.get_user_by_name(dbsession, username)
-    if not user:
-        return False
-    user.set_password(req.now_utc_datetime, password)
-    user.enable(req)
-    audit("Password changed for user " + user.username, from_console=True)
-    return True
 
 
 def manage_users_html(req: "CamcopsRequest") -> str:
@@ -1251,6 +1146,19 @@ def user_management_failure_message(req: "CamcopsRequest",
             get_generic_action_url(req, ACTION.MANAGE_USERS)
         )
     return fail_with_error_stay_logged_in(req, msg, extra_html)
+
+
+def set_password_directly(req: "CamcopsRequest",
+                          username: str, password: str) -> bool:
+    """If the user exists, set its password. Returns Boolean success."""
+    dbsession = req.dbsession
+    user = User.get_user_by_name(dbsession, username)
+    if not user:
+        return False
+    user.set_password(req.now_utc_datetime, password)
+    user.enable(req)
+    audit("Password changed for user " + user.username, from_console=True)
+    return True
 
 
 # =============================================================================
