@@ -34,20 +34,19 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
 )
 
-main_only_quicksetup_rootlogger(logging.DEBUG)
+main_only_quicksetup_rootlogger(
+    logging.DEBUG, with_process_id=True, with_thread_id=True
+)
 log = BraceStyleAdapter(logging.getLogger(__name__))
 log.info("CamCOPS starting")
 
 import argparse  # nopep8
 import codecs  # nopep8
-import getpass  # nopep8
 import os  # nopep8
 import sys  # nopep8
 
 from pyramid.config import Configurator  # nopep8
-from pyramid.interfaces import ISession  # nopep8
 from pyramid.router import Router  # nopep8
-from pyramid.session import SignedCookieSessionFactory  # nopep8
 from wsgiref.simple_server import make_server  # nopep8
 
 from cardinal_pythonlib.convert import convert_to_bool  # nopep8
@@ -74,8 +73,11 @@ from .cc_modules.cc_hl7 import send_all_pending_hl7_messages  # nopep8
 from .cc_modules.cc_hl7core import cchl7core_unit_tests  # nopep8
 from .cc_modules.cc_patient import ccpatient_unit_tests  # nopep8
 from .cc_modules.cc_pyramid import (
+    CamcopsAuthenticationPolicy,
+    CamcopsAuthorizationPolicy,
     camcops_add_mako_renderer,
-    COOKIE_NAME,
+    get_session_factory,
+    Permission,
     RouteCollection,
 )  # nopep8
 from .cc_modules.cc_policy import ccpolicy_unit_tests  # nopep8
@@ -99,12 +101,14 @@ from camcops_server.cc_modules.database import database_unit_tests  # nopep8
 from camcops_server.cc_modules.webview import (
     get_tsv_header_from_dict,
     get_tsv_line_from_dict,
-    make_summary_tables,
     webview_unit_tests,
     write_descriptions_comments,
 )  # nopep8
 
 log.debug("All imports complete")
+
+DEBUG_ADD_ROUTES = False
+DEBUG_AUTHORIZATION = False
 
 
 # =============================================================================
@@ -153,76 +157,9 @@ DEFAULT_CONFIG_FILENAME = "/etc/camcops/camcops.conf"
 # WSGI entry point
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# CamcopsSession and Pyramid HTTP session handling
-# -----------------------------------------------------------------------------
-
-def get_session_factory() -> SignedCookieSessionFactory:
-    """
-    We have to give a Pyramid request a way of making an HTTP session.
-    We must return a session factory.
-    - An example is an instance of SignedCookieSessionFactory().
-    - A session factory has the signature [1]:
-            sessionfactory(req: CamcopsRequest) -> session_object
-      ... where session "is a namespace" [2]
-      ... but more concretely implementis the pyramid.interfaces.ISession 
-          interface
-      [1] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory
-      [2] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session
-    - We want to be able to make the session by reading the CamcopsConfig from
-      the request.
-    """  # noqa
-    def factory(req: CamcopsRequest) -> ISession:
-        """
-        How does the session write the cookies to the response?
-
-            SignedCookieSessionFactory
-                BaseCookieSessionFactory  # pyramid/session.py
-                    CookieSession
-                        def changed():
-                            if not self._dirty:
-                                self._dirty = True
-                                def set_cookie_callback(request, response):
-                                    self._set_cookie(response)
-                                    # ...
-                                self.request.add_response_callback(set_cookie_callback)  # noqa
-
-                        def _set_cookie(self, response):
-                            # ...
-                            response.set_cookie(...)
-
-        """
-        cfg = req.config
-        secure_cookies = not cfg.ALLOW_INSECURE_COOKIES
-        pyramid_factory = SignedCookieSessionFactory(
-            secret=cfg.session_cookie_secret,
-            hashalg='sha512',  # the default
-            salt='camcops_pyramid_session.',
-            cookie_name=COOKIE_NAME,
-            max_age=None,  # browser scope; session cookie
-            path='/',  # the default
-            domain=None,  # the default
-            secure=secure_cookies,
-            httponly=secure_cookies,
-            timeout=None,  # we handle timeouts at the database level instead
-            reissue_time=0,  # default; reissue cookie at every request
-            set_on_exception=True,  # (default) cookie even if exception raised
-            serializer=None,  # (default) use pyramid.session.PickleSerializer
-            # As max_age and expires are left at their default of None, these
-            # are session cookies.
-        )
-        return pyramid_factory(req)
-
-    return factory
-
-
-# -----------------------------------------------------------------------------
-# Make the WSGI app, attaching in our special methods
-# -----------------------------------------------------------------------------
-
 def make_wsgi_app() -> Router:
     """
-    Makes and returns a WSGI application.
+    Makes and returns a WSGI application, attaching all our special methods.
 
     QUESTION: how do we access the WSGI environment (passed to the WSGI app)
     from within a Pyramid request?
@@ -261,7 +198,22 @@ def make_wsgi_app() -> Router:
     # -------------------------------------------------------------------------
     # 1. Base app
     # -------------------------------------------------------------------------
-    with Configurator() as config:
+    settings = {  # Settings that can't be set directly?
+        'debug_authorization': DEBUG_AUTHORIZATION,
+    }
+    with Configurator(settings=settings) as config:
+        # ---------------------------------------------------------------------
+        # Authentication; authorizaion (permissions)
+        # ---------------------------------------------------------------------
+        authentication_policy = CamcopsAuthenticationPolicy()
+        config.set_authentication_policy(authentication_policy)
+        # Let's not use ACLAuthorizationPolicy, which checks an access control
+        # list for a resource hierarchy of objects, but instead:
+        authorization_policy = CamcopsAuthorizationPolicy()
+        config.set_authorization_policy(authorization_policy)
+        config.set_default_permission(Permission.HAPPY)
+        # ... applies to all SUBSEQUENT view configuration registrations
+
         # ---------------------------------------------------------------------
         # Factories
         # ---------------------------------------------------------------------
@@ -286,6 +238,8 @@ def make_wsgi_app() -> Router:
 
         # Add all the routes:
         for pr in RouteCollection.all_routes():
+            if DEBUG_ADD_ROUTES:
+                log.info("{} -> {}", pr.route, pr.path)
             config.add_route(pr.route, pr.path)
         # See also:
         # https://stackoverflow.com/questions/19184612/how-to-ensure-urls-generated-by-pyramids-route-url-and-route-path-are-valid  # noqa

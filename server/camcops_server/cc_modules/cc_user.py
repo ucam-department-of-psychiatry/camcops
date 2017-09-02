@@ -183,7 +183,7 @@ class SecurityAccountLockout(Base):
         lock_until = now + datetime.timedelta(minutes=lockout_minutes)
         lock = cls(username=username, lock_until=lock_until)
         dbsession.add(lock)
-        audit("Account {} locked out for {} minutes".format(
+        audit(req, "Account {} locked out for {} minutes".format(
             username, lockout_minutes))
 
     @classmethod
@@ -227,7 +227,7 @@ class SecurityLoginFailure(Base):
     def act_on_login_failure(cls, req: "CamcopsRequest", username: str) -> None:
         """Record login failure and lock out user if necessary."""
         cfg = req.config
-        audit("Failed login as user: {}".format(username))
+        audit(req, "Failed login as user: {}".format(username))
         cls.record_login_failure(req, username)
         nfailures = cls.how_many_login_failures(req, username)
         nlockouts = nfailures // cfg.LOCKOUT_THRESHOLD
@@ -260,7 +260,7 @@ class SecurityLoginFailure(Base):
         """Unlock user and clear login failures."""
         SecurityAccountLockout.unlock_user(req, username)
         cls.clear_login_failures(req, username)
-        audit("User {} re-enabled".format(username))
+        audit(req, "User {} re-enabled".format(username))
 
     @classmethod
     def clear_login_failures_for_nonexistent_users(
@@ -447,7 +447,7 @@ class User(Base):
         user.may_run_reports = True
         user.may_add_notes = True
         user.set_password(get_now_utc_notz(), password)
-        audit("SUPERUSER CREATED: " + user.username, from_console=True)
+        audit(req, "SUPERUSER CREATED: " + user.username, from_console=True)
         return True
 
     @classmethod
@@ -498,13 +498,13 @@ class User(Base):
         """
         rnc_crypto.hash_password("dummy!", BCRYPT_DEFAULT_LOG_ROUNDS)
 
-    def set_password(self, now_utc: datetime.datetime,
-                     new_password: str) -> None:
+    def set_password(self, req: "CamcopsRequest", new_password: str) -> None:
         """Set a user's password."""
         self.hashedpw = rnc_crypto.hash_password(new_password,
                                                  BCRYPT_DEFAULT_LOG_ROUNDS)
-        self.last_password_change_utc = now_utc
+        self.last_password_change_utc = req.now_utc_datetime
         self.must_change_password = False
+        audit(req, "Password changed for user " + self.username)
 
     def is_password_valid(self, password: str) -> bool:
         """Is the supplied password valid?"""
@@ -857,6 +857,7 @@ def change_user(req: "CamcopsRequest", form: cgi.FieldStorage) -> str:
     user.may_add_notes = may_add_notes
 
     audit(
+        req,
         (
             "User permissions edited for user {}: "
             "may_use_webviewer={}, "
@@ -1039,6 +1040,7 @@ def add_user(req: "CamcopsRequest", form: cgi.FieldStorage) -> str:
         user.force_password_change()
 
     audit(
+        req,
         (
             "User created: {}: "
             "may_use_webviewer={}, "
@@ -1101,7 +1103,7 @@ def delete_user(req: "CamcopsRequest", username: str) -> str:
         return user_management_failure_message(req,
                                                "No such user: " + username)
     dbsession.delete(user)
-    audit("User deleted: #{} ({})".format(user.id, user.username))
+    audit(req, "User deleted: #{} ({})".format(user.id, user.username))
     return user_management_success_message(
         req, "User " + user.username + " deleted")
 
@@ -1157,7 +1159,7 @@ def set_password_directly(req: "CamcopsRequest",
         return False
     user.set_password(req.now_utc_datetime, password)
     user.enable(req)
-    audit("Password changed for user " + user.username, from_console=True)
+    audit(req, "Password changed for user " + user.username, from_console=True)
     return True
 
 

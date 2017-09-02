@@ -1,6 +1,8 @@
 ## logged_out.mako
 <%inherit file="base_web.mako"/>
 
+<%include file="db_user_info.mako"/>
+
 <div>
     You have logged out.
 </div>

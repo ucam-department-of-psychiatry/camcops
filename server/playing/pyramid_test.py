@@ -710,19 +710,19 @@ def session_context():
     cfg = get_config()  # type: DummyConfig
     engine = cfg.create_engine()
     maker = sessionmaker(bind=engine)
-    session = maker()  # type: SqlASession
+    dbsession = maker()  # type: SqlASession
     # noinspection PyUnusedLocal,PyBroadException
     try:
-        yield session
+        yield dbsession
         log.debug("Command-line database session: committing")
-        session.commit()
+        dbsession.commit()
     except Exception as e:
         log.warning("Exception:\n" + traceback.format_exc())
         log.warning("Command-line database session: rolling back")
-        session.rollback()
+        dbsession.rollback()
     finally:
         log.debug("Command-line database session: closing")
-        session.close()
+        dbsession.close()
 
 
 def make_tables() -> None:

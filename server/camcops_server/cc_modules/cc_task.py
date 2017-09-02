@@ -1143,6 +1143,7 @@ class Task(GenericTabletRecordMixin):
     # -------------------------------------------------------------------------
 
     def apply_special_note(self,
+                           req: CamcopsRequest,
                            note: str,
                            user_id: int,
                            from_console: bool = False) -> None:
@@ -1161,7 +1162,7 @@ class Task(GenericTabletRecordMixin):
         sn.user_id = user_id
         sn.note = note
         sn.save()
-        self.audit("Special note applied manually", from_console)
+        self.audit(req, "Special note applied manually", from_console)
         self.delete_from_hl7_message_log(from_console)
 
     # -------------------------------------------------------------------------
@@ -1326,16 +1327,22 @@ class Task(GenericTabletRecordMixin):
             self._pk,
         ]
         pls.db.db_exec(sql, *args)
-        self.audit("Task cancelled in outbound HL7 message log (may trigger "
-                   "resending)", from_console)
+        self.audit(
+            req,
+            "Task cancelled in outbound HL7 message log (may trigger "
+            "resending)",
+            from_console
+        )
 
     # -------------------------------------------------------------------------
     # Audit
     # -------------------------------------------------------------------------
 
-    def audit(self, details: str, from_console: bool = False) -> None:
+    def audit(self, req: CamcopsRequest, details: str,
+              from_console: bool = False) -> None:
         """Audits actions to this task."""
-        audit(details,
+        audit(req,
+              details,
               patient_server_pk=self.get_patient_server_pk(),
               table=self.tablename,
               server_pk=self._pk,
@@ -1356,7 +1363,7 @@ class Task(GenericTabletRecordMixin):
     # Erasure (wiping, leaving record as placeholder)
     # -------------------------------------------------------------------------
 
-    def manually_erase(self, user_id: int) -> None:
+    def manually_erase(self, req: CamcopsRequest, user_id: int) -> None:
         """Manually erases a task (including sub-tables).
         Also erases linked non-current records.
         This WIPES THE CONTENTS but LEAVES THE RECORD AS A PLACEHOLDER.
@@ -1388,7 +1395,7 @@ class Task(GenericTabletRecordMixin):
                                                         fields, user_id)
 
         # 4. Audit and clear HL7 message log
-        self.audit("Task details erased manually")
+        self.audit(req, "Task details erased manually")
         self.delete_from_hl7_message_log()
 
     def get_server_pks_of_record_group(self) -> List[int]:
@@ -1462,7 +1469,7 @@ class Task(GenericTabletRecordMixin):
                                                          idnum_value)
         return [row[0] for row in pk_wc]
 
-    def delete_entirely(self) -> None:
+    def delete_entirely(self, req: CamcopsRequest) -> None:
         if self._pk is None:
             return
 
@@ -1481,7 +1488,8 @@ class Task(GenericTabletRecordMixin):
         cc_db.delete_from_table_by_pklist(tablename, PKNAME, taskpks)
 
         # 4. Audit
-        audit("Task deleted",
+        audit(req,
+              "Task deleted",
               patient_server_pk=self.get_patient_server_pk(),
               table=tablename,
               server_pk=self._pk)

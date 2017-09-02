@@ -120,11 +120,16 @@ import zipfile
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE, WSGI_TUPLE_TYPE
-from deform import ValidationFailure
+from deform.exception import ValidationFailure
 import pyramid.httpexceptions as exc
-from pyramid.view import view_config
+from pyramid.view import (
+    forbidden_view_config,
+    notfound_view_config,
+    view_config,
+)
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
+from pyramid.security import Authenticated, NO_PERMISSION_REQUIRED
 import pygments
 import pygments.lexers
 import pygments.lexers.web
@@ -174,7 +179,7 @@ from .cc_policy import (
     get_upload_id_policy_principal_numeric_id,
     id_policies_valid,
 )
-from .cc_pyramid import Methods, Routes
+from .cc_pyramid import HttpMethod, Permission, Routes, SUBMIT, ViewParam
 from .cc_report import (
     offer_individual_report,
     offer_report_menu,
@@ -204,12 +209,15 @@ from .cc_user import (
     edit_user_form,
     enable_user_webview,
     manage_users_html,
+    MINIMUM_PASSWORD_LENGTH,
     SecurityAccountLockout,
+    SecurityLoginFailure,
     User,
 )
 from .cc_version import CAMCOPS_SERVER_VERSION
 from .forms import (
-    # get_form_errors,
+    ChangeOtherPasswordForm,
+    ChangeOwnPasswordForm,
     LoginForm,
     OfferTermsForm,
 )
@@ -251,52 +259,33 @@ NOT_ALL_PATIENTS_UNFILTERED_WARNING = """
 # Simple success/failure/redirection
 # =============================================================================
 
-def redirect(req: CamcopsRequest, route_name: str) -> None:
-    raise exc.HTTPFound(req.route_url(route_name))
-
-
-def simple_success_message(req: CamcopsRequest, msg: str) -> Response:
+def simple_success(req: CamcopsRequest, msg: str,
+                   extra_html: str = "") -> Response:
     """Simple success message."""
-    return render_to_response(
-        "success.mako",
-        dict(msg=msg),
-        request=req,
-    )
+    return render_to_response("generic_success.mako",
+                              dict(msg=msg,
+                                   extra_html=extra_html),
+                              request=req)
 
 
-def fail_with_error_not_logged_in(req: CamcopsRequest,
-                                  error: str,
-                                  redirect_url: str = None) -> Response:
-    """You-have-failed-and-are-not-logged-in message."""
-    return login_page(req, error_msg(error), redirect_url)
+def simple_failure(req: CamcopsRequest, msg: str,
+                   extra_html: str = "") -> Response:
+    """Simple failure message."""
+    return render_to_response("generic_failure.mako",
+                              dict(msg=msg,
+                                   extra_html=extra_html),
+                              request=req)
 
 
-def fail_with_error_stay_logged_in(req: CamcopsRequest,
-                                   error: str,
-                                   extra_html: str = "") -> Response:
-    """HTML for errors where the user stays logged in."""
-    html = req.webstart_html + """
-        {error}
-        {main_menu}
-        {extra}
-    """.format(
-        error=error_msg(error),
-        main_menu=get_return_to_main_menu_line(req),
-        extra=extra_html
-    ) + WEBEND
-    return Response(html)
+@notfound_view_config(renderer="not_found.mako")
+def not_found(req: CamcopsRequest) -> Dict[str, Any]:
+    return {}
 
 
-def fail_not_user(req: CamcopsRequest,
-                  action: str, redirect_url: str = None) -> Response:
-    """HTML given when action failed because not logged in properly."""
-    return fail_with_error_not_logged_in(
-        req,
-        "Can't process action {} — not logged in as a valid user, "
-        "or session has timed out.".format(action),
-        redirect_url)
-    # OR ANOTHER POSSIBILITY: CamCOPS being offered over HTTP, which will
-    # cause cookies not to be saved (because they're HTTPS only).
+@view_config(context=exc.HTTPBadRequest, renderer="bad_request.mako")
+def bad_request(req: CamcopsRequest) -> Dict[str, Any]:
+    return {}
+
 
 
 def fail_not_authorized_for_task(req: CamcopsRequest) -> Response:
@@ -310,45 +299,33 @@ def fail_task_not_found(req: CamcopsRequest) -> Response:
     return fail_with_error_stay_logged_in(req, "Task not found.")
 
 
-def fail_not_manager(req: CamcopsRequest, action: str) -> Response:
-    """HTML given when user doesn't have management rights."""
-    return fail_with_error_stay_logged_in(
-        req,
-        "Can't process action {} - not logged in as a manager.".format(action)
-    )
-
-
-def fail_unknown_action(req: CamcopsRequest, action: str) -> Response:
-    """HTML given when action unknown."""
-    return fail_with_error_stay_logged_in(
-        req,
-        "Can't process action {} - action not recognized.".format(action)
-    )
-
-
 # =============================================================================
 # Test pages
 # =============================================================================
 
-# @view_config(route_name=Routes.TESTPAGE)
+@view_config(route_name=Routes.TESTPAGE_PUBLIC_1,
+             permission=NO_PERMISSION_REQUIRED)
 def test_page_1(req: CamcopsRequest) -> Response:
     return Response("hello")
 
 
-@view_config(route_name=Routes.TESTPAGE, renderer="testpage.mako")
+@view_config(route_name=Routes.TESTPAGE_PUBLIC_2,
+             renderer="testpage.mako",
+             permission=NO_PERMISSION_REQUIRED)
 def test_page_2(req: CamcopsRequest) -> Dict[str, Any]:
-    return dict(param1="world")
+    return dict(param1="world")\
+
+
+@view_config(route_name=Routes.TESTPAGE_PRIVATE_1)
+def test_page_private_1(req: CamcopsRequest) -> Response:
+    return Response("Private test page.")
 
 
 # =============================================================================
-# Authorization etc.
+# Authorization: login, logout, login failures, terms/conditions
 # =============================================================================
 
-log.critical("IMPLEMENT XSRF IN ALL FORMS")
-log.critical("ENSURE ALMOST ALL VIEWS RESTRICTED TO LOGGED IN ONLY")
-
-
-@view_config(route_name=Routes.LOGIN)
+@view_config(route_name=Routes.LOGIN, permission=NO_PERMISSION_REQUIRED)
 # Do NOT use extra parameters for functions decorated with @view_config;
 # @view_config can take functions like "def view(request)" but also
 # "def view(context, request)", so if you add additional parameters, it thinks
@@ -358,19 +335,21 @@ def login_view(req: CamcopsRequest) -> Response:
     cfg = req.config
     autocomplete_password = not cfg.DISABLE_PASSWORD_AUTOCOMPLETE
 
-    login_form = LoginForm(autocomplete_password=autocomplete_password)
-    appstruct = dict(redirect=redirect)
-    form = None
+    login_form = LoginForm(request=req,
+                           autocomplete_password=autocomplete_password)
+    rendered_form = None
 
-    if 'submit' in req.POST:
+    if SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
+            # log.critical("controls from POST: {!r}", controls)
             appstruct = login_form.validate(controls)
+            # log.critical("appstruct from POST: {!r}", appstruct)
             log.debug("Validating user login.")
             ccsession = req.camcops_session
-            username = appstruct.get(PARAM.USERNAME)
-            password = appstruct.get(PARAM.PASSWORD)
-            redirect_url = appstruct.get(PARAM.REDIRECT_URL)
+            username = appstruct.get(ViewParam.USERNAME)
+            password = appstruct.get(ViewParam.PASSWORD)
+            redirect_url = appstruct.get(ViewParam.REDIRECT_URL)
             # 1. If we don't have a username, let's stop quickly.
             if not username:
                 ccsession.logout(req)
@@ -380,8 +359,8 @@ def login_view(req: CamcopsRequest) -> Response:
                 return account_locked(req,
                                       User.user_locked_out_until(username))
             # 3. Is the username/password combination correct?
-            user = User.get_user_from_username_password(req, username,
-                                                        password)  # checks password  # noqa
+            user = User.get_user_from_username_password(
+                req, username, password)  # checks password
             if user is not None and user.may_use_webviewer:
                 # Successful login.
                 user.login(req)  # will clear login failure record
@@ -393,43 +372,43 @@ def login_view(req: CamcopsRequest) -> Response:
                 return login_failed(req)
             else:
                 # Unsuccessful. Note that the username may/may not be genuine.
-                User.act_on_login_failure(username)  # may lock the account
-                # ... call audit() before session.logout(), as the latter
-                # will wipe the session IP address
+                SecurityLoginFailure.act_on_login_failure(req, username)
+                # ... may lock the account
+                # Now, call audit() before session.logout(), as the latter
+                # will wipe the session IP address:
                 ccsession.logout(req)
                 return login_failed(req)
 
             # OK, logged in.
+            # Redirect to the main menu, or wherever the user was heading.
+            # HOWEVER, that may lead us to a "change password" or "agree terms"
+            # page, via the permissions system (Permission.HAPPY or not).
 
-            # Need to change password?
-            if ccsession.user_must_change_password():
-                return enter_new_password_html(req, ccsession.username,
-                                               as_manager=False,
-                                               because_password_expired=True)
-
-            # Need to agree terms/conditions of use?
-            if ccsession.user_must_agree_terms():
-                return offer_terms(req)
-
-            # Redirect (to where user was trying to get to before timeout),
-            # or main menu
             if redirect_url:
+                # log.critical("Redirecting to {!r}", redirect_url)
                 raise exc.HTTPFound(redirect_url)  # redirect
-
-            redirect(req, Routes.HOME)
+            raise exc.HTTPFound(req.route_url(Routes.HOME))  # redirect
 
         except ValidationFailure as e:
-            # log.debug("LoginForm errors: {!r}", get_form_errors(login_form))
-            form = e.render()
+            rendered_form = e.render()
 
     else:
-        form = login_form.render(appstruct)
+        redirect_url = req.params.get(ViewParam.REDIRECT_URL, "")
+        # ... use default of "", because None gets serialized to "None", which
+        #     gets read back as "None".
+        appstruct = {ViewParam.REDIRECT_URL: redirect_url}
+        # log.critical("appstruct from GET/POST: {!r}", appstruct)
+        rendered_form = login_form.render(appstruct)
 
-    return render_to_response(login_template, dict(form=form), request=req)
+    return render_to_response(login_template, dict(form=rendered_form),
+                              request=req)
 
 
 def login_failed(req: CamcopsRequest) -> Response:
-    """HTML given after login failure."""
+    """
+    HTML given after login failure.
+    Returned by login_view() only.
+    """
     return render_to_response(
         "login_failed.mako",
         dict(),
@@ -439,7 +418,10 @@ def login_failed(req: CamcopsRequest) -> Response:
 
 def account_locked(req: CamcopsRequest,
                    locked_until: datetime.datetime) -> Response:
-    """HTML given when account locked out."""
+    """
+    HTML given when account locked out.
+    Returned by login_view() only.
+    """
     return render_to_response(
         "accounted_locked.mako",
         dict(
@@ -464,133 +446,133 @@ def logout(req: CamcopsRequest) -> Dict[str, Any]:
 def offer_terms(req: CamcopsRequest) -> Dict[str, Any]:
     """HTML offering terms/conditions and requesting acknowledgement."""
     offer_terms_form = OfferTermsForm(
+        request=req,
         agree_button_text=req.wappstring("disclaimer_agree"))
 
-    if 'submit' in req.POST:
+    if SUBMIT in req.POST:
         req.camcops_session.agree_terms(req)
-        redirect(req, Routes.HOME)
+        raise exc.HTTPFound(req.route_url(Routes.HOME))  # redirect
 
-    form = offer_terms_form.render()
     return dict(
         title=req.wappstring("disclaimer_title"),
         subtitle=req.wappstring("disclaimer_subtitle"),
         content=req.wappstring("disclaimer_content"),
-        form=form,
+        form=offer_terms_form.render(),
     )
 
 
-def enter_new_password_html(
-        req: CamcopsRequest,
-        username: str,
-        as_manager: bool = False,
-        because_password_expired: bool = False) -> Response:
-    """HTML to change password."""
-    cfg = req.config
-    ccsession = req.camcops_session
-    if as_manager:
-        changepw = """
-            <label>
-                <input type="checkbox" name="{PARAM.MUST_CHANGE_PASSWORD}"
-                        value="1" checked>
-                {LABEL.MUST_CHANGE_PASSWORD}
-            </label><br>
-        """.format(
-            PARAM=PARAM,
-            LABEL=LABEL,
-        )
-    else:
-        changepw = ""
-    html = req.webstart_html + """
-        {userdetails}
-        {if_expired}
-        <h1>Change password for {username}</h1>
-        <form name="myform" action="{script}" method="POST">
-            <input type="hidden" name="{PARAM.ACTION}"
-                    value="{ACTION.CHANGE_PASSWORD}">
-            <input type="hidden" name="{PARAM.USERNAME}" value="{username}">
-            {oldpw}
-            New password:
-            <input type="password" name="{PARAM.NEW_PASSWORD_1}">
-            (minimum length {MINIMUM_PASSWORD_LENGTH} characters)<br>
-            Re-enter new password:
-            <input type="password" name="{PARAM.NEW_PASSWORD_2}"><br>
-            {changepw}
-            <input type="submit" value="Submit">
-        </form>
-    """.format(
-        userdetails=ccsession.get_current_user_html(),
-        if_expired=("""
-            <div class="important">
-                Your password has expired and must be changed.
-            </div>""" if because_password_expired else ""),
-        username=username,
-        ACTION=ACTION,
-        script=req.script_name,
-        oldpw="" if as_manager else """
-            Old password: <input type="password" name="{}"><br>
-        """.format(PARAM.OLD_PASSWORD),
-        PARAM=PARAM,
-        MINIMUM_PASSWORD_LENGTH=MINIMUM_PASSWORD_LENGTH,
-        changepw=changepw,
-    ) + WEBEND
-    return Response(html)
-
-
-def change_password(req: "CamcopsRequest",
-                    username: str,
-                    form: cgi.FieldStorage,
-                    as_manager: bool = False) -> str:
-    """Change password, and return success/failure HTML."""
-    dbsession = req.dbsession
-    user = User.get_user_by_name(dbsession, username)
-    if not user:
-        return user_management_failure_message(
-            "Problem: can't find user " + username, as_manager)
-    old_password = ws.get_cgi_parameter_str(form, PARAM.OLD_PASSWORD)
-    new_password_1 = ws.get_cgi_parameter_str(form, PARAM.NEW_PASSWORD_1)
-    new_password_2 = ws.get_cgi_parameter_str(form, PARAM.NEW_PASSWORD_2)
-    must_change_password = ws.get_cgi_parameter_bool(
-        form, PARAM.MUST_CHANGE_PASSWORD)
-    if new_password_1 != new_password_2:
-        return user_management_failure_message("New passwords don't match",
-                                               as_manager)
-    if len(new_password_1) < MINIMUM_PASSWORD_LENGTH:
-        return user_management_failure_message(
-            "New password must be at least {} characters; not changed.".format(
-                MINIMUM_PASSWORD_LENGTH
-            ),
-            as_manager
-        )
-    if old_password == new_password_1 and not as_manager:
-        return user_management_failure_message(
-            "Old/new passwords are the same",
-            as_manager
-        )
-    if (not as_manager) and (not user.is_password_valid(old_password)):
-        return user_management_failure_message("Old password incorrect",
-                                               as_manager)
-
-    # OK
-    user.set_password(req.now_utc_datetime, new_password_1)
-
-    if not as_manager:
-        must_change_password = False
-    if must_change_password:
-        user.force_password_change()
-
-    audit("Password changed for user " + user.username)
-    return user_management_success_message(
-        "Password updated for user {}.".format(user.username),
-        as_manager,
-        """<div class="important">
-            If you store your password in your CamCOPS tablet application,
-            remember to change it there as well.
-        </div>"""
-    )
+@forbidden_view_config()
+def forbidden(req: CamcopsRequest) -> Dict[str, Any]:
+    if req.has_permission(Authenticated):
+        user = req.user
+        assert user, "Bug! Authenticated but no user...!?"
+        if user.must_change_password():
+            raise exc.HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
+        if user.must_agree_terms():
+            raise exc.HTTPFound(req.route_url(Routes.OFFER_TERMS))
+    # Otherwise...
+    redirect_url = req.url
+    # Redirects to login page, with onwards redirection to requested
+    # destination once logged in:
+    querydict = {ViewParam.REDIRECT_URL: redirect_url}
+    return render_to_response("forbidden.mako",
+                              dict(querydict=querydict),
+                              request=req)
 
 
 # =============================================================================
-# Main menu
+# Changing passwords
+# =============================================================================
+
+@view_config(route_name=Routes.CHANGE_OWN_PASSWORD)
+def change_own_password(req: CamcopsRequest) -> Response:
+    ccsession = req.camcops_session
+    expired = ccsession.user_must_change_password()
+    change_pw_form = ChangeOwnPasswordForm(request=req)
+    if SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = change_pw_form.validate(controls)
+            password = appstruct.get(ViewParam.PASSWORD)
+            # OK
+            req.user.set_password(req, password)
+            return password_changed(req, req.user.username, own_password=True)
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        rendered_form = change_pw_form.render()
+    return render_to_response("change_own_password.mako",
+                              dict(form=rendered_form,
+                                   expired=expired,
+                                   min_pw_length=MINIMUM_PASSWORD_LENGTH),
+                              request=req)
+
+
+@view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
+             permission=Permission.SUPERUSER,
+             renderer="change_own_password.mako")
+def change_other_password(req: CamcopsRequest) -> Response:
+    """For administrators, to change another's password."""
+    change_pw_form = ChangeOtherPasswordForm(request=req)
+    username = None  # for type checker
+    extra_msg = ""
+    if SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = change_pw_form.validate(controls)
+            user_id = appstruct.get(ViewParam.USER_ID)
+            must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
+            old_password = appstruct.get(ViewParam.OLD_PASSWORD)
+            new_password = appstruct.get(ViewParam.NEW_PASSWORD)
+            user = User.get_user_by_id(req.dbsession, user_id)
+            if not user:
+                raise exc.HTTPBadRequest(
+                    "Missing user for id {}".format(user_id))
+            if new_password == old_password:
+                extra_msg = "Old and new passwords are identical! Try again."
+            elif user.is_password_valid(old_password):
+                extra_msg = "Old password wrong! Try again."
+            else:  # OK
+                user.set_password(req, new_password)
+                return password_changed(req, user.username, own_password=False)
+            rendered_form = change_pw_form.render()  # *** check
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        user_id_str = req.params.get(ViewParam.USER_ID, None)
+        try:
+            user_id = int(user_id_str)
+        except (TypeError, ValueError):
+            raise exc.HTTPBadRequest("Improper user_id of {}".format(
+                repr(user_id_str)))
+        if user_id == req.user_id:
+            # Change own password
+            raise exc.HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
+        other_user = User.get_user_by_id(req.dbsession, user_id)
+        if other_user is None:
+            raise exc.HTTPBadRequest("Missing user for id {}".format(user_id))
+        username = other_user.username
+        appstruct = {ViewParam.USER_ID: user_id}
+        rendered_form = change_pw_form.render(appstruct)
+    return render_to_response("change_own_password.mako",
+                              dict(username=username,
+                                   form=rendered_form,
+                                   extra_msg=extra_msg,
+                                   min_pw_length=MINIMUM_PASSWORD_LENGTH),
+                              request=req)
+
+
+def password_changed(req: CamcopsRequest,
+                     username: str,
+                     own_password: bool) -> Response:
+    return render_to_response("password_changed.mako",
+                              dict(username=username,
+                                   own_password=own_password),
+                              request=req)
+
+
+# =============================================================================
+# Main menu; simple information things
 # =============================================================================
 
 @view_config(route_name=Routes.HOME, renderer="main_menu.mako")
@@ -607,53 +589,13 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
         introspection=cfg.INTROSPECTION,
         now=format_datetime(req.now_arrow,
                             DATEFORMAT.SHORT_DATETIME_SECONDS),
-        sv=CAMCOPS_SERVER_VERSION,
+        server_version=CAMCOPS_SERVER_VERSION,
     )
 
 
-# noinspection PyUnusedLocal
-def view_policies(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """HTML showing server's ID policies."""
-
-    html = pls.WEBSTART + """
-        {user}
-        <h1>CamCOPS: this database’s identification policies</h1>
-        <h2>Identification (ID) numbers</h2>
-        <table>
-            <tr>
-                <th>ID number</th>
-                <th>Description</th>
-                <th>Short description</th>
-            </tr>
-    """.format(
-        user=session.get_current_user_html(),
-    )
-    for n in pls.get_which_idnums():
-        html += """<tr> <td>{}</td> <td>{}</td> <td>{}</td> </tr>""".format(
-            n,
-            pls.get_id_desc(n),
-            pls.get_id_shortdesc(n),
-        )
-    html += """
-        </table>
-        <h2>ID policies</h2>
-        <table>
-            <tr> <th>Policy</th> <th>Details</th> </tr>
-            <tr> <td>Upload</td> <td>{}</td> </tr>
-            <tr> <td>Finalize</td> <td>{}</td> </tr>
-            <tr> <td>Principal (single necessary) ID number
-                     required by Upload policy</td> <td>{}</td> </tr>
-            <tr> <td>Principal (single necessary) ID number
-                     required by Finalize policy</td> <td>{}</td> </tr>
-        </table>
-    """.format(
-        pls.ID_POLICY_UPLOAD_STRING,
-        pls.ID_POLICY_FINALIZE_STRING,
-        get_upload_id_policy_principal_numeric_id(),
-        get_finalize_id_policy_principal_numeric_id(),
-    )
-    return html + WEBEND
-
+# =============================================================================
+# Tasks
+# =============================================================================
 
 # noinspection PyUnusedLocal
 def view_tasks(session: CamcopsSession, form: cgi.FieldStorage) -> str:
@@ -882,6 +824,10 @@ def serve_task(session: CamcopsSession, form: cgi.FieldStorage) \
     else:
         raise AssertionError("ACTION.TASK: Invalid outputtype")
 
+
+# =============================================================================
+# Trackers, CTVs
+# =============================================================================
 
 # noinspection PyUnusedLocal
 def choose_tracker(session: CamcopsSession, form: cgi.FieldStorage) -> str:
@@ -1190,6 +1136,10 @@ def change_task_filters(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     return view_tasks(session, form)
 
 
+# =============================================================================
+# Reports
+# =============================================================================
+
 # noinspection PyUnusedLocal
 def reports_menu(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Offer a menu of reports."""
@@ -1217,59 +1167,9 @@ def provide_report(session: CamcopsSession,
     # ... unusual: manages the content type itself
 
 
-# noinspection PyUnusedLocal
-def offer_regenerate_summary_tables(session: CamcopsSession,
-                                    form: cgi.FieldStorage) -> str:
-    """Ask for confirmation to regenerate summary tables."""
-
-    if not session.authorized_to_dump():
-        return fail_with_error_stay_logged_in(CANNOT_DUMP)
-    return pls.WEBSTART + """
-        {}
-        <h1>Regenerate summary tables?</h1>
-        <div class="warning">This may be slow.</div>
-        <div><a href="{}">
-            Proceed to regenerate summary tables (click once then <b>WAIT</b>)
-        </a></div>
-        <div><a href="{}">Cancel and return to main menu</a></div>
-    """.format(
-        session.get_current_user_html(),
-        get_generic_action_url(ACTION.REGENERATE_SUMMARIES),
-        get_url_main_menu(),
-    ) + WEBEND
-
-
-# noinspection PyUnusedLocal
-def regenerate_summary_tables(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Drop and regenerated cached/temporary summary data tables."""
-
-    if not session.authorized_to_dump():
-        return fail_with_error_stay_logged_in(CANNOT_DUMP)
-    success, errormsg = make_summary_tables()
-    if success:
-        return simple_success_message("Summary tables regenerated.")
-    else:
-        return fail_with_error_stay_logged_in(
-            "Couldn’t regenerate summary tables. Error was: " + errormsg)
-
-
-# noinspection PyUnusedLocal
-def inspect_table_defs(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Inspect table definitions with field comments."""
-
-    if not session.authorized_to_dump():
-        return fail_with_error_stay_logged_in(CANNOT_DUMP)
-    return get_descriptions_comments_html(include_views=False)
-
-
-# noinspection PyUnusedLocal
-def inspect_table_view_defs(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Inspect table and view definitions with field comments."""
-
-    if not session.authorized_to_dump():
-        return fail_with_error_stay_logged_in(CANNOT_DUMP)
-    return get_descriptions_comments_html(include_views=True)
-
+# =============================================================================
+# Research downloads
+# =============================================================================
 
 # noinspection PyUnusedLocal
 def offer_basic_dump(session: CamcopsSession, form: cgi.FieldStorage) -> str:
@@ -1650,6 +1550,35 @@ def serve_table_dump(session: CamcopsSession, form: cgi.FieldStorage) \
                 VALUE.OUTPUTTYPE_TSV
             )
         )
+
+
+# =============================================================================
+# Information views
+# =============================================================================
+
+@view_config(route_name=Routes.VIEW_POLICIES, renderer="view_policies.mako")
+def view_policies(req: CamcopsRequest) -> Dict[str, Any]:
+    """HTML showing server's ID policies."""
+    cfg = req.config
+    which_idnums = cfg.get_which_idnums()
+    return dict(
+        cfg=cfg,
+        which_idnums=which_idnums,
+        descriptions=[cfg.get_id_desc(n) for n in which_idnums],
+        short_descriptions=[cfg.get_id_shortdesc(n) for n in which_idnums],
+        upload=cfg.ID_POLICY_UPLOAD_STRING,
+        finalize=cfg.ID_POLICY_FINALIZE_STRING,
+        upload_principal=get_upload_id_policy_principal_numeric_id(),
+        finalize_principal=get_finalize_id_policy_principal_numeric_id(),
+    )
+
+# noinspection PyUnusedLocal
+def inspect_table_defs(session: CamcopsSession, form: cgi.FieldStorage) -> str:
+    """Inspect table definitions with field comments."""
+
+    if not session.authorized_to_dump():
+        return fail_with_error_stay_logged_in(CANNOT_DUMP)
+    return get_descriptions_comments_html(include_views=False)
 
 
 # noinspection PyUnusedLocal
@@ -2041,44 +1970,33 @@ def view_hl7_run(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """ + WEBEND
 
 
-# noinspection PyUnusedLocal
-def offer_introspection(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """HTML form to offer CamCOPS server source code."""
-
-    if not pls.INTROSPECTION:
-        return fail_with_error_stay_logged_in(NO_INTROSPECTION_MSG)
-    html = pls.WEBSTART + """
-        {user}
-        <h1>Introspection into CamCOPS source code</h1>
-    """.format(
-        user=session.get_current_user_html(),
+@view_config(route_name=Routes.OFFER_INTROSPECTION)
+def offer_introspection(req: CamcopsRequest) -> Response:
+    """Page to offer CamCOPS server source code."""
+    cfg = req.config
+    if not cfg.INTROSPECTION:
+        return simple_failure(NO_INTROSPECTION_MSG)
+    return render_to_response(
+        "introspection_file_list.mako",
+        dict(ifd_list=cfg.INTROSPECTION_FILES),
+        request=req
     )
-    for ft in pls.INTROSPECTION_FILES:
-        html += """
-            <div>
-                <a href="{url}">{prettypath}</a>
-            </div>
-        """.format(
-            url=get_url_introspect(ft.searchterm),
-            prettypath=ft.prettypath,
-        )
-    return html + WEBEND
 
 
-# noinspection PyUnusedLocal
-def introspect(session: CamcopsSession, form: cgi.FieldStorage) -> str:
+@view_config(route_name=Routes.INTROSPECT)
+def introspect(req: CamcopsRequest) -> Response:
     """Provide formatted source code."""
+    cfg = req.config
+    if not cfg.INTROSPECTION:
+        return simple_failure(NO_INTROSPECTION_MSG)
+    filename = req.params.get(ViewParam.FILENAME, None)
+    try:
+        ifd = next(ifd for ifd in cfg.INTROSPECTION_FILES
+                   if ifd.prettypath == filename)
+    except StopIteration:
+        return simple_failure(INTROSPECTION_INVALID_FILE_MSG)
+    fullpath = ifd.fullpath
 
-    if not pls.INTROSPECTION:
-        return fail_with_error_stay_logged_in(NO_INTROSPECTION_MSG)
-    filename = ws.get_cgi_parameter_str(form, PARAM.FILENAME)
-    possible_filenames = [ft.searchterm for ft in pls.INTROSPECTION_FILES]
-    if not filename or filename not in possible_filenames:
-        return fail_with_error_not_logged_in(INTROSPECTION_INVALID_FILE_MSG)
-    index = possible_filenames.index(filename)
-    ft = pls.INTROSPECTION_FILES[index]
-    # log.debug("INTROSPECTION: {}", ft)
-    fullpath = ft.fullpath
     if fullpath.endswith(".jsx"):
         lexer = pygments.lexers.web.JavascriptLexer()
     else:
@@ -2089,25 +2007,18 @@ def introspect(session: CamcopsSession, form: cgi.FieldStorage) -> str:
             code = f.read()
     except Exception as e:
         log.debug("INTROSPECTION ERROR: {}", e)
-        return fail_with_error_not_logged_in(INTROSPECTION_FAILED_MSG)
-    body = pygments.highlight(code, lexer, formatter)
+        return simple_failure(INTROSPECTION_FAILED_MSG)
+    code_html = pygments.highlight(code, lexer, formatter)
     css = formatter.get_style_defs('.highlight')
-    return """
-        <!DOCTYPE html> <!-- HTML 5 -->
-        <html>
-            <head>
-                <title>CamCOPS</title>
-                <meta charset="utf-8">
-                <style type="text/css">
-                    {css}
-                </style>
-            </head>
-            <body>
-                {body}
-            </body>
-        </html>
-    """.format(css=css, body=body)
+    return render_to_response("introspect_file.mako",
+                              dict(css=css,
+                                   code_html=code_html),
+                              request=req)
 
+
+# =============================================================================
+# Altering data
+# =============================================================================
 
 def add_special_note(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Add a special note to a task (after confirmation)."""
@@ -2174,7 +2085,7 @@ def add_special_note(session: CamcopsSession, form: cgi.FieldStorage) -> str:
         ) + WEBEND
     # If we get here, we'll apply the note.
     task.apply_special_note(note, session.user_id)
-    return simple_success_message(
+    return simple_success(
         "Note applied ({}, server PK {}).".format(
             tablename,
             serverpk
@@ -2244,7 +2155,7 @@ def erase_task(session: CamcopsSession, form: cgi.FieldStorage) -> str:
         ) + WEBEND
     # If we get here, we'll do the erasure.
     task.manually_erase(session.user_id)
-    return simple_success_message(
+    return simple_success(
         "Task erased ({}, server PK {}).".format(
             tablename,
             serverpk
@@ -2362,7 +2273,7 @@ def delete_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     msg = "Patient with idnum{} = {} and associated tasks DELETED".format(
         which_idnum, idnum_value)
     audit(msg)
-    return simple_success_message(msg)
+    return simple_success(msg)
 
 
 def info_html_for_patient_edit(title: str,
@@ -2578,7 +2489,7 @@ def edit_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
             "no changes made.")
     # Anything to do?
     if not changemessages:
-        return simple_success_message("No changes made.")
+        return simple_success("No changes made.")
     # If we get here, we'll make the change.
     patient.save()
     msg = "Patient details edited. Changes: "
@@ -2590,7 +2501,7 @@ def edit_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
                                         patient.get_era()):
         # Patient details changed, so resend any tasks via HL7
         task.delete_from_hl7_message_log()
-    return simple_success_message(msg)
+    return simple_success(msg)
 
 
 def task_list_from_generator(generator: Iterable[Task]) -> str:
@@ -2709,34 +2620,12 @@ def forcibly_finalize(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     # OK, done.
     msg = "Live records for device {} forcibly finalized".format(device_id)
     audit(msg)
-    return simple_success_message(msg)
+    return simple_success(msg)
 
 
-def enter_new_password(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Ask for a new password."""
-
-    user_to_change = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    if (user_to_change != session.username and
-            not session.authorized_as_superuser()):
-        return fail_with_error_stay_logged_in(CAN_ONLY_CHANGE_OWN_PASSWORD)
-    return enter_new_password_html(session,
-                                   user_to_change,
-                                   user_to_change != session.username)
-
-
-def change_password_if_auth(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Implement a password change."""
-
-    user_to_change = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    if user_to_change is None or session.username is None:
-        return fail_with_error_stay_logged_in(MISSING_PARAMETERS_MSG)
-    if (user_to_change != session.username and
-            not session.authorized_as_superuser()):
-        return fail_with_error_stay_logged_in(CAN_ONLY_CHANGE_OWN_PASSWORD)
-    return change_password(user_to_change,
-                           form,
-                           user_to_change != session.username)
-
+# =============================================================================
+# User management
+# =============================================================================
 
 # noinspection PyUnusedLocal
 def manage_users(session: CamcopsSession, form: cgi.FieldStorage) -> str:
@@ -2942,14 +2831,9 @@ ACTIONDICT = {
     ACTION.BASIC_DUMP: basic_dump,
     ACTION.OFFER_TABLE_DUMP: offer_table_dump,
     ACTION.TABLE_DUMP: serve_table_dump,
-    ACTION.OFFER_REGENERATE_SUMMARIES: offer_regenerate_summary_tables,
-    ACTION.REGENERATE_SUMMARIES: regenerate_summary_tables,
     ACTION.INSPECT_TABLE_DEFS: inspect_table_defs,
-    ACTION.INSPECT_TABLE_VIEW_DEFS: inspect_table_view_defs,
 
     # User management
-    ACTION.ENTER_NEW_PASSWORD: enter_new_password,
-    ACTION.CHANGE_PASSWORD: change_password_if_auth,
     ACTION.MANAGE_USERS: manage_users,
     ACTION.ASK_TO_ADD_USER: ask_to_add_user,
     ACTION.ADD_USER: add_user_if_auth,
@@ -2983,66 +2867,6 @@ ACTIONDICT = {
     ACTION.CRASH: crash,
 }
 
-
-def main_http_processor(env: Dict[str, str]) \
-        -> Union[
-            str,
-            WSGI_TUPLE_TYPE,
-            WSGI_TUPLE_TYPE_WITH_STATUS]:
-    """Main processor of HTTP requests."""
-
-    # Sessions details are already in pls.session
-
-    # -------------------------------------------------------------------------
-    # Process requested action
-    # -------------------------------------------------------------------------
-    form = ws.get_cgi_fieldstorage_from_wsgi_env(env)
-    action = ws.get_cgi_parameter_str(form, PARAM.ACTION)
-
-    log.info("Incoming connection from IP={i}, port={p}, user_id={ui}, "
-             "username={un}, action={a}",
-             i=pls.remote_addr,
-             p=pls.remote_port,
-             ui=pls.session.user_id,
-             un=pls.session.username,
-             a=action)
-
-    # -------------------------------------------------------------------------
-    # Login
-    # -------------------------------------------------------------------------
-    if action == ACTION.LOGIN:
-        return login(pls.session, form)
-
-    # -------------------------------------------------------------------------
-    # If we're not authorized, we won't get any further:
-    # -------------------------------------------------------------------------
-    if not pls.session.authorized_as_viewer():
-        if not action:
-            return login_page()
-        else:
-            return fail_not_user(action, redirect=env.get("REQUEST_URI"))
-
-    # -------------------------------------------------------------------------
-    # Can't bypass an enforced password change, or acknowledging terms:
-    # -------------------------------------------------------------------------
-    if pls.session.user_must_change_password():
-        if action != ACTION.CHANGE_PASSWORD:
-            return enter_new_password_html(pls.session, pls.session.username,
-                                           as_manager=False,
-                                           because_password_expired=True)
-    elif pls.session.user_must_agree_terms() and action != ACTION.AGREE_TERMS:
-        return offer_terms(pls.session, form)
-    # Caution with the case where the user must do both; don't want deadlock!
-    # The statements let a user through if they're changing their password,
-    # even if they also need to acknowledge terms (which comes next).
-
-    # -------------------------------------------------------------------------
-    # Process requested action
-    # -------------------------------------------------------------------------
-    fn = ACTIONDICT.get(action)
-    if not fn:
-        return fail_unknown_action(action)
-    return fn(pls.session, form)
 
 
 # =============================================================================
@@ -3111,80 +2935,6 @@ def get_descriptions_comments_html(include_views: bool = False) -> str:
     write_descriptions_comments(f, include_views)
     return f.getvalue()
 
-
-def make_summary_tables(from_console: bool = True) -> Tuple[bool, str]:
-    """Drop and rebuild summary tables."""
-    # Don't use print; this may run from the web interface. Use the log.
-    locked_error = (
-        "make_summary_tables: couldn't open lockfile ({}.lock); "
-        "may not have permissions, or file may be locked by "
-        "another process; aborting".format(
-            pls.SUMMARY_TABLES_LOCKFILE)
-    )
-    misconfigured_error = (
-        "make_summary_tables: No SUMMARY_TABLES_LOCKFILE "
-        "specified in config; can't proceed"
-    )
-    if not pls.SUMMARY_TABLES_LOCKFILE:
-        log.error(misconfigured_error)
-        return False, misconfigured_error
-    lock = lockfile.FileLock(pls.SUMMARY_TABLES_LOCKFILE)
-    if lock.is_locked():
-        log.warning(locked_error)
-        return False, locked_error
-    try:
-        with lock:
-            log.info("MAKING SUMMARY TABLES")
-            for cls in get_all_task_classes():
-                cls.make_summary_table()
-            audit("Created/recreated summary tables",
-                  from_console=from_console)
-            pls.db.commit()  # make_summary_tables commit (prior to releasing
-            # file lock)
-        return True, ""
-    except lockfile.LockFailed:
-        log.warning(locked_error)
-        return False, locked_error
-
-
-# =============================================================================
-# WSGI application
-# =============================================================================
-
-def webview_application(environ: Dict[str, str],
-                        start_response: Callable[[str, HEADERS_TYPE], None]) \
-        -> Iterable[bytes]:
-    """Main WSGI application handler."""
-    # Establish a session based on incoming details
-    establish_session(environ)  # writes to pls.session
-
-    # Call main
-    result = main_http_processor(environ)
-    status = '200 OK'  # default unless overwritten
-    # If it's a 3-value tuple, fine. Otherwise, assume HTML requiring encoding.
-    if isinstance(result, tuple) and len(result) == 3:
-        (contenttype, extraheaders, output) = result
-    elif isinstance(result, tuple) and len(result) == 4:
-        (contenttype, extraheaders, output, status) = result
-    else:
-        (contenttype, extraheaders, output) = ws.html_result(result)
-
-    # Commit (e.g. password changes, audit events, session timestamps)
-    pls.db.commit()  # WSGI route commit
-
-    # Add cookie.
-    cookies = pls.session.get_cookies()
-    extraheaders.extend(cookies)
-    # Wipe session details, as an additional safeguard
-    pls.session = None
-
-    # Return headers and output
-    response_headers = [('Content-Type', contenttype),
-                        ('Content-Length', str(len(output)))]
-    if extraheaders is not None:
-        response_headers.extend(extraheaders)  # not append!
-    start_response(status, response_headers)
-    return [output]
 
 
 # =============================================================================

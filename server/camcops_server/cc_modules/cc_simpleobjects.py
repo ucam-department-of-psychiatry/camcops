@@ -72,6 +72,5 @@ XmlSimpleValue = collections.namedtuple("XmlSimpleValue", [
 IntrospectionFileDetails = collections.namedtuple("IntrospectionFileDetails", [
     "fullpath",
     "prettypath",
-    "searchterm",
     "ext"
 ])

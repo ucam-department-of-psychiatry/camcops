@@ -21,8 +21,8 @@
 
     %if authorized_to_dump:
         <li><a href="${request.route_url(Routes.OFFER_BASIC_DUMP)}">Basic research dump (fields and summaries)</a></li>
-        <!-- DISABLED FOR NOW: -->
-        <!-- <li><a href="FILL_ME_IN">Regenerate summary tables</a></li> -->
+        ## DISABLED FOR NOW:
+        ## <li><a href="FILL_ME_IN">Regenerate summary tables</a></li>
         <li><a href="${request.route_url(Routes.OFFER_TABLE_DUMP)}">Dump table/view data</a></li>
         <li><a href="${request.route_url(Routes.INSPECT_TABLE_DEFS)}">Inspect table definitions</a>
             (... <a href="${request.route_url(Routes.INSPECT_TABLE_VIEW_DEFS)}">including views</a>)</li>
@@ -48,7 +48,7 @@
         <li><a href="${request.route_url(Routes.OFFER_INTROSPECTION)}">Introspect source code</a></li>
     %endif
     %if request.camcops_session.username:
-        <li><a href="${request.route_url(Routes.CHANGE_PASSWORD, username=request.camcops_session.username)}">Change password</a></li>
+        <li><a href="${request.route_url(Routes.CHANGE_OWN_PASSWORD, username=request.camcops_session.username)}">Change password</a></li>
     %else:
         <li class="warning">No username!</li>
     %endif
@@ -57,12 +57,12 @@
 
 <div class="office">
     It’s ${now}.
-    Server version ${sv}.
+    Server version ${server_version}.
     See <a href="${camcops_url}">${camcops_url}</a> for more information on CamCOPS.
     Clicking on the CamCOPS logo will return you to the main menu.
 </div>
 
-%if id_policies_valid:
+%if not id_policies_valid:
     <div class="badidpolicy_severe">
         Server’s ID policies are missing or invalid.
         This needs fixing urgently by the system administrator.

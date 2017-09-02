@@ -108,7 +108,8 @@ class CamcopsConfig(object):
             raise AssertionError("{} not specified".format(ENVVAR_CONFIG_FILE))
         log.info("Reading from {}", self.CAMCOPS_CONFIG_FILE)
         config = configparser.ConfigParser()
-        config.read_file(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
+        with codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8") as file:
+            config.read_file(file)
 
         # ---------------------------------------------------------------------
         # Read from the config file: 1. Most stuff, in alphabetical order
@@ -283,7 +284,6 @@ class CamcopsConfig(object):
                         IntrospectionFileDetails(
                             fullpath=fullpath,
                             prettypath=prettypath,
-                            searchterm=filename,
                             ext=ext
                         )
                     )
@@ -419,8 +419,6 @@ class CamcopsConfig(object):
             raise RuntimeError("Invalid CTV_FILENAME_SPEC in "
                                "[server] section of config file")
 
-        self.VALID_TABLE_NAMES = self._get_all_table_names()  # reads db
-
         # *** NEED TO BE CONFIGURABLE:
         self.session_cookie_secret = "hello!"  # *** fix!
 
@@ -504,7 +502,9 @@ class CamcopsConfig(object):
         return create_engine(self.DB_URL, echo=self.DB_ECHO,
                              pool_pre_ping=True)
 
-    def _get_all_table_names(self) -> List[str]:
+    @property
+    @cache_region_static.cache_on_arguments(function_key_generator=fkg)
+    def get_all_table_names(self) -> List[str]:
         engine = self.create_engine()
         return get_table_names(engine=engine)
 
@@ -525,15 +525,15 @@ class CamcopsConfig(object):
     def get_dbsession_context(self) -> Generator[SqlASession, None, None]:
         engine = self.create_engine()
         maker = sessionmaker(bind=engine)
-        session = maker()  # type: SqlASession
+        dbsession = maker()  # type: SqlASession
         # noinspection PyBroadException
         try:
-            yield session
-            session.commit()
+            yield dbsession
+            dbsession.commit()
         except Exception:
-            session.rollback()
+            dbsession.rollback()
         finally:
-            session.close()
+            dbsession.close()
 
     # def get_anonymisation_database(self) -> rnc_db.DatabaseSupporter:
     #     """Open the anonymisation staging database. That is not performance-

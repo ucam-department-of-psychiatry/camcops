@@ -1,6 +1,6 @@
 ## account_locked.mako
-<%page args="locked_until"/>
-<%inherit file="base_web.mako"/>
+## <%page args="locked_until"/>
+<%inherit file="generic_failure.mako"/>
 
 <div class="error">
     Account locked until ${locked_until} due to multiple login failures.

@@ -29,6 +29,7 @@ import logging
 import math
 from typing import Any, List, Optional, Tuple, TYPE_CHECKING
 
+from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 import cardinal_pythonlib.rnc_web as ws
@@ -50,7 +51,7 @@ from .cc_html import (
     get_url_main_menu,
     get_yes_no_none,
 )
-from .cc_pyramid import CookieKeys
+from .cc_pyramid import CookieKey
 from .cc_sqla_coltypes import (
     DateTimeAsIsoTextColType,
     FilterTextColType,
@@ -128,7 +129,7 @@ class CamcopsSession(Base):
         ForeignKey("_security_users.id"),
         comment="User ID"
     )
-    user = relationship("User")
+    user = relationship("User", lazy="joined")
     last_activity_utc = Column(
         "last_activity_utc", DateTime,
         comment="Date/time of last activity (UTC)"
@@ -206,6 +207,17 @@ class CamcopsSession(Base):
     filter_idnum7 = Column("filter_idnum7", Integer)
     filter_idnum8 = Column("filter_idnum8", Integer)
 
+    def __repr__(self) -> str:
+        return simple_repr(
+            self,
+            ["id", "token", "ip_address", "user_id", "last_activity_utc_iso"],
+            with_addr=True
+        )
+
+    @property
+    def last_activity_utc_iso(self) -> str:
+        return format_datetime(self.last_activity_utc, DATEFORMAT.ISO8601)
+
     @classmethod
     def get_session_using_cookies(cls,
                                   req: "CamcopsRequest") -> "CamcopsSession":
@@ -214,9 +226,9 @@ class CamcopsSession(Base):
         """
         pyramid_session = req.session  # type: ISession
         # noinspection PyArgumentList
-        session_id_str = pyramid_session.get(CookieKeys.SESSION_ID, '')
+        session_id_str = pyramid_session.get(CookieKey.SESSION_ID, '')
         # noinspection PyArgumentList
-        session_token = pyramid_session.get(CookieKeys.SESSION_TOKEN, '')
+        session_token = pyramid_session.get(CookieKey.SESSION_TOKEN, '')
         return cls.get_session(req, session_id_str, session_token)
 
     @classmethod

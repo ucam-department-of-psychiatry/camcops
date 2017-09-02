@@ -32,6 +32,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 import datetime
 from pyramid.decorator import reify
+from pyramid.httpexceptions import HTTPException
 from pyramid.interfaces import ISession
 from pyramid.registry import Registry
 from pyramid.request import Request
@@ -51,14 +52,18 @@ from .cc_constants import (
     STATIC_URL_PREFIX,
 )
 from .cc_dt import format_datetime
-from .cc_pyramid import CookieKeys, Routes
+from .cc_pyramid import CookieKey, get_session_factory
 from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
 from .cc_tabletsession import TabletSession
 
 if TYPE_CHECKING:
     from .cc_session import CamcopsSession
+    from .cc_user import User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+
+DEBUG_CAMCOPS_SESSION = False
+DEBUG_DBSESSION_MANAGEMENT = False
 
 
 # =============================================================================
@@ -115,6 +120,8 @@ class CamcopsRequest(Request):
             from .cc_session import CamcopsSession  # delayed import
             self._camcops_session = CamcopsSession.get_session_using_cookies(
                 self)
+            if DEBUG_CAMCOPS_SESSION:
+                log.debug("{!r}", self._camcops_session)
         return self._camcops_session
 
     @reify
@@ -147,17 +154,31 @@ class CamcopsRequest(Request):
             dbsession = request.dbsession
         and if it requests that, the cleanup callbacks get installed.
         """
-        log.info("Making SQLAlchemy session")
+        if DEBUG_DBSESSION_MANAGEMENT:
+            log.debug("Making SQLAlchemy session")
         engine = self.engine
         maker = sessionmaker(bind=engine)
         session = maker()  # type: SqlASession
 
         def end_sqlalchemy_session(req: Request) -> None:
-            if req.exception is not None:
+            # Do NOT roll back "if req.exception is not None"; that includes
+            # all sorts of exceptions like HTTPFound, HTTPForbidden, etc.
+            # See also
+            # - https://docs.pylonsproject.org/projects/pyramid_cookbook/en/latest/pylons/exceptions.html  # noqa
+            # But they are neatly subclasses of HTTPException, and isinstance()
+            # deals with None, so:
+            if (req.exception is not None and
+                    not isinstance(req.exception, HTTPException)):
+                log.critical(
+                    "Request raised exception that wasn't an HTTPException; "
+                    "rolling back; exception was: {!r}", req.exception)
                 session.rollback()
             else:
+                if DEBUG_DBSESSION_MANAGEMENT:
+                    log.debug("Committing to database")
                 session.commit()
-            log.info("Closing SQLAlchemy session")
+            if DEBUG_DBSESSION_MANAGEMENT:
+                log.debug("Closing SQLAlchemy session")
             session.close()
 
         self.add_finished_callback(end_sqlalchemy_session)
@@ -371,6 +392,14 @@ class CamcopsRequest(Request):
         # *** check/revise ***
         return STATIC_URL_PREFIX + "logo_local.png"
 
+    @property
+    def user(self) -> Optional["User"]:
+        return self.camcops_session.user
+
+    @property
+    def user_id(self) -> Optional[int]:
+        return self.camcops_session.user_id
+
 
 # noinspection PyUnusedLocal
 def complete_request_add_cookies(req: CamcopsRequest, response: Response):
@@ -392,8 +421,8 @@ def complete_request_add_cookies(req: CamcopsRequest, response: Response):
     # via the Response automatically):
     pyramid_session = req.session  # type: ISession
     ccsession = req.camcops_session
-    pyramid_session[CookieKeys.SESSION_ID] = str(ccsession.id)
-    pyramid_session[CookieKeys.SESSION_TOKEN] = ccsession.token
+    pyramid_session[CookieKey.SESSION_ID] = str(ccsession.id)
+    pyramid_session[CookieKey.SESSION_TOKEN] = ccsession.token
     # ... should cause the ISession to add a callback to add cookies,
     # which will be called immediately after this one.
 
@@ -411,5 +440,7 @@ def command_line_request() -> CamcopsRequest:
     req = CamcopsRequest(environ=os_env_dict)
     # ... must pass an actual dict; os.environ itself isn't OK ("TypeError:
     # WSGI environ must be a dict; you passed environ({'key1': 'value1', ...})
+    session_factory = get_session_factory()
+    req.session = session_factory(req)
     req.registry = registry
     return req

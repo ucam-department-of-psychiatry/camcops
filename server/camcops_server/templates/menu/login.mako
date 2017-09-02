@@ -1,7 +1,7 @@
 ## login.mako
 <%inherit file="base_web_form.mako"/>
 
-<div>${request.config.get_database_title_html()}</div>
+<%include file="db_user_info.mako"/>
 
 <div>
     <b>Unauthorized access prohibited.</b>

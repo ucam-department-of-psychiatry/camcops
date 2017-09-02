@@ -25,12 +25,26 @@
 import enum
 import logging
 import os
+import pprint
 import re
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from mako.lookup import TemplateLookup
+from pyramid.authentication import IAuthenticationPolicy
+from pyramid.authorization import IAuthorizationPolicy
 from pyramid.config import Configurator
+from pyramid.interfaces import ILocation, ISession
+from pyramid.response import Response
+from pyramid.security import (
+    Allowed,
+    Denied,
+    Authenticated,
+    Everyone,
+    PermitsResult,
+)
+from pyramid.session import SignedCookieSessionFactory
 from pyramid_mako import (
     MakoLookupTemplateRenderer,
     MakoRendererFactory,
@@ -38,11 +52,20 @@ from pyramid_mako import (
     reraise,
     text_error_template,
 )
+from zope.interface import implementer
 
 from .cc_baseconstants import TEMPLATE_DIR
 from .cc_cache import cache_region_static
 
-log = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    from .cc_request import CamcopsRequest
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
+
+DEBUG_EFFECTIVE_PRINCIPALS = False
+DEBUG_TEMPLATES = False
+
+DEBUGGING_MAKO_DIR = os.path.expanduser("~/tmp/mako_template_source")
 
 
 # =============================================================================
@@ -50,16 +73,42 @@ log = logging.getLogger(__name__)
 # =============================================================================
 
 COOKIE_NAME = 'camcops'
+SUBMIT = 'submit'
 
 
-class CookieKeys:
+class CookieKey:
     SESSION_ID = 'session_id'
     SESSION_TOKEN = 'session_token'
 
 
-class Methods:
+class HttpMethod:
     GET = "GET"
     POST = "POST"
+
+
+class ViewParam(object):
+    """
+    Used in the following situations:
+
+    - as parameter names for parameterized URLs, via RoutePath to Pyramid's
+      route configuration, then fetched from the matchdict.
+
+    - as form parameter names (often with some duplication as the attribute
+      names of deform Form objects, because to avoid duplication would involve
+      metaclass mess);
+    """
+    # PK = "pk"
+    # PATIENT_ID = "pid"
+    # QUERY = "_query"  # built in to Pyramid
+    # AGREE = "agree"
+    FILENAME = "filename"
+    MUST_CHANGE_PASSWORD = "must_change_password"
+    NEW_PASSWORD = "new_password"
+    OLD_PASSWORD = "old_password"
+    PASSWORD = "password"
+    REDIRECT_URL = "redirect_url"
+    USER_ID = "user_id"
+    USERNAME = "username"
 
 
 # =============================================================================
@@ -86,11 +135,15 @@ MAKO_LOOKUP = TemplateLookup(
     #   cached="True" cache_region="local"
     input_encoding="utf-8",
     output_encoding="utf-8",
+    module_directory=DEBUGGING_MAKO_DIR if DEBUG_TEMPLATES else None,
 )
 
 
 class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
     def __call__(self, value: Dict[str, Any], system: Dict[str, Any]) -> str:
+        if DEBUG_TEMPLATES:
+            log.debug("value: {}", pprint.pformat(value))
+            log.debug("system: {}", pprint.pformat(system))
         # RNC extra values:
         system['Routes'] = Routes
         # Update the system dictionary with the values from the user
@@ -110,7 +163,10 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
         template = self.template
         if self.defname is not None:
             template = template.get_def(self.defname)
+        # noinspection PyBroadException
         try:
+            if DEBUG_TEMPLATES:
+                log.debug("final dict to template: {}", pprint.pformat(system))
             result = template.render_unicode(**system)
         except:
             try:
@@ -121,12 +177,15 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
                     )
                 reraise(MakoRenderingException(errtext), None, exc_info[2])
             finally:
+                # noinspection PyUnboundLocalVariable
                 del exc_info
 
+        # noinspection PyUnboundLocalVariable
         return result
 
 
 class CamcopsMakoRendererFactory(MakoRendererFactory):
+    # noinspection PyTypeChecker
     renderer_factory = staticmethod(CamcopsMakoLookupTemplateRenderer)
 
 
@@ -188,8 +247,11 @@ class UrlParam(object):
 
 
 def make_url_path(base: str, *args: UrlParam) -> str:
-    parts = [base] + [arg.markerdef() for arg in args]
-    return "/" + "/".join(parts)
+    parts = []  # type: List[str]
+    if not base.startswith("/"):
+        parts.append("/")
+    parts += [base] + [arg.markerdef() for arg in args]
+    return "/".join(parts)
 
 
 # =============================================================================
@@ -199,11 +261,18 @@ def make_url_path(base: str, *args: UrlParam) -> str:
 # Class to collect constants together
 # See also http://xion.io/post/code/python-enums-are-ok.html
 class Routes(object):
+    """
+    Names of Pyramid routes.
+    - Used by the @view_config(route_name=...) decorator.
+    - Configured via RouteCollection / RoutePath to the Pyramid route
+      configurator.
+    """
     # Hard-coded special paths
     STATIC = "static"
 
     # Implemented
-    CHANGE_PASSWORD = "change_password"
+    CHANGE_OWN_PASSWORD = "change_own_password"
+    CHANGE_OTHER_PASSWORD = "change_other_password"
     CHOOSE_CLINICALTEXTVIEW = "choose_clinicaltextview"
     CHOOSE_TRACKER = "choose_tracker"
     DATABASE_API = "database"
@@ -212,6 +281,7 @@ class Routes(object):
     HOME = "home"
     INSPECT_TABLE_DEFS = "view_table_definitions"
     INSPECT_TABLE_VIEW_DEFS = "view_table_and_view_definitions"
+    INTROSPECT = "introspect"
     LOGOUT = "logout"
     MANAGE_USERS = "manage_users"
     OFFER_AUDIT_TRAIL_OPTIONS = "offer_audit_trail_options"
@@ -222,14 +292,15 @@ class Routes(object):
     OFFER_REGENERATE_SUMMARIES = "offer_regenerate_summary_tables"
     OFFER_TABLE_DUMP = "offer_table_dump"
     OFFER_TERMS = "offer_terms"
-    TESTPAGE = "testpage"
+    TESTPAGE_PRIVATE_1 = "testpage_private_1"
+    TESTPAGE_PUBLIC_1 = "testpage_public_1"
+    TESTPAGE_PUBLIC_2 = "testpage_public_2"
     VIEW_POLICIES = "view_policies"
     VIEW_TASKS = "view_tasks"
 
     # To implement ***
     ADD_SPECIAL_NOTE = "add_special_note"
     ADD_USER = "add_user"
-    AGREE_TERMS = "agree_terms"
     APPLY_FILTER_COMPLETE = "apply_filter_complete"
     APPLY_FILTER_DEVICE = "apply_filter_device"
     APPLY_FILTER_DOB = "apply_filter_dob"
@@ -273,7 +344,6 @@ class Routes(object):
     ERASE_TASK = "erase_task"
     FILTER = "filter"
     FIRST_PAGE = "first_page"
-    INTROSPECT = "introspect"
     LAST_PAGE = "last_page"
     LOGIN = "login"
     MAIN_MENU = "main_menu"
@@ -289,23 +359,6 @@ class Routes(object):
     VIEW_AUDIT_TRAIL = "view_audit_trail"
     VIEW_HL7_LOG = "view_hl7_log"
     VIEW_HL7_RUN = "view_hl7_run"
-
-
-class ViewParams(object):
-    """
-    Used as parameter placeholders in URLs, and fetched from the matchdict.
-    """
-    PK = 'pk'
-    PATIENT_ID = 'pid'
-    QUERY = '_query'  # built in to Pyramid
-    USERNAME = 'username'
-
-
-class QueryParams(object):
-    """
-    Parameters for the request.GET dictionary, and in URL as '...?key=value'
-    """
-    SORT = 'sort'
 
 
 class RoutePath(object):
@@ -342,22 +395,32 @@ class RouteCollection(object):
                        ignore_in_all_routes=True)
 
     # Implemented
-    CHANGE_PASSWORD = RoutePath(
-        Routes.CHANGE_PASSWORD,
+    CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD, '/change_pw')
+    CHANGE_OTHER_PASSWORD = RoutePath(
+        Routes.CHANGE_OTHER_PASSWORD,
         make_url_path(
-            "/change_password",
-            UrlParam(ViewParams.USERNAME, UrlParamType.PLAIN_STRING)
+            "/change_other_password",
+            UrlParam(ViewParam.USER_ID, UrlParamType.POSITIVE_INTEGER)
         )
     )
     DATABASE_API = RoutePath(Routes.DATABASE_API, '/database')
     HOME = RoutePath(Routes.HOME, '/webview')
+    INTROSPECT = RoutePath(Routes.INTROSPECT, '/introspect')
+    # ... filename via query param (sorts out escaping)
+    LOGIN = RoutePath(Routes.LOGIN, "/login")
+    LOGOUT = RoutePath(Routes.LOGOUT, "/logout")
+    OFFER_INTROSPECTION = RoutePath(
+        Routes.OFFER_INTROSPECTION, "/offer_introspect"
+    )
     OFFER_TERMS = RoutePath(Routes.OFFER_TERMS, '/offer_terms')
-    TESTPAGE = RoutePath(Routes.TESTPAGE, '/testpage')
+    TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1, '/testpriv1')
+    TESTPAGE_PUBLIC_1 = RoutePath(Routes.TESTPAGE_PUBLIC_1, '/test1')
+    TESTPAGE_PUBLIC_2 = RoutePath(Routes.TESTPAGE_PUBLIC_2, '/test2')
+    VIEW_POLICIES = RoutePath(Routes.VIEW_POLICIES, "/view_policies")
 
     # To implement ***
     ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE, "/add_special_note")
     ADD_USER = RoutePath(Routes.ADD_USER, "/add_user")
-    AGREE_TERMS = RoutePath(Routes.AGREE_TERMS, "/agree_terms")
     APPLY_FILTER_COMPLETE = RoutePath(
         Routes.APPLY_FILTER_COMPLETE, "/apply_filter_complete"
     )
@@ -466,10 +529,7 @@ class RouteCollection(object):
     INSPECT_TABLE_VIEW_DEFS = RoutePath(
         Routes.INSPECT_TABLE_VIEW_DEFS, "/view_table_and_view_definitions"
     )
-    INTROSPECT = RoutePath(Routes.INTROSPECT, "/introspect")
     LAST_PAGE = RoutePath(Routes.LAST_PAGE, "/last_page")
-    LOGIN = RoutePath(Routes.LOGIN, "/login")
-    LOGOUT = RoutePath(Routes.LOGOUT, "/logout")
     # now HOME # MAIN_MENU = "main_menu"
     MANAGE_USERS = RoutePath(Routes.MANAGE_USERS, "/manage_users")
     NEXT_PAGE = RoutePath(Routes.NEXT_PAGE, "/next_page")
@@ -482,9 +542,6 @@ class RouteCollection(object):
     )
     OFFER_HL7_RUN_OPTIONS = RoutePath(
         Routes.OFFER_HL7_RUN_OPTIONS, "/offer_hl7_run"
-    )
-    OFFER_INTROSPECTION = RoutePath(
-        Routes.OFFER_INTROSPECTION, "/offer_introspect"
     )
     OFFER_REGENERATE_SUMMARIES = RoutePath(
         Routes.OFFER_REGENERATE_SUMMARIES, "/offer_regenerate_summary_tables"
@@ -503,7 +560,6 @@ class RouteCollection(object):
     VIEW_AUDIT_TRAIL = RoutePath(Routes.VIEW_AUDIT_TRAIL, "/view_audit_trail")
     VIEW_HL7_LOG = RoutePath(Routes.VIEW_HL7_LOG, "/view_hl7_log")
     VIEW_HL7_RUN = RoutePath(Routes.VIEW_HL7_RUN, "/view_hl7_run")
-    VIEW_POLICIES = RoutePath(Routes.VIEW_POLICIES, "/view_policies")
     VIEW_TASKS = RoutePath(Routes.VIEW_TASKS, "/view_tasks")
 
     @classmethod
@@ -516,3 +572,201 @@ class RouteCollection(object):
                         k == 'all_routes' or  # this function
                         v.ignore_in_all_routes)  # explicitly ignored
                 ]
+
+
+# =============================================================================
+# Pyramid HTTP session handling
+# =============================================================================
+
+def get_session_factory() -> SignedCookieSessionFactory:
+    """
+    We have to give a Pyramid request a way of making an HTTP session.
+    We must return a session factory.
+    - An example is an instance of SignedCookieSessionFactory().
+    - A session factory has the signature [1]:
+            sessionfactory(req: CamcopsRequest) -> session_object
+      ... where session "is a namespace" [2]
+      ... but more concretely implementis the pyramid.interfaces.ISession 
+          interface
+      [1] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session-factory
+      [2] https://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-session
+    - We want to be able to make the session by reading the CamcopsConfig from
+      the request.
+    """  # noqa
+    def factory(req: "CamcopsRequest") -> ISession:
+        """
+        How does the session write the cookies to the response?
+
+            SignedCookieSessionFactory
+                BaseCookieSessionFactory  # pyramid/session.py
+                    CookieSession
+                        def changed():
+                            if not self._dirty:
+                                self._dirty = True
+                                def set_cookie_callback(request, response):
+                                    self._set_cookie(response)
+                                    # ...
+                                self.request.add_response_callback(set_cookie_callback)  # noqa
+
+                        def _set_cookie(self, response):
+                            # ...
+                            response.set_cookie(...)
+
+        """
+        cfg = req.config
+        secure_cookies = not cfg.ALLOW_INSECURE_COOKIES
+        pyramid_factory = SignedCookieSessionFactory(
+            secret=cfg.session_cookie_secret,
+            hashalg='sha512',  # the default
+            salt='camcops_pyramid_session.',
+            cookie_name=COOKIE_NAME,
+            max_age=None,  # browser scope; session cookie
+            path='/',  # the default
+            domain=None,  # the default
+            secure=secure_cookies,
+            httponly=secure_cookies,
+            timeout=None,  # we handle timeouts at the database level instead
+            reissue_time=0,  # default; reissue cookie at every request
+            set_on_exception=True,  # (default) cookie even if exception raised
+            serializer=None,  # (default) use pyramid.session.PickleSerializer
+            # As max_age and expires are left at their default of None, these
+            # are session cookies.
+        )
+        return pyramid_factory(req)
+
+    return factory
+
+
+# =============================================================================
+# Authentication; authorization (permissions)
+# =============================================================================
+
+class Permission(object):
+    # Permissions are strings.
+    # For "logged in", use pyramid.security.Authenticated
+    HAPPY = "happy"  # logged in + no need to change p/w + agreed to terms
+    SUPERUSER = "superuser"
+
+
+@implementer(IAuthenticationPolicy)
+class CamcopsAuthenticationPolicy(object):
+    # - https://docs.pylonsproject.org/projects/pyramid/en/latest/tutorials/wiki2/authorization.html  # noqa
+    # - https://docs.pylonsproject.org/projects/pyramid-cookbook/en/latest/auth/custom.html  # noqa
+    # - Don't actually inherit from IAuthenticationPolicy; it ends up in the
+    #   zope.interface.interface.InterfaceClass metaclass and then breaks with
+    #   "zope.interface.exceptions.InvalidInterface: Concrete attribute, ..."
+    # - But @implementer does the trick.
+
+    @staticmethod
+    def authenticated_userid(request: "CamcopsRequest") -> Optional[int]:
+        return request.user_id
+
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def unauthenticated_userid(request: "CamcopsRequest") -> Optional[int]:
+        return None
+
+    @staticmethod
+    def effective_principals(request: "CamcopsRequest") -> List[str]:
+        principals = [Everyone]
+        user = request.user
+        if user is not None:
+            principals += [Authenticated, 'u:%s' % user.id]
+            if not (user.must_change_password or user.must_agree_terms()):
+                principals.append(Permission.HAPPY)
+            if user.superuser:
+                principals.append(Permission.SUPERUSER)
+            # principals.extend(('g:%s' % g.name for g in user.groups))
+        if DEBUG_EFFECTIVE_PRINCIPALS:
+            log.debug("effective_principals: {!r}", principals)
+        return principals
+
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def remember(request: "CamcopsRequest",
+                 userid: int,
+                 **kw) -> List[Tuple[str, str]]:
+        return []
+
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def forget(request: "CamcopsRequest") -> List[Tuple[str, str]]:
+        return []
+
+
+@implementer(IAuthorizationPolicy)
+class CamcopsAuthorizationPolicy(object):
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def permits(context: ILocation, principals: List[str], permission: str) \
+            -> PermitsResult:
+        if permission in principals:
+            return Allowed("ALLOWED: permission {} present in principals "
+                           "{}".format(permission, principals))
+
+        return Denied("DENIED: permission {} not in principals "
+                      "{}".format(permission, principals))
+
+    @staticmethod
+    def principals_allowed_by_permission(context: ILocation,
+                                         permission: str) -> List[str]:
+        raise NotImplementedError()
+
+
+# =============================================================================
+# Responses
+# =============================================================================
+
+class PdfResponse(Response):
+    def __init__(self, content: bytes, filename: str,
+                 as_inline: bool = True) -> None:
+        # Inline: display within browser, if possible.
+        # Attachment: download.
+        disp = "inline" if as_inline else "attachment"
+        super().__init__(
+            content_type="application/pdf",
+            content_disposition="{}; filename={}".format(disp, filename),
+            content_encoding="binary",
+            content_length=len(content),
+            body=content,
+        )
+
+
+class TextResponse(Response):
+    def __init__(self, content: str) -> None:
+        super().__init__(
+            content_type="text/plain",
+            body=content,
+        )
+
+
+class TsvResponse(Response):
+    def __init__(self, content: bytes, filename: str) -> None:
+        super().__init__(
+            content_type="text/tab-separated-values",
+            content_disposition="attachment; filename={}".format(filename),
+            body=content,
+        )
+
+
+class XmlResponse(Response):
+    def __init__(self, content: str) -> None:
+        # application/xml versus text/xml:
+        # https://stackoverflow.com/questions/4832357
+        super().__init__(
+            content_type="text/xml",
+            body=content,
+        )
+
+
+class ZipResponse(Response):
+    def __init__(self, content: bytes, filename: str) -> None:
+        # For ZIP, "inline" and "attachment" dispositions are equivalent, since
+        # browsers don't display ZIP files inline.
+        # https://stackoverflow.com/questions/1395151
+        super().__init__(
+            content_type="application/zip",
+            content_disposition="attachment; filename={}".format(filename),
+            content_encoding="binary",
+            body=content,
+        )

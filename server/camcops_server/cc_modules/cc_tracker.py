@@ -423,6 +423,7 @@ class TrackerCtvCommon(object):
     # -------------------------------------------------------------------------
 
     def _get_xml(self,
+                 req: CamcopsRequest,
                  audit_string: str,
                  xml_name: str,
                  indent_spaces: int = 4,
@@ -467,6 +468,7 @@ class TrackerCtvCommon(object):
             branches.append(t.get_xml_root(include_calculated=True,
                                            include_blobs=False))
             audit(
+                req,
                 audit_string,
                 table=t.tablename,
                 server_pk=t.get_pk(),
@@ -720,6 +722,7 @@ class TrackerCtvCommon(object):
         for task in task_instance_list:
             # noinspection PyProtectedMember
             audit(
+                req,
                 "Tracker data accessed",
                 table=task.tablename,
                 server_pk=task._pk,
@@ -971,6 +974,7 @@ class Tracker(TrackerCtvCommon):
         for task in task_instance_list:
             # noinspection PyProtectedMember
             audit(
+                req,
                 "Tracker data accessed",
                 table=task.tablename,
                 server_pk=task._pk,
@@ -1274,6 +1278,7 @@ class ClinicalTextView(TrackerCtvCommon):
             html += ctvinfo.get_html()
         # Done.
         audit(
+            req,
             "Clinical text view accessed",
             table=task.tablename,
             server_pk=task.get_pk(),
