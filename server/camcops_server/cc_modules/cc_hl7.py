@@ -357,23 +357,6 @@ class HL7Run(Base):
     def finish(self) -> None:
         self.finish_at_utc = get_now_utc_notz()
 
-    @classmethod
-    def get_html_header_row(cls) -> str:
-        html = "<tr>"
-        for fs in cls.FIELDSPECS:
-            html += "<th>{}</th>".format(fs["name"])
-        html += "</tr>\n"
-        return html
-
-    def get_html_data_row(self) -> str:
-        html = "<tr>"
-        for fs in self.FIELDSPECS:
-            name = fs["name"]
-            value = ws.webify(getattr(self, name))
-            html += "<td>{}</td>".format(value)
-        html += "</tr>\n"
-        return html
-
 
 # =============================================================================
 # HL7Message class

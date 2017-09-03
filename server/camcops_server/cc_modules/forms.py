@@ -428,6 +428,90 @@ class AuditTrailForm(InformativeForm):
             buttons=[Button(name=SUBMIT, title="View audit trail")]
         )
 
+
+# =============================================================================
+# View HL7 message log
+# =============================================================================
+
+class HL7MessageLogSchema(CSRFSchema):
+    rows_per_page = SchemaNode(  # must match ViewParam.ROWS_PER_PAGE
+        Integer(),
+        default=DEFAULT_AUDIT_ROWS_PER_PAGE,
+        title="Number of entries to show per page",
+    )
+    table_name = SchemaNode(  # must match ViewParam.TABLENAME
+        String(),
+        default="",
+        missing="",
+        title="Task base table (blank for all tasks)",
+    )
+    server_pk = SchemaNode(  # must match ViewParam.SERVER_PK
+        Integer(),
+        missing=None,
+        title="Task server PK (blank for all tasks)",
+    )
+    hl7_run_id = SchemaNode(  # must match ViewParam.HL7_RUN_ID
+        Integer(),
+        missing=None,
+        title="Run ID",
+    )
+    start_datetime = SchemaNode(  # must match ViewParam.START_DATETIME
+        DateTime(),
+        missing=None,
+        title="Start date/time (UTC)",
+    )
+    end_datetime = SchemaNode(  # must match ViewParam.END_DATETIME
+        DateTime(),
+        missing=None,
+        title="End date/time (UTC)",
+    )
+
+
+class HL7MessageLogForm(InformativeForm):
+    def __init__(self, request: CamcopsRequest) -> None:
+        schema = HL7MessageLogSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=SUBMIT, title="View HL7 message log")]
+        )
+
+
+# =============================================================================
+# View HL7 run log
+# =============================================================================
+
+class HL7RunLogSchema(CSRFSchema):
+    rows_per_page = SchemaNode(  # must match ViewParam.ROWS_PER_PAGE
+        Integer(),
+        default=DEFAULT_AUDIT_ROWS_PER_PAGE,
+        title="Number of entries to show per page",
+    )
+    hl7_run_id = SchemaNode(  # must match ViewParam.HL7_RUN_ID
+        Integer(),
+        missing=None,
+        title="Run ID",
+    )
+    start_datetime = SchemaNode(  # must match ViewParam.START_DATETIME
+        DateTime(),
+        missing=None,
+        title="Start date/time (UTC)",
+    )
+    end_datetime = SchemaNode(  # must match ViewParam.END_DATETIME
+        DateTime(),
+        missing=None,
+        title="End date/time (UTC)",
+    )
+
+
+class HL7RunLogForm(InformativeForm):
+    def __init__(self, request: CamcopsRequest) -> None:
+        schema = HL7RunLogSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=SUBMIT, title="View HL7 run log")]
+        )
+
+
 # =============================================================================
 # Unit tests
 # =============================================================================

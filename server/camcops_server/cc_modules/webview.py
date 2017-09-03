@@ -230,6 +230,8 @@ from .forms import (
     ChangeOtherPasswordForm,
     ChangeOwnPasswordForm,
     get_head_form_html,
+    HL7MessageLogForm,
+    HL7RunLogForm,
     LoginForm,
     OfferTermsForm,
 )
@@ -266,7 +268,7 @@ NOT_ALL_PATIENTS_UNFILTERED_WARNING = """
 
 
 # =============================================================================
-# Simple success/failure/redirection
+# Simple success/failure/redirection, and other snippets used by views
 # =============================================================================
 
 def simple_success(req: CamcopsRequest, msg: str,
@@ -287,6 +289,44 @@ def simple_failure(req: CamcopsRequest, msg: str,
                               request=req)
 
 
+# def query_result_html_core(req: CamcopsRequest,
+#                            descriptions: Sequence[str],
+#                            rows: Sequence[Sequence[Any]],
+#                            null_html: str = "<i>NULL</i>") -> str:
+#     return render("query_result_core.mako",
+#                   dict(descriptions=descriptions,
+#                        rows=rows,
+#                        null_html=null_html),
+#                   request=req)
+
+
+# def query_result_html_orm(req: CamcopsRequest,
+#                           attrnames: List[str],
+#                           descriptions: List[str],
+#                           orm_objects: Sequence[Sequence[Any]],
+#                           null_html: str = "<i>NULL</i>") -> str:
+#     return render("query_result_orm.mako",
+#                   dict(attrnames=attrnames,
+#                        descriptions=descriptions,
+#                        orm_objects=orm_objects,
+#                        null_html=null_html),
+#                   request=req)
+
+
+def fail_not_authorized_for_task(req: CamcopsRequest) -> Response:
+    """Response given when user isn't allowed to see a specific task."""
+    return simple_failure(req, "Not authorized to view that task.")
+
+
+def fail_task_not_found(req: CamcopsRequest) -> Response:
+    """Response given when task not found."""
+    return simple_failure(req, "Task not found.")
+
+
+# =============================================================================
+# Error views
+# =============================================================================
+
 @notfound_view_config(renderer="not_found.mako")
 def not_found(req: CamcopsRequest) -> Dict[str, Any]:
     return {}
@@ -297,20 +337,10 @@ def bad_request(req: CamcopsRequest) -> Dict[str, Any]:
     return {}
 
 
-def fail_not_authorized_for_task(req: CamcopsRequest) -> Response:
-    """HTML given when user isn't allowed to see a specific task."""
-    return fail_with_error_stay_logged_in(
-        req, "Not authorized to view that task.")
-
-
-def fail_task_not_found(req: CamcopsRequest) -> Response:
-    """HTML given when task not found."""
-    return fail_with_error_stay_logged_in(req, "Task not found.")
-
-
 # =============================================================================
 # Test pages
 # =============================================================================
+# Not on the menus...
 
 @view_config(route_name=Routes.TESTPAGE_PUBLIC_1,
              permission=NO_PERMISSION_REQUIRED)
@@ -332,6 +362,14 @@ def test_page_private_1(req: CamcopsRequest) -> Response:
     return Response("Private test page.")
 
 
+# Not on the menus...
+@view_config(route_name=Routes.CRASH, permission=Permission.SUPERUSER)
+def crash(req: CamcopsRequest) -> Response:
+    """Deliberately raises an exception."""
+    raise RuntimeError("Deliberately crashed. Should not affect other "
+                       "processes.")
+
+
 # =============================================================================
 # Authorization: login, logout, login failures, terms/conditions
 # =============================================================================
@@ -345,14 +383,13 @@ def login_view(req: CamcopsRequest) -> Response:
     cfg = req.config
     autocomplete_password = not cfg.DISABLE_PASSWORD_AUTOCOMPLETE
 
-    login_form = LoginForm(request=req,
-                           autocomplete_password=autocomplete_password)
+    form = LoginForm(request=req, autocomplete_password=autocomplete_password)
 
     if SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
             # log.critical("controls from POST: {!r}", controls)
-            appstruct = login_form.validate(controls)
+            appstruct = form.validate(controls)
             # log.critical("appstruct from POST: {!r}", appstruct)
             log.debug("Validating user login.")
             ccsession = req.camcops_session
@@ -407,12 +444,12 @@ def login_view(req: CamcopsRequest) -> Response:
         #     gets read back as "None".
         appstruct = {ViewParam.REDIRECT_URL: redirect_url}
         # log.critical("appstruct from GET/POST: {!r}", appstruct)
-        rendered_form = login_form.render(appstruct)
+        rendered_form = form.render(appstruct)
 
     return render_to_response(
         "login.mako",
         dict(form=rendered_form,
-             head_form_html=get_head_form_html(req, login_form)),
+             head_form_html=get_head_form_html(req, form)),
         request=req
     )
 
@@ -458,7 +495,7 @@ def logout(req: CamcopsRequest) -> Dict[str, Any]:
 @view_config(route_name=Routes.OFFER_TERMS, renderer="offer_terms.mako")
 def offer_terms(req: CamcopsRequest) -> Dict[str, Any]:
     """HTML offering terms/conditions and requesting acknowledgement."""
-    offer_terms_form = OfferTermsForm(
+    form = OfferTermsForm(
         request=req,
         agree_button_text=req.wappstring("disclaimer_agree"))
 
@@ -470,8 +507,8 @@ def offer_terms(req: CamcopsRequest) -> Dict[str, Any]:
         title=req.wappstring("disclaimer_title"),
         subtitle=req.wappstring("disclaimer_subtitle"),
         content=req.wappstring("disclaimer_content"),
-        form=offer_terms_form.render(),
-        head_form_html=get_head_form_html(req, offer_terms_form),
+        form=form.render(),
+        head_form_html=get_head_form_html(req, form),
     )
 
 
@@ -502,14 +539,14 @@ def forbidden(req: CamcopsRequest) -> Dict[str, Any]:
 def change_own_password(req: CamcopsRequest) -> Response:
     ccsession = req.camcops_session
     expired = ccsession.user_must_change_password()
-    change_pw_form = ChangeOwnPasswordForm(request=req, must_differ=True)
+    form = ChangeOwnPasswordForm(request=req, must_differ=True)
     user = req.user
     assert user is not None
     extra_msg = ""
     if SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
-            appstruct = change_pw_form.validate(controls)
+            appstruct = form.validate(controls)
             new_password = appstruct.get(ViewParam.NEW_PASSWORD)
             # ... form will validate old password, etc.
             # OK
@@ -518,14 +555,14 @@ def change_own_password(req: CamcopsRequest) -> Response:
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
-        rendered_form = change_pw_form.render()
+        rendered_form = form.render()
     return render_to_response(
         "change_own_password.mako",
         dict(form=rendered_form,
              expired=expired,
              extra_msg=extra_msg,
              min_pw_length=MINIMUM_PASSWORD_LENGTH,
-             head_form_html=get_head_form_html(req, change_pw_form)),
+             head_form_html=get_head_form_html(req, form)),
         request=req)
 
 
@@ -534,12 +571,12 @@ def change_own_password(req: CamcopsRequest) -> Response:
              renderer="change_own_password.mako")
 def change_other_password(req: CamcopsRequest) -> Response:
     """For administrators, to change another's password."""
-    change_pw_form = ChangeOtherPasswordForm(request=req)
+    form = ChangeOtherPasswordForm(request=req)
     username = None  # for type checker
     if SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
-            appstruct = change_pw_form.validate(controls)
+            appstruct = form.validate(controls)
             user_id = appstruct.get(ViewParam.USER_ID)
             must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
             new_password = appstruct.get(ViewParam.NEW_PASSWORD)
@@ -568,13 +605,13 @@ def change_other_password(req: CamcopsRequest) -> Response:
             raise exc.HTTPBadRequest("Missing user for id {}".format(user_id))
         username = other_user.username
         appstruct = {ViewParam.USER_ID: user_id}
-        rendered_form = change_pw_form.render(appstruct)
+        rendered_form = form.render(appstruct)
     return render_to_response(
         "change_other_password.mako",
         dict(username=username,
              form=rendered_form,
              min_pw_length=MINIMUM_PASSWORD_LENGTH,
-             head_form_html=get_head_form_html(req, change_pw_form)),
+             head_form_html=get_head_form_html(req, form)),
         request=req)
 
 
@@ -1606,72 +1643,39 @@ def inspect_table_defs(session: CamcopsSession, form: cgi.FieldStorage) -> str:
 # View audit trail
 # =============================================================================
 
-# def query_result_html_core(req: CamcopsRequest,
-#                            descriptions: Sequence[str],
-#                            rows: Sequence[Sequence[Any]],
-#                            null_html: str = "<i>NULL</i>") -> str:
-#     return render("query_result_core.mako",
-#                   dict(descriptions=descriptions,
-#                        rows=rows,
-#                        null_html=null_html),
-#                   request=req)
-
-
-# def query_result_html_orm(req: CamcopsRequest,
-#                           attrnames: List[str],
-#                           descriptions: List[str],
-#                           orm_objects: Sequence[Sequence[Any]],
-#                           null_html: str = "<i>NULL</i>") -> str:
-#     return render("query_result_orm.mako",
-#                   dict(attrnames=attrnames,
-#                        descriptions=descriptions,
-#                        orm_objects=orm_objects,
-#                        null_html=null_html),
-#                   request=req)
-
-
 @view_config(route_name=Routes.OFFER_AUDIT_TRAIL,
              permission=Permission.SUPERUSER)
 def offer_audit_trail(req: CamcopsRequest) -> Response:
-    audit_trail_form = AuditTrailForm(request=req)
+    form = AuditTrailForm(request=req)
     if SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
-            appstruct = audit_trail_form.validate(controls)
-            rows_per_page = appstruct.get(ViewParam.ROWS_PER_PAGE)
-            start_datetime = appstruct.get(ViewParam.START_DATETIME)
-            end_datetime = appstruct.get(ViewParam.END_DATETIME)
-            source = appstruct.get(ViewParam.SOURCE)
-            remote_addr = appstruct.get(ViewParam.REMOTE_IP_ADDR)
-            username = appstruct.get(ViewParam.USERNAME)
-            table_name = appstruct.get(ViewParam.TABLENAME)
-            server_pk = appstruct.get(ViewParam.SERVER_PK)
-            truncate = appstruct.get(ViewParam.TRUNCATE)
-
-            querydict = {
-                ViewParam.PAGE: 1,
-                ViewParam.ROWS_PER_PAGE: rows_per_page,
-
-                ViewParam.START_DATETIME: start_datetime,
-                ViewParam.END_DATETIME: end_datetime,
-                ViewParam.SOURCE: source,
-                ViewParam.REMOTE_IP_ADDR: remote_addr,
-                ViewParam.USERNAME: username,
-                ViewParam.TABLENAME: table_name,
-                ViewParam.SERVER_PK: server_pk,
-                ViewParam.TRUNCATE: truncate,
-            }
+            appstruct = form.validate(controls)
+            keys = [
+                ViewParam.ROWS_PER_PAGE,
+                ViewParam.START_DATETIME,
+                ViewParam.END_DATETIME,
+                ViewParam.SOURCE,
+                ViewParam.REMOTE_IP_ADDR,
+                ViewParam.USERNAME,
+                ViewParam.TABLENAME,
+                ViewParam.SERVER_PK,
+                ViewParam.TRUNCATE,
+            ]
+            querydict = {k: appstruct.get(k) for k in keys}
+            querydict[ViewParam.PAGE] = 1
             # Send the user to the actual data using GET:
+            # (the parameters are NOT sensitive)
             raise exc.HTTPFound(req.route_url(Routes.VIEW_AUDIT_TRAIL,
                                               _query=querydict))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
-        rendered_form = audit_trail_form.render()
+        rendered_form = form.render()
     return render_to_response(
         "audit_trail_choices.mako",
         dict(form=rendered_form,
-             head_form_html=get_head_form_html(req, audit_trail_form)),
+             head_form_html=get_head_form_html(req, form)),
         request=req)
 
 
@@ -1681,9 +1685,7 @@ AUDIT_TRUNCATE_AT = 100
 @view_config(route_name=Routes.VIEW_AUDIT_TRAIL,
              permission=Permission.SUPERUSER)
 def view_audit_trail(req: CamcopsRequest) -> Response:
-    page = req.get_int_param(ViewParam.PAGE, 1)
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE, 25)
-
     start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
     end_datetime = req.get_datetime_param(ViewParam.END_DATETIME)
     source = req.get_str_param(ViewParam.SOURCE, None)
@@ -1692,6 +1694,7 @@ def view_audit_trail(req: CamcopsRequest) -> Response:
     table_name = req.get_str_param(ViewParam.TABLENAME, None)
     server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
     truncate = req.get_bool_param(ViewParam.TRUNCATE, True)
+    page = req.get_int_param(ViewParam.PAGE, 1)
 
     conditions = []  # type: List[str]
 
@@ -1702,26 +1705,26 @@ def view_audit_trail(req: CamcopsRequest) -> Response:
     q = dbsession.query(AuditEntry)
     if start_datetime:
         q = q.filter(AuditEntry.when_access_utc >= start_datetime)
-        add_condition("start_datetime", start_datetime)
+        add_condition(ViewParam.START_DATETIME, start_datetime)
     if end_datetime:
         q = q.filter(AuditEntry.when_access_utc <= end_datetime)
-        add_condition("end_datetime", end_datetime)
+        add_condition(ViewParam.END_DATETIME, end_datetime)
     if source:
         q = q.filter(AuditEntry.source == source)
-        add_condition("source", source)
+        add_condition(ViewParam.SOURCE, source)
     if remote_addr:
         q = q.filter(AuditEntry.remote_addr == remote_addr)
-        add_condition("remote_addr", remote_addr)
+        add_condition(ViewParam.REMOTE_IP_ADDR, remote_addr)
     if username:
         # https://stackoverflow.com/questions/8561470/sqlalchemy-filtering-by-relationship-attribute  # noqa
         q = q.join(User).filter(User.username == username)
-        add_condition("username", username)
+        add_condition(ViewParam.USERNAME, username)
     if table_name:
         q = q.filter(AuditEntry.table_name == table_name)
-        add_condition("table_name", table_name)
+        add_condition(ViewParam.TABLENAME, table_name)
     if server_pk is not None:
         q = q.filter(AuditEntry.server_pk == server_pk)
-        add_condition("server_pk", server_pk)
+        add_condition(ViewParam.SERVER_PK, server_pk)
 
     q = q.order_by(desc(AuditEntry.id))
 
@@ -1741,256 +1744,196 @@ def view_audit_trail(req: CamcopsRequest) -> Response:
                               request=req)
 
 
+# =============================================================================
+# View HL7 message log
+# =============================================================================
 
-# noinspection PyUnusedLocal
-def offer_hl7_log_options(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """HTML form to request HL7 message log view."""
-
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    return pls.WEBSTART + """
-        {userdetails}
-        <h1>View HL7 outbound message log (starting with most recent)</h1>
-        <div class="filter">
-            <form method="GET" action="{script}">
-                <input type="hidden" name="{PARAM.ACTION}"
-                    value="{ACTION.VIEW_HL7_LOG}">
-
-                Number of rows:
-                <input type="number" value="{DEFAULT_N_AUDIT_ROWS}"
-                        name="{PARAM.NROWS}">
-                <br>
-
-                Task base table (blank for all tasks):
-                <input type="text" value="" name="{PARAM.TABLENAME}">
-                <br>
-
-                Task server PK (blank for all tasks):
-                <input type="number" value="" name="{PARAM.SERVERPK}">
-                <br>
-
-                Run ID:
-                <input type="number" name="{PARAM.HL7RUNID}">
-                <br>
-
-                Start date (UTC):
-                <input type="date" name="{PARAM.START_DATETIME}">
-                <br>
-
-                End date (UTC):
-                <input type="date" name="{PARAM.END_DATETIME}">
-                <br>
-
-                <label>
-                    <input type="checkbox" value="1"
-                            name="{PARAM.SHOWMESSAGE}">
-                    Show message (if stored)
-                </label>
-                <br>
-
-                <label>
-                    <input type="checkbox" value="1"
-                            name="{PARAM.SHOWREPLY}">
-                    Show reply (if stored)
-                </label>
-                <br>
-
-                <input type="submit" value="Submit">
-            </form>
-        </div>
-    """.format(
-        userdetails=session.get_current_user_html(),
-        script=pls.SCRIPT_NAME,
-        ACTION=ACTION,
-        PARAM=PARAM,
-        DEFAULT_N_AUDIT_ROWS=DEFAULT_N_AUDIT_ROWS,
-    )
+@view_config(route_name=Routes.OFFER_HL7_MESSAGE_LOG,
+             permission=Permission.SUPERUSER)
+def offer_hl7_message_log(req: CamcopsRequest) -> Response:
+    form = HL7MessageLogForm(request=req)
+    if SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            keys = [
+                ViewParam.ROWS_PER_PAGE,
+                ViewParam.TABLENAME,
+                ViewParam.SERVER_PK,
+                ViewParam.HL7_RUN_ID,
+                ViewParam.START_DATETIME,
+                ViewParam.END_DATETIME,
+            ]
+            querydict = {k: appstruct.get(k) for k in keys}
+            querydict[ViewParam.PAGE] = 1
+            # Send the user to the actual data using GET
+            # (the parameters are NOT sensitive)
+            raise exc.HTTPFound(req.route_url(Routes.VIEW_HL7_MESSAGE_LOG,
+                                              _query=querydict))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        rendered_form = form.render()
+    return render_to_response(
+        "hl7_message_log_choices.mako",
+        dict(form=rendered_form,
+             head_form_html=get_head_form_html(req, form)),
+        request=req)
 
 
-def view_hl7_log(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Show HL7 message log."""
+@view_config(route_name=Routes.VIEW_HL7_MESSAGE_LOG,
+             permission=Permission.SUPERUSER)
+def view_hl7_message_log(req: CamcopsRequest) -> Response:
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE, 25)
+    table_name = req.get_str_param(ViewParam.TABLENAME, None)
+    server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
+    hl7_run_id = req.get_int_param(ViewParam.HL7_RUN_ID, None)
+    start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
+    end_datetime = req.get_datetime_param(ViewParam.END_DATETIME)
+    page = req.get_int_param(ViewParam.PAGE, 1)
 
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    nrows = ws.get_cgi_parameter_int(form, PARAM.NROWS)
-    basetable = ws.get_cgi_parameter_str(form, PARAM.TABLENAME)
-    serverpk = ws.get_cgi_parameter_int(form, PARAM.SERVERPK)
-    run_id = ws.get_cgi_parameter_int(form, PARAM.HL7RUNID)
-    start_datetime = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
-    end_datetime = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
-    showmessage = ws.get_cgi_parameter_bool_or_default(form, PARAM.SHOWMESSAGE,
-                                                       default=False)
-    showreply = ws.get_cgi_parameter_bool_or_default(form, PARAM.SHOWREPLY,
-                                                     default=False)
-    if nrows is None or nrows < 0:
-        # ... let's apply some limits!
-        nrows = DEFAULT_N_AUDIT_ROWS
-    wheres = []
-    args = []
-    sql = """
-        SELECT msg_id
-        FROM {hl7table}
-    """.format(
-        hl7table=HL7Message.TABLENAME,
-    )
-    if basetable:
-        wheres.append("basetable = ?")
-        args.append(basetable)
-    if serverpk:
-        wheres.append("serverpk = ?")
-        args.append(serverpk)
-    if run_id:
-        wheres.append("run_id = ?")
-        args.append(run_id)
+    conditions = []  # type: List[str]
+
+    def add_condition(key: str, value: Any) -> None:
+        conditions.append("{} = {}".format(key, value))
+
+    dbsession = req.dbsession
+    q = dbsession.query(HL7Message)
+    if table_name:
+        q = q.filter(HL7Message.basetable == table_name)
+        add_condition(ViewParam.TABLENAME, table_name)
+    if server_pk is not None:
+        q = q.filter(HL7Message.serverpk == server_pk)
+        add_condition(ViewParam.SERVER_PK, server_pk)
+    if hl7_run_id is not None:
+        q = q.filter(HL7Message.run_id == hl7_run_id)
+        add_condition(ViewParam.HL7_RUN_ID, hl7_run_id)
     if start_datetime:
-        wheres.append("sent_at_utc >= ?")
-        args.append(start_datetime)
+        q = q.filter(HL7Message.sent_at_utc >= start_datetime)
+        add_condition(ViewParam.START_DATETIME, start_datetime)
     if end_datetime:
-        wheres.append("sent_at_utc <= ?")
-        args.append(end_datetime)
-    if wheres:
-        sql += " WHERE " + " AND ".join(wheres)
-    sql += """
-        ORDER BY msg_id DESC
-        LIMIT {nrows}
-    """.format(
-        nrows=nrows,
-    )
-    pks = pls.db.fetchallfirstvalues(sql, *args)
-    html = pls.WEBSTART + """
-        {user}
-        <h1>HL7 log</h1>
-        <h2>
-            Conditions: basetable={basetable}, serverpk={serverpk},
-            run_id={run_id}, nrows={nrows}, start_datetime={start_datetime},
-            end_datetime={end_datetime}
-        </h2>
-        <table>
-    """.format(
-        user=session.get_current_user_html(),
-        basetable=basetable,
-        serverpk=serverpk,
-        run_id=run_id,
-        nrows=nrows,
-        start_datetime=format_datetime(start_datetime,
-                                       DATEFORMAT.ISO8601_DATE_ONLY),
-        end_datetime=format_datetime(end_datetime,
-                                     DATEFORMAT.ISO8601_DATE_ONLY),
-    )
-    html += HL7Message.get_html_header_row(showmessage=showmessage,
-                                           showreply=showreply)
-    for pk in pks:
-        hl7msg = HL7Message(pk)
-        html += hl7msg.get_html_data_row(showmessage=showmessage,
-                                         showreply=showreply)
-    return html + """
-        </table>
-    """ + WEBEND
+        q = q.filter(HL7Message.sent_at_utc <= end_datetime)
+        add_condition(ViewParam.END_DATETIME, end_datetime)
+
+    q = q.order_by(desc(HL7Message.msg_id))
+
+    page = SqlalchemyOrmPage(collection=q,
+                             page=page,
+                             items_per_page=rows_per_page,
+                             url_maker=PageUrl(req))
+    return render_to_response("hl7_message_log_view.mako",
+                              dict(conditions="; ".join(conditions),
+                                   page=page),
+                              request=req)
 
 
-# noinspection PyUnusedLocal
-def offer_hl7_run_options(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """HTML form to request HL7 run log view."""
 
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    return pls.WEBSTART + """
-        {userdetails}
-        <h1>View HL7 run log (starting with most recent)</h1>
-        <div class="filter">
-            <form method="GET" action="{script}">
-                <input type="hidden" name="{PARAM.ACTION}"
-                    value="{ACTION.VIEW_HL7_RUN}">
-
-                Run ID:
-                <input type="number" name="{PARAM.HL7RUNID}">
-                <br>
-
-                Number of rows:
-                <input type="number" value="{DEFAULT_N_AUDIT_ROWS}"
-                        name="{PARAM.NROWS}">
-                <br>
-
-                Start date (UTC):
-                <input type="date" name="{PARAM.START_DATETIME}">
-                <br>
-
-                End date (UTC):
-                <input type="date" name="{PARAM.END_DATETIME}">
-                <br>
-
-                <input type="submit" value="Submit">
-            </form>
-        </div>
-    """.format(
-        userdetails=session.get_current_user_html(),
-        script=pls.SCRIPT_NAME,
-        ACTION=ACTION,
-        PARAM=PARAM,
-        DEFAULT_N_AUDIT_ROWS=DEFAULT_N_AUDIT_ROWS,
-    )
+@view_config(route_name=Routes.VIEW_HL7_MESSAGE,
+             permission=Permission.SUPERUSER)
+def view_hl7_message(req: CamcopsRequest) -> Response:
+    hl7_msg_id = req.get_int_param(ViewParam.HL7_MSG_ID, None)
+    dbsession = req.dbsession
+    hl7msg = dbsession.query(HL7Message)\
+        .filter(HL7Message.msg_id == hl7_msg_id)\
+        .first()
+    if hl7msg is None:
+        raise exc.HTTPBadRequest("Bad HL7 message ID {}".format(hl7_msg_id))
+    return render_to_response("hl7_message_view.mako",
+                              dict(msg=hl7msg),
+                              request=req)
 
 
-def view_hl7_run(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Show HL7 run log."""
+# =============================================================================
+# View HL7 run log and individual runs
+# =============================================================================
 
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    run_id = ws.get_cgi_parameter_int(form, PARAM.HL7RUNID)
-    nrows = ws.get_cgi_parameter_int(form, PARAM.NROWS)
-    if nrows is None or nrows < 0:
-        # ... let's apply some limits!
-        nrows = DEFAULT_N_AUDIT_ROWS
-    start_datetime = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
-    end_datetime = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
-    sql = """
-        SELECT run_id
-        FROM {hl7runtable}
-    """.format(hl7runtable=HL7Run.TABLENAME)
-    wheres = []
-    args = []
-    if run_id is not None:
-        wheres.append("run_id = ?")
-        args.append(run_id)
+@view_config(route_name=Routes.OFFER_HL7_RUN_LOG,
+             permission=Permission.SUPERUSER)
+def offer_hl7_run_log(req: CamcopsRequest) -> Response:
+    form = HL7RunLogForm(request=req)
+    if SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            keys = [
+                ViewParam.ROWS_PER_PAGE,
+                ViewParam.HL7_RUN_ID,
+                ViewParam.START_DATETIME,
+                ViewParam.END_DATETIME,
+            ]
+            querydict = {k: appstruct.get(k) for k in keys}
+            querydict[ViewParam.PAGE] = 1
+            # Send the user to the actual data using GET
+            # (the parameters are NOT sensitive)
+            raise exc.HTTPFound(req.route_url(Routes.VIEW_HL7_RUN_LOG,
+                                              _query=querydict))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        rendered_form = form.render()
+    return render_to_response(
+        "hl7_run_log_choices.mako",
+        dict(form=rendered_form,
+             head_form_html=get_head_form_html(req, form)),
+        request=req)
+
+
+@view_config(route_name=Routes.VIEW_HL7_RUN_LOG,
+             permission=Permission.SUPERUSER)
+def view_hl7_run_log(req: CamcopsRequest) -> Response:
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE, 25)
+    hl7_run_id = req.get_int_param(ViewParam.HL7_RUN_ID, None)
+    start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
+    end_datetime = req.get_datetime_param(ViewParam.END_DATETIME)
+    page = req.get_int_param(ViewParam.PAGE, 1)
+
+    conditions = []  # type: List[str]
+
+    def add_condition(key: str, value: Any) -> None:
+        conditions.append("{} = {}".format(key, value))
+
+    dbsession = req.dbsession
+    q = dbsession.query(HL7Run)
+    if hl7_run_id is not None:
+        q = q.filter(HL7Run.run_id == hl7_run_id)
+        add_condition("hl7_run_id", hl7_run_id)
     if start_datetime:
-        wheres.append("start_at_utc >= ?")
-        args.append(start_datetime)
+        q = q.filter(HL7Run.start_at_utc >= start_datetime)
+        add_condition("start_datetime", start_datetime)
     if end_datetime:
-        wheres.append("start_at_utc <= ?")
-        args.append(end_datetime)
-    if wheres:
-        sql += " WHERE " + " AND ".join(wheres)
-    sql += """
-        ORDER BY run_id DESC
-        LIMIT {}
-    """.format(nrows)
-    pks = pls.db.fetchallfirstvalues(sql, *args)
+        q = q.filter(HL7Run.start_at_utc <= end_datetime)
+        add_condition("end_datetime", end_datetime)
 
-    html = pls.WEBSTART + """
-        {user}
-        <h1>HL7 run</h1>
-        <h2>
-            Conditions: nrows={nrows}, run_id={run_id},
-            start_datetime={start_datetime}, end_datetime={end_datetime}
-        </h2>
-        <table>
-    """.format(
-        user=session.get_current_user_html(),
-        nrows=nrows,
-        run_id=run_id,
-        start_datetime=format_datetime(start_datetime,
-                                       DATEFORMAT.ISO8601_DATE_ONLY),
-        end_datetime=format_datetime(end_datetime,
-                                     DATEFORMAT.ISO8601_DATE_ONLY),
-    )
-    html += HL7Run.get_html_header_row()
-    for pk in pks:
-        hl7run = HL7Run(pk)
-        html += hl7run.get_html_data_row()
-    return html + """
-        </table>
-    """ + WEBEND
+    q = q.order_by(desc(HL7Run.run_id))
 
+    page = SqlalchemyOrmPage(collection=q,
+                             page=page,
+                             items_per_page=rows_per_page,
+                             url_maker=PageUrl(req))
+    return render_to_response("hl7_run_log_view.mako",
+                              dict(conditions="; ".join(conditions),
+                                   page=page),
+                              request=req)
+
+
+@view_config(route_name=Routes.VIEW_HL7_RUN,
+             permission=Permission.SUPERUSER)
+def view_hl7_run(req: CamcopsRequest) -> Response:
+    hl7_run_id = req.get_int_param(ViewParam.HL7_RUN_ID, None)
+    dbsession = req.dbsession
+    hl7run = dbsession.query(HL7Run)\
+        .filter(HL7Run.run_id == hl7_run_id)\
+        .first()
+    if hl7run is None:
+        raise exc.HTTPBadRequest("Bad HL7 run ID {}".format(hl7_run_id))
+    return render_to_response("hl7_run_view.mako",
+                              dict(hl7run=hl7run),
+                              request=req)
+
+
+# =============================================================================
+# Introspection of source code
+# =============================================================================
 
 @view_config(route_name=Routes.OFFER_INTROSPECTION)
 def offer_introspection(req: CamcopsRequest) -> Response:
@@ -2719,13 +2662,6 @@ def enable_user(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     return enable_user_webview(user_to_enable)
 
 
-@view_config(route_name=Routes.CRASH)
-def crash(req: CamcopsRequest) -> Response:
-    """Deliberately raises an exception."""
-    raise RuntimeError("Deliberately crashed. Should not affect other "
-                       "processes.")
-
-
 # =============================================================================
 # Ancillary to the main pages/actions
 # =============================================================================
@@ -2820,11 +2756,6 @@ def get_url_introspect(filename: str) -> str:
 # All functions take parameters (session, form)
 # -------------------------------------------------------------------------
 ACTIONDICT = {
-    None: main_menu,
-
-    ACTION.LOGOUT: logout,
-    ACTION.MAIN_MENU: main_menu,
-
     # Tasks, trackers, CTVs
     ACTION.TASK: serve_task,
     ACTION.TRACKER: serve_tracker,
@@ -2865,27 +2796,12 @@ ACTIONDICT = {
     ACTION.DELETE_USER: delete_user_if_auth,
     ACTION.ENABLE_USER: enable_user,
 
-    # Supervisory reports
-    ACTION.VIEW_AUDIT_TRAIL: view_audit_trail,
-    ACTION.OFFER_HL7_LOG_OPTIONS: offer_hl7_log_options,
-    ACTION.VIEW_HL7_LOG: view_hl7_log,
-    ACTION.OFFER_HL7_RUN_OPTIONS: offer_hl7_run_options,
-    ACTION.VIEW_HL7_RUN: view_hl7_run,
-
-    # Introspection
-    ACTION.OFFER_INTROSPECTION: offer_introspection,
-    ACTION.INTROSPECT: introspect,
-
     # Amending and deleting data
     ACTION.ADD_SPECIAL_NOTE: add_special_note,
     ACTION.ERASE_TASK: erase_task,
     ACTION.DELETE_PATIENT: delete_patient,
     ACTION.EDIT_PATIENT: edit_patient,
     ACTION.FORCIBLY_FINALIZE: forcibly_finalize,
-
-    # Miscellaneous
-    ACTION.VIEW_POLICIES: view_policies,
-    ACTION.CRASH: crash,
 }
 
 

@@ -110,14 +110,16 @@ class ViewParam(object):
     # AGREE = "agree"
     END_DATETIME = "end_datetime"
     FILENAME = "filename"
+    HL7_MSG_ID = "hl7_msg_id"
+    HL7_RUN_ID = "hl7_run_id"
     MUST_CHANGE_PASSWORD = "must_change_password"
     NEW_PASSWORD = "new_password"
-    ROWS_PER_PAGE = "rows_per_page"
     OLD_PASSWORD = "old_password"
     PAGE = "page"
     PASSWORD = "password"
     REDIRECT_URL = "redirect_url"
     REMOTE_IP_ADDR = "remote_ip_addr"
+    ROWS_PER_PAGE = "rows_per_page"
     SERVER_PK = "server_pk"
     SOURCE = "source"
     START_DATETIME = "start_datetime"
@@ -156,12 +158,21 @@ MAKO_LOOKUP = TemplateLookup(
 
 
 class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
+    """
+    (a) load the Mako template
+    (b) shove any other keys into its dictionary
+    """
     def __call__(self, value: Dict[str, Any], system: Dict[str, Any]) -> str:
         if DEBUG_TEMPLATES:
             log.debug("value: {}", pprint.pformat(value))
             log.debug("system: {}", pprint.pformat(system))
+
+        # ---------------------------------------------------------------------
         # RNC extra values:
+        # ---------------------------------------------------------------------
         system['Routes'] = Routes
+        system['ViewParam'] = ViewParam
+
         # Update the system dictionary with the values from the user
         try:
             system.update(value)
@@ -302,18 +313,23 @@ class Routes(object):
     MANAGE_USERS = "manage_users"
     OFFER_AUDIT_TRAIL = "offer_audit_trail"
     OFFER_BASIC_DUMP = "offer_basic_dump"
-    OFFER_HL7_LOG_OPTIONS = "offer_hl7_log"
-    OFFER_HL7_RUN_OPTIONS = "offer_hl7_run"
+    OFFER_HL7_MESSAGE_LOG = "offer_hl7_message_log"
+    OFFER_HL7_RUN_LOG = "offer_hl7_run_log"
     OFFER_INTROSPECTION = "offer_introspect"
     OFFER_REGENERATE_SUMMARIES = "offer_regenerate_summary_tables"
     OFFER_TABLE_DUMP = "offer_table_dump"
     OFFER_TERMS = "offer_terms"
+    TASK = "task"
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
     TESTPAGE_PUBLIC_1 = "testpage_public_1"
     TESTPAGE_PUBLIC_2 = "testpage_public_2"
     VIEW_AUDIT_TRAIL = "view_audit_trail"
     VIEW_POLICIES = "view_policies"
     VIEW_TASKS = "view_tasks"
+    VIEW_HL7_MESSAGE = "view_hl7_message"
+    VIEW_HL7_MESSAGE_LOG = "view_hl7_message_log"
+    VIEW_HL7_RUN = "view_hl7_run"
+    VIEW_HL7_RUN_LOG = "view_hl7_run_log"
 
     # To implement ***
     ADD_SPECIAL_NOTE = "add_special_note"
@@ -371,10 +387,7 @@ class Routes(object):
     REGENERATE_SUMMARIES = "regenerate_summary_tables"
     REPORTS_MENU = "reports_menu"
     TABLE_DUMP = "table_dump"
-    TASK = "task"
     TRACKER = "tracker"
-    VIEW_HL7_LOG = "view_hl7_log"
-    VIEW_HL7_RUN = "view_hl7_run"
 
 
 class RoutePath(object):
@@ -427,14 +440,23 @@ class RouteCollection(object):
     LOGOUT = RoutePath(Routes.LOGOUT, "/logout")
     OFFER_AUDIT_TRAIL = RoutePath(Routes.OFFER_AUDIT_TRAIL,
                                   "/offer_audit_trail")
-    OFFER_INTROSPECTION = RoutePath(
-        Routes.OFFER_INTROSPECTION, "/offer_introspect"
-    )
+    OFFER_HL7_MESSAGE_LOG = RoutePath(Routes.OFFER_HL7_MESSAGE_LOG,
+                                      "/offer_hl7_message_log")
+    OFFER_HL7_RUN_LOG = RoutePath(Routes.OFFER_HL7_RUN_LOG,
+                                  "/offer_hl7_run_log")
+    OFFER_INTROSPECTION = RoutePath(Routes.OFFER_INTROSPECTION,
+                                    "/offer_introspect")
     OFFER_TERMS = RoutePath(Routes.OFFER_TERMS, '/offer_terms')
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1, '/testpriv1')
     TESTPAGE_PUBLIC_1 = RoutePath(Routes.TESTPAGE_PUBLIC_1, '/test1')
     TESTPAGE_PUBLIC_2 = RoutePath(Routes.TESTPAGE_PUBLIC_2, '/test2')
     VIEW_AUDIT_TRAIL = RoutePath(Routes.VIEW_AUDIT_TRAIL, "/view_audit_trail")
+    VIEW_HL7_MESSAGE = RoutePath(Routes.VIEW_HL7_MESSAGE, "/view_hl7_message")
+    VIEW_HL7_MESSAGE_LOG = RoutePath(Routes.VIEW_HL7_MESSAGE_LOG,
+                                     "/view_hl7_message_log")
+    VIEW_HL7_RUN = RoutePath(Routes.VIEW_HL7_RUN, "/view_hl7_run")
+    VIEW_HL7_RUN_LOG = RoutePath(Routes.VIEW_HL7_RUN_LOG,
+                                 "/view_hl7_run_log")
     VIEW_POLICIES = RoutePath(Routes.VIEW_POLICIES, "/view_policies")
 
     # To implement ***
@@ -553,12 +575,6 @@ class RouteCollection(object):
     MANAGE_USERS = RoutePath(Routes.MANAGE_USERS, "/manage_users")
     NEXT_PAGE = RoutePath(Routes.NEXT_PAGE, "/next_page")
     OFFER_BASIC_DUMP = RoutePath(Routes.OFFER_BASIC_DUMP, "/offer_basic_dump")
-    OFFER_HL7_LOG_OPTIONS = RoutePath(
-        Routes.OFFER_HL7_LOG_OPTIONS, "/offer_hl7_log"
-    )
-    OFFER_HL7_RUN_OPTIONS = RoutePath(
-        Routes.OFFER_HL7_RUN_OPTIONS, "/offer_hl7_run"
-    )
     OFFER_REGENERATE_SUMMARIES = RoutePath(
         Routes.OFFER_REGENERATE_SUMMARIES, "/offer_regenerate_summary_tables"
     )
@@ -573,8 +589,6 @@ class RouteCollection(object):
     TABLE_DUMP = RoutePath(Routes.TABLE_DUMP, "table_dump")
     TASK = RoutePath(Routes.TASK, "/task")
     TRACKER = RoutePath(Routes.TRACKER, "/tracker")
-    VIEW_HL7_LOG = RoutePath(Routes.VIEW_HL7_LOG, "/view_hl7_log")
-    VIEW_HL7_RUN = RoutePath(Routes.VIEW_HL7_RUN, "/view_hl7_run")
     VIEW_TASKS = RoutePath(Routes.VIEW_TASKS, "/view_tasks")
 
     @classmethod
@@ -659,8 +673,13 @@ def get_session_factory() -> SignedCookieSessionFactory:
 class Permission(object):
     # Permissions are strings.
     # For "logged in", use pyramid.security.Authenticated
-    HAPPY = "happy"  # logged in + no need to change p/w + agreed to terms
+    ADD_NOTES = "add_notes"
+    DUMP = "dump"
+    HAPPY = "happy"  # logged in, can use webview, no need to change p/w, agreed to terms  # noqa
+    REGISTER_DEVICE = "register"
+    REPORTS = "reports"
     SUPERUSER = "superuser"
+    UPLOAD = "upload"
 
 
 @implementer(IAuthenticationPolicy)
@@ -687,8 +706,19 @@ class CamcopsAuthenticationPolicy(object):
         user = request.user
         if user is not None:
             principals += [Authenticated, 'u:%s' % user.id]
-            if not (user.must_change_password or user.must_agree_terms()):
+            if user.may_use_webviewer and not (user.must_change_password or
+                                                   user.must_agree_terms()):
                 principals.append(Permission.HAPPY)
+                if user.may_dump_data:
+                    principals.append(Permission.DUMP)
+                if user.may_run_reports:
+                    principals.append(Permission.REPORTS)
+                if user.may_add_notes:
+                    principals.append(Permission.ADD_NOTES)
+            if user.may_upload:
+                principals.append(Permission.UPLOAD)
+            if user.may_register_devices:
+                principals.append(Permission.REGISTER_DEVICE)
             if user.superuser:
                 principals.append(Permission.SUPERUSER)
             # principals.extend(('g:%s' % g.name for g in user.groups))
@@ -817,7 +847,7 @@ class SqlalchemyOrmQueryWrapper(object):
 
 PAGER_PATTERN = (
     '(Page $page of $page_count; total $item_count records) '
-    '[$link_first $link_previous ~3~ $link_next $link_last]'
+    '[ $link_first $link_previous ~3~ $link_next $link_last ]'
 )
 
 

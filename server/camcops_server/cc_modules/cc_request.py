@@ -331,7 +331,7 @@ class CamcopsRequest(Request):
     # HTTP request convenience functions
     # -------------------------------------------------------------------------
 
-    def get_str_param(self, key: str, default: None) -> Optional[str]:
+    def get_str_param(self, key: str, default: str = None) -> Optional[str]:
         # HTTP parameters are always strings at heart
         return self.params.get(key, default)
 

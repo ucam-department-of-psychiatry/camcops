@@ -73,4 +73,11 @@ def get_username(audit_entry):
 
 <div>${page.pager()}</div>
 
+<div>
+    <a href="${ req.route_url(Routes.OFFER_AUDIT_TRAIL)}">Choose different options</a>
+</div>
+
 <%include file="to_main_menu.mako"/>
+
+
+## *** Consider: cross-link tasks to their task view
