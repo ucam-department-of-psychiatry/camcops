@@ -51,7 +51,11 @@ from .cc_constants import (
     LOCAL_LOGO_FILE_WEBREF,
     STATIC_URL_PREFIX,
 )
-from .cc_dt import format_datetime
+from .cc_dt import (
+    get_datetime_from_string,
+    get_date_from_string,
+    format_datetime,
+)
 from .cc_pyramid import CookieKey, get_session_factory
 from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
 from .cc_tabletsession import TabletSession
@@ -111,6 +115,10 @@ class CamcopsRequest(Request):
         # Don't make the _camcops_session yet; it will want a Registry, and
         # we may not have one yet; see command_line_request().
 
+    # -------------------------------------------------------------------------
+    # CamcopsSession
+    # -------------------------------------------------------------------------
+
     @property
     def camcops_session(self) -> "CamcopsSession":
         # Contrast:
@@ -123,6 +131,20 @@ class CamcopsRequest(Request):
             if DEBUG_CAMCOPS_SESSION:
                 log.debug("{!r}", self._camcops_session)
         return self._camcops_session
+
+    def replace_camcops_session(self, ccsession: "CamcopsSession") -> None:
+        # We may have created a new HTTP session because the request had no
+        # cookies (added to the DB session but not yet saved), but we might
+        # then enter the database/tablet upload API and find session details,
+        # not from the cookies, but from the POST data. At that point, we
+        # want to replace the session in the Request, without committing the
+        # first one to disk.
+        self.dbsession.expunge(self.camcops_session)
+        self._camcops_session = ccsession
+
+    # -------------------------------------------------------------------------
+    # Config
+    # -------------------------------------------------------------------------
 
     @reify
     def config_filename(self) -> str:
@@ -139,6 +161,10 @@ class CamcopsRequest(Request):
         """
         config = get_config(config_filename=self.config_filename)
         return config
+
+    # -------------------------------------------------------------------------
+    # Database
+    # -------------------------------------------------------------------------
 
     @reify
     def engine(self) -> Engine:
@@ -185,6 +211,10 @@ class CamcopsRequest(Request):
 
         return session
 
+    # -------------------------------------------------------------------------
+    # TabletSession
+    # -------------------------------------------------------------------------
+
     @reify
     def tabletsession(self) -> TabletSession:
         """
@@ -199,6 +229,10 @@ class CamcopsRequest(Request):
         new_cc_session = CamcopsSession.get_session_for_tablet(ts)
         self.replace_camcops_session(new_cc_session)
         return ts
+
+    # -------------------------------------------------------------------------
+    # Date/time
+    # -------------------------------------------------------------------------
 
     @reify
     def now_arrow(self) -> Arrow:
@@ -221,6 +255,10 @@ class CamcopsRequest(Request):
     @reify
     def now_iso8601_era_format(self) -> str:
         return format_datetime(self.now_arrow, DATEFORMAT.ISO8601)
+
+    # -------------------------------------------------------------------------
+    # Logos, static files, and other institution-specific stuff
+    # -------------------------------------------------------------------------
 
     @reify
     def web_logo_html(self) -> str:
@@ -245,9 +283,28 @@ class CamcopsRequest(Request):
             cfg.LOCAL_INSTITUTION_URL, LOCAL_LOGO_FILE_WEBREF
         )
 
-    @reify
-    def _all_extra_strings(self) -> Dict[str, Dict[str, str]]:
-        return all_extra_strings_as_dicts(self.config_filename)
+    @property
+    def url_local_institution(self) -> str:
+        return self.config.LOCAL_INSTITUTION_URL
+
+    @property
+    def url_camcops_favicon(self) -> str:
+        # *** check/revise ***
+        return STATIC_URL_PREFIX + "favicon_camcops.png"
+
+    @property
+    def url_camcops_logo(self) -> str:
+        # *** check/revise ***
+        return STATIC_URL_PREFIX + "logo_camcops.png"
+
+    @property
+    def url_local_logo(self) -> str:
+        # *** check/revise ***
+        return STATIC_URL_PREFIX + "logo_local.png"
+
+    # -------------------------------------------------------------------------
+    # Low-level HTTP information
+    # -------------------------------------------------------------------------
 
     @reify
     def remote_port(self) -> Optional[int]:
@@ -269,6 +326,80 @@ class CamcopsRequest(Request):
             return int(self.environ.get("REMOTE_PORT", ""))
         except (TypeError, ValueError):
             return None
+
+    # -------------------------------------------------------------------------
+    # HTTP request convenience functions
+    # -------------------------------------------------------------------------
+
+    def get_str_param(self, key: str, default: None) -> Optional[str]:
+        # HTTP parameters are always strings at heart
+        return self.params.get(key, default)
+
+    def get_int_param(self, key: str, default: int = None) -> Optional[int]:
+        try:
+            return int(self.params[key])
+        except (KeyError, TypeError, ValueError):
+            return default
+
+    def get_bool_param(self, key: str, default: bool) -> bool:
+        try:
+            param_str = self.params[key].lower()
+            if param_str in ["true", "t", "1", "yes", "y"]:
+                return True
+            elif param_str in ["false", "f", "0", "no", "n"]:
+                return False
+            else:
+                return default
+        except (AttributeError, KeyError, TypeError, ValueError):
+            return default
+
+    def get_date_param(self, key: str) -> Optional[datetime.date]:
+        try:
+            return get_date_from_string(self.params[key])
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    def get_datetime_param(self, key: str) -> Optional[datetime.datetime]:
+        try:
+            return get_datetime_from_string(self.params[key])
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    # -------------------------------------------------------------------------
+    # Routing
+    # -------------------------------------------------------------------------
+
+    def route_url_params(self, route_name: str,
+                         paramdict: Dict[str, Any]) -> str:
+        """
+        Provides a simplified interface to Request.route_url when you have
+        parameters to pass.
+
+        It does two things:
+            (1) convert all params to their str() form;
+            (2) allow you to pass parameters more easily using a string
+                parameter name.
+
+        The normal Pyramid Request use is:
+            Request.route_url(route_name, param1=value1, param2=value2)
+
+        where "param1" is the literal name of the parameter, but here we can do
+
+            CamcopsRequest.route_url_params(route_name, {
+                PARAM1_NAME: value1_not_necessarily_str,
+                PARAM2_NAME: value2
+            })
+        """
+        strparamdict = {k: str(v) for k, v in paramdict.items()}
+        return self.route_url(route_name, **strparamdict)
+
+    # -------------------------------------------------------------------------
+    # Strings
+    # -------------------------------------------------------------------------
+
+    @reify
+    def _all_extra_strings(self) -> Dict[str, Dict[str, str]]:
+        return all_extra_strings_as_dicts(self.config_filename)
 
     def xstring(self,
                 taskname: str,
@@ -331,6 +462,10 @@ class CamcopsRequest(Request):
         allstrings = self._all_extra_strings
         return taskname in allstrings
 
+    # -------------------------------------------------------------------------
+    # PNG versus SVG output, so tasks don't have to care (for e.g. PDF/web)
+    # -------------------------------------------------------------------------
+
     def switch_output_to_png(self) -> None:
         """Switch server to producing figures in PNG."""
         self.use_svg = False
@@ -339,58 +474,9 @@ class CamcopsRequest(Request):
         """Switch server to producing figures in SVG."""
         self.use_svg = True
 
-    def replace_camcops_session(self, ccsession: "CamcopsSession") -> None:
-        # We may have created a new HTTP session because the request had no
-        # cookies (added to the DB session but not yet saved), but we might
-        # then enter the database/tablet upload API and find session details,
-        # not from the cookies, but from the POST data. At that point, we
-        # want to replace the session in the Request, without committing the
-        # first one to disk.
-        self.dbsession.expunge(self.camcops_session)
-        self._camcops_session = ccsession
-
-    def route_url_params(self, route_name: str,
-                         paramdict: Dict[str, Any]) -> str:
-        """
-        Provides a simplified interface to Request.route_url when you have
-        parameters to pass.
-
-        It does two things:
-            (1) convert all params to their str() form;
-            (2) allow you to pass parameters more easily using a string
-                parameter name.
-
-        The normal Pyramid Request use is:
-            Request.route_url(route_name, param1=value1, param2=value2)
-
-        where "param1" is the literal name of the parameter, but here we can do
-
-            CamcopsRequest.route_url_params(route_name, {
-                PARAM1_NAME: value1_not_necessarily_str,
-                PARAM2_NAME: value2
-            })
-        """
-        strparamdict = {k: str(v) for k, v in paramdict.items()}
-        return self.route_url(route_name, **strparamdict)
-
-    @property
-    def url_local_institution(self) -> str:
-        return self.config.LOCAL_INSTITUTION_URL
-
-    @property
-    def url_camcops_favicon(self) -> str:
-        # *** check/revise ***
-        return STATIC_URL_PREFIX + "favicon_camcops.png"
-
-    @property
-    def url_camcops_logo(self) -> str:
-        # *** check/revise ***
-        return STATIC_URL_PREFIX + "logo_camcops.png"
-
-    @property
-    def url_local_logo(self) -> str:
-        # *** check/revise ***
-        return STATIC_URL_PREFIX + "logo_local.png"
+    # -------------------------------------------------------------------------
+    # Convenience functions for user information
+    # -------------------------------------------------------------------------
 
     @property
     def user(self) -> Optional["User"]:

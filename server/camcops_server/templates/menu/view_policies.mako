@@ -31,11 +31,11 @@
     </tr>
     <tr>
         <td>Upload</td>
-        <td>${upload}</td>
+        <td>${upload | h}</td>
     </tr>
     <tr>
         <td>Finalize</td>
-        <td>${finalize}</td>
+        <td>${finalize | h}</td>
     </tr>
     <tr>
         <td>Principal (single necessary) ID number required by Upload policy</td>

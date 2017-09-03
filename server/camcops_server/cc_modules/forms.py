@@ -30,6 +30,7 @@ import unittest
 from cardinal_pythonlib.logs import BraceStyleAdapter, main_only_quicksetup_rootlogger  # noqa
 from colander import (
     Boolean,
+    DateTime,
     Integer,
     Invalid,
     Length,
@@ -55,6 +56,30 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 DEBUG_CSRF_CHECK = False
 DEBUG_FORM_VALIDATION = False
+
+
+# =============================================================================
+# Widget resources
+# =============================================================================
+
+def get_head_form_html(req: CamcopsRequest, form: Form) -> str:
+    """
+    Returns the extra HTML that needs to be injected into the <head> section
+    for a Deform form to work properly.
+    """
+    # https://docs.pylonsproject.org/projects/deform/en/latest/widget.html#widget-requirements
+    resources = form.get_widget_resources()  # type: Dict[str, List[str]]
+    js_resources = resources['js']
+    css_resources = resources['css']
+    js_links = [req.static_url(r) for r in js_resources]
+    css_links = [req.static_url(r) for r in css_resources]
+    js_tags = ['<script type="text/javascript" src="%s"></script>' % link
+               for link in js_links]
+    css_tags = ['<link rel="stylesheet" href="%s"/>' % link
+                for link in css_links]
+    tags = js_tags + css_tags
+    head_html = "\n".join(tags)
+    return head_html
 
 
 # =============================================================================
@@ -89,10 +114,10 @@ class InformativeForm(Form):
                                                     field: Field) -> None:
         if field.error:
             widget = getattr(field, "widget", None)
-            log.warning(repr(widget))
-            log.warning(repr(widget.hidden))
+            # log.warning(repr(widget))
+            # log.warning(repr(widget.hidden))
             if widget is not None and widget.hidden:
-                log.critical("Found hidden widget for field with error!")
+                # log.critical("Found hidden widget for field with error!")
                 widget.hidden = False
         for child_field in field.children:
             self._show_hidden_widgets_for_fields_with_errors(child_field)
@@ -114,7 +139,7 @@ class InformativeForm(Form):
             widget = getattr(field, "widget", None)
             if not isinstance(widget, HiddenWidget):
                 return
-        log.critical(repr(field))
+        # log.critical(repr(field))
         self._collect_error_errors(errorlist, field.error)
         for child_field in field.children:
             self._collect_form_errors(errorlist, child_field,
@@ -169,17 +194,18 @@ class CSRFToken(SchemaNode):
             log.debug("Got CSRF token from session: {!r}", csrf_token)
         self.default = csrf_token
 
-    def validator(self, node: SchemaNode, cstruct: Any) -> None:
+    def validator(self, node: SchemaNode, value: Any) -> None:
         # Deferred validator via method, as per
         # https://docs.pylonsproject.org/projects/colander/en/latest/basics.html  # noqa
         request = self.bindings["request"]  # type: CamcopsRequest
         csrf_token = request.session.get_csrf_token()  # type: str
-        matches = cstruct == csrf_token
+        matches = value == csrf_token
         if DEBUG_CSRF_CHECK:
             log.debug("Validating CSRF token: form says {!r}, session says "
-                      "{!r}, matches = {}", cstruct, csrf_token, matches)
+                      "{!r}, matches = {}", value, csrf_token, matches)
         if not matches:
-            log.warning("CSRF token mismatch")
+            log.warning("CSRF token mismatch; remote address {}",
+                        request.remote_addr)
             raise Invalid(node, "Bad CSRF token")
 
 
@@ -243,18 +269,44 @@ class LoginForm(InformativeForm):
 CHANGE_PASSWORD_TITLE = "Change password"
 
 
+class OldUserPasswordCheck(SchemaNode):
+    schema_type = String
+    title = "Old password"
+    description = "Type the old password"
+    widget = PasswordWidget()
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        request = self.bindings["request"]  # type: CamcopsRequest
+        user = request.user
+        assert user is not None
+        if not user.is_password_valid(value):
+            raise Invalid(node, "Old password incorrect")
+
+
 class ChangeOwnPasswordSchema(CSRFSchema):
-    password = SchemaNode(  # name must match ViewParam.PASSWORD
+    old_password = OldUserPasswordCheck()
+    new_password = SchemaNode(  # name must match ViewParam.NEW_PASSWORD
         String(),
         validator=Length(min=MINIMUM_PASSWORD_LENGTH),
         widget=CheckedPasswordWidget(),
+        title="New password",
         description="Type the new password and confirm it",
     )
 
+    def __init__(self, *args, must_differ: bool = True, **kwargs):
+        self.must_differ = must_differ
+        super().__init__(*args, **kwargs)
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        if self.must_differ and value['new_password'] == value['old_password']:
+            raise Invalid(node, "New password must differ from old")
+
 
 class ChangeOwnPasswordForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest) -> None:
-        schema = ChangeOwnPasswordSchema().bind(request=request)
+    def __init__(self, request: CamcopsRequest,
+                 must_differ: bool = True) -> None:
+        schema = ChangeOwnPasswordSchema(must_differ=must_differ).\
+            bind(request=request)
         super().__init__(
             schema,
             buttons=[Button(name=SUBMIT, title=CHANGE_PASSWORD_TITLE)]
@@ -272,12 +324,6 @@ class ChangeOtherPasswordSchema(CSRFSchema):
         description="",
         label="User must change password at next login",
         title="Must change password at next login?",
-    )
-    old_password = SchemaNode(  # name must match ViewParam.OLD_PASSWORD
-        String(),
-        validator=Length(min=MINIMUM_PASSWORD_LENGTH),
-        widget=PasswordWidget(),
-        description="Type the old password",
     )
     new_password = SchemaNode(  # name must match ViewParam.NEW_PASSWORD
         String(),
@@ -314,6 +360,73 @@ class OfferTermsForm(InformativeForm):
             buttons=[Button(name=SUBMIT, title=agree_button_text)]
         )
 
+
+# =============================================================================
+# View audit trail
+# =============================================================================
+
+DEFAULT_AUDIT_ROWS_PER_PAGE = 25
+
+
+class AuditTrailSchema(CSRFSchema):
+    rows_per_page = SchemaNode(  # must match ViewParam.ROWS_PER_PAGE
+        Integer(),
+        default=DEFAULT_AUDIT_ROWS_PER_PAGE,
+        title="Number of entries to show per page",
+    )
+    start_datetime = SchemaNode(  # must match ViewParam.START_DATETIME
+        DateTime(),
+        missing=None,
+        title="Start date/time (UTC)",
+    )
+    end_datetime = SchemaNode(  # must match ViewParam.END_DATETIME
+        DateTime(),
+        missing=None,
+        title="End date/time (UTC)",
+    )
+    source = SchemaNode(  # must match ViewParam.SOURCE
+        String(),
+        default="",
+        missing="",
+        title="Source (e.g. webviewer, tablet, console)",
+    )
+    remote_ip_addr = SchemaNode(  # must match ViewParam.REMOTE_IP_ADDR
+        String(),
+        default="",
+        missing="",
+        title="Remote IP address",
+    )
+    username = SchemaNode(  # must match ViewParam.USERNAME
+        String(),
+        default="",
+        missing="",
+        title="User name",
+    )
+    table_name = SchemaNode(  # must match ViewParam.TABLENAME
+        String(),
+        default="",
+        missing="",
+        title="Database table name",
+    )
+    server_pk = SchemaNode(  # must match ViewParam.SERVER_PK
+        Integer(),
+        missing=None,
+        title="Server PK",
+    )
+    truncate = SchemaNode(  # must match ViewParam.TRUNCATE
+        Boolean(),
+        default=True,
+        title="Truncate details for easy viewing",
+    )
+
+
+class AuditTrailForm(InformativeForm):
+    def __init__(self, request: CamcopsRequest) -> None:
+        schema = AuditTrailSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=SUBMIT, title="View audit trail")]
+        )
 
 # =============================================================================
 # Unit tests

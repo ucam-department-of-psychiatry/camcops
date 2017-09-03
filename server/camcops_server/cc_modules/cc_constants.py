@@ -159,7 +159,6 @@ class ACTION(object):
     MAIN_MENU = "main_menu"
     MANAGE_USERS = "manage_users"
     NEXT_PAGE = "next_page"
-    OFFER_AUDIT_TRAIL_OPTIONS = "offer_audit_trail_options"
     OFFER_BASIC_DUMP = "offer_basic_dump"
     OFFER_HL7_LOG_OPTIONS = "offer_hl7_log"
     OFFER_HL7_RUN_OPTIONS = "offer_hl7_run"

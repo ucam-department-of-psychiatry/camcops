@@ -114,10 +114,11 @@ import io
 import lockfile
 import logging
 import typing
-from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 import zipfile
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE, WSGI_TUPLE_TYPE
 from deform.exception import ValidationFailure
@@ -127,13 +128,14 @@ from pyramid.view import (
     notfound_view_config,
     view_config,
 )
-from pyramid.renderers import render_to_response
+from pyramid.renderers import render, render_to_response
 from pyramid.response import Response
 from pyramid.security import Authenticated, NO_PERMISSION_REQUIRED
 import pygments
 import pygments.lexers
 import pygments.lexers.web
 import pygments.formatters
+from sqlalchemy.sql.expression import desc, func
 
 from .cc_audit import audit, AuditEntry
 from .cc_constants import (
@@ -179,7 +181,15 @@ from .cc_policy import (
     get_upload_id_policy_principal_numeric_id,
     id_policies_valid,
 )
-from .cc_pyramid import HttpMethod, Permission, Routes, SUBMIT, ViewParam
+from .cc_pyramid import (
+    HttpMethod,
+    PageUrl,
+    Permission,
+    Routes,
+    SqlalchemyOrmPage,
+    SUBMIT,
+    ViewParam,
+)
 from .cc_report import (
     offer_individual_report,
     offer_report_menu,
@@ -216,8 +226,10 @@ from .cc_user import (
 )
 from .cc_version import CAMCOPS_SERVER_VERSION
 from .forms import (
+    AuditTrailForm,
     ChangeOtherPasswordForm,
     ChangeOwnPasswordForm,
+    get_head_form_html,
     LoginForm,
     OfferTermsForm,
 )
@@ -232,8 +244,6 @@ WSGI_TUPLE_TYPE_WITH_STATUS = Tuple[str, HEADERS_TYPE, bytes, str]
 # =============================================================================
 # Constants
 # =============================================================================
-
-DEFAULT_N_AUDIT_ROWS = 100
 
 AFFECTED_TASKS_HTML = "<h1>Affected tasks:</h1>"
 CANNOT_DUMP = "User not authorized to dump data/regenerate summary tables."
@@ -287,7 +297,6 @@ def bad_request(req: CamcopsRequest) -> Dict[str, Any]:
     return {}
 
 
-
 def fail_not_authorized_for_task(req: CamcopsRequest) -> Response:
     """HTML given when user isn't allowed to see a specific task."""
     return fail_with_error_stay_logged_in(
@@ -306,14 +315,16 @@ def fail_task_not_found(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.TESTPAGE_PUBLIC_1,
              permission=NO_PERMISSION_REQUIRED)
 def test_page_1(req: CamcopsRequest) -> Response:
-    return Response("hello")
+    return Response("Hello! This is a public CamCOPS test page.")
 
 
 @view_config(route_name=Routes.TESTPAGE_PUBLIC_2,
              renderer="testpage.mako",
-             permission=NO_PERMISSION_REQUIRED)
+             permission=Permission.SUPERUSER)
 def test_page_2(req: CamcopsRequest) -> Dict[str, Any]:
-    return dict(param1="world")\
+    # Contains POTENTIALLY SENSITIVE test information, including environment
+    # variables
+    return dict(param1="world")
 
 
 @view_config(route_name=Routes.TESTPAGE_PRIVATE_1)
@@ -331,13 +342,11 @@ def test_page_private_1(req: CamcopsRequest) -> Response:
 # "def view(context, request)", so if you add additional parameters, it thinks
 # you're doing the latter and sends parameters accordingly.
 def login_view(req: CamcopsRequest) -> Response:
-    login_template = "login.mako"
     cfg = req.config
     autocomplete_password = not cfg.DISABLE_PASSWORD_AUTOCOMPLETE
 
     login_form = LoginForm(request=req,
                            autocomplete_password=autocomplete_password)
-    rendered_form = None
 
     if SUBMIT in req.POST:
         try:
@@ -393,15 +402,19 @@ def login_view(req: CamcopsRequest) -> Response:
             rendered_form = e.render()
 
     else:
-        redirect_url = req.params.get(ViewParam.REDIRECT_URL, "")
+        redirect_url = req.get_str_param(ViewParam.REDIRECT_URL, "")
         # ... use default of "", because None gets serialized to "None", which
         #     gets read back as "None".
         appstruct = {ViewParam.REDIRECT_URL: redirect_url}
         # log.critical("appstruct from GET/POST: {!r}", appstruct)
         rendered_form = login_form.render(appstruct)
 
-    return render_to_response(login_template, dict(form=rendered_form),
-                              request=req)
+    return render_to_response(
+        "login.mako",
+        dict(form=rendered_form,
+             head_form_html=get_head_form_html(req, login_form)),
+        request=req
+    )
 
 
 def login_failed(req: CamcopsRequest) -> Response:
@@ -458,6 +471,7 @@ def offer_terms(req: CamcopsRequest) -> Dict[str, Any]:
         subtitle=req.wappstring("disclaimer_subtitle"),
         content=req.wappstring("disclaimer_content"),
         form=offer_terms_form.render(),
+        head_form_html=get_head_form_html(req, offer_terms_form),
     )
 
 
@@ -488,24 +502,31 @@ def forbidden(req: CamcopsRequest) -> Dict[str, Any]:
 def change_own_password(req: CamcopsRequest) -> Response:
     ccsession = req.camcops_session
     expired = ccsession.user_must_change_password()
-    change_pw_form = ChangeOwnPasswordForm(request=req)
+    change_pw_form = ChangeOwnPasswordForm(request=req, must_differ=True)
+    user = req.user
+    assert user is not None
+    extra_msg = ""
     if SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
             appstruct = change_pw_form.validate(controls)
-            password = appstruct.get(ViewParam.PASSWORD)
+            new_password = appstruct.get(ViewParam.NEW_PASSWORD)
+            # ... form will validate old password, etc.
             # OK
-            req.user.set_password(req, password)
-            return password_changed(req, req.user.username, own_password=True)
+            user.set_password(req, new_password)
+            return password_changed(req, user.username, own_password=True)
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
         rendered_form = change_pw_form.render()
-    return render_to_response("change_own_password.mako",
-                              dict(form=rendered_form,
-                                   expired=expired,
-                                   min_pw_length=MINIMUM_PASSWORD_LENGTH),
-                              request=req)
+    return render_to_response(
+        "change_own_password.mako",
+        dict(form=rendered_form,
+             expired=expired,
+             extra_msg=extra_msg,
+             min_pw_length=MINIMUM_PASSWORD_LENGTH,
+             head_form_html=get_head_form_html(req, change_pw_form)),
+        request=req)
 
 
 @view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
@@ -515,31 +536,25 @@ def change_other_password(req: CamcopsRequest) -> Response:
     """For administrators, to change another's password."""
     change_pw_form = ChangeOtherPasswordForm(request=req)
     username = None  # for type checker
-    extra_msg = ""
     if SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
             appstruct = change_pw_form.validate(controls)
             user_id = appstruct.get(ViewParam.USER_ID)
             must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
-            old_password = appstruct.get(ViewParam.OLD_PASSWORD)
             new_password = appstruct.get(ViewParam.NEW_PASSWORD)
             user = User.get_user_by_id(req.dbsession, user_id)
             if not user:
                 raise exc.HTTPBadRequest(
                     "Missing user for id {}".format(user_id))
-            if new_password == old_password:
-                extra_msg = "Old and new passwords are identical! Try again."
-            elif user.is_password_valid(old_password):
-                extra_msg = "Old password wrong! Try again."
-            else:  # OK
-                user.set_password(req, new_password)
-                return password_changed(req, user.username, own_password=False)
-            rendered_form = change_pw_form.render()  # *** check
+            user.set_password(req, new_password)
+            if must_change_pw:
+                user.force_password_change()
+            return password_changed(req, user.username, own_password=False)
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
-        user_id_str = req.params.get(ViewParam.USER_ID, None)
+        user_id_str = req.get_str_param(ViewParam.USER_ID, None)
         try:
             user_id = int(user_id_str)
         except (TypeError, ValueError):
@@ -554,12 +569,13 @@ def change_other_password(req: CamcopsRequest) -> Response:
         username = other_user.username
         appstruct = {ViewParam.USER_ID: user_id}
         rendered_form = change_pw_form.render(appstruct)
-    return render_to_response("change_own_password.mako",
-                              dict(username=username,
-                                   form=rendered_form,
-                                   extra_msg=extra_msg,
-                                   min_pw_length=MINIMUM_PASSWORD_LENGTH),
-                              request=req)
+    return render_to_response(
+        "change_other_password.mako",
+        dict(username=username,
+             form=rendered_form,
+             min_pw_length=MINIMUM_PASSWORD_LENGTH,
+             head_form_html=get_head_form_html(req, change_pw_form)),
+        request=req)
 
 
 def password_changed(req: CamcopsRequest,
@@ -1553,7 +1569,7 @@ def serve_table_dump(session: CamcopsSession, form: cgi.FieldStorage) \
 
 
 # =============================================================================
-# Information views
+# View policies
 # =============================================================================
 
 @view_config(route_name=Routes.VIEW_POLICIES, renderer="view_policies.mako")
@@ -1572,6 +1588,11 @@ def view_policies(req: CamcopsRequest) -> Dict[str, Any]:
         finalize_principal=get_finalize_id_policy_principal_numeric_id(),
     )
 
+
+# =============================================================================
+# View table definitions
+# =============================================================================
+
 # noinspection PyUnusedLocal
 def inspect_table_defs(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Inspect table definitions with field comments."""
@@ -1581,143 +1602,144 @@ def inspect_table_defs(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     return get_descriptions_comments_html(include_views=False)
 
 
-# noinspection PyUnusedLocal
-def offer_audit_trail_options(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """HTML form to request audit trail."""
+# =============================================================================
+# View audit trail
+# =============================================================================
 
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    return pls.WEBSTART + """
-        {userdetails}
-        <h1>View audit trail (starting with most recent)</h1>
-        <p>Values below are optional.</p>
-        <div class="filter">
-            <form method="GET" action="{script}">
-                <input type="hidden" name="{PARAM.ACTION}"
-                    value="{ACTION.VIEW_AUDIT_TRAIL}">
-
-                Number of rows:
-                <input type="number" value="{DEFAULT_N_AUDIT_ROWS}"
-                        name="{PARAM.NROWS}"><br>
-
-                Start date (UTC):
-                <input type="date" name="{PARAM.START_DATETIME}"><br>
-
-                End date (UTC):
-                <input type="date" name="{PARAM.END_DATETIME}"><br>
-
-                Source (e.g. webviewer, tablet, console):
-                <input type="text" name="{PARAM.SOURCE}"><br>
-
-                Remote IP address:
-                <input type="text" name="{PARAM.IPADDR}"><br>
-
-                User name:
-                <input type="text" name="{PARAM.USERNAME}"><br>
-
-                Table name:
-                <input type="text" name="{PARAM.TABLENAME}"><br>
-
-                Server PK:
-                <input type="number" name="{PARAM.SERVERPK}"><br>
-
-                <label>
-                    <input type="checkbox" name="{PARAM.TRUNCATE}"
-                            value="1" checked>
-                    Truncate details for easy viewing
-                </label><br>
-
-                <input type="submit" value="Submit">
-            </form>
-        </div>
-    """.format(
-        userdetails=session.get_current_user_html(),
-        script=pls.SCRIPT_NAME,
-        ACTION=ACTION,
-        PARAM=PARAM,
-        DEFAULT_N_AUDIT_ROWS=DEFAULT_N_AUDIT_ROWS,
-    )
+# def query_result_html_core(req: CamcopsRequest,
+#                            descriptions: Sequence[str],
+#                            rows: Sequence[Sequence[Any]],
+#                            null_html: str = "<i>NULL</i>") -> str:
+#     return render("query_result_core.mako",
+#                   dict(descriptions=descriptions,
+#                        rows=rows,
+#                        null_html=null_html),
+#                   request=req)
 
 
-def view_audit_trail(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Show audit trail."""
+# def query_result_html_orm(req: CamcopsRequest,
+#                           attrnames: List[str],
+#                           descriptions: List[str],
+#                           orm_objects: Sequence[Sequence[Any]],
+#                           null_html: str = "<i>NULL</i>") -> str:
+#     return render("query_result_orm.mako",
+#                   dict(attrnames=attrnames,
+#                        descriptions=descriptions,
+#                        orm_objects=orm_objects,
+#                        null_html=null_html),
+#                   request=req)
 
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    nrows = ws.get_cgi_parameter_int(form, PARAM.NROWS)
-    if nrows is None or nrows < 0:
-        # ... let's apply some limits!
-        nrows = DEFAULT_N_AUDIT_ROWS
-    start_datetime = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
-    end_datetime = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
-    source = ws.get_cgi_parameter_str(form, PARAM.SOURCE)
-    ipaddr = ws.get_cgi_parameter_str(form, PARAM.IPADDR)
-    username = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    tablename = ws.get_cgi_parameter_str(form, PARAM.TABLENAME)
-    serverpk = ws.get_cgi_parameter_int(form, PARAM.SERVERPK)
-    truncate = ws.get_cgi_parameter_bool(form, PARAM.TRUNCATE)
 
-    wheres = []
-    args = []
-    if truncate:
-        details = "LEFT(details, 100) AS details_truncated"
+@view_config(route_name=Routes.OFFER_AUDIT_TRAIL,
+             permission=Permission.SUPERUSER)
+def offer_audit_trail(req: CamcopsRequest) -> Response:
+    audit_trail_form = AuditTrailForm(request=req)
+    if SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = audit_trail_form.validate(controls)
+            rows_per_page = appstruct.get(ViewParam.ROWS_PER_PAGE)
+            start_datetime = appstruct.get(ViewParam.START_DATETIME)
+            end_datetime = appstruct.get(ViewParam.END_DATETIME)
+            source = appstruct.get(ViewParam.SOURCE)
+            remote_addr = appstruct.get(ViewParam.REMOTE_IP_ADDR)
+            username = appstruct.get(ViewParam.USERNAME)
+            table_name = appstruct.get(ViewParam.TABLENAME)
+            server_pk = appstruct.get(ViewParam.SERVER_PK)
+            truncate = appstruct.get(ViewParam.TRUNCATE)
+
+            querydict = {
+                ViewParam.PAGE: 1,
+                ViewParam.ROWS_PER_PAGE: rows_per_page,
+
+                ViewParam.START_DATETIME: start_datetime,
+                ViewParam.END_DATETIME: end_datetime,
+                ViewParam.SOURCE: source,
+                ViewParam.REMOTE_IP_ADDR: remote_addr,
+                ViewParam.USERNAME: username,
+                ViewParam.TABLENAME: table_name,
+                ViewParam.SERVER_PK: server_pk,
+                ViewParam.TRUNCATE: truncate,
+            }
+            # Send the user to the actual data using GET:
+            raise exc.HTTPFound(req.route_url(Routes.VIEW_AUDIT_TRAIL,
+                                              _query=querydict))
+        except ValidationFailure as e:
+            rendered_form = e.render()
     else:
-        details = "details"
-    sql = """
-        SELECT
-            when_access_utc
-            , source
-            , remote_addr
-            , user_id
-            , table_name
-            , server_pk
-            , {details}
-        FROM {table}
-    """.format(
-        table=AuditEntry.__tablename__,
-        details=details,
-    ) # *** change this!
+        rendered_form = audit_trail_form.render()
+    return render_to_response(
+        "audit_trail_choices.mako",
+        dict(form=rendered_form,
+             head_form_html=get_head_form_html(req, audit_trail_form)),
+        request=req)
+
+
+AUDIT_TRUNCATE_AT = 100
+
+
+@view_config(route_name=Routes.VIEW_AUDIT_TRAIL,
+             permission=Permission.SUPERUSER)
+def view_audit_trail(req: CamcopsRequest) -> Response:
+    page = req.get_int_param(ViewParam.PAGE, 1)
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE, 25)
+
+    start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
+    end_datetime = req.get_datetime_param(ViewParam.END_DATETIME)
+    source = req.get_str_param(ViewParam.SOURCE, None)
+    remote_addr = req.get_str_param(ViewParam.REMOTE_IP_ADDR, None)
+    username = req.get_str_param(ViewParam.USERNAME, None)
+    table_name = req.get_str_param(ViewParam.TABLENAME, None)
+    server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
+    truncate = req.get_bool_param(ViewParam.TRUNCATE, True)
+
+    conditions = []  # type: List[str]
+
+    def add_condition(key: str, value: Any) -> None:
+        conditions.append("{} = {}".format(key, value))
+
+    dbsession = req.dbsession
+    q = dbsession.query(AuditEntry)
     if start_datetime:
-        wheres.append("when_access_utc >= ?")
-        args.append(start_datetime)
+        q = q.filter(AuditEntry.when_access_utc >= start_datetime)
+        add_condition("start_datetime", start_datetime)
     if end_datetime:
-        wheres.append("when_access_utc <= ?")
-        args.append(end_datetime)
+        q = q.filter(AuditEntry.when_access_utc <= end_datetime)
+        add_condition("end_datetime", end_datetime)
     if source:
-        wheres.append("source = ?")
-        args.append(source)
-    if ipaddr:
-        wheres.append("remote_addr = ?")
-        args.append(ipaddr)
+        q = q.filter(AuditEntry.source == source)
+        add_condition("source", source)
+    if remote_addr:
+        q = q.filter(AuditEntry.remote_addr == remote_addr)
+        add_condition("remote_addr", remote_addr)
     if username:
-        wheres.append("user = ?")
-        args.append(username)
-    if tablename:
-        wheres.append("table_name = ?")
-        args.append(tablename)
-    if serverpk:
-        wheres.append("server_pk = ?")
-        args.append(serverpk)
-    if wheres:
-        sql += " WHERE " + " AND ".join(wheres)
-    sql += " ORDER BY id DESC LIMIT {}".format(nrows)
-    (rows, descriptions) = pls.db.fetchall_with_fieldnames(sql, *args)
-    html = pls.WEBSTART + """
-        {user}
-        <h1>Audit trail</h1>
-        <h2>
-            Conditions: nrows={nrows}, start_datetime={start_datetime},
-            end_datetime={end_datetime}
-        </h2>
-    """.format(
-        user=session.get_current_user_html(),
-        nrows=nrows,
-        start_datetime=format_datetime(start_datetime,
-                                       DATEFORMAT.ISO8601_DATE_ONLY),
-        end_datetime=format_datetime(end_datetime,
-                                     DATEFORMAT.ISO8601_DATE_ONLY),
-    ) + ws.html_table_from_query(rows, descriptions) + WEBEND
-    return html
+        # https://stackoverflow.com/questions/8561470/sqlalchemy-filtering-by-relationship-attribute  # noqa
+        q = q.join(User).filter(User.username == username)
+        add_condition("username", username)
+    if table_name:
+        q = q.filter(AuditEntry.table_name == table_name)
+        add_condition("table_name", table_name)
+    if server_pk is not None:
+        q = q.filter(AuditEntry.server_pk == server_pk)
+        add_condition("server_pk", server_pk)
+
+    q = q.order_by(desc(AuditEntry.id))
+
+    # audit_entries = dbsession.execute(q).fetchall()
+    # ... no! That executes to give you row-type results.
+    # audit_entries = q.all()
+    # ... yes! But let's paginate, too:
+    page = SqlalchemyOrmPage(collection=q,
+                             page=page,
+                             items_per_page=rows_per_page,
+                             url_maker=PageUrl(req))
+    return render_to_response("audit_trail_view.mako",
+                              dict(conditions="; ".join(conditions),
+                                   page=page,
+                                   truncate=truncate,
+                                   truncate_at=AUDIT_TRUNCATE_AT),
+                              request=req)
+
 
 
 # noinspection PyUnusedLocal
@@ -1989,7 +2011,7 @@ def introspect(req: CamcopsRequest) -> Response:
     cfg = req.config
     if not cfg.INTROSPECTION:
         return simple_failure(NO_INTROSPECTION_MSG)
-    filename = req.params.get(ViewParam.FILENAME, None)
+    filename = req.get_str_param(ViewParam.FILENAME, None)
     try:
         ifd = next(ifd for ifd in cfg.INTROSPECTION_FILES
                    if ifd.prettypath == filename)
@@ -2844,7 +2866,6 @@ ACTIONDICT = {
     ACTION.ENABLE_USER: enable_user,
 
     # Supervisory reports
-    ACTION.OFFER_AUDIT_TRAIL_OPTIONS: offer_audit_trail_options,
     ACTION.VIEW_AUDIT_TRAIL: view_audit_trail,
     ACTION.OFFER_HL7_LOG_OPTIONS: offer_hl7_log_options,
     ACTION.VIEW_HL7_LOG: view_hl7_log,

@@ -1,5 +1,5 @@
 ## offer_terms.mako
-<%inherit file="base_web.mako"/>
+<%inherit file="base_web_form.mako"/>
 
 <%include file="db_user_info.mako"/>
 

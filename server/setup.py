@@ -316,6 +316,7 @@ camcops_server
         'matplotlib==2.0.2',  # Used for trackers and some tasks. SLOW INSTALLATION. Previously 1.5.0.  # noqa
         'mysqlclient==1.3.10',  # for mysql+mysqldb://...
         'numpy==1.13.1',  # Used by some tasks. SLOW INSTALLATION. Previously 1.10.2. ??? BEFORE MATPLOTLIB ??? See https://stackoverflow.com/questions/37515053  # noqa
+        'paginate==0.5.6',  # pagination for web server
         'pdfkit==0.5.0',  # wkhtmltopdf interface, for PDF generation from HTML
         'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt
         'Pygments==2.0.2',  # Syntax highlighting for introspection
@@ -330,6 +331,7 @@ camcops_server
         'sqlalchemy==1.2.0b1',  # database access
         'typing==3.5.2.2',  # part of stdlib in Python 3.5, but not 3.4
         'Wand==0.4.2',  # ImageMagick for Python; used e.g. for BLOB PNG display; may need "sudo apt-get install libmagickwand-dev"  # noqa
+        # Incompatible with Python 3.5; use paginate instead # 'WebHelpers==1.3',  # e.g. paginator and other tools for Pyramid  # noqa
         'Werkzeug==0.11.3',  # Profiling middleware
     ],
 

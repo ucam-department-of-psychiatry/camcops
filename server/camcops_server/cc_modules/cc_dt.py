@@ -27,6 +27,7 @@ import re
 import typing.re
 from typing import Optional, Union
 
+import arrow
 from arrow import Arrow
 import dateutil
 import dateutil.parser
@@ -44,6 +45,12 @@ def get_datetime_from_string(s: str) -> Optional[datetime.datetime]:
     if not s:
         return None  # if you parse() an empty string, you get today's date
     return dateutil.parser.parse(s)  # deals with ISO8601 automatically
+
+
+def get_arrow_from_string(s: str) -> Optional[Arrow]:
+    if not s:
+        return None  # Arrow will return today's date from an empty string
+    return arrow.get(s)
 
 
 def get_date_from_string(s: str) -> Optional[datetime.date]:

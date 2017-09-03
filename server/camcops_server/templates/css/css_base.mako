@@ -336,6 +336,16 @@ div.indented {
     font-size: ${TINYFONTSIZE};
     line-height: ${TINYLINEHEIGHT};
 }
+.pager_dotdot {
+    ## The "Paginate" model uses "..", which is nasty.
+    ## https://stackoverflow.com/questions/7896402/how-can-i-replace-text-with-css
+    font-size: 0;
+}
+.pager_dotdot:before {
+    ## &hellip; doesn't work in "content"
+    content: "...";
+    font-size: ${MAINFONTSIZE};
+}
 .patient {
     background-color: rgb(255, 200, 200);
 }

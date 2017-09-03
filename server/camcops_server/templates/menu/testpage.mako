@@ -37,6 +37,6 @@
 
 <%def name="show_call_stack()">
     %for stack_info in get_caller_stack_info():
-        ${stack_info | h}<br>
+${stack_info | h}<br>
     %endfor
 </%def>

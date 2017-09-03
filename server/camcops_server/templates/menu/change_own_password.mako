@@ -1,5 +1,7 @@
 ## change_own_password.mako
-<%inherit file="base_web.mako"/>
+<%inherit file="base_web_form.mako"/>
+
+<%include file="db_user_info.mako"/>
 
 %if expired:
     <div class="important">

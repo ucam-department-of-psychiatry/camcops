@@ -28,10 +28,13 @@ import os
 import pprint
 import re
 import sys
-from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import (Any, Callable, Dict, List, Optional, Tuple, Type,
+                    TYPE_CHECKING)
+from urllib.parse import urlencode
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from mako.lookup import TemplateLookup
+from paginate import Page
 from pyramid.authentication import IAuthenticationPolicy
 from pyramid.authorization import IAuthorizationPolicy
 from pyramid.config import Configurator
@@ -52,19 +55,23 @@ from pyramid_mako import (
     reraise,
     text_error_template,
 )
+from sqlalchemy.orm import Query
 from zope.interface import implementer
 
 from .cc_baseconstants import TEMPLATE_DIR
 from .cc_cache import cache_region_static
 
 if TYPE_CHECKING:
+    from pyramid.request import Request
     from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 DEBUG_EFFECTIVE_PRINCIPALS = False
 DEBUG_TEMPLATES = False
-
+# ... logs more information about template creation, but also writes the
+# templates in their compiled-to-Python version to a debugging directory (see
+# below), which is very informative.
 DEBUGGING_MAKO_DIR = os.path.expanduser("~/tmp/mako_template_source")
 
 
@@ -101,12 +108,21 @@ class ViewParam(object):
     # PATIENT_ID = "pid"
     # QUERY = "_query"  # built in to Pyramid
     # AGREE = "agree"
+    END_DATETIME = "end_datetime"
     FILENAME = "filename"
     MUST_CHANGE_PASSWORD = "must_change_password"
     NEW_PASSWORD = "new_password"
+    ROWS_PER_PAGE = "rows_per_page"
     OLD_PASSWORD = "old_password"
+    PAGE = "page"
     PASSWORD = "password"
     REDIRECT_URL = "redirect_url"
+    REMOTE_IP_ADDR = "remote_ip_addr"
+    SERVER_PK = "server_pk"
+    SOURCE = "source"
+    START_DATETIME = "start_datetime"
+    TABLENAME = "table_name"
+    TRUNCATE = "truncate"
     USER_ID = "user_id"
     USERNAME = "username"
 
@@ -284,7 +300,7 @@ class Routes(object):
     INTROSPECT = "introspect"
     LOGOUT = "logout"
     MANAGE_USERS = "manage_users"
-    OFFER_AUDIT_TRAIL_OPTIONS = "offer_audit_trail_options"
+    OFFER_AUDIT_TRAIL = "offer_audit_trail"
     OFFER_BASIC_DUMP = "offer_basic_dump"
     OFFER_HL7_LOG_OPTIONS = "offer_hl7_log"
     OFFER_HL7_RUN_OPTIONS = "offer_hl7_run"
@@ -295,6 +311,7 @@ class Routes(object):
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
     TESTPAGE_PUBLIC_1 = "testpage_public_1"
     TESTPAGE_PUBLIC_2 = "testpage_public_2"
+    VIEW_AUDIT_TRAIL = "view_audit_trail"
     VIEW_POLICIES = "view_policies"
     VIEW_TASKS = "view_tasks"
 
@@ -356,7 +373,6 @@ class Routes(object):
     TABLE_DUMP = "table_dump"
     TASK = "task"
     TRACKER = "tracker"
-    VIEW_AUDIT_TRAIL = "view_audit_trail"
     VIEW_HL7_LOG = "view_hl7_log"
     VIEW_HL7_RUN = "view_hl7_run"
 
@@ -409,6 +425,8 @@ class RouteCollection(object):
     # ... filename via query param (sorts out escaping)
     LOGIN = RoutePath(Routes.LOGIN, "/login")
     LOGOUT = RoutePath(Routes.LOGOUT, "/logout")
+    OFFER_AUDIT_TRAIL = RoutePath(Routes.OFFER_AUDIT_TRAIL,
+                                  "/offer_audit_trail")
     OFFER_INTROSPECTION = RoutePath(
         Routes.OFFER_INTROSPECTION, "/offer_introspect"
     )
@@ -416,6 +434,7 @@ class RouteCollection(object):
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1, '/testpriv1')
     TESTPAGE_PUBLIC_1 = RoutePath(Routes.TESTPAGE_PUBLIC_1, '/test1')
     TESTPAGE_PUBLIC_2 = RoutePath(Routes.TESTPAGE_PUBLIC_2, '/test2')
+    VIEW_AUDIT_TRAIL = RoutePath(Routes.VIEW_AUDIT_TRAIL, "/view_audit_trail")
     VIEW_POLICIES = RoutePath(Routes.VIEW_POLICIES, "/view_policies")
 
     # To implement ***
@@ -533,9 +552,6 @@ class RouteCollection(object):
     # now HOME # MAIN_MENU = "main_menu"
     MANAGE_USERS = RoutePath(Routes.MANAGE_USERS, "/manage_users")
     NEXT_PAGE = RoutePath(Routes.NEXT_PAGE, "/next_page")
-    OFFER_AUDIT_TRAIL_OPTIONS = RoutePath(
-        Routes.OFFER_AUDIT_TRAIL_OPTIONS, "/offer_audit_trail_options"
-    )
     OFFER_BASIC_DUMP = RoutePath(Routes.OFFER_BASIC_DUMP, "/offer_basic_dump")
     OFFER_HL7_LOG_OPTIONS = RoutePath(
         Routes.OFFER_HL7_LOG_OPTIONS, "/offer_hl7_log"
@@ -557,7 +573,6 @@ class RouteCollection(object):
     TABLE_DUMP = RoutePath(Routes.TABLE_DUMP, "table_dump")
     TASK = RoutePath(Routes.TASK, "/task")
     TRACKER = RoutePath(Routes.TRACKER, "/tracker")
-    VIEW_AUDIT_TRAIL = RoutePath(Routes.VIEW_AUDIT_TRAIL, "/view_audit_trail")
     VIEW_HL7_LOG = RoutePath(Routes.VIEW_HL7_LOG, "/view_hl7_log")
     VIEW_HL7_RUN = RoutePath(Routes.VIEW_HL7_RUN, "/view_hl7_run")
     VIEW_TASKS = RoutePath(Routes.VIEW_TASKS, "/view_tasks")
@@ -770,3 +785,159 @@ class ZipResponse(Response):
             content_encoding="binary",
             body=content,
         )
+
+
+# =============================================================================
+# Pagination
+# =============================================================================
+# WebHelpers 1.3 doesn't support Python 3.5.
+# The successor to webhelpers.paginate appears to be paginate.
+
+class SqlalchemyOrmQueryWrapper(object):
+    """
+    Wrapper class to access elements of an SQLAlchemy ORM query.
+
+    See:
+    - https://docs.pylonsproject.org/projects/pylons-webframework/en/latest/helpers.html  # noqa
+    - https://docs.pylonsproject.org/projects/webhelpers/en/latest/modules/paginate.html  # noqa
+    - https://github.com/Pylons/paginate
+    """
+    def __init__(self, query: Query) -> None:
+        self.query = query
+
+    def __getitem__(self, cut: slice) -> List[Any]:
+        # Return a range of objects of an sqlalchemy.orm.query.Query object
+        return self.query[cut]
+        # ... will apply LIMIT/OFFSET to fetch only what we need
+
+    def __len__(self) -> int:
+        # Count the number of objects in an sqlalchemy.orm.query.Query object
+        return self.query.count()
+
+
+PAGER_PATTERN = (
+    '(Page $page of $page_count; total $item_count records) '
+    '[$link_first $link_previous ~3~ $link_next $link_last]'
+)
+
+
+class SqlalchemyOrmPage(Page):
+    """A pagination page that deals with SQLAlchemy ORM objects."""
+    def __init__(self,
+                 collection: Query,
+                 page: int = 1,
+                 items_per_page: int = 20,
+                 item_count: int = None,
+                 url_maker: Callable[[int], str] = None,
+                 **kwargs) -> None:
+        # Since views may accidentally throw strings our way:
+        assert isinstance(page, int)
+        assert isinstance(items_per_page, int)
+        assert isinstance(item_count, int) or item_count is None
+        super().__init__(
+            collection=collection,
+            page=page,
+            items_per_page=items_per_page,
+            item_count=item_count,
+            wrapper_class=SqlalchemyOrmQueryWrapper,
+            url_maker=url_maker,
+            **kwargs
+        )
+
+    # noinspection PyShadowingBuiltins
+    def pager(self,
+              format: str = PAGER_PATTERN,
+              url: str = None,
+              show_if_single_page: bool = False,
+              separator: str = ' ',
+              symbol_first: str = '&lt;&lt;',
+              symbol_last: str = '&gt;&gt;',
+              symbol_previous: str = '&lt;',
+              symbol_next: str = '&gt;',
+              link_attr: Dict[str, str] = None,
+              curpage_attr: Dict[str, str] = None,
+              dotdot_attr: Dict[str, str] = None,
+              link_tag: Callable[[Dict[str, str]], str] = None):
+        link_attr = link_attr or {}  # type: Dict[str, str]
+        curpage_attr = curpage_attr or {}  # type: Dict[str, str]
+        # dotdot_attr = dotdot_attr or {}  # type: Dict[str, str]
+        dotdot_attr = dotdot_attr or {'class':'pager_dotdot'}  # our default!
+        return super().pager(
+            format=format,
+            url=url,
+            show_if_single_page=show_if_single_page,
+            separator=separator,
+            symbol_first=symbol_first,
+            symbol_last=symbol_last,
+            symbol_previous=symbol_previous,
+            symbol_next=symbol_next,
+            link_attr=link_attr,
+            curpage_attr=curpage_attr,
+            dotdot_attr=dotdot_attr,
+            link_tag=link_tag,
+        )
+
+
+# From webhelpers.paginate (which is broken on Python 3.5, but good),
+# modified a bit:
+
+def make_page_url(path: str, params: Dict[str, str], page: int,
+                  partial: bool = False, sort: bool = True) -> str:
+    """A helper function for URL generators.
+
+    I assemble a URL from its parts. I assume that a link to a certain page is
+    done by overriding the 'page' query parameter.
+
+    ``path`` is the current URL path, with or without a "scheme://host" prefix.
+
+    ``params`` is the current query parameters as a dict or dict-like object.
+
+    ``page`` is the target page number.
+
+    If ``partial`` is true, set query param 'partial=1'. This is to for AJAX
+    calls requesting a partial page.
+
+    If ``sort`` is true (default), the parameters will be sorted. Otherwise
+    they'll be in whatever order the dict iterates them.
+    """
+    params = params.copy()
+    params["page"] = page
+    if partial:
+        params["partial"] = "1"
+    if sort:
+        params = sorted(params.items())
+    qs = urlencode(params, True)  # was urllib.urlencode, but changed in Py3.5
+    return "%s?%s" % (path, qs)
+
+
+class PageUrl(object):
+    """A page URL generator for WebOb-compatible Request objects.
+
+    I derive new URLs based on the current URL but overriding the 'page'
+    query parameter.
+
+    I'm suitable for Pyramid, Pylons, and TurboGears, as well as any other
+    framework whose Request object has 'application_url', 'path', and 'GET'
+    attributes that behave the same way as ``webob.Request``'s.
+    """
+
+    def __init__(self, request: "Request", qualified: bool = False):
+        """
+        ``request`` is a WebOb-compatible ``Request`` object.
+
+        If ``qualified`` is false (default), generated URLs will have just the
+        path and query string. If true, the "scheme://host" prefix will be
+        included. The default is false to match traditional usage, and to avoid
+        generating unuseable URLs behind reverse proxies (e.g., Apache's
+        mod_proxy).
+        """
+        self.request = request
+        self.qualified = qualified
+
+    def __call__(self, page: int, partial: bool = False) -> str:
+        """Generate a URL for the specified page."""
+        if self.qualified:
+            path = self.request.application_url
+        else:
+            path = self.request.path
+        return make_page_url(path, self.request.GET, page, partial)

@@ -44,6 +44,3 @@ def pdf_args(paged_media=False):
 
 
 %>
-
-
-</%def>
