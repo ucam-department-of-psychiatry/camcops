@@ -101,7 +101,7 @@ class HamdMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=HamdMetaclass):
     __tablename__ = "hamd"
     shortname = "HAM-D"

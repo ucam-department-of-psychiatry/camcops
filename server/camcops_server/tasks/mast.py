@@ -83,7 +83,7 @@ class MastMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Mast(TaskHasPatientMixin, Task, Base,
+class Mast(TaskHasPatientMixin, Task,
            metaclass=MastMetaclass):
     __tablename__ = "mast"
     shortname = "MAST"
@@ -181,7 +181,7 @@ class Mast(TaskHasPatientMixin, Task, Base,
         h += tr(req.wappstring("total_score"),
                 answer(score) + " / {}".format(self.MAX_SCORE))
         h += tr_qa(self.wxstring(req, "exceeds_threshold"),
-                   get_yes_no(exceeds_threshold))
+                   get_yes_no(req, exceeds_threshold))
         h += """
                 </table>
             </div>

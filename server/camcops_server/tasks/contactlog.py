@@ -44,7 +44,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     BIT_CHECKER,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import (
@@ -58,7 +58,7 @@ from ..cc_modules.cc_task import (
 # ContactLog
 # =============================================================================
 
-class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     __tablename__ = "contactlog"
     shortname = "ContactLog"
     longname = "Clinical contact log"
@@ -68,11 +68,11 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
         comment="Location"
     )
     start = Column(
-        "start", DateTimeAsIsoTextColType,
+        "start", ArrowDateTimeAsIsoTextColType,
         comment="Date/time that contact started"
     )
     end = Column(
-        "end", DateTimeAsIsoTextColType,
+        "end", ArrowDateTimeAsIsoTextColType,
         comment="Date/time that contact ended"
     )
     patient_contact = CamcopsColumn(
@@ -129,8 +129,11 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
                                                   None))
         h += tr(italic("Calculated duration (hours:minutes)"),
                 italic(get_duration_h_m(self.start, self.end)))
-        h += tr_qa("Patient contact?", get_yes_no_none(self.patient_contact))
-        h += tr_qa("Staff liaison?", get_yes_no_none(self.staff_liaison))
-        h += tr_qa("Other liaison?", get_yes_no_none(self.other_liaison))
+        h += tr_qa("Patient contact?",
+                   get_yes_no_none(req, self.patient_contact))
+        h += tr_qa("Staff liaison?",
+                   get_yes_no_none(req, self.staff_liaison))
+        h += tr_qa("Other liaison?",
+                   get_yes_no_none(req, self.other_liaison))
         h += tr_qa("Comment:", self.comment)
         return h

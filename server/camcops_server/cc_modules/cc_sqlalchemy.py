@@ -22,12 +22,18 @@
 ===============================================================================
 """
 
+from io import StringIO
+import logging
+
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.dump import dump_ddl
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.schema import MetaData
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 # =============================================================================
 # Naming convention; metadata; Base
@@ -110,26 +116,9 @@ def make_debug_sqlite_engine() -> Engine:
 
 def print_all_ddl(dialect_name: str = "mysql"):
     metadata = Base.metadata  # type: MetaData
-    dump_ddl(metadata, dialect_name=dialect_name)
-
-
-TEST_CODE = """
-
-PRINT_DDL = False
-
-from sqlalchemy.orm.session import sessionmaker
-from camcops_server.cc_modules.cc_sqlalchemy import *
-from camcops_server.cc_modules.cc_all_models import *
-
-if PRINT_DDL:
-    print_all_ddl()
-
-engine = make_debug_sqlite_engine()
-Base.metadata.create_all(engine)
-session = sessionmaker()(bind=engine)  # will also show DDL (debug engine)
-
-phq9_query = session.query(Phq9)
-
-phq9_query.all()
-
-"""
+    with StringIO() as f:
+        dump_ddl(metadata, dialect_name=dialect_name, fileobj=f)
+        f.flush()
+        text = f.getvalue()
+    log.info(text)
+    log.info("DDL length: {} characters", len(text))

@@ -72,7 +72,7 @@ class Phq9Metaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Phq9(TaskHasPatientMixin, Task, Base,
+class Phq9(TaskHasPatientMixin, Task,
            metaclass=Phq9Metaclass):
     __tablename__ = "phq9"
     shortname = "PHQ-9"
@@ -248,9 +248,9 @@ class Phq9(TaskHasPatientMixin, Task, Base,
             answer(self.n_total()) + "/9"
         )
         h += tr_qa(self.wxstring(req, "mds") + " <sup>[5]</sup>",
-                   get_yes_no(self.is_mds()))
+                   get_yes_no(req, self.is_mds()))
         h += tr_qa(self.wxstring(req, "ods") + " <sup>[6]</sup>",
-                   get_yes_no(self.is_ods()))
+                   get_yes_no(req, self.is_ods()))
         h += """
                 </table>
             </div>

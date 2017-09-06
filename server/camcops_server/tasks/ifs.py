@@ -127,7 +127,7 @@ class IfsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
           metaclass=IfsMetaclass):
     __tablename__ = "ifs"
     shortname = "IFS"

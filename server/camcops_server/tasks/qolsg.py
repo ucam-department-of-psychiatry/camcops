@@ -34,7 +34,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
     ZERO_TO_ONE_CHECKER,
 )
 from ..cc_modules.cc_sqlalchemy import Base
@@ -49,14 +49,14 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class QolSG(TaskHasPatientMixin, Task, Base):
+class QolSG(TaskHasPatientMixin, Task):
     __tablename__ = "qolsg"
     shortname = "QoL-SG"
     longname = "Quality of Life: Standard Gamble"
     provides_trackers = True
 
     category_start_time = Column(
-        "category_start_time", DateTimeAsIsoTextColType,
+        "category_start_time", ArrowDateTimeAsIsoTextColType,
         comment="Time categories were offered (ISO-8601)"
     )
     category_responded = CamcopsColumn(
@@ -65,7 +65,7 @@ class QolSG(TaskHasPatientMixin, Task, Base):
         comment="Responded to category choice? (0 no, 1 yes)"
     )
     category_response_time = Column(
-        "category_response_time", DateTimeAsIsoTextColType,
+        "category_response_time", ArrowDateTimeAsIsoTextColType,
         comment="Time category was chosen (ISO-8601)"
     )
     category_chosen = Column(
@@ -98,7 +98,7 @@ class QolSG(TaskHasPatientMixin, Task, Base):
         comment="Gamble: starting value of p"
     )
     gamble_start_time = Column(
-        "gamble_start_time", DateTimeAsIsoTextColType,
+        "gamble_start_time", ArrowDateTimeAsIsoTextColType,
         comment="Time gamble was offered (ISO-8601)"
     )
     gamble_responded = CamcopsColumn(
@@ -107,7 +107,7 @@ class QolSG(TaskHasPatientMixin, Task, Base):
         comment="Gamble was responded to? (0 no, 1 yes)"
     )
     gamble_response_time = Column(
-        "gamble_response_time", DateTimeAsIsoTextColType,
+        "gamble_response_time", ArrowDateTimeAsIsoTextColType,
         comment="Time subject responded to gamble (ISO-8601)"
     )
     gamble_p = CamcopsColumn(
@@ -163,7 +163,7 @@ class QolSG(TaskHasPatientMixin, Task, Base):
         """
         h += tr_qa("Category choice: start time", self.category_start_time)
         h += tr_qa("Category choice: responded?",
-                   get_yes_no_none(self.category_responded))
+                   get_yes_no_none(req, self.category_responded))
         h += tr_qa("Category choice: response time",
                    self.category_response_time)
         h += tr_qa("Category choice: category chosen", self.category_chosen)
@@ -173,11 +173,11 @@ class QolSG(TaskHasPatientMixin, Task, Base):
         h += tr_qa("Gamble: lottery option for <i>q</i> = 1 – <i>p</i>",
                    self.gamble_lottery_option_q)
         h += tr_qa("Gamble: lottery on left?",
-                   get_yes_no_none(self.gamble_lottery_on_left))
+                   get_yes_no_none(req, self.gamble_lottery_on_left))
         h += tr_qa("Gamble: starting <i>p</i>", self.gamble_starting_p)
         h += tr_qa("Gamble: start time", self.gamble_start_time)
         h += tr_qa("Gamble: responded?",
-                   get_yes_no_none(self.gamble_responded))
+                   get_yes_no_none(req, self.gamble_responded))
         h += tr_qa("Gamble: response time", self.gamble_response_time)
         h += tr_qa("Gamble: <i>p</i>",
                    ws.number_to_dp(self.gamble_p, DP, default=None))

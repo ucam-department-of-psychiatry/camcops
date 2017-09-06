@@ -51,7 +51,7 @@ class BfcrsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Bfcrs(TaskHasPatientMixin, Task, Base,
+class Bfcrs(TaskHasPatientMixin, Task,
             metaclass=BfcrsMetaclass):
     __tablename__ = "bfcrs"
     shortname = "BFCRS"
@@ -140,7 +140,7 @@ class Bfcrs(TaskHasPatientMixin, Task, Base,
             num_symptoms_present=self.wxstring(req, "num_symptoms_present"),
             n_csi_symptoms=n_csi_symptoms,
             catatonia_present=self.wxstring(req, "catatonia_present"),
-            csi_catatonia=get_yes_no(csi_catatonia)
+            csi_catatonia=get_yes_no(req, csi_catatonia)
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(

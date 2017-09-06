@@ -60,6 +60,7 @@ from zope.interface import implementer
 
 from .cc_baseconstants import TEMPLATE_DIR
 from .cc_cache import cache_region_static
+from .cc_constants import DEFAULT_ROWS_PER_PAGE
 
 if TYPE_CHECKING:
     from pyramid.request import Request
@@ -67,13 +68,19 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
+# =============================================================================
+# Debugging options
+# =============================================================================
+
 DEBUG_EFFECTIVE_PRINCIPALS = False
-DEBUG_TEMPLATES = False
+DEBUG_TEMPLATES = True
 # ... logs more information about template creation, but also writes the
 # templates in their compiled-to-Python version to a debugging directory (see
 # below), which is very informative.
 DEBUGGING_MAKO_DIR = os.path.expanduser("~/tmp/mako_template_source")
 
+if DEBUG_EFFECTIVE_PRINCIPALS or DEBUG_TEMPLATES:
+    log.warning("Debugging options enabled!")
 
 # =============================================================================
 # Constants
@@ -108,10 +115,15 @@ class ViewParam(object):
     # PATIENT_ID = "pid"
     # QUERY = "_query"  # built in to Pyramid
     # AGREE = "agree"
+    ANONYMISE = "anonymise"
     END_DATETIME = "end_datetime"
     FILENAME = "filename"
     HL7_MSG_ID = "hl7_msg_id"
     HL7_RUN_ID = "hl7_run_id"
+    INCLUDE_BLOBS = "include_blobs"
+    INCLUDE_CALCULATED = "include_calculated"
+    INCLUDE_COMMENTS = "include_comments"
+    INCLUDE_PATIENT = "include_patient"
     MUST_CHANGE_PASSWORD = "must_change_password"
     NEW_PASSWORD = "new_password"
     OLD_PASSWORD = "old_password"
@@ -127,6 +139,17 @@ class ViewParam(object):
     TRUNCATE = "truncate"
     USER_ID = "user_id"
     USERNAME = "username"
+    VIEWTYPE = "viewtype"
+
+
+class ViewArg(object):
+    """
+    String used as view arguments, e.g.
+    """
+    HTML = "html"
+    PDF = "pdf"
+    PDFHTML = "pdfhtml"
+    XML = "xml"
 
 
 # =============================================================================
@@ -164,13 +187,18 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
     """
     def __call__(self, value: Dict[str, Any], system: Dict[str, Any]) -> str:
         if DEBUG_TEMPLATES:
+            log.debug("spec: {!r}", self.spec)
             log.debug("value: {}", pprint.pformat(value))
             log.debug("system: {}", pprint.pformat(system))
 
         # ---------------------------------------------------------------------
         # RNC extra values:
         # ---------------------------------------------------------------------
+        # Note that <%! ... %> Python blocks are not themselves inherited.
+        # So putting "import" calls in base.mako doesn't deliver the following
+        # as ever-present variable. Instead, plumb them in like this:
         system['Routes'] = Routes
+        system['ViewArg'] = ViewArg
         system['ViewParam'] = ViewParam
 
         # Update the system dictionary with the values from the user
@@ -298,12 +326,14 @@ class Routes(object):
     STATIC = "static"
 
     # Implemented
+    ADD_SPECIAL_NOTE = "add_special_note"
     CHANGE_OWN_PASSWORD = "change_own_password"
     CHANGE_OTHER_PASSWORD = "change_other_password"
     CHOOSE_CLINICALTEXTVIEW = "choose_clinicaltextview"
     CHOOSE_TRACKER = "choose_tracker"
     DATABASE_API = "database"
     DELETE_PATIENT = "delete_patient"
+    ERASE_TASK = "erase_task"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     INSPECT_TABLE_DEFS = "view_table_definitions"
@@ -332,7 +362,6 @@ class Routes(object):
     VIEW_HL7_RUN_LOG = "view_hl7_run_log"
 
     # To implement ***
-    ADD_SPECIAL_NOTE = "add_special_note"
     ADD_USER = "add_user"
     APPLY_FILTER_COMPLETE = "apply_filter_complete"
     APPLY_FILTER_DEVICE = "apply_filter_device"
@@ -374,7 +403,6 @@ class Routes(object):
     EDIT_USER = "edit_user"
     ENABLE_USER = "enable_user"
     ENTER_NEW_PASSWORD = "enter_new_password"
-    ERASE_TASK = "erase_task"
     FILTER = "filter"
     FIRST_PAGE = "first_page"
     LAST_PAGE = "last_page"
@@ -424,6 +452,7 @@ class RouteCollection(object):
                        ignore_in_all_routes=True)
 
     # Implemented
+    ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE, "/add_special_note")
     CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD, '/change_pw')
     CHANGE_OTHER_PASSWORD = RoutePath(
         Routes.CHANGE_OTHER_PASSWORD,
@@ -433,6 +462,7 @@ class RouteCollection(object):
         )
     )
     DATABASE_API = RoutePath(Routes.DATABASE_API, '/database')
+    ERASE_TASK = RoutePath(Routes.ERASE_TASK, "/erase_task")
     HOME = RoutePath(Routes.HOME, '/webview')
     INTROSPECT = RoutePath(Routes.INTROSPECT, '/introspect')
     # ... filename via query param (sorts out escaping)
@@ -447,6 +477,7 @@ class RouteCollection(object):
     OFFER_INTROSPECTION = RoutePath(Routes.OFFER_INTROSPECTION,
                                     "/offer_introspect")
     OFFER_TERMS = RoutePath(Routes.OFFER_TERMS, '/offer_terms')
+    TASK = RoutePath(Routes.TASK, "/task")
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1, '/testpriv1')
     TESTPAGE_PUBLIC_1 = RoutePath(Routes.TESTPAGE_PUBLIC_1, '/test1')
     TESTPAGE_PUBLIC_2 = RoutePath(Routes.TESTPAGE_PUBLIC_2, '/test2')
@@ -458,9 +489,9 @@ class RouteCollection(object):
     VIEW_HL7_RUN_LOG = RoutePath(Routes.VIEW_HL7_RUN_LOG,
                                  "/view_hl7_run_log")
     VIEW_POLICIES = RoutePath(Routes.VIEW_POLICIES, "/view_policies")
+    VIEW_TASKS = RoutePath(Routes.VIEW_TASKS, "/view_tasks")
 
     # To implement ***
-    ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE, "/add_special_note")
     ADD_USER = RoutePath(Routes.ADD_USER, "/add_user")
     APPLY_FILTER_COMPLETE = RoutePath(
         Routes.APPLY_FILTER_COMPLETE, "/apply_filter_complete"
@@ -558,7 +589,6 @@ class RouteCollection(object):
     ENTER_NEW_PASSWORD = RoutePath(
         Routes.ENTER_NEW_PASSWORD, "/enter_new_password"
     )
-    ERASE_TASK = RoutePath(Routes.ERASE_TASK, "/erase_task")
     FILTER = RoutePath(Routes.FILTER, "/filter")
     FIRST_PAGE = RoutePath(Routes.FIRST_PAGE, "/first_page")
     FORCIBLY_FINALIZE = RoutePath(
@@ -587,9 +617,7 @@ class RouteCollection(object):
     )
     REPORTS_MENU = RoutePath(Routes.REPORTS_MENU, "/reports_menu")
     TABLE_DUMP = RoutePath(Routes.TABLE_DUMP, "table_dump")
-    TASK = RoutePath(Routes.TASK, "/task")
     TRACKER = RoutePath(Routes.TRACKER, "/tracker")
-    VIEW_TASKS = RoutePath(Routes.VIEW_TASKS, "/view_tasks")
 
     @classmethod
     def all_routes(cls) -> List[RoutePath]:
@@ -706,8 +734,9 @@ class CamcopsAuthenticationPolicy(object):
         user = request.user
         if user is not None:
             principals += [Authenticated, 'u:%s' % user.id]
-            if user.may_use_webviewer and not (user.must_change_password or
-                                                   user.must_agree_terms()):
+            if (user.may_use_webviewer and
+                    not (user.must_change_password or
+                         user.must_agree_terms())):
                 principals.append(Permission.HAPPY)
                 if user.may_dump_data:
                     principals.append(Permission.DUMP)
@@ -851,29 +880,7 @@ PAGER_PATTERN = (
 )
 
 
-class SqlalchemyOrmPage(Page):
-    """A pagination page that deals with SQLAlchemy ORM objects."""
-    def __init__(self,
-                 collection: Query,
-                 page: int = 1,
-                 items_per_page: int = 20,
-                 item_count: int = None,
-                 url_maker: Callable[[int], str] = None,
-                 **kwargs) -> None:
-        # Since views may accidentally throw strings our way:
-        assert isinstance(page, int)
-        assert isinstance(items_per_page, int)
-        assert isinstance(item_count, int) or item_count is None
-        super().__init__(
-            collection=collection,
-            page=page,
-            items_per_page=items_per_page,
-            item_count=item_count,
-            wrapper_class=SqlalchemyOrmQueryWrapper,
-            url_maker=url_maker,
-            **kwargs
-        )
-
+class CamcopsPage(Page):
     # noinspection PyShadowingBuiltins
     def pager(self,
               format: str = PAGER_PATTERN,
@@ -891,7 +898,7 @@ class SqlalchemyOrmPage(Page):
         link_attr = link_attr or {}  # type: Dict[str, str]
         curpage_attr = curpage_attr or {}  # type: Dict[str, str]
         # dotdot_attr = dotdot_attr or {}  # type: Dict[str, str]
-        dotdot_attr = dotdot_attr or {'class':'pager_dotdot'}  # our default!
+        dotdot_attr = dotdot_attr or {'class': 'pager_dotdot'}  # our default!
         return super().pager(
             format=format,
             url=url,
@@ -905,6 +912,30 @@ class SqlalchemyOrmPage(Page):
             curpage_attr=curpage_attr,
             dotdot_attr=dotdot_attr,
             link_tag=link_tag,
+        )
+
+
+class SqlalchemyOrmPage(CamcopsPage):
+    """A pagination page that deals with SQLAlchemy ORM objects."""
+    def __init__(self,
+                 collection: Query,
+                 page: int = 1,
+                 items_per_page: int = DEFAULT_ROWS_PER_PAGE,
+                 item_count: int = None,
+                 url_maker: Callable[[int], str] = None,
+                 **kwargs) -> None:
+        # Since views may accidentally throw strings our way:
+        assert isinstance(page, int)
+        assert isinstance(items_per_page, int)
+        assert isinstance(item_count, int) or item_count is None
+        super().__init__(
+            collection=collection,
+            page=page,
+            items_per_page=items_per_page,
+            item_count=item_count,
+            wrapper_class=SqlalchemyOrmQueryWrapper,
+            url_maker=url_maker,
+            **kwargs
         )
 
 

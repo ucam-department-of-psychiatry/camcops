@@ -63,31 +63,37 @@ FK_COMMENT = "FK to parent table"
 # DiagnosisBase
 # =============================================================================
 
-class DiagnosisItemBase(GenericTabletRecordMixin):
+class DiagnosisItemBase(GenericTabletRecordMixin, Base):
+    __abstract__ = True
+
+    # noinspection PyMethodParameters
     @declared_attr
-    def seqnum(self) -> Column:
+    def seqnum(cls) -> Column:
         return Column(
             "seqnum", Integer,
             nullable=False,
             comment="Sequence number"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def code(self) -> Column:
+    def code(cls) -> Column:
         return Column(
             "code", DiagnosticCodeColType,
             comment="Diagnostic code"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def description(self) -> Column:
+    def description(cls) -> Column:
         return Column(
             "description", UnicodeText,
             comment="Description of the diagnostic code"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def comment(self) -> Column:
+    def comment(cls) -> Column:
         return Column(  # new in v2.0.0
             "comment", UnicodeText,
             comment="Clinician's comment"
@@ -112,8 +118,11 @@ class DiagnosisItemBase(GenericTabletRecordMixin):
 
 
 class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+    __abstract__ = True
+
+    # noinspection PyMethodParameters
     @declared_attr
-    def relates_to_date(self) -> Column:
+    def relates_to_date(cls) -> Column:
         return Column(  # new in v2.0.0
             "relates_to_date", DateTime,
             comment="Date that diagnoses relate to"
@@ -189,7 +198,7 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 # DiagnosisIcd10
 # =============================================================================
 
-class DiagnosisIcd10Item(DiagnosisItemBase, Base):
+class DiagnosisIcd10Item(DiagnosisItemBase):
     __tablename__ = "diagnosis_icd10_item"
 
     diagnosis_icd10_id = Column(
@@ -199,8 +208,7 @@ class DiagnosisIcd10Item(DiagnosisItemBase, Base):
     )
 
 
-class DiagnosisIcd10(DiagnosisBase, Base):
-    # Inheritance order crucial (search is from left to right)
+class DiagnosisIcd10(DiagnosisBase):
     __tablename__ = "diagnosis_icd10"
 
     items = ancillary_relationship(
@@ -221,7 +229,7 @@ class DiagnosisIcd10(DiagnosisBase, Base):
 # DiagnosisIcd9CM
 # =============================================================================
 
-class DiagnosisIcd9CMItem(DiagnosisItemBase, Base):
+class DiagnosisIcd9CMItem(DiagnosisItemBase):
     __tablename__ = "diagnosis_icd9cm_item"
 
     diagnosis_icd9cm_id = Column(
@@ -231,7 +239,7 @@ class DiagnosisIcd9CMItem(DiagnosisItemBase, Base):
     )
 
 
-class DiagnosisIcd9CM(DiagnosisBase, Base):
+class DiagnosisIcd9CM(DiagnosisBase):
     __tablename__ = "diagnosis_icd9cm"
 
     items = ancillary_relationship(

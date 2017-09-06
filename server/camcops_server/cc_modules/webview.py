@@ -111,14 +111,12 @@ import codecs
 import collections
 import datetime
 import io
-import lockfile
 import logging
 import typing
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 import zipfile
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE, WSGI_TUPLE_TYPE
 from deform.exception import ValidationFailure
@@ -144,8 +142,6 @@ from .cc_constants import (
     DATEFORMAT,
     PARAM,
     RESTRICTED_WARNING,
-    TASK_LIST_FOOTER,
-    TASK_LIST_HEADER,
     VALUE,
 )
 from .cc_blob import Blob
@@ -182,13 +178,17 @@ from .cc_policy import (
     id_policies_valid,
 )
 from .cc_pyramid import (
+    CamcopsPage,
     HttpMethod,
     PageUrl,
+    PdfResponse,
     Permission,
     Routes,
     SqlalchemyOrmPage,
     SUBMIT,
+    ViewArg,
     ViewParam,
+    XmlResponse,
 )
 from .cc_report import (
     offer_individual_report,
@@ -206,8 +206,8 @@ from .cc_task import (
     gen_tasks_using_patient,
     get_url_task_html,
     Task,
-    task_factory,
 )
+from .cc_taskfactory import task_factory, TaskCollection
 from .cc_tracker import ClinicalTextView, Tracker
 from .cc_unittest import unit_test_ignore
 from .cc_user import (
@@ -229,6 +229,7 @@ from .forms import (
     AuditTrailForm,
     ChangeOtherPasswordForm,
     ChangeOwnPasswordForm,
+    DEFAULT_ROWS_PER_PAGE,
     get_head_form_html,
     HL7MessageLogForm,
     HL7RunLogForm,
@@ -247,6 +248,8 @@ WSGI_TUPLE_TYPE_WITH_STATUS = Tuple[str, HEADERS_TYPE, bytes, str]
 # Constants
 # =============================================================================
 
+ALLOWED_TASK_VIEW_TYPES = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML,
+                           ViewArg.XML]
 AFFECTED_TASKS_HTML = "<h1>Affected tasks:</h1>"
 CANNOT_DUMP = "User not authorized to dump data/regenerate summary tables."
 CANNOT_REPORT = "User not authorized to run reports."
@@ -259,12 +262,6 @@ INTROSPECTION_FAILED_MSG = "Failed to read file for introspection"
 MISSING_PARAMETERS_MSG = "Missing parameters"
 ERROR_TASK_LIVE = (
     "Task is live on tablet; finalize (or force-finalize) first.")
-NOT_ALL_PATIENTS_UNFILTERED_WARNING = """
-    <div class="explanation">
-        Your user isn’t configured to view all patients’ records when no
-        patient filters are applied. Only anonymous records will be
-        shown. Choose a patient to see their records.
-    </div>"""
 
 
 # =============================================================================
@@ -650,135 +647,48 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
 # Tasks
 # =============================================================================
 
-# noinspection PyUnusedLocal
-def view_tasks(session: CamcopsSession, form: cgi.FieldStorage) -> str:
+@view_config(route_name=Routes.VIEW_TASKS, renderer="view_tasks.mako")
+def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
     """HTML displaying tasks and applicable filters."""
+    ccsession = req.camcops_session
 
-    # Which tasks to view?
-    first = session.get_first_task_to_view()
-    n_to_view = session.number_to_view  # may be None
-    if n_to_view is None:
-        last = None
-    else:
-        last = first + n_to_view - 1
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                      DEFAULT_ROWS_PER_PAGE)
+    page_num = req.get_int_param(ViewParam.PAGE, 1)
 
-    # Get the tasks (which, in the process, tells us how many there are; we
-    # use a generator rather than a giant list to save memory).
-    task_rows = ""
-    ntasks = 0
-    for task in gen_tasks_matching_session_filter(session):
-        ntasks += 1
-        tasknum = ntasks - 1
-        if tasknum >= first and (last is None or tasknum <= last):
-            task_rows += "<!-- task {} -->\n".format(tasknum)
-            task_rows += task.get_task_list_row()
+    # In principle, for some filter settings (single task, no "complete"
+    # preference...) we could produce an ORM query and use SqlalchemyOrmPage,
+    # which would apply LIMIT/OFFSET (or equivalent) to the query, and be
+    # very nippy. In practice, this is probably an unusual setting, so we'll
+    # simplify things here with a Python list regardless of the settings.
 
-    # Output parts
-    npages = session.get_npages(ntasks)
-    currentpage = session.get_current_page()
-    if currentpage == 1:
-        nav_first = "First"
-        nav_previous = "Previous"
-    else:
-        nav_first = """<a href="{}">First</a>""".format(
-            get_generic_action_url(ACTION.FIRST_PAGE)
-        )
-        nav_previous = """<a href="{}">Previous</a>""".format(
-            get_generic_action_url(ACTION.PREVIOUS_PAGE)
-        )
-    if currentpage >= npages:
-        nav_next = "Next"
-        nav_last = "Last"
-    else:
-        nav_next = """<a href="{}">Next</a>""".format(
-            get_url_next_page(ntasks)
-        )
-        nav_last = """<a href="{}">Last</a>""".format(
-            get_url_last_page(ntasks)
-        )
-    page_navigation = """
-        <div><b>Page {}</b> of {} ({} tasks found) [ {} | {} | {} | {} ]</div>
-    """.format(
-        currentpage,
-        npages,
-        ntasks,
-        nav_first,
-        nav_previous,
-        nav_next,
-        nav_last,
-    )
+    collection = TaskCollection(req, restrict_by_session_filter=True)
+    page = CamcopsPage(collection=collection.all_tasks,
+                       page=page_num,
+                       items_per_page=rows_per_page,
+                       url_maker=PageUrl(req))
 
-    if session.restricted_to_viewing_user():
-        warn_restricted = RESTRICTED_WARNING
-    else:
-        warn_restricted = ""
-    if (not session.user_may_view_all_patients_when_unfiltered() and
-            not session.any_specific_patient_filtering()):
-        warn_other_pts = NOT_ALL_PATIENTS_UNFILTERED_WARNING
-    else:
-        warn_other_pts = ""
-
-    if ntasks == 0:
-        info_no_tasks = ("""
-            <div class="important">
-                No tasks found for your search criteria!
-            </div>
-        """)
-    else:
-        info_no_tasks = ""
-
-    refresh_tasks_button = """
-        <form class="filter" method="POST" action="{script}">
-            <input type="hidden" name="{PARAM.ACTION}"
-                value="{ACTION.VIEW_TASKS}">
-            <input type="submit" value="Refresh">
-        </form>
-    """.format(
-        script=pls.SCRIPT_NAME,
-        PARAM=PARAM,
-        ACTION=ACTION,
-    )
+    # refresh_tasks_button = """
+    #     <form class="filter" method="POST" action="{script}">
+    #         <input type="hidden" name="{PARAM.ACTION}"
+    #             value="{ACTION.VIEW_TASKS}">
+    #         <input type="submit" value="Refresh">
+    #     </form>
+    # """.format(
+    #     script=pls.SCRIPT_NAME,
+    #     PARAM=PARAM,
+    #     ACTION=ACTION,
+    # )
     # http://stackoverflow.com/questions/2906582/how-to-create-an-html-button-that-acts-like-a-link  # noqa
 
-    return pls.WEBSTART + """
-        {user}
-        <h1>View tasks</h1>
-        {warn_restricted}
-        {warn_other_pts}
-
-        <h2>Filters (criteria)</h2>
-        <div class="filter">
-            {current_filters}
-        </div>
-
-        <h2>Number of tasks to view per page</h2>
-        <div class="filter">
-            {number_to_view_selector}
-        </div>
-
-        <h2>Tasks</h2>
-        <div class="filter">
-            {refresh_tasks_button}
-        </div>
-        {page_nav}
-        {task_list_header_table_start}
-        {task_rows}
-        {task_list_footer}
-        {info_no_tasks}
-        {page_nav}
-    """.format(
-        user=session.get_current_user_html(),
-        warn_restricted=warn_restricted,
-        warn_other_pts=warn_other_pts,
-        current_filters=session.get_current_filter_html(),
-        number_to_view_selector=session.get_number_to_view_selector(),
-        refresh_tasks_button=refresh_tasks_button,
-        page_nav=page_navigation,
-        task_list_header_table_start=TASK_LIST_HEADER,
-        task_rows=task_rows,
-        task_list_footer=TASK_LIST_FOOTER,
-        info_no_tasks=info_no_tasks,
-    ) + WEBEND
+    return dict(
+        page=page,
+        head_form_html="", # ***
+        no_patient_selected_and_user_restricted=(
+            not ccsession.user_may_view_all_patients_when_unfiltered() and
+            not ccsession.any_specific_patient_filtering()
+        ),
+    )
 
 
 def change_number_to_view(session: CamcopsSession, form: cgi.FieldStorage) -> str:
@@ -817,65 +727,56 @@ def last_page(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     return view_tasks(session, form)
 
 
-def serve_task(session: CamcopsSession, form: cgi.FieldStorage) \
-        -> Union[str, WSGI_TUPLE_TYPE]:
+@view_config(route_name=Routes.TASK)
+def serve_task(req: CamcopsRequest) -> Response:
     """Serves an individual task."""
+    viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML, lower=True)
+    tablename = req.get_str_param(ViewParam.TABLENAME)
+    server_pk = req.get_int_param(ViewParam.SERVER_PK)
+    anonymise = req.get_bool_param(ViewParam.ANONYMISE, False)
 
-    outputtype = ws.get_cgi_parameter_str(form, PARAM.OUTPUTTYPE)
-    if outputtype is not None:
-        outputtype = outputtype.lower()
-    tablename = ws.get_cgi_parameter_str(form, PARAM.TABLENAME)
-    serverpk = ws.get_cgi_parameter_int(form, PARAM.SERVERPK)
-    anonymise = ws.get_cgi_parameter_bool_or_default(form, PARAM.ANONYMISE,
-                                                     False)
-    allowed_types = [VALUE.OUTPUTTYPE_PDF,
-                     VALUE.OUTPUTTYPE_HTML,
-                     VALUE.OUTPUTTYPE_PDFHTML,
-                     VALUE.OUTPUTTYPE_XML]
-    if outputtype not in allowed_types:
-        return fail_with_error_stay_logged_in(
-            "Task: outputtype must be one of {}".format(
-                str(allowed_types)
-            )
-        )
-    task = task_factory(tablename, serverpk)
+    if viewtype not in ALLOWED_TASK_VIEW_TYPES:
+        raise exc.HTTPBadRequest(
+            "Bad output type: {!r} (permissible: {!r}".format(
+                viewtype, ALLOWED_TASK_VIEW_TYPES))
+
+    task = task_factory(req, tablename, server_pk)
+
     if task is None:
-        return fail_task_not_found()
-    # Is the user restricted so they can't see this particular one?
-    if (session.restricted_to_viewing_user() is not None and
-            session.restricted_to_viewing_user() != task.get_adding_user_id()):
-        return fail_not_authorized_for_task()
-    task.audit("Viewed " + outputtype.upper())
-    if anonymise:
-        # This is for testing.
-        task.anonymise()
-    if outputtype == VALUE.OUTPUTTYPE_PDF:
-        filename = task.suggested_pdf_filename()
-        return ws.pdf_result(task.get_pdf(), [], filename)
-    elif outputtype == VALUE.OUTPUTTYPE_HTML:
-        return task.get_html(
-            offer_add_note=session.authorized_to_add_special_note(),
-            offer_erase=session.authorized_as_superuser(),
-            offer_edit_patient=session.authorized_as_superuser()
+        raise exc.HTTPBadRequest(
+            "Task not found or not permitted: tablename={!r}, "
+            "server_pk={!r}".format(tablename, server_pk))
+
+    task.audit(req, "Viewed " + viewtype.upper())
+
+    if viewtype == ViewArg.HTML:
+        return Response(
+            task.get_html(req=req, anonymise=anonymise)
         )
-    elif outputtype == VALUE.OUTPUTTYPE_PDFHTML:  # debugging option
-        return task.get_pdf_html()
-    elif outputtype == VALUE.OUTPUTTYPE_XML:
-        include_blobs = ws.get_cgi_parameter_bool_or_default(
-            form, PARAM.INCLUDE_BLOBS, default=True)
-        include_calculated = ws.get_cgi_parameter_bool_or_default(
-            form, PARAM.INCLUDE_CALCULATED, default=True)
-        include_patient = ws.get_cgi_parameter_bool_or_default(
-            form, PARAM.INCLUDE_PATIENT, default=True)
-        include_comments = ws.get_cgi_parameter_bool_or_default(
-            form, PARAM.INCLUDE_COMMENTS, default=True)
-        return ws.xml_result(
-            task.get_xml(include_blobs=include_blobs,
+    elif viewtype == ViewArg.PDF:
+        return PdfResponse(
+            content=task.get_pdf(req),
+            filename=task.suggested_pdf_filename()
+        )
+    elif viewtype == VALUE.OUTPUTTYPE_PDFHTML:  # debugging option
+        return Response(
+            task.get_pdf_html(req)
+        )
+    elif viewtype == VALUE.OUTPUTTYPE_XML:
+        include_blobs = req.get_bool_param(ViewParam.INCLUDE_BLOBS, True)
+        include_calculated = req.get_bool_param(ViewParam.INCLUDE_CALCULATED,
+                                                True)
+        include_patient = req.get_bool_param(ViewParam.INCLUDE_PATIENT, True)
+        include_comments = req.get_bool_param(ViewParam.INCLUDE_COMMENTS, True)
+        return XmlResponse(
+            task.get_xml(req=req,
+                         include_blobs=include_blobs,
                          include_calculated=include_calculated,
                          include_patient=include_patient,
-                         include_comments=include_comments))
+                         include_comments=include_comments)
+        )
     else:
-        raise AssertionError("ACTION.TASK: Invalid outputtype")
+        assert False, "Bug in logic above"
 
 
 # =============================================================================
@@ -1685,7 +1586,8 @@ AUDIT_TRUNCATE_AT = 100
 @view_config(route_name=Routes.VIEW_AUDIT_TRAIL,
              permission=Permission.SUPERUSER)
 def view_audit_trail(req: CamcopsRequest) -> Response:
-    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE, 25)
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                      DEFAULT_ROWS_PER_PAGE)
     start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
     end_datetime = req.get_datetime_param(ViewParam.END_DATETIME)
     source = req.get_str_param(ViewParam.SOURCE, None)
@@ -1694,7 +1596,7 @@ def view_audit_trail(req: CamcopsRequest) -> Response:
     table_name = req.get_str_param(ViewParam.TABLENAME, None)
     server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
     truncate = req.get_bool_param(ViewParam.TRUNCATE, True)
-    page = req.get_int_param(ViewParam.PAGE, 1)
+    page_num = req.get_int_param(ViewParam.PAGE, 1)
 
     conditions = []  # type: List[str]
 
@@ -1733,7 +1635,7 @@ def view_audit_trail(req: CamcopsRequest) -> Response:
     # audit_entries = q.all()
     # ... yes! But let's paginate, too:
     page = SqlalchemyOrmPage(collection=q,
-                             page=page,
+                             page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req))
     return render_to_response("audit_trail_view.mako",
@@ -1784,13 +1686,14 @@ def offer_hl7_message_log(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.VIEW_HL7_MESSAGE_LOG,
              permission=Permission.SUPERUSER)
 def view_hl7_message_log(req: CamcopsRequest) -> Response:
-    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE, 25)
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                      DEFAULT_ROWS_PER_PAGE)
     table_name = req.get_str_param(ViewParam.TABLENAME, None)
     server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
     hl7_run_id = req.get_int_param(ViewParam.HL7_RUN_ID, None)
     start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
     end_datetime = req.get_datetime_param(ViewParam.END_DATETIME)
-    page = req.get_int_param(ViewParam.PAGE, 1)
+    page_num = req.get_int_param(ViewParam.PAGE, 1)
 
     conditions = []  # type: List[str]
 
@@ -1818,7 +1721,7 @@ def view_hl7_message_log(req: CamcopsRequest) -> Response:
     q = q.order_by(desc(HL7Message.msg_id))
 
     page = SqlalchemyOrmPage(collection=q,
-                             page=page,
+                             page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req))
     return render_to_response("hl7_message_log_view.mako",
@@ -1881,11 +1784,12 @@ def offer_hl7_run_log(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.VIEW_HL7_RUN_LOG,
              permission=Permission.SUPERUSER)
 def view_hl7_run_log(req: CamcopsRequest) -> Response:
-    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE, 25)
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                      DEFAULT_ROWS_PER_PAGE)
     hl7_run_id = req.get_int_param(ViewParam.HL7_RUN_ID, None)
     start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
     end_datetime = req.get_datetime_param(ViewParam.END_DATETIME)
-    page = req.get_int_param(ViewParam.PAGE, 1)
+    page_num = req.get_int_param(ViewParam.PAGE, 1)
 
     conditions = []  # type: List[str]
 
@@ -1907,7 +1811,7 @@ def view_hl7_run_log(req: CamcopsRequest) -> Response:
     q = q.order_by(desc(HL7Run.run_id))
 
     page = SqlalchemyOrmPage(collection=q,
-                             page=page,
+                             page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req))
     return render_to_response("hl7_run_log_view.mako",

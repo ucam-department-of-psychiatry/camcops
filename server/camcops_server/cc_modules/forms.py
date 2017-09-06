@@ -27,7 +27,10 @@ from pprint import pformat
 from typing import Any, Dict, List
 import unittest
 
-from cardinal_pythonlib.logs import BraceStyleAdapter, main_only_quicksetup_rootlogger  # noqa
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 from colander import (
     Boolean,
     DateTime,
@@ -48,14 +51,22 @@ from deform.widget import (
     PasswordWidget,
 )
 
+from .cc_constants import DEFAULT_ROWS_PER_PAGE
 from .cc_pyramid import SUBMIT, ViewParam
 from .cc_request import CamcopsRequest, command_line_request
 from .cc_user import MINIMUM_PASSWORD_LENGTH
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
+# =============================================================================
+# Debugging options
+# =============================================================================
+
 DEBUG_CSRF_CHECK = False
 DEBUG_FORM_VALIDATION = False
+
+if DEBUG_CSRF_CHECK or DEBUG_FORM_VALIDATION:
+    log.warning("Debugging options enabled!")
 
 
 # =============================================================================
@@ -106,7 +117,7 @@ class InformativeForm(Form):
         except ValidationFailure as e:
             if DEBUG_FORM_VALIDATION:
                 log.critical("Validation failure: {!r}; {}",
-                         e, self._get_form_errors())
+                             e, self._get_form_errors())
             self._show_hidden_widgets_for_fields_with_errors(self)
             raise
 
@@ -365,13 +376,10 @@ class OfferTermsForm(InformativeForm):
 # View audit trail
 # =============================================================================
 
-DEFAULT_AUDIT_ROWS_PER_PAGE = 25
-
-
 class AuditTrailSchema(CSRFSchema):
     rows_per_page = SchemaNode(  # must match ViewParam.ROWS_PER_PAGE
         Integer(),
-        default=DEFAULT_AUDIT_ROWS_PER_PAGE,
+        default=DEFAULT_ROWS_PER_PAGE,
         title="Number of entries to show per page",
     )
     start_datetime = SchemaNode(  # must match ViewParam.START_DATETIME
@@ -436,7 +444,7 @@ class AuditTrailForm(InformativeForm):
 class HL7MessageLogSchema(CSRFSchema):
     rows_per_page = SchemaNode(  # must match ViewParam.ROWS_PER_PAGE
         Integer(),
-        default=DEFAULT_AUDIT_ROWS_PER_PAGE,
+        default=DEFAULT_ROWS_PER_PAGE,
         title="Number of entries to show per page",
     )
     table_name = SchemaNode(  # must match ViewParam.TABLENAME
@@ -483,7 +491,7 @@ class HL7MessageLogForm(InformativeForm):
 class HL7RunLogSchema(CSRFSchema):
     rows_per_page = SchemaNode(  # must match ViewParam.ROWS_PER_PAGE
         Integer(),
-        default=DEFAULT_AUDIT_ROWS_PER_PAGE,
+        default=DEFAULT_ROWS_PER_PAGE,
         title="Number of entries to show per page",
     )
     hl7_run_id = SchemaNode(  # must match ViewParam.HL7_RUN_ID

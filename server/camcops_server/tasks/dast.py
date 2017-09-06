@@ -92,7 +92,7 @@ class DastMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Dast(TaskHasPatientMixin, Task, Base,
+class Dast(TaskHasPatientMixin, Task,
            metaclass=DastMetaclass):
     __tablename__ = "dast"
     shortname = "DAST"
@@ -167,9 +167,9 @@ class Dast(TaskHasPatientMixin, Task, Base,
         h += tr(req.wappstring("total_score"),
                 answer(score) + " / {}".format(self.NQUESTIONS))
         h += tr_qa(self.wxstring(req, "exceeds_standard_cutoff_1"),
-                   get_yes_no(exceeds_cutoff_1))
+                   get_yes_no(req, exceeds_cutoff_1))
         h += tr_qa(self.wxstring(req, "exceeds_standard_cutoff_2"),
-                   get_yes_no(exceeds_cutoff_2))
+                   get_yes_no(req, exceeds_cutoff_2))
         h += """
                 </table>
             </div>

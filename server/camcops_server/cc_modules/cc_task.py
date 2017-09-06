@@ -52,16 +52,19 @@ from cardinal_pythonlib.lists import flatten_list
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.rnc_db import DatabaseSupporter, FIELDSPECLIST_TYPE
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
-from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
+from cardinal_pythonlib.sqlalchemy.core_query import (
+    get_rows_fieldnames_from_raw_sql,
+)
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 import hl7
+from pyramid.renderers import render
 from semantic_version import Version
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
+from sqlalchemy.sql.elements import literal
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
@@ -122,13 +125,14 @@ from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
 from .cc_pdf import pdf_from_html
 from .cc_plot import set_matplotlib_fontsize
+from .cc_pyramid import ViewArg
 from .cc_recipdef import RecipientDefinition
 from .cc_report import Report, REPORT_RESULT_TYPE
 from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
     CamcopsColumn,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
     get_column_attr_names,
     get_camcops_blob_column_attr_names,
     permitted_value_failure_msgs,
@@ -177,8 +181,9 @@ TASK_FWD_REF = "Task"
 class TaskHasPatientMixin(object):
     # http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html#using-advanced-relationship-arguments-e-g-primaryjoin-etc  # noqa
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def patient_id(self) -> Column:
+    def patient_id(cls) -> Column:
         return Column(
             "patient_id", Integer,
             nullable=False, index=True,
@@ -204,41 +209,15 @@ class TaskHasPatientMixin(object):
             viewonly=True,
             lazy="joined"
         )
+        # NOTE: this retrieves the most recent (i.e. the current) information
+        # on that patient. Consequently, task version history doesn't show the
+        # history of patient edits. This is consistent with our relationship
+        # strategy throughout for the web front-end viewer.
 
     # noinspection PyMethodParameters
     @classproperty
     def has_patient(cls) -> bool:
         return True
-
-    # def __init__(self, *args, **kwargs) -> None:
-    #     self._patient = None
-    #     # noinspection PyArgumentList
-    #     super().__init__(*args, **kwargs)  # call next class in MRO
-    #
-    # @reconstructor
-    # def init_on_load(self) -> None:
-    #     self._patient = None
-    #
-    # # noinspection PyProtectedMember
-    # @property
-    # def patient(self) -> Optional[Patient]:
-    #     # This function refers to fields like _device_id that must be created
-    #     # by OTHER classes/mixins (specifically, GenericTabletRecordMixin).
-    #     if self._patient is None:
-    #         dbsession = SqlASession.object_session(self)  # type: SqlASession
-    #         q = dbsession.query(Patient)
-    #         q = q.filter(Patient.id == self.patient_id)
-    #         # noinspection PyUnresolvedReferences
-    #         q = q.filter(Patient._device_id == self._device_id)
-    #         # noinspection PyUnresolvedReferences
-    #         q = q.filter(Patient._era == self._era)
-    #         q = q.filter(Patient._current == True)  # noqa
-    #
-    #         self._patient = q.first()  # type: Optional[Patient]
-    #     # NOTE: this retrieves the most recent (i.e. the current) information
-    #     # on that patient. Consequently, task version history doesn't show the
-    #     # history of patient edits.
-    #     return self._patient
 
 
 # =============================================================================
@@ -250,8 +229,9 @@ class TaskHasClinicianMixin(object):
     Mixin to add clinician columns and override clinician-related methods.
     Must be to the LEFT of Task in the class's base class list.
     """
+    # noinspection PyMethodParameters
     @declared_attr
-    def clinician_specialty(self) -> Column:
+    def clinician_specialty(cls) -> Column:
         return CamcopsColumn(
             "clinician_specialty", Text,
             exempt_from_anonymisation=True,
@@ -259,32 +239,36 @@ class TaskHasClinicianMixin(object):
                     "(e.g. Liaison Psychiatry)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def clinician_name(self) -> Column:
+    def clinician_name(cls) -> Column:
         return CamcopsColumn(
             "clinician_name", Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's name (e.g. Dr X)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def clinician_professional_registration(self) -> Column:
+    def clinician_professional_registration(cls) -> Column:
         return Column(
             "clinician_professional_registration", Text,
             comment="(CLINICIAN) Clinician's professional registration (e.g. "
                     "GMC# 12345)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def clinician_post(self) -> Column:
+    def clinician_post(cls) -> Column:
         return CamcopsColumn(
             "clinician_post", Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's post (e.g. Consultant)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def clinician_service(self) -> Column:
+    def clinician_service(cls) -> Column:
         return CamcopsColumn(
             "clinician_service", Text,
             exempt_from_anonymisation=True,
@@ -292,8 +276,9 @@ class TaskHasClinicianMixin(object):
                     "Service)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def clinician_contact_details(self) -> Column:
+    def clinician_contact_details(cls) -> Column:
         return CamcopsColumn(
             "clinician_contact_details", Text,
             exempt_from_anonymisation=True,
@@ -312,48 +297,6 @@ class TaskHasClinicianMixin(object):
     def get_clinician_name(self) -> str:
         return self.clinician_name
 
-    def get_standard_clinician_block(self) -> str:
-        html = """
-            <div class="clinician">
-                <table class="taskdetail">
-                    <tr>
-                        <td width="50%">Clinician’s specialty:</td>
-                        <td width="50%"><b>{}</b></td>
-                    </tr>
-                    <tr>
-                        <td>Clinician’s name:</td>
-                        <td><b>{}</b></td>
-                    </tr>
-                    <tr>
-                        <td>Clinician’s professional registration:</td>
-                        <td><b>{}</b></td>
-                    </tr>
-                    <tr>
-                        <td>Clinician’s post:</td>
-                        <td><b>{}</b></td>
-                    </tr>
-                    <tr>
-                        <td>Clinician’s service:</td>
-                        <td><b>{}</b></td>
-                    </tr>
-                    <tr>
-                        <td>Clinician’s contact details:</td>
-                        <td><b>{}</b></td>
-                    </tr>
-        """.format(
-            ws.webify(self.clinician_specialty),
-            ws.webify(self.clinician_name),
-            ws.webify(self.clinician_professional_registration),
-            ws.webify(self.clinician_post),
-            ws.webify(self.clinician_service),
-            ws.webify(self.clinician_contact_details),
-        )
-        html += """
-                </table>
-            </div>
-        """
-        return html
-
 
 # =============================================================================
 # Respondent mixin
@@ -367,16 +310,18 @@ class TaskHasRespondentMixin(object):
     If you don't use declared_attr, the "comment" property doesn't work.
     """
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def respondent_name(self) -> Column:
+    def respondent_name(cls) -> Column:
         return CamcopsColumn(
             "respondent_name", Text,
             identifies_patient=True,
             comment="(RESPONDENT) Respondent's name"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def respondent_relationship(self) -> Column:
+    def respondent_relationship(cls) -> Column:
         return Column(
             "respondent_relationship", Text,
             comment="(RESPONDENT) Respondent's relationship to patient"
@@ -390,31 +335,12 @@ class TaskHasRespondentMixin(object):
     def is_respondent_complete(self) -> bool:
         return self.respondent_name and self.respondent_relationship
 
-    def get_standard_respondent_block(self) -> str:
-        return """
-            <div class="respondent">
-                <table class="taskdetail">
-                    <tr>
-                        <td width="50%">Respondent’s name:</td>
-                        <td width="50%"><b>{name}</b></td>
-                    </tr>
-                    <tr>
-                        <td>Respondent’s relationship to patient:</td>
-                        <td><b>{relationship}</b></td>
-                    </tr>
-                </table>
-            </div>
-        """.format(
-            name=ws.webify(self.respondent_name),
-            relationship=ws.webify(self.respondent_relationship),
-        )
-
 
 # =============================================================================
 # Task base class
 # =============================================================================
 
-class Task(GenericTabletRecordMixin):
+class Task(GenericTabletRecordMixin, Base):
     """
     Abstract base class for all tasks.
 
@@ -452,46 +378,61 @@ class Task(GenericTabletRecordMixin):
                     },
                 ]
     """
+    __abstract__ = True
+
+    # noinspection PyMethodParameters
+    @declared_attr
+    def __mapper_args__(cls):
+        return {
+            'polymorphic_identity': cls.__name__,
+            'concrete': True,
+        }
 
     # =========================================================================
     # PART 0: COLUMNS COMMON TO ALL TASKS
     # =========================================================================
 
     # Columns
+
+    # noinspection PyMethodParameters
     @declared_attr
-    def when_created(self) -> Column:
+    def when_created(cls) -> Column:
         return Column(
-            "when_created", DateTimeAsIsoTextColType,
+            "when_created", ArrowDateTimeAsIsoTextColType,
             nullable=False,
             comment="(TASK) Date/time this task instance was created (ISO 8601)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def when_firstexit(self) -> Column:
+    def when_firstexit(cls) -> Column:
         return Column(
-            "when_firstexit", DateTimeAsIsoTextColType,
+            "when_firstexit", ArrowDateTimeAsIsoTextColType,
             comment="(TASK) Date/time of the first exit from this task "
                     "(ISO 8601)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def firstexit_is_finish(self) -> Column:
+    def firstexit_is_finish(cls) -> Column:
         return Column(
             "firstexit_is_finish", Boolean,
             comment="(TASK) Was the first exit from the task because it was "
                     "finished (1)?"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def firstexit_is_abort(self) -> Column:
+    def firstexit_is_abort(cls) -> Column:
         return Column(
             "firstexit_is_abort", Boolean,
             comment="(TASK) Was the first exit from this task because it was "
                     "aborted (1)?"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def editing_time_s(self) -> Column:
+    def editing_time_s(cls) -> Column:
         return Column(
             "editing_time_s", Float,
             comment="(TASK) Time spent editing (s)"
@@ -506,13 +447,13 @@ class Task(GenericTabletRecordMixin):
             SpecialNote,
             primaryjoin=(
                 "and_("
-                " remote(SpecialNote.basetable) == {task_tablename}, "
+                " remote(SpecialNote.basetable) == literal({repr_task_tablename}), "  # noqa
                 " remote(SpecialNote.task_id) == foreign({task}.id), "
                 " remote(SpecialNote.device_id) == foreign({task}._device_id), "  # noqa
                 " remote(SpecialNote.era) == foreign({task}._era) "
                 ")".format(
                     task=cls.__name__,
-                    task_tablename=cls.__tablename__,
+                    repr_task_tablename=repr(cls.__tablename__),
                 )
             ),
             uselist=True,
@@ -719,12 +660,6 @@ class Task(GenericTabletRecordMixin):
     # Other potential overrides
     # -------------------------------------------------------------------------
 
-    # noinspection PyMethodMayBeStatic
-    def anonymise_subtables(self, regexes: List[typing.re.Pattern]) -> None:
-        """Anonymise non-core tables. Override if your task provides extra
-        tables that might contain patient-identifiable information."""
-        pass
-
     @classmethod
     def unit_tests(cls) -> None:
         """Perform unit tests on the task.
@@ -742,7 +677,7 @@ class Task(GenericTabletRecordMixin):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def all_subclasses(cls) -> List[Type[TASK_FWD_REF]]:
+    def gen_all_subclasses(cls) -> Generator[Type[TASK_FWD_REF], None, None]:
         """
         We require that actual tasks are subclasses of both Task and Base
 
@@ -751,24 +686,29 @@ class Task(GenericTabletRecordMixin):
         intermediate classes appear in the task list. Since all actual classes
         must be SQLAlchemy ORM objects inheriting from Base, that common
         inheritance is an excellent way to define them.
+
+        ... CHANGED: things now inherit from Base/Task without necessarily
+        being actual tasks; we discriminate using __abstract__ and/or
+        __tablename__.
         """
-        classes = []  # type: List[Type[TASK_FWD_REF]]
         for c in all_subclasses(cls):
-            if issubclass(c, Base):
-                classes.append(c)
-        return classes
+            # abstract = getattr(c, '__abstract__', False)
+            # nope! Also true of concrete subclasses of abstract classes.
+            abstract = not getattr(c, '__tablename__', None)
+            if not abstract:
+                yield c
 
     @classmethod
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
     def all_subclasses_by_tablename(cls) -> List[Type[TASK_FWD_REF]]:
-        classes = cls.all_subclasses()
+        classes = list(cls.gen_all_subclasses())
         classes.sort(key=lambda c: c.tablename)
         return classes
 
     @classmethod
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
     def all_subclasses_by_shortname(cls) -> List[Type[TASK_FWD_REF]]:
-        classes = cls.all_subclasses()
+        classes = list(cls.gen_all_subclasses())
         classes.sort(key=lambda c: c.shortname)
         return classes
 
@@ -878,38 +818,20 @@ class Task(GenericTabletRecordMixin):
         diff = end - start
         return diff.total_seconds()
 
-    @classmethod
-    def whencreated_field_iso8601(cls) -> str:
-        return "{}.when_created".format(cls.tablename)
-
-    @classmethod
-    def whencreated_fieldexpr_as_utc(cls, table_alias: str = '') -> str:
-        return cc_db.mysql_select_utc_date_field_from_iso8601_field(
-            "{}.when_created".format(table_alias or cls.tablename))
-
-    @classmethod
-    def whencreated_fieldexpr_as_local(cls) -> str:
-        return cc_db.mysql_select_local_date_field_from_iso8601_field(
-            "{}.when_created".format(cls.tablename))
-
     def get_adding_user_id(self) -> int:
         return self._adding_user_id
 
     def get_adding_user_username(self) -> str:
-        user = User(self._adding_user_id)
-        return user.username
+        return self._adding_user.username if self._adding_user else ""
 
     def get_removing_user_username(self) -> str:
-        user = User(self._removing_user_id)
-        return user.username
+        return self._removing_user.username if self._removing_user else ""
 
     def get_preserving_user_username(self) -> str:
-        user = User(self._preserving_user_id)
-        return user.username
+        return self._preserving_user.username if self._preserving_user else ""
 
     def get_manually_erasing_user_username(self) -> str:
-        user = User(self._manually_erasing_user_id)
-        return user.username
+        return self._manually_erasing_user.username if self._manually_erasing_user else ""  # noqa
 
     # -------------------------------------------------------------------------
     # Summary tables
@@ -1093,50 +1015,6 @@ class Task(GenericTabletRecordMixin):
             lines.append("{f}: {v!r}".format(f=f, v=getattr(self, f)))
         lines.append(line_equals)
         log.info("\n".join(lines))
-
-    # -------------------------------------------------------------------------
-    # Anonymisation
-    # -------------------------------------------------------------------------
-
-    def anonymise(self) -> None:
-        """Anonymises content. Does NOT write to database."""
-        if self.is_anonymous or not self.patient:
-            return
-
-        # What to wipe?
-        fieldspecs = self.get_full_fieldspecs()
-        literals = self.patient.get_literals_for_anonymisation()
-        literals = [str(x) for x in literals if x]  # remove blanks
-        datetimes = self.patient.get_dates_for_anonymisation()
-        datetimes = [x for x in datetimes if x]  # remove blanks
-        regexes = (
-            [get_literal_regex(x) for x in literals] +
-            [get_date_regex(dt) for dt in datetimes]
-        )
-
-        # Wipe the core fields
-        # General principle: numeric fields are generally fine (patient-related
-        # numeric fields are in the self.patient object instead); date/time
-        # fields in tasks are similarly usually fine; text fields
-        # need scrubbing; fields explicitly marked "anon" are exempt.
-        for fs in fieldspecs:
-            if fs.get("anon"):
-                # explicitly marked exempt from anonymisation
-                continue
-            fieldname = fs["name"]
-            v = getattr(self, fieldname)  # starting value
-            if not v or not isinstance(v, str):
-                # empty, or not a string
-                continue
-            for r in regexes:
-                v = r.sub(ANON_PATIENT, v)
-            setattr(self, fieldname, v)
-
-        # Anything else?
-        self.anonymise_subtables(regexes)
-
-        # Now wipe the patient information
-        self.patient.anonymise()
 
     # -------------------------------------------------------------------------
     # Special notes
@@ -1347,17 +1225,6 @@ class Task(GenericTabletRecordMixin):
               table=self.tablename,
               server_pk=self._pk,
               from_console=from_console)
-
-    # -------------------------------------------------------------------------
-    # Saving
-    # -------------------------------------------------------------------------
-
-    # def save(self):
-    #    """Saves task back to database. UNUSUAL."""
-    #    if self._pk is None:
-    #        return
-    #    pls.db.update_object_in_db(self, self.tablename,
-    #                               self.get_fields())
 
     # -------------------------------------------------------------------------
     # Erasure (wiping, leaving record as placeholder)
@@ -1601,123 +1468,6 @@ class Task(GenericTabletRecordMixin):
     # -------------------------------------------------------------------------
     # Fetching and filtering tasks for the task list
     # -------------------------------------------------------------------------
-
-    @classmethod
-    def get_session_candidate_task_pks_whencreated(
-            cls,
-            session: 'CamcopsSession',
-            sort: bool = False,
-            reverse: bool = False) -> List[Tuple[int, datetime.datetime]]:
-        """Get all current server PKs/creation dates for this task that are
-        likely to make it through the session filter.
-
-        Returns a list of [_pk, when_created] pairs.
-        """
-        table = cls.tablename
-        wcfield_utc = cls.whencreated_fieldexpr_as_utc(table_alias='t')
-        wheres = []  # type: List[str]
-        args = []
-        # in what follows: MySQL: case-insensitive comparison by default:
-        # http://dev.mysql.com/doc/refman/5.0/en/case-sensitivity.html
-        if cls.is_anonymous:
-            if session.any_patient_filtering():
-                # anonymous task + patient filtering: by definition, no results
-                return []
-            # anonymous, don't link to patient table, no patient filtering
-            query = """
-                SELECT t._pk, {wcfield_utc}
-                FROM {tasktable} AS t
-            """.format(
-                tasktable=table,
-                wcfield_utc=wcfield_utc
-            )
-            if not session.filter_include_old_versions:
-                wheres.append("_current")
-        elif (not session.user_may_view_all_patients_when_unfiltered() and
-                not session.any_specific_patient_filtering()):
-            # not anonymous; no patient filtering; user not authorized for all
-            # records under such circumstances
-            return []
-        else:
-            # not anonymous; link to patient table; patient filtering may apply
-            query = """
-                SELECT t._pk, {wcfield_utc}
-                FROM {tasktable} AS t
-                INNER JOIN {patienttable} AS p
-                    ON t.patient_id = p.id
-                    AND t._device_id = p._device_id
-                    AND t._era = p._era
-            """.format(
-                tasktable=table,
-                patienttable=Patient.TABLENAME,
-                wcfield_utc=wcfield_utc,
-            )
-            if not session.filter_include_old_versions:
-                wheres.append("t._current".format(t=table))
-                wheres.append("p._current")
-            if session.filter_surname is not None:
-                wheres.append("p.surname = ?")
-                args.append(session.filter_surname)
-            if session.filter_forename is not None:
-                wheres.append("p.forename = ?")
-                args.append(session.filter_forename)
-            if session.filter_dob_iso8601 is not None:
-                wheres.append("p.dob = ?")
-                args.append(session.filter_dob_iso8601)
-            if session.filter_sex is not None:
-                wheres.append("p.sex = ?")
-                args.append(session.filter_sex)
-            idnum_filters = session.get_idnum_filters()
-            if idnum_filters:
-                idwheres = []  # type: List[str]
-                for which_idnum, idnum_value in idnum_filters:
-                    idwheres.append("i.which_idnum = ? AND i.idnum_value = ?")
-                    args.append(which_idnum)
-                    args.append(idnum_value)
-                wheres.append(
-                    """
-                        EXISTS (
-                            SELECT * FROM {idnumtable} AS i
-                            WHERE i.patient_id = p.id
-                                AND i._device_id = p._device_id
-                                AND i._era = p._era
-                                AND ({idwheres})
-                                {current}
-                        )
-                    """.format(
-                        idnumtable=PatientIdNum.tablename,
-                        idwheres=" OR ".join("({})".format(x)
-                                             for x in idwheres),
-                        current=("AND i._current" if not
-                                 session.filter_include_old_versions else ""),
-                        # *** check, re if not everything is equally current
-                    )
-                )
-        # These restrictions can apply to anonymous and patient-oriented tasks
-        # alike:
-        if session.restricted_to_viewing_user() is not None:
-            wheres.append("t._adding_user_id = ?")
-            args.append(session.restricted_to_viewing_user())
-        if session.filter_device_id is not None:
-            wheres.append("t._device_id = ?")
-            args.append(session.filter_device_id)
-        start_datetime = session.get_filter_start_datetime()
-        end_datetime = session.get_filter_end_datetime_corrected_1day()
-        if start_datetime is not None:
-            wheres.append("{} >= ?".format(wcfield_utc))
-            args.append(start_datetime)
-        if end_datetime is not None:
-            wheres.append("{} <= ?".format(wcfield_utc))
-            args.append(end_datetime)
-
-        # Now build and run our query
-        if len(wheres) > 0:
-            query += " WHERE " + " AND ".join(wheres)
-        if sort:
-            query += " ORDER BY " + wcfield_utc
-            if reverse:
-                query += " DESC"
-        return pls.db.fetchall(query, *args)
 
     def allowed_to_user(self, session: 'CamcopsSession') -> bool:
         """Is the current user allowed to see this task?"""
@@ -2269,31 +2019,16 @@ class Task(GenericTabletRecordMixin):
         html += self.get_task_html(req)
         return html
 
-    def get_html(self,
-                 req: CamcopsRequest,
-                 offer_add_note: bool = False,
-                 offer_erase: bool = False,
-                 offer_edit_patient: bool = False) -> str:
+    def get_html(self, req: CamcopsRequest, anonymise: bool = False) -> str:
         """Returns HTML representing task."""
         cfg = req.config
         set_matplotlib_fontsize(cfg.PLOT_FONTSIZE)
         req.switch_output_to_svg()
-        return (
-            self.get_html_start(req) +
-            self.get_core_html(req) +
-            self.get_office_html() +
-            self.get_xml_nav_html(req) +
-            self.get_superuser_nav_options(req, offer_add_note, offer_erase,
-                                           offer_edit_patient) +
-            """<div class="navigation">""" +
-            self.get_predecessor_html_line(req) +
-            self.get_successor_html_line(req) +
-            "<p>" +
-            self.get_hyperlink_pdf(req, "View PDF for printing/saving") +
-            "</p>" +
-            "</div>" +
-            PDFEND
-        )
+        return render("task.mako",
+                      dict(task=self,
+                           anonymise=anonymise,
+                           viewtype=ViewArg.HTML),
+                      request=req)
 
     def get_hyperlink_html(self, req: CamcopsRequest, text: str) -> str:
         """Hyperlink to HTML version."""
@@ -2531,207 +2266,9 @@ class Task(GenericTabletRecordMixin):
         """
         return req.wappstring("anonymous_task")
 
-    # noinspection PyMethodMayBeStatic
-    def get_anonymous_task_header_html(self, req: CamcopsRequest) -> str:
-        """Task header for anonymous tasks. Goes on the main page at the top of
-        the task."""
-        return """
-            <div class="patient">
-                {}
-            </div>
-        """.format(
-            req.wappstring("anonymous_task")
-        )
-
-    def get_task_header_html(self, req: CamcopsRequest) -> str:
-        """HTML for task header, giving details of task type, creation date
-        (with patient age), etc."""
-        anonymous = self.is_anonymous
-        if anonymous:
-            pt_info = self.get_anonymous_task_header_html(req)
-            age = ""
-        else:
-            pt_info = self.patient.get_html_for_task_header(req)
-            age = " (patient aged {})".format(
-                answer(
-                    self.patient.get_age_at(
-                        get_datetime_from_string(self.when_created)
-                    ),
-                    default_for_blank_strings=True
-                )
-            )
-        main_task_header = """
-            <div class="taskheader">
-                <b>{longname} ({shortname})</b><br>
-                Created: {created} {age}
-            </div>
-        """.format(
-            longname=ws.webify(self.longname),
-            shortname=ws.webify(self.shortname),
-            created=answer(
-                format_datetime_string(self.when_created,
-                                       DATEFORMAT.LONG_DATETIME_WITH_DAY,
-                                       default=None)
-            ),
-            age=age,
-        )
-        return (
-            pt_info +
-            main_task_header +
-            self.get_erasure_notice() +  # if applicable
-            self.get_special_notes_html() +  # if applicable
-            self.get_not_current_warning()  # if applicable
-        )
-
-    def get_not_current_warning(self) -> str:
-        """HTML warning that the record is not current, or ""."""
-        if self._current:
-            return ""
-        if self._pk is None:
-            return """
-                <div class="warning">
-                    WARNING! This is NOT a valid record. It has a blank primary
-                    key and is therefore nonsensical (and only useful for
-                    software testing).
-                </div>
-            """
-        if self._successor_pk is not None:
-            reason = "MODIFIED"
-            t = self._when_removed_exact
-        elif self._manually_erased:
-            reason = "MANUALLY ERASED"
-            t = self._manually_erased_at
-        else:
-            reason = "DELETED"
-            t = self._when_removed_exact
-        when = format_datetime_string(t, DATEFORMAT.LONG_DATETIME_SECONDS)
-        return """
-            <div class="warning">
-                WARNING! This is NOT a current record.<br>
-                It was {} on {}.<br>
-            </div>
-        """.format(reason, when)
-
-    def get_invalid_warning(self) -> str:
-        if self.field_contents_valid():
-            return ""
-        explanations = self.field_contents_invalid_because()
-        explanations = [ws.webify(e) for e in explanations]
-        if explanations:
-            explanations = ["<b>WARNING. Invalid values.</b>"] + explanations
-        return """
-            <div class="warning">
-                {}
-            </div>
-        """.format("<br>".join(explanations))
-
-    def get_erasure_notice(self) -> str:
-        if not self._manually_erased:
-            return ""
-        return """
-            <div class="warning">
-                <b>RECORD HAS BEEN MANUALLY ERASED BY {} AT {}.</b>
-            </div>
-        """.format(
-            self.get_manually_erasing_user_username(),
-            self._manually_erased_at,
-        )
-
-    def get_special_notes_html(self) -> str:
-        if not self.special_notes:
-            return ""
-        note_html = "<br>".join([
-            x.get_note_as_html() for x in self.special_notes])
-        return """
-            <div class="specialnote">
-                <b>TASK SPECIAL NOTES:</b><br>
-                {}
-            </div>
-        """.format(
-            note_html
-        )
-
-    def get_office_html(self) -> str:
-        """Tedious HTML that goes at the bottom."""
-        device = Device(self._device_id)
-        anonymous = self.is_anonymous
-        preserved = self.is_preserved()
-        preserved_by = ""
-        if preserved:
-            byforce = ""
-            if self.was_forcibly_preserved():
-                byforce = "forcibly "
-            preserved_by = " ({}preserved by {} at {})".format(
-                byforce,
-                ws.webify(self.get_preserving_user_username()),
-                self._era,  # already a UTC ISO8601 string.
-            )
-        return """
-            {invalid_warning}
-            <div class="office">
-                Created on device at: {when_created}.
-                Last modified at: {when_last_modified}.
-                Table: {table}.
-                Task PK on client device: {client_pk}.
-                Uploading device ID: {device_id}.
-                Tablet CamCOPS version at upload: {camcops_version}.
-                Uploaded at: {uploaded_at}.
-                Adding user: {adding_user}.
-                Server PK: {server_pk} (predecessor {pred_pk},
-                    successor {succ_pk}).
-                Current? {current}{not_current_because}.
-                Preserved/erased from tablet? {preserved}{preserved_by}.
-                Patient server PK used: {patient_server_pk}.
-                Information retrieved from {server_url} (server version
-                    {server_version}) at: {now}.
-            </div>
-        """.format(
-            invalid_warning=self.get_invalid_warning(),
-            when_created=format_datetime_string(
-                self.when_created, DATEFORMAT.SHORT_DATETIME_SECONDS),
-            when_last_modified=format_datetime_string(
-                self.when_last_modified, DATEFORMAT.SHORT_DATETIME_SECONDS),
-            table=self.tablename,
-            client_pk=self.id,
-            device_id=ws.webify(device.get_friendly_name_and_id()),
-            camcops_version=str(self._camcops_version),
-            uploaded_at=format_datetime_string(
-                self._when_added_exact, DATEFORMAT.SHORT_DATETIME_SECONDS),
-            adding_user=ws.webify(self.get_adding_user_username()),
-            server_pk=self._pk,
-            pred_pk=str(self._predecessor_pk),
-            succ_pk=str(self._successor_pk),
-            current=get_yes_no(self._current),
-            not_current_because="" if self._current else (
-                " ({} by {} at {})".format(
-                    ("deleted" if self._successor_pk is None else "modified"),
-                    ws.webify(self.get_removing_user_username()),
-                    format_datetime_string(self._when_removed_exact,
-                                           DATEFORMAT.SHORT_DATETIME_SECONDS),
-                )
-            ),
-            preserved=get_yes_no(preserved),
-            preserved_by=preserved_by,
-            patient_server_pk=(
-                self.get_patient_server_pk() if not anonymous else "N/A"),
-            server_url=pls.SCRIPT_PUBLIC_URL_ESCAPED,
-            server_version=CAMCOPS_SERVER_VERSION,
-            now=format_datetime(pls.NOW_LOCAL_TZ,
-                                DATEFORMAT.SHORT_DATETIME_SECONDS),
-        )
 
     def get_tablet_version(self) -> Version:
         return make_version(self._camcops_version)
-
-    def get_xml_nav_html(self, req: CamcopsRequest) -> str:
-        """HTML DIV with hyperlink to XML version."""
-        return """
-            <div class="office">
-                <a href="{}">View raw data as XML</a>
-            </div>
-        """.format(
-            get_url_task_xml(req, self.tablename, self._pk)
-        )
 
     def get_superuser_nav_options(self,
                                   req: CamcopsRequest,
@@ -2771,32 +2308,6 @@ class Task(GenericTabletRecordMixin):
             </div>
         """.format("<br>".join(options))
 
-    def get_predecessor_html_line(self, req: CamcopsRequest) -> str:
-        """HTML with hyperlink to predecessor version, or ""."""
-        if self._predecessor_pk is None:
-            return ""
-        return """
-            <p><i>
-                An older version of this record exists:
-                <a href="{}">view previous version</a>.
-            </i></p>
-        """.format(
-            get_url_task_html(req, self.tablename, self._predecessor_pk)
-        )
-
-    def get_successor_html_line(self, req: CamcopsRequest) -> str:
-        """HTML with hyperlink to successor version, or ""."""
-        if self._successor_pk is None:
-            return ""
-        return """
-            <p><b>
-                An newer version of this record exists:
-                <a href="{}">view next version</a>.
-            </b></p>
-        """.format(
-            get_url_task_html(req, self.tablename, self._successor_pk)
-        )
-
     # -------------------------------------------------------------------------
     # HTML elements used by tasks
     # -------------------------------------------------------------------------
@@ -2833,13 +2344,13 @@ class Task(GenericTabletRecordMixin):
         """
         return ""
 
-    def get_is_complete_td_pair(self) -> str:
+    def get_is_complete_td_pair(self, req: CamcopsRequest) -> str:
         """HTML to indicate whether task is complete or not, and to make it
         very obvious visually when it isn't."""
         c = self.is_complete()
         return """<td>Completed?</td>{}<b>{}</b></td>""".format(
             "<td>" if c else """<td class="incomplete">""",
-            get_yes_no(c)
+            get_yes_no(req, c)
         )
 
     def get_is_complete_tr(self) -> str:
@@ -3110,25 +2621,6 @@ class Ancillary(object):
 
 
 # =============================================================================
-# Task factory
-# =============================================================================
-
-def task_factory(basetable: str, serverpk: int) -> Task:
-    """
-    Make a task, or return None.
-
-    Args:
-        basetable: string
-        serverpk: integer
-    """
-    for cls in Task.all_subclasses():
-        if basetable == cls.tablename:
-            return cls(serverpk)
-    return None
-    # raise ValueError, "Could not find a task for table {}".format(basetable)
-
-
-# =============================================================================
 # BLOB functions (shared between Task and Ancillary)
 # =============================================================================
 
@@ -3174,13 +2666,6 @@ def get_blob_by_id(obj: Union[Task, Ancillary],
 # =============================================================================
 # Cross-class generators and the like
 # =============================================================================
-
-def second_item_or_min(x: Tuple[Any, int, Optional[datetime.datetime]]) -> \
-        Union[datetime.datetime, MinType]:
-    # For sorting of tasks
-    when_created = x[2]
-    return MINTYPE_SINGLETON if when_created is None else when_created
-
 
 def gen_tasks_matching_session_filter(
         session: 'CamcopsSession') -> Generator[Task, None, None]:
@@ -3529,8 +3014,6 @@ def task_instance_unit_test(req: CamcopsRequest,
         [get_literal_regex(x) for x in literals] +
         [get_date_regex(dt) for dt in datetimes]
     )
-    unit_test_ignore("Testing {}.anonymise_subtables".format(name),
-                     instance.anonymise_subtables, regexes)
 
     unit_test_ignore("Testing {}.get_fields".format(name),
                      instance.get_fields)
@@ -3575,8 +3058,6 @@ def task_instance_unit_test(req: CamcopsRequest,
     # not get_blob
 
     unit_test_ignore("Testing {}.dump".format(name), instance.dump)
-
-    unit_test_ignore("Testing {}.anonymise".format(name), instance.anonymise)
 
     # not tested: apply_special_note
 

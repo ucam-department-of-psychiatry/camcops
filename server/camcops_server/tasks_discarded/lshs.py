@@ -50,7 +50,7 @@ class LshsAMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class LshsA(TaskHasPatientMixin, Task, Base,
+class LshsA(TaskHasPatientMixin, Task,
             metaclass=LshsAMetaclass):
     __tablename__ = "lshs_a"
     shortname = "LSHS-A"
@@ -139,7 +139,7 @@ class LshsLaroi2005Metaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class LshsLaroi2005(TaskHasPatientMixin, Task, Base,
+class LshsLaroi2005(TaskHasPatientMixin, Task,
                     metaclass=LshsLaroi2005Metaclass):
     __tablename__ = "lshs_laroi2005"
     shortname = "LSHS-Larøi"

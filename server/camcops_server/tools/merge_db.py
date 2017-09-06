@@ -112,7 +112,7 @@ def main() -> None:
     src_engine = create_engine(args.src, echo=args.echo,
                                pool_pre_ping=True)
     log.info("SOURCE: " + get_safe_url_from_engine(src_engine))
-    log.info("DESTINATION: "  + get_safe_url_from_engine(req.engine))
+    log.info("DESTINATION: " + get_safe_url_from_engine(req.engine))
 
     # Delay the slow import until we've checked our syntax
     log.info("Loading all models...")

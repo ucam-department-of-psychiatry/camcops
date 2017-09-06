@@ -22,6 +22,7 @@
 ===============================================================================
 """
 
+import datetime
 import io
 import logging
 import tokenize
@@ -29,7 +30,7 @@ from typing import List, Optional, Tuple
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 
-from .cc_simpleobjects import BarePatientInfo
+from .cc_simpleobjects import BarePatientInfo, IdNumDefinition
 from .cc_unittest import unit_test_ignore
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -109,13 +110,7 @@ def tokenize_upload_id_policy(policy: str,
     global ID_POLICY_UPLOAD_TOKENIZED
     global UPLOAD_POLICY_PRINCIPAL_NUMERIC_ID
     ID_POLICY_UPLOAD_TOKENIZED = get_tokenized_id_policy(policy)
-    dummyptinfo = BarePatientInfo(
-        forename=None,
-        surname=None,
-        dob=None,
-        sex=None,
-        whichidnum_idnumvalue_tuples=[]
-    )
+    dummyptinfo = BarePatientInfo()
     if satisfies_upload_id_policy(dummyptinfo) is None:
         # Implies syntax error - True/False would mean success
         ID_POLICY_UPLOAD_TOKENIZED = None
@@ -134,13 +129,7 @@ def tokenize_finalize_id_policy(policy: str,
     global ID_POLICY_FINALIZE_TOKENIZED
     global FINALIZE_POLICY_PRINCIPAL_NUMERIC_ID
     ID_POLICY_FINALIZE_TOKENIZED = get_tokenized_id_policy(policy)
-    dummyptinfo = BarePatientInfo(
-        forename=None,
-        surname=None,
-        dob=None,
-        sex=None,
-        whichidnum_idnumvalue_tuples=[]
-    )
+    dummyptinfo = BarePatientInfo()
     if satisfies_finalize_id_policy(dummyptinfo) is None:
         # Implies syntax error - True/False would mean success
         ID_POLICY_FINALIZE_TOKENIZED = None
@@ -257,9 +246,9 @@ def find_critical_single_numerical_id(
         dummyptinfo = BarePatientInfo(
             forename="X",
             surname="X",
-            dob="X",  # good enough for id_policy_element()
+            dob=datetime.date.today(),  # random value
             sex="X",
-            whichidnum_idnumvalue_tuples=[(n, 1)]
+            idnum_definitions=[IdNumDefinition(which_idnum=n, idnum_value=1)]
         )
         # Set the idnum of interest
         if satisfies_id_policy(tokenized_policy, dummyptinfo):
@@ -284,10 +273,13 @@ def is_idnum_mandatory_in_policy(
     dummyptinfo = BarePatientInfo(
         forename="X",
         surname="X",
-        dob="X",  # good enough for id_policy_element()
+        dob=datetime.date.today(),  # random value
         sex="X",
-        whichidnum_idnumvalue_tuples=[(n, 1) for n in valid_which_idnums
-                                      if n != which_idnum]
+        idnum_definitions=[
+            IdNumDefinition(which_idnum=n, idnum_value=1)
+            for n in valid_which_idnums
+            if n != which_idnum
+        ]
     )
     # ... so now everything but the idnum in question is set
     if satisfies_id_policy(tokenized_policy, dummyptinfo):
@@ -415,13 +407,13 @@ def id_policy_element(ptinfo: BarePatientInfo, token: TOKEN_TYPE) \
     if token == TK_SEX:
         return ptinfo.sex is not None
     if token == TK_ANY_IDNUM:
-        for _, idnum_value in ptinfo.whichidnum_idnumvalue_tuples:
-            if idnum_value is not None:
+        for idnumdef in ptinfo.idnum_definitions:
+            if idnumdef.idnum_value is not None:
                 return True
         return False
     if token > 0:  # ID token
-        for which_idnum, idnum_value in ptinfo.whichidnum_idnumvalue_tuples:
-            if which_idnum == token and idnum_value is not None:
+        for iddef in ptinfo.idnum_definitions:
+            if iddef.which_idnum == token and iddef.idnum_value is not None:
                 return True
         return False
     return None
@@ -447,9 +439,12 @@ def ccpolicy_unit_tests() -> None:
     bpi = BarePatientInfo(
         forename="forename",
         surname="surname",
-        dob="dob",
+        dob=datetime.date.today(),  # random value
         sex="sex",
-        whichidnum_idnumvalue_tuples=[(1, 1), (10, 3)],
+        idnum_definitions=[
+            IdNumDefinition(1, 1),
+            IdNumDefinition(10, 3),
+        ],
     )
     for p in test_policies:
         unit_test_ignore("", tokenize_upload_id_policy, p,

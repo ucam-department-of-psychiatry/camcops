@@ -33,7 +33,7 @@ from .cc_constants import DATEFORMAT, ERA_NOW
 from .cc_dt import format_datetime
 from .cc_request import CamcopsRequest
 from .cc_sqla_coltypes import (
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
     EraColType,
     TableNameColType,
 )
@@ -87,7 +87,7 @@ class SpecialNote(Base):
     )
     # Details of note
     note_at = Column(
-        "note_at", DateTimeAsIsoTextColType,
+        "note_at", ArrowDateTimeAsIsoTextColType,
         comment="Date/time of note entry (ISO 8601)"
     )
     user_id = Column(

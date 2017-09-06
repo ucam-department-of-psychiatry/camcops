@@ -92,7 +92,8 @@ from .cc_sqla_coltypes import (
     TableNameColType,
 )
 from .cc_sqlalchemy import Base
-from .cc_task import get_base_tables, get_url_task_html, task_factory
+from .cc_task import get_base_tables, get_url_task_html
+from .cc_taskfactory import task_factory
 from .cc_unittest import unit_test_ignore
 
 if TYPE_CHECKING:
@@ -631,7 +632,8 @@ class HL7Message(Base):
             message_datetime=now,
             message_control_id=str(self.id)
         )
-        pid_segment = self._task.get_patient_hl7_pid_segment(self._recipient_def)
+        pid_segment = self._task.get_patient_hl7_pid_segment(
+            self._recipient_def)
         other_segments = self._task.get_hl7_data_segments(self._recipient_def)
 
         # ---------------------------------------------------------------------
@@ -1027,7 +1029,7 @@ def unit_tests(dbsession: SqlASession) -> None:
     # noinspection PyProtectedMember
     task = dbsession.query(Phq9)\
         .filter(Phq9._current == True)\
-        .first()  # type: Optional[Phq9]
+        .first()  # type: Optional[Phq9]  # nopep8
     if task is None:
         task = Phq9()
     pitlist = [

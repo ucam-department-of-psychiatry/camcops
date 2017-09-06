@@ -40,7 +40,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import DateTimeAsIsoTextColType
+from ..cc_modules.cc_sqla_coltypes import ArrowDateTimeAsIsoTextColType
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 
@@ -84,7 +84,7 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
         comment="Target presented? (0 no, 1 yes)"
     )
     target_time = Column(
-        "target_time", DateTimeAsIsoTextColType,
+        "target_time", ArrowDateTimeAsIsoTextColType,
         comment="Target presentation time (ISO-8601)"
     )
     intensity = Column(
@@ -92,7 +92,7 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
         comment="Target intensity (0.0-1.0)"
     )
     choice_time = Column(
-        "choice_time", DateTimeAsIsoTextColType,
+        "choice_time", ArrowDateTimeAsIsoTextColType,
         comment="Time choice offered (ISO-8601)"
     )
     responded = Column(
@@ -100,7 +100,7 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
         comment="Responded? (0 no, 1 yes)"
     )
     response_time = Column(
-        "response_time", DateTimeAsIsoTextColType,
+        "response_time", ArrowDateTimeAsIsoTextColType,
         comment="Time of response (ISO-8601)"
     )
     response_latency_ms = Column(
@@ -163,7 +163,7 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
         )
 
 
-class CardinalExpDetThreshold(TaskHasPatientMixin, Task, Base):
+class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
     __tablename__ = "cardinal_expdetthreshold"
     shortname = "Cardinal_ExpDetThreshold"
     longname = ("Cardinal RN – Threshold determination for "
@@ -469,7 +469,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task, Base):
             <table class="taskdetail">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
         """
-        h += tr_qa("Finished?", get_yes_no_none(self.finished))
+        h += tr_qa("Finished?", get_yes_no_none(req, self.finished))
         h += tr_qa("Logistic intercept",
                    ws.number_to_dp(self.intercept,
                                    DP))

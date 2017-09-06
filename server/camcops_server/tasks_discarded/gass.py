@@ -53,7 +53,7 @@ class GassMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Gass(TaskHasPatientMixin, Task, Base,
+class Gass(TaskHasPatientMixin, Task,
            metaclass=GassMetaclass):
     __tablename__ = "gass"
     shortname = "GASS"
@@ -136,7 +136,7 @@ class Gass(TaskHasPatientMixin, Task, Base,
         return """<tr><td>{}</td><td><b>{}</b></td><td>{}</td></tr>""".format(
             self.wxstring(req, "q" + str(q)),
             get_from_dict(answer_dict, getattr(self, "q" + str(q))),
-            get_yes_no(getattr(self, "d" + str(q)))
+            get_yes_no(req, getattr(self, "d" + str(q)))
         )
 
     def get_group_html(self,

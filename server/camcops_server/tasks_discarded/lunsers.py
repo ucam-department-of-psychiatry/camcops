@@ -49,7 +49,7 @@ class LunsersMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Lunsers(TaskHasPatientMixin, Task, Base,
+class Lunsers(TaskHasPatientMixin, Task,
               metaclass=LunsersMetaclass):
     __tablename__ = "lunsers"
     shortname = "LUNSERS"

@@ -50,7 +50,7 @@ log = logging.getLogger(__name__)
 # HADS (crippled unless upgraded locally) - base classes
 # =============================================================================
 
-class HadsMetaclass(type):
+class HadsMetaclass(DeclarativeMeta):
     """
     We can't make this metaclass inherit from DeclarativeMeta.
 
@@ -104,9 +104,64 @@ class HadsMetaclass(type):
 
     Alternative solution 1: make a new metaclass that pretends to inherit
     from HadsMetaclass and DeclarativeMeta.
+        -- WENT WITH THIS ONE INITIALLY:
+
+        class HadsMetaclass(type):                      # METACLASS
+            def __init__(cls: Type['HadsBase'],
+                 name: str,
+                 bases: Tuple[Type, ...],
+                 classdict: Dict[str, Any]) -> None:
+            add_multiple_columns(...)
+
+        class HadsBase(TaskHasPatientMixin, Task,       # INTERMEDIATE
+                       metaclass=HadsMetaclass):
+            ...
+
+        class HadsBlendedMetaclass(HadsMetaclass, DeclarativeMeta):    # ODDITY
+            # noinspection PyInitNewSignature
+            def __init__(cls: Type[Union[HadsBase, DeclarativeMeta]],
+                         name: str,
+                         bases: Tuple[Type, ...],
+                         classdict: Dict[str, Any]) -> None:
+                HadsMetaclass.__init__(cls, name, bases, classdict)
+                # ... will call DeclarativeMeta.__init__ via its super().__init__()
+
+        class Hads(HadsBase,                            # ACTUAL TASK
+                   metaclass=HadsBlendedMetaclass):
+            __tablename__ = "hads"
 
     Alternative solution 2: continue to have the HadsMetaclass deriving from
     DeclarativeMeta, but add it in at the last stage.
+
+    IGNORE THIS, NO LONGER TRUE:
+        ALL THIS SOMEWHAT REVISED to handle SQLAlchemy concrete inheritance (q.v.),
+        with the rule that "the only things that inherit from Task are actual
+        tasks"; Task then inherits from both AbstractConcreteBase and Base.
+    SEE ALSO sqla_database_structure.txt
+
+    FINAL ANSWER:
+        - classes inherit in a neat chain from Base -> [+/- Task -> ...]
+        - metaclasses inherit in a neat chain from DeclarativeMeta
+        - abstract intermediates mark themselves with "__abstract__ = True"
+
+        class HadsMetaclass(DeclarativeMeta):           # METACLASS
+            def __init__(cls: Type['HadsBase'],
+                         name: str,
+                         bases: Tuple[Type, ...],
+                         classdict: Dict[str, Any]) -> None:
+                add_multiple_columns(...)
+
+        class HadsBase(TaskHasPatientMixin, Task,       # INTERMEDIATE
+                       metaclass=HadsMetaclass):
+            __abstract__ = True
+
+        class Hads(HadsBase):
+            __tablename__ = "hads"
+
+    Yes, that's it. (Note that if you erroneously also add
+    "metaclass=HadsMetaclass" on Hads, you get: "TypeError: metaclass conflict:
+    the metaclass of a derived class must be a (non-strict) subclass of the
+    metaclasses of all its bases.")
 
     """
     # noinspection PyInitNewSignature
@@ -129,7 +184,7 @@ class HadsMetaclass(type):
 
 class HadsBase(TaskHasPatientMixin, Task,
                metaclass=HadsMetaclass):
-    # This is an abstract class and does not inherit from Base.
+    __abstract__ = True
     provides_trackers = True
 
     NQUESTIONS = 14
@@ -257,25 +312,10 @@ class HadsBase(TaskHasPatientMixin, Task,
 
 
 # =============================================================================
-# Trying to solve the metaclass problem described above
-# =============================================================================
-
-class HadsBlendedMetaclass(HadsMetaclass, DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(cls: Type[Union[HadsBase, DeclarativeMeta]],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
-        HadsMetaclass.__init__(cls, name, bases, classdict)
-        # ... will call DeclarativeMeta.__init__ via its super().__init__()
-
-
-# =============================================================================
 # Hads
 # =============================================================================
 
-class Hads(HadsBase, Base,
-           metaclass=HadsBlendedMetaclass):
+class Hads(HadsBase):
     __tablename__ = "hads"
     shortname = "HADS"
     longname = "Hospital Anxiety and Depression Scale (data collection only)"
@@ -285,8 +325,7 @@ class Hads(HadsBase, Base,
 # HadsRespondent
 # =============================================================================
 
-class HadsRespondent(TaskHasRespondentMixin, HadsBase, Base,
-                     metaclass=HadsBlendedMetaclass):
+class HadsRespondent(TaskHasRespondentMixin, HadsBase):
     __tablename__ = "hads_respondent"
     shortname = "HADS-Respondent"
     longname = "Hospital Anxiety and Depression Scale (data collection " \

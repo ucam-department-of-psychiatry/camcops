@@ -66,9 +66,15 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
+# =============================================================================
+# Debugging options
+# =============================================================================
+
 DEBUG_CAMCOPS_SESSION = False
 DEBUG_DBSESSION_MANAGEMENT = False
 
+if DEBUG_CAMCOPS_SESSION or DEBUG_DBSESSION_MANAGEMENT:
+    log.warning("Debugging options enabled!")
 
 # =============================================================================
 # Modified Request interface, for type checking
@@ -331,9 +337,20 @@ class CamcopsRequest(Request):
     # HTTP request convenience functions
     # -------------------------------------------------------------------------
 
-    def get_str_param(self, key: str, default: str = None) -> Optional[str]:
+    def get_str_param(self,
+                      key: str,
+                      default: str = None,
+                      lower: bool = False,
+                      upper: bool = False) -> Optional[str]:
         # HTTP parameters are always strings at heart
-        return self.params.get(key, default)
+        value = self.params.get(key, default)
+        if value is None:
+            return value
+        if lower:
+            return value.lower()
+        if upper:
+            return value.upper()
+        return value
 
     def get_int_param(self, key: str, default: int = None) -> Optional[int]:
         try:

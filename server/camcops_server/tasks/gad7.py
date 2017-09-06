@@ -66,7 +66,7 @@ class Gad7Metaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Gad7(TaskHasPatientMixin, Task, Base,
+class Gad7(TaskHasPatientMixin, Task,
            metaclass=Gad7Metaclass):
     __tablename__ = "gad7"
     shortname = "GAD-7"

@@ -45,7 +45,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class QolBasic(TaskHasPatientMixin, Task, Base):
+class QolBasic(TaskHasPatientMixin, Task):
     __tablename__ = "qolbasic"
     shortname = "QoL-Basic"
     longname = "Quality of Life: basic assessment"

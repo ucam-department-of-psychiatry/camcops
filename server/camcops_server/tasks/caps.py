@@ -100,7 +100,7 @@ class CapsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Caps(TaskHasPatientMixin, Task, Base,
+class Caps(TaskHasPatientMixin, Task,
            metaclass=CapsMetaclass):
     __tablename__ = "caps"
     shortname = "CAPS"
@@ -232,7 +232,8 @@ class Caps(TaskHasPatientMixin, Task, Base,
         for q in range(1, Caps.NQUESTIONS + 1):
             h += tr(
                 self.wxstring(req, "q" + str(q)),
-                answer(get_yes_no_none(getattr(self, "endorse" + str(q)))),
+                answer(get_yes_no_none(req,
+                                       getattr(self, "endorse" + str(q)))),
                 answer(getattr(self, "distress" + str(q))
                        if getattr(self, "endorse" + str(q)) else ""),
                 answer(getattr(self, "intrusiveness" + str(q))

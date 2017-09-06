@@ -52,7 +52,7 @@ from ..cc_modules.cc_sqla_coltypes import (
     BoolColumn,
     CamcopsColumn,
     CharColType,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
     DiagnosticCodeColType,
     PermittedValueChecker,
 )
@@ -68,12 +68,12 @@ from ..cc_modules.cc_task import (
 # CPFT_LPS_Referral
 # =============================================================================
 
-class CPFTLPSReferral(TaskHasPatientMixin, Task, Base):
+class CPFTLPSReferral(TaskHasPatientMixin, Task):
     __tablename__ = "cpft_lps_referral"
     shortname = "CPFT_LPS_Referral"
     longname = "Referral to CPFT Liaison Psychiatry Service"
 
-    referral_date_time = Column("referral_date_time", DateTimeAsIsoTextColType)
+    referral_date_time = Column("referral_date_time", ArrowDateTimeAsIsoTextColType)
     lps_division = Column("lps_division", UnicodeText)
     referral_priority = Column("referral_priority", UnicodeText)
     referral_method = Column("referral_method", UnicodeText)
@@ -83,9 +83,9 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task, Base):
     referring_specialty = Column("referring_specialty", UnicodeText)
     referring_specialty_other = Column("referring_specialty_other", UnicodeText)
     patient_location = Column("patient_location", UnicodeText)
-    admission_date = Column("admission_date", DateTimeAsIsoTextColType)
+    admission_date = Column("admission_date", ArrowDateTimeAsIsoTextColType)
     estimated_discharge_date = Column(
-        "estimated_discharge_date", DateTimeAsIsoTextColType
+        "estimated_discharge_date", ArrowDateTimeAsIsoTextColType
     )
     patient_aware_of_referral = BoolColumn("patient_aware_of_referral")
     interpreter_required = BoolColumn("interpreter_required")
@@ -266,19 +266,19 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task, Base):
             format_datetime_string(self.estimated_discharge_date,
                                    DATEFORMAT.LONG_DATE, ""),
             self.wxstring(req, "f_patient_aware_of_referral"),
-            get_yes_no_none(self.patient_aware_of_referral)
+            get_yes_no_none(req, self.patient_aware_of_referral)
         )
         h += self.four_column_row(
             self.wxstring(req, "f_marital_status"),
             person_marital_status.get(self.marital_status_code, INVALID_VALUE),
             self.wxstring(req, "f_interpreter_required"),
-            get_yes_no_none(self.interpreter_required)
+            get_yes_no_none(req, self.interpreter_required)
         )
         h += self.four_column_row(
             self.wxstring(req, "f_ethnic_category"),
             ethnic_category_code.get(self.ethnic_category_code, INVALID_VALUE),
             self.wxstring(req, "f_sensory_impairment"),
-            get_yes_no_none(self.sensory_impairment)
+            get_yes_no_none(req, self.sensory_impairment)
         )
         h += subheading_spanning_four_columns(
             self.wxstring(req, "t_admission_reason"))
@@ -308,13 +308,13 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task, Base):
 # =============================================================================
 
 class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin, 
-                                Task, Base):
+                                Task):
     __tablename__ = "cpft_lps_resetresponseclock"
     shortname = "CPFT_LPS_ResetResponseClock"
     longname = "Reset response clock (CPFT Liaison Psychiatry Service)"
 
     reset_start_time_to = Column(
-        "reset_start_time_to", DateTimeAsIsoTextColType
+        "reset_start_time_to", ArrowDateTimeAsIsoTextColType
     )
     reason = Column("reason", UnicodeText)
 
@@ -357,12 +357,12 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
 # CPFT_LPS_Discharge
 # =============================================================================
 
-class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
+class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     __tablename__ = "cpft_lps_discharge"
     shortname = "CPFT_LPS_Discharge"
     longname = "Discharge from CPFT Liaison Psychiatry Service"
 
-    discharge_date = Column("discharge_date", DateTimeAsIsoTextColType)
+    discharge_date = Column("discharge_date", ArrowDateTimeAsIsoTextColType)
     discharge_reason_code = Column("discharge_reason_code", UnicodeText)
 
     leaflet_or_discharge_card_given = BoolColumn(
@@ -662,9 +662,10 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
         h += tr_qa(self.wxstring(req, "discharge_reason"),
                    self.get_discharge_reason(req), "")
         h += tr_qa(self.wxstring(req, "leaflet_or_discharge_card_given"),
-                   get_yes_no_none(self.leaflet_or_discharge_card_given), "")
+                   get_yes_no_none(req, self.leaflet_or_discharge_card_given),
+                   "")
         h += tr_qa(self.wxstring(req, "frequent_attender"),
-                   get_yes_no_none(self.frequent_attender), "")
+                   get_yes_no_none(req, self.frequent_attender), "")
         h += tr_qa(self.wxstring(req, "patient_wanted_copy_of_letter"),
                    self.patient_wanted_copy_of_letter, "")
         h += tr_qa(self.wxstring(req, "gaf_at_first_assessment"),

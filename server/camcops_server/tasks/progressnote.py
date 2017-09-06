@@ -43,7 +43,7 @@ from ..cc_modules.cc_task import (
 # ProgressNote
 # =============================================================================
 
-class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
+class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     __tablename__ = "progressnote"
     shortname = "ProgressNote"
     longname = "Clinical progress note"

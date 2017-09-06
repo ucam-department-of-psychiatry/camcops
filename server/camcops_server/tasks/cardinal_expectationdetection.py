@@ -46,7 +46,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import DateTimeAsIsoTextColType
+from ..cc_modules.cc_sqla_coltypes import ArrowDateTimeAsIsoTextColType
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -139,39 +139,39 @@ class ExpDetTrial(GenericTabletRecordMixin, Base):
         comment="Pause given before trial? (0 no, 1 yes)"
     )
     pause_start_time = Column(
-        "pause_start_time", DateTimeAsIsoTextColType,
+        "pause_start_time", ArrowDateTimeAsIsoTextColType,
         comment="Pause start time (ISO-8601)"
     )
     pause_end_time = Column(
-        "pause_end_time", DateTimeAsIsoTextColType,
+        "pause_end_time", ArrowDateTimeAsIsoTextColType,
         comment="Pause end time (ISO-8601)"
     )
     trial_start_time = Column(
-        "trial_start_time", DateTimeAsIsoTextColType,
+        "trial_start_time", ArrowDateTimeAsIsoTextColType,
         comment="Trial start time (ISO-8601)"
     )
     cue_start_time = Column(
-        "cue_start_time", DateTimeAsIsoTextColType,
+        "cue_start_time", ArrowDateTimeAsIsoTextColType,
         comment="Cue start time (ISO-8601)"
     )
     target_start_time = Column(
-        "target_start_time", DateTimeAsIsoTextColType,
+        "target_start_time", ArrowDateTimeAsIsoTextColType,
         comment="Target start time (ISO-8601)"
     )
     detection_start_time = Column(
-        "detection_start_time", DateTimeAsIsoTextColType,
+        "detection_start_time", ArrowDateTimeAsIsoTextColType,
         comment="Detection response start time (ISO-8601)"
     )
     iti_start_time = Column(
-        "iti_start_time", DateTimeAsIsoTextColType,
+        "iti_start_time", ArrowDateTimeAsIsoTextColType,
         comment="Intertrial interval start time (ISO-8601)"
     )
     iti_end_time = Column(
-        "iti_end_time", DateTimeAsIsoTextColType,
+        "iti_end_time", ArrowDateTimeAsIsoTextColType,
         comment="Intertrial interval end time (ISO-8601)"
     )
     trial_end_time = Column(
-        "trial_end_time", DateTimeAsIsoTextColType,
+        "trial_end_time", ArrowDateTimeAsIsoTextColType,
         comment="Trial end time (ISO-8601)"
     )
     
@@ -181,7 +181,7 @@ class ExpDetTrial(GenericTabletRecordMixin, Base):
         comment="Responded? (0 no, 1 yes)"
     )
     response_time = Column(
-        "response_time", DateTimeAsIsoTextColType,
+        "response_time", ArrowDateTimeAsIsoTextColType,
         comment="Response time (ISO-8601)"
     )
     response_latency_ms = Column(
@@ -367,7 +367,7 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, Base):
         )
 
 
-class CardinalExpectationDetection(TaskHasPatientMixin, Task, Base):
+class CardinalExpectationDetection(TaskHasPatientMixin, Task):
     __tablename__ = "cardinal_expdet"
     shortname = "Cardinal_ExpDet"
     longname = "Cardinal RN – Expectation–Detection task"
@@ -877,8 +877,8 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task, Base):
             <table class="taskdetail">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
         """
-        h += tr_qa("Aborted?", get_yes_no_none(self.aborted))
-        h += tr_qa("Finished?", get_yes_no_none(self.finished))
+        h += tr_qa("Aborted?", get_yes_no_none(req, self.aborted))
+        h += tr_qa("Finished?", get_yes_no_none(req, self.finished))
         h += tr_qa("Last trial completed", self.last_trial_completed)
         h += (
             """

@@ -886,6 +886,7 @@ class Tracker(TrackerCtvCommon):
                 include_comments: bool = False) -> str:
         """Get XML document representing tracker."""
         return self._get_xml(
+            req=req,
             audit_string="Tracker XML accessed",
             xml_name="tracker",
             indent_spaces=indent_spaces,
@@ -1155,6 +1156,7 @@ class ClinicalTextView(TrackerCtvCommon):
                 include_comments: bool = False) -> str:
         """Get XML document representing CTV."""
         return self._get_xml(
+            req=req,
             audit_string="Clinical text view XML accessed",
             xml_name="ctv",
             indent_spaces=indent_spaces,

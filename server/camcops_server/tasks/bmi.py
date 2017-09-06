@@ -47,7 +47,7 @@ KG_DP = 2
 M_DP = 3
 
 
-class Bmi(TaskHasPatientMixin, Task, Base):
+class Bmi(TaskHasPatientMixin, Task):
     __tablename__ = "bmi"
     shortname = "BMI"
     longname = "Body mass index"
@@ -98,13 +98,18 @@ class Bmi(TaskHasPatientMixin, Task, Base):
                 ],
                 horizontal_labels=[
                     # positioned near the mid-range for some:
-                    TrackerLabel(12.5, self.wxstring(req, "underweight_under_13"),
+                    TrackerLabel(12.5,
+                                 self.wxstring(req, "underweight_under_13"),
                                  LabelAlignment.top),
                     TrackerLabel(14, self.wxstring(req, "underweight_13_15")),
-                    TrackerLabel(15.5, self.wxstring(req, "underweight_15_16")),
-                    TrackerLabel(16.5, self.wxstring(req, "underweight_16_17")),
-                    TrackerLabel(17.25, self.wxstring(req, "underweight_17_17.5")),
-                    TrackerLabel(18, self.wxstring(req, "underweight_17.5_18.5")),
+                    TrackerLabel(15.5,
+                                 self.wxstring(req, "underweight_15_16")),
+                    TrackerLabel(16.5,
+                                 self.wxstring(req, "underweight_16_17")),
+                    TrackerLabel(17.25,
+                                 self.wxstring(req, "underweight_17_17.5")),
+                    TrackerLabel(18,
+                                 self.wxstring(req, "underweight_17.5_18.5")),
                     TrackerLabel(21.75, self.wxstring(req, "normal")),
                     TrackerLabel(27.5, self.wxstring(req, "overweight")),
                     TrackerLabel(32.5, self.wxstring(req, "obese_1")),

@@ -92,6 +92,7 @@ from .cc_modules.cc_storedvar import (
 from .cc_modules.cc_task import (
     cctask_unit_tests,
     cctask_unit_tests_basic,
+    Task,
 )  # nopep8
 from .cc_modules.cc_tracker import cctracker_unit_tests  # imports matplotlib; SLOW  # nopep8
 from .cc_modules.cc_user import ccuser_unit_tests  # nopep8
@@ -107,9 +108,15 @@ from camcops_server.cc_modules.webview import (
 
 log.debug("All imports complete")
 
+# =============================================================================
+# Debugging options
+# =============================================================================
+
 DEBUG_ADD_ROUTES = False
 DEBUG_AUTHORIZATION = False
 
+if DEBUG_ADD_ROUTES or DEBUG_AUTHORIZATION:
+    log.warning("Debugging options enabled!")
 
 # =============================================================================
 # Check Python version (the shebang is not a guarantee)
@@ -567,6 +574,8 @@ def cli_main() -> None:
     # Say hello
     log.info("CamCOPS version {}".format(CAMCOPS_SERVER_VERSION))
     log.info("By Rudolf Cardinal. See " + CAMCOPS_URL)
+    log.info("Operating with {} tasks",
+             len(Task.all_subclasses_by_tablename()))
 
     # If we don't know the config filename yet, ask the user
     if not args.config:

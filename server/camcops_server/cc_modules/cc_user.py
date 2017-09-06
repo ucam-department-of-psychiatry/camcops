@@ -57,7 +57,7 @@ from .cc_html import (
     # *** # simple_success_message,
 )
 from .cc_sqla_coltypes import (
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
     HashedPasswordColType,
     UserNameColType,
 )
@@ -216,7 +216,8 @@ class SecurityLoginFailure(Base):
     )
 
     @classmethod
-    def record_login_failure(cls, req: "CamcopsRequest", username: str) -> None:
+    def record_login_failure(cls, req: "CamcopsRequest",
+                             username: str) -> None:
         """Record that a user has failed to log in."""
         dbsession = req.dbsession
         now = req.now_utc_datetime
@@ -224,7 +225,8 @@ class SecurityLoginFailure(Base):
         dbsession.add(failure)
 
     @classmethod
-    def act_on_login_failure(cls, req: "CamcopsRequest", username: str) -> None:
+    def act_on_login_failure(cls, req: "CamcopsRequest",
+                             username: str) -> None:
         """Record login failure and lock out user if necessary."""
         cfg = req.config
         audit(req, "Failed login as user: {}".format(username))
@@ -240,7 +242,8 @@ class SecurityLoginFailure(Base):
                                                  lockout_minutes)
 
     @classmethod
-    def clear_login_failures(cls, req: "CamcopsRequest", username: str) -> None:
+    def clear_login_failures(cls, req: "CamcopsRequest",
+                             username: str) -> None:
         """Clear login failures for a user."""
         dbsession = req.dbsession
         dbsession.query(cls)\
@@ -248,7 +251,8 @@ class SecurityLoginFailure(Base):
             .delete(synchronize_session=False)
 
     @classmethod
-    def how_many_login_failures(cls, req: "CamcopsRequest", username: str) -> int:
+    def how_many_login_failures(cls, req: "CamcopsRequest",
+                                username: str) -> int:
         """How many times has the user failed to log in (recently)?"""
         dbsession = req.dbsession
         q = CountStarSpecializedQuery([cls], session=dbsession)\
@@ -400,7 +404,7 @@ class User(Base):
         comment="Must change password at next webview login"
     )
     when_agreed_terms_of_use = Column(
-        "when_agreed_terms_of_use", DateTimeAsIsoTextColType,
+        "when_agreed_terms_of_use", ArrowDateTimeAsIsoTextColType,
         comment="Date/time this user acknowledged the Terms and "
                 "Conditions of Use (ISO 8601)"
     )

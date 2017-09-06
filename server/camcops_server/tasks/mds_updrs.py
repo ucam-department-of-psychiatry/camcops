@@ -51,7 +51,7 @@ from ..cc_modules.cc_task import (
 # MDS-UPDRS (crippled)
 # =============================================================================
 
-class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     __tablename__ = "mds_updrs"
     shortname = "MDS-UPDRS"
     longname = (

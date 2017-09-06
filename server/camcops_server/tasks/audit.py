@@ -70,7 +70,7 @@ class AuditMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Audit(TaskHasPatientMixin, Task, Base,
+class Audit(TaskHasPatientMixin, Task,
             metaclass=AuditMetaclass):
     __tablename__ = "audit"
     shortname = "AUDIT"
@@ -149,7 +149,7 @@ class Audit(TaskHasPatientMixin, Task, Base,
         h += self.get_is_complete_tr()
         h += tr(req.wappstring("total_score"), answer(score) + " / 40")
         h += tr_qa(self.wxstring(req, "exceeds_standard_cutoff"),
-                   get_yes_no(exceeds_cutoff))
+                   get_yes_no(req, exceeds_cutoff))
         h += """
                 </table>
             </div>
@@ -203,7 +203,7 @@ class AuditCMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class AuditC(TaskHasPatientMixin, Task, Base,
+class AuditC(TaskHasPatientMixin, Task,
              metaclass=AuditMetaclass):
     __tablename__ = "audit_c"
     shortname = "AUDIT-C"

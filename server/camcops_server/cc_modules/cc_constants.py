@@ -288,6 +288,8 @@ class TABLET_PARAM(object):
     VALUES = "values"
 
 
+DEFAULT_ROWS_PER_PAGE = 25
+
 # =============================================================================
 # Date formats
 # =============================================================================
@@ -502,34 +504,7 @@ SIGNATURE_BLOCK = """
 # ... can't get "height" to work in table; only seems to like line-height; for
 # which, you need some text, hence the &nbsp;
 # http://stackoverflow.com/questions/6398172/setting-table-row-height-in-css
-TASK_LIST_HEADER = """
-    <table>
-        <tr>
-            <th>Surname, forename (sex, DOB, age)</th>
-            <th>Identifiers</th>
-            <th>Task type</th>
-            <th>Adding user</th>
-            <th>Created</th>
-            <th>View detail</th>
-            <th>Print/save detail</th>
-        </tr>
-"""
-TASK_LIST_FOOTER = """
-    </table>
-    <div class="footnotes">
-        Colour in the Patient column means
-            that an ID policy is not yet satisfied.
-        Colour in the Task Type column means
-            the record is not current.
-        Colour in the Created column means
-            the task is ‘live’ on the tablet, not finalized
-            (so patient and task details may change).
-        Colour in the View/Print columns means
-            the task is incomplete.
-    </div>
-"""
-#        Colour in the Identifiers column means
-#            a conflict between the server’s and the tablet’s ID descriptions.
+
 TSV_PATIENT_FIELD_PREFIX = "_patient_"
 CRIS_PATIENT_COMMENT_PREFIX = "(PATIENT) "
 CRIS_SUMMARY_COMMENT_PREFIX = "(SUMMARY) "

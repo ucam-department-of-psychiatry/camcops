@@ -46,7 +46,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
@@ -61,8 +61,9 @@ from ..cc_modules.cc_task import (
 # Icd10SpecPD
 # =============================================================================
 
-def ctv_info_pd(condition: str, has_it: Optional[bool]) -> CtvInfo:
-    return CtvInfo(content=condition + ": " + get_yes_no_unknown(has_it))
+def ctv_info_pd(req: CamcopsRequest,
+                condition: str, has_it: Optional[bool]) -> CtvInfo:
+    return CtvInfo(content=condition + ": " + get_yes_no_unknown(req, has_it))
 
 
 class Icd10SpecPDMetaclass(DeclarativeMeta):
@@ -181,14 +182,14 @@ class Icd10SpecPDMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
+class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                   metaclass=Icd10SpecPDMetaclass):
     __tablename__ = "icd10specpd"
     shortname = "ICD10-PD"
     longname = "ICD-10 criteria for specific personality disorders (F60)"
 
     date_pertains_to = Column(
-        "date_pertains_to", DateTimeAsIsoTextColType,
+        "date_pertains_to", ArrowDateTimeAsIsoTextColType,
         comment="Date the assessment pertains to"
     )
     comments = Column(
@@ -273,25 +274,35 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        infolist = [ctv_info_pd(self.wxstring(req, "meets_general_criteria"),
+        infolist = [ctv_info_pd(req,
+                                self.wxstring(req, "meets_general_criteria"),
                                 self.has_pd()),
-                    ctv_info_pd(self.wxstring(req, "paranoid_pd_title"),
+                    ctv_info_pd(req,
+                                self.wxstring(req, "paranoid_pd_title"),
                                 self.has_paranoid_pd()),
-                    ctv_info_pd(self.wxstring(req, "schizoid_pd_title"),
+                    ctv_info_pd(req,
+                                self.wxstring(req, "schizoid_pd_title"),
                                 self.has_schizoid_pd()),
-                    ctv_info_pd(self.wxstring(req, "dissocial_pd_title"),
+                    ctv_info_pd(req,
+                                self.wxstring(req, "dissocial_pd_title"),
                                 self.has_dissocial_pd()),
-                    ctv_info_pd(self.wxstring(req, "eu_pd_i_title"),
+                    ctv_info_pd(req,
+                                self.wxstring(req, "eu_pd_i_title"),
                                 self.has_eupd_i()),
-                    ctv_info_pd(self.wxstring(req, "eu_pd_b_title"),
+                    ctv_info_pd(req,
+                                self.wxstring(req, "eu_pd_b_title"),
                                 self.has_eupd_b()),
-                    ctv_info_pd(self.wxstring(req, "histrionic_pd_title"),
+                    ctv_info_pd(req,
+                                self.wxstring(req, "histrionic_pd_title"),
                                 self.has_histrionic_pd()),
-                    ctv_info_pd(self.wxstring(req, "anankastic_pd_title"),
+                    ctv_info_pd(req,
+                                self.wxstring(req, "anankastic_pd_title"),
                                 self.has_anankastic_pd()),
-                    ctv_info_pd(self.wxstring(req, "anxious_pd_title"),
+                    ctv_info_pd(req,
+                                self.wxstring(req, "anxious_pd_title"),
                                 self.has_anxious_pd()),
-                    ctv_info_pd(self.wxstring(req, "dependent_pd_title"),
+                    ctv_info_pd(req,
+                                self.wxstring(req, "dependent_pd_title"),
                                 self.has_dependent_pd())]
         return infolist
 
@@ -506,12 +517,12 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
             <tr class="subheading"><td colspan="2">{}</td></tr>
         """.format(self.wxstring(req, wstringname))
 
-    def pd_general_criteria_bits(self, req: CamcopsRequest, ) -> str:
+    def pd_general_criteria_bits(self, req: CamcopsRequest) -> str:
         return """
             <tr><td>{}</td><td><i><b>{}</b></i></td></tr>
         """.format(
             self.wxstring(req, "general_criteria_must_be_met"),
-            get_yes_no_unknown(self.has_pd())
+            get_yes_no_unknown(req, self.has_pd())
         )
 
     def pd_b_text(self, req: CamcopsRequest, wstringname: str) -> str:
@@ -541,25 +552,25 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
         h += tr_qa(self.wxstring(req, "meets_general_criteria"),
-                   get_yes_no_none(self.has_pd()))
+                   get_yes_no_none(req, self.has_pd()))
         h += tr_qa(self.wxstring(req, "paranoid_pd_title"),
-                   get_yes_no_none(self.has_paranoid_pd()))
+                   get_yes_no_none(req, self.has_paranoid_pd()))
         h += tr_qa(self.wxstring(req, "schizoid_pd_title"),
-                   get_yes_no_none(self.has_schizoid_pd()))
+                   get_yes_no_none(req, self.has_schizoid_pd()))
         h += tr_qa(self.wxstring(req, "dissocial_pd_title"),
-                   get_yes_no_none(self.has_dissocial_pd()))
+                   get_yes_no_none(req, self.has_dissocial_pd()))
         h += tr_qa(self.wxstring(req, "eu_pd_i_title"),
-                   get_yes_no_none(self.has_eupd_i()))
+                   get_yes_no_none(req, self.has_eupd_i()))
         h += tr_qa(self.wxstring(req, "eu_pd_b_title"),
-                   get_yes_no_none(self.has_eupd_b()))
+                   get_yes_no_none(req, self.has_eupd_b()))
         h += tr_qa(self.wxstring(req, "histrionic_pd_title"),
-                   get_yes_no_none(self.has_histrionic_pd()))
+                   get_yes_no_none(req, self.has_histrionic_pd()))
         h += tr_qa(self.wxstring(req, "anankastic_pd_title"),
-                   get_yes_no_none(self.has_anankastic_pd()))
+                   get_yes_no_none(req, self.has_anankastic_pd()))
         h += tr_qa(self.wxstring(req, "anxious_pd_title"),
-                   get_yes_no_none(self.has_anxious_pd()))
+                   get_yes_no_none(req, self.has_anxious_pd()))
         h += tr_qa(self.wxstring(req, "dependent_pd_title"),
-                   get_yes_no_none(self.has_dependent_pd()))
+                   get_yes_no_none(req, self.has_dependent_pd()))
 
         h += """
                 </table>

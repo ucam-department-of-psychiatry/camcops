@@ -51,7 +51,7 @@ class EpdsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Epds(TaskHasPatientMixin, Task, Base,
+class Epds(TaskHasPatientMixin, Task,
            metaclass=EpdsMetaclass):
     __tablename__ = "epds"
     shortname = "EPDS"
@@ -140,9 +140,9 @@ class Epds(TaskHasPatientMixin, Task, Base,
             score=score,
             max_total=self.MAX_TOTAL,
             ac1str=self.wxstring(req, "above_cutoff_1"),
-            above_cutoff_1=get_yes_no(above_cutoff_1),
+            above_cutoff_1=get_yes_no(req, above_cutoff_1),
             ac2str=self.wxstring(req, "above_cutoff_2"),
-            above_cutoff_2=get_yes_no(above_cutoff_2),
+            above_cutoff_2=get_yes_no(req, above_cutoff_2),
             suicide=self.wxstring(req, "always_look_at_suicide")
         )
         for q in range(1, self.NQUESTIONS + 1):

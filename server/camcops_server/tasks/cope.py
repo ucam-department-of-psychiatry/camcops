@@ -89,7 +89,7 @@ class CopeBriefMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class CopeBrief(TaskHasPatientMixin, Task, Base,
+class CopeBrief(TaskHasPatientMixin, Task,
                 metaclass=CopeBriefMetaclass):
     __tablename__ = "cope_brief"
     shortname = "COPE-Brief"

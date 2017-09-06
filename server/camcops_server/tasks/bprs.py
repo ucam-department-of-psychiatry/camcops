@@ -69,7 +69,7 @@ class BprsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=BprsMetaclass):
     __tablename__ = "bprs"
     shortname = "BPRS"

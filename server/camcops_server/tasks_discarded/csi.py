@@ -55,7 +55,7 @@ class CsiMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Csi(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Csi(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
           metaclass=CsiMetaclass):
     __tablename__ = "csi"
     shortname = "CSI"
@@ -122,13 +122,13 @@ class Csi(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
             n_csi_symptoms=n_csi_symptoms,
             max_total=self.NQUESTIONS,
             catatonia_str=self.wxstring(req, "catatonia_present"),
-            csi_catatonia=get_yes_no(csi_catatonia)
+            csi_catatonia=get_yes_no(req, csi_catatonia)
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(
                 "Q" + str(q) + " — " +
                 self.wxstring(req, "q" + str(q) + "_title"),
-                get_yes_no_unknown(getattr(self, "q" + str(q)))
+                get_yes_no_unknown(req, getattr(self, "q" + str(q)))
             )
         h += """
             </table>

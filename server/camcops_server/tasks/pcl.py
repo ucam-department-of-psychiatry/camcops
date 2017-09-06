@@ -49,7 +49,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # PCL
 # =============================================================================
 
-class PclMetaclass(type):
+class PclMetaclass(DeclarativeMeta):
     """
     There is a multilayer metaclass problem; see hads.py for discussion.
     """
@@ -87,6 +87,7 @@ class PclMetaclass(type):
 
 class PclCommon(TaskHasPatientMixin, Task,
                 metaclass=PclMetaclass):
+    __abstract__ = True
     provides_trackers = True
     extrastring_taskname = "pcl"
 
@@ -215,7 +216,7 @@ class PclCommon(TaskHasPatientMixin, Task,
                 answer(num_symptomatic_d) +
                 " (" + answer(num_symptomatic) + ")")
         h += tr_qa(self.wxstring(req, "dsm_criteria_met") + " <sup>[2]</sup>",
-                   get_yes_no(ptsd))
+                   get_yes_no(req, ptsd))
         h += """
                 </table>
             </div>
@@ -251,25 +252,11 @@ class PclCommon(TaskHasPatientMixin, Task,
 
 
 # =============================================================================
-# Trying to solve the metaclass problem described above
-# =============================================================================
-
-class PclBlendedMetaclass(PclMetaclass, DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(cls: Type[Union[PclCommon, DeclarativeMeta]],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
-        PclMetaclass.__init__(cls, name, bases, classdict)
-        # ... will call DeclarativeMeta.__init__ via its super().__init__()
-
-
-# =============================================================================
 # PCL-C
 # =============================================================================
 
-class PclC(PclCommon, Base,
-           metaclass=PclBlendedMetaclass):
+class PclC(PclCommon,
+           metaclass=PclMetaclass):
     __tablename__ = "pclc"
     shortname = "PCL-C"
     longname = "PTSD Checklist, Civilian version"
@@ -281,8 +268,8 @@ class PclC(PclCommon, Base,
 # PCL-M
 # =============================================================================
 
-class PclM(PclCommon, Base,
-           metaclass=PclBlendedMetaclass):
+class PclM(PclCommon,
+           metaclass=PclMetaclass):
     __tablename__ = "pclm"
     shortname = "PCL-M"
     longname = "PTSD Checklist, Military version"
@@ -294,8 +281,8 @@ class PclM(PclCommon, Base,
 # PCL-S
 # =============================================================================
 
-class PclS(PclCommon, Base,
-           metaclass=PclBlendedMetaclass):
+class PclS(PclCommon,
+           metaclass=PclMetaclass):
     __tablename__ = "pcls"
     shortname = "PCL-S"
     longname = "PTSD Checklist, Stressor-specific version"

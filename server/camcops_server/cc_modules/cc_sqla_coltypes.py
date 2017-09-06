@@ -86,38 +86,47 @@ from typing import Any, Generator, List, Optional, Tuple, Union
 
 import arrow
 from arrow import Arrow
+from cardinal_pythonlib.lists import chunks
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
-import dateutil.parser
 import pytz
 from semantic_version import Version
-from sqlalchemy.dialects import mysql
+from sqlalchemy import util
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import (
     Boolean,
-    Integer,
     LargeBinary,
     String,
+    Text,
     Unicode,
     UnicodeText,
 )
 from sqlalchemy.sql.type_api import TypeDecorator
 
 from .cc_constants import PV
+from .cc_dt import get_arrow_from_string
+from .cc_simpleobjects import IdNumDefinition
 from .cc_version import make_version
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
+# =============================================================================
+# Debugging options
+# =============================================================================
+
+DEBUG_DATETIME_AS_ISO_TEXT = False
+DEBUG_IDNUMDEF_LIST = True
+DEBUG_SEMANTIC_VERSION = False
+
+if DEBUG_DATETIME_AS_ISO_TEXT or DEBUG_SEMANTIC_VERSION or DEBUG_IDNUMDEF_LIST:
+    log.warning("Debugging options enabled!")
 
 # =============================================================================
 # Constants
 # =============================================================================
-
-DEBUG_DATETIME_AS_ISO_TEXT = False
-DEBUG_SEMANTIC_VERSION = False
 
 ICD9_CODE_MAX_LENGTH = 6  # longest is "xxx.xx"; thus, 6; see
 # https://www.cms.gov/Medicare/Quality-Initiatives-Patient-Assessment-Instruments/HospitalQualityInits/Downloads/HospitalAppendix_F.pdf  # noqa
@@ -192,29 +201,6 @@ UserNameColType = String(length=255)
 # on the Python side.
 # =============================================================================
 
-def arrow_to_isostring(x: Arrow) -> Optional[str]:
-    """
-    From a Python datetime to an ISO-formatted string in our particular format.
-    """
-    # https://docs.python.org/3.4/library/datetime.html#strftime-strptime-behavior  # noqa
-    try:
-        mainpart = x.strftime("%Y-%m-%dT%H:%M:%S.%f")  # microsecond accuracy
-        timezone = x.strftime("%z")  # won't have the colon in
-        return mainpart + timezone[:-2] + ":" + timezone[-2:]
-    except AttributeError:
-        return None
-
-
-def isostring_to_arrow(x: str) -> Optional[Arrow]:
-    """From an ISO-formatted string to a Python Arrow, with timezone."""
-    if not x:
-        return None  # otherwise Arrow will give us the current date
-    try:
-        return dateutil.parser.parse(x)
-    except arrow.arrow.parser.ParserError:
-        return None
-
-
 def python_datetime_to_utc(x):
     """From a Python datetime, with timezone, to a UTC Python version."""
     try:
@@ -254,7 +240,7 @@ def mysql_unknown_field_to_utcdatetime(x):
     )
 
 
-class DateTimeAsIsoTextColType(TypeDecorator):
+class ArrowDateTimeAsIsoTextColType(TypeDecorator):
     """
     Stores date/time values as ISO-8601, in a specific format.
     Uses Arrow on the Python side.
@@ -266,9 +252,37 @@ class DateTimeAsIsoTextColType(TypeDecorator):
     def python_type(self):
         return Arrow
 
-    def process_bind_param(self, value: Any, dialect: Dialect) -> str:
+    @staticmethod
+    def arrow_to_isostring(x: Optional[Arrow]) -> Optional[str]:
+        """
+        From a Python datetime to an ISO-formatted string in our particular
+        format.
+        """
+        # https://docs.python.org/3.4/library/datetime.html#strftime-strptime-behavior  # noqa
+        try:
+            mainpart = x.strftime(
+                "%Y-%m-%dT%H:%M:%S.%f")  # microsecond accuracy
+            timezone = x.strftime("%z")  # won't have the colon in
+            return mainpart + timezone[:-2] + ":" + timezone[-2:]
+        except AttributeError:
+            return None
+
+    @staticmethod
+    def isostring_to_arrow(x: Optional[str]) -> Optional[Arrow]:
+        """From an ISO-formatted string to a Python Arrow, with timezone."""
+        if not x:
+            return None  # otherwise Arrow will give us the current date
+        try:
+            return get_arrow_from_string(x)
+            # return dateutil.parser.parse(x)
+        except arrow.arrow.parser.ParserError:
+            log.warning("Bad ISO date/time string: {!r}", x)
+            return None
+
+    def process_bind_param(self, value: Optional[Arrow],
+                           dialect: Dialect) -> Optional[str]:
         """Convert things on the way from Python to the database."""
-        retval = arrow_to_isostring(value)
+        retval = self.arrow_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
                 "DateTimeAsIsoTextColType.process_bind_param("
@@ -276,9 +290,10 @@ class DateTimeAsIsoTextColType(TypeDecorator):
                 self, value, dialect, retval)
         return retval
 
-    def process_literal_param(self, value: Any, dialect: Dialect) -> str:
+    def process_literal_param(self, value: Optional[Arrow],
+                              dialect: Dialect) -> Optional[str]:
         """Convert things on the way from Python to the database."""
-        retval = arrow_to_isostring(value)
+        retval = self.arrow_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
                 "DateTimeAsIsoTextColType.process_literal_param("
@@ -286,10 +301,10 @@ class DateTimeAsIsoTextColType(TypeDecorator):
                 self, value, dialect, retval)
         return retval
 
-    def process_result_value(self, value: Any,
+    def process_result_value(self, value: Optional[str],
                              dialect: Dialect) -> Optional[Arrow]:
         """Convert things on the way from the database to Python."""
-        retval = isostring_to_arrow(value)
+        retval = self.isostring_to_arrow(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
                 "DateTimeAsIsoTextColType.process_result_value("
@@ -322,7 +337,7 @@ class DateTimeAsIsoTextColType(TypeDecorator):
             return op(mysql_isotzdatetime_to_utcdatetime(self.expr),
                       processed_other)
             # NOT YET IMPLEMENTED: dialects other than MySQL, and how to
-            # detect the dialect at this point.
+            # detect the dialect at this point. ***
 
         def reverse_operate(self, op, *other, **kwargs):
             assert False, "I don't think this is ever being called"
@@ -344,9 +359,10 @@ class SemanticVersionColType(TypeDecorator):
     def python_type(self):
         return Version
 
-    def process_bind_param(self, value: Version, dialect: Dialect) -> str:
+    def process_bind_param(self, value: Optional[Version],
+                           dialect: Dialect) -> Optional[str]:
         """Convert things on the way from Python to the database."""
-        retval = str(value)
+        retval = str(value) if value is not None else None
         if DEBUG_SEMANTIC_VERSION:
             log.debug(
                 "SemanticVersionColType.process_bind_param("
@@ -354,9 +370,10 @@ class SemanticVersionColType(TypeDecorator):
                 self, value, dialect, retval)
         return retval
 
-    def process_literal_param(self, value: Version, dialect: Dialect) -> str:
+    def process_literal_param(self, value: Optional[Version],
+                              dialect: Dialect) -> Optional[str]:
         """Convert things on the way from Python to the database."""
-        retval = str(value)
+        retval = str(value) if value is not None else None
         if DEBUG_SEMANTIC_VERSION:
             log.debug(
                 "SemanticVersionColType.process_literal_param("
@@ -364,7 +381,7 @@ class SemanticVersionColType(TypeDecorator):
                 self, value, dialect, retval)
         return retval
 
-    def process_result_value(self, value: str,
+    def process_result_value(self, value: Optional[str],
                              dialect: Dialect) -> Optional[Version]:
         """Convert things on the way from the database to Python."""
         if value is None:
@@ -398,6 +415,84 @@ class SemanticVersionColType(TypeDecorator):
 
         def reverse_operate(self, op, *other, **kwargs):
             assert False, "I don't think this is ever being called"
+
+
+# =============================================================================
+# IdNumDefinition; IdNumDefinitionColType
+# =============================================================================
+
+class IdNumDefinitionListColType(TypeDecorator):
+    """
+    Stores a list of IdNumDefinition objects.
+    On the database side, uses a comma-separated list of integers.
+    """
+
+    impl = Text()
+
+    @property
+    def python_type(self):
+        return list
+
+    @staticmethod
+    def _idnumdef_list_to_str(idnumdef_list: Optional[List[IdNumDefinition]]) \
+            -> str:
+        if not idnumdef_list:
+            return ""
+        elements = []  # type: List[int]
+        for idnumdef in idnumdef_list:
+            elements.append(idnumdef.which_idnum)
+            elements.append(idnumdef.idnum_value)
+        return ",".join(str(x) for x in elements)
+
+    @staticmethod
+    def _str_to_idnumdef_list(csv: Optional[str]) -> List[IdNumDefinition]:
+        idnumdef_list = []  # type: List[IdNumDefinition]
+        try:
+            intlist = [int(numstr) for numstr in csv.split(",")]
+        except (AttributeError, TypeError, ValueError):
+            return []
+        l = len(intlist)
+        if l == 0 or l % 2 != 0:  # enforce pairs
+            return []
+        for which_idnum, idnum_value in chunks(intlist, n=2):
+            if which_idnum < 0 or idnum_value < 0:  # enforce positive integers
+                return []
+            idnumdef_list.append(IdNumDefinition(which_idnum=which_idnum,
+                                                 idnum_value=idnum_value))
+        return idnumdef_list
+
+    def process_bind_param(self, value: Optional[List[IdNumDefinition]],
+                           dialect: Dialect) -> str:
+        """Convert things on the way from Python to the database."""
+        retval = self._idnumdef_list_to_str(value)
+        if DEBUG_IDNUMDEF_LIST:
+            log.debug(
+                "IdNumDefinitionColType.process_bind_param("
+                "self={!r}, value={!r}, dialect={!r}) -> {!r}",
+                self, value, dialect, retval)
+        return retval
+
+    def process_literal_param(self, value: Optional[List[IdNumDefinition]],
+                              dialect: Dialect) -> str:
+        """Convert things on the way from Python to the database."""
+        retval = self._idnumdef_list_to_str(value)
+        if DEBUG_IDNUMDEF_LIST:
+            log.debug(
+                "IdNumDefinitionColType.process_literal_param("
+                "self={!r}, value={!r}, dialect={!r}) -> !r",
+                self, value, dialect, retval)
+        return retval
+
+    def process_result_value(self, value: Optional[str],
+                             dialect: Dialect) -> List[IdNumDefinition]:
+        """Convert things on the way from the database to Python."""
+        retval = self._str_to_idnumdef_list(value)
+        if DEBUG_IDNUMDEF_LIST:
+            log.debug(
+                "IdNumDefinitionColType.process_result_value("
+                "self={!r}, value={!r}, dialect={!r}) -> {!r}",
+                self, value, dialect, retval)
+        return retval
 
 
 # =============================================================================
@@ -501,6 +596,16 @@ class CamcopsColumn(Column):
                 "of the relationship too")
         super().__init__(*args, **kwargs)
 
+    def _constructor(self, *args, **kwargs):
+        # https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass  # noqa
+        kwargs['cris_include'] = self.cris_include
+        kwargs['exempt_from_anonymisation'] = self.exempt_from_anonymisation
+        kwargs['identifies_patient'] = self.identifies_patient
+        kwargs['is_blob_id_field'] = self.is_blob_id_field
+        kwargs['blob_relationship_attr_name'] = self.blob_relationship_attr_name  # noqa
+        kwargs['permitted_value_checker'] = self.permitted_value_checker
+        return CamcopsColumn(*args, **kwargs)
+
     def __repr__(self) -> str:
         def kvp(attrname: str) -> str:
             return "{}={!r}".format(attrname, getattr(self, attrname))
@@ -513,7 +618,7 @@ class CamcopsColumn(Column):
             kvp("permitted_value_checker"),
             super().__repr__(),
         ]
-        return "CamcopsColumn<{}>".format(",".join(elements))
+        return "CamcopsColumn({})".format(", ".join(elements))
 
     def set_permitted_value_checker(
             self, permitted_value_checker: PermittedValueChecker) -> None:
@@ -605,10 +710,60 @@ def permitted_values_ok(obj) -> bool:
 # Specializations of CamcopsColumn to save typing
 # =============================================================================
 
+def _name_type_in_column_args(args: Tuple[Any, ...]) -> Tuple[bool, bool]:
+    """
+    SQLAlchemy doesn't encourage deriving from Column.
+    If you do, you have to implement __init__() and _constructor() carefully.
+    The __init__() function will be called by user code, and via SQLAlchemy
+    internals, including via _constructor (e.g. from Column.make_proxy()).
+
+    It is likely that __init__ will experience many combinations of the column
+    name and type being passed either in *args or *kwargs. It must pass them
+    on to Column. If you don't mess with the type, that's easy; just pass them
+    on unmodified. But if you plan to mess with the type, as we do in
+    BoolColumn below, we must make sure that we don't pass either of name
+    or type_ in *both* args and kwargs.
+
+    This function tells you whether name and type_ are present in args,
+    using the same method as Column.__init__().
+    """
+    name_in_args = False
+    type_in_args = False
+    args = list(args)  # make a copy, and make it a list not a tuple
+    if args:
+        if isinstance(args[0], util.string_types):
+            name_in_args = True
+            args.pop(0)
+    if args:
+        coltype = args[0]
+        if hasattr(coltype, "_sqla_type"):
+            type_in_args = True
+    return name_in_args, type_in_args
+
+
 # noinspection PyAbstractClass
 class BoolColumn(CamcopsColumn):
-    def __init__(self, name: str):
-        super().__init__(
-            name, Boolean,
-            permitted_value_checker=BIT_CHECKER
-        )
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # Must pass on all arguments, ultimately to Column, or when using
+        # AbstractConcreteBase, you can get this:
+        #
+        # TypeError: Could not create a copy of this <class 'camcops_server.
+        # cc_modules.cc_sqla_coltypes.BoolColumn'> object.  Ensure the class
+        # includes a _constructor() attribute or method which accepts the
+        # standard Column constructor arguments, or references the Column class
+        # itself.
+        #
+        # During internal copying, "type_" can arrive here within kwargs, so
+        # we must make sure that we don't send it on twice to super().__init().
+        # Also, Column.make_proxy() calls our _constructor() with name and type
+        # in args, so we must handle that, too...
+
+        _, type_in_args = _name_type_in_column_args(args)
+        if not type_in_args:
+            kwargs['type_'] = Boolean()
+        kwargs['permitted_value_checker'] = BIT_CHECKER
+        super().__init__(*args, **kwargs)
+
+    def _constructor(self, *args: Any, **kwargs: Any) -> "BoolColumn":
+        # https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass  # noqa
+        return BoolColumn(*args, **kwargs)

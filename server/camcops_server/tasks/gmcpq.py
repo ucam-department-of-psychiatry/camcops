@@ -50,7 +50,7 @@ from ..cc_modules.cc_task import get_from_dict, Task
 # GMCPQ
 # =============================================================================
 
-class GMCPQ(Task, Base):
+class GMCPQ(Task):
     __tablename__ = "gmcpq"
     shortname = "GMC-PQ"
     longname = "GMC Patient Questionnaire"
@@ -259,17 +259,23 @@ class GMCPQ(Task, Base):
         h += sep_row
         h += tr_qa(self.wxstring(req, "q1"), get_from_dict(dict_q1, self.q1))
         h += tr(td(self.wxstring(req, "q2")), blank_cell, literal=True)
-        h += tr_qa(ell + self.wxstring(req, "q2_a"), get_yes_no_none(self.q2a),
+        h += tr_qa(ell + self.wxstring(req, "q2_a"),
+                   get_yes_no_none(req, self.q2a),
                    default="")
-        h += tr_qa(ell + self.wxstring(req, "q2_b"), get_yes_no_none(self.q2b),
+        h += tr_qa(ell + self.wxstring(req, "q2_b"),
+                   get_yes_no_none(req, self.q2b),
                    default="")
-        h += tr_qa(ell + self.wxstring(req, "q2_c"), get_yes_no_none(self.q2c),
+        h += tr_qa(ell + self.wxstring(req, "q2_c"),
+                   get_yes_no_none(req, self.q2c),
                    default="")
-        h += tr_qa(ell + self.wxstring(req, "q2_d"), get_yes_no_none(self.q2d),
+        h += tr_qa(ell + self.wxstring(req, "q2_d"),
+                   get_yes_no_none(req, self.q2d),
                    default="")
-        h += tr_qa(ell + self.wxstring(req, "q2_e"), get_yes_no_none(self.q2e),
+        h += tr_qa(ell + self.wxstring(req, "q2_e"),
+                   get_yes_no_none(req, self.q2e),
                    default="")
-        h += tr_qa(ell + self.wxstring(req, "q2_f"), get_yes_no_none(self.q2f),
+        h += tr_qa(ell + self.wxstring(req, "q2_f"),
+                   get_yes_no_none(req, self.q2f),
                    default="")
         h += tr_qa(ell + ell + self.wxstring(req, "q2f_s"),
                    ws.webify(self.q2f_details))
@@ -294,14 +300,16 @@ class GMCPQ(Task, Base):
                    get_from_dict(dict_q5, self.q5a))
         h += tr_qa(ell + self.wxstring(req, "q5_b"),
                    get_from_dict(dict_q5, self.q5b))
-        h += tr_qa(self.wxstring(req, "q6"), get_yes_no_none(self.q6))
-        h += tr_qa(self.wxstring(req, "q7"), get_yes_no_none(self.q7))
-        h += tr_qa(self.wxstring(req, "q8"), get_yes_no_none(self.q8))
+        h += tr_qa(self.wxstring(req, "q6"), get_yes_no_none(req, self.q6))
+        h += tr_qa(self.wxstring(req, "q7"), get_yes_no_none(req, self.q7))
+        h += tr_qa(self.wxstring(req, "q8"), get_yes_no_none(req, self.q8))
         h += tr_qa(self.wxstring(req, "q9_s"), ws.webify(self.q9))
         h += sep_row
         h += tr_qa(req.wappstring("sex"), ws.webify(self.q10))
-        h += tr_qa(self.wxstring(req, "q11"), get_from_dict(dict_q11, self.q11))
-        h += tr_qa(self.wxstring(req, "q12"), get_from_dict(dict_q12, self.q12))
+        h += tr_qa(self.wxstring(req, "q11"),
+                   get_from_dict(dict_q11, self.q11))
+        h += tr_qa(self.wxstring(req, "q12"),
+                   get_from_dict(dict_q12, self.q12))
         h += tr_qa(ell + self.wxstring(req, "ethnicity_other_s"),
                    ws.webify(self.q12_details))
         h += """

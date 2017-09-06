@@ -45,7 +45,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
     SummaryCategoryColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
@@ -61,7 +61,7 @@ from ..cc_modules.cc_task import (
 # Icd10Depressive
 # =============================================================================
 
-class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     __tablename__ = "icd10depressive"
     shortname = "ICD10-DEPR"
     longname = (
@@ -213,7 +213,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
     )
 
     date_pertains_to = CamcopsColumn(
-        "date_pertains_to", DateTimeAsIsoTextColType,
+        "date_pertains_to", ArrowDateTimeAsIsoTextColType,
         comment="Date the assessment pertains to"
     )
     comments = Column(
@@ -501,7 +501,8 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
                 answer(self.n_somatic()) + " / 8")
         h += tr(self.wxstring(req, "psychotic_symptoms_or_stupor") +
                 " <sup>[2]</sup>",
-                answer(get_present_absent_none(self.is_psychotic_or_stupor())))
+                answer(get_present_absent_none(req,
+                                               self.is_psychotic_or_stupor())))
         h += """
                 </table>
             </div>

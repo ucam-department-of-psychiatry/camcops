@@ -75,7 +75,7 @@ class CgiSchMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
              metaclass=CgiSchMetaclass):
     __tablename__ = "cgisch"
     shortname = "CGI-SCH"

@@ -75,7 +75,7 @@ class Zbi12Metaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task, Base,
+class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
             metaclass=Zbi12Metaclass):
     __tablename__ = "zbi12"
     shortname = "ZBI-12"

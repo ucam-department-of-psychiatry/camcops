@@ -99,7 +99,7 @@ class DistressThermometerMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class DistressThermometer(TaskHasPatientMixin, Task, Base,
+class DistressThermometer(TaskHasPatientMixin, Task,
                           metaclass=DistressThermometerMetaclass):
     __tablename__ = "distressthermometer"
     shortname = "Distress Thermometer"
@@ -154,31 +154,31 @@ class DistressThermometer(TaskHasPatientMixin, Task, Base,
         for i in range(1, 5 + 1):
             h += tr_qa(
                 "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
-                get_yes_no_none(getattr(self, "q" + str(i)))
+                get_yes_no_none(req, getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Family problems")
         for i in range(6, 8 + 1):
             h += tr_qa(
                 "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
-                get_yes_no_none(getattr(self, "q" + str(i)))
+                get_yes_no_none(req, getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Emotional problems")
         for i in range(9, 14 + 1):
             h += tr_qa(
                 "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
-                get_yes_no_none(getattr(self, "q" + str(i)))
+                get_yes_no_none(req, getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Spiritual problems")
         for i in range(15, 15 + 1):
             h += tr_qa(
                 "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
-                get_yes_no_none(getattr(self, "q" + str(i)))
+                get_yes_no_none(req, getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Physical problems")
         for i in range(16, self.NQUESTIONS + 1):
             h += tr_qa(
                 "{}. {}".format(i, self.wxstring(req, "q" + str(i))),
-                get_yes_no_none(getattr(self, "q" + str(i)))
+                get_yes_no_none(req, getattr(self, "q" + str(i)))
             )
         h += subheading_spanning_two_columns("Other problems")
         h += tr_qa(self.wxstring(req, "other_s"), self.other)

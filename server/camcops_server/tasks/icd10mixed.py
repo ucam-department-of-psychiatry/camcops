@@ -40,7 +40,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
@@ -55,7 +55,7 @@ from ..cc_modules.cc_task import (
 # Icd10Mixed
 # =============================================================================
 
-class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     __tablename__ = "icd10mixed"
     shortname = "ICD10-MIXED"
     longname = (
@@ -64,7 +64,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
     )
 
     date_pertains_to = Column(
-        "date_pertains_to", DateTimeAsIsoTextColType,
+        "date_pertains_to", ArrowDateTimeAsIsoTextColType,
         comment="Date the assessment pertains to"
     )
     comments = Column(
@@ -139,7 +139,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
         h += tr_qa(req.wappstring("meets_criteria"),
-                   get_true_false_none(self.meets_criteria()))
+                   get_true_false_none(req, self.meets_criteria()))
         h += """
                 </table>
             </div>

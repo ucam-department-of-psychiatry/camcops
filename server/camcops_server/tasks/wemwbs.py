@@ -72,7 +72,7 @@ class WemwbsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Wemwbs(TaskHasPatientMixin, Task, Base,
+class Wemwbs(TaskHasPatientMixin, Task,
              metaclass=WemwbsMetaclass):
     __tablename__ = "wemwbs"
     shortname = "WEMWBS"
@@ -209,7 +209,7 @@ class SwemwbsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Swemwbs(TaskHasPatientMixin, Task, Base,
+class Swemwbs(TaskHasPatientMixin, Task,
               metaclass=SwemwbsMetaclass):
     __tablename__ = "swemwbs"
     shortname = "SWEMWBS"

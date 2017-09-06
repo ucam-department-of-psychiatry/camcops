@@ -75,7 +75,7 @@ class Phq15Metaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Phq15(TaskHasPatientMixin, Task, Base,
+class Phq15(TaskHasPatientMixin, Task,
             metaclass=Phq15Metaclass):
     __tablename__ = "phq15"
     shortname = "PHQ-15"
@@ -180,7 +180,7 @@ class Phq15(TaskHasPatientMixin, Task, Base,
                    nsevere)
         h += tr_qa(
             self.wxstring(req, "exceeds_somatoform_cutoff") + " <sup>[3]</sup>",
-            get_yes_no(somatoform_likely))
+            get_yes_no(req, somatoform_likely))
         h += tr_qa(self.wxstring(req, "symptom_severity") + " <sup>[4]</sup>",
                    severity)
         h += """

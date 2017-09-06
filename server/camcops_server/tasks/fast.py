@@ -60,7 +60,7 @@ class FastMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Fast(TaskHasPatientMixin, Task, Base,
+class Fast(TaskHasPatientMixin, Task,
            metaclass=FastMetaclass):
     __tablename__ = "fast"
     shortname = "FAST"
@@ -139,7 +139,7 @@ class Fast(TaskHasPatientMixin, Task, Base,
         h += tr(req.wappstring("total_score"),
                 answer(self.total_score()) + " / {}".format(self.MAX_SCORE))
         h += tr_qa(self.wxstring(req, "positive") + " <sup>[1]</sup>",
-                   get_yes_no(self.is_positive()))
+                   get_yes_no(req, self.is_positive()))
         h += """
                 </table>
             </div>

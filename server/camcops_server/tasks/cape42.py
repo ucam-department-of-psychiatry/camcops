@@ -111,7 +111,7 @@ class Cape42Metaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Cape42(TaskHasPatientMixin, Task, Base,
+class Cape42(TaskHasPatientMixin, Task,
              metaclass=Cape42Metaclass):
     __tablename__ = "cape42"
     shortname = "CAPE-42"

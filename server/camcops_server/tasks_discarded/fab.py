@@ -56,7 +56,7 @@ class FabMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Fab(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Fab(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
           metaclass=FabMetaclass):
     __tablename__ = "fab"
     shortname = "FAB"
@@ -135,7 +135,7 @@ class Fab(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
             score=score,
             max_total=self.MAX_TOTAL,
             cutoff_str=self.wxstring(req, "below_cutoff"),
-            below_cutoff=get_yes_no(below_cutoff),
+            below_cutoff=get_yes_no(req, below_cutoff),
         )
         for q in range(1, self.NQUESTIONS + 1):
             h += """<tr><td>{}</td><td><b>{}</b></td></tr>""".format(

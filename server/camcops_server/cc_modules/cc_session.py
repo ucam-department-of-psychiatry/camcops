@@ -52,9 +52,11 @@ from .cc_html import (
     get_yes_no_none,
 )
 from .cc_pyramid import CookieKey
+from .cc_simpleobjects import IdNumDefinition
 from .cc_sqla_coltypes import (
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
     FilterTextColType,
+    IdNumDefinitionListColType,
     IPAddressColType,
     PatientNameColType,
     SessionTokenColType,
@@ -143,7 +145,7 @@ class CamcopsSession(Base):
         comment="Task filter in use: forename"
     )
     filter_dob_iso8601 = Column(
-        "filter_dob_iso8601", DateTimeAsIsoTextColType,
+        "filter_dob_iso8601", ArrowDateTimeAsIsoTextColType,
         comment="Task filter in use: DOB"
         # *** Suboptimal: using a lengthy ISO field for a date only.
         # Could be just a Date?
@@ -173,11 +175,11 @@ class CamcopsSession(Base):
         comment="Task filter in use: adding user ID"
     )
     filter_start_datetime_iso8601 = Column(
-        "filter_start_datetime_iso8601", DateTimeAsIsoTextColType,
+        "filter_start_datetime_iso8601", ArrowDateTimeAsIsoTextColType,
         comment="Task filter in use: start date/time (UTC as ISO8601)"
     )
     filter_end_datetime_iso8601 = Column(
-        "filter_end_datetime_iso8601", DateTimeAsIsoTextColType,
+        "filter_end_datetime_iso8601", ArrowDateTimeAsIsoTextColType,
         comment="Task filter in use: end date/time (UTC as ISO8601)"
     )
     filter_text = Column(
@@ -188,24 +190,10 @@ class CamcopsSession(Base):
         "number_to_view", Integer,
         comment="Number of records to view"
     )
-    first_task_to_view = Column(
-        "first_task_to_view", Integer,
-        comment="First record number to view"
+    filter_idnums = Column(  # new in v2.0.1
+        "filter_idnums", IdNumDefinitionListColType,
+        comment="ID filters as JSON"
     )
-    # filter_idnums_json = Column(  # new in v2.0.1
-    #     "filter_idnums_json", Text,  # *** suboptimal! Text in high-speed table
-    #     comment="ID filters as JSON"
-    # )
-
-    # *** DEFUNCT as of v2.0.1; NEED DELETING ONCE ALEMBIC RUNNING:
-    filter_idnum1 = Column("filter_idnum1", Integer)
-    filter_idnum2 = Column("filter_idnum2", Integer)
-    filter_idnum3 = Column("filter_idnum3", Integer)
-    filter_idnum4 = Column("filter_idnum4", Integer)
-    filter_idnum5 = Column("filter_idnum5", Integer)
-    filter_idnum6 = Column("filter_idnum6", Integer)
-    filter_idnum7 = Column("filter_idnum7", Integer)
-    filter_idnum8 = Column("filter_idnum8", Integer)
 
     def __repr__(self) -> str:
         return simple_repr(
@@ -240,13 +228,14 @@ class CamcopsSession(Base):
             # We found a session, and it's associated with a user, but with
             # the wrong user. This is unlikely to happen!
             # Wipe the old one:
-            session.logout()
+            req = ts.req
+            session.logout(req)
             # Create a fresh session.
-            session = cls.get_session(req=ts.req, session_id_str=None,
+            session = cls.get_session(req=req, session_id_str=None,
                                       session_token=None)
             if ts.username:
                 user = User.get_user_from_username_password(
-                    ts.req, ts.username, ts.password)
+                    req, ts.username, ts.password)
                 if user and user.may_login_as_tablet:
                     # Successful login.
                     session.login(user)
@@ -435,7 +424,7 @@ class CamcopsSession(Base):
             return False
         return self.user.may_run_reports or self.user.superuser
 
-    def restricted_to_viewing_user(self) -> Optional[str]:
+    def restricted_to_viewing_user_id(self) -> Optional[int]:
         """If the user is restricted to viewing only their own records, returns
         the name of the user to which they're restricted. Otherwise, returns
         None."""
@@ -477,25 +466,11 @@ class CamcopsSession(Base):
     # Filters
     # -------------------------------------------------------------------------
 
-    def get_idnum_filters(self) -> List[Tuple[int, int]]:  # which_idnum, idnum_value  # noqa
-        if (not self.filter_idnums_json or
-                not isinstance(self.filter_idnums_json, str)):
-            # json.loads() requires a string
-            return []
-        restored = json.loads(self.filter_idnums_json)
-        if not isinstance(restored, list):
-            # garbage!
-            return []
-        final = []  # type: List[Tuple[int, int]]
-        for pair in restored:
-            if not isinstance(pair, list) or len(pair) != 2:
-                # json.loads() will restore a tuple as a list of length 2
-                return []
-            final.append((pair[0], pair[1]))
-        return final
+    def get_idnum_filters(self) -> List[IdNumDefinition]:
+        return self.filter_idnums or []
 
-    def set_idnum_filters(self, idnum_filter: List[Tuple[int, int]]) -> None:
-        self.filter_idnums_json = json.dumps(idnum_filter)
+    def set_idnum_filters(self, idnum_filter: List[IdNumDefinition]) -> None:
+        self.filter_idnums = idnum_filter
 
     def any_patient_filtering(self) -> bool:
         """Is there some sort of patient filtering being applied?"""
@@ -529,11 +504,11 @@ class CamcopsSession(Base):
 
         id_filter_value = None
         id_filter_name = "ID number"
-        for which_idnum, idnum_value in self.get_idnum_filters():
-            if (idnum_value is not None and
-                    which_idnum in pls.get_which_idnums()):
-                id_filter_value = idnum_value
-                id_filter_name = pls.get_id_desc(which_idnum)
+        for idnumdef in self.get_idnum_filters():
+            if (idnumdef.idnum_value is not None and
+                    idnumdef.which_idnum in pls.get_which_idnums()):
+                id_filter_value = idnumdef.idnum_value
+                id_filter_name = pls.get_id_desc(idnumdef.which_idnum)
         which_idnum_temp = """
                 {picker}
                 <input type="number" name="{PARAM.IDNUM_VALUE}">

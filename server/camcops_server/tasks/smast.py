@@ -72,7 +72,7 @@ class SmastMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Smast(TaskHasPatientMixin, Task, Base,
+class Smast(TaskHasPatientMixin, Task,
             metaclass=SmastMetaclass):
     __tablename__ = "smast"
     shortname = "SMAST"

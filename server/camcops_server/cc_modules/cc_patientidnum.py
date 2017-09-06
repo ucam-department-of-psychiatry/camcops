@@ -45,11 +45,12 @@ from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
 from .cc_constants import FP_ID_NUM
 from .cc_db import GenericTabletRecordMixin
+from .cc_simpleobjects import IdNumDefinition
 from .cc_sqla_coltypes import CamcopsColumn
 from .cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
-    from .cc_config import CamcopsConfig
+    from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -82,15 +83,27 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         comment="The value of the ID number"
     )
 
-    def description(self, cfg: "CamcopsConfig") -> str:
-        which_idnum = self.which_idnum  # type: int
-        return cfg.get_id_desc(which_idnum, default="?")
+    def get_idnum_definition(self) -> IdNumDefinition:
+        return IdNumDefinition(which_idnum=self.which_idnum,
+                               idnum_value=self.idnum_value)
 
-    def short_description(self, cfg: "CamcopsConfig") -> str:
-        which_idnum = self.which_idnum  # type: int
-        return cfg.get_id_shortdesc(which_idnum, default="?")
+    def is_valid(self) -> bool:
+        return (
+            self.which_idnum is not None and
+            self.idnum_value is not None and
+            self.which_idnum >= 0 and
+            self.idnum_value >= 0
+        )
 
-    def get_html(self, cfg: "CamcopsConfig",
+    def description(self, req: "CamcopsRequest") -> str:
+        which_idnum = self.which_idnum  # type: int
+        return req.config.get_id_desc(which_idnum, default="?")
+
+    def short_description(self, req: "CamcopsRequest") -> str:
+        which_idnum = self.which_idnum  # type: int
+        return req.config.get_id_shortdesc(which_idnum, default="?")
+
+    def get_html(self, req: "CamcopsRequest",
                  longform: bool, label_id_numbers: bool = False) -> str:
         """
         Returns description HTML.
@@ -108,20 +121,20 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         if longform:
             return "<br>{}{}: <b>{}</b>".format(
                 prefix,
-                ws.webify(self.description(cfg)),
+                ws.webify(self.description(req)),
                 self.idnum_value
             )
         else:
             return "{}{}: {}.".format(
                 prefix,
-                ws.webify(self.short_description(cfg)),
+                ws.webify(self.short_description(req)),
                 self.idnum_value
             )
 
-    def get_filename_component(self, cfg: "CamcopsConfig") -> str:
+    def get_filename_component(self, req: "CamcopsRequest") -> str:
         if self.which_idnum is None or self.idnum_value is None:
             return ""
-        return "{}-{}".format(self.short_description(cfg),
+        return "{}-{}".format(self.short_description(req),
                               self.idnum_value)
 
     def set_idnum(self, idnum_value: int) -> None:

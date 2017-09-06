@@ -62,7 +62,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
 ZERO_OR_TWO_CHECKER = PermittedValueChecker(permitted_values=[0, 2])
 
 
-class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     __tablename__ = "slums"
     shortname = "SLUMS"
     longname = "St Louis University Mental Status"
@@ -306,9 +306,10 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
                     <th width="20%">Score</th>
                 </tr>
         """
-        h += tr_qa(self.wxstring(req, "alert_s"), get_yes_no_none(self.alert))
+        h += tr_qa(self.wxstring(req, "alert_s"),
+                   get_yes_no_none(req, self.alert))
         h += tr_qa(self.wxstring(req, "highschool_s"),
-                   get_yes_no_none(self.highschooleducation))
+                   get_yes_no_none(req, self.highschooleducation))
         h += tr_qa(self.wxstring(req, "q1_s"), self.q1)
         h += tr_qa(self.wxstring(req, "q2_s"), self.q2)
         h += tr_qa(self.wxstring(req, "q3_s"), self.q3)

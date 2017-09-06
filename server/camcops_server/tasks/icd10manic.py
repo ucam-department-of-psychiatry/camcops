@@ -42,7 +42,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
     SummaryCategoryColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
@@ -58,7 +58,7 @@ from ..cc_modules.cc_task import (
 # Icd10Manic
 # =============================================================================
 
-class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     __tablename__ = "icd10manic"
     shortname = "ICD10-MANIC"
     longname = (
@@ -204,7 +204,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
     )
 
     date_pertains_to = Column(
-        "date_pertains_to", DateTimeAsIsoTextColType,
+        "date_pertains_to", ArrowDateTimeAsIsoTextColType,
         comment="Date the assessment pertains to"
     )
     comments = Column(
@@ -409,7 +409,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
                    self.get_description(req))
         h += tr_qa(
             self.wxstring(req, "psychotic_symptoms") + " <sup>[2]</sup>",
-            get_present_absent_none(self.psychosis_present()))
+            get_present_absent_none(req, self.psychosis_present()))
         h += """
                 </table>
             </div>

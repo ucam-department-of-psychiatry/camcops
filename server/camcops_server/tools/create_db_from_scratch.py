@@ -34,7 +34,7 @@ from cardinal_pythonlib.logs import (
 
 from ..cc_modules.cc_alembic import create_database_from_scratch
 from ..cc_modules.cc_config import get_default_config_from_os_env
-from ..cc_modules.cc_constants import ENVVAR_CONFIG_FILE
+from ..cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 
 log = logging.getLogger(__name__)
 

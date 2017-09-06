@@ -74,7 +74,7 @@ class Gds15Metaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Gds15(TaskHasPatientMixin, Task, Base,
+class Gds15(TaskHasPatientMixin, Task,
             metaclass=Gds15Metaclass):
     __tablename__ = "gds15"
     shortname = "GDS-15"

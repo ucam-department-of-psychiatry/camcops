@@ -89,7 +89,7 @@ class YbocsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
+class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             metaclass=YbocsMetaclass):
     __tablename__ = "ybocs"
     shortname = "Y-BOCS"
@@ -313,7 +313,7 @@ class YbocsScMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class YbocsSc(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
+class YbocsSc(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
               metaclass=YbocsScMetaclass):
     __tablename__ = "ybocssc"
     shortname = "Y-BOCS-SC"

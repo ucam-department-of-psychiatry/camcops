@@ -69,7 +69,7 @@ class HamaMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Hama(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Hama(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=HamaMetaclass):
     __tablename__ = "hama"
     shortname = "HAM-A"

@@ -122,7 +122,7 @@ class CbiRMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task, Base,
+class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
            metaclass=CbiRMetaclass):
     __tablename__ = "cbir"
     shortname = "CBI-R"
@@ -136,7 +136,7 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task, Base,
     )
     comments = Column(
         "comments", UnicodeText,
-         comment="Additional comments"
+        comment="Additional comments"
     )
 
     MIN_SCORE = 0
@@ -431,7 +431,7 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task, Base,
                 self.distress_subscore(*self.QNUMS_MOTIVATION)),
             tr_blanks=tr(
                 "Respondent confirmed that blanks are deliberate (N/A)",
-                answer(get_yes_no(self.confirm_blanks))),
+                answer(get_yes_no(req, self.confirm_blanks))),
             tr_comments=tr("Comments",
                            answer(self.comments, default="")),
         )

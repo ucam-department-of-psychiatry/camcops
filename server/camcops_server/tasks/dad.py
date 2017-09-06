@@ -73,7 +73,7 @@ class DadMetaclass(DeclarativeMeta):
 
 
 class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
-          Task, Base,
+          Task,
           metaclass=DadMetaclass):
     __tablename__ = "dad"
     shortname = "DAD"

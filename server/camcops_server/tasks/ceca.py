@@ -61,7 +61,7 @@ from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 FREQUENCY_COMMENT = "Frequency (0 never - 3 often)"
 
 
-class CecaQ3(TaskHasPatientMixin, Task, Base):
+class CecaQ3(TaskHasPatientMixin, Task):
     __tablename__ = "cecaq3"
     shortname = "CECA-Q3"
     longname = "Childhood Experience of Care and Abuse Questionnaire"
@@ -1922,9 +1922,9 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
             """ +
             self.get_is_complete_tr() +
             tr_qa("Parental loss risk factor? <sup>[1]</sup>",
-                  get_yes_no(self.parental_loss_risk())) +
+                  get_yes_no(req, self.parental_loss_risk())) +
             tr_qa("Parental loss higher risk factor? <sup>[2]</sup>",
-                  get_yes_no(self.parental_loss_high_risk())) +
+                  get_yes_no(req, self.parental_loss_high_risk())) +
             tr_qa("Maternal antipathy score (8–40) <sup>[3]</sup>",
                   self.mother_antipathy()) +
             tr_qa("Maternal neglect score (8–40) <sup>[3]</sup>",
@@ -1959,7 +1959,8 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
                 <table class="taskdetail">
             """ +
 
-            subheading_spanning_two_columns("1A: " + self.wxstring(req, "1a_q")) +
+            subheading_spanning_two_columns("1A: " +
+                                            self.wxstring(req, "1a_q")) +
             self.subsubheading_from_wstring("1a_motherfigures") +
             self.wstring_boolean("1a_mf_birthmother",
                                  self.s1a_motherfigure_birthmother) +
@@ -2274,19 +2275,24 @@ class CecaQ3(TaskHasPatientMixin, Task, Base):
     def subheading_from_wstring(self, wstringname: str) -> str:
         return subheading_from_string(self.wxstring(req, wstringname))
 
-    def subsubheading_from_wstring(self, wstringname: str) -> str:
+    def subsubheading_from_wstring(self, req: CamcopsRequest,
+                                   wstringname: str) -> str:
         return subsubheading_from_string(self.wxstring(req, wstringname))
 
-    def wstring_boolean(self, wstring: str, value: Any) -> str:
-        return string_boolean(self.wxstring(req, wstring), value)
+    def wstring_boolean(self, req: CamcopsRequest,
+                        wstring: str, value: Any) -> str:
+        return string_boolean(req, self.wxstring(req, wstring), value)
     
-    def wstring_numeric(self, wstring: str, value: Any) -> str:
+    def wstring_numeric(self, req: CamcopsRequest,
+                        wstring: str, value: Any) -> str:
         return string_numeric(self.wxstring(req, wstring), value)
 
-    def wstring_string(self, wstring: str, value: str) -> str:
+    def wstring_string(self, req: CamcopsRequest,
+                       wstring: str, value: str) -> str:
         return string_string(self.wxstring(req, wstring), value)
 
-    def wstring_dict(self, wstring: str, value: Any, d: Dict) -> str:
+    def wstring_dict(self, req: CamcopsRequest,
+                     wstring: str, value: Any, d: Dict) -> str:
         return string_dict(self.wxstring(req, wstring), value, d)
 
 
@@ -2306,8 +2312,8 @@ def row(label: str, value: Any, default: str = "") -> str:
     return tr_qa(label, value, default=default)
 
 
-def string_boolean(string: str, value: Any) -> str:
-    return row(string, get_yes_no_none(value))
+def string_boolean(req: CamcopsRequest, string: str, value: Any) -> str:
+    return row(string, get_yes_no_none(req, value))
 
 
 def string_numeric(string: str, value: Any) -> str:

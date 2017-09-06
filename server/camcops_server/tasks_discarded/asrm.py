@@ -51,7 +51,7 @@ class AsrmMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Asrm(TaskHasPatientMixin, Task, Base,
+class Asrm(TaskHasPatientMixin, Task,
            metaclass=AsrmMetaclass):
     __tablename__ = "asrm"
     shortname = "ASRM"
@@ -127,7 +127,7 @@ class Asrm(TaskHasPatientMixin, Task, Base,
             total_score_str=req.wappstring("total_score"),
             score=score,
             above_cutoff_str=self.wxstring(req, "above_cutoff"),
-            above_cutoff=get_yes_no(above_cutoff),
+            above_cutoff=get_yes_no(req, above_cutoff),
             maxtotal=self.MAX_TOTAL,
         )
         for q in range(1, self.NQUESTIONS + 1):

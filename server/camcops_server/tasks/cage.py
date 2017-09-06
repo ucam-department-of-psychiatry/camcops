@@ -63,7 +63,7 @@ class CageMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Cage(TaskHasPatientMixin, Task, Base,
+class Cage(TaskHasPatientMixin, Task,
            metaclass=CageMetaclass):
     __tablename__ = "cage"
     shortname = "CAGE"
@@ -122,7 +122,8 @@ class Cage(TaskHasPatientMixin, Task, Base,
         """ + self.get_is_complete_tr()
         h += tr(req.wappstring("total_score"),
                 answer(score) + " / {}".format(self.NQUESTIONS))
-        h += tr_qa(self.wxstring(req, "over_threshold"), get_yes_no(exceeds_cutoff))
+        h += tr_qa(self.wxstring(req, "over_threshold"),
+                   get_yes_no(req, exceeds_cutoff))
         h += """
                 </table>
             </div>

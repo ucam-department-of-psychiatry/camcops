@@ -22,21 +22,34 @@
 ===============================================================================
 """
 
-import collections
+import datetime
+from typing import List
 
-# Optional arguments for named tuples that also allow isinstance() checking:
-# http://stackoverflow.com/questions/11351032
+# Prefer classes to collections.namedtuple; both support type checking but
+# classes support better parameter checking (and refactoring) via PyCharm.
 
 
 # =============================================================================
 # HL7PatientIdentifier
 # =============================================================================
 
-HL7PatientIdentifier = collections.namedtuple("PatientIdentifierTuple", [
-    "id",
-    "id_type",
-    "assigning_authority"
-])
+class IdNumDefinition(object):
+    def __init__(self, which_idnum: int, idnum_value: int) -> None:
+        self.which_idnum = which_idnum
+        self.idnum_value = idnum_value
+
+
+# =============================================================================
+# HL7PatientIdentifier
+# =============================================================================
+
+# noinspection PyShadowingBuiltins
+class HL7PatientIdentifier(object):
+    def __init__(self, id: str, id_type: str,
+                 assigning_authority: str) -> None:
+        self.id = id
+        self.id_type = id_type
+        self.assigning_authority = assigning_authority
 
 
 # =============================================================================
@@ -46,31 +59,38 @@ HL7PatientIdentifier = collections.namedtuple("PatientIdentifierTuple", [
 # with mutual dependency problems and the use of the database (prior to full
 # database initialization)
 
-BarePatientInfo = collections.namedtuple("BarePatientInfo", [
-    "forename",
-    "surname",
-    "dob",
-    "sex",
-    "whichidnum_idnumvalue_tuples"
-])
+class BarePatientInfo(object):
+    def __init__(self,
+                 forename: str = None,
+                 surname: str = None,
+                 dob: datetime.date = None,
+                 sex: str = None,
+                 idnum_definitions: List[IdNumDefinition] = None) -> None:
+        self.forename = forename
+        self.surname = surname
+        self.dob = dob
+        self.sex = sex
+        self.idnum_definitions = idnum_definitions or []  # type: List[IdNumDefinition]  # noqa
 
 
 # =============================================================================
 # Raw XML value
 # =============================================================================
 
-XmlSimpleValue = collections.namedtuple("XmlSimpleValue", [
-    "value"
-])
-# Represents XML lowest-level items. See functions in cc_xml.py
+class XmlSimpleValue(object):
+    """
+    Represents XML lowest-level items. See functions in cc_xml.py
+    """
+    def __init__(self, value) -> None:
+        self.value = value
 
 
 # =============================================================================
 # IntrospectionFileDetails
 # =============================================================================
 
-IntrospectionFileDetails = collections.namedtuple("IntrospectionFileDetails", [
-    "fullpath",
-    "prettypath",
-    "ext"
-])
+class IntrospectionFileDetails(object):
+    def __init__(self, fullpath: str, prettypath: str, ext: str) -> None:
+        self.fullpath = fullpath
+        self.prettypath = prettypath
+        self.ext = ext

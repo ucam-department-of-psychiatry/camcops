@@ -103,7 +103,7 @@ class PanssMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             metaclass=PanssMetaclass):
     __tablename__ = "panss"
     shortname = "PANSS"

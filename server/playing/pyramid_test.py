@@ -135,7 +135,6 @@ pip install sqlalchemy==1.1.11
 # =============================================================================
 
 import argparse
-import base64
 from contextlib import contextmanager
 import datetime
 import enum

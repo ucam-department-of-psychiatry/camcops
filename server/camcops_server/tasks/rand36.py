@@ -126,7 +126,7 @@ class Rand36Metaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Rand36(TaskHasPatientMixin, Task, Base,
+class Rand36(TaskHasPatientMixin, Task,
              metaclass=Rand36Metaclass):
     __tablename__ = "rand36"
     shortname = "RAND-36"

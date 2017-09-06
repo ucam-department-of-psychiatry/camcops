@@ -43,7 +43,7 @@ from .cc_constants import DATEFORMAT, ERA_NOW
 from .cc_dt import format_datetime
 from .cc_sqla_coltypes import (
     CamcopsColumn,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
     EraColType,
     PermittedValueChecker,
     SemanticVersionColType,
@@ -65,24 +65,28 @@ class GenericTabletRecordMixin(object):
     # -------------------------------------------------------------------------
 
     # Plain columns
+
+    # noinspection PyMethodParameters
     @declared_attr
-    def _pk(self) -> Column:
+    def _pk(cls) -> Column:
         return Column(
             "_pk", Integer,
             primary_key=True, autoincrement=True, index=True,
             comment="(SERVER) Primary key (on the server)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _device_id(self) -> Column:
+    def _device_id(cls) -> Column:
         return Column(
             "_device_id", Integer, ForeignKey("_security_devices.id"),
             nullable=False, index=True,
             comment="(SERVER) ID of the source tablet device"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _era(self) -> Column:
+    def _era(cls) -> Column:
         return Column(
             "_era", EraColType,
             nullable=False, index=True,
@@ -93,92 +97,104 @@ class GenericTabletRecordMixin(object):
         # with "=" always works, i.e. no NULLs -- for USER comparison too, not
         # just in CamCOPS code
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _current(self) -> Column:
+    def _current(cls) -> Column:
         return Column(
             "_current", Boolean,
             nullable=False, index=True,
             comment="(SERVER) Is the row current (1) or not (0)?"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _when_added_exact(self) -> Column:
+    def _when_added_exact(cls) -> Column:
         return Column(
-            "_when_added_exact", DateTimeAsIsoTextColType,
+            "_when_added_exact", ArrowDateTimeAsIsoTextColType,
             comment="(SERVER) Date/time this row was added (ISO 8601)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _when_added_batch_utc(self) -> Column:
+    def _when_added_batch_utc(cls) -> Column:
         return Column(
             "_when_added_batch_utc", DateTime,
             comment="(SERVER) Date/time of the upload batch that added this "
                     "row (DATETIME in UTC)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _adding_user_id(self) -> Column:
+    def _adding_user_id(cls) -> Column:
         return Column(
             "_adding_user_id", Integer,
             ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that added this row",
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _when_removed_exact(self) -> Column:
+    def _when_removed_exact(cls) -> Column:
         return Column(
-            "_when_removed_exact", DateTimeAsIsoTextColType,
+            "_when_removed_exact", ArrowDateTimeAsIsoTextColType,
             comment="(SERVER) Date/time this row was removed, i.e. made "
                     "not current (ISO 8601)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _when_removed_batch_utc(self) -> Column:
+    def _when_removed_batch_utc(cls) -> Column:
         return Column(
             "_when_removed_batch_utc", DateTime,
             comment="(SERVER) Date/time of the upload batch that removed "
                     "this row (DATETIME in UTC)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _removing_user_id(self) -> Column:
+    def _removing_user_id(cls) -> Column:
         return Column(
             "_removing_user_id", Integer,
             ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that removed this row"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _preserving_user_id(self) -> Column:
+    def _preserving_user_id(cls) -> Column:
         return Column(
             "_preserving_user_id", Integer,
             ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that preserved this row"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _forcibly_preserved(self) -> Column:
+    def _forcibly_preserved(cls) -> Column:
         return Column(
             "_forcibly_preserved", Boolean,
             comment="(SERVER) Forcibly preserved by superuser (rather than "
                     "normally preserved by tablet)?"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _predecessor_pk(self) -> Column:
+    def _predecessor_pk(cls) -> Column:
         return Column(
             "_predecessor_pk", Integer,
             comment="(SERVER) PK of predecessor record, prior to modification"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _successor_pk(self) -> Column:
+    def _successor_pk(cls) -> Column:
         return Column(
             "_successor_pk", Integer,
             comment="(SERVER) PK of successor record  (after modification) "
                     "or NULL (whilst live, or after deletion)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
     def _manually_erased(cls) -> Column:
         return Column(
@@ -186,13 +202,15 @@ class GenericTabletRecordMixin(object):
             comment="(SERVER) Record manually erased (content destroyed)?"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _manually_erased_at(self) -> Column:
+    def _manually_erased_at(cls) -> Column:
         return Column(
-            "_manually_erased_at", DateTimeAsIsoTextColType,
+            "_manually_erased_at", ArrowDateTimeAsIsoTextColType,
             comment="(SERVER) Date/time of manual erasure (ISO 8601)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
     def _manually_erasing_user_id(cls) -> Column:
         return Column(
@@ -201,23 +219,26 @@ class GenericTabletRecordMixin(object):
             comment="(SERVER) ID of user that erased this row manually"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _camcops_version(self) -> Column:
+    def _camcops_version(cls) -> Column:
         return Column(
             "_camcops_version", SemanticVersionColType,
-            comment = "(SERVER) CamCOPS version number of the uploading device"
+            comment="(SERVER) CamCOPS version number of the uploading device"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _addition_pending(self) -> Column:
+    def _addition_pending(cls) -> Column:
         return Column(
             "_addition_pending", Boolean,
             nullable=False,
             comment="(SERVER) Addition pending?"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _removal_pending(self) -> Column:
+    def _removal_pending(cls) -> Column:
         return Column(
             "_removal_pending", Boolean,
             comment="(SERVER) Removal pending?"
@@ -249,33 +270,39 @@ class GenericTabletRecordMixin(object):
     # -------------------------------------------------------------------------
     # Fields that *all* client tables have:
     # -------------------------------------------------------------------------
+
+    # noinspection PyMethodParameters
     @declared_attr
-    def id(self) -> Column:
+    def id(cls) -> Column:
         return Column(
             "id", Integer,
             nullable=False, index=True,
             comment="(TASK) Primary key (task ID) on the tablet device"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def when_last_modified(self) -> Column:
+    def when_last_modified(cls) -> Column:
         return Column(
-            "when_last_modified", DateTimeAsIsoTextColType,
+            "when_last_modified", ArrowDateTimeAsIsoTextColType,
             comment="(STANDARD) Date/time this row was last modified on the "
                     "source tablet device (ISO 8601)"
             # *** WHEN ALEMBIC UP: INDEX THIS: USED BY DATABASE UPLOAD SCRIPT.
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def _move_off_tablet(self) -> Column:
+    def _move_off_tablet(cls) -> Column:
         return Column(
             "_move_off_tablet", Boolean,
             comment="(SERVER/TABLET) Record-specific preservation pending?"
         )
 
     # Relationships
+
+    # noinspection PyMethodParameters
     @declared_attr
-    def device(self) -> RelationshipProperty:
+    def device(cls) -> RelationshipProperty:
         return relationship("Device")
 
     # noinspection PyMethodParameters
@@ -298,9 +325,6 @@ class GenericTabletRecordMixin(object):
     def _manually_erasing_user(cls) -> RelationshipProperty:
         return relationship("User",
                             foreign_keys=[cls._manually_erasing_user_id])
-
-
-    # *** DEFINE MEMBER FUNCTIONS TO DO JOIN QUERIES
 
 
 # =============================================================================

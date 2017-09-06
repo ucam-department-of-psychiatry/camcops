@@ -122,7 +122,7 @@ class NartMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=NartMetaclass):
     __tablename__ = "nart"
     shortname = "NART"

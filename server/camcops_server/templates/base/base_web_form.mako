@@ -1,4 +1,5 @@
 ## base_web_form.mako
+## <%page args="head_form_html: str"/>
 <%inherit file="base_web.mako"/>
 
 <%block name="extra_head_start">

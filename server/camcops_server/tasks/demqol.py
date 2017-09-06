@@ -108,7 +108,7 @@ class DemqolMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
              metaclass=DemqolMetaclass):
     __tablename__ = "demqol"
     shortname = "DEMQOL"
@@ -119,8 +119,8 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
         "q29", Integer,
         permitted_value_checker=PermittedValueChecker(
             permitted_values=PERMITTED_VALUES),
-         comment="Q29. Overall quality of life (1 very good - 4 poor; "
-                 "-99 no response)."
+        comment="Q29. Overall quality of life (1 very good - 4 poor; "
+                "-99 no response)."
     )
 
     NQUESTIONS = 29
@@ -234,7 +234,7 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
             min=self.MIN_SCORE,
             max=self.MAX_SCORE,
             t=answer(ws.number_to_dp(total, DP)),
-            e=answer(get_yes_no(extrapolated)),
+            e=answer(get_yes_no(req, extrapolated)),
         )
         for n in range(1, self.NQUESTIONS + 1):
             if n in instruction_dict:
@@ -288,7 +288,7 @@ class DemqolProxyMetaclass(DeclarativeMeta):
 
 
 class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
-                  TaskHasClinicianMixin, Task, Base,
+                  TaskHasClinicianMixin, Task,
                   metaclass=DemqolProxyMetaclass):
     __tablename__ = "demqolproxy"
     shortname = "DEMQOL-Proxy"
@@ -412,7 +412,7 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
             min=self.MIN_SCORE,
             max=self.MAX_SCORE,
             t=answer(ws.number_to_dp(total, DP)),
-            e=answer(get_yes_no(extrapolated)),
+            e=answer(get_yes_no(req, extrapolated)),
         )
         for n in range(1, self.NQUESTIONS + 1):
             if n in instruction_dict:

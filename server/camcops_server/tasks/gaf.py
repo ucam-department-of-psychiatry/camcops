@@ -45,7 +45,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # GAF (crippled)
 # =============================================================================
 
-class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     __tablename__ = "gaf"
     shortname = "GAF"
     longname = "Global Assessment of Functioning (data collection only)"

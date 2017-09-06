@@ -218,7 +218,7 @@ class FrsMetaclass(DeclarativeMeta):
 
 
 class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
-          Task, Base,
+          Task,
           metaclass=FrsMetaclass):
     __tablename__ = "frs"
     shortname = "FRS"

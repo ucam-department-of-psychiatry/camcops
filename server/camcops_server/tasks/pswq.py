@@ -74,7 +74,7 @@ class PswqMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Pswq(TaskHasPatientMixin, Task, Base,
+class Pswq(TaskHasPatientMixin, Task,
            metaclass=PswqMetaclass):
     __tablename__ = "pswq"
     shortname = "PSWQ"

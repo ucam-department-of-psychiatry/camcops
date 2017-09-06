@@ -46,7 +46,7 @@ from ..cc_modules.cc_task import (
 # Photo
 # =============================================================================
 
-class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     __tablename__ = "photo"
     shortname = "Photo"
     longname = "Photograph"
@@ -139,7 +139,7 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
         )
 
 
-class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base):
+class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     __tablename__ = "photosequence"
     shortname = "PhotoSequence"
     longname = "Photograph sequence"

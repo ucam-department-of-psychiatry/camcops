@@ -44,7 +44,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
@@ -85,14 +85,14 @@ class Icd10SchizotypalMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
+class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                        metaclass=Icd10SchizotypalMetaclass):
     __tablename__ = "icd10schizotypal"
     shortname = "ICD10-SZTYP"
     longname = "ICD-10 criteria for schizotypal disorder (F21)"
 
     date_pertains_to = Column(
-        "date_pertains_to", DateTimeAsIsoTextColType,
+        "date_pertains_to", ArrowDateTimeAsIsoTextColType,
         comment="Date the assessment pertains to"
     )
     comments = Column(
@@ -169,7 +169,7 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
                    format_datetime_string(self.date_pertains_to,
                                           DATEFORMAT.LONG_DATE, default=None))
         h += tr_qa(req.wappstring("meets_criteria"),
-                   get_yes_no_none(self.meets_criteria()))
+                   get_yes_no_none(req, self.meets_criteria()))
         h += """
                 </table>
             </div>

@@ -64,6 +64,7 @@ PV_PROBLEMTYPE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
 # noinspection PyAbstractClass
 class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
+    __abstract__ = True
     provides_trackers = True
 
     period_rated = Column(
@@ -160,7 +161,7 @@ class HonosMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Honos(HonosBase, Base,
+class Honos(HonosBase,
             metaclass=HonosMetaclass):
     __tablename__ = "honos"
     shortname = "HoNOS"
@@ -286,7 +287,7 @@ class Honos65Metaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Honos65(HonosBase, Base,
+class Honos65(HonosBase,
               metaclass=Honos65Metaclass):
     __tablename__ = "honos65"
     shortname = "HoNOS 65+"
@@ -415,7 +416,7 @@ class HonoscaMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Honosca(HonosBase, Base,
+class Honosca(HonosBase,
               metaclass=HonoscaMetaclass):
     __tablename__ = "honosca"
     shortname = "HoNOSCA"

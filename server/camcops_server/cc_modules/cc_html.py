@@ -350,8 +350,7 @@ def tr_span_col(x: str,
 
 def get_html_from_pyplot_figure(req: "CamcopsRequest", fig) -> str:
     """Make HTML (as PNG or SVG) from pyplot figure."""
-    ccsession = req.camcops_session
-    if USE_SVG_IN_HTML and ccsession.use_svg:
+    if USE_SVG_IN_HTML and req.use_svg:
         return (
             rnc_plot.svg_html_from_pyplot_figure(fig) +
             rnc_plot.png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI,
@@ -437,61 +436,61 @@ def get_embedded_img_tag(mimetype: str, data: Union[bytes, memoryview]) -> str:
 # Field formatting
 # =============================================================================
 
-def get_yes_no(x: Any) -> str:
+def get_yes_no(req: "CamcopsRequest", x: Any) -> str:
     """'Yes' if x else 'No'"""
     return req.wappstring("yes") if x else req.wappstring("no")
 
 
-def get_yes_no_none(x: Any) -> Optional[str]:
+def get_yes_no_none(req: "CamcopsRequest", x: Any) -> Optional[str]:
     """Returns 'Yes' for True, 'No' for False, or None for None."""
     if x is None:
         return None
-    return get_yes_no(x)
+    return get_yes_no(req, x)
 
 
-def get_yes_no_unknown(x: Any) -> str:
+def get_yes_no_unknown(req: "CamcopsRequest", x: Any) -> str:
     """Returns 'Yes' for True, 'No' for False, or '?' for None."""
     if x is None:
         return "?"
-    return get_yes_no(x)
+    return get_yes_no(req, x)
 
 
-def get_true_false(x: Any) -> str:
+def get_true_false(req: "CamcopsRequest", x: Any) -> str:
     """'True' if x else 'False'"""
     return req.wappstring("true") if x else req.wappstring("false")
 
 
-def get_true_false_none(x: Any) -> Optional[str]:
+def get_true_false_none(req: "CamcopsRequest", x: Any) -> Optional[str]:
     """Returns 'True' for True, 'False' for False, or None for None."""
     if x is None:
         return None
-    return get_true_false(x)
+    return get_true_false(req, x)
 
 
-def get_true_false_unknown(x: Any) -> str:
+def get_true_false_unknown(req: "CamcopsRequest", x: Any) -> str:
     """Returns 'True' for True, 'False' for False, or '?' for None."""
     if x is None:
         return "?"
-    return get_true_false(x)
+    return get_true_false(req, x)
 
 
-def get_present_absent(x: Any) -> str:
+def get_present_absent(req: "CamcopsRequest", x: Any) -> str:
     """'Present' if x else 'Absent'"""
     return req.wappstring("present") if x else req.wappstring("absent")
 
 
-def get_present_absent_none(x: Any) -> Optional[str]:
+def get_present_absent_none(req: "CamcopsRequest", x: Any) -> Optional[str]:
     """Returns 'Present' for True, 'Absent' for False, or None for None."""
     if x is None:
         return None
-    return get_present_absent(x)
+    return get_present_absent(req, x)
 
 
-def get_present_absent_unknown(x: str) -> str:
+def get_present_absent_unknown(req: "CamcopsRequest", x: str) -> str:
     """Returns 'Present' for True, 'Absent' for False, or '?' for None."""
     if x is None:
         return "?"
-    return get_present_absent(x)
+    return get_present_absent(req, x)
 
 
 def get_ternary(x: Any,

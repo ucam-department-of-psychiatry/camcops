@@ -92,7 +92,7 @@ class NpiQMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task, Base,
+class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
            metaclass=NpiQMetaclass):
     __tablename__ = "npiq"
     shortname = "NPI-Q"
@@ -222,7 +222,7 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task, Base,
                 self.wxstring(req, "t" + qstr),
                 self.wxstring(req, "q" + qstr),
             )
-            etext = get_yes_no_unknown(e)
+            etext = get_yes_no_unknown(req, e)
             if e:
                 stext = self.wxstring(req, "severity_{}".format(s), s,
                                       provide_default_if_none=False)

@@ -82,7 +82,7 @@ class IesrMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Iesr(TaskHasPatientMixin, Task, Base,
+class Iesr(TaskHasPatientMixin, Task,
            metaclass=IesrMetaclass):
     __tablename__ = "iesr"
     shortname = "IES-R"

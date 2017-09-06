@@ -214,7 +214,7 @@ class Ace3Metaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=Ace3Metaclass):
     __tablename__ = "ace3"
     shortname = "ACE-III"
@@ -534,9 +534,9 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
             ax.set_xticklabels(x_labels)
             plt.tight_layout()  # or the ylabel drops off the figure
             # fig.autofmt_xdate()
-            figurehtml = get_html_from_pyplot_figure(request, fig)
+            figurehtml = get_html_from_pyplot_figure(req, fig)
         return (
-            self.get_standard_clinician_comments_block(self.comments) +
+            self.get_standard_clinician_comments_block(self.comments) + # *** make mako template
             """
                 <div class="summary">
                     <table class="summary">
@@ -544,7 +544,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
                             {is_complete}
                             <td class="figure" rowspan="7">{figure}</td>
                         </td>
-            """.format(is_complete=self.get_is_complete_td_pair(),
+            """.format(is_complete=self.get_is_complete_td_pair(req),
                        figure=figurehtml) +
             tr("Total ACE-III score <sup>[1]</sup>", answer(t) + " / 100") +
             tr("Attention", answer(a) + " / {} ({}%)".format(

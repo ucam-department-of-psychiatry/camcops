@@ -50,7 +50,7 @@ from ..cc_modules.cc_trackerhelpers import TrackerInfo
 # CGI
 # =============================================================================
 
-class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
+class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     __tablename__ = "cgi"
     shortname = "CGI"
     longname = "Clinical Global Impressions"
@@ -82,7 +82,7 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
         comment="Q3 (calculated). Efficacy index [(Q3T - 1) * 4 + Q3S]."
     )
 
-    TASK_FIELDS = ["q1", "q2", "q3t", "q3s", "qe"]
+    TASK_FIELDS = ["q1", "q2", "q3t", "q3s", "q3"]
     MAX_SCORE = 30
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
@@ -208,7 +208,7 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
 # CGI-I
 # =============================================================================
 
-class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base):
+class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     __tablename__ = "cgi_i"
     shortname = "CGI-I"
     longname = "Clinical Global Impressions – Improvement"

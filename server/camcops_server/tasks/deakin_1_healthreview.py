@@ -47,7 +47,7 @@ FREQUENCY_COMMENT = (
 )
 
 
-class Deakin1HealthReview(TaskHasPatientMixin, Task, Base):
+class Deakin1HealthReview(TaskHasPatientMixin, Task):
     __tablename__ = "deakin_1_healthreview"
     shortname = "Deakin_1_HealthReview"
     longname = "Deakin JB – 1 – Health Review"

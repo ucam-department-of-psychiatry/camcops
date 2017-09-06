@@ -329,6 +329,7 @@ camcops_server
         'scipy==0.16.1',  # Used by some tasks. SLOW INSTALLATION.
         'semantic_version>=2.6.0',  # semantic versioning; better than semver
         'sqlalchemy==1.2.0b1',  # database access
+        # 'SQLAlchemy-Utils==0.32.16',  # extra column types
         'typing==3.5.2.2',  # part of stdlib in Python 3.5, but not 3.4
         'Wand==0.4.2',  # ImageMagick for Python; used e.g. for BLOB PNG display; may need "sudo apt-get install libmagickwand-dev"  # noqa
         # Incompatible with Python 3.5; use paginate instead # 'WebHelpers==1.3',  # e.g. paginator and other tools for Pyramid  # noqa

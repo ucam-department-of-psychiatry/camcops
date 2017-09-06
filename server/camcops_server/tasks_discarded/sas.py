@@ -50,7 +50,7 @@ class SasMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Sas(TaskHasPatientMixin, Task, Base,
+class Sas(TaskHasPatientMixin, Task,
           metaclass=SasMetaclass):
     tablename = "sas"
     shortname = "SAS"

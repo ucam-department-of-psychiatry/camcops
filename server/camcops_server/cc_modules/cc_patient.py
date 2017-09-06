@@ -39,7 +39,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import BigInteger, Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import BigInteger, Date, Integer, UnicodeText
 
 from .cc_audit import audit
 from .cc_constants import (
@@ -75,10 +75,11 @@ from .cc_report import expand_id_descriptions
 from .cc_recipdef import RecipientDefinition
 from .cc_report import Report, REPORT_RESULT_TYPE
 from .cc_request import CamcopsRequest
+from .cc_simpleobjects import IdNumDefinition
 from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
     CamcopsColumn,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
     IdDescriptorColType,
     PatientNameColType,
     SexColType,
@@ -123,7 +124,7 @@ class Patient(GenericTabletRecordMixin, Base):
         comment="Surname"
     )
     dob = CamcopsColumn(
-        "dob", DateTimeAsIsoTextColType,  # *** change; Date?
+        "dob", Date,  # verified: merge_db handles this correctly
         index=True,
         identifies_patient=True, cris_include=True,
         comment="Date of birth"
@@ -238,14 +239,13 @@ class Patient(GenericTabletRecordMixin, Base):
         patients = q.all()  # type: List[Patient]
         return patients
 
-    def get_idnum_which_value_tuples(self) \
-            -> List[Tuple[int, int]]:
+    def get_idnum_definitions(self) -> List[IdNumDefinition]:
         idnums = self.idnums  # type: List[PatientIdNum]
-        return [(x.which_idnum, x.idnum_value) for x in idnums]
+        return [x.get_idnum_definition() for x in idnums if x.is_valid()]
 
     def get_idnum_raw_values_only(self) -> List[int]:
         idnums = self.idnums  # type: List[PatientIdNum]
-        return [x.idnum_value for x in idnums]
+        return [x.idnum_value for x in idnums if x.is_valid()]
 
     def get_xml_root(self, req: CamcopsRequest,
                      skip_fields: List[str] = None) -> XmlElement:
@@ -301,20 +301,6 @@ class Patient(GenericTabletRecordMixin, Base):
                 self.get_idshortdesc(req, n)
         return d
 
-    def anonymise(self) -> None:
-        """Wipes the object's patient-identifiable content.
-        Does NOT write to database."""
-        # Save temporarily
-        sex = self.sex
-        dob = self.get_dob()
-        # Wipe
-        rnc_db.blank_object(self, Patient.FIELDS)
-        # Replace selected values
-        self.sex = sex
-        if dob:
-            dob = dob.replace(day=1)  # set DOB to first of the month
-            self.dob = format_datetime(dob, DATEFORMAT.ISO8601_DATE_ONLY)
-
     def get_literals_for_anonymisation(self) -> List[str]:
         """Return a list of strings that require removing from other fields in
         the anonymisation process."""
@@ -348,17 +334,8 @@ class Patient(GenericTabletRecordMixin, Base):
             surname=self.surname,
             dob=self.dob,
             sex=self.sex,
-            whichidnum_idnumvalue_tuples=self.get_whichidnum_idnumvalue_tuples()
+            idnum_definitions=self.get_idnum_definitions()
         )
-
-    def get_whichidnum_idnumvalue_tuples(self) -> List[Tuple[int, int]]:
-        """Return list of (which_idnum, idnum_value) tuples."""
-        arr = []  # type: List[Tuple[int, int]]
-        idnums = self.idnums  # type: List[PatientIdNum]
-        for idobj in idnums:
-            if idobj.which_idnum is not None and idobj.idnum_value is not None:
-                arr.append((idobj.which_idnum, idobj.idnum_value))
-        return arr
 
     def satisfies_upload_id_policy(self) -> bool:
         """Does the patient satisfy the uploading ID policy?"""
@@ -418,9 +395,7 @@ class Patient(GenericTabletRecordMixin, Base):
 
     def get_dob(self) -> Optional[datetime.date]:
         """Date of birth, as a a timezone-naive date."""
-        if self.dob is None:
-            return None
-        return get_date_from_string(self.dob)
+        return self.dob
 
     def get_dob_str(self) -> Optional[str]:
         dob_dt = self.get_dob()
@@ -559,16 +534,14 @@ class Patient(GenericTabletRecordMixin, Base):
     def get_iddesc(self, req: CamcopsRequest,
                    which_idnum: int) -> Optional[str]:
         """Get value of a specific ID description, if present."""
-        cfg = req.config
         idobj = self.get_idnum_object(which_idnum)
-        return idobj.description(cfg) if idobj else None
+        return idobj.description(req) if idobj else None
 
     def get_idshortdesc(self, req: CamcopsRequest,
                         which_idnum: int) -> Optional[str]:
         """Get value of a specific ID short description, if present."""
-        cfg = req.config
         idobj = self.get_idnum_object(which_idnum)
-        return idobj.short_description(cfg) if idobj else None
+        return idobj.short_description(req) if idobj else None
 
     def get_idnum_html(self,
                        req: CamcopsRequest,
@@ -583,7 +556,6 @@ class Patient(GenericTabletRecordMixin, Base):
             longform: see get_id_generic
             label_id_numbers: whether to use prefix
         """
-        cfg = req.config
         idobj = self.get_idnum_object(which_idnum)
         if not idobj:
             return ""
@@ -591,8 +563,8 @@ class Patient(GenericTabletRecordMixin, Base):
         return self._get_id_generic(
             longform,
             idobj.idnum_value,
-            idobj.description(cfg),
-            idobj.short_description(cfg),
+            idobj.description(req),
+            idobj.short_description(req),
             FP_ID_NUM + nstr,
             label_id_numbers
         )
@@ -632,7 +604,7 @@ class Patient(GenericTabletRecordMixin, Base):
         )
         idnums = self.idnums  # type: List[PatientIdNum]
         for idobj in idnums:
-            h += " " + idobj.get_html(cfg=cfg, longform=longform)
+            h += " " + idobj.get_html(req=req, longform=longform)
         h += " " + self.get_idother_html(longform=longform)
         return h
 
@@ -655,7 +627,7 @@ class Patient(GenericTabletRecordMixin, Base):
             h += """
                 {} <!-- ID{} -->
             """.format(
-                idobj.get_html(cfg=cfg,
+                idobj.get_html(req=req,
                                longform=longform,
                                label_id_numbers=label_id_numbers),
                 idobj.which_idnum
@@ -680,8 +652,7 @@ class Patient(GenericTabletRecordMixin, Base):
         """.format(
             self.get_surname_forename_upper(),
             self.get_sex_verbose(),
-            format_datetime_string(self.dob, DATEFORMAT.SHORT_DATE,
-                                   default="?"),
+            format_datetime(self.dob, DATEFORMAT.SHORT_DATE, default="?"),
             self.get_age(req=req, default="?"),
         )
 
@@ -689,10 +660,9 @@ class Patient(GenericTabletRecordMixin, Base):
         """Returns HTML used for patient ID column in task summary view."""
         hlist = []
         longform = False
-        cfg = req.config
         idnums = self.idnums  # type: List[PatientIdNum]
         for idobj in idnums:
-            hlist.append(idobj.get_html(cfg=cfg, longform=longform))
+            hlist.append(idobj.get_html(req=req, longform=longform))
         hlist.append(self.get_idother_html(longform=longform))
         return " ".join(hlist)
 
@@ -835,7 +805,7 @@ def unit_tests_patient(p: Patient, req: CamcopsRequest) -> None:
     unit_test_ignore("", p.get_literals_for_anonymisation)
     unit_test_ignore("", p.get_dates_for_anonymisation)
     unit_test_ignore("", p.get_bare_ptinfo)
-    unit_test_ignore("", p.get_idnum_which_value_tuples)
+    unit_test_ignore("", p.get_idnum_definitions)
     unit_test_ignore("", p.satisfies_upload_id_policy)
     unit_test_ignore("", p.satisfies_finalize_id_policy)
     # implicitly tested: satisfies_id_policy

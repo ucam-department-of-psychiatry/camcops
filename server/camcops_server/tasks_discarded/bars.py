@@ -55,7 +55,7 @@ class BarsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Bars(TaskHasClinicianMixin, TaskHasPatientMixin, Task, Base,
+class Bars(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
            metaclass=BarsMetaclass):
     __tablename__ = "bars"
     shortname = "BARS"

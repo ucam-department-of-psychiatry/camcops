@@ -66,7 +66,7 @@ class BdiMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Bdi(TaskHasPatientMixin, Task, Base,
+class Bdi(TaskHasPatientMixin, Task,
           metaclass=BdiMetaclass):
     __tablename__ = "bdi"
     shortname = "BDI"

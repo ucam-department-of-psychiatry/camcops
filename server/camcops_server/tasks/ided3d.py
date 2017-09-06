@@ -39,8 +39,8 @@ from ..cc_modules.cc_html import (
 from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn, 
-    DateTimeAsIsoTextColType,
+    CamcopsColumn,
+    ArrowDateTimeAsIsoTextColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -113,7 +113,7 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
     
     # Trial
     trial_start_time = Column(
-        "trial_start_time", DateTimeAsIsoTextColType,
+        "trial_start_time", ArrowDateTimeAsIsoTextColType,
         comment="Trial start time / stimuli presented at (ISO-8601)"
     )
     
@@ -124,7 +124,7 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
         comment="Did the subject respond?"
     )
     response_time = Column(
-        "response_time", DateTimeAsIsoTextColType,
+        "response_time", ArrowDateTimeAsIsoTextColType,
         comment="Time of response (ISO-8601)"
     )
     response_latency_ms = Column(
@@ -324,7 +324,7 @@ class IDED3DStage(GenericTabletRecordMixin, Base):
         )
 
 
-class IDED3D(TaskHasPatientMixin, Task, Base):
+class IDED3D(TaskHasPatientMixin, Task):
     __tablename__ = "ided3d"
     shortname = "ID/ED-3D"
     longname = "Three-dimensional ID/ED task"
@@ -490,8 +490,8 @@ class IDED3D(TaskHasPatientMixin, Task, Base):
             <table class="taskdetail">
                 <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
         """
-        h += tr_qa("Aborted?", get_yes_no_none(self.aborted))
-        h += tr_qa("Finished?", get_yes_no_none(self.finished))
+        h += tr_qa("Aborted?", get_yes_no_none(req, self.aborted))
+        h += tr_qa("Finished?", get_yes_no_none(req, self.finished))
         h += tr_qa("Last trial completed", self.last_trial_completed)
         h += (
             """

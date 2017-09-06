@@ -728,7 +728,7 @@ def cchl7core_unit_tests(dbsession: SqlASession) -> None:
     # noinspection PyProtectedMember
     task = dbsession.query(Phq9)\
         .filter(Phq9._current == True)\
-        .first()  # type: Optional[Phq9]
+        .first()  # type: Optional[Phq9]  # nopep8
     if task is None:
         task = Phq9()
     pitlist = [

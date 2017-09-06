@@ -39,31 +39,35 @@ from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 # Abstract base class
 # =============================================================================
 
-class AbstractSatisfaction(Task):
+class AbstractSatisfaction(object):
+    # noinspection PyMethodParameters
     @declared_attr
-    def service(self) -> Column:
+    def service(cls) -> Column:
         return Column(
             "service", UnicodeText,
             comment="Clinical service being rated"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def rating(self) -> Column:
+    def rating(cls) -> Column:
         return CamcopsColumn(
             "rating", Integer,
             permitted_value_checker=ZERO_TO_FOUR_CHECKER,
             comment="Rating (0 very poor - 4 excellent)"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def good(self) -> Column:
+    def good(cls) -> Column:
         return Column(
             "good", UnicodeText,
             comment="What has been good?"
         )
 
+    # noinspection PyMethodParameters
     @declared_attr
-    def bad(self) -> Column:
+    def bad(cls) -> Column:
         return Column(
             "bad", UnicodeText,
             comment="What could be improved?"
@@ -123,7 +127,7 @@ class AbstractSatisfaction(Task):
 # PatientSatisfaction
 # =============================================================================
 
-class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Base):
+class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Task):
     __tablename__ = "pt_satis"
     shortname = "PatientSatisfaction"
     longname = "Patient Satisfaction Scale"
@@ -141,7 +145,7 @@ class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Base):
 # ReferrerSatisfactionGen
 # =============================================================================
 
-class ReferrerSatisfactionGen(AbstractSatisfaction, Base):
+class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
     __tablename__ = "ref_satis_gen"
     shortname = "ReferrerSatisfactionSurvey"
     longname = "Referrer Satisfaction Scale, survey"

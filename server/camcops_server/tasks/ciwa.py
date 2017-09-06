@@ -78,7 +78,7 @@ class CiwaMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=CiwaMetaclass):
     __tablename__ = "ciwa"
     shortname = "CIWA-Ar"

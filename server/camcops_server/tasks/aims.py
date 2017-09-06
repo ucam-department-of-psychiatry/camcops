@@ -77,7 +77,7 @@ class AimsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=AimsMetaclass):
     __tablename__ = "aims"
     shortname = "AIMS"
@@ -150,9 +150,12 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
             h += tr_qa(self.wxstring(req, "q" + str(q) + "_s"),
                        get_from_dict(main_dict, getattr(self, "q" + str(q))))
         h += (
-            tr_qa(self.wxstring(req, "q10_s"), get_from_dict(q10_dict, self.q10)) +
-            tr_qa(self.wxstring(req, "q11_s"), get_yes_no_none(self.q11)) +
-            tr_qa(self.wxstring(req, "q12_s"), get_yes_no_none(self.q12)) +
+            tr_qa(self.wxstring(req, "q10_s"),
+                  get_from_dict(q10_dict, self.q10)) +
+            tr_qa(self.wxstring(req, "q11_s"),
+                  get_yes_no_none(req, self.q11)) +
+            tr_qa(self.wxstring(req, "q12_s"),
+                  get_yes_no_none(req, self.q12)) +
             """
                 </table>
                 <div class="footnotes">

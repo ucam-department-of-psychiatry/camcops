@@ -1,0 +1,177 @@
+
+===============================================================================
+SQLAlchemy's concrete inheritance? Final answer: not used.
+===============================================================================
+
+In outline, it's possible to have:
+
+    class Task(GenericTabletRecordMixin, AbstractConcreteBase, Base):
+
+        # noinspection PyMethodParameters
+        @declared_attr
+        def __mapper_args__(cls):
+            return {
+                'polymorphic_identity': cls.__name__,
+                'concrete': True,
+            }
+
+
+    class ActualTaskOne(Task):
+        __tablename__ = "actual_task_one"
+
+        # ...
+
+
+    class ActualTaskTwo(Task):
+        __tablename__ = "actual_task_two"
+
+        # ...
+
+and then, once you have run
+
+    configure_mappers()
+
+you can do
+
+    session.query(Task)
+
+which will make a UNION query of all the actual tasks, filling in NULL values
+for columns that don't intersect, and producing a list of polymorphic objects
+on the Python side (e.g. a mixture of ActualTaskOne and ActualTaskTwo
+instances).
+
+The advantage would be the ability to query over all tasks at the database
+level. (It wouldn't help if we wanted to filter by complex Python-only
+properties, like Task.is_complete(), however.)
+
+(As an aside: trying to build this also makes you notice if you are subclassing
+Column improperly in any way; you need a careful __init__ and also a
+_constructor function; see BoolColumn and CamcopsColumn.)
+
+However, we have lots of tasks, each with lots of fields, and this does make
+a *giant* UNION query. It's not clear that it would be quicker than lots of
+queries, though this area is a bit complex:
+    https://stackoverflow.com/questions/3979338/mysql-union-vs-multiple-queries
+    https://dba.stackexchange.com/questions/76973/what-is-faster-one-big-query-or-many-small-queries
+
+Furthermore, it seems that SQLAlchemy isn't entirely happy. It creates an
+object called pjoin on Task that represents the UNION. Mixin columns like these
+
+    # noinspection PyMethodParameters
+    @declared_attr
+    def _adding_user(cls) -> RelationshipProperty:
+        return relationship("User", foreign_keys=[cls._adding_user_id])
+
+give errors like this:
+
+    Traceback (most recent call last):
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/orm/relationships.py", line 2075, in _determine_joins
+        consider_as_foreign_keys=consider_as_foreign_keys
+      File "<string>", line 2, in join_condition
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/sql/selectable.py", line 979, in _join_condition
+        (a.description, b.description, hint))
+    sqlalchemy.exc.NoForeignKeysError: Can't find any foreign key relationships between 'pjoin' and '_security_users'.
+
+    During handling of the above exception, another exception occurred:
+
+    Traceback (most recent call last):
+      File "/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_sqlalchemy.py", line 142, in test_2
+        from camcops_server.cc_modules.cc_all_models import all_models_no_op
+      File "/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_all_models.py", line 82, in <module>
+        configure_mappers()
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/orm/mapper.py", line 2984, in configure_mappers
+        mapper._post_configure_properties()
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/orm/mapper.py", line 1810, in _post_configure_properties
+        prop.init()
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/orm/interfaces.py", line 184, in init
+        self.do_init()
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/orm/relationships.py", line 1658, in do_init
+        self._setup_join_conditions()
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/orm/relationships.py", line 1733, in _setup_join_conditions
+        can_be_synced_fn=self._columns_are_mapped
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/orm/relationships.py", line 1991, in __init__
+        self._determine_joins()
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/orm/relationships.py", line 2096, in _determine_joins
+        "specify a 'primaryjoin' expression." % self.prop)
+    sqlalchemy.exc.NoForeignKeysError: Could not determine join condition between parent/child tables on relationship Task._removing_user - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.
+
+and this:
+
+    Traceback (most recent call last):
+      File "/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_sqlalchemy.py", line 158, in test_3
+        from camcops_server.cc_modules.cc_all_models import all_models_no_op
+      File "/home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_all_models.py", line 82, in <module>
+        configure_mappers()
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/orm/mapper.py", line 2981, in configure_mappers
+        raise e
+    sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper|Task|pjoin'. Original exception was: Could not determine join condition between parent/child tables on relationship Task._removing_user - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.
+
+So: several reasons not to go this way, but it was instructive to try.
+See sqla_concrete_inheritance_2.py for a working example.
+
+Then, in terms of subclassing, the options are:
+    (1) real tasks are the only things subclassing from Task;
+        ... not intermediate things like DiagnosisBase
+        ... and Task inherits from Base;
+    (2) real tasks are the only things subclassing from both Task and Base
+        ... and Task does not inherit from Base.
+
+The second is fairly easy.
+For the first, if we don't have
+
+    class Task(GenericTabletRecordMixin, AbstractConcreteBase, Base):
+        # ...
+
+then what can go here:
+
+    class Task(GenericTabletRecordMixin, ???, Base):
+
+... so that Task doesn't try to instantiate a table, and we get this error:
+
+    sqlalchemy.exc.InvalidRequestError: Class <class
+    'camcops_server.cc_modules.cc_task.Task'> does not have a __table__ or
+    __tablename__ specified and does not inherit from an existing table-mapped
+    class.
+
+Well, we could set
+
+    class Task(...):
+        __no_table__ = True
+
+... nope; fails; how about:
+
+    class Task(...):
+        __abstract__ = True
+
+... yup, that works. See
+
+    http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/api.html#abstract
+
+That means we can also insert "__abstract__ = True" for intermediate classes,
+which is nice, and exclude them when we scan for Task subclasses.
+
+Examples of such intermediate classes:
+
+    DiagnosisBase [can inherit Task]
+    DiagnosisItemBase
+    HadsBase
+    HonosBase
+    PclCommon
+
+OK; that's working nicely.
+
+===============================================================================
+Managing paging without concrete inheritance
+===============================================================================
+
+Will have to be the slightly less efficient way, as before:
+
+    - generate relevant classes (e.g. filtering on anonymous-or-not, etc.)
+    - generate relevant instances via SQL query with all possible filters
+      (e.g. dates, user, group)
+    - filter further on Python attributes (e.g. complete-or-not)
+    - collect list of instances; sort by date
+    - pass that to the paginator
+
+It's still much more efficient than before, where we (1) fetched candidate PKs,
+then (2) fetched each task by loading via its PK.

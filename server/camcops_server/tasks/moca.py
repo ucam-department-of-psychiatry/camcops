@@ -139,7 +139,7 @@ class MocaMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base,
+class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
            metaclass=MocaMetaclass):
     __tablename__ = "moca"
     shortname = "MoCA"

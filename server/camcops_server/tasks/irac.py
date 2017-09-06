@@ -38,7 +38,7 @@ from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 # IRAC
 # =============================================================================
 
-class Irac(TaskHasPatientMixin, Task, Base):
+class Irac(TaskHasPatientMixin, Task):
     __tablename__ = "irac"
     shortname = "IRAC"
     longname = "Identify and Rate the Aim of the Contact"

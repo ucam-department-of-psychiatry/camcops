@@ -65,7 +65,7 @@ class WsasMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Wsas(TaskHasPatientMixin, Task, Base,
+class Wsas(TaskHasPatientMixin, Task,
            metaclass=WsasMetaclass):
     __tablename__ = "wsas"
     shortname = "WSAS"
@@ -150,7 +150,7 @@ class Wsas(TaskHasPatientMixin, Task, Base,
             complete_tr=self.get_is_complete_tr(),
             total=answer(self.total_score()),
             retired_row=tr_qa(self.wxstring(req, "q_retired_etc"),
-                              get_true_false(self.retired_etc)),
+                              get_true_false(req, self.retired_etc)),
         )
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))

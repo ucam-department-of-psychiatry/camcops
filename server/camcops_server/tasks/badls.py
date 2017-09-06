@@ -68,8 +68,8 @@ class BadlsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task, Base,
-           metaclass=BadlsMetaclass):
+class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
+            metaclass=BadlsMetaclass):
     __tablename__ = "badls"
     shortname = "BADLS"
     longname = "Bristol Activities of Daily Living Scale"

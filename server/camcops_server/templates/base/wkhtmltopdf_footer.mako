@@ -10,6 +10,7 @@
 
 <%block name="extra_head">
 <script>
+// noinspection JSUnusedLocalSymbols
 function subst() {
     var vars = {},
         x = document.location.search.substring(1).split('&'),
@@ -20,7 +21,7 @@ function subst() {
     for (i in x) {
         if (x.hasOwnProperty(i)) {
             z = x[i].split('=', 2);
-            vars[z[0]] = unescape(z[1]);
+            vars[z[0]] = decodeURI(z[1]);  // decodeURI() replaces unescape()
         }
     }
     x = ['frompage', 'topage', 'page', 'webpage', 'section',

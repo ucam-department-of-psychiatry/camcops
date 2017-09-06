@@ -70,7 +70,7 @@ class PdssMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Pdss(TaskHasPatientMixin, Task, Base,
+class Pdss(TaskHasPatientMixin, Task,
            metaclass=PdssMetaclass):
     __tablename__ = "pdss"
     shortname = "PDSS"

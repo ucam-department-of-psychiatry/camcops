@@ -34,7 +34,7 @@ from ..cc_modules.cc_html import answer
 from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
     DiagnosticCodeColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
@@ -74,7 +74,7 @@ class DemoQuestionnaireMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class DemoQuestionnaire(Task, Base,
+class DemoQuestionnaire(Task,
                         metaclass=DemoQuestionnaireMetaclass):
     __tablename__ = "demoquestionnaire"
     shortname = "Demo"
@@ -92,8 +92,8 @@ class DemoQuestionnaire(Task, Base,
     typedvar_text_rich = Column("typedvar_text_rich", UnicodeText)  # v2
     typedvar_int = Column("typedvar_int", Integer)
     typedvar_real = Column("typedvar_real", Float)
-    date_only = Column("date_only", DateTimeAsIsoTextColType)
-    date_time = Column("date_time", DateTimeAsIsoTextColType)
+    date_only = Column("date_only", ArrowDateTimeAsIsoTextColType)
+    date_time = Column("date_time", ArrowDateTimeAsIsoTextColType)
     thermometer = Column("thermometer", Integer)
     diagnosticcode_code = Column("diagnosticcode_code", DiagnosticCodeColType)
     diagnosticcode_description = Column(

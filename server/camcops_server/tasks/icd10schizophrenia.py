@@ -42,7 +42,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    DateTimeAsIsoTextColType,
+    ArrowDateTimeAsIsoTextColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
@@ -285,7 +285,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     )
 
     date_pertains_to = Column(
-        "date_pertains_to", DateTimeAsIsoTextColType,
+        "date_pertains_to", ArrowDateTimeAsIsoTextColType,
         comment="Date the assessment pertains to"
     )
     comments = Column(
@@ -410,7 +410,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                                           DATEFORMAT.LONG_DATE, default=None))
         h += tr_qa(
             self.wxstring(req, "meets_general_criteria") + " <sup>[1]</sup>",
-            get_true_false_none(self.meets_general_criteria()))
+            get_true_false_none(req, self.meets_general_criteria()))
         h += """
                 </table>
             </div>
