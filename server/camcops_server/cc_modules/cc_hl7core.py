@@ -30,7 +30,7 @@ import hl7
 from sqlalchemy.orm import Session as SqlASession
 
 from .cc_dt import format_datetime, get_now_localtz
-from .cc_constants import DATEFORMAT, VALUE
+from .cc_constants import DateFormat, VALUE
 from .cc_simpleobjects import HL7PatientIdentifier
 from .cc_unittest import unit_test_ignore
 
@@ -113,7 +113,7 @@ def make_msh_segment(message_datetime: datetime.datetime,
     receiving_application = ""
     receiving_facility = ""
     date_time_of_message = format_datetime(message_datetime,
-                                           DATEFORMAT.HL7_DATETIME)
+                                           DateFormat.HL7_DATETIME)
     security = ""
     message_type = hl7.Field(COMPONENT_SEPARATOR, [
         "ORU",  # message type ID = Observ result/unsolicited
@@ -220,7 +220,7 @@ def make_pid_segment(forename: str,
         "",  # degree (e.g. MD)
     ])
     mothers_maiden_name = ""
-    date_of_birth = format_datetime(dob, DATEFORMAT.HL7_DATE)
+    date_of_birth = format_datetime(dob, DateFormat.HL7_DATE)
     alias = ""
     race = ""
     country_code = ""
@@ -446,7 +446,7 @@ def make_obx_segment(task: TASK_FWD_REF,
     date_of_last_observation_normal_values = ""
     user_defined_access_checks = ""
     date_and_time_of_observation = format_datetime(
-        observation_datetime, DATEFORMAT.HL7_DATETIME)
+        observation_datetime, DateFormat.HL7_DATETIME)
     producer_id = ""
     observation_method = ""
     equipment_instance_identifier = ""
@@ -561,7 +561,7 @@ def make_dg1_segment(set_id: int,
     ])
     diagnosis_description = ""
     diagnosis_datetime = format_datetime(diagnosis_datetime,
-                                         DATEFORMAT.HL7_DATETIME)
+                                         DateFormat.HL7_DATETIME)
     if diagnosis_type not in ["A", "W", "F"]:
         raise AssertionError("make_dg1_segment: diagnosis_type invalid")
     major_diagnostic_category = ""
@@ -613,7 +613,7 @@ def make_dg1_segment(set_id: int,
         raise AssertionError(
             "make_dg1_segment: confidential_indicator invalid")
     attestation_datetime = (
-        format_datetime(attestation_datetime, DATEFORMAT.HL7_DATETIME)
+        format_datetime(attestation_datetime, DateFormat.HL7_DATETIME)
         if attestation_datetime else ""
     )
 

@@ -290,11 +290,12 @@ class TABLET_PARAM(object):
 
 DEFAULT_ROWS_PER_PAGE = 25
 
+
 # =============================================================================
 # Date formats
 # =============================================================================
 
-class DATEFORMAT(object):
+class DateFormat(object):
     SHORT_DATE = "%d %b %Y"  # e.g. 24 Jul 2013
     LONG_DATE = "%d %B %Y"  # e.g. 24 July 2013
     LONG_DATE_WITH_DAY = "%a %d %B %Y"  # e.g. Wed 24 July 2013

@@ -461,7 +461,7 @@ class IDED3D(TaskHasPatientMixin, Task):
                     <th width="50%">Value</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(),
+            self.get_is_complete_tr(req),
         )
         h += tr_qa(self.wxstring(req, "last_stage"), self.last_stage)
         h += tr_qa(self.wxstring(req, "max_trials_per_stage"),

@@ -280,7 +280,7 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score"),
                 answer(totalscore) + " / {}".format(self.MAX_SCORE))
         h += tr_qa(self.wxstring(req, "category") + " <sup>[1]</sup>",

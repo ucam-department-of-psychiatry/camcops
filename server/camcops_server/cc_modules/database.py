@@ -55,7 +55,7 @@ from .cc_audit import AuditEntry
 from .cc_constants import (
     ALEMBIC_VERSION_TABLENAME,
     CLIENT_DATE_FIELD,
-    DATEFORMAT,
+    DateFormat,
     ERA_NOW,
     FP_ID_NUM,
     FP_ID_DESC,
@@ -990,7 +990,7 @@ def commit_table(sm: TabletSession,
                                batchtime,
                                sm.device_id)
     # Preservation
-    new_era = format_datetime(batchtime, DATEFORMAT.ERA)
+    new_era = format_datetime(batchtime, DateFormat.ERA)
     if preserving:
         # Preserve all relevant records
         query = """
@@ -1604,7 +1604,7 @@ def main_http_processor(env: Dict[str, str]) -> Dict:
     # For failure, raises an exception.
 
     log.info("CamCOPS database script starting at {}",
-             format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601))
+             format_datetime(pls.NOW_LOCAL_TZ, DateFormat.ISO8601))
     form = ws.get_cgi_fieldstorage_from_wsgi_env(env)
 
     if not ws.cgi_method_is_post(env):

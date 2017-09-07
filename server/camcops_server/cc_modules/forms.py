@@ -73,15 +73,21 @@ if DEBUG_CSRF_CHECK or DEBUG_FORM_VALIDATION:
 # Widget resources
 # =============================================================================
 
-def get_head_form_html(req: CamcopsRequest, form: Form) -> str:
+def get_head_form_html(req: CamcopsRequest, forms: List[Form]) -> str:
     """
     Returns the extra HTML that needs to be injected into the <head> section
     for a Deform form to work properly.
     """
     # https://docs.pylonsproject.org/projects/deform/en/latest/widget.html#widget-requirements
-    resources = form.get_widget_resources()  # type: Dict[str, List[str]]
-    js_resources = resources['js']
-    css_resources = resources['css']
+    js_resources = []  # type: List[str]
+    css_resources = []  # type: List[str]
+    for form in forms:
+        resources = form.get_widget_resources()  # type: Dict[str, List[str]]
+        # Add, ignoring duplicates:
+        js_resources.extend(x for x in resources['js']
+                            if x not in js_resources)
+        css_resources.extend(x for x in resources['css']
+                             if x not in css_resources)
     js_links = [req.static_url(r) for r in js_resources]
     css_links = [req.static_url(r) for r in css_resources]
     js_tags = ['<script type="text/javascript" src="%s"></script>' % link

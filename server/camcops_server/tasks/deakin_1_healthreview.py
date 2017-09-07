@@ -325,7 +325,7 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-        """.format(self.get_is_complete_tr()) + (
+        """.format(self.get_is_complete_tr(req)) + (
             self.get_twocol_val_row("ethnicity") +
             self.get_twocol_string_row("ethnicity_text") +
             self.get_twocol_string_row("ethnicity_other_details") +

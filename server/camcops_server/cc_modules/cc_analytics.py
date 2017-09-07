@@ -36,7 +36,7 @@ from cardinal_pythonlib.sqlalchemy.schema import get_table_names
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from sqlalchemy.orm import Session as SqlASession
 
-from .cc_constants import DATEFORMAT
+from .cc_constants import DateFormat
 from .cc_dt import (
     format_datetime,
     get_datetime_from_string,
@@ -88,7 +88,7 @@ def send_analytics_if_necessary(req: "CamcopsRequest") -> None:
             return
 
     # Compile analytics
-    now_as_utc_iso_string = format_datetime(now, DATEFORMAT.ISO8601)
+    now_as_utc_iso_string = format_datetime(now, DateFormat.ISO8601)
     dbsession = req.dbsession
     (table_names, record_counts) = get_all_tables_with_record_counts(dbsession)
 

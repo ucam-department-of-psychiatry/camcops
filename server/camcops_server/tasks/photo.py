@@ -179,7 +179,7 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             </div>
             <table class="taskdetail">
         """.format(
-            is_complete=self.get_is_complete_tr(),
+            is_complete=self.get_is_complete_tr(req),
             num_photos=tr_qa("Number of photos", self.get_num_photos()),
             description=tr_qa("Description", self.sequence_description),
         )

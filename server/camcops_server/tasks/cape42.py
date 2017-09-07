@@ -376,7 +376,7 @@ class Cape42(TaskHasPatientMixin, Task,
                         <th>Frequency (total score)</th>
                         <th>Distress (total score)</th>
                     </tr>
-        """.format(iscomplete=self.get_is_complete_tr())
+        """.format(iscomplete=self.get_is_complete_tr(req))
 
         h += tr(
             "Overall <sup>[1]</sup> ({low}–{high})".format(

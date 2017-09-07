@@ -155,7 +155,7 @@ class Hamd7(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score"),
                 answer(score) + " / {}".format(self.MAX_SCORE))
         h += tr_qa(self.wxstring(req, "severity") + " <sup>[1]</sup>", severity)

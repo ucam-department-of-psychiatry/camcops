@@ -353,7 +353,7 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
-            complete_tr=self.get_is_complete_tr(),
+            complete_tr=self.get_is_complete_tr(req),
             total=scoredict['total'],
             n=scoredict['n'],
             score=ws.number_to_dp(scoredict['score'], DP),

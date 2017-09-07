@@ -190,7 +190,7 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <th width="70%">Question</th>
                     <th width="30%">Answer <sup>[1]</sup></th>
                 </tr>
-        """.format(self.get_is_complete_tr())
+        """.format(self.get_is_complete_tr(req))
         h += subheading_spanning_two_columns(self.wxstring(req, "i_title"))
         h += tr_span_col(self.wxstring(req, "i_question"), cols=2)
         h += tr_qa(self.wxstring(req, "q1"),

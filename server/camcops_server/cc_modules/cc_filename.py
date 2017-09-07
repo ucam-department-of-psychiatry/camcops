@@ -30,7 +30,7 @@ from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 
 from .cc_dt import format_datetime, get_now_localtz
 from .cc_constants import (
-    DATEFORMAT,
+    DateFormat,
     FP_ID_NUM,
     FP_ID_SHORT_DESC,
 )
@@ -117,7 +117,7 @@ def get_export_filename(patient_spec_if_anonymous: str,
         surname=surname or "",
         forename=forename or "",
         dob=(
-            format_datetime(dob, DATEFORMAT.FILENAME_DATE_ONLY, "")
+            format_datetime(dob, DateFormat.FILENAME_DATE_ONLY, "")
             if dob else ""
         ),
         sex=sex or "",
@@ -138,8 +138,8 @@ def get_export_filename(patient_spec_if_anonymous: str,
         patient = str(patient_spec).format(**d)
     d.update(dict(
         patient=patient,
-        created=format_datetime(creation_datetime, DATEFORMAT.FILENAME, ""),
-        now=format_datetime(get_now_localtz(), DATEFORMAT.FILENAME),
+        created=format_datetime(creation_datetime, DateFormat.FILENAME, ""),
+        now=format_datetime(get_now_localtz(), DateFormat.FILENAME),
         tasktype=str(basetable or ""),
         serverpk=str(serverpk or ""),
         filetype=task_format.lower(),

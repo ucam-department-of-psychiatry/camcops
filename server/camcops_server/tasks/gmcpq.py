@@ -251,7 +251,7 @@ class GMCPQ(Task):
                     <th width="60%">Question</th>
                     <th width="40%">Answer</th>
                 </tr>
-        """.format(self.get_is_complete_tr())
+        """.format(self.get_is_complete_tr(req))
         ell = "&hellip; "  # horizontal ellipsis
         sep_row = subheading_spanning_two_columns("<br>")
         blank_cell = td("", td_class="subheading")

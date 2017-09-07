@@ -214,7 +214,7 @@ class Honos(HonosBase,
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score"),
                 answer(self.total_score()) + " / {}".format(self.MAX_SCORE))
         h += """
@@ -340,7 +340,7 @@ class Honos65(HonosBase,
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score"),
                 answer(self.total_score()) + " / {}".format(self.MAX_SCORE))
         h += """
@@ -437,7 +437,7 @@ class Honosca(HonosBase,
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score"),
                 answer(self.total_score()) + " / {}".format(self.MAX_SCORE))
         h += """

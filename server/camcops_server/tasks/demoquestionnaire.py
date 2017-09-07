@@ -149,7 +149,7 @@ class DemoQuestionnaire(Task,
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(),
+            self.get_is_complete_tr(req),
         )
         for i in range(1, N_MCQ + 1):
             h += self.get_twocol_val_row("mcq" + str(i))

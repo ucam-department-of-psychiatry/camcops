@@ -34,7 +34,7 @@ from cardinal_pythonlib.rnc_web import WSGI_TUPLE_TYPE
 
 from .cc_constants import (
     ACTION,
-    DATEFORMAT,
+    DateFormat,
     FP_ID_NUM,
     PARAM,
     VALUE,
@@ -318,7 +318,7 @@ def serve_report(req: "CamcopsRequest",
             "CamCOPS_" +
             report.report_id +
             "_" +
-            format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.FILENAME) +
+            format_datetime(pls.NOW_LOCAL_TZ, DateFormat.FILENAME) +
             ".tsv"
         )
         return ws.tsv_result(tsv_from_query(rows, descriptions), [], filename)

@@ -3,7 +3,7 @@
 
 <%!
 
-from camcops_server.cc_modules.cc_constants import DATEFORMAT, ERA_NOW
+from camcops_server.cc_modules.cc_constants import DateFormat, ERA_NOW
 from camcops_server.cc_modules.cc_dt import format_datetime
 from camcops_server.cc_modules.cc_html import (
     answer,
@@ -58,13 +58,12 @@ def inherit_file(context):
 <div class="taskheader">
     <b>${ task.longname | h } (${ task.shortname | h })</b><br>
     Created: ${ answer(format_datetime(task.when_created,
-                                       DATEFORMAT.LONG_DATETIME_WITH_DAY,
+                                       DateFormat.LONG_DATETIME_WITH_DAY,
                                        default=None)) }
     %if not task.is_anonymous and task.patient:
         (patient aged ${ answer(task.patient.get_age_at(task.when_created),
                                 default_for_blank_strings=True) })
     %endif
-    {age}
 </div>
 
 ## ============================================================================
@@ -92,11 +91,11 @@ def inherit_file(context):
         %else:
             WARNING! This is NOT a current record.<br>
             %if task._successor_pk is not None:
-                It was MODIFIED at ${ format_datetime(task._when_removed_exact, DATEFORMAT.LONG_DATETIME_SECONDS) }.
+                It was MODIFIED at ${ format_datetime(task._when_removed_exact, DateFormat.LONG_DATETIME_SECONDS) }.
             %elif task._manually_erased:
-                It was MANUALLY ERASED at ${ format_datetime(task._manually_erased_at, DATEFORMAT.LONG_DATETIME_SECONDS) }.
+                It was MANUALLY ERASED at ${ format_datetime(task._manually_erased_at, DateFormat.LONG_DATETIME_SECONDS) }.
             %else:
-                It was DELETED at ${ format_datetime(task._when_removed_exact, DATEFORMAT.LONG_DATETIME_SECONDS) }.
+                It was DELETED at ${ format_datetime(task._when_removed_exact, DateFormat.LONG_DATETIME_SECONDS) }.
             %endif
         %endif
     </div>
@@ -153,13 +152,13 @@ ${ task.get_task_html(req) }
 ## ============================================================================
 
 <div class="office">
-    Created on device at: ${ format_datetime(task.when_created, DATEFORMAT.SHORT_DATETIME_SECONDS) }.
-    Last modified at: ${ format_datetime(task.when_last_modified, DATEFORMAT.SHORT_DATETIME_SECONDS) }.
+    Created on device at: ${ format_datetime(task.when_created, DateFormat.SHORT_DATETIME_SECONDS) }.
+    Last modified at: ${ format_datetime(task.when_last_modified, DateFormat.SHORT_DATETIME_SECONDS) }.
     Table: ${ task.tablename }.
     Task PK on client device: ${ task.id }.
     Uploading device ID: ${ task.device.get_friendly_name_and_id() if task.device else "?" | h }.
     Tablet CamCOPS version at upload: ${ task._camcops_version }.
-    Uploaded at: ${ format_datetime(task._when_added_exact, DATEFORMAT.SHORT_DATETIME_SECONDS) }.
+    Uploaded at: ${ format_datetime(task._when_added_exact, DateFormat.SHORT_DATETIME_SECONDS) }.
     Adding user: ${ task.get_adding_user_username() }.
     Server PK: ${ task._pk }
         (predecessor ${ task._predecessor_pk },
@@ -176,7 +175,7 @@ ${ task.get_task_html(req) }
                 (modified
             %endif
             by ${ task.get_removing_user_username() | h }
-            at ${ format_datetime(task._when_removed_exact, DATEFORMAT.SHORT_DATETIME_SECONDS) }.
+            at ${ format_datetime(task._when_removed_exact, DateFormat.SHORT_DATETIME_SECONDS) }.
         %endif
     Preserved/erased from tablet?
         %if task.is_preserved():
@@ -195,7 +194,7 @@ ${ task.get_task_html(req) }
     Patient server PK used: ${ task.get_patient_server_pk() if not task.is_anonymous else "N/A" }.
     Information retrieved from ${ req.url | h }
         (server version ${ CAMCOPS_SERVER_VERSION_STRING })
-        at: ${ format_datetime(req.now_arrow, DATEFORMAT.SHORT_DATETIME_SECONDS) }.
+        at: ${ format_datetime(req.now_arrow, DateFormat.SHORT_DATETIME_SECONDS) }.
 </div>
 
 ## ============================================================================

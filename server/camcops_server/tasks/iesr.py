@@ -244,7 +244,7 @@ class Iesr(TaskHasPatientMixin, Task,
                     <th width="25%">Answer (0–4)</th>
                 </tr>
         """.format(
-            complete_tr=self.get_is_complete_tr(),
+            complete_tr=self.get_is_complete_tr(req),
             total=answer(self.total_score()),
             maxtotal=self.MAX_TOTAL,
             avoidance=answer(self.avoidance_score()),

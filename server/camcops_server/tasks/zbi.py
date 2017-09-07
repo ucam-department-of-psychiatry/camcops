@@ -133,7 +133,7 @@ class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
                     <th width="25%">Answer ({minq}–{maxq})</th>
                 </tr>
         """.format(
-            complete_tr=self.get_is_complete_tr(),
+            complete_tr=self.get_is_complete_tr(req),
             total=answer(self.total_score()),
             maxtotal=self.MAX_TOTAL,
             minq=self.MIN_PER_Q,

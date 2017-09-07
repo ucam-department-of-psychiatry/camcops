@@ -1,5 +1,4 @@
 ## main_menu.mako
-<%page cached="True" cache_region="local"/>
 <%inherit file="base_web.mako"/>
 
 <%include file="db_user_info.mako"/>

@@ -85,7 +85,7 @@ from .cc_constants import (
     CRIS_SUMMARY_COMMENT_PREFIX,
     CRIS_TABLENAME_PREFIX,
     CSS_PAGED_MEDIA,
-    DATEFORMAT,
+    DateFormat,
     ERA_NOW,
     HL7MESSAGE_TABLENAME,
     INVALID_VALUE,
@@ -1036,7 +1036,7 @@ class Task(GenericTabletRecordMixin, Base):
         sn.task_id = self.id
         sn.device_id = self._device_id
         sn.era = self._era
-        sn.note_at = format_datetime(pls.NOW_LOCAL_TZ, DATEFORMAT.ISO8601)
+        sn.note_at = format_datetime(pls.NOW_LOCAL_TZ, DateFormat.ISO8601)
         sn.user_id = user_id
         sn.note = note
         sn.save()
@@ -1456,7 +1456,7 @@ class Task(GenericTabletRecordMixin, Base):
             adding_user=self.get_adding_user_username(),
             colour_live=' class="live_on_tablet"' if live_on_tablet else '',
             created=format_datetime_string(self.when_created,
-                                           DATEFORMAT.SHORT_DATETIME),
+                                           DateFormat.SHORT_DATETIME),
             colour_incomplete='' if complete else ' class="incomplete"',
             html=self.get_hyperlink_html(req, "HTML"),
             pdf=self.get_hyperlink_pdf(req, "PDF"),
@@ -2190,7 +2190,7 @@ class Task(GenericTabletRecordMixin, Base):
         description = self.longname
         author = self.get_clinician_name()  # may be blank
         document_date = format_datetime_string(self.when_created,
-                                               DATEFORMAT.RIO_EXPORT_UK)
+                                               DateFormat.RIO_EXPORT_UK)
         # This STRIPS the timezone information; i.e. it is in the local
         # timezone but doesn't tell you which timezone that is. (That's fine;
         # it should be local or users would be confused.)
@@ -2235,7 +2235,7 @@ class Task(GenericTabletRecordMixin, Base):
     def get_pdf_footer_content(self) -> str:
         taskname = ws.webify(self.shortname)
         created = format_datetime_string(self.when_created,
-                                         DATEFORMAT.LONG_DATETIME)
+                                         DateFormat.LONG_DATETIME)
         content = "{} created {}.".format(taskname, created)
         return pdf_footer_content(content)
 
@@ -2353,10 +2353,10 @@ class Task(GenericTabletRecordMixin, Base):
             get_yes_no(req, c)
         )
 
-    def get_is_complete_tr(self) -> str:
+    def get_is_complete_tr(self, req: CamcopsRequest) -> str:
         """HTML table row to indicate whether task is complete or not, and to
         make it very obvious visually when it isn't."""
-        return "<tr>" + self.get_is_complete_td_pair() + "</tr>"
+        return "<tr>" + self.get_is_complete_td_pair(req) + "</tr>"
 
     def get_twocol_val_row(self,
                            fieldname: str,

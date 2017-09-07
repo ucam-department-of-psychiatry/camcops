@@ -134,7 +134,7 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             <div class="summary">
                 <table class="summary">
         """
-        h += self.get_is_complete_tr()
+        h += self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score") + " <sup>[1]</sup>",
                 answer(score) + " / 40")
         h += """

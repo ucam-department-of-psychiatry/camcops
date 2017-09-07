@@ -230,7 +230,7 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
-            is_complete_tr=self.get_is_complete_tr(),
+            is_complete_tr=self.get_is_complete_tr(req),
             min=self.MIN_SCORE,
             max=self.MAX_SCORE,
             t=answer(ws.number_to_dp(total, DP)),
@@ -408,7 +408,7 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
-            is_complete_tr=self.get_is_complete_tr(),
+            is_complete_tr=self.get_is_complete_tr(req),
             min=self.MIN_SCORE,
             max=self.MAX_SCORE,
             t=answer(ws.number_to_dp(total, DP)),

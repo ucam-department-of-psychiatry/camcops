@@ -844,7 +844,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                     <th width="50%">Value</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(),
+            self.get_is_complete_tr(req),
         )
         h += tr_qa("Number of blocks", self.num_blocks)
         h += tr_qa("Stimulus counterbalancing", self.stimulus_counterbalancing)

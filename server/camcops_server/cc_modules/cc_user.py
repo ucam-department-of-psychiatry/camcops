@@ -41,7 +41,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from .cc_audit import audit
-from .cc_constants import ACTION, PARAM, DATEFORMAT
+from .cc_constants import ACTION, PARAM, DateFormat
 from .cc_dt import (
     convert_utc_datetime_without_tz_to_local,
     format_datetime,
@@ -310,7 +310,7 @@ class SecurityLoginFailure(Base):
 
         cls.clear_login_failures_for_nonexistent_users(req)
         log.debug("Dummy login failures cleared.")
-        now_as_utc_iso_string = format_datetime(now, DATEFORMAT.ISO8601)
+        now_as_utc_iso_string = format_datetime(now, DateFormat.ISO8601)
         last_cleared_var.set_value(now_as_utc_iso_string)
 
 
@@ -678,7 +678,7 @@ def manage_users_html(req: "CamcopsRequest") -> str:
             )
             lockedmsg = "Yes, until {}".format(format_datetime(
                 u.locked_out_until(),
-                DATEFORMAT.ISO8601
+                DateFormat.ISO8601
             ))
         else:
             enableuser = ""

@@ -163,7 +163,7 @@ class Dast(TaskHasPatientMixin, Task,
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score"),
                 answer(score) + " / {}".format(self.NQUESTIONS))
         h += tr_qa(self.wxstring(req, "exceeds_standard_cutoff_1"),

@@ -53,7 +53,7 @@ from sqlalchemy.sql.sqltypes import (
 
 from .cc_constants import (
     ACTION,
-    DATEFORMAT,
+    DateFormat,
     HL7MESSAGE_TABLENAME,
     ERA_NOW,
     PARAM,
@@ -483,7 +483,7 @@ class HL7Message(Base):
         infomsg = (
             "OUTBOUND MESSAGE DIVERTED FROM RECIPIENT {} AT {}\n".format(
                 self._recipient_def.recipient,
-                format_datetime(self.sent_at_utc, DATEFORMAT.ISO8601)
+                format_datetime(self.sent_at_utc, DateFormat.ISO8601)
             )
         )
         print(infomsg, file=f)

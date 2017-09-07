@@ -27,6 +27,7 @@ import logging
 import os
 from typing import Optional
 
+from cardinal_pythonlib.debugging import pdb_run
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
@@ -36,6 +37,10 @@ from cardinal_pythonlib.sqlalchemy.merge_db import (
     TableIdentity,
     TranslationContext,
 )
+from cardinal_pythonlib.sqlalchemy.orm_schema import (
+    create_table_from_orm_class,
+)
+from cardinal_pythonlib.sqlalchemy.schema import get_table_names
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
 from sqlalchemy.engine import create_engine
 
@@ -43,6 +48,7 @@ from ..cc_modules.cc_audit import AuditEntry
 from ..cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 from ..cc_modules.cc_device import Device
 from ..cc_modules.cc_hl7 import HL7Message, HL7Run
+from ..cc_modules.cc_patientidnum import PatientIdNum
 from ..cc_modules.cc_request import command_line_request
 from ..cc_modules.cc_session import CamcopsSession
 from ..cc_modules.cc_storedvar import ServerStoredVar
@@ -52,7 +58,7 @@ from ..cc_modules.cc_user import User
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
-def main() -> None:
+def merge_main() -> None:
     # Arguments
     parser = argparse.ArgumentParser(
         description="Merge CamCOPS databases",
@@ -134,6 +140,10 @@ def main() -> None:
     #                     child_tablename="_dirty_tables")
     # ]
 
+    # -------------------------------------------------------------------------
+    # Tables to skip
+    # -------------------------------------------------------------------------
+
     skip_tables = [
         # Transient stuff we don't want to copy across, or wouldn't want to
         # overwrite the destination with:
@@ -149,6 +159,25 @@ def main() -> None:
         ])
     if args.skip_audit_logs:
         skip_tables.append(TableIdentity(tablename=AuditEntry.__tablename__))
+
+    # -------------------------------------------------------------------------
+    # Initial operations on SOURCE database
+    # -------------------------------------------------------------------------
+    # In general, we allow missing source tables.
+    # However, we can't allow source tables to be missing if they are
+    # automatically eager-loaded by relationships. This is only true in
+    # CamCOPS for some high-performance queries: Patient, User,
+    # PatientIdNum. In the context of merges we're going to run, that means
+    # PatientIdNum.
+
+    src_tables = get_table_names(src_engine)
+    if PatientIdNum.__tablename__ not in src_tables:
+        create_table_from_orm_class(engine=src_engine, ormclass=PatientIdNum,
+                                    without_constraints=True)
+
+    # -------------------------------------------------------------------------
+    # Extra translation to be applied to individual objects
+    # -------------------------------------------------------------------------
 
     # The extra logic for this database:
     def translate_fn(trcon: TranslationContext) -> None:
@@ -176,6 +205,13 @@ def main() -> None:
                          matching_device.name)
                 trcon.newobj = matching_device
 
+        # *** implement "if patient numbers in old style and no new-style version,
+        #     add new-style patient numbers"
+
+    # -------------------------------------------------------------------------
+    # Merge
+    # -------------------------------------------------------------------------
+
     # Merge! It's easy...
     merge_db(
         base_class=Base,
@@ -197,6 +233,11 @@ def main() -> None:
         commit_with_flush=False,
         commit_at_end=True
     )
+
+
+def main() -> None:
+    # merge_main()
+    pdb_run(merge_main)
 
 
 if __name__ == "__main__":

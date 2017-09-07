@@ -152,7 +152,7 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score") +
                 " (0–{maxscore}; 18–{maxscore} if all rated) "
                 "<sup>[1]</sup>".format(maxscore=self.MAX_SCORE),

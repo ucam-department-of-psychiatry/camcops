@@ -279,7 +279,7 @@ class HadsBase(TaskHasPatientMixin, Task,
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
-            is_complete_tr=self.get_is_complete_tr(),
+            is_complete_tr=self.get_is_complete_tr(req),
             sa=req.wappstring("hads_anxiety_score"),
             a=answer(a),
             maxa=self.MAX_ANX_SCORE,

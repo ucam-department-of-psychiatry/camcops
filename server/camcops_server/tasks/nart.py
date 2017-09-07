@@ -224,7 +224,7 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr_qa("Total errors", self.n_errors())
         nelson = "; Nelson 1982 <sup>[1]</sup>"
         nelson_willison = "; Nelson &amp; Willison 1991 <sup>[2]</sup>"

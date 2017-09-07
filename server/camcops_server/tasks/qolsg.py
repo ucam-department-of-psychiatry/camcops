@@ -147,7 +147,7 @@ class QolSG(TaskHasPatientMixin, Task):
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr_qa("Utility", ws.number_to_dp(self.utility, DP, default=None))
         h += """
                 </table>

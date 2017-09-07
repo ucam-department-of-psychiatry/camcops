@@ -30,7 +30,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 
-from ..cc_modules.cc_constants import DATEFORMAT, ICD10_COPYRIGHT_DIV, PV
+from ..cc_modules.cc_constants import DateFormat, ICD10_COPYRIGHT_DIV, PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_dt import format_datetime_string
@@ -124,7 +124,7 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                 "Pertains to: {}. Criteria for schizotypal "
                 "disorder: {}.".format(
                     format_datetime_string(self.date_pertains_to,
-                                           DATEFORMAT.LONG_DATE),
+                                           DateFormat.LONG_DATE),
                     category
                 )
             )
@@ -164,10 +164,10 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr_qa(req.wappstring("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
-                                          DATEFORMAT.LONG_DATE, default=None))
+                                          DateFormat.LONG_DATE, default=None))
         h += tr_qa(req.wappstring("meets_criteria"),
                    get_yes_no_none(req, self.meets_criteria()))
         h += """

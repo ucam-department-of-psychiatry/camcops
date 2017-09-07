@@ -208,7 +208,7 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                     <th width="20%">Distress (carer)</th>
                 </tr>
         """.format(
-            complete_tr=self.get_is_complete_tr(),
+            complete_tr=self.get_is_complete_tr(req),
             e=self.n_endorsed(),
             s=self.severity_score(),
             d=self.distress_score(),

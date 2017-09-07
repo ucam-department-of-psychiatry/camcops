@@ -437,7 +437,7 @@ class CamcopsConfig(object):
         # self.NOW_UTC_NO_TZ = convert_datetime_to_utc_notz(self.NOW_LOCAL_TZ)
         #       -> Request.now_utc_datetime
         # self.NOW_LOCAL_TZ_ISO8601 = format_datetime(self.NOW_LOCAL_TZ,
-        #                                             DATEFORMAT.ISO8601)
+        #                                             DateFormat.ISO8601)
         #       -> Request.now_arrow, etc.
         # ---------------------------------------------------------------------
         # Read from the WSGI environment

@@ -123,7 +123,7 @@ class Asrm(TaskHasPatientMixin, Task,
                     <th width="70%">Answer</th>
                 </tr>
         """.format(
-            is_complete=self.get_is_complete_tr(),
+            is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,
             above_cutoff_str=self.wxstring(req, "above_cutoff"),

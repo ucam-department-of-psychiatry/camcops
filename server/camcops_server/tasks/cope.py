@@ -255,7 +255,7 @@ class CopeBrief(TaskHasPatientMixin, Task,
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr_qa("Self-distraction (Q1, Q19)", self.self_distraction())
         h += tr_qa("Active coping (Q2, Q7)", self.active_coping())
         h += tr_qa("Denial (Q3, Q8)", self.denial())

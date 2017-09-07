@@ -154,7 +154,7 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                     <th width="40%">Comment</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(),
+            self.get_is_complete_tr(req),
         )
         for item in self.items:
             html += item.get_html_table_row()

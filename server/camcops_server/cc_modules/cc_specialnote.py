@@ -29,7 +29,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from .cc_constants import DATEFORMAT, ERA_NOW
+from .cc_constants import DateFormat, ERA_NOW
 from .cc_dt import format_datetime
 from .cc_request import CamcopsRequest
 from .cc_sqla_coltypes import (
@@ -139,7 +139,7 @@ class SpecialNote(Base):
         http://docs.sqlalchemy.org/en/latest/orm/persistence_techniques.html
         """
         dbsession = req.dbsession
-        new_era = format_datetime(pls.NOW_UTC_NO_TZ, DATEFORMAT.ERA)
+        new_era = format_datetime(pls.NOW_UTC_NO_TZ, DateFormat.ERA)
         # noinspection PyProtectedMember
         notes = dbsession.query(cls)\
             .filter(cls._device_id == device_id)\

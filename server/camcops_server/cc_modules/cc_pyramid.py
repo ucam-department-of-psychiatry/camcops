@@ -73,13 +73,15 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 DEBUG_EFFECTIVE_PRINCIPALS = False
-DEBUG_TEMPLATES = True
-# ... logs more information about template creation, but also writes the
-# templates in their compiled-to-Python version to a debugging directory (see
-# below), which is very informative.
+DEBUG_TEMPLATE_PARAMETERS = False
+# ... logs more information about template creation
+DEBUG_TEMPLATE_SOURCE = True
+# ... writes the templates in their compiled-to-Python version to a debugging
+#     directory (see below), which is very informative.
 DEBUGGING_MAKO_DIR = os.path.expanduser("~/tmp/mako_template_source")
 
-if DEBUG_EFFECTIVE_PRINCIPALS or DEBUG_TEMPLATES:
+if (DEBUG_EFFECTIVE_PRINCIPALS or DEBUG_TEMPLATE_PARAMETERS or
+        DEBUG_TEMPLATE_SOURCE):
     log.warning("Debugging options enabled!")
 
 # =============================================================================
@@ -167,16 +169,44 @@ MAKO_LOOKUP = TemplateLookup(
         os.path.join(TEMPLATE_DIR, "snippets"),
         os.path.join(TEMPLATE_DIR, "taskcommon"),
         os.path.join(TEMPLATE_DIR, "tasks"),
+        os.path.join(TEMPLATE_DIR, "test"),
     ],
+
+    input_encoding="utf-8",
+    output_encoding="utf-8",
+
+    module_directory=DEBUGGING_MAKO_DIR if DEBUG_TEMPLATE_SOURCE else None,
+
+    # -------------------------------------------------------------------------
+    # TEMPLATE CACHING
+    # -------------------------------------------------------------------------
+    # http://dogpilecache.readthedocs.io/en/latest/api.html#module-dogpile.cache.plugins.mako_cache  # noqa
+    # http://docs.makotemplates.org/en/latest/caching.html#cache-arguments
+
     cache_impl="dogpile.cache",
     cache_args={
         "regions": {"local": cache_region_static},
     },
+
     # Now, in Mako templates, use:
-    #   cached="True" cache_region="local"
-    input_encoding="utf-8",
-    output_encoding="utf-8",
-    module_directory=DEBUGGING_MAKO_DIR if DEBUG_TEMPLATES else None,
+    #   cached="True" cache_region="local" cache_key="SOME_CACHE_KEY"
+    # on <%page>, <%def>, and <%block> regions.
+    # It is VITAL that you specify "name", and that it be appropriately
+    # unique, or there'll be a cache conflict.
+    # The easy way is:
+    #   cached="True" cache_region="local" cache_key="${self.filename}"
+    #                                                 ^^^^^^^^^^^^^^^^
+    #                                                   No!
+    # ... with ${self.filename} you can get an inheritance deadlock:
+    # See https://bitbucket.org/zzzeek/mako/issues/269/inheritance-related-cache-deadlock-when  # noqa
+    #
+    # HOWEVER, note also: it is the CONTENT that is cached. You can cause some
+    # right disasters with this. Only stuff producing entirely STATIC content
+    # should be cached. "base.mako" isn't static - it calls back to its
+    # children; and if you cache it, one request produces results for an
+    # entirely different request. Similarly for lots of other things like
+    # "task.mako".
+    # SO, THERE IS NOT MUCH REASON HERE TO USE TEMPLATE CACHING.
 )
 
 
@@ -186,7 +216,7 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
     (b) shove any other keys into its dictionary
     """
     def __call__(self, value: Dict[str, Any], system: Dict[str, Any]) -> str:
-        if DEBUG_TEMPLATES:
+        if DEBUG_TEMPLATE_PARAMETERS:
             log.debug("spec: {!r}", self.spec)
             log.debug("value: {}", pprint.pformat(value))
             log.debug("system: {}", pprint.pformat(system))
@@ -220,7 +250,7 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
             template = template.get_def(self.defname)
         # noinspection PyBroadException
         try:
-            if DEBUG_TEMPLATES:
+            if DEBUG_TEMPLATE_PARAMETERS:
                 log.debug("final dict to template: {}", pprint.pformat(system))
             result = template.render_unicode(**system)
         except:
@@ -351,8 +381,9 @@ class Routes(object):
     OFFER_TERMS = "offer_terms"
     TASK = "task"
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
+    TESTPAGE_PRIVATE_2 = "testpage_private_2"
+    TESTPAGE_PRIVATE_3 = "testpage_private_3"
     TESTPAGE_PUBLIC_1 = "testpage_public_1"
-    TESTPAGE_PUBLIC_2 = "testpage_public_2"
     VIEW_AUDIT_TRAIL = "view_audit_trail"
     VIEW_POLICIES = "view_policies"
     VIEW_TASKS = "view_tasks"
@@ -479,8 +510,9 @@ class RouteCollection(object):
     OFFER_TERMS = RoutePath(Routes.OFFER_TERMS, '/offer_terms')
     TASK = RoutePath(Routes.TASK, "/task")
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1, '/testpriv1')
+    TESTPAGE_PRIVATE_2 = RoutePath(Routes.TESTPAGE_PRIVATE_2, '/testpriv2')
+    TESTPAGE_PRIVATE_3 = RoutePath(Routes.TESTPAGE_PRIVATE_3, '/testpriv3')
     TESTPAGE_PUBLIC_1 = RoutePath(Routes.TESTPAGE_PUBLIC_1, '/test1')
-    TESTPAGE_PUBLIC_2 = RoutePath(Routes.TESTPAGE_PUBLIC_2, '/test2')
     VIEW_AUDIT_TRAIL = RoutePath(Routes.VIEW_AUDIT_TRAIL, "/view_audit_trail")
     VIEW_HL7_MESSAGE = RoutePath(Routes.VIEW_HL7_MESSAGE, "/view_hl7_message")
     VIEW_HL7_MESSAGE_LOG = RoutePath(Routes.VIEW_HL7_MESSAGE_LOG,

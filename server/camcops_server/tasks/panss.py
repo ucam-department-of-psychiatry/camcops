@@ -266,7 +266,7 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             <div class="summary">
                 <table class="summary">
         """
-        h += self.get_is_complete_tr()
+        h += self.get_is_complete_tr(req)
         h += tr_qa("{} ({}–{})".format(req.wappstring("total_score"),
                                        self.MIN_TOTAL, self.MAX_TOTAL),
                    total)

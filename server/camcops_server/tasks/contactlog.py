@@ -30,7 +30,7 @@ from sqlalchemy.sql.sqltypes import Integer, Text, UnicodeText
 
 from ..cc_modules.cc_dt import format_datetime_string, get_duration_h_m
 from ..cc_modules.cc_constants import (
-    DATEFORMAT,
+    DateFormat,
     PV,
 )
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -122,10 +122,10 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             ws.webify(self.location),
         )
         h += tr_qa("Start:", format_datetime_string(self.start,
-                                                    DATEFORMAT.SHORT_DATETIME,
+                                                    DateFormat.SHORT_DATETIME,
                                                     None))
         h += tr_qa("End:", format_datetime_string(self.end,
-                                                  DATEFORMAT.SHORT_DATETIME,
+                                                  DateFormat.SHORT_DATETIME,
                                                   None))
         h += tr(italic("Calculated duration (hours:minutes)"),
                 italic(get_duration_h_m(self.start, self.end)))

@@ -139,7 +139,7 @@ from .cc_audit import audit, AuditEntry
 from .cc_constants import (
     ACTION,
     CAMCOPS_URL,
-    DATEFORMAT,
+    DateFormat,
     PARAM,
     RESTRICTED_WARNING,
     VALUE,
@@ -345,7 +345,12 @@ def test_page_1(req: CamcopsRequest) -> Response:
     return Response("Hello! This is a public CamCOPS test page.")
 
 
-@view_config(route_name=Routes.TESTPAGE_PUBLIC_2,
+@view_config(route_name=Routes.TESTPAGE_PRIVATE_1)
+def test_page_private_1(req: CamcopsRequest) -> Response:
+    return Response("Private test page.")
+
+
+@view_config(route_name=Routes.TESTPAGE_PRIVATE_2,
              renderer="testpage.mako",
              permission=Permission.SUPERUSER)
 def test_page_2(req: CamcopsRequest) -> Dict[str, Any]:
@@ -354,12 +359,13 @@ def test_page_2(req: CamcopsRequest) -> Dict[str, Any]:
     return dict(param1="world")
 
 
-@view_config(route_name=Routes.TESTPAGE_PRIVATE_1)
-def test_page_private_1(req: CamcopsRequest) -> Response:
-    return Response("Private test page.")
+@view_config(route_name=Routes.TESTPAGE_PRIVATE_3,
+             renderer="inherit_cache_test_child.mako",
+             permission=Permission.SUPERUSER)
+def test_page_3(req: CamcopsRequest) -> Dict[str, Any]:
+    return {}
 
 
-# Not on the menus...
 @view_config(route_name=Routes.CRASH, permission=Permission.SUPERUSER)
 def crash(req: CamcopsRequest) -> Response:
     """Deliberately raises an exception."""
@@ -446,7 +452,7 @@ def login_view(req: CamcopsRequest) -> Response:
     return render_to_response(
         "login.mako",
         dict(form=rendered_form,
-             head_form_html=get_head_form_html(req, form)),
+             head_form_html=get_head_form_html(req, [form])),
         request=req
     )
 
@@ -473,7 +479,7 @@ def account_locked(req: CamcopsRequest,
         "accounted_locked.mako",
         dict(
             locked_until=format_datetime(locked_until,
-                                         DATEFORMAT.LONG_DATETIME_WITH_DAY,
+                                         DateFormat.LONG_DATETIME_WITH_DAY,
                                          "(never)")
         ),
         request=req
@@ -505,7 +511,7 @@ def offer_terms(req: CamcopsRequest) -> Dict[str, Any]:
         subtitle=req.wappstring("disclaimer_subtitle"),
         content=req.wappstring("disclaimer_content"),
         form=form.render(),
-        head_form_html=get_head_form_html(req, form),
+        head_form_html=get_head_form_html(req, [form]),
     )
 
 
@@ -559,7 +565,7 @@ def change_own_password(req: CamcopsRequest) -> Response:
              expired=expired,
              extra_msg=extra_msg,
              min_pw_length=MINIMUM_PASSWORD_LENGTH,
-             head_form_html=get_head_form_html(req, form)),
+             head_form_html=get_head_form_html(req, [form])),
         request=req)
 
 
@@ -608,7 +614,7 @@ def change_other_password(req: CamcopsRequest) -> Response:
         dict(username=username,
              form=rendered_form,
              min_pw_length=MINIMUM_PASSWORD_LENGTH,
-             head_form_html=get_head_form_html(req, form)),
+             head_form_html=get_head_form_html(req, [form])),
         request=req)
 
 
@@ -638,7 +644,7 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
         id_policies_valid=id_policies_valid(),
         introspection=cfg.INTROSPECTION,
         now=format_datetime(req.now_arrow,
-                            DATEFORMAT.SHORT_DATETIME_SECONDS),
+                            DateFormat.SHORT_DATETIME_SECONDS),
         server_version=CAMCOPS_SERVER_VERSION,
     )
 
@@ -1349,7 +1355,7 @@ def basic_dump(session: CamcopsSession, form: cgi.FieldStorage) \
     zip_contents = memfile.getvalue()
     filename = "CamCOPS_dump_" + format_datetime(
         pls.NOW_LOCAL_TZ,
-        DATEFORMAT.FILENAME
+        DateFormat.FILENAME
     ) + ".zip"
     # atypical content type
     return ws.zip_result(zip_contents, [], filename)
@@ -1481,7 +1487,7 @@ def serve_table_dump(session: CamcopsSession, form: cgi.FieldStorage) \
     if outputtype == VALUE.OUTPUTTYPE_SQL:
         filename = "CamCOPS_dump_" + format_datetime(
             pls.NOW_LOCAL_TZ,
-            DATEFORMAT.FILENAME
+            DateFormat.FILENAME
         ) + ".sql"
         # atypical content type
         return ws.text_result(
@@ -1493,7 +1499,7 @@ def serve_table_dump(session: CamcopsSession, form: cgi.FieldStorage) \
             return fail_with_error_stay_logged_in(NOTHING_VALID_SPECIFIED)
         filename = "CamCOPS_dump_" + format_datetime(
             pls.NOW_LOCAL_TZ,
-            DATEFORMAT.FILENAME
+            DateFormat.FILENAME
         ) + ".zip"
         # atypical content type
         return ws.zip_result(zip_contents, [], filename)
@@ -1576,7 +1582,7 @@ def offer_audit_trail(req: CamcopsRequest) -> Response:
     return render_to_response(
         "audit_trail_choices.mako",
         dict(form=rendered_form,
-             head_form_html=get_head_form_html(req, form)),
+             head_form_html=get_head_form_html(req, [form])),
         request=req)
 
 
@@ -1679,7 +1685,7 @@ def offer_hl7_message_log(req: CamcopsRequest) -> Response:
     return render_to_response(
         "hl7_message_log_choices.mako",
         dict(form=rendered_form,
-             head_form_html=get_head_form_html(req, form)),
+             head_form_html=get_head_form_html(req, [form])),
         request=req)
 
 
@@ -1777,7 +1783,7 @@ def offer_hl7_run_log(req: CamcopsRequest) -> Response:
     return render_to_response(
         "hl7_run_log_choices.mako",
         dict(form=rendered_form,
-             head_form_html=get_head_form_html(req, form)),
+             head_form_html=get_head_form_html(req, [form])),
         request=req)
 
 
@@ -2191,7 +2197,7 @@ def edit_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     if changes["surname"]:
         changes["surname"] = changes["surname"].upper()
     changes["dob"] = format_datetime(
-        changes["dob"], DATEFORMAT.ISO8601_DATE_ONLY, default="")
+        changes["dob"], DateFormat.ISO8601_DATE_ONLY, default="")
     for n in pls.get_which_idnums():
         val = ws.get_cgi_parameter_int(form, PARAM.IDNUM_PREFIX + str(n))
         if val is not None:
@@ -2261,7 +2267,7 @@ def edit_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
         else:
             warning = ""
             dob_for_html = format_datetime_string(
-                patient.dob, DATEFORMAT.ISO8601_DATE_ONLY, default="")
+                patient.dob, DateFormat.ISO8601_DATE_ONLY, default="")
             details = """
                 Forename: <input type="text" name="{PARAM.FORENAME}"
                                 value="{forename}"><br>

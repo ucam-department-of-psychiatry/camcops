@@ -34,7 +34,7 @@ from .cc_audit import audit
 from .cc_constants import (
     ACTION,
     CSS_PAGED_MEDIA,
-    DATEFORMAT,
+    DateFormat,
     FP_ID_NUM,
     FULLWIDTH_PLOT_WIDTH,
     PARAM,
@@ -183,8 +183,8 @@ def format_daterange(start: Optional[datetime.datetime],
 
     Arguments are datetime values."""
     return "[{}, {}]".format(
-        format_datetime(start, DATEFORMAT.ISO8601_DATE_ONLY, default="−∞"),
-        format_datetime(end, DATEFORMAT.ISO8601_DATE_ONLY, default="+∞")
+        format_datetime(start, DateFormat.ISO8601_DATE_ONLY, default="−∞"),
+        format_datetime(end, DateFormat.ISO8601_DATE_ONLY, default="+∞")
     )
 
 
@@ -452,13 +452,13 @@ class TrackerCtvCommon(object):
                     XmlElement(
                         name="start_datetime",
                         value=format_datetime(self.start_datetime,
-                                              DATEFORMAT.ISO8601),
+                                              DateFormat.ISO8601),
                         datatype=XmlDataTypes.DATETIME
                     ),
                     XmlElement(
                         name="end_datetime",
                         value=format_datetime(self.end_datetime,
-                                              DATEFORMAT.ISO8601),
+                                              DateFormat.ISO8601),
                         datatype=XmlDataTypes.DATETIME
                     ),
                 ]
@@ -599,7 +599,7 @@ class TrackerCtvCommon(object):
         return req.webstart_html + self.get_header_html()
 
     def get_pdf_footer_content(self, req: CamcopsRequest) -> str:
-        accessed = format_datetime(req.now_arrow, DATEFORMAT.LONG_DATETIME)
+        accessed = format_datetime(req.now_arrow, DateFormat.LONG_DATETIME)
         content = "{thing} accessed {accessed}.".format(
             thing="CTV" if self.as_ctv else "Tracker",
             accessed=accessed
@@ -654,7 +654,7 @@ class TrackerCtvCommon(object):
             url=pls.SCRIPT_PUBLIC_URL_ESCAPED,
             server_version=CAMCOPS_SERVER_VERSION,
             when=format_datetime(req.now_arrow,
-                                 DATEFORMAT.SHORT_DATETIME_SECONDS),
+                                 DateFormat.SHORT_DATETIME_SECONDS),
         )
 
     # -------------------------------------------------------------------------
@@ -1111,12 +1111,12 @@ class Tracker(TrackerCtvCommon):
         url += get_url_field_value_pair(
             PARAM.START_DATETIME,
             format_datetime(self.start_datetime,
-                            DATEFORMAT.ISO8601_DATE_ONLY, default="")
+                            DateFormat.ISO8601_DATE_ONLY, default="")
         )
         url += get_url_field_value_pair(
             PARAM.END_DATETIME,
             format_datetime(self.end_datetime,
-                            DATEFORMAT.ISO8601_DATE_ONLY, default="")
+                            DateFormat.ISO8601_DATE_ONLY, default="")
         )
         url += get_url_field_value_pair(
             PARAM.OUTPUTTYPE,
@@ -1204,7 +1204,7 @@ class ClinicalTextView(TrackerCtvCommon):
             </div>
         """.format(
             format_datetime(self.start_datetime,
-                            DATEFORMAT.ISO8601_DATE_ONLY, default="−∞")
+                            DateFormat.ISO8601_DATE_ONLY, default="−∞")
         )
         for t in range(len(self.flattasklist)):
             html += self.get_textview_for_one_task_instance_html(
@@ -1215,7 +1215,7 @@ class ClinicalTextView(TrackerCtvCommon):
             </div>
         """.format(
             format_datetime(self.end_datetime,
-                            DATEFORMAT.ISO8601_DATE_ONLY, default="+∞")
+                            DateFormat.ISO8601_DATE_ONLY, default="+∞")
         )
         return html
 
@@ -1225,7 +1225,7 @@ class ClinicalTextView(TrackerCtvCommon):
                                                 as_pdf: bool = False) -> str:
         """HTML for the CTV contribution of a single task."""
         datetext = format_datetime(task.get_creation_datetime(),
-                                   DATEFORMAT.LONG_DATETIME_WITH_DAY)
+                                   DateFormat.LONG_DATETIME_WITH_DAY)
         # HTML versions get hyperlinks.
         if as_pdf:
             links = ""
@@ -1304,11 +1304,11 @@ class ClinicalTextView(TrackerCtvCommon):
         url += get_url_field_value_pair(
             PARAM.START_DATETIME,
             format_datetime(self.start_datetime,
-                            DATEFORMAT.ISO8601_DATE_ONLY, default=""))
+                            DateFormat.ISO8601_DATE_ONLY, default=""))
         url += get_url_field_value_pair(
             PARAM.END_DATETIME,
             format_datetime(self.end_datetime,
-                            DATEFORMAT.ISO8601_DATE_ONLY, default=""))
+                            DateFormat.ISO8601_DATE_ONLY, default=""))
         url += get_url_field_value_pair(
             PARAM.OUTPUTTYPE, VALUE.OUTPUTTYPE_PDF)
         return """<a href="{}" target="_blank">{}</a>""".format(url, text)

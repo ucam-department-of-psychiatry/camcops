@@ -415,7 +415,7 @@ class Rand36(TaskHasPatientMixin, Task,
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += self.scoreline(
             self.wxstring(req, "score_overall"), 1,
             self.format_float_for_display(self.score_overall()))

@@ -156,7 +156,7 @@ class Pswq(TaskHasPatientMixin, Task,
                     <th width="15%">Score (1–5)</th>
                 </tr>
         """.format(
-            complete_tr=self.get_is_complete_tr(),
+            complete_tr=self.get_is_complete_tr(req),
             total=answer(self.total_score()),
             anchor1=self.wxstring(req, "anchor1"),
             anchor5=self.wxstring(req, "anchor5"),

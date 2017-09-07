@@ -150,7 +150,7 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                     <th width="20%">Score</th>
                 </tr>
         """.format(
-            complete_tr=self.get_is_complete_tr(),
+            complete_tr=self.get_is_complete_tr(req),
             total=answer(self.total_score()),
         )
         for q in range(1, self.NQUESTIONS + 1):

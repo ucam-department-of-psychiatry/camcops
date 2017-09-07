@@ -136,7 +136,7 @@ class QolBasic(TaskHasPatientMixin, Task):
             <div class="summary">
                 <table class="summary">
         """
-        h += self.get_is_complete_tr()
+        h += self.get_is_complete_tr(req)
         h += tr("Mean QoL", answer(ws.number_to_dp(mean_qol, DP, default=None),
                                    formatter_answer=identity))
         h += """

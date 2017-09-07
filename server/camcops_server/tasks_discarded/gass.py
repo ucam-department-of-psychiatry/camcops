@@ -181,7 +181,7 @@ class Gass(TaskHasPatientMixin, Task,
                     <th width="15%">Distressing?</th><
                 /tr>
         """.format(
-            is_complete=self.get_is_complete_tr(),
+            is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,
             max_total=self.MAX_TOTAL,

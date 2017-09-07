@@ -37,7 +37,11 @@ import os
 from alembic import command
 from alembic.config import Config
 from cardinal_pythonlib.fileops import preserve_cwd
-from cardinal_pythonlib.sqlalchemy.alembic_func import upgrade_database
+from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.sqlalchemy.alembic_func import (
+    get_current_and_head_revision,
+    upgrade_database,
+)
 
 from .cc_baseconstants import ALEMBIC_BASE_DIR, ALEMBIC_CONFIG_FILENAME
 from .cc_sqlalchemy import Base
@@ -46,7 +50,7 @@ if TYPE_CHECKING:
     from sqlalchemy.sql.schema import MetaData
     from .cc_config import CamcopsConfig
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 def import_all_models():
@@ -93,3 +97,19 @@ def create_database_from_scratch(cfg: "CamcopsConfig") -> None:
     os.chdir(ALEMBIC_BASE_DIR)
     command.stamp(alembic_cfg, "head")
     log.info("One-step database creation complete.")
+
+
+@preserve_cwd
+def assert_database_is_at_head(cfg: "CamcopsConfig") -> None:
+    current, head = get_current_and_head_revision(
+        database_url=cfg.DB_URL,
+        alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
+        alembic_base_dir=ALEMBIC_BASE_DIR,
+    )
+    if current == head:
+        log.debug("Database is at correct (head) revision of {}", current)
+    else:
+        log.critical(
+            "Database structure is at version {} but should be at version {}. "
+            "CamCOPS will not start. Please use the --upgradedb command to "
+            "fix this.", current, head)

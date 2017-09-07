@@ -39,7 +39,7 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 # from sqlalchemy.sql.type_api import TypeEngine
 
-from .cc_constants import DATEFORMAT, ERA_NOW
+from .cc_constants import DateFormat, ERA_NOW
 from .cc_dt import format_datetime
 from .cc_sqla_coltypes import (
     CamcopsColumn,
@@ -670,7 +670,7 @@ def manually_erase_record_object_and_save(obj: T,
     obj._current = False
     obj._manually_erased = True
     obj._manually_erased_at = format_datetime(pls.NOW_LOCAL_TZ,
-                                              DATEFORMAT.ISO8601)
+                                              DateFormat.ISO8601)
     obj._manually_erasing_user_id = user_id
     pls.db.update_object_in_db(obj, table, fields)
 
@@ -710,7 +710,7 @@ def forcibly_preserve_client_table(table: str,
                                    device_id: int,
                                    user_id: int) -> None:
     """WRITES TO DATABASE."""
-    new_era = format_datetime(pls.NOW_UTC_NO_TZ, DATEFORMAT.ERA)
+    new_era = format_datetime(pls.NOW_UTC_NO_TZ, DateFormat.ERA)
     query = """
         UPDATE  {table}
         SET     _era = ?,

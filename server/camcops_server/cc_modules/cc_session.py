@@ -41,7 +41,7 @@ from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 from .cc_analytics import send_analytics_if_necessary
 from .cc_constants import (
     ACTION,
-    DATEFORMAT,
+    DateFormat,
     PARAM,
 )
 from .cc_dt import format_datetime, get_datetime_from_string
@@ -204,7 +204,7 @@ class CamcopsSession(Base):
 
     @property
     def last_activity_utc_iso(self) -> str:
-        return format_datetime(self.last_activity_utc, DATEFORMAT.ISO8601)
+        return format_datetime(self.last_activity_utc, DateFormat.ISO8601)
 
     @classmethod
     def get_session_using_cookies(cls,
@@ -542,7 +542,7 @@ class CamcopsSession(Base):
         ) or found_one
         found_one = get_filter_html(
             "Date of birth",
-            format_datetime(self.get_filter_dob(), DATEFORMAT.LONG_DATE),
+            format_datetime(self.get_filter_dob(), DateFormat.LONG_DATE),
             ACTION.CLEAR_FILTER_DOB,
             """<input type="date" name="{}">""".format(PARAM.DOB),
             ACTION.APPLY_FILTER_DOB,
@@ -619,7 +619,7 @@ class CamcopsSession(Base):
         found_one = get_filter_html(
             "Start date (UTC)",
             format_datetime(self.get_filter_start_datetime(),
-                            DATEFORMAT.LONG_DATE),
+                            DateFormat.LONG_DATE),
             ACTION.CLEAR_FILTER_START_DATETIME,
             """<input type="date" name="{}">""".format(PARAM.START_DATETIME),
             ACTION.APPLY_FILTER_START_DATETIME,
@@ -628,7 +628,7 @@ class CamcopsSession(Base):
         found_one = get_filter_html(
             "End date (UTC)",
             format_datetime(self.get_filter_end_datetime(),
-                            DATEFORMAT.LONG_DATE),
+                            DateFormat.LONG_DATE),
             ACTION.CLEAR_FILTER_END_DATETIME,
             """<input type="date" name="{}">""".format(PARAM.END_DATETIME),
             ACTION.APPLY_FILTER_END_DATETIME,
@@ -693,7 +693,7 @@ class CamcopsSession(Base):
         dt = ws.get_cgi_parameter_datetime(form, PARAM.DOB)
         if dt:
             self.filter_dob_iso8601 = format_datetime(
-                dt, DATEFORMAT.ISO8601_DATE_ONLY)  # NB date only
+                dt, DateFormat.ISO8601_DATE_ONLY)  # NB date only
         filter_sex = ws.get_cgi_parameter_str_or_none(form, PARAM.SEX)
         if filter_sex:
             self.filter_sex = filter_sex.upper()
@@ -724,11 +724,11 @@ class CamcopsSession(Base):
         dt = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
         if dt:
             self.filter_start_datetime_iso8601 = format_datetime(
-                dt, DATEFORMAT.ISO8601)
+                dt, DateFormat.ISO8601)
         dt = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
         if dt:
             self.filter_end_datetime_iso8601 = format_datetime(
-                dt, DATEFORMAT.ISO8601)
+                dt, DateFormat.ISO8601)
         filter_text = ws.get_cgi_parameter_str_or_none(form, PARAM.TEXT)
         if filter_text:
             self.filter_text = filter_text
@@ -754,7 +754,7 @@ class CamcopsSession(Base):
         """Apply the DOB filter."""
         dt = ws.get_cgi_parameter_datetime(form, PARAM.DOB)
         self.filter_dob_iso8601 = format_datetime(
-            dt, DATEFORMAT.ISO8601_DATE_ONLY)  # NB date only
+            dt, DateFormat.ISO8601_DATE_ONLY)  # NB date only
         self.reset_pagination()
 
     def apply_filter_sex(self, form: cgi.FieldStorage) -> None:
@@ -805,14 +805,14 @@ class CamcopsSession(Base):
         """Apply the start date filter."""
         dt = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
         self.filter_start_datetime_iso8601 = format_datetime(
-            dt, DATEFORMAT.ISO8601)
+            dt, DateFormat.ISO8601)
         self.reset_pagination()
 
     def apply_filter_end_datetime(self, form: cgi.FieldStorage) -> None:
         """Apply the end date filter."""
         dt = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
         self.filter_end_datetime_iso8601 = format_datetime(
-            dt, DATEFORMAT.ISO8601)
+            dt, DateFormat.ISO8601)
         self.reset_pagination()
 
     def apply_filter_text(self, form: cgi.FieldStorage) -> None:

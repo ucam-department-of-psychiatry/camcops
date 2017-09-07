@@ -117,7 +117,7 @@ class Csi(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <th width="50%">Present?</th>
                 </tr>
         """.format(
-            is_complete=self.get_is_complete_tr(),
+            is_complete=self.get_is_complete_tr(req),
             num_sx_str=self.wxstring(req, "num_symptoms_present"),
             n_csi_symptoms=n_csi_symptoms,
             max_total=self.NQUESTIONS,

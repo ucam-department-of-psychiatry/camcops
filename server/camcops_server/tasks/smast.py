@@ -166,7 +166,7 @@ class Smast(TaskHasPatientMixin, Task,
             <div class="summary">
                 <table class="summary">
         """
-        h += self.get_is_complete_tr()
+        h += self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score"),
                 answer(score) + " / {}".format(self.NQUESTIONS))
         h += tr_qa(

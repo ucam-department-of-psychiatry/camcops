@@ -146,7 +146,7 @@ class Audit(TaskHasPatientMixin, Task,
             <div class="summary">
                 <table class="summary">
         """
-        h += self.get_is_complete_tr()
+        h += self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score"), answer(score) + " / 40")
         h += tr_qa(self.wxstring(req, "exceeds_standard_cutoff"),
                    get_yes_no(req, exceeds_cutoff))
@@ -264,7 +264,7 @@ class AuditC(TaskHasPatientMixin, Task,
             <div class="summary">
                 <table class="summary">
         """
-        h += self.get_is_complete_tr()
+        h += self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score"), answer(score) + " / 12")
         h += """
                 </table>

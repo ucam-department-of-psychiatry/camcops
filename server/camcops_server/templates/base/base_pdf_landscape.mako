@@ -1,5 +1,4 @@
 ## base_pdf_landscape.mako
-<%page cached="True" cache_region="local"/>
 <%inherit file="base_pdf.mako"/>
 
 <%block name="css">

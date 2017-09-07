@@ -1920,7 +1920,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
                 <div class="summary">
                     <table class="summary">
             """ +
-            self.get_is_complete_tr() +
+            self.get_is_complete_tr(req) +
             tr_qa("Parental loss risk factor? <sup>[1]</sup>",
                   get_yes_no(req, self.parental_loss_risk())) +
             tr_qa("Parental loss higher risk factor? <sup>[2]</sup>",

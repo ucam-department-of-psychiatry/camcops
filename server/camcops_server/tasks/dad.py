@@ -291,7 +291,7 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
-            complete_tr=self.get_is_complete_tr(),
+            complete_tr=self.get_is_complete_tr(req),
             total=self.report_score(d['total']),
             hygiene=self.report_score(d['hygiene']),
             dressing=self.report_score(d['dressing']),

@@ -173,7 +173,7 @@ class Phq15(TaskHasPatientMixin, Task,
             <div class="summary">
                 <table class="summary">
         """
-        h += self.get_is_complete_tr()
+        h += self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score") + " <sup>[1]</sup>",
                 answer(score) + " / {}".format(self.MAX_TOTAL))
         h += tr_qa(self.wxstring(req, "n_severe_symptoms") + " <sup>[2]</sup>",

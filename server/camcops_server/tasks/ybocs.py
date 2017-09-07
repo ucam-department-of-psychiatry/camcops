@@ -231,7 +231,7 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                     <th width="50%">Detail</th>
                 </tr>
         """.format(
-            complete_tr=self.get_is_complete_tr(),
+            complete_tr=self.get_is_complete_tr(req),
             total_score=answer(self.total_score()),
             mt=self.MAX_TOTAL,
             obsession_score=answer(self.obsession_score()),

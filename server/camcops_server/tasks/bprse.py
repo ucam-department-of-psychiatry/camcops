@@ -134,7 +134,7 @@ class Bprse(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score") +
                 " (0–{maxscore}; 24–{maxscore} if all "
                 "rated)".format(maxscore=self.MAX_SCORE),

@@ -185,7 +185,7 @@ class Bmi(TaskHasPatientMixin, Task):
             <div class="summary">
                 <table class="summary">
         """
-        h += self.get_is_complete_tr()
+        h += self.get_is_complete_tr(req)
         h += tr_qa("BMI (kg/m<sup>2</sup>)",
                    ws.number_to_dp(self.bmi(), BMI_DP))
         h += tr_qa("Category <sup>[1]</sup>", self.category())

@@ -207,7 +207,7 @@ class PclCommon(TaskHasPatientMixin, Task,
             <div class="summary">
                 <table class="summary">
         """
-        h += self.get_is_complete_tr()
+        h += self.get_is_complete_tr(req)
         h += tr_qa("{} (17–85)".format(req.wappstring("total_score")),
                    score)
         h += tr("Number symptomatic <sup>[1]</sup>: B, C, D (total)",

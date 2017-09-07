@@ -90,7 +90,7 @@ class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr(req.wappstring("gaf_score"), answer(self.score))
         h += """
                 </table>

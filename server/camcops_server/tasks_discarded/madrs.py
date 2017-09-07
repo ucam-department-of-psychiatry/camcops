@@ -151,7 +151,7 @@ class Madrs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <td><b>{period_rated}</b></td>
                 </tr>
         """.format(
-            is_complete=self.get_is_complete_tr(),
+            is_complete=self.get_is_complete_tr(req),
             total_score_str=req.wappstring("total_score"),
             score=score,
             max_total=self.MAX_TOTAL,

@@ -29,7 +29,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
 from ..cc_modules.cc_constants import (
-    DATEFORMAT,
+    DateFormat,
     ICD10_COPYRIGHT_DIV,
 )
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -254,7 +254,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         infolist = [CtvInfo(
             content="Pertains to: {}. Category: {}.".format(
                 format_datetime_string(self.date_pertains_to,
-                                       DATEFORMAT.LONG_DATE),
+                                       DateFormat.LONG_DATE),
                 self.get_full_description(req)
             )
         )]
@@ -486,10 +486,10 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         h = self.get_standard_clinician_comments_block(self.comments) + """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr()
+        """ + self.get_is_complete_tr(req)
         h += tr_qa(req.wappstring("date_pertains_to"),
                    format_datetime_string(self.date_pertains_to,
-                                          DATEFORMAT.LONG_DATE,
+                                          DateFormat.LONG_DATE,
                                           default=None))
         h += tr_qa(req.wappstring("category") + " <sup>[1,2]</sup>",
                    self.get_full_description(req))

@@ -44,7 +44,7 @@ from sqlalchemy.sql.sqltypes import BigInteger, Date, Integer, UnicodeText
 from .cc_audit import audit
 from .cc_constants import (
     ACTION,
-    DATEFORMAT,
+    DateFormat,
     ERA_NOW,
     FP_ID_DESC,
     FP_ID_SHORT_DESC,
@@ -56,8 +56,6 @@ from .cc_constants import (
 from .cc_db import GenericTabletRecordMixin
 from .cc_dt import (
     format_datetime,
-    format_datetime_string,
-    get_date_from_string,
     get_datetime_from_string,
     get_now_localtz,
 )
@@ -210,12 +208,12 @@ class Patient(GenericTabletRecordMixin, Base):
             SpecialNote,
             primaryjoin=(
                 "and_("
-                " remote(SpecialNote.basetable) == {patient_tablename}, "
+                " remote(SpecialNote.basetable) == literal({repr_patient_tablename}), "  # noqa
                 " remote(SpecialNote.task_id) == foreign(Patient.id), "
                 " remote(SpecialNote.device_id) == foreign(Patient._device_id), "  # noqa
                 " remote(SpecialNote.era) == foreign(Patient._era) "
                 ")".format(
-                    patient_tablename=cls.__tablename__,
+                    repr_patient_tablename=repr(cls.__tablename__),
                 )
             ),
             uselist=True,
@@ -382,10 +380,10 @@ class Patient(GenericTabletRecordMixin, Base):
         """HTML fragment for date of birth."""
         if longform:
             return "<br>Date of birth: {}".format(
-                answer(format_datetime_string(
-                    self.dob, DATEFORMAT.LONG_DATE, default=None)))
-        return "DOB: {}.".format(format_datetime_string(
-            self.dob, DATEFORMAT.SHORT_DATE))
+                answer(format_datetime(
+                    self.dob, DateFormat.LONG_DATE, default=None)))
+        return "DOB: {}.".format(format_datetime(
+            self.dob, DateFormat.SHORT_DATE))
 
     def get_age(self, req: CamcopsRequest,
                 default: str = "") -> Union[int, str]:
@@ -401,12 +399,13 @@ class Patient(GenericTabletRecordMixin, Base):
         dob_dt = self.get_dob()
         if dob_dt is None:
             return None
-        return format_datetime(dob_dt, DATEFORMAT.SHORT_DATE)
+        return format_datetime(dob_dt, DateFormat.SHORT_DATE)
 
     def get_age_at(self,
                    when: Union[datetime.datetime, datetime.date, Arrow],
                    default: str = "") -> Union[int, str]:
-        """Age (in whole years) at a particular date, or default.
+        """
+        Age (in whole years) at a particular date, or default.
 
         Args:
             when: date or datetime or Arrow
@@ -421,19 +420,6 @@ class Patient(GenericTabletRecordMixin, Base):
         # if it wasn't timezone-naive, we could make it timezone-naive: e.g.
         # now = now.replace(tzinfo = None)
         return dateutil.relativedelta.relativedelta(when, dob).years
-
-    def get_age_at_string(self,
-                          now_string: str,
-                          default: str = "") -> Union[int, str]:
-        """Age (in whole years) at a particular date, or default.
-
-        Args:
-            now_string: date/time in string format, e.g. ISO-8601
-            default: default string to use
-        """
-        if now_string is None:
-            return default
-        return self.get_age_at(get_datetime_from_string(now_string))
 
     def is_female(self) -> bool:
         """Is sex 'F'?"""
@@ -652,7 +638,7 @@ class Patient(GenericTabletRecordMixin, Base):
         """.format(
             self.get_surname_forename_upper(),
             self.get_sex_verbose(),
-            format_datetime(self.dob, DATEFORMAT.SHORT_DATE, default="?"),
+            format_datetime(self.dob, DateFormat.SHORT_DATE, default="?"),
             self.get_age(req=req, default="?"),
         )
 
@@ -818,7 +804,6 @@ def unit_tests_patient(p: Patient, req: CamcopsRequest) -> None:
     unit_test_ignore("", p.get_age)
     unit_test_ignore("", p.get_dob)
     unit_test_ignore("", p.get_age_at, get_now_localtz())
-    unit_test_ignore("", p.get_age_at_string, "2000-01-01")
     unit_test_ignore("", p.is_female)
     unit_test_ignore("", p.is_male)
     unit_test_ignore("", p.get_sex)

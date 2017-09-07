@@ -155,7 +155,7 @@ class Pdss(TaskHasPatientMixin, Task,
                     <th width="40%">Answer ({qmin}–{qmax})</th>
                 </tr>
         """.format(
-            complete_tr=self.get_is_complete_tr(),
+            complete_tr=self.get_is_complete_tr(req),
             total=answer(self.total_score()),
             tmax=self.MAX_TOTAL,
             composite=answer(ws.number_to_dp(self.composite_score(), DP,

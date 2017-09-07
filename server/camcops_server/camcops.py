@@ -53,7 +53,10 @@ from cardinal_pythonlib.convert import convert_to_bool  # nopep8
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_session  # nopep8
 from cardinal_pythonlib.ui import ask_user, ask_user_password  # nopep8
 
-from .cc_modules.cc_alembic import upgrade_database_to_head  # nopep8
+from .cc_modules.cc_alembic import (
+    assert_database_is_at_head,
+    upgrade_database_to_head,
+)  # nopep8
 from .cc_modules.cc_analytics import ccanalytics_unit_tests  # nopep8
 from .cc_modules.cc_audit import audit  # nopep8
 from .cc_modules.cc_baseconstants import (
@@ -572,10 +575,9 @@ def cli_main() -> None:
     logging.getLogger().setLevel(loglevel)  # set level for root logger
 
     # Say hello
-    log.info("CamCOPS version {}".format(CAMCOPS_SERVER_VERSION))
-    log.info("By Rudolf Cardinal. See " + CAMCOPS_URL)
-    log.info("Operating with {} tasks",
-             len(Task.all_subclasses_by_tablename()))
+    log.info("CamCOPS version {}", CAMCOPS_SERVER_VERSION)
+    log.info("By Rudolf Cardinal. See {}", CAMCOPS_URL)
+    log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
 
     # If we don't know the config filename yet, ask the user
     if not args.config:
@@ -592,6 +594,10 @@ def cli_main() -> None:
     req = command_line_request()
     # Note also that any database accesses will be auto-committed via the
     # request.
+
+    # If we proceed with an out-of-date database, we will have problems, and
+    # those problems may not be immediately apparent, which is bad. So:
+    assert_database_is_at_head(req.config)
 
     # In order:
     n_actions = 0

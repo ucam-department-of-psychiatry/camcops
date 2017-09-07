@@ -389,7 +389,7 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         h = """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr() + """
+        """ + self.get_is_complete_tr(req) + """
                 </table>
             </div>
             <table class="taskdetail">

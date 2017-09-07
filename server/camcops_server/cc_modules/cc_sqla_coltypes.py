@@ -137,7 +137,8 @@ MAX_DIAGNOSTIC_CODE_LENGTH = max(
 )
 ISO8601_STRING_LENGTH = 32
 # ... max length e.g. 2013-07-24T20:04:07.123456+01:00
-#     (microseconds, colon in timezone).
+#                     1234567890123456789012345678901234567890
+#     (with punctuation, T, microseconds, colon in timezone).
 
 LONGBLOB_LONGTEXT_LENGTH = (2 ** 32) - 1
 

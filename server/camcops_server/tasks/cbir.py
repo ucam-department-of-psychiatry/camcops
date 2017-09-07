@@ -396,7 +396,7 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                     <th width="25%">Distress (0–4)</th>
                 </tr>
         """.format(
-            complete_tr=self.get_is_complete_tr(),
+            complete_tr=self.get_is_complete_tr(req),
             heading_memory=heading_memory,
             mem_f=answer(self.frequency_subscore(*self.QNUMS_MEMORY)),
             mem_d=answer(self.distress_subscore(*self.QNUMS_MEMORY)),

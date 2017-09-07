@@ -288,7 +288,7 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <th width="50%">Answer</th>
                 </tr>
         """.format(
-            complete_tr=self.get_is_complete_tr(),
+            complete_tr=self.get_is_complete_tr(req),
             total=answer(scoredict['total']),
             tmax=self.MAX_TOTAL,
             wm=answer(scoredict['wm']),

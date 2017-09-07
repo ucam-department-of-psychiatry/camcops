@@ -30,7 +30,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text, UnicodeText
 
 from ..cc_modules.cc_dt import format_datetime_string
-from ..cc_modules.cc_constants import DATEFORMAT, INVALID_VALUE, PARAM
+from ..cc_modules.cc_constants import DateFormat, INVALID_VALUE, PARAM
 from ..cc_modules.cc_ctvinfo import CtvInfo
 from ..cc_modules.cc_html import (
     answer,
@@ -210,9 +210,9 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
             answer(division_name, default_for_blank_strings=True),
             answer(format_datetime_string(
                 self.referral_date_time,
-                DATEFORMAT.SHORT_DATETIME_WITH_DAY_NO_TZ,
+                DateFormat.SHORT_DATETIME_WITH_DAY_NO_TZ,
                 default=None)),
-            self.get_is_complete_tr(),
+            self.get_is_complete_tr(req),
         )
         h += subheading_spanning_four_columns(
             self.wxstring(req, "t_about_referral"))
@@ -256,7 +256,7 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
         """.format(
             self.wxstring(req, "f_admission_date"),
             answer(format_datetime_string(self.admission_date,
-                                          DATEFORMAT.LONG_DATE,
+                                          DateFormat.LONG_DATE,
                                           default=None), ""),
             self.wxstring(req, "f_patient_location"),
             answer(self.patient_location)
@@ -264,7 +264,7 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
         h += self.four_column_row(
             self.wxstring(req, "f_estimated_discharge_date"),
             format_datetime_string(self.estimated_discharge_date,
-                                   DATEFORMAT.LONG_DATE, ""),
+                                   DateFormat.LONG_DATE, ""),
             self.wxstring(req, "f_patient_aware_of_referral"),
             get_yes_no_none(req, self.patient_aware_of_referral)
         )
@@ -339,12 +339,12 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
                 <col width="25%">
                 <col width="75%">
         """.format(
-            self.get_is_complete_tr(),
+            self.get_is_complete_tr(req),
         )
         h += tr_qa(
             self.wxstring(req, "to"),
             format_datetime_string(self.reset_start_time_to,
-                                   DATEFORMAT.LONG_DATETIME_WITH_DAY,
+                                   DateFormat.LONG_DATETIME_WITH_DAY,
                                    default=None))
         h += tr_qa(self.wxstring(req, "reason"), self.reason)
         h += """
@@ -653,11 +653,11 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 <col width="40%">
                 <col width="60%">
         """.format(
-            self.get_is_complete_tr(),
+            self.get_is_complete_tr(req),
         )
         h += tr_qa(self.wxstring(req, "discharge_date"),
                    format_datetime_string(self.discharge_date,
-                                          DATEFORMAT.LONG_DATE_WITH_DAY,
+                                          DateFormat.LONG_DATE_WITH_DAY,
                                           default=None), "")
         h += tr_qa(self.wxstring(req, "discharge_reason"),
                    self.get_discharge_reason(req), "")

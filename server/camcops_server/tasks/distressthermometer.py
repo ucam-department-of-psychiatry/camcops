@@ -133,7 +133,7 @@ class DistressThermometer(TaskHasPatientMixin, Task,
             <div class="summary">
                 <table class="summary">
         """
-        h += self.get_is_complete_tr()
+        h += self.get_is_complete_tr(req)
         h += tr_qa("Overall distress (0–10)", self.distress)
         h += """
                 </table>

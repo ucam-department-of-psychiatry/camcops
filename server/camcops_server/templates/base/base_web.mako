@@ -1,5 +1,4 @@
 ## base_web.mako
-<%page cached="True" cache_region="local"/>
 <%inherit file="base.mako"/>
 
 <%block name="logo">

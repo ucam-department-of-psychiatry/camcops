@@ -47,7 +47,7 @@ from .cc_baseconstants import ENVVAR_CONFIG_FILE
 from .cc_config import CamcopsConfig, get_config, get_config_filename
 from .cc_constants import (
     CAMCOPS_LOGO_FILE_WEBREF,
-    DATEFORMAT,
+    DateFormat,
     LOCAL_LOGO_FILE_WEBREF,
     STATIC_URL_PREFIX,
 )
@@ -260,7 +260,7 @@ class CamcopsRequest(Request):
 
     @reify
     def now_iso8601_era_format(self) -> str:
-        return format_datetime(self.now_arrow, DATEFORMAT.ISO8601)
+        return format_datetime(self.now_arrow, DateFormat.ISO8601)
 
     # -------------------------------------------------------------------------
     # Logos, static files, and other institution-specific stuff

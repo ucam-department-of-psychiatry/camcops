@@ -444,7 +444,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
                     <th width="50%">Value</th>
                 </tr>
         """.format(
-            self.get_is_complete_tr(),
+            self.get_is_complete_tr(req),
         )
         h += tr_qa("Modality", modality)
         h += tr_qa("Target number", self.target_number)

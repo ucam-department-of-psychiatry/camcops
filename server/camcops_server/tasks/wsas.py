@@ -147,7 +147,7 @@ class Wsas(TaskHasPatientMixin, Task,
                     <th width="25%">Answer (0–8)</th>
                 </tr>
         """.format(
-            complete_tr=self.get_is_complete_tr(),
+            complete_tr=self.get_is_complete_tr(req),
             total=answer(self.total_score()),
             retired_row=tr_qa(self.wxstring(req, "q_retired_etc"),
                               get_true_false(req, self.retired_etc)),

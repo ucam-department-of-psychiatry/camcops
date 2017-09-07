@@ -2,6 +2,13 @@
 ## <%page args="page: Page, head_form_html: str, no_patient_selected_and_user_restricted: bool"/>
 <%inherit file="base_web_form.mako"/>
 
+<%!
+
+from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_dt import format_datetime
+
+%>
+
 <%include file="db_user_info.mako"/>
 
 <h1>View tasks</h1>
@@ -101,8 +108,8 @@ XXX_filter
                         class="live_on_tablet"
                     %endif
                     >
-                    ${ task.when_created }
-                    ## *** format_datetime_string(self.when_created, DATEFORMAT.SHORT_DATETIME)
+                    ${ format_datetime(task.when_created, DateFormat.SHORT_DATETIME) }
+                    ## ***
                 </td>
                 ## Hyperlink to HTML
                 <td
