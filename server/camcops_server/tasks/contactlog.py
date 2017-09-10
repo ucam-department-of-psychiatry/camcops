@@ -26,9 +26,9 @@ from typing import List
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text, UnicodeText
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from ..cc_modules.cc_dt import format_datetime_string, get_duration_h_m
+from ..cc_modules.cc_dt import format_datetime, get_duration_h_m
 from ..cc_modules.cc_constants import (
     DateFormat,
     PV,
@@ -44,7 +44,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     BIT_CHECKER,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import (
@@ -68,11 +68,11 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         comment="Location"
     )
     start = Column(
-        "start", ArrowDateTimeAsIsoTextColType,
+        "start", PendulumDateTimeAsIsoTextColType,
         comment="Date/time that contact started"
     )
     end = Column(
-        "end", ArrowDateTimeAsIsoTextColType,
+        "end", PendulumDateTimeAsIsoTextColType,
         comment="Date/time that contact ended"
     )
     patient_contact = CamcopsColumn(
@@ -121,12 +121,12 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         """.format(
             ws.webify(self.location),
         )
-        h += tr_qa("Start:", format_datetime_string(self.start,
-                                                    DateFormat.SHORT_DATETIME,
-                                                    None))
-        h += tr_qa("End:", format_datetime_string(self.end,
-                                                  DateFormat.SHORT_DATETIME,
-                                                  None))
+        h += tr_qa("Start:", format_datetime(self.start,
+                                             DateFormat.SHORT_DATETIME,
+                                             None))
+        h += tr_qa("End:", format_datetime(self.end,
+                                           DateFormat.SHORT_DATETIME,
+                                           None))
         h += tr(italic("Calculated duration (hours:minutes)"),
                 italic(get_duration_h_m(self.start, self.end)))
         h += tr_qa("Patient contact?",

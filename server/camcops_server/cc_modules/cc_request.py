@@ -26,11 +26,13 @@ import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
-import arrow
-from arrow import Arrow
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
-import datetime
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+import pendulum
+from pendulum import Date, Pendulum
+from pendulum.parsing.exceptions import ParserError
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPException
 from pyramid.interfaces import ISession
@@ -47,24 +49,29 @@ from .cc_baseconstants import ENVVAR_CONFIG_FILE
 from .cc_config import CamcopsConfig, get_config, get_config_filename
 from .cc_constants import (
     CAMCOPS_LOGO_FILE_WEBREF,
+    CSS_PAGED_MEDIA,
     DateFormat,
     LOCAL_LOGO_FILE_WEBREF,
     STATIC_URL_PREFIX,
 )
 from .cc_dt import (
-    get_datetime_from_string,
-    get_date_from_string,
+    coerce_to_date,
+    coerce_to_pendulum,
+    convert_datetime_to_utc,
     format_datetime,
 )
+from .cc_plot import ccplot_no_op
 from .cc_pyramid import CookieKey, get_session_factory
 from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
 from .cc_tabletsession import TabletSession
 
 if TYPE_CHECKING:
+    from matplotlib.font_manager import FontProperties
     from .cc_session import CamcopsSession
     from .cc_user import User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+ccplot_no_op()
 
 # =============================================================================
 # Debugging options
@@ -241,26 +248,25 @@ class CamcopsRequest(Request):
     # -------------------------------------------------------------------------
 
     @reify
-    def now_arrow(self) -> Arrow:
+    def now(self) -> Pendulum:
         """
-        Returns the time of the request as an Arrow object.
+        Returns the time of the request as an Pendulum object.
         (Reified, so a request only ever has one time.)
-        Exposed as the property: request.now_arrow
+        Exposed as a property.
         """
-        return arrow.now()
+        return pendulum.now()
 
     @reify
-    def now_utc_datetime(self) -> datetime.datetime:
+    def now_utc(self) -> Pendulum:
         """
-        Returns the time of the request as a UTC datetime.
-        Exposed as the property: request.now_utc_datetime
+        Returns the time of the request as a UTC Pendulum.
         """
-        a = self.now_arrow  # type: Arrow
-        return a.to('utc').datetime
+        p = self.now  # type: Pendulum
+        return convert_datetime_to_utc(p)
 
     @reify
     def now_iso8601_era_format(self) -> str:
-        return format_datetime(self.now_arrow, DateFormat.ISO8601)
+        return format_datetime(self.now, DateFormat.ISO8601)
 
     # -------------------------------------------------------------------------
     # Logos, static files, and other institution-specific stuff
@@ -352,6 +358,17 @@ class CamcopsRequest(Request):
             return value.upper()
         return value
 
+    def get_str_list_param(self,
+                           key: str,
+                           lower: bool = False,
+                           upper: bool = False) -> List[str]:
+        values = self.params.getall(key)
+        if lower:
+            return [x.lower() for x in values]
+        if upper:
+            return [x.upper() for x in values]
+        return values
+
     def get_int_param(self, key: str, default: int = None) -> Optional[int]:
         try:
             return int(self.params[key])
@@ -370,16 +387,16 @@ class CamcopsRequest(Request):
         except (AttributeError, KeyError, TypeError, ValueError):
             return default
 
-    def get_date_param(self, key: str) -> Optional[datetime.date]:
+    def get_date_param(self, key: str) -> Optional[Date]:
         try:
-            return get_date_from_string(self.params[key])
-        except (KeyError, TypeError, ValueError):
+            return coerce_to_date(self.params[key])
+        except (KeyError, ParserError, TypeError, ValueError):
             return None
 
-    def get_datetime_param(self, key: str) -> Optional[datetime.datetime]:
+    def get_datetime_param(self, key: str) -> Optional[Pendulum]:
         try:
-            return get_datetime_from_string(self.params[key])
-        except (KeyError, TypeError, ValueError):
+            return coerce_to_pendulum(self.params[key])
+        except (KeyError, ParserError, TypeError, ValueError):
             return None
 
     # -------------------------------------------------------------------------
@@ -483,6 +500,18 @@ class CamcopsRequest(Request):
     # PNG versus SVG output, so tasks don't have to care (for e.g. PDF/web)
     # -------------------------------------------------------------------------
 
+    def prepare_for_pdf_figures(self) -> None:
+        if CSS_PAGED_MEDIA:
+            # unlikely -- we use wkhtmltopdf instead now
+            self.switch_output_to_png()
+            # ... even weasyprint's SVG handling is inadequate
+        else:
+            # This is the main method -- we use wkhtmltopdf these days
+            self.switch_output_to_svg()  # wkhtmltopdf can cope
+
+    def prepare_for_html_figures(self) -> None:
+        self.switch_output_to_svg()
+
     def switch_output_to_png(self) -> None:
         """Switch server to producing figures in PNG."""
         self.use_svg = False
@@ -490,6 +519,30 @@ class CamcopsRequest(Request):
     def switch_output_to_svg(self) -> None:
         """Switch server to producing figures in SVG."""
         self.use_svg = True
+
+    @staticmethod
+    def create_figure(**kwargs) -> "Figure":
+        fig = Figure(**kwargs)
+        canvas = FigureCanvas(fig)
+        # The canvas will be now available as fig.canvas, since
+        # FigureCanvasBase.__init__ calls fig.set_canvas(self); similarly, the
+        # figure is available from the canvas as canvas.figure
+        return fig
+
+    def get_font_props(self) -> "FontProperties":
+        fontsize = self.config.PLOT_FONTSIZE
+        return FontProperties(
+            # http://stackoverflow.com/questions/3899980
+            # http://matplotlib.org/users/customizing.html
+            family='sans-serif',
+            # ... serif, sans-serif, cursive, fantasy, monospace
+            style='normal',  # normal (roman), italic, oblique
+            variant='normal',  # normal, small-caps
+            weight='normal',
+            # ... normal [=400], bold [=700], bolder [relative to current],
+            # lighter [relative], 100, 200, 300, ..., 900
+            size=fontsize  # in pt (default 12)
+        )
 
     # -------------------------------------------------------------------------
     # Convenience functions for user information

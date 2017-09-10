@@ -27,13 +27,13 @@ import datetime
 import logging
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from arrow import Arrow
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
 import dateutil.relativedelta
 import hl7
+from pendulum import Pendulum
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
@@ -55,9 +55,11 @@ from .cc_constants import (
 )
 from .cc_db import GenericTabletRecordMixin
 from .cc_dt import (
+    coerce_to_pendulum,
     format_datetime,
-    get_datetime_from_string,
+    get_age,
     get_now_localtz,
+    POTENTIAL_DATETIME_TYPES,
 )
 from .cc_hl7core import make_pid_segment
 from .cc_html import answer, get_generic_action_url, get_url_field_value_pair
@@ -77,7 +79,7 @@ from .cc_simpleobjects import IdNumDefinition
 from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
     CamcopsColumn,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
     IdDescriptorColType,
     PatientNameColType,
     SexColType,
@@ -237,6 +239,9 @@ class Patient(GenericTabletRecordMixin, Base):
         patients = q.all()  # type: List[Patient]
         return patients
 
+    def get_idnum_objects(self) -> List[PatientIdNum]:
+        return self.idnums  # type: List[PatientIdNum]
+
     def get_idnum_definitions(self) -> List[IdNumDefinition]:
         idnums = self.idnums  # type: List[PatientIdNum]
         return [x.get_idnum_definition() for x in idnums if x.is_valid()]
@@ -317,14 +322,6 @@ class Patient(GenericTabletRecordMixin, Base):
                         if x is not None)
         return literals
 
-    def get_dates_for_anonymisation(self) -> List[Union[datetime.date,
-                                                        datetime.datetime]]:
-        """Return a list of dates/datetimes that require removing from other
-        fields in the anonymisation process."""
-        return [
-            self.get_dob(),
-        ]
-
     def get_bare_ptinfo(self) -> BarePatientInfo:
         """Get basic identifying information, as a BarePatientInfo."""
         return BarePatientInfo(
@@ -388,10 +385,10 @@ class Patient(GenericTabletRecordMixin, Base):
     def get_age(self, req: CamcopsRequest,
                 default: str = "") -> Union[int, str]:
         """Age (in whole years) today, or default."""
-        now = req.now_arrow
+        now = req.now
         return self.get_age_at(now, default=default)
 
-    def get_dob(self) -> Optional[datetime.date]:
+    def get_dob(self) -> Optional[Date]:
         """Date of birth, as a a timezone-naive date."""
         return self.dob
 
@@ -402,24 +399,12 @@ class Patient(GenericTabletRecordMixin, Base):
         return format_datetime(dob_dt, DateFormat.SHORT_DATE)
 
     def get_age_at(self,
-                   when: Union[datetime.datetime, datetime.date, Arrow],
+                   when: POTENTIAL_DATETIME_TYPES,
                    default: str = "") -> Union[int, str]:
         """
         Age (in whole years) at a particular date, or default.
-
-        Args:
-            when: date or datetime or Arrow
-            default: default
         """
-        dob = self.get_dob()  # date; timezone-naive
-        if dob is None:
-            return default
-        # when must be a date, i.e. timezone-naive. So:
-        if type(when) is not datetime.date:
-            when = when.date()
-        # if it wasn't timezone-naive, we could make it timezone-naive: e.g.
-        # now = now.replace(tzinfo = None)
-        return dateutil.relativedelta.relativedelta(when, dob).years
+        return get_age(self.dob, when, default=default)
 
     def is_female(self) -> bool:
         """Is sex 'F'?"""
@@ -511,7 +496,7 @@ class Patient(GenericTabletRecordMixin, Base):
         newid._era = self._era
         newid._current = True
         newid._when_added_exact = req.now_iso8601_era_format
-        newid._when_added_batch_utc = req.now_utc_datetime
+        newid._when_added_batch_utc = req.now_utc
         newid._adding_user_id = ccsession.user_id
         newid._camcops_version = CAMCOPS_SERVER_VERSION_STRING
         dbsession.add(newid)
@@ -554,103 +539,6 @@ class Patient(GenericTabletRecordMixin, Base):
             FP_ID_NUM + nstr,
             label_id_numbers
         )
-
-    def get_idother_html(self, longform: bool) -> str:
-        """Get HTML for 'other' information."""
-        if not self.other:
-            return ""
-        if longform:
-            return "<br>Other details: <b>{}</b>".format(ws.webify(self.other))
-        return ws.webify(self.other)
-
-    def get_gp_html(self, longform: bool) -> str:
-        """Get HTML for general practitioner details."""
-        if not self.gp:
-            return ""
-        if longform:
-            return "<br>GP: <b>{}</b>".format(ws.webify(self.gp))
-        return ws.webify(self.gp)
-
-    def get_address_html(self, longform: bool) -> str:
-        """Get HTML for address details."""
-        if not self.address:
-            return ""
-        if longform:
-            return "<br>Address: <b>{}</b>".format(ws.webify(self.address))
-        return ws.webify(self.address)
-
-    def get_html_for_page_header(self, req: CamcopsRequest) -> str:
-        """Get HTML used for PDF page header."""
-        longform = False
-        cfg = req.config
-        h = "<b>{}</b> ({}). {}".format(
-            self.get_surname_forename_upper(),
-            self.get_sex_verbose(),
-            self.get_dob_html(longform=longform),
-        )
-        idnums = self.idnums  # type: List[PatientIdNum]
-        for idobj in idnums:
-            h += " " + idobj.get_html(req=req, longform=longform)
-        h += " " + self.get_idother_html(longform=longform)
-        return h
-
-    def get_html_for_task_header(self, req: CamcopsRequest,
-                                 label_id_numbers: bool = False) -> str:
-        """Get HTML used for patient details in tasks."""
-        longform = True
-        cfg = req.config
-        h = """
-            <div class="patient">
-                <b>{name}</b> ({sex})
-                {dob}
-        """.format(
-            name=self.get_surname_forename_upper(),
-            sex=self.get_sex_verbose(),
-            dob=self.get_dob_html(longform=longform),
-        )
-        idnums = self.idnums  # type: List[PatientIdNum]
-        for idobj in idnums:
-            h += """
-                {} <!-- ID{} -->
-            """.format(
-                idobj.get_html(req=req,
-                               longform=longform,
-                               label_id_numbers=label_id_numbers),
-                idobj.which_idnum
-            )
-        h += """
-                {} <!-- ID_other -->
-                {} <!-- address -->
-                {} <!-- GP -->
-            </div>
-        """.format(
-            self.get_idother_html(longform=longform),
-            self.get_address_html(longform=longform),
-            self.get_gp_html(longform=longform),
-        )
-        h += self.get_special_notes_html()
-        return h
-
-    def get_html_for_webview_patient_column(self, req: CamcopsRequest) -> str:
-        """Get HTML for patient details in task summary view."""
-        return """
-            <b>{}</b> ({}, {}, aged {})
-        """.format(
-            self.get_surname_forename_upper(),
-            self.get_sex_verbose(),
-            format_datetime(self.dob, DateFormat.SHORT_DATE, default="?"),
-            self.get_age(req=req, default="?"),
-        )
-
-    def get_html_for_id_col(self, req: CamcopsRequest) -> str:
-        """Returns HTML used for patient ID column in task summary view."""
-        hlist = []
-        longform = False
-        idnums = self.idnums  # type: List[PatientIdNum]
-        for idobj in idnums:
-            hlist.append(idobj.get_html(req=req, longform=longform))
-        hlist.append(self.get_idother_html(longform=longform))
-        return " ".join(hlist)
 
     def get_url_edit_patient(self, req: CamcopsRequest) -> str:
         url = get_generic_action_url(req, ACTION.EDIT_PATIENT)

@@ -480,31 +480,6 @@ ICD10_COPYRIGHT_DIV = """
     </div>
 """
 INVALID_VALUE = "[invalid_value]"
-SIGNATURE_BLOCK = """
-    <div>
-        <table class="noborder">
-            <tr class="signature_label">
-                <td class="signature_label" width="33%">
-                    Signature of author/validator
-                </td>
-                <td class="signature_label" width="33%">
-                    Print name
-                </td>
-                <td class="signature_label" width="33%">
-                    Date and time
-                </td>
-            </tr>
-            <tr class="signature">
-                <td class="signature">&nbsp;</td>
-                <td class="signature">&nbsp;</td>
-                <td class="signature">&nbsp;</td>
-            </tr>
-        </table>
-    </div>
-"""
-# ... can't get "height" to work in table; only seems to like line-height; for
-# which, you need some text, hence the &nbsp;
-# http://stackoverflow.com/questions/6398172/setting-table-row-height-in-css
 
 TSV_PATIENT_FIELD_PREFIX = "_patient_"
 CRIS_PATIENT_COMMENT_PREFIX = "(PATIENT) "

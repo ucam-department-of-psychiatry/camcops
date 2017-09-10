@@ -80,17 +80,15 @@ Also:
 # Imports
 # =============================================================================
 
-import datetime
 import logging
 from typing import Any, Generator, List, Optional, Tuple, Union
 
-import arrow
-from arrow import Arrow
 from cardinal_pythonlib.lists import chunks
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
-import pytz
+from pendulum import Pendulum
+from pendulum.parsing.exceptions import ParserError
 from semantic_version import Version
 from sqlalchemy import util
 from sqlalchemy.engine.interfaces import Dialect
@@ -107,7 +105,11 @@ from sqlalchemy.sql.sqltypes import (
 from sqlalchemy.sql.type_api import TypeDecorator
 
 from .cc_constants import PV
-from .cc_dt import get_arrow_from_string
+from .cc_dt import (
+    coerce_to_pendulum,
+    convert_datetime_to_utc,
+    POTENTIAL_DATETIME_TYPES,
+)
 from .cc_simpleobjects import IdNumDefinition
 from .cc_version import make_version
 
@@ -118,7 +120,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 DEBUG_DATETIME_AS_ISO_TEXT = False
-DEBUG_IDNUMDEF_LIST = True
+DEBUG_IDNUMDEF_LIST = False
 DEBUG_SEMANTIC_VERSION = False
 
 if DEBUG_DATETIME_AS_ISO_TEXT or DEBUG_SEMANTIC_VERSION or DEBUG_IDNUMDEF_LIST:
@@ -198,17 +200,9 @@ UserNameColType = String(length=255)
 
 
 # =============================================================================
-# Custom date/time field as ISO-8601 text including timezone, using Arrow
+# Custom date/time field as ISO-8601 text including timezone, using Pendulum
 # on the Python side.
 # =============================================================================
-
-def python_datetime_to_utc(x):
-    """From a Python datetime, with timezone, to a UTC Python version."""
-    try:
-        return x.astimezone(pytz.utc)
-    except AttributeError:
-        return None
-
 
 def mysql_isotzdatetime_to_utcdatetime(x):
     """
@@ -241,49 +235,46 @@ def mysql_unknown_field_to_utcdatetime(x):
     )
 
 
-class ArrowDateTimeAsIsoTextColType(TypeDecorator):
+class PendulumDateTimeAsIsoTextColType(TypeDecorator):
     """
     Stores date/time values as ISO-8601, in a specific format.
-    Uses Arrow on the Python side.
+    Uses Pendulum on the Python side.
     """
 
     impl = String(length=ISO8601_STRING_LENGTH)  # underlying SQL type
 
     @property
     def python_type(self):
-        return Arrow
+        return Pendulum
 
     @staticmethod
-    def arrow_to_isostring(x: Optional[Arrow]) -> Optional[str]:
+    def pendulum_to_isostring(x: POTENTIAL_DATETIME_TYPES) -> Optional[str]:
         """
         From a Python datetime to an ISO-formatted string in our particular
         format.
         """
         # https://docs.python.org/3.4/library/datetime.html#strftime-strptime-behavior  # noqa
+        x = coerce_to_pendulum(x)
         try:
-            mainpart = x.strftime(
-                "%Y-%m-%dT%H:%M:%S.%f")  # microsecond accuracy
+            mainpart = x.strftime("%Y-%m-%dT%H:%M:%S.%f")  # microsecond accuracy  # noqa
             timezone = x.strftime("%z")  # won't have the colon in
             return mainpart + timezone[:-2] + ":" + timezone[-2:]
         except AttributeError:
             return None
 
     @staticmethod
-    def isostring_to_arrow(x: Optional[str]) -> Optional[Arrow]:
-        """From an ISO-formatted string to a Python Arrow, with timezone."""
-        if not x:
-            return None  # otherwise Arrow will give us the current date
+    def isostring_to_pendulum(x: Optional[str]) -> Optional[Pendulum]:
+        """From an ISO-formatted string to a Python Pendulum, with timezone."""
         try:
-            return get_arrow_from_string(x)
-            # return dateutil.parser.parse(x)
-        except arrow.arrow.parser.ParserError:
+            return coerce_to_pendulum(x)
+        except (ParserError, ValueError):
             log.warning("Bad ISO date/time string: {!r}", x)
             return None
 
-    def process_bind_param(self, value: Optional[Arrow],
+    def process_bind_param(self, value: Optional[Pendulum],
                            dialect: Dialect) -> Optional[str]:
         """Convert things on the way from Python to the database."""
-        retval = self.arrow_to_isostring(value)
+        retval = self.pendulum_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
                 "DateTimeAsIsoTextColType.process_bind_param("
@@ -291,10 +282,10 @@ class ArrowDateTimeAsIsoTextColType(TypeDecorator):
                 self, value, dialect, retval)
         return retval
 
-    def process_literal_param(self, value: Optional[Arrow],
+    def process_literal_param(self, value: Optional[Pendulum],
                               dialect: Dialect) -> Optional[str]:
         """Convert things on the way from Python to the database."""
-        retval = self.arrow_to_isostring(value)
+        retval = self.pendulum_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
                 "DateTimeAsIsoTextColType.process_literal_param("
@@ -303,9 +294,9 @@ class ArrowDateTimeAsIsoTextColType(TypeDecorator):
         return retval
 
     def process_result_value(self, value: Optional[str],
-                             dialect: Dialect) -> Optional[Arrow]:
+                             dialect: Dialect) -> Optional[Pendulum]:
         """Convert things on the way from the database to Python."""
-        retval = self.isostring_to_arrow(value)
+        retval = self.isostring_to_pendulum(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
                 "DateTimeAsIsoTextColType.process_result_value("
@@ -322,13 +313,14 @@ class ArrowDateTimeAsIsoTextColType(TypeDecorator):
             assert len(other) == 1
             assert not kwargs
             other = other[0]
-            if isinstance(other, datetime.datetime):
-                processed_other = python_datetime_to_utc(other)
-            else:
+            try:
+                processed_other = convert_datetime_to_utc(
+                    coerce_to_pendulum(other))
+            except (AttributeError, ParserError, ValueError):
                 # OK. At this point, "other" could be a plain DATETIME field,
-                # or a DateTimeAsIsoText field (or potentially something
-                # else that we don't really care about). If it's a DATETIME,
-                # then we assume it is already in UTC.
+                # or a PendulumDateTimeAsIsoTextColType field (or potentially
+                # something else that we don't really care about). If it's a
+                # DATETIME, then we assume it is already in UTC.
                 processed_other = mysql_unknown_field_to_utcdatetime(other)
             if DEBUG_DATETIME_AS_ISO_TEXT:
                 log.debug("operate(self={!r}, op={!r}, other={!r})",

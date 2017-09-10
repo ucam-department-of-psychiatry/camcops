@@ -38,110 +38,8 @@ from .cc_constants import (
 )
 
 if TYPE_CHECKING:
+    import matplotlib.figure
     from .cc_request import CamcopsRequest
-
-
-# =============================================================================
-# Header/footer blocks for PDFs
-# =============================================================================
-
-def wkhtmltopdf_header(inner_html: str) -> str:
-    # doctype is mandatory
-    # https://github.com/wkhtmltopdf/wkhtmltopdf/issues/1645
-    return string.Template("""
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <meta charset="utf-8">
-                <style type="text/css">
-                    $WKHTMLTOPDF_CSS
-                </style>
-            </head>
-            <body onload="subst()">
-                <div>
-                    $INNER
-                </div>
-            </body>
-        </html>
-    """).substitute(WKHTMLTOPDF_CSS=WKHTMLTOPDF_CSS, INNER=inner_html)
-
-
-def wkhtmltopdf_footer(inner_text: str) -> str:
-    return string.Template("""
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <meta charset="utf-8">
-                <style type="text/css">
-                    $WKHTMLTOPDF_CSS
-                </style>
-                <script>
-        function subst() {
-            var vars = {},
-                x = document.location.search.substring(1).split('&'),
-                i,
-                z,
-                y,
-                j;
-            for (i in x) {
-                if (x.hasOwnProperty(i)) {
-                    z = x[i].split('=', 2);
-                    vars[z[0]] = unescape(z[1]);
-                }
-            }
-            x = ['frompage', 'topage', 'page', 'webpage', 'section',
-                 'subsection','subsubsection'];
-            for (i in x) {
-                if (x.hasOwnProperty(i)) {
-                    y = document.getElementsByClassName(x[i]);
-                    for (j = 0; j < y.length; ++j) {
-                        y[j].textContent = vars[x[i]];
-                    }
-                }
-            }
-        }
-                </script>
-            </head>
-            <body onload="subst()">
-                <div>
-                    Page <span class="page"></span> of
-                    <span class="topage"></span>.
-                    $INNER
-                </div>
-            </body>
-        </html>
-    """).substitute(WKHTMLTOPDF_CSS=WKHTMLTOPDF_CSS, INNER=inner_text)
-
-
-def csspagedmedia_header(inner_html: str) -> str:
-    return """
-        <div id="headerContent">
-            {}
-        </div>
-    """.format(inner_html)
-
-
-def csspagedmedia_footer(inner_text: str) -> str:
-    return """
-        <div id="footerContent">
-            Page <pdf:pagenumber> of <pdf:pagecount>.
-            {}
-        </div>
-    """.format(inner_text)
-
-
-def pdf_header_content(inner_html: str) -> str:
-    if CSS_PAGED_MEDIA:
-        return csspagedmedia_header(inner_html)
-    else:
-        return wkhtmltopdf_header(inner_html)
-
-
-def pdf_footer_content(inner_text: str) -> str:
-    if CSS_PAGED_MEDIA:
-        return csspagedmedia_footer(inner_text)
-    else:
-        return wkhtmltopdf_footer(inner_text)
 
 
 # =============================================================================
@@ -348,7 +246,8 @@ def tr_span_col(x: str,
     )
 
 
-def get_html_from_pyplot_figure(req: "CamcopsRequest", fig) -> str:
+def get_html_from_pyplot_figure(req: "CamcopsRequest",
+                                fig: "matplotlib.figure.Figure") -> str:
     """Make HTML (as PNG or SVG) from pyplot figure."""
     if USE_SVG_IN_HTML and req.use_svg:
         return (

@@ -1,33 +1,55 @@
 ## task.mako
-## <%page args="task: Task, viewtype: str, anonymise: bool"/>
+## <%page args="task: Task, viewtype: str, anonymise: bool, signature: bool, paged_media: bool, pdf_landscape: bool"/>
 
 <%!
 
-from camcops_server.cc_modules.cc_constants import DateFormat, ERA_NOW
+from camcops_server.cc_modules.cc_constants import (
+    CSS_PAGED_MEDIA,
+    DateFormat,
+    ERA_NOW,
+)
 from camcops_server.cc_modules.cc_dt import format_datetime
 from camcops_server.cc_modules.cc_html import (
     answer,
     get_yes_no,
 )
+from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_version_string import CAMCOPS_SERVER_VERSION_STRING
 
 def inherit_file(context):
     ## https://groups.google.com/forum/#!topic/mako-discuss/okPBlbGhy_U
-    ViewArg = context['ViewArg']
     viewtype = context['viewtype']
     if viewtype == ViewArg.HTML:
         return "base_web.mako"
-    elif viewtype in [ViewArg.PDF, ViewArg.PDFHTML]:
-        return "base_pdf_no_paged_media.mako"
-        # ... for wkhtmltopdf (for other engines we might have to look at
-        # task.use_landscape_for_pdf and choose "base_pdf_landscape.mako" or
-        # "base_pdf_portrait.mako".
+    elif viewtype == ViewArg.PDF:
+        if CSS_PAGED_MEDIA:
+            pdf_landscape = context['pdf_landscape']
+            if pdf_landscape:
+                return "base_pdf_landscape.mako"
+            else:
+                return "base_pdf_portrait.mako"
+        else:
+            return "base_pdf_no_paged_media.mako"
     else:
-        raise ValueError("This template is only for HTML/PDF/PDFHTML views")
+        raise ValueError("This template is only for HTML/PDF views")
 
 %>
 
 <%inherit file="${ inherit_file(context) }"/>
+
+## ============================================================================
+## For CSS paged media, extra headers
+## ============================================================================
+
+%if CSS_PAGED_MEDIA and viewtype == ViewArg.PDF:
+    <%block name="extra_header_content">
+        <%include file="task_page_header.mako" args="task=task, anonymise=anonymise"/>
+    </%block>
+    <%block name="extra_footer_content">
+        <%include file="task_page_footer.mako" args="task=task"/>
+    </%block>
+%endif
+## For non-paged media (i.e. wkhtmltopdf), the headers/footers are made separately.
 
 ## ============================================================================
 ## Patient (or "anonymous" label)
@@ -35,9 +57,7 @@ def inherit_file(context):
 
 %if task.has_patient:
     %if anonymise:
-        <div class="warning">
-            Patient details hidden at user’s request!
-        </div>
+        <div class="warning">Patient details hidden at user’s request!</div>
     %else:
         %if task.patient:
             <%include file="patient.mako" args="patient=task.patient, anonymise=anonymise"/>
@@ -67,38 +87,11 @@ def inherit_file(context):
 </div>
 
 ## ============================================================================
-## Erasure notice (if applicable)
-## ============================================================================
-
-%if task._manually_erased:
-    <div class="warning">
-        <b>RECORD HAS BEEN MANUALLY ERASED
-            BY ${ task.get_manually_erasing_user_username() | h }
-            AT ${ task._manually_erased_at }.</b>
-    </div>
-%endif
-
-## ============================================================================
-## "Not current" warning (if applicable)
+## "Not current" warning and explanation (if applicable)
 ## ============================================================================
 
 %if not task._current:
-    <div class="warning">
-        %if task._pk is None:
-            WARNING! This is NOT a valid record. It has a blank primary
-            key and is therefore nonsensical (and only useful for
-            software testing).
-        %else:
-            WARNING! This is NOT a current record.<br>
-            %if task._successor_pk is not None:
-                It was MODIFIED at ${ format_datetime(task._when_removed_exact, DateFormat.LONG_DATETIME_SECONDS) }.
-            %elif task._manually_erased:
-                It was MANUALLY ERASED at ${ format_datetime(task._manually_erased_at, DateFormat.LONG_DATETIME_SECONDS) }.
-            %else:
-                It was DELETED at ${ format_datetime(task._when_removed_exact, DateFormat.LONG_DATETIME_SECONDS) }.
-            %endif
-        %endif
-    </div>
+    <%include file="task_not_current.mako" args="task=task"/>
 %endif
 
 ## ============================================================================
@@ -106,15 +99,7 @@ def inherit_file(context):
 ## ============================================================================
 
 %if not task.field_contents_valid():
-    <div class="warning">
-        <b>WARNING. Invalid values.</b>
-        %for idx, explanation in enumerate(task.field_contents_invalid_because()):
-            %if idx > 0:
-                <br>
-            %endif
-            ${ explanation | h }
-        %endfor
-    </div>
+    <%include file="task_contents_invalid.mako" args="task=task"/>
 %endif
 
 ## ============================================================================
@@ -194,7 +179,7 @@ ${ task.get_task_html(req) }
     Patient server PK used: ${ task.get_patient_server_pk() if not task.is_anonymous else "N/A" }.
     Information retrieved from ${ req.url | h }
         (server version ${ CAMCOPS_SERVER_VERSION_STRING })
-        at: ${ format_datetime(req.now_arrow, DateFormat.SHORT_DATETIME_SECONDS) }.
+        at: ${ format_datetime(req.now, DateFormat.SHORT_DATETIME_SECONDS) }.
 </div>
 
 ## ============================================================================
@@ -277,7 +262,18 @@ ${ task.get_task_html(req) }
                     ViewParam.SERVER_PK: task._pk,
                     ViewParam.VIEWTYPE: ViewArg.PDF,
                 }) }">View PDF for printing/saving</a>
+            %if anonymise:
+                (WITH patient identity)
+            %endif
         </p>
     </div>
 
+%endif
+
+## ============================================================================
+## Signature block for PDF version
+## ============================================================================
+
+%if signature:
+    <%include file="clinician_signature_block.mako"/>
 %endif

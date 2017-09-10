@@ -33,7 +33,7 @@ from ..cc_modules.cc_constants import (
     ICD10_COPYRIGHT_DIV,
 )
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_dt import format_datetime_string
+from ..cc_modules.cc_dt import format_datetime
 from ..cc_modules.cc_html import (
     answer,
     get_present_absent_none,
@@ -45,7 +45,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
     SummaryCategoryColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
@@ -213,7 +213,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     )
 
     date_pertains_to = CamcopsColumn(
-        "date_pertains_to", ArrowDateTimeAsIsoTextColType,
+        "date_pertains_to", PendulumDateTimeAsIsoTextColType,
         comment="Date the assessment pertains to"
     )
     comments = Column(
@@ -253,8 +253,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             return CTV_INCOMPLETE
         infolist = [CtvInfo(
             content="Pertains to: {}. Category: {}.".format(
-                format_datetime_string(self.date_pertains_to,
-                                       DateFormat.LONG_DATE),
+                format_datetime(self.date_pertains_to, DateFormat.LONG_DATE),
                 self.get_full_description(req)
             )
         )]
@@ -476,11 +475,11 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def row_true_false(self, req: CamcopsRequest, fieldname: str) -> str:
         return self.get_twocol_bool_row_true_false(
-            fieldname, self.wxstring(req, "" + fieldname))
+            req, fieldname, self.wxstring(req, "" + fieldname))
 
     def row_present_absent(self, req: CamcopsRequest, fieldname: str) -> str:
         return self.get_twocol_bool_row_present_absent(
-            fieldname, self.wxstring(req, "" + fieldname))
+            req, fieldname, self.wxstring(req, "" + fieldname))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
@@ -488,9 +487,8 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 <table class="summary">
         """ + self.get_is_complete_tr(req)
         h += tr_qa(req.wappstring("date_pertains_to"),
-                   format_datetime_string(self.date_pertains_to,
-                                          DateFormat.LONG_DATE,
-                                          default=None))
+                   format_datetime(self.date_pertains_to, DateFormat.LONG_DATE,
+                                   default=None))
         h += tr_qa(req.wappstring("category") + " <sup>[1,2]</sup>",
                    self.get_full_description(req))
         h += tr(self.wxstring(req, "n_core"),

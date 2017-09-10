@@ -1,6 +1,10 @@
 ## general_failure.mako
 <%inherit file="base_web.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+%>
+
 <%include file="db_user_info.mako"/>
 
 %if msg:

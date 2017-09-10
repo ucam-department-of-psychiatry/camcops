@@ -40,7 +40,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -113,7 +113,7 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
     
     # Trial
     trial_start_time = Column(
-        "trial_start_time", ArrowDateTimeAsIsoTextColType,
+        "trial_start_time", PendulumDateTimeAsIsoTextColType,
         comment="Trial start time / stimuli presented at (ISO-8601)"
     )
     
@@ -124,7 +124,7 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
         comment="Did the subject respond?"
     )
     response_time = Column(
-        "response_time", ArrowDateTimeAsIsoTextColType,
+        "response_time", PendulumDateTimeAsIsoTextColType,
         comment="Time of response (ISO-8601)"
     )
     response_latency_ms = Column(

@@ -34,7 +34,6 @@ from ..cc_modules.cc_sqla_coltypes import (
     PermittedValueChecker,
     ZERO_TO_FOUR_CHECKER,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
@@ -314,6 +313,9 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
         return tr_qa(fieldname, frequency)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
+        def twocol_bool_row(fieldname: str) -> str:
+            return self.get_twocol_bool_row(req, fieldname)
+        
         return """
             <div class="summary">
                 <table class="summary">
@@ -334,109 +336,109 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
 
             self.get_twocol_string_row("education") +
 
-            self.get_twocol_bool_row("allergies") +
-            self.get_twocol_bool_row("allergy_asthma") +
-            self.get_twocol_bool_row("allergy_pollen_dust") +
-            self.get_twocol_bool_row("allergy_dermatitis") +
-            self.get_twocol_bool_row("allergy_food") +
-            self.get_twocol_bool_row("allergy_dander") +
-            self.get_twocol_bool_row("allergy_other") +
+            twocol_bool_row("allergies") +
+            twocol_bool_row("allergy_asthma") +
+            twocol_bool_row("allergy_pollen_dust") +
+            twocol_bool_row("allergy_dermatitis") +
+            twocol_bool_row("allergy_food") +
+            twocol_bool_row("allergy_dander") +
+            twocol_bool_row("allergy_other") +
             self.get_twocol_string_row("allergy_details") +
 
-            self.get_twocol_bool_row("vaccinations_last3months") +
+            twocol_bool_row("vaccinations_last3months") +
             self.get_twocol_string_row("vaccination_details") +
 
-            self.get_twocol_bool_row("infections_last3months") +
-            self.get_twocol_bool_row("infection_recent_respiratory") +
-            self.get_twocol_bool_row("infection_recent_gastroenteritis") +
-            self.get_twocol_bool_row("infection_recent_urinary") +
-            self.get_twocol_bool_row("infection_recent_sexual") +
-            self.get_twocol_bool_row("infection_recent_hepatitis") +
-            self.get_twocol_bool_row("infection_recent_other") +
+            twocol_bool_row("infections_last3months") +
+            twocol_bool_row("infection_recent_respiratory") +
+            twocol_bool_row("infection_recent_gastroenteritis") +
+            twocol_bool_row("infection_recent_urinary") +
+            twocol_bool_row("infection_recent_sexual") +
+            twocol_bool_row("infection_recent_hepatitis") +
+            twocol_bool_row("infection_recent_other") +
             self.get_twocol_string_row("infection_recent_details") +
 
-            self.get_twocol_bool_row("infections_chronic") +
-            self.get_twocol_bool_row("infection_chronic_respiratory") +
-            self.get_twocol_bool_row("infection_chronic_gastroenteritis") +
-            self.get_twocol_bool_row("infection_chronic_urinary") +
-            self.get_twocol_bool_row("infection_chronic_sexual") +
-            self.get_twocol_bool_row("infection_chronic_hepatitis") +
-            self.get_twocol_bool_row("infection_chronic_other") +
+            twocol_bool_row("infections_chronic") +
+            twocol_bool_row("infection_chronic_respiratory") +
+            twocol_bool_row("infection_chronic_gastroenteritis") +
+            twocol_bool_row("infection_chronic_urinary") +
+            twocol_bool_row("infection_chronic_sexual") +
+            twocol_bool_row("infection_chronic_hepatitis") +
+            twocol_bool_row("infection_chronic_other") +
             self.get_twocol_string_row("infection_chronic_details") +
 
-            self.get_twocol_bool_row("immune_disorders") +
-            self.get_twocol_bool_row("immunity_ms") +
-            self.get_twocol_bool_row("immunity_sle") +
-            self.get_twocol_bool_row("immunity_arthritis") +
-            self.get_twocol_bool_row("immunity_hiv") +
-            self.get_twocol_bool_row("immunity_graves") +
-            self.get_twocol_bool_row("immunity_diabetes") +
-            self.get_twocol_bool_row("immunity_other") +
+            twocol_bool_row("immune_disorders") +
+            twocol_bool_row("immunity_ms") +
+            twocol_bool_row("immunity_sle") +
+            twocol_bool_row("immunity_arthritis") +
+            twocol_bool_row("immunity_hiv") +
+            twocol_bool_row("immunity_graves") +
+            twocol_bool_row("immunity_diabetes") +
+            twocol_bool_row("immunity_other") +
             self.get_twocol_string_row("immunity_details") +
 
-            self.get_twocol_bool_row("family_history") +
-            self.get_twocol_bool_row("familyhistory_ms") +
-            self.get_twocol_bool_row("familyhistory_sle") +
-            self.get_twocol_bool_row("familyhistory_arthritis") +
-            self.get_twocol_bool_row("familyhistory_graves") +
-            self.get_twocol_bool_row("familyhistory_diabetes") +
-            self.get_twocol_bool_row("familyhistory_psychosis_sz") +
-            self.get_twocol_bool_row("familyhistory_bipolar") +
+            twocol_bool_row("family_history") +
+            twocol_bool_row("familyhistory_ms") +
+            twocol_bool_row("familyhistory_sle") +
+            twocol_bool_row("familyhistory_arthritis") +
+            twocol_bool_row("familyhistory_graves") +
+            twocol_bool_row("familyhistory_diabetes") +
+            twocol_bool_row("familyhistory_psychosis_sz") +
+            twocol_bool_row("familyhistory_bipolar") +
             self.get_twocol_string_row("familyhistory_details") +
 
-            self.get_twocol_bool_row("health_anything_else") +
+            twocol_bool_row("health_anything_else") +
             self.get_twocol_string_row("health_anything_else_details") +
 
             self.get_twocol_string_row("drug_history") +
             self.get_twocol_string_row("first_antipsychotic_medication") +
 
-            self.get_twocol_bool_row("recreational_drug_in_last_3_months") +
+            twocol_bool_row("recreational_drug_in_last_3_months") +
             self.get_drug_frequency_row("recdrug_tobacco_frequency") +
             self.get_twocol_val_row("recdrug_tobacco_cigsperweek") +
-            self.get_twocol_bool_row("recdrug_tobacco_prevheavy") +
+            twocol_bool_row("recdrug_tobacco_prevheavy") +
             self.get_drug_frequency_row("recdrug_cannabis_frequency") +
             self.get_twocol_val_row("recdrug_cannabis_jointsperweek") +
-            self.get_twocol_bool_row("recdrug_cannabis_prevheavy") +
+            twocol_bool_row("recdrug_cannabis_prevheavy") +
             self.get_drug_frequency_row("recdrug_alcohol_frequency") +
             self.get_twocol_val_row("recdrug_alcohol_unitsperweek") +
-            self.get_twocol_bool_row("recdrug_alcohol_prevheavy") +
+            twocol_bool_row("recdrug_alcohol_prevheavy") +
             self.get_drug_frequency_row("recdrug_mdma_frequency") +
-            self.get_twocol_bool_row("recdrug_mdma_prevheavy") +
+            twocol_bool_row("recdrug_mdma_prevheavy") +
             self.get_drug_frequency_row("recdrug_cocaine_frequency") +
-            self.get_twocol_bool_row("recdrug_cocaine_prevheavy") +
+            twocol_bool_row("recdrug_cocaine_prevheavy") +
             self.get_drug_frequency_row("recdrug_crack_frequency") +
-            self.get_twocol_bool_row("recdrug_crack_prevheavy") +
+            twocol_bool_row("recdrug_crack_prevheavy") +
             self.get_drug_frequency_row("recdrug_heroin_frequency") +
-            self.get_twocol_bool_row("recdrug_heroin_prevheavy") +
+            twocol_bool_row("recdrug_heroin_prevheavy") +
             self.get_drug_frequency_row("recdrug_methadone_frequency") +
-            self.get_twocol_bool_row("recdrug_methadone_prevheavy") +
+            twocol_bool_row("recdrug_methadone_prevheavy") +
             self.get_drug_frequency_row("recdrug_amphetamines_frequency") +
-            self.get_twocol_bool_row("recdrug_amphetamines_prevheavy") +
+            twocol_bool_row("recdrug_amphetamines_prevheavy") +
             self.get_drug_frequency_row("recdrug_benzodiazepines_frequency") +
-            self.get_twocol_bool_row("recdrug_benzodiazepines_prevheavy") +
+            twocol_bool_row("recdrug_benzodiazepines_prevheavy") +
             self.get_drug_frequency_row("recdrug_ketamine_frequency") +
-            self.get_twocol_bool_row("recdrug_ketamine_prevheavy") +
+            twocol_bool_row("recdrug_ketamine_prevheavy") +
             self.get_drug_frequency_row("recdrug_legalhighs_frequency") +
-            self.get_twocol_bool_row("recdrug_legalhighs_prevheavy") +
+            twocol_bool_row("recdrug_legalhighs_prevheavy") +
             self.get_drug_frequency_row("recdrug_inhalants_frequency") +
-            self.get_twocol_bool_row("recdrug_inhalants_prevheavy") +
+            twocol_bool_row("recdrug_inhalants_prevheavy") +
             self.get_drug_frequency_row("recdrug_hallucinogens_frequency") +
-            self.get_twocol_bool_row("recdrug_hallucinogens_prevheavy") +
+            twocol_bool_row("recdrug_hallucinogens_prevheavy") +
             self.get_twocol_string_row("recdrug_details") +
-            self.get_twocol_bool_row("recdrug_prevheavy") +
+            twocol_bool_row("recdrug_prevheavy") +
             self.get_twocol_string_row("recdrug_prevheavy_details") +
 
-            self.get_twocol_bool_row("mri_claustrophobic") +
-            self.get_twocol_bool_row("mri_difficulty_lying_1_hour") +
-            self.get_twocol_bool_row("mri_nonremovable_metal") +
-            self.get_twocol_bool_row("mri_metal_from_operations") +
-            self.get_twocol_bool_row("mri_tattoos_nicotine_patches") +
-            self.get_twocol_bool_row("mri_worked_with_metal") +
-            self.get_twocol_bool_row("mri_previous_brain_scan") +
+            twocol_bool_row("mri_claustrophobic") +
+            twocol_bool_row("mri_difficulty_lying_1_hour") +
+            twocol_bool_row("mri_nonremovable_metal") +
+            twocol_bool_row("mri_metal_from_operations") +
+            twocol_bool_row("mri_tattoos_nicotine_patches") +
+            twocol_bool_row("mri_worked_with_metal") +
+            twocol_bool_row("mri_previous_brain_scan") +
             self.get_twocol_string_row("mri_previous_brain_scan_details") +
-            self.get_twocol_bool_row("other_relevant_things") +
+            twocol_bool_row("other_relevant_things") +
             self.get_twocol_string_row("other_relevant_things_details") +
-            self.get_twocol_bool_row(
+            twocol_bool_row(
                 "willing_to_participate_in_further_studies") +
 
             "</table>"

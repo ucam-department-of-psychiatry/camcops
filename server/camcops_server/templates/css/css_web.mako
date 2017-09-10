@@ -1,20 +1,11 @@
 ## css_web.mako
 
-<%include
-    file="css_base.mako"
-    args="
-        MAINFONTSIZE='medium',
-        SMALLGAP='2px',
-        ELEMENTGAP='5px',
-        NORMALPAD='2px',
-        TABLEPAD='2px',
-        INDENT_NORMAL='20px',
-        INDENT_LARGE='75px',
-        THINLINE='1px',
-        ZERO='0px',
-        PDFEXTRA='',
-        MAINMARGIN='10px',
-        BODYPADDING='5px',
-        BANNER_PADDING='25px'
-    "
-    />
+## Genuinely static, so we can cache it:
+<%page cached="True" cache_region="local" cache_key="css_web.mako"/>
+
+<%inherit file="css_base.mako"/>
+
+<%namespace file="def_css_constants.mako" import="_get_css_varargs"/>
+<%def name="get_css_varargs()"><%
+    return _get_css_varargs("web")
+%></%def>

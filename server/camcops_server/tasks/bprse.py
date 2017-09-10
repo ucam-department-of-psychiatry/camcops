@@ -118,7 +118,7 @@ class Bprse(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         def bprs_string(x: str) -> str:
-            return WXSTRING("bprs", x)
+            return req.wxstring("bprs", x)
 
         main_dict = {
             None: None,

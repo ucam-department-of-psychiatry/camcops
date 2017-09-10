@@ -22,7 +22,6 @@
 ===============================================================================
 """
 
-import datetime
 import errno
 import codecs
 import hl7
@@ -39,6 +38,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.network import ping
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.orm_inspect import get_orm_column_names
+from pendulum import Pendulum
 from sqlalchemy.orm import reconstructor, relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
@@ -61,10 +61,10 @@ from .cc_constants import (
 )
 from . import cc_db
 from .cc_dt import (
-    convert_datetime_to_utc_notz,
+    convert_datetime_to_utc,
     format_datetime,
     get_now_localtz,
-    get_now_utc_notz,
+    get_now_utc,
 )
 from .cc_filename import change_filename_ext
 from .cc_hl7core import (
@@ -93,7 +93,7 @@ from .cc_sqla_coltypes import (
 )
 from .cc_sqlalchemy import Base
 from .cc_task import get_base_tables, get_url_task_html
-from .cc_taskfactory import task_factory
+# from .cc_taskfactory import task_factory
 from .cc_unittest import unit_test_ignore
 
 if TYPE_CHECKING:
@@ -331,7 +331,7 @@ class HL7Run(Base):
             self.script_after_file_export = recipdef.script_after_file_export
 
         # New things:
-        self.start_at_utc = get_now_utc_notz()
+        self.start_at_utc = get_now_utc()
         self.finish_at_utc = None
 
     def call_script(self, files_exported: Optional[List[str]]) -> None:
@@ -356,7 +356,7 @@ class HL7Run(Base):
             self.script_stderr = str(e)
 
     def finish(self) -> None:
-        self.finish_at_utc = get_now_utc_notz()
+        self.finish_at_utc = get_now_utc()
 
 
 # =============================================================================
@@ -518,7 +518,7 @@ class HL7Message(Base):
 
         assert self.id is not None # *** check!
         now = get_now_localtz()
-        self.sent_at_utc = convert_datetime_to_utc_notz(now)
+        self.sent_at_utc = convert_datetime_to_utc(now)
 
         if self._recipient_def.using_hl7():
             self.make_hl7_message(now)  # will write its own error msg/flags
@@ -619,7 +619,7 @@ class HL7Message(Base):
 
         self.success = True
 
-    def make_hl7_message(self, now: datetime.datetime) -> None:
+    def make_hl7_message(self, now: Pendulum) -> None:
         """
         Stores HL7 message in self.msg.
 
@@ -676,7 +676,7 @@ class HL7Message(Base):
         if not server_replied:
             self.failure_reason = "No response from server"
             return
-        self.reply_at_utc = get_now_utc_notz()
+        self.reply_at_utc = get_now_utc()
         if self._recipient_def.keep_reply:
             self.reply = reply
         try:

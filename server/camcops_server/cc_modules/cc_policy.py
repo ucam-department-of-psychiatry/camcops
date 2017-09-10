@@ -29,6 +29,7 @@ import tokenize
 from typing import List, Optional, Tuple
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from pendulum import Date
 
 from .cc_simpleobjects import BarePatientInfo, IdNumDefinition
 from .cc_unittest import unit_test_ignore
@@ -246,7 +247,7 @@ def find_critical_single_numerical_id(
         dummyptinfo = BarePatientInfo(
             forename="X",
             surname="X",
-            dob=datetime.date.today(),  # random value
+            dob=Date.today(),  # random value
             sex="X",
             idnum_definitions=[IdNumDefinition(which_idnum=n, idnum_value=1)]
         )
@@ -273,7 +274,7 @@ def is_idnum_mandatory_in_policy(
     dummyptinfo = BarePatientInfo(
         forename="X",
         surname="X",
-        dob=datetime.date.today(),  # random value
+        dob=Date.today(),  # random value
         sex="X",
         idnum_definitions=[
             IdNumDefinition(which_idnum=n, idnum_value=1)
@@ -439,7 +440,7 @@ def ccpolicy_unit_tests() -> None:
     bpi = BarePatientInfo(
         forename="forename",
         surname="surname",
-        dob=datetime.date.today(),  # random value
+        dob=Date.today(),  # random value
         sex="sex",
         idnum_definitions=[
             IdNumDefinition(1, 1),

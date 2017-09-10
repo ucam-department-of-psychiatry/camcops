@@ -22,41 +22,61 @@
 ===============================================================================
 """
 
+import datetime
 import logging
 from pprint import pformat
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 import unittest
 
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+import colander
 from colander import (
     Boolean,
+    Date,
     DateTime,
     Integer,
     Invalid,
     Length,
+    OneOf,
+    Range,
     Schema,
     SchemaNode,
+    SchemaType,
+    Set,
     String,
 )
 from deform.exception import ValidationFailure
 from deform.field import Field
 from deform.form import Button, Form
 from deform.widget import (
+    CheckboxChoiceWidget,
     CheckboxWidget,
     CheckedPasswordWidget,
+    DateTimeInputWidget,
     HiddenWidget,
     PasswordWidget,
+    RadioChoiceWidget,
+    SelectWidget,
+    Widget,
 )
+from pendulum import Pendulum
+from pendulum.parsing.exceptions import ParserError
 
+from .cc_all_models import all_models_no_op
 from .cc_constants import DEFAULT_ROWS_PER_PAGE
-from .cc_pyramid import SUBMIT, ViewParam
+from .cc_dt import coerce_to_pendulum, get_tz_local, POTENTIAL_DATETIME_TYPES
+from .cc_pyramid import FormAction, ViewArg, ViewParam
 from .cc_request import CamcopsRequest, command_line_request
-from .cc_user import MINIMUM_PASSWORD_LENGTH
+from .cc_task import Task
+from .cc_user import MINIMUM_PASSWORD_LENGTH, User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+all_models_no_op()
+
+COLANDER_NULL_TYPE = type(colander.null)
 
 # =============================================================================
 # Debugging options
@@ -196,6 +216,8 @@ class CSRFToken(SchemaNode):
     raised if the data structure being deserialized does not contain a matching
     value."
 
+    RNC: Serialized values are always STRINGS.
+
     """
     schema_type = String
     default = ""
@@ -204,9 +226,9 @@ class CSRFToken(SchemaNode):
     widget = HiddenWidget()
 
     # noinspection PyUnusedLocal
-    def after_bind(self, node, kw: Dict[str, Any]) -> None:
-        request = kw["request"]  # type: CamcopsRequest
-        csrf_token = request.session.get_csrf_token()
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        req = kw["request"]  # type: CamcopsRequest
+        csrf_token = req.session.get_csrf_token()
         if DEBUG_CSRF_CHECK:
             log.debug("Got CSRF token from session: {!r}", csrf_token)
         self.default = csrf_token
@@ -214,15 +236,15 @@ class CSRFToken(SchemaNode):
     def validator(self, node: SchemaNode, value: Any) -> None:
         # Deferred validator via method, as per
         # https://docs.pylonsproject.org/projects/colander/en/latest/basics.html  # noqa
-        request = self.bindings["request"]  # type: CamcopsRequest
-        csrf_token = request.session.get_csrf_token()  # type: str
+        req = self.bindings["request"]  # type: CamcopsRequest
+        csrf_token = req.session.get_csrf_token()  # type: str
         matches = value == csrf_token
         if DEBUG_CSRF_CHECK:
             log.debug("Validating CSRF token: form says {!r}, session says "
                       "{!r}, matches = {}", value, csrf_token, matches)
         if not matches:
             log.warning("CSRF token mismatch; remote address {}",
-                        request.remote_addr)
+                        req.remote_addr)
             raise Invalid(node, "Bad CSRF token")
 
 
@@ -236,6 +258,342 @@ class CSRFSchema(Schema):
     """
 
     csrf = CSRFToken()
+
+
+# =============================================================================
+# New generic SchemaType classes
+# =============================================================================
+
+class PendulumType(SchemaType):
+    def __init__(self, use_local_tz: bool = True):
+        self.use_local_tz = use_local_tz
+
+    def serialize(self,
+                  node: SchemaNode,
+                  appstruct: Union[POTENTIAL_DATETIME_TYPES,
+                                   COLANDER_NULL_TYPE]) \
+            -> Union[str, COLANDER_NULL_TYPE]:
+        if not appstruct:
+            return colander.null
+        try:
+            appstruct = coerce_to_pendulum(appstruct,
+                                           assume_local=self.use_local_tz)
+        except (ValueError, ParserError) as e:
+            raise Invalid(node, "{!r} is not a Pendulum object; error was "
+                                "{!r}".format(appstruct, e))
+        return appstruct.isoformat()
+
+    def deserialize(self,
+                    node: SchemaNode,
+                    cstruct: Union[str, COLANDER_NULL_TYPE]) \
+            -> Optional[Pendulum]:
+        if not cstruct:
+            return colander.null
+        try:
+            result = coerce_to_pendulum(cstruct,
+                                        assume_local=self.use_local_tz)
+        except (ValueError, ParserError) as e:
+            raise Invalid(node, "Invalid date/time: value={!r}, error="
+                                "{!r}".format(cstruct, e))
+        return result
+
+
+# =============================================================================
+# Other new generic SchemaNode classes
+# =============================================================================
+
+class NoneAcceptantNode(SchemaNode):
+    """
+    Accepts None values for schema nodes.
+    See
+        https://stackoverflow.com/questions/18774976/colander-how-do-i-allow-none-values  # noqa
+    but modified because that doesn't work properly.
+    Most applicable for e.g. integer types.
+    Note that Colander serializes everything to strings, but treats
+    colander.null in a special way.
+    """
+    def __init__(self, allow_none: bool = True, **kwargs):
+        self.allow_none = allow_none
+        super().__init__(**kwargs)
+
+    def deserialize(self, value: str) -> Any:
+        if self.allow_none and value == colander.null:
+            retval = None
+        else:
+            retval = super().deserialize(value)
+        # log.critical("deserialize: {!r} -> {!r}", value, retval)
+        return retval
+
+    def serialize(self, value: Any) -> str:
+        if self.allow_none and value is None or value is colander.null:
+            retval = colander.null
+        else:
+            retval = super().serialize(value)
+        # log.critical("serialize: {!r} -> {!r}", value, retval)
+        return retval
+
+
+def get_values_and_permissible(values: Iterable[Tuple[Any, str]],
+                               add_none: bool = False,
+                               none_tuple: Tuple[Any, str] = None) \
+        -> Tuple[List[Tuple[Any, str]], List[Any]]:
+    if add_none:
+        assert none_tuple is not None and len(none_tuple) == 2
+        values = [none_tuple] + list(values)
+    permissible_values = list(x[0] for x in values)
+    return values, permissible_values
+
+
+class OptionalInt(NoneAcceptantNode):
+    schema_type = Integer
+    default = None
+    missing = None
+
+    def __init__(self, title: str, **kwargs):
+        self.title = title
+        super().__init__(**kwargs)
+
+
+class OptionalString(SchemaNode):
+    schema_type = String
+    default = ""
+    missing = ""
+
+    def __init__(self, title: str, **kwargs):
+        self.title = title
+        super().__init__(**kwargs)
+
+
+class DateTimeSelector(SchemaNode):
+    schema_type = DateTime
+    missing = None
+
+
+class DateSelector(SchemaNode):
+    schema_type = Date
+    missing = None
+
+
+class PendulumSelector(NoneAcceptantNode):
+    schema_type = PendulumType
+    default = None
+    missing = None
+    widget = DateTimeInputWidget()
+
+
+# =============================================================================
+# Specialized SchemaNode classes
+# =============================================================================
+
+class SingleTaskSelector(SchemaNode):
+    schema_type = String
+    default = ""
+    missing = ""
+    title = "Task type"
+
+    def __init__(self, allow_none: bool, **kwargs) -> None:
+        values, pv = get_values_and_permissible(self.get_task_choices(),
+                                                allow_none, ("", "[Any]"))
+        self.widget = SelectWidget(values=values)
+        self.validator = OneOf(pv)
+        super().__init__(**kwargs)
+
+    @staticmethod
+    def get_task_choices() -> List[Tuple[str, str]]:
+        raise NotImplementedError
+
+
+class MultiTaskSelector(SchemaNode):
+    schema_type = Set
+    default = ""
+    missing = ""
+    title = "Task type(s)"
+
+    def __init__(self, minimum_length: int = 1, **kwargs) -> None:
+        values, pv = get_values_and_permissible(self.get_task_choices(),
+                                                add_none=False)
+        self.widget = CheckboxChoiceWidget(values=values)
+        self.validator = Length(min=minimum_length)
+        super().__init__(**kwargs)
+
+    @staticmethod
+    def get_task_choices() -> List[Tuple[str, str]]:
+        raise NotImplementedError()
+
+
+class AllTasksSingleTaskSelector(SingleTaskSelector):
+    @staticmethod
+    def get_task_choices() -> List[Tuple[str, str]]:
+        choices = []  # type: List[Tuple[str, str]]
+        for tc in Task.all_subclasses_by_shortname():
+            choices.append((tc.tablename, tc.shortname))
+        return choices
+
+
+class TrackerTaskSelector(MultiTaskSelector):
+    def __init__(self, **kwargs) -> None:
+        super().__init__(minimum_length=0, **kwargs)
+
+    @staticmethod
+    def get_task_choices() -> List[Tuple[str, str]]:
+        choices = []  # type: List[Tuple[str, str]]
+        for tc in Task.all_subclasses_by_shortname():
+            if tc.provides_trackers:
+                choices.append((tc.tablename, tc.shortname))
+        return choices
+
+
+class WhichIdNumSelector(NoneAcceptantNode):
+    schema_type = Integer
+    default = None
+    missing = None
+    title = "Identifier"
+    widget = SelectWidget()
+    validator = None
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        req = kw["request"]  # type: CamcopsRequest
+        cfg = req.config
+        values = []  # type: List[Tuple[Optional[int], str]]
+        for which_idnum in cfg.get_which_idnums():
+            values.append((which_idnum, cfg.get_id_desc(which_idnum)))
+        values, pv = get_values_and_permissible(values, self.allow_none,
+                                                ("", "[ignore]"))
+        # ... can't use None, because SelectWidget() will convert that to
+        # "None"; can't use colander.null, because that converts to
+        # "<colander.null>"; use "", which is the default null_value of
+        # SelectWidget.
+        self.widget.values = values
+        self.validator = OneOf(pv)
+
+
+class IdNumValue(NoneAcceptantNode):
+    schema_type = Integer
+    default = None
+    missing = None
+    title = "ID# value"
+    validator = Range(min=0)
+
+
+class SexSelector(SchemaNode):
+    _sex_choices = [("F", "F"), ("M", "M"), ("X", "X")]
+
+    schema_type = String
+    default = ""
+    missing = ""
+    title = "Sex"
+
+    def __init__(self, allow_none: bool, **kwargs) -> None:
+        values, pv = get_values_and_permissible(self._sex_choices, allow_none,
+                                                ("", "Any"))
+        self.widget = RadioChoiceWidget(values=values)
+        self.validator = OneOf(pv)
+        super().__init__(**kwargs)
+
+
+class UserIdSelector(NoneAcceptantNode):
+    schema_type = Integer
+    default = None
+    missing = None
+    title = "User"
+
+    def __init__(self, allow_none: bool, **kwargs) -> None:
+        self.validator = None  # type: object
+        self.widget = None  # type: Widget
+        super().__init__(allow_none=allow_none, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        req = kw["request"]  # type: CamcopsRequest
+        dbsession = req.dbsession
+        values = []  # type: List[Tuple[Optional[int], str]]
+        users = dbsession.query(User).order_by(User.username)
+        for user in users:
+            values.append((user.id, user.username))
+        values, pv = get_values_and_permissible(values, self.allow_none,
+                                                ("", "[Any]"))
+        self.widget = SelectWidget(values=values)
+        self.validator = OneOf(pv)
+
+
+class UserNameSelector(SchemaNode):
+    schema_type = String
+    default = ""
+    missing = ""
+    title = "User"
+
+    def __init__(self, allow_none: bool, **kwargs) -> None:
+        self.allow_none = allow_none
+        self.validator = None  # type: object
+        self.widget = None  # type: Widget
+        super().__init__(**kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        req = kw["request"]  # type: CamcopsRequest
+        dbsession = req.dbsession
+        values = []  # type: List[Tuple[Optional[int], str]]
+        users = dbsession.query(User).order_by(User.username)
+        for user in users:
+            values.append((user.username, user.username))
+        values, pv = get_values_and_permissible(values, self.allow_none,
+                                                (None, "[ignore]"))
+        self.widget = SelectWidget(values=values)
+        self.validator = OneOf(pv)
+
+
+class ServerPkSelector(SchemaNode):
+    schema_type = Integer
+    missing = None
+    title = "Server PK"
+
+
+class StartPendulumSelector(PendulumSelector):
+    title = "Start date/time"
+
+
+class EndPendulumSelector(PendulumSelector):
+    title = "End date/time"
+
+
+class StartDateTimeSelector(DateTimeSelector):
+    title = "Start date/time (UTC)"
+
+
+class EndDateTimeSelector(DateTimeSelector):
+    title = "End date/time (UTC)"
+
+
+class StartDateSelector(DateSelector):
+    title = "Start date (UTC)"
+
+
+class EndDateSelector(DateSelector):
+    title = "End date (UTC)"
+
+
+class RowsPerPageSelector(SchemaNode):
+    _choices = ((10, "10"), (25, "25"), (50, "50"), (100, "100"))
+
+    schema_type = Integer
+    default = DEFAULT_ROWS_PER_PAGE
+    title = "Items to show per page"
+    widget = RadioChoiceWidget(values=_choices)
+    validator = OneOf(list(x[0] for x in _choices))
+
+
+class OutputTypeSelector(SchemaNode):
+    _choices = ((ViewArg.HTML, "HTML"),
+                (ViewArg.PDF, "PDF"),
+                (ViewArg.XML, "XML"))
+
+    schema_type = String
+    default = ViewArg.HTML
+    missing = ViewArg.HTML
+    title = "View as"
+    widget = RadioChoiceWidget(values=_choices)
+    validator = OneOf(list(x[0] for x in _choices))
 
 
 # =============================================================================
@@ -266,12 +624,14 @@ class LoginSchema(CSRFSchema):
 class LoginForm(InformativeForm):
     def __init__(self,
                  request: CamcopsRequest,
-                 autocomplete_password: bool = True) -> None:
+                 autocomplete_password: bool = True,
+                 **kwargs) -> None:
         schema = LoginSchema().bind(request=request)
         super().__init__(
             schema,
-            buttons=[Button(name=SUBMIT, title=LOGIN_TITLE)],
-            autocomplete=autocomplete_password
+            buttons=[Button(name=FormAction.SUBMIT, title=LOGIN_TITLE)],
+            autocomplete=autocomplete_password,
+            **kwargs
         )
         # Suboptimal: autocomplete_password is not applied to the password
         # widget, just to the form; see
@@ -321,12 +681,15 @@ class ChangeOwnPasswordSchema(CSRFSchema):
 
 class ChangeOwnPasswordForm(InformativeForm):
     def __init__(self, request: CamcopsRequest,
-                 must_differ: bool = True) -> None:
+                 must_differ: bool = True,
+                 **kwargs) -> None:
         schema = ChangeOwnPasswordSchema(must_differ=must_differ).\
             bind(request=request)
         super().__init__(
             schema,
-            buttons=[Button(name=SUBMIT, title=CHANGE_PASSWORD_TITLE)]
+            buttons=[Button(name=FormAction.SUBMIT,
+                            title=CHANGE_PASSWORD_TITLE)],
+            **kwargs
         )
 
 
@@ -351,11 +714,13 @@ class ChangeOtherPasswordSchema(CSRFSchema):
 
 
 class ChangeOtherPasswordForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest) -> None:
+    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
         schema = ChangeOtherPasswordSchema().bind(request=request)
         super().__init__(
             schema,
-            buttons=[Button(name=SUBMIT, title=CHANGE_PASSWORD_TITLE)]
+            buttons=[Button(name=FormAction.SUBMIT,
+                            title=CHANGE_PASSWORD_TITLE)],
+            **kwargs
         )
 
 
@@ -370,11 +735,13 @@ class OfferTermsSchema(CSRFSchema):
 class OfferTermsForm(InformativeForm):
     def __init__(self,
                  request: CamcopsRequest,
-                 agree_button_text: str) -> None:
+                 agree_button_text: str,
+                 **kwargs) -> None:
         schema = OfferTermsSchema().bind(request=request)
         super().__init__(
             schema,
-            buttons=[Button(name=SUBMIT, title=agree_button_text)]
+            buttons=[Button(name=FormAction.SUBMIT, title=agree_button_text)],
+            **kwargs
         )
 
 
@@ -383,50 +750,14 @@ class OfferTermsForm(InformativeForm):
 # =============================================================================
 
 class AuditTrailSchema(CSRFSchema):
-    rows_per_page = SchemaNode(  # must match ViewParam.ROWS_PER_PAGE
-        Integer(),
-        default=DEFAULT_ROWS_PER_PAGE,
-        title="Number of entries to show per page",
-    )
-    start_datetime = SchemaNode(  # must match ViewParam.START_DATETIME
-        DateTime(),
-        missing=None,
-        title="Start date/time (UTC)",
-    )
-    end_datetime = SchemaNode(  # must match ViewParam.END_DATETIME
-        DateTime(),
-        missing=None,
-        title="End date/time (UTC)",
-    )
-    source = SchemaNode(  # must match ViewParam.SOURCE
-        String(),
-        default="",
-        missing="",
-        title="Source (e.g. webviewer, tablet, console)",
-    )
-    remote_ip_addr = SchemaNode(  # must match ViewParam.REMOTE_IP_ADDR
-        String(),
-        default="",
-        missing="",
-        title="Remote IP address",
-    )
-    username = SchemaNode(  # must match ViewParam.USERNAME
-        String(),
-        default="",
-        missing="",
-        title="User name",
-    )
-    table_name = SchemaNode(  # must match ViewParam.TABLENAME
-        String(),
-        default="",
-        missing="",
-        title="Database table name",
-    )
-    server_pk = SchemaNode(  # must match ViewParam.SERVER_PK
-        Integer(),
-        missing=None,
-        title="Server PK",
-    )
+    rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
+    start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
+    end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
+    source = OptionalString("Source (e.g. webviewer, tablet, console)")  # must match ViewParam.SOURCE  # noqa
+    remote_ip_addr = OptionalString("Remote IP address")  # must match ViewParam.REMOTE_IP_ADDR  # noqa
+    username = UserNameSelector(allow_none=True)  # must match ViewParam.USERNAME  # noqa
+    table_name = AllTasksSingleTaskSelector(allow_none=True)  # must match ViewParam.TABLENAME  # noqa
+    server_pk = ServerPkSelector()  # must match ViewParam.SERVER_PK
     truncate = SchemaNode(  # must match ViewParam.TRUNCATE
         Boolean(),
         default=True,
@@ -435,11 +766,12 @@ class AuditTrailSchema(CSRFSchema):
 
 
 class AuditTrailForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest) -> None:
+    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
         schema = AuditTrailSchema().bind(request=request)
         super().__init__(
             schema,
-            buttons=[Button(name=SUBMIT, title="View audit trail")]
+            buttons=[Button(name=FormAction.SUBMIT, title="View audit trail")],
+            **kwargs
         )
 
 
@@ -448,45 +780,22 @@ class AuditTrailForm(InformativeForm):
 # =============================================================================
 
 class HL7MessageLogSchema(CSRFSchema):
-    rows_per_page = SchemaNode(  # must match ViewParam.ROWS_PER_PAGE
-        Integer(),
-        default=DEFAULT_ROWS_PER_PAGE,
-        title="Number of entries to show per page",
-    )
-    table_name = SchemaNode(  # must match ViewParam.TABLENAME
-        String(),
-        default="",
-        missing="",
-        title="Task base table (blank for all tasks)",
-    )
-    server_pk = SchemaNode(  # must match ViewParam.SERVER_PK
-        Integer(),
-        missing=None,
-        title="Task server PK (blank for all tasks)",
-    )
-    hl7_run_id = SchemaNode(  # must match ViewParam.HL7_RUN_ID
-        Integer(),
-        missing=None,
-        title="Run ID",
-    )
-    start_datetime = SchemaNode(  # must match ViewParam.START_DATETIME
-        DateTime(),
-        missing=None,
-        title="Start date/time (UTC)",
-    )
-    end_datetime = SchemaNode(  # must match ViewParam.END_DATETIME
-        DateTime(),
-        missing=None,
-        title="End date/time (UTC)",
-    )
+    rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
+    table_name = AllTasksSingleTaskSelector(allow_none=True)  # must match ViewParam.TABLENAME  # noqa
+    server_pk = ServerPkSelector()  # must match ViewParam.SERVER_PK
+    hl7_run_id = OptionalInt("Run ID")  # must match ViewParam.HL7_RUN_ID  # noqa
+    start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
+    end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
 
 
 class HL7MessageLogForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest) -> None:
+    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
         schema = HL7MessageLogSchema().bind(request=request)
         super().__init__(
             schema,
-            buttons=[Button(name=SUBMIT, title="View HL7 message log")]
+            buttons=[Button(name=FormAction.SUBMIT,
+                            title="View HL7 message log")],
+            **kwargs
         )
 
 
@@ -495,34 +804,117 @@ class HL7MessageLogForm(InformativeForm):
 # =============================================================================
 
 class HL7RunLogSchema(CSRFSchema):
-    rows_per_page = SchemaNode(  # must match ViewParam.ROWS_PER_PAGE
-        Integer(),
-        default=DEFAULT_ROWS_PER_PAGE,
-        title="Number of entries to show per page",
-    )
-    hl7_run_id = SchemaNode(  # must match ViewParam.HL7_RUN_ID
-        Integer(),
-        missing=None,
-        title="Run ID",
-    )
-    start_datetime = SchemaNode(  # must match ViewParam.START_DATETIME
-        DateTime(),
-        missing=None,
-        title="Start date/time (UTC)",
-    )
-    end_datetime = SchemaNode(  # must match ViewParam.END_DATETIME
-        DateTime(),
-        missing=None,
-        title="End date/time (UTC)",
-    )
+    rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
+    hl7_run_id = OptionalInt("Run ID")  # must match ViewParam.HL7_RUN_ID  # noqa
+    start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
+    end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
 
 
 class HL7RunLogForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest) -> None:
+    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
         schema = HL7RunLogSchema().bind(request=request)
         super().__init__(
             schema,
-            buttons=[Button(name=SUBMIT, title="View HL7 run log")]
+            buttons=[Button(name=FormAction.SUBMIT, title="View HL7 run log")],
+            **kwargs
+        )
+
+
+# =============================================================================
+# Task filters
+# =============================================================================
+
+class TaskFiltersSchema(CSRFSchema):
+    surname = OptionalString("Surname")  # must match ViewParam.SURNAME
+    forename = OptionalString("Forename")  # must match ViewParam.FORENAME
+    dob = SchemaNode(  # must match ViewParam.DOB
+        Date(),
+        missing=None,
+        title="Date of birth",
+    )
+    sex = SexSelector(allow_none=True)  # must match ViewParam.SEX
+    which_idnum = WhichIdNumSelector(allow_none=True)  # must match ViewParam.WHICH_IDNUM  # noqa
+    idnum_value = IdNumValue(allow_none=True)  # must match ViewParam.IDNUM_VALUE  # noqa
+    table_name = AllTasksSingleTaskSelector(allow_none=True)  # must match ViewParam.TABLENAME  # noqa
+    only_complete = SchemaNode(  # must match ViewParam.ONLY_COMPLETE
+        Boolean(),
+        widget=CheckboxWidget(),
+        default=False,
+        missing=False,
+        title="Only completed tasks?",
+    )
+    user_id = UserIdSelector(allow_none=True)  # must match ViewParam.USER_ID
+    start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
+    end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
+    text_contents = OptionalString("Text contents")  # must match ViewParam.TEXT_CONTENTS  # noqa
+
+
+class TaskFiltersForm(InformativeForm):
+    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
+        schema = TaskFiltersSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SET_FILTERS, title="Set filters"),
+                     Button(name=FormAction.CLEAR_FILTERS, title="Clear")],
+            **kwargs
+        )
+
+
+class TasksPerPageSchema(CSRFSchema):
+    rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
+
+
+class TasksPerPageForm(InformativeForm):
+    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
+        schema = TasksPerPageSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SUBMIT_TASKS_PER_PAGE,
+                            title="Set n/page")],
+            **kwargs
+        )
+
+
+class RefreshTasksSchema(CSRFSchema):
+    pass
+
+
+class RefreshTasksForm(InformativeForm):
+    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
+        schema = RefreshTasksSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.REFRESH_TASKS, title="Refresh")],
+            **kwargs
+        )
+
+
+# =============================================================================
+# Trackers
+# =============================================================================
+
+class ChooseTrackerSchema(CSRFSchema):
+    which_idnum = WhichIdNumSelector(allow_none=False)  # must match ViewParam.WHICH_IDNUM  # noqa
+    idnum_value = IdNumValue(allow_none=False)  # must match ViewParam.IDNUM_VALUE  # noqa
+    start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
+    end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
+    all_tasks = SchemaNode(  # match ViewParam.ALL_TASKS
+        Boolean(),
+        default=True,
+        missing=True,
+        title="Use all eligible task types?",
+    )
+    tasks = TrackerTaskSelector()  # must match ViewParam.TASKS
+    viewtype = OutputTypeSelector()  # must match ViewParams.VIEWTYPE
+
+
+class ChooseTrackerForm(InformativeForm):
+    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
+        schema = ChooseTrackerSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SUBMIT, title="View tracker")],
+            **kwargs
         )
 
 

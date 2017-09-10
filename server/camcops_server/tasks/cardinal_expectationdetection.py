@@ -22,12 +22,11 @@
 ===============================================================================
 """
 
-import datetime
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-import matplotlib.pyplot as plt
 from matplotlib.axes import SubplotBase
 import numpy
+from pendulum import Pendulum
 import scipy.stats  # http://docs.scipy.org/doc/scipy/reference/stats.html
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer
@@ -46,7 +45,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import ArrowDateTimeAsIsoTextColType
+from ..cc_modules.cc_sqla_coltypes import PendulumDateTimeAsIsoTextColType
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -139,39 +138,39 @@ class ExpDetTrial(GenericTabletRecordMixin, Base):
         comment="Pause given before trial? (0 no, 1 yes)"
     )
     pause_start_time = Column(
-        "pause_start_time", ArrowDateTimeAsIsoTextColType,
+        "pause_start_time", PendulumDateTimeAsIsoTextColType,
         comment="Pause start time (ISO-8601)"
     )
     pause_end_time = Column(
-        "pause_end_time", ArrowDateTimeAsIsoTextColType,
+        "pause_end_time", PendulumDateTimeAsIsoTextColType,
         comment="Pause end time (ISO-8601)"
     )
     trial_start_time = Column(
-        "trial_start_time", ArrowDateTimeAsIsoTextColType,
+        "trial_start_time", PendulumDateTimeAsIsoTextColType,
         comment="Trial start time (ISO-8601)"
     )
     cue_start_time = Column(
-        "cue_start_time", ArrowDateTimeAsIsoTextColType,
+        "cue_start_time", PendulumDateTimeAsIsoTextColType,
         comment="Cue start time (ISO-8601)"
     )
     target_start_time = Column(
-        "target_start_time", ArrowDateTimeAsIsoTextColType,
+        "target_start_time", PendulumDateTimeAsIsoTextColType,
         comment="Target start time (ISO-8601)"
     )
     detection_start_time = Column(
-        "detection_start_time", ArrowDateTimeAsIsoTextColType,
+        "detection_start_time", PendulumDateTimeAsIsoTextColType,
         comment="Detection response start time (ISO-8601)"
     )
     iti_start_time = Column(
-        "iti_start_time", ArrowDateTimeAsIsoTextColType,
+        "iti_start_time", PendulumDateTimeAsIsoTextColType,
         comment="Intertrial interval start time (ISO-8601)"
     )
     iti_end_time = Column(
-        "iti_end_time", ArrowDateTimeAsIsoTextColType,
+        "iti_end_time", PendulumDateTimeAsIsoTextColType,
         comment="Intertrial interval end time (ISO-8601)"
     )
     trial_end_time = Column(
-        "trial_end_time", ArrowDateTimeAsIsoTextColType,
+        "trial_end_time", PendulumDateTimeAsIsoTextColType,
         comment="Trial end time (ISO-8601)"
     )
     
@@ -181,7 +180,7 @@ class ExpDetTrial(GenericTabletRecordMixin, Base):
         comment="Responded? (0 no, 1 yes)"
     )
     response_time = Column(
-        "response_time", ArrowDateTimeAsIsoTextColType,
+        "response_time", PendulumDateTimeAsIsoTextColType,
         comment="Response time (ISO-8601)"
     )
     response_latency_ms = Column(
@@ -746,7 +745,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
             return WARNING_INSUFFICIENT_DATA
         figsize = (FULLWIDTH_PLOT_WIDTH*2, FULLWIDTH_PLOT_WIDTH)
         html = ""
-        fig = plt.figure(figsize=figsize)
+        fig = req.create_figure(figsize=figsize)
         warned = False
         for groupnum in range(len(grouparray)):
             ax = fig.add_subplot(2, 4, groupnum+1)
@@ -782,7 +781,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
             return WARNING_INSUFFICIENT_DATA
         figsize = (FULLWIDTH_PLOT_WIDTH, FULLWIDTH_PLOT_WIDTH/2)
         html = ""
-        fig = plt.figure(figsize=figsize)
+        fig = req.create_figure(figsize=figsize)
         warned = False
         for half in range(2):
             ax = fig.add_subplot(1, 2, half+1)
@@ -821,8 +820,8 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return html
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        grouparray = self.get_group_array()
-        trialarray = self.get_trial_array()
+        grouparray = self.groupspecs  # type: List[ExpDetTrialGroupSpec]
+        trialarray = self.trials  # type: List[ExpDetTrial]
         # THIS IS A NON-EDITABLE TASK, so we *ignore* the problem
         # of matching to no-longer-current records.
         # (See PhotoSequence.py for a task that does it properly.)
@@ -1180,7 +1179,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return (p_detected_given_present, p_detected_given_absent, c, dprime,
                 n_trials)
 
-    def get_extra_summary_table_data(self, now: datetime.datetime) \
+    def get_extra_summary_table_data(self, now: Pendulum) \
             -> List[List[List[Any]]]:
         grouparray = self.groupspecs  # type: List[ExpDetTrialGroupSpec]
         trialarray = self.trials  # type: List[ExpDetTrial]

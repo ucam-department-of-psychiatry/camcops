@@ -1,7 +1,6 @@
 ## wkhtmltopdf_footer.mako
 ## USED TO MAKE SEPARATE FOOTER HTML FILES FOR WKHTMLTOPDF.
 ## WORKS IN CONJUNCTION WITH wkhtmltopdf_header.mako
-<%page args="inner_text: str"/>
 <%inherit file="base.mako"/>
 
 <%block name="css">
@@ -40,7 +39,6 @@ function subst() {
 
 <%block name="body_tags">
     onload="subst()"
-    ## the function itself is defined in wkhtmltopdf_footer.mako
 </%block>
 
 <div>

@@ -27,6 +27,7 @@ import os
 from typing import List, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
+from pendulum import Date, Pendulum
 
 from .cc_dt import format_datetime, get_now_localtz
 from .cc_constants import (
@@ -37,6 +38,7 @@ from .cc_constants import (
 
 if TYPE_CHECKING:
     from .cc_patientidnum import PatientIdNum
+    from .cc_request import CamcopsRequest
 
 
 # =============================================================================
@@ -98,17 +100,18 @@ def filename_spec_is_valid(filename_spec: str,
         return False
 
 
-def get_export_filename(patient_spec_if_anonymous: str,
+def get_export_filename(req: "CamcopsRequest",
+                        patient_spec_if_anonymous: str,
                         patient_spec: str,
                         filename_spec: str,
                         task_format: str,
                         is_anonymous: bool = False,
                         surname: str = None,
                         forename: str = None,
-                        dob: Union[datetime.date, datetime.datetime] = None,
+                        dob: Date = None,
                         sex: str = None,
                         idnum_objects: List['PatientIdNum'] = None,
-                        creation_datetime: datetime.datetime = None,
+                        creation_datetime: Pendulum = None,
                         basetable: str = None,
                         serverpk: int = None) -> str:
     """Get filename, for file exports/transfers."""
@@ -128,9 +131,9 @@ def get_export_filename(patient_spec_if_anonymous: str,
             nstr = str(idobj.which_idnum)
             has_num = idobj.idnum_value is not None
             d[FP_ID_NUM + nstr] = str(idobj.idnum_value) if has_num else ""
-            d[FP_ID_SHORT_DESC + nstr] = idobj.short_description() or ""
-            if has_num and idobj.short_description():
-                all_id_components.append(idobj.get_filename_component())
+            d[FP_ID_SHORT_DESC + nstr] = idobj.short_description(req) or ""
+            if has_num and idobj.short_description(req):
+                all_id_components.append(idobj.get_filename_component(req))
     d["allidnums"] = "_".join(all_id_components)
     if is_anonymous:
         patient = patient_spec_if_anonymous

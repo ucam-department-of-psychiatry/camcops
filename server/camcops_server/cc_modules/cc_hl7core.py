@@ -27,6 +27,7 @@ import datetime
 from typing import List, Optional, Tuple, Union
 
 import hl7
+from pendulum import Date, Pendulum
 from sqlalchemy.orm import Session as SqlASession
 
 from .cc_dt import format_datetime, get_now_localtz
@@ -91,7 +92,7 @@ def get_mod11_checkdigit(strnum: str) -> str:
         return ""
 
 
-def make_msh_segment(message_datetime: datetime.datetime,
+def make_msh_segment(message_datetime: Pendulum,
                      message_control_id: str) -> hl7.Segment:
     """Creates an HL7 message header (MSH) segment."""
     # We're making an ORU^R01 message = unsolicited result.
@@ -160,7 +161,7 @@ def make_msh_segment(message_datetime: datetime.datetime,
 
 def make_pid_segment(forename: str,
                      surname: str,
-                     dob: Union[datetime.datetime, datetime.date],
+                     dob: Date,
                      sex: str,
                      address: str,
                      patient_id_list: List[
@@ -383,7 +384,7 @@ def make_obr_segment(task: TASK_FWD_REF) -> hl7.Segment:
 def make_obx_segment(task: TASK_FWD_REF,
                      task_format: str,
                      observation_identifier: str,
-                     observation_datetime: datetime.datetime,
+                     observation_datetime: Pendulum,
                      responsible_observer: str,
                      xml_field_comments: bool = True) -> hl7.Segment:
     """Creates an HL7 observation result (OBX) segment."""
@@ -479,7 +480,7 @@ def make_obx_segment(task: TASK_FWD_REF,
 
 
 def make_dg1_segment(set_id: int,
-                     diagnosis_datetime: datetime.datetime,
+                     diagnosis_datetime: Pendulum,
                      coding_system: str,
                      diagnosis_identifier: str,
                      diagnosis_text: str,
@@ -501,7 +502,7 @@ def make_dg1_segment(set_id: int,
                      clinician_name_type_code: str = "",
                      clinician_identifier_type_code: str = "",
                      clinician_assigning_facility: str = "",
-                     attestation_datetime: datetime.datetime = None) \
+                     attestation_datetime: Pendulum = None) \
         -> hl7.Segment:
     """Creates an HL7 diagnosis (DG1) segment.
 

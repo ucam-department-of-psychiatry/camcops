@@ -1,3 +1,11 @@
-## css_pdf_wkhtmltopdf.mako
+## css_pdf_no_paged_media.mako
 
-<%include file="css_pdf_base.mako" args="paged_media=False"/>
+## Genuinely static, so we can cache it:
+<%page cached="True" cache_region="local" cache_key="css_pdf_no_paged_media.mako"/>
+
+<%inherit file="css_base.mako"/>
+
+<%namespace file="def_css_constants.mako" import="_get_css_varargs"/>
+<%def name="get_css_varargs()"><%
+    return _get_css_varargs("pdf_no_paged_media")
+%></%def>

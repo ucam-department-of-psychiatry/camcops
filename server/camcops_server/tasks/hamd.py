@@ -110,6 +110,9 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     NSCOREDQUESTIONS = 17
     NQUESTIONS = 21
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS) + [
+        "whichq16", "q16a", "q16b", "q17", "q18a", "q18b"
+    ]
 
     whichq16 = CamcopsColumn(
         "whichq16", Integer,
@@ -282,14 +285,11 @@ class Hamd(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 if q == "q16a" or q == "q16b":
                     rangestr = " <sup>range 0–2; ‘3’ not scored</sup>"
                 else:
-                    rangestr = next((
-                        " <sup>range {}–{}</sup>".format(
-                            item.get("min"), item.get("max")
-                        )
-                        for item in self.fieldspecs
-                        if item["name"] == q
-                    ), "")
-                    # http://stackoverflow.com/questions/8653516
+                    col = getattr(self.__class__, q)  # type: CamcopsColumn
+                    rangestr = " <sup>range {}–{}</sup>".format(
+                        col.permitted_value_checker.minimum,
+                        col.permitted_value_checker.maximum
+                    )
                 qstr = self.wxstring(req, "" + q + "_s") + rangestr
             h += tr_qa(qstr, get_from_dict(answer_dicts_dict[q],
                                            getattr(self, q)))

@@ -33,7 +33,7 @@ from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 from ..cc_modules.cc_constants import DateFormat, ICD10_COPYRIGHT_DIV, PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import add_multiple_columns
-from ..cc_modules.cc_dt import format_datetime_string
+from ..cc_modules.cc_dt import format_datetime
 from ..cc_modules.cc_html import (
     get_yes_no_none,
     td,
@@ -44,7 +44,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
@@ -92,7 +92,7 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     longname = "ICD-10 criteria for schizotypal disorder (F21)"
 
     date_pertains_to = Column(
-        "date_pertains_to", ArrowDateTimeAsIsoTextColType,
+        "date_pertains_to", PendulumDateTimeAsIsoTextColType,
         comment="Date the assessment pertains to"
     )
     comments = Column(
@@ -123,8 +123,8 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             content=(
                 "Pertains to: {}. Criteria for schizotypal "
                 "disorder: {}.".format(
-                    format_datetime_string(self.date_pertains_to,
-                                           DateFormat.LONG_DATE),
+                    format_datetime(self.date_pertains_to,
+                                    DateFormat.LONG_DATE),
                     category
                 )
             )
@@ -166,8 +166,8 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                 <table class="summary">
         """ + self.get_is_complete_tr(req)
         h += tr_qa(req.wappstring("date_pertains_to"),
-                   format_datetime_string(self.date_pertains_to,
-                                          DateFormat.LONG_DATE, default=None))
+                   format_datetime(self.date_pertains_to,
+                                   DateFormat.LONG_DATE, default=None))
         h += tr_qa(req.wappstring("meets_criteria"),
                    get_yes_no_none(req, self.meets_criteria()))
         h += """
@@ -182,9 +182,9 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         h += self.text_row(req, "a")
         for i in range(1, self.N_A + 1):
             h += self.get_twocol_bool_row_true_false(
-                "a" + str(i), self.wxstring(req, "a" + str(i)))
+                req, "a" + str(i), self.wxstring(req, "a" + str(i)))
         h += self.get_twocol_bool_row_true_false(
-            "b", self.wxstring(req, "b"))
+            req, "b", self.wxstring(req, "b"))
         h += """
             </table>
         """ + ICD10_COPYRIGHT_DIV

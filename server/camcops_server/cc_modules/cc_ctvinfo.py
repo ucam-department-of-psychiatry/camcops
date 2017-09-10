@@ -53,34 +53,5 @@ class CtvInfo(object):
         self.content = content
         self.skip_if_no_content = skip_if_no_content
 
-    def get_html(self) -> str:
-        html = ""
-        if self.content or not self.skip_if_no_content:
-            if self.heading:
-                html += """
-                    <div class="ctv_fieldheading">
-                        {}
-                    </div>
-                """.format(self.heading)
-            if self.subheading:
-                html += """
-                    <div class="ctv_fieldsubheading">
-                        {}
-                    </div>
-                """.format(self.subheading)
-            if self.description:
-                html += """
-                    <div class="ctv_fielddescription">
-                        {}
-                    </div>
-                """.format(self.description)
-        if self.content:
-            html += """
-                <div class="ctv_fieldcontent">
-                    {}
-                </div>
-            """.format(self.content)
-        return html
-
 
 CTV_INCOMPLETE = [CtvInfo(description="Incomplete", skip_if_no_content=False)]

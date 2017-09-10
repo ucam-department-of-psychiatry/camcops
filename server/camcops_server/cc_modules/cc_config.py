@@ -424,22 +424,6 @@ class CamcopsConfig(object):
 
         # Moved out from CamcopsConfig:
         # ---------------------------------------------------------------------
-        # Date/time
-        # ---------------------------------------------------------------------
-        # self.TODAY = datetime.date.today()  # fetches the local date
-        #       -> as above, e.g. now_arrow
-        # self.NOW_LOCAL_TZ = get_now_localtz()
-        #       ... we want nearly all our times offset-aware
-        #       ... http://stackoverflow.com/questions/4530069
-        #       -> Request.now_arrow
-        # self.NOW_UTC_WITH_TZ = convert_datetime_to_utc(self.NOW_LOCAL_TZ)
-        #       -> Request.now_arrow
-        # self.NOW_UTC_NO_TZ = convert_datetime_to_utc_notz(self.NOW_LOCAL_TZ)
-        #       -> Request.now_utc_datetime
-        # self.NOW_LOCAL_TZ_ISO8601 = format_datetime(self.NOW_LOCAL_TZ,
-        #                                             DateFormat.ISO8601)
-        #       -> Request.now_arrow, etc.
-        # ---------------------------------------------------------------------
         # Read from the WSGI environment
         # ---------------------------------------------------------------------
         # self.remote_addr = environ.get("REMOTE_ADDR")
@@ -490,13 +474,6 @@ class CamcopsConfig(object):
         #     self.SCRIPT_PUBLIC_URL_ESCAPED = escape(url)
         #
         #           -> ***
-        #
-        # ---------------------------------------------------------------------
-        # Other
-        # ---------------------------------------------------------------------
-        # self.session = None  # type: Session  -> Request.camcops_session
-        # self.WEBSTART -> Request.webstart_html
-        # self.WEB_LOGO -> Request.web_logo_html
 
     def create_engine(self) -> Engine:
         return create_engine(self.DB_URL, echo=self.DB_ECHO,
@@ -509,7 +486,7 @@ class CamcopsConfig(object):
         return get_table_names(engine=engine)
 
     def get_which_idnums(self) -> List[int]:
-        return list(self.IDDESC.keys())
+        return sorted(list(self.IDDESC.keys()))
 
     def get_id_desc(self, which_idnum: int,
                     default: str = None) -> Optional[str]:

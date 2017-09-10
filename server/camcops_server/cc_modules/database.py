@@ -43,6 +43,7 @@ import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
+from pendulum import Pendulum
 from pyramid.view import view_config
 from pyramid.response import Response
 
@@ -750,7 +751,7 @@ def update_new_copy_of_record(sm: TabletSession,
 # =============================================================================
 
 def get_batch_details_start_if_needed(sm: TabletSession) \
-        -> Tuple[Optional[datetime.datetime], Optional[bool]]:
+        -> Tuple[Optional[Pendulum], Optional[bool]]:
     """Gets a (upload_batch_utc, currently_preserving) tuple.
 
     upload_batch_utc: the batchtime; UTC date/time of the current upload batch.
@@ -802,7 +803,7 @@ def start_device_upload_batch(sm: TabletSession) -> None:
 
 
 def end_device_upload_batch(sm: TabletSession,
-                            batchtime: datetime.datetime,
+                            batchtime: Pendulum,
                             preserving: bool) -> None:
     """Ends an upload batch, committing all changes made thus far."""
     commit_all(sm, batchtime, preserving)
@@ -927,7 +928,7 @@ def flag_record_for_preservation(table: str, pk: int) -> None:
 
 
 def commit_all(sm: TabletSession,
-               batchtime: datetime.datetime,
+               batchtime: Pendulum,
                preserving: bool) -> None:
     """Commits additions, removals, and preservations for all tables."""
     tables = get_dirty_tables(sm)
@@ -951,7 +952,7 @@ def commit_all(sm: TabletSession,
 
 
 def commit_table(sm: TabletSession,
-                 batchtime: datetime.datetime,
+                 batchtime: Pendulum,
                  preserving: bool,
                  table: str,
                  clear_dirty: bool = True) -> Tuple[int, int, int]:

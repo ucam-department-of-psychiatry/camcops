@@ -32,6 +32,7 @@ from cardinal_pythonlib.rnc_db import (
     FIELDSPEC_TYPE,
     FIELDSPECLIST_TYPE,
 )
+from pendulum import Pendulum
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
@@ -43,7 +44,7 @@ from .cc_constants import DateFormat, ERA_NOW
 from .cc_dt import format_datetime
 from .cc_sqla_coltypes import (
     CamcopsColumn,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
     EraColType,
     PermittedValueChecker,
     SemanticVersionColType,
@@ -52,6 +53,19 @@ from .cc_sqla_coltypes import (
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 T = TypeVar('T')
+
+
+# =============================================================================
+# Database engine hacks
+# =============================================================================
+
+def hack_pendulum_into_pymysql() -> None:
+    # https://pendulum.eustace.io/docs/#limitations
+    try:
+        from pymysql.converters import encoders, escape_datetime
+        encoders[Pendulum] = escape_datetime
+    except ImportError:
+        pass
 
 
 # =============================================================================
@@ -110,7 +124,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _when_added_exact(cls) -> Column:
         return Column(
-            "_when_added_exact", ArrowDateTimeAsIsoTextColType,
+            "_when_added_exact", PendulumDateTimeAsIsoTextColType,
             comment="(SERVER) Date/time this row was added (ISO 8601)"
         )
 
@@ -136,7 +150,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _when_removed_exact(cls) -> Column:
         return Column(
-            "_when_removed_exact", ArrowDateTimeAsIsoTextColType,
+            "_when_removed_exact", PendulumDateTimeAsIsoTextColType,
             comment="(SERVER) Date/time this row was removed, i.e. made "
                     "not current (ISO 8601)"
         )
@@ -206,7 +220,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _manually_erased_at(cls) -> Column:
         return Column(
-            "_manually_erased_at", ArrowDateTimeAsIsoTextColType,
+            "_manually_erased_at", PendulumDateTimeAsIsoTextColType,
             comment="(SERVER) Date/time of manual erasure (ISO 8601)"
         )
 
@@ -284,7 +298,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def when_last_modified(cls) -> Column:
         return Column(
-            "when_last_modified", ArrowDateTimeAsIsoTextColType,
+            "when_last_modified", PendulumDateTimeAsIsoTextColType,
             comment="(STANDARD) Date/time this row was last modified on the "
                     "source tablet device (ISO 8601)"
             # *** WHEN ALEMBIC UP: INDEX THIS: USED BY DATABASE UPLOAD SCRIPT.
@@ -476,172 +490,6 @@ def set_db_to_utf8(db: DatabaseSupporter) -> None:
                        "DEFAULT COLLATE utf8_general_ci")
 
 
-# def get_current_server_pk_by_client_info(table: str,
-#                                          device_id: int,
-#                                          clientpk: int,
-#                                          era: str):
-#     """Looks up the current server's PK given a device/clientpk/era triplet."""
-#     sql = ("SELECT _pk FROM " + table +
-#            " WHERE _current AND _device_id=? AND id=? AND _era=?")
-#     args = (device_id, clientpk, era)
-#     row = pls.db.fetchone(sql, *args)
-#     if row is None:
-#         return None
-#     return row[0]
-
-
-# def get_contemporaneous_server_pk_by_client_info(
-#         table: str,
-#         device_id: int,
-#         clientpk: int,
-#         era: str,
-#         referrer_added_utc: datetime.datetime,
-#         referrer_removed_utc: datetime.datetime) -> Optional[int]:
-#     """Looks up a contemporaneous (i.e. potentially old) server PK given
-#     client-side details."""
-#     sql = ("SELECT _pk FROM " + table +
-#            " WHERE id=? AND _device_id=? AND _era=?"
-#            " AND _when_added_batch_utc <= ? AND ")
-#     args = [
-#         clientpk,
-#         device_id,
-#         era,
-#         referrer_added_utc
-#     ]
-#     if referrer_removed_utc is not None:
-#         sql += "_when_removed_batch_utc >= ?"
-#         args.append(referrer_removed_utc)
-#     else:
-#         sql += "_when_removed_batch_utc IS NULL"
-#     row = pls.db.fetchone(sql, *args)
-#     if row is None:
-#         return None
-#     return row[0]
-
-
-# def get_all_current_server_pks(table: str) -> List[int]:
-#     """Get all server PKs from the table for current records."""
-#     return pls.db.fetchallfirstvalues(
-#         "SELECT _pk FROM " + table + " WHERE _current")
-
-
-# def get_contemporaneous_matching_field_pks_by_fk(
-#         table: str,
-#         pkname: str,
-#         fk_fieldname: str,
-#         fk_value: Any,
-#         device_id: int,
-#         era: str,
-#         referrer_added_utc: datetime.datetime,
-#         referrer_removed_utc: datetime.datetime,
-#         count_only: bool = False) -> Union[int, List[int]]:
-#     """Look up contemporaneous (i.e. potentially old) records using a
-#     foreign key and client-side details.
-#     If count_only is True, return the count instead."""
-#     if count_only:
-#         select = "SELECT COUNT(*)"
-#     else:
-#         select = "SELECT {}".format(pls.db.delimit(pkname))
-#     sql = """
-#         {select}
-#         FROM {table}
-#         WHERE
-#             {fkfield} = ?
-#             AND _device_id = ?
-#             AND _era = ?
-#             AND _when_added_batch_utc <= ?
-#             AND """.format(
-#         select=select,
-#         table=pls.db.delimit(table),
-#         fkfield=pls.db.delimit(fk_fieldname),
-#     )
-#     # _when_added_batch_utc condition:
-#     #       if it was added later, it wasn't contemporaneous
-#     # _when_removed_batch_utc IS NULL condition:
-#     #       if it hasn't been removed, it might still be valid
-#     args = [
-#         fk_value,
-#         device_id,
-#         era,
-#         referrer_added_utc
-#     ]
-#     if referrer_removed_utc is not None:
-#         sql += "_when_removed_batch_utc >= ?"
-#         # ... it might also be valid as long as it wasn't removed before the
-#         #     current record
-#         #     NB valid if it was removed AT THE SAME TIME as the current record
-#         args.append(referrer_removed_utc)
-#     else:
-#         sql += "_when_removed_batch_utc IS NULL"
-#     if count_only:
-#         return pls.db.fetchvalue(sql, *args)
-#     else:
-#         return pls.db.fetchallfirstvalues(sql, *args)
-
-
-# def get_contemporaneous_matching_ancillary_objects_by_fk(
-#         cls: Type[T],
-#         fk_value: Any,
-#         device_id: int,
-#         era: str,
-#         referrer_added_utc: datetime.datetime,
-#         referrer_removed_utc: datetime.datetime) -> List[T]:
-#     fieldlist = cls.get_fieldnames()
-#     sql = """
-#         SELECT {fields}
-#         FROM {table}
-#         WHERE {fkfield} = ?
-#         AND _device_id = ?
-#         AND _era = ?
-#         AND _when_added_batch_utc <= ?
-#         AND
-#     """.format(
-#         fields=",".join([pls.db.delimit(x) for x in fieldlist]),
-#         table=pls.db.delimit(cls.tablename),
-#         fkfield=pls.db.delimit(cls.fkname),
-#     )
-#     args = [
-#         fk_value,
-#         device_id,
-#         era,
-#         referrer_added_utc
-#     ]
-#     # As above:
-#     if referrer_removed_utc is not None:
-#         sql += "_when_removed_batch_utc >= ?"
-#         args.append(referrer_removed_utc)
-#     else:
-#         sql += "_when_removed_batch_utc IS NULL"
-#     rows = pls.db.fetchall(sql, *args)
-#     objects = []
-#     for row in rows:
-#         objects.append(rnc_db.create_object_from_list(cls, fieldlist, row))
-#     return objects
-
-
-# def get_server_pks_of_record_group(table: str,
-#                                    pkname: str,
-#                                    keyfieldname: str,
-#                                    keyvalue: Any,
-#                                    device_id: int,
-#                                    era: str) -> List[int]:
-#     """Returns server PKs of all records that represent versions of a specified
-#     one."""
-#     query = """
-#         SELECT {pkname}
-#         FROM {table}
-#         WHERE {keyfieldname} = ?
-#             AND _device_id = ?
-#             AND _era = ?
-#     """.format(
-#         pkname=pkname,
-#         table=table,
-#         keyfieldname=keyfieldname,
-#     )
-#     args = [keyvalue, device_id, era]
-#     return pls.db.fetchallfirstvalues(query, *args)
-
-
 def delete_from_table_by_pklist(tablename: str,
                                 pkname: str,
                                 pklist: Iterable[int]) -> None:
@@ -730,31 +578,6 @@ def forcibly_preserve_client_table(table: str,
 # =============================================================================
 # More SQL
 # =============================================================================
-
-def mysql_select_utc_date_field_from_iso8601_field(fieldname: str) -> str:
-    """SQL expression: converts ISO-8601 field into UTC DATETIME."""
-    return ("CONVERT_TZ(STR_TO_DATE(LEFT({0}, 23), '%Y-%m-%dT%H:%i:%s.%f'), "
-            "RIGHT({0},6), '+00:00')".format(fieldname))
-    # 1. STR_TO_DATE(), with the leftmost 23 characters,
-    #    giving microsecond precision, but not correct for timezone
-    # 2. CONVERT_TZ(), converting from the timezone info in the rightmost 6
-    #    characters to UTC (though losing fractional seconds)
-
-# And how are datetime values sent to the database?
-#       https://code.google.com/p/pyodbc/wiki/DataTypes
-# I'm using pyodbc 2.1.7 (for Python 2), so Python datetime values are
-# converted to/from SQL TIMESTAMP values... and TIMESTAMP is UTC:
-#       https://dev.mysql.com/doc/refman/5.5/en/datetime.html
-# so using the code above to convert everything to UTC should be fine.
-
-
-def mysql_select_local_date_field_from_iso8601_field(fieldname: str) -> str:
-    """SQL expression: converts ISO-8601 field into local DATETIME."""
-    return ("STR_TO_DATE(LEFT({0}, 23), '%Y-%m-%dT%H:%i:%s.%f')".format(
-        fieldname))
-    # 1. STR_TO_DATE(), with the leftmost 23 characters,
-    #    giving microsecond precision, but not correct for timezone
-
 
 def create_or_update_table(tablename: str,
                            fieldspecs_with_cctype: FIELDSPECLIST_TYPE,

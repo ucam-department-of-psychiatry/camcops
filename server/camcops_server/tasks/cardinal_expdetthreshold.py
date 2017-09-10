@@ -25,7 +25,6 @@
 import math
 from typing import List, Optional
 
-import matplotlib.pyplot as plt
 import numpy
 import cardinal_pythonlib.plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
@@ -40,7 +39,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import ArrowDateTimeAsIsoTextColType
+from ..cc_modules.cc_sqla_coltypes import PendulumDateTimeAsIsoTextColType
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 
@@ -84,7 +83,7 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
         comment="Target presented? (0 no, 1 yes)"
     )
     target_time = Column(
-        "target_time", ArrowDateTimeAsIsoTextColType,
+        "target_time", PendulumDateTimeAsIsoTextColType,
         comment="Target presentation time (ISO-8601)"
     )
     intensity = Column(
@@ -92,7 +91,7 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
         comment="Target intensity (0.0-1.0)"
     )
     choice_time = Column(
-        "choice_time", ArrowDateTimeAsIsoTextColType,
+        "choice_time", PendulumDateTimeAsIsoTextColType,
         comment="Time choice offered (ISO-8601)"
     )
     responded = Column(
@@ -100,7 +99,7 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
         comment="Responded? (0 no, 1 yes)"
     )
     response_time = Column(
-        "response_time", ArrowDateTimeAsIsoTextColType,
+        "response_time", PendulumDateTimeAsIsoTextColType,
         comment="Time of response (ISO-8601)"
     )
     response_latency_ms = Column(
@@ -281,7 +280,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         dp_to_consider_same_for_jitter = 3
         y_extra_space = 0.1
         x_extra_space = 0.02
-        trialfig = plt.figure(figsize=figsize)
+        trialfig = req.create_figure(figsize=figsize)
         notcalc_detected_x = []
         notcalc_detected_y = []
         notcalc_missed_x = []
@@ -322,21 +321,21 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
                 else:
                     catch_missed_x.append(x)
                     catch_missed_y.append(y)
-        plt.plot(all_x,              all_y,              marker="",
+        FIXME *** plt.plot(all_x,              all_y,              marker="",
                  color="0.9", linestyle="-", label=None)
-        plt.plot(notcalc_missed_x,   notcalc_missed_y,   marker="o",
+        FIXME *** plt.plot(notcalc_missed_x,   notcalc_missed_y,   marker="o",
                  color="k",   linestyle="None", label="miss")
-        plt.plot(notcalc_detected_x, notcalc_detected_y, marker="+",
+        FIXME *** plt.plot(notcalc_detected_x, notcalc_detected_y, marker="+",
                  color="k",   linestyle="None", label="hit")
-        plt.plot(calc_missed_x,      calc_missed_y,      marker="o",
+        FIXME *** plt.plot(calc_missed_x,      calc_missed_y,      marker="o",
                  color="r",   linestyle="None", label="miss, scored")
-        plt.plot(calc_detected_x,    calc_detected_y,    marker="+",
+        FIXME *** plt.plot(calc_detected_x,    calc_detected_y,    marker="+",
                  color="b",   linestyle="None", label="hit, scored")
-        plt.plot(catch_missed_x,     catch_missed_y,     marker="o",
+        FIXME *** plt.plot(catch_missed_x,     catch_missed_y,     marker="o",
                  color="w",   linestyle="None", label="CR")
-        plt.plot(catch_detected_x,   catch_detected_y,   marker="*",
+        FIXME *** plt.plot(catch_detected_x,   catch_detected_y,   marker="*",
                  color="w",   linestyle="None", label="FA")
-        leg = plt.legend(
+        FIXME *** leg = plt.legend(
             numpoints=1,
             fancybox=True,  # for set_alpha (below)
             loc="best",  # bbox_to_anchor=(0.75, 1.05)
@@ -344,14 +343,14 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
             handletextpad=0
         )
         leg.get_frame().set_alpha(0.5)
-        plt.xlabel("Trial number")
-        plt.ylabel("Intensity")
-        plt.ylim(0 - y_extra_space, 1 + y_extra_space)
-        plt.xlim(-0.5, len(trialarray) - 0.5)
+        FIXME *** plt.xlabel("Trial number")
+        FIXME *** plt.ylabel("Intensity")
+        FIXME *** plt.ylim(0 - y_extra_space, 1 + y_extra_space)
+        FIXME *** plt.xlim(-0.5, len(trialarray) - 0.5)
 
         fitfig = None
         if self.k is not None and self.theta is not None:
-            fitfig = plt.figure(figsize=figsize)
+            fitfig = req.create_figure(figsize=figsize)
             detected_x = []
             detected_x_approx = []
             detected_y = []
@@ -380,24 +379,24 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
             fit_x = numpy.arange(0.0 - x_extra_space, 1.0 + x_extra_space,
                                  0.001)
             fit_y = rnc_plot.logistic(fit_x, self.k, self.theta)
-            plt.plot(fit_x,      fit_y,
+            FIXME *** plt.plot(fit_x,      fit_y,
                      color="g", linestyle="-")
-            plt.plot(missed_x,   missed_y,   marker="o",
+            FIXME *** plt.plot(missed_x,   missed_y,   marker="o",
                      color="r", linestyle="None")
-            plt.plot(detected_x, detected_y, marker="+",
+            FIXME *** plt.plot(detected_x, detected_y, marker="+",
                      color="b", linestyle="None")
-            plt.ylim(0 - y_extra_space, 1 + y_extra_space)
-            plt.xlim(numpy.amin(all_x) - x_extra_space,
+            FIXME *** plt.ylim(0 - y_extra_space, 1 + y_extra_space)
+            FIXME *** plt.xlim(numpy.amin(all_x) - x_extra_space,
                      numpy.amax(all_x) + x_extra_space)
             marker_points = []
             for y in (LOWER_MARKER, 0.5, UPPER_MARKER):
                 x = rnc_plot.inv_logistic(y, self.k, self.theta)
                 marker_points.append((x, y))
             for p in marker_points:
-                plt.plot([p[0], p[0]], [-1, p[1]], color="0.5", linestyle=":")
-                plt.plot([-1, p[0]], [p[1], p[1]], color="0.5", linestyle=":")
-            plt.xlabel("Intensity")
-            plt.ylabel("Detected? (0=no, 1=yes; jittered)")
+                FIXME *** plt.plot([p[0], p[0]], [-1, p[1]], color="0.5", linestyle=":")
+                FIXME *** plt.plot([-1, p[0]], [p[1], p[1]], color="0.5", linestyle=":")
+            FIXME *** plt.xlabel("Intensity")
+            FIXME *** plt.ylabel("Detected? (0=no, 1=yes; jittered)")
 
         html += """
             <table class="noborder">

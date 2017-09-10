@@ -1,11 +1,38 @@
 
-*** database upload code
+*** matplotlib threading
 
-*** once first migration stable, add back filter_idnums_json
+*** in merge_db, support missing patient numbers
+
+*** test trackers
+*** test CTVs
+
+*** reports
+
+*** groups:
+        user member of multiple groups
+        user uploads to a single group
+        a group can see multiple other groups
+        the Python User object returns a list of int group_id values for "I can see these",
+
+        merge_db takes parameters for "new group if old data had none"
+
+*** user management
+
+*** delete patient
+*** forcibly preserve
+
+*** database upload code
 
 in merge:
     *** merge two users
     *** merge two groups
+
+*** research dump(s)
+
+*** HL7 backend
+
+*** host script at funny paths
+
 
 DOCUMENT merge warning:
 
@@ -35,9 +62,6 @@ DOCUMENT merge warning:
     YES; goes away using "pymysql" rather than "mysqldb", so e.g. use
 
         DB_URL = mysql+pymysql://username:password@127.0.0.1:3306/database?charset=utf8mb4
-
-
-*** routing and URLs
 
 
 ===============================================================================

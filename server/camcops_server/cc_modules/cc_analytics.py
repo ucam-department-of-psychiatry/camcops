@@ -22,7 +22,6 @@
 ===============================================================================
 """
 
-from arrow import Arrow
 import datetime
 import logging
 import urllib.error
@@ -38,8 +37,8 @@ from sqlalchemy.orm import Session as SqlASession
 
 from .cc_constants import DateFormat
 from .cc_dt import (
+    coerce_to_pendulum,
     format_datetime,
-    get_datetime_from_string,
 )
 from .cc_storedvar import ServerStoredVar, ServerStoredVarNames, StoredVarTypes
 from .cc_unittest import unit_test_ignore
@@ -70,7 +69,7 @@ def send_analytics_if_necessary(req: "CamcopsRequest") -> None:
     UK.
     """
     cfg = req.config
-    now = req.now_arrow
+    now = req.now
     if not cfg.SEND_ANALYTICS:
         # User has disabled analytics reporting.
         return
@@ -82,7 +81,7 @@ def send_analytics_if_necessary(req: "CamcopsRequest") -> None:
         None)
     last_sent_val = last_sent_var.get_value()
     if last_sent_val:
-        elapsed = now - get_datetime_from_string(last_sent_val)
+        elapsed = now - coerce_to_pendulum(last_sent_val)
         if elapsed < ANALYTICS_PERIOD:
             # We sent analytics recently.
             return

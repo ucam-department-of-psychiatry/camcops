@@ -20,6 +20,30 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 ===============================================================================
+
+PROPER WAY TO USE MATPLOTLIB:
+
+- http://jbarillari.blogspot.co.uk/2009/09/threadsafety-and-matplotlibpylab.html?m=1  # noqa
+- https://sjohannes.wordpress.com/2010/06/11/using-matplotlib-in-a-web-application/amp/  # noqa
+- http://matplotlib.org/faq/howto_faq.html#howto-webapp
+- http://matplotlib.org/examples/api/agg_oo.html#api-agg-oo
+
+In summary: matplotlib is easy to use in a way that has global state, but that
+will break in a threading application. Using the Figure() API is safe. Thus:
+
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    from matplotlib.figure import Figure
+
+    fig = Figure()
+    canvas = FigureCanvas(fig)
+    ax = fig.add_subplot(111)
+    ax.plot([1, 2, 3])
+    ax.set_title('hi mom')
+    ax.grid(True)
+    ax.set_xlabel('time')
+    ax.set_ylabel('volts')
+    canvas.print_figure('test')
+
 """
 
 # =============================================================================
@@ -33,7 +57,6 @@ import shutil
 import tempfile
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
-import cardinal_pythonlib.plot as rnc_plot
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -74,31 +97,28 @@ if 'HOME' in os.environ:
 # 5. Import matplotlib
 log.info("Importing matplotlib (can be slow) (MPLCONFIGDIR={})...",
          MPLCONFIGDIR)
-import matplotlib  # noqa
+# noinspection PyUnresolvedReferences
+import matplotlib
 
 # 6. Set the backend
-matplotlib.use("Agg")  # also the default backend
+# REPLACED BY OO METHOD # matplotlib.use("Agg")  # also the default backend
 # ... http://matplotlib.org/faq/usage_faq.html#what-is-a-backend
 # ... http://matplotlib.org/faq/howto_faq.html
 # matplotlib.use("cairo") # cairo backend corrupts some SVG figures
 
 # Load this once so we can tell the user we're importing it and it's slow
-import matplotlib.pyplot  # noqa
+# REPLACED BY OO METHOD # import matplotlib.pyplot  # noqa
+
 log.info("... finished importing matplotlib")
 
-# THEN DO e.g. # import matplotlib.pyplot as plt
+# REPLACED BY OO METHOD # # THEN DO e.g. # import matplotlib.pyplot as plt
 
 
 # =============================================================================
-# Functions to configure matplotlib
+# Functions
 # =============================================================================
 
-def set_matplotlib_fontsize(fontsize: float) -> None:
-    """Sets the font size for matplotlib."""
-    rnc_plot.set_matplotlib_fontsize(matplotlib, fontsize)
-
-
-def ccplot_do_nothing() -> None:
+def ccplot_no_op() -> None:
     """Call to justify an import, as seen by pyflakes, whereas the real
     justification is to configure matplotlib at first import."""
     pass

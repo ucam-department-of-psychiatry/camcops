@@ -109,7 +109,6 @@ Quick tutorial on Pyramid views:
 import cgi
 import codecs
 import collections
-import datetime
 import io
 import logging
 import typing
@@ -120,13 +119,14 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE, WSGI_TUPLE_TYPE
 from deform.exception import ValidationFailure
+from pendulum import Pendulum
 import pyramid.httpexceptions as exc
 from pyramid.view import (
     forbidden_view_config,
     notfound_view_config,
     view_config,
 )
-from pyramid.renderers import render, render_to_response
+from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from pyramid.security import Authenticated, NO_PERMISSION_REQUIRED
 import pygments
@@ -153,7 +153,6 @@ from .cc_device import (
 from .cc_dt import (
     get_now_localtz,
     format_datetime,
-    format_datetime_string
 )
 from .cc_dump import (
     get_database_dump_as_sql,
@@ -166,12 +165,11 @@ from .cc_html import (
     get_generic_action_url,
     get_html_sex_picker,
     get_html_which_idnum_picker,
-    get_url_enter_new_password,
     get_url_field_value_pair,
     get_url_main_menu,
 )
 from .cc_patient import Patient
-from .cc_plot import ccplot_do_nothing
+from .cc_plot import ccplot_no_op
 from .cc_policy import (
     get_finalize_id_policy_principal_numeric_id,
     get_upload_id_policy_principal_numeric_id,
@@ -179,13 +177,12 @@ from .cc_policy import (
 )
 from .cc_pyramid import (
     CamcopsPage,
-    HttpMethod,
+    FormAction,
     PageUrl,
     PdfResponse,
     Permission,
     Routes,
     SqlalchemyOrmPage,
-    SUBMIT,
     ViewArg,
     ViewParam,
     XmlResponse,
@@ -197,18 +194,25 @@ from .cc_report import (
 )
 from .cc_request import CamcopsRequest
 from .cc_session import CamcopsSession
-from .cc_specialnote import SpecialNote
+from .cc_simpleobjects import IdNumDefinition
 from .cc_storedvar import DeviceStoredVar
 from .cc_task import (
     gen_tasks_for_patient_deletion,
     gen_tasks_live_on_tablet,
-    gen_tasks_matching_session_filter,
     gen_tasks_using_patient,
     get_url_task_html,
     Task,
 )
-from .cc_taskfactory import task_factory, TaskCollection
-from .cc_tracker import ClinicalTextView, Tracker
+from .cc_taskfactory import (
+    all_tracker_task_classes,
+    task_classes_from_table_names,
+    task_factory,
+    TaskClassSortMethod,
+    TaskFilter,
+    TaskCollection,
+    TaskSortMethod,
+)
+from .cc_tracker import ClinicalTextView, Tracker, TrackerCtvCommon
 from .cc_unittest import unit_test_ignore
 from .cc_user import (
     add_user,
@@ -229,16 +233,20 @@ from .forms import (
     AuditTrailForm,
     ChangeOtherPasswordForm,
     ChangeOwnPasswordForm,
+    ChooseTrackerForm,
     DEFAULT_ROWS_PER_PAGE,
     get_head_form_html,
     HL7MessageLogForm,
     HL7RunLogForm,
     LoginForm,
     OfferTermsForm,
+    RefreshTasksForm,
+    TaskFiltersForm,
+    TasksPerPageForm,
 )
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
-ccplot_do_nothing()
+ccplot_no_op()
 
 
 WSGI_TUPLE_TYPE_WITH_STATUS = Tuple[str, HEADERS_TYPE, bytes, str]
@@ -250,6 +258,8 @@ WSGI_TUPLE_TYPE_WITH_STATUS = Tuple[str, HEADERS_TYPE, bytes, str]
 
 ALLOWED_TASK_VIEW_TYPES = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML,
                            ViewArg.XML]
+ALLOWED_TRACKER_VIEW_TYPE = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML,
+                             ViewArg.XML]
 AFFECTED_TASKS_HTML = "<h1>Affected tasks:</h1>"
 CANNOT_DUMP = "User not authorized to dump data/regenerate summary tables."
 CANNOT_REPORT = "User not authorized to run reports."
@@ -388,7 +398,7 @@ def login_view(req: CamcopsRequest) -> Response:
 
     form = LoginForm(request=req, autocomplete_password=autocomplete_password)
 
-    if SUBMIT in req.POST:
+    if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
             # log.critical("controls from POST: {!r}", controls)
@@ -444,7 +454,7 @@ def login_view(req: CamcopsRequest) -> Response:
     else:
         redirect_url = req.get_str_param(ViewParam.REDIRECT_URL, "")
         # ... use default of "", because None gets serialized to "None", which
-        #     gets read back as "None".
+        #     would then get read back later as "None".
         appstruct = {ViewParam.REDIRECT_URL: redirect_url}
         # log.critical("appstruct from GET/POST: {!r}", appstruct)
         rendered_form = form.render(appstruct)
@@ -469,8 +479,7 @@ def login_failed(req: CamcopsRequest) -> Response:
     )
 
 
-def account_locked(req: CamcopsRequest,
-                   locked_until: datetime.datetime) -> Response:
+def account_locked(req: CamcopsRequest, locked_until: Pendulum) -> Response:
     """
     HTML given when account locked out.
     Returned by login_view() only.
@@ -502,7 +511,7 @@ def offer_terms(req: CamcopsRequest) -> Dict[str, Any]:
         request=req,
         agree_button_text=req.wappstring("disclaimer_agree"))
 
-    if SUBMIT in req.POST:
+    if FormAction.SUBMIT in req.POST:
         req.camcops_session.agree_terms(req)
         raise exc.HTTPFound(req.route_url(Routes.HOME))  # redirect
 
@@ -546,7 +555,7 @@ def change_own_password(req: CamcopsRequest) -> Response:
     user = req.user
     assert user is not None
     extra_msg = ""
-    if SUBMIT in req.POST:
+    if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
@@ -576,7 +585,7 @@ def change_other_password(req: CamcopsRequest) -> Response:
     """For administrators, to change another's password."""
     form = ChangeOtherPasswordForm(request=req)
     username = None  # for type checker
-    if SUBMIT in req.POST:
+    if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
@@ -643,7 +652,7 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
         camcops_url=CAMCOPS_URL,
         id_policies_valid=id_policies_valid(),
         introspection=cfg.INTROSPECTION,
-        now=format_datetime(req.now_arrow,
+        now=format_datetime(req.now,
                             DateFormat.SHORT_DATETIME_SECONDS),
         server_version=CAMCOPS_SERVER_VERSION,
     )
@@ -653,43 +662,129 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
 # Tasks
 # =============================================================================
 
+@view_config(route_name=Routes.SET_FILTERS, renderer="set_filters.mako")
+def set_filters(req: CamcopsRequest) -> Dict[str, Any]:
+    redirect_url = req.get_str_param(ViewParam.REDIRECT_URL,
+                                     req.route_url(Routes.VIEW_TASKS))
+    ccsession = req.camcops_session
+    form = TaskFiltersForm(request=req)
+
+    if FormAction.SET_FILTERS in req.POST:
+        try:
+            controls = list(req.POST.items())
+            fa = form.validate(controls)
+            ccsession.filter_surname = fa.get(ViewParam.SURNAME) or None
+            ccsession.filter_forename = fa.get(ViewParam.FORENAME) or None
+            ccsession.filter_dob = fa.get(ViewParam.DOB)
+            ccsession.filter_sex = fa.get(ViewParam.SEX) or None
+            which_idnum = fa.get(ViewParam.WHICH_IDNUM)
+            idnum_value = fa.get(ViewParam.IDNUM_VALUE)
+            ccsession.filter_idnums = [IdNumDefinition(which_idnum,
+                                                       idnum_value)]
+            ccsession.filter_task = fa.get(ViewParam.TABLENAME) or None
+            ccsession.filter_complete = fa.get(ViewParam.ONLY_COMPLETE)
+            ccsession.filter_user_id = fa.get(ViewParam.USER_ID)
+            ccsession.filter_start_datetime = fa.get(ViewParam.START_DATETIME)
+            ccsession.filter_end_datetime = fa.get(ViewParam.END_DATETIME)
+            ccsession.filter_text = fa.get(ViewParam.TEXT_CONTENTS) or None
+            raise exc.HTTPFound(redirect_url)
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        if FormAction.CLEAR_FILTERS in req.POST:
+            # skip validation
+            ccsession.clear_filters()
+
+        if ccsession.filter_idnums:
+            iddef = ccsession.filter_idnums[0]  # type: IdNumDefinition
+            which_idnum = iddef.which_idnum
+            idnum_value = iddef.idnum_value
+        else:
+            which_idnum = None
+            idnum_value = None
+        fa = {
+            ViewParam.SURNAME: ccsession.filter_surname or "",
+            ViewParam.FORENAME: ccsession.filter_forename or "",
+            ViewParam.DOB: ccsession.filter_dob,
+            ViewParam.SEX: ccsession.filter_sex or "",
+            ViewParam.WHICH_IDNUM: which_idnum,
+            ViewParam.IDNUM_VALUE: idnum_value,
+            ViewParam.TABLENAME: ccsession.filter_task or "",
+            ViewParam.ONLY_COMPLETE: ccsession.filter_complete,
+            ViewParam.USER_ID: ccsession.filter_user_id,
+            ViewParam.START_DATETIME: ccsession.filter_start_datetime,
+            ViewParam.END_DATETIME: ccsession.filter_end_datetime,
+            ViewParam.TEXT_CONTENTS: ccsession.filter_text or "",
+        }
+        rendered_form = form.render(fa)
+
+    return dict(
+        head_form_html=get_head_form_html(req, [form]),
+        form=rendered_form,
+    )
+
+
 @view_config(route_name=Routes.VIEW_TASKS, renderer="view_tasks.mako")
 def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
     """HTML displaying tasks and applicable filters."""
     ccsession = req.camcops_session
 
-    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
-                                      DEFAULT_ROWS_PER_PAGE)
+    # Read from the GET parameters (or in some cases potentially POST but those
+    # will be re-read).
+    rows_per_page = req.get_int_param(
+        ViewParam.ROWS_PER_PAGE,
+        ccsession.number_to_view or DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
 
+    errors = False
+
+    # "Number of tasks per page" form
+    tpp_form = TasksPerPageForm(request=req, css_class="form-inline")
+    if FormAction.SUBMIT_TASKS_PER_PAGE in req.POST:
+        try:
+            controls = list(req.POST.items())
+            tpp_appstruct = tpp_form.validate(controls)
+            rows_per_page = tpp_appstruct.get(ViewParam.ROWS_PER_PAGE)
+            ccsession.number_to_view = rows_per_page
+        except ValidationFailure:
+            errors = True
+        rendered_tpp_form = tpp_form.render()
+    else:
+        tpp_appstruct = {ViewParam.ROWS_PER_PAGE: rows_per_page}
+        rendered_tpp_form = tpp_form.render(tpp_appstruct)
+
+    # Refresh tasks. Slightly pointless. Doesn't need validating. The user
+    # could just press the browser's refresh button, but this improves the UI
+    # slightly.
+    refresh_form = RefreshTasksForm(request=req)
+    rendered_refresh_form = refresh_form.render()
+
+    # Get tasks, unless there have been form errors.
     # In principle, for some filter settings (single task, no "complete"
     # preference...) we could produce an ORM query and use SqlalchemyOrmPage,
     # which would apply LIMIT/OFFSET (or equivalent) to the query, and be
     # very nippy. In practice, this is probably an unusual setting, so we'll
     # simplify things here with a Python list regardless of the settings.
-
-    collection = TaskCollection(req, restrict_by_session_filter=True)
-    page = CamcopsPage(collection=collection.all_tasks,
+    if errors:
+        collection = []
+    else:
+        taskfilter = TaskFilter(ccsession=ccsession)
+        collection = TaskCollection(
+            req=req,
+            taskfilter=taskfilter,
+            sort_method_global=TaskSortMethod.CREATION_DATE_DESC
+        ).all_tasks
+    page = CamcopsPage(collection=collection,
                        page=page_num,
                        items_per_page=rows_per_page,
                        url_maker=PageUrl(req))
 
-    # refresh_tasks_button = """
-    #     <form class="filter" method="POST" action="{script}">
-    #         <input type="hidden" name="{PARAM.ACTION}"
-    #             value="{ACTION.VIEW_TASKS}">
-    #         <input type="submit" value="Refresh">
-    #     </form>
-    # """.format(
-    #     script=pls.SCRIPT_NAME,
-    #     PARAM=PARAM,
-    #     ACTION=ACTION,
-    # )
-    # http://stackoverflow.com/questions/2906582/how-to-create-an-html-button-that-acts-like-a-link  # noqa
-
     return dict(
         page=page,
-        head_form_html="", # ***
+        head_form_html=get_head_form_html(req, [tpp_form,
+                                                refresh_form]),
+        tpp_form=rendered_tpp_form,
+        refresh_form=rendered_refresh_form,
         no_patient_selected_and_user_restricted=(
             not ccsession.user_may_view_all_patients_when_unfiltered() and
             not ccsession.any_specific_patient_filtering()
@@ -761,12 +856,12 @@ def serve_task(req: CamcopsRequest) -> Response:
         )
     elif viewtype == ViewArg.PDF:
         return PdfResponse(
-            content=task.get_pdf(req),
-            filename=task.suggested_pdf_filename()
+            content=task.get_pdf(req, anonymise=anonymise),
+            filename=task.suggested_pdf_filename(req)
         )
     elif viewtype == VALUE.OUTPUTTYPE_PDFHTML:  # debugging option
         return Response(
-            task.get_pdf_html(req)
+            task.get_pdf_html(req, anonymise=anonymise)
         )
     elif viewtype == VALUE.OUTPUTTYPE_XML:
         include_blobs = req.get_bool_param(ViewParam.INCLUDE_BLOBS, True)
@@ -789,311 +884,121 @@ def serve_task(req: CamcopsRequest) -> Response:
 # Trackers, CTVs
 # =============================================================================
 
-# noinspection PyUnusedLocal
-def choose_tracker(session: CamcopsSession, form: cgi.FieldStorage) -> str:
+def choose_tracker_or_ctv(req: CamcopsRequest) -> Dict[str, Any]:
     """HTML form for tracker selection."""
 
-    if session.restricted_to_viewing_user():
-        warning_restricted = RESTRICTED_WARNING
+    form = ChooseTrackerForm(req, css_class="form-inline")
+
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            keys = [
+                ViewParam.WHICH_IDNUM,
+                ViewParam.IDNUM_VALUE,
+                ViewParam.START_DATETIME,
+                ViewParam.END_DATETIME,
+                ViewParam.TASKS,
+                ViewParam.ALL_TASKS,
+                ViewParam.VIEWTYPE,
+            ]
+            querydict = {k: appstruct.get(k) for k in keys}
+            # Not so obvious this can be redirected cleanly via POST.
+            # It is possible by returning a form that then autosubmits: see
+            # https://stackoverflow.com/questions/46582/response-redirect-with-post-instead-of-get  # noqa
+            # However, since everything's on this server, we could just return
+            # an appropriate Response directly. But the information is not
+            # sensitive, so we lose nothing by using a GET redirect:
+            raise exc.HTTPFound(req.route_url(Routes.TRACKER,
+                                              _query=querydict))
+        except ValidationFailure as e:
+            rendered_form = e.render()
     else:
-        warning_restricted = ""
-    html = pls.WEBSTART + """
-        {userdetails}
-        <h1>Choose tracker</h1>
-        {warning}
-        <div class="filter">
-            <form method="GET" action="{script}">
-                <input type="hidden" name="{PARAM.ACTION}"
-                    value="{ACTION.TRACKER}">
-                ID number: {which_idnum_picker}
-                <input type="number" name="{PARAM.IDNUM_VALUE}"><br>
+        rendered_form = form.render()
+    return dict(form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
 
-                Start date (UTC):
-                <input type="date" name="{PARAM.START_DATETIME}">
-                <br>
 
-                End date (UTC):
-                <input type="date" name="{PARAM.END_DATETIME}"><br>
+@view_config(route_name=Routes.CHOOSE_TRACKER, renderer="choose_tracker.mako")
+def choose_tracker(req: CamcopsRequest) -> Dict[str, Any]:
+    return choose_tracker_or_ctv(req)
 
-                <br>
-                Task types:<br>
-    """.format(
-        userdetails=session.get_current_user_html(),
-        warning=warning_restricted,
-        script=pls.SCRIPT_NAME,
-        ACTION=ACTION,
-        which_idnum_picker=get_html_which_idnum_picker(PARAM.WHICH_IDNUM),
-        PARAM=PARAM,
+
+@view_config(route_name=Routes.CHOOSE_CTV, renderer="choose_ctv.mako")
+def choose_ctv(req: CamcopsRequest) -> Dict[str, Any]:
+    return choose_tracker_or_ctv(req)
+
+
+def serve_tracker_or_ctv(req: CamcopsRequest,
+                         as_ctv: bool) -> Response:
+    which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
+    idnum_value = req.get_int_param(ViewParam.IDNUM_VALUE)
+    start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
+    end_datetime = req.get_datetime_param(ViewParam.END_DATETIME)
+    tasks = req.get_str_list_param(ViewParam.TASKS)
+    all_tasks = req.get_bool_param(ViewParam.ALL_TASKS, True)
+    viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML)
+
+    if all_tasks:
+        task_classes = None
+    else:
+        try:
+            task_classes = task_classes_from_table_names(
+                tasks, sortmethod=TaskClassSortMethod.SHORTNAME)
+        except KeyError:
+            raise exc.HTTPBadRequest("Invalid tasks specified")
+        if not all(c.provides_trackers for c in task_classes):
+            raise exc.HTTPBadRequest("Not all tasks specified provide trackers")
+
+    if not viewtype in ALLOWED_TRACKER_VIEW_TYPE:
+        raise exc.HTTPBadRequest("Invalid view type")
+
+    iddefs = [IdNumDefinition(which_idnum, idnum_value)]
+
+    as_tracker = not as_ctv
+    taskfilter = TaskFilter(
+        task_classes=task_classes,
+        trackers_only=as_tracker,
+        iddefs=iddefs,
+        start_datetime=start_datetime,
+        end_datetime=end_datetime,
+        complete_only=as_tracker,  # trackers require complete tasks
+        has_patient=True,
+        sort_method=TaskClassSortMethod.SHORTNAME,
     )
-    classes = get_all_task_classes()
-    for cls in classes:
-        if cls.provides_trackers:
-            html += """
-                <label>
-                    <input type="checkbox" name="{PARAM.TASKTYPES}"
-                            value="{tablename}" checked>
-                    {shortname}
-                </label><br>
-            """.format(
-                PARAM=PARAM,
-                tablename=cls.tablename,
-                shortname=cls.shortname,
-            )
-    html += """
-                <!-- buttons must have type "button" in order not to submit -->
-                <button type="button" onclick="select_all(true);">
-                    Select all
-                </button>
-                <button type="button" onclick="select_all(false);">
-                    Deselect all
-                </button>
-                <br>
-                <br>
-                View tracker as:<br>
-                <label>
-                    <input type="radio" name="{PARAM.OUTPUTTYPE}"
-                            value="{VALUE.OUTPUTTYPE_HTML}" checked>
-                    HTML (for viewing online)
-                </label><br>
-                <label>
-                    <input type="radio" name="{PARAM.OUTPUTTYPE}"
-                            value="{VALUE.OUTPUTTYPE_PDF}">
-                    PDF (for printing/saving)
-                </label><br>
-                <label>
-                    <input type="radio" name="{PARAM.OUTPUTTYPE}"
-                            value="{VALUE.OUTPUTTYPE_XML}">
-                    XML (to inspect underlying raw data)
-                </label><br>
-                <br>
+    tracker_ctv_class = ClinicalTextView if as_ctv else Tracker
+    tracker = tracker_ctv_class(req=req, taskfilter=taskfilter)
 
-                <input type="hidden" name="{PARAM.INCLUDE_COMMENTS}" value="0">
-
-                <input type="submit" value="View tracker">
-                <script>
-            function select_all(state) {{
-                checkboxes = document.getElementsByName("{PARAM.TASKTYPES}");
-                for (var i = 0, n = checkboxes.length; i < n; i++) {{
-                    checkboxes[i].checked = state;
-                }}
-            }}
-                </script>
-            </form>
-        </div>
-    """.format(
-        PARAM=PARAM,
-        VALUE=VALUE,
-    )
-    # NB double the braces to escape them for Javascript
-    return html + WEBEND
-
-
-def serve_tracker(session: CamcopsSession, form: cgi.FieldStorage) \
-        -> Union[str, WSGI_TUPLE_TYPE]:
-    """Serve up a tracker."""
-
-    outputtype = ws.get_cgi_parameter_str(form, PARAM.OUTPUTTYPE)
-    if outputtype is not None:
-        outputtype = outputtype.lower()
-    allowed_types = [VALUE.OUTPUTTYPE_PDF,
-                     VALUE.OUTPUTTYPE_HTML,
-                     VALUE.OUTPUTTYPE_XML]
-    if outputtype not in allowed_types:
-        return fail_with_error_stay_logged_in(
-            "Tracker: outputtype must be one of {}".format(
-                str(allowed_types)
-            )
+    if viewtype == ViewArg.HTML:
+        return Response(
+            tracker.get_html()
         )
-    tracker = get_tracker(session, form)
-    if outputtype == VALUE.OUTPUTTYPE_PDF:
-        # ... NB: may restrict its source information based on
-        # restricted_to_viewing_user
-        filename = tracker.suggested_pdf_filename()
-        return ws.pdf_result(tracker.get_pdf(), [], filename)
-    elif outputtype == VALUE.OUTPUTTYPE_HTML:
-        return tracker.get_html()
-    elif outputtype == VALUE.OUTPUTTYPE_XML:
-        include_comments = ws.get_cgi_parameter_bool_or_default(
-            form, PARAM.INCLUDE_COMMENTS, default=False)
-        return ws.xml_result(tracker.get_xml(
-            include_comments=include_comments))
-    else:
-        raise AssertionError("ACTION.TRACKER: Invalid outputtype")
-
-
-# noinspection PyUnusedLocal
-def choose_clinicaltextview(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """HTML form for CTV selection."""
-
-    if session.restricted_to_viewing_user():
-        warning_restricted = RESTRICTED_WARNING
-    else:
-        warning_restricted = ""
-    html = pls.WEBSTART + """
-        {userdetails}
-        <h1>Choose clinical text view</h1>
-        {warning}
-        <div class="filter">
-            <form method="GET" action="{script}">
-                <input type="hidden" name="{PARAM.ACTION}"
-                    value="{ACTION.CLINICALTEXTVIEW}">
-
-                ID number: {which_idnum_picker}
-                <input type="number" name="{PARAM.IDNUM_VALUE}"><br>
-
-                Start date (UTC):
-                <input type="date" name="{PARAM.START_DATETIME}"><br>
-
-                End date (UTC):
-                <input type="date" name="{PARAM.END_DATETIME}"><br>
-
-                <br>
-                View as:<br>
-                <label>
-                    <input type="radio" name="{PARAM.OUTPUTTYPE}"
-                            value="{VALUE.OUTPUTTYPE_HTML}" checked>
-                    HTML (for viewing online)
-                </label>
-                <br>
-                <label>
-                    <input type="radio" name="{PARAM.OUTPUTTYPE}"
-                            value="{VALUE.OUTPUTTYPE_PDF}">
-                    PDF (for printing/saving)
-                </label>
-                <br>
-                <label>
-                    <input type="radio" name="{PARAM.OUTPUTTYPE}"
-                            value="{VALUE.OUTPUTTYPE_XML}">
-                    XML (to inspect underlying raw data)
-                </label><br>
-                <br>
-
-                <input type="hidden" name="{PARAM.INCLUDE_COMMENTS}" value="0">
-
-                <input type="submit" value="View clinical text">
-            </form>
-        </div>
-    """.format(
-        userdetails=session.get_current_user_html(),
-        warning=warning_restricted,
-        script=pls.SCRIPT_NAME,
-        which_idnum_picker=get_html_which_idnum_picker(PARAM.WHICH_IDNUM),
-        PARAM=PARAM,
-        VALUE=VALUE,
-        ACTION=ACTION,
-    )
-    return html + WEBEND
-
-
-def serve_clinicaltextview(session: CamcopsSession, form: cgi.FieldStorage) \
-        -> Union[str, WSGI_TUPLE_TYPE]:
-    """Returns a CTV."""
-
-    outputtype = ws.get_cgi_parameter_str(form, PARAM.OUTPUTTYPE)
-    if outputtype is not None:
-        outputtype = outputtype.lower()
-    allowed_types = [VALUE.OUTPUTTYPE_PDF,
-                     VALUE.OUTPUTTYPE_HTML,
-                     VALUE.OUTPUTTYPE_XML]
-    if outputtype not in allowed_types:
-        return fail_with_error_stay_logged_in(
-            "Clinical text view: outputtype must be one of {}".format(
-                str(allowed_types)
-            )
+    elif viewtype == ViewArg.PDF:
+        return PdfResponse(
+            content=tracker.get_pdf(),
+            filename=tracker.suggested_pdf_filename()
         )
-    clinicaltextview = get_clinicaltextview(session, form)
-    # ... NB: may restrict its source information based on
-    # restricted_to_viewing_user
-    if outputtype == VALUE.OUTPUTTYPE_PDF:
-        filename = clinicaltextview.suggested_pdf_filename()
-        return ws.pdf_result(clinicaltextview.get_pdf(), [], filename)
-    elif outputtype == VALUE.OUTPUTTYPE_HTML:
-        return clinicaltextview.get_html()
-    elif outputtype == VALUE.OUTPUTTYPE_XML:
-        include_comments = ws.get_cgi_parameter_bool_or_default(
-            form, PARAM.INCLUDE_COMMENTS, default=False)
-        return ws.xml_result(clinicaltextview.get_xml(
-            include_comments=include_comments))
+    elif viewtype == VALUE.OUTPUTTYPE_PDFHTML:  # debugging option
+        return Response(
+            tracker.get_pdf_html()
+        )
+    elif viewtype == VALUE.OUTPUTTYPE_XML:
+        include_comments = req.get_bool_param(ViewParam.INCLUDE_COMMENTS, True)
+        return XmlResponse(
+            tracker.get_xml(include_comments=include_comments)
+        )
     else:
-        raise AssertionError("ACTION.CLINICALTEXTVIEW: Invalid outputtype")
+        assert False, "Bug in logic above"
 
 
-def change_task_filters(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Apply/clear filter parameters, then redisplay task list."""
+@view_config(route_name=Routes.TRACKER)
+def serve_tracker(req: CamcopsRequest) -> Response:
+    return serve_tracker_or_ctv(req, as_ctv=False)
 
-    if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTERS):
-        session.apply_filters(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTERS):
-        session.clear_filters()
 
-    # if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTER_SURNAME):
-    #    session.apply_filter_surname(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTER_SURNAME):
-        session.clear_filter_surname()
-
-    # if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTER_FORENAME):
-    #    session.apply_filter_forename(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTER_FORENAME):
-        session.clear_filter_forename()
-
-    # if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTER_DOB):
-    #    session.apply_filter_dob(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTER_DOB):
-        session.clear_filter_dob()
-
-    # if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTER_SEX):
-    #    session.apply_filter_sex(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTER_SEX):
-        session.clear_filter_sex()
-
-    # if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTER_IDNUMS):
-    #    session.apply_filter_idnums(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTER_IDNUMS):
-        session.clear_filter_idnums()
-
-    # if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTER_TASK):
-    #    session.apply_filter_task(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTER_TASK):
-        session.clear_filter_task()
-
-    # if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTER_COMPLETE):
-    #    session.apply_filter_complete(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTER_COMPLETE):
-        session.clear_filter_complete()
-
-    # if ws.cgi_parameter_exists(form,
-    #                            ACTION.APPLY_FILTER_INCLUDE_OLD_VERSIONS):
-    #    session.apply_filter_include_old_versions(form)
-    if ws.cgi_parameter_exists(form,
-                               ACTION.CLEAR_FILTER_INCLUDE_OLD_VERSIONS):
-        session.clear_filter_include_old_versions()
-
-    # if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTER_DEVICE):
-    #    session.apply_filter_device(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTER_DEVICE):
-        session.clear_filter_device()
-
-    # if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTER_USER):
-    #    session.apply_filter_user(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTER_USER):
-        session.clear_filter_user()
-
-    # if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTER_START_DATETIME):
-    #    session.apply_filter_start_datetime(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTER_START_DATETIME):
-        session.clear_filter_start_datetime()
-
-    # if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTER_END_DATETIME):
-    #    session.apply_filter_end_datetime(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTER_END_DATETIME):
-        session.clear_filter_end_datetime()
-
-    # if ws.cgi_parameter_exists(form, ACTION.APPLY_FILTER_TEXT):
-    #    session.apply_filter_text(form)
-    if ws.cgi_parameter_exists(form, ACTION.CLEAR_FILTER_TEXT):
-        session.clear_filter_text()
-
-    return view_tasks(session, form)
+@view_config(route_name=Routes.CTV)
+def serve_ctv(req: CamcopsRequest) -> Response:
+    return serve_tracker_or_ctv(req, as_ctv=True)
 
 
 # =============================================================================
@@ -1554,7 +1459,7 @@ def inspect_table_defs(session: CamcopsSession, form: cgi.FieldStorage) -> str:
              permission=Permission.SUPERUSER)
 def offer_audit_trail(req: CamcopsRequest) -> Response:
     form = AuditTrailForm(request=req)
-    if SUBMIT in req.POST:
+    if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
@@ -1660,7 +1565,7 @@ def view_audit_trail(req: CamcopsRequest) -> Response:
              permission=Permission.SUPERUSER)
 def offer_hl7_message_log(req: CamcopsRequest) -> Response:
     form = HL7MessageLogForm(request=req)
-    if SUBMIT in req.POST:
+    if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
@@ -1760,7 +1665,7 @@ def view_hl7_message(req: CamcopsRequest) -> Response:
              permission=Permission.SUPERUSER)
 def offer_hl7_run_log(req: CamcopsRequest) -> Response:
     form = HL7RunLogForm(request=req)
-    if SUBMIT in req.POST:
+    if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
@@ -2266,7 +2171,7 @@ def edit_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
                     str(oldvalue))
         else:
             warning = ""
-            dob_for_html = format_datetime_string(
+            dob_for_html = format_datetime(
                 patient.dob, DateFormat.ISO8601_DATE_ONLY, default="")
             details = """
                 Forename: <input type="text" name="{PARAM.FORENAME}"
@@ -2584,14 +2489,6 @@ def get_tracker(session: CamcopsSession, form: cgi.FieldStorage) -> Tracker:
     idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
     start_datetime = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
     end_datetime = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
-    return Tracker(
-        session,
-        task_tablename_list,
-        which_idnum,
-        idnum_value,
-        start_datetime,
-        end_datetime
-    )
 
 
 def get_clinicaltextview(session: CamcopsSession,
@@ -2666,24 +2563,6 @@ def get_url_introspect(filename: str) -> str:
 # All functions take parameters (session, form)
 # -------------------------------------------------------------------------
 ACTIONDICT = {
-    # Tasks, trackers, CTVs
-    ACTION.TASK: serve_task,
-    ACTION.TRACKER: serve_tracker,
-    ACTION.CLINICALTEXTVIEW: serve_clinicaltextview,
-
-    # Task list view: filters, pagination
-    ACTION.VIEW_TASKS: view_tasks,
-    ACTION.FILTER: change_task_filters,
-    ACTION.CHANGE_NUMBER_TO_VIEW: change_number_to_view,
-    ACTION.FIRST_PAGE: first_page,
-    ACTION.PREVIOUS_PAGE: previous_page,
-    ACTION.NEXT_PAGE: next_page,
-    ACTION.LAST_PAGE: last_page,
-
-    # Choosing trackers, CTVs
-    ACTION.CHOOSE_TRACKER: choose_tracker,
-    ACTION.CHOOSE_CLINICALTEXTVIEW: choose_clinicaltextview,
-
     # Reports
     ACTION.REPORTS_MENU: reports_menu,
     ACTION.OFFER_REPORT: offer_report,

@@ -31,7 +31,7 @@ from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 
 from ..cc_modules.cc_constants import DateFormat, ICD10_COPYRIGHT_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_dt import format_datetime_string
+from ..cc_modules.cc_dt import format_datetime
 from ..cc_modules.cc_html import (
     get_true_false_none,
     heading_spanning_two_columns,
@@ -42,7 +42,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
@@ -285,7 +285,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     )
 
     date_pertains_to = Column(
-        "date_pertains_to", ArrowDateTimeAsIsoTextColType,
+        "date_pertains_to", PendulumDateTimeAsIsoTextColType,
         comment="Date the assessment pertains to"
     )
     comments = Column(
@@ -326,8 +326,8 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             content=(
                 "Pertains to: {}. General criteria for "
                 "schizophrenia: {}.".format(
-                    format_datetime_string(self.date_pertains_to,
-                                           DateFormat.LONG_DATE),
+                    format_datetime(self.date_pertains_to,
+                                    DateFormat.LONG_DATE),
                     category
                 )
             )
@@ -394,11 +394,11 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def row_true_false(self, req: CamcopsRequest, fieldname: str) -> str:
         return self.get_twocol_bool_row_true_false(
-            fieldname, self.wxstring(req, fieldname))
+            req, fieldname, self.wxstring(req, fieldname))
 
     def row_present_absent(self, req: CamcopsRequest, fieldname: str) -> str:
         return self.get_twocol_bool_row_present_absent(
-            fieldname, self.wxstring(req, fieldname))
+            req, fieldname, self.wxstring(req, fieldname))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """
@@ -406,8 +406,8 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                 <table class="summary">
         """ + self.get_is_complete_tr(req)
         h += tr_qa(req.wappstring("date_pertains_to"),
-                   format_datetime_string(self.date_pertains_to,
-                                          DateFormat.LONG_DATE, default=None))
+                   format_datetime(self.date_pertains_to,
+                                   DateFormat.LONG_DATE, default=None))
         h += tr_qa(
             self.wxstring(req, "meets_general_criteria") + " <sup>[1]</sup>",
             get_true_false_none(req, self.meets_general_criteria()))

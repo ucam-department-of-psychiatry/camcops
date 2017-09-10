@@ -25,11 +25,9 @@
 from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime, Integer, UnicodeText
 
-from .cc_dt import get_now_utc_notz
 from .cc_sqla_coltypes import (
     AuditSourceColType,
     IPAddressColType,
@@ -115,20 +113,16 @@ def audit(req: "CamcopsRequest",
     if not remote_addr:
         remote_addr = req.remote_addr if req else None
     if not user_id:
-        if req:
-            ccsession = req.camcops_session
-            if ccsession.user_id is not None:
-                user_id = ccsession.user_id
+        ccsession = req.camcops_session
+        if ccsession.user_id is not None:
+            user_id = ccsession.user_id
     if from_console:
         source = "console"
     elif from_dbclient:
         source = "tablet"
     else:
         source = "webviewer"
-    if req:
-        now = req.now_utc_datetime
-    else:
-        now = get_now_utc_notz()
+    now = req.now_utc
     entry = AuditEntry(
         when_access_utc=now,
         source=source,

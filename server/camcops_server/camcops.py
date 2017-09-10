@@ -45,6 +45,7 @@ import codecs  # nopep8
 import os  # nopep8
 import sys  # nopep8
 
+# import deform_bootstrap
 from pyramid.config import Configurator  # nopep8
 from pyramid.router import Router  # nopep8
 from wsgiref.simple_server import make_server  # nopep8
@@ -70,6 +71,7 @@ from .cc_modules.cc_constants import (
     SEPARATOR_EQUALS,
 )  # nopep8
 from .cc_modules.cc_blob import ccblob_unit_tests  # nopep8
+from .cc_modules.cc_db import hack_pendulum_into_pymysql
 from .cc_modules.cc_device import ccdevice_unit_tests  # nopep8
 from .cc_modules.cc_dump import ccdump_unit_tests  # nopep8
 from .cc_modules.cc_hl7 import send_all_pending_hl7_messages  # nopep8
@@ -99,7 +101,7 @@ from .cc_modules.cc_task import (
 )  # nopep8
 from .cc_modules.cc_tracker import cctracker_unit_tests  # imports matplotlib; SLOW  # nopep8
 from .cc_modules.cc_user import ccuser_unit_tests  # nopep8
-from .cc_modules.cc_user import set_password_directly  # nopep8
+from .cc_modules.cc_user import set_password_directly, User  # nopep8
 from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
 from camcops_server.cc_modules.database import database_unit_tests  # nopep8
 from camcops_server.cc_modules.webview import (
@@ -110,6 +112,8 @@ from camcops_server.cc_modules.webview import (
 )  # nopep8
 
 log.debug("All imports complete")
+
+hack_pendulum_into_pymysql()
 
 # =============================================================================
 # Debugging options
@@ -233,6 +237,8 @@ def make_wsgi_app() -> Router:
         # ... for request.session
 
         camcops_add_mako_renderer(config, extension='.mako')
+
+        # deform_bootstrap.includeme(config)
 
         # ---------------------------------------------------------------------
         # Routes and accompanying views
@@ -376,11 +382,11 @@ def generate_anonymisation_staging_db() -> None:
     print("Draft data dictionary written to {}".format(ddfilename))
 
 
-def make_superuser() -> None:
+def make_superuser(req: CamcopsRequest) -> None:
     """Make a superuser from the command line."""
     print("MAKE SUPERUSER")
     username = ask_user("New superuser")
-    if user_exists(username):
+    if User.user_exists(req, username):
         print("... user already exists!")
         return
     password1 = ask_user_password("New superuser password")
@@ -388,15 +394,15 @@ def make_superuser() -> None:
     if password1 != password2:
         print("... passwords don't match; try again")
         return
-    result = create_superuser(username, password1)
+    result = User.create_superuser(req, username, password1)
     print("Success: " + str(result))
 
 
-def reset_password() -> None:
+def reset_password(req: CamcopsRequest) -> None:
     """Reset a password from the command line."""
     print("RESET PASSWORD")
     username = ask_user("Username")
-    if not user_exists(username):
+    if not User.user_exists(req, username):
         print("... user doesn't exist!")
         return
     password1 = ask_user_password("New password")
@@ -404,19 +410,18 @@ def reset_password() -> None:
     if password1 != password2:
         print("... passwords don't match; try again")
         return
-    req = command_line_request()
     result = set_password_directly(req, username, password1)
     print("Success: " + str(result))
 
 
-def enable_user_cli() -> None:
+def enable_user_cli(req: CamcopsRequest) -> None:
     """Re-enable a locked user account from the command line."""
     print("ENABLE LOCKED USER ACCOUNT")
     username = ask_user("Username")
-    if not user_exists(username):
+    if not User.user_exists(req, username):
         print("... user doesn't exist!")
         return
-    enable_user(username)
+    User.enable_user(username)
     print("Enabled.")
 
 
@@ -619,11 +624,11 @@ def cli_main() -> None:
         n_actions += 1
 
     if args.superuser:
-        make_superuser()
+        make_superuser(req)
         n_actions += 1
 
     if args.password:
-        reset_password()
+        reset_password(req)
         n_actions += 1
 
     if args.descriptions:
@@ -631,7 +636,7 @@ def cli_main() -> None:
         n_actions += 1
 
     if args.enableuser:
-        enable_user_cli()
+        enable_user_cli(req)
         n_actions += 1
 
     if args.hl7:
@@ -647,7 +652,7 @@ def cli_main() -> None:
         n_actions += 1
 
     if args.test:
-        test()
+        test(req)
         n_actions += 1
 
     if args.dbunittest:

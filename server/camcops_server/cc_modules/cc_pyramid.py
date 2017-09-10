@@ -28,7 +28,7 @@ import os
 import pprint
 import re
 import sys
-from typing import (Any, Callable, Dict, List, Optional, Tuple, Type,
+from typing import (Any, Callable, Dict, List, Optional, Sequence, Tuple,
                     TYPE_CHECKING)
 from urllib.parse import urlencode
 
@@ -89,7 +89,6 @@ if (DEBUG_EFFECTIVE_PRINCIPALS or DEBUG_TEMPLATE_PARAMETERS or
 # =============================================================================
 
 COOKIE_NAME = 'camcops'
-SUBMIT = 'submit'
 
 
 class CookieKey:
@@ -100,6 +99,14 @@ class CookieKey:
 class HttpMethod:
     GET = "GET"
     POST = "POST"
+
+
+class FormAction(object):
+    CLEAR_FILTERS = 'clear_filters'
+    SET_FILTERS = 'set_filters'
+    SUBMIT = 'submit'
+    SUBMIT_TASKS_PER_PAGE = 'submit_tpp'
+    REFRESH_TASKS = 'refresh_tasks'
 
 
 class ViewParam(object):
@@ -117,11 +124,15 @@ class ViewParam(object):
     # PATIENT_ID = "pid"
     # QUERY = "_query"  # built in to Pyramid
     # AGREE = "agree"
+    ALL_TASKS = "all_tasks"
     ANONYMISE = "anonymise"
+    DOB = "dob"
     END_DATETIME = "end_datetime"
     FILENAME = "filename"
+    FORENAME = "forename"
     HL7_MSG_ID = "hl7_msg_id"
     HL7_RUN_ID = "hl7_run_id"
+    IDNUM_VALUE = "idnum_value"
     INCLUDE_BLOBS = "include_blobs"
     INCLUDE_CALCULATED = "include_calculated"
     INCLUDE_COMMENTS = "include_comments"
@@ -129,19 +140,25 @@ class ViewParam(object):
     MUST_CHANGE_PASSWORD = "must_change_password"
     NEW_PASSWORD = "new_password"
     OLD_PASSWORD = "old_password"
+    ONLY_COMPLETE = "only_complete"
     PAGE = "page"
     PASSWORD = "password"
     REDIRECT_URL = "redirect_url"
     REMOTE_IP_ADDR = "remote_ip_addr"
     ROWS_PER_PAGE = "rows_per_page"
     SERVER_PK = "server_pk"
+    SEX = "sex"
     SOURCE = "source"
     START_DATETIME = "start_datetime"
+    SURNAME = "surname"
     TABLENAME = "table_name"
+    TASKS = "tasks"
+    TEXT_CONTENTS = "text_contents"
     TRUNCATE = "truncate"
     USER_ID = "user_id"
     USERNAME = "username"
     VIEWTYPE = "viewtype"
+    WHICH_IDNUM = "which_idnum"
 
 
 class ViewArg(object):
@@ -227,9 +244,12 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
         # Note that <%! ... %> Python blocks are not themselves inherited.
         # So putting "import" calls in base.mako doesn't deliver the following
         # as ever-present variable. Instead, plumb them in like this:
-        system['Routes'] = Routes
-        system['ViewArg'] = ViewArg
-        system['ViewParam'] = ViewParam
+        #
+        # system['Routes'] = Routes
+        # system['ViewArg'] = ViewArg
+        # system['ViewParam'] = ViewParam
+        #
+        # ... except that we're better off with an import in the template
 
         # Update the system dictionary with the values from the user
         try:
@@ -359,16 +379,18 @@ class Routes(object):
     ADD_SPECIAL_NOTE = "add_special_note"
     CHANGE_OWN_PASSWORD = "change_own_password"
     CHANGE_OTHER_PASSWORD = "change_other_password"
-    CHOOSE_CLINICALTEXTVIEW = "choose_clinicaltextview"
+    CHOOSE_CTV = "choose_ctv"
     CHOOSE_TRACKER = "choose_tracker"
+    CRASH = "crash"
+    CTV = "ctv"
     DATABASE_API = "database"
     DELETE_PATIENT = "delete_patient"
     ERASE_TASK = "erase_task"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     INSPECT_TABLE_DEFS = "view_table_definitions"
-    INSPECT_TABLE_VIEW_DEFS = "view_table_and_view_definitions"
     INTROSPECT = "introspect"
+    LOGIN = "login"
     LOGOUT = "logout"
     MANAGE_USERS = "manage_users"
     OFFER_AUDIT_TRAIL = "offer_audit_trail"
@@ -379,11 +401,14 @@ class Routes(object):
     OFFER_REGENERATE_SUMMARIES = "offer_regenerate_summary_tables"
     OFFER_TABLE_DUMP = "offer_table_dump"
     OFFER_TERMS = "offer_terms"
+    REPORTS_MENU = "reports_menu"
+    SET_FILTERS = "set_filters"
     TASK = "task"
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
     TESTPAGE_PRIVATE_2 = "testpage_private_2"
     TESTPAGE_PRIVATE_3 = "testpage_private_3"
     TESTPAGE_PUBLIC_1 = "testpage_public_1"
+    TRACKER = "tracker"
     VIEW_AUDIT_TRAIL = "view_audit_trail"
     VIEW_POLICIES = "view_policies"
     VIEW_TASKS = "view_tasks"
@@ -393,60 +418,57 @@ class Routes(object):
     VIEW_HL7_RUN_LOG = "view_hl7_run_log"
 
     # To implement ***
-    ADD_USER = "add_user"
-    APPLY_FILTER_COMPLETE = "apply_filter_complete"
-    APPLY_FILTER_DEVICE = "apply_filter_device"
-    APPLY_FILTER_DOB = "apply_filter_dob"
-    APPLY_FILTER_END_DATETIME = "apply_filter_end_datetime"
-    APPLY_FILTER_FORENAME = "apply_filter_forename"
-    APPLY_FILTER_IDNUMS = "apply_filter_idnums"
-    APPLY_FILTER_INCLUDE_OLD_VERSIONS = "apply_filter_include_old_versions"
-    APPLY_FILTERS = "apply_filters"
-    APPLY_FILTER_SEX = "apply_filter_sex"
-    APPLY_FILTER_START_DATETIME = "apply_filter_start_datetime"
-    APPLY_FILTER_SURNAME = "apply_filter_surname"
-    APPLY_FILTER_TASK = "apply_filter_task"
-    APPLY_FILTER_TEXT = "apply_filter_text"
-    APPLY_FILTER_USER = "apply_filter_user"
-    ASK_DELETE_USER = "ask_delete_user"
-    ASK_TO_ADD_USER = "ask_to_add_user"
-    BASIC_DUMP = "basic_dump"
-    CHANGE_NUMBER_TO_VIEW = "change_number_to_view"
-    CHANGE_USER = "change_user"
-    CLEAR_FILTER_COMPLETE = "clear_filter_complete"
-    CLEAR_FILTER_DEVICE = "clear_filter_device"
-    CLEAR_FILTER_DOB = "clear_filter_dob"
-    CLEAR_FILTER_END_DATETIME = "clear_filter_end_datetime"
-    CLEAR_FILTER_FORENAME = "clear_filter_forename"
-    CLEAR_FILTER_IDNUMS = "clear_filter_idnums"
-    CLEAR_FILTER_INCLUDE_OLD_VERSIONS = "clear_filter_include_old_versions"
-    CLEAR_FILTERS = "clear_filters"
-    CLEAR_FILTER_SEX = "clear_filter_sex"
-    CLEAR_FILTER_START_DATETIME = "clear_filter_start_datetime"
-    CLEAR_FILTER_SURNAME = "clear_filter_surname"
-    CLEAR_FILTER_TASK = "clear_filter_task"
-    CLEAR_FILTER_TEXT = "clear_filter_text"
-    CLEAR_FILTER_USER = "clear_filter_user"
-    CLINICALTEXTVIEW = "clinicaltextview"
-    CRASH = "crash"
-    DELETE_USER = "delete_user"
-    EDIT_PATIENT = "edit_patient"
-    EDIT_USER = "edit_user"
-    ENABLE_USER = "enable_user"
-    ENTER_NEW_PASSWORD = "enter_new_password"
-    FILTER = "filter"
-    FIRST_PAGE = "first_page"
-    LAST_PAGE = "last_page"
-    LOGIN = "login"
-    MAIN_MENU = "main_menu"
-    NEXT_PAGE = "next_page"
-    OFFER_REPORT = "offer_report"
-    PREVIOUS_PAGE = "previous_page"
-    PROVIDE_REPORT = "report"
-    REGENERATE_SUMMARIES = "regenerate_summary_tables"
-    REPORTS_MENU = "reports_menu"
-    TABLE_DUMP = "table_dump"
-    TRACKER = "tracker"
+    # INSPECT_TABLE_VIEW_DEFS = "view_table_and_view_definitions"
+    # ADD_USER = "add_user"
+    # APPLY_FILTER_COMPLETE = "apply_filter_complete"
+    # APPLY_FILTER_DEVICE = "apply_filter_device"
+    # APPLY_FILTER_DOB = "apply_filter_dob"
+    # APPLY_FILTER_END_DATETIME = "apply_filter_end_datetime"
+    # APPLY_FILTER_FORENAME = "apply_filter_forename"
+    # APPLY_FILTER_IDNUMS = "apply_filter_idnums"
+    # APPLY_FILTER_INCLUDE_OLD_VERSIONS = "apply_filter_include_old_versions"
+    # APPLY_FILTERS = "apply_filters"
+    # APPLY_FILTER_SEX = "apply_filter_sex"
+    # APPLY_FILTER_START_DATETIME = "apply_filter_start_datetime"
+    # APPLY_FILTER_SURNAME = "apply_filter_surname"
+    # APPLY_FILTER_TASK = "apply_filter_task"
+    # APPLY_FILTER_TEXT = "apply_filter_text"
+    # APPLY_FILTER_USER = "apply_filter_user"
+    # ASK_DELETE_USER = "ask_delete_user"
+    # ASK_TO_ADD_USER = "ask_to_add_user"
+    # BASIC_DUMP = "basic_dump"
+    # CHANGE_NUMBER_TO_VIEW = "change_number_to_view"
+    # CHANGE_USER = "change_user"
+    # CLEAR_FILTER_COMPLETE = "clear_filter_complete"
+    # CLEAR_FILTER_DEVICE = "clear_filter_device"
+    # CLEAR_FILTER_DOB = "clear_filter_dob"
+    # CLEAR_FILTER_END_DATETIME = "clear_filter_end_datetime"
+    # CLEAR_FILTER_FORENAME = "clear_filter_forename"
+    # CLEAR_FILTER_IDNUMS = "clear_filter_idnums"
+    # CLEAR_FILTER_INCLUDE_OLD_VERSIONS = "clear_filter_include_old_versions"
+    # CLEAR_FILTERS = "clear_filters"
+    # CLEAR_FILTER_SEX = "clear_filter_sex"
+    # CLEAR_FILTER_START_DATETIME = "clear_filter_start_datetime"
+    # CLEAR_FILTER_SURNAME = "clear_filter_surname"
+    # CLEAR_FILTER_TASK = "clear_filter_task"
+    # CLEAR_FILTER_TEXT = "clear_filter_text"
+    # CLEAR_FILTER_USER = "clear_filter_user"
+    # CLINICALTEXTVIEW = "clinicaltextview"
+    # DELETE_USER = "delete_user"
+    # EDIT_PATIENT = "edit_patient"
+    # EDIT_USER = "edit_user"
+    # ENABLE_USER = "enable_user"
+    # ENTER_NEW_PASSWORD = "enter_new_password"
+    # FILTER = "filter"
+    # FIRST_PAGE = "first_page"
+    # LAST_PAGE = "last_page"
+    # MAIN_MENU = "main_menu"
+    # NEXT_PAGE = "next_page"
+    # OFFER_REPORT = "offer_report"
+    # PREVIOUS_PAGE = "previous_page"
+    # PROVIDE_REPORT = "report"
+    # REGENERATE_SUMMARIES = "regenerate_summary_tables"
+    # TABLE_DUMP = "table_dump"
 
 
 class RoutePath(object):
@@ -487,32 +509,50 @@ class RouteCollection(object):
     CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD, '/change_pw')
     CHANGE_OTHER_PASSWORD = RoutePath(
         Routes.CHANGE_OTHER_PASSWORD,
-        make_url_path(
-            "/change_other_password",
-            UrlParam(ViewParam.USER_ID, UrlParamType.POSITIVE_INTEGER)
-        )
+        "/change_other_password"
+        # make_url_path(
+        #     "/change_other_password",
+        #     UrlParam(ViewParam.USER_ID, UrlParamType.POSITIVE_INTEGER)
+        # )
     )
+    CHOOSE_CTV = RoutePath(Routes.CHOOSE_CTV, "/choose_clinicaltextview")
+    CHOOSE_TRACKER = RoutePath(Routes.CHOOSE_TRACKER, "/choose_tracker")
+    CRASH = RoutePath(Routes.CRASH, "/crash")
+    CTV = RoutePath(Routes.CTV, "/ctv")
     DATABASE_API = RoutePath(Routes.DATABASE_API, '/database')
+    DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT, "/delete_patient")
     ERASE_TASK = RoutePath(Routes.ERASE_TASK, "/erase_task")
+    FORCIBLY_FINALIZE = RoutePath(
+        Routes.FORCIBLY_FINALIZE, "/forcibly_finalize"
+    )
     HOME = RoutePath(Routes.HOME, '/webview')
+    INSPECT_TABLE_DEFS = RoutePath(
+        Routes.INSPECT_TABLE_DEFS, "/view_table_definitions"
+    )
     INTROSPECT = RoutePath(Routes.INTROSPECT, '/introspect')
     # ... filename via query param (sorts out escaping)
     LOGIN = RoutePath(Routes.LOGIN, "/login")
     LOGOUT = RoutePath(Routes.LOGOUT, "/logout")
+    MANAGE_USERS = RoutePath(Routes.MANAGE_USERS, "/manage_users")
     OFFER_AUDIT_TRAIL = RoutePath(Routes.OFFER_AUDIT_TRAIL,
                                   "/offer_audit_trail")
+    OFFER_BASIC_DUMP = RoutePath(Routes.OFFER_BASIC_DUMP, "/offer_basic_dump")
     OFFER_HL7_MESSAGE_LOG = RoutePath(Routes.OFFER_HL7_MESSAGE_LOG,
                                       "/offer_hl7_message_log")
     OFFER_HL7_RUN_LOG = RoutePath(Routes.OFFER_HL7_RUN_LOG,
                                   "/offer_hl7_run_log")
     OFFER_INTROSPECTION = RoutePath(Routes.OFFER_INTROSPECTION,
                                     "/offer_introspect")
+    OFFER_TABLE_DUMP = RoutePath(Routes.OFFER_TABLE_DUMP, "/offer_table_dump")
     OFFER_TERMS = RoutePath(Routes.OFFER_TERMS, '/offer_terms')
+    REPORTS_MENU = RoutePath(Routes.REPORTS_MENU, "/reports_menu")
+    SET_FILTERS = RoutePath(Routes.SET_FILTERS, '/set_filters')
     TASK = RoutePath(Routes.TASK, "/task")
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1, '/testpriv1')
     TESTPAGE_PRIVATE_2 = RoutePath(Routes.TESTPAGE_PRIVATE_2, '/testpriv2')
     TESTPAGE_PRIVATE_3 = RoutePath(Routes.TESTPAGE_PRIVATE_3, '/testpriv3')
     TESTPAGE_PUBLIC_1 = RoutePath(Routes.TESTPAGE_PUBLIC_1, '/test1')
+    TRACKER = RoutePath(Routes.TRACKER, "/tracker")
     VIEW_AUDIT_TRAIL = RoutePath(Routes.VIEW_AUDIT_TRAIL, "/view_audit_trail")
     VIEW_HL7_MESSAGE = RoutePath(Routes.VIEW_HL7_MESSAGE, "/view_hl7_message")
     VIEW_HL7_MESSAGE_LOG = RoutePath(Routes.VIEW_HL7_MESSAGE_LOG,
@@ -524,132 +564,115 @@ class RouteCollection(object):
     VIEW_TASKS = RoutePath(Routes.VIEW_TASKS, "/view_tasks")
 
     # To implement ***
-    ADD_USER = RoutePath(Routes.ADD_USER, "/add_user")
-    APPLY_FILTER_COMPLETE = RoutePath(
-        Routes.APPLY_FILTER_COMPLETE, "/apply_filter_complete"
-    )
-    APPLY_FILTER_DEVICE = RoutePath(
-        Routes.APPLY_FILTER_DEVICE, "/apply_filter_device"
-    )
-    APPLY_FILTER_DOB = RoutePath(Routes.APPLY_FILTER_DOB, "/apply_filter_dob")
-    APPLY_FILTER_END_DATETIME = RoutePath(
-        Routes.APPLY_FILTER_END_DATETIME, "/apply_filter_end_datetime"
-    )
-    APPLY_FILTER_FORENAME = RoutePath(
-        Routes.APPLY_FILTER_FORENAME, "/apply_filter_forename"
-    )
-    APPLY_FILTER_IDNUMS = RoutePath(
-        Routes.APPLY_FILTER_IDNUMS, "/apply_filter_idnums"
-    )
-    APPLY_FILTER_INCLUDE_OLD_VERSIONS = RoutePath(
-        Routes.APPLY_FILTER_INCLUDE_OLD_VERSIONS,
-        "/apply_filter_include_old_versions"
-    )
-    APPLY_FILTERS = RoutePath(Routes.APPLY_FILTERS, "/apply_filters")
-    APPLY_FILTER_SEX = RoutePath(Routes.APPLY_FILTER_SEX, "/apply_filter_sex")
-    APPLY_FILTER_START_DATETIME = RoutePath(
-        Routes.APPLY_FILTER_START_DATETIME, "/apply_filter_start_datetime"
-    )
-    APPLY_FILTER_SURNAME = RoutePath(
-        Routes.APPLY_FILTER_SURNAME,
-        "/apply_filter_surname"
-    )
-    APPLY_FILTER_TASK = RoutePath(
-        Routes.APPLY_FILTER_TASK, "/apply_filter_task"
-    )
-    APPLY_FILTER_TEXT = RoutePath(
-        Routes.APPLY_FILTER_TEXT, "/apply_filter_text"
-    )
-    APPLY_FILTER_USER = RoutePath(
-        Routes.APPLY_FILTER_USER, "/apply_filter_user"
-    )
-    ASK_DELETE_USER = RoutePath(Routes.ASK_DELETE_USER, "/ask_delete_user")
-    ASK_TO_ADD_USER = RoutePath(Routes.ASK_TO_ADD_USER, "/ask_to_add_user")
-    BASIC_DUMP = RoutePath(Routes.BASIC_DUMP, "/basic_dump")
-    CHANGE_NUMBER_TO_VIEW = RoutePath(
-        Routes.CHANGE_NUMBER_TO_VIEW, "/change_number_to_view"
-    )
-    CHANGE_USER = RoutePath(Routes.CHANGE_USER, "/change_user")
-    CHOOSE_CLINICALTEXTVIEW = RoutePath(
-        Routes.CHOOSE_CLINICALTEXTVIEW, "/choose_clinicaltextview"
-    )
-    CHOOSE_TRACKER = RoutePath(Routes.CHOOSE_TRACKER, "/choose_tracker")
-    CLEAR_FILTER_COMPLETE = RoutePath(
-        Routes.CLEAR_FILTER_COMPLETE, "/clear_filter_complete"
-    )
-    CLEAR_FILTER_DEVICE = RoutePath(
-        Routes.CLEAR_FILTER_DEVICE, "/clear_filter_device"
-    )
-    CLEAR_FILTER_DOB = RoutePath(Routes.CLEAR_FILTER_DOB, "/clear_filter_dob")
-    CLEAR_FILTER_END_DATETIME = RoutePath(
-        Routes.CLEAR_FILTER_END_DATETIME, "/clear_filter_end_datetime"
-    )
-    CLEAR_FILTER_FORENAME = RoutePath(
-        Routes.CLEAR_FILTER_FORENAME, "/clear_filter_forename"
-    )
-    CLEAR_FILTER_IDNUMS = RoutePath(
-        Routes.CLEAR_FILTER_IDNUMS, "/clear_filter_idnums"
-    )
-    CLEAR_FILTER_INCLUDE_OLD_VERSIONS = RoutePath(
-        Routes.CLEAR_FILTER_INCLUDE_OLD_VERSIONS,
-        "/clear_filter_include_old_versions"
-    )
-    CLEAR_FILTERS = RoutePath(Routes.CLEAR_FILTERS, "/clear_filters")
-    CLEAR_FILTER_SEX = RoutePath(Routes.CLEAR_FILTER_SEX, "/clear_filter_sex")
-    CLEAR_FILTER_START_DATETIME = RoutePath(
-        Routes.CLEAR_FILTER_START_DATETIME, "/clear_filter_start_datetime"
-    )
-    CLEAR_FILTER_SURNAME = RoutePath(
-        Routes.CLEAR_FILTER_SURNAME, "/clear_filter_surname"
-    )
-    CLEAR_FILTER_TASK = RoutePath(
-        Routes.CLEAR_FILTER_TASK, "/clear_filter_task"
-    )
-    CLEAR_FILTER_TEXT = RoutePath(
-        Routes.CLEAR_FILTER_TEXT, "/clear_filter_text"
-    )
-    CLEAR_FILTER_USER = RoutePath(
-        Routes.CLEAR_FILTER_USER, "/clear_filter_user"
-    )
-    CLINICALTEXTVIEW = RoutePath(Routes.CLINICALTEXTVIEW, "/clinicaltextview")
-    CRASH = RoutePath(Routes.CRASH, "/crash")
-    DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT, "/delete_patient")
-    DELETE_USER = RoutePath(Routes.DELETE_USER, "/delete_user")
-    EDIT_PATIENT = RoutePath(Routes.EDIT_PATIENT, "/edit_patient")
-    EDIT_USER = RoutePath(Routes.EDIT_USER, "/edit_user")
-    ENABLE_USER = RoutePath(Routes.ENABLE_USER, "/enable_user")
-    ENTER_NEW_PASSWORD = RoutePath(
-        Routes.ENTER_NEW_PASSWORD, "/enter_new_password"
-    )
-    FILTER = RoutePath(Routes.FILTER, "/filter")
-    FIRST_PAGE = RoutePath(Routes.FIRST_PAGE, "/first_page")
-    FORCIBLY_FINALIZE = RoutePath(
-        Routes.FORCIBLY_FINALIZE, "/forcibly_finalize"
-    )
-    INSPECT_TABLE_DEFS = RoutePath(
-        Routes.INSPECT_TABLE_DEFS, "/view_table_definitions"
-    )
-    INSPECT_TABLE_VIEW_DEFS = RoutePath(
-        Routes.INSPECT_TABLE_VIEW_DEFS, "/view_table_and_view_definitions"
-    )
-    LAST_PAGE = RoutePath(Routes.LAST_PAGE, "/last_page")
-    # now HOME # MAIN_MENU = "main_menu"
-    MANAGE_USERS = RoutePath(Routes.MANAGE_USERS, "/manage_users")
-    NEXT_PAGE = RoutePath(Routes.NEXT_PAGE, "/next_page")
-    OFFER_BASIC_DUMP = RoutePath(Routes.OFFER_BASIC_DUMP, "/offer_basic_dump")
-    OFFER_REGENERATE_SUMMARIES = RoutePath(
-        Routes.OFFER_REGENERATE_SUMMARIES, "/offer_regenerate_summary_tables"
-    )
-    OFFER_REPORT = RoutePath(Routes.OFFER_REPORT, "/offer_report")
-    OFFER_TABLE_DUMP = RoutePath(Routes.OFFER_TABLE_DUMP, "/offer_table_dump")
-    PREVIOUS_PAGE = RoutePath(Routes.PREVIOUS_PAGE, "/previous_page")
-    PROVIDE_REPORT = RoutePath(Routes.PROVIDE_REPORT, "/report")
-    REGENERATE_SUMMARIES = RoutePath(
-        Routes.REGENERATE_SUMMARIES, "/regenerate_summary_tables"
-    )
-    REPORTS_MENU = RoutePath(Routes.REPORTS_MENU, "/reports_menu")
-    TABLE_DUMP = RoutePath(Routes.TABLE_DUMP, "table_dump")
-    TRACKER = RoutePath(Routes.TRACKER, "/tracker")
+    # ADD_USER = RoutePath(Routes.ADD_USER, "/add_user")
+    # APPLY_FILTER_COMPLETE = RoutePath(
+    #     Routes.APPLY_FILTER_COMPLETE, "/apply_filter_complete"
+    # )
+    # APPLY_FILTER_DEVICE = RoutePath(
+    #     Routes.APPLY_FILTER_DEVICE, "/apply_filter_device"
+    # )
+    # APPLY_FILTER_DOB = RoutePath(Routes.APPLY_FILTER_DOB, "/apply_filter_dob")
+    # APPLY_FILTER_END_DATETIME = RoutePath(
+    #     Routes.APPLY_FILTER_END_DATETIME, "/apply_filter_end_datetime"
+    # )
+    # APPLY_FILTER_FORENAME = RoutePath(
+    #     Routes.APPLY_FILTER_FORENAME, "/apply_filter_forename"
+    # )
+    # APPLY_FILTER_IDNUMS = RoutePath(
+    #     Routes.APPLY_FILTER_IDNUMS, "/apply_filter_idnums"
+    # )
+    # APPLY_FILTER_INCLUDE_OLD_VERSIONS = RoutePath(
+    #     Routes.APPLY_FILTER_INCLUDE_OLD_VERSIONS,
+    #     "/apply_filter_include_old_versions"
+    # )
+    # APPLY_FILTERS = RoutePath(Routes.APPLY_FILTERS, "/apply_filters")
+    # APPLY_FILTER_SEX = RoutePath(Routes.APPLY_FILTER_SEX, "/apply_filter_sex")
+    # APPLY_FILTER_START_DATETIME = RoutePath(
+    #     Routes.APPLY_FILTER_START_DATETIME, "/apply_filter_start_datetime"
+    # )
+    # APPLY_FILTER_SURNAME = RoutePath(
+    #     Routes.APPLY_FILTER_SURNAME,
+    #     "/apply_filter_surname"
+    # )
+    # APPLY_FILTER_TASK = RoutePath(
+    #     Routes.APPLY_FILTER_TASK, "/apply_filter_task"
+    # )
+    # APPLY_FILTER_TEXT = RoutePath(
+    #     Routes.APPLY_FILTER_TEXT, "/apply_filter_text"
+    # )
+    # APPLY_FILTER_USER = RoutePath(
+    #     Routes.APPLY_FILTER_USER, "/apply_filter_user"
+    # )
+    # ASK_DELETE_USER = RoutePath(Routes.ASK_DELETE_USER, "/ask_delete_user")
+    # ASK_TO_ADD_USER = RoutePath(Routes.ASK_TO_ADD_USER, "/ask_to_add_user")
+    # BASIC_DUMP = RoutePath(Routes.BASIC_DUMP, "/basic_dump")
+    # CHANGE_NUMBER_TO_VIEW = RoutePath(
+    #     Routes.CHANGE_NUMBER_TO_VIEW, "/change_number_to_view"
+    # )
+    # CHANGE_USER = RoutePath(Routes.CHANGE_USER, "/change_user")
+    # CLEAR_FILTER_COMPLETE = RoutePath(
+    #     Routes.CLEAR_FILTER_COMPLETE, "/clear_filter_complete"
+    # )
+    # CLEAR_FILTER_DEVICE = RoutePath(
+    #     Routes.CLEAR_FILTER_DEVICE, "/clear_filter_device"
+    # )
+    # CLEAR_FILTER_DOB = RoutePath(Routes.CLEAR_FILTER_DOB, "/clear_filter_dob")
+    # CLEAR_FILTER_END_DATETIME = RoutePath(
+    #     Routes.CLEAR_FILTER_END_DATETIME, "/clear_filter_end_datetime"
+    # )
+    # CLEAR_FILTER_FORENAME = RoutePath(
+    #     Routes.CLEAR_FILTER_FORENAME, "/clear_filter_forename"
+    # )
+    # CLEAR_FILTER_IDNUMS = RoutePath(
+    #     Routes.CLEAR_FILTER_IDNUMS, "/clear_filter_idnums"
+    # )
+    # CLEAR_FILTER_INCLUDE_OLD_VERSIONS = RoutePath(
+    #     Routes.CLEAR_FILTER_INCLUDE_OLD_VERSIONS,
+    #     "/clear_filter_include_old_versions"
+    # )
+    # CLEAR_FILTERS = RoutePath(Routes.CLEAR_FILTERS, "/clear_filters")
+    # CLEAR_FILTER_SEX = RoutePath(Routes.CLEAR_FILTER_SEX, "/clear_filter_sex")
+    # CLEAR_FILTER_START_DATETIME = RoutePath(
+    #     Routes.CLEAR_FILTER_START_DATETIME, "/clear_filter_start_datetime"
+    # )
+    # CLEAR_FILTER_SURNAME = RoutePath(
+    #     Routes.CLEAR_FILTER_SURNAME, "/clear_filter_surname"
+    # )
+    # CLEAR_FILTER_TASK = RoutePath(
+    #     Routes.CLEAR_FILTER_TASK, "/clear_filter_task"
+    # )
+    # CLEAR_FILTER_TEXT = RoutePath(
+    #     Routes.CLEAR_FILTER_TEXT, "/clear_filter_text"
+    # )
+    # CLEAR_FILTER_USER = RoutePath(
+    #     Routes.CLEAR_FILTER_USER, "/clear_filter_user"
+    # )
+    # CLINICALTEXTVIEW = RoutePath(Routes.CLINICALTEXTVIEW, "/clinicaltextview")
+    # DELETE_USER = RoutePath(Routes.DELETE_USER, "/delete_user")
+    # EDIT_PATIENT = RoutePath(Routes.EDIT_PATIENT, "/edit_patient")
+    # EDIT_USER = RoutePath(Routes.EDIT_USER, "/edit_user")
+    # ENABLE_USER = RoutePath(Routes.ENABLE_USER, "/enable_user")
+    # ENTER_NEW_PASSWORD = RoutePath(
+    #     Routes.ENTER_NEW_PASSWORD, "/enter_new_password"
+    # )
+    # FILTER = RoutePath(Routes.FILTER, "/filter")
+    # FIRST_PAGE = RoutePath(Routes.FIRST_PAGE, "/first_page")
+    # INSPECT_TABLE_VIEW_DEFS = RoutePath(
+    #     Routes.INSPECT_TABLE_VIEW_DEFS, "/view_table_and_view_definitions"
+    # )
+    # LAST_PAGE = RoutePath(Routes.LAST_PAGE, "/last_page")
+    # # now HOME # MAIN_MENU = "main_menu"
+    # NEXT_PAGE = RoutePath(Routes.NEXT_PAGE, "/next_page")
+    # OFFER_REGENERATE_SUMMARIES = RoutePath(
+    #     Routes.OFFER_REGENERATE_SUMMARIES, "/offer_regenerate_summary_tables"
+    # )
+    # OFFER_REPORT = RoutePath(Routes.OFFER_REPORT, "/offer_report")
+    # PREVIOUS_PAGE = RoutePath(Routes.PREVIOUS_PAGE, "/previous_page")
+    # PROVIDE_REPORT = RoutePath(Routes.PROVIDE_REPORT, "/report")
+    # REGENERATE_SUMMARIES = RoutePath(
+    #     Routes.REGENERATE_SUMMARIES, "/regenerate_summary_tables"
+    # )
+    # TABLE_DUMP = RoutePath(Routes.TABLE_DUMP, "table_dump")
 
     @classmethod
     def all_routes(cls) -> List[RoutePath]:
@@ -914,10 +937,35 @@ PAGER_PATTERN = (
 
 class CamcopsPage(Page):
     # noinspection PyShadowingBuiltins
+
+    def __init__(self,
+                 collection: Sequence[Any],
+                 page: int = 1,
+                 items_per_page: int = 20,
+                 item_count: int = None,
+                 wrapper_class: object = None,
+                 url_maker: Callable[[int], str] = None,
+                 **kwargs) -> None:
+        # Bug in paginate: it slices its collection BEFORE it realizes that the
+        # page number is out of range.
+        page = max(1, page)
+        item_count = item_count if item_count is not None else len(collection)
+        n_pages = ((item_count - 1) // items_per_page) + 1
+        page = min(page, n_pages)
+        super().__init__(
+            collection=collection,
+            page=page,
+            items_per_page=items_per_page,
+            item_count=item_count,
+            wrapper_class=wrapper_class,
+            url_maker=url_maker,
+            **kwargs
+        )
+
     def pager(self,
               format: str = PAGER_PATTERN,
               url: str = None,
-              show_if_single_page: bool = False,
+              show_if_single_page: bool = True,  # see below!
               separator: str = ' ',
               symbol_first: str = '&lt;&lt;',
               symbol_last: str = '&gt;&gt;',
@@ -927,6 +975,11 @@ class CamcopsPage(Page):
               curpage_attr: Dict[str, str] = None,
               dotdot_attr: Dict[str, str] = None,
               link_tag: Callable[[Dict[str, str]], str] = None):
+        # The reason for the default for 'show_if_single_page' being True is
+        # that it's possible otherwise to think you've lost your tasks. For
+        # example: (1) have 99 tasks; (2) view 50/page; (3) go to page 2;
+        # (4) set number per page to 100. Or simply use the URL to go beyond
+        # the end.
         link_attr = link_attr or {}  # type: Dict[str, str]
         curpage_attr = curpage_attr or {}  # type: Dict[str, str]
         # dotdot_attr = dotdot_attr or {}  # type: Dict[str, str]

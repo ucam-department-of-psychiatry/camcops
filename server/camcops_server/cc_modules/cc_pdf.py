@@ -34,7 +34,7 @@ def pdf_from_html(req: CamcopsRequest,
                   html: str,
                   header_html: str = None,
                   footer_html: str = None,
-                  extra_wkhtmltopdf_options: Dict[str, Any] = None):
+                  extra_wkhtmltopdf_options: Dict[str, Any] = None) -> bytes:
     extra_wkhtmltopdf_options = extra_wkhtmltopdf_options or {}  # type: Dict[str, Any]  # noqa
     wkhtmltopdf_options = dict(WKHTMLTOPDF_OPTIONS,
                                **extra_wkhtmltopdf_options)

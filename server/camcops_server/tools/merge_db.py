@@ -48,6 +48,7 @@ from ..cc_modules.cc_audit import AuditEntry
 from ..cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 from ..cc_modules.cc_device import Device
 from ..cc_modules.cc_hl7 import HL7Message, HL7Run
+from ..cc_modules.cc_patient import Patient
 from ..cc_modules.cc_patientidnum import PatientIdNum
 from ..cc_modules.cc_request import command_line_request
 from ..cc_modules.cc_session import CamcopsSession
@@ -171,6 +172,12 @@ def merge_main() -> None:
     # PatientIdNum.
 
     src_tables = get_table_names(src_engine)
+    for tname in [Patient.__tablename__, User.__tablename__]:
+        if tname not in src_tables:
+            raise ValueError(
+                "Cannot proceed; table {!r} missing from source; unlikely "
+                "that the source is any sort of old CamCOPS database!".format(
+                    tname))
     if PatientIdNum.__tablename__ not in src_tables:
         create_table_from_orm_class(engine=src_engine, ormclass=PatientIdNum,
                                     without_constraints=True)

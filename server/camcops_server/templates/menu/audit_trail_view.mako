@@ -4,6 +4,7 @@
 <%!
 
 from mako.filters import html_escape
+from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 def trunc(value, truncate, truncate_at):
     if not value:

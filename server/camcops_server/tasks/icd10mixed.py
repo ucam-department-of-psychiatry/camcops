@@ -29,7 +29,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 
-from ..cc_modules.cc_dt import format_datetime_string
+from ..cc_modules.cc_dt import format_datetime
 from ..cc_modules.cc_constants import DateFormat, ICD10_COPYRIGHT_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
@@ -40,7 +40,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
@@ -64,7 +64,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     )
 
     date_pertains_to = Column(
-        "date_pertains_to", ArrowDateTimeAsIsoTextColType,
+        "date_pertains_to", PendulumDateTimeAsIsoTextColType,
         comment="Date the assessment pertains to"
     )
     comments = Column(
@@ -94,8 +94,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         )
         infolist = [CtvInfo(
             content="Pertains to: {}. {}.".format(
-                format_datetime_string(self.date_pertains_to,
-                                       DateFormat.LONG_DATE),
+                format_datetime(self.date_pertains_to, DateFormat.LONG_DATE),
                 category
             )
         )]
@@ -136,8 +135,8 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 <table class="summary">
         """ + self.get_is_complete_tr(req)
         h += tr_qa(req.wappstring("date_pertains_to"),
-                   format_datetime_string(self.date_pertains_to,
-                                          DateFormat.LONG_DATE, default=None))
+                   format_datetime(self.date_pertains_to, DateFormat.LONG_DATE,
+                                   default=None))
         h += tr_qa(req.wappstring("meets_criteria"),
                    get_true_false_none(req, self.meets_criteria()))
         h += """
@@ -156,9 +155,9 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         """
 
         h += self.get_twocol_bool_row_true_false(
-            "mixture_or_rapid_alternation", self.wxstring(req, "a"))
+            req, "mixture_or_rapid_alternation", self.wxstring(req, "a"))
         h += self.get_twocol_bool_row_true_false(
-            "duration_at_least_2_weeks", self.wxstring(req, "b"))
+            req, "duration_at_least_2_weeks", self.wxstring(req, "b"))
 
         h += """
             </table>

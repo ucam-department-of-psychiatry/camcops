@@ -35,6 +35,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
     CountStarSpecializedQuery,
     exists_orm,
 )
+from pendulum import Pendulum
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql import func
 from sqlalchemy.sql.schema import Column
@@ -43,21 +44,18 @@ from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 from .cc_audit import audit
 from .cc_constants import ACTION, PARAM, DateFormat
 from .cc_dt import (
-    convert_utc_datetime_without_tz_to_local,
+    coerce_to_pendulum,
+    convert_datetime_to_local,
     format_datetime,
-    get_datetime_from_string,
-    get_now_utc_notz,
 )
 from .cc_html import (
-    # *** # fail_with_error_stay_logged_in,
     get_generic_action_url,
     get_url_enter_new_password,
     get_url_field_value_pair,
     get_yes_no,
-    # *** # simple_success_message,
 )
 from .cc_sqla_coltypes import (
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
     HashedPasswordColType,
     UserNameColType,
 )
@@ -141,7 +139,7 @@ class SecurityAccountLockout(Base):
     def delete_old_account_lockouts(cls, req: "CamcopsRequest") -> None:
         """Delete all expired account lockouts."""
         dbsession = req.dbsession
-        now = req.now_utc_datetime
+        now = req.now_utc
         dbsession.query(cls)\
             .filter(cls.locked_until <= now)\
             .delete(synchronize_session=False)
@@ -149,28 +147,28 @@ class SecurityAccountLockout(Base):
     @classmethod
     def is_user_locked_out(cls, req: "CamcopsRequest", username: str) -> bool:
         dbsession = req.dbsession
-        now = req.now_utc_datetime
+        now = req.now_utc
         return exists_orm(dbsession, cls,
                           cls.username == username,
                           cls.locked_until > now)
 
     @classmethod
     def user_locked_out_until(cls, req: "CamcopsRequest",
-                              username: str) -> Optional[datetime.datetime]:
+                              username: str) -> Optional[Pendulum]:
         """
         When is the user locked out until?
 
         Returns datetime in local timezone (or None).
         """
         dbsession = req.dbsession
-        now = req.now_utc_datetime
-        utc_no_tz = dbsession.query(func.max(cls.locked_until))\
+        now = req.now_utc
+        locked_until_utc = dbsession.query(func.max(cls.locked_until))\
             .filter(cls.username == username)\
             .filter(cls.locked_until > now)\
-            .first()  # type: Optional[datetime.datetime]
-        if not utc_no_tz:
+            .first()  # type: Optional[Pendulum]
+        if not locked_until_utc:
             return None
-        return convert_utc_datetime_without_tz_to_local(utc_no_tz)
+        return convert_datetime_to_local(locked_until_utc)
 
     @classmethod
     def lock_user_out(cls, req: "CamcopsRequest",
@@ -179,7 +177,7 @@ class SecurityAccountLockout(Base):
         Lock user out for a specified number of minutes.
         """
         dbsession = req.dbsession
-        now = req.now_utc_datetime
+        now = req.now_utc
         lock_until = now + datetime.timedelta(minutes=lockout_minutes)
         lock = cls(username=username, lock_until=lock_until)
         dbsession.add(lock)
@@ -220,7 +218,7 @@ class SecurityLoginFailure(Base):
                              username: str) -> None:
         """Record that a user has failed to log in."""
         dbsession = req.dbsession
-        now = req.now_utc_datetime
+        now = req.now_utc
         failure = cls(username=username, login_failure_at=now)
         dbsession.add(failure)
 
@@ -290,7 +288,7 @@ class SecurityLoginFailure(Base):
 
         Not too often! See CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS.
         """
-        now = req.now_arrow
+        now = req.now
         last_cleared_var = ServerStoredVar.get_or_create(
             dbsession=req.dbsession,
             name="lastDummyLoginFailureClearanceAt",
@@ -299,7 +297,7 @@ class SecurityLoginFailure(Base):
         )
         try:
             last_cleared_val = last_cleared_var.get_value()
-            when_last_cleared = get_datetime_from_string(last_cleared_val)
+            when_last_cleared = coerce_to_pendulum(last_cleared_val)
         except ValueError:
             when_last_cleared = None
         if when_last_cleared is not None:
@@ -404,7 +402,7 @@ class User(Base):
         comment="Must change password at next webview login"
     )
     when_agreed_terms_of_use = Column(
-        "when_agreed_terms_of_use", ArrowDateTimeAsIsoTextColType,
+        "when_agreed_terms_of_use", PendulumDateTimeAsIsoTextColType,
         comment="Date/time this user acknowledged the Terms and "
                 "Conditions of Use (ISO 8601)"
     )
@@ -428,12 +426,14 @@ class User(Base):
         return user
 
     @classmethod
-    def user_exists(cls, dbsession: SqlASession, username: str) -> bool:
+    def user_exists(cls, req: "CamcopsRequest", username: str) -> bool:
+        dbsession = req.dbsession
         return exists_orm(dbsession, cls, cls.username == username)
 
     @classmethod
-    def create_superuser(cls, dbsession: SqlASession, username: str,
+    def create_superuser(cls, req: "CamcopsRequest", username: str,
                          password: str) -> bool:
+        dbsession = req.dbsession
         user = cls.get_user_by_name(dbsession, username, False)
         if user:
             # already exists!
@@ -450,7 +450,7 @@ class User(Base):
         user.may_dump_data = True
         user.may_run_reports = True
         user.may_add_notes = True
-        user.set_password(get_now_utc_notz(), password)
+        user.set_password(req, password)
         audit(req, "SUPERUSER CREATED: " + user.username, from_console=True)
         return True
 
@@ -506,7 +506,7 @@ class User(Base):
         """Set a user's password."""
         self.hashedpw = rnc_crypto.hash_password(new_password,
                                                  BCRYPT_DEFAULT_LOG_ROUNDS)
-        self.last_password_change_utc = req.now_utc_datetime
+        self.last_password_change_utc = req.now_utc
         self.must_change_password = False
         audit(req, "Password changed for user " + self.username)
 
@@ -542,7 +542,7 @@ class User(Base):
             # we don't know when the last change was, so it's overdue
             self.force_password_change()
             return
-        delta = req.now_utc_datetime - self.last_password_change_utc
+        delta = req.now_utc - self.last_password_change_utc
         if delta.days >= cfg.PASSWORD_CHANGE_FREQUENCY_DAYS:
             self.force_password_change()
 
@@ -553,7 +553,7 @@ class User(Base):
     def agree_terms(self, req: "CamcopsRequest") -> None:
         """Mark the user as having agreed to the terms/conditions of use
         now."""
-        self.when_agreed_terms_of_use = req.now_arrow
+        self.when_agreed_terms_of_use = req.now
 
     def clear_login_failures(self, req: "CamcopsRequest") -> None:
         """Clear login failures."""
@@ -566,7 +566,7 @@ class User(Base):
         return SecurityAccountLockout.is_user_locked_out(req, self.username)
 
     def locked_out_until(self,
-                         req: "CamcopsRequest") -> Optional[datetime.datetime]:
+                         req: "CamcopsRequest") -> Optional[Pendulum]:
         """
         When is the user locked out until (or None)?
 
@@ -1027,7 +1027,7 @@ def add_user(req: "CamcopsRequest", form: cgi.FieldStorage) -> str:
             ))
 
     user = User.get_user_by_name(dbsession, username, True)  # create user
-    user.set_password(req.now_utc_datetime, password_1)
+    user.set_password(req.now_utc, password_1)
 
     user.may_use_webviewer = may_use_webviewer
     user.may_view_other_users_records = may_view_other_users_records
@@ -1161,7 +1161,7 @@ def set_password_directly(req: "CamcopsRequest",
     user = User.get_user_by_name(dbsession, username)
     if not user:
         return False
-    user.set_password(req.now_utc_datetime, password)
+    user.set_password(req, password)
     user.enable(req)
     audit(req, "Password changed for user " + user.username, from_console=True)
     return True

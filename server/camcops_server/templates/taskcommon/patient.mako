@@ -1,5 +1,5 @@
 ## patient.mako
-<%page args="patient: Patient"/>
+<%page args="patient: Patient, include_special_notes: bool = True"/>
 
 <div class="patient">
     <b>${ patient.get_surname_forename_upper() | h}</b>
@@ -21,6 +21,6 @@
     %endif
 </div>
 
-%if patient.special_notes:
+%if include_special_notes and patient.special_notes:
     <%include file="special_note.mako" args="special_notes=patient.special_notes, title='PATIENT SPECIAL NOTES'"/>
 %endif

@@ -22,8 +22,10 @@
 ===============================================================================
 """
 
+# import logging
 from typing import List
 
+# from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
@@ -40,6 +42,8 @@ from ..cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+
+# log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -166,6 +170,10 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         return len(self.photos) > 0
 
     def is_complete(self) -> bool:
+        # log.critical("is_complete")
+        # If you're wondering why this is being called unexpectedly: it may be
+        # because this task is being displayed in the task list, at which point
+        # we colour it by its complete-or-not status.
         return bool(self.sequence_description) and self.get_num_photos() > 0
 
     def get_task_html(self, req: CamcopsRequest) -> str:

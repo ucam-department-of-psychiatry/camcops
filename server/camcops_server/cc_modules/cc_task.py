@@ -39,7 +39,6 @@ import copy
 import datetime
 import logging
 import statistics
-import typing
 from typing import (Any, Dict, Iterable, Generator, List, Optional, Sequence,
                     Tuple, Type, TYPE_CHECKING, Union)
 
@@ -59,12 +58,11 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 import hl7
+from pendulum import Date, Pendulum
 from pyramid.renderers import render
-from semantic_version import Version
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
-from sqlalchemy.sql.elements import literal
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
@@ -78,7 +76,6 @@ from .cc_blob import Blob, get_blob_img_html
 from .cc_cache import cache_region_static, fkg
 from .cc_constants import (
     ACTION,
-    ANON_PATIENT,
     COMMENT_IS_COMPLETE,
     CRIS_CLUSTER_KEY_FIELDSPEC,
     CRIS_PATIENT_COMMENT_PREFIX,
@@ -91,40 +88,32 @@ from .cc_constants import (
     INVALID_VALUE,
     PARAM,
     PKNAME,
-    SIGNATURE_BLOCK,
     TSV_PATIENT_FIELD_PREFIX,
     VALUE,
 )
 from .cc_ctvinfo import CtvInfo
 from .cc_db import GenericTabletRecordMixin
-from .cc_device import Device
 from .cc_dt import (
+    coerce_to_pendulum,
     convert_datetime_to_utc,
-    get_date_regex,
-    get_datetime_from_string,
     get_now_utc,
     format_datetime,
-    format_datetime_string
 )
 from .cc_filename import get_export_filename
 from .cc_hl7core import make_obr_segment, make_obx_segment
 from .cc_html import (
-    answer,
     get_generic_action_url,
     get_present_absent_none,
     get_true_false_none,
     get_url_field_value_pair,
     get_yes_no,
     get_yes_no_none,
-    pdf_footer_content,
-    pdf_header_content,
     tr,
     tr_qa,
 )
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
 from .cc_pdf import pdf_from_html
-from .cc_plot import set_matplotlib_fontsize
 from .cc_pyramid import ViewArg
 from .cc_recipdef import RecipientDefinition
 from .cc_report import Report, REPORT_RESULT_TYPE
@@ -132,7 +121,7 @@ from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
     CamcopsColumn,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
     get_column_attr_names,
     get_camcops_blob_column_attr_names,
     permitted_value_failure_msgs,
@@ -149,8 +138,7 @@ from .cc_unittest import (
     unit_test_verify,
     unit_test_verify_not
 )
-from .cc_user import User
-from .cc_version import CAMCOPS_SERVER_VERSION, make_version
+from .cc_version import make_version
 from .cc_xml import (
     get_xml_blob_tuple,
     get_xml_document,
@@ -398,7 +386,7 @@ class Task(GenericTabletRecordMixin, Base):
     @declared_attr
     def when_created(cls) -> Column:
         return Column(
-            "when_created", ArrowDateTimeAsIsoTextColType,
+            "when_created", PendulumDateTimeAsIsoTextColType,
             nullable=False,
             comment="(TASK) Date/time this task instance was created (ISO 8601)"
         )
@@ -407,7 +395,7 @@ class Task(GenericTabletRecordMixin, Base):
     @declared_attr
     def when_firstexit(cls) -> Column:
         return Column(
-            "when_firstexit", ArrowDateTimeAsIsoTextColType,
+            "when_firstexit", PendulumDateTimeAsIsoTextColType,
             comment="(TASK) Date/time of the first exit from this task "
                     "(ISO 8601)"
         )
@@ -645,7 +633,7 @@ class Task(GenericTabletRecordMixin, Base):
         return []  # type: List[SummaryElement]
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def get_extra_summary_table_data(self, now: datetime.datetime) \
+    def get_extra_summary_table_data(self, now: Pendulum) \
             -> List[List[List[Any]]]:
         """If used, must correspond exactly to extra_summary_table_info,
         but returning the data.
@@ -795,11 +783,11 @@ class Task(GenericTabletRecordMixin, Base):
         """Was it forcibly preserved?"""
         return self._forcibly_preserved and self.is_preserved()
 
-    def get_creation_datetime(self) -> Optional[datetime.datetime]:
+    def get_creation_datetime(self) -> Optional[Pendulum]:
         """Creation datetime, or None."""
-        return get_datetime_from_string(self.when_created)
+        return self.when_created
 
-    def get_creation_datetime_utc(self) -> Optional[datetime.datetime]:
+    def get_creation_datetime_utc(self) -> Optional[Pendulum]:
         """Creation datetime in UTC, or None."""
         localtime = self.get_creation_datetime()
         if localtime is None:
@@ -812,7 +800,7 @@ class Task(GenericTabletRecordMixin, Base):
         if not self.firstexit_is_finish:
             return None
         start = self.get_creation_datetime()
-        end = get_datetime_from_string(self.when_firstexit)
+        end = self.when_firstexit
         if not start or not end:
             return None
         diff = end - start
@@ -862,7 +850,7 @@ class Task(GenericTabletRecordMixin, Base):
     @classmethod
     def make_standard_summary_table(cls,
                                     req: CamcopsRequest,
-                                    now: datetime.datetime) -> None:
+                                    now: Pendulum) -> None:
         """Make the task's main summary table."""
         table = cls.tablename
         if not cls.provides_summaries(req):
@@ -909,7 +897,7 @@ class Task(GenericTabletRecordMixin, Base):
                                                            pkfieldname)
 
     @classmethod
-    def make_extra_summary_tables(cls, now: datetime.datetime) -> None:
+    def make_extra_summary_tables(cls, now: Pendulum) -> None:
         # Get details of what the task wants
         infolist = list(cls.extra_summary_table_info)
         # ... copy; one entry per table
@@ -1104,7 +1092,7 @@ class Task(GenericTabletRecordMixin, Base):
         """Get the patient's surname, in upper case, or ""."""
         return self.patient.get_surname() if self.patient else ""
 
-    def get_patient_dob(self) -> Optional[datetime.date]:
+    def get_patient_dob(self) -> Optional[Date]:
         """Get the patient's DOB, or None."""
         return self.patient.get_surname() if self.patient else None
 
@@ -1306,7 +1294,7 @@ class Task(GenericTabletRecordMixin, Base):
     def get_task_pks_wc_for_patient_deletion(
             cls,
             which_idnum: int,
-            idnum_value: int) -> Sequence[Tuple[int, datetime.datetime]]:
+            idnum_value: int) -> Sequence[Tuple[int, Pendulum]]:
         if cls.is_anonymous:
             return []
         table = cls.tablename
@@ -1455,8 +1443,8 @@ class Task(GenericTabletRecordMixin, Base):
             tasktype=self.shortname,
             adding_user=self.get_adding_user_username(),
             colour_live=' class="live_on_tablet"' if live_on_tablet else '',
-            created=format_datetime_string(self.when_created,
-                                           DateFormat.SHORT_DATETIME),
+            created=format_datetime(self.when_created,
+                                    DateFormat.SHORT_DATETIME),
             colour_incomplete='' if complete else ' class="incomplete"',
             html=self.get_hyperlink_html(req, "HTML"),
             pdf=self.get_hyperlink_pdf(req, "PDF"),
@@ -1466,101 +1454,43 @@ class Task(GenericTabletRecordMixin, Base):
         # which is generated following a POST submission).
 
     # -------------------------------------------------------------------------
-    # Fetching and filtering tasks for the task list
+    # Filtering tasks for the task list
     # -------------------------------------------------------------------------
 
-    def allowed_to_user(self, session: 'CamcopsSession') -> bool:
-        """Is the current user allowed to see this task?"""
-        if (session.restricted_to_viewing_user() is not None and
-                session.restricted_to_viewing_user() != self._adding_user):
-            return False
-        return True
-
     @classmethod
-    def filter_allows_task_type(cls, session: 'CamcopsSession') -> bool:
-        return (session.filter_task is None or
-                session.filter_task == cls.tablename)
-
-    def is_compatible_with_filter(self, session: 'CamcopsSession') -> bool:
-        """Is this task allowed through the filter?"""
-        # 1. Quick things
-        if not self.allowed_to_user(session):
-            return False
-        if (session.filter_device_id is not None and
-                session.filter_device_id != self._device_id):
-            return False
-        if (session.filter_user_id is not None and
-                session.filter_user_id != self._adding_user_id):
-            return False
-        if (session.filter_task is not None and
-                session.filter_task != self.tablename):
-            return False
-        start_datetime = session.get_filter_start_datetime()
-        end_datetime = session.get_filter_end_datetime_corrected_1day()
-        task_datetime = self.get_creation_datetime()
-        if start_datetime is not None and task_datetime < start_datetime:
-            return False
-        if end_datetime is not None and task_datetime > end_datetime:
-            return False
-
-        # 2. Medium-speed things
-        if (session.filter_complete is not None and
-                session.filter_complete != self.is_complete()):
-            return False
-
-        # 3. Since we've already loaded patient info, not slow:
-        if session.filter_surname is not None:
-            if self.patient.surname is None:
-                return False
-            temp_pt_surname = self.patient.surname.upper()
-            if session.filter_surname.upper() != temp_pt_surname:
-                return False
-        if session.filter_forename is not None:
-            if self.patient.forename is None:
-                return False
-            temp_pt_forename = self.patient.forename.upper()
-            if session.filter_forename.upper() != temp_pt_forename:
-                return False
-        if session.filter_dob_iso8601 is not None:
-            if self.patient.dob != session.filter_dob_iso8601:
-                return False
-        if session.filter_sex is not None:
-            if self.patient.sex is None:
-                return False
-            temp_pt_sex = self.patient.sex.upper()
-            if session.filter_sex.upper() != temp_pt_sex:
-                return False
-        for which_idnum, idnum_value in session.get_idnum_filters():
-            if (idnum_value is not None and
-                    idnum_value != self.patient.get_idnum_value(which_idnum)):
-                return False
-
-        # 4. Slow:
-        if session.filter_text is not None:
-            if not self.compatible_with_text_filter(session.filter_text):
-                return False
-        return True
-
-    def compatible_with_text_filter(self, filtertext: str) -> bool:
+    def gen_text_filter_columns(cls) -> Generator[Tuple[str, Column], None,
+                                                   None]:
         """
-        Is this task allowed through the text contents filter?
-        Does one of its text fields contain the filtertext?
-
-        (Searches all text fields, ignoring "administrative" ones.)
+        Yields tuples of (attr_name, Column), for columns that are suitable
+        for text filtering.
         """
-        filtertext = filtertext.upper()
-        for attrname, column in gen_columns(self):
-            if attrname in TEXT_FILTER_EXEMPT_FIELDS:
+        for attrname, column in gen_columns(cls):
+            if attrname.startswith("_"):  # system field
                 continue
             if not is_sqlatype_string(column.type):
                 continue
-            value = getattr(self, attrname)
-            if not isinstance(value, str):
-                # handles None and anything unexpectedly odd
-                continue
-            if filtertext in value.upper():
-                return True
-        return False
+            yield attrname, column
+
+    # def compatible_with_text_filter(self, filtertext: str) -> bool:
+    #     """
+    #     Is this task allowed through the text contents filter?
+    #     Does one of its text fields contain the filtertext?
+    #
+    #     (Searches all text fields, ignoring "administrative" ones.)
+    #     """
+    #     filtertext = filtertext.upper()
+    #     for attrname, column in gen_columns(self):
+    #         if attrname.startswith("_"):  # system field
+    #             continue
+    #         if not is_sqlatype_string(column.type):
+    #             continue
+    #         value = getattr(self, attrname)
+    #         if not isinstance(value, str):
+    #             # handles None and anything unexpectedly odd
+    #             continue
+    #         if filtertext in value.upper():
+    #             return True
+    #     return False
 
     # -------------------------------------------------------------------------
     # Fetching tasks for trackers/CTVs
@@ -1570,8 +1500,8 @@ class Task(GenericTabletRecordMixin, Base):
     def get_task_pks_for_tracker(
             cls,
             idnum_criteria: List[Tuple[int, int]],  # which_idnum, idnum_value
-            start_datetime: Optional[datetime.datetime],
-            end_datetime: Optional[datetime.datetime]) -> List[int]:
+            start_datetime: Optional[Pendulum],
+            end_datetime: Optional[Pendulum]) -> List[int]:
         """Get server PKs for tracker information matching the requested
         criteria, or []."""
         if not cls.provides_trackers:
@@ -1583,8 +1513,8 @@ class Task(GenericTabletRecordMixin, Base):
     def get_task_pks_for_clinical_text_view(
             cls,
             idnum_criteria: List[Tuple[int, int]],  # which_idnum, idnum_value
-            start_datetime: Optional[datetime.datetime],
-            end_datetime: Optional[datetime.datetime]) -> List[int]:
+            start_datetime: Optional[Pendulum],
+            end_datetime: Optional[Pendulum]) -> List[int]:
         """Get server PKs for CTV information matching the requested criteria,
         or []."""
         # Return ALL tasks (those not providing clinical text appear as
@@ -1596,8 +1526,8 @@ class Task(GenericTabletRecordMixin, Base):
     def get_task_pks_for_tracker_or_clinical_text_view(
             cls,
             idnum_criteria: List[Tuple[int, int]],  # which_idnum, idnum_value
-            start_datetime: Optional[datetime.datetime],
-            end_datetime: Optional[datetime.datetime]) -> List[int]:
+            start_datetime: Optional[Pendulum],
+            end_datetime: Optional[Pendulum]) -> List[int]:
         """Get server PKs matching requested criteria.
 
         Args:
@@ -1653,74 +1583,6 @@ class Task(GenericTabletRecordMixin, Base):
             query += " AND " + " AND ".join(wheres)
         return pls.db.fetchallfirstvalues(query, *args)
 
-    # -------------------------------------------------------------------------
-    # Generators for the basic research dump
-    # -------------------------------------------------------------------------
-
-    @classmethod
-    def get_all_current_pks(
-            cls,
-            start_datetime: datetime.datetime = None,
-            end_datetime: datetime.datetime = None,
-            sort: bool = False,
-            reverse: bool = False) -> List[int]:
-        """Returns PKs for all current tasks, optionally within the specified
-        date range."""
-        table = cls.tablename
-        query = """
-            SELECT _pk
-            FROM {}
-            WHERE _current
-        """.format(table)
-        wheres = []
-        args = []
-        wcfield_utc = cls.whencreated_fieldexpr_as_utc()
-        if start_datetime is not None:
-            wheres.append("{} >= ?".format(wcfield_utc))
-            args.append(start_datetime)
-        if end_datetime is not None:
-            wheres.append("{} <= ?".format(wcfield_utc))
-            args.append(end_datetime)
-        if wheres:
-            query += " AND " + " AND ".join(wheres)
-        if sort:
-            query += " ORDER BY " + wcfield_utc
-            if reverse:
-                query += " DESC"
-        return pls.db.fetchallfirstvalues(query, *args)
-
-    @classmethod
-    def gen_all_current_tasks(
-            cls,
-            start_datetime: datetime.datetime = None,
-            end_datetime: datetime.datetime = None,
-            sort: bool = False,
-            reverse: bool = False) -> Generator[TASK_FWD_REF, None, None]:
-        """Gets all tasks that are current within the specified date range.
-        Either date may be None."""
-        pks = cls.get_all_current_pks(start_datetime, end_datetime,
-                                      sort=sort, reverse=reverse)
-        for pk in pks:
-            yield cls(pk)
-        # *** CHANGE THIS: inefficient; runs multiple queries where one would do
-
-    @classmethod
-    def gen_all_tasks_matching_session_filter(
-            cls,
-            session: 'CamcopsSession',
-            sort: bool = False,
-            reverse: bool = False) -> Generator[TASK_FWD_REF, None, None]:
-        if not cls.filter_allows_task_type(session):
-            return
-            # http://stackoverflow.com/questions/13243766
-        pk_wc = cls.get_session_candidate_task_pks_whencreated(
-            session, sort=sort, reverse=reverse)
-        # Yield those that really do match the filter
-        for pk, wc in pk_wc:
-            task = cls(pk)
-            if task is not None and task.is_compatible_with_filter(session):
-                yield task
-        # *** CHANGE THIS: inefficient; runs multiple queries where one would do
 
     # -------------------------------------------------------------------------
     # TSV export for basic research dump
@@ -2010,65 +1872,70 @@ class Task(GenericTabletRecordMixin, Base):
     # HTML view
     # -------------------------------------------------------------------------
 
-    def get_core_html(self, req: CamcopsRequest) -> str:
-        html = ""
-        if self.has_clinician:
-            html += self.get_standard_clinician_block()
-        if self.has_respondent:
-            html += self.get_standard_respondent_block()
-        html += self.get_task_html(req)
-        return html
-
     def get_html(self, req: CamcopsRequest, anonymise: bool = False) -> str:
         """Returns HTML representing task."""
-        cfg = req.config
-        set_matplotlib_fontsize(cfg.PLOT_FONTSIZE)
-        req.switch_output_to_svg()
+        req.prepare_for_html_figures()
         return render("task.mako",
                       dict(task=self,
                            anonymise=anonymise,
+                           signature=False,
                            viewtype=ViewArg.HTML),
                       request=req)
-
-    def get_hyperlink_html(self, req: CamcopsRequest, text: str) -> str:
-        """Hyperlink to HTML version."""
-        return """<a href="{}" target="_blank">{}</a>""".format(
-            get_url_task_html(req, self.tablename, self._pk),
-            text
-        )
 
     # -------------------------------------------------------------------------
     # PDF view
     # -------------------------------------------------------------------------
 
-    def get_pdf(self, req: CamcopsRequest) -> bytes:
+    def get_pdf(self, req: CamcopsRequest, anonymise: bool = False) -> bytes:
         """Returns PDF representing task."""
-        cfg = req.config
-        set_matplotlib_fontsize(cfg.PLOT_FONTSIZE)
+        html = self.get_pdf_html(req, anonymise=anonymise)  # main content
         if CSS_PAGED_MEDIA:
-            req.switch_output_to_png()
-            # ... even weasyprint's SVG handling is inadequate
-            html = self.get_pdf_html(req)
-            return pdf_from_html(req, html)
+            return pdf_from_html(req, html=html)
         else:
-            req.switch_output_to_svg()  # wkhtmltopdf can cope
-            orientation = (
-                "Landscape" if self.use_landscape_for_pdf else "Portrait"
-            )
             return pdf_from_html(
                 req,
-                html=self.get_pdf_html(req),
-                header_html=self.get_pdf_header_content(req),
-                footer_html=self.get_pdf_footer_content(),
-                extra_wkhtmltopdf_options={"orientation": orientation})
+                html=html,
+                header_html=render(
+                    "wkhtmltopdf_header.mako",
+                    dict(inner_text=render("task_page_header.mako",
+                                           dict(task=self, anonymise=anonymise),
+                                           request=req)),
+                    request=req
+                ),
+                footer_html=render(
+                    "wkhtmltopdf_footer.mako",
+                    dict(inner_text=render("task_page_footer.mako",
+                                           dict(task=self),
+                                           request=req)),
+                    request=req
+                ),
+                extra_wkhtmltopdf_options={
+                    "orientation": ("Landscape" if self.use_landscape_for_pdf
+                                    else "Portrait")
+                }
+            )
 
-    def suggested_pdf_filename(self) -> str:
+    def get_pdf_html(self, req: CamcopsRequest,
+                     anonymise: bool = False) -> str:
+        """Gets HTML used to make PDF (slightly different from plain HTML)."""
+        req.prepare_for_pdf_figures()
+        return render("task.mako",
+                      dict(task=self,
+                           anonymise=anonymise,
+                           pdf_landscape=self.use_landscape_for_pdf,
+                           signature=self.has_clinician,
+                           viewtype=ViewArg.PDF),
+                      request=req)
+
+    def suggested_pdf_filename(self, req: CamcopsRequest) -> str:
         """Suggested filename for PDF."""
+        cfg = req.config
         return get_export_filename(
-            pls.PATIENT_SPEC_IF_ANONYMOUS,
-            pls.PATIENT_SPEC,
-            pls.TASK_FILENAME_SPEC,
-            VALUE.OUTPUTTYPE_PDF,
+            req=req,
+            patient_spec_if_anonymous=cfg.PATIENT_SPEC_IF_ANONYMOUS,
+            patient_spec=cfg.PATIENT_SPEC,
+            filename_spec=cfg.TASK_FILENAME_SPEC,
+            task_format=ViewArg.PDF,
             is_anonymous=self.is_anonymous,
             surname=self.patient.get_surname() if self.patient else "",
             forename=self.patient.get_forename() if self.patient else "",
@@ -2077,30 +1944,13 @@ class Task(GenericTabletRecordMixin, Base):
             idnum_objects=self.patient.get_idnum_objects() if self.patient else None,  # noqa
             creation_datetime=self.get_creation_datetime(),
             basetable=self.tablename,
-            serverpk=self._pk)
+            serverpk=self._pk
+        )
 
     def write_pdf_to_disk(self, req: CamcopsRequest, filename: str) -> None:
         """Writes PDF to disk, using filename."""
         pdffile = open(filename, "wb")
         pdffile.write(self.get_pdf(req))
-
-    def get_pdf_html(self, req: CamcopsRequest) -> str:
-        """Gets HTML used to make PDF (slightly different from plain HTML)."""
-        signature = self.has_clinician
-        return (
-            self.get_pdf_start(req) +
-            self.get_core_html(req) +
-            self.get_office_html() +
-            (SIGNATURE_BLOCK if signature else "") +
-            PDFEND
-        )
-
-    def get_hyperlink_pdf(self, req: CamcopsRequest, text: str) -> str:
-        """Hyperlink to PDF version."""
-        return """<a href="{}" target="_blank">{}</a>""".format(
-            get_url_task_pdf(req, self.tablename, self._pk),
-            text
-        )
 
     # -------------------------------------------------------------------------
     # Metadata for e.g. RiO
@@ -2189,8 +2039,8 @@ class Task(GenericTabletRecordMixin, Base):
         title = "CamCOPS_" + self.shortname
         description = self.longname
         author = self.get_clinician_name()  # may be blank
-        document_date = format_datetime_string(self.when_created,
-                                               DateFormat.RIO_EXPORT_UK)
+        document_date = format_datetime(self.when_created,
+                                        DateFormat.RIO_EXPORT_UK)
         # This STRIPS the timezone information; i.e. it is in the local
         # timezone but doesn't tell you which timezone that is. (That's fine;
         # it should be local or users would be confused.)
@@ -2214,111 +2064,8 @@ class Task(GenericTabletRecordMixin, Base):
         return csv_line + "\n"
 
     # -------------------------------------------------------------------------
-    # HTML components
-    # -------------------------------------------------------------------------
-
-    def get_html_start(self, req: CamcopsRequest) -> str:
-        """Opening HTML, including CSS."""
-        return (
-            pls.WEBSTART +
-            self.get_task_header_html(req)
-        )
-
-    def get_pdf_header_content(self, req: CamcopsRequest) -> str:
-        anonymous = self.is_anonymous
-        if anonymous:
-            content = self.get_anonymous_page_header_html(req)
-        else:
-            content = self.patient.get_html_for_page_header(req)
-        return pdf_header_content(content)
-
-    def get_pdf_footer_content(self) -> str:
-        taskname = ws.webify(self.shortname)
-        created = format_datetime_string(self.when_created,
-                                         DateFormat.LONG_DATETIME)
-        content = "{} created {}.".format(taskname, created)
-        return pdf_footer_content(content)
-
-    def get_pdf_start(self, req: CamcopsRequest) -> str:
-        """Opening HTML for PDF, including CSS."""
-        if CSS_PAGED_MEDIA:
-            if self.use_landscape_for_pdf:
-                head = PDF_HEAD_LANDSCAPE
-            else:
-                head = PDF_HEAD_PORTRAIT
-            pdf_header_footer = (
-                self.get_pdf_header_content(req) +
-                self.get_pdf_footer_content()
-            )
-        else:
-            head = PDF_HEAD_NO_PAGED_MEDIA
-            pdf_header_footer = ""
-        return (
-            head +
-            pdf_header_footer +
-            pls.PDF_LOGO_LINE +
-            self.get_task_header_html(req)
-        )
-
-    # noinspection PyMethodMayBeStatic
-    def get_anonymous_page_header_html(self, req: CamcopsRequest) -> str:
-        """Page header for anonymous tasks. Goes in the page margins for PDFs.
-        """
-        return req.wappstring("anonymous_task")
-
-
-    def get_tablet_version(self) -> Version:
-        return make_version(self._camcops_version)
-
-    def get_superuser_nav_options(self,
-                                  req: CamcopsRequest,
-                                  offer_add_note: bool,
-                                  offer_erase: bool,
-                                  offer_edit_patient: bool) -> str:
-        options = []
-        if offer_add_note:
-            options.append(
-                '<a href="{}">Apply special note</a>'.format(
-                    get_url_add_special_note(req,
-                                             self.tablename, self._pk),
-                )
-            )
-        if offer_erase and not self.is_erased() and self._era != ERA_NOW:
-            # Note: prohibit manual erasure for non-finalized tasks.
-            options.append(
-                '<a href="{}">Erase task instance</a>'.format(
-                    get_url_erase_task(req,
-                                       self.tablename, self._pk),
-                )
-            )
-        if (offer_edit_patient and
-                not self.is_anonymous and
-                self.patient and
-                self._era != ERA_NOW):
-            options.append(
-                '<a href="{}">Edit patient details</a>'.format(
-                    self.patient.get_url_edit_patient(req)
-                )
-            )
-        if not options:
-            return ""
-        return """
-            <div class="superuser">
-                {}
-            </div>
-        """.format("<br>".join(options))
-
-    # -------------------------------------------------------------------------
     # HTML elements used by tasks
     # -------------------------------------------------------------------------
-
-    # noinspection PyMethodMayBeStatic
-    def get_standard_clinician_block(self) -> str:
-        """
-        HTML DIV for clinician information.
-        Overridden by TaskHasClinicianMixin.
-        """
-        return ""
 
     # noinspection PyMethodMayBeStatic
     def get_standard_clinician_comments_block(self, comments: str) -> str:
@@ -2335,14 +2082,6 @@ class Task(GenericTabletRecordMixin, Base):
         """.format(
             ws.bold_if_not_blank(ws.webify(comments))
         )
-
-    # noinspection PyMethodMayBeStatic
-    def get_standard_respondent_block(self) -> str:
-        """
-        HTML DIV for respondent information.
-        Overridden by TaskHasRespondentMixin
-        """
-        return ""
 
     def get_is_complete_td_pair(self, req: CamcopsRequest) -> str:
         """HTML to indicate whether task is complete or not, and to make it
@@ -2379,28 +2118,32 @@ class Task(GenericTabletRecordMixin, Base):
         return tr_qa(label, getattr(self, fieldname))
 
     def get_twocol_bool_row(self,
+                            req: CamcopsRequest,
                             fieldname: str,
                             label: str = None) -> str:
         """HTML table row, two columns, with Boolean Y/N formatter."""
         if label is None:
             label = fieldname
-        return tr_qa(label, get_yes_no_none(getattr(self, fieldname)))
+        return tr_qa(label, get_yes_no_none(req, getattr(self, fieldname)))
 
     def get_twocol_bool_row_true_false(self,
+                                       req: CamcopsRequest,
                                        fieldname: str,
                                        label: str = None) -> str:
         """HTML table row, two columns, with Boolean T/F formatter."""
         if label is None:
             label = fieldname
-        return tr_qa(label, get_true_false_none(getattr(self, fieldname)))
+        return tr_qa(label, get_true_false_none(req, getattr(self, fieldname)))
 
     def get_twocol_bool_row_present_absent(self,
+                                           req: CamcopsRequest,
                                            fieldname: str,
                                            label: str = None) -> str:
         """HTML table row, two columns, with Boolean P/A formatter."""
         if label is None:
             label = fieldname
-        return tr_qa(label, get_present_absent_none(getattr(self, fieldname)))
+        return tr_qa(label, get_present_absent_none(req,
+                                                    getattr(self, fieldname)))
 
     @staticmethod
     def get_twocol_picture_row(blob: Optional[Blob], label: str) -> str:
@@ -2517,8 +2260,8 @@ class Task(GenericTabletRecordMixin, Base):
     def get_extrastring_taskname(self) -> str:
         return self.extrastring_taskname or self.tablename
 
-    def extrastrings_exist(self) -> bool:
-        return task_extrastrings_exist(self.get_extrastring_taskname())
+    def extrastrings_exist(self, req: CamcopsRequest) -> bool:
+        return req.task_extrastrings_exist(self.get_extrastring_taskname())
 
     def wxstring(self,
                  req: CamcopsRequest,
@@ -3008,13 +2751,6 @@ def task_instance_unit_test(req: CamcopsRequest,
     unit_test_ignore("Testing {}.get_extra_dictlist_for_tsv".format(
         name), instance.get_extra_dictlist_for_tsv)
 
-    literals = ["hello"]
-    datetimes = [datetime.date(2014, 1, 1)]
-    regexes = (
-        [get_literal_regex(x) for x in literals] +
-        [get_date_regex(dt) for dt in datetimes]
-    )
-
     unit_test_ignore("Testing {}.get_fields".format(name),
                      instance.get_fields)
     unit_test_ignore("Testing {}.field_contents_valid".format(name),
@@ -3182,8 +2918,6 @@ def task_instance_unit_test(req: CamcopsRequest,
     unit_test_ignore("Testing {}.get_hyperlink_pdf".format(name),
                      instance.get_hyperlink_pdf, "PDF")
 
-    unit_test_ignore("Testing {}.get_html_start".format(name),
-                     instance.get_html_start)
     unit_test_ignore("Testing {}.get_pdf_start".format(name),
                      instance.get_pdf_start)
     unit_test_ignore("Testing {}.get_anonymous_page_header_html".format(name),

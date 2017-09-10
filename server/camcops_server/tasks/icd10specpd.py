@@ -34,7 +34,7 @@ from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 from ..cc_modules.cc_constants import DateFormat, ICD10_COPYRIGHT_DIV, PV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import add_multiple_columns
-from ..cc_modules.cc_dt import format_datetime_string
+from ..cc_modules.cc_dt import format_datetime
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no_none,
@@ -46,7 +46,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
@@ -189,7 +189,7 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     longname = "ICD-10 criteria for specific personality disorders (F60)"
 
     date_pertains_to = Column(
-        "date_pertains_to", ArrowDateTimeAsIsoTextColType,
+        "date_pertains_to", PendulumDateTimeAsIsoTextColType,
         comment="Date the assessment pertains to"
     )
     comments = Column(
@@ -509,8 +509,7 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def pd_skiprow(self, req: CamcopsRequest, stem: str) -> str:
         return self.get_twocol_bool_row(
-            "skip_" + stem,
-            label=self.wxstring(req, "skip_this_pd"))
+            req, "skip_" + stem, label=self.wxstring(req, "skip_this_pd"))
 
     def pd_subheading(self, req: CamcopsRequest, wstringname: str) -> str:
         return """
@@ -532,7 +531,7 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def pd_basic_row(self, req: CamcopsRequest, stem: str, i: int) -> str:
         return self.get_twocol_bool_row_true_false(
-            stem + str(i), self.wxstring(req, stem + str(i)))
+            req, stem + str(i), self.wxstring(req, stem + str(i)))
 
     def standard_pd_html(self, req: CamcopsRequest, stem: str, n: int) -> str:
         html = self.pd_heading(req, stem + "_pd_title")
@@ -549,8 +548,8 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                 <table class="summary">
         """ + self.get_is_complete_tr(req)
         h += tr_qa(req.wappstring("date_pertains_to"),
-                   format_datetime_string(self.date_pertains_to,
-                                          DateFormat.LONG_DATE, default=None))
+                   format_datetime(self.date_pertains_to,
+                                   DateFormat.LONG_DATE, default=None))
         h += tr_qa(self.wxstring(req, "meets_general_criteria"),
                    get_yes_no_none(req, self.has_pd()))
         h += tr_qa(self.wxstring(req, "paranoid_pd_title"),
@@ -590,14 +589,15 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
         # General
         h += subheading_spanning_two_columns(self.wxstring(req, "general"))
-        h += self.get_twocol_bool_row_true_false("g1", self.wxstring(req, "G1"))
+        h += self.get_twocol_bool_row_true_false(
+            req, "g1", self.wxstring(req, "G1"))
         h += self.pd_b_text(req, "G1b")
         for i in range(1, Icd10SpecPD.N_GENERAL_1 + 1):
             h += self.get_twocol_bool_row_true_false(
-                "g1_" + str(i), self.wxstring(req, "G1_" + str(i)))
+                req, "g1_" + str(i), self.wxstring(req, "G1_" + str(i)))
         for i in range(2, Icd10SpecPD.N_GENERAL + 1):
             h += self.get_twocol_bool_row_true_false(
-                "g" + str(i), self.wxstring(req, "G" + str(i)))
+                req, "g" + str(i), self.wxstring(req, "G" + str(i)))
 
         # Paranoid, etc.
         h += self.standard_pd_html(req, "paranoid", Icd10SpecPD.N_PARANOID)

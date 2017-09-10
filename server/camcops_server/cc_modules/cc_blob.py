@@ -27,6 +27,7 @@ import logging
 from typing import Optional
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from pendulum import Pendulum
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
@@ -134,8 +135,8 @@ class Blob(GenericTabletRecordMixin, Base):
             device_id: int,
             clientpk: int,
             era: str,
-            referrer_added_utc: datetime.datetime,
-            referrer_removed_utc: Optional[datetime.datetime]) \
+            referrer_added_utc: Pendulum,
+            referrer_removed_utc: Optional[Pendulum]) \
             -> Optional['Blob']:
         """
         Returns a contemporaneous Blob object, or None.

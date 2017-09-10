@@ -24,6 +24,9 @@
         </%block>
     </head>
     <body <%block name="body_tags"></%block>>
+        <%block name="header_block"></%block>
+        <%block name="footer_block"></%block>
+        ## ... for CSS paged media
         <%block name="logo"></%block>
 
         ${self.body()}

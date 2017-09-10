@@ -1,14 +1,21 @@
 ## main_menu.mako
 <%inherit file="base_web.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+%>
+
 <%include file="db_user_info.mako"/>
 
 <h1>CamCOPS web view: Main menu</h1>
 
 <ul>
+    <li><a href="${ request.route_url(Routes.SET_FILTERS, _query={
+                    ViewParam.REDIRECT_URL: request.route_url(Routes.HOME)
+                }) }">Set task filters</a></li>
     <li><a href="${request.route_url(Routes.VIEW_TASKS)}">View tasks</a></li>
     <li><a href="${request.route_url(Routes.CHOOSE_TRACKER)}">Trackers for numerical information</a></li>
-    <li><a href="${request.route_url(Routes.CHOOSE_CLINICALTEXTVIEW)}">Clinical text view</a></li>
+    <li><a href="${request.route_url(Routes.CHOOSE_CTV)}">Clinical text view</a></li>
 </ul>
 
 %if authorized_for_reports or authorized_to_dump:
@@ -24,7 +31,6 @@
         ## <li><a href="FILL_ME_IN">Regenerate summary tables</a></li>
         <li><a href="${request.route_url(Routes.OFFER_TABLE_DUMP)}">Dump table/view data</a></li>
         <li><a href="${request.route_url(Routes.INSPECT_TABLE_DEFS)}">Inspect table definitions</a>
-            (... <a href="${request.route_url(Routes.INSPECT_TABLE_VIEW_DEFS)}">including views</a>)</li>
     %endif
 
     </ul>

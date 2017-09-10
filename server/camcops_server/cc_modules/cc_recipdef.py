@@ -32,8 +32,9 @@ from cardinal_pythonlib.configfiles import (
     get_config_parameter_boolean,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from pendulum import Pendulum
 
-from .cc_dt import get_date_from_string
+from .cc_dt import coerce_to_date
 from .cc_filename import (
     filename_spec_is_valid,
     get_export_filename,
@@ -47,6 +48,7 @@ from .cc_constants import VALUE
 
 if TYPE_CHECKING:
     from .cc_patientidnum import PatientIdNum
+    from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -147,8 +149,8 @@ class RecipientDefinition(object):
         self.type = None  # type: str
         self.primary_idnum = None  # type: int
         self.require_idnum_mandatory = True
-        self.start_date = None  # type: datetime.datetime
-        self.end_date = None  # type: datetime.datetime
+        self.start_date = None  # type: Pendulum
+        self.end_date = None  # type: Pendulum
         self.finalized_only = True
         self.task_format = None  # type: str
         self.xml_field_comments = True
@@ -222,10 +224,10 @@ class RecipientDefinition(object):
                 True)
             sd = get_config_parameter(
                 config, section, "START_DATE", str, None)
-            self.start_date = get_date_from_string(sd)
+            self.start_date = coerce_to_date(sd)
             ed = get_config_parameter(
                 config, section, "END_DATE", str, None)
-            self.end_date = get_date_from_string(ed)
+            self.end_date = coerce_to_date(ed)
             self.finalized_only = get_config_parameter_boolean(
                 config, section, "FINALIZED_ONLY", True)
             self.task_format = get_config_parameter(
@@ -426,21 +428,23 @@ class RecipientDefinition(object):
         return self.idnum_aa_list.get(which_idnum, None)
 
     def get_filename(self,
+                     req: "CamcopsRequest",
                      is_anonymous: bool = False,
                      surname: str = None,
                      forename: str = None,
-                     dob: datetime.datetime = None,
+                     dob: Pendulum = None,
                      sex: str = None,
                      idnum_objects: List['PatientIdNum'] = None,
-                     creation_datetime: datetime.datetime = None,
+                     creation_datetime: Pendulum = None,
                      basetable: str = None,
                      serverpk: int = None) -> str:
         """Get filename, for file transfers."""
         return get_export_filename(
-            self.patient_spec_if_anonymous,
-            self.patient_spec,
-            self.filename_spec,
-            self.task_format,
+            req=req,
+            patient_spec_if_anonymous=self.patient_spec_if_anonymous,
+            patient_spec=self.patient_spec,
+            filename_spec=self.filename_spec,
+            task_format=self.task_format,
             is_anonymous=is_anonymous,
             surname=surname,
             forename=forename,
@@ -449,7 +453,8 @@ class RecipientDefinition(object):
             idnum_objects=idnum_objects,
             creation_datetime=creation_datetime,
             basetable=basetable,
-            serverpk=serverpk)
+            serverpk=serverpk
+        )
 
     def __str__(self):
         """String representation."""

@@ -34,7 +34,7 @@ from ..cc_modules.cc_html import answer
 from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
     DiagnosticCodeColType,
 )
 from ..cc_modules.cc_sqlalchemy import Base
@@ -92,8 +92,8 @@ class DemoQuestionnaire(Task,
     typedvar_text_rich = Column("typedvar_text_rich", UnicodeText)  # v2
     typedvar_int = Column("typedvar_int", Integer)
     typedvar_real = Column("typedvar_real", Float)
-    date_only = Column("date_only", ArrowDateTimeAsIsoTextColType)
-    date_time = Column("date_time", ArrowDateTimeAsIsoTextColType)
+    date_only = Column("date_only", PendulumDateTimeAsIsoTextColType)
+    date_time = Column("date_time", PendulumDateTimeAsIsoTextColType)
     thermometer = Column("thermometer", Integer)
     diagnosticcode_code = Column("diagnosticcode_code", DiagnosticCodeColType)
     diagnosticcode_description = Column(
@@ -154,13 +154,13 @@ class DemoQuestionnaire(Task,
         for i in range(1, N_MCQ + 1):
             h += self.get_twocol_val_row("mcq" + str(i))
         for i in range(1, N_MCQBOOL + 1):
-            h += self.get_twocol_bool_row("mcqbool" + str(i))
+            h += self.get_twocol_bool_row(req, "mcqbool" + str(i))
         for i in range(1, N_MULTIPLERESPONSE + 1):
-            h += self.get_twocol_bool_row("multipleresponse" + str(i))
+            h += self.get_twocol_bool_row(req, "multipleresponse" + str(i))
         for i in range(1, N_BOOLTEXT + 1):
-            h += self.get_twocol_bool_row("booltext" + str(i))
+            h += self.get_twocol_bool_row(req, "booltext" + str(i))
         for i in range(1, N_BOOLIMAGE + 1):
-            h += self.get_twocol_bool_row("boolimage" + str(i))
+            h += self.get_twocol_bool_row(req, "boolimage" + str(i))
         for i in range(1, N_PICKER + 1):
             h += self.get_twocol_val_row("picker" + str(i))
         for i in range(1, N_SLIDER + 1):

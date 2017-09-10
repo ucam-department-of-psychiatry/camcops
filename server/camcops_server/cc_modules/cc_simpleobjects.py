@@ -22,8 +22,12 @@
 ===============================================================================
 """
 
-import datetime
-from typing import List
+from typing import Any, List, TYPE_CHECKING
+
+from pendulum import Date
+
+if TYPE_CHECKING:
+    from .cc_request import CamcopsRequest
 
 # Prefer classes to collections.namedtuple; both support type checking but
 # classes support better parameter checking (and refactoring) via PyCharm.
@@ -37,6 +41,27 @@ class IdNumDefinition(object):
     def __init__(self, which_idnum: int, idnum_value: int) -> None:
         self.which_idnum = which_idnum
         self.idnum_value = idnum_value
+
+    def is_valid(self) -> bool:
+        return (
+            self.which_idnum is not None and self.which_idnum > 0 and
+            self.idnum_value is not None and self.idnum_value > 0
+        )
+
+    def __eq__(self, other: "IdNumDefinition") -> bool:
+        if not isinstance(other, IdNumDefinition):
+            return False
+        return (
+            self.which_idnum == other.which_idnum and
+            self.idnum_value == other.idnum_value
+        )
+
+    def description(self, req: "CamcopsRequest") -> str:
+        if not self.is_valid():
+            return "[invalid_IdNumDefinition]"
+        cfg = req.config
+        return "{d} = {v}".format(d=cfg.get_id_shortdesc(self.which_idnum),
+                                  v=self.idnum_value)
 
 
 # =============================================================================
@@ -63,7 +88,7 @@ class BarePatientInfo(object):
     def __init__(self,
                  forename: str = None,
                  surname: str = None,
-                 dob: datetime.date = None,
+                 dob: Date = None,
                  sex: str = None,
                  idnum_definitions: List[IdNumDefinition] = None) -> None:
         self.forename = forename

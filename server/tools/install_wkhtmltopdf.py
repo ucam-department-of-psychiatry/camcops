@@ -104,7 +104,8 @@ else:
     distro = 'UNKNOWN'
 
 url_stem = (
-    'http://download.gna.org/wkhtmltopdf/{MAJOR_VERSION}/'
+    # 'http://download.gna.org/wkhtmltopdf/{MAJOR_VERSION}/
+    'https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/'
     '{MINOR_VERSION}/'.format(
         MAJOR_VERSION=MAJOR_VERSION,
         MINOR_VERSION=MINOR_VERSION,

@@ -304,10 +304,11 @@ camcops_server
     include_package_data=True,  # use MANIFEST.in during install?
 
     install_requires=[
-        'arrow==0.10.0',  # better datetime
+        # 'arrow==0.10.0',  # better datetime
         'cardinal_pythonlib==1.0.2',  # RNC libraries
         'colorlog==2.6.1',  # colour in logs
         'deform==2.0.4',  # web forms
+        # 'deform-bootstrap==0.2.9',  # deform with layout made easier
         'distro==1.0.4',  # detecting Linux distribution
         'dogpile.cache==0.6.4',  # web caching
         'gunicorn==19.3.0',  # 'Internal' web server
@@ -317,6 +318,7 @@ camcops_server
         'mysqlclient==1.3.10',  # for mysql+mysqldb://...
         'numpy==1.13.1',  # Used by some tasks. SLOW INSTALLATION. Previously 1.10.2. ??? BEFORE MATPLOTLIB ??? See https://stackoverflow.com/questions/37515053  # noqa
         'paginate==0.5.6',  # pagination for web server
+        'pendulum==1.2.5',  # better than Arrow
         'pdfkit==0.5.0',  # wkhtmltopdf interface, for PDF generation from HTML
         'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt
         'Pygments==2.0.2',  # Syntax highlighting for introspection

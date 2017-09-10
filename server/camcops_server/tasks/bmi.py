@@ -134,7 +134,7 @@ class Bmi(TaskHasPatientMixin, Task):
                 "BMI: {} kg⋅m<sup>–2</sup> [{}]. Mass: {} kg. "
                 "Height: {} m.".format(
                     ws.number_to_dp(self.bmi(), BMI_DP),
-                    self.category(),
+                    self.category(req),
                     ws.number_to_dp(self.mass_kg, KG_DP),
                     ws.number_to_dp(self.height_m, M_DP)
                 )
@@ -153,7 +153,7 @@ class Bmi(TaskHasPatientMixin, Task):
             return None
         return self.mass_kg / (self.height_m * self.height_m)
 
-    def category(self) -> str:
+    def category(self, req: CamcopsRequest) -> str:
         bmi = self.bmi()
         if bmi is None:
             return "?"
@@ -188,7 +188,7 @@ class Bmi(TaskHasPatientMixin, Task):
         h += self.get_is_complete_tr(req)
         h += tr_qa("BMI (kg/m<sup>2</sup>)",
                    ws.number_to_dp(self.bmi(), BMI_DP))
-        h += tr_qa("Category <sup>[1]</sup>", self.category())
+        h += tr_qa("Category <sup>[1]</sup>", self.category(req))
         h += """
                 </table>
             </div>

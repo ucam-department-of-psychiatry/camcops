@@ -34,7 +34,7 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
     ZERO_TO_ONE_CHECKER,
 )
 from ..cc_modules.cc_sqlalchemy import Base
@@ -56,7 +56,7 @@ class QolSG(TaskHasPatientMixin, Task):
     provides_trackers = True
 
     category_start_time = Column(
-        "category_start_time", ArrowDateTimeAsIsoTextColType,
+        "category_start_time", PendulumDateTimeAsIsoTextColType,
         comment="Time categories were offered (ISO-8601)"
     )
     category_responded = CamcopsColumn(
@@ -65,7 +65,7 @@ class QolSG(TaskHasPatientMixin, Task):
         comment="Responded to category choice? (0 no, 1 yes)"
     )
     category_response_time = Column(
-        "category_response_time", ArrowDateTimeAsIsoTextColType,
+        "category_response_time", PendulumDateTimeAsIsoTextColType,
         comment="Time category was chosen (ISO-8601)"
     )
     category_chosen = Column(
@@ -98,7 +98,7 @@ class QolSG(TaskHasPatientMixin, Task):
         comment="Gamble: starting value of p"
     )
     gamble_start_time = Column(
-        "gamble_start_time", ArrowDateTimeAsIsoTextColType,
+        "gamble_start_time", PendulumDateTimeAsIsoTextColType,
         comment="Time gamble was offered (ISO-8601)"
     )
     gamble_responded = CamcopsColumn(
@@ -107,7 +107,7 @@ class QolSG(TaskHasPatientMixin, Task):
         comment="Gamble was responded to? (0 no, 1 yes)"
     )
     gamble_response_time = Column(
-        "gamble_response_time", ArrowDateTimeAsIsoTextColType,
+        "gamble_response_time", PendulumDateTimeAsIsoTextColType,
         comment="Time subject responded to gamble (ISO-8601)"
     )
     gamble_p = CamcopsColumn(

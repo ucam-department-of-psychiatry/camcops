@@ -254,7 +254,7 @@ class HadsBase(TaskHasPatientMixin, Task,
     def get_task_html(self, req: CamcopsRequest) -> str:
         min_score = 0
         max_score = 3
-        crippled = not self.extrastrings_exist()
+        crippled = not self.extrastrings_exist(req)
         a = self.anxiety_score()
         d = self.depression_score()
         h = """

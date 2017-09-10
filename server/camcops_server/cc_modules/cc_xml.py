@@ -27,8 +27,8 @@ import datetime
 from typing import Any, Dict, List, Optional
 import xml.sax.saxutils
 
-from arrow import Arrow
 from cardinal_pythonlib.sqlalchemy.orm_inspect import get_orm_columns
+from pendulum import Date, Pendulum, Time
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
@@ -61,12 +61,14 @@ XML_IGNORE_NAMESPACES = [
 
 
 class XmlDataTypes(object):
-    BASE64BINARY = "bas64Binary"
+    BASE64BINARY = "base64Binary"
     BOOLEAN = "boolean"
+    DATE = "date"
     DATETIME = "dateTime"
     DOUBLE = "double"
     INTEGER = "integer"
     STRING = "string"
+    TIME = "time"
 
 
 # =============================================================================
@@ -156,8 +158,12 @@ def get_xml_datatype_from_sqla_column_type(
     # http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html
     try:
         pt = coltype.python_type
-        if isinstance(pt, datetime.datetime) or isinstance(pt, Arrow):
+        if isinstance(pt, datetime.datetime) or isinstance(pt, Pendulum):
             return XmlDataTypes.DATETIME
+        if isinstance(pt, datetime.date) or isinstance(pt, Date):
+            return XmlDataTypes.DATE
+        if isinstance(pt, datetime.date) or isinstance(pt, Time):
+            return XmlDataTypes.TIME
         if isinstance(pt, int):
             return XmlDataTypes.INTEGER
         if isinstance(pt, float):

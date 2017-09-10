@@ -381,7 +381,7 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     def is_complete(self) -> bool:
         return (
             self.field_contents_valid() and
-            self.are_all_fields_complete(self.TASK_FIELDS_EXCEPT_3C1) and
+            self.are_all_fields_complete(self.task_fields_except_3c1()) and
             (self.q3c1 is not None or not self.q3c)
         )
 

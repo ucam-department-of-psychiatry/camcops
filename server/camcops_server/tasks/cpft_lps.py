@@ -27,9 +27,9 @@ from typing import Any, List, Optional
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, Text, UnicodeText
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from ..cc_modules.cc_dt import format_datetime_string
+from ..cc_modules.cc_dt import format_datetime
 from ..cc_modules.cc_constants import DateFormat, INVALID_VALUE, PARAM
 from ..cc_modules.cc_ctvinfo import CtvInfo
 from ..cc_modules.cc_html import (
@@ -52,7 +52,7 @@ from ..cc_modules.cc_sqla_coltypes import (
     BoolColumn,
     CamcopsColumn,
     CharColType,
-    ArrowDateTimeAsIsoTextColType,
+    PendulumDateTimeAsIsoTextColType,
     DiagnosticCodeColType,
     PermittedValueChecker,
 )
@@ -73,7 +73,7 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     shortname = "CPFT_LPS_Referral"
     longname = "Referral to CPFT Liaison Psychiatry Service"
 
-    referral_date_time = Column("referral_date_time", ArrowDateTimeAsIsoTextColType)
+    referral_date_time = Column("referral_date_time", PendulumDateTimeAsIsoTextColType)
     lps_division = Column("lps_division", UnicodeText)
     referral_priority = Column("referral_priority", UnicodeText)
     referral_method = Column("referral_method", UnicodeText)
@@ -83,9 +83,9 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     referring_specialty = Column("referring_specialty", UnicodeText)
     referring_specialty_other = Column("referring_specialty_other", UnicodeText)
     patient_location = Column("patient_location", UnicodeText)
-    admission_date = Column("admission_date", ArrowDateTimeAsIsoTextColType)
+    admission_date = Column("admission_date", PendulumDateTimeAsIsoTextColType)
     estimated_discharge_date = Column(
-        "estimated_discharge_date", ArrowDateTimeAsIsoTextColType
+        "estimated_discharge_date", PendulumDateTimeAsIsoTextColType
     )
     patient_aware_of_referral = BoolColumn("patient_aware_of_referral")
     interpreter_required = BoolColumn("interpreter_required")
@@ -208,10 +208,9 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
         """.format(
             banner_class,
             answer(division_name, default_for_blank_strings=True),
-            answer(format_datetime_string(
-                self.referral_date_time,
-                DateFormat.SHORT_DATETIME_WITH_DAY_NO_TZ,
-                default=None)),
+            answer(format_datetime(self.referral_date_time,
+                                   DateFormat.SHORT_DATETIME_WITH_DAY_NO_TZ,
+                                   default=None)),
             self.get_is_complete_tr(req),
         )
         h += subheading_spanning_four_columns(
@@ -255,16 +254,15 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
             </tr>
         """.format(
             self.wxstring(req, "f_admission_date"),
-            answer(format_datetime_string(self.admission_date,
-                                          DateFormat.LONG_DATE,
-                                          default=None), ""),
+            answer(format_datetime(self.admission_date, DateFormat.LONG_DATE,
+                                   default=None), ""),
             self.wxstring(req, "f_patient_location"),
             answer(self.patient_location)
         )
         h += self.four_column_row(
             self.wxstring(req, "f_estimated_discharge_date"),
-            format_datetime_string(self.estimated_discharge_date,
-                                   DateFormat.LONG_DATE, ""),
+            format_datetime(self.estimated_discharge_date,
+                            DateFormat.LONG_DATE, ""),
             self.wxstring(req, "f_patient_aware_of_referral"),
             get_yes_no_none(req, self.patient_aware_of_referral)
         )
@@ -314,7 +312,7 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
     longname = "Reset response clock (CPFT Liaison Psychiatry Service)"
 
     reset_start_time_to = Column(
-        "reset_start_time_to", ArrowDateTimeAsIsoTextColType
+        "reset_start_time_to", PendulumDateTimeAsIsoTextColType
     )
     reason = Column("reason", UnicodeText)
 
@@ -343,9 +341,9 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
         )
         h += tr_qa(
             self.wxstring(req, "to"),
-            format_datetime_string(self.reset_start_time_to,
-                                   DateFormat.LONG_DATETIME_WITH_DAY,
-                                   default=None))
+            format_datetime(self.reset_start_time_to,
+                            DateFormat.LONG_DATETIME_WITH_DAY,
+                            default=None))
         h += tr_qa(self.wxstring(req, "reason"), self.reason)
         h += """
             </table>
@@ -362,7 +360,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     shortname = "CPFT_LPS_Discharge"
     longname = "Discharge from CPFT Liaison Psychiatry Service"
 
-    discharge_date = Column("discharge_date", ArrowDateTimeAsIsoTextColType)
+    discharge_date = Column("discharge_date", PendulumDateTimeAsIsoTextColType)
     discharge_reason_code = Column("discharge_reason_code", UnicodeText)
 
     leaflet_or_discharge_card_given = BoolColumn(
@@ -656,9 +654,9 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
             self.get_is_complete_tr(req),
         )
         h += tr_qa(self.wxstring(req, "discharge_date"),
-                   format_datetime_string(self.discharge_date,
-                                          DateFormat.LONG_DATE_WITH_DAY,
-                                          default=None), "")
+                   format_datetime(self.discharge_date,
+                                   DateFormat.LONG_DATE_WITH_DAY,
+                                   default=None), "")
         h += tr_qa(self.wxstring(req, "discharge_reason"),
                    self.get_discharge_reason(req), "")
         h += tr_qa(self.wxstring(req, "leaflet_or_discharge_card_given"),

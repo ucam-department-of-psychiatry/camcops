@@ -26,7 +26,6 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
-import matplotlib.pyplot as plt
 import numpy
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
@@ -516,7 +515,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         if self.is_complete():
             figsize = (FULLWIDTH_PLOT_WIDTH / 3, FULLWIDTH_PLOT_WIDTH / 4)
             width = 0.9
-            fig = plt.figure(figsize=figsize)
+            fig = req.create_figure(figsize=figsize)
             ax = fig.add_subplot(1, 1, 1)
             scores = numpy.array([a, m, f, l, v])
             maxima = numpy.array([ATTN_MAX, MEMORY_MAX, FLUENCY_MAX,
@@ -532,7 +531,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             x_offset = -0.5
             ax.set_xlim(0 + x_offset, len(scores) + x_offset)
             ax.set_xticklabels(x_labels)
-            plt.tight_layout()  # or the ylabel drops off the figure
+            FIXME *** plt.tight_layout()  # or the ylabel drops off the figure
             # fig.autofmt_xdate()
             figurehtml = get_html_from_pyplot_figure(req, fig)
         return (

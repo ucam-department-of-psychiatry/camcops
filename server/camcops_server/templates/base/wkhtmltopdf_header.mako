@@ -1,7 +1,6 @@
 ## wkhtmltopdf_header.mako
 ## USED TO MAKE SEPARATE HEADER HTML FILES FOR WKHTMLTOPDF.
 ## WORKS IN CONJUNCTION WITH wkhtmltopdf_footer.mako
-<%page args="inner_text: str"/>
 <%inherit file="base.mako"/>
 
 <%block name="css">
