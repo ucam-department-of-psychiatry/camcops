@@ -38,7 +38,7 @@ from .cc_sqla_coltypes import (
     TableNameColType,
 )
 from .cc_sqlalchemy import Base
-from .cc_xml import make_xml_branches_from_fieldspecs, XmlElement
+from .cc_xml import make_xml_branches_from_columns, XmlElement
 
 
 # =============================================================================
@@ -125,7 +125,7 @@ class SpecialNote(Base):
     def get_xml_root(self, skip_fields: List[str] = None) -> XmlElement:
         """Get root of XML tree, as an XmlElementTuple."""
         skip_fields = skip_fields or []
-        branches = make_xml_branches_from_fieldspecs(
+        branches = make_xml_branches_from_columns(
             self, skip_fields=skip_fields)
         return XmlElement(name=self.TABLENAME, value=branches)
 

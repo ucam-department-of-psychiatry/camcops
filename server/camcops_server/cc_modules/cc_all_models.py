@@ -35,7 +35,7 @@ from cardinal_pythonlib.logs import (
 )
 from sqlalchemy.orm import configure_mappers
 
-from .cc_sqlalchemy import Base, make_debug_sqlite_engine, print_all_ddl
+from .cc_sqlalchemy import Base, make_debug_sqlite_engine, log_all_ddl
 
 # =============================================================================
 # Non-task model imports
@@ -124,7 +124,7 @@ class ModelTests(unittest.TestCase):
     @staticmethod
     def test_show_ddl() -> None:
         # from cardinal_pythonlib.debugging import pdb_run
-        print_all_ddl()
+        log_all_ddl()
         # pdb_run(print_all_ddl)
 
     @staticmethod

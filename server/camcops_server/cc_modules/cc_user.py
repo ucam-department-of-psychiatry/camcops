@@ -42,7 +42,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from .cc_audit import audit
-from .cc_constants import ACTION, PARAM, DateFormat
+from .cc_constants import ACTION, MINIMUM_PASSWORD_LENGTH, PARAM, DateFormat
 from .cc_dt import (
     coerce_to_pendulum,
     convert_datetime_to_local,
@@ -95,7 +95,6 @@ class LABEL(object):
     MAY_ADD_NOTES = "May add special notes to tasks"
 
 
-MINIMUM_PASSWORD_LENGTH = 8
 VALID_USERNAME_REGEX = "^[A-Za-z0-9_-]+$"
 BCRYPT_DEFAULT_LOG_ROUNDS = 6
 # Default is 12, but it does impact on the tablet upload speed (cost per

@@ -22,9 +22,8 @@
 ===============================================================================
 """
 
-import datetime
 import logging
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Pendulum
@@ -42,11 +41,13 @@ from .cc_sqla_coltypes import (
     MimeTypeColType,
     # TableNameColType, # *** to be added once Alembic up
 )
-from .cc_request import CamcopsRequest
 from .cc_sqla_coltypes import LongBlob
 from .cc_sqlalchemy import Base
 from .cc_unittest import unit_test_ignore
 from .cc_xml import get_xml_blob_tuple, XmlElement
+
+if TYPE_CHECKING:
+    from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -176,10 +177,10 @@ class Blob(GenericTabletRecordMixin, Base):
         return get_embedded_img_tag(self.mimetype or MIMETYPE_PNG, image_bits)
         # Historically, CamCOPS supported only PNG, so add this as a default
 
-    def get_image_xml_tuple(self, name: str) -> XmlElement:
-        """Returns an XmlElementTuple for this object."""
+    def get_xml_element_value_binary(self) -> bytes:
+        """Returns a binary value for this object, to be encoded into XML."""
         image_bits = self.get_rotated_image()
-        return get_xml_blob_tuple(name, image_bits)
+        return image_bits
 
     def get_data_url(self) -> str:
         """Returns a data URL encapsulating the BLOB, or ''."""
@@ -253,11 +254,11 @@ def unit_tests_blob(blob: Blob) -> None:
     unit_test_ignore("", blob.dump)
     unit_test_ignore("", blob.get_rotated_image)
     unit_test_ignore("", blob.get_img_html)
-    unit_test_ignore("", blob.get_image_xml_tuple, "name")
+    unit_test_ignore("", blob.get_xml_element_value_binary, "name")
     unit_test_ignore("", blob.get_data_url)
 
 
-def ccblob_unit_tests(req: CamcopsRequest) -> None:
+def ccblob_unit_tests(req: "CamcopsRequest") -> None:
     """Unit tests for the cc_blob module."""
     dbsession = req.dbsession
     # noinspection PyProtectedMember

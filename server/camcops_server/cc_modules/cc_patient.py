@@ -23,21 +23,20 @@
 """
 
 import collections
-import datetime
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
+from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
-import dateutil.relativedelta
+from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 import hl7
-from pendulum import Pendulum
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
+from sqlalchemy.sql.expression import and_, ClauseElement, select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import BigInteger, Date, Integer, UnicodeText
 
@@ -70,7 +69,6 @@ from .cc_policy import (
     satisfies_upload_id_policy,
     TOKENIZED_POLICY_TYPE,
 )
-from .cc_report import expand_id_descriptions
 from .cc_recipdef import RecipientDefinition
 from .cc_report import Report, REPORT_RESULT_TYPE
 from .cc_request import CamcopsRequest
@@ -86,7 +84,7 @@ from .cc_sqlalchemy import Base
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING
 from .cc_xml import (
-    make_xml_branches_from_fieldspecs,
+    make_xml_branches_from_columns,
     XML_COMMENT_SPECIAL_NOTES,
     XmlDataTypes,
     XmlElement,
@@ -258,7 +256,7 @@ class Patient(GenericTabletRecordMixin, Base):
             skip_fields.append(FP_ID_NUM + nstr)
             skip_fields.append(FP_ID_DESC + nstr)
             skip_fields.append(FP_ID_SHORT_DESC + nstr)
-        branches = make_xml_branches_from_fieldspecs(
+        branches = make_xml_branches_from_columns(
             self, skip_fields=skip_fields)
         # Now add newer IDs:
         cfg = req.config
@@ -280,7 +278,7 @@ class Patient(GenericTabletRecordMixin, Base):
         special_notes = self.special_notes  # type: List[SpecialNote]
         for sn in special_notes:
             branches.append(sn.get_xml_root())
-        return XmlElement(name=self.TABLENAME, value=branches)
+        return XmlElement(name=self.__tablename__, value=branches)
 
     def get_dict_for_tsv(self, req: CamcopsRequest) -> Dict[str, Any]:
         d = collections.OrderedDict()
@@ -439,7 +437,6 @@ class Patient(GenericTabletRecordMixin, Base):
             )
         ]
         # Then the rest:
-        idnums = self.idnums  # type: List[PatientIdNum]
         for idobj in self.idnums:
             which_idnum = idobj.which_idnum
             if which_idnum == recipient_def.primary_idnum:
@@ -551,11 +548,13 @@ class Patient(GenericTabletRecordMixin, Base):
     # Audit
     # -------------------------------------------------------------------------
 
-    def audit(self, details: str, from_console: bool = False) -> None:
+    def audit(self, req: CamcopsRequest,
+              details: str, from_console: bool = False) -> None:
         """Audits actions to this patient."""
-        audit(details,
+        audit(req,
+              details,
               patient_server_pk=self._pk,
-              table=Patient.TABLENAME,
+              table=Patient.__tablename__,
               server_pk=self._pk,
               from_console=from_console)
 
@@ -606,63 +605,61 @@ class Patient(GenericTabletRecordMixin, Base):
 
 class DistinctPatientReport(Report):
     """Report to show distinct patients."""
-    report_id = "patient_distinct"
-    report_title = ("(Server) Patients, distinct by name, sex, DOB, all ID "
-                    "numbers")
-    param_spec_list = []
 
-    def get_rows_descriptions(self, req: CamcopsRequest,
-                              **kwargs: Any) -> REPORT_RESULT_TYPE:
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "patient_distinct"
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def title(cls) -> str:
+        return ("(Server) Patients, distinct by name, sex, DOB, all ID "
+                "numbers")
+
+    # noinspection PyProtectedMember
+    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
         # Not easy to get UTF-8 fields out of a query in the column headings!
         # So don't do SELECT idnum8 AS 'idnum8 (Addenbrooke's number)';
         # change it post hoc using cc_report.expand_id_descriptions()
-        patienttable = Patient.__tablename__
-        select_fields = [
-            "p.surname AS surname",
-            "p.forename AS forename",
-            "p.dob AS dob",
-            "p.sex AS sex"
-        ]
-        from_tables = ["{} AS p".format(patienttable)]
-        for n in req.config.get_which_idnums():
-            nstr = str(n)
-            fieldalias = FP_ID_NUM + nstr  # idnum7
-            idtablealias = "i" + nstr  # e.g. i7
-            select_fields.append("{}.idnum_value AS {}".format(idtablealias,
-                                                               fieldalias))
-            from_tables.append(
-                """
-                    LEFT JOIN {idtable} AS {idtablealias} ON (
-                        {idtablealias}.patient_id = p.id
-                        AND {idtablealias}._device_id = p._device_id
-                        AND {idtablealias}._era = p._era
-                        AND {idtablealias}._current
-                        AND {idtablealias}.which_idnum = {which_idnum}
-                    )
-                """.format(
-                    idtable=PatientIdNum.tablename,
-                    idtablealias=idtablealias,
-                    which_idnum=nstr,
-                    # ... ugly! No parameters. Still, we know what we've got.
-                )
-            )
-        sql = """
-            SELECT DISTINCT {select_fields}
-            FROM {from_tables}
-            WHERE 
-                p._current
-            ORDER BY 
-                p.surname,
-                p.forename,
-                p.dob,
-                p.sex
-        """.format(
-            select_fields=", ".join(select_fields),
-            from_tables=" ".join(from_tables),
-        )
         dbsession = req.dbsession
-        rows, fieldnames = get_rows_fieldnames_from_raw_sql(dbsession, sql)
-        fieldnames = expand_id_descriptions(fieldnames)
+        select_fields = [
+            Patient.surname.label("surname"),
+            Patient.forename.label("forename"),
+            Patient.dob.label("dob"),
+            Patient.sex.label("sex"),
+        ]
+        select_from = Patient.__table__
+        # noinspection PyPep8
+        wheres = [Patient._current == True]  # type: List[ClauseElement]
+        for n in req.config.get_which_idnums():
+            desc = req.config.get_id_shortdesc(n)
+            aliased_table = PatientIdNum.__table__.alias("i{}".format(n))
+            select_fields.append(aliased_table.c.idnum_value.label(desc))
+            # noinspection PyPep8
+            select_from = select_from.outerjoin(aliased_table, and_(
+                aliased_table.c.patient_id == Patient.id,
+                aliased_table.c._device_id == Patient._device_id,
+                aliased_table.c._era == Patient._era,
+                # Note: the following are part of the JOIN, not the WHERE:
+                # (or failure to match a row will wipe out the Patient from the
+                # OUTER JOIN):
+                aliased_table.c._current == True,
+                aliased_table.c.which_idnum == n,
+            ))
+        order_by = [
+            Patient.surname,
+            Patient.forename,
+            Patient.dob,
+            Patient.sex,
+        ]
+        query = select(select_fields)\
+            .select_from(select_from)\
+            .where(and_(*wheres))\
+            .order_by(*order_by)\
+            .distinct()
+        # log.critical(str(query))
+        rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
         return rows, fieldnames
 
 

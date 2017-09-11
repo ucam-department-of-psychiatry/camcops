@@ -114,11 +114,16 @@ def make_debug_sqlite_engine() -> Engine:
     return create_engine('sqlite://', echo=True)
 
 
-def print_all_ddl(dialect_name: str = "mysql"):
+def get_all_ddl(dialect_name: str = "mysql") -> str:
     metadata = Base.metadata  # type: MetaData
     with StringIO() as f:
         dump_ddl(metadata, dialect_name=dialect_name, fileobj=f)
         f.flush()
         text = f.getvalue()
+    return text
+
+
+def log_all_ddl(dialect_name: str = "mysql") -> None:
+    text = get_all_ddl(dialect_name)
     log.info(text)
     log.info("DDL length: {} characters", len(text))

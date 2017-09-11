@@ -628,7 +628,7 @@ def upload_record_core(sm: TabletSession,
                           "identical", table=table, recordnum=recordnum)
         else:
             # MODIFIED
-            if table == Patient.TABLENAME:
+            if table == Patient.__tablename__:
                 if sm.cope_with_deleted_patient_descriptors:
                     # Old tablets (pre-2.0.0) will upload copies of the ID
                     # descriptions with the patient. To cope with that, we
@@ -649,10 +649,10 @@ def upload_record_core(sm: TabletSession,
                         patient_id = valuedict.get("id", None)
                         if idnum_value is None or patient_id is None:
                             continue
-                        mark_table_dirty(sm, PatientIdNum.tablename)
+                        mark_table_dirty(sm, PatientIdNum.__tablename__)
                         _, _ = upload_record_core(
                             sm=sm,
-                            table=PatientIdNum.tablename,
+                            table=PatientIdNum.__tablename__,
                             clientpk_name='id',
                             valuedict={
                                 'id': patient_id * NUMBER_OF_IDNUMS_DEFUNCT,  # !  # noqa
@@ -768,7 +768,7 @@ def get_batch_details_start_if_needed(sm: TabletSession) \
             currently_preserving
         FROM {table}
         WHERE id=?
-    """.format(table=Device.TABLENAME)
+    """.format(table=Device.__tablename__)
     args = [sm.device_id]
     row = pls.db.fetchone(query, *args)
     if not row:
@@ -794,7 +794,7 @@ def start_device_upload_batch(sm: TabletSession) -> None:
              ongoing_upload_batch_utc=?,
              uploading_user_id=?
          WHERE id=?
-    """.format(table=Device.TABLENAME)
+    """.format(table=Device.__tablename__)
     pls.db.db_exec(query,
                    pls.NOW_UTC_NO_TZ,
                    pls.NOW_UTC_NO_TZ,
@@ -814,7 +814,7 @@ def end_device_upload_batch(sm: TabletSession,
             uploading_user_id=NULL,
             currently_preserving=0
         WHERE id=?
-    """.format(table=Device.TABLENAME), sm.device_id)
+    """.format(table=Device.__tablename__), sm.device_id)
 
 
 def start_preserving(sm: TabletSession) -> None:
@@ -824,7 +824,7 @@ def start_preserving(sm: TabletSession) -> None:
         UPDATE {table}
         SET currently_preserving=1
         WHERE id=?
-    """.format(table=Device.TABLENAME), sm.device_id)
+    """.format(table=Device.__tablename__), sm.device_id)
 
 
 def mark_table_dirty(sm: TabletSession, table: str) -> None:
@@ -1015,7 +1015,7 @@ def commit_table(sm: TabletSession,
             WHERE   basetable=?
             AND     device_id=?
             AND     era='{now}'
-        """.format(table=SpecialNote.TABLENAME, now=ERA_NOW)
+        """.format(table=SpecialNote.__tablename__, now=ERA_NOW)
         pls.db.db_exec(query, new_era, table, sm.device_id)
     else:
         # Preserve any individual records
@@ -1046,7 +1046,7 @@ def commit_table(sm: TabletSession,
                 AND     t._device_id = s.device_id
                 AND     t._era = ?
             )
-        """.format(st=SpecialNote.TABLENAME,
+        """.format(st=SpecialNote.__tablename__,
                    now=ERA_NOW,
                    table=table)
         pls.db.db_exec(query, new_era, table, sm.device_id, new_era)
@@ -1151,7 +1151,7 @@ def register(sm: TabletSession) -> Dict:
     device_friendly_name = get_post_var(sm.form, "devicefriendlyname",
                                         mandatory=False)
 
-    table = Device.TABLENAME
+    table = Device.__tablename__
     count = pls.db.fetchvalue(
         "SELECT COUNT(*) FROM {table} WHERE name=?".format(table=table),
         sm.device_name)
@@ -1284,8 +1284,8 @@ def upload_table(sm: TabletSession) -> str:
     flag_deleted(sm, table, server_pks_for_deletion)
 
     # Special for old tablets:
-    if sm.cope_with_old_idnums and table == Patient.TABLENAME:
-        mark_table_dirty(sm, PatientIdNum.tablename)
+    if sm.cope_with_old_idnums and table == Patient.__tablename__:
+        mark_table_dirty(sm, PatientIdNum.__tablename__)
         for delete_patient_pk in server_pks_for_deletion:
             pls.db.db_exec(
                 """
@@ -1297,8 +1297,8 @@ def upload_table(sm: TabletSession) -> str:
                     AND i.patient_id = p.id
                     AND p._pk = ?
                 """.format(
-                    idtable=PatientIdNum.tablename,
-                    patienttable=Patient.TABLENAME,
+                    idtable=PatientIdNum.__tablename__,
+                    patienttable=Patient.__tablename__,
                     now=ERA_NOW,
                 ),
                 delete_patient_pk

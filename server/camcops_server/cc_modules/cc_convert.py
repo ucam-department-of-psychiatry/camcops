@@ -24,7 +24,7 @@
 
 import logging
 import re
-from typing import Any, List
+from typing import Any, Dict, Iterable, List
 
 from cardinal_pythonlib.convert import (
     base64_64format_decode,
@@ -41,6 +41,8 @@ from cardinal_pythonlib.text import escape_newlines
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 REGEX_WHITESPACE = re.compile("\s")
+TAB_REGEX = re.compile("\t", re.MULTILINE)
+NEWLINE_REGEX = re.compile("\n", re.MULTILINE)
 
 
 # =============================================================================
@@ -147,3 +149,40 @@ def decode_values(valuelist: str) -> List[Any]:
 def delimit(f: str) -> str:
     """Delimits a field for SQL queries."""
     return pls.db.delimit(f)
+
+
+# =============================================================================
+# Conversion to TSV
+# =============================================================================
+
+def tsv_escape(value: Any) -> str:
+    """Escapes value for tab-separated value (TSV) format.
+
+    Converts to unicode/str and escapes tabs/newlines.
+    """
+    if value is None:
+        return ""
+    s = str(value)
+    # escape tabs and newlines:
+    s = TAB_REGEX.sub("\\t", s)
+    s = NEWLINE_REGEX.sub("\\n", s)
+    return s
+
+
+def get_tsv_header_from_dict(d: Dict) -> str:
+    """Returns a TSV header line from a dictionary."""
+    return "\t".join([tsv_escape(x) for x in d.keys()])
+
+
+def get_tsv_line_from_dict(d: Dict) -> str:
+    """Returns a TSV data line from a dictionary."""
+    return "\t".join([tsv_escape(x) for x in d.values()])
+
+
+def tsv_from_query(rows: Iterable[Iterable[Any]],
+                   descriptions: Iterable[str]) -> str:
+    """Converts rows from an SQL query result to TSV format."""
+    tsv = "\t".join([tsv_escape(x) for x in descriptions]) + "\n"
+    for row in rows:
+        tsv += "\t".join([tsv_escape(x) for x in row]) + "\n"
+    return tsv

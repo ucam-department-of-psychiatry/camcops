@@ -47,20 +47,20 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             %endif
             ## Hyperlinks
             %if viewtype == ViewArg.HTML:
-                <a href="${ req.route_url(
+                [<a href="${ req.route_url(
                     Routes.TASK,
                     _query={
                         ViewParam.TABLENAME: task.tablename,
                         ViewParam.SERVER_PK: task._pk,
                         ViewParam.VIEWTYPE: ViewArg.HTML,
-                    }) }">HTML</a>
-                <a href="${ req.route_url(
+                    }) }">HTML</a>]
+                [<a href="${ req.route_url(
                     Routes.TASK,
                     _query={
                         ViewParam.TABLENAME: task.tablename,
                         ViewParam.SERVER_PK: task._pk,
                         ViewParam.VIEWTYPE: ViewArg.PDF,
-                    }) }">PDF</a>
+                    }) }">PDF</a>]
             %endif
             ## Clinician
             %if task.has_clinician and ctvinfo_list:
@@ -91,16 +91,16 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ## ----------------------------------------------------------------
             %for ctvinfo in ctvinfo_list:
                 %if ctvinfo.heading:
-                    <div class="ctv_fieldheading">${ ctvinfo.heading | h }</div>
+                    <div class="ctv_fieldheading">${ ctvinfo.heading }</div>
                 %endif
                 %if ctvinfo.subheading:
-                    <div class="ctv_fieldsubheading">${ ctvinfo.subheading | h }</div>
+                    <div class="ctv_fieldsubheading">${ ctvinfo.subheading }</div>
                 %endif
                 %if ctvinfo.description:
-                    <div class="ctv_fielddescription">${ ctvinfo.description | h }</div>
+                    <div class="ctv_fielddescription">${ ctvinfo.description }</div>
                 %endif
                 %if ctvinfo.content:
-                    <div class="ctv_fieldcontent">${ ctvinfo.content | h }</div>
+                    <div class="ctv_fieldcontent">${ ctvinfo.content }</div>
                 %endif
             %endfor
 

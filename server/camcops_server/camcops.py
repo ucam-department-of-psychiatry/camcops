@@ -339,11 +339,11 @@ def reset_storedvars() -> None:
     dbt.set_value(pls.DATABASE_TITLE)
     pls.db.db_exec_literal(
         "DELETE FROM {ssvtable} WHERE name LIKE 'idDescription%'".format(
-            ssvtable=ServerStoredVar.TABLENAME,
+            ssvtable=ServerStoredVar.__tablename__,
         ))
     pls.db.db_exec_literal(
         "DELETE FROM {ssvtable} WHERE name LIKE 'idShortDescription%'".format(
-            ssvtable=ServerStoredVar.TABLENAME,
+            ssvtable=ServerStoredVar.__tablename__,
         ))
     for n in pls.get_which_idnums():
         nstr = str(n)

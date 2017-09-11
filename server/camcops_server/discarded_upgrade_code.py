@@ -471,7 +471,7 @@ def upgrade_database_second_phase(old_version: Version) -> None:
                 FROM {patienttable}
                 WHERE {idnumfield} IS NOT NULL
             """.format(
-                idnumtable=PatientIdNum.tablename,
+                idnumtable=PatientIdNum.__tablename__,
                 patienttable=Patient.TABLENAME,
                 which_idnum=nstr,
                 idnumfield=FP_ID_NUM + nstr,

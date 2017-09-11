@@ -327,6 +327,11 @@ class TaskFilter(object):
             bool(self.idnum_criteria)
         )
 
+    def get_only_iddef(self) -> Optional[IdNumDefinition]:
+        if len(self.idnum_criteria) != 1:
+            return None
+        return self.idnum_criteria[0]
+
     def task_query_restricted_by_filter(self,
                                         req: CamcopsRequest,
                                         q: Query,

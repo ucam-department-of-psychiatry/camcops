@@ -92,7 +92,7 @@ from .cc_sqla_coltypes import (
     TableNameColType,
 )
 from .cc_sqlalchemy import Base
-from .cc_task import get_base_tables, get_url_task_html
+from .cc_task import get_base_tables
 # from .cc_taskfactory import task_factory
 from .cc_unittest import unit_test_ignore
 
@@ -942,7 +942,8 @@ def send_pending_hl7_messages_2(
                 AND m.success
                 AND (NOT m.cancelled OR m.cancelled IS NULL)
             )
-        """.format(hl7table=HL7Message.TABLENAME, hl7runtable=HL7Run.TABLENAME)
+        """.format(hl7table=HL7Message.__tablename__,
+                   hl7runtable=HL7Run.__tablename__)
         args.append(bt)
         args.append(recipient_def.recipient)
         # http://explainextended.com/2009/09/18/not-in-vs-not-exists-vs-left-join-is-null-mysql/  # noqa

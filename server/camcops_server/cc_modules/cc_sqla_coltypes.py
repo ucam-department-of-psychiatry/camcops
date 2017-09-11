@@ -81,7 +81,7 @@ Also:
 # =============================================================================
 
 import logging
-from typing import Any, Generator, List, Optional, Tuple, Union
+from typing import Any, Generator, List, Optional, Tuple, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.lists import chunks
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -92,6 +92,8 @@ from pendulum.parsing.exceptions import ParserError
 from semantic_version import Version
 from sqlalchemy import util
 from sqlalchemy.engine.interfaces import Dialect
+from sqlalchemy.inspection import inspect
+from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import (
@@ -112,6 +114,9 @@ from .cc_dt import (
 )
 from .cc_simpleobjects import IdNumDefinition
 from .cc_version import make_version
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm.state import InstanceState
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -143,6 +148,11 @@ ISO8601_STRING_LENGTH = 32
 #     (with punctuation, T, microseconds, colon in timezone).
 
 LONGBLOB_LONGTEXT_LENGTH = (2 ** 32) - 1
+
+
+class RelationshipInfo(object):
+    IS_ANCILLARY = "is_ancillary"
+
 
 # =============================================================================
 # Simple derivative column types
@@ -697,6 +707,25 @@ def permitted_values_ok(obj) -> bool:
         if not pv_checker.is_ok(value):
             return False
     return True
+
+
+def gen_ancillary_relationships(obj) -> Generator[
+        Tuple[str, RelationshipProperty], None, None]:
+    """
+    Yields tuples of (attrname, RelationshipProperty), for all relationships
+    that are marked as a CamCOPS ancillary relationship.
+    """
+    insp = inspect(obj)  # type: InstanceState
+    # insp.mapper.relationships is of type
+    # sqlalchemy.utils._collections.ImmutableProperties, which is basically
+    # a sort of AttrDict.
+    for attrname_rel in insp.mapper.relationships.items():  # type: RelationshipProperty
+        attrname = attrname_rel[0]  # type: str
+        rel = attrname_rel[1]  # type: RelationshipProperty
+        # ... I don't know how to do a type hint for both a and b in:
+        # "for a, b in some_tuple:  # type: ???"
+        if getattr(rel.info, RelationshipInfo.IS_ANCILLARY, None) is True:
+            yield attrname, rel
 
 
 # =============================================================================

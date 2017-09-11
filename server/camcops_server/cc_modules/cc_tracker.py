@@ -42,7 +42,7 @@ from .cc_plot import matplotlib
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
 from .cc_pdf import pdf_from_html
-from .cc_pyramid import ViewArg
+from .cc_pyramid import ViewArg, ViewParam
 from .cc_request import CamcopsRequest
 from .cc_simpleobjects import IdNumDefinition
 from .cc_task import Task
@@ -315,6 +315,10 @@ class TrackerCtvCommon(object):
                  eol: str = '\n',
                  include_comments: bool = False) -> str:
         """Get XML document representing tracker."""
+        iddef = self.taskfilter.get_only_iddef()
+        if not iddef:
+            raise ValueError("Tracker/CTV doesn't have a single ID number "
+                             "criterion")
         branches = [
             self.consistency_info.get_xml_root(),
             XmlElement(
@@ -322,27 +326,27 @@ class TrackerCtvCommon(object):
                 value=[
                     XmlElement(
                         name="task_tablename_list",
-                        value=",".join(self.task_tablename_list)
+                        value=",".join(self.taskfilter.task_tablename_list)
                     ),
                     XmlElement(
-                        name="which_idnum",
-                        value=self.which_idnum,
+                        name=ViewParam.WHICH_IDNUM,
+                        value=iddef.which_idnum,
                         datatype=XmlDataTypes.INTEGER
                     ),
                     XmlElement(
-                        name="idnum_value",
-                        value=self.idnum_value,
+                        name=ViewParam.IDNUM_VALUE,
+                        value=iddef.idnum_value,
                         datatype=XmlDataTypes.INTEGER
                     ),
                     XmlElement(
-                        name="start_datetime",
-                        value=format_datetime(self.start_datetime,
+                        name=ViewParam.START_DATETIME,
+                        value=format_datetime(self.taskfilter.start_datetime,
                                               DateFormat.ISO8601),
                         datatype=XmlDataTypes.DATETIME
                     ),
                     XmlElement(
-                        name="end_datetime",
-                        value=format_datetime(self.end_datetime,
+                        name=ViewParam.END_DATETIME,
+                        value=format_datetime(self.taskfilter.end_datetime,
                                               DateFormat.ISO8601),
                         datatype=XmlDataTypes.DATETIME
                     ),

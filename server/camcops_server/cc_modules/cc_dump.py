@@ -231,7 +231,7 @@ def get_view_data_as_tsv(view: str,
         if not view:
             return "Invalid table or view"
     # Special blob handling...
-    if view == Blob.TABLENAME:
+    if view == Blob.__tablename__:
         query = (
             "SELECT " +
             ",".join(Blob.FIELDS_WITHOUT_BLOB) +

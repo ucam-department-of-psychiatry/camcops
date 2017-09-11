@@ -333,16 +333,16 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         trialax.plot(calc_detected_x,    calc_detected_y,    marker="+",
                      color="b",   linestyle="None", label="hit, scored")
         trialax.plot(catch_missed_x,     catch_missed_y,     marker="o",
-                     color="w",   linestyle="None", label="CR")
+                     color="g",   linestyle="None", label="CR")
         trialax.plot(catch_detected_x,   catch_detected_y,   marker="*",
-                     color="w",   linestyle="None", label="FA")
+                     color="g",   linestyle="None", label="FA")
         leg = trialax.legend(
             numpoints=1,
             fancybox=True,  # for set_alpha (below)
             loc="best",  # bbox_to_anchor=(0.75, 1.05)
             labelspacing=0,
             handletextpad=0,
-            fontdict=req.fontdict
+            prop=req.fontprops
         )
         leg.get_frame().set_alpha(0.5)
         trialax.set_xlabel("Trial number", fontdict=req.fontdict)

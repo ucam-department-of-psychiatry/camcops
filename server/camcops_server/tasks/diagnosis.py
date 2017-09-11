@@ -22,12 +22,16 @@
 ===============================================================================
 """
 
-from typing import Any, List
+import logging
+from typing import List, Type
 
+from cardinal_pythonlib.classes import classproperty
+from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
+from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 import hl7
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.sql.expression import and_, literal, select, Select, union
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import DateTime, Integer, UnicodeText
 
@@ -36,6 +40,8 @@ from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
 from ..cc_modules.cc_hl7core import make_dg1_segment
 from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_nlp import guess_name_components
+from ..cc_modules.cc_patient import Patient
+from ..cc_modules.cc_patientidnum import PatientIdNum
 from ..cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,
@@ -43,14 +49,11 @@ from ..cc_modules.cc_task import (
 )
 from ..cc_modules.cc_recipdef import RecipientDefinition
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_report import (
-    expand_id_descriptions,
-    Report,
-    REPORT_RESULT_TYPE,
-)
+from ..cc_modules.cc_report import Report, REPORT_RESULT_TYPE
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_sqla_coltypes import DiagnosticCodeColType
 
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 # =============================================================================
 # Helpers
@@ -260,77 +263,102 @@ class DiagnosisIcd9CM(DiagnosisBase):
 # Reports
 # =============================================================================
 
-def get_diagnosis_report_sql(diagnosis_table: str,
-                             item_table: str,
-                             item_fk_fieldname: str,
-                             system: str) -> str:
-    sql = """
-        SELECT
-            p.surname AS surname,
-            p.forename AS forename,
-            p.dob AS dob,
-            p.sex AS sex,
-            'IDNUMS_NEED_FIXING' AS idnums,
-            d.when_created,
-            '{system}' AS system,
-            i.code AS code,
-            i.description AS description
-        FROM patient p
-        INNER JOIN {diagnosis_table} d
-            ON d.patient_id = p.id
-            AND d._device_id = p._device_id
-            AND d._era = p._era
-        INNER JOIN {item_table} i
-            ON i.{item_fk_fieldname} = d.id
-            AND i._device_id = d._device_id
-            AND i._era = d._era
-        WHERE
-            p._current
-            AND d._current
-            AND i._current
-        ORDER BY
-            p.surname,
-            p.forename,
-            p.dob,
-            p.sex,
-            d.when_created,
-            i.code
-    """.format(
-        system=system,
-        diagnosis_table=diagnosis_table,
-        item_table=item_table,
-        item_fk_fieldname=item_fk_fieldname,
-    )
-    return sql
+ORDER_BY = ["surname", "forename", "dob", "sex",
+            "when_created", "system", "code"]
+
+
+# noinspection PyProtectedMember
+def get_diagnosis_report_query(req: CamcopsRequest,
+                               diagnosis_class: Type[DiagnosisBase],
+                               item_class: Type[DiagnosisItemBase],
+                               item_fk_fieldname: str,
+                               system: str) -> Select:
+    select_fields = [
+        Patient.surname.label("surname"),
+        Patient.forename.label("forename"),
+        Patient.dob.label("dob"),
+        Patient.sex.label("sex"),
+    ]
+    select_from = Patient.__table__
+    # noinspection PyPep8
+    select_from = select_from.join(diagnosis_class.__table__, and_(
+        diagnosis_class.patient_id == Patient.id,
+        diagnosis_class._device_id == Patient._device_id,
+        diagnosis_class._era == Patient._era
+    ))
+    # noinspection PyPep8
+    select_from = select_from.join(item_class.__table__, and_(
+        getattr(item_class, item_fk_fieldname) == diagnosis_class.id,
+        item_class._device_id == diagnosis_class._device_id,
+        item_class._era == diagnosis_class._era
+    ))
+    for n in req.config.get_which_idnums():
+        desc = req.config.get_id_shortdesc(n)
+        aliased_table = PatientIdNum.__table__.alias("i{}".format(n))
+        select_fields.append(aliased_table.c.idnum_value.label(desc))
+        # noinspection PyPep8
+        select_from = select_from.outerjoin(aliased_table, and_(
+            aliased_table.c.patient_id == Patient.id,
+            aliased_table.c._device_id == Patient._device_id,
+            aliased_table.c._era == Patient._era,
+            # Note: the following are part of the JOIN, not the WHERE:
+            # (or failure to match a row will wipe out the Patient from the
+            # OUTER JOIN):
+            # noinspection PyPep8
+            aliased_table.c._current == True,
+            aliased_table.c.which_idnum == n,
+        ))
+    select_fields += [
+        diagnosis_class.when_created.label("when_created"),
+        literal(system).label("system"),
+        item_class.code.label("code"),
+        item_class.description.label("description"),
+    ]
+    # noinspection PyPep8
+    wheres = [
+        Patient._current == True,
+        diagnosis_class._current == True,
+        item_class._current == True,
+    ]
+    query = select(select_fields) \
+        .select_from(select_from) \
+        .where(and_(*wheres))
+    return query
 
 
 def get_diagnosis_report(req: CamcopsRequest,
-                         diagnosis_table: str,
-                         item_table: str,
+                         diagnosis_class: Type[DiagnosisBase],
+                         item_class: Type[DiagnosisItemBase],
                          item_fk_fieldname: str,
                          system: str) -> REPORT_RESULT_TYPE:
-    sql = get_diagnosis_report_sql(diagnosis_table, item_table,
-                                   item_fk_fieldname, system)
+    query = get_diagnosis_report_query(req, diagnosis_class, item_class,
+                                       item_fk_fieldname, system)
+    query = query.order_by(*ORDER_BY)
+    # log.critical(str(query))
     dbsession = req.dbsession
-    rows, fieldnames = get_rows_fieldnames_from_raw_sql(dbsession, sql)
-    fieldnames = expand_id_descriptions(fieldnames)
+    rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
     return rows, fieldnames
 
 
 class DiagnosisICD9CMReport(Report):
     """Report to show ICD-9-CM (DSM-IV-TR) diagnoses."""
-    report_id = "diagnoses_icd9cm"
-    report_title = ("Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all "
-                    "patients")
-    param_spec_list = []
 
-    @staticmethod
-    def get_rows_descriptions(self, req: CamcopsRequest,
-                              **kwargs: Any) -> REPORT_RESULT_TYPE:
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "diagnoses_icd9cm"
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def title(cls) -> str:
+        return ("Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all "
+                "patients")
+
+    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
         return get_diagnosis_report(
             req,
-            diagnosis_table='diagnosis_icd9cm',
-            item_table='diagnosis_icd9cm_item',
+            diagnosis_class=DiagnosisIcd9CM,
+            item_class=DiagnosisIcd9CMItem,
             item_fk_fieldname='diagnosis_icd9cm_id',
             system='ICD-9-CM'
         )
@@ -338,17 +366,22 @@ class DiagnosisICD9CMReport(Report):
 
 class DiagnosisICD10Report(Report):
     """Report to show ICD-10 diagnoses."""
-    report_id = "diagnoses_icd10"
-    report_title = "Diagnosis – ICD-10 diagnoses for all patients"
-    param_spec_list = []
 
-    @staticmethod
-    def get_rows_descriptions(self, req: CamcopsRequest,
-                              **kwargs: Any) -> REPORT_RESULT_TYPE:
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "diagnoses_icd10"
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def title(cls) -> str:
+        return "Diagnosis – ICD-10 diagnoses for all patients"
+
+    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
         return get_diagnosis_report(
             req,
-            diagnosis_table='diagnosis_icd10',
-            item_table='diagnosis_icd10_item',
+            diagnosis_class=DiagnosisIcd10,
+            item_class=DiagnosisIcd10Item,
             item_fk_fieldname='diagnosis_icd10_id',
             system='ICD-10'
         )
@@ -356,42 +389,35 @@ class DiagnosisICD10Report(Report):
 
 class DiagnosisAllReport(Report):
     """Report to show all diagnoses."""
-    report_id = "diagnoses_all"
-    report_title = "Diagnosis – All diagnoses for all patients"
-    param_spec_list = []
 
-    @staticmethod
-    def get_rows_descriptions(self, req: CamcopsRequest,
-                              **kwargs: Any) -> REPORT_RESULT_TYPE:
-        sql_icd9cm = get_diagnosis_report_sql(
-            diagnosis_table='diagnosis_icd9cm',
-            item_table='diagnosis_icd9cm_item',
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "diagnoses_all"
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def title(cls) -> str:
+        return "Diagnosis – All diagnoses for all patients"
+
+    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
+        sql_icd9cm = get_diagnosis_report_query(
+            req,
+            diagnosis_class=DiagnosisIcd9CM,
+            item_class=DiagnosisIcd9CMItem,
             item_fk_fieldname='diagnosis_icd9cm_id',
             system='ICD-9-CM'
         )
-        sql_icd10 = get_diagnosis_report_sql(
-            diagnosis_table='diagnosis_icd10',
-            item_table='diagnosis_icd10_item',
+        sql_icd10 = get_diagnosis_report_query(
+            req,
+            diagnosis_class=DiagnosisIcd10,
+            item_class=DiagnosisIcd10Item,
             item_fk_fieldname='diagnosis_icd10_id',
             system='ICD-10'
         )
-        sql = """
-            ({sql_icd9cm})
-            UNION
-            ({sql_icd10})
-            ORDER BY
-                surname,
-                forename,
-                dob,
-                sex,
-                when_created,
-                system,
-                code
-        """.format(
-            sql_icd9cm=sql_icd9cm,
-            sql_icd10=sql_icd10,
-        )
+        query = union(sql_icd9cm, sql_icd10)
+        query = query.order_by(*ORDER_BY)
+        # log.critical(str(query))
         dbsession = req.dbsession
-        rows, fieldnames = get_rows_fieldnames_from_raw_sql(dbsession, sql)
-        fieldnames = expand_id_descriptions(fieldnames)
+        rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
         return rows, fieldnames

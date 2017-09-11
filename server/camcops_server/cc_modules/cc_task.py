@@ -51,9 +51,7 @@ from cardinal_pythonlib.lists import flatten_list
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.rnc_db import DatabaseSupporter, FIELDSPECLIST_TYPE
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.sqlalchemy.core_query import (
-    get_rows_fieldnames_from_raw_sql,
-)
+from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
@@ -63,6 +61,7 @@ from pyramid.renderers import render
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
+from sqlalchemy.sql.expression import and_, desc, func, literal, select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
@@ -122,6 +121,7 @@ from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
     CamcopsColumn,
     PendulumDateTimeAsIsoTextColType,
+    gen_ancillary_relationships,
     get_column_attr_names,
     get_camcops_blob_column_attr_names,
     permitted_value_failure_msgs,
@@ -142,7 +142,7 @@ from .cc_version import make_version
 from .cc_xml import (
     get_xml_blob_tuple,
     get_xml_document,
-    make_xml_branches_from_fieldspecs,
+    make_xml_branches_from_columns,
     make_xml_branches_from_summaries,
     XML_COMMENT_ANONYMOUS,
     XML_COMMENT_BLOBS,
@@ -487,107 +487,6 @@ class Task(GenericTabletRecordMixin, Base):
         """
         raise NotImplementedError(
             "No get_task_html() HTML generator for this task class!")
-
-    # -------------------------------------------------------------------------
-    # Dealing with ancillary items
-    # -------------------------------------------------------------------------
-
-    def get_ancillary_item_pks(self, itemclass: Type[ANCILLARY_FWD_REF]) \
-            -> List[int]:
-        return cc_db.get_contemporaneous_matching_field_pks_by_fk(
-            itemclass.tablename, PKNAME,
-            itemclass.fkname, self.id,
-            self._device_id, self._era,
-            self._when_added_batch_utc, self._when_removed_batch_utc
-        )
-
-    def get_ancillary_item_count(self, itemclass: Type[ANCILLARY_FWD_REF]) \
-            -> int:
-        return cc_db.get_contemporaneous_matching_field_pks_by_fk(
-            itemclass.tablename, PKNAME,
-            itemclass.fkname, self.id,
-            self._device_id, self._era,
-            self._when_added_batch_utc, self._when_removed_batch_utc,
-            count_only=True
-        )
-
-    def get_ancillary_items(self,
-                            itemclass: Type[ANCILLARY_FWD_REF],
-                            sortfield: str = None) -> List[ANCILLARY_FWD_REF]:
-        items = cc_db.get_contemporaneous_matching_ancillary_objects_by_fk(
-            itemclass, self.id,
-            self._device_id, self._era,
-            self._when_added_batch_utc, self._when_removed_batch_utc
-        )
-        if sortfield is None:
-            sortfield = itemclass.sortfield
-        if sortfield:
-            return sorted(items, key=lambda i: getattr(i, sortfield))
-        return items
-
-    @classmethod
-    def make_tables(cls, drop_superfluous_columns: bool = False) -> None:
-        """Make underlying database tables.
-
-        OVERRIDE THIS if your task uses sub-tables AND does something more
-        complex than the standard behaviour.
-        """
-        tasktablename = cls.tablename
-        cc_db.create_standard_task_table(
-            tasktablename,
-            cls.get_full_fieldspecs(),
-            cls.is_anonymous,
-            drop_superfluous_columns=drop_superfluous_columns)
-
-        for depclass in cls.dependent_classes:
-            cc_db.create_standard_ancillary_table(
-                depclass.tablename,
-                depclass.get_full_fieldspecs(),
-                depclass.fkname,
-                tasktablename,
-                drop_superfluous_columns=drop_superfluous_columns
-            )
-
-    @classmethod
-    def drop_views(cls) -> None:
-        # Some views below (e.g. "_withpt" views) may not exist, but that's OK
-        # because we're using DROP VIEW IF EXISTS.
-
-        # Base table
-        pls.db.drop_view(cls.tablename + "_current")
-        pls.db.drop_view(cls.tablename + "_current_withpt")
-        # Ancillary tables
-        for depclass in cls.dependent_classes:
-            pls.db.drop_view(depclass.tablename + "_current")
-        if not cls.is_anonymous:
-            # Summary table
-            summarytable = cls.get_standard_summary_table_name()
-            pls.db.drop_view(summarytable + "_current")
-            pls.db.drop_view(summarytable + "_current_withpt")
-            # Extra summary tables
-            infolist = list(cls.extra_summary_table_info)
-            for i in range(len(infolist)):
-                extrasummarytable = infolist[i]["tablename"]
-                pls.db.drop_view(extrasummarytable + "_current")
-                pls.db.drop_view(extrasummarytable + "_current_withpt")
-
-    @classmethod
-    def drop_summary_tables(cls) -> None:
-        """Doesn't drop important data, but drops summaries (which can be
-        rebuilt."""
-        # Summary table
-        summarytable = cls.get_standard_summary_table_name()
-        pls.db.drop_table(summarytable)
-        # Extra summary tables
-        infolist = list(cls.extra_summary_table_info)
-        for i in range(len(infolist)):
-            extrasummarytable = infolist[i]["tablename"]
-            pls.db.drop_table(extrasummarytable)
-
-    @classmethod
-    def get_extra_table_names(cls) -> List[str]:
-        """Get a list of any extra tables used by the task."""
-        return [depclass.tablename for depclass in cls.dependent_classes]
 
     # -------------------------------------------------------------------------
     # Implement if you provide trackers
@@ -1238,7 +1137,7 @@ class Task(GenericTabletRecordMixin, Base):
         for bpk in blob_pks:
             blob = Blob(bpk)
             cc_db.manually_erase_record_object_and_save(
-                blob, Blob.TABLENAME, Blob.FIELDS, user_id)
+                blob, Blob.__tablename__, Blob.FIELDS, user_id)
 
         # 3. Erase tasks
         tablename = self.tablename
@@ -1334,7 +1233,7 @@ class Task(GenericTabletRecordMixin, Base):
 
         # 2. Get rid of BLOBs
         blob_pks = self.get_blob_pks_of_record_group()
-        cc_db.delete_from_table_by_pklist(Blob.TABLENAME,
+        cc_db.delete_from_table_by_pklist(Blob.__tablename__,
                                           PKNAME, blob_pks)
 
         # 3. Get rid of tasks
@@ -1378,7 +1277,7 @@ class Task(GenericTabletRecordMixin, Base):
         blob_ids = list(set(blob_ids))  # remove duplicates
         list_of_blob_pk_lists = [
             cc_db.get_server_pks_of_record_group(
-                Blob.TABLENAME, PKNAME, "id", i,
+                Blob.__tablename__, PKNAME, "id", i,
                 self._device_id, self._era)
             for i in blob_ids]
         blob_pks = flatten_list(list_of_blob_pk_lists)
@@ -1459,7 +1358,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     @classmethod
     def gen_text_filter_columns(cls) -> Generator[Tuple[str, Column], None,
-                                                   None]:
+                                                  None]:
         """
         Yields tuples of (attr_name, Column), for columns that are suitable
         for text filtering.
@@ -1560,8 +1459,8 @@ class Task(GenericTabletRecordMixin, Base):
                 AND i._current
         """.format(
             tasktable=table,
-            patienttable=Patient.TABLENAME,
-            idtable=PatientIdNum.tablename,
+            patienttable=Patient.__tablename__,
+            idtable=PatientIdNum.__tablename__,
         )
         wheres = []
         args = []
@@ -1582,7 +1481,6 @@ class Task(GenericTabletRecordMixin, Base):
         if wheres:
             query += " AND " + " AND ".join(wheres)
         return pls.db.fetchallfirstvalues(query, *args)
-
 
     # -------------------------------------------------------------------------
     # TSV export for basic research dump
@@ -1772,7 +1670,7 @@ class Task(GenericTabletRecordMixin, Base):
                      include_blobs: bool = True,
                      include_patient: bool = True,
                      skip_fields: List[str] =None) -> XmlElement:
-        """Returns XML tree. Return value is the root XmlElementTuple.
+        """Returns XML tree. Return value is the root XmlElement.
 
         Override to include other tables, or to deal with BLOBs, if the default
         methods are insufficient.
@@ -1787,6 +1685,16 @@ class Task(GenericTabletRecordMixin, Base):
             include_patient=include_patient,
             skip_fields=skip_fields)
         # Dependent classes/tables
+        for attrname, rel in gen_ancillary_relationships(self):
+            if rel.uselist:
+                ancillaries = getattr(self, attrname)  # type: List[GenericTabletRecordMixin]  # noqa
+            else:
+                ancillary = getattr(self, attrname)  # type: GenericTabletRecordMixin
+            XXX
+            XXX make some generic XML methods on GenericTabletRecordMixin
+            ... including BLOBs
+            ... but not including task-specific things like special notes, patients
+
         depclasslist = self.dependent_classes
         for depclass in depclasslist:
             tablename = depclass.tablename
@@ -1799,7 +1707,7 @@ class Task(GenericTabletRecordMixin, Base):
                     # Simple fields for ancillary items
                     itembranches.append(XmlElement(
                         name=tablename,
-                        value=make_xml_branches_from_fieldspecs(
+                        value=make_xml_branches_from_columns(
                             it,
                             skip_fields=skip_fields)
                     ))
@@ -1829,7 +1737,7 @@ class Task(GenericTabletRecordMixin, Base):
         skip_fields = skip_fields or []
         # Stored
         branches = [XML_COMMENT_STORED]
-        branches.extend(make_xml_branches_from_fieldspecs(
+        branches.extend(make_xml_branches_from_columns(
             self, skip_fields=skip_fields))
         # Special notes
         branches.append(XML_COMMENT_SPECIAL_NOTES)
@@ -2070,18 +1978,7 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodMayBeStatic
     def get_standard_clinician_comments_block(self, comments: str) -> str:
         """HTML DIV for clinician's comments."""
-        return """
-            <div class="clinician">
-                <table class="taskdetail">
-                    <tr>
-                        <td width="20%">Clinician’s comments:</td>
-                        <td width="80%">{}</td>
-                    </tr>
-                </table>
-            </div>
-        """.format(
-            ws.bold_if_not_blank(ws.webify(comments))
-        )
+        return render("clinician_comments.mako", dict(comment=comments))
 
     def get_is_complete_td_pair(self, req: CamcopsRequest) -> str:
         """HTML to indicate whether task is complete or not, and to make it
@@ -2392,18 +2289,7 @@ def get_blob_xml_tuple(obj: Union[Task, Ancillary],
     blob = obj.get_blob_by_id(blobid)
     if blob is None:
         return get_xml_blob_tuple(name, None)
-    return blob.get_image_xml_tuple(name)
-
-
-def get_blob_by_id(obj: Union[Task, Ancillary],
-                   blobid: int) -> Optional[Blob]:
-    """Get Blob() object from blob ID, or None."""
-    if blobid is None:
-        return None
-    # noinspection PyProtectedMember
-    return get_contemporaneous_blob_by_client_info(
-        obj._device_id, blobid, obj._era,
-        obj._when_added_batch_utc, obj._when_removed_batch_utc)
+    return blob.get_xml_element_value_binary(name)
 
 
 # =============================================================================
@@ -2574,35 +2460,43 @@ def get_from_dict(d: Dict, key: str, default: Any = INVALID_VALUE) -> Any:
 
 class TaskCountReport(Report):
     """Report to count task instances."""
-    report_id = "taskcount"
-    report_title = "(Server) Count current task instances, by creation date"
-    param_spec_list = []
 
-    def get_rows_descriptions(self, req: CamcopsRequest,
-                              **kwargs: Any) -> REPORT_RESULT_TYPE:
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "taskcount"
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def title(cls) -> str:
+        return "(Server) Count current task instances, by creation date"
+
+    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
         final_rows = []
         fieldnames = []
         dbsession = req.dbsession
         classes = Task.all_subclasses_by_tablename()
         for cls in classes:
-            sql = """
-                SELECT
-                    '{tablename}' AS task,
-                    YEAR(_when_added_batch_utc) AS year,
-                    MONTH(_when_added_batch_utc) AS month,
-                    COUNT(*) AS num_tasks_added
-                FROM {tablename}
-                WHERE _current
-                GROUP BY
-                    YEAR(_when_added_batch_utc),
-                    MONTH(_when_added_batch_utc)
-                ORDER BY
-                    YEAR(_when_added_batch_utc),
-                    MONTH(_when_added_batch_utc) DESC
-            """.format(
-                tablename=cls.tablename,
-            )
-            rows, fieldnames = get_rows_fieldnames_from_raw_sql(dbsession, sql)
+            # noinspection PyProtectedMember
+            select_fields = [
+                literal(cls.__tablename__).label("task"),
+                func.year(cls._when_added_batch_utc).label("year"),
+                func.month(cls._when_added_batch_utc).label("month"),
+                func.count().label("num_tasks_added"),
+            ]
+            select_from = cls.__table__
+            # noinspection PyPep8,PyProtectedMember
+            wheres = [cls._current == True]
+            group_by = ["year", "month"]
+            order_by = [desc("year"), desc("month")]
+            # ... http://docs.sqlalchemy.org/en/latest/core/tutorial.html#ordering-or-grouping-by-a-label  # noqa
+            query = select(select_fields) \
+                .select_from(select_from) \
+                .where(and_(*wheres)) \
+                .group_by(*group_by) \
+                .order_by(*order_by)
+            # log.critical(str(query))
+            rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
             final_rows.extend(rows)
         return final_rows, fieldnames
 
@@ -2610,39 +2504,6 @@ class TaskCountReport(Report):
 # =============================================================================
 # URLs
 # =============================================================================
-
-def get_url_task(req: CamcopsRequest,
-                 tablename: str, serverpk: int, outputtype: str) -> str:
-    """URL to view a particular task."""
-    url = get_generic_action_url(req, ACTION.TASK)
-    url += get_url_field_value_pair(PARAM.OUTPUTTYPE, outputtype)
-    url += get_url_field_value_pair(PARAM.TABLENAME, tablename)
-    url += get_url_field_value_pair(PARAM.SERVERPK, serverpk)
-    return url
-
-
-def get_url_task_pdf(req: CamcopsRequest,
-                     tablename: str, serverpk: int) -> str:
-    """URL to view a particular task as PDF."""
-    return get_url_task(req, tablename, serverpk, VALUE.OUTPUTTYPE_PDF)
-
-
-def get_url_task_html(req: CamcopsRequest,
-                      tablename: str, serverpk: int) -> str:
-    """URL to view a particular task as HTML."""
-    return get_url_task(req, tablename, serverpk, VALUE.OUTPUTTYPE_HTML)
-
-
-def get_url_task_xml(req: CamcopsRequest,
-                     tablename: str, serverpk: int) -> str:
-    """URL to view a particular task as XML (with default options)."""
-    url = get_url_task(req, tablename, serverpk, VALUE.OUTPUTTYPE_XML)
-    url += get_url_field_value_pair(PARAM.INCLUDE_BLOBS, 1)
-    url += get_url_field_value_pair(PARAM.INCLUDE_CALCULATED, 1)
-    url += get_url_field_value_pair(PARAM.INCLUDE_PATIENT, 1)
-    url += get_url_field_value_pair(PARAM.INCLUDE_COMMENTS, 1)
-    return url
-
 
 def get_url_erase_task(req: CamcopsRequest,
                        tablename: str, serverpk: int) -> str:
@@ -2695,19 +2556,6 @@ def task_class_unit_test(cls: Type[Task]) -> None:
         raise AssertionError(
             "Fields conflict with object attributes in class {}: {}".format(
                 cls.__name__, conflict))
-
-
-def ancillary_class_unit_test(cls: Type[Ancillary]) -> None:
-    unit_test_require_truthy_attribute(cls, 'tablename')
-    unit_test_require_truthy_attribute(cls, 'fkname')
-    unit_test_require_truthy_attribute(cls, 'fieldspecs')
-    # Field names don't conflict
-    attributes = list(cls.__dict__)
-    fieldnames = cls.get_fieldnames()
-    conflict = set(attributes).intersection(set(fieldnames))
-    if conflict:
-        raise AssertionError(
-            "Fields conflict with object attributes: {}".format(conflict))
 
 
 def task_instance_unit_test(req: CamcopsRequest,

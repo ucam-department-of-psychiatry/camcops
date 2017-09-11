@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
     %for hl7run in page:
         <tr>
-            <td><a href="${ req.route_url(Routes.VIEW_HL7_RUN, _query={ViewParam.HL7_RUN_ID: msg.run_id}) }">${ msg.run_id }</a></td>
+            <td><a href="${ request.route_url(Routes.VIEW_HL7_RUN, _query={ViewParam.HL7_RUN_ID: msg.run_id}) }">${ msg.run_id }</a></td>
             <td>${ hl7run.start_at_utc }</td>
             <td>${ hl7run.finish_at_utc }</td>
             <td>${ hl7run.recipient | h }</td>

@@ -22,7 +22,7 @@
 ===============================================================================
 """
 
-import enum
+from enum import Enum
 import logging
 import os
 import pprint
@@ -96,9 +96,14 @@ class CookieKey:
     SESSION_TOKEN = 'session_token'
 
 
-class HttpMethod:
-    GET = "GET"
-    POST = "POST"
+class Dialect(object):
+    MYSQL = "mysql"
+    MSSQL = "mssql"
+    ORACLE = "oracle"
+    FIREBIRD = "firebird"
+    POSTGRES = "postgres"
+    SQLITE = "sqlite"
+    SYBASE = "sybase"
 
 
 class FormAction(object):
@@ -126,6 +131,8 @@ class ViewParam(object):
     # AGREE = "agree"
     ALL_TASKS = "all_tasks"
     ANONYMISE = "anonymise"
+    CSRF_TOKEN = "csrf"
+    DIALECT = "dialect"
     DOB = "dob"
     END_DATETIME = "end_datetime"
     FILENAME = "filename"
@@ -144,6 +151,7 @@ class ViewParam(object):
     PAGE = "page"
     PASSWORD = "password"
     REDIRECT_URL = "redirect_url"
+    REPORT_ID = "report_id"
     REMOTE_IP_ADDR = "remote_ip_addr"
     ROWS_PER_PAGE = "rows_per_page"
     SERVER_PK = "server_pk"
@@ -168,6 +176,7 @@ class ViewArg(object):
     HTML = "html"
     PDF = "pdf"
     PDFHTML = "pdfhtml"
+    TSV = "tsv"
     XML = "xml"
 
 
@@ -318,7 +327,7 @@ def valid_replacement_marker(marker: str) -> bool:
     return RE_VALID_REPLACEMENT_MARKER.match(marker) is not None
 
 
-class UrlParamType(enum.Enum):
+class UrlParamType(Enum):
     STRING = 1
     POSITIVE_INTEGER = 2
     PLAIN_STRING = 3
@@ -388,7 +397,6 @@ class Routes(object):
     ERASE_TASK = "erase_task"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
-    INSPECT_TABLE_DEFS = "view_table_definitions"
     INTROSPECT = "introspect"
     LOGIN = "login"
     LOGOUT = "logout"
@@ -399,8 +407,10 @@ class Routes(object):
     OFFER_HL7_RUN_LOG = "offer_hl7_run_log"
     OFFER_INTROSPECTION = "offer_introspect"
     OFFER_REGENERATE_SUMMARIES = "offer_regenerate_summary_tables"
+    OFFER_REPORT = "offer_report"
     OFFER_TABLE_DUMP = "offer_table_dump"
     OFFER_TERMS = "offer_terms"
+    REPORT = "report"
     REPORTS_MENU = "reports_menu"
     SET_FILTERS = "set_filters"
     TASK = "task"
@@ -409,6 +419,7 @@ class Routes(object):
     TESTPAGE_PRIVATE_3 = "testpage_private_3"
     TESTPAGE_PUBLIC_1 = "testpage_public_1"
     TRACKER = "tracker"
+    VIEW_DDL = "inspect_ddl"
     VIEW_AUDIT_TRAIL = "view_audit_trail"
     VIEW_POLICIES = "view_policies"
     VIEW_TASKS = "view_tasks"
@@ -464,7 +475,6 @@ class Routes(object):
     # LAST_PAGE = "last_page"
     # MAIN_MENU = "main_menu"
     # NEXT_PAGE = "next_page"
-    # OFFER_REPORT = "offer_report"
     # PREVIOUS_PAGE = "previous_page"
     # PROVIDE_REPORT = "report"
     # REGENERATE_SUMMARIES = "regenerate_summary_tables"
@@ -526,9 +536,6 @@ class RouteCollection(object):
         Routes.FORCIBLY_FINALIZE, "/forcibly_finalize"
     )
     HOME = RoutePath(Routes.HOME, '/webview')
-    INSPECT_TABLE_DEFS = RoutePath(
-        Routes.INSPECT_TABLE_DEFS, "/view_table_definitions"
-    )
     INTROSPECT = RoutePath(Routes.INTROSPECT, '/introspect')
     # ... filename via query param (sorts out escaping)
     LOGIN = RoutePath(Routes.LOGIN, "/login")
@@ -543,8 +550,10 @@ class RouteCollection(object):
                                   "/offer_hl7_run_log")
     OFFER_INTROSPECTION = RoutePath(Routes.OFFER_INTROSPECTION,
                                     "/offer_introspect")
+    OFFER_REPORT = RoutePath(Routes.OFFER_REPORT, "/offer_report")
     OFFER_TABLE_DUMP = RoutePath(Routes.OFFER_TABLE_DUMP, "/offer_table_dump")
     OFFER_TERMS = RoutePath(Routes.OFFER_TERMS, '/offer_terms')
+    REPORT = RoutePath(Routes.REPORT, '/report')
     REPORTS_MENU = RoutePath(Routes.REPORTS_MENU, "/reports_menu")
     SET_FILTERS = RoutePath(Routes.SET_FILTERS, '/set_filters')
     TASK = RoutePath(Routes.TASK, "/task")
@@ -554,6 +563,7 @@ class RouteCollection(object):
     TESTPAGE_PUBLIC_1 = RoutePath(Routes.TESTPAGE_PUBLIC_1, '/test1')
     TRACKER = RoutePath(Routes.TRACKER, "/tracker")
     VIEW_AUDIT_TRAIL = RoutePath(Routes.VIEW_AUDIT_TRAIL, "/view_audit_trail")
+    VIEW_DDL = RoutePath(Routes.VIEW_DDL, "/view_ddl")
     VIEW_HL7_MESSAGE = RoutePath(Routes.VIEW_HL7_MESSAGE, "/view_hl7_message")
     VIEW_HL7_MESSAGE_LOG = RoutePath(Routes.VIEW_HL7_MESSAGE_LOG,
                                      "/view_hl7_message_log")
@@ -666,7 +676,6 @@ class RouteCollection(object):
     # OFFER_REGENERATE_SUMMARIES = RoutePath(
     #     Routes.OFFER_REGENERATE_SUMMARIES, "/offer_regenerate_summary_tables"
     # )
-    # OFFER_REPORT = RoutePath(Routes.OFFER_REPORT, "/offer_report")
     # PREVIOUS_PAGE = RoutePath(Routes.PREVIOUS_PAGE, "/previous_page")
     # PROVIDE_REPORT = RoutePath(Routes.PROVIDE_REPORT, "/report")
     # REGENERATE_SUMMARIES = RoutePath(
@@ -870,7 +879,7 @@ class TextResponse(Response):
 
 
 class TsvResponse(Response):
-    def __init__(self, content: bytes, filename: str) -> None:
+    def __init__(self, content: str, filename: str) -> None:
         super().__init__(
             content_type="text/tab-separated-values",
             content_disposition="attachment; filename={}".format(filename),

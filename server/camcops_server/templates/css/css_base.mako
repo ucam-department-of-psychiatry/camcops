@@ -184,7 +184,7 @@ table.clinician, table.clinician th, table.clinician td {
     margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.SMALLGAP} ${va.INDENT_NORMAL};
 }
 .ctv_fieldcontent {
-    font-weight: bold;
+    /* font-weight: bold; */
     margin: ${va.SMALLGAP} ${va.ZERO} ${va.ELEMENTGAP} ${va.INDENT_NORMAL};
 }
 .ctv_warnings {

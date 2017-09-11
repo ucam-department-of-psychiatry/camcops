@@ -552,18 +552,20 @@ class CamcopsRequest(Request):
         # The other way is to specify a fontdict with each call, e.g.
         #       ax.set_xlabel("some label", **fontdict)
         # https://stackoverflow.com/questions/21321670/how-to-change-fonts-in-matplotlib-python  # noqa
-        # Relevant calls with explicit "fontdict" parameters:
-        #       ax.set_xlabel
-        #       ax.set_ylabel
-        #       ax.legend
-        #       ax.set_xticklabels
-        #       ax.set_yticklabels
-        #       ax.text
-        #       ax.set_label_text
-        #       ax.set_title
+        # Relevant calls with explicit "fontdict: Dict" parameters:
+        #       ax.set_xlabel(..., fontdict=XXX, ...)
+        #       ax.set_ylabel(..., fontdict=XXX, ...)
+        #       ax.set_xticklabels(..., fontdict=XXX, ...)
+        #       ax.set_yticklabels(..., fontdict=XXX, ...)
+        #       ax.text(..., fontdict=XXX, ...)
+        #       ax.set_label_text(..., fontdict=XXX, ...)
+        #       ax.set_title(..., fontdict=XXX, ...)
         #
-        # And with "fontproperties"
-        #       sig.suptitle
+        # And with "fontproperties: FontProperties"
+        #       sig.suptitle(..., fontproperties=XXX, ...)
+        #
+        # And with "prop: FontProperties":
+        #       ax.legend(..., prop=XXX, ...)
         #
         # Then, some things are automatically plotted...
 

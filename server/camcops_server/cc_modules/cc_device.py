@@ -24,6 +24,7 @@
 
 from typing import Any, List, Optional, TYPE_CHECKING
 
+from cardinal_pythonlib.classes import classproperty
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 from sqlalchemy.orm import relationship
@@ -32,7 +33,7 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
 
 from .cc_constants import PARAM
-from .cc_report import expand_id_descriptions, Report, REPORT_RESULT_TYPE
+from .cc_report import Report, REPORT_RESULT_TYPE
 from .cc_unittest import unit_test_ignore
 from .cc_sqla_coltypes import (
     DeviceNameColType,
@@ -166,12 +167,16 @@ def get_device_filter_dropdown(req: "CamcopsRequest",
 
 class DeviceReport(Report):
     """Report to show registered devices."""
-    report_id = "devices"
-    report_title = "(Server) Devices registered with the server"
-    param_spec_list = []
+    @classproperty
+    def report_id(cls) -> str:
+        return "devices"
 
-    def get_rows_descriptions(self, req: "CamcopsRequest",
-                              **kwargs: Any) -> REPORT_RESULT_TYPE:
+    @classproperty
+    def title(cls) -> str:
+        return "(Server) Devices registered with the server"
+
+    def get_rows_descriptions(self,
+                              req: "CamcopsRequest") -> REPORT_RESULT_TYPE:
         dbsession = req.dbsession
         query = dbsession.query(Device.id,
                                 Device.name,
@@ -182,7 +187,6 @@ class DeviceReport(Report):
                                 Device.last_upload_batch_utc)\
             .order_by(Device.id)
         rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
-        fieldnames = expand_id_descriptions(fieldnames)
         return rows, fieldnames
 
 

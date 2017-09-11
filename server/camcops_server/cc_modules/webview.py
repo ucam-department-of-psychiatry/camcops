@@ -118,6 +118,8 @@ import zipfile
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import HEADERS_TYPE, WSGI_TUPLE_TYPE
+from cardinal_pythonlib.sqlalchemy.dialect import get_dialect_name
+from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
 from pendulum import Pendulum
 import pyramid.httpexceptions as exc
@@ -131,20 +133,22 @@ from pyramid.response import Response
 from pyramid.security import Authenticated, NO_PERMISSION_REQUIRED
 import pygments
 import pygments.lexers
+import pygments.lexers.sql
 import pygments.lexers.web
 import pygments.formatters
-from sqlalchemy.sql.expression import desc, func
+from sqlalchemy.sql.expression import desc
 
 from .cc_audit import audit, AuditEntry
 from .cc_constants import (
     ACTION,
     CAMCOPS_URL,
     DateFormat,
+    MINIMUM_PASSWORD_LENGTH,
     PARAM,
-    RESTRICTED_WARNING,
     VALUE,
 )
 from .cc_blob import Blob
+from .cc_convert import get_tsv_header_from_dict, get_tsv_line_from_dict
 from camcops_server.cc_modules import cc_db
 from .cc_device import (
     Device,
@@ -159,6 +163,23 @@ from .cc_dump import (
     get_multiple_views_data_as_tsv_zip,
     get_permitted_tables_views_sorted_labelled,
     NOTHING_VALID_SPECIFIED,
+)
+from .cc_forms import (
+    AuditTrailForm,
+    ChangeOtherPasswordForm,
+    ChangeOwnPasswordForm,
+    ChooseTrackerForm,
+    DEFAULT_ROWS_PER_PAGE,
+    DIALECT_CHOICES,
+    get_head_form_html,
+    HL7MessageLogForm,
+    HL7RunLogForm,
+    LoginForm,
+    OfferTermsForm,
+    RefreshTasksForm,
+    TaskFiltersForm,
+    TasksPerPageForm,
+    ViewDdlForm,
 )
 from .cc_hl7 import HL7Message, HL7Run
 from .cc_html import (
@@ -175,6 +196,7 @@ from .cc_policy import (
 )
 from .cc_pyramid import (
     CamcopsPage,
+    Dialect,
     FormAction,
     PageUrl,
     PdfResponse,
@@ -185,20 +207,16 @@ from .cc_pyramid import (
     ViewParam,
     XmlResponse,
 )
-from .cc_report import (
-    offer_individual_report,
-    offer_report_menu,
-    serve_report,
-)
+from .cc_report import get_report_instance
 from .cc_request import CamcopsRequest
 from .cc_session import CamcopsSession
 from .cc_simpleobjects import IdNumDefinition
+from .cc_sqlalchemy import get_all_ddl
 from .cc_storedvar import DeviceStoredVar
 from .cc_task import (
     gen_tasks_for_patient_deletion,
     gen_tasks_live_on_tablet,
     gen_tasks_using_patient,
-    get_url_task_html,
     Task,
 )
 from .cc_taskfactory import (
@@ -220,27 +238,11 @@ from .cc_user import (
     edit_user_form,
     enable_user_webview,
     manage_users_html,
-    MINIMUM_PASSWORD_LENGTH,
     SecurityAccountLockout,
     SecurityLoginFailure,
     User,
 )
 from .cc_version import CAMCOPS_SERVER_VERSION
-from .forms import (
-    AuditTrailForm,
-    ChangeOtherPasswordForm,
-    ChangeOwnPasswordForm,
-    ChooseTrackerForm,
-    DEFAULT_ROWS_PER_PAGE,
-    get_head_form_html,
-    HL7MessageLogForm,
-    HL7RunLogForm,
-    LoginForm,
-    OfferTermsForm,
-    RefreshTasksForm,
-    TaskFiltersForm,
-    TasksPerPageForm,
-)
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 ccplot_no_op()
@@ -1004,31 +1006,50 @@ def serve_ctv(req: CamcopsRequest) -> Response:
 # Reports
 # =============================================================================
 
-# noinspection PyUnusedLocal
-def reports_menu(session: CamcopsSession, form: cgi.FieldStorage) -> str:
+@view_config(route_name=Routes.REPORTS_MENU, renderer="reports_menu.mako",
+             permission=Permission.REPORTS)
+def reports_menu(req: CamcopsRequest) -> Dict[str, Any]:
     """Offer a menu of reports."""
-
-    if not session.authorized_for_reports():
-        return fail_with_error_stay_logged_in(CANNOT_REPORT)
-    return offer_report_menu(session)
+    return {}
 
 
-def offer_report(session: CamcopsSession, form: cgi.FieldStorage) -> str:
+@view_config(route_name=Routes.OFFER_REPORT, renderer="offer_report.mako",
+             permission=Permission.REPORTS)
+def offer_report(req: CamcopsRequest) -> Dict[str, Any]:
     """Offer configuration options for a single report."""
+    report_id = req.get_str_param(ViewParam.REPORT_ID)
+    report = get_report_instance(report_id)
+    if not report:
+        raise exc.HTTPBadRequest("No such report ID: {}".format(
+            repr(report_id)))
+    form = report.get_form(req)
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            querydict = {k: v for k, v in appstruct.items()
+                         if k != ViewParam.CSRF_TOKEN}
+            raise exc.HTTPFound(req.route_url(Routes.REPORT, _query=querydict))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        rendered_form = form.render({ViewParam.REPORT_ID: report_id})
+    return dict(
+        report=report,
+        form=rendered_form,
+        head_form_html=get_head_form_html(req, [form])
+    )
 
-    if not session.authorized_for_reports():
-        return fail_with_error_stay_logged_in(CANNOT_REPORT)
-    return offer_individual_report(session, form)
 
-
-def provide_report(session: CamcopsSession,
-                   form: cgi.FieldStorage) -> Union[str, WSGI_TUPLE_TYPE]:
+@view_config(route_name=Routes.REPORT, permission=Permission.REPORTS)
+def provide_report(req: CamcopsRequest) -> Response:
     """Serve up a configured report."""
-
-    if not session.authorized_for_reports():
-        return fail_with_error_stay_logged_in(CANNOT_REPORT)
-    return serve_report(session, form)
-    # ... unusual: manages the content type itself
+    report_id = req.get_str_param(ViewParam.REPORT_ID)
+    report = get_report_instance(report_id)
+    if not report:
+        raise exc.HTTPBadRequest("No such report ID: {}".format(
+            repr(report_id)))
+    return report.get_response(req)
 
 
 # =============================================================================
@@ -1295,7 +1316,7 @@ def offer_table_dump(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     )
 
     for x in get_permitted_tables_views_sorted_labelled():
-        if x["name"] == Blob.TABLENAME:
+        if x["name"] == Blob.__tablename__:
             name = PARAM.TABLES_BLOB
             checked = ""
         else:
@@ -1441,13 +1462,49 @@ def view_policies(req: CamcopsRequest) -> Dict[str, Any]:
 # View table definitions
 # =============================================================================
 
-# noinspection PyUnusedLocal
-def inspect_table_defs(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Inspect table definitions with field comments."""
+LEXERMAP = {
+    Dialect.MYSQL: pygments.lexers.sql.MySqlLexer,
+    Dialect.MSSQL: pygments.lexers.sql.SqlLexer,  # generic
+    Dialect.ORACLE: pygments.lexers.sql.SqlLexer,  # generic
+    Dialect.FIREBIRD: pygments.lexers.sql.SqlLexer,  # generic
+    Dialect.POSTGRES: pygments.lexers.sql.PostgresLexer,
+    Dialect.SQLITE: pygments.lexers.sql.SqlLexer,  # generic; SqliteConsoleLexer is wrong  # noqa
+    Dialect.SYBASE: pygments.lexers.sql.SqlLexer,  # generic
+}
 
-    if not session.authorized_to_dump():
-        return fail_with_error_stay_logged_in(CANNOT_DUMP)
-    return get_descriptions_comments_html(include_views=False)
+
+@view_config(route_name=Routes.VIEW_DDL)
+def view_ddl(req: CamcopsRequest) -> Response:
+    """Inspect table definitions with field comments."""
+    form = ViewDdlForm(request=req)
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            dialect = appstruct.get(ViewParam.DIALECT)
+            ddl = get_all_ddl(dialect_name=dialect)
+            lexer = LEXERMAP[dialect]()
+            formatter = pygments.formatters.HtmlFormatter()
+            html = pygments.highlight(ddl, lexer, formatter)
+            css = formatter.get_style_defs('.highlight')
+            return render_to_response("introspect_file.mako",
+                                      dict(css=css,
+                                           code_html=html),
+                                      request=req)
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        rendered_form = form.render()
+    current_dialect = get_dialect_name(get_engine_from_session(req.dbsession))
+    current_dialect_description = {k: v for k, v in DIALECT_CHOICES}.get(
+        current_dialect, "?")
+    return render_to_response(
+        "view_ddl_choose_dialect.mako",
+        dict(current_dialect=current_dialect,
+             current_dialect_description=current_dialect_description,
+             form=rendered_form,
+             head_form_html=get_head_form_html(req, [form])),
+        request=req)
 
 
 # =============================================================================
@@ -2384,9 +2441,9 @@ def forcibly_finalize(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     # Force-finalize tasks (with subtables)
     tables = [
         # non-task but tablet-based tables
-        Patient.TABLENAME,
-        Blob.TABLENAME,
-        DeviceStoredVar.TABLENAME,
+        Patient.__tablename__,
+        Blob.__tablename__,
+        DeviceStoredVar.__tablename__,
     ]
     for cls in get_all_task_classes():
         tables.append(cls.tablename)
@@ -2477,83 +2534,6 @@ def enable_user(session: CamcopsSession, form: cgi.FieldStorage) -> str:
 
 
 # =============================================================================
-# Ancillary to the main pages/actions
-# =============================================================================
-
-def get_tracker(session: CamcopsSession, form: cgi.FieldStorage) -> Tracker:
-    """Returns a Tracker() object specified by the CGI form."""
-
-    task_tablename_list = ws.get_cgi_parameter_list(form, PARAM.TASKTYPES)
-    which_idnum = ws.get_cgi_parameter_int(form, PARAM.WHICH_IDNUM)
-    idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
-    start_datetime = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
-    end_datetime = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
-
-
-def get_clinicaltextview(session: CamcopsSession,
-                         form: cgi.FieldStorage) -> ClinicalTextView:
-    """Returns a ClinicalTextView() object defined by the CGI form."""
-
-    which_idnum = ws.get_cgi_parameter_int(form, PARAM.WHICH_IDNUM)
-    idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
-    start_datetime = ws.get_cgi_parameter_datetime(form, PARAM.START_DATETIME)
-    end_datetime = ws.get_cgi_parameter_datetime(form, PARAM.END_DATETIME)
-    return ClinicalTextView(
-        session,
-        which_idnum,
-        idnum_value,
-        start_datetime,
-        end_datetime
-    )
-
-
-def tsv_escape(x: Any) -> str:
-    if x is None:
-        return ""
-    if not isinstance(x, str):
-        x = str(x)
-    return x.replace("\t", "\\t").replace("\n", "\\n")
-
-
-def get_tsv_header_from_dict(d: Dict) -> str:
-    """Returns a TSV header line from a dictionary."""
-    return "\t".join([tsv_escape(x) for x in d.keys()])
-
-
-def get_tsv_line_from_dict(d: Dict) -> str:
-    """Returns a TSV data line from a dictionary."""
-    return "\t".join([tsv_escape(x) for x in d.values()])
-
-
-# =============================================================================
-# URLs
-# =============================================================================
-
-def get_url_next_page(ntasks: int) -> str:
-    """URL to move to next page in task list."""
-    return (
-        get_generic_action_url(ACTION.NEXT_PAGE) +
-        get_url_field_value_pair(PARAM.NTASKS, ntasks)
-    )
-
-
-def get_url_last_page(ntasks: int) -> str:
-    """URL to move to last page in task list."""
-    return (
-        get_generic_action_url(ACTION.LAST_PAGE) +
-        get_url_field_value_pair(PARAM.NTASKS, ntasks)
-    )
-
-
-def get_url_introspect(filename: str) -> str:
-    """URL to view specific source code file."""
-    return (
-        get_generic_action_url(ACTION.INTROSPECT) +
-        get_url_field_value_pair(PARAM.FILENAME, filename)
-    )
-
-
-# =============================================================================
 # Main HTTP processor
 # =============================================================================
 
@@ -2562,17 +2542,11 @@ def get_url_introspect(filename: str) -> str:
 # All functions take parameters (session, form)
 # -------------------------------------------------------------------------
 ACTIONDICT = {
-    # Reports
-    ACTION.REPORTS_MENU: reports_menu,
-    ACTION.OFFER_REPORT: offer_report,
-    ACTION.PROVIDE_REPORT: provide_report,
-
     # Data dumps
     ACTION.OFFER_BASIC_DUMP: offer_basic_dump,
     ACTION.BASIC_DUMP: basic_dump,
     ACTION.OFFER_TABLE_DUMP: offer_table_dump,
     ACTION.TABLE_DUMP: serve_table_dump,
-    ACTION.INSPECT_TABLE_DEFS: inspect_table_defs,
 
     # User management
     ACTION.MANAGE_USERS: manage_users,
@@ -2659,7 +2633,6 @@ def get_descriptions_comments_html(include_views: bool = False) -> str:
     f = io.StringIO()
     write_descriptions_comments(f, include_views)
     return f.getvalue()
-
 
 
 # =============================================================================

@@ -22,16 +22,23 @@
 ===============================================================================
 """
 
-from typing import Any, List, Optional
+import logging
+from typing import Any, List, Optional, Type
 
+from cardinal_pythonlib.classes import classproperty
+from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.sqlalchemy.core_query import get_rows_fieldnames_from_raw_sql  # noqa
+from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
+from colander import Integer
+import pyramid.httpexceptions as exc
+from sqlalchemy.sql.expression import and_, exists, select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from ..cc_modules.cc_dt import format_datetime
-from ..cc_modules.cc_constants import DateFormat, INVALID_VALUE, PARAM
+from ..cc_modules.cc_constants import DateFormat, INVALID_VALUE
 from ..cc_modules.cc_ctvinfo import CtvInfo
+from ..cc_modules.cc_forms import WhichIdNumSelector, ReportParamSchema
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no_none,
@@ -46,7 +53,10 @@ from ..cc_modules.cc_nhs import (
     PV_NHS_ETHNIC_CATEGORY,
     PV_NHS_MARITAL_STATUS
 )
-from ..cc_modules.cc_report import Report, ReportParamSpec, REPORT_RESULT_TYPE
+from ..cc_modules.cc_patient import Patient
+from ..cc_modules.cc_patientidnum import PatientIdNum
+from ..cc_modules.cc_pyramid import ViewParam
+from ..cc_modules.cc_report import Report, REPORT_RESULT_TYPE
 from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BoolColumn,
@@ -56,12 +66,14 @@ from ..cc_modules.cc_sqla_coltypes import (
     DiagnosticCodeColType,
     PermittedValueChecker,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
+from .psychiatricclerking import PsychiatricClerking
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -73,7 +85,8 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     shortname = "CPFT_LPS_Referral"
     longname = "Referral to CPFT Liaison Psychiatry Service"
 
-    referral_date_time = Column("referral_date_time", PendulumDateTimeAsIsoTextColType)
+    referral_date_time = Column("referral_date_time",
+                                PendulumDateTimeAsIsoTextColType)
     lps_division = Column("lps_division", UnicodeText)
     referral_priority = Column("referral_priority", UnicodeText)
     referral_method = Column("referral_method", UnicodeText)
@@ -705,150 +718,242 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         """
         return h
 
+
 # =============================================================================
 # Reports
 # =============================================================================
 
-ID_NUMBER_TO_LINK_ON_LABEL = "ID number to link on?"
+class LPSReportSchema(ReportParamSchema):
+    which_idnum = WhichIdNumSelector(  # must match ViewParam.WHICH_IDNUM
+        allow_none=False,
+        description="ID number to link on?",
+    )
 
 
 class LPSReportReferredNotDischarged(Report):
-    report_id = "cpft_lps_referred_not_subsequently_discharged"
-    report_title = "CPFT LPS – referred but not yet discharged"
-    param_spec_list = [ReportParamSpec(type=PARAM.WHICH_IDNUM,
-                                       name="linking_idnum",
-                                       label=ID_NUMBER_TO_LINK_ON_LABEL)]
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "cpft_lps_referred_not_subsequently_discharged"
 
-    def get_rows_descriptions(self,
-                              req: CamcopsRequest,
-                              **kwargs: Any) -> REPORT_RESULT_TYPE:
-        linking_idnum = kwargs.pop("linking_idnum", None)  # type: int
-        if linking_idnum is None:
-            return [], []
-        sql = """
-            SELECT
-                r.lps_division,
-                r.referral_date_time,
-                r.referral_priority,
-                p1.surname,
-                p1.forename,
-                p1.dob,
-                r.patient_location
-            FROM
-                patient p1,
-                cpft_lps_referral r
-            WHERE
-                /* standard criteria */
-                p1._current
-                AND r._current
-                AND r.patient_id = p1.id
-                AND r._device_id = p1._device_id
-                AND r._era = p1._era
-                /* not yet discharged */
-                AND NOT EXISTS (
-                    SELECT *
-                    FROM
-                        patient p2,
-                        cpft_lps_discharge d
-                    WHERE
-                        /* link on ID */
-                        p2.idnum{0} = p1.idnum{0}
-                        /* discharge later than referral */
-                        AND LEFT(d.discharge_date, 10) >=
-                            LEFT(r.referral_date_time, 10)
-                        /* standard criteria */
-                        AND p2._current
-                        AND d._current
-                        AND d.patient_id = p2.id
-                        AND d._device_id = p2._device_id
-                        AND d._era = p2._era
-                )
-            ORDER BY
-                r.lps_division,
-                r.referral_date_time,
-                r.referral_priority
-        """.format(linking_idnum)
+    # noinspection PyMethodParameters
+    @classproperty
+    def title(cls) -> str:
+        return "CPFT LPS – referred but not yet discharged"
+
+    @staticmethod
+    def get_schema_class() -> Type[ReportParamSchema]:
+        return LPSReportSchema
+
+    # noinspection PyProtectedMember
+    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
+        which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
+        if which_idnum is None:
+            raise exc.HTTPBadRequest("{} not specified".format(
+                ViewParam.WHICH_IDNUM))
+
+        # Step 1: link referral and patient
+        p1 = Patient.__table__.alias("p1")
+        i1 = PatientIdNum.__table__.alias("i1")
+        desc = req.config.get_id_shortdesc(which_idnum)
+        select_fields = [
+            CPFTLPSReferral.lps_division,
+            CPFTLPSReferral.referral_date_time,
+            CPFTLPSReferral.referral_priority,
+            p1.c.surname,
+            p1.c.forename,
+            p1.c.dob,
+            i1.c.idnum_value.label(desc),
+            CPFTLPSReferral.patient_location,
+        ]
+        # noinspection PyPep8
+        select_from = p1.join(CPFTLPSReferral.__table__, and_(
+            p1.c._current == True,
+            CPFTLPSReferral.patient_id == p1.c.id,
+            CPFTLPSReferral._device_id == p1.c._device_id,
+            CPFTLPSReferral._era == p1.c._era,
+            CPFTLPSReferral._current == True,
+        ))
+        # noinspection PyPep8
+        select_from = select_from.join(i1, and_(
+            i1.c.patient_id == p1.c.id,
+            i1.c._device_id == p1.c._device_id,
+            i1.c._era == p1.c._era,
+            i1.c._current == True,
+        ))
+        wheres = [
+            i1.c.which_idnum == which_idnum,
+        ]
+
+        # Step 2: not yet discharged
+        p2 = Patient.__table__.alias("p2")
+        i2 = PatientIdNum.__table__.alias("i2")
+        # noinspection PyPep8
+        referral = select(['*'])\
+            .select_from(
+                p2.join(CPFTLPSDischarge.__table__, and_(
+                    p2.c._current == True,
+                    CPFTLPSDischarge.patient_id == p2.c.id,
+                    CPFTLPSDischarge._device_id == p2.c._device_id,
+                    CPFTLPSDischarge._era == p2.c._era,
+                    CPFTLPSDischarge._current == True,
+                )).join(i2, and_(
+                    i2.c.patient_id == p2.c.id,
+                    i2.c._device_id == p2.c._device_id,
+                    i2.c._era == p2.c._era,
+                    i2.c._current == True,
+                ))
+            )\
+            .where(and_(
+                # Link on ID to main query: same patient
+                i2.c.which_idnum == which_idnum,
+                i2.c.idnum_value == i1.c.idnum_value,
+                # Discharge later than referral
+                (CPFTLPSDischarge.discharge_date >=
+                 CPFTLPSReferral.referral_date_time),
+            ))
+        wheres.append(~exists(referral))
+
+        # Finish up
+        order_by = [
+            CPFTLPSReferral.lps_division,
+            CPFTLPSReferral.referral_date_time,
+            CPFTLPSReferral.referral_priority,
+        ]
+        query = select(select_fields) \
+            .select_from(select_from) \
+            .where(and_(*wheres)) \
+            .order_by(*order_by)
+        # log.critical(str(query))
         dbsession = req.dbsession
-        rows, fieldnames = get_rows_fieldnames_from_raw_sql(dbsession, sql)
+        rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
         return rows, fieldnames
 
 
 class LPSReportReferredNotClerkedOrDischarged(Report):
-    report_id = "cpft_lps_referred_not_subsequently_clerked_or_discharged"
-    report_title = ("CPFT LPS – referred but not yet fully assessed or "
-                    "discharged")
-    param_spec_list = [ReportParamSpec(type=PARAM.WHICH_IDNUM,
-                                       name="linking_idnum",
-                                       label=ID_NUMBER_TO_LINK_ON_LABEL)]
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "cpft_lps_referred_not_subsequently_clerked_or_discharged"
 
-    def get_rows_descriptions(self,
-                              req: CamcopsRequest,
-                              **kwargs: Any) -> REPORT_RESULT_TYPE:
-        linking_idnum = kwargs.pop("linking_idnum", None)  # type: int
-        if linking_idnum is None:
-            return [], []
-        sql = """
-            SELECT
-                r.lps_division,
-                r.referral_date_time,
-                r.referral_priority,
-                p1.surname,
-                p1.forename,
-                p1.dob,
-                r.patient_location
-            FROM
-                patient p1,
-                cpft_lps_referral r
-            WHERE
-                /* standard criteria */
-                p1._current
-                AND r._current
-                AND r.patient_id = p1.id
-                AND r._device_id = p1._device_id
-                AND r._era = p1._era
-                /* not yet discharged */
-                AND NOT EXISTS (
-                    SELECT *
-                    FROM
-                        patient p2,
-                        cpft_lps_discharge d
-                    WHERE
-                        /* link on ID */
-                        p2.idnum{0} = p1.idnum{0}
-                        /* discharge later than referral */
-                        AND LEFT(d.discharge_date, 10) >=
-                            LEFT(r.referral_date_time, 10)
-                        /* standard criteria */
-                        AND p2._current
-                        AND d._current
-                        AND d.patient_id = p2.id
-                        AND d._device_id = p2._device_id
-                        AND d._era = p2._era
-                )
-                /* not yet clerked */
-                AND NOT EXISTS (
-                    SELECT *
-                    FROM
-                        patient p2,
-                        psychiatricclerking c
-                    WHERE
-                        /* link on ID */
-                        p2.idnum{0} = p1.idnum{0}
-                        /* clerking later than referral */
-                        AND LEFT(c.when_created, 10) >=
-                            LEFT(r.referral_date_time, 10)
-                        /* standard criteria */
-                        AND p2._current
-                        AND c._current
-                        AND c.patient_id = p2.id
-                        AND c._device_id = p2._device_id
-                        AND c._era = p2._era
-                )
-            ORDER BY
-                r.lps_division,
-                r.referral_date_time,
-                r.referral_priority
-        """.format(linking_idnum)
+    # noinspection PyMethodParameters
+    @classproperty
+    def title(cls) -> str:
+        return "CPFT LPS – referred but not yet fully assessed or discharged"
+
+    @staticmethod
+    def get_schema_class() -> Type[ReportParamSchema]:
+        return LPSReportSchema
+
+    # noinspection PyProtectedMember
+    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
+        which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
+        if which_idnum is None:
+            raise exc.HTTPBadRequest("{} not specified".format(
+                ViewParam.WHICH_IDNUM))
+
+        # Step 1: link referral and patient
+        p1 = Patient.__table__.alias("p1")
+        i1 = PatientIdNum.__table__.alias("i1")
+        desc = req.config.get_id_shortdesc(which_idnum)
+        select_fields = [
+            CPFTLPSReferral.lps_division,
+            CPFTLPSReferral.referral_date_time,
+            CPFTLPSReferral.referral_priority,
+            p1.c.surname,
+            p1.c.forename,
+            p1.c.dob,
+            i1.c.idnum_value.label(desc),
+            CPFTLPSReferral.patient_location,
+        ]
+        # noinspection PyPep8
+        select_from = p1.join(CPFTLPSReferral.__table__, and_(
+            p1.c._current == True,
+            CPFTLPSReferral.patient_id == p1.c.id,
+            CPFTLPSReferral._device_id == p1.c._device_id,
+            CPFTLPSReferral._era == p1.c._era,
+            CPFTLPSReferral._current == True,
+        ))
+        # noinspection PyPep8
+        select_from = select_from.join(i1, and_(
+            i1.c.patient_id == p1.c.id,
+            i1.c._device_id == p1.c._device_id,
+            i1.c._era == p1.c._era,
+            i1.c._current == True,
+        ))
+        wheres = [
+            i1.c.which_idnum == which_idnum,
+        ]
+
+        # Step 2: not yet discharged
+        p2 = Patient.__table__.alias("p2")
+        i2 = PatientIdNum.__table__.alias("i2")
+        # noinspection PyPep8
+        referral = select(['*'])\
+            .select_from(
+                p2.join(CPFTLPSDischarge.__table__, and_(
+                    p2.c._current == True,
+                    CPFTLPSDischarge.patient_id == p2.c.id,
+                    CPFTLPSDischarge._device_id == p2.c._device_id,
+                    CPFTLPSDischarge._era == p2.c._era,
+                    CPFTLPSDischarge._current == True,
+                )).join(i2, and_(
+                    i2.c.patient_id == p2.c.id,
+                    i2.c._device_id == p2.c._device_id,
+                    i2.c._era == p2.c._era,
+                    i2.c._current == True,
+                ))
+            )\
+            .where(and_(
+                # Link on ID to main query: same patient
+                i2.c.which_idnum == which_idnum,
+                i2.c.idnum_value == i1.c.idnum_value,
+                # Discharge later than referral
+                (CPFTLPSDischarge.discharge_date >=
+                 CPFTLPSReferral.referral_date_time),
+            ))
+        wheres.append(~exists(referral))
+
+        # Step 3: not yet clerked
+        p3 = Patient.__table__.alias("p3")
+        i3 = PatientIdNum.__table__.alias("i3")
+        # noinspection PyPep8
+        clerking = select(['*']) \
+            .select_from(
+            p3.join(PsychiatricClerking.__table__, and_(
+                p3.c._current == True,
+                PsychiatricClerking.patient_id == p3.c.id,
+                PsychiatricClerking._device_id == p3.c._device_id,
+                PsychiatricClerking._era == p3.c._era,
+                PsychiatricClerking._current == True,
+            )).join(i3, and_(
+                i3.c.patient_id == p3.c.id,
+                i3.c._device_id == p3.c._device_id,
+                i3.c._era == p3.c._era,
+                i3.c._current == True,
+            ))
+        ) \
+        .where(and_(
+            # Link on ID to main query: same patient
+            i3.c.which_idnum == which_idnum,
+            i3.c.idnum_value == i1.c.idnum_value,
+            # Discharge later than referral
+            (PsychiatricClerking.when_created >=
+             CPFTLPSReferral.referral_date_time),
+        ))
+        wheres.append(~exists(clerking))
+
+        # Finish up
+        order_by = [
+            CPFTLPSReferral.lps_division,
+            CPFTLPSReferral.referral_date_time,
+            CPFTLPSReferral.referral_priority,
+        ]
+        query = select(select_fields) \
+            .select_from(select_from) \
+            .where(and_(*wheres)) \
+            .order_by(*order_by)
+        # log.critical(str(query))
         dbsession = req.dbsession
-        rows, fieldnames = get_rows_fieldnames_from_raw_sql(dbsession, sql)
+        rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
         return rows, fieldnames

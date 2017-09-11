@@ -24,15 +24,17 @@
 
 import base64
 import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 import xml.sax.saxutils
 
-from cardinal_pythonlib.sqlalchemy.orm_inspect import get_orm_columns
+from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from pendulum import Date, Pendulum, Time
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
 from .cc_simpleobjects import XmlSimpleValue
+from .cc_sqla_coltypes import gen_camcops_blob_columns
+from .cc_summaryelement import SummaryElement
 
 
 # =============================================================================
@@ -95,7 +97,7 @@ class XmlElement(object):
 # However, they do look quite fiddly and we only want to create something
 # simple. Therefore, let's roll our own:
 
-def make_xml_branches_from_fieldspecs(
+def make_xml_branches_from_columns(
         obj,
         skip_fields: List[str] = None) -> List[XmlElement]:
     """
@@ -103,38 +105,57 @@ def make_xml_branches_from_fieldspecs(
     using the list of SQLAlchemy Column objects that define/describe its
     fields.
     """
-    skip_fields = skip_fields or []
-    columns = get_orm_columns(obj.__class__)
-    branches = []
-    for column in columns:
-        name = column.name
-        if name in skip_fields:
+    skip_fields = skip_fields or []  # type: List[str]
+    branches = []  # type: List[XmlElement]
+    for attrname, column in gen_columns(obj):
+        colname = column.name
+        if colname in skip_fields:
             continue
         branches.append(XmlElement(
-            name=name,
-            value=getattr(obj, name),
-            datatype=get_xml_datatype_from_sqla_column(column.type),
+            name=colname,
+            value=getattr(obj, attrname),
+            datatype=get_xml_datatype_from_sqla_column(column),
             comment=column.comment
         ))
     return branches
 
 
 def make_xml_branches_from_summaries(
-        summaries: List[Dict],
+        summaries: List[SummaryElement],
         skip_fields: List[str] = None) -> List[XmlElement]:
     """Returns a list of XML branches, each an XmlElementTuple, from a
     list of summary data provided by a task."""
     skip_fields = skip_fields or []
     branches = []
-    for d in summaries:
-        name = d["name"]
+    for s in summaries:
+        name = s.name
         if name in skip_fields:
             continue
         branches.append(XmlElement(
             name=name,
-            value=d["value"],
-            datatype=get_xml_datatype_from_sqla_column(d),
-            comment=d.get("comment", None)
+            value=s.value,
+            datatype=get_xml_datatype_from_sqla_column_type(s.coltype),
+            comment=s.comment
+        ))
+    return branches
+
+
+def make_xml_branches_from_blobs(
+        obj,
+        skip_fields: List[str] = None) -> List[XmlElement]:
+    skip_fields = skip_fields or []  # type: List[str]
+    branches = []  # type: List[XmlElement]
+    for id_attrname, column in gen_camcops_blob_columns(obj):
+        colname = column.name
+        if colname in skip_fields:
+            continue
+        relationship_attr = column.blob_relationship_attr_name
+        blob = getattr(obj, relationship_attr)
+        branches.append(get_xml_blob_tuple(
+            name=relationship_attr,
+            blobdata=(None if blob is None
+                     else blob.get_xml_element_value_binary()),
+            comment=column.comment
         ))
     return branches
 
@@ -212,7 +233,8 @@ def xml_quote_attribute(attr: str) -> str:
     return xml.sax.saxutils.quoteattr(attr)
 
 
-def get_xml_tree(element: XmlElement,
+def get_xml_tree(element: Union[XmlElement, XmlSimpleValue, str,
+                                List[Union[XmlElement, XmlSimpleValue, str]]],
                  level: int = 0,
                  indent_spaces: int = 4,
                  eol: str = '\n',

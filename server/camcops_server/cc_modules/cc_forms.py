@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# camcops_server/cc_modules/forms.py
+# camcops_server/cc_modules/cc_forms.py
 
 """
 ===============================================================================
@@ -22,10 +22,10 @@
 ===============================================================================
 """
 
-import datetime
 import logging
 from pprint import pformat
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import (Any, Dict, Iterable, List, Optional, Tuple, Type,
+                    TYPE_CHECKING, Union)
 import unittest
 
 from cardinal_pythonlib.logs import (
@@ -65,16 +65,16 @@ from deform.widget import (
 from pendulum import Pendulum
 from pendulum.parsing.exceptions import ParserError
 
-from .cc_all_models import all_models_no_op
-from .cc_constants import DEFAULT_ROWS_PER_PAGE
-from .cc_dt import coerce_to_pendulum, get_tz_local, POTENTIAL_DATETIME_TYPES
-from .cc_pyramid import FormAction, ViewArg, ViewParam
-from .cc_request import CamcopsRequest, command_line_request
-from .cc_task import Task
-from .cc_user import MINIMUM_PASSWORD_LENGTH, User
+# import as LITTLE AS POSSIBLE; this is used by lots of modules
+# We use some delayed imports here (search for "delayed import")
+from .cc_constants import DEFAULT_ROWS_PER_PAGE, MINIMUM_PASSWORD_LENGTH
+from .cc_dt import coerce_to_pendulum, POTENTIAL_DATETIME_TYPES
+from .cc_pyramid import Dialect, FormAction, ViewArg, ViewParam
+
+if TYPE_CHECKING:
+    from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
-all_models_no_op()
 
 COLANDER_NULL_TYPE = type(colander.null)
 
@@ -93,7 +93,7 @@ if DEBUG_CSRF_CHECK or DEBUG_FORM_VALIDATION:
 # Widget resources
 # =============================================================================
 
-def get_head_form_html(req: CamcopsRequest, forms: List[Form]) -> str:
+def get_head_form_html(req: "CamcopsRequest", forms: List[Form]) -> str:
     """
     Returns the extra HTML that needs to be injected into the <head> section
     for a Deform form to work properly.
@@ -257,7 +257,7 @@ class CSRFSchema(Schema):
     calls clone() with no arguments and clone() ends up calling __init__()...
     """
 
-    csrf = CSRFToken()
+    csrf = CSRFToken()  # name must match ViewParam.CSRF_TOKEN
 
 
 # =============================================================================
@@ -352,7 +352,7 @@ class OptionalInt(NoneAcceptantNode):
     default = None
     missing = None
 
-    def __init__(self, *args, title: str, **kwargs) -> None:
+    def __init__(self, *args, title: str = "?", **kwargs) -> None:
         self.title = title
         super().__init__(*args, **kwargs)
 
@@ -362,9 +362,19 @@ class OptionalString(SchemaNode):
     default = ""
     missing = ""
 
-    def __init__(self, *args, title: str, **kwargs) -> None:
+    def __init__(self, *args, title: str = "?", **kwargs) -> None:
         self.title = title
         super().__init__(*args, **kwargs)
+
+
+class HiddenInteger(SchemaNode):
+    schema_type = Integer
+    widget = HiddenWidget()
+
+
+class HiddenString(SchemaNode):
+    schema_type = String
+    widget = HiddenWidget()
 
 
 class DateTimeSelector(SchemaNode):
@@ -394,12 +404,17 @@ class SingleTaskSelector(SchemaNode):
     missing = ""
     title = "Task type"
 
-    def __init__(self, *args, allow_none: bool, **kwargs) -> None:
+    def __init__(self, *args, allow_none: bool = True, **kwargs) -> None:
+        self.allow_none = allow_none
+        self.widget = None  # type: Widget
+        self.validator = None  # type: object
+        super().__init__(*args, **kwargs)
+
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         values, pv = get_values_and_permissible(self.get_task_choices(),
-                                                allow_none, ("", "[Any]"))
+                                                self.allow_none, ("", "[Any]"))
         self.widget = SelectWidget(values=values)
         self.validator = OneOf(pv)
-        super().__init__(*args, **kwargs)
 
     @staticmethod
     def get_task_choices() -> List[Tuple[str, str]]:
@@ -413,11 +428,16 @@ class MultiTaskSelector(SchemaNode):
     title = "Task type(s)"
 
     def __init__(self, *args, minimum_length: int = 1, **kwargs) -> None:
+        self.minimum_length = minimum_length
+        self.widget = None  # type: Widget
+        self.validator = None  # type: object
+        super().__init__(*args, **kwargs)
+
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         values, pv = get_values_and_permissible(self.get_task_choices(),
                                                 add_none=False)
         self.widget = CheckboxChoiceWidget(values=values)
-        self.validator = Length(min=minimum_length)
-        super().__init__(*args, **kwargs)
+        self.validator = Length(min=self.minimum_length)
 
     @staticmethod
     def get_task_choices() -> List[Tuple[str, str]]:
@@ -427,6 +447,7 @@ class MultiTaskSelector(SchemaNode):
 class AllTasksSingleTaskSelector(SingleTaskSelector):
     @staticmethod
     def get_task_choices() -> List[Tuple[str, str]]:
+        from .cc_task import Task  # delayed import
         choices = []  # type: List[Tuple[str, str]]
         for tc in Task.all_subclasses_by_shortname():
             choices.append((tc.tablename, tc.shortname))
@@ -439,6 +460,7 @@ class TrackerTaskSelector(MultiTaskSelector):
 
     @staticmethod
     def get_task_choices() -> List[Tuple[str, str]]:
+        from .cc_task import Task  # delayed import
         choices = []  # type: List[Tuple[str, str]]
         for tc in Task.all_subclasses_by_shortname():
             if tc.provides_trackers:
@@ -487,7 +509,7 @@ class SexSelector(SchemaNode):
     missing = ""
     title = "Sex"
 
-    def __init__(self, *args, allow_none: bool, **kwargs) -> None:
+    def __init__(self, *args, allow_none: bool = True, **kwargs) -> None:
         values, pv = get_values_and_permissible(self._sex_choices, allow_none,
                                                 ("", "Any"))
         self.widget = RadioChoiceWidget(values=values)
@@ -501,13 +523,14 @@ class UserIdSelector(NoneAcceptantNode):
     missing = None
     title = "User"
 
-    def __init__(self, *args, allow_none: bool, **kwargs) -> None:
+    def __init__(self, *args, allow_none: bool = True, **kwargs) -> None:
         self.validator = None  # type: object
         self.widget = None  # type: Widget
         super().__init__(*args, allow_none=allow_none, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        from .cc_user import User  # delayed import
         req = kw["request"]  # type: CamcopsRequest
         dbsession = req.dbsession
         values = []  # type: List[Tuple[Optional[int], str]]
@@ -534,6 +557,7 @@ class UserNameSelector(SchemaNode):
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        from .cc_user import User  # delayed import
         req = kw["request"]  # type: CamcopsRequest
         dbsession = req.dbsession
         values = []  # type: List[Tuple[Optional[int], str]]
@@ -586,10 +610,22 @@ class RowsPerPageSelector(SchemaNode):
     validator = OneOf(list(x[0] for x in _choices))
 
 
-class OutputTypeSelector(SchemaNode):
+class TaskTrackerOutputTypeSelector(SchemaNode):
     _choices = ((ViewArg.HTML, "HTML"),
                 (ViewArg.PDF, "PDF"),
                 (ViewArg.XML, "XML"))
+
+    schema_type = String
+    default = ViewArg.HTML
+    missing = ViewArg.HTML
+    title = "View as"
+    widget = RadioChoiceWidget(values=_choices)
+    validator = OneOf(list(x[0] for x in _choices))
+
+
+class ReportOutputTypeSelector(SchemaNode):
+    _choices = ((ViewArg.HTML, "HTML"),
+                (ViewArg.TSV, "TSV (tab-separated values)"))
 
     schema_type = String
     default = ViewArg.HTML
@@ -603,18 +639,15 @@ class OutputTypeSelector(SchemaNode):
 # Login
 # =============================================================================
 
-LOGIN_TITLE = "Log in"
-
-
 class LoginSchema(CSRFSchema):
     username = SchemaNode(  # name must match ViewParam.USERNAME
         String(),
-        description="Enter the user name",
+        description="Username",
     )
     password = SchemaNode(  # name must match ViewParam.PASSWORD
         String(),
         widget=PasswordWidget(),
-        description="Enter the password",
+        description="Password",
     )
     redirect_url = SchemaNode(  # name must match ViewParam.REDIRECT_URL
         String(allow_empty=True),
@@ -626,13 +659,13 @@ class LoginSchema(CSRFSchema):
 
 class LoginForm(InformativeForm):
     def __init__(self,
-                 request: CamcopsRequest,
+                 request: "CamcopsRequest",
                  autocomplete_password: bool = True,
                  **kwargs) -> None:
         schema = LoginSchema().bind(request=request)
         super().__init__(
             schema,
-            buttons=[Button(name=FormAction.SUBMIT, title=LOGIN_TITLE)],
+            buttons=[Button(name=FormAction.SUBMIT, title="Log in")],
             autocomplete=autocomplete_password,
             **kwargs
         )
@@ -683,7 +716,7 @@ class ChangeOwnPasswordSchema(CSRFSchema):
 
 
 class ChangeOwnPasswordForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest,
+    def __init__(self, request: "CamcopsRequest",
                  must_differ: bool = True,
                  **kwargs) -> None:
         schema = ChangeOwnPasswordSchema(must_differ=must_differ).\
@@ -697,10 +730,7 @@ class ChangeOwnPasswordForm(InformativeForm):
 
 
 class ChangeOtherPasswordSchema(CSRFSchema):
-    user_id = SchemaNode(  # name must match ViewParam.USER_ID
-        Integer(),
-        widget=HiddenWidget(),
-    )
+    user_id = HiddenInteger()  # name must match ViewParam.USER_ID
     must_change_password = SchemaNode(  # match ViewParam.MUST_CHANGE_PASSWORD
         Boolean(),
         default=True,
@@ -717,7 +747,7 @@ class ChangeOtherPasswordSchema(CSRFSchema):
 
 
 class ChangeOtherPasswordForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = ChangeOtherPasswordSchema().bind(request=request)
         super().__init__(
             schema,
@@ -737,7 +767,7 @@ class OfferTermsSchema(CSRFSchema):
 
 class OfferTermsForm(InformativeForm):
     def __init__(self,
-                 request: CamcopsRequest,
+                 request: "CamcopsRequest",
                  agree_button_text: str,
                  **kwargs) -> None:
         schema = OfferTermsSchema().bind(request=request)
@@ -769,7 +799,7 @@ class AuditTrailSchema(CSRFSchema):
 
 
 class AuditTrailForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = AuditTrailSchema().bind(request=request)
         super().__init__(
             schema,
@@ -792,7 +822,7 @@ class HL7MessageLogSchema(CSRFSchema):
 
 
 class HL7MessageLogForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = HL7MessageLogSchema().bind(request=request)
         super().__init__(
             schema,
@@ -814,7 +844,7 @@ class HL7RunLogSchema(CSRFSchema):
 
 
 class HL7RunLogForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = HL7RunLogSchema().bind(request=request)
         super().__init__(
             schema,
@@ -853,7 +883,7 @@ class TaskFiltersSchema(CSRFSchema):
 
 
 class TaskFiltersForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = TaskFiltersSchema().bind(request=request)
         super().__init__(
             schema,
@@ -868,7 +898,7 @@ class TasksPerPageSchema(CSRFSchema):
 
 
 class TasksPerPageForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = TasksPerPageSchema().bind(request=request)
         super().__init__(
             schema,
@@ -883,7 +913,7 @@ class RefreshTasksSchema(CSRFSchema):
 
 
 class RefreshTasksForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = RefreshTasksSchema().bind(request=request)
         super().__init__(
             schema,
@@ -908,11 +938,11 @@ class ChooseTrackerSchema(CSRFSchema):
         title="Use all eligible task types?",
     )
     tasks = TrackerTaskSelector()  # must match ViewParam.TASKS
-    viewtype = OutputTypeSelector()  # must match ViewParams.VIEWTYPE
+    viewtype = TaskTrackerOutputTypeSelector()  # must match ViewParams.VIEWTYPE
 
 
 class ChooseTrackerForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest,
+    def __init__(self, request: "CamcopsRequest",
                  as_ctv: bool, **kwargs) -> None:
         schema = ChooseTrackerSchema().bind(request=request)
         super().__init__(
@@ -924,11 +954,78 @@ class ChooseTrackerForm(InformativeForm):
 
 
 # =============================================================================
+# Reports, which use dynamically created forms
+# =============================================================================
+
+class ReportParamSchema(CSRFSchema):
+    report_id = HiddenString()  # must match ViewParams.REPORT_ID
+    viewtype = ReportOutputTypeSelector()  # must match ViewParams.VIEWTYPE
+    # Specific forms may inherit from this.
+
+
+class ReportParamForm(InformativeForm):
+    def __init__(self, request: "CamcopsRequest",
+                 schema_class: Type[ReportParamSchema], **kwargs) -> None:
+        schema = schema_class().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SUBMIT, title="View report")],
+            **kwargs
+        )
+
+
+# =============================================================================
+# View DDL
+# =============================================================================
+
+DIALECT_CHOICES = (
+    # http://docs.sqlalchemy.org/en/latest/dialects/
+    (Dialect.MYSQL, "MySQL"),
+    (Dialect.MSSQL, "Microsoft SQL Server"),
+    (Dialect.ORACLE, "Oracle"),
+    (Dialect.FIREBIRD, "Firebird"),
+    (Dialect.POSTGRES, "PostgreSQL"),
+    (Dialect.SQLITE, "SQLite"),
+    (Dialect.SYBASE, "Sybase"),
+)
+
+
+class DatabaseDialectSelector(SchemaNode):
+
+    schema_type = String
+    default = ""
+    missing = ""
+    title = "SQL dialect to view DDL in"
+
+    def __init__(self, *args, allow_none: bool = False, **kwargs) -> None:
+        values, pv = get_values_and_permissible(
+            DIALECT_CHOICES, allow_none, ("", "Any"))
+        self.widget = RadioChoiceWidget(values=values)
+        self.validator = OneOf(pv)
+        super().__init__(*args, **kwargs)
+
+
+class ViewDdlSchema(CSRFSchema):
+    dialect = DatabaseDialectSelector()  # must match ViewParam.DIALECT
+
+
+class ViewDdlForm(InformativeForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = ViewDdlSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SUBMIT, title="View DDL")],
+            **kwargs
+        )
+
+
+# =============================================================================
 # Unit tests
 # =============================================================================
 
 class SchemaTests(unittest.TestCase):
     def setUp(self) -> None:
+        from .cc_request import command_line_request
         self.req = command_line_request()
 
     def tearDown(self) -> None:

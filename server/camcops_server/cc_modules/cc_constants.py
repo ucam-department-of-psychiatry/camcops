@@ -61,6 +61,8 @@ DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
 DEFAULT_TIMEOUT_MINUTES = 30
 DEFAULT_PLOT_FONTSIZE = 8
 
+MINIMUM_PASSWORD_LENGTH = 8
+
 # =============================================================================
 # URLs, filenames, etc. for interaction with the hosting web server
 # =============================================================================

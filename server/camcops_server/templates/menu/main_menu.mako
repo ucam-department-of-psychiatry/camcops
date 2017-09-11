@@ -30,7 +30,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         ## DISABLED FOR NOW:
         ## <li><a href="FILL_ME_IN">Regenerate summary tables</a></li>
         <li><a href="${request.route_url(Routes.OFFER_TABLE_DUMP)}">Dump table/view data</a></li>
-        <li><a href="${request.route_url(Routes.INSPECT_TABLE_DEFS)}">Inspect table definitions</a>
+        <li><a href="${request.route_url(Routes.VIEW_DDL)}">Inspect table definitions</a>
     %endif
 
     </ul>

@@ -47,6 +47,7 @@ from .cc_sqla_coltypes import (
     PendulumDateTimeAsIsoTextColType,
     EraColType,
     PermittedValueChecker,
+    RelationshipInfo,
     SemanticVersionColType,
 )
 
@@ -72,7 +73,6 @@ def hack_pendulum_into_pymysql() -> None:
 # Base classes implementing common fields
 # =============================================================================
 
-# *** note: replaces STANDARD_GENERIC_FIELDSPECS
 class GenericTabletRecordMixin(object):
     # -------------------------------------------------------------------------
     # On the server side:
@@ -373,7 +373,11 @@ def ancillary_relationship(
         uselist=True,
         order_by="{a}.{f}".format(a=ancillary_class_name,
                                   f=ancillary_order_by_attr_name),
-        viewonly=read_only
+        viewonly=read_only,
+        info={RelationshipInfo.IS_ANCILLARY: True},
+        # ... "info" is a user-defined dictionary; see
+        # http://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship.params.info  # noqa
+        # http://docs.sqlalchemy.org/en/latest/orm/internals.html#MapperProperty.info  # noqa
     )
 
 
