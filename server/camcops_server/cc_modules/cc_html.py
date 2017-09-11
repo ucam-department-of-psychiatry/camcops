@@ -23,22 +23,16 @@
 """
 
 import base64
-import string
 from typing import Any, Callable, List, Optional, TYPE_CHECKING, Union
 
-import cardinal_pythonlib.plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
 
 from .cc_constants import (
     ACTION,
-    CSS_PAGED_MEDIA,
-    DEFAULT_PLOT_DPI,
     PARAM,
-    USE_SVG_IN_HTML,
 )
 
 if TYPE_CHECKING:
-    import matplotlib.figure
     from .cc_request import CamcopsRequest
 
 
@@ -244,68 +238,6 @@ def tr_span_col(x: str,
         td_cl=' class="{}"'.format(td_class) if td_class else "",
         c=cell,
     )
-
-
-def get_html_from_pyplot_figure(req: "CamcopsRequest",
-                                fig: "matplotlib.figure.Figure") -> str:
-    """Make HTML (as PNG or SVG) from pyplot figure."""
-    if USE_SVG_IN_HTML and req.use_svg:
-        return (
-            rnc_plot.svg_html_from_pyplot_figure(fig) +
-            rnc_plot.png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI,
-                                                     "pngfallback")
-        )
-        # return both an SVG and a PNG image, for browsers that can't deal with
-        # SVG; the Javascript header will sort this out
-        # http://www.voormedia.nl/blog/2012/10/displaying-and-detecting-support-for-svg-images  # noqa
-    else:
-        return rnc_plot.png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI)
-
-
-def get_html_which_idnum_picker(req: "CamcopsRequest",
-                                param: str = PARAM.WHICH_IDNUM,
-                                selected: int = None) -> str:
-    cfg = req.config
-    html = """
-        <select name="{param}">
-    """.format(
-        param=param,
-    )
-    for n in cfg.get_which_idnums():
-        html += """
-            <option value="{value}"{selected}>{description}</option>
-        """.format(
-            value=str(n),
-            description=cfg.get_id_desc(n),
-            selected=ws.option_selected(selected, n),
-        )
-    html += """
-        </select>
-    """
-    return html
-
-
-def get_html_sex_picker(param: str = PARAM.SEX,
-                        selected: str = None,
-                        offer_all: bool = False) -> str:
-    if offer_all:
-        option_all = '<option value="">(all)</option>'
-    else:
-        option_all = ''
-    return """
-        <select name="{param}">
-        {option_all}
-        <option value="M"{m}>Male</option>
-        <option value="F"{f}>Female</option>
-        <option value="X"{x}>
-            Indeterminate/unspecified/intersex
-        </option>
-        </select>
-    """.format(param=param,
-               option_all=option_all,
-               m=ws.option_selected(selected, "M"),
-               f=ws.option_selected(selected, "F"),
-               x=ws.option_selected(selected, "X"))
 
 
 def get_data_url(mimetype: str, data: Union[bytes, memoryview]) -> str:

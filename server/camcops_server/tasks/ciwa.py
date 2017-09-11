@@ -153,7 +153,7 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                            comment="Total score (/{})".format(self.MAX_SCORE)),
             SummaryElement(name="severity",
                            coltype=SummaryCategoryColType,
-                           value=self.severity(),
+                           value=self.severity(req),
                            comment="Likely severity"),
         ]
 
@@ -164,7 +164,7 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     def total_score(self) -> int:
         return self.sum_fields(self.SCORED_QUESTIONS)
 
-    def severity(self) -> str:
+    def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         if score >= 15:
             severity = self.wxstring(req, "category_severe")
@@ -176,7 +176,7 @@ class Ciwa(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        severity = self.severity()
+        severity = self.severity(req)
         answer_dicts_dict = {}
         for q in self.SCORED_QUESTIONS:
             d = {None: None}

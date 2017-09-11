@@ -71,3 +71,5 @@ from camcops_server.cc_modules.cc_constants import PDF_ENGINE
     %endif
 
 </%block>
+
+${next.body()}

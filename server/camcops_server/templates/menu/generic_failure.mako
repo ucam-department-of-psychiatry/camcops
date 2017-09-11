@@ -15,7 +15,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     ${extra_html}
 %endif
 
-${parent.body()}
+${next.body()}
 
 <div class="error">
     %if request.user_id is None:

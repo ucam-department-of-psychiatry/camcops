@@ -27,9 +27,14 @@ import os
 from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.plot import (
+    png_img_html_from_pyplot_figure,
+    svg_html_from_pyplot_figure,
+)
 import cardinal_pythonlib.rnc_web as ws
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
+from matplotlib.font_manager import FontProperties
 import pendulum
 from pendulum import Date, Pendulum
 from pendulum.parsing.exceptions import ParserError
@@ -51,8 +56,10 @@ from .cc_constants import (
     CAMCOPS_LOGO_FILE_WEBREF,
     CSS_PAGED_MEDIA,
     DateFormat,
+    DEFAULT_PLOT_DPI,
     LOCAL_LOGO_FILE_WEBREF,
     STATIC_URL_PREFIX,
+    USE_SVG_IN_HTML,
 )
 from .cc_dt import (
     coerce_to_date,
@@ -66,7 +73,10 @@ from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
 from .cc_tabletsession import TabletSession
 
 if TYPE_CHECKING:
-    from matplotlib.font_manager import FontProperties
+    from matplotlib.axis import Axis
+    from matplotlib.axes import Axes
+    # from matplotlib.figure import SubplotBase
+    from matplotlib.text import Text
     from .cc_session import CamcopsSession
     from .cc_user import User
 
@@ -83,6 +93,7 @@ DEBUG_DBSESSION_MANAGEMENT = False
 if DEBUG_CAMCOPS_SESSION or DEBUG_DBSESSION_MANAGEMENT:
     log.warning("Debugging options enabled!")
 
+
 # =============================================================================
 # Modified Request interface, for type checking
 # =============================================================================
@@ -92,7 +103,6 @@ if DEBUG_CAMCOPS_SESSION or DEBUG_DBSESSION_MANAGEMENT:
 # ... everything with reify=True is cached, so if we ask for something
 #     more than once, we keep getting the same thing
 # ... https://docs.pylonsproject.org/projects/pyramid/en/latest/api/request.html#pyramid.request.Request.set_property  # noqa
-
 
 class CamcopsRequest(Request):
     def __init__(self, *args, **kwargs):
@@ -523,15 +533,46 @@ class CamcopsRequest(Request):
     @staticmethod
     def create_figure(**kwargs) -> "Figure":
         fig = Figure(**kwargs)
+        # noinspection PyUnusedLocal
         canvas = FigureCanvas(fig)
         # The canvas will be now available as fig.canvas, since
         # FigureCanvasBase.__init__ calls fig.set_canvas(self); similarly, the
         # figure is available from the canvas as canvas.figure
+
+        # How do we set the font, so the caller doesn't have to?
+        # The "nasty global" way is:
+        #       matplotlib.rc('font', **fontdict)
+        #       matplotlib.rc('legend', **fontdict)
+        # or similar. Then matplotlib often works its way round to using its
+        # global rcParams object, which is Not OK in a multithreaded context.
+        #
+        # https://github.com/matplotlib/matplotlib/issues/6514
+        # https://github.com/matplotlib/matplotlib/issues/6518
+        #
+        # The other way is to specify a fontdict with each call, e.g.
+        #       ax.set_xlabel("some label", **fontdict)
+        # https://stackoverflow.com/questions/21321670/how-to-change-fonts-in-matplotlib-python  # noqa
+        # Relevant calls with explicit "fontdict" parameters:
+        #       ax.set_xlabel
+        #       ax.set_ylabel
+        #       ax.legend
+        #       ax.set_xticklabels
+        #       ax.set_yticklabels
+        #       ax.text
+        #       ax.set_label_text
+        #       ax.set_title
+        #
+        # And with "fontproperties"
+        #       sig.suptitle
+        #
+        # Then, some things are automatically plotted...
+
         return fig
 
-    def get_font_props(self) -> "FontProperties":
+    @reify
+    def fontdict(self) -> Dict[str, Any]:
         fontsize = self.config.PLOT_FONTSIZE
-        return FontProperties(
+        return dict(
             # http://stackoverflow.com/questions/3899980
             # http://matplotlib.org/users/customizing.html
             family='sans-serif',
@@ -543,6 +584,43 @@ class CamcopsRequest(Request):
             # lighter [relative], 100, 200, 300, ..., 900
             size=fontsize  # in pt (default 12)
         )
+
+    @reify
+    def fontprops(self) -> FontProperties:
+        return FontProperties(self.fontdict)
+
+    def set_figure_font_sizes(self,
+                              ax: "Axes",  # "SubplotBase",
+                              fontdict: Dict[str, Any] = None,
+                              x_ticklabels: bool = True,
+                              y_ticklabels: bool = True) -> None:
+        final_fontdict = self.fontdict.copy()
+        if fontdict:
+            final_fontdict.update(fontdict)
+        fp = FontProperties(**final_fontdict)
+
+        axes = []  # type: List[Axis]
+        if x_ticklabels:  # and hasattr(ax, "xaxis"):
+            axes.append(ax.xaxis)
+        if y_ticklabels:  # and hasattr(ax, "yaxis"):
+            axes.append(ax.yaxis)
+        for axis in axes:
+            for ticklabel in axis.get_ticklabels(which='both'):  # type: Text  # I think!  # noqa
+                ticklabel.set_fontproperties(fp)
+
+    def get_html_from_pyplot_figure(self, fig: "Figure") -> str:
+        """Make HTML (as PNG or SVG) from pyplot figure."""
+        if USE_SVG_IN_HTML and self.use_svg:
+            return (
+                svg_html_from_pyplot_figure(fig) +
+                png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI,
+                                                "pngfallback")
+            )
+            # return both an SVG and a PNG image, for browsers that can't deal
+            # with SVG; the Javascript header will sort this out
+            # http://www.voormedia.nl/blog/2012/10/displaying-and-detecting-support-for-svg-images  # noqa
+        else:
+            return png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI)
 
     # -------------------------------------------------------------------------
     # Convenience functions for user information
@@ -597,6 +675,6 @@ def command_line_request() -> CamcopsRequest:
     # ... must pass an actual dict; os.environ itself isn't OK ("TypeError:
     # WSGI environ must be a dict; you passed environ({'key1': 'value1', ...})
     session_factory = get_session_factory()
-    req.session = session_factory(req)
+    req.session = session_factory(req) # *** wrong! fix this
     req.registry = registry
     return req

@@ -21,7 +21,7 @@
 
 %else:
 
-    %for cls in tracker.task_class_list:
+    %for cls in tracker.taskfilter.task_classes:
         <% instances = tracker.collection.tasks_for_task_class(cls) %>
         %if instances:
             <div class="taskheader">

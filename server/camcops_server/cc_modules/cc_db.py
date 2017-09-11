@@ -316,7 +316,7 @@ class GenericTabletRecordMixin(object):
 
     # noinspection PyMethodParameters
     @declared_attr
-    def device(cls) -> RelationshipProperty:
+    def _device(cls) -> RelationshipProperty:
         return relationship("Device")
 
     # noinspection PyMethodParameters

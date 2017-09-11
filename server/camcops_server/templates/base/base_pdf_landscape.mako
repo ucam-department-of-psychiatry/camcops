@@ -4,3 +4,5 @@
 <%block name="css">
     <%include file="css_pdf_landscape.mako"/>
 </%block>
+
+${next.body()}

@@ -24,7 +24,7 @@
 
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-from matplotlib.axes import SubplotBase
+from matplotlib.axes import Axes
 import numpy
 from pendulum import Pendulum
 import scipy.stats  # http://docs.scipy.org/doc/scipy/reference/stats.html
@@ -36,7 +36,6 @@ from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
 from ..cc_modules.cc_html import (
     answer,
     div,
-    get_html_from_pyplot_figure,
     get_yes_no_none,
     identity,
     italic,
@@ -673,7 +672,8 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         }
 
     def plot_roc(self,
-                 ax: SubplotBase,
+                 req: CamcopsRequest,
+                 ax: Axes,
                  count_stimulus: Sequence[int],
                  count_nostimulus: Sequence[int],
                  show_x_label: bool,
@@ -698,9 +698,10 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
             ylabel = "Z(H)"
         # Plot
         ax.plot(x, y, marker="+", color="b",   linestyle="-")
-        ax.set_xlabel(xlabel if show_x_label else "")
-        ax.set_ylabel(ylabel if show_y_label else "")
-        ax.set_title(subtitle)
+        ax.set_xlabel(xlabel if show_x_label else "", fontdict=req.fontdict)
+        ax.set_ylabel(ylabel if show_y_label else "", fontdict=req.fontdict)
+        ax.set_title(subtitle, fontdict=req.fontdict)
+        req.set_figure_font_sizes(ax)
 
     @staticmethod
     def get_roc_info(trialarray: List[ExpDetTrial],
@@ -760,6 +761,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
             show_y_label = (groupnum % 4 == 0)
             subtitle = "Group {} (n = {})".format(groupnum, rocinfo["total_n"])
             self.plot_roc(
+                req,
                 ax,
                 rocinfo["count_stimulus"],
                 rocinfo["count_nostimulus"],
@@ -769,8 +771,10 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                 subtitle
             )
         title = PLAIN_ROC_TITLE if plainroc else Z_ROC_TITLE
-        fig.suptitle(title, weight="bold")
-        html += get_html_from_pyplot_figure(req, fig)
+        fontprops = req.fontprops
+        fontprops.set_weight("bold")
+        fig.suptitle(title, fontproperties=fontprops)
+        html += req.get_html_from_pyplot_figure(fig)
         return html
 
     def get_roc_figure_firsthalf_lasthalf(self,
@@ -798,6 +802,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
             show_y_label = (half == 0)
             subtitle = "First half" if half == 0 else "Second half"
             self.plot_roc(
+                req,
                 ax,
                 rocinfo["count_stimulus"],
                 rocinfo["count_nostimulus"],
@@ -807,8 +812,10 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                 subtitle
             )
         title = PLAIN_ROC_TITLE if plainroc else Z_ROC_TITLE
-        fig.suptitle(title, weight="bold")
-        html += get_html_from_pyplot_figure(req, fig)
+        fontprops = req.fontprops
+        fontprops.set_weight("bold")
+        fig.suptitle(title, fontproperties=fontprops)
+        html += req.get_html_from_pyplot_figure(fig)
         return html
 
     def get_trial_html(self) -> str:

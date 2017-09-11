@@ -6,6 +6,7 @@
 from camcops_server.cc_modules.cc_constants import CSS_PAGED_MEDIA, DateFormat
 from camcops_server.cc_modules.cc_dt import format_datetime
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_tracker import format_daterange
 from camcops_server.cc_modules.cc_version_string import CAMCOPS_SERVER_VERSION_STRING
 
 def inherit_file(context):
@@ -47,8 +48,8 @@ def inherit_file(context):
 ## ============================================================================
 
 <div class="trackerheader">
-    Patient identified by: <b>${ ("; ".join(x.description(request) for x in tracker.idnum_criteria)) }</b>
-    Date range for search: <b>${ format_daterange(self.start_datetime, self.end_datetime) }</b>.
+    Patient identified by: <b>${ ("; ".join(x.description(request) for x in tracker.taskfilter.idnum_criteria)) }</b>
+    Date range for search: <b>${ format_daterange(tracker.taskfilter.start_datetime, tracker.taskfilter.end_datetime) }</b>.
     The tracker information will <b>only be valid</b> (i.e. will
     only be from only one patient!) if all contributing tablet
     devices use these identifiers consistently. The consistency
@@ -85,7 +86,7 @@ def inherit_file(context):
 ## Main bit
 ## ============================================================================
 
-${ self.body() }
+${next.body()}
 
 ## ============================================================================
 ## Office stuff
@@ -95,7 +96,7 @@ ${ self.body() }
     <%block name="office_preamble"/>
 
     Requested tasks:
-        ${ (", ".join(tracker.task_tablename_list) if tracker.task_tablename_list else "None") }
+        ${ (", ".join(tracker.taskfilter.task_tablename_list) if tracker.taskfilter.task_classes else "None") }.
     Sources (tablename, task server PK, patient server PK):
         ${ tracker.summary }.
     Information retrieved from ${ request.application_url }
@@ -113,11 +114,11 @@ ${ self.body() }
         <a href="${ req.route_url(
             Routes.CTV if tracker.as_ctv else Routes.TRACKER,
             _query={
-                ViewParam.WHICH_IDNUM: tracker.idnum_criteria[0].which_idnum,
-                ViewParam.IDNUM_VALUE: tracker.idnum_criteria[0].idnum_value,
-                ViewParam.START_DATETIME: tracker.start_datetime,
-                ViewParam.END_DATETIME: tracker.end_datetime,
-                ViewParam.TASKS: tracker.task_tablename_list,
+                ViewParam.WHICH_IDNUM: tracker.taskfilter.idnum_criteria[0].which_idnum,
+                ViewParam.IDNUM_VALUE: tracker.taskfilter.idnum_criteria[0].idnum_value,
+                ViewParam.START_DATETIME: tracker.taskfilter.start_datetime,
+                ViewParam.END_DATETIME: tracker.taskfilter.end_datetime,
+                ViewParam.TASKS: tracker.taskfilter.task_tablename_list,
                 ViewParam.VIEWTYPE: ViewArg.PDF,
             }) }">View PDF for printing/saving</a>
     </div>

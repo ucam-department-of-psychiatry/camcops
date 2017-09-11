@@ -141,7 +141,7 @@ ${ task.get_task_html(req) }
     Last modified at: ${ format_datetime(task.when_last_modified, DateFormat.SHORT_DATETIME_SECONDS) }.
     Table: ${ task.tablename }.
     Task PK on client device: ${ task.id }.
-    Uploading device ID: ${ task.device.get_friendly_name_and_id() if task.device else "?" | h }.
+    Uploading device ID: ${ (task._device.get_friendly_name_and_id() if task._device else "?") | h }.
     Tablet CamCOPS version at upload: ${ task._camcops_version }.
     Uploaded at: ${ format_datetime(task._when_added_exact, DateFormat.SHORT_DATETIME_SECONDS) }.
     Adding user: ${ task.get_adding_user_username() }.

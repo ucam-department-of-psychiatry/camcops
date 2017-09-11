@@ -35,3 +35,5 @@
     </script>
 </%block>
 </%doc>
+
+${next.body()}

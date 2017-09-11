@@ -30,10 +30,14 @@ from pendulum import Pendulum
 from pyramid.renderers import render
 
 from .cc_audit import audit
-from .cc_constants import CSS_PAGED_MEDIA, DateFormat, FULLWIDTH_PLOT_WIDTH
+from .cc_constants import (
+    CSS_PAGED_MEDIA,
+    DateFormat,
+    FULLWIDTH_PLOT_WIDTH,
+    WHOLE_PANEL,
+)
 from .cc_dt import format_datetime
 from .cc_filename import get_export_filename
-from .cc_html import get_html_from_pyplot_figure
 from .cc_plot import matplotlib
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
@@ -527,7 +531,7 @@ class Tracker(TrackerCtvCommon):
         figsize = (FULLWIDTH_PLOT_WIDTH,
                    (1.0/float(aspect_ratio)) * FULLWIDTH_PLOT_WIDTH)
         fig = self.req.create_figure(figsize=figsize)
-        ax = fig.add_subplot(1, 1, 1)
+        ax = fig.add_subplot(WHOLE_PANEL)
         x = [matplotlib.dates.date2num(t) for t in datetimes]
         datelabels = [dt.strftime(TRACKER_DATEFORMAT) for dt in datetimes]
 
@@ -537,9 +541,9 @@ class Tracker(TrackerCtvCommon):
         # ... NB command performed twice, see below
 
         # x axis
-        ax.set_xlabel("Date/time")
+        ax.set_xlabel("Date/time", fontdict=self.req.fontdict)
         ax.set_xticks(x)
-        ax.set_xticklabels(datelabels)
+        ax.set_xticklabels(datelabels, fontdict=self.req.fontdict)
         if (self.earliest is not None and
                 self.latest is not None and
                 self.earliest != self.latest):
@@ -556,10 +560,10 @@ class Tracker(TrackerCtvCommon):
             tick_positions = [m.y for m in axis_ticks]
             tick_labels = [m.label for m in axis_ticks]
             ax.set_yticks(tick_positions)
-            ax.set_yticklabels(tick_labels)
+            ax.set_yticklabels(tick_labels, fontdict=self.req.fontdict)
 
         # y axis
-        ax.set_ylabel(axis_label)
+        ax.set_ylabel(axis_label, fontdict=self.req.fontdict)
         axis_min = min(axis_min, min(values)) if axis_min else min(values)
         axis_max = max(axis_max, max(values)) if axis_max else max(values)
         # ... the supplied values are stretched if the data are outside them
@@ -578,14 +582,14 @@ class Tracker(TrackerCtvCommon):
         ax.set_ylim(axis_min, axis_max)
 
         # title
-        ax.set_title(plot_label)
+        ax.set_title(plot_label, fontdict=self.req.fontdict)
 
         # Horizontal lines
         stupid_jitter = 0.001
         if horizontal_lines is not None:
             for y in horizontal_lines:
-                FIXME *** plt.plot(xlim, [y, y + stupid_jitter], color="0.5",
-                         linestyle=":")
+                ax.plot(xlim, [y, y + stupid_jitter], color="0.5",
+                        linestyle=":")
                 # PROBLEM: horizontal lines becoming invisible
                 # (whether from ax.axhline or plot)
 
@@ -596,7 +600,8 @@ class Tracker(TrackerCtvCommon):
                 y = lab.y
                 l_ = lab.label
                 va = lab.vertical_alignment.value
-                ax.text(label_left, y, l_, verticalalignment=va, alpha=0.5)
+                ax.text(label_left, y, l_, verticalalignment=va, alpha=0.5,
+                        fontdict=self.req.fontdict)
                 # was "0.5" rather than 0.5, which led to a tricky-to-find
                 # "TypeError: a float is required" exception after switching
                 # to Python 3.
@@ -606,7 +611,9 @@ class Tracker(TrackerCtvCommon):
                 markeredgecolor="r", markerfacecolor="r", label=None)
         # ... NB command performed twice, see above
 
-        FIXME *** plt.tight_layout()
+        self.req.set_figure_font_sizes(ax)
+
+        fig.tight_layout()
         # ... stop the labels dropping off
         # (only works properly for LEFT labels...)
 
@@ -615,7 +622,7 @@ class Tracker(TrackerCtvCommon):
         # check the logger, but visually doesn't help)
         # - http://stackoverflow.com/questions/9126838
         # - http://matplotlib.org/examples/pylab_examples/finance_work2.html
-        return get_html_from_pyplot_figure(self.req, fig) + "<br>"
+        return self.req.get_html_from_pyplot_figure(fig) + "<br>"
         # ... extra line break for the PDF rendering
 
 

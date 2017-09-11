@@ -22,9 +22,8 @@
 ===============================================================================
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
 from ..cc_modules.cc_cache import cache_region_static, fkg
@@ -34,12 +33,12 @@ from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
+    gen_camcops_columns,
     get_camcops_column_attr_names,
     ZERO_TO_TWO_CHECKER,
     ZERO_TO_FOUR_CHECKER,
     ZERO_TO_FIVE_CHECKER,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
@@ -398,10 +397,11 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                     <th width="30%">Answer</th>
                 </tr>
         """
-        for fs in self.fieldspecs:
-            question = fs["comment"]
-            fieldname = fs["name"]
-            value = getattr(self, fieldname)
+        for attrname, column in gen_camcops_columns(self):
+            if attrname.startswith("clinician_"):  # not the most elegant!
+                continue
+            question = column.comment
+            value = getattr(self, attrname)
             h += tr_qa(question, value)
         h += """
             </table>

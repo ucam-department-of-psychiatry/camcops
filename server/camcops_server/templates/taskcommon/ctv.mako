@@ -4,6 +4,8 @@
 <%!
 
 from camcops_server.cc_modules.cc_audit import audit
+from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_dt import format_datetime
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 %>
@@ -24,7 +26,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %else:
 
     <div class="ctv_datelimit_start">
-        Start date for search: ${ format_datetime(tracker.start_datetime,
+        Start date for search: ${ format_datetime(tracker.taskfilter.start_datetime,
                                                   DateFormat.ISO8601_DATE_ONLY, default="−∞") }
     </div>
 
@@ -44,7 +46,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                 exists
             %endif
             ## Hyperlinks
-            %if viewtype == ViewArgs.HTML:
+            %if viewtype == ViewArg.HTML:
                 <a href="${ req.route_url(
                     Routes.TASK,
                     _query={
@@ -89,16 +91,16 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ## ----------------------------------------------------------------
             %for ctvinfo in ctvinfo_list:
                 %if ctvinfo.heading:
-                    <div class="ctv_fieldheading">${ ctvinfo.heading }</div>
+                    <div class="ctv_fieldheading">${ ctvinfo.heading | h }</div>
                 %endif
                 %if ctvinfo.subheading:
-                    <div class="ctv_fieldsubheading">${ ctvinfo.subheading }</div>
+                    <div class="ctv_fieldsubheading">${ ctvinfo.subheading | h }</div>
                 %endif
                 %if ctvinfo.description:
-                    <div class="ctv_fielddescription">${ ctvinfo.description }</div>
+                    <div class="ctv_fielddescription">${ ctvinfo.description | h }</div>
                 %endif
                 %if ctvinfo.content:
-                    <div class="ctv_fieldcontent">${ ctvinfo.content }</div>
+                    <div class="ctv_fieldcontent">${ ctvinfo.content | h }</div>
                 %endif
             %endfor
 
@@ -116,7 +118,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     %endfor
 
     <div class="ctv_datelimit_end">
-        End date for search: ${ format_datetime(tracker.end_datetime,
+        End date for search: ${ format_datetime(tracker.taskfilter.end_datetime,
                                                 DateFormat.ISO8601_DATE_ONLY, default="+∞") }
     </div>
 %endif

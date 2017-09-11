@@ -1,11 +1,4 @@
 
-*** matplotlib threading
-
-*** in merge_db, support missing patient numbers
-
-*** test trackers
-*** test CTVs
-
 *** reports
 
 *** groups:
@@ -24,7 +17,7 @@
 *** database upload code
 
 in merge:
-    *** merge two users
+    *** merge two users  -- DONE
     *** merge two groups
 
 *** research dump(s)

@@ -4,3 +4,5 @@
 <%block name="css">
     <%include file="css_pdf_portrait.mako"/>
 </%block>
+
+${next.body()}

@@ -37,7 +37,6 @@ from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import (
     answer,
-    get_html_from_pyplot_figure,
     italic,
     subheading_spanning_two_columns,
     tr,
@@ -526,14 +525,15 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             n = len(y)
             xvar = numpy.arange(n)
             ax.bar(xvar, y, width, color="b")
-            ax.set_ylabel("%")
+            ax.set_ylabel("%", fontdict=req.fontdict)
             ax.set_xticks(xvar)
             x_offset = -0.5
             ax.set_xlim(0 + x_offset, len(scores) + x_offset)
-            ax.set_xticklabels(x_labels)
-            FIXME *** plt.tight_layout()  # or the ylabel drops off the figure
+            ax.set_xticklabels(x_labels, fontdict=req.fontdict)
+            fig.tight_layout()  # or the ylabel drops off the figure
             # fig.autofmt_xdate()
-            figurehtml = get_html_from_pyplot_figure(req, fig)
+            req.set_figure_font_sizes(ax)
+            figurehtml = req.get_html_from_pyplot_figure(fig)
         return (
             self.get_standard_clinician_comments_block(self.comments) + # *** make mako template
             """

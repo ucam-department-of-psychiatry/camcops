@@ -163,8 +163,6 @@ from .cc_dump import (
 from .cc_hl7 import HL7Message, HL7Run
 from .cc_html import (
     get_generic_action_url,
-    get_html_sex_picker,
-    get_html_which_idnum_picker,
     get_url_field_value_pair,
     get_url_main_menu,
 )
@@ -204,7 +202,6 @@ from .cc_task import (
     Task,
 )
 from .cc_taskfactory import (
-    all_tracker_task_classes,
     task_classes_from_table_names,
     task_factory,
     TaskClassSortMethod,
@@ -212,7 +209,7 @@ from .cc_taskfactory import (
     TaskCollection,
     TaskSortMethod,
 )
-from .cc_tracker import ClinicalTextView, Tracker, TrackerCtvCommon
+from .cc_tracker import ClinicalTextView, Tracker
 from .cc_unittest import unit_test_ignore
 from .cc_user import (
     add_user,
@@ -884,10 +881,11 @@ def serve_task(req: CamcopsRequest) -> Response:
 # Trackers, CTVs
 # =============================================================================
 
-def choose_tracker_or_ctv(req: CamcopsRequest) -> Dict[str, Any]:
+def choose_tracker_or_ctv(req: CamcopsRequest,
+                          as_ctv: bool) -> Dict[str, Any]:
     """HTML form for tracker selection."""
 
-    form = ChooseTrackerForm(req, css_class="form-inline")
+    form = ChooseTrackerForm(req, as_ctv=as_ctv, css_class="form-inline")
 
     if FormAction.SUBMIT in req.POST:
         try:
@@ -909,8 +907,9 @@ def choose_tracker_or_ctv(req: CamcopsRequest) -> Dict[str, Any]:
             # However, since everything's on this server, we could just return
             # an appropriate Response directly. But the information is not
             # sensitive, so we lose nothing by using a GET redirect:
-            raise exc.HTTPFound(req.route_url(Routes.TRACKER,
-                                              _query=querydict))
+            raise exc.HTTPFound(req.route_url(
+                Routes.CTV if as_ctv else Routes.TRACKER,
+                _query=querydict))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -921,12 +920,12 @@ def choose_tracker_or_ctv(req: CamcopsRequest) -> Dict[str, Any]:
 
 @view_config(route_name=Routes.CHOOSE_TRACKER, renderer="choose_tracker.mako")
 def choose_tracker(req: CamcopsRequest) -> Dict[str, Any]:
-    return choose_tracker_or_ctv(req)
+    return choose_tracker_or_ctv(req, as_ctv=False)
 
 
 @view_config(route_name=Routes.CHOOSE_CTV, renderer="choose_ctv.mako")
 def choose_ctv(req: CamcopsRequest) -> Dict[str, Any]:
-    return choose_tracker_or_ctv(req)
+    return choose_tracker_or_ctv(req, as_ctv=True)
 
 
 def serve_tracker_or_ctv(req: CamcopsRequest,
@@ -959,7 +958,7 @@ def serve_tracker_or_ctv(req: CamcopsRequest,
     taskfilter = TaskFilter(
         task_classes=task_classes,
         trackers_only=as_tracker,
-        iddefs=iddefs,
+        idnum_criteria=iddefs,
         start_datetime=start_datetime,
         end_datetime=end_datetime,
         complete_only=as_tracker,  # trackers require complete tasks

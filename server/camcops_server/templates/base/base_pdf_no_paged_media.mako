@@ -7,3 +7,5 @@
 <%block name="css">
     <%include file="css_pdf_no_paged_media.mako"/>
 </%block>
+
+${next.body()}

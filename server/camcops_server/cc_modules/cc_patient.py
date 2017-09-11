@@ -55,7 +55,6 @@ from .cc_constants import (
 )
 from .cc_db import GenericTabletRecordMixin
 from .cc_dt import (
-    coerce_to_pendulum,
     format_datetime,
     get_age,
     get_now_localtz,
@@ -79,7 +78,6 @@ from .cc_simpleobjects import IdNumDefinition
 from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
     CamcopsColumn,
-    PendulumDateTimeAsIsoTextColType,
     IdDescriptorColType,
     PatientNameColType,
     SexColType,

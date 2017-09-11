@@ -226,18 +226,18 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         return [CtvInfo(
-            content="CGI-I rating: {}".format(self.get_rating_text())
+            content="CGI-I rating: {}".format(self.get_rating_text(req))
         )]
 
     def is_complete(self) -> bool:
         return (self.are_all_fields_complete(self.TASK_FIELDS) and
                 self.field_contents_valid())
 
-    def get_rating_text(self) -> str:
-        qdict = self.get_q_dict()
+    def get_rating_text(self, req: CamcopsRequest) -> str:
+        qdict = self.get_q_dict(req)
         return get_from_dict(qdict, self.q)
 
-    def get_q_dict(self) -> Dict:
+    def get_q_dict(self, req: CamcopsRequest) -> Dict:
         return {
             None: None,
             0: self.wxstring(req, "q2_option0"),
@@ -263,7 +263,7 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                     <th width="50%">Answer</th>
                 </tr>
         """
-        h += tr_qa(self.wxstring(req, "i_q"), self.get_rating_text())
+        h += tr_qa(self.wxstring(req, "i_q"), self.get_rating_text(req))
         h += """
             </table>
         """

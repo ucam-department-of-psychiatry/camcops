@@ -59,7 +59,7 @@ class Device(Base):
     name = Column(
         "name", DeviceNameColType,
         unique=True, index=True,
-        comment="Short cryptic name of the source tablet device"
+        comment="Short cryptic unique name of the source tablet device"
     )
     registered_by_user_id = Column(
         "registered_by_user_id", Integer, ForeignKey("_security_users.id"),

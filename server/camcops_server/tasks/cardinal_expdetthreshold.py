@@ -25,16 +25,16 @@
 import math
 from typing import List, Optional
 
-import numpy
+from cardinal_pythonlib.maths_numpy import inv_logistic, logistic
 import cardinal_pythonlib.plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
+import numpy as np
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer, Text, UnicodeText
 
-from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH
+from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH, WHOLE_PANEL
 from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
 from ..cc_modules.cc_html import (
-    get_html_from_pyplot_figure,
     get_yes_no_none,
     tr_qa,
 )
@@ -281,6 +281,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         y_extra_space = 0.1
         x_extra_space = 0.02
         trialfig = req.create_figure(figsize=figsize)
+        trialax = trialfig.add_subplot(WHOLE_PANEL)
         notcalc_detected_x = []
         notcalc_detected_y = []
         notcalc_missed_x = []
@@ -321,36 +322,39 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
                 else:
                     catch_missed_x.append(x)
                     catch_missed_y.append(y)
-        FIXME *** plt.plot(all_x,              all_y,              marker="",
-                 color="0.9", linestyle="-", label=None)
-        FIXME *** plt.plot(notcalc_missed_x,   notcalc_missed_y,   marker="o",
-                 color="k",   linestyle="None", label="miss")
-        FIXME *** plt.plot(notcalc_detected_x, notcalc_detected_y, marker="+",
-                 color="k",   linestyle="None", label="hit")
-        FIXME *** plt.plot(calc_missed_x,      calc_missed_y,      marker="o",
-                 color="r",   linestyle="None", label="miss, scored")
-        FIXME *** plt.plot(calc_detected_x,    calc_detected_y,    marker="+",
-                 color="b",   linestyle="None", label="hit, scored")
-        FIXME *** plt.plot(catch_missed_x,     catch_missed_y,     marker="o",
-                 color="w",   linestyle="None", label="CR")
-        FIXME *** plt.plot(catch_detected_x,   catch_detected_y,   marker="*",
-                 color="w",   linestyle="None", label="FA")
-        FIXME *** leg = plt.legend(
+        trialax.plot(all_x,              all_y,              marker="",
+                     color="0.9", linestyle="-", label=None)
+        trialax.plot(notcalc_missed_x,   notcalc_missed_y,   marker="o",
+                     color="k",   linestyle="None", label="miss")
+        trialax.plot(notcalc_detected_x, notcalc_detected_y, marker="+",
+                     color="k",   linestyle="None", label="hit")
+        trialax.plot(calc_missed_x,      calc_missed_y,      marker="o",
+                     color="r",   linestyle="None", label="miss, scored")
+        trialax.plot(calc_detected_x,    calc_detected_y,    marker="+",
+                     color="b",   linestyle="None", label="hit, scored")
+        trialax.plot(catch_missed_x,     catch_missed_y,     marker="o",
+                     color="w",   linestyle="None", label="CR")
+        trialax.plot(catch_detected_x,   catch_detected_y,   marker="*",
+                     color="w",   linestyle="None", label="FA")
+        leg = trialax.legend(
             numpoints=1,
             fancybox=True,  # for set_alpha (below)
             loc="best",  # bbox_to_anchor=(0.75, 1.05)
             labelspacing=0,
-            handletextpad=0
+            handletextpad=0,
+            fontdict=req.fontdict
         )
         leg.get_frame().set_alpha(0.5)
-        FIXME *** plt.xlabel("Trial number")
-        FIXME *** plt.ylabel("Intensity")
-        FIXME *** plt.ylim(0 - y_extra_space, 1 + y_extra_space)
-        FIXME *** plt.xlim(-0.5, len(trialarray) - 0.5)
+        trialax.set_xlabel("Trial number", fontdict=req.fontdict)
+        trialax.set_ylabel("Intensity", fontdict=req.fontdict)
+        trialax.set_ylim(0 - y_extra_space, 1 + y_extra_space)
+        trialax.set_xlim(-0.5, len(trialarray) - 0.5)
+        req.set_figure_font_sizes(trialax)
 
         fitfig = None
         if self.k is not None and self.theta is not None:
             fitfig = req.create_figure(figsize=figsize)
+            fitax = fitfig.add_subplot(WHOLE_PANEL)
             detected_x = []
             detected_x_approx = []
             detected_y = []
@@ -376,27 +380,28 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
                             0 + missed_x_approx.count(approx_x) * jitter_step)
                         missed_x.append(t.intensity)
                         missed_x_approx.append(approx_x)
-            fit_x = numpy.arange(0.0 - x_extra_space, 1.0 + x_extra_space,
-                                 0.001)
-            fit_y = rnc_plot.logistic(fit_x, self.k, self.theta)
-            FIXME *** plt.plot(fit_x,      fit_y,
-                     color="g", linestyle="-")
-            FIXME *** plt.plot(missed_x,   missed_y,   marker="o",
-                     color="r", linestyle="None")
-            FIXME *** plt.plot(detected_x, detected_y, marker="+",
-                     color="b", linestyle="None")
-            FIXME *** plt.ylim(0 - y_extra_space, 1 + y_extra_space)
-            FIXME *** plt.xlim(numpy.amin(all_x) - x_extra_space,
-                     numpy.amax(all_x) + x_extra_space)
+            fit_x = np.arange(0.0 - x_extra_space, 1.0 + x_extra_space, 0.001)
+            fit_y = logistic(fit_x, self.k, self.theta)
+            fitax.plot(fit_x,      fit_y,
+                       color="g", linestyle="-")
+            fitax.plot(missed_x,   missed_y,   marker="o",
+                       color="r", linestyle="None")
+            fitax.plot(detected_x, detected_y, marker="+",
+                       color="b", linestyle="None")
+            fitax.set_ylim(0 - y_extra_space, 1 + y_extra_space)
+            fitax.set_xlim(np.amin(all_x) - x_extra_space,
+                           np.amax(all_x) + x_extra_space)
             marker_points = []
             for y in (LOWER_MARKER, 0.5, UPPER_MARKER):
-                x = rnc_plot.inv_logistic(y, self.k, self.theta)
+                x = inv_logistic(y, self.k, self.theta)
                 marker_points.append((x, y))
             for p in marker_points:
-                FIXME *** plt.plot([p[0], p[0]], [-1, p[1]], color="0.5", linestyle=":")
-                FIXME *** plt.plot([-1, p[0]], [p[1], p[1]], color="0.5", linestyle=":")
-            FIXME *** plt.xlabel("Intensity")
-            FIXME *** plt.ylabel("Detected? (0=no, 1=yes; jittered)")
+                fitax.plot([p[0], p[0]], [-1, p[1]], color="0.5", linestyle=":")
+                fitax.plot([-1, p[0]], [p[1], p[1]], color="0.5", linestyle=":")
+            fitax.set_xlabel("Intensity", fontdict=req.fontdict)
+            fitax.set_ylabel("Detected? (0=no, 1=yes; jittered)",
+                             fontdict=req.fontdict)
+            req.set_figure_font_sizes(fitax)
 
         html += """
             <table class="noborder">
@@ -406,8 +411,8 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
                 </tr>
             </table>
         """.format(
-            get_html_from_pyplot_figure(req, trialfig),
-            get_html_from_pyplot_figure(req, fitfig)
+            req.get_html_from_pyplot_figure(trialfig),
+            req.get_html_from_pyplot_figure(fitfig)
         )
 
         return html

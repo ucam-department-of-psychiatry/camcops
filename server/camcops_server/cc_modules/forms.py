@@ -267,6 +267,7 @@ class CSRFSchema(Schema):
 class PendulumType(SchemaType):
     def __init__(self, use_local_tz: bool = True):
         self.use_local_tz = use_local_tz
+        super().__init__()  # not necessary; SchemaType has no __init__
 
     def serialize(self,
                   node: SchemaNode,
@@ -301,6 +302,8 @@ class PendulumType(SchemaType):
 # =============================================================================
 # Other new generic SchemaNode classes
 # =============================================================================
+# Note that we must pass both *args and **kwargs upwards, because SchemaNode
+# does some odd stuff with clone().
 
 class NoneAcceptantNode(SchemaNode):
     """
@@ -312,9 +315,9 @@ class NoneAcceptantNode(SchemaNode):
     Note that Colander serializes everything to strings, but treats
     colander.null in a special way.
     """
-    def __init__(self, allow_none: bool = True, **kwargs):
+    def __init__(self, *args, allow_none: bool = True, **kwargs) -> None:
         self.allow_none = allow_none
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
     def deserialize(self, value: str) -> Any:
         if self.allow_none and value == colander.null:
@@ -349,9 +352,9 @@ class OptionalInt(NoneAcceptantNode):
     default = None
     missing = None
 
-    def __init__(self, title: str, **kwargs):
+    def __init__(self, *args, title: str, **kwargs) -> None:
         self.title = title
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class OptionalString(SchemaNode):
@@ -359,9 +362,9 @@ class OptionalString(SchemaNode):
     default = ""
     missing = ""
 
-    def __init__(self, title: str, **kwargs):
+    def __init__(self, *args, title: str, **kwargs) -> None:
         self.title = title
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class DateTimeSelector(SchemaNode):
@@ -391,12 +394,12 @@ class SingleTaskSelector(SchemaNode):
     missing = ""
     title = "Task type"
 
-    def __init__(self, allow_none: bool, **kwargs) -> None:
+    def __init__(self, *args, allow_none: bool, **kwargs) -> None:
         values, pv = get_values_and_permissible(self.get_task_choices(),
                                                 allow_none, ("", "[Any]"))
         self.widget = SelectWidget(values=values)
         self.validator = OneOf(pv)
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
     @staticmethod
     def get_task_choices() -> List[Tuple[str, str]]:
@@ -409,12 +412,12 @@ class MultiTaskSelector(SchemaNode):
     missing = ""
     title = "Task type(s)"
 
-    def __init__(self, minimum_length: int = 1, **kwargs) -> None:
+    def __init__(self, *args, minimum_length: int = 1, **kwargs) -> None:
         values, pv = get_values_and_permissible(self.get_task_choices(),
                                                 add_none=False)
         self.widget = CheckboxChoiceWidget(values=values)
         self.validator = Length(min=minimum_length)
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
     @staticmethod
     def get_task_choices() -> List[Tuple[str, str]]:
@@ -431,8 +434,8 @@ class AllTasksSingleTaskSelector(SingleTaskSelector):
 
 
 class TrackerTaskSelector(MultiTaskSelector):
-    def __init__(self, **kwargs) -> None:
-        super().__init__(minimum_length=0, **kwargs)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, minimum_length=0, **kwargs)
 
     @staticmethod
     def get_task_choices() -> List[Tuple[str, str]]:
@@ -484,12 +487,12 @@ class SexSelector(SchemaNode):
     missing = ""
     title = "Sex"
 
-    def __init__(self, allow_none: bool, **kwargs) -> None:
+    def __init__(self, *args, allow_none: bool, **kwargs) -> None:
         values, pv = get_values_and_permissible(self._sex_choices, allow_none,
                                                 ("", "Any"))
         self.widget = RadioChoiceWidget(values=values)
         self.validator = OneOf(pv)
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class UserIdSelector(NoneAcceptantNode):
@@ -498,10 +501,10 @@ class UserIdSelector(NoneAcceptantNode):
     missing = None
     title = "User"
 
-    def __init__(self, allow_none: bool, **kwargs) -> None:
+    def __init__(self, *args, allow_none: bool, **kwargs) -> None:
         self.validator = None  # type: object
         self.widget = None  # type: Widget
-        super().__init__(allow_none=allow_none, **kwargs)
+        super().__init__(*args, allow_none=allow_none, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -523,11 +526,11 @@ class UserNameSelector(SchemaNode):
     missing = ""
     title = "User"
 
-    def __init__(self, allow_none: bool, **kwargs) -> None:
+    def __init__(self, *args, allow_none: bool, **kwargs) -> None:
         self.allow_none = allow_none
         self.validator = None  # type: object
         self.widget = None  # type: Widget
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -753,8 +756,8 @@ class AuditTrailSchema(CSRFSchema):
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
     start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
-    source = OptionalString("Source (e.g. webviewer, tablet, console)")  # must match ViewParam.SOURCE  # noqa
-    remote_ip_addr = OptionalString("Remote IP address")  # must match ViewParam.REMOTE_IP_ADDR  # noqa
+    source = OptionalString(title="Source (e.g. webviewer, tablet, console)")  # must match ViewParam.SOURCE  # noqa
+    remote_ip_addr = OptionalString(title="Remote IP address")  # must match ViewParam.REMOTE_IP_ADDR  # noqa
     username = UserNameSelector(allow_none=True)  # must match ViewParam.USERNAME  # noqa
     table_name = AllTasksSingleTaskSelector(allow_none=True)  # must match ViewParam.TABLENAME  # noqa
     server_pk = ServerPkSelector()  # must match ViewParam.SERVER_PK
@@ -783,7 +786,7 @@ class HL7MessageLogSchema(CSRFSchema):
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
     table_name = AllTasksSingleTaskSelector(allow_none=True)  # must match ViewParam.TABLENAME  # noqa
     server_pk = ServerPkSelector()  # must match ViewParam.SERVER_PK
-    hl7_run_id = OptionalInt("Run ID")  # must match ViewParam.HL7_RUN_ID  # noqa
+    hl7_run_id = OptionalInt(title="Run ID")  # must match ViewParam.HL7_RUN_ID  # noqa
     start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
 
@@ -805,7 +808,7 @@ class HL7MessageLogForm(InformativeForm):
 
 class HL7RunLogSchema(CSRFSchema):
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
-    hl7_run_id = OptionalInt("Run ID")  # must match ViewParam.HL7_RUN_ID  # noqa
+    hl7_run_id = OptionalInt(title="Run ID")  # must match ViewParam.HL7_RUN_ID  # noqa
     start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
 
@@ -825,8 +828,8 @@ class HL7RunLogForm(InformativeForm):
 # =============================================================================
 
 class TaskFiltersSchema(CSRFSchema):
-    surname = OptionalString("Surname")  # must match ViewParam.SURNAME
-    forename = OptionalString("Forename")  # must match ViewParam.FORENAME
+    surname = OptionalString(title="Surname")  # must match ViewParam.SURNAME
+    forename = OptionalString(title="Forename")  # must match ViewParam.FORENAME
     dob = SchemaNode(  # must match ViewParam.DOB
         Date(),
         missing=None,
@@ -846,7 +849,7 @@ class TaskFiltersSchema(CSRFSchema):
     user_id = UserIdSelector(allow_none=True)  # must match ViewParam.USER_ID
     start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
-    text_contents = OptionalString("Text contents")  # must match ViewParam.TEXT_CONTENTS  # noqa
+    text_contents = OptionalString(title="Text contents")  # must match ViewParam.TEXT_CONTENTS  # noqa
 
 
 class TaskFiltersForm(InformativeForm):
@@ -909,11 +912,13 @@ class ChooseTrackerSchema(CSRFSchema):
 
 
 class ChooseTrackerForm(InformativeForm):
-    def __init__(self, request: CamcopsRequest, **kwargs) -> None:
+    def __init__(self, request: CamcopsRequest,
+                 as_ctv: bool, **kwargs) -> None:
         schema = ChooseTrackerSchema().bind(request=request)
         super().__init__(
             schema,
-            buttons=[Button(name=FormAction.SUBMIT, title="View tracker")],
+            buttons=[Button(name=FormAction.SUBMIT,
+                            title=("View CTV" if as_ctv else "View tracker"))],
             **kwargs
         )
 

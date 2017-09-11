@@ -15,3 +15,6 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <%block name="css">
     <%include file="css_web.mako"/>
 </%block>
+
+${next.body()}
+

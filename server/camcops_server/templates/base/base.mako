@@ -29,7 +29,7 @@
         ## ... for CSS paged media
         <%block name="logo"></%block>
 
-        ${self.body()}
+        ${next.body()}
 
         <%block name="body_end"></%block>
     </body>

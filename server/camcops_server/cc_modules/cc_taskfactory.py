@@ -182,7 +182,7 @@ class TaskFilter(object):
             forename: str = None,
             dob: Date = None,
             sex: str = None,
-            iddefs: List[IdNumDefinition] = None,
+            idnum_criteria: List[IdNumDefinition] = None,
             complete_only: bool = False,
             device_id: int = None,
             user_id: int = None,
@@ -219,7 +219,7 @@ class TaskFilter(object):
         self.forename = forename
         self.dob = dob
         self.sex = sex
-        self.iddefs = iddefs or []  # type: List[IdNumDefinition]
+        self.idnum_criteria = idnum_criteria or []  # type: List[IdNumDefinition]  # noqa
         self.complete_only = complete_only
         self.device_id = device_id
         self.user_id = user_id
@@ -267,8 +267,8 @@ class TaskFilter(object):
             merge(self_attr='dob', session_attr='filter_dob')
             merge(self_attr='sex', session_attr='filter_sex')
             if ccsession.filter_idnums:
-                self.iddefs = [idd for idd in self.iddefs
-                               if idd in ccsession.filter_idnums]
+                self.idnum_criteria = [idd for idd in self.idnum_criteria
+                                       if idd in ccsession.filter_idnums]
             if ccsession.filter_task:
                 self.task_classes = [
                     cls for cls in self.task_classes
@@ -303,6 +303,10 @@ class TaskFilter(object):
     def __repr__(self) -> str:
         return auto_repr(self, with_addr=True)
 
+    @property
+    def task_tablename_list(self) -> List[str]:
+        return [cls.__tablename__ for cls in self.task_classes]
+
     def any_patient_filtering(self) -> bool:
         """Is there some sort of patient filtering being applied?"""
         return (
@@ -310,7 +314,7 @@ class TaskFilter(object):
             bool(self.forename) or
             self.dob is not None or
             bool(self.sex) or
-            bool(self.iddefs)
+            bool(self.idnum_criteria)
         )
 
     def any_specific_patient_filtering(self) -> bool:
@@ -320,7 +324,7 @@ class TaskFilter(object):
             bool(self.surname) or
             bool(self.forename) or
             self.dob is not None or
-            bool(self.iddefs)
+            bool(self.idnum_criteria)
         )
 
     def task_query_restricted_by_filter(self,
@@ -367,11 +371,11 @@ class TaskFilter(object):
                 if self.sex:
                     q = q.filter(func.upper(Patient.sex) == self.sex.upper())
 
-                if self.iddefs:
+                if self.idnum_criteria:
                     # q = q.join(PatientIdNum) # fails
                     q = q.join(Patient.idnums)
                     id_filter_parts = []  # type: List[ColumnElement]
-                    for iddef in self.iddefs:
+                    for iddef in self.idnum_criteria:
                         id_filter_parts.append(
                             and_(
                                 PatientIdNum.which_idnum == iddef.which_idnum,
@@ -462,7 +466,7 @@ class TaskCollection(object):
         self._sort_method_global = sort_method_global
         self._tasks_by_class = None  # type: OrderedDict[Type[Task], List[Task]]  # noqa
         self._all_tasks = None  # type: List[Task]
-        log.critical("TaskCollection(): taskfilter={!r}", self._filter)
+        # log.critical("TaskCollection(): taskfilter={!r}", self._filter)
 
     # =========================================================================
     # Interface to read

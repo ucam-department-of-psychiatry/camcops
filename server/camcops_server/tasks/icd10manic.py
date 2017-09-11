@@ -394,7 +394,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def row_true_false(self, req: CamcopsRequest, fieldname: str) -> str:
         return self.get_twocol_bool_row_true_false(
-            fieldname, self.wxstring(req, "" + fieldname))
+            req, fieldname, self.wxstring(req, "" + fieldname))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = self.get_standard_clinician_comments_block(self.comments) + """

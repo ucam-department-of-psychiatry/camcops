@@ -396,6 +396,8 @@ PDF_ENGINE = "pdfkit"  # working
 # Simple constants for HTML/plots/display
 # =============================================================================
 
+WHOLE_PANEL = 111  # as in: ax = fig.add_subplot(111)
+
 DEFAULT_PLOT_DPI = 300
 
 # Debugging option
