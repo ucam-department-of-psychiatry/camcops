@@ -27,11 +27,14 @@ import logging
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.dump import dump_ddl
+from pendulum import Pendulum
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.schema import MetaData
+
+from .cc_cache import cache_region_static, fkg
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -114,6 +117,7 @@ def make_debug_sqlite_engine() -> Engine:
     return create_engine('sqlite://', echo=True)
 
 
+@cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def get_all_ddl(dialect_name: str = "mysql") -> str:
     metadata = Base.metadata  # type: MetaData
     with StringIO() as f:
@@ -127,3 +131,20 @@ def log_all_ddl(dialect_name: str = "mysql") -> None:
     text = get_all_ddl(dialect_name)
     log.info(text)
     log.info("DDL length: {} characters", len(text))
+
+
+# =============================================================================
+# Database engine hacks
+# =============================================================================
+
+def hack_pendulum_into_pymysql() -> None:
+    # https://pendulum.eustace.io/docs/#limitations
+    try:
+        # noinspection PyUnresolvedReferences
+        from pymysql.converters import encoders, escape_datetime
+        encoders[Pendulum] = escape_datetime
+    except ImportError:
+        pass
+
+
+hack_pendulum_into_pymysql()

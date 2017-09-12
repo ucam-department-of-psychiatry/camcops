@@ -71,7 +71,6 @@ from .cc_modules.cc_constants import (
     SEPARATOR_EQUALS,
 )  # nopep8
 from .cc_modules.cc_blob import ccblob_unit_tests  # nopep8
-from .cc_modules.cc_db import hack_pendulum_into_pymysql
 from .cc_modules.cc_device import ccdevice_unit_tests  # nopep8
 from .cc_modules.cc_dump import ccdump_unit_tests  # nopep8
 from .cc_modules.cc_hl7 import send_all_pending_hl7_messages  # nopep8
@@ -112,8 +111,6 @@ from camcops_server.cc_modules.webview import (
 )  # nopep8
 
 log.debug("All imports complete")
-
-hack_pendulum_into_pymysql()
 
 # =============================================================================
 # Debugging options

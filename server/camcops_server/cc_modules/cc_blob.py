@@ -41,10 +41,10 @@ from .cc_sqla_coltypes import (
     MimeTypeColType,
     # TableNameColType, # *** to be added once Alembic up
 )
-from .cc_sqla_coltypes import LongBlob
+from .cc_sqla_coltypes import LongBlob, RelationshipInfo
 from .cc_sqlalchemy import Base
 from .cc_unittest import unit_test_ignore
-from .cc_xml import get_xml_blob_tuple, XmlElement
+from .cc_xml import get_xml_blob_element, XmlElement
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
@@ -229,7 +229,8 @@ def blob_relationship(classname: str,
             ")".format(cls=classname, fk=blob_id_col_attr_name)
         ),
         uselist=False,
-        viewonly=read_only
+        viewonly=read_only,
+        info={RelationshipInfo.IS_BLOB: True},
     )
 
 

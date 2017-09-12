@@ -71,7 +71,9 @@ from .cc_convert import (
     encode_single_value,
 )
 from .cc_device import Device
+from .cc_group import Group
 from .cc_hl7 import HL7Message, HL7Run
+from .cc_jointables import user_group_table
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
 from .cc_pyramid import Routes
@@ -126,6 +128,7 @@ RESERVED_TABLES = [
     CamcopsSession.__tablename__,
     Device.__tablename__,
     DirtyTable.__tablename__,
+    Group.__tablename__,
     HL7Message.__tablename__,
     HL7Run.__tablename__,
     SecurityAccountLockout.__tablename__,
@@ -133,6 +136,7 @@ RESERVED_TABLES = [
     ServerStoredVar.__tablename__,
     SpecialNote.__tablename__,
     User.__tablename__,
+    user_group_table.name,
 ]
 RESERVED_FIELDS = GenericTabletRecordMixin.RESERVED_FIELDS
 

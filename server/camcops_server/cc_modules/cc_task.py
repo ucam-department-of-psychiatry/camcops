@@ -140,10 +140,11 @@ from .cc_unittest import (
 )
 from .cc_version import make_version
 from .cc_xml import (
-    get_xml_blob_tuple,
+    get_xml_blob_element,
     get_xml_document,
     make_xml_branches_from_columns,
     make_xml_branches_from_summaries,
+    XML_COMMENT_ANCILLARY,
     XML_COMMENT_ANONYMOUS,
     XML_COMMENT_BLOBS,
     XML_COMMENT_CALCULATED,
@@ -1669,8 +1670,10 @@ class Task(GenericTabletRecordMixin, Base):
                      include_calculated: bool = True,
                      include_blobs: bool = True,
                      include_patient: bool = True,
-                     skip_fields: List[str] =None) -> XmlElement:
-        """Returns XML tree. Return value is the root XmlElement.
+                     include_ancillary: bool = True,
+                     skip_fields: List[str] = None) -> XmlElement:
+        """
+        Returns XML tree. Return value is the root XmlElement.
 
         Override to include other tables, or to deal with BLOBs, if the default
         methods are insufficient.
@@ -1683,45 +1686,8 @@ class Task(GenericTabletRecordMixin, Base):
             include_calculated=include_calculated,
             include_blobs=include_blobs,
             include_patient=include_patient,
+            include_ancillary=include_ancillary,
             skip_fields=skip_fields)
-        # Dependent classes/tables
-        for attrname, rel in gen_ancillary_relationships(self):
-            if rel.uselist:
-                ancillaries = getattr(self, attrname)  # type: List[GenericTabletRecordMixin]  # noqa
-            else:
-                ancillary = getattr(self, attrname)  # type: GenericTabletRecordMixin
-            XXX
-            XXX make some generic XML methods on GenericTabletRecordMixin
-            ... including BLOBs
-            ... but not including task-specific things like special notes, patients
-
-        depclasslist = self.dependent_classes
-        for depclass in depclasslist:
-            tablename = depclass.tablename
-            fieldspecs = depclass.get_full_fieldspecs()
-            itembranches = []
-            items = self.get_ancillary_items(depclass)
-            if items:
-                blobinfo = get_camcops_blob_column_attr_names(items[0])
-                for it in items:
-                    # Simple fields for ancillary items
-                    itembranches.append(XmlElement(
-                        name=tablename,
-                        value=make_xml_branches_from_columns(
-                            it,
-                            skip_fields=skip_fields)
-                    ))
-                    # BLOBs for ancillary items
-                    if include_blobs and blobinfo:
-                        itembranches.append(XML_COMMENT_BLOBS)
-                        itembranches.extend(
-                            it.make_xml_branches_for_blob_fields(
-                                skip_fields=skip_fields))
-            branches.append("<!-- Items for {} -->\n".format(tablename))
-            branches.append(XmlElement(
-                name=tablename,
-                value=itembranches
-            ))
         tree = XmlElement(name=self.tablename, value=branches)
         return tree
 
@@ -1731,14 +1697,18 @@ class Task(GenericTabletRecordMixin, Base):
             include_calculated: bool = True,
             include_blobs: bool = True,
             include_patient: bool = True,
+            include_ancillary: bool = True,
             skip_fields: List[str] = None) -> List[XmlElement]:
-        """Returns a list of XmlElementTuple elements representing stored,
-        calculated, patient, and/or BLOB fields, depending on the options."""
+        """
+        Returns a list of XmlElementTuple elements representing stored,
+        calculated, patient, and/or BLOB fields, depending on the options.
+        """
         skip_fields = skip_fields or []
-        # Stored
+        # Stored values
         branches = [XML_COMMENT_STORED]
-        branches.extend(make_xml_branches_from_columns(
-            self, skip_fields=skip_fields))
+        branches += self._get_xml_branches(skip_attrs=skip_fields,
+                                           include_plain_columns=True,
+                                           include_blobs=False)
         # Special notes
         branches.append(XML_COMMENT_SPECIAL_NOTES)
         for sn in self.special_notes:
@@ -1747,7 +1717,10 @@ class Task(GenericTabletRecordMixin, Base):
         if include_calculated:
             branches.append(XML_COMMENT_CALCULATED)
             branches.extend(make_xml_branches_from_summaries(
-                self.get_summaries(req), skip_fields=skip_fields))
+                self.get_summaries(req),
+                skip_fields=skip_fields,
+                sort_by_name=True
+            ))
         # Patient details
         if self.is_anonymous:
             branches.append(XML_COMMENT_ANONYMOUS)
@@ -1756,25 +1729,40 @@ class Task(GenericTabletRecordMixin, Base):
             if self.patient:
                 branches.append(self.patient.get_xml_root(req))
         # BLOBs
-        blobinfo = self.blob_name_idfield_list
-        if include_blobs and blobinfo:
+        if include_blobs:
             branches.append(XML_COMMENT_BLOBS)
-            branches.extend(self.make_xml_branches_for_blob_fields(
-                skip_fields=skip_fields))
+            branches += self._get_xml_branches(skip_attrs=skip_fields,
+                                               include_plain_columns=False,
+                                               include_blobs=True,
+                                               sort_by_attr=True)
+        # Ancillary objects
+        if include_ancillary:
+            item_collections = []  # type: List[XmlElement]
+            found_ancillary = False
+            for attrname, rel_prop, rel_cls in gen_ancillary_relationships(self):  # noqa
+                if not found_ancillary:
+                    branches.append(XML_COMMENT_ANCILLARY)
+                    found_ancillary = True
+                itembranches = []  # type: List[XmlElement]
+                if rel_prop.uselist:
+                    ancillaries = getattr(self, attrname)  # type: List[GenericTabletRecordMixin]  # noqa
+                else:
+                    ancillaries = [getattr(self, attrname)]  # type: List[GenericTabletRecordMixin]  # noqa
+                for ancillary in ancillaries:
+                    itembranches.append(
+                        ancillary._get_xml_root(skip_attrs=skip_fields,
+                                                include_plain_columns=True,
+                                                include_blobs=True,
+                                                sort_by_attr=True)
+                    )
+                itemcollection = XmlElement(
+                    name=attrname,
+                    value=itembranches
+                )
+                item_collections.append(itemcollection)
+            item_collections.sort(key=lambda el: el.name)
+            branches += item_collections
         return branches
-
-    def make_xml_branches_for_blob_fields(
-            self,
-            skip_fields: List[str] = None) -> List[XmlElement]:
-        """Returns list of XmlElementTuple elements for BLOB fields."""
-        skip_fields = skip_fields or []
-        return make_xml_branches_for_blob_fields(self, skip_fields=skip_fields)
-
-    def get_blob_xml_tuple(self,
-                           blobid: int,
-                           name: str) -> XmlElement:
-        """Get XmlElementTuple for a PNG BLOB."""
-        return get_blob_xml_tuple(self, blobid, name)
 
     # -------------------------------------------------------------------------
     # HTML view
@@ -2233,25 +2221,6 @@ class Ancillary(object):
                 serverpk)
 
     # *** move to GenericTabletRecordMixin
-    def make_xml_branches_for_blob_fields(
-            self, skip_fields: List[str] = None) -> List[XmlElement]:
-        """Returns list of XmlElementTuple elements for BLOB fields."""
-        skip_fields = skip_fields or []
-        return make_xml_branches_for_blob_fields(self, skip_fields=skip_fields)
-
-    # *** move to GenericTabletRecordMixin
-    def get_blob_xml_tuple(self,
-                           blobid: int,
-                           name: str) -> XmlElement:
-        """Get XmlElementTuple for a PNG BLOB."""
-        return get_blob_xml_tuple(self, blobid, name)
-
-    # *** move to GenericTabletRecordMixin
-    def get_blob_by_id(self, blobid: int) -> Optional[Blob]:
-        """Get Blob() object from blob ID, or None."""
-        return get_blob_by_id(self, blobid)
-
-    # *** move to GenericTabletRecordMixin
     def get_cris_fieldspecs_values(self, common_fsv: FIELDSPECLIST_TYPE) \
             -> FIELDSPECLIST_TYPE:
         fieldspecs = copy.deepcopy(self.get_full_fieldspecs())
@@ -2261,65 +2230,8 @@ class Ancillary(object):
 
 
 # =============================================================================
-# BLOB functions (shared between Task and Ancillary)
-# =============================================================================
-
-def make_xml_branches_for_blob_fields(
-        obj: Union[Task, Ancillary], 
-        skip_fields: bool = None) -> List[XmlElement]:
-    """Returns list of XmlElementTuple elements for BLOB fields."""
-    skip_fields = skip_fields or []
-    branches = []
-    for t in obj.blob_name_idfield_list:
-        name = t[0]
-        blobid_field = t[1]
-        if blobid_field in skip_fields:
-            continue
-        blobid = getattr(obj, blobid_field)
-        branches.append(
-            obj.get_blob_xml_tuple(blobid, name)
-        )
-    return branches
-
-
-def get_blob_xml_tuple(obj: Union[Task, Ancillary],
-                       blobid: int,
-                       name: str) -> XmlElement:
-    """Get XmlElementTuple for a PNG BLOB."""
-    blob = obj.get_blob_by_id(blobid)
-    if blob is None:
-        return get_xml_blob_tuple(name, None)
-    return blob.get_xml_element_value_binary(name)
-
-
-# =============================================================================
 # Cross-class generators and the like
 # =============================================================================
-
-def gen_tasks_matching_session_filter(
-        session: 'CamcopsSession') -> Generator[Task, None, None]:
-    """Generate tasks that match the session's filter settings."""
-
-    # Find candidate tasks meeting the filters
-    cls_pk_wc = []
-    for cls in Task.all_subclasses():
-        if cls.filter_allows_task_type(session):
-            pk_wc = cls.get_session_candidate_task_pks_whencreated(session)
-            for row in pk_wc:
-                if row[1] is None:
-                    log.warning("Blank when_created: cls={}, _pk={}, "
-                                "when_created={}", cls, row[0], row[1])
-                    # ... will crash at the sort stage
-                cls_pk_wc.append((cls, row[0], row[1]))
-    # Sort by when_created (conjointly across task classes)
-    cls_pk_wc = sorted(cls_pk_wc, key=second_item_or_min, reverse=True)
-    # Yield those that really do match the filter
-    for cls, pk, wc in cls_pk_wc:
-        task = cls(pk)
-        if task is not None and task.is_compatible_with_filter(session):
-            yield task
-    # *** CHANGE THIS: inefficient; runs multiple queries where one would do
-
 
 def gen_tasks_live_on_tablet(device_id: int) -> Generator[Task, None, None]:
     """Generate tasks that are live on the device.
@@ -2748,9 +2660,6 @@ def task_instance_unit_test(req: CamcopsRequest,
                      instance.get_xml_root)
     unit_test_ignore("Testing {}.get_xml_core_branches".format(name),
                      instance.get_xml_core_branches)
-    unit_test_ignore("Testing {}.make_xml_branches_for_blob_fields".format(
-        name), instance.make_xml_branches_for_blob_fields)
-    # not tested: get_blob_xml_tuple
 
     unit_test_verify_not("Testing {}.get_html".format(name),
                          instance.get_html,

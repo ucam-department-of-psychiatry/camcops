@@ -144,6 +144,7 @@ ${ task.get_task_html(req) }
     Uploading device ID: ${ (task._device.get_friendly_name_and_id() if task._device else "?") | h }.
     Tablet CamCOPS version at upload: ${ task._camcops_version }.
     Uploaded at: ${ format_datetime(task._when_added_exact, DateFormat.SHORT_DATETIME_SECONDS) }.
+    Group: ${ task._group.name | h } (${ task._group_id }).
     Adding user: ${ task.get_adding_user_username() }.
     Server PK: ${ task._pk }
         (predecessor ${ task._predecessor_pk },

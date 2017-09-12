@@ -26,7 +26,7 @@ import cgi
 import datetime
 import logging
 import re
-from typing import Optional, TYPE_CHECKING
+from typing import List, Optional, Set, TYPE_CHECKING
 
 import cardinal_pythonlib.crypto as rnc_crypto
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -36,9 +36,9 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
     exists_orm,
 )
 from pendulum import Pendulum
-from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql import func
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from .cc_audit import audit
@@ -48,12 +48,14 @@ from .cc_dt import (
     convert_datetime_to_local,
     format_datetime,
 )
+from .cc_group import Group
 from .cc_html import (
     get_generic_action_url,
     get_url_enter_new_password,
     get_url_field_value_pair,
     get_yes_no,
 )
+from .cc_jointables import user_group_table
 from .cc_sqla_coltypes import (
     PendulumDateTimeAsIsoTextColType,
     HashedPasswordColType,
@@ -406,6 +408,18 @@ class User(Base):
                 "Conditions of Use (ISO 8601)"
     )
 
+    groups = relationship(
+        Group,
+        secondary=user_group_table,
+        back_populates="users"  # see Group.users
+    )
+    upload_group_id = Column(
+        "upload_group_id", Integer, ForeignKey("_security_groups.id"),
+        comment="ID of the group to which this user uploads at present",
+        # OK to be NULL in the database, but the user will not be able to
+        # upload while it is. *** implement check in database.py
+    )
+
     @classmethod
     def get_user_by_id(cls,
                        dbsession: SqlASession,
@@ -581,6 +595,21 @@ class User(Base):
     @property
     def may_login_as_tablet(self) -> bool:
         return self.may_upload or self.may_register_devices
+
+    def ids_of_groups_user_may_see(self) -> List[int]:
+        # Incidentally: "list_a += list_b" vs "list_a.extend(list_b)":
+        # https://stackoverflow.com/questions/3653298/concatenating-two-lists-difference-between-and-extend  # noqa
+        # ... not much difference; perhaps += is slightly better (also clearer)
+        # And relevant set operations:
+        # https://stackoverflow.com/questions/4045403/python-how-to-add-the-contents-of-an-iterable-to-a-set  # noqa
+        #
+        # Process as a set rather than a list, to eliminate duplicates:
+        group_ids = set()  # type: Set[int]
+        for my_group in self.groups:  # type: Group
+            group_ids.update(my_group.ids_of_groups_group_may_see())
+        return list(group_ids)
+        # Return as a list rather than a set, because SQLAlchemy's in_()
+        # operator only likes lists and sets.
 
 
 # =============================================================================

@@ -83,12 +83,7 @@ from .cc_sqla_coltypes import (
 from .cc_sqlalchemy import Base
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING
-from .cc_xml import (
-    make_xml_branches_from_columns,
-    XML_COMMENT_SPECIAL_NOTES,
-    XmlDataTypes,
-    XmlElement,
-)
+from .cc_xml import XML_COMMENT_SPECIAL_NOTES, XmlElement
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -98,7 +93,9 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 class Patient(GenericTabletRecordMixin, Base):
-    """Class representing a patient."""
+    """
+    Class representing a patient.
+    """
     __tablename__ = "patient"
 
     id = Column(
@@ -256,23 +253,15 @@ class Patient(GenericTabletRecordMixin, Base):
             skip_fields.append(FP_ID_NUM + nstr)
             skip_fields.append(FP_ID_DESC + nstr)
             skip_fields.append(FP_ID_SHORT_DESC + nstr)
-        branches = make_xml_branches_from_columns(
-            self, skip_fields=skip_fields)
+        branches = self._get_xml_branches(skip_attrs=skip_fields)
         # Now add newer IDs:
-        cfg = req.config
-        for n in cfg.get_which_idnums():
-            branches.append(XmlElement(name=FP_ID_NUM + nstr,
-                                       value=self.get_idnum_value(n),
-                                       datatype=XmlDataTypes.INTEGER,
-                                       comment="ID number " + nstr))
-            branches.append(XmlElement(name=FP_ID_DESC + nstr,
-                                       value=self.get_iddesc(req, n),
-                                       datatype=XmlDataTypes.STRING,
-                                       comment="ID description " + nstr))
-            branches.append(XmlElement(name=FP_ID_SHORT_DESC + nstr,
-                                       value=self.get_idshortdesc(req, n),
-                                       datatype=XmlDataTypes.STRING,
-                                       comment="ID short description " + nstr))
+        pidnum_branches = []  # type: List[XmlElement]
+        for pidnum in self.idnums:  # type: PatientIdNum
+            pidnum_branches.append(pidnum._get_xml_root())
+        branches.append(XmlElement(
+            name="idnums",
+            value=pidnum_branches
+        ))
         # Special notes
         branches.append(XML_COMMENT_SPECIAL_NOTES)
         special_notes = self.special_notes  # type: List[SpecialNote]

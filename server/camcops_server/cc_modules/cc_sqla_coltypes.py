@@ -81,7 +81,8 @@ Also:
 # =============================================================================
 
 import logging
-from typing import Any, Generator, List, Optional, Tuple, TYPE_CHECKING, Union
+from typing import (Any, Generator, List, Optional, Tuple, Type, TYPE_CHECKING,
+                    Union)
 
 from cardinal_pythonlib.lists import chunks
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -117,6 +118,7 @@ from .cc_version import make_version
 
 if TYPE_CHECKING:
     from sqlalchemy.orm.state import InstanceState
+    from .cc_db import GenericTabletRecordMixin
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -152,6 +154,7 @@ LONGBLOB_LONGTEXT_LENGTH = (2 ** 32) - 1
 
 class RelationshipInfo(object):
     IS_ANCILLARY = "is_ancillary"
+    IS_BLOB = "is_blob"
 
 
 # =============================================================================
@@ -174,6 +177,8 @@ DiagnosticCodeColType = String(length=MAX_DIAGNOSTIC_CODE_LENGTH)
 EraColType = String(length=ISO8601_STRING_LENGTH)  # underlying SQL type
 
 FilterTextColType = Unicode(length=255)
+
+GroupNameColType = Unicode(length=255)
 
 HashedPasswordColType = String(length=255)
 HostnameColType = String(length=255)
@@ -710,22 +715,28 @@ def permitted_values_ok(obj) -> bool:
 
 
 def gen_ancillary_relationships(obj) -> Generator[
-        Tuple[str, RelationshipProperty], None, None]:
+        Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
+        None, None]:
     """
-    Yields tuples of (attrname, RelationshipProperty), for all relationships
-    that are marked as a CamCOPS ancillary relationship.
+    Yields tuples of
+        (attrname, RelationshipProperty, related_class)
+    for all relationships that are marked as a CamCOPS ancillary relationship.
     """
     insp = inspect(obj)  # type: InstanceState
     # insp.mapper.relationships is of type
     # sqlalchemy.utils._collections.ImmutableProperties, which is basically
     # a sort of AttrDict.
-    for attrname_rel in insp.mapper.relationships.items():  # type: RelationshipProperty
-        attrname = attrname_rel[0]  # type: str
-        rel = attrname_rel[1]  # type: RelationshipProperty
+    for attrname_rel in insp.mapper.relationships.items():  # type: Tuple[str, RelationshipProperty]  # noqa
+        attrname = attrname_rel[0]
+        rel_prop = attrname_rel[1]
         # ... I don't know how to do a type hint for both a and b in:
         # "for a, b in some_tuple:  # type: ???"
-        if getattr(rel.info, RelationshipInfo.IS_ANCILLARY, None) is True:
-            yield attrname, rel
+        related_class = rel_prop.mapper.class_
+        # log.critical("gen_ancillary_relationships: attrname={!r}, "
+        #              "rel_prop={!r}, related_class={!r}, rel_prop.info={!r}",
+        #              attrname, rel_prop, related_class, rel_prop.info)
+        if rel_prop.info.get(RelationshipInfo.IS_ANCILLARY, None) is True:
+            yield attrname, rel_prop, related_class
 
 
 # =============================================================================

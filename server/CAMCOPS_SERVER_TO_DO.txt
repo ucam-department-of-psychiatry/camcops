@@ -1,6 +1,4 @@
 
-*** tasks as XML
-
 *** groups:
         user member of multiple groups
         user uploads to a single group
@@ -8,6 +6,8 @@
         the Python User object returns a list of int group_id values for "I can see these",
 
         merge_db takes parameters for "new group if old data had none"
+
+*** when create superuser, ensure there's at least one group
 
 *** user management
 
@@ -25,6 +25,12 @@ in merge:
 *** HL7 backend
 
 *** host script at funny paths
+
+*** check "special note" XML works (later) (task + patient)
+
+*** special device for "web front end"
+*** special device for "manually uploaded"
+    ... string constants; prevent devices from being registered with that name?
 
 
 DOCUMENT merge warning:

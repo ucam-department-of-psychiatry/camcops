@@ -25,25 +25,24 @@
 import argparse
 import logging
 import os
-# from pprint import pformat
-from typing import Optional, Type, TYPE_CHECKING
+from pprint import pformat
+from typing import List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.debugging import pdb_run
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
-from cardinal_pythonlib.sqlalchemy.merge_db import (
-    merge_db,
-    TableIdentity,
-    TranslationContext,
-)
+from cardinal_pythonlib.sqlalchemy.merge_db import merge_db, TranslationContext
 from cardinal_pythonlib.sqlalchemy.orm_schema import (
     create_table_from_orm_class,
 )
+from cardinal_pythonlib.sqlalchemy.orm_query import exists_orm
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
+from cardinal_pythonlib.sqlalchemy.table_identity import TableIdentity
 from sqlalchemy.engine import create_engine, Engine
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import column, func, select, table, text
 from ..cc_modules.cc_audit import AuditEntry
@@ -51,7 +50,9 @@ from ..cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 from ..cc_modules.cc_constants import FP_ID_NUM, NUMBER_OF_IDNUMS_DEFUNCT
 from ..cc_modules.cc_db import GenericTabletRecordMixin
 from ..cc_modules.cc_device import Device
+from ..cc_modules.cc_group import Group
 from ..cc_modules.cc_hl7 import HL7Message, HL7Run
+from ..cc_modules.cc_jointables import user_group_table, group_group_table
 from ..cc_modules.cc_patient import Patient
 from ..cc_modules.cc_patientidnum import PatientIdNum
 from ..cc_modules.cc_request import command_line_request
@@ -72,7 +73,9 @@ DEBUG_VIA_PDB = False
 # Preprocess
 # =============================================================================
 
-def preprocess(src_engine: Engine) -> None:
+def preprocess(src_engine: Engine) -> List[TableIdentity]:
+    skip_tables = []  # type: List[TableIdentity]
+
     src_tables = get_table_names(src_engine)
 
     # Check we have some core tables present in the sources
@@ -98,19 +101,94 @@ def preprocess(src_engine: Engine) -> None:
                                         ormclass=PatientIdNum,
                                         without_constraints=True)
 
+    if Group.__tablename__ not in src_tables:
+        log.warning("No Group information in source database; skipping source "
+                    "table {!r}; will create a default group",
+                    Group.__tablename__)
+        skip_tables.append(TableIdentity(tablename=Group.__tablename__))
+
+    return skip_tables
+
 
 # =============================================================================
 # Extra translation to be applied to individual objects
 # =============================================================================
 # The extra logic for this database:
 
+def group_exists(group_id: int, dst_session: Session) -> bool:
+    return exists_orm(dst_session, Group, Group.id == group_id)
+
+
+def fetch_group_id_by_name(group_name: str, dst_session: Session) -> int:
+    try:
+        group = dst_session.query(Group)\
+            .filter(Group.name == group_name)\
+            .one()  # type: Group
+        # ... will fail if there are 0 or >1 results
+    except MultipleResultsFound:
+        log.critical("Nasty bug: can't have two groups with the same name! "
+                     "Group name was {!r}", group_name)
+        raise
+    except NoResultFound:
+        log.warning("Creating new group named {!r}", group_name)
+        group = Group()
+        group.name = group_name
+        dst_session.add(group)
+        dst_session.flush()  # creates the PK
+        # https://stackoverflow.com/questions/1316952/sqlalchemy-flush-and-get-inserted-id  # noqa
+        log.warning("... new group has ID {!r}", group.id)
+    return group.id
+
+
+def ensure_default_group_id(trcon: TranslationContext) -> None:
+    default_group_id = trcon.info["default_group_id"]
+    if default_group_id is not None:
+        # The user specified a group ID to use for records without one
+        assert group_exists(group_id=default_group_id,
+                            dst_session=trcon.dst_session), (
+            "User specified default_group_id={!r}, and object {!r} needs "
+            "a _group_id (directly or indirectly), but that ID doesn't exist "
+            "in the {!r} table of the destination database".format(
+                default_group_id, trcon.oldobj, Group.__tablename__)
+        )
+    else:
+        default_group_name = trcon.info["default_group_name"]
+        if not default_group_name:
+            assert False, (
+                "User specified neither default_group_id or "
+                "default_group_name, but object {!r} needs a "
+                "_group_id, directly or indirectly".format(trcon.oldobj)
+            )
+        default_group_id = fetch_group_id_by_name(
+            group_name=default_group_name,
+            dst_session=trcon.dst_session
+        )
+        trcon.info["default_group_id"] = default_group_id  # for next time!
+
+
 # noinspection PyProtectedMember
 def translate_fn(trcon: TranslationContext) -> None:
+    log.critical("Translating: {!r}", trcon.oldobj)
+
+    # -------------------------------------------------------------------------
+    # Set _group_id, if it's blank
+    # -------------------------------------------------------------------------
+    if (isinstance(trcon.oldobj, GenericTabletRecordMixin) and
+            ("_group_id" in trcon.missing_src_columns or
+             trcon.oldobj._group_id is None)):
+        # ... order that carefully; if the _group_id column is missing from the
+        # source, don't touch trcon.oldobj._group_id or it'll trigger a DB
+        # query that fails.
+        ensure_default_group_id(trcon)
+        default_group_id = trcon.info["default_group_id"]
+        log.critical("Assiging new _group_id of {!r}", default_group_id)
+        trcon.newobj._group_id = default_group_id
+
+    # -------------------------------------------------------------------------
+    # If an identical user is found, merge on it rather than creating a new
+    # one. Users with matching usernames are considered to be identical.
+    # -------------------------------------------------------------------------
     if trcon.tablename == User.__tablename__:
-        # ---------------------------------------------------------------------
-        # If an identical user is found, merge on it rather than creating a new
-        # one. Users with matching usernames are considered to be identical.
-        # ---------------------------------------------------------------------
         src_user = trcon.oldobj  # type: User
         src_username = src_user.username
         matching_user = trcon.dst_session.query(User) \
@@ -121,11 +199,11 @@ def translate_fn(trcon: TranslationContext) -> None:
                      matching_user.username)
             trcon.newobj = matching_user  # so that related records will work
 
-    elif trcon.tablename == Device.__tablename__:
-        # -------------------------------------------------------------------
-        # If an identical device is found, merge on it rather than creating a
-        # new one. Devices with matching names are considered to be identical.
-        # -------------------------------------------------------------------
+    # -------------------------------------------------------------------------
+    # If an identical device is found, merge on it rather than creating a
+    # new one. Devices with matching names are considered to be identical.
+    # -------------------------------------------------------------------------
+    if trcon.tablename == Device.__tablename__:
         src_device = trcon.oldobj  # type: Device
         src_devicename = src_device.name
         matching_device = trcon.dst_session.query(Device) \
@@ -150,14 +228,29 @@ def translate_fn(trcon: TranslationContext) -> None:
         # Mind you, that's fair, because there is a duplicate.
         # SO WE DO SEPARATE DUPLICATE CHECKING, below.
 
-    elif trcon.tablename == Patient.__tablename__:
-        # ---------------------------------------------------------------------
-        # If there are any patient numbers in the old format (as a set of
-        # columns in the Patient table) which were not properly converted
-        # to the new format (as individual records in the PatientIdNum
-        # table), create new entries.
-        # ---------------------------------------------------------------------
+    # -------------------------------------------------------------------------
+    # If an identical group is found, merge on it rather than creating a
+    # new one. Groups with matching names are considered to be identical.
+    # -------------------------------------------------------------------------
+    if trcon.tablename == Group.__tablename__:
+        src_group = trcon.oldobj  # type: Group
+        src_groupname = src_group.name
+        matching_group = trcon.dst_session.query(Group) \
+            .filter(Group.name == src_groupname) \
+            .one_or_none()  # type: Optional[Group]
+        if matching_group is not None:
+            log.info("Matching Group (name {!r}) found; merging",
+                     matching_group.name)
+            trcon.newobj = matching_group
 
+    # -------------------------------------------------------------------------
+    # If there are any patient numbers in the old format (as a set of
+    # columns in the Patient table) which were not properly converted
+    # to the new format (as individual records in the PatientIdNum
+    # table), create new entries.
+    # Only worth bothering with for _current entries.
+    # -------------------------------------------------------------------------
+    if trcon.tablename == Patient.__tablename__:
         # (a) Find old patient numbers
         old_patient = trcon.oldobj  # type: Patient
         # noinspection PyPep8
@@ -235,6 +328,9 @@ def translate_fn(trcon: TranslationContext) -> None:
             pidnum._camcops_version = old_patient._camcops_version
             pidnum._addition_pending = old_patient._addition_pending
             pidnum._removal_pending = old_patient._removal_pending
+            pidnum._group_id = trcon.newobj._group_id
+            # ... will have been set above if it was blank
+
             # OK.
             log.info("Inserting new PatientIdNum: {}", pidnum)
             trcon.dst_session.add(pidnum)
@@ -242,29 +338,82 @@ def translate_fn(trcon: TranslationContext) -> None:
     # -------------------------------------------------------------------------
     # Check we're not creating duplicates for anything uploaded
     # -------------------------------------------------------------------------
-    if (isinstance(trcon.oldobj, GenericTabletRecordMixin) and
-            trcon.oldobj._current):
+    if isinstance(trcon.oldobj, GenericTabletRecordMixin):
         old_instance = trcon.oldobj
         cls = trcon.newobj.__class__  # type: Type[GenericTabletRecordMixin]
+        # Records uploaded from tablets must be unique on the combination of:
+        #       id                  = table PK
+        #       _device_id          = device
+        #       _era                = device era
+        #       _when_removed_exact = removal date or NULL
         exists_query = select([func.count()])\
             .select_from(table(trcon.tablename))\
             .where(column(cls.id.name) == old_instance.id)\
-            .where(column(cls._era.name) == old_instance._era)\
             .where(column(cls._device_id.name) ==
-                   trcon.objmap[old_instance._device].id)
+                   trcon.objmap[old_instance._device].id)\
+            .where(column(cls._era.name) == old_instance._era)\
+            .where(column(cls._when_removed_exact.name) ==
+                   old_instance._when_removed_exact)
+        # Note re NULLs... Although it's an inconvenient truth in SQL that
+        #   SELECT NULL = NULL; -> NULL
+        # in this code we have a comparison of a column to a Python value.
+        # SQLAlchemy is clever and renders "IS NULL" if the Python value is
+        # None, or an "=" comparison otherwise.
+        # If we were comparing a column to another column, we'd have to do
+        # more; e.g.
+        #
+        # WRONG one-to-one join to self:
+        #
+        #   SELECT a._pk, b._pk, a._when_removed_exact
+        #   FROM phq9 a
+        #   INNER JOIN phq9 b
+        #       ON a._pk = b._pk
+        #       AND a._when_removed_exact = b._when_removed_exact;
+        #
+        #   -- drops all rows
+        #
+        # CORRECT one-to-one join to self:
+        #
+        #   SELECT a._pk, b._pk, a._when_removed_exact
+        #   FROM phq9 a
+        #   INNER JOIN phq9 b
+        #       ON a._pk = b._pk
+        #       AND (a._when_removed_exact = b._when_removed_exact
+        #            OR (a._when_removed_exact IS NULL AND
+        #                b._when_removed_exact IS NULL));
+        #
+        #   -- returns all rows
         n_exists = trcon.dst_session.execute(exists_query).scalar()
         if n_exists > 0:
+            existing_rec_q = select(['*'])\
+                .select_from(table(trcon.tablename))\
+                .where(column(cls.id.name) == old_instance.id)\
+                .where(column(cls._device_id.name) ==
+                       trcon.objmap[old_instance._device].id) \
+                .where(column(cls._era.name) == old_instance._era)\
+                .where(column(cls._when_removed_exact.name) ==
+                       old_instance._when_removed_exact)
+            resultproxy = trcon.dst_session.execute(existing_rec_q).fetchall()
+            existing_rec = [dict(row) for row in resultproxy]
             errmsg = (
-                "Record inheriting from GenericTabletRecordMixin already "
-                "exists in destination database: {o!r} in table {t!r}; id="
-                "{i!r}, era={e!r}, device_id={d!r}, _current={c!r}. ARE YOU "
-                "TRYING TO MERGE THE SAME DATABASE IN TWICE? DON'T.".format(
-                    o=old_instance,
+                "Source record, inheriting from GenericTabletRecordMixin and "
+                "shown below, already exists in destination database:\n\n"
+                "{o}\n\n"
+                "... in table {t!r}, clashing on: id="
+                "{i!r}, device_id={d!r}, era={e!r}, "
+                "_when_removed_exact={w!r}.\n"
+                "The existing record(s) in the destination database "
+                "was/were:\n\n"
+                "{rec}.\n\n"
+                "ARE YOU TRYING TO MERGE THE SAME DATABASE IN TWICE? "
+                "DON'T.".format(
+                    o=pformat(old_instance.__dict__),
                     t=trcon.tablename,
                     i=old_instance.id,
-                    e=old_instance._era,
                     d=old_instance._device_id,
-                    c=old_instance._current,
+                    e=old_instance._era,
+                    w=old_instance._when_removed_exact,
+                    rec=pformat(existing_rec),
                 )
             )
             log.critical(errmsg)
@@ -275,8 +424,12 @@ def translate_fn(trcon: TranslationContext) -> None:
 # Postprocess
 # =============================================================================
 
+# noinspection PyUnusedLocal
 def postprocess(src_engine: Engine, dst_session: Session) -> None:
-    pass
+    log.warning("*** NOT YET IMPLEMENTED: copying user/group mapping from "
+                "table {!r}", user_group_table.name)
+    log.warning("*** NOT YET IMPLEMENTED: copying group/group mapping from "
+                "table {!r}", group_group_table.name)
 
 
 # =============================================================================
@@ -321,6 +474,17 @@ def merge_main() -> None:
     parser.add_argument(
         '--skip_audit_logs', action="store_true",
         help="Skip the {!r} table".format(HL7Run.__tablename__)
+    )
+    parser.add_argument(
+        '--default_group_id', type=int, default=None,
+        help="Default group ID (integer) to apply to old records without one. "
+             "If none is specified, a new group will be created for such "
+             "records."
+    )
+    parser.add_argument(
+        '--default_group_name', type=str, default=None,
+        help="If default_group_id is not specified, use this group name. The "
+             "group will be looked up if it exists, and created if not."
     )
     required_named = parser.add_argument_group('required named arguments')
     # https://stackoverflow.com/questions/24180527/argparse-required-arguments-listed-under-optional-arguments  # noqa
@@ -389,7 +553,7 @@ def merge_main() -> None:
     # Initial operations on SOURCE database
     # -------------------------------------------------------------------------
 
-    preprocess(src_engine=src_engine)
+    skip_tables += preprocess(src_engine=src_engine)
 
     # -------------------------------------------------------------------------
     # Merge
@@ -397,6 +561,8 @@ def merge_main() -> None:
 
     # Merge! It's easy...
     dst_session = req.dbsession
+    trcon_info = dict(default_group_id=args.default_group_id,
+                      default_group_name=args.default_group_name)
     merge_db(
         base_class=Base,
         src_engine=src_engine,
@@ -416,7 +582,8 @@ def merge_main() -> None:
         flush_per_record=False,
         commit_with_flush=False,
         commit_at_end=True,
-        prevent_eager_load=True
+        prevent_eager_load=True,
+        trcon_info=trcon_info
     )
 
     # -------------------------------------------------------------------------

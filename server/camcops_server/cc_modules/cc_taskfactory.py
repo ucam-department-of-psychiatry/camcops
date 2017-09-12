@@ -142,7 +142,13 @@ def task_query_restricted_to_permitted_users(
     if user.superuser:
         return q  # anything goes
 
-    # *** IMPLEMENT GROUP SECURITY HERE
+    # Implement group security. Simple:
+    group_ids = user.ids_of_groups_user_may_see()
+    if not group_ids:
+        log.warning("User {!r} (ID {!r}) can see no groups!",
+                    user.username, user.id)
+    # noinspection PyProtectedMember
+    q = q.filter(cls._group_id.in_(group_ids))
 
     return q
 

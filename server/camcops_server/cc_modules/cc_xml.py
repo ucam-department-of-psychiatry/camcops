@@ -24,11 +24,15 @@
 
 import base64
 import datetime
-from typing import Any, Dict, List, Optional, Union
+import logging
+from typing import Any, List, Optional, Union
 import xml.sax.saxutils
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from pendulum import Date, Pendulum, Time
+from semantic_version.base import Version
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
@@ -36,11 +40,14 @@ from .cc_simpleobjects import XmlSimpleValue
 from .cc_sqla_coltypes import gen_camcops_blob_columns
 from .cc_summaryelement import SummaryElement
 
+log = BraceStyleAdapter(logging.getLogger(__name__))
+
 
 # =============================================================================
 # Constants
 # =============================================================================
 
+XML_COMMENT_ANCILLARY = "<!-- Ancillary records -->"
 XML_COMMENT_ANONYMOUS = "<!-- Anonymous task; no patient info -->"
 XML_COMMENT_BLOBS = "<!-- Associated BLOBs -->"
 XML_COMMENT_CALCULATED = "<!-- Calculated fields -->"
@@ -80,7 +87,7 @@ class XmlDataTypes(object):
 class XmlElement(object):
     """Represents XML data in a tree. See functions in cc_xml.py"""
     def __init__(self, name: str, value: Any = None, datatype: str = None,
-                 comment: str = None):
+                 comment: str = None) -> None:
         # Special: boolean requires lower case "true"/"false" (or 0/1)
         if datatype == XmlDataTypes.BOOLEAN and value is not None:
             value = str(value).lower()
@@ -88,6 +95,12 @@ class XmlElement(object):
         self.value = value
         self.datatype = datatype
         self.comment = comment
+
+    def __repr__(self) -> str:
+        """
+        Shows just this element.
+        """
+        return auto_repr(self, with_addr=True)
 
 
 # =============================================================================
@@ -101,13 +114,14 @@ def make_xml_branches_from_columns(
         obj,
         skip_fields: List[str] = None) -> List[XmlElement]:
     """
-    Returns a list of XML branches, each an XmlElementTuple, from an object,
+    Returns a list of XML branches, each an XmlElement, from an object,
     using the list of SQLAlchemy Column objects that define/describe its
     fields.
     """
     skip_fields = skip_fields or []  # type: List[str]
     branches = []  # type: List[XmlElement]
     for attrname, column in gen_columns(obj):
+        # log.critical("make_xml_branches_from_columns: {!r}", attrname)
         colname = column.name
         if colname in skip_fields:
             continue
@@ -122,8 +136,9 @@ def make_xml_branches_from_columns(
 
 def make_xml_branches_from_summaries(
         summaries: List[SummaryElement],
-        skip_fields: List[str] = None) -> List[XmlElement]:
-    """Returns a list of XML branches, each an XmlElementTuple, from a
+        skip_fields: List[str] = None,
+        sort_by_name: bool = True) -> List[XmlElement]:
+    """Returns a list of XML branches, each an XmlElement, from a
     list of summary data provided by a task."""
     skip_fields = skip_fields or []
     branches = []
@@ -137,6 +152,8 @@ def make_xml_branches_from_summaries(
             datatype=get_xml_datatype_from_sqla_column_type(s.coltype),
             comment=s.comment
         ))
+    if sort_by_name:
+        branches.sort(key=lambda el: el.name)
     return branches
 
 
@@ -151,7 +168,7 @@ def make_xml_branches_from_blobs(
             continue
         relationship_attr = column.blob_relationship_attr_name
         blob = getattr(obj, relationship_attr)
-        branches.append(get_xml_blob_tuple(
+        branches.append(get_xml_blob_element(
             name=relationship_attr,
             blobdata=(None if blob is None
                      else blob.get_xml_element_value_binary()),
@@ -177,25 +194,30 @@ def get_xml_datatype_from_sqla_column_type(
     """
     # http://www.xml.dvint.com/docs/SchemaDataTypesQR-2.pdf
     # http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html
+    pt = coltype.python_type
+    # pt is a *type*, not an *instance* of that type, so we use issubclass:
     try:
-        pt = coltype.python_type
-        if isinstance(pt, datetime.datetime) or isinstance(pt, Pendulum):
+        # Watch the order. Move from more specific to less specific.
+        # For example, issubclass(bool, int) == True, so do bool first.
+        if issubclass(pt, datetime.datetime) or issubclass(pt, Pendulum):
             return XmlDataTypes.DATETIME
-        if isinstance(pt, datetime.date) or isinstance(pt, Date):
+        if issubclass(pt, datetime.date) or issubclass(pt, Date):
             return XmlDataTypes.DATE
-        if isinstance(pt, datetime.date) or isinstance(pt, Time):
+        if issubclass(pt, datetime.date) or issubclass(pt, Time):
             return XmlDataTypes.TIME
-        if isinstance(pt, int):
-            return XmlDataTypes.INTEGER
-        if isinstance(pt, float):
-            return XmlDataTypes.DOUBLE
-        if isinstance(pt, bool):
+        if issubclass(pt, bool):
             return XmlDataTypes.BOOLEAN
-        if isinstance(pt, str):
+        if issubclass(pt, int):
+            return XmlDataTypes.INTEGER
+        if issubclass(pt, float):
+            return XmlDataTypes.DOUBLE
+        if issubclass(pt, str) or issubclass(pt, Version):
             return XmlDataTypes.STRING
         # BLOBs are handled separately.
     except NotImplementedError:
         pass
+    log.warning("Don't know XML type for SQLAlchemy type {!r} with Python "
+                "type {!r}", coltype, pt)
     return None
 
 
@@ -205,13 +227,20 @@ def get_xml_datatype_from_sqla_column(column: Column) -> Optional[str]:
     return get_xml_datatype_from_sqla_column_type(coltype)
 
 
-def get_xml_blob_tuple(name: str,
-                       blobdata: Optional[bytes],
-                       comment: str = None) -> XmlElement:
-    """Returns an XmlElementTuple representing a base-64-encoded BLOB."""
+def get_xml_blob_element(name: str,
+                         blobdata: Optional[bytes],
+                         comment: str = None) -> XmlElement:
+    """Returns an XmlElement representing a base-64-encoded BLOB."""
+    if blobdata:
+        # blobdata is raw binary
+        b64bytes = base64.b64encode(blobdata)
+        b64str = b64bytes.decode("ascii")
+        value = b64str
+    else:
+        value = None
     return XmlElement(
         name=name,
-        value=base64.b64encode(blobdata) if blobdata else None,
+        value=value,
         datatype=XmlDataTypes.BASE64BINARY,
         comment=comment
     )
@@ -239,7 +268,7 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue, str,
                  indent_spaces: int = 4,
                  eol: str = '\n',
                  include_comments: bool = False) -> str:
-    """Returns an entire XML tree as text, given the root XmlElementTuple."""
+    """Returns an entire XML tree as text, given the root XmlElement."""
     # We will represent NULL values with xsi:nil, but this requires a
     # namespace: http://stackoverflow.com/questions/774192
     # http://books.xmlschemata.org/relaxng/relax-CHP-11-SECT-1.html
@@ -259,9 +288,11 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue, str,
             if include_comments:
                 namespaces.extend(XML_IGNORE_NAMESPACES)
         namespace = " ".join(namespaces)
-        dt = ""
         if element.datatype:
             dt = ' xsi:type="{}"'.format(element.datatype)
+        else:
+            # log.warning("XmlElement has no datatype: {!r}", element)
+            dt = ""
         cmt = ""
         if include_comments and element.comment:
             cmt = ' ignore:comment={}'.format(
@@ -283,7 +314,7 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue, str,
             value_to_recurse = element.value if complex_value else \
                 XmlSimpleValue(element.value)
             # ... XmlSimpleValue is a marker that subsequently distinguishes
-            # things that were part of an XmlElementTuple from user-inserted
+            # things that were part of an XmlElement from user-inserted
             # raw XML.
             nl = eol if complex_value else ""
             pr2 = prefix if complex_value else ""
@@ -332,10 +363,11 @@ def get_xml_document(root: XmlElement,
                      indent_spaces: int = 4,
                      eol: str = '\n',
                      include_comments: bool = False) -> str:
-    """Returns an entire XML document as text, given the root
-    XmlElementTuple."""
+    """
+    Returns an entire XML document as text, given the root XmlElement.
+    """
     if not isinstance(root, XmlElement):
-        raise AssertionError("get_xml_document: root not an XmlElementTuple; "
+        raise AssertionError("get_xml_document: root not an XmlElement; "
                              "XML requires a single root")
     return xml_header(eol) + get_xml_tree(
         root,

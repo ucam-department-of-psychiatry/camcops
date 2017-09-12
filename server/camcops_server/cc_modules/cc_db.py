@@ -27,12 +27,7 @@ from typing import Any, Dict, Iterable, List, Union, Type, TypeVar
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
-from cardinal_pythonlib.rnc_db import (
-    DatabaseSupporter,
-    FIELDSPEC_TYPE,
-    FIELDSPECLIST_TYPE,
-)
-from pendulum import Pendulum
+from cardinal_pythonlib.rnc_db import FIELDSPECLIST_TYPE
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
@@ -50,6 +45,11 @@ from .cc_sqla_coltypes import (
     RelationshipInfo,
     SemanticVersionColType,
 )
+from .cc_xml import (
+    make_xml_branches_from_blobs,
+    make_xml_branches_from_columns,
+    XmlElement,
+)
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -57,23 +57,12 @@ T = TypeVar('T')
 
 
 # =============================================================================
-# Database engine hacks
-# =============================================================================
-
-def hack_pendulum_into_pymysql() -> None:
-    # https://pendulum.eustace.io/docs/#limitations
-    try:
-        from pymysql.converters import encoders, escape_datetime
-        encoders[Pendulum] = escape_datetime
-    except ImportError:
-        pass
-
-
-# =============================================================================
 # Base classes implementing common fields
 # =============================================================================
 
 class GenericTabletRecordMixin(object):
+    __tablename__ = None  # type: str  # sorts out some mixin type checking
+
     # -------------------------------------------------------------------------
     # On the server side:
     # -------------------------------------------------------------------------
@@ -258,6 +247,15 @@ class GenericTabletRecordMixin(object):
             comment="(SERVER) Removal pending?"
         )
 
+    # noinspection PyMethodParameters
+    @declared_attr
+    def _group_id(cls) -> Column:
+        return Column(
+            "_group_id", Integer, ForeignKey("_security_groups.id"),
+            nullable=False, index=True,
+            comment="(SERVER) ID of group to which this record belongs"
+        )
+
     RESERVED_FIELDS = [  # fields that tablets can't upload
         "_pk",
         "_device_id",
@@ -279,6 +277,7 @@ class GenericTabletRecordMixin(object):
         "_camcops_version",
         "_addition_pending",
         "_removal_pending",
+        "_group_id",
     ]
 
     # -------------------------------------------------------------------------
@@ -339,6 +338,62 @@ class GenericTabletRecordMixin(object):
     def _manually_erasing_user(cls) -> RelationshipProperty:
         return relationship("User",
                             foreign_keys=[cls._manually_erasing_user_id])
+
+    # noinspection PyMethodParameters
+    @declared_attr
+    def _group(cls) -> RelationshipProperty:
+        return relationship("Group",
+                            foreign_keys=[cls._group_id])
+
+    def _get_xml_root(self,
+                      skip_attrs: List[str] = None,
+                      include_plain_columns: bool=True,
+                      include_blobs: bool = True,
+                      sort_by_attr: bool = True) -> XmlElement:
+        """
+        Called to create an XML root object for records ancillary to Task
+        objects. Tasks themselves use a more complex mechanism.
+        """
+        skip_attrs = skip_attrs or []  # type: List[str]
+        # "__tablename__" will make the type checker complain, as we're
+        # defining a function for a mixin that assumes it's mixed in to a
+        # SQLAlchemy Base-derived class
+        # noinspection PyUnresolvedReferences
+        return XmlElement(
+            name=self.__tablename__,
+            value=self._get_xml_branches(
+                skip_attrs=skip_attrs,
+                include_plain_columns=include_plain_columns,
+                include_blobs=include_blobs,
+                sort_by_attr=sort_by_attr
+            )
+        )
+
+    def _get_xml_branches(self,
+                          skip_attrs: List[str],
+                          include_plain_columns: bool = True,
+                          include_blobs: bool = True,
+                          sort_by_attr: bool = True) -> List[XmlElement]:
+        """
+        Gets the values of SQLAlchemy columns as XmlElement objects.
+        Optionally, find any SQLAlchemy relationships that are relationships
+        to Blob objects, and include them too.
+
+        Used by _get_xml_root above, but also by Tasks themselves.
+        """
+        # log.critical("_get_xml_branches for {!r}", self)
+        skip_attrs = skip_attrs or []  # type: List[str]
+        branches = []  # type: List[XmlElement]
+        if include_plain_columns:
+            branches += make_xml_branches_from_columns(self,
+                                                       skip_fields=skip_attrs)
+        if include_blobs:
+            branches += make_xml_branches_from_blobs(self,
+                                                     skip_fields=skip_attrs)
+        if sort_by_attr:
+            branches.sort(key = lambda el: el.name)
+        # log.critical("... branches for {!r}: {!r}", self, branches)
+        return branches
 
 
 # =============================================================================
@@ -449,50 +504,9 @@ def add_multiple_columns(
         else:
             setattr(cls, colname, Column(colname, coltype, **colkwargs))
 
-
-# =============================================================================
-# Add sqltype field to fieldspecs defined by cctype
-# =============================================================================
-
-def ensure_valid_cctype(cctype: str) -> None:
-    """Raises KeyError if cctype is not a valid key to SQLTYPE."""
-    assert hasattr(SQLTYPE, cctype)
-
-
-def cctype_is_string(cctype: str) -> bool:
-    s = getattr(SQLTYPE, cctype).upper()
-    return s[:7] == "VARCHAR" or s == "TEXT" or s == "LONGTEXT"
-
-
-def cctype_is_date(cctype: str) -> bool:
-    return cctype in ["DATETIME", "ISO8601"]
-
-
-def add_sqltype_to_fieldspec_in_place(fieldspec: FIELDSPEC_TYPE) -> None:
-    """Add sqltype field to fieldspec defined by cctype, where cctype is one of
-    the keys to SQLTYPE. Returns the new fieldspec.
-    """
-    cctype = fieldspec["cctype"]  # raise KeyError if missing
-    fieldspec["sqltype"] = getattr(SQLTYPE, cctype)  # raise AttributeError if invalid  # noqa
-
-
-def add_sqltype_to_fieldspeclist_in_place(fieldspeclist: FIELDSPECLIST_TYPE) \
-        -> None:
-    """Add sqltype field to fieldspeclist having fieldspecs defined by
-    cctype, where cctype is one of the keys to SQLTYPE.
-    """
-    for item in fieldspeclist:
-        add_sqltype_to_fieldspec_in_place(item)
-
-
 # =============================================================================
 # Database routines.
 # =============================================================================
-
-def set_db_to_utf8(db: DatabaseSupporter) -> None:
-    db.db_exec_literal("ALTER DATABASE DEFAULT CHARACTER SET utf8 "
-                       "DEFAULT COLLATE utf8_general_ci")
-
 
 def delete_from_table_by_pklist(tablename: str,
                                 pkname: str,
