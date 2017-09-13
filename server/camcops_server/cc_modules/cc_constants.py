@@ -341,9 +341,9 @@ MOVE_OFF_TABLET_FIELD = "_move_off_tablet"
 CLIENT_DATE_FIELD = "when_last_modified"
 
 # Field prefixes, for Patient table (here to avoid circular imports)
-FP_ID_NUM = "idnum"
-FP_ID_DESC = "iddesc"
-FP_ID_SHORT_DESC = "idshortdesc"
+FP_ID_NUM_DEFUNCT = "idnum"
+FP_ID_DESC_DEFUNCT = "iddesc"
+FP_ID_SHORT_DESC_DEFUNCT = "idshortdesc"
 
 CRIS_CLUSTER_KEY_FIELDSPEC = dict(
     name="_task_main_pk", cctype="INT_UNSIGNED",

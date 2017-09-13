@@ -45,9 +45,9 @@ from .cc_constants import (
     ACTION,
     DateFormat,
     ERA_NOW,
-    FP_ID_DESC,
-    FP_ID_SHORT_DESC,
-    FP_ID_NUM,
+    FP_ID_DESC_DEFUNCT,
+    FP_ID_SHORT_DESC_DEFUNCT,
+    FP_ID_NUM_DEFUNCT,
     NUMBER_OF_IDNUMS_DEFUNCT,
     PARAM,
     TSV_PATIENT_FIELD_PREFIX,
@@ -250,9 +250,9 @@ class Patient(GenericTabletRecordMixin, Base):
         # Exclude old ID fields:
         for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
             nstr = str(n)
-            skip_fields.append(FP_ID_NUM + nstr)
-            skip_fields.append(FP_ID_DESC + nstr)
-            skip_fields.append(FP_ID_SHORT_DESC + nstr)
+            skip_fields.append(FP_ID_NUM_DEFUNCT + nstr)
+            skip_fields.append(FP_ID_DESC_DEFUNCT + nstr)
+            skip_fields.append(FP_ID_SHORT_DESC_DEFUNCT + nstr)
         branches = self._get_xml_branches(skip_attrs=skip_fields)
         # Now add newer IDs:
         pidnum_branches = []  # type: List[XmlElement]
@@ -273,19 +273,19 @@ class Patient(GenericTabletRecordMixin, Base):
         d = collections.OrderedDict()
         for f in self.FIELDS:
             # Exclude old ID fields:
-            if (not f.startswith(FP_ID_NUM) and
-                    not f.startswith(FP_ID_DESC) and
-                    not f.startswith(FP_ID_SHORT_DESC)):
+            if (not f.startswith(FP_ID_NUM_DEFUNCT) and
+                    not f.startswith(FP_ID_DESC_DEFUNCT) and
+                    not f.startswith(FP_ID_SHORT_DESC_DEFUNCT)):
                 d[TSV_PATIENT_FIELD_PREFIX + f] = getattr(self, f)
         # Now the ID fields:
         cfg = req.config
         for n in cfg.get_which_idnums():
             nstr = str(n)
-            d[TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr] = \
+            d[TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM_DEFUNCT + nstr] = \
                 self.get_idnum_value(n)
-            d[TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr] = \
+            d[TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC_DEFUNCT + nstr] = \
                 self.get_iddesc(req, n)
-            d[TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC + nstr] = \
+            d[TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC_DEFUNCT + nstr] = \
                 self.get_idshortdesc(req, n)
         return d
 
@@ -520,7 +520,7 @@ class Patient(GenericTabletRecordMixin, Base):
             idobj.idnum_value,
             idobj.description(req),
             idobj.short_description(req),
-            FP_ID_NUM + nstr,
+            FP_ID_NUM_DEFUNCT + nstr,
             label_id_numbers
         )
 

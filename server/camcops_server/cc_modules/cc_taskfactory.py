@@ -31,6 +31,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
 from pendulum import Date, Pendulum
+import pyramid.httpexceptions as exc
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.orm import Query
@@ -164,7 +165,10 @@ def task_factory(req: CamcopsRequest, basetable: str,
     raise KeyError if the table doesn't exist.
     """
     d = tablename_to_task_class_dict()
-    cls = d[basetable]  # may raise KeyError
+    try:
+        cls = d[basetable]  # may raise KeyError
+    except KeyError:
+        raise exc.HTTPBadRequest("No such task table: {!r}".format(basetable))
     dbsession = req.dbsession
     # noinspection PyProtectedMember
     q = dbsession.query(cls).filter(cls._pk == serverpk)

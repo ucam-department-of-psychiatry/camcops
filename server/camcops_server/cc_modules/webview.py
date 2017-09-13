@@ -843,7 +843,7 @@ def serve_task(req: CamcopsRequest) -> Response:
     task = task_factory(req, tablename, server_pk)
 
     if task is None:
-        raise exc.HTTPBadRequest(
+        raise exc.HTTPNotFound(
             "Task not found or not permitted: tablename={!r}, "
             "server_pk={!r}".format(tablename, server_pk))
 

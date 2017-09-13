@@ -18,6 +18,10 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 ${next.body()}
 
 <div class="error">
+    ${ request.exception.message | h }
+</div>
+
+<div class="error">
     %if request.user_id is None:
         <%block go_to_login>
             <div>

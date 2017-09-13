@@ -47,14 +47,20 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import column, func, select, table, text
 from ..cc_modules.cc_audit import AuditEntry
 from ..cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
-from ..cc_modules.cc_constants import FP_ID_NUM, NUMBER_OF_IDNUMS_DEFUNCT
+from ..cc_modules.cc_constants import (
+    FP_ID_NUM_DEFUNCT,
+    NUMBER_OF_IDNUMS_DEFUNCT,
+)
 from ..cc_modules.cc_db import GenericTabletRecordMixin
 from ..cc_modules.cc_device import Device
 from ..cc_modules.cc_group import Group
 from ..cc_modules.cc_hl7 import HL7Message, HL7Run
 from ..cc_modules.cc_jointables import user_group_table, group_group_table
 from ..cc_modules.cc_patient import Patient
-from ..cc_modules.cc_patientidnum import PatientIdNum
+from ..cc_modules.cc_patientidnum import (
+    fake_tablet_id_for_patientidnum,
+    PatientIdNum,
+)
 from ..cc_modules.cc_request import command_line_request
 from ..cc_modules.cc_session import CamcopsSession
 from ..cc_modules.cc_storedvar import ServerStoredVar
@@ -115,6 +121,11 @@ def preprocess(src_engine: Engine) -> List[TableIdentity]:
 # =============================================================================
 # The extra logic for this database:
 
+def flush_session(dst_session: Session) -> None:
+    log.debug("Flushing session")
+    dst_session.flush()
+
+
 def group_exists(group_id: int, dst_session: Session) -> bool:
     return exists_orm(dst_session, Group, Group.id == group_id)
 
@@ -134,7 +145,7 @@ def fetch_group_id_by_name(group_name: str, dst_session: Session) -> int:
         group = Group()
         group.name = group_name
         dst_session.add(group)
-        dst_session.flush()  # creates the PK
+        flush_session(dst_session)  # creates the PK
         # https://stackoverflow.com/questions/1316952/sqlalchemy-flush-and-get-inserted-id  # noqa
         log.warning("... new group has ID {!r}", group.id)
     return group.id
@@ -168,7 +179,7 @@ def ensure_default_group_id(trcon: TranslationContext) -> None:
 
 # noinspection PyProtectedMember
 def translate_fn(trcon: TranslationContext) -> None:
-    log.critical("Translating: {!r}", trcon.oldobj)
+    log.debug("Translating: {!r}", trcon.oldobj)
 
     # -------------------------------------------------------------------------
     # Set _group_id, if it's blank
@@ -181,7 +192,7 @@ def translate_fn(trcon: TranslationContext) -> None:
         # query that fails.
         ensure_default_group_id(trcon)
         default_group_id = trcon.info["default_group_id"]
-        log.critical("Assiging new _group_id of {!r}", default_group_id)
+        log.debug("Assiging new _group_id of {!r}", default_group_id)
         trcon.newobj._group_id = default_group_id
 
     # -------------------------------------------------------------------------
@@ -195,8 +206,8 @@ def translate_fn(trcon: TranslationContext) -> None:
             .filter(User.username == src_username) \
             .one_or_none()  # type: Optional[User]
         if matching_user is not None:
-            log.info("Matching User (username {!r}) found; merging",
-                     matching_user.username)
+            log.debug("Matching User (username {!r}) found; merging",
+                      matching_user.username)
             trcon.newobj = matching_user  # so that related records will work
 
     # -------------------------------------------------------------------------
@@ -210,8 +221,8 @@ def translate_fn(trcon: TranslationContext) -> None:
             .filter(Device.name == src_devicename) \
             .one_or_none()  # type: Optional[Device]
         if matching_device is not None:
-            log.info("Matching Device (name {!r}) found; merging",
-                     matching_device.name)
+            log.debug("Matching Device (name {!r}) found; merging",
+                      matching_device.name)
             trcon.newobj = matching_device
 
         # BUT BEWARE, BECAUSE IF YOU MERGE THE SAME DATABASE TWICE (even if
@@ -239,8 +250,8 @@ def translate_fn(trcon: TranslationContext) -> None:
             .filter(Group.name == src_groupname) \
             .one_or_none()  # type: Optional[Group]
         if matching_group is not None:
-            log.info("Matching Group (name {!r}) found; merging",
-                     matching_group.name)
+            log.debug("Matching Group (name {!r}) found; merging",
+                      matching_group.name)
             trcon.newobj = matching_group
 
     # -------------------------------------------------------------------------
@@ -249,18 +260,21 @@ def translate_fn(trcon: TranslationContext) -> None:
     # to the new format (as individual records in the PatientIdNum
     # table), create new entries.
     # Only worth bothering with for _current entries.
+    # (More explicitly: do not create new PatientIdNum entries for non-current
+    # patients; it's very fiddly if there might be asynchrony between
+    # Patient and PatientIdNum objects for that patient.)
     # -------------------------------------------------------------------------
     if trcon.tablename == Patient.__tablename__:
         # (a) Find old patient numbers
         old_patient = trcon.oldobj  # type: Patient
         # noinspection PyPep8
-        src_query = select([text('*')])\
+        src_pt_query = select([text('*')])\
             .select_from(table(trcon.tablename))\
             .where(column(Patient.id.name) == old_patient.id)\
             .where(column(Patient._current.name) == True)\
             .where(column(Patient._device_id.name) == old_patient._device_id)\
             .where(column(Patient._era.name) == old_patient._era)
-        rows = trcon.src_session.execute(src_query)  # type: ResultProxy
+        rows = trcon.src_session.execute(src_pt_query)  # type: ResultProxy
         list_of_dicts = [dict(row.items()) for row in rows]
         assert len(list_of_dicts) == 1, (
             "Failed to fetch old patient IDs correctly; bug?"
@@ -269,12 +283,15 @@ def translate_fn(trcon: TranslationContext) -> None:
         old_patient_dict = list_of_dicts[0]
 
         # (b) If any don't exist in the new database, create them.
+        # -- no, that's not right; we will be processing Patient before
+        # PatientIdNum, so that should be: if any don't exist in the *source*
+        # database, create them.
         for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
-            old_fieldname = FP_ID_NUM + str(which_idnum)
+            old_fieldname = FP_ID_NUM_DEFUNCT + str(which_idnum)
             idnum_value = old_patient_dict[old_fieldname]
             if idnum_value is None:
                 continue
-            dst_query = select([func.count()])\
+            src_idnum_query = select([func.count()])\
                 .select_from(table(PatientIdNum.__tablename__))\
                 .where(column(PatientIdNum.patient_id.name) == old_patient.id)\
                 .where(column(PatientIdNum._current.name) ==
@@ -283,12 +300,14 @@ def translate_fn(trcon: TranslationContext) -> None:
                        old_patient._device_id)\
                 .where(column(PatientIdNum._era.name) == old_patient._era)\
                 .where(column(PatientIdNum.which_idnum.name) == which_idnum)
-            n_present = trcon.dst_session.execute(dst_query).scalar()
+            n_present = trcon.dst_session.execute(src_idnum_query).scalar()
+            # log.critical("{} -> {}", src_idnum_query, n_present)
             if n_present != 0:
                 continue
             pidnum = PatientIdNum()
             # PatientIdNum fields:
-            pidnum.id = old_patient.id * NUMBER_OF_IDNUMS_DEFUNCT
+            pidnum.id = fake_tablet_id_for_patientidnum(
+                patient_id=old_patient.id, which_idnum=which_idnum)
             # ... guarantees a pseudo client (tablet) PK
             pidnum.patient_id = old_patient.id
             pidnum.which_idnum = which_idnum
@@ -332,7 +351,7 @@ def translate_fn(trcon: TranslationContext) -> None:
             # ... will have been set above if it was blank
 
             # OK.
-            log.info("Inserting new PatientIdNum: {}", pidnum)
+            log.debug("Inserting new PatientIdNum: {}", pidnum)
             trcon.dst_session.add(pidnum)
 
     # -------------------------------------------------------------------------
@@ -416,8 +435,23 @@ def translate_fn(trcon: TranslationContext) -> None:
                     rec=pformat(existing_rec),
                 )
             )
-            log.critical(errmsg)
-            raise ValueError(errmsg)
+            log.critical("{}", errmsg)
+            if (trcon.tablename == PatientIdNum.__tablename__ and
+                    old_instance.id == 0):
+                log.critical(
+                    'Since this error has occurred for table {!r} and '
+                    'id == 0, this error likely indicates a previous bug in '
+                    'the patient ID number fix for the database upload '
+                    'script, in which all ID numbers for patients with '
+                    'patient.id = n were given patient_idnum.id = n * {} '
+                    'themselves (or possibly were all given patient_idnum.id '
+                    '= 0). Fix this by running, on the source database:\n\n'
+                    '    UPDATE patient_idnum SET id = _pk;\n\n'.format(
+                        trcon.tablename, NUMBER_OF_IDNUMS_DEFUNCT,
+                    )
+                )
+            raise ValueError("Attempt to insert duplicate record; see log "
+                             "message above.")
 
 
 # =============================================================================
@@ -426,10 +460,10 @@ def translate_fn(trcon: TranslationContext) -> None:
 
 # noinspection PyUnusedLocal
 def postprocess(src_engine: Engine, dst_session: Session) -> None:
-    log.warning("*** NOT YET IMPLEMENTED: copying user/group mapping from "
-                "table {!r}", user_group_table.name)
-    log.warning("*** NOT YET IMPLEMENTED: copying group/group mapping from "
-                "table {!r}", group_group_table.name)
+    log.warning("NOT IMPLEMENTED AUTOMATICALLY: copying user/group mapping "
+                "from table {!r}; do this by hand.", user_group_table.name)
+    log.warning("NOT IMPLEMENTED AUTOMATICALLY: copying group/group mapping "
+                "from table {!r}; do this by hand.", group_group_table.name)
 
 
 # =============================================================================

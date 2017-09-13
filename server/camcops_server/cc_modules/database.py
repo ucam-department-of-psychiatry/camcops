@@ -58,9 +58,9 @@ from .cc_constants import (
     CLIENT_DATE_FIELD,
     DateFormat,
     ERA_NOW,
-    FP_ID_NUM,
-    FP_ID_DESC,
-    FP_ID_SHORT_DESC,
+    FP_ID_NUM_DEFUNCT,
+    FP_ID_DESC_DEFUNCT,
+    FP_ID_SHORT_DESC_DEFUNCT,
     MOVE_OFF_TABLET_FIELD,
     NUMBER_OF_IDNUMS_DEFUNCT,  # allowed; for old tablet versions
     TABLET_ID_FIELD,
@@ -75,7 +75,7 @@ from .cc_group import Group
 from .cc_hl7 import HL7Message, HL7Run
 from .cc_jointables import user_group_table
 from .cc_patient import Patient
-from .cc_patientidnum import PatientIdNum
+from .cc_patientidnum import fake_tablet_id_for_patientidnum, PatientIdNum
 from .cc_pyramid import Routes
 from .cc_request import CamcopsRequest
 from .cc_session import CamcopsSession
@@ -639,8 +639,8 @@ def upload_record_core(sm: TabletSession,
                     # remove those here:
                     for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
                         nstr = str(n)
-                        fn_desc = FP_ID_DESC + nstr
-                        fn_shortdesc = FP_ID_SHORT_DESC + nstr
+                        fn_desc = FP_ID_DESC_DEFUNCT + nstr
+                        fn_shortdesc = FP_ID_SHORT_DESC_DEFUNCT + nstr
                         valuedict.pop(fn_desc, None)  # remove item, if exists
                         valuedict.pop(fn_shortdesc, None)
                 if sm.cope_with_old_idnums:
@@ -648,7 +648,7 @@ def upload_record_core(sm: TabletSession,
                     # patient table:
                     for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
                         nstr = str(which_idnum)
-                        fn_idnum = FP_ID_NUM + nstr
+                        fn_idnum = FP_ID_NUM_DEFUNCT + nstr
                         idnum_value = valuedict.get(fn_idnum, None)
                         patient_id = valuedict.get("id", None)
                         if idnum_value is None or patient_id is None:
@@ -659,7 +659,10 @@ def upload_record_core(sm: TabletSession,
                             table=PatientIdNum.__tablename__,
                             clientpk_name='id',
                             valuedict={
-                                'id': patient_id * NUMBER_OF_IDNUMS_DEFUNCT,  # !  # noqa
+                                'id': fake_tablet_id_for_patientidnum(
+                                    patient_id=patient_id,
+                                    which_idnum=which_idnum
+                                ),
                                 # ... guarantees a pseudo client PK
                                 'patient_id': patient_id,
                                 'which_idnum': which_idnum,

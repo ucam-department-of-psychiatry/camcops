@@ -32,8 +32,8 @@ from pendulum import Date, Pendulum
 from .cc_dt import format_datetime, get_now_localtz
 from .cc_constants import (
     DateFormat,
-    FP_ID_NUM,
-    FP_ID_SHORT_DESC,
+    FP_ID_NUM_DEFUNCT,
+    FP_ID_SHORT_DESC_DEFUNCT,
 )
 
 if TYPE_CHECKING:
@@ -57,8 +57,8 @@ def patient_spec_for_filename_is_valid(patient_spec: str,
     )
     for n in valid_which_idnums:
         nstr = str(n)
-        testdict[FP_ID_SHORT_DESC + nstr] = FP_ID_SHORT_DESC + nstr
-        testdict[FP_ID_NUM + nstr] = FP_ID_NUM + nstr
+        testdict[FP_ID_SHORT_DESC_DEFUNCT + nstr] = FP_ID_SHORT_DESC_DEFUNCT + nstr
+        testdict[FP_ID_NUM_DEFUNCT + nstr] = FP_ID_NUM_DEFUNCT + nstr
     # noinspection PyBroadException
     try:
         # Legal substitutions only?
@@ -89,8 +89,8 @@ def filename_spec_is_valid(filename_spec: str,
     )
     for n in valid_which_idnums:
         nstr = str(n)
-        testdict[FP_ID_SHORT_DESC + nstr] = FP_ID_SHORT_DESC + nstr
-        testdict[FP_ID_NUM + nstr] = FP_ID_NUM + nstr
+        testdict[FP_ID_SHORT_DESC_DEFUNCT + nstr] = FP_ID_SHORT_DESC_DEFUNCT + nstr
+        testdict[FP_ID_NUM_DEFUNCT + nstr] = FP_ID_NUM_DEFUNCT + nstr
     # noinspection PyBroadException
     try:
         # Legal substitutions only?
@@ -130,8 +130,8 @@ def get_export_filename(req: "CamcopsRequest",
         if idobj.which_idnum is not None:
             nstr = str(idobj.which_idnum)
             has_num = idobj.idnum_value is not None
-            d[FP_ID_NUM + nstr] = str(idobj.idnum_value) if has_num else ""
-            d[FP_ID_SHORT_DESC + nstr] = idobj.short_description(req) or ""
+            d[FP_ID_NUM_DEFUNCT + nstr] = str(idobj.idnum_value) if has_num else ""
+            d[FP_ID_SHORT_DESC_DEFUNCT + nstr] = idobj.short_description(req) or ""
             if has_num and idobj.short_description(req):
                 all_id_components.append(idobj.get_filename_component(req))
     d["allidnums"] = "_".join(all_id_components)

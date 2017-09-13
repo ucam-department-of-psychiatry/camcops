@@ -37,7 +37,7 @@ from pyramid.response import Response
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 from .cc_convert import tsv_from_query
-from .cc_constants import DateFormat, FP_ID_NUM
+from .cc_constants import DateFormat, FP_ID_NUM_DEFUNCT
 from .cc_dt import format_datetime
 from .cc_forms import ReportParamForm, ReportParamSchema
 from .cc_pyramid import TsvResponse, ViewArg, ViewParam
@@ -209,8 +209,8 @@ def expand_id_descriptions(fieldnames: Iterable[str]) -> List[str]:
         fieldnames = expand_id_descriptions(fieldnames)
     """
     def replacer(fieldname: str) -> str:
-        if fieldname.startswith(FP_ID_NUM):
-            nstr = fieldname[len(FP_ID_NUM):]
+        if fieldname.startswith(FP_ID_NUM_DEFUNCT):
+            nstr = fieldname[len(FP_ID_NUM_DEFUNCT):]
             try:
                 n = int(nstr)
                 if n in pls.get_which_idnums():

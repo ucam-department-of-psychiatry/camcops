@@ -7,18 +7,13 @@
 
         merge_db takes parameters for "new group if old data had none"
 
-*** when create superuser, ensure there's at least one group
-
+*** show info about my user, inc. (*) group (*) groups those groups can see
 *** user management
 
 *** delete patient
 *** forcibly preserve
 
 *** database upload code
-
-in merge:
-    *** merge two users  -- DONE
-    *** merge two groups
 
 *** research dump(s)
 
@@ -28,8 +23,8 @@ in merge:
 
 *** check "special note" XML works (later) (task + patient)
 
-*** special device for "web front end"
-*** special device for "manually uploaded"
+*** ?special device for "web front end"
+*** ?special device for "manually uploaded"
     ... string constants; prevent devices from being registered with that name?
 
 

@@ -39,11 +39,10 @@ import logging
 from typing import TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
-import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
-from .cc_constants import FP_ID_NUM
+from .cc_constants import NUMBER_OF_IDNUMS_DEFUNCT
 from .cc_db import GenericTabletRecordMixin
 from .cc_simpleobjects import IdNumDefinition
 from .cc_sqla_coltypes import CamcopsColumn
@@ -103,34 +102,6 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         which_idnum = self.which_idnum  # type: int
         return req.config.get_id_shortdesc(which_idnum, default="?")
 
-    def get_html(self, req: "CamcopsRequest",
-                 longform: bool, label_id_numbers: bool = False) -> str:
-        """
-        Returns description HTML.
-
-        Args:
-            cfg: CamcopsConfig instance
-            longform: verbose (for most HTML) or not (for PDF headers)
-            label_id_numbers: whether to use prefix
-        """
-        if self.which_idnum is None:
-            return ""
-        nstr = str(self.which_idnum)  # which ID number?
-        prefix = ("<i>(" + FP_ID_NUM + nstr + ")</i> "
-                  if label_id_numbers else "")
-        if longform:
-            return "<br>{}{}: <b>{}</b>".format(
-                prefix,
-                ws.webify(self.description(req)),
-                self.idnum_value
-            )
-        else:
-            return "{}{}: {}.".format(
-                prefix,
-                ws.webify(self.short_description(req)),
-                self.idnum_value
-            )
-
     def get_filename_component(self, req: "CamcopsRequest") -> str:
         if self.which_idnum is None or self.idnum_value is None:
             return ""
@@ -139,3 +110,11 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
 
     def set_idnum(self, idnum_value: int) -> None:
         self.idnum_value = idnum_value
+
+
+# =============================================================================
+# Fake ID values when upgrading from old ID number system
+# =============================================================================
+
+def fake_tablet_id_for_patientidnum(patient_id: int, which_idnum: int) -> int:
+    return patient_id * NUMBER_OF_IDNUMS_DEFUNCT + which_idnum
