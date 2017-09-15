@@ -1,11 +1,4 @@
 
-*** tabbed browsing performance
-    https://blog.schmichael.com/2007/09/20/session-locking-and-performance-in-cherrypy/
-    ? similar session locking in Pyramid ?
-
-*** democonfig option
-
-*** show info about my user, inc. (*) group (*) groups those groups can see
 *** user management
 
 *** delete patient
@@ -25,6 +18,9 @@
 *** ?special device for "manually uploaded"
     ... string constants; prevent devices from being registered with that name?
 
+??? make main pages refer to CSS as a file; provide views to serve those CSS
+    files; mark them as cacheable by the browser (but still need inline CSS
+    for PDF creation!).
 
 DOCUMENT merge warning:
 

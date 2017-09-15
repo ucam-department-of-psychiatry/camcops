@@ -807,14 +807,14 @@ def send_all_pending_hl7_messages(cfg: CamcopsConfig,
     Obtains a file lock, then iterates through all recipients.
     """
     queue_stdout = sys.stdout
-    if not cfg.HL7_LOCKFILE:
+    if not cfg.hl7_lockfile:
         log.error("send_all_pending_hl7_messages: No HL7_LOCKFILE specified"
                   " in config; can't proceed")
         return
     # On UNIX, lockfile uses LinkLockFile
     # https://github.com/smontanaro/pylockfile/blob/master/lockfile/
     #         linklockfile.py
-    lock = lockfile.FileLock(cfg.HL7_LOCKFILE)
+    lock = lockfile.FileLock(cfg.hl7_lockfile)
     if lock.is_locked():
         log.warning("send_all_pending_hl7_messages: locked by another"
                     " process; aborting")
@@ -823,7 +823,7 @@ def send_all_pending_hl7_messages(cfg: CamcopsConfig,
         with cfg.get_dbsession_context() as dbsession:
             if show_queue_only:
                 print("recipient,basetable,_pk,when_created", file=queue_stdout)
-            for recipient_def in cfg.HL7_RECIPIENT_DEFS:
+            for recipient_def in cfg.hl7_recipient_defs:
                 send_pending_hl7_messages(dbsession, recipient_def,
                                           show_queue_only, queue_stdout)
 

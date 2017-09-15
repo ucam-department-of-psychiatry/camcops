@@ -1828,9 +1828,9 @@ class Task(GenericTabletRecordMixin, Base):
         cfg = req.config
         return get_export_filename(
             req=req,
-            patient_spec_if_anonymous=cfg.PATIENT_SPEC_IF_ANONYMOUS,
-            patient_spec=cfg.PATIENT_SPEC,
-            filename_spec=cfg.TASK_FILENAME_SPEC,
+            patient_spec_if_anonymous=cfg.patient_spec_if_anonymous,
+            patient_spec=cfg.patient_spec,
+            filename_spec=cfg.task_filename_spec,
             task_format=ViewArg.PDF,
             is_anonymous=self.is_anonymous,
             surname=self.patient.get_surname() if self.patient else "",

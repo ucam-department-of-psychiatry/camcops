@@ -58,7 +58,11 @@ from camcops_server.cc_modules.cc_request import command_line_request
 from camcops_server.cc_modules.cc_session import CamcopsSession
 from camcops_server.cc_modules.cc_storedvar import ServerStoredVar
 from camcops_server.cc_modules.cc_sqlalchemy import Base
-from camcops_server.cc_modules.cc_user import User
+from camcops_server.cc_modules.cc_user import (
+    SecurityAccountLockout,
+    SecurityLoginFailure,
+    User,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import ResultProxy
@@ -504,9 +508,12 @@ def merge_camcops_db(src: str,
 
     skip_tables = [
         # Transient stuff we don't want to copy across, or wouldn't want to
-        # overwrite the destination with:
+        # overwrite the destination with, or where the PK structure has
+        # changed and we don't care about old data:
         TableIdentity(tablename=CamcopsSession.__tablename__),
         TableIdentity(tablename=ServerStoredVar.__tablename__),
+        TableIdentity(tablename=SecurityAccountLockout.__tablename__),
+        TableIdentity(tablename=SecurityLoginFailure.__tablename__),
     ]
 
     # Tedious and bulky stuff the user may want to skip:

@@ -30,10 +30,12 @@
 import logging
 
 from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction  # nopep8
+from cardinal_pythonlib.debugging import pdb_run
 from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
     print_report_on_all_logs,
-    BraceStyleAdapter,
+    set_level_for_logger_and_its_handlers,
 )
 
 main_only_quicksetup_rootlogger(
@@ -53,7 +55,6 @@ from pyramid.config import Configurator  # nopep8
 from pyramid.router import Router  # nopep8
 from wsgiref.simple_server import make_server  # nopep8
 
-from cardinal_pythonlib.convert import convert_to_bool  # nopep8
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_session  # nopep8
 from cardinal_pythonlib.ui import ask_user, ask_user_password  # nopep8
 
@@ -62,13 +63,11 @@ from .cc_modules.cc_alembic import (
     upgrade_database_to_head,
 )  # nopep8
 from .cc_modules.cc_audit import audit  # nopep8
-from .cc_modules.cc_baseconstants import (
-    ENVVAR_CONFIG_FILE,
-    ENVVAR_SERVE_STATIC,
-    ENVVAR_WEB_DEBUG,
-    STATIC_ROOT_DIR,
-)  # nopep8
-from .cc_modules.cc_config import get_default_config_from_os_env  # nopep8
+from .cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE, STATIC_ROOT_DIR  # nopep8
+from .cc_modules.cc_config import (
+    get_default_config_from_os_env,  # nopep8
+    get_demo_config,
+)
 from .cc_modules.cc_constants import (
     CAMCOPS_URL,
     SEPARATOR_EQUALS,
@@ -121,17 +120,6 @@ if TYPE_CHECKING:
     from argparse import _SubParsersAction
 
 # =============================================================================
-# Debugging options
-# =============================================================================
-
-DEBUG_ADD_ROUTES = False
-DEBUG_AUTHORIZATION = False
-DEBUG_LOG_CONFIG = False
-
-if DEBUG_ADD_ROUTES or DEBUG_AUTHORIZATION or DEBUG_LOG_CONFIG:
-    log.warning("Debugging options enabled!")
-
-# =============================================================================
 # Check Python version (the shebang is not a guarantee)
 # =============================================================================
 
@@ -149,22 +137,14 @@ if sys.version_info[0] != 3:
 # Debugging options
 # =============================================================================
 
-# Note that: (*) os.environ is available at load time but is separate from the
-# WSGI environment; (*) the WSGI environment is sent with each request; (*) we
-# need the following information at load time.
+DEBUG_ADD_ROUTES = False
+DEBUG_AUTHORIZATION = False
+DEBUG_LOG_CONFIG = False
+DEBUG_RUN_WITH_PDB = False
 
-# For debugging, set the next variable to True, and it will provide much
-# better HTML debugging output.
-# Use caution enabling this on a production system.
-# However, system passwords should be concealed regardless (see cc_shared.py).
-CAMCOPS_DEBUG_TO_HTTP_CLIENT = convert_to_bool(
-    os.environ.get(ENVVAR_WEB_DEBUG, False))
-
-CAMCOPS_SERVE_STATIC_FILES = convert_to_bool(
-    os.environ.get(ENVVAR_SERVE_STATIC, True))
-
-# The other debugging control is in cc_shared: see the log.setLevel() calls,
-# controlled primarily by the configuration file's DEBUG_OUTPUT option.
+if (DEBUG_ADD_ROUTES or DEBUG_AUTHORIZATION or DEBUG_LOG_CONFIG or
+        DEBUG_RUN_WITH_PDB):
+    log.warning("Debugging options enabled!")
 
 # =============================================================================
 # Other constants
@@ -178,7 +158,8 @@ DEFAULT_URL_PATH_ROOT = '/'  # TODO: from config file?
 # WSGI entry point
 # =============================================================================
 
-def make_wsgi_app() -> Router:
+def make_wsgi_app(debug_toolbar: bool = False,
+                  serve_static_files: bool = True) -> Router:
     """
     Makes and returns a WSGI application, attaching all our special methods.
 
@@ -214,7 +195,7 @@ def make_wsgi_app() -> Router:
     # However, some things we need to know right now, to make the WSGI app.
     # Here, OS environment variables and command-line switches are appropriate.
 
-    use_debug_toolbar = CAMCOPS_DEBUG_TO_HTTP_CLIENT
+    # See parameters above.
 
     # -------------------------------------------------------------------------
     # 1. Base app
@@ -253,7 +234,7 @@ def make_wsgi_app() -> Router:
 
         # Add static views
         # https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html#serving-static-assets  # noqa
-        if CAMCOPS_SERVE_STATIC_FILES:
+        if serve_static_files:
             config.add_static_view(name=RouteCollection.STATIC.route,
                                    path=STATIC_ROOT_DIR)
 
@@ -283,7 +264,7 @@ def make_wsgi_app() -> Router:
         # ---------------------------------------------------------------------
         # Debug toolbar
         # ---------------------------------------------------------------------
-        if use_debug_toolbar:
+        if debug_toolbar:
             log.debug("Enabling Pyramid debug toolbar")
             config.include('pyramid_debugtoolbar')
             config.add_route(RouteCollection.DEBUG_TOOLBAR.route,
@@ -306,10 +287,11 @@ def make_wsgi_app() -> Router:
     return app
 
 
-application = make_wsgi_app()
-
-
-def test_serve(host: str = '0.0.0.0', port: int = 8000) -> None:
+def test_serve(host: str = '0.0.0.0', port: int = 8000,
+               debug_toolbar: bool = True,
+               serve_static_files: bool = True) -> None:
+    application = make_wsgi_app(debug_toolbar=debug_toolbar,
+                                serve_static_files=serve_static_files)
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}".format(host, port))
     server.serve_forever()
@@ -322,10 +304,15 @@ def start_server(host: str,
                  log_screen: bool,
                  ssl_certificate: Optional[str],
                  ssl_private_key: Optional[str],
-                 root_path: str) -> None:
+                 root_path: str,
+                 debug_toolbar: bool = False,
+                 serve_static_files: bool = True) -> None:
     """
     Start CherryPy server
     """
+
+    application = make_wsgi_app(debug_toolbar=debug_toolbar,
+                                serve_static_files=serve_static_files)
 
     cherrypy.config.update({
         'server.socket_host': host,
@@ -351,8 +338,8 @@ def start_server(host: str,
     cherrypy.tree.graft(application, root_path)
 
     try:
-        log.critical("cherrypy.server.thread_pool: {}",
-                     cherrypy.server.thread_pool)
+        # log.debug("cherrypy.server.thread_pool: {}",
+        #           cherrypy.server.thread_pool)
         cherrypy.engine.start()
         cherrypy.engine.block()
     except KeyboardInterrupt:
@@ -362,6 +349,11 @@ def start_server(host: str,
 # =============================================================================
 # Command-line functions
 # =============================================================================
+
+def print_demo_config() -> None:
+    demo_config = get_demo_config()
+    print(demo_config)
+
 
 def export_descriptions_comments() -> None:
     """Export an HTML version of database fields/comments to a file of the
@@ -556,7 +548,7 @@ def test() -> None:
 # Command-line processor
 # =============================================================================
 
-def main() -> None:
+def camcops_main() -> None:
     """
     Command-line entry point.
     """
@@ -568,7 +560,7 @@ def main() -> None:
 
     parser = ArgumentParser(
         prog="camcops",  # name the user will use to call it
-        description="CamCOPS version {}.".format(CAMCOPS_SERVER_VERSION),
+        description="CamCOPS server version {}.".format(CAMCOPS_SERVER_VERSION),  # noqa
         formatter_class=RawDescriptionHelpFormatter,
         add_help=False)
     parser.add_argument(
@@ -640,6 +632,15 @@ def main() -> None:
     #   https://bugs.python.org/issue14037
 
     # -------------------------------------------------------------------------
+    # Getting started commands
+    # -------------------------------------------------------------------------
+
+    democonfig_parser = add_sub(
+        subparsers, "democonfig", config_mandatory=None,
+        help="Print a demo CamCOPS config file")
+    democonfig_parser.set_defaults(func=lambda args: print_demo_config())
+
+    # -------------------------------------------------------------------------
     # Database commands
     # -------------------------------------------------------------------------
 
@@ -705,6 +706,27 @@ def main() -> None:
         default_group_id=args.default_group_id,
         default_group_name=args.default_group_name,
     ))
+    # WATCH OUT. There appears to be a bug somewhere in the way that the
+    # Pyramid debug toolbar registers itself with SQLAlchemy (see
+    # pyramid_debugtoolbar/panels/sqla.py; look for "before_cursor_execute"
+    # and "after_cursor_execute". Somehow, some connections (but not all) seem
+    # to get this event registered twice. The upshot is that the sequence can
+    # lead to an attempt to double-delete the debug toolbar's timer:
+    #
+    # _before_cursor_execute: <sqlalchemy.engine.base.Connection object at 0x7f5c1fa7c630>, 'SHOW CREATE TABLE `_hl7_run_log`', ()  # noqa
+    # _before_cursor_execute: <sqlalchemy.engine.base.Connection object at 0x7f5c1fa7c630>, 'SHOW CREATE TABLE `_hl7_run_log`', ()  # noqa
+    #       ^^^ this is the problem: event called twice
+    # _after_cursor_execute: <sqlalchemy.engine.base.Connection object at 0x7f5c1fa7c630>, 'SHOW CREATE TABLE `_hl7_run_log`', ()  # noqa
+    # _after_cursor_execute: <sqlalchemy.engine.base.Connection object at 0x7f5c1fa7c630>, 'SHOW CREATE TABLE `_hl7_run_log`', ()  # noqa
+    #       ^^^ and this is where the problem becomes evident
+    # Traceback (most recent call last):
+    # ...
+    #   File "/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/pyramid_debugtoolbar/panels/sqla.py", line 51, in _after_cursor_execute  # noqa
+    #     delattr(conn, 'pdtb_start_timer')
+    # AttributeError: pdtb_start_timer
+    #
+    # So the simplest thing is only to register the debug toolbar for stuff
+    # that might need it...
 
     createdb_parser = add_sub(
         subparsers, "createdb", config_mandatory=True,
@@ -786,9 +808,14 @@ def main() -> None:
     testserve_parser.add_argument(
         '--port', type=int, default=8088,
         help="port to listen on")
+    testserve_parser.add_argument(
+        '--debug_toolbar', action="store_true",
+        help="Enable the Pyramid debug toolbar"
+    )
     testserve_parser.set_defaults(func=lambda args: test_serve(
         host=args.host,
-        port=args.port
+        port=args.port,
+        debug_toolbar=args.debug_toolbar
     ))
 
     # -------------------------------------------------------------------------
@@ -835,6 +862,10 @@ def main() -> None:
         "--root_path", type=str, default=DEFAULT_URL_PATH_ROOT,
         help="Root path to serve CRATE at. Default: {}".format(
             DEFAULT_URL_PATH_ROOT))
+    serve_parser.add_argument(
+        '--debug_toolbar', action="store_true",
+        help="Enable the Pyramid debug toolbar"
+    )
     serve_parser.set_defaults(func=lambda args: start_server(
         host=args.host,
         port=args.port,
@@ -843,7 +874,8 @@ def main() -> None:
         log_screen=args.log_screen,
         ssl_certificate=args.ssl_certificate,
         ssl_private_key=args.ssl_private_key,
-        root_path=args.root_path
+        root_path=args.root_path,
+        debug_toolbar=args.debug_toolbar
     ))
 
     # -------------------------------------------------------------------------
@@ -854,10 +886,11 @@ def main() -> None:
 
     # Initial log level (overridden later by config file but helpful for start)
     loglevel = logging.DEBUG if progargs.verbose >= 1 else logging.INFO
-    logging.getLogger().setLevel(loglevel)  # set level for root logger
+    rootlogger = logging.getLogger()
+    set_level_for_logger_and_its_handlers(rootlogger, loglevel)
 
     # Say hello
-    log.info("CamCOPS version {}", CAMCOPS_SERVER_VERSION)
+    log.info("CamCOPS server version {}", CAMCOPS_SERVER_VERSION)
     log.info("By Rudolf Cardinal. See {}", CAMCOPS_URL)
     log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
     log.debug("Command-line arguments: {!r}", progargs)
@@ -866,13 +899,14 @@ def main() -> None:
         print_report_on_all_logs()
 
     # Finalize the config filename
-    if progargs.config:
+    if hasattr(progargs, 'config') and progargs.config:
         # We want the the config filename in the environment from now on:
         os.environ[ENVVAR_CONFIG_FILE] = progargs.config
     cfg_name = os.environ.get(ENVVAR_CONFIG_FILE, None)
     log.info("Using configuration file: {!r}", cfg_name)
 
     progargs.func(progargs)
+    sys.exit(0)
 
     raise NotImplementedError("Bugs below here!")
 
@@ -895,7 +929,7 @@ def main() -> None:
         n_actions += 1
 
     if progargs.showtitle:
-        print("Database title: {}".format(req.config.DATABASE_TITLE))
+        print("Database title: {}".format(req.config.database_title))
         n_actions += 1
 
     if progargs.summarytables:
@@ -970,7 +1004,7 @@ Using database: {dburl} ({dbtitle}).
 """.format(sep=SEPARATOR_EQUALS,
            version=CAMCOPS_SERVER_VERSION,
            dburl=get_safe_url_from_session(req.dbsession),
-           dbtitle=req.config.DATABASE_TITLE))
+           dbtitle=req.config.database_title))
 
         # avoid input():
         # http://www.gossamer-threads.com/lists/python/python/46911
@@ -984,7 +1018,7 @@ Using database: {dburl} ({dbtitle}).
             upgrade_database_to_head()
             reset_storedvars()
         elif choice == 2:
-            print("Database title: {}".format(req.config.DATABASE_TITLE))
+            print("Database title: {}".format(req.config.database_title))
         elif choice == 3:
             reset_storedvars()
         elif choice == 4:
@@ -1019,6 +1053,13 @@ Using database: {dburl} ({dbtitle}).
 # =============================================================================
 # Command-line entry point
 # =============================================================================
+
+def main():
+    if DEBUG_RUN_WITH_PDB:
+        pdb_run(camcops_main)
+    else:
+        camcops_main()
+
 
 if __name__ == '__main__':
     main()

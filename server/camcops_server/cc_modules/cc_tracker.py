@@ -423,9 +423,9 @@ class TrackerCtvCommon(object):
         cfg = self.req.config
         return get_export_filename(
             req=self.req,
-            patient_spec_if_anonymous=cfg.PATIENT_SPEC_IF_ANONYMOUS,
-            patient_spec=cfg.PATIENT_SPEC,
-            filename_spec=cfg.CTV_FILENAME_SPEC if self.as_ctv else cfg.TRACKER_FILENAME_SPEC,  # noqa
+            patient_spec_if_anonymous=cfg.patient_spec_if_anonymous,
+            patient_spec=cfg.patient_spec,
+            filename_spec=cfg.ctv_filename_spec if self.as_ctv else cfg.tracker_filename_spec,  # noqa
             task_format=ViewArg.PDF,
             is_anonymous=self.patient is None,
             surname=self.patient.get_surname() if self.patient else "",

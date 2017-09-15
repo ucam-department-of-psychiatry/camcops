@@ -31,7 +31,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer
 
 from .cc_jointables import user_group_table, group_group_table
-from .cc_sqla_coltypes import GroupNameColType
+from .cc_sqla_coltypes import GroupNameColType, GroupDescriptionColType
 from .cc_sqlalchemy import Base
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -133,6 +133,10 @@ class Group(Base):
         "name", GroupNameColType,
         nullable=False, index=True, unique=True,
         comment="Group name"
+    )
+    description = Column(
+        "description", GroupDescriptionColType,
+        comment="Description of the group"
     )
 
     users = relationship(

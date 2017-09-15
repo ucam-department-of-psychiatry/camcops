@@ -116,7 +116,6 @@ class CamcopsSession(Base):
         ForeignKey("_security_users.id"),
         comment="User ID"
     )
-    user = relationship("User", lazy="joined", foreign_keys=[user_id])
     last_activity_utc = Column(
         "last_activity_utc", DateTime,
         comment="Date/time of last activity (UTC)"
@@ -178,6 +177,7 @@ class CamcopsSession(Base):
         comment="ID filters as JSON"
     )
 
+    user = relationship("User", lazy="joined", foreign_keys=[user_id])
     filter_user = relationship("User", foreign_keys=[filter_user_id])
     filter_device = relationship("Device")
 
@@ -284,7 +284,7 @@ class CamcopsSession(Base):
             cls, req: "CamcopsRequest") -> Pendulum:
         cfg = req.config
         now = req.now_utc
-        oldest_last_activity_allowed = now - cfg.SESSION_TIMEOUT
+        oldest_last_activity_allowed = now - cfg.session_timeout
         return oldest_last_activity_allowed
 
     @classmethod
@@ -402,18 +402,6 @@ class CamcopsSession(Base):
         if self.user is None:
             return False
         return self.user.may_run_reports or self.user.superuser
-
-    def restricted_to_viewing_user_id(self) -> Optional[int]:
-        """If the user is restricted to viewing only their own records, returns
-        the name of the user to which they're restricted. Otherwise, returns
-        None."""
-        if self.user is None:
-            return None
-        if self.user.may_view_other_users_records:
-            return None
-        if self.user.superuser:
-            return None
-        return self.user.id  # *** type bug?
 
     def user_may_view_all_patients_when_unfiltered(self) -> bool:
         """May the user view all patients when no filters are applied?"""

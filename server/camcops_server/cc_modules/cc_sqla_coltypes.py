@@ -174,10 +174,13 @@ CharColType = String(length=1)
 DeviceNameColType = String(length=255)
 DiagnosticCodeColType = String(length=MAX_DIAGNOSTIC_CODE_LENGTH)
 
+EmailAddressColType = Unicode(length=255)  # https://en.wikipedia.org/wiki/Email_address  # noqa
 EraColType = String(length=ISO8601_STRING_LENGTH)  # underlying SQL type
 
 FilterTextColType = Unicode(length=255)
+FullNameColType = Unicode(length=255)
 
+GroupDescriptionColType = Unicode(length=255)
 GroupNameColType = Unicode(length=255)
 
 HashedPasswordColType = String(length=255)

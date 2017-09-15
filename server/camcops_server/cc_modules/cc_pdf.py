@@ -43,5 +43,5 @@ def pdf_from_html(req: CamcopsRequest,
                              header_html=header_html,
                              footer_html=footer_html,
                              processor=PDF_ENGINE,
-                             wkhtmltopdf_filename=cfg.WKHTMLTOPDF_FILENAME,
+                             wkhtmltopdf_filename=cfg.wkhtmltopdf_filename,
                              wkhtmltopdf_options=wkhtmltopdf_options)

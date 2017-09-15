@@ -419,9 +419,10 @@ class Routes(object):
     TESTPAGE_PRIVATE_3 = "testpage_private_3"
     TESTPAGE_PUBLIC_1 = "testpage_public_1"
     TRACKER = "tracker"
+    USER_INFO_DETAIL = "user_info_detail"
     VIEW_DDL = "inspect_ddl"
     VIEW_AUDIT_TRAIL = "view_audit_trail"
-    VIEW_POLICIES = "view_policies"
+    VIEW_SERVER_INFO = "view_server_info"
     VIEW_TASKS = "view_tasks"
     VIEW_HL7_MESSAGE = "view_hl7_message"
     VIEW_HL7_MESSAGE_LOG = "view_hl7_message_log"
@@ -562,6 +563,7 @@ class RouteCollection(object):
     TESTPAGE_PRIVATE_3 = RoutePath(Routes.TESTPAGE_PRIVATE_3, '/testpriv3')
     TESTPAGE_PUBLIC_1 = RoutePath(Routes.TESTPAGE_PUBLIC_1, '/test1')
     TRACKER = RoutePath(Routes.TRACKER, "/tracker")
+    USER_INFO_DETAIL = RoutePath(Routes.USER_INFO_DETAIL, "/user_info_detail")
     VIEW_AUDIT_TRAIL = RoutePath(Routes.VIEW_AUDIT_TRAIL, "/view_audit_trail")
     VIEW_DDL = RoutePath(Routes.VIEW_DDL, "/view_ddl")
     VIEW_HL7_MESSAGE = RoutePath(Routes.VIEW_HL7_MESSAGE, "/view_hl7_message")
@@ -570,7 +572,7 @@ class RouteCollection(object):
     VIEW_HL7_RUN = RoutePath(Routes.VIEW_HL7_RUN, "/view_hl7_run")
     VIEW_HL7_RUN_LOG = RoutePath(Routes.VIEW_HL7_RUN_LOG,
                                  "/view_hl7_run_log")
-    VIEW_POLICIES = RoutePath(Routes.VIEW_POLICIES, "/view_policies")
+    VIEW_SERVER_INFO = RoutePath(Routes.VIEW_SERVER_INFO, "/view_server_info")
     VIEW_TASKS = RoutePath(Routes.VIEW_TASKS, "/view_tasks")
 
     # To implement ***
@@ -735,7 +737,7 @@ def get_session_factory() -> SignedCookieSessionFactory:
 
         """
         cfg = req.config
-        secure_cookies = not cfg.ALLOW_INSECURE_COOKIES
+        secure_cookies = not cfg.allow_insecure_cookies
         pyramid_factory = SignedCookieSessionFactory(
             secret=cfg.session_cookie_secret,
             hashalg='sha512',  # the default

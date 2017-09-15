@@ -6,7 +6,7 @@
 <h1>View data definition language (DDL), in SQL</h1>
 
 <div>
-    The server’s datanase is using dialect <code>${ current_dialect }</code>
+    The server’s database is using dialect <code>${ current_dialect }</code>
     (${ current_dialect_description }).
 </div>
 

@@ -330,7 +330,7 @@ camcops_server
         'pytz==2015.7',  # Timezone definitions, specifically UTC.
         'scipy==0.16.1',  # Used by some tasks. SLOW INSTALLATION.
         'semantic_version>=2.6.0',  # semantic versioning; better than semver
-        'sqlalchemy==1.2.0b1',  # database access
+        'sqlalchemy==1.2.0b2',  # database access
         # 'SQLAlchemy-Utils==0.32.16',  # extra column types
         'typing==3.5.2.2',  # part of stdlib in Python 3.5, but not 3.4
         'Wand==0.4.2',  # ImageMagick for Python; used e.g. for BLOB PNG display; may need "sudo apt-get install libmagickwand-dev"  # noqa
@@ -344,8 +344,6 @@ camcops_server
             'camcops=camcops_server.camcops:main',
             'camcops_meta=camcops_server.camcops_meta:meta_main',
             'camcops_backup_mysql_database=cardinal_pythonlib.tools.camcops_backup_mysql_database:main',  # noqa
-            'camcops_merge_db=camcops_server.tools.merge_db:main',
-            'camcops_create_db_from_scratch=camcops_server.tools.create_db_from_scratch:main',  # noqa
         ],
     },
 )

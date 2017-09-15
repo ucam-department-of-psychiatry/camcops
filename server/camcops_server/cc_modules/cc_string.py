@@ -79,9 +79,9 @@ def all_extra_strings_as_dicts(
         </resources>
     """
     cfg = get_config(config_filename)
-    assert cfg.EXTRA_STRING_FILES is not None
+    assert cfg.extra_string_files is not None
     filenames = []  # type: List [str]
-    for filespec in cfg.EXTRA_STRING_FILES:
+    for filespec in cfg.extra_string_files:
         possibles = glob.glob(filespec)
         filenames.extend(possibles)
     filenames = sorted(set(filenames))  # just unique ones

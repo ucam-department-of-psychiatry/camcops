@@ -102,7 +102,7 @@ def create_database_from_scratch(cfg: "CamcopsConfig") -> None:
 @preserve_cwd
 def assert_database_is_at_head(cfg: "CamcopsConfig") -> None:
     current, head = get_current_and_head_revision(
-        database_url=cfg.DB_URL,
+        database_url=cfg.db_url,
         alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
         alembic_base_dir=ALEMBIC_BASE_DIR,
     )

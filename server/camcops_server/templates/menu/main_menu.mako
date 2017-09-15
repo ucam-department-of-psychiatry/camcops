@@ -48,7 +48,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %endif
 
 <ul>
-    <li><a href="${request.route_url(Routes.VIEW_POLICIES)}">Show server identification policies</a></li>
+    <li><a href="${request.route_url(Routes.VIEW_SERVER_INFO)}">Show database settings (identification policies, groups)</a></li>
     %if introspection:
         <li><a href="${request.route_url(Routes.OFFER_INTROSPECTION)}">Introspect source code</a></li>
     %endif
@@ -57,6 +57,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     %else:
         <li class="warning">No username!</li>
     %endif
+    <li><a href="${request.route_url(Routes.USER_INFO_DETAIL)}">Show your user settings</a></li>
     <li><a href="${request.route_url(Routes.LOGOUT)}">Log out</a></li>
 </ul>
 

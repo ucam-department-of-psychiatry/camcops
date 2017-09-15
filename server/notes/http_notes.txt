@@ -1,0 +1,22 @@
+Q.  Why aren't my browser tabs being loaded in parallel?
+
+A.  Try this:
+    (*) enable DEBUG_REQUEST_CREATION in cc_request.py
+    (*) run "camcops serve" to use CherryPy in threaded mode
+    (*) fire up lots of tabs (e.g. to view a large task list); watch them
+        load in serial (sometimes, but not always, reusing the same thread);
+         true in Chrome and Firefox
+    (*) fire up a Chrome normal + a Chrome private + a Firefox instance (etc.)
+        and refresh them all fast; watch them load in parallel;
+    (*) realize that this is a browser-side problem!
+
+    See also
+    https://blog.schmichael.com/2007/09/20/session-locking-and-performance-in-cherrypy/
+    ... but that relates to CherryPy sessions
+
+    Aha! It's this:
+    https://stackoverflow.com/questions/985431/max-parallel-http-connections-in-a-browser
+    http://sgdev-blog.blogspot.co.uk/2014/01/maximum-concurrent-connection-to-same.html
+    http://www.stevesouders.com/blog/2008/03/20/roundup-on-parallel-connections/
+
+    ... i.e. not the server's problem.

@@ -38,8 +38,6 @@ from os.path import abspath, dirname, join
 # =============================================================================
 
 ENVVAR_CONFIG_FILE = "CAMCOPS_CONFIG_FILE"
-ENVVAR_SERVE_STATIC = "CAMCOPS_SERVE_STATIC_FILES"
-ENVVAR_WEB_DEBUG = "CAMCOPS_DEBUG_TO_HTTP_CLIENT"
 
 # =============================================================================
 # Directories and filenames

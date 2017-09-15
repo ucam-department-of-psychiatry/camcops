@@ -104,7 +104,7 @@ def run_alembic() -> None:
     alembic_config = context.config  # type: Config
     target_metadata = Base.metadata
     camcops_config = get_default_config_from_os_env()
-    dburl = camcops_config.DB_URL
+    dburl = camcops_config.db_url
     alembic_config.set_main_option('sqlalchemy.url', dburl)
 
     if context.is_offline_mode():

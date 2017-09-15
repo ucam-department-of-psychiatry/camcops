@@ -181,10 +181,10 @@ from .cc_forms import (
     TasksPerPageForm,
     ViewDdlForm,
 )
+from .cc_group import Group
 from .cc_hl7 import HL7Message, HL7Run
 from .cc_html import (
     get_generic_action_url,
-    get_url_field_value_pair,
     get_url_main_menu,
 )
 from .cc_patient import Patient
@@ -393,7 +393,7 @@ def crash(req: CamcopsRequest) -> Response:
 # you're doing the latter and sends parameters accordingly.
 def login_view(req: CamcopsRequest) -> Response:
     cfg = req.config
-    autocomplete_password = not cfg.DISABLE_PASSWORD_AUTOCOMPLETE
+    autocomplete_password = not cfg.disable_password_autocomplete
 
     form = LoginForm(request=req, autocomplete_password=autocomplete_password)
 
@@ -650,7 +650,7 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
         authorized_to_dump=ccsession.authorized_to_dump(),
         camcops_url=CAMCOPS_URL,
         id_policies_valid=id_policies_valid(),
-        introspection=cfg.INTROSPECTION,
+        introspection=cfg.introspection,
         now=format_datetime(req.now,
                             DateFormat.SHORT_DATETIME_SECONDS),
         server_version=CAMCOPS_SERVER_VERSION,
@@ -1438,28 +1438,7 @@ def serve_table_dump(session: CamcopsSession, form: cgi.FieldStorage) \
 
 
 # =============================================================================
-# View policies
-# =============================================================================
-
-@view_config(route_name=Routes.VIEW_POLICIES, renderer="view_policies.mako")
-def view_policies(req: CamcopsRequest) -> Dict[str, Any]:
-    """HTML showing server's ID policies."""
-    cfg = req.config
-    which_idnums = cfg.get_which_idnums()
-    return dict(
-        cfg=cfg,
-        which_idnums=which_idnums,
-        descriptions=[cfg.get_id_desc(n) for n in which_idnums],
-        short_descriptions=[cfg.get_id_shortdesc(n) for n in which_idnums],
-        upload=cfg.ID_POLICY_UPLOAD_STRING,
-        finalize=cfg.ID_POLICY_FINALIZE_STRING,
-        upload_principal=get_upload_id_policy_principal_numeric_id(),
-        finalize_principal=get_finalize_id_policy_principal_numeric_id(),
-    )
-
-
-# =============================================================================
-# View table definitions
+# View DDL (table definitions)
 # =============================================================================
 
 LEXERMAP = {
@@ -1803,6 +1782,39 @@ def view_hl7_run(req: CamcopsRequest) -> Response:
 
 
 # =============================================================================
+# User/server info views
+# =============================================================================
+
+@view_config(route_name=Routes.USER_INFO_DETAIL,
+             renderer="user_info_detail.mako")
+def user_info_detail(req: CamcopsRequest) -> Dict[str, Any]:
+    return {}
+
+
+@view_config(route_name=Routes.VIEW_SERVER_INFO,
+             renderer="view_server_info.mako")
+def view_server_info(req: CamcopsRequest) -> Dict[str, Any]:
+    """HTML showing server's ID policies."""
+    cfg = req.config
+    which_idnums = cfg.get_which_idnums()
+    dbsession = req.dbsession
+    groups = dbsession.query(Group)\
+        .order_by(Group.name)\
+        .all()  # type: List[Group]
+    return dict(
+        cfg=cfg,
+        which_idnums=which_idnums,
+        descriptions=[cfg.get_id_desc(n) for n in which_idnums],
+        short_descriptions=[cfg.get_id_shortdesc(n) for n in which_idnums],
+        upload=cfg.id_policy_upload_string,
+        finalize=cfg.id_policy_finalize_string,
+        upload_principal=get_upload_id_policy_principal_numeric_id(),
+        finalize_principal=get_finalize_id_policy_principal_numeric_id(),
+        groups=groups,
+    )
+
+
+# =============================================================================
 # Introspection of source code
 # =============================================================================
 
@@ -1810,11 +1822,11 @@ def view_hl7_run(req: CamcopsRequest) -> Response:
 def offer_introspection(req: CamcopsRequest) -> Response:
     """Page to offer CamCOPS server source code."""
     cfg = req.config
-    if not cfg.INTROSPECTION:
+    if not cfg.introspection:
         return simple_failure(NO_INTROSPECTION_MSG)
     return render_to_response(
         "introspection_file_list.mako",
-        dict(ifd_list=cfg.INTROSPECTION_FILES),
+        dict(ifd_list=cfg.introspection_files),
         request=req
     )
 
@@ -1823,11 +1835,11 @@ def offer_introspection(req: CamcopsRequest) -> Response:
 def introspect(req: CamcopsRequest) -> Response:
     """Provide formatted source code."""
     cfg = req.config
-    if not cfg.INTROSPECTION:
+    if not cfg.introspection:
         return simple_failure(NO_INTROSPECTION_MSG)
     filename = req.get_str_param(ViewParam.FILENAME, None)
     try:
-        ifd = next(ifd for ifd in cfg.INTROSPECTION_FILES
+        ifd = next(ifd for ifd in cfg.introspection_files
                    if ifd.prettypath == filename)
     except StopIteration:
         return simple_failure(INTROSPECTION_INVALID_FILE_MSG)

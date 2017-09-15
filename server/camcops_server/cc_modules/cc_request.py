@@ -40,7 +40,7 @@ from pendulum import Date, Pendulum
 from pendulum.parsing.exceptions import ParserError
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPException
-from pyramid.interfaces import ISession
+from pyramid.interfaces import ISession, ISessionFactory
 from pyramid.registry import Registry
 from pyramid.request import Request
 from pyramid.response import Response
@@ -88,10 +88,12 @@ ccplot_no_op()
 # Debugging options
 # =============================================================================
 
+DEBUG_REQUEST_CREATION = False
 DEBUG_CAMCOPS_SESSION = False
 DEBUG_DBSESSION_MANAGEMENT = False
 
-if DEBUG_CAMCOPS_SESSION or DEBUG_DBSESSION_MANAGEMENT:
+if (DEBUG_REQUEST_CREATION or DEBUG_CAMCOPS_SESSION or
+        DEBUG_DBSESSION_MANAGEMENT):
     log.warning("Debugging options enabled!")
 
 
@@ -138,6 +140,9 @@ class CamcopsRequest(Request):
         self._camcops_session = None
         # Don't make the _camcops_session yet; it will want a Registry, and
         # we may not have one yet; see command_line_request().
+        if DEBUG_REQUEST_CREATION:
+            log.critical("CamcopsRequest.__init__: args={!r}, kwargs={!r}",
+                         args, kwargs)
 
     # -------------------------------------------------------------------------
     # CamcopsSession
@@ -204,11 +209,7 @@ class CamcopsRequest(Request):
             dbsession = request.dbsession
         and if it requests that, the cleanup callbacks get installed.
         """
-        if DEBUG_DBSESSION_MANAGEMENT:
-            log.debug("Making SQLAlchemy session")
-        engine = self.engine
-        maker = sessionmaker(bind=engine)
-        session = maker()  # type: SqlASession
+        session = self.get_bare_dbsession()
 
         def end_sqlalchemy_session(req: Request) -> None:
             # Do NOT roll back "if req.exception is not None"; that includes
@@ -233,6 +234,14 @@ class CamcopsRequest(Request):
 
         self.add_finished_callback(end_sqlalchemy_session)
 
+        return session
+
+    def get_bare_dbsession(self) -> SqlASession:
+        if DEBUG_DBSESSION_MANAGEMENT:
+            log.debug("Making SQLAlchemy session")
+        engine = self.engine
+        maker = sessionmaker(bind=engine)
+        session = maker()  # type: SqlASession
         return session
 
     # -------------------------------------------------------------------------
@@ -303,12 +312,12 @@ class CamcopsRequest(Request):
             </div>
         """.format(
             self.script_name, CAMCOPS_LOGO_FILE_WEBREF,
-            cfg.LOCAL_INSTITUTION_URL, LOCAL_LOGO_FILE_WEBREF
+            cfg.local_institution_url, LOCAL_LOGO_FILE_WEBREF
         )
 
     @property
     def url_local_institution(self) -> str:
-        return self.config.LOCAL_INSTITUTION_URL
+        return self.config.local_institution_url
 
     @property
     def url_camcops_favicon(self) -> str:
@@ -574,7 +583,7 @@ class CamcopsRequest(Request):
 
     @reify
     def fontdict(self) -> Dict[str, Any]:
-        fontsize = self.config.PLOT_FONTSIZE
+        fontsize = self.config.plot_fontsize
         return dict(
             # http://stackoverflow.com/questions/3899980
             # http://matplotlib.org/users/customizing.html
@@ -670,15 +679,20 @@ def command_line_request() -> CamcopsRequest:
     Presupposes that os.environ[ENVVAR_CONFIG_FILE] has been set, as it is
     in camcops.main().
     """
+    log.critical("Creating command-line 'request'")
+
     os_env_dict = {
         ENVVAR_CONFIG_FILE: os.environ[ENVVAR_CONFIG_FILE],
     }
-    registry = Registry()
     req = CamcopsRequest(environ=os_env_dict)
     # ... must pass an actual dict; os.environ itself isn't OK ("TypeError:
     # WSGI environ must be a dict; you passed environ({'key1': 'value1', ...})
+
+    registry = Registry()
+
     session_factory = get_session_factory()
-    req.session = session_factory(req) # *** wrong! fix this
+    registry.registerUtility(session_factory, ISessionFactory)
+
     req.registry = registry
 
     # If we proceed with an out-of-date database, we will have problems, and

@@ -95,8 +95,8 @@ if 'HOME' in os.environ:
     del os.environ['HOME']
 
 # 5. Import matplotlib
-log.info("Importing matplotlib (can be slow) (MPLCONFIGDIR={})...",
-         MPLCONFIGDIR)
+log.debug("Importing matplotlib (can be slow) (MPLCONFIGDIR={})...",
+          MPLCONFIGDIR)
 # noinspection PyUnresolvedReferences
 import matplotlib
 
@@ -109,7 +109,7 @@ import matplotlib
 # Load this once so we can tell the user we're importing it and it's slow
 # REPLACED BY OO METHOD # import matplotlib.pyplot  # noqa
 
-log.info("... finished importing matplotlib")
+log.debug("... finished importing matplotlib")
 
 # REPLACED BY OO METHOD # # THEN DO e.g. # import matplotlib.pyplot as plt
 

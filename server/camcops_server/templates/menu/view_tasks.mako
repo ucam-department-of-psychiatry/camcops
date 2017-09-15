@@ -69,10 +69,10 @@ OFFER_PDF_ANON_VERSION = False
     %endif
     %if ccsession.filter_idnums:
         ID numbers match one of:
-        ${ "; ".join("{which} = <b>{value}</b>".format(
+        ${ ("; ".join("{which} = <b>{value}</b>".format(
                 which=request.config.get_id_shortdesc(iddef.which_idnum),
                 value=iddef.idnum_value,
-            ) for iddef in ccsession.filter_idnums) }
+            ) for iddef in ccsession.filter_idnums) + ".") }
         <% some_filter = True %>
     %endif
 

@@ -38,7 +38,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
 from pendulum import Pendulum
 from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql import func
-from sqlalchemy.sql.schema import Column, ForeignKey, Table
+from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from .cc_audit import audit
@@ -57,8 +57,10 @@ from .cc_html import (
 )
 from .cc_jointables import user_group_table
 from .cc_sqla_coltypes import (
-    PendulumDateTimeAsIsoTextColType,
+    EmailAddressColType,
+    FullNameColType,
     HashedPasswordColType,
+    PendulumDateTimeAsIsoTextColType,
     UserNameColType,
 )
 from .cc_sqlalchemy import Base
@@ -121,17 +123,16 @@ CLEAR_DUMMY_LOGIN_PERIOD = datetime.timedelta(
 
 class SecurityAccountLockout(Base):
     __tablename__ = "_security_account_lockouts"
-    # *** change to a single primary key, like:
-    # id = Column("id", Integer, primary_key=True, autoincrement=True)
+
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
     username = Column(
         "username", UserNameColType,
-        primary_key=True,  # composite primary key
+        nullable=False, index=True,
         comment="User name (which may be a non-existent user, to prevent "
                 "subtle username discovery by careful timing)"
     )
     locked_until = Column(
         "locked_until", DateTime,
-        primary_key=True,  # composite primary key
         nullable=False, index=True,
         comment="Account is locked until (UTC)"
     )
@@ -199,17 +200,16 @@ class SecurityAccountLockout(Base):
 
 class SecurityLoginFailure(Base):
     __tablename__ = "_security_login_failures"
-    # *** change to a single primary key, like:
-    # id = Column("id", Integer, primary_key=True, autoincrement=True)
+
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
     username = Column(
         "username", UserNameColType,
-        primary_key=True,  # composite primary key
+        nullable=False, index=True,
         comment="User name (which may be a non-existent user, to prevent "
                 "subtle username discovery by careful timing)"
     )
     login_failure_at = Column(
         "login_failure_at", DateTime,
-        primary_key=True,  # composite primary key
         nullable=False, index=True,
         comment="Login failure occurred at (UTC)"
     )
@@ -231,12 +231,12 @@ class SecurityLoginFailure(Base):
         audit(req, "Failed login as user: {}".format(username))
         cls.record_login_failure(req, username)
         nfailures = cls.how_many_login_failures(req, username)
-        nlockouts = nfailures // cfg.LOCKOUT_THRESHOLD
-        nfailures_since_last_lockout = nfailures % cfg.LOCKOUT_THRESHOLD
+        nlockouts = nfailures // cfg.lockout_threshold
+        nfailures_since_last_lockout = nfailures % cfg.lockout_threshold
         if nlockouts >= 1 and nfailures_since_last_lockout == 0:
             # new lockout required
             lockout_minutes = nlockouts * \
-                              cfg.LOCKOUT_DURATION_INCREMENT_MINUTES
+                              cfg.lockout_duration_increment_minutes
             SecurityAccountLockout.lock_user_out(req, username,
                                                  lockout_minutes)
 
@@ -333,6 +333,14 @@ class User(Base):
         nullable=False, index=True, unique=True,
         comment="User name"
     )
+    fullname = Column(
+        "fullname", FullNameColType,
+        comment="User's full name"
+    )
+    email = Column(
+        "email", EmailAddressColType,
+        comment="User's e-mail address"
+    )
     hashedpw = Column(
         "hashedpw", HashedPasswordColType,
         nullable=False,
@@ -352,22 +360,11 @@ class User(Base):
         default=True,
         comment="May the user register tablet devices?"
     )
-    may_use_webstorage = Column(  # *** defunct
-        "may_use_webstorage", Boolean,
-        default=False,
-        comment="May the user use the mobileweb database to run "
-                "CamCOPS tasks via a web browser?"
-    )
     may_use_webviewer = Column(
         "may_use_webviewer", Boolean,
         default=True,
         comment="May the user use the web front end to view "
                 "CamCOPS data?"
-    )
-    may_view_other_users_records = Column(  # *** replace with group system
-        "may_view_other_users_records", Boolean,
-        default=False,
-        comment="May the user see records uploaded by another user?"
     )
     view_all_patients_when_unfiltered = Column(  # *** maybe replace with group system
         "view_all_patients_when_unfiltered", Boolean,
@@ -408,17 +405,20 @@ class User(Base):
                 "Conditions of Use (ISO 8601)"
     )
 
-    groups = relationship(
-        Group,
-        secondary=user_group_table,
-        back_populates="users"  # see Group.users
-    )
     upload_group_id = Column(
         "upload_group_id", Integer, ForeignKey("_security_groups.id"),
         comment="ID of the group to which this user uploads at present",
         # OK to be NULL in the database, but the user will not be able to
         # upload while it is. *** implement check in database.py
     )
+
+    groups = relationship(
+        Group,
+        secondary=user_group_table,
+        back_populates="users"  # see Group.users
+    )
+
+    upload_group = relationship("Group", foreign_keys=[upload_group_id])
 
     @classmethod
     def get_user_by_id(cls,
@@ -457,7 +457,6 @@ class User(Base):
         user.may_register_devices = True
         user.may_use_webstorage = True
         user.may_use_webviewer = True
-        user.may_view_other_users_records = True
         user.view_all_patients_when_unfiltered = True
         user.superuser = True
         user.may_dump_data = True
@@ -548,7 +547,7 @@ class User(Base):
             # already required, pointless to check again
             return
         cfg = req.config
-        if cfg.PASSWORD_CHANGE_FREQUENCY_DAYS <= 0:
+        if cfg.password_change_frequency_days <= 0:
             # changes never required
             return
         if not self.last_password_change_utc:
@@ -556,7 +555,7 @@ class User(Base):
             self.force_password_change()
             return
         delta = req.now_utc - self.last_password_change_utc
-        if delta.days >= cfg.PASSWORD_CHANGE_FREQUENCY_DAYS:
+        if delta.days >= cfg.password_change_frequency_days:
             self.force_password_change()
 
     def must_agree_terms(self) -> bool:
@@ -610,6 +609,14 @@ class User(Base):
         return list(group_ids)
         # Return as a list rather than a set, because SQLAlchemy's in_()
         # operator only likes lists and sets.
+
+    def groups_user_may_see(self) -> List[Group]:
+        # A less efficient version, for visual display (see
+        # user_info_detail.mako)
+        groups = set(self.groups)  # type: Set[Group]
+        for my_group in self.groups:  # type: Group
+            groups.update(set(my_group.can_see_other_groups))
+        return sorted(list(groups), key=lambda g: g.name)
 
 
 # =============================================================================

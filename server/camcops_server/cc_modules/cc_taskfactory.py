@@ -25,7 +25,7 @@
 from collections import OrderedDict
 from enum import Enum
 import logging
-# from threading import Thread
+from threading import Thread
 from typing import Callable, Dict, List, Optional, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -52,6 +52,16 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 all_models_no_op()
+
+
+# =============================================================================
+# Debugging options
+# =============================================================================
+
+DEBUG_QUERY_TIMING = True
+
+if DEBUG_QUERY_TIMING:
+    log.warning("Debugging options enabled!")
 
 
 # =============================================================================
@@ -181,46 +191,61 @@ def task_factory(req: CamcopsRequest, basetable: str,
 # =============================================================================
 # Parallel fetch helper
 # =============================================================================
-# Why? Because a typical fetch might involve 27ms per query (as seen by Python;
-# less as seen by MySQL) but about 100 queries, for a not-very-large database.
-# UNSUCCESSFUL: even after tweaking pool_size=0 in create_engine() to get round
-# the SQLAlchemy error "QueuePool limit of size 5 overflow 10 reached", in the
-# parallel code, a great many queries are launched, but then something goes
-# wrong and others are started but then block -- for ages -- waiting for a
-# spare database connection, or something.
+# - Why consider a parallel fetch?
+#   Because a typical fetch might involve 27ms per query (as seen by Python;
+#   less as seen by MySQL) but about 100 queries, for a not-very-large
+#   database.
+# - Initially UNSUCCESSFUL: even after tweaking pool_size=0 in create_engine()
+#   to get round the SQLAlchemy error "QueuePool limit of size 5 overflow 10
+#   reached", in the parallel code, a great many queries are launched, but then
+#   something goes wrong and others are started but then block -- for ages --
+#   waiting for a spare database connection, or something.
+# - Fixed that: I was not explicitly closing the sessions.
+# - But then a major conceptual problem: anything to be lazy-loaded (e.g.
+#   patient, but also patient ID, special note, BLOB...) will give this sort of
+#   error: "DetachedInstanceError: Parent instance <Phq9 at 0x7fe6cce2d278> is
+#   not bound to a Session; lazy load operation of attribute 'patient' cannot
+#   proceed" -- for obvious reasons. And some of those operations are only
+#   required on the final paginated task set, which requires aggregation across
+#   all tasks.
 #
 # HOWEVER, the query time per table drops from ~27ms to 4-8ms if we disable
 # eager loading (lazy="joined") of patients from tasks.
 
-# class FetchThread(Thread):
-#     def __init__(self,
-#                  req: CamcopsRequest,
-#                  task_class: Type[Task],
-#                  factory: "TaskCollection",
-#                  **kwargs) -> None:
-#         self.req = req
-#         self.task_class = task_class
-#         self.factory = factory
-#         self.error = False
-#         name = task_class.__tablename__
-#         super().__init__(name=name, target=None, **kwargs)
-#
-#     def run(self) -> None:
-#         try:
-#             log.critical("Thread starting")
-#             dbsession = self.req.get_parallel_session()
-#             q = self.factory._make_query(dbsession, self.task_class)
-#             if not q:
-#                 log.critical("Thread finishing without results")
-#                 return
-#             tasks = q.all()  # type: List[Task]
-#             # https://stackoverflow.com/questions/6319207/are-lists-thread-safe  # noqa
-#             # https://stackoverflow.com/questions/6953351/thread-safety-in-pythons-dictionary  # noqa
-#             # http://effbot.org/pyfaq/what-kinds-of-global-value-mutation-are-thread-safe.htm  # noqa
-#             self.factory._tasks_by_class[self.task_class] = tasks
-#             log.critical("Thread finishing with results")
-#         except:
-#             self.error = False
+class FetchThread(Thread):
+    def __init__(self,
+                 req: CamcopsRequest,
+                 task_class: Type[Task],
+                 factory: "TaskCollection",
+                 **kwargs) -> None:
+        self.req = req
+        self.task_class = task_class
+        self.factory = factory
+        self.error = False
+        name = task_class.__tablename__
+        super().__init__(name=name, target=None, **kwargs)
+
+    def run(self) -> None:
+        log.critical("Thread starting")
+        dbsession = self.req.get_bare_dbsession()
+        # noinspection PyBroadException
+        try:
+            # noinspection PyProtectedMember
+            q = self.factory._make_query(dbsession, self.task_class)
+            if q:
+                tasks = q.all()  # type: List[Task]
+                # https://stackoverflow.com/questions/6319207/are-lists-thread-safe  # noqa
+                # https://stackoverflow.com/questions/6953351/thread-safety-in-pythons-dictionary  # noqa
+                # http://effbot.org/pyfaq/what-kinds-of-global-value-mutation-are-thread-safe.htm  # noqa
+                # noinspection PyProtectedMember
+                self.factory._tasks_by_class[self.task_class] = tasks
+                log.critical("Thread finishing with results")
+            else:
+                log.critical("Thread finishing without results")
+        except:
+            self.error = True
+            log.critical("Thread error")
+        dbsession.close()
 
 
 # =============================================================================
@@ -453,13 +478,6 @@ class TaskFilter(object):
 
         # Patient-independent filtering
 
-        # *** CHANGE THIS BIT; USE GROUP SECURITY INSTEAD: ***
-        restricted_to_viewing_user_id = ccsession.restricted_to_viewing_user_id()  # noqa
-        if restricted_to_viewing_user_id is not None:
-            # noinspection PyProtectedMember
-            q = q.filter(cls._adding_user_id ==
-                         restricted_to_viewing_user_id)  # nopep8
-
         if self.device_id is not None:
             # noinspection PyProtectedMember
             q = q.filter(cls._device_id == self.device_id)
@@ -584,7 +602,9 @@ class TaskCollection(object):
             if self._filter.task_matches_python_parts_of_filter(t)
         ]
 
-    def _fetch_all_tasks(self, parallel: bool = True) -> None:
+    def _fetch_all_tasks(self, parallel: bool = False) -> None:
+        # AVOID parallel=True; see notes above.
+
         if self._tasks_by_class is not None:
             # Already fetched
             return
@@ -592,31 +612,35 @@ class TaskCollection(object):
         self._tasks_by_class = OrderedDict()  # type: OrderedDict[Type[Task], List[Task]]  # noqa
 
         # Fetch from database
-        start_time = Pendulum.now()
+        if DEBUG_QUERY_TIMING:
+            start_time = Pendulum.now()
 
-        # if parallel:
-        #     threads = []  # type: List[FetchThread]
-        #     for task_class in self._filter.task_classes:
-        #         thread = FetchThread(self._req, task_class, self)
-        #         thread.start()
-        #         threads.append(thread)
-        #     for thread in threads:
-        #         thread.join()
-        #         if thread.error:
-        #             raise ValueError("Multithreaded fetch failed")
+        if parallel:
+            threads = []  # type: List[FetchThread]
+            for task_class in self._filter.task_classes:
+                thread = FetchThread(self._req, task_class, self)
+                thread.start()
+                threads.append(thread)
+            for thread in threads:
+                thread.join()
+                if thread.error:
+                    raise ValueError("Multithreaded fetch failed")
 
-        for task_class in self._filter.task_classes:
-            q = self._serial_query(task_class)
-            if q is None:
-                newtasks = []  # type: List[Task]
-            else:
-                newtasks = q.all()  # type: List[Task]
+        else:
+            for task_class in self._filter.task_classes:
+                q = self._serial_query(task_class)
+                if q is None:
+                    newtasks = []  # type: List[Task]
+                else:
+                    newtasks = q.all()  # type: List[Task]
 
-                # Apply Python-side filters?
-                newtasks = self._filter_through_python(newtasks)
+                    # Apply Python-side filters?
+                    newtasks = self._filter_through_python(newtasks)
 
-            self._tasks_by_class[task_class] = newtasks
+                self._tasks_by_class[task_class] = newtasks
 
-        end_time = Pendulum.now()
-        time_taken = end_time - start_time
-        log.warning("_fetch_all_tasks took {}", time_taken)
+        if DEBUG_QUERY_TIMING:
+            end_time = Pendulum.now()
+            # noinspection PyUnboundLocalVariable
+            time_taken = end_time - start_time
+            log.warning("_fetch_all_tasks took {}", time_taken)
