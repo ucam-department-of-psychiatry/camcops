@@ -1,11 +1,9 @@
 
-*** groups:
-        user member of multiple groups
-        user uploads to a single group
-        a group can see multiple other groups
-        the Python User object returns a list of int group_id values for "I can see these",
+*** tabbed browsing performance
+    https://blog.schmichael.com/2007/09/20/session-locking-and-performance-in-cherrypy/
+    ? similar session locking in Pyramid ?
 
-        merge_db takes parameters for "new group if old data had none"
+*** democonfig option
 
 *** show info about my user, inc. (*) group (*) groups those groups can see
 *** user management

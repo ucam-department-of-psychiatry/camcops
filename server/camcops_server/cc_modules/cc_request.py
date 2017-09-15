@@ -50,6 +50,7 @@ from sqlalchemy.orm import Session as SqlASession
 
 # Note: everything uder the sun imports this file, so keep the intra-package
 # imports as minimal as possible.
+from .cc_alembic import assert_database_is_at_head
 from .cc_baseconstants import ENVVAR_CONFIG_FILE
 from .cc_config import CamcopsConfig, get_config, get_config_filename
 from .cc_constants import (
@@ -667,7 +668,7 @@ def command_line_request() -> CamcopsRequest:
     """
     Creates a dummy CamcopsRequest for use on the command line.
     Presupposes that os.environ[ENVVAR_CONFIG_FILE] has been set, as it is
-    in camcops.cli_main().
+    in camcops.main().
     """
     os_env_dict = {
         ENVVAR_CONFIG_FILE: os.environ[ENVVAR_CONFIG_FILE],
@@ -679,4 +680,9 @@ def command_line_request() -> CamcopsRequest:
     session_factory = get_session_factory()
     req.session = session_factory(req) # *** wrong! fix this
     req.registry = registry
+
+    # If we proceed with an out-of-date database, we will have problems, and
+    # those problems may not be immediately apparent, which is bad. So:
+    assert_database_is_at_head(req.config)
+
     return req

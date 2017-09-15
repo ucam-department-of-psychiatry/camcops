@@ -177,7 +177,25 @@ class Blob(GenericTabletRecordMixin, Base):
         return get_embedded_img_tag(self.mimetype or MIMETYPE_PNG, image_bits)
         # Historically, CamCOPS supported only PNG, so add this as a default
 
-    def get_xml_element_value_binary(self) -> bytes:
+    def get_xml_element(self) -> XmlElement:
+        log.critical("get_xml_element")
+        branches = self._get_xml_branches(
+            skip_attrs=["theblob"],
+            include_plain_columns=True,
+            include_blobs=False
+        )
+        blobdata = self._get_xml_theblob_value_binary()
+        branches.append(get_xml_blob_element(
+            name="theblob",
+            blobdata=blobdata,
+            comment=Blob.theblob.comment
+        ))
+        return XmlElement(
+            name=self.__tablename__,
+            value=branches
+        )
+
+    def _get_xml_theblob_value_binary(self) -> Optional[bytes]:
         """Returns a binary value for this object, to be encoded into XML."""
         image_bits = self.get_rotated_image()
         return image_bits
@@ -255,7 +273,7 @@ def unit_tests_blob(blob: Blob) -> None:
     unit_test_ignore("", blob.dump)
     unit_test_ignore("", blob.get_rotated_image)
     unit_test_ignore("", blob.get_img_html)
-    unit_test_ignore("", blob.get_xml_element_value_binary, "name")
+    unit_test_ignore("", blob._get_xml_theblob_value_binary, "name")
     unit_test_ignore("", blob.get_data_url)
 
 

@@ -22,17 +22,11 @@
 ===============================================================================
 """
 
-import argparse
 import logging
-import os
 from pprint import pformat
 from typing import List, Optional, Type, TYPE_CHECKING
 
-from cardinal_pythonlib.debugging import pdb_run
-from cardinal_pythonlib.logs import (
-    BraceStyleAdapter,
-    main_only_quicksetup_rootlogger,
-)
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.merge_db import merge_db, TranslationContext
 from cardinal_pythonlib.sqlalchemy.orm_schema import (
     create_table_from_orm_class,
@@ -45,27 +39,26 @@ from sqlalchemy.engine import create_engine, Engine
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import column, func, select, table, text
-from ..cc_modules.cc_audit import AuditEntry
-from ..cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
-from ..cc_modules.cc_constants import (
+from camcops_server.cc_modules.cc_audit import AuditEntry
+from camcops_server.cc_modules.cc_constants import (
     FP_ID_NUM_DEFUNCT,
     NUMBER_OF_IDNUMS_DEFUNCT,
 )
-from ..cc_modules.cc_db import GenericTabletRecordMixin
-from ..cc_modules.cc_device import Device
-from ..cc_modules.cc_group import Group
-from ..cc_modules.cc_hl7 import HL7Message, HL7Run
-from ..cc_modules.cc_jointables import user_group_table, group_group_table
-from ..cc_modules.cc_patient import Patient
-from ..cc_modules.cc_patientidnum import (
+from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_hl7 import HL7Message, HL7Run
+from camcops_server.cc_modules.cc_jointables import user_group_table, group_group_table
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patientidnum import (
     fake_tablet_id_for_patientidnum,
     PatientIdNum,
 )
-from ..cc_modules.cc_request import command_line_request
-from ..cc_modules.cc_session import CamcopsSession
-from ..cc_modules.cc_storedvar import ServerStoredVar
-from ..cc_modules.cc_sqlalchemy import Base
-from ..cc_modules.cc_user import User
+from camcops_server.cc_modules.cc_request import command_line_request
+from camcops_server.cc_modules.cc_session import CamcopsSession
+from camcops_server.cc_modules.cc_storedvar import ServerStoredVar
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_user import User
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import ResultProxy
@@ -470,76 +463,18 @@ def postprocess(src_engine: Engine, dst_session: Session) -> None:
 # Main
 # =============================================================================
 
-def merge_main() -> None:
-    # Arguments
-    parser = argparse.ArgumentParser(
-        description="Merge CamCOPS databases",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument(
-        '--config',
-        default=os.environ.get(ENVVAR_CONFIG_FILE, None),
-        help="Specify the CamCOPS configuration file. If this is not "
-             "specified on the command line, the environment variable {} is "
-             "examined.".format(ENVVAR_CONFIG_FILE))
-    parser.add_argument(
-        '--report_every', type=int, default=10000,
-        help="Report progress every n rows"
-    )
-    parser.add_argument(
-        '--echo', action="store_true",
-        help="Echo SQL to source database"
-    )
-    parser.add_argument(
-        '--dummy_run', action="store_true",
-        help="Perform a dummy run only; do not alter destination database"
-    )
-    parser.add_argument(
-        '--info_only', action="store_true",
-        help="Show table information only; don't do any work"
-    )
-    parser.add_argument(
-        '-v', '--verbose', action="store_true",
-        help="Be verbose"
-    )
-    parser.add_argument(
-        '--skip_hl7_logs', action="store_true",
-        help="Skip the {!r} table".format(HL7Run.__tablename__)
-    )
-    parser.add_argument(
-        '--skip_audit_logs', action="store_true",
-        help="Skip the {!r} table".format(HL7Run.__tablename__)
-    )
-    parser.add_argument(
-        '--default_group_id', type=int, default=None,
-        help="Default group ID (integer) to apply to old records without one. "
-             "If none is specified, a new group will be created for such "
-             "records."
-    )
-    parser.add_argument(
-        '--default_group_name', type=str, default=None,
-        help="If default_group_id is not specified, use this group name. The "
-             "group will be looked up if it exists, and created if not."
-    )
-    required_named = parser.add_argument_group('required named arguments')
-    # https://stackoverflow.com/questions/24180527/argparse-required-arguments-listed-under-optional-arguments  # noqa
-    required_named.add_argument(
-        '--src',
-        required=True,  # bad form, but there is safety in being explicit
-        help="Source database (specified as an SQLAlchemy URL). The contents "
-             "of this database will be merged into the database specified "
-             "in the config file."
-    )
-    args = parser.parse_args()
+def merge_camcops_db(src: str,
+                     echo: bool,
+                     report_every: int,
+                     dummy_run: bool,
+                     info_only: bool,
+                     skip_hl7_logs: bool,
+                     skip_audit_logs: bool,
+                     default_group_id: Optional[int],
+                     default_group_name: Optional[str]) -> None:
 
-    # Logging
-    loglevel = logging.DEBUG if args.verbose else logging.INFO
-    main_only_quicksetup_rootlogger(level=loglevel)
-
-    # Config; database connections
-    os.environ[ENVVAR_CONFIG_FILE] = args.config
     req = command_line_request()
-    src_engine = create_engine(args.src, echo=args.echo,
-                               pool_pre_ping=True)
+    src_engine = create_engine(src, echo=echo, pool_pre_ping=True)
     log.info("SOURCE: " + get_safe_url_from_engine(src_engine))
     log.info("DESTINATION: " + get_safe_url_from_engine(req.engine))
 
@@ -575,12 +510,12 @@ def merge_main() -> None:
     ]
 
     # Tedious and bulky stuff the user may want to skip:
-    if args.skip_hl7_logs:
+    if skip_hl7_logs:
         skip_tables.extend([
             TableIdentity(tablename=HL7Message.__tablename__),
             TableIdentity(tablename=HL7Run.__tablename__),
         ])
-    if args.skip_audit_logs:
+    if skip_audit_logs:
         skip_tables.append(TableIdentity(tablename=AuditEntry.__tablename__))
 
     # -------------------------------------------------------------------------
@@ -595,8 +530,8 @@ def merge_main() -> None:
 
     # Merge! It's easy...
     dst_session = req.dbsession
-    trcon_info = dict(default_group_id=args.default_group_id,
-                      default_group_name=args.default_group_name)
+    trcon_info = dict(default_group_id=default_group_id,
+                      default_group_name=default_group_name)
     merge_db(
         base_class=Base,
         src_engine=src_engine,
@@ -609,9 +544,9 @@ def merge_main() -> None:
         tables_to_keep_pks_for=None,
         # extra_table_dependencies=test_dependencies,
         extra_table_dependencies=None,
-        dummy_run=args.dummy_run,
-        info_only=args.info_only,
-        report_every=args.report_every,
+        dummy_run=dummy_run,
+        info_only=info_only,
+        report_every=report_every,
         flush_per_table=True,
         flush_per_record=False,
         commit_with_flush=False,
@@ -631,14 +566,3 @@ def merge_main() -> None:
     # -------------------------------------------------------------------------
 
     dst_session.commit()
-
-
-def main() -> None:
-    if DEBUG_VIA_PDB:
-        pdb_run(merge_main)
-    else:
-        merge_main()
-
-
-if __name__ == "__main__":
-    main()

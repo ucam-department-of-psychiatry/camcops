@@ -196,7 +196,7 @@ class TaskHasPatientMixin(object):
             ),
             uselist=False,
             viewonly=True,
-            lazy="joined"
+            # EMPIRICALLY: SLOWER OVERALL WITH THIS # lazy="joined"
         )
         # NOTE: this retrieves the most recent (i.e. the current) information
         # on that patient. Consequently, task version history doesn't show the

@@ -160,7 +160,7 @@ class Patient(GenericTabletRecordMixin, Base):
         ),
         uselist=True,
         viewonly=True,
-        lazy="joined"
+        # Not profiled - any benefit unclear # lazy="joined"
     )
 
     # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN

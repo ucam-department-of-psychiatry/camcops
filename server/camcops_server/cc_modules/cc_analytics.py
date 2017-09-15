@@ -20,7 +20,11 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 ===============================================================================
+
+Abandoned for now.
 """
+
+_unused = '''
 
 import datetime
 import logging
@@ -143,3 +147,5 @@ def ccanalytics_unit_tests(req: "CamcopsRequest") -> None:
     dbsession = req.dbsession
     unit_test_ignore("", send_analytics_if_necessary, req)
     unit_test_ignore("", get_all_tables_with_record_counts, dbsession)
+
+'''

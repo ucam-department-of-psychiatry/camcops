@@ -168,11 +168,10 @@ def make_xml_branches_from_blobs(
             continue
         relationship_attr = column.blob_relationship_attr_name
         blob = getattr(obj, relationship_attr)
-        branches.append(get_xml_blob_element(
+        branches.append(XmlElement(
             name=relationship_attr,
-            blobdata=(None if blob is None
-                     else blob.get_xml_element_value_binary()),
-            comment=column.comment
+            value=None if blob is None else blob.get_xml_element(),
+            comment=column.comment,
         ))
     return branches
 

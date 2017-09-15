@@ -35,7 +35,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, Date, DateTime, Integer
 
-from .cc_analytics import send_analytics_if_necessary
+# from .cc_analytics import send_analytics_if_necessary
 from .cc_constants import DateFormat
 from .cc_dt import format_datetime
 from .cc_pyramid import CookieKey
@@ -326,7 +326,7 @@ class CamcopsSession(Base):
         self.delete_old_sessions(req)
         SecurityAccountLockout.delete_old_account_lockouts(req)
         SecurityLoginFailure.clear_dummy_login_failures_if_necessary(req)
-        send_analytics_if_necessary(req)
+        # send_analytics_if_necessary(req)
 
     def login(self, user: User) -> None:
         """Log in. Associates the user with the session and makes a new

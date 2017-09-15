@@ -476,8 +476,10 @@ class CamcopsConfig(object):
         #           -> ***
 
     def create_engine(self) -> Engine:
-        return create_engine(self.DB_URL, echo=self.DB_ECHO,
-                             pool_pre_ping=True)
+        return create_engine(self.DB_URL,
+                             echo=self.DB_ECHO,
+                             pool_pre_ping=True,
+                             pool_size=0)  # no limit
 
     @property
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)

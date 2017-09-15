@@ -27,6 +27,8 @@ CLIENT
 - Width requirements of QuPickerInline are a bit much, but then it's also a bit
   duff visually compared to QuPickerPopup.
 
+- Search facility for tasks.
+
 BUILDS/DISTRIBUTION
 - Windows build
 - OS/X build

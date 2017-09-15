@@ -130,7 +130,7 @@ class Group(Base):
         comment="Group ID"
     )
     name = Column(
-        "username", GroupNameColType,
+        "name", GroupNameColType,
         nullable=False, index=True, unique=True,
         comment="Group name"
     )
@@ -145,7 +145,8 @@ class Group(Base):
         secondary=group_group_table,  # via this mapping table
         primaryjoin=(id == group_group_table.c.group_id),  # "us"
         secondaryjoin=(id == group_group_table.c.can_see_group_id),  # "them"
-        backref="groups_that_can_see_us"
+        backref="groups_that_can_see_us",
+        lazy="joined"  # not sure this does anything here
     )
 
     def ids_of_groups_group_may_see(self) -> Set[int]:

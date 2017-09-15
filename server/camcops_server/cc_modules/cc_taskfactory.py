@@ -25,6 +25,7 @@
 from collections import OrderedDict
 from enum import Enum
 import logging
+# from threading import Thread
 from typing import Callable, Dict, List, Optional, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -35,6 +36,7 @@ import pyramid.httpexceptions as exc
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.orm import Query
+from sqlalchemy.orm.session import Session as SqlASession
 
 from .cc_all_models import all_models_no_op
 from .cc_cache import cache_region_static, fkg
@@ -174,6 +176,51 @@ def task_factory(req: CamcopsRequest, basetable: str,
     q = dbsession.query(cls).filter(cls._pk == serverpk)
     q = task_query_restricted_to_permitted_users(req, q, cls)
     return q.first()
+
+
+# =============================================================================
+# Parallel fetch helper
+# =============================================================================
+# Why? Because a typical fetch might involve 27ms per query (as seen by Python;
+# less as seen by MySQL) but about 100 queries, for a not-very-large database.
+# UNSUCCESSFUL: even after tweaking pool_size=0 in create_engine() to get round
+# the SQLAlchemy error "QueuePool limit of size 5 overflow 10 reached", in the
+# parallel code, a great many queries are launched, but then something goes
+# wrong and others are started but then block -- for ages -- waiting for a
+# spare database connection, or something.
+#
+# HOWEVER, the query time per table drops from ~27ms to 4-8ms if we disable
+# eager loading (lazy="joined") of patients from tasks.
+
+# class FetchThread(Thread):
+#     def __init__(self,
+#                  req: CamcopsRequest,
+#                  task_class: Type[Task],
+#                  factory: "TaskCollection",
+#                  **kwargs) -> None:
+#         self.req = req
+#         self.task_class = task_class
+#         self.factory = factory
+#         self.error = False
+#         name = task_class.__tablename__
+#         super().__init__(name=name, target=None, **kwargs)
+#
+#     def run(self) -> None:
+#         try:
+#             log.critical("Thread starting")
+#             dbsession = self.req.get_parallel_session()
+#             q = self.factory._make_query(dbsession, self.task_class)
+#             if not q:
+#                 log.critical("Thread finishing without results")
+#                 return
+#             tasks = q.all()  # type: List[Task]
+#             # https://stackoverflow.com/questions/6319207/are-lists-thread-safe  # noqa
+#             # https://stackoverflow.com/questions/6953351/thread-safety-in-pythons-dictionary  # noqa
+#             # http://effbot.org/pyfaq/what-kinds-of-global-value-mutation-are-thread-safe.htm  # noqa
+#             self.factory._tasks_by_class[self.task_class] = tasks
+#             log.critical("Thread finishing with results")
+#         except:
+#             self.error = False
 
 
 # =============================================================================
@@ -507,24 +554,37 @@ class TaskCollection(object):
     # Internals
     # =========================================================================
 
-    def _query(self, cls) -> Optional[Query]:
-        dbsession = self._req.dbsession
-        q = dbsession.query(cls)
+    def _make_query(self, dbsession: SqlASession,
+                    task_class: Type[Task]) -> Optional[Query]:
+        q = dbsession.query(task_class)
 
         # Restrict to what the web front end will supply
         # noinspection PyProtectedMember
-        q = q.filter(cls._current == True)  # nopep8
+        q = q.filter(task_class._current == True)  # nopep8
 
         # Restrict to what is PERMITTED
-        q = task_query_restricted_to_permitted_users(self._req, q, cls)
+        q = task_query_restricted_to_permitted_users(self._req, q, task_class)
 
         # Restrict to what is DESIRED
         if q:
-            q = self._filter.task_query_restricted_by_filter(self._req, q, cls)
+            q = self._filter.task_query_restricted_by_filter(
+                self._req, q, task_class)
 
         return q
 
-    def _fetch_all_tasks(self) -> None:
+    def _serial_query(self, task_class) -> Optional[Query]:
+        dbsession = self._req.dbsession
+        return self._make_query(dbsession, task_class)
+
+    def _filter_through_python(self, tasks: List[Task]) -> List[Task]:
+        if not self._filter.has_python_parts_to_filter():
+            return tasks
+        return [
+            t for t in tasks
+            if self._filter.task_matches_python_parts_of_filter(t)
+        ]
+
+    def _fetch_all_tasks(self, parallel: bool = True) -> None:
         if self._tasks_by_class is not None:
             # Already fetched
             return
@@ -532,18 +592,31 @@ class TaskCollection(object):
         self._tasks_by_class = OrderedDict()  # type: OrderedDict[Type[Task], List[Task]]  # noqa
 
         # Fetch from database
-        for cls in self._filter.task_classes:
-            q = self._query(cls)
+        start_time = Pendulum.now()
+
+        # if parallel:
+        #     threads = []  # type: List[FetchThread]
+        #     for task_class in self._filter.task_classes:
+        #         thread = FetchThread(self._req, task_class, self)
+        #         thread.start()
+        #         threads.append(thread)
+        #     for thread in threads:
+        #         thread.join()
+        #         if thread.error:
+        #             raise ValueError("Multithreaded fetch failed")
+
+        for task_class in self._filter.task_classes:
+            q = self._serial_query(task_class)
             if q is None:
                 newtasks = []  # type: List[Task]
             else:
                 newtasks = q.all()  # type: List[Task]
 
                 # Apply Python-side filters?
-                if self._filter.has_python_parts_to_filter():
-                    newtasks = [
-                        t for t in newtasks
-                        if self._filter.task_matches_python_parts_of_filter(t)
-                    ]
+                newtasks = self._filter_through_python(newtasks)
 
-            self._tasks_by_class[cls] = newtasks
+            self._tasks_by_class[task_class] = newtasks
+
+        end_time = Pendulum.now()
+        time_taken = end_time - start_time
+        log.warning("_fetch_all_tasks took {}", time_taken)

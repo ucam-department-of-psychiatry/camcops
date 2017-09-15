@@ -25,10 +25,9 @@
 import argparse
 import glob
 import os
-# import subprocess
 import sys
 
-from camcops_server.camcops import cli_main
+from camcops_server.camcops import main as camcops_main
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 PROJECT_BASE_DIRECTORY = os.path.abspath(os.path.join(THIS_DIRECTORY,
@@ -39,7 +38,7 @@ DEFAULT_CAMCOPS = os.path.join(PROJECT_BASE_DIRECTORY, 'camcops.py')
 DEFAULT_CCARGS = ['maketables']
 
 
-def main() -> None:
+def meta_main() -> None:
     parser = argparse.ArgumentParser(
         description="Run commands across multiple CamCOPS databases")
     parser.add_argument(
@@ -74,11 +73,11 @@ def main() -> None:
                 print("Executing command: {}".format(sys.argv))
             if args.dummyrun:
                 continue
-            cli_main()
+            camcops_main()
             # subprocess.check_call(cmdargs)
     if not did_something:
         print("Nothing to do; no files found")
 
 
 if __name__ == '__main__':
-    main()
+    meta_main()

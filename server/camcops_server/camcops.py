@@ -29,8 +29,10 @@
 # logs look polluted by ANSI codes; needs checking.
 import logging
 
+from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction  # nopep8
 from cardinal_pythonlib.logs import (
     main_only_quicksetup_rootlogger,
+    print_report_on_all_logs,
     BraceStyleAdapter,
 )
 
@@ -40,12 +42,13 @@ main_only_quicksetup_rootlogger(
 log = BraceStyleAdapter(logging.getLogger(__name__))
 log.info("CamCOPS starting")
 
-import argparse  # nopep8
+from argparse import ArgumentParser, RawDescriptionHelpFormatter  # nopep8
 import codecs  # nopep8
 import os  # nopep8
 import sys  # nopep8
+from typing import Optional, TYPE_CHECKING  # nopep8
 
-# import deform_bootstrap
+import cherrypy  # nopep8
 from pyramid.config import Configurator  # nopep8
 from pyramid.router import Router  # nopep8
 from wsgiref.simple_server import make_server  # nopep8
@@ -55,10 +58,9 @@ from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_session  # n
 from cardinal_pythonlib.ui import ask_user, ask_user_password  # nopep8
 
 from .cc_modules.cc_alembic import (
-    assert_database_is_at_head,
+    create_database_from_scratch,
     upgrade_database_to_head,
 )  # nopep8
-from .cc_modules.cc_analytics import ccanalytics_unit_tests  # nopep8
 from .cc_modules.cc_audit import audit  # nopep8
 from .cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
@@ -66,6 +68,7 @@ from .cc_modules.cc_baseconstants import (
     ENVVAR_WEB_DEBUG,
     STATIC_ROOT_DIR,
 )  # nopep8
+from .cc_modules.cc_config import get_default_config_from_os_env  # nopep8
 from .cc_modules.cc_constants import (
     CAMCOPS_URL,
     SEPARATOR_EQUALS,
@@ -102,8 +105,9 @@ from .cc_modules.cc_tracker import cctracker_unit_tests  # imports matplotlib; S
 from .cc_modules.cc_user import ccuser_unit_tests  # nopep8
 from .cc_modules.cc_user import set_password_directly, User  # nopep8
 from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
-from camcops_server.cc_modules.database import database_unit_tests  # nopep8
-from camcops_server.cc_modules.webview import (
+from .cc_modules.database import database_unit_tests  # nopep8
+from .cc_modules.merge_db import merge_camcops_db
+from .cc_modules.webview import (
     get_tsv_header_from_dict,
     get_tsv_line_from_dict,
     webview_unit_tests,
@@ -112,14 +116,19 @@ from camcops_server.cc_modules.webview import (
 
 log.debug("All imports complete")
 
+if TYPE_CHECKING:
+    # noinspection PyProtectedMember
+    from argparse import _SubParsersAction
+
 # =============================================================================
 # Debugging options
 # =============================================================================
 
 DEBUG_ADD_ROUTES = False
 DEBUG_AUTHORIZATION = False
+DEBUG_LOG_CONFIG = False
 
-if DEBUG_ADD_ROUTES or DEBUG_AUTHORIZATION:
+if DEBUG_ADD_ROUTES or DEBUG_AUTHORIZATION or DEBUG_LOG_CONFIG:
     log.warning("Debugging options enabled!")
 
 # =============================================================================
@@ -162,6 +171,7 @@ CAMCOPS_SERVE_STATIC_FILES = convert_to_bool(
 # =============================================================================
 
 DEFAULT_CONFIG_FILENAME = "/etc/camcops/camcops.conf"
+DEFAULT_URL_PATH_ROOT = '/'  # TODO: from config file?
 
 
 # =============================================================================
@@ -303,6 +313,50 @@ def test_serve(host: str = '0.0.0.0', port: int = 8000) -> None:
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}".format(host, port))
     server.serve_forever()
+
+
+def start_server(host: str,
+                 port: int,
+                 threads: int,
+                 server_name: str,
+                 log_screen: bool,
+                 ssl_certificate: Optional[str],
+                 ssl_private_key: Optional[str],
+                 root_path: str) -> None:
+    """
+    Start CherryPy server
+    """
+
+    cherrypy.config.update({
+        'server.socket_host': host,
+        'server.socket_port': port,
+        'server.thread_pool': threads,
+        'server.thread_pool_max': threads,
+        'server.server_name': server_name,
+        'server.log_screen': log_screen,
+    })
+    if ssl_certificate and ssl_private_key:
+        cherrypy.config.update({
+            'server.ssl_module': 'builtin',
+            'server.ssl_certificate': ssl_certificate,
+            'server.ssl_private_key': ssl_private_key,
+        })
+
+    log.info("Starting on host: {}", host)
+    log.info("Starting on port: {}", port)
+    log.info("CamCOPS will be at: {}", root_path)
+    log.info("Thread pool size: {}", threads)
+    log.info("Thread pool max size: {}", threads)
+
+    cherrypy.tree.graft(application, root_path)
+
+    try:
+        log.critical("cherrypy.server.thread_pool: {}",
+                     cherrypy.server.thread_pool)
+        cherrypy.engine.start()
+        cherrypy.engine.block()
+    except KeyboardInterrupt:
+        cherrypy.engine.stop()
 
 
 # =============================================================================
@@ -502,94 +556,329 @@ def test() -> None:
 # Command-line processor
 # =============================================================================
 
-def cli_main() -> None:
+def main() -> None:
     """
     Command-line entry point.
     """
     # Fetch command-line options.
-    parser = argparse.ArgumentParser(
+
+    # -------------------------------------------------------------------------
+    # Base parser
+    # -------------------------------------------------------------------------
+
+    parser = ArgumentParser(
         prog="camcops",  # name the user will use to call it
-        description=("CamCOPS command-line tool. "
-                     "Run with no arguments for an interactive menu.")
-    )
+        description="CamCOPS version {}.".format(CAMCOPS_SERVER_VERSION),
+        formatter_class=RawDescriptionHelpFormatter,
+        add_help=False)
+    parser.add_argument(
+        '-h', '--help', action=ShowAllSubparserHelpAction,
+        help='show this help message and exit')
     parser.add_argument(
         "-v", "--version", action="version",
         version="CamCOPS {}".format(CAMCOPS_SERVER_VERSION))
-    parser.add_argument(
-        "--upgradedb",
-        action="store_true", default=False,
-        help="Make/remake tables and views")
-    parser.add_argument(
-        "-r", "--resetstoredvars", action="store_true", default=False,
+
+    # -------------------------------------------------------------------------
+    # argparse code
+    # -------------------------------------------------------------------------
+
+    _reqnamed = 'required named arguments'
+
+    def add_sub(sp: "_SubParsersAction", cmd: str,
+                config_mandatory: Optional[bool] = False,
+                help: str = None,
+                give_config_wsgi_help: bool = False) -> ArgumentParser:
+        """
+        config_mandatory:
+            None = don't ask for config
+            False = ask for it, but not mandatory
+            True = mandatory
+        """
+        subparser = sp.add_parser(
+            cmd, help=help,
+            formatter_class=RawDescriptionHelpFormatter
+        )  # type: ArgumentParser
+        subparser.add_argument(
+            '--verbose', action='count', default=0,
+            help="Be verbose")
+        if give_config_wsgi_help:
+            cfg_help = (
+                "Configuration file. (When run in WSGI mode, this is read "
+                "from the {ev} variable in (1) the WSGI environment, "
+                "or (2) the operating system environment.)".format(
+                    ev=ENVVAR_CONFIG_FILE))
+        else:
+            cfg_help = "Configuration file"
+        if config_mandatory is None:
+            pass
+        elif config_mandatory:
+            g = subparser.add_argument_group(_reqnamed)
+            # https://stackoverflow.com/questions/24180527/argparse-required-arguments-listed-under-optional-arguments  # noqa
+            g.add_argument("--config", required=True, help=cfg_help)
+        else:
+            subparser.add_argument("--config", help=cfg_help)
+        return subparser
+
+    def add_req_named(sp: ArgumentParser, switch: str, help: str,
+                      action: str = None) -> None:
+        # noinspection PyProtectedMember
+        reqgroup = next((g for g in sp._action_groups
+                         if g.title == _reqnamed), None)
+        if not reqgroup:
+            reqgroup = sp.add_argument_group(_reqnamed)
+        reqgroup.add_argument(switch, required=True, action=action, help=help)
+
+    # -------------------------------------------------------------------------
+    # Subcommand subparser
+    # -------------------------------------------------------------------------
+
+    subparsers = parser.add_subparsers(help='Specify one sub-command')  # type: _SubParsersAction  # noqa
+
+    # You can't use "add_subparsers" more than once.
+    # Subparser groups seem not yet to be supported:
+    #   https://bugs.python.org/issue9341
+    #   https://bugs.python.org/issue14037
+
+    # -------------------------------------------------------------------------
+    # Database commands
+    # -------------------------------------------------------------------------
+
+    upgradedb_parser = add_sub(
+        subparsers, "upgradedb", config_mandatory=True,
+        help="Upgrade database (via Alembic)")
+    upgradedb_parser.set_defaults(func=None)
+
+    resetsv_parser = add_sub(
+        subparsers, "resetstoredvars",
         help="Redefine database title/patient ID number meanings/ID policy")
-    parser.add_argument(
-        "-t", "--title", action="store_true", default=False, dest="showtitle",
+    resetsv_parser.set_defaults(func=None)
+
+    showtitle_parser = add_sub(
+        subparsers, "showtitle",
         help="Show database title")
-    parser.add_argument(
-        "-s", "--summarytables", action="store_true", default=False,
-        help="Make summary tables")
-    parser.add_argument(
-        "-u", "--superuser", action="store_true", default=False,
+    showtitle_parser.set_defaults(func=None)
+
+    mergedb_parser = add_sub(
+        subparsers, "mergedb", config_mandatory=True,
+        help="Merge in data from an old or recent CamCOPS database")
+    mergedb_parser.add_argument(
+        '--report_every', type=int, default=10000,
+        help="Report progress every n rows")
+    mergedb_parser.add_argument(
+        '--echo', action="store_true",
+        help="Echo SQL to source database")
+    mergedb_parser.add_argument(
+        '--dummy_run', action="store_true",
+        help="Perform a dummy run only; do not alter destination database")
+    mergedb_parser.add_argument(
+        '--info_only', action="store_true",
+        help="Show table information only; don't do any work")
+    mergedb_parser.add_argument(
+        '--skip_hl7_logs', action="store_true",
+        help="Skip the HL7 message log table")
+    mergedb_parser.add_argument(
+        '--skip_audit_logs', action="store_true",
+        help="Skip the audit log table")
+    mergedb_parser.add_argument(
+        '--default_group_id', type=int, default=None,
+        help="Default group ID (integer) to apply to old records without one. "
+             "If none is specified, a new group will be created for such "
+             "records.")
+    mergedb_parser.add_argument(
+        '--default_group_name', type=str, default=None,
+        help="If default_group_id is not specified, use this group name. The "
+             "group will be looked up if it exists, and created if not.")
+    add_req_named(
+        mergedb_parser,
+        "--src",
+        help="Source database (specified as an SQLAlchemy URL). The contents "
+             "of this database will be merged into the database specified "
+             "in the config file.")
+    mergedb_parser.set_defaults(func=lambda args: merge_camcops_db(
+        src=args.src,
+        echo=args.echo,
+        report_every=args.report_every,
+        dummy_run=args.dummy_run,
+        info_only=args.info_only,
+        skip_hl7_logs=args.skip_hl7_logs,
+        skip_audit_logs=args.skip_audit_logs,
+        default_group_id=args.default_group_id,
+        default_group_name=args.default_group_name,
+    ))
+
+    createdb_parser = add_sub(
+        subparsers, "createdb", config_mandatory=True,
+        help="Create CamCOPS database from scratch (AVOID; use the upgrade "
+             "facility instead)")
+    add_req_named(
+        createdb_parser,
+        '--confirm_create_db', action="store_true",
+        help="Must specify this too, as a safety measure")
+
+    def _create_db(args):
+        cfg = get_default_config_from_os_env()
+        create_database_from_scratch(cfg)
+
+    createdb_parser.set_defaults(func=_create_db)
+
+    # db_group.add_argument(
+    #     "-s", "--summarytables", action="store_true", default=False,
+    #     help="Make summary tables")
+
+    # -------------------------------------------------------------------------
+    # User commands
+    # -------------------------------------------------------------------------
+
+    superuser_parser = add_sub(
+        subparsers, "superuser",
         help="Make superuser")
-    parser.add_argument(
-        "-p", "--password", action="store_true", default=False,
+    superuser_parser.set_defaults(func=None)
+
+    password_parser = add_sub(
+        subparsers, "password",
         help="Reset a user's password")
-    parser.add_argument(
-        "-e", "--enableuser", action="store_true", default=False,
+    password_parser.set_defaults(func=None)
+
+    enableuser_parser = add_sub(
+        subparsers, "enableuser",
         help="Re-enable a locked user account")
-    parser.add_argument(
-        "-d", "--descriptions", action="store_true", default=False,
+    enableuser_parser.set_defaults(func=None)
+
+    # -------------------------------------------------------------------------
+    # Export options
+    # -------------------------------------------------------------------------
+
+    descriptions_parser = add_sub(
+        subparsers, "descriptions",
         help="Export table descriptions")
-    parser.add_argument(
-        "-7", "--hl7", action="store_true", default=False,
+    descriptions_parser.set_defaults(func=None)
+
+    hl7_parser = add_sub(
+        subparsers, "hl7",
         help="Send pending HL7 messages and outbound files")
-    parser.add_argument(
-        "-q", "--queue", action="store_true", default=False,
-        dest="show_hl7_queue",
+    hl7_parser.set_defaults(func=None)
+
+    showhl7queue_parser = add_sub(
+        subparsers, "show_hl7_queue",
         help="View outbound HL7/file queue (without sending)")
-    parser.add_argument(
-        "-y", "--anonstaging", action="store_true", default=False,
-        help="Generate/regenerate anonymisation staging database")
-    parser.add_argument(
-        "-x", "--test", action="store_true", default=False,
+    showhl7queue_parser.set_defaults(func=None)
+
+    # export_group.add_argument(
+    #     "-y", "--anonstaging", action="store_true", default=False,
+    #     help="Generate/regenerate anonymisation staging database")
+
+    # -------------------------------------------------------------------------
+    # Test options
+    # -------------------------------------------------------------------------
+
+    unittest_parser = add_sub(
+        subparsers, "unittest", config_mandatory=None,
         help="Test internal code")
-    parser.add_argument(
-        "--testserve", action="store_true", default=False,
-        help="Test web server")
-    parser.add_argument(
-        "--dbunittest", action="store_true", default=False,
-        help="Unit tests for database code")
-    parser.add_argument('--verbose', action='count', default=0,
-                        help="Verbose startup")
-    parser.add_argument(
-        "--config",
-        help=(
-            "Configuration file. (When run in WSGI mode, this is read from "
-            "the {ev} variable in (1) the WSGI environment, "
-            "or (2) the operating system environment.)".format(
-                ev=ENVVAR_CONFIG_FILE
-            )
-        ))
-    args = parser.parse_args()
+    unittest_parser.set_defaults(func=None)
+
+    testserve_parser = add_sub(
+        subparsers, "testserve",
+        help="Test web server (single-thread, single-process, HTTP-only, "
+             "Pyramid; for development use only")
+    testserve_parser.add_argument(
+        '--host', type=str, default="127.0.0.1",
+        help="hostname to listen on")
+    testserve_parser.add_argument(
+        '--port', type=int, default=8088,
+        help="port to listen on")
+    testserve_parser.set_defaults(func=lambda args: test_serve(
+        host=args.host,
+        port=args.port
+    ))
+
+    # -------------------------------------------------------------------------
+    # Web server options
+    # -------------------------------------------------------------------------
+
+    serve_parser = add_sub(
+        subparsers, "serve",
+        help="Start web server (via CherryPy)")
+    serve_parser.add_argument(
+        "--serve", action="store_true",
+        help="")
+    serve_parser.add_argument(
+        '--host', type=str, default="127.0.0.1",
+        help="hostname to listen on")
+    serve_parser.add_argument(
+        '--port', type=int, default=8088,
+        help="port to listen on")
+    serve_parser.add_argument(
+        "--server_name", type=str, default="localhost",
+        help="CherryPy's SERVER_NAME environ entry")
+    serve_parser.add_argument(
+        "--threads", type=int, default=40,
+        help="Number of threads for server to use")
+    serve_parser.add_argument(
+        "--ssl_certificate", type=str,
+        help="SSL certificate file "
+             "(e.g. /etc/ssl/certs/ssl-cert-snakeoil.pem)")
+    serve_parser.add_argument(
+        "--ssl_private_key", type=str,
+        help="SSL private key file "
+             "(e.g. /etc/ssl/private/ssl-cert-snakeoil.key)")
+    serve_parser.add_argument(
+        "--log_screen", dest="log_screen", action="store_true",
+        help="log access requests etc. to terminal (default)")
+    serve_parser.add_argument(
+        "--no_log_screen", dest="log_screen", action="store_false",
+        help="don't log access requests etc. to terminal")
+    serve_parser.set_defaults(log_screen=True)
+    serve_parser.add_argument(
+        "--debug_static", action="store_true",
+        help="show debug info for static file requests")
+    serve_parser.add_argument(
+        "--root_path", type=str, default=DEFAULT_URL_PATH_ROOT,
+        help="Root path to serve CRATE at. Default: {}".format(
+            DEFAULT_URL_PATH_ROOT))
+    serve_parser.set_defaults(func=lambda args: start_server(
+        host=args.host,
+        port=args.port,
+        threads=args.threads,
+        server_name=args.server_name,
+        log_screen=args.log_screen,
+        ssl_certificate=args.ssl_certificate,
+        ssl_private_key=args.ssl_private_key,
+        root_path=args.root_path
+    ))
+
+    # -------------------------------------------------------------------------
+    # OK; parse the arguments
+    # -------------------------------------------------------------------------
+
+    progargs = parser.parse_args()
 
     # Initial log level (overridden later by config file but helpful for start)
-    loglevel = logging.DEBUG if args.verbose >= 1 else logging.INFO
+    loglevel = logging.DEBUG if progargs.verbose >= 1 else logging.INFO
     logging.getLogger().setLevel(loglevel)  # set level for root logger
 
     # Say hello
     log.info("CamCOPS version {}", CAMCOPS_SERVER_VERSION)
     log.info("By Rudolf Cardinal. See {}", CAMCOPS_URL)
     log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
+    log.debug("Command-line arguments: {!r}", progargs)
 
-    # If we don't know the config filename yet, ask the user
-    if not args.config:
-        args.config = ask_user(
-            "Configuration file",
-            os.environ.get(ENVVAR_CONFIG_FILE, DEFAULT_CONFIG_FILENAME))
-    # For command-line use, we want the the config filename in the environment:
-    os.environ[ENVVAR_CONFIG_FILE] = args.config
-    log.info("Using configuration file: {}".format(args.config))
+    if DEBUG_LOG_CONFIG:
+        print_report_on_all_logs()
 
+    # Finalize the config filename
+    if progargs.config:
+        # We want the the config filename in the environment from now on:
+        os.environ[ENVVAR_CONFIG_FILE] = progargs.config
+    cfg_name = os.environ.get(ENVVAR_CONFIG_FILE, None)
+    log.info("Using configuration file: {!r}", cfg_name)
+
+    progargs.func(progargs)
+
+    raise NotImplementedError("Bugs below here!")
+
+    # -------------------------------------------------------------------------
+    # Subsequent actions require a command-line request.
+    # -------------------------------------------------------------------------
     # Request objects are ubiquitous, and allow code to refer to the HTTP
     # request, config, HTTP session, database session, and so on. Here we make
     # a special sort of request for use from the command line.
@@ -597,72 +886,61 @@ def cli_main() -> None:
     # Note also that any database accesses will be auto-committed via the
     # request.
 
-    # If we proceed with an out-of-date database, we will have problems, and
-    # those problems may not be immediately apparent, which is bad. So:
-    assert_database_is_at_head(req.config)
-
-    # In order:
-    n_actions = 0
-
-    if args.upgradedb:
+    if progargs.upgradedb:
         upgrade_database_to_head()
         n_actions += 1
 
-    if args.resetstoredvars:
+    if progargs.resetstoredvars:
         reset_storedvars()
         n_actions += 1
 
-    if args.showtitle:
+    if progargs.showtitle:
         print("Database title: {}".format(req.config.DATABASE_TITLE))
         n_actions += 1
 
-    if args.summarytables:
+    if progargs.summarytables:
         make_summary_tables()
         n_actions += 1
 
-    if args.superuser:
+    if progargs.superuser:
         make_superuser(req)
         n_actions += 1
 
-    if args.password:
+    if progargs.password:
         reset_password(req)
         n_actions += 1
 
-    if args.descriptions:
+    if progargs.descriptions:
         export_descriptions_comments()
         n_actions += 1
 
-    if args.enableuser:
+    if progargs.enableuser:
         enable_user_cli(req)
         n_actions += 1
 
-    if args.hl7:
+    if progargs.hl7:
         send_all_pending_hl7_messages(req.config)
         n_actions += 1
 
-    if args.show_hl7_queue:
+    if progargs.show_hl7_queue:
         send_all_pending_hl7_messages(req.config, show_queue_only=True)
         n_actions += 1
 
-    if args.anonstaging:
+    if progargs.anonstaging:
         generate_anonymisation_staging_db()
         n_actions += 1
 
-    if args.test:
+    if progargs.test:
         test(req)
         n_actions += 1
 
-    if args.dbunittest:
+    if progargs.dbunittest:
         database_unit_tests()
         n_actions += 1
 
-    if args.testserve:
+    if progargs.testserve:
         test_serve()
         n_actions += 1
-
-    if n_actions > 0:
-        sys.exit(0)
-        # ... otherwise proceed to the menu
 
     # Menu
     while True:
@@ -743,4 +1021,4 @@ Using database: {dburl} ({dbtitle}).
 # =============================================================================
 
 if __name__ == '__main__':
-    cli_main()
+    main()
