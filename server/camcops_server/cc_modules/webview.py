@@ -171,12 +171,14 @@ from .cc_forms import (
     ChooseTrackerForm,
     DEFAULT_ROWS_PER_PAGE,
     DIALECT_CHOICES,
+    EditUserForm,
     get_head_form_html,
     HL7MessageLogForm,
     HL7RunLogForm,
     LoginForm,
     OfferTermsForm,
     RefreshTasksForm,
+    SetUserUploadGroupForm,
     TaskFiltersForm,
     TasksPerPageForm,
     ViewDdlForm,
@@ -229,27 +231,11 @@ from .cc_taskfactory import (
 )
 from .cc_tracker import ClinicalTextView, Tracker
 from .cc_unittest import unit_test_ignore
-from .cc_user import (
-    add_user,
-    ask_delete_user_html,
-    ask_to_add_user_html,
-    change_user,
-    delete_user,
-    edit_user_form,
-    enable_user_webview,
-    manage_users_html,
-    SecurityAccountLockout,
-    SecurityLoginFailure,
-    User,
-)
+from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 from .cc_version import CAMCOPS_SERVER_VERSION
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 ccplot_no_op()
-
-
-WSGI_TUPLE_TYPE_WITH_STATUS = Tuple[str, HEADERS_TYPE, bytes, str]
-# ... contenttype, extraheaders, output, status
 
 # =============================================================================
 # Constants
@@ -295,6 +281,10 @@ def simple_failure(req: CamcopsRequest, msg: str,
                               request=req)
 
 
+# =============================================================================
+# Unused
+# =============================================================================
+
 # def query_result_html_core(req: CamcopsRequest,
 #                            descriptions: Sequence[str],
 #                            rows: Sequence[Sequence[Any]],
@@ -317,16 +307,6 @@ def simple_failure(req: CamcopsRequest, msg: str,
 #                        orm_objects=orm_objects,
 #                        null_html=null_html),
 #                   request=req)
-
-
-def fail_not_authorized_for_task(req: CamcopsRequest) -> Response:
-    """Response given when user isn't allowed to see a specific task."""
-    return simple_failure(req, "Not authorized to view that task.")
-
-
-def fail_task_not_found(req: CamcopsRequest) -> Response:
-    """Response given when task not found."""
-    return simple_failure(req, "Task not found.")
 
 
 # =============================================================================
@@ -386,11 +366,12 @@ def crash(req: CamcopsRequest) -> Response:
 # Authorization: login, logout, login failures, terms/conditions
 # =============================================================================
 
-@view_config(route_name=Routes.LOGIN, permission=NO_PERMISSION_REQUIRED)
 # Do NOT use extra parameters for functions decorated with @view_config;
 # @view_config can take functions like "def view(request)" but also
 # "def view(context, request)", so if you add additional parameters, it thinks
 # you're doing the latter and sends parameters accordingly.
+
+@view_config(route_name=Routes.LOGIN, permission=NO_PERMISSION_REQUIRED)
 def login_view(req: CamcopsRequest) -> Response:
     cfg = req.config
     autocomplete_password = not cfg.disable_password_autocomplete
@@ -579,7 +560,7 @@ def change_own_password(req: CamcopsRequest) -> Response:
 
 @view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
              permission=Permission.SUPERUSER,
-             renderer="change_own_password.mako")
+             renderer="change_other_password.mako")
 def change_other_password(req: CamcopsRequest) -> Response:
     """For administrators, to change another's password."""
     form = ChangeOtherPasswordForm(request=req)
@@ -602,19 +583,14 @@ def change_other_password(req: CamcopsRequest) -> Response:
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
-        user_id_str = req.get_str_param(ViewParam.USER_ID, None)
-        try:
-            user_id = int(user_id_str)
-        except (TypeError, ValueError):
+        user_id = req.get_int_param(ViewParam.USER_ID)
+        if user_id is None:
             raise exc.HTTPBadRequest("Improper user_id of {}".format(
-                repr(user_id_str)))
-        if user_id == req.user_id:
-            # Change own password
-            raise exc.HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
-        other_user = User.get_user_by_id(req.dbsession, user_id)
-        if other_user is None:
+                repr(user_id)))
+        user = User.get_user_by_id(req.dbsession, user_id)
+        if user is None:
             raise exc.HTTPBadRequest("Missing user for id {}".format(user_id))
-        username = other_user.username
+        username = user.username
         appstruct = {ViewParam.USER_ID: user_id}
         rendered_form = form.render(appstruct)
     return render_to_response(
@@ -651,8 +627,7 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
         camcops_url=CAMCOPS_URL,
         id_policies_valid=id_policies_valid(),
         introspection=cfg.introspection,
-        now=format_datetime(req.now,
-                            DateFormat.SHORT_DATETIME_SECONDS),
+        now=format_datetime(req.now, DateFormat.SHORT_DATETIME_SECONDS),
         server_version=CAMCOPS_SERVER_VERSION,
     )
 
@@ -777,7 +752,6 @@ def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
                        page=page_num,
                        items_per_page=rows_per_page,
                        url_maker=PageUrl(req))
-
     return dict(
         page=page,
         head_form_html=get_head_form_html(req, [tpp_form,
@@ -789,42 +763,6 @@ def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
             not ccsession.any_specific_patient_filtering()
         ),
     )
-
-
-def change_number_to_view(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Change the number of tasks visible on a single screen."""
-
-    session.change_number_to_view(form)
-    return view_tasks(session, form)
-
-
-def first_page(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Navigate to the first page of tasks."""
-
-    session.first_page()
-    return view_tasks(session, form)
-
-
-def previous_page(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Navigate to the previous page of tasks."""
-
-    session.previous_page()
-    return view_tasks(session, form)
-
-
-def next_page(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Navigate to the next page of tasks."""
-
-    ntasks = ws.get_cgi_parameter_int(form, PARAM.NTASKS)
-    session.next_page(ntasks)
-    return view_tasks(session, form)
-
-
-def last_page(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Navigate to the last page of tasks."""
-    ntasks = ws.get_cgi_parameter_int(form, PARAM.NTASKS)
-    session.last_page(ntasks)
-    return view_tasks(session, form)
 
 
 @view_config(route_name=Routes.TASK)
@@ -1055,6 +993,8 @@ def provide_report(req: CamcopsRequest) -> Response:
 # =============================================================================
 # Research downloads
 # =============================================================================
+
+# ***
 
 # noinspection PyUnusedLocal
 def offer_basic_dump(session: CamcopsSession, form: cgi.FieldStorage) -> str:
@@ -1676,7 +1616,6 @@ def view_hl7_message_log(req: CamcopsRequest) -> Response:
                               request=req)
 
 
-
 @view_config(route_name=Routes.VIEW_HL7_MESSAGE,
              permission=Permission.SUPERUSER)
 def view_hl7_message(req: CamcopsRequest) -> Response:
@@ -1785,10 +1724,10 @@ def view_hl7_run(req: CamcopsRequest) -> Response:
 # User/server info views
 # =============================================================================
 
-@view_config(route_name=Routes.USER_INFO_DETAIL,
-             renderer="user_info_detail.mako")
-def user_info_detail(req: CamcopsRequest) -> Dict[str, Any]:
-    return {}
+@view_config(route_name=Routes.VIEW_OWN_USER_INFO,
+             renderer="view_own_user_info.mako")
+def view_own_user_info(req: CamcopsRequest) -> Dict[str, Any]:
+    return dict(user=req.camcops_session.user)
 
 
 @view_config(route_name=Routes.VIEW_SERVER_INFO,
@@ -1815,6 +1754,179 @@ def view_server_info(req: CamcopsRequest) -> Dict[str, Any]:
 
 
 # =============================================================================
+# User management
+# =============================================================================
+
+@view_config(route_name=Routes.VIEW_ALL_USERS,
+             permission=Permission.SUPERUSER,
+             renderer="view_users.mako")
+def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                      DEFAULT_ROWS_PER_PAGE)
+    page_num = req.get_int_param(ViewParam.PAGE, 1)
+    dbsession = req.dbsession
+    q = dbsession.query(User).order_by(User.username)
+    page = SqlalchemyOrmPage(collection=q,
+                             page=page_num,
+                             items_per_page=rows_per_page,
+                             url_maker=PageUrl(req))
+    return dict(page=page)
+
+
+@view_config(route_name=Routes.VIEW_USER,
+             permission=Permission.SUPERUSER,
+             renderer="view_other_user_info.mako")
+def view_user(req: CamcopsRequest) -> Dict[str, Any]:
+    user_id = req.get_int_param(ViewParam.USER_ID)
+    dbsession = req.dbsession
+    user = User.get_user_by_id(dbsession, user_id)
+    if not user:
+        raise exc.HTTPNotFound("No such user")
+    return dict(user=user)
+
+
+@view_config(route_name=Routes.EDIT_USER,
+             permission=Permission.SUPERUSER,
+             renderer="edit_user.mako")
+def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
+    if FormAction.CANCEL in req.POST:
+        raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+    user_id = req.get_int_param(ViewParam.USER_ID)
+    dbsession = req.dbsession
+    user = User.get_user_by_id(dbsession, user_id)
+    if not user:
+        raise exc.HTTPBadRequest("Invalid user ID {}".format(user_id))
+    form = EditUserForm(request=req)
+    keys = [
+        ViewParam.USERNAME,
+        ViewParam.FULLNAME,
+        ViewParam.EMAIL,
+        ViewParam.MAY_UPLOAD,
+        ViewParam.MAY_REGISTER_DEVICES,
+        ViewParam.MAY_USE_WEBVIEWER,
+        ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED,
+        ViewParam.SUPERUSER,
+        ViewParam.MAY_DUMP_DATA,
+        ViewParam.MAY_RUN_REPORTS,
+        ViewParam.MAY_ADD_NOTES,
+        ViewParam.MUST_CHANGE_PASSWORD,
+        # SPECIAL HANDLING # ViewParam.GROUP_IDS,
+        ViewParam.UPLOAD_GROUP_ID,
+    ]
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            for k in keys:
+                setattr(user, k, appstruct.get(k))
+            group_ids = appstruct.get(ViewParam.GROUP_IDS)
+            user.set_group_ids(group_ids)
+            raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        appstruct = {k: getattr(user, k) for k in keys}
+        appstruct[ViewParam.GROUP_IDS] = user.group_ids()
+        rendered_form = form.render(appstruct)
+    return dict(user=user,
+                form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
+
+
+@view_config(route_name=Routes.SET_OWN_USER_UPLOAD_GROUP)
+def set_own_user_upload_group(req: CamcopsRequest) -> Response:
+    user = req.user
+    if FormAction.CANCEL in req.POST:
+        raise exc.HTTPFound(req.route_url(Routes.HOME))
+    form = SetUserUploadGroupForm(request=req)
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            user.upload_group_id = appstruct.get(ViewParam.UPLOAD_GROUP_ID)
+            raise exc.HTTPFound(req.route_url(Routes.HOME))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        appstruct = {ViewParam.UPLOAD_GROUP_ID: user.upload_group_id}
+        rendered_form = form.render(appstruct)
+    return render_to_response(
+        "set_user_upload_group.mako",
+        dict(user=user,
+             form=rendered_form,
+             head_form_html=get_head_form_html(req, [form])),
+        request=req
+    )
+
+
+@view_config(route_name=Routes.ADD_USER,
+             permission=Permission.SUPERUSER,
+             renderer="add_user.mako")
+def add_user(req: CamcopsRequest) -> Dict[str, Any]:
+    pass # ***
+
+
+@view_config(route_name=Routes.UNLOCK_USER,
+             permission=Permission.SUPERUSER)
+def unlock_user(req: CamcopsRequest) -> Response:
+    user_id = req.get_int_param(ViewParam.USER_ID)
+    if user_id is None:
+        user = None
+    else:
+        user = User.get_user_by_id(req.dbsession, user_id)
+    if not user:
+        raise exc.HTTPBadRequest("No such user ID: {}".format(repr(user_id)))
+    user.enable(req)
+    return simple_success(req, "User {} enabled".format(user.username))
+
+
+@view_config(route_name=Routes.DELETE_USER,
+             permission=Permission.SUPERUSER)
+def delete_user(req: CamcopsRequest) -> Response:
+    pass # ***
+
+
+# =============================================================================
+# Group management
+# =============================================================================
+
+@view_config(route_name=Routes.VIEW_GROUPS,
+             permission=Permission.SUPERUSER,
+             renderer="view_groups.mako")
+def view_groups(req: CamcopsRequest) -> Dict[str, Any]:
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                      DEFAULT_ROWS_PER_PAGE)
+    page_num = req.get_int_param(ViewParam.PAGE, 1)
+    dbsession = req.dbsession
+    q = dbsession.query(Group).order_by(Group.name)
+    page = SqlalchemyOrmPage(collection=q,
+                             page=page_num,
+                             items_per_page=rows_per_page,
+                             url_maker=PageUrl(req))
+    return dict(page=page)
+
+
+@view_config(route_name=Routes.EDIT_GROUP,
+             permission=Permission.SUPERUSER,
+             renderer="edit_group.mako")
+def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
+    pass # ***
+
+
+@view_config(route_name=Routes.ADD_GROUP,
+             permission=Permission.SUPERUSER,
+             renderer="add_group.mako")
+def add_group(req: CamcopsRequest) -> Dict[str, Any]:
+    pass # ***
+
+
+@view_config(route_name=Routes.DELETE_GROUP,
+             permission=Permission.SUPERUSER)
+def delete_group(req: CamcopsRequest) -> Response:
+    pass # ***
+
+
+# =============================================================================
 # Introspection of source code
 # =============================================================================
 
@@ -1823,7 +1935,7 @@ def offer_introspection(req: CamcopsRequest) -> Response:
     """Page to offer CamCOPS server source code."""
     cfg = req.config
     if not cfg.introspection:
-        return simple_failure(NO_INTROSPECTION_MSG)
+        return simple_failure(req, NO_INTROSPECTION_MSG)
     return render_to_response(
         "introspection_file_list.mako",
         dict(ifd_list=cfg.introspection_files),
@@ -1836,13 +1948,13 @@ def introspect(req: CamcopsRequest) -> Response:
     """Provide formatted source code."""
     cfg = req.config
     if not cfg.introspection:
-        return simple_failure(NO_INTROSPECTION_MSG)
+        return simple_failure(req, NO_INTROSPECTION_MSG)
     filename = req.get_str_param(ViewParam.FILENAME, None)
     try:
         ifd = next(ifd for ifd in cfg.introspection_files
                    if ifd.prettypath == filename)
     except StopIteration:
-        return simple_failure(INTROSPECTION_INVALID_FILE_MSG)
+        return simple_failure(req, INTROSPECTION_INVALID_FILE_MSG)
     fullpath = ifd.fullpath
 
     if fullpath.endswith(".jsx"):
@@ -1855,7 +1967,7 @@ def introspect(req: CamcopsRequest) -> Response:
             code = f.read()
     except Exception as e:
         log.debug("INTROSPECTION ERROR: {}", e)
-        return simple_failure(INTROSPECTION_FAILED_MSG)
+        return simple_failure(req, INTROSPECTION_FAILED_MSG)
     code_html = pygments.highlight(code, lexer, formatter)
     css = formatter.get_style_defs('.highlight')
     return render_to_response("introspect_file.mako",
@@ -2472,80 +2584,6 @@ def forcibly_finalize(session: CamcopsSession, form: cgi.FieldStorage) -> str:
 
 
 # =============================================================================
-# User management
-# =============================================================================
-
-# noinspection PyUnusedLocal
-def manage_users(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Offer user management menu."""
-
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    return manage_users_html(session)
-
-
-# noinspection PyUnusedLocal
-def ask_to_add_user(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Ask for details to add a user."""
-
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    return ask_to_add_user_html(session)
-
-
-def add_user_if_auth(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Adds a user using the details supplied."""
-
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    return add_user(form)
-
-
-def edit_user(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Offers a user editing page."""
-
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    user_to_edit = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    return edit_user_form(session, user_to_edit)
-
-
-def change_user_if_auth(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Applies edits to a user."""
-
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    return change_user(form)
-
-
-def ask_delete_user(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Asks for confirmation to delete a user."""
-
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    user_to_delete = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    return ask_delete_user_html(session, user_to_delete)
-
-
-def delete_user_if_auth(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Deletes a user."""
-
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    user_to_delete = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    return delete_user(user_to_delete)
-
-
-def enable_user(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Enables a user (unlocks, clears login failures)."""
-
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    user_to_enable = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    return enable_user_webview(user_to_enable)
-
-
-# =============================================================================
 # Main HTTP processor
 # =============================================================================
 
@@ -2559,16 +2597,6 @@ ACTIONDICT = {
     ACTION.BASIC_DUMP: basic_dump,
     ACTION.OFFER_TABLE_DUMP: offer_table_dump,
     ACTION.TABLE_DUMP: serve_table_dump,
-
-    # User management
-    ACTION.MANAGE_USERS: manage_users,
-    ACTION.ASK_TO_ADD_USER: ask_to_add_user,
-    ACTION.ADD_USER: add_user_if_auth,
-    ACTION.EDIT_USER: edit_user,
-    ACTION.CHANGE_USER: change_user_if_auth,
-    ACTION.ASK_DELETE_USER: ask_delete_user,
-    ACTION.DELETE_USER: delete_user_if_auth,
-    ACTION.ENABLE_USER: enable_user,
 
     # Amending and deleting data
     ACTION.ADD_SPECIAL_NOTE: add_special_note,

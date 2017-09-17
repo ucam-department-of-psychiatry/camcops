@@ -29,7 +29,7 @@ import pprint
 import re
 import sys
 from typing import (Any, Callable, Dict, List, Optional, Sequence, Tuple,
-                    TYPE_CHECKING)
+                    Type, TYPE_CHECKING, Union)
 from urllib.parse import urlencode
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -107,9 +107,10 @@ class Dialect(object):
 
 
 class FormAction(object):
+    CANCEL = 'cancel'
     CLEAR_FILTERS = 'clear_filters'
     SET_FILTERS = 'set_filters'
-    SUBMIT = 'submit'
+    SUBMIT = 'submit'  # the default for many forms
     SUBMIT_TASKS_PER_PAGE = 'submit_tpp'
     REFRESH_TASKS = 'refresh_tasks'
 
@@ -134,9 +135,13 @@ class ViewParam(object):
     CSRF_TOKEN = "csrf"
     DIALECT = "dialect"
     DOB = "dob"
+    EMAIL = "email"
     END_DATETIME = "end_datetime"
     FILENAME = "filename"
     FORENAME = "forename"
+    FULLNAME = "fullname"
+    GROUP_ID = "group_id"
+    GROUP_IDS = "group_ids"
     HL7_MSG_ID = "hl7_msg_id"
     HL7_RUN_ID = "hl7_run_id"
     IDNUM_VALUE = "idnum_value"
@@ -144,6 +149,12 @@ class ViewParam(object):
     INCLUDE_CALCULATED = "include_calculated"
     INCLUDE_COMMENTS = "include_comments"
     INCLUDE_PATIENT = "include_patient"
+    MAY_ADD_NOTES = "may_add_notes"
+    MAY_DUMP_DATA = "may_dump_data"
+    MAY_REGISTER_DEVICES = "may_register_devices"
+    MAY_RUN_REPORTS = "may_run_reports"
+    MAY_UPLOAD = "may_upload"
+    MAY_USE_WEBVIEWER = "may_use_webviewer"
     MUST_CHANGE_PASSWORD = "must_change_password"
     NEW_PASSWORD = "new_password"
     OLD_PASSWORD = "old_password"
@@ -158,13 +169,16 @@ class ViewParam(object):
     SEX = "sex"
     SOURCE = "source"
     START_DATETIME = "start_datetime"
+    SUPERUSER = "superuser"
     SURNAME = "surname"
     TABLENAME = "table_name"
     TASKS = "tasks"
     TEXT_CONTENTS = "text_contents"
     TRUNCATE = "truncate"
+    UPLOAD_GROUP_ID = "upload_group_id"
     USER_ID = "user_id"
     USERNAME = "username"
+    VIEW_ALL_PATIENTS_WHEN_UNFILTERED = "view_all_patients_when_unfiltered"
     VIEWTYPE = "viewtype"
     WHICH_IDNUM = "which_idnum"
 
@@ -385,7 +399,9 @@ class Routes(object):
     STATIC = "static"
 
     # Implemented
+    ADD_GROUP = "add_group"
     ADD_SPECIAL_NOTE = "add_special_note"
+    ADD_USER = "add_user"
     CHANGE_OWN_PASSWORD = "change_own_password"
     CHANGE_OTHER_PASSWORD = "change_other_password"
     CHOOSE_CTV = "choose_ctv"
@@ -393,14 +409,17 @@ class Routes(object):
     CRASH = "crash"
     CTV = "ctv"
     DATABASE_API = "database"
+    DELETE_GROUP = "delete_group"
     DELETE_PATIENT = "delete_patient"
+    DELETE_USER = "delete_user"
+    EDIT_GROUP = "edit_group"
+    EDIT_USER = "edit_user"
     ERASE_TASK = "erase_task"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     INTROSPECT = "introspect"
     LOGIN = "login"
     LOGOUT = "logout"
-    MANAGE_USERS = "manage_users"
     OFFER_AUDIT_TRAIL = "offer_audit_trail"
     OFFER_BASIC_DUMP = "offer_basic_dump"
     OFFER_HL7_MESSAGE_LOG = "offer_hl7_message_log"
@@ -413,73 +432,26 @@ class Routes(object):
     REPORT = "report"
     REPORTS_MENU = "reports_menu"
     SET_FILTERS = "set_filters"
+    SET_OWN_USER_UPLOAD_GROUP = "set_user_upload_group"
     TASK = "task"
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
     TESTPAGE_PRIVATE_2 = "testpage_private_2"
     TESTPAGE_PRIVATE_3 = "testpage_private_3"
     TESTPAGE_PUBLIC_1 = "testpage_public_1"
     TRACKER = "tracker"
-    USER_INFO_DETAIL = "user_info_detail"
+    UNLOCK_USER = "unlock_user"
+    VIEW_OWN_USER_INFO = "view_own_user_info"
     VIEW_DDL = "inspect_ddl"
+    VIEW_ALL_USERS = "view_all_users"
     VIEW_AUDIT_TRAIL = "view_audit_trail"
-    VIEW_SERVER_INFO = "view_server_info"
-    VIEW_TASKS = "view_tasks"
+    VIEW_GROUPS = "view_groups"
     VIEW_HL7_MESSAGE = "view_hl7_message"
     VIEW_HL7_MESSAGE_LOG = "view_hl7_message_log"
     VIEW_HL7_RUN = "view_hl7_run"
     VIEW_HL7_RUN_LOG = "view_hl7_run_log"
-
-    # To implement ***
-    # INSPECT_TABLE_VIEW_DEFS = "view_table_and_view_definitions"
-    # ADD_USER = "add_user"
-    # APPLY_FILTER_COMPLETE = "apply_filter_complete"
-    # APPLY_FILTER_DEVICE = "apply_filter_device"
-    # APPLY_FILTER_DOB = "apply_filter_dob"
-    # APPLY_FILTER_END_DATETIME = "apply_filter_end_datetime"
-    # APPLY_FILTER_FORENAME = "apply_filter_forename"
-    # APPLY_FILTER_IDNUMS = "apply_filter_idnums"
-    # APPLY_FILTER_INCLUDE_OLD_VERSIONS = "apply_filter_include_old_versions"
-    # APPLY_FILTERS = "apply_filters"
-    # APPLY_FILTER_SEX = "apply_filter_sex"
-    # APPLY_FILTER_START_DATETIME = "apply_filter_start_datetime"
-    # APPLY_FILTER_SURNAME = "apply_filter_surname"
-    # APPLY_FILTER_TASK = "apply_filter_task"
-    # APPLY_FILTER_TEXT = "apply_filter_text"
-    # APPLY_FILTER_USER = "apply_filter_user"
-    # ASK_DELETE_USER = "ask_delete_user"
-    # ASK_TO_ADD_USER = "ask_to_add_user"
-    # BASIC_DUMP = "basic_dump"
-    # CHANGE_NUMBER_TO_VIEW = "change_number_to_view"
-    # CHANGE_USER = "change_user"
-    # CLEAR_FILTER_COMPLETE = "clear_filter_complete"
-    # CLEAR_FILTER_DEVICE = "clear_filter_device"
-    # CLEAR_FILTER_DOB = "clear_filter_dob"
-    # CLEAR_FILTER_END_DATETIME = "clear_filter_end_datetime"
-    # CLEAR_FILTER_FORENAME = "clear_filter_forename"
-    # CLEAR_FILTER_IDNUMS = "clear_filter_idnums"
-    # CLEAR_FILTER_INCLUDE_OLD_VERSIONS = "clear_filter_include_old_versions"
-    # CLEAR_FILTERS = "clear_filters"
-    # CLEAR_FILTER_SEX = "clear_filter_sex"
-    # CLEAR_FILTER_START_DATETIME = "clear_filter_start_datetime"
-    # CLEAR_FILTER_SURNAME = "clear_filter_surname"
-    # CLEAR_FILTER_TASK = "clear_filter_task"
-    # CLEAR_FILTER_TEXT = "clear_filter_text"
-    # CLEAR_FILTER_USER = "clear_filter_user"
-    # CLINICALTEXTVIEW = "clinicaltextview"
-    # DELETE_USER = "delete_user"
-    # EDIT_PATIENT = "edit_patient"
-    # EDIT_USER = "edit_user"
-    # ENABLE_USER = "enable_user"
-    # ENTER_NEW_PASSWORD = "enter_new_password"
-    # FILTER = "filter"
-    # FIRST_PAGE = "first_page"
-    # LAST_PAGE = "last_page"
-    # MAIN_MENU = "main_menu"
-    # NEXT_PAGE = "next_page"
-    # PREVIOUS_PAGE = "previous_page"
-    # PROVIDE_REPORT = "report"
-    # REGENERATE_SUMMARIES = "regenerate_summary_tables"
-    # TABLE_DUMP = "table_dump"
+    VIEW_USER = "view_user"
+    VIEW_SERVER_INFO = "view_server_info"
+    VIEW_TASKS = "view_tasks"
 
 
 class RoutePath(object):
@@ -516,8 +488,11 @@ class RouteCollection(object):
                        ignore_in_all_routes=True)
 
     # Implemented
+    ADD_GROUP = RoutePath(Routes.ADD_GROUP, "/add_group")
     ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE, "/add_special_note")
-    CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD, '/change_pw')
+    ADD_USER = RoutePath(Routes.ADD_USER, "/add_user")
+    CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD,
+                                    '/change_own_password')
     CHANGE_OTHER_PASSWORD = RoutePath(
         Routes.CHANGE_OTHER_PASSWORD,
         "/change_other_password"
@@ -531,7 +506,11 @@ class RouteCollection(object):
     CRASH = RoutePath(Routes.CRASH, "/crash")
     CTV = RoutePath(Routes.CTV, "/ctv")
     DATABASE_API = RoutePath(Routes.DATABASE_API, '/database')
+    DELETE_GROUP = RoutePath(Routes.DELETE_GROUP, "/delete_group")
     DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT, "/delete_patient")
+    DELETE_USER = RoutePath(Routes.DELETE_USER, "/delete_user")
+    EDIT_GROUP = RoutePath(Routes.EDIT_GROUP, "/edit_group")
+    EDIT_USER = RoutePath(Routes.EDIT_USER, "/edit_user")
     ERASE_TASK = RoutePath(Routes.ERASE_TASK, "/erase_task")
     FORCIBLY_FINALIZE = RoutePath(
         Routes.FORCIBLY_FINALIZE, "/forcibly_finalize"
@@ -541,7 +520,6 @@ class RouteCollection(object):
     # ... filename via query param (sorts out escaping)
     LOGIN = RoutePath(Routes.LOGIN, "/login")
     LOGOUT = RoutePath(Routes.LOGOUT, "/logout")
-    MANAGE_USERS = RoutePath(Routes.MANAGE_USERS, "/manage_users")
     OFFER_AUDIT_TRAIL = RoutePath(Routes.OFFER_AUDIT_TRAIL,
                                   "/offer_audit_trail")
     OFFER_BASIC_DUMP = RoutePath(Routes.OFFER_BASIC_DUMP, "/offer_basic_dump")
@@ -557,133 +535,30 @@ class RouteCollection(object):
     REPORT = RoutePath(Routes.REPORT, '/report')
     REPORTS_MENU = RoutePath(Routes.REPORTS_MENU, "/reports_menu")
     SET_FILTERS = RoutePath(Routes.SET_FILTERS, '/set_filters')
+    SET_OWN_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OWN_USER_UPLOAD_GROUP,
+                                          '/set_user_upload_group')
     TASK = RoutePath(Routes.TASK, "/task")
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1, '/testpriv1')
     TESTPAGE_PRIVATE_2 = RoutePath(Routes.TESTPAGE_PRIVATE_2, '/testpriv2')
     TESTPAGE_PRIVATE_3 = RoutePath(Routes.TESTPAGE_PRIVATE_3, '/testpriv3')
     TESTPAGE_PUBLIC_1 = RoutePath(Routes.TESTPAGE_PUBLIC_1, '/test1')
     TRACKER = RoutePath(Routes.TRACKER, "/tracker")
-    USER_INFO_DETAIL = RoutePath(Routes.USER_INFO_DETAIL, "/user_info_detail")
+    UNLOCK_USER = RoutePath(Routes.UNLOCK_USER, "/unlock_user")
+    VIEW_ALL_USERS = RoutePath(Routes.VIEW_ALL_USERS, "/view_all_users")
     VIEW_AUDIT_TRAIL = RoutePath(Routes.VIEW_AUDIT_TRAIL, "/view_audit_trail")
     VIEW_DDL = RoutePath(Routes.VIEW_DDL, "/view_ddl")
+    VIEW_GROUPS = RoutePath(Routes.VIEW_GROUPS, "/view_groups")
     VIEW_HL7_MESSAGE = RoutePath(Routes.VIEW_HL7_MESSAGE, "/view_hl7_message")
     VIEW_HL7_MESSAGE_LOG = RoutePath(Routes.VIEW_HL7_MESSAGE_LOG,
                                      "/view_hl7_message_log")
     VIEW_HL7_RUN = RoutePath(Routes.VIEW_HL7_RUN, "/view_hl7_run")
     VIEW_HL7_RUN_LOG = RoutePath(Routes.VIEW_HL7_RUN_LOG,
                                  "/view_hl7_run_log")
+    VIEW_OWN_USER_INFO = RoutePath(Routes.VIEW_OWN_USER_INFO,
+                                   "/view_own_user_info")
     VIEW_SERVER_INFO = RoutePath(Routes.VIEW_SERVER_INFO, "/view_server_info")
     VIEW_TASKS = RoutePath(Routes.VIEW_TASKS, "/view_tasks")
-
-    # To implement ***
-    # ADD_USER = RoutePath(Routes.ADD_USER, "/add_user")
-    # APPLY_FILTER_COMPLETE = RoutePath(
-    #     Routes.APPLY_FILTER_COMPLETE, "/apply_filter_complete"
-    # )
-    # APPLY_FILTER_DEVICE = RoutePath(
-    #     Routes.APPLY_FILTER_DEVICE, "/apply_filter_device"
-    # )
-    # APPLY_FILTER_DOB = RoutePath(Routes.APPLY_FILTER_DOB, "/apply_filter_dob")
-    # APPLY_FILTER_END_DATETIME = RoutePath(
-    #     Routes.APPLY_FILTER_END_DATETIME, "/apply_filter_end_datetime"
-    # )
-    # APPLY_FILTER_FORENAME = RoutePath(
-    #     Routes.APPLY_FILTER_FORENAME, "/apply_filter_forename"
-    # )
-    # APPLY_FILTER_IDNUMS = RoutePath(
-    #     Routes.APPLY_FILTER_IDNUMS, "/apply_filter_idnums"
-    # )
-    # APPLY_FILTER_INCLUDE_OLD_VERSIONS = RoutePath(
-    #     Routes.APPLY_FILTER_INCLUDE_OLD_VERSIONS,
-    #     "/apply_filter_include_old_versions"
-    # )
-    # APPLY_FILTERS = RoutePath(Routes.APPLY_FILTERS, "/apply_filters")
-    # APPLY_FILTER_SEX = RoutePath(Routes.APPLY_FILTER_SEX, "/apply_filter_sex")
-    # APPLY_FILTER_START_DATETIME = RoutePath(
-    #     Routes.APPLY_FILTER_START_DATETIME, "/apply_filter_start_datetime"
-    # )
-    # APPLY_FILTER_SURNAME = RoutePath(
-    #     Routes.APPLY_FILTER_SURNAME,
-    #     "/apply_filter_surname"
-    # )
-    # APPLY_FILTER_TASK = RoutePath(
-    #     Routes.APPLY_FILTER_TASK, "/apply_filter_task"
-    # )
-    # APPLY_FILTER_TEXT = RoutePath(
-    #     Routes.APPLY_FILTER_TEXT, "/apply_filter_text"
-    # )
-    # APPLY_FILTER_USER = RoutePath(
-    #     Routes.APPLY_FILTER_USER, "/apply_filter_user"
-    # )
-    # ASK_DELETE_USER = RoutePath(Routes.ASK_DELETE_USER, "/ask_delete_user")
-    # ASK_TO_ADD_USER = RoutePath(Routes.ASK_TO_ADD_USER, "/ask_to_add_user")
-    # BASIC_DUMP = RoutePath(Routes.BASIC_DUMP, "/basic_dump")
-    # CHANGE_NUMBER_TO_VIEW = RoutePath(
-    #     Routes.CHANGE_NUMBER_TO_VIEW, "/change_number_to_view"
-    # )
-    # CHANGE_USER = RoutePath(Routes.CHANGE_USER, "/change_user")
-    # CLEAR_FILTER_COMPLETE = RoutePath(
-    #     Routes.CLEAR_FILTER_COMPLETE, "/clear_filter_complete"
-    # )
-    # CLEAR_FILTER_DEVICE = RoutePath(
-    #     Routes.CLEAR_FILTER_DEVICE, "/clear_filter_device"
-    # )
-    # CLEAR_FILTER_DOB = RoutePath(Routes.CLEAR_FILTER_DOB, "/clear_filter_dob")
-    # CLEAR_FILTER_END_DATETIME = RoutePath(
-    #     Routes.CLEAR_FILTER_END_DATETIME, "/clear_filter_end_datetime"
-    # )
-    # CLEAR_FILTER_FORENAME = RoutePath(
-    #     Routes.CLEAR_FILTER_FORENAME, "/clear_filter_forename"
-    # )
-    # CLEAR_FILTER_IDNUMS = RoutePath(
-    #     Routes.CLEAR_FILTER_IDNUMS, "/clear_filter_idnums"
-    # )
-    # CLEAR_FILTER_INCLUDE_OLD_VERSIONS = RoutePath(
-    #     Routes.CLEAR_FILTER_INCLUDE_OLD_VERSIONS,
-    #     "/clear_filter_include_old_versions"
-    # )
-    # CLEAR_FILTERS = RoutePath(Routes.CLEAR_FILTERS, "/clear_filters")
-    # CLEAR_FILTER_SEX = RoutePath(Routes.CLEAR_FILTER_SEX, "/clear_filter_sex")
-    # CLEAR_FILTER_START_DATETIME = RoutePath(
-    #     Routes.CLEAR_FILTER_START_DATETIME, "/clear_filter_start_datetime"
-    # )
-    # CLEAR_FILTER_SURNAME = RoutePath(
-    #     Routes.CLEAR_FILTER_SURNAME, "/clear_filter_surname"
-    # )
-    # CLEAR_FILTER_TASK = RoutePath(
-    #     Routes.CLEAR_FILTER_TASK, "/clear_filter_task"
-    # )
-    # CLEAR_FILTER_TEXT = RoutePath(
-    #     Routes.CLEAR_FILTER_TEXT, "/clear_filter_text"
-    # )
-    # CLEAR_FILTER_USER = RoutePath(
-    #     Routes.CLEAR_FILTER_USER, "/clear_filter_user"
-    # )
-    # CLINICALTEXTVIEW = RoutePath(Routes.CLINICALTEXTVIEW, "/clinicaltextview")
-    # DELETE_USER = RoutePath(Routes.DELETE_USER, "/delete_user")
-    # EDIT_PATIENT = RoutePath(Routes.EDIT_PATIENT, "/edit_patient")
-    # EDIT_USER = RoutePath(Routes.EDIT_USER, "/edit_user")
-    # ENABLE_USER = RoutePath(Routes.ENABLE_USER, "/enable_user")
-    # ENTER_NEW_PASSWORD = RoutePath(
-    #     Routes.ENTER_NEW_PASSWORD, "/enter_new_password"
-    # )
-    # FILTER = RoutePath(Routes.FILTER, "/filter")
-    # FIRST_PAGE = RoutePath(Routes.FIRST_PAGE, "/first_page")
-    # INSPECT_TABLE_VIEW_DEFS = RoutePath(
-    #     Routes.INSPECT_TABLE_VIEW_DEFS, "/view_table_and_view_definitions"
-    # )
-    # LAST_PAGE = RoutePath(Routes.LAST_PAGE, "/last_page")
-    # # now HOME # MAIN_MENU = "main_menu"
-    # NEXT_PAGE = RoutePath(Routes.NEXT_PAGE, "/next_page")
-    # OFFER_REGENERATE_SUMMARIES = RoutePath(
-    #     Routes.OFFER_REGENERATE_SUMMARIES, "/offer_regenerate_summary_tables"
-    # )
-    # PREVIOUS_PAGE = RoutePath(Routes.PREVIOUS_PAGE, "/previous_page")
-    # PROVIDE_REPORT = RoutePath(Routes.PROVIDE_REPORT, "/report")
-    # REGENERATE_SUMMARIES = RoutePath(
-    #     Routes.REGENERATE_SUMMARIES, "/regenerate_summary_tables"
-    # )
-    # TABLE_DUMP = RoutePath(Routes.TABLE_DUMP, "table_dump")
+    VIEW_USER = RoutePath(Routes.VIEW_USER, "/view_user")
 
     @classmethod
     def all_routes(cls) -> List[RoutePath]:
@@ -948,19 +823,25 @@ PAGER_PATTERN = (
 
 class CamcopsPage(Page):
     # noinspection PyShadowingBuiltins
-
     def __init__(self,
-                 collection: Sequence[Any],
+                 collection: Union[Sequence[Any], Query],
                  page: int = 1,
                  items_per_page: int = 20,
                  item_count: int = None,
-                 wrapper_class: object = None,
+                 wrapper_class: Type[Any] = None,
                  url_maker: Callable[[int], str] = None,
+                 ellipsis: str = "&hellip;",
                  **kwargs) -> None:
         # Bug in paginate: it slices its collection BEFORE it realizes that the
         # page number is out of range.
+        # Also, it uses ".." for an ellipsis, which is just wrong.
+        self.ellipsis = ellipsis
         page = max(1, page)
-        item_count = item_count if item_count is not None else len(collection)
+        if item_count is None:
+            if wrapper_class:
+                item_count = len(wrapper_class(collection))
+            else:
+                item_count = len(collection)
         n_pages = ((item_count - 1) // items_per_page) + 1
         page = min(page, n_pages)
         super().__init__(
@@ -972,7 +853,15 @@ class CamcopsPage(Page):
             url_maker=url_maker,
             **kwargs
         )
+        # Original defines attributes outside __init__, so:
+        self.radius = 2
+        self.curpage_attr = {}  # type: Dict[str, str]
+        self.separator = ""
+        self.link_attr = {}  # type: Dict[str, str]
+        self.dotdot_attr = {}  # type: Dict[str, str]
+        self.url = ""
 
+    # noinspection PyShadowingBuiltins
     def pager(self,
               format: str = PAGER_PATTERN,
               url: str = None,
@@ -994,7 +883,7 @@ class CamcopsPage(Page):
         link_attr = link_attr or {}  # type: Dict[str, str]
         curpage_attr = curpage_attr or {}  # type: Dict[str, str]
         # dotdot_attr = dotdot_attr or {}  # type: Dict[str, str]
-        dotdot_attr = dotdot_attr or {'class': 'pager_dotdot'}  # our default!
+        # dotdot_attr = dotdot_attr or {'class': 'pager_dotdot'}  # our default!
         return super().pager(
             format=format,
             url=url,
@@ -1009,6 +898,144 @@ class CamcopsPage(Page):
             dotdot_attr=dotdot_attr,
             link_tag=link_tag,
         )
+
+    # noinspection PyShadowingBuiltins
+    def link_map(self,
+                 format: str = '~2~',
+                 url: str = None,
+                 show_if_single_page: bool = False,
+                 separator: str = ' ',
+                 symbol_first: str = '&lt;&lt;',
+                 symbol_last: str ='&gt;&gt;',
+                 symbol_previous: str = '&lt;',
+                 symbol_next: str='&gt;',
+                 link_attr: Dict[str, str] = None,
+                 curpage_attr: Dict[str, str] = None,
+                 dotdot_attr: Dict[str, str] = None):
+        # Fixes bugs (e.g. mutable default arguments) and nasties (e.g.
+        # enforcing ".." for the ellipsis) in the original.
+        self.curpage_attr = curpage_attr or {}  # type: Dict[str, str]
+        self.separator = separator
+        self.link_attr = link_attr or {}  # type: Dict[str, str]
+        self.dotdot_attr = dotdot_attr or {}  # type: Dict[str, str]
+        self.url = url
+
+        regex_res = re.search(r'~(\d+)~', format)
+        if regex_res:
+            radius = regex_res.group(1)
+        else:
+            radius = 2
+        radius = int(radius)
+        self.radius = radius
+
+        # Compute the first and last page number within the radius
+        # e.g. '1 .. 5 6 [7] 8 9 .. 12'
+        # -> leftmost_page  = 5
+        # -> rightmost_page = 9
+        leftmost_page = (
+            max(self.first_page, (self.page - radius))
+            if self.first_page else None
+        )
+        rightmost_page = (
+            min(self.last_page, (self.page+radius))
+            if self.last_page else None
+        )
+        nav_items = {
+            "first_page": None,
+            "last_page": None,
+            "previous_page": None,
+            "next_page": None,
+            "current_page": None,
+            "radius": self.radius,
+            "range_pages": []
+        }  # type: Dict[str, Any]
+
+        if leftmost_page is None or rightmost_page is None:
+            return nav_items
+
+        nav_items["first_page"] = {
+            "type": "first_page",
+            "value": symbol_first,
+            "attrs": self.link_attr,
+            "number": self.first_page,
+            "href": self.url_maker(self.first_page)
+        }
+
+        # Insert dots if there are pages between the first page
+        # and the currently displayed page range
+        if leftmost_page - self.first_page > 1:
+            # Wrap in a SPAN tag if dotdot_attr is set
+            nav_items["range_pages"].append({
+                "type": "span",
+                "value": self.ellipsis,
+                "attrs": self.dotdot_attr,
+                "href": "",
+                "number": None
+            })
+
+        for thispage in range(leftmost_page, rightmost_page + 1):
+            # Highlight the current page number and do not use a link
+            if thispage == self.page:
+                # Wrap in a SPAN tag if curpage_attr is set
+                nav_items["range_pages"].append({
+                    "type": "current_page",
+                    "value": str(thispage),
+                    "number": thispage,
+                    "attrs": self.curpage_attr,
+                    "href": self.url_maker(thispage)
+                })
+                nav_items["current_page"] = {
+                    "value": thispage,
+                    "attrs": self.curpage_attr,
+                    "type": "current_page",
+                    "href": self.url_maker(thispage)
+                }
+            # Otherwise create just a link to that page
+            else:
+                nav_items["range_pages"].append({
+                    "type": "page",
+                    "value": str(thispage),
+                    "number": thispage,
+                    "attrs": self.link_attr,
+                    "href": self.url_maker(thispage)
+                })
+
+        # Insert dots if there are pages between the displayed
+        # page numbers and the end of the page range
+        if self.last_page - rightmost_page > 1:
+            # Wrap in a SPAN tag if dotdot_attr is set
+            nav_items["range_pages"].append({
+                "type": "span",
+                "value": self.ellipsis,
+                "attrs": self.dotdot_attr,
+                "href": "",
+                "number": None
+            })
+
+        # Create a link to the very last page (unless we are on the last
+        # page or there would be no need to insert '..' spacers)
+        nav_items["last_page"] = {
+            "type": "last_page",
+            "value": symbol_last,
+            "attrs": self.link_attr,
+            "href": self.url_maker(self.last_page),
+            "number": self.last_page
+        }
+        nav_items["previous_page"] = {
+            "type": "previous_page",
+            "value": symbol_previous,
+            "attrs": self.link_attr,
+            "number": self.previous_page or self.first_page,
+            "href": self.url_maker(self.previous_page or self.first_page)
+        }
+        nav_items["next_page"] = {
+            "type": "next_page",
+            "value": symbol_next,
+            "attrs": self.link_attr,
+            "number": self.next_page or self.last_page,
+            "href": self.url_maker(self.next_page or self.last_page)
+        }
+        return nav_items
 
 
 class SqlalchemyOrmPage(CamcopsPage):

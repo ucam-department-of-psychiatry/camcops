@@ -29,8 +29,8 @@ import pendulum
 from pendulum import Date, Pendulum
 import tzlocal
 
-POTENTIAL_DATETIME_TYPES = Union[None, datetime.datetime, datetime.date,
-                                 Pendulum, str]
+PotentialDatetimeType = Union[None, datetime.datetime, datetime.date,
+                              Pendulum, str]
 
 
 # =============================================================================
@@ -38,7 +38,7 @@ POTENTIAL_DATETIME_TYPES = Union[None, datetime.datetime, datetime.date,
 # ... including adding timezone information to timezone-naive objects
 # =============================================================================
 
-def coerce_to_pendulum(x: POTENTIAL_DATETIME_TYPES,
+def coerce_to_pendulum(x: PotentialDatetimeType,
                        assume_local: bool = False) -> Optional[Pendulum]:
     """
     Converts something to a Pendulum, or None.
@@ -68,7 +68,7 @@ def coerce_to_pendulum(x: POTENTIAL_DATETIME_TYPES,
     # be altered; "tz" will only be applied in the absence of other info.
 
 
-def coerce_to_date(x: POTENTIAL_DATETIME_TYPES,
+def coerce_to_date(x: PotentialDatetimeType,
                    assume_local: bool = False) -> Optional[Date]:
     p = coerce_to_pendulum(x, assume_local=assume_local)
     if p is None:
@@ -80,7 +80,7 @@ def coerce_to_date(x: POTENTIAL_DATETIME_TYPES,
 # Format dates/times to strings
 # =============================================================================
 
-def format_datetime(d: POTENTIAL_DATETIME_TYPES,
+def format_datetime(d: PotentialDatetimeType,
                     fmt: str,
                     default: str = None) -> Optional[str]:
     """Format a datetime with a format string, or return default if None."""
@@ -167,8 +167,8 @@ def get_duration_h_m(start: Union[str, Pendulum],
         return "{}:{}".format(hours, "00" if minutes == 0 else minutes)
 
 
-def get_age(dob: POTENTIAL_DATETIME_TYPES,
-            when: POTENTIAL_DATETIME_TYPES,
+def get_age(dob: PotentialDatetimeType,
+            when: PotentialDatetimeType,
             default: str = "") -> Union[int, str]:
     """
     Age (in whole years) at a particular date, or default.

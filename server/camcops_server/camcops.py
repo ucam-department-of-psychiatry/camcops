@@ -151,6 +151,8 @@ if (DEBUG_ADD_ROUTES or DEBUG_AUTHORIZATION or DEBUG_LOG_CONFIG or
 # =============================================================================
 
 DEFAULT_CONFIG_FILENAME = "/etc/camcops/camcops.conf"
+DEFAULT_HOST = "127.0.0.1"
+DEFAULT_PORT = 8000
 DEFAULT_URL_PATH_ROOT = '/'  # TODO: from config file?
 
 
@@ -266,7 +268,10 @@ def make_wsgi_app(debug_toolbar: bool = False,
         # ---------------------------------------------------------------------
         if debug_toolbar:
             log.debug("Enabling Pyramid debug toolbar")
-            config.include('pyramid_debugtoolbar')
+            config.include('pyramid_debugtoolbar')  # BEWARE! SIDE EFFECTS
+            # ... Will trigger an import that hooks events into all
+            # SQLAlchemy queries. There's a bug somewhere relating to that;
+            # see notes below relating to the "mergedb" function.
             config.add_route(RouteCollection.DEBUG_TOOLBAR.route,
                              RouteCollection.DEBUG_TOOLBAR.path)
 
@@ -287,7 +292,7 @@ def make_wsgi_app(debug_toolbar: bool = False,
     return app
 
 
-def test_serve(host: str = '0.0.0.0', port: int = 8000,
+def test_serve(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT,
                debug_toolbar: bool = True,
                serve_static_files: bool = True) -> None:
     application = make_wsgi_app(debug_toolbar=debug_toolbar,
@@ -560,7 +565,8 @@ def camcops_main() -> None:
 
     parser = ArgumentParser(
         prog="camcops",  # name the user will use to call it
-        description="CamCOPS server version {}.".format(CAMCOPS_SERVER_VERSION),  # noqa
+        description="CamCOPS server version {}, by Rudolf Cardinal.".format(
+            CAMCOPS_SERVER_VERSION),
         formatter_class=RawDescriptionHelpFormatter,
         add_help=False)
     parser.add_argument(
@@ -646,7 +652,7 @@ def camcops_main() -> None:
 
     upgradedb_parser = add_sub(
         subparsers, "upgradedb", config_mandatory=True,
-        help="Upgrade database (via Alembic)")
+        help="Upgrade database to most recent version (via Alembic)")
     upgradedb_parser.set_defaults(func=None)
 
     resetsv_parser = add_sub(
@@ -803,10 +809,10 @@ def camcops_main() -> None:
         help="Test web server (single-thread, single-process, HTTP-only, "
              "Pyramid; for development use only")
     testserve_parser.add_argument(
-        '--host', type=str, default="127.0.0.1",
+        '--host', type=str, default=DEFAULT_HOST,
         help="hostname to listen on")
     testserve_parser.add_argument(
-        '--port', type=int, default=8088,
+        '--port', type=int, default=DEFAULT_PORT,
         help="port to listen on")
     testserve_parser.add_argument(
         '--debug_toolbar', action="store_true",
@@ -829,10 +835,10 @@ def camcops_main() -> None:
         "--serve", action="store_true",
         help="")
     serve_parser.add_argument(
-        '--host', type=str, default="127.0.0.1",
+        '--host', type=str, default=DEFAULT_HOST,
         help="hostname to listen on")
     serve_parser.add_argument(
-        '--port', type=int, default=8088,
+        '--port', type=int, default=DEFAULT_PORT,
         help="port to listen on")
     serve_parser.add_argument(
         "--server_name", type=str, default="localhost",

@@ -57,7 +57,7 @@ from .cc_dt import (
     format_datetime,
     get_age,
     get_now_localtz,
-    POTENTIAL_DATETIME_TYPES,
+    PotentialDatetimeType,
 )
 from .cc_hl7core import make_pid_segment
 from .cc_html import answer, get_generic_action_url, get_url_field_value_pair
@@ -384,7 +384,7 @@ class Patient(GenericTabletRecordMixin, Base):
         return format_datetime(dob_dt, DateFormat.SHORT_DATE)
 
     def get_age_at(self,
-                   when: POTENTIAL_DATETIME_TYPES,
+                   when: PotentialDatetimeType,
                    default: str = "") -> Union[int, str]:
         """
         Age (in whole years) at a particular date, or default.

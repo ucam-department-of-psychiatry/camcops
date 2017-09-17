@@ -9,7 +9,7 @@
     </div>
 %endif
 
-<h1>Change password</h1>
+<h1>Change your password</h1>
 
 ${form}
 

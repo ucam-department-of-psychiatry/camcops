@@ -196,6 +196,9 @@ table.clinician, table.clinician th, table.clinician td {
 .explanation {
     background-color: rgb(200, 255, 200);
 }
+.filters {
+    font-style: italic;
+}
 table.extradetail {
     border: ${va.THINLINE} solid black;
     background-color: rgb(210, 210, 210);
@@ -298,16 +301,6 @@ div.indented {
     font-style: italic;
     font-size: ${va.TINYFONTSIZE};
     line-height: ${va.TINYLINEHEIGHT};
-}
-.pager_dotdot {
-    ## The "Paginate" model uses "..", which is nasty.
-    ## https://stackoverflow.com/questions/7896402/how-can-i-replace-text-with-css
-    font-size: 0;
-}
-.pager_dotdot:before {
-    ## &hellip; doesn't work in "content"
-    content: "...";
-    font-size: ${va.MAINFONTSIZE};
 }
 .patient {
     background-color: rgb(255, 200, 200);

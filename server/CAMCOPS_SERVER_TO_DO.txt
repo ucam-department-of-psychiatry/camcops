@@ -1,5 +1,11 @@
 
 *** user management
+*** group management
+
+*** filters as database entities
+    session has FK to current filter
+    filter says "suitable for tracker Y/N"
+    quick-tracker option (which_idnum, idnum_value) or current filter
 
 *** delete patient
 *** forcibly preserve

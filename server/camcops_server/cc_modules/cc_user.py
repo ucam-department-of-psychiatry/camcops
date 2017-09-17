@@ -346,6 +346,10 @@ class User(Base):
         nullable=False,
         comment="Password hash"
     )
+    last_login_at_utc = Column(
+        "last_login_at_utc", DateTime,
+        comment="Date/time this user last logged in (UTC)"
+    )
     last_password_change_utc = Column(
         "last_password_change_utc", DateTime,
         comment="Date/time this user last changed their password (UTC)"
@@ -423,7 +427,9 @@ class User(Base):
     @classmethod
     def get_user_by_id(cls,
                        dbsession: SqlASession,
-                       user_id: int) -> Optional['User']:
+                       user_id: Optional[int]) -> Optional['User']:
+        if user_id is None:
+            return None
         return dbsession.query(cls).filter(cls.id == user_id).first()
 
     @classmethod
@@ -432,6 +438,8 @@ class User(Base):
                          username: str,
                          create_if_not_exists: bool = False) \
             -> Optional['User']:
+        if not username:
+            return None
         user = dbsession.query(cls).filter(cls.username == username).first()
         if user is None and create_if_not_exists:
             user = cls(username=username)
@@ -440,12 +448,15 @@ class User(Base):
 
     @classmethod
     def user_exists(cls, req: "CamcopsRequest", username: str) -> bool:
+        if not username:
+            return False
         dbsession = req.dbsession
         return exists_orm(dbsession, cls, cls.username == username)
 
     @classmethod
     def create_superuser(cls, req: "CamcopsRequest", username: str,
                          password: str) -> bool:
+        assert username, "Can't create superuser with no name"
         dbsession = req.dbsession
         user = cls.get_user_by_name(dbsession, username, False)
         if user:
@@ -538,6 +549,7 @@ class User(Base):
         """
         self.clear_login_failures(req)
         self.set_password_change_flag_if_necessary(req)
+        self.last_login_at_utc = req.now_utc
 
     def set_password_change_flag_if_necessary(self,
                                               req: "CamcopsRequest") -> None:
@@ -595,6 +607,14 @@ class User(Base):
     def may_login_as_tablet(self) -> bool:
         return self.may_upload or self.may_register_devices
 
+    def group_ids(self) -> List[int]:
+        return sorted(list(g.id for g in self.groups))
+
+    def set_group_ids(self, group_ids: List[int]) -> None:
+        dbsession = SqlASession.object_session(self)
+        groups = dbsession.query(Group).filter(Group.id.in_(group_ids)).all()
+        self.groups = groups
+
     def ids_of_groups_user_may_see(self) -> List[int]:
         # Incidentally: "list_a += list_b" vs "list_a.extend(list_b)":
         # https://stackoverflow.com/questions/3653298/concatenating-two-lists-difference-between-and-extend  # noqa
@@ -612,7 +632,7 @@ class User(Base):
 
     def groups_user_may_see(self) -> List[Group]:
         # A less efficient version, for visual display (see
-        # user_info_detail.mako)
+        # view_own_user_info.mako)
         groups = set(self.groups)  # type: Set[Group]
         for my_group in self.groups:  # type: Group
             groups.update(set(my_group.can_see_other_groups))
@@ -647,284 +667,6 @@ def get_user_filter_dropdown(req: "CamcopsRequest",
 # =============================================================================
 # User management
 # =============================================================================
-
-def get_url_edit_user(req: "CamcopsRequest", username: str) -> str:
-    """URL to edit a specific user."""
-    return (
-        get_generic_action_url(req, ACTION.EDIT_USER) +
-        get_url_field_value_pair(PARAM.USERNAME, username)
-    )
-
-
-def get_url_ask_delete_user(req: "CamcopsRequest", username: str) -> str:
-    """URL to ask for confirmation to delete a specific user."""
-    return (
-        get_generic_action_url(req, ACTION.ASK_DELETE_USER) +
-        get_url_field_value_pair(PARAM.USERNAME, username)
-    )
-
-
-def get_url_enable_user(req: "CamcopsRequest", username: str) -> str:
-    """URL to enable a specific user."""
-    return (
-        get_generic_action_url(req, ACTION.ENABLE_USER) +
-        get_url_field_value_pair(PARAM.USERNAME, username)
-    )
-
-
-def manage_users_html(req: "CamcopsRequest") -> str:
-    """HTML to view/edit users."""
-    cfg = req.config
-    ccsession = req.camcops_session
-    dbsession = req.dbsession
-    allusers = dbsession.query(User).order_by(User.username).all()
-    output = req.webstart_html + """
-        {}
-        <h1>Manage users</h1>
-        <ul>
-            <li><a href="{}">Add user</a></li>
-        </ul>
-        <table>
-            <tr>
-                <th>User name</th>
-                <th>Actions</th>
-                <th>Locked out?</th>
-                <th>Last password change (UTC)</th>
-                <th>May use web viewer?</th>
-                <th>May view other users’ records?</th>
-                <th>Sees all patients’ records when unfiltered?</th>
-                <th>May upload data?</th>
-                <th>May manage users?</th>
-                <th>May register tablet devices?</th>
-                <th>May use webstorage?</th>
-                <th>May dump data?</th>
-                <th>May run reports?</th>
-                <th>May add notes?</th>
-                <th>Click to delete use</th>
-            </tr>
-    """.format(
-        ccsession.get_current_user_html(),
-        get_generic_action_url(req, ACTION.ASK_TO_ADD_USER),
-    ) + WEBEND
-    for u in allusers:
-        if u.is_locked_out():
-            enableuser = "| <a href={}>Re-enable user</a>".format(
-                get_url_enable_user(req, u.username)
-            )
-            lockedmsg = "Yes, until {}".format(format_datetime(
-                u.locked_out_until(),
-                DateFormat.ISO8601
-            ))
-        else:
-            enableuser = ""
-            lockedmsg = "No"
-        output += """
-            <tr>
-                <td>{username}</td>
-                <td>
-                    <a href="{url_edit}">Edit permissions</a>
-                    | <a href="{url_changepw}">Change password</a>
-                    {enableuser}
-                </td>
-                <td>{lockedmsg}</td>
-                <td>{lastpwchange}</td>
-                <td>{may_use_webviewer}</td>
-                <td>{may_view_other_users_records}</td>
-                <td>{view_all_patients_when_unfiltered}</td>
-                <td>{may_upload}</td>
-                <td>{superuser}</td>
-                <td>{may_register_devices}</td>
-                <td>{may_use_webstorage}</td>
-                <td>{may_dump_data}</td>
-                <td>{may_run_reports}</td>
-                <td>{may_add_notes}</td>
-                <td><a href="{url_delete}">Delete user {username}</a></td>
-            </tr>
-        """.format(
-            url_edit=get_url_edit_user(req, u.username),
-            url_changepw=get_url_enter_new_password(req, u.username),
-            enableuser=enableuser,
-            lockedmsg=lockedmsg,
-            lastpwchange=ws.webify(u.last_password_change_utc),
-            may_use_webviewer=get_yes_no(u.may_use_webviewer),
-            may_view_other_users_records=get_yes_no(
-                u.may_view_other_users_records),
-            view_all_patients_when_unfiltered=get_yes_no(
-                u.view_all_patients_when_unfiltered),
-            may_upload=get_yes_no(u.may_upload),
-            superuser=get_yes_no(u.superuser),
-            may_register_devices=get_yes_no(u.may_register_devices),
-            may_use_webstorage=get_yes_no(u.may_use_webstorage),
-            may_dump_data=get_yes_no(u.may_dump_data),
-            may_run_reports=get_yes_no(u.may_run_reports),
-            may_add_notes=get_yes_no(u.may_add_notes),
-            url_delete=get_url_ask_delete_user(req, u.username),
-            username=u.username,
-        )
-    output += """
-        </table>
-    """ + WEBEND
-    return output
-
-
-def edit_user_form(req: "CamcopsRequest", username: str) -> str:
-    """HTML form to edit a single user's permissions."""
-    dbsession = req.dbsession
-    user = User.get_user_by_name(dbsession, username)
-    ccsession = req.camcops_session
-    cfg = req.config
-    if not user:
-        return user_management_failure_message(req,
-                                               "Invalid user: " + username)
-    return req.webstart_html + """
-        {userdetails}
-        <h1>Edit user {username}</h1>
-        <form name="myform" action="{script}" method="POST">
-            <input type="hidden" name="{PARAM.USERNAME}" value="{username}">
-            <label>
-                <input type="checkbox" name="{PARAM.MAY_USE_WEBVIEWER}"
-                    value="1" {may_use_webviewer}>
-                {LABEL.MAY_USE_WEBVIEWER}
-            </label><br>
-            <label>
-                <input type="checkbox"
-                    name="{PARAM.MAY_VIEW_OTHER_USERS_RECORDS}"
-                    value="1" {may_view_other_users_records}>
-                {LABEL.MAY_VIEW_OTHER_USERS_RECORDS}
-            </label><br>
-            <label>
-                <input type="checkbox"
-                    name="{PARAM.VIEW_ALL_PTS_WHEN_UNFILTERED}"
-                    value="1" {view_all_patients_when_unfiltered}>
-                {LABEL.VIEW_ALL_PATIENTS_WHEN_UNFILTERED}
-            </label><br>
-            <label>
-                <input type="checkbox" name="{PARAM.MAY_UPLOAD}"
-                    value="1" {may_upload}>
-                {LABEL.MAY_UPLOAD}
-            </label><br>
-            <label>
-                <input type="checkbox" name="{PARAM.SUPERUSER}"
-                    value="1" {superuser}>
-                {LABEL.SUPERUSER}
-            </label><br>
-            <label>
-                <input type="checkbox" name="{PARAM.MAY_REGISTER_DEVICES}"
-                    value="1" {may_register_devices}>
-                {LABEL.MAY_REGISTER_DEVICES}
-            </label><br>
-            <label>
-                <input type="checkbox" name="{PARAM.MAY_USE_WEBSTORAGE}"
-                    value="1" {may_use_webstorage}>
-                {LABEL.MAY_USE_WEBSTORAGE}
-            </label><br>
-            <label>
-                <input type="checkbox" name="{PARAM.MAY_DUMP_DATA}"
-                    value="1" {may_dump_data}>
-                {LABEL.MAY_DUMP_DATA}
-            </label><br>
-            <label>
-                <input type="checkbox" name="{PARAM.MAY_RUN_REPORTS}"
-                    value="1" {may_run_reports}>
-                {LABEL.MAY_RUN_REPORTS}
-            </label><br>
-            <label>
-                <input type="checkbox" name="{PARAM.MAY_ADD_NOTES}"
-                    value="1" {may_add_notes}>
-                {LABEL.MAY_ADD_NOTES}
-            </label><br>
-            <input type="hidden" name="{PARAM.ACTION}"
-                value="{ACTION.CHANGE_USER}">
-            <input type="submit" value="Submit">
-        </form>
-    """.format(
-        may_use_webviewer=ws.checkbox_checked(user.may_use_webviewer),
-        may_view_other_users_records=ws.checkbox_checked(
-            user.may_view_other_users_records),
-        view_all_patients_when_unfiltered=ws.checkbox_checked(
-            user.view_all_patients_when_unfiltered),
-        may_upload=ws.checkbox_checked(user.may_upload),
-        superuser=ws.checkbox_checked(user.superuser),
-        may_register_devices=ws.checkbox_checked(user.may_register_devices),
-        may_use_webstorage=ws.checkbox_checked(user.may_use_webstorage),
-        may_dump_data=ws.checkbox_checked(user.may_dump_data),
-        may_run_reports=ws.checkbox_checked(user.may_run_reports),
-        may_add_notes=ws.checkbox_checked(user.may_add_notes),
-        userdetails=ccsession.get_current_user_html(),
-        script=req.script_name,
-        username=user.username,
-        PARAM=PARAM,
-        ACTION=ACTION,
-        LABEL=LABEL,
-    ) + WEBEND
-
-
-def change_user(req: "CamcopsRequest", form: cgi.FieldStorage) -> str:
-    """Apply changes to a user, and return success/failure HTML."""
-    username = ws.get_cgi_parameter_str(form, PARAM.USERNAME)
-    may_use_webviewer = ws.get_cgi_parameter_bool(
-        form, PARAM.MAY_USE_WEBVIEWER)
-    may_view_other_users_records = ws.get_cgi_parameter_bool(
-        form, PARAM.MAY_VIEW_OTHER_USERS_RECORDS)
-    view_all_patients_when_unfiltered = ws.get_cgi_parameter_bool(
-        form, PARAM.VIEW_ALL_PTS_WHEN_UNFILTERED)
-    may_upload = ws.get_cgi_parameter_bool(form, PARAM.MAY_UPLOAD)
-    superuser = ws.get_cgi_parameter_bool(form, PARAM.SUPERUSER)
-    may_register_devices = ws.get_cgi_parameter_bool(
-        form, PARAM.MAY_REGISTER_DEVICES)
-    may_use_webstorage = ws.get_cgi_parameter_bool(
-        form, PARAM.MAY_USE_WEBSTORAGE)
-    may_dump_data = ws.get_cgi_parameter_bool(form, PARAM.MAY_DUMP_DATA)
-    may_run_reports = ws.get_cgi_parameter_bool(form, PARAM.MAY_RUN_REPORTS)
-    may_add_notes = ws.get_cgi_parameter_bool(form, PARAM.MAY_ADD_NOTES)
-
-    dbsession = req.dbsession
-    user = User.get_user_by_name(dbsession, username)
-    if not user:
-        return user_management_failure_message(req,
-                                               "Invalid user: " + username)
-
-    user.may_use_webviewer = may_use_webviewer
-    user.may_view_other_users_records = may_view_other_users_records
-    user.view_all_patients_when_unfiltered = view_all_patients_when_unfiltered
-    user.may_upload = may_upload
-    user.superuser = superuser
-    user.may_register_devices = may_register_devices
-    user.may_use_webstorage = may_use_webstorage
-    user.may_dump_data = may_dump_data
-    user.may_run_reports = may_run_reports
-    user.may_add_notes = may_add_notes
-
-    audit(
-        req,
-        (
-            "User permissions edited for user {}: "
-            "may_use_webviewer={}, "
-            "may_view_other_users_records={}, "
-            "view_all_patients_when_unfiltered={}, "
-            "may_upload={}, "
-            "superuser={}, "
-            "may_register_devices={}, "
-            "may_use_webstorage={}, "
-            "may_dump_data={}, "
-            "may_run_reports={}, "
-            "may_add_notes={} "
-        ).format(
-            user.username,
-            may_use_webviewer,
-            may_view_other_users_records,
-            view_all_patients_when_unfiltered,
-            may_upload,
-            superuser,
-            may_register_devices,
-            may_use_webstorage,
-            may_dump_data,
-            may_run_reports,
-            may_add_notes,
-        )
-    )
-    return user_management_success_message(
-        req, "Details updated for user " + user.username)
 
 
 def ask_to_add_user_html(req: "CamcopsRequest") -> str:

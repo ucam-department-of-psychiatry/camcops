@@ -38,7 +38,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 %if authorized_as_superuser:
     <ul>
-        <li><a href="${request.route_url(Routes.MANAGE_USERS)}">Manage users</a></li>
+        <li><a href="${request.route_url(Routes.VIEW_ALL_USERS)}">View/manage users</a></li>
+        <li><a href="${request.route_url(Routes.VIEW_GROUPS)}">View/manage groups</a></li>
         <li><a href="${request.route_url(Routes.DELETE_PATIENT)}">Delete patient entirely</a></li>
         <li><a href="${request.route_url(Routes.FORCIBLY_FINALIZE)}">Forcibly preserve/finalize records for a device</a></li>
         <li><a href="${request.route_url(Routes.OFFER_AUDIT_TRAIL)}">View audit trail</a></li>
@@ -48,7 +49,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %endif
 
 <ul>
-    <li><a href="${request.route_url(Routes.VIEW_SERVER_INFO)}">Show database settings (identification policies, groups)</a></li>
+    <li><a href="${request.route_url(Routes.VIEW_SERVER_INFO)}">Show database settings (identification policies)</a></li>
     %if introspection:
         <li><a href="${request.route_url(Routes.OFFER_INTROSPECTION)}">Introspect source code</a></li>
     %endif
@@ -57,7 +58,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     %else:
         <li class="warning">No username!</li>
     %endif
-    <li><a href="${request.route_url(Routes.USER_INFO_DETAIL)}">Show your user settings</a></li>
+    <li><a href="${request.route_url(Routes.SET_OWN_USER_UPLOAD_GROUP)}">Choose group into which to upload data</a></li>
+    <li><a href="${request.route_url(Routes.VIEW_OWN_USER_INFO)}">Show your user settings</a></li>
     <li><a href="${request.route_url(Routes.LOGOUT)}">Log out</a></li>
 </ul>
 

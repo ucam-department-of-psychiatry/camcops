@@ -1,17 +1,13 @@
 ## user_info_detail.mako
-<%inherit file="base_web.mako"/>
+<%page args="user: User"/>
+
 <%!
-    from camcops_server.cc_modules.cc_html import get_yes_no
+
+from camcops_server.cc_modules.cc_html import get_yes_no
+
 %>
+
 <%namespace file="displayfunc.mako" import="one_per_line"/>
-
-<%include file="db_user_info.mako"/>
-
-<%
-    user = request.camcops_session.user
-%>
-
-<h1>Information about user ${ user.username | h }</h1>
 
 <table>
     <tr>
@@ -29,6 +25,14 @@
     <tr>
         <th>E-mail address</th>
         <td>${ (user.email or "") | h }</td>
+    </tr>
+    <tr>
+        <th>Last login at (UTC)</th>
+        <td>${ user.last_login_at_utc }</td>
+    </tr>
+    <tr>
+        <th>Locked out?</th>
+        <td>${ get_yes_no(request, user.is_locked_out(request)) }</td>
     </tr>
     <tr>
         <th>Last password change (UTC)</th>
@@ -102,5 +106,3 @@
         </td>
     </tr>
 </table>
-
-<%include file="to_main_menu.mako"/>

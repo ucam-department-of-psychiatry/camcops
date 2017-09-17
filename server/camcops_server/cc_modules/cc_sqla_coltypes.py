@@ -111,7 +111,7 @@ from .cc_constants import PV
 from .cc_dt import (
     coerce_to_pendulum,
     convert_datetime_to_utc,
-    POTENTIAL_DATETIME_TYPES,
+    PotentialDatetimeType,
 )
 from .cc_simpleobjects import IdNumDefinition
 from .cc_version import make_version
@@ -266,7 +266,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         return Pendulum
 
     @staticmethod
-    def pendulum_to_isostring(x: POTENTIAL_DATETIME_TYPES) -> Optional[str]:
+    def pendulum_to_isostring(x: PotentialDatetimeType) -> Optional[str]:
         """
         From a Python datetime to an ISO-formatted string in our particular
         format.

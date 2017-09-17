@@ -15,4 +15,6 @@ ${form}
     Minimum password length is ${min_pw_length} characters.
 </div>
 
+<%include file="to_view_all_users.mako"/>
+
 <%include file="to_main_menu.mako"/>

@@ -24,7 +24,7 @@
 
 import logging
 from pprint import pformat
-from typing import (Any, Dict, Iterable, List, Optional, Tuple, Type,
+from typing import (Any, Callable, Dict, Iterable, List, Optional, Tuple, Type,
                     TYPE_CHECKING, Union)
 import unittest
 
@@ -37,6 +37,7 @@ from colander import (
     Boolean,
     Date,
     DateTime,
+    Email,
     Integer,
     Invalid,
     Length,
@@ -45,6 +46,7 @@ from colander import (
     Schema,
     SchemaNode,
     SchemaType,
+    SequenceSchema,
     Set,
     String,
 )
@@ -68,7 +70,8 @@ from pendulum.parsing.exceptions import ParserError
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 # We use some delayed imports here (search for "delayed import")
 from .cc_constants import DEFAULT_ROWS_PER_PAGE, MINIMUM_PASSWORD_LENGTH
-from .cc_dt import coerce_to_pendulum, POTENTIAL_DATETIME_TYPES
+from .cc_dt import coerce_to_pendulum, PotentialDatetimeType
+from .cc_group import Group
 from .cc_pyramid import Dialect, FormAction, ViewArg, ViewParam
 
 if TYPE_CHECKING:
@@ -76,7 +79,8 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
-COLANDER_NULL_TYPE = type(colander.null)
+ColanderNullType = type(colander.null)
+ValidatorType = Callable[[SchemaNode, Any], Any]  # called as v(node, value)
 
 # =============================================================================
 # Debugging options
@@ -142,8 +146,8 @@ class InformativeForm(Form):
             return super().validate(controls, subcontrol)
         except ValidationFailure as e:
             if DEBUG_FORM_VALIDATION:
-                log.critical("Validation failure: {!r}; {}",
-                             e, self._get_form_errors())
+                log.warning("Validation failure: {!r}; {}",
+                            e, self._get_form_errors())
             self._show_hidden_widgets_for_fields_with_errors(self)
             raise
 
@@ -271,9 +275,9 @@ class PendulumType(SchemaType):
 
     def serialize(self,
                   node: SchemaNode,
-                  appstruct: Union[POTENTIAL_DATETIME_TYPES,
-                                   COLANDER_NULL_TYPE]) \
-            -> Union[str, COLANDER_NULL_TYPE]:
+                  appstruct: Union[PotentialDatetimeType,
+                                   ColanderNullType]) \
+            -> Union[str, ColanderNullType]:
         if not appstruct:
             return colander.null
         try:
@@ -286,7 +290,7 @@ class PendulumType(SchemaType):
 
     def deserialize(self,
                     node: SchemaNode,
-                    cstruct: Union[str, COLANDER_NULL_TYPE]) \
+                    cstruct: Union[str, ColanderNullType]) \
             -> Optional[Pendulum]:
         if not cstruct:
             return colander.null
@@ -308,6 +312,7 @@ class PendulumType(SchemaType):
 class NoneAcceptantNode(SchemaNode):
     """
     Accepts None values for schema nodes.
+    Don't use this for string types (for which, use StringWithBlank).
     See
         https://stackoverflow.com/questions/18774976/colander-how-do-i-allow-none-values  # noqa
     but modified because that doesn't work properly.
@@ -315,24 +320,27 @@ class NoneAcceptantNode(SchemaNode):
     Note that Colander serializes everything to strings, but treats
     colander.null in a special way.
     """
-    def __init__(self, *args, allow_none: bool = True, **kwargs) -> None:
+    def __init__(self, *args, allow_none: bool = True,
+                 serialized_none: str = 'None', **kwargs) -> None:
         self.allow_none = allow_none
+        self.serialized_none = serialized_none
         super().__init__(*args, **kwargs)
 
     def deserialize(self, value: str) -> Any:
-        if self.allow_none and value == colander.null:
+        if self.allow_none and (value == colander.null or
+                                value == self.serialized_none):
             retval = None
         else:
             retval = super().deserialize(value)
-        # log.critical("deserialize: {!r} -> {!r}", value, retval)
+        log.critical("deserialize: {!r} -> {!r}", value, retval)
         return retval
 
     def serialize(self, value: Any) -> str:
-        if self.allow_none and value is None or value is colander.null:
+        if self.allow_none and (value is None or value is colander.null):
             retval = colander.null
         else:
             retval = super().serialize(value)
-        # log.critical("serialize: {!r} -> {!r}", value, retval)
+        log.critical("serialize: {!r} -> {!r}", value, retval)
         return retval
 
 
@@ -357,14 +365,25 @@ class OptionalInt(NoneAcceptantNode):
         super().__init__(*args, **kwargs)
 
 
-class OptionalString(SchemaNode):
+class StringWithBlank(SchemaNode):
+    """
+    Coerces None to "" when serializing; otherwise it is coerced to "None",
+    which is much more wrong.
+    """
+    schema_type = String
+
+    # noinspection PyMethodMayBeStatic
+    def serialize(self, appstruct: Optional[str]) \
+            -> Union[str, ColanderNullType]:
+        if appstruct is None:
+            return colander.null
+        return appstruct
+
+
+class OptionalString(StringWithBlank):
     schema_type = String
     default = ""
     missing = ""
-
-    def __init__(self, *args, title: str = "?", **kwargs) -> None:
-        self.title = title
-        super().__init__(*args, **kwargs)
 
 
 class HiddenInteger(SchemaNode):
@@ -372,8 +391,7 @@ class HiddenInteger(SchemaNode):
     widget = HiddenWidget()
 
 
-class HiddenString(SchemaNode):
-    schema_type = String
+class HiddenString(StringWithBlank):
     widget = HiddenWidget()
 
 
@@ -394,12 +412,24 @@ class PendulumSelector(NoneAcceptantNode):
     widget = DateTimeInputWidget()
 
 
+class BooleanNode(SchemaNode):
+    schema_type = Boolean
+    widget = CheckboxWidget()
+
+    def __init__(self, *args, title: str = "?", default: bool = False,
+                 **kwargs) -> None:
+        self.title = title  # above the checkbox
+        self.label = title  # to the right of the checkbox
+        self.default = default
+        self.missing = default
+        super().__init__(*args, **kwargs)
+
+
 # =============================================================================
 # Specialized SchemaNode classes
 # =============================================================================
 
-class SingleTaskSelector(SchemaNode):
-    schema_type = String
+class SingleTaskSelector(StringWithBlank):
     default = ""
     missing = ""
     title = "Task type"
@@ -407,9 +437,10 @@ class SingleTaskSelector(SchemaNode):
     def __init__(self, *args, allow_none: bool = True, **kwargs) -> None:
         self.allow_none = allow_none
         self.widget = None  # type: Widget
-        self.validator = None  # type: object
+        self.validator = None  # type: ValidatorType
         super().__init__(*args, **kwargs)
 
+    # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         values, pv = get_values_and_permissible(self.get_task_choices(),
                                                 self.allow_none, ("", "[Any]"))
@@ -433,6 +464,7 @@ class MultiTaskSelector(SchemaNode):
         self.validator = None  # type: object
         super().__init__(*args, **kwargs)
 
+    # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         values, pv = get_values_and_permissible(self.get_task_choices(),
                                                 add_none=False)
@@ -501,10 +533,9 @@ class IdNumValue(NoneAcceptantNode):
     validator = Range(min=0)
 
 
-class SexSelector(SchemaNode):
+class SexSelector(StringWithBlank):
     _sex_choices = [("F", "F"), ("M", "M"), ("X", "X")]
 
-    schema_type = String
     default = ""
     missing = ""
     title = "Sex"
@@ -549,7 +580,7 @@ class UserNameSelector(SchemaNode):
     missing = ""
     title = "User"
 
-    def __init__(self, *args, allow_none: bool, **kwargs) -> None:
+    def __init__(self, *args, allow_none: bool = False, **kwargs) -> None:
         self.allow_none = allow_none
         self.validator = None  # type: object
         self.widget = None  # type: Widget
@@ -560,12 +591,12 @@ class UserNameSelector(SchemaNode):
         from .cc_user import User  # delayed import
         req = kw["request"]  # type: CamcopsRequest
         dbsession = req.dbsession
-        values = []  # type: List[Tuple[Optional[int], str]]
+        values = []  # type: List[Tuple[str, str]]
         users = dbsession.query(User).order_by(User.username)
         for user in users:
             values.append((user.username, user.username))
         values, pv = get_values_and_permissible(values, self.allow_none,
-                                                (None, "[ignore]"))
+                                                ("", "[ignore]"))
         self.widget = SelectWidget(values=values)
         self.validator = OneOf(pv)
 
@@ -642,12 +673,12 @@ class ReportOutputTypeSelector(SchemaNode):
 class LoginSchema(CSRFSchema):
     username = SchemaNode(  # name must match ViewParam.USERNAME
         String(),
-        description="Username",
+        title="Username",
     )
     password = SchemaNode(  # name must match ViewParam.PASSWORD
         String(),
         widget=PasswordWidget(),
-        description="Password",
+        title="Password",
     )
     redirect_url = SchemaNode(  # name must match ViewParam.REDIRECT_URL
         String(allow_empty=True),
@@ -685,7 +716,6 @@ CHANGE_PASSWORD_TITLE = "Change password"
 class OldUserPasswordCheck(SchemaNode):
     schema_type = String
     title = "Old password"
-    description = "Type the old password"
     widget = PasswordWidget()
 
     def validator(self, node: SchemaNode, value: Any) -> None:
@@ -731,10 +761,8 @@ class ChangeOwnPasswordForm(InformativeForm):
 
 class ChangeOtherPasswordSchema(CSRFSchema):
     user_id = HiddenInteger()  # name must match ViewParam.USER_ID
-    must_change_password = SchemaNode(  # match ViewParam.MUST_CHANGE_PASSWORD
-        Boolean(),
+    must_change_password = BooleanNode(  # match ViewParam.MUST_CHANGE_PASSWORD
         default=True,
-        description="",
         label="User must change password at next login",
         title="Must change password at next login?",
     )
@@ -791,8 +819,7 @@ class AuditTrailSchema(CSRFSchema):
     username = UserNameSelector(allow_none=True)  # must match ViewParam.USERNAME  # noqa
     table_name = AllTasksSingleTaskSelector(allow_none=True)  # must match ViewParam.TABLENAME  # noqa
     server_pk = ServerPkSelector()  # must match ViewParam.SERVER_PK
-    truncate = SchemaNode(  # must match ViewParam.TRUNCATE
-        Boolean(),
+    truncate = BooleanNode(  # must match ViewParam.TRUNCATE
         default=True,
         title="Truncate details for easy viewing",
     )
@@ -869,11 +896,8 @@ class TaskFiltersSchema(CSRFSchema):
     which_idnum = WhichIdNumSelector(allow_none=True)  # must match ViewParam.WHICH_IDNUM  # noqa
     idnum_value = IdNumValue(allow_none=True)  # must match ViewParam.IDNUM_VALUE  # noqa
     table_name = AllTasksSingleTaskSelector(allow_none=True)  # must match ViewParam.TABLENAME  # noqa
-    only_complete = SchemaNode(  # must match ViewParam.ONLY_COMPLETE
-        Boolean(),
-        widget=CheckboxWidget(),
+    only_complete = BooleanNode(  # must match ViewParam.ONLY_COMPLETE
         default=False,
-        missing=False,
         title="Only completed tasks?",
     )
     user_id = UserIdSelector(allow_none=True)  # must match ViewParam.USER_ID
@@ -931,10 +955,8 @@ class ChooseTrackerSchema(CSRFSchema):
     idnum_value = IdNumValue(allow_none=False)  # must match ViewParam.IDNUM_VALUE  # noqa
     start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
-    all_tasks = SchemaNode(  # match ViewParam.ALL_TASKS
-        Boolean(),
+    all_tasks = BooleanNode(  # match ViewParam.ALL_TASKS
         default=True,
-        missing=True,
         title="Use all eligible task types?",
     )
     tasks = TrackerTaskSelector()  # must match ViewParam.TASKS
@@ -1018,6 +1040,136 @@ class ViewDdlForm(InformativeForm):
             **kwargs
         )
 
+
+# =============================================================================
+# Edit user
+# =============================================================================
+
+class GroupIdSelector(NoneAcceptantNode):
+    schema_type = Integer
+    title = "Group"
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.validator = None  # type: object
+        self.widget = None  # type: Widget
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        req = kw["request"]  # type: CamcopsRequest
+        dbsession = req.dbsession
+        values = []  # type: List[Tuple[Optional[int], str]]
+        groups = dbsession.query(Group).order_by(Group.name)
+        for group in groups:
+            values.append((group.id, group.name))
+        values, pv = get_values_and_permissible(values, self.allow_none,
+                                                (None, "[None]"))
+        self.widget = SelectWidget(values=values)
+        self.validator = OneOf(pv)
+
+
+class SequenceOfGroups(SequenceSchema):
+    group_id_sequence = GroupIdSelector(allow_none=False)
+    title = "Groups"
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: List[int]) -> None:
+        log.critical("SequenceOfGroups.validator: {!r}", value)
+        assert isinstance(value, list)
+        if len(value) != len(set(value)):
+            raise Invalid(node, "You have specified duplicate groups")
+
+
+class EditUserSchema(CSRFSchema):
+    username = StringWithBlank(  # name must match ViewParam.USERNAME and User attribute  # noqa
+        title="Username",
+    )
+    fullname = StringWithBlank(  # name must match ViewParam.FULLNAME and User attribute  # noqa
+        title="Full name",
+    )
+    email = StringWithBlank(  # name must match ViewParam.EMAIL and User attribute  # noqa
+        validator=Email(),
+        title="E-mail address",
+    )
+    may_upload = BooleanNode(  # match ViewParam.MAY_UPLOAD and User attribute
+        default=True,
+        title="Permitted to upload from a tablet/device",
+    )
+    may_register_devices = BooleanNode(  # match ViewParam.MAY_REGISTER_DEVICES and User attribute  # noqa
+        default=True,
+        title="Permitted to register tablet/client devices",
+    )
+    may_use_webviewer = BooleanNode(  # match ViewParam.MAY_USE_WEBVIEWER and User attribute  # noqa
+        default=True,
+        title="May log in to web front end",
+    )
+    view_all_patients_when_unfiltered = BooleanNode(  # match ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED and User attribute  # noqa
+        default=False,
+        title="May log in to web front end",
+    )
+    superuser = BooleanNode(  # match ViewParam.SUPERUSER and User attribute  # noqa
+        default=False,
+        title="Superuser (CAUTION!)",
+    )
+    may_dump_data = BooleanNode(  # match ViewParam.MAY_DUMP_DATA and User attribute  # noqa
+        default=False,
+        title="May perform bulk data dumps",
+    )
+    may_run_reports = BooleanNode(  # match ViewParam.MAY_RUN_REPORTS and User attribute  # noqa
+        default=False,
+        title="May run reports (OVERRIDES OTHER VIEW RESTRICTIONS)",
+    )
+    may_add_notes = BooleanNode(  # match ViewParam.MAY_ADD_NOTES and User attribute  # noqa
+        default=False,
+        title="May add special notes to tasks",
+    )
+    must_change_password = BooleanNode(  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute  # noqa
+        default=True,
+        title="Must change password at next login",
+    )
+    group_ids = SequenceOfGroups()  # must match ViewParam.GROUP_IDS
+    upload_group_id = GroupIdSelector(  # must match ViewParam.UPLOAD_GROUP_ID
+        allow_none=True,
+        title="Group into which to upload data"
+    )
+
+
+class EditUserForm(InformativeForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = EditUserSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title="Apply"),
+                Button(name=FormAction.CANCEL, title="Cancel"),
+            ],
+            **kwargs
+        )
+
+
+class SetUserUploadGroupSchema(CSRFSchema):
+    upload_group_id = GroupIdSelector(  # must match ViewParam.UPLOAD_GROUP_ID
+        allow_none=True,
+        title="Group into which to upload data",
+    )
+
+
+class SetUserUploadGroupForm(InformativeForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = SetUserUploadGroupSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title="Set"),
+                Button(name=FormAction.CANCEL, title="Cancel"),
+            ],
+            **kwargs
+        )
+
+
+# =============================================================================
+# Edit group
+# =============================================================================
 
 # =============================================================================
 # Unit tests
