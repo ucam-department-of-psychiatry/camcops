@@ -113,7 +113,8 @@ class CamcopsSession(Base):
     )
     user_id = Column(
         "user_id", Integer,
-        ForeignKey("_security_users.id"),
+        ForeignKey("_security_users.id", ondelete="CASCADE"),
+        # http://docs.sqlalchemy.org/en/latest/core/constraints.html#on-update-and-on-delete  # noqa
         comment="User ID"
     )
     last_activity_utc = Column(

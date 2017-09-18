@@ -23,10 +23,10 @@
 """
 
 import logging
-from typing import Optional, Set
+from typing import List, Optional, Set
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer
 
@@ -153,14 +153,34 @@ class Group(Base):
         lazy="joined"  # not sure this does anything here
     )
 
-    def ids_of_groups_group_may_see(self) -> Set[int]:
+    def ids_of_other_groups_group_may_see(self) -> Set[int]:
         """
         Returns a list of group IDs for groups that this group has permission
         to see. (Always includes our own group number.)
         """
-        group_ids = {self.id}  # type: Set[int]
+        group_ids = set()  # type: Set[int]
         for other_group in self.can_see_other_groups:  # type: Group
             other_group_id = other_group.id  # type: Optional[int]
             if other_group_id is not None:
                 group_ids.add(other_group_id)
         return group_ids
+
+    def ids_of_groups_group_may_see(self) -> Set[int]:
+        """
+        Returns a list of group IDs for groups that this group has permission
+        to see. (Always includes our own group number.)
+        """
+        ourself = {self.id}  # type: Set[int]
+        return ourself.union(self.ids_of_other_groups_group_may_see())
+
+    @classmethod
+    def get_groups_from_id_list(cls, dbsession: SqlASession,
+                                group_ids: List[int]) -> List["Group"]:
+        return dbsession.query(Group).filter(Group.id.in_(group_ids)).all()
+
+    @classmethod
+    def get_group_by_name(cls, dbsession: SqlASession,
+                          name: str) -> Optional["Group"]:
+        if not name:
+            return None
+        return dbsession.query(cls).filter(cls.name == name).first()

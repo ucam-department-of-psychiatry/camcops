@@ -370,7 +370,7 @@ class User(Base):
         comment="May the user use the web front end to view "
                 "CamCOPS data?"
     )
-    view_all_patients_when_unfiltered = Column(  # *** maybe replace with group system
+    view_all_patients_when_unfiltered = Column(
         "view_all_patients_when_unfiltered", Boolean,
         default=False,
         comment="When no record filters are applied, can the user see "
@@ -612,7 +612,9 @@ class User(Base):
 
     def set_group_ids(self, group_ids: List[int]) -> None:
         dbsession = SqlASession.object_session(self)
-        groups = dbsession.query(Group).filter(Group.id.in_(group_ids)).all()
+        assert dbsession, ("User.set_group_ids() called on a User that's not "
+                           "yet in a session")
+        groups = Group.get_groups_from_id_list(dbsession, group_ids)
         self.groups = groups
 
     def ids_of_groups_user_may_see(self) -> List[int]:

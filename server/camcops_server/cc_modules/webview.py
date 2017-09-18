@@ -112,13 +112,15 @@ import collections
 import io
 import logging
 import typing
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Type, Union
 import zipfile
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.rnc_web import HEADERS_TYPE, WSGI_TUPLE_TYPE
+from cardinal_pythonlib.rnc_web import WSGI_TUPLE_TYPE
 from cardinal_pythonlib.sqlalchemy.dialect import get_dialect_name
+from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
+from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
 from pendulum import Pendulum
@@ -136,7 +138,7 @@ import pygments.lexers
 import pygments.lexers.sql
 import pygments.lexers.web
 import pygments.formatters
-from sqlalchemy.sql.expression import desc
+from sqlalchemy.sql.expression import desc, or_
 
 from .cc_audit import audit, AuditEntry
 from .cc_constants import (
@@ -150,6 +152,7 @@ from .cc_constants import (
 from .cc_blob import Blob
 from .cc_convert import get_tsv_header_from_dict, get_tsv_line_from_dict
 from camcops_server.cc_modules import cc_db
+from .cc_db import GenericTabletRecordMixin
 from .cc_device import (
     Device,
     get_device_filter_dropdown,
@@ -165,12 +168,17 @@ from .cc_dump import (
     NOTHING_VALID_SPECIFIED,
 )
 from .cc_forms import (
+    AddGroupForm,
+    AddUserForm,
     AuditTrailForm,
     ChangeOtherPasswordForm,
     ChangeOwnPasswordForm,
     ChooseTrackerForm,
     DEFAULT_ROWS_PER_PAGE,
+    DeleteGroupForm,
+    DeleteUserForm,
     DIALECT_CHOICES,
+    EditGroupForm,
     EditUserForm,
     get_head_form_html,
     HL7MessageLogForm,
@@ -213,6 +221,7 @@ from .cc_report import get_report_instance
 from .cc_request import CamcopsRequest
 from .cc_session import CamcopsSession
 from .cc_simpleobjects import IdNumDefinition
+from .cc_specialnote import SpecialNote
 from .cc_sqlalchemy import get_all_ddl
 from .cc_storedvar import DeviceStoredVar
 from .cc_task import (
@@ -1757,6 +1766,32 @@ def view_server_info(req: CamcopsRequest) -> Dict[str, Any]:
 # User management
 # =============================================================================
 
+EDIT_USER_KEYS = [
+    # SPECIAL HANDLING # ViewParam.USER_ID,
+    ViewParam.USERNAME,
+    ViewParam.FULLNAME,
+    ViewParam.EMAIL,
+    ViewParam.MAY_UPLOAD,
+    ViewParam.MAY_REGISTER_DEVICES,
+    ViewParam.MAY_USE_WEBVIEWER,
+    ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED,
+    ViewParam.SUPERUSER,
+    ViewParam.MAY_DUMP_DATA,
+    ViewParam.MAY_RUN_REPORTS,
+    ViewParam.MAY_ADD_NOTES,
+    ViewParam.MUST_CHANGE_PASSWORD,
+    # SPECIAL HANDLING # ViewParam.GROUP_IDS,
+]
+
+
+def get_user_from_request_user_id_or_raise(req: CamcopsRequest) -> User:
+    user_id = req.get_int_param(ViewParam.USER_ID)
+    user = User.get_user_by_id(req.dbsession, user_id)
+    if not user:
+        raise exc.HTTPBadRequest("No such user ID: {}".format(repr(user_id)))
+    return user
+
+
 @view_config(route_name=Routes.VIEW_ALL_USERS,
              permission=Permission.SUPERUSER,
              renderer="view_users.mako")
@@ -1777,11 +1812,7 @@ def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
              permission=Permission.SUPERUSER,
              renderer="view_other_user_info.mako")
 def view_user(req: CamcopsRequest) -> Dict[str, Any]:
-    user_id = req.get_int_param(ViewParam.USER_ID)
-    dbsession = req.dbsession
-    user = User.get_user_by_id(dbsession, user_id)
-    if not user:
-        raise exc.HTTPNotFound("No such user")
+    user = get_user_from_request_user_id_or_raise(req)
     return dict(user=user)
 
 
@@ -1791,41 +1822,36 @@ def view_user(req: CamcopsRequest) -> Dict[str, Any]:
 def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
     if FormAction.CANCEL in req.POST:
         raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
-    user_id = req.get_int_param(ViewParam.USER_ID)
-    dbsession = req.dbsession
-    user = User.get_user_by_id(dbsession, user_id)
-    if not user:
-        raise exc.HTTPBadRequest("Invalid user ID {}".format(user_id))
+    user = get_user_from_request_user_id_or_raise(req)
     form = EditUserForm(request=req)
-    keys = [
-        ViewParam.USERNAME,
-        ViewParam.FULLNAME,
-        ViewParam.EMAIL,
-        ViewParam.MAY_UPLOAD,
-        ViewParam.MAY_REGISTER_DEVICES,
-        ViewParam.MAY_USE_WEBVIEWER,
-        ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED,
-        ViewParam.SUPERUSER,
-        ViewParam.MAY_DUMP_DATA,
-        ViewParam.MAY_RUN_REPORTS,
-        ViewParam.MAY_ADD_NOTES,
-        ViewParam.MUST_CHANGE_PASSWORD,
-        # SPECIAL HANDLING # ViewParam.GROUP_IDS,
-        ViewParam.UPLOAD_GROUP_ID,
-    ]
     if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
-            for k in keys:
+            dbsession = req.dbsession
+            new_user_name = appstruct.get(ViewParam.USERNAME)
+            existing_user = User.get_user_by_name(dbsession, new_user_name)
+            if existing_user and existing_user.id != user.id:
+                raise exc.HTTPBadRequest(
+                    "Can't rename user {!r} (ID {!r}) to {!r}; that "
+                    "conflicts with existing user with ID {!r}".format(
+                        user.name, user.id, new_user_name,
+                        existing_user.id
+                    ))
+            for k in EDIT_USER_KEYS:
                 setattr(user, k, appstruct.get(k))
             group_ids = appstruct.get(ViewParam.GROUP_IDS)
             user.set_group_ids(group_ids)
+            # Also, if the user was uploading to a group that they are now no
+            # longer a member of, we need to fix that
+            if user.upload_group_id not in group_ids:
+                user.upload_group_id = None
             raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
-        appstruct = {k: getattr(user, k) for k in keys}
+        appstruct = {k: getattr(user, k) for k in EDIT_USER_KEYS}
+        appstruct[ViewParam.USER_ID] = user.id
         appstruct[ViewParam.GROUP_IDS] = user.group_ids()
         rendered_form = form.render(appstruct)
     return dict(user=user,
@@ -1833,22 +1859,27 @@ def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
                 head_form_html=get_head_form_html(req, [form]))
 
 
-@view_config(route_name=Routes.SET_OWN_USER_UPLOAD_GROUP)
-def set_own_user_upload_group(req: CamcopsRequest) -> Response:
-    user = req.user
+def set_user_upload_group(req: CamcopsRequest,
+                          user: User,
+                          as_superuser: bool) -> Response:
+    destination = Routes.VIEW_ALL_USERS if as_superuser else Routes.HOME
     if FormAction.CANCEL in req.POST:
-        raise exc.HTTPFound(req.route_url(Routes.HOME))
-    form = SetUserUploadGroupForm(request=req)
+        raise exc.HTTPFound(req.route_url(destination))
+    form = SetUserUploadGroupForm(request=req, user=user)
+    # ... need to show the groups permitted to THAT user, not OUR user
     if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
             user.upload_group_id = appstruct.get(ViewParam.UPLOAD_GROUP_ID)
-            raise exc.HTTPFound(req.route_url(Routes.HOME))
+            raise exc.HTTPFound(req.route_url(destination))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
-        appstruct = {ViewParam.UPLOAD_GROUP_ID: user.upload_group_id}
+        appstruct = {
+            ViewParam.USER_ID: user.id,
+            ViewParam.UPLOAD_GROUP_ID: user.upload_group_id
+        }
         rendered_form = form.render(appstruct)
     return render_to_response(
         "set_user_upload_group.mako",
@@ -1859,31 +1890,140 @@ def set_own_user_upload_group(req: CamcopsRequest) -> Response:
     )
 
 
-@view_config(route_name=Routes.ADD_USER,
-             permission=Permission.SUPERUSER,
-             renderer="add_user.mako")
-def add_user(req: CamcopsRequest) -> Dict[str, Any]:
-    pass # ***
+@view_config(route_name=Routes.SET_OWN_USER_UPLOAD_GROUP)
+def set_own_user_upload_group(req: CamcopsRequest) -> Response:
+    return set_user_upload_group(req, req.user, False)
+
+
+@view_config(route_name=Routes.SET_OTHER_USER_UPLOAD_GROUP,
+             permission=Permission.SUPERUSER)
+def set_other_user_upload_group(req: CamcopsRequest) -> Response:
+    user = get_user_from_request_user_id_or_raise(req)
+    return set_user_upload_group(req, user, True)
 
 
 @view_config(route_name=Routes.UNLOCK_USER,
              permission=Permission.SUPERUSER)
 def unlock_user(req: CamcopsRequest) -> Response:
-    user_id = req.get_int_param(ViewParam.USER_ID)
-    if user_id is None:
-        user = None
-    else:
-        user = User.get_user_by_id(req.dbsession, user_id)
-    if not user:
-        raise exc.HTTPBadRequest("No such user ID: {}".format(repr(user_id)))
+    user = get_user_from_request_user_id_or_raise(req)
     user.enable(req)
     return simple_success(req, "User {} enabled".format(user.username))
 
 
+@view_config(route_name=Routes.ADD_USER,
+             permission=Permission.SUPERUSER,
+             renderer="add_user.mako")
+def add_user(req: CamcopsRequest) -> Dict[str, Any]:
+    if FormAction.CANCEL in req.POST:
+        raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+    form = AddUserForm(request=req)
+    dbsession = req.dbsession
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            user = User()
+            user.username = appstruct.get(ViewParam.USERNAME)
+            user.set_password(req, appstruct.get(ViewParam.NEW_PASSWORD))
+            user.must_change_password = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)  # noqa
+            if User.get_user_by_name(dbsession, user.username):
+                raise exc.HTTPBadRequest("User with username {!r} already "
+                                         "exists!".format(user.username))
+            dbsession.add(user)
+            raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        rendered_form = form.render()
+    return dict(form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
+
+
+def any_records_use_user(req: CamcopsRequest, user: User) -> bool:
+    dbsession = req.dbsession
+    user_id = user.id
+    # Our own or users filtering on us?
+    q = CountStarSpecializedQuery(CamcopsSession, session=dbsession).filter(
+        CamcopsSession.filter_user_id == user_id,
+    )
+    if q.count_star() > 0:
+        return True
+    # Device?
+    q = CountStarSpecializedQuery(Device, session=dbsession).filter(
+        or_(
+            Device.registered_by_user_id == user_id,
+            Device.uploading_user_id == user_id,
+        )
+    )
+    if q.count_star() > 0:
+        return True
+    # SpecialNote?
+    q = CountStarSpecializedQuery(SpecialNote, session=dbsession).filter(
+        SpecialNote.user_id == user_id
+    )
+    if q.count_star() > 0:
+        return True
+    # Uploaded records?
+    for cls in gen_orm_classes_from_base(GenericTabletRecordMixin):  # type: Type[GenericTabletRecordMixin]  # noqa
+        q = CountStarSpecializedQuery(cls, session=dbsession).filter(
+            or_(
+                cls._adding_user_id == user_id,
+                cls._removing_user_id == user_id,
+                cls._preserving_user_id == user_id,
+                cls._manually_erasing_user_id == user_id,
+            )
+        )
+        if q.count_star() > 0:
+            return True
+    # No; all clean.
+    return False
+
+
 @view_config(route_name=Routes.DELETE_USER,
-             permission=Permission.SUPERUSER)
-def delete_user(req: CamcopsRequest) -> Response:
-    pass # ***
+             permission=Permission.SUPERUSER,
+             renderer="delete_user.mako")
+def delete_user(req: CamcopsRequest) -> Dict[str, Any]:
+    if FormAction.CANCEL in req.POST:
+        raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+    user = get_user_from_request_user_id_or_raise(req)
+    form = DeleteUserForm(request=req)
+    rendered_form = ""
+    error = ""
+    if user.id == req.user.id:
+        error = "Can't delete your own user!"
+    elif user.may_use_webviewer or user.may_upload:
+        error = "Unable to delete user; still has webviewer login and/or " \
+                "tablet upload permission"
+    else:
+        if any_records_use_user(req, user):
+            error = "Unable to delete user; records refer to that user. " \
+                    "Disable login and upload permissions instead."
+        else:
+            if FormAction.DELETE in req.POST:
+                try:
+                    controls = list(req.POST.items())
+                    appstruct = form.validate(controls)
+                    assert appstruct.get(ViewParam.USER_ID) == user.id
+                    # (*) Sessions belonging to this user
+                    # ... done by modifying its ForeignKey to use "ondelete"
+                    # (*) user_group_table mapping
+                    # http://docs.sqlalchemy.org/en/latest/orm/basic_relationships.html#relationships-many-to-many-deletion  # noqa
+                    # Simplest way:
+                    user.groups = []  # will delete the mapping entries
+                    # (*) User itself
+                    req.dbsession.delete(user)
+                    # Done
+                    raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+                except ValidationFailure as e:
+                    rendered_form = e.render()
+            else:
+                appstruct = {ViewParam.USER_ID: user.id}
+                rendered_form = form.render(appstruct)
+
+    return dict(user=user,
+                error=error,
+                form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
 
 
 # =============================================================================
@@ -1906,24 +2046,142 @@ def view_groups(req: CamcopsRequest) -> Dict[str, Any]:
     return dict(page=page)
 
 
+def get_group_from_request_group_id_or_raise(req: CamcopsRequest) -> Group:
+    group_id = req.get_int_param(ViewParam.GROUP_ID)
+    group = None
+    if group_id is not None:
+        dbsession = req.dbsession
+        group = dbsession.query(Group).filter(Group.id == group_id).first()
+    if not group:
+        raise exc.HTTPBadRequest("No such group ID: {}".format(repr(group_id)))
+    return group
+
+
 @view_config(route_name=Routes.EDIT_GROUP,
              permission=Permission.SUPERUSER,
              renderer="edit_group.mako")
 def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
-    pass # ***
+    if FormAction.CANCEL in req.POST:
+        raise exc.HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+    group = get_group_from_request_group_id_or_raise(req)
+    form = EditGroupForm(request=req, group=group)
+    dbsession = req.dbsession
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            new_group_name = appstruct.get(ViewParam.NAME)
+            existing_group = Group.get_group_by_name(dbsession, new_group_name)
+            if existing_group and existing_group.id != group.id:
+                raise exc.HTTPBadRequest(
+                    "Can't rename group {!r} (ID {!r}) to {!r}; that "
+                    "conflicts with existing group with ID {!r}".format(
+                        group.name, group.id, new_group_name,
+                        existing_group.id
+                    ))
+            group.name = new_group_name
+            group.description = appstruct.get(ViewParam.DESCRIPTION)
+            group_ids = appstruct.get(ViewParam.GROUP_IDS)
+            group_ids = [gid for gid in group_ids if gid != group.id]
+            # ... don't bother saying "you can see yourself"
+            other_groups = Group.get_groups_from_id_list(dbsession, group_ids)
+            group.can_see_other_groups = other_groups
+            raise exc.HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        other_group_ids = list(group.ids_of_other_groups_group_may_see())
+        other_groups = Group.get_groups_from_id_list(dbsession, other_group_ids)
+        other_groups.sort(key=lambda g: g.name)
+        appstruct = {
+            ViewParam.GROUP_ID: group.id,
+            ViewParam.NAME: group.name,
+            ViewParam.DESCRIPTION: group.description,
+            ViewParam.GROUP_IDS: [g.id for g in other_groups],
+        }
+        rendered_form = form.render(appstruct)
+    return dict(group=group,
+                form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
 
 
 @view_config(route_name=Routes.ADD_GROUP,
              permission=Permission.SUPERUSER,
              renderer="add_group.mako")
 def add_group(req: CamcopsRequest) -> Dict[str, Any]:
-    pass # ***
+    if FormAction.CANCEL in req.POST:
+        raise exc.HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+    form = AddGroupForm(request=req)
+    dbsession = req.dbsession
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            group = Group()
+            group.name = appstruct.get(ViewParam.NAME)
+            if Group.get_group_by_name(dbsession, group.name):
+                raise exc.HTTPBadRequest("Group with name {!r} already "
+                                         "exists!".format(group.name))
+            dbsession.add(group)
+            raise exc.HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        rendered_form = form.render()
+    return dict(form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
+
+
+def any_records_use_group(req: CamcopsRequest, group: Group) -> bool:
+    dbsession = req.dbsession
+    group_id = group.id
+    # Our own or users filtering on us?
+    # *** IMPLEMENT
+    # Uploaded records?
+    for cls in gen_orm_classes_from_base(GenericTabletRecordMixin):  # type: Type[GenericTabletRecordMixin]  # noqa
+        q = CountStarSpecializedQuery(cls, session=dbsession).filter(
+            cls._group_id == group_id
+        )
+        if q.count_star() > 0:
+            return True
+    # No; all clean.
+    return False
 
 
 @view_config(route_name=Routes.DELETE_GROUP,
-             permission=Permission.SUPERUSER)
-def delete_group(req: CamcopsRequest) -> Response:
-    pass # ***
+             permission=Permission.SUPERUSER,
+             renderer="delete_group.mako")
+def delete_group(req: CamcopsRequest) -> Dict[str, Any]:
+    if FormAction.CANCEL in req.POST:
+        raise exc.HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+    group = get_group_from_request_group_id_or_raise(req)
+    form = DeleteGroupForm(request=req)
+    rendered_form = ""
+    error = ""
+    if group.users:
+        error = "Unable to delete group; there are users who are members!"
+    else:
+        if any_records_use_group(req, group):
+            error = "Unable to delete group; records refer to it."
+        else:
+            if FormAction.DELETE in req.POST:
+                try:
+                    controls = list(req.POST.items())
+                    appstruct = form.validate(controls)
+                    assert appstruct.get(ViewParam.GROUP_ID) == group.id
+                    req.dbsession.delete(group)
+                    # Done
+                    raise exc.HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+                except ValidationFailure as e:
+                    rendered_form = e.render()
+            else:
+                appstruct = {ViewParam.GROUP_ID: group.id}
+                rendered_form = form.render(appstruct)
+
+    return dict(group=group,
+                error=error,
+                form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
 
 
 # =============================================================================

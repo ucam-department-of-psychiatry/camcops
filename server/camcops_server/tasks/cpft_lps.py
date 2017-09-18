@@ -38,7 +38,10 @@ from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 from ..cc_modules.cc_dt import format_datetime
 from ..cc_modules.cc_constants import DateFormat, INVALID_VALUE
 from ..cc_modules.cc_ctvinfo import CtvInfo
-from ..cc_modules.cc_forms import WhichIdNumSelector, ReportParamSchema
+from ..cc_modules.cc_forms import (
+    MandatoryWhichIdNumSelector,
+    ReportParamSchema,
+)
 from ..cc_modules.cc_html import (
     answer,
     get_yes_no_none,
@@ -724,8 +727,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 # =============================================================================
 
 class LPSReportSchema(ReportParamSchema):
-    which_idnum = WhichIdNumSelector(  # must match ViewParam.WHICH_IDNUM
-        allow_none=False,
+    which_idnum = MandatoryWhichIdNumSelector(  # must match ViewParam.WHICH_IDNUM  # noqa
         description="ID number to link on?",
     )
 

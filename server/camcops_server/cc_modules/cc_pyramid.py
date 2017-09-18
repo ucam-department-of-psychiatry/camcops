@@ -108,6 +108,7 @@ class Dialect(object):
 
 class FormAction(object):
     CANCEL = 'cancel'
+    DELETE = 'delete'
     CLEAR_FILTERS = 'clear_filters'
     SET_FILTERS = 'set_filters'
     SUBMIT = 'submit'  # the default for many forms
@@ -134,6 +135,7 @@ class ViewParam(object):
     ANONYMISE = "anonymise"
     CSRF_TOKEN = "csrf"
     DIALECT = "dialect"
+    DESCRIPTION = "description"
     DOB = "dob"
     EMAIL = "email"
     END_DATETIME = "end_datetime"
@@ -156,6 +158,7 @@ class ViewParam(object):
     MAY_UPLOAD = "may_upload"
     MAY_USE_WEBVIEWER = "may_use_webviewer"
     MUST_CHANGE_PASSWORD = "must_change_password"
+    NAME = "name"
     NEW_PASSWORD = "new_password"
     OLD_PASSWORD = "old_password"
     ONLY_COMPLETE = "only_complete"
@@ -433,6 +436,7 @@ class Routes(object):
     REPORTS_MENU = "reports_menu"
     SET_FILTERS = "set_filters"
     SET_OWN_USER_UPLOAD_GROUP = "set_user_upload_group"
+    SET_OTHER_USER_UPLOAD_GROUP = "set_other_user_upload_group"
     TASK = "task"
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
     TESTPAGE_PRIVATE_2 = "testpage_private_2"
@@ -537,6 +541,8 @@ class RouteCollection(object):
     SET_FILTERS = RoutePath(Routes.SET_FILTERS, '/set_filters')
     SET_OWN_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OWN_USER_UPLOAD_GROUP,
                                           '/set_user_upload_group')
+    SET_OTHER_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OTHER_USER_UPLOAD_GROUP,
+                                            '/set_other_user_upload_group')
     TASK = RoutePath(Routes.TASK, "/task")
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1, '/testpriv1')
     TESTPAGE_PRIVATE_2 = RoutePath(Routes.TESTPAGE_PRIVATE_2, '/testpriv2')

@@ -19,6 +19,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <th>Description</th>
         <th>Groups this group is allowed to see, in addition to itself</th>
         <th>Edit</th>
+        <th>Delete</th>
     </tr>
     %for group in page:
         <tr>
@@ -29,6 +30,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                 ${ one_per_line(g.name for g in group.can_see_other_groups) }
             </td>
             <td><a href="${ req.route_url(Routes.EDIT_GROUP, _query={ViewParam.GROUP_ID: group.id}) }">Edit</a></td>
+            <td><a href="${ req.route_url(Routes.DELETE_GROUP, _query={ViewParam.GROUP_ID: group.id}) }">Delete</a></td>
         </tr>
     %endfor
 </table>

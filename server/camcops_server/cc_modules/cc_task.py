@@ -36,7 +36,6 @@ NOTES:
 
 import collections
 import copy
-import datetime
 import logging
 import statistics
 from typing import (Any, Dict, Iterable, Generator, List, Optional, Sequence,
@@ -52,7 +51,10 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.rnc_db import DatabaseSupporter, FIELDSPECLIST_TYPE
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
-from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
+from cardinal_pythonlib.sqlalchemy.orm_inspect import (
+    gen_columns,
+    gen_orm_classes_from_base,
+)
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 import hl7
@@ -579,12 +581,7 @@ class Task(GenericTabletRecordMixin, Base):
         being actual tasks; we discriminate using __abstract__ and/or
         __tablename__.
         """
-        for c in all_subclasses(cls):
-            # abstract = getattr(c, '__abstract__', False)
-            # nope! Also true of concrete subclasses of abstract classes.
-            abstract = not getattr(c, '__tablename__', None)
-            if not abstract:
-                yield c
+        return gen_orm_classes_from_base(cls)
 
     @classmethod
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
