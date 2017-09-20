@@ -63,6 +63,8 @@ from .cc_storedvar import DeviceStoredVar, ServerStoredVar
 # noinspection PyUnresolvedReferences
 from .cc_task import Task
 # noinspection PyUnresolvedReferences
+from .cc_taskfilter import TaskFilter
+# noinspection PyUnresolvedReferences
 from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 
 

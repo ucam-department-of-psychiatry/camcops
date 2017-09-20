@@ -127,10 +127,16 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 DEBUG_DATETIME_AS_ISO_TEXT = False
-DEBUG_IDNUMDEF_LIST = False
+DEBUG_IDNUMDEF_LIST = True
+DEBUG_INT_LIST_COLTYPE = True
 DEBUG_SEMANTIC_VERSION = False
+DEBUG_STRING_LIST_COLTYPE = True
 
-if DEBUG_DATETIME_AS_ISO_TEXT or DEBUG_SEMANTIC_VERSION or DEBUG_IDNUMDEF_LIST:
+if (DEBUG_DATETIME_AS_ISO_TEXT or
+        DEBUG_SEMANTIC_VERSION or
+        DEBUG_IDNUMDEF_LIST or
+        DEBUG_INT_LIST_COLTYPE or
+        DEBUG_STRING_LIST_COLTYPE):
     log.warning("Debugging options enabled!")
 
 # =============================================================================
@@ -445,8 +451,8 @@ class IdNumDefinitionListColType(TypeDecorator):
         return list
 
     @staticmethod
-    def _idnumdef_list_to_str(idnumdef_list: Optional[List[IdNumDefinition]]) \
-            -> str:
+    def _idnumdef_list_to_dbstr(
+            idnumdef_list: Optional[List[IdNumDefinition]]) -> str:
         if not idnumdef_list:
             return ""
         elements = []  # type: List[int]
@@ -456,10 +462,10 @@ class IdNumDefinitionListColType(TypeDecorator):
         return ",".join(str(x) for x in elements)
 
     @staticmethod
-    def _str_to_idnumdef_list(csv: Optional[str]) -> List[IdNumDefinition]:
+    def _dbstr_to_idnumdef_list(dbstr: Optional[str]) -> List[IdNumDefinition]:
         idnumdef_list = []  # type: List[IdNumDefinition]
         try:
-            intlist = [int(numstr) for numstr in csv.split(",")]
+            intlist = [int(numstr) for numstr in dbstr.split(",")]
         except (AttributeError, TypeError, ValueError):
             return []
         l = len(intlist)
@@ -475,7 +481,7 @@ class IdNumDefinitionListColType(TypeDecorator):
     def process_bind_param(self, value: Optional[List[IdNumDefinition]],
                            dialect: Dialect) -> str:
         """Convert things on the way from Python to the database."""
-        retval = self._idnumdef_list_to_str(value)
+        retval = self._idnumdef_list_to_dbstr(value)
         if DEBUG_IDNUMDEF_LIST:
             log.debug(
                 "IdNumDefinitionColType.process_bind_param("
@@ -486,7 +492,7 @@ class IdNumDefinitionListColType(TypeDecorator):
     def process_literal_param(self, value: Optional[List[IdNumDefinition]],
                               dialect: Dialect) -> str:
         """Convert things on the way from Python to the database."""
-        retval = self._idnumdef_list_to_str(value)
+        retval = self._idnumdef_list_to_dbstr(value)
         if DEBUG_IDNUMDEF_LIST:
             log.debug(
                 "IdNumDefinitionColType.process_literal_param("
@@ -497,7 +503,7 @@ class IdNumDefinitionListColType(TypeDecorator):
     def process_result_value(self, value: Optional[str],
                              dialect: Dialect) -> List[IdNumDefinition]:
         """Convert things on the way from the database to Python."""
-        retval = self._str_to_idnumdef_list(value)
+        retval = self._dbstr_to_idnumdef_list(value)
         if DEBUG_IDNUMDEF_LIST:
             log.debug(
                 "IdNumDefinitionColType.process_result_value("

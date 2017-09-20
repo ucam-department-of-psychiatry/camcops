@@ -52,6 +52,7 @@ from colander import (
     Integer,
     Invalid,
     Length,
+    MappingSchema,
     OneOf,
     Range,
     Schema,
@@ -70,6 +71,7 @@ from deform.widget import (
     CheckedPasswordWidget,
     DateTimeInputWidget,
     HiddenWidget,
+    MappingWidget,
     PasswordWidget,
     RadioChoiceWidget,
     SelectWidget,
@@ -109,6 +111,7 @@ if DEBUG_COLANDER or DEBUG_CSRF_CHECK or DEBUG_FORM_VALIDATION:
 # Constants
 # =============================================================================
 
+OR_JOIN = "If you specify more than one, they will be joined with OR."
 SERIALIZED_NONE = ""
 
 
@@ -500,6 +503,9 @@ class MultiTaskSelector(SchemaNode):
     default = ""
     missing = ""
     title = "Task type(s)"
+    description = (
+        "If none are selected, all task types will be offered. " + OR_JOIN
+    )
 
     def __init__(self, *args, minimum_length: int = 1, **kwargs) -> None:
         self.minimum_length = minimum_length
@@ -519,6 +525,19 @@ class MultiTaskSelector(SchemaNode):
 
 
 class AllTasksOptionalSingleTaskSelector(OptionalSingleTaskSelector):
+    @staticmethod
+    def get_task_choices() -> List[Tuple[str, str]]:
+        from .cc_task import Task  # delayed import
+        choices = []  # type: List[Tuple[str, str]]
+        for tc in Task.all_subclasses_by_shortname():
+            choices.append((tc.tablename, tc.shortname))
+        return choices
+
+
+class AllTasksMultiTaskSelector(MultiTaskSelector):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, minimum_length=0, **kwargs)
+
     @staticmethod
     def get_task_choices() -> List[Tuple[str, str]]:
         from .cc_task import Task  # delayed import
@@ -602,6 +621,27 @@ class OptionalIdNumValue(MandatoryIdNumValue):
         return AllowNoneType(Integer())
 
 
+class MandatoryIdNumDefinitionNode(MappingSchema):
+    which_idnum = MandatoryWhichIdNumSelector()  # must match ViewParam.WHICH_IDNUM  # noqa
+    idnum_value = MandatoryIdNumValue()  # must match ViewParam.IDNUM_VALUE
+    title = "ID number"
+
+
+class IdNumDefinitionSequence(SequenceSchema):
+    idnum_def_sequence = MandatoryIdNumDefinitionNode()
+    title = "ID numbers"
+    description = OR_JOIN
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: List[Dict[str, int]]) -> None:
+        # log.critical("IdNumDefinitionSequence.validator: {!r}", value)
+        assert isinstance(value, list)
+        list_of_lists = [(x[ViewParam.WHICH_IDNUM], x[ViewParam.IDNUM_VALUE])
+                         for x in value]
+        if len(list_of_lists) != len(set(list_of_lists)):
+            raise Invalid(node, "You have specified duplicate ID definitions")
+
+
 class SexSelector(OptionalStringNode):
     _sex_choices = [("F", "F"), ("M", "M"), ("X", "X")]
     title = "Sex"
@@ -613,7 +653,8 @@ class SexSelector(OptionalStringNode):
         super().__init__(*args, **kwargs)
 
 
-class OptionalUserIdSelector(OptionalIntNode):
+class MandatoryUserIdSelectorUsersAllowedToSee(SchemaNode):
+    schema_type = Integer
     title = "User"
 
     def __init__(self, *args, **kwargs) -> None:
@@ -626,11 +667,20 @@ class OptionalUserIdSelector(OptionalIntNode):
         from .cc_user import User  # delayed import
         req = kw["request"]  # type: CamcopsRequest
         dbsession = req.dbsession
+        user = req.user
+        if user.superuser:
+            users = dbsession.query(User).order_by(User.username)
+        else:
+            # Users in my groups, or groups I'm allowed to see
+            my_allowed_group_ids = user.ids_of_groups_user_may_see()
+            users = dbsession.query(User)\
+                .join(Group)\
+                .filter(Group.id.in_(my_allowed_group_ids))\
+                .order_by(User.username)
         values = []  # type: List[Tuple[Optional[int], str]]
-        users = dbsession.query(User).order_by(User.username)
         for user in users:
             values.append((user.id, user.username))
-        values, pv = get_values_and_permissible(values, True, "[Any]")
+        values, pv = get_values_and_permissible(values, False)
         self.widget = SelectWidget(values=values)
         self.validator = OneOf(pv)
 
@@ -653,6 +703,29 @@ class OptionalUserNameSelector(OptionalStringNode):
         for user in users:
             values.append((user.username, user.username))
         values, pv = get_values_and_permissible(values, True, "[ignore]")
+        self.widget = SelectWidget(values=values)
+        self.validator = OneOf(pv)
+
+
+class MandatoryDeviceIdSelector(SchemaNode):
+    schema_type = Integer
+    title = "Device"
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.validator = None  # type: object
+        self.widget = None  # type: Widget
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        from .cc_device import Device  # delayed import
+        req = kw["request"]  # type: CamcopsRequest
+        dbsession = req.dbsession
+        devices = dbsession.query(Device).order_by(Device.friendly_name)
+        values = []  # type: List[Tuple[Optional[int], str]]
+        for device in devices:
+            values.append((device.id, device.friendly_name))
+        values, pv = get_values_and_permissible(values, False)
         self.widget = SelectWidget(values=values)
         self.validator = OneOf(pv)
 
@@ -796,16 +869,16 @@ class MandatoryGroupIdSelectorOtherGroups(SchemaNode):
         return Integer()
 
 
-class OptionalGroupIdSelectorUserGroups(SchemaNode):
+class MandatoryGroupIdSelectorUserGroups(SchemaNode):
     """
     Offers a picklist of groups from THOSE THE USER IS A MEMBER OF.
-    Used for "which do you want to upload into?"
     """
     title = "Group"
-    default = None
-    missing = None
 
     def __init__(self, *args, **kwargs) -> None:
+        if not hasattr(self, "allow_none"):
+            # ... allows parameter-free (!) inheritance by OptionalGroupIdSelectorUserGroups  # noqa
+            self.allow_none = False
         self.validator = None  # type: object
         self.widget = None  # type: Widget
         super().__init__(*args, **kwargs)
@@ -815,44 +888,133 @@ class OptionalGroupIdSelectorUserGroups(SchemaNode):
         user = kw["user"]  # type: User  # ATYPICAL BINDING
         groups = sorted(list(user.groups), key=lambda g: g.name)
         values = [(g.id, g.name) for g in groups]
-        values, pv = get_values_and_permissible(values, True, "[None]")
+        values, pv = get_values_and_permissible(values, self.allow_none,
+                                                "[None]")
         self.widget = SelectWidget(values=values)
         self.validator = OneOf(pv)
+
+    @staticmethod
+    def schema_type() -> SchemaType:
+        return Integer()
+
+
+class OptionalGroupIdSelectorUserGroups(MandatoryGroupIdSelectorUserGroups):
+    """
+    Offers a picklist of groups from THOSE THE USER IS A MEMBER OF.
+    Used for "which do you want to upload into?".
+    """
+    default = None
+    missing = None
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.allow_none = True
+        super().__init__(*args, **kwargs)
 
     @staticmethod
     def schema_type() -> SchemaType:
         return AllowNoneType(Integer())
 
 
-class AllGroupsSequence(SequenceSchema):
+class MandatoryGroupIdSelectorAllowedGroups(SchemaNode):
+    """
+    Offers a picklist of groups from THOSE THE USER IS ALLOWED TO SEE.
+    Used for task filters.
+    """
+    title = "Group"
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.validator = None  # type: object
+        self.widget = None  # type: Widget
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        req = kw["request"]  # type: CamcopsRequest
+        dbsession = req.dbsession
+        user = req.user
+        if user.superuser:
+            groups = dbsession.query(Group).order_by(Group.name)
+        else:
+            groups = sorted(list(user.groups), key=lambda g: g.name)
+        values = [(g.id, g.name) for g in groups]
+        values, pv = get_values_and_permissible(values)
+        self.widget = SelectWidget(values=values)
+        self.validator = OneOf(pv)
+
+    @staticmethod
+    def schema_type() -> SchemaType:
+        return Integer()
+
+
+class GroupsSequenceBase(SequenceSchema):
+    title = "Groups"
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: List[int]) -> None:
+        # log.critical("GroupsSequenceBase.validator: {!r}", value)
+        assert isinstance(value, list)
+        if len(value) != len(set(value)):
+            raise Invalid(node, "You have specified duplicate groups")
+
+
+class AllGroupsSequence(GroupsSequenceBase):
     """
     Typical use: superuser assigns group memberships to a user.
     Offer all possible groups.
     """
     group_id_sequence = MandatoryGroupIdSelectorAllGroups()
-    title = "Groups"
-
-    # noinspection PyMethodMayBeStatic
-    def validator(self, node: SchemaNode, value: List[int]) -> None:
-        # log.critical("SequenceOfGroups.validator: {!r}", value)
-        assert isinstance(value, list)
-        if len(value) != len(set(value)):
-            raise Invalid(node, "You have specified duplicate groups")
 
 
-class AllOtherGroupsSequence(SequenceSchema):
+class AllOtherGroupsSequence(GroupsSequenceBase):
     """
     Typical use: superuser assigns group permissions to another group.
     Offer all possible OTHER groups.
     """
     group_id_sequence = MandatoryGroupIdSelectorOtherGroups()
-    title = "Groups"
+
+
+class AllowedGroupsSequence(GroupsSequenceBase):
+    group_id_sequence = MandatoryGroupIdSelectorAllowedGroups()
+    description = OR_JOIN
+
+
+class TextContentsSequence(SequenceSchema):
+    text_sequence = SchemaNode(
+        String(),
+        title="Text contents criterion"
+    )
+    title = "Text contents"
+    description = OR_JOIN
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: List[str]) -> None:
+        assert isinstance(value, list)
+        if len(value) != len(set(value)):
+            raise Invalid(node, "You have specified duplicate text filters")
+
+
+class UploadingUserSequence(SequenceSchema):
+    user_id_sequence = MandatoryUserIdSelectorUsersAllowedToSee()
+    title = "Uploading users"
+    description = OR_JOIN
 
     # noinspection PyMethodMayBeStatic
     def validator(self, node: SchemaNode, value: List[int]) -> None:
         assert isinstance(value, list)
         if len(value) != len(set(value)):
-            raise Invalid(node, "You have specified duplicate groups")
+            raise Invalid(node, "You have specified duplicate users")
+
+
+class DevicesSequence(SequenceSchema):
+    device_id_sequence = MandatoryDeviceIdSelector()
+    title = "Uploading devices"
+    description = OR_JOIN
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: List[int]) -> None:
+        assert isinstance(value, list)
+        if len(value) != len(set(value)):
+            raise Invalid(node, "You have specified duplicate devices")
 
 
 # =============================================================================
@@ -1050,7 +1212,7 @@ class HL7RunLogForm(InformativeForm):
 # Task filters
 # =============================================================================
 
-class TaskFiltersSchema(CSRFSchema):
+class EditTaskFilterWhoSchema(Schema):
     surname = OptionalStringNode(title="Surname")  # must match ViewParam.SURNAME  # noqa
     forename = OptionalStringNode(title="Forename")  # must match ViewParam.FORENAME  # noqa
     dob = SchemaNode(  # must match ViewParam.DOB
@@ -1059,22 +1221,51 @@ class TaskFiltersSchema(CSRFSchema):
         title="Date of birth",
     )
     sex = SexSelector()  # must match ViewParam.SEX
-    which_idnum = OptionalWhichIdNumSelector()  # must match ViewParam.WHICH_IDNUM  # noqa
-    idnum_value = OptionalIdNumValue()  # must match ViewParam.IDNUM_VALUE  # noqa
-    table_name = AllTasksOptionalSingleTaskSelector()  # must match ViewParam.TABLENAME  # noqa
-    only_complete = BooleanNode(  # must match ViewParam.ONLY_COMPLETE
+    id_definitions = IdNumDefinitionSequence()  # must match ViewParam.ID_DEFINITIONS  # noqa
+
+
+class EditTaskFilterWhenSchema(Schema):
+    start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
+    end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
+
+
+class EditTaskFilterWhatSchema(Schema):
+    text_contents = TextContentsSequence()  # must match ViewParam.TEXT_CONTENTS  # noqa
+    tasks = AllTasksMultiTaskSelector()  # must match ViewParam.TASKS
+    complete_only = BooleanNode(  # must match ViewParam.COMPLETE_ONLY
         default=False,
         title="Only completed tasks?",
     )
-    user_id = OptionalUserIdSelector()  # must match ViewParam.USER_ID
-    start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
-    end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
-    text_contents = OptionalStringNode(title="Text contents")  # must match ViewParam.TEXT_CONTENTS  # noqa
 
 
-class TaskFiltersForm(InformativeForm):
+class EditTaskFilterAdminSchema(Schema):
+    device_ids = DevicesSequence()  # must match ViewParam.DEVICE_IDS
+    user_ids = UploadingUserSequence()  # must match ViewParam.USER_IDS
+    group_ids = AllowedGroupsSequence()  # must match ViewParam.GROUP_IDS
+
+
+class EditTaskFilterSchema(CSRFSchema):
+    who = EditTaskFilterWhoSchema(  # must match ViewParam.WHO
+        title="Who",
+        widget=MappingWidget(template="mapping_accordion", open=False)
+    )
+    what = EditTaskFilterWhatSchema(  # must match ViewParam.WHAT
+        title="What",
+        widget=MappingWidget(template="mapping_accordion", open=False)
+    )
+    when = EditTaskFilterWhenSchema(  # must match ViewParam.WHEN
+        title="When",
+        widget=MappingWidget(template="mapping_accordion", open=False)
+    )
+    admin = EditTaskFilterAdminSchema(  # must match ViewParam.ADMIN
+        title="Administrative criteria",
+        widget=MappingWidget(template="mapping_accordion", open=False)
+    )
+
+
+class EditTaskFilterForm(InformativeForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = TaskFiltersSchema().bind(request=request)
+        schema = EditTaskFilterSchema().bind(request=request)
         super().__init__(
             schema,
             buttons=[Button(name=FormAction.SET_FILTERS, title="Set filters"),

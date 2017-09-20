@@ -187,7 +187,7 @@ from .cc_forms import (
     OfferTermsForm,
     RefreshTasksForm,
     SetUserUploadGroupForm,
-    TaskFiltersForm,
+    EditTaskFilterForm,
     TasksPerPageForm,
     ViewDdlForm,
 )
@@ -231,12 +231,14 @@ from .cc_task import (
     Task,
 )
 from .cc_taskfactory import (
-    task_classes_from_table_names,
     task_factory,
-    TaskClassSortMethod,
     TaskFilter,
     TaskCollection,
     TaskSortMethod,
+)
+from .cc_taskfilter import (
+    task_classes_from_table_names,
+    TaskClassSortMethod,
 )
 from .cc_tracker import ClinicalTextView, Tracker
 from .cc_unittest import unit_test_ignore
@@ -645,66 +647,89 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
 # Tasks
 # =============================================================================
 
-@view_config(route_name=Routes.SET_FILTERS, renderer="set_filters.mako")
-def set_filters(req: CamcopsRequest) -> Dict[str, Any]:
-    redirect_url = req.get_str_param(ViewParam.REDIRECT_URL,
-                                     req.route_url(Routes.VIEW_TASKS))
-    ccsession = req.camcops_session
-    form = TaskFiltersForm(request=req)
+def edit_filter(req: CamcopsRequest, task_filter: TaskFilter,
+                redirect_url: str) -> Response:
+    form = EditTaskFilterForm(request=req)
 
     if FormAction.SET_FILTERS in req.POST:
         try:
             controls = list(req.POST.items())
             fa = form.validate(controls)
-            ccsession.filter_surname = fa.get(ViewParam.SURNAME) or None
-            ccsession.filter_forename = fa.get(ViewParam.FORENAME) or None
-            ccsession.filter_dob = fa.get(ViewParam.DOB)
-            ccsession.filter_sex = fa.get(ViewParam.SEX) or None
-            which_idnum = fa.get(ViewParam.WHICH_IDNUM)
-            idnum_value = fa.get(ViewParam.IDNUM_VALUE)
-            ccsession.filter_idnums = [IdNumDefinition(which_idnum,
-                                                       idnum_value)]
-            ccsession.filter_task = fa.get(ViewParam.TABLENAME) or None
-            ccsession.filter_complete = fa.get(ViewParam.ONLY_COMPLETE)
-            ccsession.filter_user_id = fa.get(ViewParam.USER_ID)
-            ccsession.filter_start_datetime = fa.get(ViewParam.START_DATETIME)
-            ccsession.filter_end_datetime = fa.get(ViewParam.END_DATETIME)
-            ccsession.filter_text = fa.get(ViewParam.TEXT_CONTENTS) or None
+
+            who = fa.get(ViewParam.WHO)
+            what = fa.get(ViewParam.WHAT)
+            when = fa.get(ViewParam.WHEN)
+            admin = fa.get(ViewParam.ADMIN)
+            task_filter.surname = who.get(ViewParam.SURNAME)
+            task_filter.forename = who.get(ViewParam.FORENAME)
+            task_filter.dob = who.get(ViewParam.DOB)
+            task_filter.sex = who.get(ViewParam.SEX)
+            task_filter.idnum_criteria = [
+                IdNumDefinition(which_idnum=x[ViewParam.WHICH_IDNUM],
+                                idnum_value=x[ViewParam.IDNUM_VALUE])
+                for x in who.get(ViewParam.ID_DEFINITIONS)
+            ]
+            task_filter.task_types = what.get(ViewParam.TASKS)
+            task_filter.text_contents = what.get(ViewParam.TEXT_CONTENTS)
+            task_filter.complete_only = what.get(ViewParam.COMPLETE_ONLY)
+            task_filter.start_datetime = when.get(ViewParam.START_DATETIME)
+            task_filter.end_datetime = when.get(ViewParam.END_DATETIME)
+            task_filter.device_ids = admin.get(ViewParam.DEVICE_IDS)
+            task_filter.adding_user_ids = admin.get(ViewParam.USER_IDS)
+            task_filter.group_ids = admin.get(ViewParam.GROUP_IDS)
+
             raise exc.HTTPFound(redirect_url)
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
         if FormAction.CLEAR_FILTERS in req.POST:
             # skip validation
-            ccsession.clear_filters()
-
-        if ccsession.filter_idnums:
-            iddef = ccsession.filter_idnums[0]  # type: IdNumDefinition
-            which_idnum = iddef.which_idnum
-            idnum_value = iddef.idnum_value
-        else:
-            which_idnum = None
-            idnum_value = None
+            task_filter.clear()
         fa = {
-            ViewParam.SURNAME: ccsession.filter_surname or "",
-            ViewParam.FORENAME: ccsession.filter_forename or "",
-            ViewParam.DOB: ccsession.filter_dob,
-            ViewParam.SEX: ccsession.filter_sex or "",
-            ViewParam.WHICH_IDNUM: which_idnum,
-            ViewParam.IDNUM_VALUE: idnum_value,
-            ViewParam.TABLENAME: ccsession.filter_task or "",
-            ViewParam.ONLY_COMPLETE: ccsession.filter_complete,
-            ViewParam.USER_ID: ccsession.filter_user_id,
-            ViewParam.START_DATETIME: ccsession.filter_start_datetime,
-            ViewParam.END_DATETIME: ccsession.filter_end_datetime,
-            ViewParam.TEXT_CONTENTS: ccsession.filter_text or "",
+            ViewParam.WHO: {
+                ViewParam.SURNAME: task_filter.surname,
+                ViewParam.FORENAME: task_filter.forename,
+                ViewParam.DOB: task_filter.dob,
+                ViewParam.SEX: task_filter.sex or "",
+                ViewParam.ID_DEFINITIONS: [
+                    {ViewParam.WHICH_IDNUM: x.which_idnum,
+                     ViewParam.IDNUM_VALUE: x.idnum_value}
+                    for x in task_filter.idnum_criteria
+                ],
+            },
+            ViewParam.WHAT: {
+                ViewParam.TASKS: task_filter.task_types,
+                ViewParam.TEXT_CONTENTS: task_filter.text_contents,
+                ViewParam.COMPLETE_ONLY: task_filter.complete_only,
+            },
+            ViewParam.WHEN: {
+                ViewParam.START_DATETIME: task_filter.start_datetime,
+                ViewParam.END_DATETIME: task_filter.end_datetime,
+            },
+            ViewParam.ADMIN: {
+                ViewParam.DEVICE_IDS: task_filter.device_ids,
+                ViewParam.USER_IDS: task_filter.adding_user_ids,
+                ViewParam.GROUP_IDS: task_filter.group_ids,
+            },
         }
         rendered_form = form.render(fa)
 
-    return dict(
-        head_form_html=get_head_form_html(req, [form]),
-        form=rendered_form,
+    return render_to_response(
+        "edit_filter.mako",
+        dict(
+            form=rendered_form,
+            head_form_html=get_head_form_html(req, [form])
+        ),
+        request=req
     )
+
+
+@view_config(route_name=Routes.SET_FILTERS)
+def set_filters(req: CamcopsRequest) -> Response:
+    redirect_url = req.get_str_param(ViewParam.REDIRECT_URL,
+                                     req.route_url(Routes.VIEW_TASKS))
+    task_filter = req.camcops_session.get_task_filter()
+    return edit_filter(req, task_filter=task_filter, redirect_url=redirect_url)
 
 
 @view_config(route_name=Routes.VIEW_TASKS, renderer="view_tasks.mako")
@@ -751,7 +776,7 @@ def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
     if errors:
         collection = []
     else:
-        taskfilter = TaskFilter(ccsession=ccsession)
+        taskfilter = ccsession.get_task_filter()
         collection = TaskCollection(
             req=req,
             taskfilter=taskfilter,
@@ -778,7 +803,7 @@ def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
 def serve_task(req: CamcopsRequest) -> Response:
     """Serves an individual task."""
     viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML, lower=True)
-    tablename = req.get_str_param(ViewParam.TABLENAME)
+    tablename = req.get_str_param(ViewParam.TABLE_NAME)
     server_pk = req.get_int_param(ViewParam.SERVER_PK)
     anonymise = req.get_bool_param(ViewParam.ANONYMISE, False)
 
@@ -1454,7 +1479,7 @@ def offer_audit_trail(req: CamcopsRequest) -> Response:
                 ViewParam.SOURCE,
                 ViewParam.REMOTE_IP_ADDR,
                 ViewParam.USERNAME,
-                ViewParam.TABLENAME,
+                ViewParam.TABLE_NAME,
                 ViewParam.SERVER_PK,
                 ViewParam.TRUNCATE,
             ]
@@ -1488,7 +1513,7 @@ def view_audit_trail(req: CamcopsRequest) -> Response:
     source = req.get_str_param(ViewParam.SOURCE, None)
     remote_addr = req.get_str_param(ViewParam.REMOTE_IP_ADDR, None)
     username = req.get_str_param(ViewParam.USERNAME, None)
-    table_name = req.get_str_param(ViewParam.TABLENAME, None)
+    table_name = req.get_str_param(ViewParam.TABLE_NAME, None)
     server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
     truncate = req.get_bool_param(ViewParam.TRUNCATE, True)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
@@ -1518,7 +1543,7 @@ def view_audit_trail(req: CamcopsRequest) -> Response:
         add_condition(ViewParam.USERNAME, username)
     if table_name:
         q = q.filter(AuditEntry.table_name == table_name)
-        add_condition(ViewParam.TABLENAME, table_name)
+        add_condition(ViewParam.TABLE_NAME, table_name)
     if server_pk is not None:
         q = q.filter(AuditEntry.server_pk == server_pk)
         add_condition(ViewParam.SERVER_PK, server_pk)
@@ -1555,7 +1580,7 @@ def offer_hl7_message_log(req: CamcopsRequest) -> Response:
             appstruct = form.validate(controls)
             keys = [
                 ViewParam.ROWS_PER_PAGE,
-                ViewParam.TABLENAME,
+                ViewParam.TABLE_NAME,
                 ViewParam.SERVER_PK,
                 ViewParam.HL7_RUN_ID,
                 ViewParam.START_DATETIME,
@@ -1583,7 +1608,7 @@ def offer_hl7_message_log(req: CamcopsRequest) -> Response:
 def view_hl7_message_log(req: CamcopsRequest) -> Response:
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
-    table_name = req.get_str_param(ViewParam.TABLENAME, None)
+    table_name = req.get_str_param(ViewParam.TABLE_NAME, None)
     server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
     hl7_run_id = req.get_int_param(ViewParam.HL7_RUN_ID, None)
     start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
@@ -1599,7 +1624,7 @@ def view_hl7_message_log(req: CamcopsRequest) -> Response:
     q = dbsession.query(HL7Message)
     if table_name:
         q = q.filter(HL7Message.basetable == table_name)
-        add_condition(ViewParam.TABLENAME, table_name)
+        add_condition(ViewParam.TABLE_NAME, table_name)
     if server_pk is not None:
         q = q.filter(HL7Message.serverpk == server_pk)
         add_condition(ViewParam.SERVER_PK, server_pk)

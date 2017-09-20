@@ -195,7 +195,7 @@ ${ task.get_task_html(req) }
         <a href="${ req.route_url(
                         Routes.TASK,
                         _query={
-                            ViewParam.TABLENAME: task.tablename,
+                            ViewParam.TABLE_NAME: task.tablename,
                             ViewParam.SERVER_PK: task._pk,
                             ViewParam.VIEWTYPE: ViewArg.XML,
                         }) }">View raw data as XML</a>
@@ -208,7 +208,7 @@ ${ task.get_task_html(req) }
             <p><a href="${ req.route_url(
                         Routes.ADD_SPECIAL_NOTE,
                         _query={
-                            ViewParam.TABLENAME: task.tablename,
+                            ViewParam.TABLE_NAME: task.tablename,
                             ViewParam.SERVER_PK: task._pk,
                         }) }">Apply special note</a></p>
         %endif
@@ -218,7 +218,7 @@ ${ task.get_task_html(req) }
                 <p><a href="${ req.route_url(
                             Routes.ADD_SPECIAL_NOTE,
                             _query={
-                                ViewParam.TABLENAME: task.tablename,
+                                ViewParam.TABLE_NAME: task.tablename,
                                 ViewParam.SERVER_PK: task._pk,
                             }) }">Erase task instance</a></p>
             %endif
@@ -235,7 +235,7 @@ ${ task.get_task_html(req) }
                 <a href="${ req.route_url(
                         Routes.TASK,
                         _query={
-                            ViewParam.TABLENAME: task.tablename,
+                            ViewParam.TABLE_NAME: task.tablename,
                             ViewParam.SERVER_PK: task._predecessor_pk,
                             ViewParam.VIEWTYPE: ViewArg.HTML,
                         }) }">view previous version</a>.
@@ -247,7 +247,7 @@ ${ task.get_task_html(req) }
                 <a href="${ req.route_url(
                         Routes.TASK,
                         _query={
-                            ViewParam.TABLENAME: task.tablename,
+                            ViewParam.TABLE_NAME: task.tablename,
                             ViewParam.SERVER_PK: task._successor_pk,
                             ViewParam.VIEWTYPE: ViewArg.HTML,
                         }) }">view next version</a>.
@@ -259,7 +259,7 @@ ${ task.get_task_html(req) }
             <a href="${ req.route_url(
                 Routes.TASK,
                 _query={
-                    ViewParam.TABLENAME: task.tablename,
+                    ViewParam.TABLE_NAME: task.tablename,
                     ViewParam.SERVER_PK: task._pk,
                     ViewParam.VIEWTYPE: ViewArg.PDF,
                 }) }">View PDF for printing/saving</a>

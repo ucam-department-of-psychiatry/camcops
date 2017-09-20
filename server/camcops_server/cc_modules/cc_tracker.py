@@ -47,11 +47,11 @@ from .cc_request import CamcopsRequest
 from .cc_simpleobjects import IdNumDefinition
 from .cc_task import Task
 from .cc_taskfactory import (
-    TaskClassSortMethod,
     TaskCollection,
     TaskFilter,
     TaskSortMethod,
 )
+from .cc_taskfilter import TaskClassSortMethod
 from .cc_trackerhelpers import TrackerInfo
 from .cc_unittest import unit_test_ignore
 from .cc_xml import get_xml_document, XmlDataTypes, XmlElement

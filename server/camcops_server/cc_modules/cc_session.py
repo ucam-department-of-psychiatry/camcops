@@ -22,41 +22,27 @@
 ===============================================================================
 """
 
-import datetime
 import logging
-from typing import Any, List, Optional, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from pendulum import Pendulum
 from pyramid.interfaces import ISession
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, Date, DateTime, Integer
+from sqlalchemy.sql.sqltypes import DateTime, Integer
 
-# from .cc_analytics import send_analytics_if_necessary
 from .cc_constants import DateFormat
 from .cc_dt import format_datetime
 from .cc_pyramid import CookieKey
 from .cc_simpleobjects import IdNumDefinition
-from .cc_sqla_coltypes import (
-    PendulumDateTimeAsIsoTextColType,
-    FilterTextColType,
-    IdNumDefinitionListColType,
-    IPAddressColType,
-    PatientNameColType,
-    SessionTokenColType,
-    SexColType,
-    TableNameColType,
-)
+from .cc_sqla_coltypes import IPAddressColType, SessionTokenColType
 from .cc_sqlalchemy import Base
+from .cc_taskfilter import TaskFilter
 from .cc_unittest import unit_test_ignore
-from .cc_user import (
-    SecurityAccountLockout,
-    SecurityLoginFailure,
-    User,
-)
+from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
@@ -121,66 +107,22 @@ class CamcopsSession(Base):
         "last_activity_utc", DateTime,
         comment="Date/time of last activity (UTC)"
     )
-    filter_surname = Column(
-        "filter_surname", PatientNameColType,
-        comment="Task filter in use: surname"
-    )
-    filter_forename = Column(
-        "filter_forename", PatientNameColType,
-        comment="Task filter in use: forename"
-    )
-    filter_dob = Column(
-        "filter_dob", Date,
-        comment="Task filter in use: DOB"
-    )
-    filter_sex = Column(
-        "filter_sex", SexColType,
-        comment="Task filter in use: sex"
-    )
-    filter_task = Column(
-        "filter_task", TableNameColType,
-        comment="Task filter in use: task type"
-    )
-    filter_complete = Column(
-        "filter_complete", Boolean,
-        comment="Task filter in use: task complete?"
-    )
-    filter_include_old_versions = Column(  # DEPRECATED
-        "filter_include_old_versions", Boolean,
-        comment="Task filter in use: allow old versions?"
-    )
-    filter_device_id = Column(
-        "filter_device_id", Integer, ForeignKey("_security_devices.id"),
-        comment="Task filter in use: source device ID"
-    )
-    filter_user_id = Column(
-        "filter_user_id", Integer, ForeignKey("_security_users.id"),
-        comment="Task filter in use: adding user ID"
-    )
-    filter_start_datetime = Column(
-        "filter_start_datetime_iso8601", PendulumDateTimeAsIsoTextColType,
-        comment="Task filter in use: start date/time (UTC as ISO8601)"
-    )
-    filter_end_datetime = Column(
-        "filter_end_datetime_iso8601", PendulumDateTimeAsIsoTextColType,
-        comment="Task filter in use: end date/time (UTC as ISO8601)"
-    )
-    filter_text = Column(
-        "filter_text", FilterTextColType,
-        comment="Task filter in use: filter text fields"
-    )
     number_to_view = Column(
         "number_to_view", Integer,
         comment="Number of records to view"
     )
-    filter_idnums = Column(  # new in v2.0.1
-        "filter_idnums", IdNumDefinitionListColType,
-        comment="ID filters as JSON"
+    task_filter_id = Column(
+        "task_filter_id", Integer,
+        ForeignKey("_task_filters.id"), # *** cascade deletes? CHECK DIRECTION!
+        comment="Task filter ID"
     )
 
     user = relationship("User", lazy="joined", foreign_keys=[user_id])
-    filter_user = relationship("User", foreign_keys=[filter_user_id])
-    filter_device = relationship("Device")
+    task_filter = relationship("TaskFilter", foreign_keys=[task_filter_id])
+
+    # -------------------------------------------------------------------------
+    # Basic info
+    # -------------------------------------------------------------------------
 
     def __repr__(self) -> str:
         return simple_repr(
@@ -192,6 +134,10 @@ class CamcopsSession(Base):
     @property
     def last_activity_utc_iso(self) -> str:
         return format_datetime(self.last_activity_utc, DateFormat.ISO8601)
+
+    # -------------------------------------------------------------------------
+    # Creating sessions
+    # -------------------------------------------------------------------------
 
     @classmethod
     def get_session_using_cookies(cls,
@@ -306,6 +252,10 @@ class CamcopsSession(Base):
         self.ip_address = ip_addr
         self.last_activity_utc = last_activity_utc
 
+    # -------------------------------------------------------------------------
+    # User info and login/logout
+    # -------------------------------------------------------------------------
+
     @property
     def username(self) -> Optional[str]:
         if self.user:
@@ -415,31 +365,15 @@ class CamcopsSession(Base):
     # Filters
     # -------------------------------------------------------------------------
 
-    def get_idnum_filters(self) -> List[IdNumDefinition]:
-        return self.filter_idnums or []
-
-    def set_idnum_filters(self, idnum_filter: List[IdNumDefinition]) -> None:
-        self.filter_idnums = idnum_filter
-
-    # -------------------------------------------------------------------------
-    # Clear filters
-    # -------------------------------------------------------------------------
-
-    def clear_filters(self) -> None:
-        """Clear all filters."""
-        self.filter_surname = None
-        self.filter_forename = None
-        self.filter_dob = None
-        self.filter_sex = None
-        self.filter_idnums = []  # type: List[IdNumDefinition]
-        self.filter_task = None
-        self.filter_complete = None
-        self.filter_include_old_versions = None  # DEPRECATED
-        self.filter_device_id = None
-        self.filter_user_id = None
-        self.filter_start_datetime = None
-        self.filter_end_datetime = None
-        self.filter_text = None
+    def get_task_filter(self) -> TaskFilter:
+        if not self.task_filter:
+            dbsession = SqlASession.object_session(self)
+            assert dbsession, (
+                "CamcopsSession.get_task_filter() called on a CamcopsSession "
+                "that's not yet in a session")
+            self.task_filter = TaskFilter()
+            dbsession.add(self.task_filter)
+        return self.task_filter
 
 
 # =============================================================================

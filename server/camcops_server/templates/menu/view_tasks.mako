@@ -18,7 +18,7 @@ OFFER_PDF_ANON_VERSION = False
 
 <h1>Currently applicable filters</h1>
 
-<%include file="current_session_filters.mako"/>
+<%include file="describe_task_filter.mako" args="task_filter=request.camcops_session.get_task_filter()"/>
 
 <div><a href="${ request.route_url(Routes.SET_FILTERS) }">Set or clear filters</a></div>
 
@@ -142,7 +142,7 @@ ${ refresh_form }
                     <a href="${ req.route_url(
                             Routes.TASK,
                             _query={
-                                ViewParam.TABLENAME: task.tablename,
+                                ViewParam.TABLE_NAME: task.tablename,
                                 ViewParam.SERVER_PK: task._pk,
                                 ViewParam.VIEWTYPE: ViewArg.HTML,
                             }) }">HTML</a>
@@ -150,7 +150,7 @@ ${ refresh_form }
                         [<a href="${ req.route_url(
                                 Routes.TASK,
                                 _query={
-                                    ViewParam.TABLENAME: task.tablename,
+                                    ViewParam.TABLE_NAME: task.tablename,
                                     ViewParam.SERVER_PK: task._pk,
                                     ViewParam.VIEWTYPE: ViewArg.HTML,
                                     ViewParam.ANONYMISE: True,
@@ -168,7 +168,7 @@ ${ refresh_form }
                     <a href="${ req.route_url(
                         Routes.TASK,
                         _query={
-                            ViewParam.TABLENAME: task.tablename,
+                            ViewParam.TABLE_NAME: task.tablename,
                             ViewParam.SERVER_PK: task._pk,
                             ViewParam.VIEWTYPE: ViewArg.PDF,
                         }) }">PDF</a>
@@ -176,7 +176,7 @@ ${ refresh_form }
                         [<a href="${ req.route_url(
                                 Routes.TASK,
                                 _query={
-                                    ViewParam.TABLENAME: task.tablename,
+                                    ViewParam.TABLE_NAME: task.tablename,
                                     ViewParam.SERVER_PK: task._pk,
                                     ViewParam.VIEWTYPE: ViewArg.PDF,
                                     ViewParam.ANONYMISE: True,

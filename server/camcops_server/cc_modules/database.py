@@ -82,6 +82,7 @@ from .cc_session import CamcopsSession
 from .cc_specialnote import SpecialNote
 from .cc_storedvar import ServerStoredVar
 from .cc_tabletsession import TabletSession
+from .cc_taskfilter import TaskFilter
 from .cc_unittest import (
     unit_test_ignore,
     unit_test_must_raise,
@@ -135,6 +136,7 @@ RESERVED_TABLES = [
     SecurityLoginFailure.__tablename__,
     ServerStoredVar.__tablename__,
     SpecialNote.__tablename__,
+    TaskFilter.__tablename__,
     User.__tablename__,
     user_group_table.name,
 ]

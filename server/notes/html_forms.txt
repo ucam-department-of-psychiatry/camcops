@@ -1,0 +1,7 @@
+
+Horizontal forms, and other fancier operations with Deform:
+
+- https://stackoverflow.com/questions/23954772/how-to-make-a-horizontal-form-with-deform-2
+- http://chromaticleaves.com/posts/deform-retail-form-rendering.html
+    - https://github.com/ericrasmussen/deform_retail_demo/tree/master/deformretail/templates
+

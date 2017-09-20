@@ -1,0 +1,33 @@
+===============================================================================
+Warnings during "camcops mergedb" relating to "mysqldb" driver and UTF-8
+===============================================================================
+
+Warnings occurring as follows:
+
+    2017-08-25 22:27:23.234 cardinal_pythonlib.sqlalchemy.merge_db:INFO: Processing table 'blobs' via ORM class <class 'camcops_server.cc_modules.cc_blob.Blob'>
+    /home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, "Invalid utf8 character string: '89504E'")
+      cursor.execute(statement, parameters)
+    /home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, "Invalid utf8 character string: 'FFD8FF'")
+      cursor.execute(statement, parameters)
+
+... or with database and SQLA-URL charset set to utf8mb4:
+
+    2017-08-25 22:38:36.628 cardinal_pythonlib.sqlalchemy.merge_db:INFO: Processing table 'blobs' via ORM class <class 'camcops_server.cc_modules.cc_blob.Blob'>
+    /home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, "Invalid utf8mb4 character string: '89504E'")
+      cursor.execute(statement, parameters)
+    /home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, "Invalid utf8mb4 character string: 'FFD8FF'")
+      cursor.execute(statement, parameters)
+
+Potentially related:
+
+    https://bitbucket.org/zzzeek/sqlalchemy/issues/3291/problem-using-binary-type-with-foreign-key
+    https://bitbucket.org/zzzeek/sqlalchemy/issues/3804/invalid-utf8-character-string-warning-on
+    https://github.com/PyMySQL/mysqlclient-python/issues/81
+    https://github.com/PyMySQL/mysqlclient-python/pull/106
+
+... so it's probably a driver issue
+
+YES; goes away using "pymysql" rather than "mysqldb", so e.g. use
+
+    DB_URL = mysql+pymysql://username:password@127.0.0.1:3306/database?charset=utf8mb4
+

@@ -1,0 +1,6 @@
+
+-------------------------------------------------------------------------------
+Generator expressions v. list comprehensions
+-------------------------------------------------------------------------------
+LC in general faster; GE are used to save memory, not routinely.
+- http://stackoverflow.com/questions/11964130/

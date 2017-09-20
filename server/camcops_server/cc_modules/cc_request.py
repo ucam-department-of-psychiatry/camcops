@@ -679,7 +679,7 @@ def command_line_request() -> CamcopsRequest:
     Presupposes that os.environ[ENVVAR_CONFIG_FILE] has been set, as it is
     in camcops.main().
     """
-    log.critical("Creating command-line pseudo-request")
+    log.debug("Creating command-line pseudo-request")
 
     os_env_dict = {
         ENVVAR_CONFIG_FILE: os.environ[ENVVAR_CONFIG_FILE],

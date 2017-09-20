@@ -1,4 +1,5 @@
 
+
 *** filters as database entities
     - session has FK to current filter
     - filter says "suitable for tracker Y/N"
@@ -6,6 +7,8 @@
     - "groups" as part of filter (one, many...)
     - fully flexible task list as part of filter
     - LATER option for more flexible things
+
+*** server info view: which XML string families present?
 
 *** delete patient
 *** forcibly preserve
@@ -28,43 +31,9 @@
     files; mark them as cacheable by the browser (but still need inline CSS
     for PDF creation!).
 
-DOCUMENT merge warning:
-
-    2017-08-25 22:27:23.234 cardinal_pythonlib.sqlalchemy.merge_db:INFO: Processing table 'blobs' via ORM class <class 'camcops_server.cc_modules.cc_blob.Blob'>
-    /home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, "Invalid utf8 character string: '89504E'")
-      cursor.execute(statement, parameters)
-    /home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, "Invalid utf8 character string: 'FFD8FF'")
-      cursor.execute(statement, parameters)
-
-    ... or with database and SQLA-URL charset set to utf8mb4:
-
-    2017-08-25 22:38:36.628 cardinal_pythonlib.sqlalchemy.merge_db:INFO: Processing table 'blobs' via ORM class <class 'camcops_server.cc_modules.cc_blob.Blob'>
-    /home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, "Invalid utf8mb4 character string: '89504E'")
-      cursor.execute(statement, parameters)
-    /home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, "Invalid utf8mb4 character string: 'FFD8FF'")
-      cursor.execute(statement, parameters)
-
-    Potentially related:
-
-        https://bitbucket.org/zzzeek/sqlalchemy/issues/3291/problem-using-binary-type-with-foreign-key
-        https://bitbucket.org/zzzeek/sqlalchemy/issues/3804/invalid-utf8-character-string-warning-on
-        https://github.com/PyMySQL/mysqlclient-python/issues/81
-        https://github.com/PyMySQL/mysqlclient-python/pull/106
-
-    ... so it's probably a driver issue
-
-    YES; goes away using "pymysql" rather than "mysqldb", so e.g. use
-
-        DB_URL = mysql+pymysql://username:password@127.0.0.1:3306/database?charset=utf8mb4
-
-
 ===============================================================================
 CAMCOPS SERVER THINGS TO DO NOW
 ===============================================================================
-
-- fix MAKE_PACKAGE.py and server scripts to be able to serve tablet source
-  code that's not in the Python server package (now we've moved to venvs
-  properly)
 
 - sort out SQLAlchemy, field type, and get_summaries()
     - use mixins to inherit fields; see
@@ -88,8 +57,6 @@ CAMCOPS SERVER THINGS TO DO
   min/max or permitted values where applicable; at first "submit", show
   differences and ask for confirmation; audit changes. For BLOBs, allow
   option to upload file (or leave unchanged).
-
-- shift to Arrow for dates/times? (With sqlalchemy-utils?)
 
 - document that anonymisation for research exports is supported as a basic
   framework, but use CRATE if you want to do it properly.
@@ -156,14 +123,3 @@ CONSIDERED BUT NOT IMPLEMENTED
   to take a subset of data.
   ... No current clear demand; therefore follow YAGNI principle.
       https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it
-
-
-===============================================================================
-Notes
-===============================================================================
-
--------------------------------------------------------------------------------
-Generator expressions v. list comprehensions
--------------------------------------------------------------------------------
-LC in general faster; GE are used to save memory, not routinely.
-- http://stackoverflow.com/questions/11964130/
