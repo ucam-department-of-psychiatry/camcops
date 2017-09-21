@@ -31,6 +31,12 @@ COLANDER NODES, NULLS, AND VALIDATION
   acceptable to Integer. Having no default is fine, though.
 - In general, flexible inheritance is very hard to implement.
 
+- Note that this error:
+    AttributeError: 'EditTaskFilterSchema' object has no attribute 'typ'
+  means you have failed to call super().__init__() properly from __init__().
+
+- When creating a schema, its members seem to have to be created in the class
+  declaration as class properties, not in __init__().
 """
 
 import logging
@@ -113,6 +119,17 @@ if DEBUG_COLANDER or DEBUG_CSRF_CHECK or DEBUG_FORM_VALIDATION:
 
 OR_JOIN = "If you specify more than one, they will be joined with OR."
 SERIALIZED_NONE = ""
+
+
+class Binding:
+    # Must match kwargs of calls to bind() function of each Schema
+    GROUP = "group"
+    OPEN_ADMIN = "open_admin"
+    OPEN_WHAT = "open_what"
+    OPEN_WHEN = "open_when"
+    OPEN_WHO = "open_who"
+    REQUEST = "request"
+    USER = "user"
 
 
 # =============================================================================
@@ -370,7 +387,7 @@ class CSRFToken(SchemaNode):
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        req = kw["request"]  # type: CamcopsRequest
+        req = kw[Binding.REQUEST]  # type: CamcopsRequest
         csrf_token = req.session.get_csrf_token()
         if DEBUG_CSRF_CHECK:
             log.debug("Got CSRF token from session: {!r}", csrf_token)
@@ -379,7 +396,7 @@ class CSRFToken(SchemaNode):
     def validator(self, node: SchemaNode, value: Any) -> None:
         # Deferred validator via method, as per
         # https://docs.pylonsproject.org/projects/colander/en/latest/basics.html  # noqa
-        req = self.bindings["request"]  # type: CamcopsRequest
+        req = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
         csrf_token = req.session.get_csrf_token()  # type: str
         matches = value == csrf_token
         if DEBUG_CSRF_CHECK:
@@ -574,7 +591,7 @@ class MandatoryWhichIdNumSelector(SchemaNode):
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        req = kw["request"]  # type: CamcopsRequest
+        req = kw[Binding.REQUEST]  # type: CamcopsRequest
         cfg = req.config
         values = []  # type: List[Tuple[Optional[int], str]]
         for which_idnum in cfg.get_which_idnums():
@@ -665,7 +682,7 @@ class MandatoryUserIdSelectorUsersAllowedToSee(SchemaNode):
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         from .cc_user import User  # delayed import
-        req = kw["request"]  # type: CamcopsRequest
+        req = kw[Binding.REQUEST]  # type: CamcopsRequest
         dbsession = req.dbsession
         user = req.user
         if user.superuser:
@@ -696,7 +713,7 @@ class OptionalUserNameSelector(OptionalStringNode):
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         from .cc_user import User  # delayed import
-        req = kw["request"]  # type: CamcopsRequest
+        req = kw[Binding.REQUEST]  # type: CamcopsRequest
         dbsession = req.dbsession
         values = []  # type: List[Tuple[str, str]]
         users = dbsession.query(User).order_by(User.username)
@@ -719,7 +736,7 @@ class MandatoryDeviceIdSelector(SchemaNode):
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         from .cc_device import Device  # delayed import
-        req = kw["request"]  # type: CamcopsRequest
+        req = kw[Binding.REQUEST]  # type: CamcopsRequest
         dbsession = req.dbsession
         devices = dbsession.query(Device).order_by(Device.friendly_name)
         values = []  # type: List[Tuple[Optional[int], str]]
@@ -828,7 +845,7 @@ class MandatoryGroupIdSelectorAllGroups(SchemaNode):
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        req = kw["request"]  # type: CamcopsRequest
+        req = kw[Binding.REQUEST]  # type: CamcopsRequest
         dbsession = req.dbsession
         groups = dbsession.query(Group).order_by(Group.name)
         values = [(g.id, g.name) for g in groups]
@@ -855,8 +872,8 @@ class MandatoryGroupIdSelectorOtherGroups(SchemaNode):
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        req = kw["request"]  # type: CamcopsRequest
-        group = kw["group"]  # type: Group  # ATYPICAL BINDING
+        req = kw[Binding.REQUEST]  # type: CamcopsRequest
+        group = kw[Binding.GROUP]  # type: Group  # ATYPICAL BINDING
         dbsession = req.dbsession
         groups = dbsession.query(Group).order_by(Group.name)
         values = [(g.id, g.name) for g in groups if g.id != group.id]
@@ -885,7 +902,7 @@ class MandatoryGroupIdSelectorUserGroups(SchemaNode):
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        user = kw["user"]  # type: User  # ATYPICAL BINDING
+        user = kw[Binding.USER]  # type: User  # ATYPICAL BINDING
         groups = sorted(list(user.groups), key=lambda g: g.name)
         values = [(g.id, g.name) for g in groups]
         values, pv = get_values_and_permissible(values, self.allow_none,
@@ -929,7 +946,7 @@ class MandatoryGroupIdSelectorAllowedGroups(SchemaNode):
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        req = kw["request"]  # type: CamcopsRequest
+        req = kw[Binding.REQUEST]  # type: CamcopsRequest
         dbsession = req.dbsession
         user = req.user
         if user.superuser:
@@ -1062,7 +1079,7 @@ class OldUserPasswordCheck(SchemaNode):
     widget = PasswordWidget()
 
     def validator(self, node: SchemaNode, value: Any) -> None:
-        request = self.bindings["request"]  # type: CamcopsRequest
+        request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
         user = request.user
         assert user is not None
         if not user.is_password_valid(value):
@@ -1262,10 +1279,54 @@ class EditTaskFilterSchema(CSRFSchema):
         widget=MappingWidget(template="mapping_accordion", open=False)
     )
 
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        # log.critical("EditTaskFilterSchema.after_bind")
+        # log.critical("{!r}", self.__dict__)
+        # This is pretty nasty. By the time we get here, the Form class has
+        # made Field objects, and, I think, called a clone() function on us.
+        # Objects like "who" are not in our __dict__ any more. Our __dict__
+        # looks like:
+        #   {
+        #       'typ': <colander.Mapping object at 0x7fd7989b18d0>,
+        #       'bindings': {
+        #           'open_who': True,
+        #           'open_when': True,
+        #           'request': ...,
+        #       },
+        #       '_order': 118,
+        #       'children': [
+        #           <...CSRFToken object at ... (named csrf)>,
+        #           <...EditTaskFilterWhoSchema object at ... (named who)>,
+        #           ...
+        #       ],
+        #       'title': ''
+        #   }
+        who = next(x for x in self.children if x.name == 'who')
+        what = next(x for x in self.children if x.name == 'what')
+        when = next(x for x in self.children if x.name == 'when')
+        admin = next(x for x in self.children if x.name == 'admin')
+        # log.critical("who = {!r}", who)
+        # log.critical("who.__dict__ = {!r}", who.__dict__)
+        who.widget.open = kw[Binding.OPEN_WHO]
+        what.widget.open = kw[Binding.OPEN_WHAT]
+        when.widget.open = kw[Binding.OPEN_WHEN]
+        admin.widget.open = kw[Binding.OPEN_ADMIN]
+
 
 class EditTaskFilterForm(InformativeForm):
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = EditTaskFilterSchema().bind(request=request)
+    def __init__(self, 
+                 request: "CamcopsRequest",
+                 open_who: bool = False,
+                 open_what: bool = False,
+                 open_when: bool = False,
+                 open_admin: bool = False,
+                 **kwargs) -> None:
+        schema = EditTaskFilterSchema().bind(request=request,
+                                             open_admin=open_admin,
+                                             open_what=open_what,
+                                             open_when=open_when,
+                                             open_who=open_who)
         super().__init__(
             schema,
             buttons=[Button(name=FormAction.SET_FILTERS, title="Set filters"),

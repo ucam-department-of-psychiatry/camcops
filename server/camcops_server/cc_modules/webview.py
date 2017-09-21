@@ -649,9 +649,8 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
 
 def edit_filter(req: CamcopsRequest, task_filter: TaskFilter,
                 redirect_url: str) -> Response:
-    form = EditTaskFilterForm(request=req)
-
     if FormAction.SET_FILTERS in req.POST:
+        form = EditTaskFilterForm(request=req)
         try:
             controls = list(req.POST.items())
             fa = form.validate(controls)
@@ -685,33 +684,47 @@ def edit_filter(req: CamcopsRequest, task_filter: TaskFilter,
         if FormAction.CLEAR_FILTERS in req.POST:
             # skip validation
             task_filter.clear()
-        fa = {
-            ViewParam.WHO: {
-                ViewParam.SURNAME: task_filter.surname,
-                ViewParam.FORENAME: task_filter.forename,
-                ViewParam.DOB: task_filter.dob,
-                ViewParam.SEX: task_filter.sex or "",
-                ViewParam.ID_DEFINITIONS: [
-                    {ViewParam.WHICH_IDNUM: x.which_idnum,
-                     ViewParam.IDNUM_VALUE: x.idnum_value}
-                    for x in task_filter.idnum_criteria
-                ],
-            },
-            ViewParam.WHAT: {
-                ViewParam.TASKS: task_filter.task_types,
-                ViewParam.TEXT_CONTENTS: task_filter.text_contents,
-                ViewParam.COMPLETE_ONLY: task_filter.complete_only,
-            },
-            ViewParam.WHEN: {
-                ViewParam.START_DATETIME: task_filter.start_datetime,
-                ViewParam.END_DATETIME: task_filter.end_datetime,
-            },
-            ViewParam.ADMIN: {
-                ViewParam.DEVICE_IDS: task_filter.device_ids,
-                ViewParam.USER_IDS: task_filter.adding_user_ids,
-                ViewParam.GROUP_IDS: task_filter.group_ids,
-            },
+        who = {
+            ViewParam.SURNAME: task_filter.surname,
+            ViewParam.FORENAME: task_filter.forename,
+            ViewParam.DOB: task_filter.dob,
+            ViewParam.SEX: task_filter.sex or "",
+            ViewParam.ID_DEFINITIONS: [
+                {ViewParam.WHICH_IDNUM: x.which_idnum,
+                 ViewParam.IDNUM_VALUE: x.idnum_value}
+                for x in task_filter.idnum_criteria
+            ],
         }
+        what = {
+            ViewParam.TASKS: task_filter.task_types,
+            ViewParam.TEXT_CONTENTS: task_filter.text_contents,
+            ViewParam.COMPLETE_ONLY: task_filter.complete_only,
+        }
+        when = {
+            ViewParam.START_DATETIME: task_filter.start_datetime,
+            ViewParam.END_DATETIME: task_filter.end_datetime,
+        }
+        admin = {
+            ViewParam.DEVICE_IDS: task_filter.device_ids,
+            ViewParam.USER_IDS: task_filter.adding_user_ids,
+            ViewParam.GROUP_IDS: task_filter.group_ids,
+        }
+        log.critical("{!r}", who.values())
+        open_who = any(i for i in who.values())
+        open_what = any(i for i in what.values())
+        open_when = any(i for i in when.values())
+        open_admin = any(i for i in admin.values())
+        fa = {
+            ViewParam.WHO: who,
+            ViewParam.WHAT: what,
+            ViewParam.WHEN: when,
+            ViewParam.ADMIN: admin,
+        }
+        form = EditTaskFilterForm(request=req,
+                                  open_admin=open_admin,
+                                  open_what=open_what,
+                                  open_when=open_when,
+                                  open_who=open_who)
         rendered_form = form.render(fa)
 
     return render_to_response(
