@@ -47,4 +47,11 @@
     </tr>
 </table>
 
+<h2>Extra string families present</h2>
+<pre>
+    %for sf in string_families:
+${ sf | h }
+    %endfor
+</pre>
+
 <%include file="to_main_menu.mako"/>

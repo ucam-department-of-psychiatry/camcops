@@ -93,8 +93,10 @@ def task_query_restricted_to_permitted_users(
     # Implement group security. Simple:
     group_ids = user.ids_of_groups_user_may_see()
     if not group_ids:
-        log.warning("User {!r} (ID {!r}) can see no groups!",
-                    user.username, user.id)
+        # log.warning("User {!r} (ID {!r}) can see no groups!",
+        #             user.username, user.id)
+        return None
+
     # noinspection PyProtectedMember
     q = q.filter(cls._group_id.in_(group_ids))
 
@@ -212,6 +214,10 @@ class TaskCollection(object):
     # Interface to read
     # =========================================================================
 
+    def task_classes(self) -> List[Type[Task]]:
+        self._fetch_all_tasks()
+        return list(self._tasks_by_class.keys())
+
     def tasks_for_task_class(self, cls: Type[Task]):
         self._fetch_all_tasks()
         tasklist = self._tasks_by_class.get(cls, [])
@@ -241,6 +247,7 @@ class TaskCollection(object):
         q = q.filter(task_class._current == True)  # nopep8
 
         # Restrict to what is PERMITTED
+        # Cache group IDs
         q = task_query_restricted_to_permitted_users(self._req, q, task_class)
 
         # Restrict to what is DESIRED

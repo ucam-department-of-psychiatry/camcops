@@ -27,11 +27,6 @@ from typing import Any, Callable, List, Optional, TYPE_CHECKING, Union
 
 import cardinal_pythonlib.rnc_web as ws
 
-from .cc_constants import (
-    ACTION,
-    PARAM,
-)
-
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
 
@@ -338,29 +333,3 @@ def get_ternary(x: Any,
 def get_correct_incorrect_none(x: Any) -> Optional[str]:
     # noinspection PyTypeChecker
     return get_ternary(x, "Correct", "Incorrect", None)
-
-
-# =============================================================================
-# URLs
-# =============================================================================
-
-def get_generic_action_url(req: "CamcopsRequest", action: str) -> str:
-    """Make generic URL with initial action name/value pair."""
-    return "{}?{}={}".format(req.script_name, PARAM.ACTION, action)
-
-
-def get_url_field_value_pair(field: str, value: Any) -> str:
-    """Make generic "&field=value" pair to append to URL, with ampersand."""
-    return "&amp;{}={}".format(field, value)
-
-
-def get_url_main_menu(req: "CamcopsRequest") -> str:
-    return get_generic_action_url(req, ACTION.MAIN_MENU)
-
-
-def get_url_enter_new_password(req: "CamcopsRequest", username: str) -> str:
-    """URL to enter new password."""
-    return (
-        get_generic_action_url(req, ACTION.ENTER_NEW_PASSWORD) +
-        get_url_field_value_pair(PARAM.USERNAME, username)
-    )

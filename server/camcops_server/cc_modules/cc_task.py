@@ -39,10 +39,9 @@ import copy
 import logging
 import statistics
 from typing import (Any, Dict, Iterable, Generator, List, Optional, Sequence,
-                    Tuple, Type, TYPE_CHECKING, Union)
+                    Tuple, Type, Union)
 
 from cardinal_pythonlib.classes import (
-    all_subclasses,
     classproperty,
     derived_class_implements_method,
 )
@@ -76,7 +75,6 @@ from .cc_audit import audit
 from .cc_blob import Blob, get_blob_img_html
 from .cc_cache import cache_region_static, fkg
 from .cc_constants import (
-    ACTION,
     COMMENT_IS_COMPLETE,
     CRIS_CLUSTER_KEY_FIELDSPEC,
     CRIS_PATIENT_COMMENT_PREFIX,
@@ -87,15 +85,12 @@ from .cc_constants import (
     ERA_NOW,
     HL7MESSAGE_TABLENAME,
     INVALID_VALUE,
-    PARAM,
     PKNAME,
     TSV_PATIENT_FIELD_PREFIX,
-    VALUE,
 )
 from .cc_ctvinfo import CtvInfo
 from .cc_db import GenericTabletRecordMixin
 from .cc_dt import (
-    coerce_to_pendulum,
     convert_datetime_to_utc,
     get_now_utc,
     format_datetime,
@@ -103,10 +98,8 @@ from .cc_dt import (
 from .cc_filename import get_export_filename
 from .cc_hl7core import make_obr_segment, make_obx_segment
 from .cc_html import (
-    get_generic_action_url,
     get_present_absent_none,
     get_true_false_none,
-    get_url_field_value_pair,
     get_yes_no,
     get_yes_no_none,
     tr,
@@ -132,6 +125,7 @@ from .cc_sqla_coltypes import (
 from .cc_sqlalchemy import Base
 from .cc_summaryelement import SummaryElement
 from .cc_trackerhelpers import TrackerInfo
+from .cc_tsv import TsvChunk
 from .cc_unittest import (
     get_object_name,
     unit_test_ignore,
@@ -140,11 +134,8 @@ from .cc_unittest import (
     unit_test_verify,
     unit_test_verify_not
 )
-from .cc_version import make_version
 from .cc_xml import (
-    get_xml_blob_element,
     get_xml_document,
-    make_xml_branches_from_columns,
     make_xml_branches_from_summaries,
     XML_COMMENT_ANCILLARY,
     XML_COMMENT_ANONYMOUS,
@@ -155,9 +146,6 @@ from .cc_xml import (
     XML_COMMENT_STORED,
     XmlElement,
 )
-
-if TYPE_CHECKING:
-    from .cc_session import CamcopsSession
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -1484,66 +1472,36 @@ class Task(GenericTabletRecordMixin, Base):
     # TSV export for basic research dump
     # -------------------------------------------------------------------------
 
-    def get_dictlist_for_tsv(self, req: CamcopsRequest) -> List[Dict]:
-        """Returns information for the basic research dump in TSV format.
-
-        Returns
-            l
-        where
-            l is a list of d;
-                d is a dictionary with keys:
-                    "filenamestem": filename stem (to which ".tsv" will be
-                        appended)
-                    "rows": list of OrderedDict that represent the TSV content
-                        for this task instance.
+    def get_tsv_chunks(self, req: CamcopsRequest) -> List[TsvChunk]:
         """
-
-        # Validity checking: can't have two keys the same in a dictionary,
-        # so we can't have a conflict.
-
-        mainrow = collections.OrderedDict(
-            (f, getattr(self, f)) for f in self.get_fields())
+        Returns information used for the basic research dump in TSV format.
+        """
+        # 1. Our core fields.
+        tsv_chunk = self._get_core_tsv_chunk()
+        # 2. Patient details.
         if self.patient:
-            mainrow.update(self.patient.get_dict_for_tsv(req))
-        mainrow.update(collections.OrderedDict(
-            (s["name"], s["value"]) for s in self.get_summaries(req)))
-        maindict = {
-            "filenamestem": self.tablename,
-            "rows": [mainrow]
-        }
-        return [maindict] + self.get_extra_dictlist_for_tsv()
+            tsv_chunk.add_tsv_chunk(self.patient.get_tsv_chunk(req))
+        # 3. Any summary elements.
+        for s in self.get_summaries(req):
+            tsv_chunk.add_value(heading=s.name, value=s.value)
+        # 4. +/- Ancillary objects
+        return [tsv_chunk] + self.get_extra_chunks_for_tsv(req)
 
-    def get_extra_dictlist_for_tsv(self) -> List[Dict]:
-        """Override for tasks with subtables to be encoded as separate files
-        in the TSV output.
-
-        Same return format at get_dictlist_for_tsv (q.v.)
+    def get_extra_chunks_for_tsv(self, req: CamcopsRequest) -> List[TsvChunk]:
         """
-        dictlist = []
-        for depclass in self.dependent_classes:
-            dictlist.append(self.get_extra_dict_for_tsv(
-                subtable=depclass.tablename,
-                fields=depclass.get_fieldnames(),
-                items=self.get_ancillary_items(depclass)
-            ))
-        return dictlist
-
-    def get_extra_dict_for_tsv(self,
-                               subtable: str,
-                               fields: Iterable[str],
-                               items: Iterable[Any]) -> Dict:
-        maintable = self.tablename
-        mainpk = self._pk
-        rows = []
-        for i in items:
-            d = collections.OrderedDict({"_" + maintable + "_pk": mainpk})
-            for f in fields:
-                d[f] = getattr(i, f)
-            rows.append(d)
-        return {
-            "filenamestem": subtable,
-            "rows": rows
-        }
+        Override for tasks with subtables to be encoded as separate files
+        in the TSV output, if the default method isn't good enough.
+        """
+        tsv_chunks = []  # type: List[TsvChunk]
+        for attrname, rel_prop, rel_cls in gen_ancillary_relationships(self):
+            if rel_prop.uselist:
+                ancillaries = getattr(self, attrname)  # type: List[GenericTabletRecordMixin]  # noqa
+            else:
+                ancillaries = [getattr(self, attrname)]  # type: List[GenericTabletRecordMixin]  # noqa
+            for ancillary in ancillaries:
+                chunk = ancillary._get_core_tsv_chunk()
+                tsv_chunks.append(chunk)
+        return tsv_chunks
 
     # -------------------------------------------------------------------------
     # Data structure for CRIS data dictionary
@@ -2506,7 +2464,7 @@ def task_instance_unit_test(req: CamcopsRequest,
                      instance.get_extra_summary_table_names)
 
     unit_test_ignore("Testing {}.get_extra_dictlist_for_tsv".format(
-        name), instance.get_extra_dictlist_for_tsv)
+        name), instance.get_extra_chunks_for_tsv)
 
     unit_test_ignore("Testing {}.get_fields".format(name),
                      instance.get_fields)

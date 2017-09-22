@@ -106,12 +106,7 @@ from .cc_modules.cc_user import set_password_directly, User  # nopep8
 from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
 from .cc_modules.database import database_unit_tests  # nopep8
 from .cc_modules.merge_db import merge_camcops_db
-from .cc_modules.webview import (
-    get_tsv_header_from_dict,
-    get_tsv_line_from_dict,
-    webview_unit_tests,
-    write_descriptions_comments,
-)  # nopep8
+from .cc_modules.webview import webview_unit_tests  # nopep8
 
 log.debug("All imports complete")
 
@@ -358,19 +353,6 @@ def start_server(host: str,
 def print_demo_config() -> None:
     demo_config = get_demo_config()
     print(demo_config)
-
-
-def export_descriptions_comments() -> None:
-    """Export an HTML version of database fields/comments to a file of the
-    user's choice."""
-    filename = ask_user("Output HTML file",
-                        "camcops_table_descriptions.html")
-    include_views = bool(ask_user(
-        "Include views (leave blank for no, anything else for yes)? "
-    ))
-    with open(filename, 'wb') as file:
-        write_descriptions_comments(file, include_views)
-    print("Done.")
 
 
 def reset_storedvars() -> None:
@@ -948,10 +930,6 @@ def camcops_main() -> None:
 
     if progargs.password:
         reset_password(req)
-        n_actions += 1
-
-    if progargs.descriptions:
-        export_descriptions_comments()
         n_actions += 1
 
     if progargs.enableuser:

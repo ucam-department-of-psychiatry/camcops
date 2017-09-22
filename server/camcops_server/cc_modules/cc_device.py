@@ -22,17 +22,15 @@
 ===============================================================================
 """
 
-from typing import Any, List, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
-import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
 
-from .cc_constants import PARAM
 from .cc_report import Report, REPORT_RESULT_TYPE
 from .cc_unittest import unit_test_ignore
 from .cc_sqla_coltypes import (
@@ -133,32 +131,6 @@ class Device(Base):
         is it in the database?
         """
         return self.id is not None
-
-
-# =============================================================================
-# Support functions
-# =============================================================================
-
-def get_device_filter_dropdown(req: "CamcopsRequest",
-                               currently_selected_id: int = None) -> str:
-    """Get HTML list of all known tablet devices."""
-    dbsession = req.dbsession
-    devices = dbsession.query(Device)\
-        .order_by(Device.friendly_name, Device.name)\
-        .all()  # type: List[Device]
-    s = """
-        <select name="{}">
-            <option value="">(all)</option>
-    """.format(PARAM.DEVICE)
-    for device in devices:
-        pk = device.get_id()
-        s += """<option value="{pk}"{sel}>{name}</option>""".format(
-            pk=pk,
-            name=ws.webify(device.get_friendly_name_and_id()),
-            sel=ws.option_selected(currently_selected_id, pk),
-        )
-    s += """</select>"""
-    return s
 
 
 # =============================================================================

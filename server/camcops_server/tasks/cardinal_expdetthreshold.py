@@ -169,8 +169,6 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
                 "Expectation–Detection task")
     use_landscape_for_pdf = True
     
-    # *** replace mechanism - for XML etc *** dependent_classes = [CardinalExpDetThresholdTrial]
-
     # Config
     modality = Column(
         "modality", Integer,

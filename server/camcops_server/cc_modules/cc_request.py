@@ -395,6 +395,13 @@ class CamcopsRequest(Request):
         except (KeyError, TypeError, ValueError):
             return default
 
+    def get_int_list_param(self, key: str) -> List[int]:
+        values = self.params.getall(key)
+        try:
+            return [int(x) for x in values]
+        except (KeyError, TypeError, ValueError):
+            return []
+
     def get_bool_param(self, key: str, default: bool) -> bool:
         try:
             param_str = self.params[key].lower()
@@ -515,6 +522,15 @@ class CamcopsRequest(Request):
         """
         allstrings = self._all_extra_strings
         return taskname in allstrings
+
+    def extrastring_families(self, sort: bool = True) -> List[str]:
+        """
+        Which sets of extra strings do we have?
+        """
+        families = list(self._all_extra_strings.keys())
+        if sort:
+            families.sort()
+        return families
 
     # -------------------------------------------------------------------------
     # PNG versus SVG output, so tasks don't have to care (for e.g. PDF/web)

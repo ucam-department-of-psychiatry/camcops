@@ -28,6 +28,7 @@ from typing import Any, Dict, Iterable, List, Union, Type, TypeVar
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.rnc_db import FIELDSPECLIST_TYPE
+from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
@@ -45,6 +46,7 @@ from .cc_sqla_coltypes import (
     RelationshipInfo,
     SemanticVersionColType,
 )
+from .cc_tsv import TsvChunk
 from .cc_xml import (
     make_xml_branches_from_blobs,
     make_xml_branches_from_columns,
@@ -394,6 +396,19 @@ class GenericTabletRecordMixin(object):
             branches.sort(key = lambda el: el.name)
         # log.critical("... branches for {!r}: {!r}", self, branches)
         return branches
+
+    def _get_core_tsv_chunk(self, heading_prefix: str = "") -> TsvChunk:
+        headings = []  # type: List[str]
+        row = []  # type: List[Any]
+        for attrname, column in gen_columns(self):
+            value = getattr(self, attrname)
+            headings.append(heading_prefix + attrname)
+            row.append(value)
+        return TsvChunk(
+            filename_stem=self.__tablename__,
+            headings=headings,
+            rows=[row]
+        )
 
 
 # =============================================================================

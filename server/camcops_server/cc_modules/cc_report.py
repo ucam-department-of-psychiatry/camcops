@@ -164,7 +164,7 @@ class Report(object):
                 ".tsv"
             )
             content = tsv_from_query(rows, descriptions)
-            return TsvResponse(content=content, filename=filename)
+            return TsvResponse(body=content, filename=filename)
 
 
 # =============================================================================

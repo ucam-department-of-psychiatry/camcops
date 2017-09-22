@@ -1,5 +1,5 @@
 ## view_tasks.mako
-## <%page args="page: Page, head_form_html: str, no_patient_selected_and_user_restricted: bool"/>
+## <%page args="page: Page, head_form_html: str, no_patient_selected_and_user_restricted: bool, user: User"/>
 <%inherit file="base_web_form.mako"/>
 
 <%!
@@ -33,8 +33,15 @@ ${ refresh_form }
 %if no_patient_selected_and_user_restricted:
     <div class="explanation">
         Your user isn’t configured to view all patients’ records when no
-        patient filters are applied. Only anonymous records will be
-        shown. Choose a patient to see their records.
+        patient filters are applied, and none is.
+        Only anonymous records will be shown.
+        Choose a patient to see their records.
+    </div>
+%endif
+%if not user.superuser and not user.group_ids():
+    <div class="warning">
+        Your administrator has not assigned you to any groups.
+        You won’t be able to see any tasks.
     </div>
 %endif
 

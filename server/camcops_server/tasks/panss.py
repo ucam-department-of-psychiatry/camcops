@@ -163,7 +163,7 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             ),
             TrackerInfo(
                 value=self.composite(),
-                plot_label="PANSS composite score ({}-{})".format(
+                plot_label="PANSS composite score ({} to {})".format(
                     self.MIN_P_MINUS_N, self.MAX_P_MINUS_N),
                 axis_label="P - N"
             ),
@@ -220,7 +220,7 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 name="composite",
                 coltype=Integer(),
                 value=self.composite(),
-                comment="Composite score (P - N) ({}-{})".format(
+                comment="Composite score (P - N) ({} to {})".format(
                     self.MIN_P_MINUS_N, self.MAX_P_MINUS_N)
             ),
         ]

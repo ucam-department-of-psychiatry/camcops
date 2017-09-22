@@ -22,9 +22,8 @@
 ===============================================================================
 """
 
-import collections
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -38,18 +37,16 @@ from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import and_, ClauseElement, select
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import BigInteger, Date, Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
 
 from .cc_audit import audit
 from .cc_constants import (
-    ACTION,
     DateFormat,
     ERA_NOW,
     FP_ID_DESC_DEFUNCT,
     FP_ID_SHORT_DESC_DEFUNCT,
     FP_ID_NUM_DEFUNCT,
     NUMBER_OF_IDNUMS_DEFUNCT,
-    PARAM,
     TSV_PATIENT_FIELD_PREFIX,
 )
 from .cc_db import GenericTabletRecordMixin
@@ -60,7 +57,7 @@ from .cc_dt import (
     PotentialDatetimeType,
 )
 from .cc_hl7core import make_pid_segment
-from .cc_html import answer, get_generic_action_url, get_url_field_value_pair
+from .cc_html import answer
 from .cc_simpleobjects import BarePatientInfo, HL7PatientIdentifier
 from .cc_patientidnum import PatientIdNum
 from .cc_policy import (
@@ -76,11 +73,11 @@ from .cc_simpleobjects import IdNumDefinition
 from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
     CamcopsColumn,
-    IdDescriptorColType,
     PatientNameColType,
     SexColType,
 )
 from .cc_sqlalchemy import Base
+from .cc_tsv import TsvChunk
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING
 from .cc_xml import XML_COMMENT_SPECIAL_NOTES, XmlElement
@@ -163,34 +160,38 @@ class Patient(GenericTabletRecordMixin, Base):
         # Not profiled - any benefit unclear # lazy="joined"
     )
 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN
     # THE UPLOAD API; DELETE ONCE SQLALCHEMY/ALEMBIC RUNNING:
-    idnum1 = Column("idnum1", BigInteger, comment="ID number 1")
-    idnum2 = Column("idnum2", BigInteger, comment="ID number 2")
-    idnum3 = Column("idnum3", BigInteger, comment="ID number 3")
-    idnum4 = Column("idnum4", BigInteger, comment="ID number 4")
-    idnum5 = Column("idnum5", BigInteger, comment="ID number 5")
-    idnum6 = Column("idnum6", BigInteger, comment="ID number 6")
-    idnum7 = Column("idnum7", BigInteger, comment="ID number 7")
-    idnum8 = Column("idnum8", BigInteger, comment="ID number 8")
-
-    iddesc1 = Column("iddesc1", IdDescriptorColType, comment="ID description 1")  # noqa
-    iddesc2 = Column("iddesc2", IdDescriptorColType, comment="ID description 2")  # noqa
-    iddesc3 = Column("iddesc3", IdDescriptorColType, comment="ID description 3")  # noqa
-    iddesc4 = Column("iddesc4", IdDescriptorColType, comment="ID description 4")  # noqa
-    iddesc5 = Column("iddesc5", IdDescriptorColType, comment="ID description 5")  # noqa
-    iddesc6 = Column("iddesc6", IdDescriptorColType, comment="ID description 6")  # noqa
-    iddesc7 = Column("iddesc7", IdDescriptorColType, comment="ID description 7")  # noqa
-    iddesc8 = Column("iddesc8", IdDescriptorColType, comment="ID description 8")  # noqa
-
-    idshortdesc1 = Column("idshortdesc1", IdDescriptorColType, comment="ID short description 1")  # noqa
-    idshortdesc2 = Column("idshortdesc2", IdDescriptorColType, comment="ID short description 2")  # noqa
-    idshortdesc3 = Column("idshortdesc3", IdDescriptorColType, comment="ID short description 3")  # noqa
-    idshortdesc4 = Column("idshortdesc4", IdDescriptorColType, comment="ID short description 4")  # noqa
-    idshortdesc5 = Column("idshortdesc5", IdDescriptorColType, comment="ID short description 5")  # noqa
-    idshortdesc6 = Column("idshortdesc6", IdDescriptorColType, comment="ID short description 6")  # noqa
-    idshortdesc7 = Column("idshortdesc7", IdDescriptorColType, comment="ID short description 7")  # noqa
-    idshortdesc8 = Column("idshortdesc8", IdDescriptorColType, comment="ID short description 8")  # noqa
+    #
+    # idnum1 = Column("idnum1", BigInteger, comment="ID number 1")
+    # idnum2 = Column("idnum2", BigInteger, comment="ID number 2")
+    # idnum3 = Column("idnum3", BigInteger, comment="ID number 3")
+    # idnum4 = Column("idnum4", BigInteger, comment="ID number 4")
+    # idnum5 = Column("idnum5", BigInteger, comment="ID number 5")
+    # idnum6 = Column("idnum6", BigInteger, comment="ID number 6")
+    # idnum7 = Column("idnum7", BigInteger, comment="ID number 7")
+    # idnum8 = Column("idnum8", BigInteger, comment="ID number 8")
+    #
+    # iddesc1 = Column("iddesc1", IdDescriptorColType, comment="ID description 1")  # noqa
+    # iddesc2 = Column("iddesc2", IdDescriptorColType, comment="ID description 2")  # noqa
+    # iddesc3 = Column("iddesc3", IdDescriptorColType, comment="ID description 3")  # noqa
+    # iddesc4 = Column("iddesc4", IdDescriptorColType, comment="ID description 4")  # noqa
+    # iddesc5 = Column("iddesc5", IdDescriptorColType, comment="ID description 5")  # noqa
+    # iddesc6 = Column("iddesc6", IdDescriptorColType, comment="ID description 6")  # noqa
+    # iddesc7 = Column("iddesc7", IdDescriptorColType, comment="ID description 7")  # noqa
+    # iddesc8 = Column("iddesc8", IdDescriptorColType, comment="ID description 8")  # noqa
+    #
+    # idshortdesc1 = Column("idshortdesc1", IdDescriptorColType, comment="ID short description 1")  # noqa
+    # idshortdesc2 = Column("idshortdesc2", IdDescriptorColType, comment="ID short description 2")  # noqa
+    # idshortdesc3 = Column("idshortdesc3", IdDescriptorColType, comment="ID short description 3")  # noqa
+    # idshortdesc4 = Column("idshortdesc4", IdDescriptorColType, comment="ID short description 4")  # noqa
+    # idshortdesc5 = Column("idshortdesc5", IdDescriptorColType, comment="ID short description 5")  # noqa
+    # idshortdesc6 = Column("idshortdesc6", IdDescriptorColType, comment="ID short description 6")  # noqa
+    # idshortdesc7 = Column("idshortdesc7", IdDescriptorColType, comment="ID short description 7")  # noqa
+    # idshortdesc8 = Column("idshortdesc8", IdDescriptorColType, comment="ID short description 8")  # noqa
+    #
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     # Relationships
 
@@ -269,43 +270,33 @@ class Patient(GenericTabletRecordMixin, Base):
             branches.append(sn.get_xml_root())
         return XmlElement(name=self.__tablename__, value=branches)
 
-    def get_dict_for_tsv(self, req: CamcopsRequest) -> Dict[str, Any]:
-        d = collections.OrderedDict()
-        for f in self.FIELDS:
-            # Exclude old ID fields:
-            if (not f.startswith(FP_ID_NUM_DEFUNCT) and
-                    not f.startswith(FP_ID_DESC_DEFUNCT) and
-                    not f.startswith(FP_ID_SHORT_DESC_DEFUNCT)):
-                d[TSV_PATIENT_FIELD_PREFIX + f] = getattr(self, f)
-        # Now the ID fields:
+    def get_tsv_chunk(self, req: CamcopsRequest) -> TsvChunk:
+        # 1. Our core fields.
+        tsv_chunk = self._get_core_tsv_chunk(
+            heading_prefix=TSV_PATIENT_FIELD_PREFIX)
+        # 2. ID number details
+        #    We can't just iterate through the ID numbers; we have to iterate
+        #    through all possible ID numbers.
         cfg = req.config
         for n in cfg.get_which_idnums():
             nstr = str(n)
-            d[TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM_DEFUNCT + nstr] = \
-                self.get_idnum_value(n)
-            d[TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC_DEFUNCT + nstr] = \
-                self.get_iddesc(req, n)
-            d[TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC_DEFUNCT + nstr] = \
-                self.get_idshortdesc(req, n)
-        return d
-
-    def get_literals_for_anonymisation(self) -> List[str]:
-        """Return a list of strings that require removing from other fields in
-        the anonymisation process."""
-        literals = []  # type: List[str]
-        if self.forename:
-            forename = self.forename  # type: str # for type checker
-            literals.append(forename)
-        if self.surname:
-            surname = self.surname  # type: str # for type checker
-            literals.append(surname)
-        if self.address is not None:
-            literals.extend([x for x in self.address.split(",") if x])
-        if self.other is not None:
-            literals.extend([x for x in self.other.split(",") if x])
-        literals.extend(str(x) for x in self.get_idnum_raw_values_only()
-                        if x is not None)
-        return literals
+            shortdesc = cfg.get_id_shortdesc(n)
+            longdesc = cfg.get_id_desc(n)
+            idnum_value = next(
+                (idnum.idnum_value for idnum in self.idnums
+                 if idnum.which_idnum == n and idnum.is_valid()),
+                None)
+            tsv_chunk.add_value(
+                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM_DEFUNCT + nstr,
+                value=idnum_value)
+            tsv_chunk.add_value(
+                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC_DEFUNCT + nstr,
+                value=longdesc)
+            tsv_chunk.add_value(
+                heading=(TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC_DEFUNCT +
+                         nstr),
+                value=shortdesc)
+        return tsv_chunk
 
     def get_bare_ptinfo(self) -> BarePatientInfo:
         """Get basic identifying information, as a BarePatientInfo."""

@@ -97,5 +97,6 @@ def all_extra_strings_as_dicts(
                 allstrings[taskname] = {}  # type: Dict[str, str]
             for e in taskroot.findall("./string[@name]"):
                 stringname = e.attrib.get("name")
-                allstrings[taskname][stringname] = unescape_newlines(e.text)
+                final_string = unescape_newlines(e.text) or ""
+                allstrings[taskname][stringname] = final_string
     return allstrings

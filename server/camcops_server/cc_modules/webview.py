@@ -108,23 +108,30 @@ Quick tutorial on Pyramid views:
 
 import cgi
 import codecs
-import collections
 import io
 import logging
-import typing
-from typing import Any, Dict, Iterable, List, Optional, Type, Union
+import os
+import sqlite3
+import tempfile
+from typing import (Any, Dict, Iterable, IO, List, Optional, Set, Tuple,
+                    Type, TYPE_CHECKING, Union)
 import zipfile
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.rnc_web import WSGI_TUPLE_TYPE
 from cardinal_pythonlib.sqlalchemy.dialect import get_dialect_name
-from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
+from cardinal_pythonlib.sqlalchemy.orm_inspect import (
+    deepcopy_sqla_objects,
+    gen_columns,
+    gen_orm_classes_from_base,
+    walk_orm_tree,
+)
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
 from pendulum import Pendulum
-import pyramid.httpexceptions as exc
+from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import (
     forbidden_view_config,
     notfound_view_config,
@@ -138,25 +145,18 @@ import pygments.lexers
 import pygments.lexers.sql
 import pygments.lexers.web
 import pygments.formatters
+from sqlalchemy.engine import create_engine
+from sqlalchemy.engine.base import Engine
+from sqlalchemy.orm import Session as SqlASession, sessionmaker
 from sqlalchemy.sql.expression import desc, or_
+from sqlalchemy.sql.schema import Column, MetaData, Table
 
 from .cc_audit import audit, AuditEntry
-from .cc_constants import (
-    ACTION,
-    CAMCOPS_URL,
-    DateFormat,
-    MINIMUM_PASSWORD_LENGTH,
-    PARAM,
-    VALUE,
-)
+from .cc_constants import CAMCOPS_URL, DateFormat, MINIMUM_PASSWORD_LENGTH
 from .cc_blob import Blob
-from .cc_convert import get_tsv_header_from_dict, get_tsv_line_from_dict
 from camcops_server.cc_modules import cc_db
 from .cc_db import GenericTabletRecordMixin
-from .cc_device import (
-    Device,
-    get_device_filter_dropdown,
-)
+from .cc_device import Device
 from .cc_dt import (
     get_now_localtz,
     format_datetime,
@@ -184,6 +184,8 @@ from .cc_forms import (
     HL7MessageLogForm,
     HL7RunLogForm,
     LoginForm,
+    OfferBasicDumpForm,
+    OfferSqlDumpForm,
     OfferTermsForm,
     RefreshTasksForm,
     SetUserUploadGroupForm,
@@ -193,10 +195,7 @@ from .cc_forms import (
 )
 from .cc_group import Group
 from .cc_hl7 import HL7Message, HL7Run
-from .cc_html import (
-    get_generic_action_url,
-    get_url_main_menu,
-)
+from .cc_jointables import user_group_table, group_group_table
 from .cc_patient import Patient
 from .cc_plot import ccplot_no_op
 from .cc_policy import (
@@ -213,16 +212,19 @@ from .cc_pyramid import (
     Permission,
     Routes,
     SqlalchemyOrmPage,
+    SqliteBinaryResponse,
+    TextAttachmentResponse,
     ViewArg,
     ViewParam,
     XmlResponse,
+    ZipResponse,
 )
 from .cc_report import get_report_instance
 from .cc_request import CamcopsRequest
 from .cc_session import CamcopsSession
 from .cc_simpleobjects import IdNumDefinition
 from .cc_specialnote import SpecialNote
-from .cc_sqlalchemy import get_all_ddl
+from .cc_sqlalchemy import Base, get_all_ddl
 from .cc_storedvar import DeviceStoredVar
 from .cc_task import (
     gen_tasks_for_patient_deletion,
@@ -241,9 +243,11 @@ from .cc_taskfilter import (
     TaskClassSortMethod,
 )
 from .cc_tracker import ClinicalTextView, Tracker
+from .cc_tsv import TsvCollection
 from .cc_unittest import unit_test_ignore
 from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 from .cc_version import CAMCOPS_SERVER_VERSION
+
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 ccplot_no_op()
@@ -329,7 +333,7 @@ def not_found(req: CamcopsRequest) -> Dict[str, Any]:
     return {}
 
 
-@view_config(context=exc.HTTPBadRequest, renderer="bad_request.mako")
+@view_config(context=HTTPBadRequest, renderer="bad_request.mako")
 def bad_request(req: CamcopsRequest) -> Dict[str, Any]:
     return {}
 
@@ -436,8 +440,8 @@ def login_view(req: CamcopsRequest) -> Response:
 
             if redirect_url:
                 # log.critical("Redirecting to {!r}", redirect_url)
-                raise exc.HTTPFound(redirect_url)  # redirect
-            raise exc.HTTPFound(req.route_url(Routes.HOME))  # redirect
+                return HTTPFound(redirect_url)  # redirect
+            return HTTPFound(req.route_url(Routes.HOME))  # redirect
 
         except ValidationFailure as e:
             rendered_form = e.render()
@@ -495,8 +499,10 @@ def logout(req: CamcopsRequest) -> Dict[str, Any]:
     return dict()
 
 
-@view_config(route_name=Routes.OFFER_TERMS, renderer="offer_terms.mako")
-def offer_terms(req: CamcopsRequest) -> Dict[str, Any]:
+@view_config(route_name=Routes.OFFER_TERMS,
+             permission=Authenticated,
+             renderer="offer_terms.mako")
+def offer_terms(req: CamcopsRequest) -> Response:
     """HTML offering terms/conditions and requesting acknowledgement."""
     form = OfferTermsForm(
         request=req,
@@ -504,27 +510,37 @@ def offer_terms(req: CamcopsRequest) -> Dict[str, Any]:
 
     if FormAction.SUBMIT in req.POST:
         req.camcops_session.agree_terms(req)
-        raise exc.HTTPFound(req.route_url(Routes.HOME))  # redirect
+        return HTTPFound(req.route_url(Routes.HOME))  # redirect
 
-    return dict(
-        title=req.wappstring("disclaimer_title"),
-        subtitle=req.wappstring("disclaimer_subtitle"),
-        content=req.wappstring("disclaimer_content"),
-        form=form.render(),
-        head_form_html=get_head_form_html(req, [form]),
+    return render_to_response(
+        "offer_terms.mako",
+        dict(
+            title=req.wappstring("disclaimer_title"),
+            subtitle=req.wappstring("disclaimer_subtitle"),
+            content=req.wappstring("disclaimer_content"),
+            form=form.render(),
+            head_form_html=get_head_form_html(req, [form]),
+        ),
+        request=req
     )
 
 
 @forbidden_view_config()
-def forbidden(req: CamcopsRequest) -> Dict[str, Any]:
+def forbidden(req: CamcopsRequest) -> Response:
+    # I was doing this:
     if req.has_permission(Authenticated):
         user = req.user
         assert user, "Bug! Authenticated but no user...!?"
-        if user.must_change_password():
-            raise exc.HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
+        if user.must_change_password:
+            return HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
         if user.must_agree_terms():
-            raise exc.HTTPFound(req.route_url(Routes.OFFER_TERMS))
-    # Otherwise...
+            return HTTPFound(req.route_url(Routes.OFFER_TERMS))
+    # ... but with "raise HTTPFound" instead.
+    # BUT there is only one level of exception handling in Pyramid, i.e. you
+    # can't raise exceptions from exceptions:
+    #       https://github.com/Pylons/pyramid/issues/436
+    # The simplest way round is to use "return", not "raise".
+
     redirect_url = req.url
     # Redirects to login page, with onwards redirection to requested
     # destination once logged in:
@@ -538,7 +554,7 @@ def forbidden(req: CamcopsRequest) -> Dict[str, Any]:
 # Changing passwords
 # =============================================================================
 
-@view_config(route_name=Routes.CHANGE_OWN_PASSWORD)
+@view_config(route_name=Routes.CHANGE_OWN_PASSWORD, permission=Authenticated)
 def change_own_password(req: CamcopsRequest) -> Response:
     ccsession = req.camcops_session
     expired = ccsession.user_must_change_password()
@@ -585,8 +601,7 @@ def change_other_password(req: CamcopsRequest) -> Response:
             new_password = appstruct.get(ViewParam.NEW_PASSWORD)
             user = User.get_user_by_id(req.dbsession, user_id)
             if not user:
-                raise exc.HTTPBadRequest(
-                    "Missing user for id {}".format(user_id))
+                raise HTTPBadRequest("Missing user for id {}".format(user_id))
             user.set_password(req, new_password)
             if must_change_pw:
                 user.force_password_change()
@@ -596,11 +611,11 @@ def change_other_password(req: CamcopsRequest) -> Response:
     else:
         user_id = req.get_int_param(ViewParam.USER_ID)
         if user_id is None:
-            raise exc.HTTPBadRequest("Improper user_id of {}".format(
+            raise HTTPBadRequest("Improper user_id of {}".format(
                 repr(user_id)))
         user = User.get_user_by_id(req.dbsession, user_id)
         if user is None:
-            raise exc.HTTPBadRequest("Missing user for id {}".format(user_id))
+            raise HTTPBadRequest("Missing user for id {}".format(user_id))
         username = user.username
         appstruct = {ViewParam.USER_ID: user_id}
         rendered_form = form.render(appstruct)
@@ -677,7 +692,7 @@ def edit_filter(req: CamcopsRequest, task_filter: TaskFilter,
             task_filter.adding_user_ids = admin.get(ViewParam.USER_IDS)
             task_filter.group_ids = admin.get(ViewParam.GROUP_IDS)
 
-            raise exc.HTTPFound(redirect_url)
+            return HTTPFound(redirect_url)
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -709,7 +724,6 @@ def edit_filter(req: CamcopsRequest, task_filter: TaskFilter,
             ViewParam.USER_IDS: task_filter.adding_user_ids,
             ViewParam.GROUP_IDS: task_filter.group_ids,
         }
-        log.critical("{!r}", who.values())
         open_who = any(i for i in who.values())
         open_what = any(i for i in what.values())
         open_when = any(i for i in when.values())
@@ -749,6 +763,8 @@ def set_filters(req: CamcopsRequest) -> Response:
 def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
     """HTML displaying tasks and applicable filters."""
     ccsession = req.camcops_session
+    user = req.user
+    taskfilter = ccsession.get_task_filter()
 
     # Read from the GET parameters (or in some cases potentially POST but those
     # will be re-read).
@@ -789,7 +805,6 @@ def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
     if errors:
         collection = []
     else:
-        taskfilter = ccsession.get_task_filter()
         collection = TaskCollection(
             req=req,
             taskfilter=taskfilter,
@@ -807,8 +822,9 @@ def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
         refresh_form=rendered_refresh_form,
         no_patient_selected_and_user_restricted=(
             not ccsession.user_may_view_all_patients_when_unfiltered() and
-            not ccsession.any_specific_patient_filtering()
+            not taskfilter.any_specific_patient_filtering()
         ),
+        user=user,
     )
 
 
@@ -821,14 +837,14 @@ def serve_task(req: CamcopsRequest) -> Response:
     anonymise = req.get_bool_param(ViewParam.ANONYMISE, False)
 
     if viewtype not in ALLOWED_TASK_VIEW_TYPES:
-        raise exc.HTTPBadRequest(
+        return HTTPBadRequest(
             "Bad output type: {!r} (permissible: {!r}".format(
                 viewtype, ALLOWED_TASK_VIEW_TYPES))
 
     task = task_factory(req, tablename, server_pk)
 
     if task is None:
-        raise exc.HTTPNotFound(
+        return HTTPNotFound(
             "Task not found or not permitted: tablename={!r}, "
             "server_pk={!r}".format(tablename, server_pk))
 
@@ -840,14 +856,14 @@ def serve_task(req: CamcopsRequest) -> Response:
         )
     elif viewtype == ViewArg.PDF:
         return PdfResponse(
-            content=task.get_pdf(req, anonymise=anonymise),
+            body=task.get_pdf(req, anonymise=anonymise),
             filename=task.suggested_pdf_filename(req)
         )
-    elif viewtype == VALUE.OUTPUTTYPE_PDFHTML:  # debugging option
+    elif viewtype == ViewArg.PDFHTML:  # debugging option
         return Response(
             task.get_pdf_html(req, anonymise=anonymise)
         )
-    elif viewtype == VALUE.OUTPUTTYPE_XML:
+    elif viewtype == ViewArg.XML:
         include_blobs = req.get_bool_param(ViewParam.INCLUDE_BLOBS, True)
         include_calculated = req.get_bool_param(ViewParam.INCLUDE_CALCULATED,
                                                 True)
@@ -892,9 +908,9 @@ def choose_tracker_or_ctv(req: CamcopsRequest,
             # It is possible by returning a form that then autosubmits: see
             # https://stackoverflow.com/questions/46582/response-redirect-with-post-instead-of-get  # noqa
             # However, since everything's on this server, we could just return
-            # an appropriate Response directly. But the information is not
-            # sensitive, so we lose nothing by using a GET redirect:
-            raise exc.HTTPFound(req.route_url(
+            # an appropriate Response directly. But the request information is
+            # not sensitive, so we lose nothing by using a GET redirect:
+            raise HTTPFound(req.route_url(
                 Routes.CTV if as_ctv else Routes.TRACKER,
                 _query=querydict))
         except ValidationFailure as e:
@@ -926,32 +942,32 @@ def serve_tracker_or_ctv(req: CamcopsRequest,
     viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML)
 
     if all_tasks:
-        task_classes = None
+        task_classes = []  # type: List[Type[Task]]
     else:
         try:
             task_classes = task_classes_from_table_names(
                 tasks, sortmethod=TaskClassSortMethod.SHORTNAME)
         except KeyError:
-            raise exc.HTTPBadRequest("Invalid tasks specified")
+            return HTTPBadRequest("Invalid tasks specified")
         if not all(c.provides_trackers for c in task_classes):
-            raise exc.HTTPBadRequest("Not all tasks specified provide trackers")
+            return HTTPBadRequest("Not all tasks specified provide trackers")
 
-    if not viewtype in ALLOWED_TRACKER_VIEW_TYPE:
-        raise exc.HTTPBadRequest("Invalid view type")
+    if viewtype not in ALLOWED_TRACKER_VIEW_TYPE:
+        return HTTPBadRequest("Invalid view type")
 
     iddefs = [IdNumDefinition(which_idnum, idnum_value)]
 
     as_tracker = not as_ctv
-    taskfilter = TaskFilter(
-        task_classes=task_classes,
-        trackers_only=as_tracker,
-        idnum_criteria=iddefs,
-        start_datetime=start_datetime,
-        end_datetime=end_datetime,
-        complete_only=as_tracker,  # trackers require complete tasks
-        has_patient=True,
-        sort_method=TaskClassSortMethod.SHORTNAME,
-    )
+    taskfilter = TaskFilter()
+    taskfilter.task_types = [tc.__tablename__ for tc in task_classes]  # a bit silly...  # noqa
+    taskfilter.idnum_criteria = iddefs
+    taskfilter.start_datetime = start_datetime
+    taskfilter.end_datetime = end_datetime
+    taskfilter.complete_only = True  # trackers require complete tasks
+    taskfilter.sort_method = TaskClassSortMethod.SHORTNAME
+    taskfilter.tasks_offering_trackers_only = as_tracker
+    taskfilter.tasks_with_patient_only = True
+
     tracker_ctv_class = ClinicalTextView if as_ctv else Tracker
     tracker = tracker_ctv_class(req=req, taskfilter=taskfilter)
 
@@ -961,7 +977,7 @@ def serve_tracker_or_ctv(req: CamcopsRequest,
         )
     elif viewtype == ViewArg.PDF:
         return PdfResponse(
-            content=tracker.get_pdf(),
+            body=tracker.get_pdf(),
             filename=tracker.suggested_pdf_filename()
         )
     elif viewtype == VALUE.OUTPUTTYPE_PDFHTML:  # debugging option
@@ -1005,7 +1021,7 @@ def offer_report(req: CamcopsRequest) -> Dict[str, Any]:
     report_id = req.get_str_param(ViewParam.REPORT_ID)
     report = get_report_instance(report_id)
     if not report:
-        raise exc.HTTPBadRequest("No such report ID: {}".format(
+        raise HTTPBadRequest("No such report ID: {}".format(
             repr(report_id)))
     form = report.get_form(req)
     if FormAction.SUBMIT in req.POST:
@@ -1014,7 +1030,7 @@ def offer_report(req: CamcopsRequest) -> Dict[str, Any]:
             appstruct = form.validate(controls)
             querydict = {k: v for k, v in appstruct.items()
                          if k != ViewParam.CSRF_TOKEN}
-            raise exc.HTTPFound(req.route_url(Routes.REPORT, _query=querydict))
+            raise HTTPFound(req.route_url(Routes.REPORT, _query=querydict))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -1032,8 +1048,7 @@ def provide_report(req: CamcopsRequest) -> Response:
     report_id = req.get_str_param(ViewParam.REPORT_ID)
     report = get_report_instance(report_id)
     if not report:
-        raise exc.HTTPBadRequest("No such report ID: {}".format(
-            repr(report_id)))
+        return HTTPBadRequest("No such report ID: {}".format(repr(report_id)))
     return report.get_response(req)
 
 
@@ -1041,387 +1056,474 @@ def provide_report(req: CamcopsRequest) -> Response:
 # Research downloads
 # =============================================================================
 
-# ***
-
-# noinspection PyUnusedLocal
-def offer_basic_dump(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Offer options for a basic research data dump."""
-
-    if not session.authorized_to_dump():
-        return fail_with_error_stay_logged_in(CANNOT_DUMP)
-    classes = get_all_task_classes()
-    possible_tasks = "".join([
-        """
-            <label>
-                <input type="checkbox" name="{PARAM.TASKTYPES}"
-                    value="{tablename}" checked>
-                {shortname}
-            </label><br>
-        """.format(PARAM=PARAM,
-                   tablename=cls.tablename,
-                   shortname=cls.shortname)
-        for cls in classes])
-
-    return pls.WEBSTART + """
-        {userdetails}
-        <h1>Basic research data dump</h1>
-        <div class="filter">
-            <form method="GET" action="{script}">
-                <input type="hidden" name="{PARAM.ACTION}"
-                    value="{ACTION.BASIC_DUMP}">
-
-                <label onclick="show_tasks(false);">
-                    <input type="radio" name="{PARAM.BASIC_DUMP_TYPE}"
-                            value="{VALUE.DUMPTYPE_EVERYTHING}" checked>
-                    Everything
-                </label><br>
-
-                <label onclick="show_tasks(false);">
-                    <input type="radio" name="{PARAM.BASIC_DUMP_TYPE}"
-                            value="{VALUE.DUMPTYPE_AS_TASK_FILTER}">
-                    Those tasks selected by the current filters
-                </label><br>
-
-                <label onclick="show_tasks(true);">
-                    <input type="radio" name="{PARAM.BASIC_DUMP_TYPE}"
-                            value="{VALUE.DUMPTYPE_SPECIFIC_TASKS}">
-                    Just specific tasks
-                </label><br>
-
-                <div id="tasklist" class="indented" style="display: none">
-                    {possible_tasks}
-                    <!-- buttons must have type "button" in order not to
-                            submit -->
-                    <button type="button" onclick="select_all(true);">
-                        Select all
-                    </button>
-                    <button type="button" onclick="select_all(false);">
-                        Deselect all
-                    </button>
-                </div>
-
-                <br>
-
-                <input type="submit" value="Dump data">
-
-                <script>
-            function select_all(state) {{
-                checkboxes = document.getElementsByName("{PARAM.TASKTYPES}");
-                for (var i = 0, n = checkboxes.length; i < n; i++) {{
-                    checkboxes[i].checked = state;
-                }}
-            }}
-            function show_tasks(state) {{
-                s = state ? "block" : "none";
-                document.getElementById("tasklist").style.display = s;
-            }}
-                </script>
-            </form>
-        </div>
-        <h2>Explanation</h2>
-        <div>
-          <ul>
-            <li>
-              Provides a ZIP file containing tab-separated value (TSV)
-              files (usually one per task; for some tasks, more than
-              one).
-            </li>
-            <li>
-              Restricted to current records (i.e. ignores historical
-              versions of tasks that have been edited), unless you use
-              the settings from the
-              <a href="{view_tasks}">current filters</a> and those
-              settings include non-current versions.
-            </li>
-            <li>
-              If there are no instances of a particular task, no TSV is
-              returned.
-            </li>
-            <li>
-              Incorporates patient and summary information into each row.
-              Doesn’t provide BLOBs (e.g. pictures).
-              NULL values are represented by blank fields and are therefore
-              indistinguishable from blank strings.
-              Tabs are escaped to a literal <code>\\t</code>.
-              Newlines are escaped to a literal <code>\\n</code>.
-            </li>
-            <li>
-              Once you’ve unzipped the resulting file, you can import TSV files
-              into many other software packages. Here are some examples:
-              <ul>
-                <li>
-                  <b>OpenOffice:</b>
-                  Character set =  UTF-8; Separated by / Tab.
-                  <i>(Make sure no other delimiters are selected!)</i>
-                </li>
-                <li>
-                  <b>Excel:</b> Delimited / Tab.
-                  <i>(Make sure no other delimiters are selected!)</i>
-                </li>
-                <li>
-                  <b>R:</b>
-                  <code>mydf = read.table("something.tsv", sep="\\t",
-                  header=TRUE, na.strings="", comment.char="")</code>
-                  <i>(note that R will prepend ‘X’ to variable names starting
-                  with an underscore; see <code>?make.names</code>)</i>.
-                  Inspect the results with e.g. <code>colnames(mydf)</code>, or
-                  in RStudio, <code>View(mydf)</code>.
-                </li>
-              </ul>
-            </li>
-            <li>
-              For more advanced features, use the <a href="{table_dump}">
-              table/view dump</a> to get the raw data.
-            </li>
-            <li>
-              <b>For explanations of each field (field comments), see each
-              task’s XML view or inspect the table definitions.</b>
-            </li>
-          </ul>
-        </div>
-    """.format(
-        userdetails=session.get_current_user_html(),
-        script=pls.SCRIPT_NAME,
-        ACTION=ACTION,
-        PARAM=PARAM,
-        VALUE=VALUE,
-        view_tasks=get_generic_action_url(ACTION.VIEW_TASKS),
-        table_dump=get_generic_action_url(ACTION.OFFER_TABLE_DUMP),
-        possible_tasks=possible_tasks,
-    ) + WEBEND
+@view_config(route_name=Routes.OFFER_BASIC_DUMP, permission=Permission.DUMP)
+def offer_basic_dump(req: CamcopsRequest) -> Response:
+    """Form for basic research dump selection."""
+    form = OfferBasicDumpForm(request=req)
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            manual = appstruct.get(ViewParam.MANUAL)
+            querydict = {
+                ViewParam.DUMP_METHOD: appstruct.get(ViewParam.DUMP_METHOD),
+                ViewParam.SORT: appstruct.get(ViewParam.SORT),
+                ViewParam.GROUP_IDS: manual.get(ViewParam.GROUP_IDS),
+                ViewParam.TASKS: manual.get(ViewParam.TASKS),
+            }
+            # We could return a response, or redirect via GET.
+            # The request is not sensitive, so let's redirect.
+            return HTTPFound(req.route_url(Routes.BASIC_DUMP,
+                                           _query=querydict))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        rendered_form = form.render()
+    return render_to_response(
+        "offer_basic_dump.mako",
+        dict(form=rendered_form,
+             head_form_html=get_head_form_html(req, [form])),
+        request=req
+    )
 
 
-def basic_dump(session: CamcopsSession, form: cgi.FieldStorage) \
-        -> Union[str, WSGI_TUPLE_TYPE]:
-    """Provides a basic research dump (ZIP of TSV files)."""
+@view_config(route_name=Routes.BASIC_DUMP, permission=Permission.DUMP)
+def serve_basic_dump(req: CamcopsRequest) -> Response:
+    # -------------------------------------------------------------------------
+    # Get parameters
+    # -------------------------------------------------------------------------
+    dump_method = req.get_str_param(ViewParam.DUMP_METHOD)
+    sort_by_heading = req.get_bool_param(ViewParam.SORT, False)
+    group_ids = req.get_int_list_param(ViewParam.GROUP_IDS)
+    task_names = req.get_str_list_param(ViewParam.TASKS)
 
-    # Permissions
-    if not session.authorized_to_dump():
-        return fail_with_error_stay_logged_in(CANNOT_DUMP)
+    # -------------------------------------------------------------------------
+    # Select tasks
+    # -------------------------------------------------------------------------
+    if dump_method == ViewArg.EVERYTHING:
+        taskfilter = TaskFilter()
+    elif dump_method == ViewArg.USE_SESSION_FILTER:
+        taskfilter = req.camcops_session.get_task_filter()
+    elif dump_method == ViewArg.SPECIFIC_TASKS_GROUPS:
+        taskfilter = TaskFilter()
+        taskfilter.task_types = task_names
+        taskfilter.group_ids = group_ids
+    else:
+        return HTTPBadRequest("Bad {} parameter".format(ViewParam.DUMP_METHOD))
+    collection = TaskCollection(
+        req=req,
+        taskfilter=taskfilter,
+        sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
+    )
 
-    # Parameters
-    dump_type = ws.get_cgi_parameter_str(form, PARAM.BASIC_DUMP_TYPE)
-    permitted_dump_types = [VALUE.DUMPTYPE_EVERYTHING,
-                            VALUE.DUMPTYPE_AS_TASK_FILTER,
-                            VALUE.DUMPTYPE_SPECIFIC_TASKS]
-    if dump_type not in permitted_dump_types:
-        return fail_with_error_stay_logged_in(
-            "Basic dump: {PARAM.BASIC_DUMP_TYPE} must be one of "
-            "{permitted}.".format(
-                PARAM=PARAM,
-                permitted=str(permitted_dump_types),
-            )
-        )
-    task_tablename_list = ws.get_cgi_parameter_list(form, PARAM.TASKTYPES)
-
-    # Create memory file
+    # -------------------------------------------------------------------------
+    # Create memory file and ZIP file within it
+    # -------------------------------------------------------------------------
     memfile = io.BytesIO()
     z = zipfile.ZipFile(memfile, "w")
 
-    # Generate everything
-    classes = get_all_task_classes()
-    processed_tables = []
-    for cls in classes:
-        if dump_type == VALUE.DUMPTYPE_AS_TASK_FILTER:
-            if not cls.filter_allows_task_type(session):
-                continue
-        table = cls.tablename
-        if dump_type == VALUE.DUMPTYPE_SPECIFIC_TASKS:
-            if table not in task_tablename_list:
-                continue
-        processed_tables.append(table)
-        if dump_type == VALUE.DUMPTYPE_AS_TASK_FILTER:
-            genfunc = cls.gen_all_tasks_matching_session_filter
-            args = [session]
-        else:
-            genfunc = cls.gen_all_current_tasks
-            args = []
-        kwargs = dict(sort=True, reverse=False)
-        allfiles = collections.OrderedDict()
-        # Some tasks may not return any rows for some of their potential
-        # files. So we can't rely on the first task as being an exemplar.
-        # Instead, we have a filename/contents mapping.
-        for task in genfunc(*args, **kwargs):
-            dictlist = task.get_dictlist_for_tsv()
-            for i in range(len(dictlist)):
-                filename = dictlist[i]["filenamestem"] + ".tsv"
-                rows = dictlist[i]["rows"]
-                if not rows:
-                    continue
-                if filename not in allfiles:
-                    # First time we've encountered this filename; add header
-                    allfiles[filename] = (
-                        get_tsv_header_from_dict(rows[0]) + "\n"
-                    )
-                for r in rows:
-                    allfiles[filename] += get_tsv_line_from_dict(r) + "\n"
+    # -------------------------------------------------------------------------
+    # Iterate through tasks
+    # -------------------------------------------------------------------------
+    audit_descriptions = []  # type: List[str]
+    for cls in collection.task_classes():
+        tasks = collection.tasks_for_task_class(cls)
+        # Task may return >1 file for TSV output (e.g. for subtables).
+        tsvcoll = TsvCollection()
+        pks = []  # type: List[int]
+
+        for task in tasks:
+            # noinspection PyProtectedMember
+            pks.append(task._pk)
+            tsv_elements = task.get_tsv_chunks(req)
+            tsvcoll.add_chunks(tsv_elements)
+
+        if sort_by_heading:
+            tsvcoll.sort_by_headings()
+
+        audit_descriptions.append("{}: {}".format(
+            cls.__tablename__, ",".join(str(pk) for pk in pks)))
+
+        # Write to ZIP.
         # If there are no valid task instances, there'll be no TSV; that's OK.
-        for filename, contents in allfiles.items():
-            z.writestr(filename, contents.encode("utf-8"))
+        for filename_stem in tsvcoll.get_filename_stems():
+            tsv_filename = filename_stem + ".tsv"
+            tsv_contents = tsvcoll.get_tsv_file(filename_stem)
+            z.writestr(tsv_filename, tsv_contents.encode("utf-8"))
+
+    # -------------------------------------------------------------------------
+    # Finish and serve
+    # -------------------------------------------------------------------------
     z.close()
 
     # Audit
-    audit("basic dump: " + " ".join(processed_tables))
+    audit(req, "Basic dump: {}".format("; ".join(audit_descriptions)))
 
     # Return the result
     zip_contents = memfile.getvalue()
-    filename = "CamCOPS_dump_" + format_datetime(
-        pls.NOW_LOCAL_TZ,
-        DateFormat.FILENAME
-    ) + ".zip"
-    # atypical content type
-    return ws.zip_result(zip_contents, [], filename)
+    memfile.close()
+    zip_filename = "CamCOPS_dump_{}.zip".format(
+        format_datetime(req.now, DateFormat.FILENAME))
+    return ZipResponse(body=zip_contents, filename=zip_filename)
 
 
-# noinspection PyUnusedLocal
-def offer_table_dump(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """HTML form to request dump of table data."""
-
-    if not session.authorized_to_dump():
-        return fail_with_error_stay_logged_in(CANNOT_DUMP)
-    # POST, not GET, or the URL exceeds the Apache limit
-    html = pls.WEBSTART + """
-        {userdetails}
-        <h1>Dump table/view data</h1>
-        <div class="warning">
-            Beware including the blobs table; it is usually
-            giant (BLOB = binary large object = pictures and the like).
-        </div>
-        <div class="filter">
-            <form method="POST" action="{script}">
-                <input type="hidden" name="{PARAM.ACTION}"
-                    value="{ACTION.TABLE_DUMP}">
-                <br>
-
-                Possible tables/views:<br>
-                <br>
-    """.format(
-        userdetails=session.get_current_user_html(),
-        script=pls.SCRIPT_NAME,
-        ACTION=ACTION,
-        PARAM=PARAM,
-    )
-
-    for x in get_permitted_tables_views_sorted_labelled():
-        if x["name"] == Blob.__tablename__:
-            name = PARAM.TABLES_BLOB
-            checked = ""
-        else:
-            if x["view"]:
-                name = PARAM.VIEWS
-                checked = ""
-            else:
-                name = PARAM.TABLES
-                checked = "checked"
-        html += """
-            <label>
-                <input type="checkbox" name="{}" value="{}" {}>{}
-            </label><br>
-        """.format(name, x["name"], checked, x["name"])
-
-    html += """
-                <button type="button"
-                        onclick="select_all_tables(true); deselect_blobs();">
-                    Select all tables except blobs
-                </button>
-                <button type="button"
-                        onclick="select_all_tables(false); deselect_blobs();">
-                    Deselect all tables
-                </button><br>
-                <button type="button" onclick="select_all_views(true);">
-                    Select all views
-                </button>
-                <button type="button" onclick="select_all_views(false);">
-                    Deselect all views
-                </button><br>
-                <br>
-
-                Dump as:<br>
-                <label>
-                    <input type="radio" name="{PARAM.OUTPUTTYPE}"
-                            value="{VALUE.OUTPUTTYPE_SQL}">
-                    SQL in UTF-8 encoding, views as their definitions
-                </label><br>
-                <label>
-                    <input type="radio" name="{PARAM.OUTPUTTYPE}"
-                            value="{VALUE.OUTPUTTYPE_TSV}" checked>
-                    ZIP file containing tab-separated values (TSV) files in
-                    UTF-8 encoding, NULL values as the string literal
-                    <code>NULL</code>, views as their contents
-                </label><br>
-                <br>
-
-                <input type="submit" value="Dump">
-
-                <script>
-        function select_all_tables(state) {{
-            checkboxes = document.getElementsByName("{PARAM.TABLES}");
-            for (var i = 0, n = checkboxes.length; i < n; i++) {{
-                checkboxes[i].checked = state;
-            }}
-        }}
-        function select_all_views(state) {{
-            checkboxes = document.getElementsByName("{PARAM.VIEWS}");
-            for (var i = 0, n = checkboxes.length; i < n; i++) {{
-                checkboxes[i].checked = state;
-            }}
-        }}
-        function deselect_blobs() {{
-            checkboxes = document.getElementsByName("{PARAM.TABLES_BLOB}");
-            for (var i = 0, n = checkboxes.length; i < n; i++) {{
-                checkboxes[i].checked = false;
-            }}
-        }}
-                </script>
-            </form>
-        </div>
-    """.format(
-        PARAM=PARAM,
-        VALUE=VALUE,
-    )
-    return html + WEBEND
-
-
-def serve_table_dump(session: CamcopsSession, form: cgi.FieldStorage) \
-        -> Union[str, WSGI_TUPLE_TYPE]:
-    """Serve a dump of table +/- view data."""
-
-    if not session.authorized_to_dump():
-        return fail_with_error_stay_logged_in(CANNOT_DUMP)
-    outputtype = ws.get_cgi_parameter_str(form, PARAM.OUTPUTTYPE)
-    if outputtype is not None:
-        outputtype = outputtype.lower()
-    tables = (
-        ws.get_cgi_parameter_list(form, PARAM.TABLES) +
-        ws.get_cgi_parameter_list(form, PARAM.VIEWS) +
-        ws.get_cgi_parameter_list(form, PARAM.TABLES_BLOB)
-    )
-    if outputtype == VALUE.OUTPUTTYPE_SQL:
-        filename = "CamCOPS_dump_" + format_datetime(
-            pls.NOW_LOCAL_TZ,
-            DateFormat.FILENAME
-        ) + ".sql"
-        # atypical content type
-        return ws.text_result(
-            get_database_dump_as_sql(tables), [], filename
-        )
-    elif outputtype == VALUE.OUTPUTTYPE_TSV:
-        zip_contents = get_multiple_views_data_as_tsv_zip(tables)
-        if zip_contents is None:
-            return fail_with_error_stay_logged_in(NOTHING_VALID_SPECIFIED)
-        filename = "CamCOPS_dump_" + format_datetime(
-            pls.NOW_LOCAL_TZ,
-            DateFormat.FILENAME
-        ) + ".zip"
-        # atypical content type
-        return ws.zip_result(zip_contents, [], filename)
+@view_config(route_name=Routes.OFFER_SQL_DUMP, permission=Permission.DUMP)
+def offer_sql_dump(req: CamcopsRequest) -> Response:
+    """Form for SQL research dump selection."""
+    form = OfferSqlDumpForm(request=req)
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            manual = appstruct.get(ViewParam.MANUAL)
+            querydict = {
+                ViewParam.DUMP_METHOD: appstruct.get(ViewParam.DUMP_METHOD),
+                ViewParam.SQLITE_METHOD: appstruct.get(ViewParam.SQLITE_METHOD),  # noqa
+                ViewParam.INCLUDE_BLOBS: appstruct.get(ViewParam.INCLUDE_BLOBS),  # noqa
+                ViewParam.GROUP_IDS: manual.get(ViewParam.GROUP_IDS),
+                ViewParam.TASKS: manual.get(ViewParam.TASKS),
+            }
+            # We could return a response, or redirect via GET.
+            # The request is not sensitive, so let's redirect.
+            return HTTPFound(req.route_url(Routes.SQL_DUMP, _query=querydict))
+        except ValidationFailure as e:
+            rendered_form = e.render()
     else:
-        return fail_with_error_stay_logged_in(
-            "Dump: outputtype must be '{}' or '{}'".format(
-                VALUE.OUTPUTTYPE_SQL,
-                VALUE.OUTPUTTYPE_TSV
-            )
-        )
+        rendered_form = form.render()
+    return render_to_response(
+        "offer_sql_dump.mako",
+        dict(form=rendered_form,
+             head_form_html=get_head_form_html(req, [form])),
+        request=req
+    )
+
+
+@view_config(route_name=Routes.SQL_DUMP, permission=Permission.DUMP)
+def sql_dump(req: CamcopsRequest) -> Response:
+    # -------------------------------------------------------------------------
+    # Get parameters
+    # -------------------------------------------------------------------------
+    dump_method = req.get_str_param(ViewParam.DUMP_METHOD)
+    sqlite_method = req.get_str_param(ViewParam.SQLITE_METHOD)
+    include_blobs = req.get_bool_param(ViewParam.INCLUDE_BLOBS, False)
+    group_ids = req.get_int_list_param(ViewParam.GROUP_IDS)
+    task_names = req.get_str_list_param(ViewParam.TASKS)
+
+    # -------------------------------------------------------------------------
+    # Select tasks
+    # -------------------------------------------------------------------------
+    if dump_method == ViewArg.EVERYTHING:
+        taskfilter = TaskFilter()
+    elif dump_method == ViewArg.USE_SESSION_FILTER:
+        taskfilter = req.camcops_session.get_task_filter()
+    elif dump_method == ViewArg.SPECIFIC_TASKS_GROUPS:
+        taskfilter = TaskFilter()
+        taskfilter.task_types = task_names
+        taskfilter.group_ids = group_ids
+    else:
+        return HTTPBadRequest("Bad {} parameter".format(ViewParam.DUMP_METHOD))
+    collection = TaskCollection(
+        req=req,
+        taskfilter=taskfilter,
+        sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
+    )
+
+    if sqlite_method not in [ViewArg.SQL, ViewArg.SQLITE]:
+        return HTTPBadRequest("Bad {} parameter".format(
+            ViewParam.SQLITE_METHOD))
+
+    # -------------------------------------------------------------------------
+    # Create memory file, dumper, and engine
+    # -------------------------------------------------------------------------
+
+    # This approach failed:
+    #
+    #   memfile = io.StringIO()
+    #
+    #   def dump(querysql, *multiparams, **params):
+    #       compsql = querysql.compile(dialect=engine.dialect)
+    #       memfile.write("{};\n".format(compsql))
+    #
+    #   engine = create_engine('{dialect}://'.format(dialect=dialect_name),
+    #                          strategy='mock', executor=dump)
+    #   dst_session = sessionmaker(bind=engine)()  # type: SqlASession
+    #
+    # ... you get the error
+    #   AttributeError: 'MockConnection' object has no attribute 'begin'
+    # ... which is fair enough.
+    #
+    # Next best thing: SQLite database.
+    # Two ways to deal with it:
+    # (a) duplicate our C++ dump code (which itself duplicate the SQLite
+    #     command-line executable's dump facility), then create the database,
+    #     dump it to a string, serve the string; or
+    # (b) offer the binary SQLite file.
+    # Or... (c) both.
+    # Aha! pymysqlite.iterdump does this for us.
+    #
+    # If we create an in-memory database using create_engine('sqlite://'),
+    # can we get the binary contents out? Don't think so.
+    #
+    # So we should first create a temporary on-disk file, then use that.
+
+    # -------------------------------------------------------------------------
+    # Make temporary file (one whose filename we can know).
+    # We use tempfile.mkstemp() for security, or NamedTemporaryFile,
+    # which is a bit easier. However, you can't necessarily open the file
+    # again under all OSs, so that's no good. The final option is
+    # TemporaryDirectory, which is secure and convenient.
+    #
+    # https://docs.python.org/3/library/tempfile.html
+    # https://security.openstack.org/guidelines/dg_using-temporary-files-securely.html  # noqa
+    # https://stackoverflow.com/questions/3924117/how-to-use-tempfile-namedtemporaryfile-in-python  # noqa
+    # -------------------------------------------------------------------------
+    db_basename = "temp.sqlite3"
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        db_filename = os.path.join(tmpdirname, db_basename)
+        # ---------------------------------------------------------------------
+        # Make SQLAlchemy session
+        # ---------------------------------------------------------------------
+        url = "sqlite:///" + db_filename
+        engine = create_engine(url, echo=False)
+        dst_session = sessionmaker(bind=engine)()  # type: SqlASession
+        # ---------------------------------------------------------------------
+        # Iterate through tasks, creating tables as we need them.
+        # ---------------------------------------------------------------------
+        # Must treat tasks all together, because otherwise we will insert
+        # duplicate dependency objects like Group objects.
+        audit_descriptions = []  # type: List[str]
+        all_tasks = []  # type: List[Task]
+        for cls in collection.task_classes():
+            tasks = collection.tasks_for_task_class(cls)
+            all_tasks.extend(tasks)
+            pks = [task._pk for task in tasks]
+            audit_descriptions.append("{}: {}".format(
+                cls.__tablename__, ",".join(str(pk) for pk in pks)))
+        # ---------------------------------------------------------------------
+        # Next bit very tricky. We're trying to achieve several things:
+        # - a copy of part of the database structure
+        # - a copy of part of the data, with relationships intact
+        # - nothing sensitive (e.g. full User records) going through
+        # - adding new columns for Task objects offering summary values
+        # ---------------------------------------------------------------------
+        copy_tasks_and_summaries(tasks=all_tasks,
+                                 dst_engine=engine,
+                                 dst_session=dst_session,
+                                 include_blobs=include_blobs,
+                                 req=req)
+        dst_session.commit()
+        # ---------------------------------------------------------------------
+        # Audit
+        # ---------------------------------------------------------------------
+        audit(req, "SQL dump: {}".format("; ".join(audit_descriptions)))
+        # ---------------------------------------------------------------------
+        # Fetch file contents, either as binary, or as SQL
+        # ---------------------------------------------------------------------
+        filename_stem = "CamCOPS_dump_{}".format(
+            format_datetime(req.now, DateFormat.FILENAME))
+        if sqlite_method == ViewArg.SQLITE:
+            with open(db_filename, 'rb') as f:
+                binary_contents = f.read()
+            return SqliteBinaryResponse(body=binary_contents,
+                                        filename=filename_stem + ".sqlite3")
+        else:  # SQL
+            con = sqlite3.connect(db_filename)
+            with io.StringIO() as f:
+                for line in con.iterdump():
+                    f.write(line + "\n")
+                con.close()
+                f.flush()
+                sql_text = f.getvalue()
+            return TextAttachmentResponse(body=sql_text,
+                                          filename=filename_stem + ".sql")
+
+
+# Restrict specified tables to certain columns only:
+DUMP_ONLY_COLNAMES = {  # mapping of tablename : list_of_column_names
+    Device.__tablename__: [
+        "camcops_version",
+        "friendly_name",
+        "id",
+        "name",
+    ],
+    User.__tablename__: [
+        "fullname",
+        "id",
+        "username",
+    ]
+}
+# Drop specific columns from certain tables:
+DUMP_DROP_COLNAMES = {
+}
+# List of columns to be skipped regardless of table:
+DUMP_SKIP_COLNAMES = [
+    # We restrict to current records only, so many of these are irrelevant:
+    "_addition_pending",
+    "_forcibly_preserved",
+    "_manually_erased",
+    "_manually_erased_at",
+    "_manually_erasing_user_id",
+    "_move_off_tablet",
+    "_removal_pending",
+    "_removing_user_id",
+    "_successor_pk",
+    "_when_removed_batch_utc",
+    "_when_removed_exact",
+]
+# List of table names to be skipped at all times:
+DUMP_SKIP_TABLES = [
+    group_group_table.name,
+    user_group_table.name,
+]
+
+
+def _dump_skip_table(tablename: str, include_blobs: bool) -> bool:
+    if not include_blobs and tablename == Blob.__tablename__:
+        return True
+    if tablename in DUMP_SKIP_TABLES:
+        return True
+    return False
+
+
+def _dump_skip_column(tablename: str, columnname: str) -> bool:
+    if columnname in DUMP_SKIP_COLNAMES:
+        return True
+    if (tablename in DUMP_ONLY_COLNAMES and
+            columnname not in DUMP_ONLY_COLNAMES[tablename]):
+        return True
+    if (tablename in DUMP_DROP_COLNAMES and
+                columnname in DUMP_DROP_COLNAMES[tablename]):
+        return True
+    return False
+
+
+def _add_dump_table(dst_tables: Dict[str, Table],  # modified
+                    dst_metadata: MetaData,  # modified
+                    src_table: Table,
+                    src_obj: object,
+                    dst_session: SqlASession,
+                    dst_engine: Engine,
+                    include_blobs: bool,
+                    req: CamcopsRequest) -> None:
+    tablename = src_table.name
+    # Skip the table?
+    if _dump_skip_table(tablename, include_blobs):
+        return
+        return
+    # Copy columns, dropping any we don't want, and dropping FK constraints
+    dst_columns = []  # type: List[Column]
+    for src_column in src_table.columns:
+        # log.critical("trying {!r}", src_column.name)
+        if _dump_skip_column(tablename, src_column.name):
+            # log.critical("... skipping {!r}", src_column.name)
+            continue
+        # You can't add the source column directly; you get
+        # "sqlalchemy.exc.ArgumentError: Column object 'ccc' already assigned
+        # to Table 'ttt'"
+        dst_columns.append(Column(
+            name=src_column.name,
+            type_=src_column.type,  # __init__ parameter is "type_"; stored as "type"  # noqa
+            primary_key=src_column.primary_key,
+            nullable=src_column.nullable,
+            server_default=src_column.server_default,
+            server_onupdate=src_column.server_onupdate,
+            index=src_column.index,
+            unique=src_column.unique,
+            doc=src_column.doc,
+            autoincrement=src_column.autoincrement,
+            comment=src_column.comment,
+            # this is also an opportunity to fail to copy the FK stuff!
+        ))
+    # Add extra columns?
+    if isinstance(src_obj, Task):
+        for summary_element in src_obj.get_summaries(req):
+            dst_columns.append(Column(summary_element.name,
+                                      summary_element.coltype))
+    # Create the table
+    # log.critical("Adding table {!r} to dump output", tablename)
+    dst_table = Table(tablename, dst_metadata, *dst_columns)
+    dst_tables[tablename] = dst_table
+    # You have to use an engine, not a session, to create tables (or you get
+    # "AttributeError: 'Session' object has no attribute '_run_visitor'").
+    # However, you have to commit the session, or you get
+    #     "sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) database
+    #     is locked", since a session is also being used.
+    dst_session.commit()
+    dst_table.create(dst_engine)
+
+
+def _copy_object_to_dump(dst_table: Table,
+                         dst_session: SqlASession,
+                         src_obj: object,
+                         req: CamcopsRequest) -> None:
+    tablename = dst_table.name
+    row = {}  # type: Dict[str, Any]
+    # Copy columns, skipping any we don't want
+    for attrname, column in gen_columns(src_obj):
+        if _dump_skip_column(tablename, column.name):
+            continue
+        row[column.name] = getattr(src_obj, attrname)
+    # Any other columns to add?
+    if isinstance(src_obj, Task):
+        for summary_element in src_obj.get_summaries(req):
+            row[summary_element.name] = summary_element.value
+    dst_session.execute(dst_table.insert(row))
+
+
+def copy_tasks_and_summaries(tasks: Iterable[Task],
+                             dst_engine: Engine,
+                             dst_session: SqlASession,
+                             include_blobs: bool,
+                             req: CamcopsRequest) -> None:
+    # How best to create the structure that's required?
+    #
+    # https://stackoverflow.com/questions/21770829/sqlalchemy-copy-schema-and-data-of-subquery-to-another-database  # noqa
+    # https://stackoverflow.com/questions/40155340/sqlalchemy-reflect-and-copy-only-subset-of-existing-schema  # noqa
+    #
+    # - Should we attempt to copy the MetaData object? That seems extremely
+    #   laborious, since every ORM class is tied to it. Moreover,
+    #   MetaData.tables is an immutabledict, so we're not going to be editing
+    #   anything. Even if we cloned the MetaData, that's not going to give us
+    #   ORM classes to walk.
+    # - Shall we operate at a lower level? That seems sensible.
+    # - Given that... we don't need to translate the PKs at all, unlike
+    #   merge_db.
+    # - Let's not create FK constraints explicitly. Most are not achievable
+    #   anyway (e.g. linking on device/era; omission of BLOBs).
+
+    # We start with blank metadata.
+    dst_metadata = MetaData()
+    # Tables we are inserting into the destination database:
+    dst_tables = {}  # type: Dict[str, Table]
+    # Tables we've processed, though we may ignore them:
+    tablenames_seen = set()  # type: Set[str]
+    # ORM objects we've visited:
+    instances_seen = set()  # type: Set[object]
+
+    # We walk through all the objects.
+    for startobj in tasks:
+        for src_obj in walk_orm_tree(startobj, seen=instances_seen):
+            # If we encounter a table we've not seen, offer our "table decider"
+            # the opportunity to add it to the metadata and create the table.
+            src_table = src_obj.__table__  # type: Table
+            tablename = src_table.name
+            if tablename not in tablenames_seen:
+                _add_dump_table(dst_tables=dst_tables,
+                                dst_metadata=dst_metadata,
+                                src_table=src_table,
+                                src_obj=src_obj,
+                                dst_session=dst_session,
+                                dst_engine=dst_engine,
+                                include_blobs=include_blobs,
+                                req=req)
+                tablenames_seen.add(tablename)
+            # If this table is going into the destination, copy the object
+            # (and maybe remove columns from it, or add columns to it).
+            if tablename in dst_tables:
+                _copy_object_to_dump(dst_table=dst_tables[tablename],
+                                     dst_session=dst_session,
+                                     src_obj=src_obj,
+                                     req=req)
 
 
 # =============================================================================
@@ -1500,8 +1602,8 @@ def offer_audit_trail(req: CamcopsRequest) -> Response:
             querydict[ViewParam.PAGE] = 1
             # Send the user to the actual data using GET:
             # (the parameters are NOT sensitive)
-            raise exc.HTTPFound(req.route_url(Routes.VIEW_AUDIT_TRAIL,
-                                              _query=querydict))
+            raise HTTPFound(req.route_url(Routes.VIEW_AUDIT_TRAIL,
+                                          _query=querydict))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -1603,8 +1705,8 @@ def offer_hl7_message_log(req: CamcopsRequest) -> Response:
             querydict[ViewParam.PAGE] = 1
             # Send the user to the actual data using GET
             # (the parameters are NOT sensitive)
-            raise exc.HTTPFound(req.route_url(Routes.VIEW_HL7_MESSAGE_LOG,
-                                              _query=querydict))
+            return HTTPFound(req.route_url(Routes.VIEW_HL7_MESSAGE_LOG,
+                                           _query=querydict))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -1672,7 +1774,7 @@ def view_hl7_message(req: CamcopsRequest) -> Response:
         .filter(HL7Message.msg_id == hl7_msg_id)\
         .first()
     if hl7msg is None:
-        raise exc.HTTPBadRequest("Bad HL7 message ID {}".format(hl7_msg_id))
+        return HTTPBadRequest("Bad HL7 message ID {}".format(hl7_msg_id))
     return render_to_response("hl7_message_view.mako",
                               dict(msg=hl7msg),
                               request=req)
@@ -1700,8 +1802,8 @@ def offer_hl7_run_log(req: CamcopsRequest) -> Response:
             querydict[ViewParam.PAGE] = 1
             # Send the user to the actual data using GET
             # (the parameters are NOT sensitive)
-            raise exc.HTTPFound(req.route_url(Routes.VIEW_HL7_RUN_LOG,
-                                              _query=querydict))
+            return HTTPFound(req.route_url(Routes.VIEW_HL7_RUN_LOG,
+                                           _query=querydict))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -1761,7 +1863,7 @@ def view_hl7_run(req: CamcopsRequest) -> Response:
         .filter(HL7Run.run_id == hl7_run_id)\
         .first()
     if hl7run is None:
-        raise exc.HTTPBadRequest("Bad HL7 run ID {}".format(hl7_run_id))
+        return HTTPBadRequest("Bad HL7 run ID {}".format(hl7_run_id))
     return render_to_response("hl7_run_view.mako",
                               dict(hl7run=hl7run),
                               request=req)
@@ -1783,12 +1885,8 @@ def view_server_info(req: CamcopsRequest) -> Dict[str, Any]:
     """HTML showing server's ID policies."""
     cfg = req.config
     which_idnums = cfg.get_which_idnums()
-    dbsession = req.dbsession
-    groups = dbsession.query(Group)\
-        .order_by(Group.name)\
-        .all()  # type: List[Group]
+    string_families = req.extrastring_families()
     return dict(
-        cfg=cfg,
         which_idnums=which_idnums,
         descriptions=[cfg.get_id_desc(n) for n in which_idnums],
         short_descriptions=[cfg.get_id_shortdesc(n) for n in which_idnums],
@@ -1796,7 +1894,7 @@ def view_server_info(req: CamcopsRequest) -> Dict[str, Any]:
         finalize=cfg.id_policy_finalize_string,
         upload_principal=get_upload_id_policy_principal_numeric_id(),
         finalize_principal=get_finalize_id_policy_principal_numeric_id(),
-        groups=groups,
+        string_families=string_families,
     )
 
 
@@ -1826,7 +1924,7 @@ def get_user_from_request_user_id_or_raise(req: CamcopsRequest) -> User:
     user_id = req.get_int_param(ViewParam.USER_ID)
     user = User.get_user_by_id(req.dbsession, user_id)
     if not user:
-        raise exc.HTTPBadRequest("No such user ID: {}".format(repr(user_id)))
+        raise HTTPBadRequest("No such user ID: {}".format(repr(user_id)))
     return user
 
 
@@ -1859,7 +1957,7 @@ def view_user(req: CamcopsRequest) -> Dict[str, Any]:
              renderer="edit_user.mako")
 def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
     if FormAction.CANCEL in req.POST:
-        raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+        raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
     user = get_user_from_request_user_id_or_raise(req)
     form = EditUserForm(request=req)
     if FormAction.SUBMIT in req.POST:
@@ -1870,7 +1968,7 @@ def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
             new_user_name = appstruct.get(ViewParam.USERNAME)
             existing_user = User.get_user_by_name(dbsession, new_user_name)
             if existing_user and existing_user.id != user.id:
-                raise exc.HTTPBadRequest(
+                raise HTTPBadRequest(
                     "Can't rename user {!r} (ID {!r}) to {!r}; that "
                     "conflicts with existing user with ID {!r}".format(
                         user.name, user.id, new_user_name,
@@ -1884,7 +1982,7 @@ def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
             # longer a member of, we need to fix that
             if user.upload_group_id not in group_ids:
                 user.upload_group_id = None
-            raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+            raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -1902,7 +2000,7 @@ def set_user_upload_group(req: CamcopsRequest,
                           as_superuser: bool) -> Response:
     destination = Routes.VIEW_ALL_USERS if as_superuser else Routes.HOME
     if FormAction.CANCEL in req.POST:
-        raise exc.HTTPFound(req.route_url(destination))
+        return HTTPFound(req.route_url(destination))
     form = SetUserUploadGroupForm(request=req, user=user)
     # ... need to show the groups permitted to THAT user, not OUR user
     if FormAction.SUBMIT in req.POST:
@@ -1910,7 +2008,7 @@ def set_user_upload_group(req: CamcopsRequest,
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
             user.upload_group_id = appstruct.get(ViewParam.UPLOAD_GROUP_ID)
-            raise exc.HTTPFound(req.route_url(destination))
+            return HTTPFound(req.route_url(destination))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -1953,7 +2051,7 @@ def unlock_user(req: CamcopsRequest) -> Response:
              renderer="add_user.mako")
 def add_user(req: CamcopsRequest) -> Dict[str, Any]:
     if FormAction.CANCEL in req.POST:
-        raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+        raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
     form = AddUserForm(request=req)
     dbsession = req.dbsession
     if FormAction.SUBMIT in req.POST:
@@ -1965,10 +2063,10 @@ def add_user(req: CamcopsRequest) -> Dict[str, Any]:
             user.set_password(req, appstruct.get(ViewParam.NEW_PASSWORD))
             user.must_change_password = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)  # noqa
             if User.get_user_by_name(dbsession, user.username):
-                raise exc.HTTPBadRequest("User with username {!r} already "
-                                         "exists!".format(user.username))
+                raise HTTPBadRequest("User with username {!r} already "
+                                     "exists!".format(user.username))
             dbsession.add(user)
-            raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+            raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -2003,6 +2101,7 @@ def any_records_use_user(req: CamcopsRequest, user: User) -> bool:
         return True
     # Uploaded records?
     for cls in gen_orm_classes_from_base(GenericTabletRecordMixin):  # type: Type[GenericTabletRecordMixin]  # noqa
+        # noinspection PyProtectedMember
         q = CountStarSpecializedQuery(cls, session=dbsession).filter(
             or_(
                 cls._adding_user_id == user_id,
@@ -2022,7 +2121,7 @@ def any_records_use_user(req: CamcopsRequest, user: User) -> bool:
              renderer="delete_user.mako")
 def delete_user(req: CamcopsRequest) -> Dict[str, Any]:
     if FormAction.CANCEL in req.POST:
-        raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+        raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
     user = get_user_from_request_user_id_or_raise(req)
     form = DeleteUserForm(request=req)
     rendered_form = ""
@@ -2051,7 +2150,7 @@ def delete_user(req: CamcopsRequest) -> Dict[str, Any]:
                     # (*) User itself
                     req.dbsession.delete(user)
                     # Done
-                    raise exc.HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+                    raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
                 except ValidationFailure as e:
                     rendered_form = e.render()
             else:
@@ -2091,7 +2190,7 @@ def get_group_from_request_group_id_or_raise(req: CamcopsRequest) -> Group:
         dbsession = req.dbsession
         group = dbsession.query(Group).filter(Group.id == group_id).first()
     if not group:
-        raise exc.HTTPBadRequest("No such group ID: {}".format(repr(group_id)))
+        raise HTTPBadRequest("No such group ID: {}".format(repr(group_id)))
     return group
 
 
@@ -2100,7 +2199,7 @@ def get_group_from_request_group_id_or_raise(req: CamcopsRequest) -> Group:
              renderer="edit_group.mako")
 def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
     if FormAction.CANCEL in req.POST:
-        raise exc.HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+        raise HTTPFound(req.route_url(Routes.VIEW_GROUPS))
     group = get_group_from_request_group_id_or_raise(req)
     form = EditGroupForm(request=req, group=group)
     dbsession = req.dbsession
@@ -2111,7 +2210,7 @@ def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
             new_group_name = appstruct.get(ViewParam.NAME)
             existing_group = Group.get_group_by_name(dbsession, new_group_name)
             if existing_group and existing_group.id != group.id:
-                raise exc.HTTPBadRequest(
+                raise HTTPBadRequest(
                     "Can't rename group {!r} (ID {!r}) to {!r}; that "
                     "conflicts with existing group with ID {!r}".format(
                         group.name, group.id, new_group_name,
@@ -2124,7 +2223,7 @@ def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
             # ... don't bother saying "you can see yourself"
             other_groups = Group.get_groups_from_id_list(dbsession, group_ids)
             group.can_see_other_groups = other_groups
-            raise exc.HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+            raise HTTPFound(req.route_url(Routes.VIEW_GROUPS))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -2148,7 +2247,7 @@ def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
              renderer="add_group.mako")
 def add_group(req: CamcopsRequest) -> Dict[str, Any]:
     if FormAction.CANCEL in req.POST:
-        raise exc.HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+        raise HTTPFound(req.route_url(Routes.VIEW_GROUPS))
     form = AddGroupForm(request=req)
     dbsession = req.dbsession
     if FormAction.SUBMIT in req.POST:
@@ -2158,10 +2257,10 @@ def add_group(req: CamcopsRequest) -> Dict[str, Any]:
             group = Group()
             group.name = appstruct.get(ViewParam.NAME)
             if Group.get_group_by_name(dbsession, group.name):
-                raise exc.HTTPBadRequest("Group with name {!r} already "
-                                         "exists!".format(group.name))
+                raise HTTPBadRequest("Group with name {!r} already "
+                                     "exists!".format(group.name))
             dbsession.add(group)
-            raise exc.HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+            raise HTTPFound(req.route_url(Routes.VIEW_GROUPS))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -2177,6 +2276,7 @@ def any_records_use_group(req: CamcopsRequest, group: Group) -> bool:
     # *** IMPLEMENT
     # Uploaded records?
     for cls in gen_orm_classes_from_base(GenericTabletRecordMixin):  # type: Type[GenericTabletRecordMixin]  # noqa
+        # noinspection PyProtectedMember
         q = CountStarSpecializedQuery(cls, session=dbsession).filter(
             cls._group_id == group_id
         )
@@ -2191,7 +2291,7 @@ def any_records_use_group(req: CamcopsRequest, group: Group) -> bool:
              renderer="delete_group.mako")
 def delete_group(req: CamcopsRequest) -> Dict[str, Any]:
     if FormAction.CANCEL in req.POST:
-        raise exc.HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+        raise HTTPFound(req.route_url(Routes.VIEW_GROUPS))
     group = get_group_from_request_group_id_or_raise(req)
     form = DeleteGroupForm(request=req)
     rendered_form = ""
@@ -2209,7 +2309,7 @@ def delete_group(req: CamcopsRequest) -> Dict[str, Any]:
                     assert appstruct.get(ViewParam.GROUP_ID) == group.id
                     req.dbsession.delete(group)
                     # Done
-                    raise exc.HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+                    raise HTTPFound(req.route_url(Routes.VIEW_GROUPS))
                 except ValidationFailure as e:
                     rendered_form = e.render()
             else:
@@ -2888,87 +2988,13 @@ def forcibly_finalize(session: CamcopsSession, form: cgi.FieldStorage) -> str:
 # All functions take parameters (session, form)
 # -------------------------------------------------------------------------
 ACTIONDICT = {
-    # Data dumps
-    ACTION.OFFER_BASIC_DUMP: offer_basic_dump,
-    ACTION.BASIC_DUMP: basic_dump,
-    ACTION.OFFER_TABLE_DUMP: offer_table_dump,
-    ACTION.TABLE_DUMP: serve_table_dump,
-
     # Amending and deleting data
-    ACTION.ADD_SPECIAL_NOTE: add_special_note,
-    ACTION.ERASE_TASK: erase_task,
-    ACTION.DELETE_PATIENT: delete_patient,
-    ACTION.EDIT_PATIENT: edit_patient,
-    ACTION.FORCIBLY_FINALIZE: forcibly_finalize,
+    # ACTION.ADD_SPECIAL_NOTE: add_special_note,
+    # ACTION.ERASE_TASK: erase_task,
+    # ACTION.DELETE_PATIENT: delete_patient,
+    # ACTION.EDIT_PATIENT: edit_patient,
+    # ACTION.FORCIBLY_FINALIZE: forcibly_finalize,
 }
-
-
-
-# =============================================================================
-# Functions suitable for calling from the command line or webview
-# =============================================================================
-
-def write_descriptions_comments(file: typing.io.TextIO,
-                                include_views: bool = False) -> None:
-    """Save database fields/comments to a file in HTML format."""
-
-    sql = """
-        SELECT
-            t.table_type, c.table_name, c.column_name, c.column_type,
-            c.is_nullable, c.column_comment
-        FROM information_schema.columns c
-        INNER JOIN information_schema.tables t
-            ON c.table_schema = t.table_schema
-            AND c.table_name = t.table_name
-        WHERE (
-                t.table_type='BASE TABLE'
-    """
-    if include_views:
-        sql += """
-                OR t.table_type='VIEW'
-        """
-    sql += """
-            )
-            AND c.table_schema='{}' /* database name */
-    """.format(
-        pls.DB_NAME
-    )
-    rows = pls.db.fetchall(sql)
-    print(COMMON_HEAD, file=file)
-    # don't used fixed-width tables; they truncate contents
-    print("""
-            <table>
-                <tr>
-                    <th>Table type</th>
-                    <th>Table</th>
-                    <th>Column</th>
-                    <th>Column type</th>
-                    <th>May be NULL</th>
-                    <th>Comment</th>
-                </tr>
-    """, file=file)
-    for row in rows:
-        outstring = "<tr>"
-        for i in range(len(row)):
-            outstring += "<td>{}</td>".format(ws.webify(row[i]))
-        outstring += "</tr>"
-        print(outstring, file=file)
-    print("""
-            </table>
-        </body>
-    """, file=file)
-
-    # Other methods:
-    # - To view columns with comments:
-    #        SHOW FULL COLUMNS FROM tablename;
-    # - or other methods at http://stackoverflow.com/questions/6752169
-
-
-def get_descriptions_comments_html(include_views: bool = False) -> str:
-    """Returns HTML of database field descriptions/comments."""
-    f = io.StringIO()
-    write_descriptions_comments(f, include_views)
-    return f.getvalue()
 
 
 # =============================================================================

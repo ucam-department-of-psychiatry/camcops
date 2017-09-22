@@ -238,7 +238,7 @@ class TrackerCtvCommon(object):
         self.req = req
         self.taskfilter = taskfilter
         self.as_ctv = as_ctv
-        assert taskfilter.has_patient
+        assert taskfilter.tasks_with_patient_only
 
         self.collection = TaskCollection(
             req=req,
@@ -640,9 +640,6 @@ class ClinicalTextView(TrackerCtvCommon):
     def __init__(self,
                  req: CamcopsRequest,
                  taskfilter: TaskFilter) -> None:
-        task_classes = [x for x in Task.all_subclasses_by_shortname()
-                        if x.has_patient]
-        # We want to note all within date range, so we use all classes.
         super().__init__(
             req=req,
             taskfilter=taskfilter,

@@ -29,7 +29,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <li><a href="${request.route_url(Routes.OFFER_BASIC_DUMP)}">Basic research dump (fields and summaries)</a></li>
         ## DISABLED FOR NOW:
         ## <li><a href="FILL_ME_IN">Regenerate summary tables</a></li>
-        <li><a href="${request.route_url(Routes.OFFER_TABLE_DUMP)}">Dump table/view data</a></li>
+        <li><a href="${request.route_url(Routes.OFFER_SQL_DUMP)}">Dump table data as SQL</a></li>
         <li><a href="${request.route_url(Routes.VIEW_DDL)}">Inspect table definitions</a>
     %endif
 
@@ -49,7 +49,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %endif
 
 <ul>
-    <li><a href="${request.route_url(Routes.VIEW_SERVER_INFO)}">Show database settings (identification policies)</a></li>
+    <li><a href="${request.route_url(Routes.VIEW_SERVER_INFO)}">Show database settings</a></li>
     %if introspection:
         <li><a href="${request.route_url(Routes.OFFER_INTROSPECTION)}">Introspect source code</a></li>
     %endif

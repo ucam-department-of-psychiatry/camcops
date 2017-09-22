@@ -735,11 +735,7 @@ def gen_ancillary_relationships(obj) -> Generator[
     # insp.mapper.relationships is of type
     # sqlalchemy.utils._collections.ImmutableProperties, which is basically
     # a sort of AttrDict.
-    for attrname_rel in insp.mapper.relationships.items():  # type: Tuple[str, RelationshipProperty]  # noqa
-        attrname = attrname_rel[0]
-        rel_prop = attrname_rel[1]
-        # ... I don't know how to do a type hint for both a and b in:
-        # "for a, b in some_tuple:  # type: ???"
+    for attrname, rel_prop in insp.mapper.relationships.items():  # type: Tuple[str, RelationshipProperty]  # noqa
         related_class = rel_prop.mapper.class_
         # log.critical("gen_ancillary_relationships: attrname={!r}, "
         #              "rel_prop={!r}, related_class={!r}, rel_prop.info={!r}",

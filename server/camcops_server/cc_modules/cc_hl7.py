@@ -51,14 +51,7 @@ from sqlalchemy.sql.sqltypes import (
     UnicodeText,
 )
 
-from .cc_constants import (
-    ACTION,
-    DateFormat,
-    HL7MESSAGE_TABLENAME,
-    ERA_NOW,
-    PARAM,
-    VALUE,
-)
+from .cc_constants import DateFormat, HL7MESSAGE_TABLENAME, ERA_NOW
 from . import cc_db
 from .cc_dt import (
     convert_datetime_to_utc,
@@ -77,10 +70,6 @@ from .cc_hl7core import (
     msg_is_successful_ack,
     SEGMENT_SEPARATOR,
 )
-from .cc_html import (
-    get_url_field_value_pair,
-    get_generic_action_url,
-)
 from .cc_simpleobjects import HL7PatientIdentifier
 from .cc_config import CamcopsConfig
 from .cc_recipdef import RecipientDefinition
@@ -93,7 +82,6 @@ from .cc_sqla_coltypes import (
 )
 from .cc_sqlalchemy import Base
 from .cc_task import get_base_tables
-# from .cc_taskfactory import task_factory
 from .cc_unittest import unit_test_ignore
 
 if TYPE_CHECKING:

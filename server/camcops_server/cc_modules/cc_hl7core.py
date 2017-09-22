@@ -23,7 +23,6 @@
 """
 
 import base64
-import datetime
 from typing import List, Optional, Tuple, Union
 
 import hl7
@@ -31,7 +30,7 @@ from pendulum import Date, Pendulum
 from sqlalchemy.orm import Session as SqlASession
 
 from .cc_dt import format_datetime, get_now_localtz
-from .cc_constants import DateFormat, VALUE
+from .cc_constants import DateFormat
 from .cc_simpleobjects import HL7PatientIdentifier
 from .cc_unittest import unit_test_ignore
 

@@ -44,7 +44,6 @@ from .cc_policy import (
     is_idnum_mandatory_in_finalize_policy,
     is_idnum_mandatory_in_upload_policy,
 )
-from .cc_constants import VALUE
 
 if TYPE_CHECKING:
     from .cc_patientidnum import PatientIdNum

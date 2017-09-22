@@ -135,6 +135,7 @@ class ViewParam(object):
     DIALECT = "dialect"
     DESCRIPTION = "description"
     DEVICE_IDS = "device_ids"
+    DUMP_METHOD = "dump_method"
     DOB = "dob"
     EMAIL = "email"
     END_DATETIME = "end_datetime"
@@ -151,6 +152,7 @@ class ViewParam(object):
     INCLUDE_CALCULATED = "include_calculated"
     INCLUDE_COMMENTS = "include_comments"
     INCLUDE_PATIENT = "include_patient"
+    MANUAL = "manual"
     MAY_ADD_NOTES = "may_add_notes"
     MAY_DUMP_DATA = "may_dump_data"
     MAY_REGISTER_DEVICES = "may_register_devices"
@@ -170,7 +172,9 @@ class ViewParam(object):
     ROWS_PER_PAGE = "rows_per_page"
     SERVER_PK = "server_pk"
     SEX = "sex"
+    SORT = "sort"
     SOURCE = "source"
+    SQLITE_METHOD = "sqlite_method"
     START_DATETIME = "start_datetime"
     SUPERUSER = "superuser"
     SURNAME = "surname"
@@ -194,10 +198,15 @@ class ViewArg(object):
     """
     String used as view arguments, e.g.
     """
+    EVERYTHING = "everything"
     HTML = "html"
     PDF = "pdf"
     PDFHTML = "pdfhtml"
+    SPECIFIC_TASKS_GROUPS = "specific_tasks_groups"
+    SQL = "sql"
+    SQLITE = "sqlite"
     TSV = "tsv"
+    USE_SESSION_FILTER = "use_session_filter"
     XML = "xml"
 
 
@@ -409,6 +418,7 @@ class Routes(object):
     ADD_GROUP = "add_group"
     ADD_SPECIAL_NOTE = "add_special_note"
     ADD_USER = "add_user"
+    BASIC_DUMP = "basic_dump"
     CHANGE_OWN_PASSWORD = "change_own_password"
     CHANGE_OTHER_PASSWORD = "change_other_password"
     CHOOSE_CTV = "choose_ctv"
@@ -434,13 +444,14 @@ class Routes(object):
     OFFER_INTROSPECTION = "offer_introspect"
     OFFER_REGENERATE_SUMMARIES = "offer_regenerate_summary_tables"
     OFFER_REPORT = "offer_report"
-    OFFER_TABLE_DUMP = "offer_table_dump"
+    OFFER_SQL_DUMP = "offer_sql_dump"
     OFFER_TERMS = "offer_terms"
     REPORT = "report"
     REPORTS_MENU = "reports_menu"
     SET_FILTERS = "set_filters"
     SET_OWN_USER_UPLOAD_GROUP = "set_user_upload_group"
     SET_OTHER_USER_UPLOAD_GROUP = "set_other_user_upload_group"
+    SQL_DUMP = "sql_dump"
     TASK = "task"
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
     TESTPAGE_PRIVATE_2 = "testpage_private_2"
@@ -499,6 +510,7 @@ class RouteCollection(object):
     ADD_GROUP = RoutePath(Routes.ADD_GROUP, "/add_group")
     ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE, "/add_special_note")
     ADD_USER = RoutePath(Routes.ADD_USER, "/add_user")
+    BASIC_DUMP = RoutePath(Routes.BASIC_DUMP, "/basic_dump")
     CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD,
                                     '/change_own_password')
     CHANGE_OTHER_PASSWORD = RoutePath(
@@ -538,7 +550,7 @@ class RouteCollection(object):
     OFFER_INTROSPECTION = RoutePath(Routes.OFFER_INTROSPECTION,
                                     "/offer_introspect")
     OFFER_REPORT = RoutePath(Routes.OFFER_REPORT, "/offer_report")
-    OFFER_TABLE_DUMP = RoutePath(Routes.OFFER_TABLE_DUMP, "/offer_table_dump")
+    OFFER_SQL_DUMP = RoutePath(Routes.OFFER_SQL_DUMP, "/offer_sql_dump")
     OFFER_TERMS = RoutePath(Routes.OFFER_TERMS, '/offer_terms')
     REPORT = RoutePath(Routes.REPORT, '/report')
     REPORTS_MENU = RoutePath(Routes.REPORTS_MENU, "/reports_menu")
@@ -547,6 +559,7 @@ class RouteCollection(object):
                                           '/set_user_upload_group')
     SET_OTHER_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OTHER_USER_UPLOAD_GROUP,
                                             '/set_other_user_upload_group')
+    SQL_DUMP = RoutePath(Routes.SQL_DUMP, '/sql_dump')
     TASK = RoutePath(Routes.TASK, "/task")
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1, '/testpriv1')
     TESTPAGE_PRIVATE_2 = RoutePath(Routes.TESTPAGE_PRIVATE_2, '/testpriv2')
@@ -655,6 +668,8 @@ class Permission(object):
     ADD_NOTES = "add_notes"
     DUMP = "dump"
     HAPPY = "happy"  # logged in, can use webview, no need to change p/w, agreed to terms  # noqa
+    MUST_AGREE_TERMS = "must_agree_terms"
+    MUST_CHANGE_PASSWORD = "must_change_password"
     REGISTER_DEVICE = "register"
     REPORTS = "reports"
     SUPERUSER = "superuser"
@@ -685,16 +700,19 @@ class CamcopsAuthenticationPolicy(object):
         user = request.user
         if user is not None:
             principals += [Authenticated, 'u:%s' % user.id]
-            if (user.may_use_webviewer and
-                    not (user.must_change_password or
-                         user.must_agree_terms())):
-                principals.append(Permission.HAPPY)
-                if user.may_dump_data:
-                    principals.append(Permission.DUMP)
-                if user.may_run_reports:
-                    principals.append(Permission.REPORTS)
-                if user.may_add_notes:
-                    principals.append(Permission.ADD_NOTES)
+            if user.may_use_webviewer:
+                if user.must_change_password:
+                    principals.append(Permission.MUST_CHANGE_PASSWORD)
+                elif user.must_agree_terms():
+                    principals.append(Permission.MUST_AGREE_TERMS)
+                else:
+                    principals.append(Permission.HAPPY)
+                    if user.may_dump_data:
+                        principals.append(Permission.DUMP)
+                    if user.may_run_reports:
+                        principals.append(Permission.REPORTS)
+                    if user.may_add_notes:
+                        principals.append(Permission.ADD_NOTES)
             if user.may_upload:
                 principals.append(Permission.UPLOAD)
             if user.may_register_devices:
@@ -742,58 +760,86 @@ class CamcopsAuthorizationPolicy(object):
 # Responses
 # =============================================================================
 
-class PdfResponse(Response):
-    def __init__(self, content: bytes, filename: str,
-                 as_inline: bool = True) -> None:
+class BinaryResponse(Response):
+    def __init__(self, body: bytes, filename: str,
+                 content_type: str, as_inline: bool = False) -> None:
         # Inline: display within browser, if possible.
         # Attachment: download.
         disp = "inline" if as_inline else "attachment"
         super().__init__(
-            content_type="application/pdf",
+            content_type=content_type,
             content_disposition="{}; filename={}".format(disp, filename),
             content_encoding="binary",
-            content_length=len(content),
-            body=content,
+            content_length=len(body),
+            body=body,
+        )
+
+
+class PdfResponse(BinaryResponse):
+    def __init__(self, body: bytes, filename: str,
+                 as_inline: bool = True) -> None:
+        super().__init__(
+            content_type="application/pdf",
+            filename=filename,
+            as_inline=as_inline,
+            body=body,
+        )
+
+
+class SqliteBinaryResponse(BinaryResponse):
+    def __init__(self, body: bytes, filename: str) -> None:
+        super().__init__(
+            content_type="application/x-sqlite3",
+            filename=filename,
+            body=body,
+        )
+
+
+class TextAttachmentResponse(Response):
+    def __init__(self, body: str, filename: str) -> None:
+        super().__init__(
+            content_type="text/plain",
+            content_disposition="attachment; filename={}".format(filename),
+            body=body,
         )
 
 
 class TextResponse(Response):
-    def __init__(self, content: str) -> None:
+    def __init__(self, body: str) -> None:
         super().__init__(
             content_type="text/plain",
-            body=content,
+            body=body,
         )
 
 
 class TsvResponse(Response):
-    def __init__(self, content: str, filename: str) -> None:
+    def __init__(self, body: str, filename: str) -> None:
         super().__init__(
             content_type="text/tab-separated-values",
             content_disposition="attachment; filename={}".format(filename),
-            body=content,
+            body=body,
         )
 
 
 class XmlResponse(Response):
-    def __init__(self, content: str) -> None:
+    def __init__(self, body: str) -> None:
         # application/xml versus text/xml:
         # https://stackoverflow.com/questions/4832357
         super().__init__(
             content_type="text/xml",
-            body=content,
+            body=body,
         )
 
 
-class ZipResponse(Response):
-    def __init__(self, content: bytes, filename: str) -> None:
+class ZipResponse(BinaryResponse):
+    def __init__(self, body: bytes, filename: str) -> None:
         # For ZIP, "inline" and "attachment" dispositions are equivalent, since
         # browsers don't display ZIP files inline.
         # https://stackoverflow.com/questions/1395151
         super().__init__(
             content_type="application/zip",
-            content_disposition="attachment; filename={}".format(filename),
-            content_encoding="binary",
-            body=content,
+            filename=filename,
+            body=body,
         )
 
 

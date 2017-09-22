@@ -1,27 +1,20 @@
-
-
-*** filters as database entities
-    - session has FK to current filter
-    - filter says "suitable for tracker Y/N"
-    - ?quick-tracker option (which_idnum, idnum_value) or current filter
-    - "groups" as part of filter (one, many...)
-    - fully flexible task list as part of filter
-    - LATER option for more flexible things
-
-*** server info view: which XML string families present?
-
-*** delete patient
-*** forcibly preserve
+*** research dump(s)
+    - check BLOBS coming through OK
+    - check only relevant users coming through
 
 *** database upload code
 
-*** research dump(s)
+
+*** delete patient
+*** forcibly preserve
 
 *** HL7 backend
 
 *** host script at funny paths
 
 *** check "special note" XML works (later) (task + patient)
+
+*** add special note
 
 *** ?special device for "web front end"
 *** ?special device for "manually uploaded"
@@ -43,8 +36,6 @@ CAMCOPS SERVER THINGS TO DO NOW
 CAMCOPS SERVER THINGS TO DO
 ===============================================================================
 
-- O'Brien group study template (when details available).
-
 - Giant "all tasks in full" view (like a clinical text view but for
   researchers)?
 
@@ -57,19 +48,6 @@ CAMCOPS SERVER THINGS TO DO
   min/max or permitted values where applicable; at first "submit", show
   differences and ask for confirmation; audit changes. For BLOBs, allow
   option to upload file (or leave unchanged).
-
-- document that anonymisation for research exports is supported as a basic
-  framework, but use CRATE if you want to do it properly.
-
-- make more/all tasks downloadable, rather than in the giant strings file
-    - strings
-        - make a default isTaskCrippled() in BaseTask
-    - other files
-        - we don't want these in the same XML template
-        - task JS, help HTML, any additional task-specific media
-        - store in subdirectory of media path, like blobs
-        - on the server side, point to one or more directories to scan
-        - on the tablet, have an XFILE() function, keyed to the task
 
 - index of tasks by patient ID, to speed up lookup on the tablet?
   Pros and cons to this.

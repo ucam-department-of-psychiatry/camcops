@@ -482,10 +482,10 @@ class BooleanNode(SchemaNode):
     schema_type = Boolean
     widget = CheckboxWidget()
 
-    def __init__(self, *args, title: str = "?", default: bool = False,
-                 **kwargs) -> None:
+    def __init__(self, *args, title: str = "?", label: str = "",
+                 default: bool = False, **kwargs) -> None:
         self.title = title  # above the checkbox
-        self.label = title  # to the right of the checkbox
+        self.label = label or title  # to the right of the checkbox
         self.default = default
         self.missing = default
         super().__init__(*args, **kwargs)
@@ -810,6 +810,21 @@ class ReportOutputTypeSelector(SchemaNode):
     validator = OneOf(list(x[0] for x in _choices))
 
 
+class DumpTypeSelector(SchemaNode):
+    _choices = (
+        (ViewArg.EVERYTHING, "Everything"),
+        (ViewArg.USE_SESSION_FILTER, "Use the session filter settings"),
+        (ViewArg.SPECIFIC_TASKS_GROUPS, "Specify tasks/groups manually")
+    )
+
+    schema_type = String
+    default = ViewArg.EVERYTHING
+    missing = ViewArg.EVERYTHING
+    title = "Dump method"
+    widget = RadioChoiceWidget(values=_choices)
+    validator = OneOf(list(x[0] for x in _choices))
+
+
 class UsernameNode(SchemaNode):
     schema_type = String
     title = "Username"
@@ -1034,6 +1049,67 @@ class DevicesSequence(SequenceSchema):
             raise Invalid(node, "You have specified duplicate devices")
 
 
+class SortTsvByHeadingsNode(SchemaNode):
+    schema_type = Boolean
+    label = "Sort TSV files by heading (column) names?"
+    title = "Sort columns?"
+    default = False
+    missing = False
+
+
+DIALECT_CHOICES = (
+    # http://docs.sqlalchemy.org/en/latest/dialects/
+    (Dialect.MYSQL, "MySQL"),
+    (Dialect.MSSQL, "Microsoft SQL Server"),
+    (Dialect.ORACLE, "Oracle"),
+    (Dialect.FIREBIRD, "Firebird"),
+    (Dialect.POSTGRES, "PostgreSQL"),
+    (Dialect.SQLITE, "SQLite"),
+    (Dialect.SYBASE, "Sybase"),
+)
+
+
+class DatabaseDialectSelector(SchemaNode):
+    schema_type = String
+    default = Dialect.MYSQL
+    missing = Dialect.MYSQL
+    title = "SQL dialect to use (not all may be valid)"
+
+    def __init__(self, *args, **kwargs) -> None:
+        values, pv = get_values_and_permissible(DIALECT_CHOICES)
+        self.widget = RadioChoiceWidget(values=values)
+        self.validator = OneOf(pv)
+        super().__init__(*args, **kwargs)
+
+
+SQLITE_CHOICES = (
+    # http://docs.sqlalchemy.org/en/latest/dialects/
+    (ViewArg.SQLITE, "Binary SQLite database"),
+    (ViewArg.SQL, "SQL text to create SQLite database"),
+)
+
+
+class SqliteSelector(SchemaNode):
+    schema_type = String
+    default = ViewArg.SQLITE
+    missing = ViewArg.SQLITE
+    title = "Database download method"
+
+    def __init__(self, *args, **kwargs) -> None:
+        values, pv = get_values_and_permissible(SQLITE_CHOICES)
+        self.widget = RadioChoiceWidget(values=values)
+        self.validator = OneOf(pv)
+        super().__init__(*args, **kwargs)
+
+
+class IncludeBlobsNode(SchemaNode):
+    schema_type = Boolean
+    default = False
+    missing = False
+    title = "Include BLOBs?"
+    label = "Include binary large objects (BLOBs)? WARNING: may be large"
+
+
 # =============================================================================
 # Login
 # =============================================================================
@@ -1248,11 +1324,11 @@ class EditTaskFilterWhenSchema(Schema):
 
 class EditTaskFilterWhatSchema(Schema):
     text_contents = TextContentsSequence()  # must match ViewParam.TEXT_CONTENTS  # noqa
-    tasks = AllTasksMultiTaskSelector()  # must match ViewParam.TASKS
     complete_only = BooleanNode(  # must match ViewParam.COMPLETE_ONLY
         default=False,
         title="Only completed tasks?",
     )
+    tasks = AllTasksMultiTaskSelector()  # must match ViewParam.TASKS
 
 
 class EditTaskFilterAdminSchema(Schema):
@@ -1418,32 +1494,6 @@ class ReportParamForm(InformativeForm):
 # View DDL
 # =============================================================================
 
-DIALECT_CHOICES = (
-    # http://docs.sqlalchemy.org/en/latest/dialects/
-    (Dialect.MYSQL, "MySQL"),
-    (Dialect.MSSQL, "Microsoft SQL Server"),
-    (Dialect.ORACLE, "Oracle"),
-    (Dialect.FIREBIRD, "Firebird"),
-    (Dialect.POSTGRES, "PostgreSQL"),
-    (Dialect.SQLITE, "SQLite"),
-    (Dialect.SYBASE, "Sybase"),
-)
-
-
-class DatabaseDialectSelector(SchemaNode):
-
-    schema_type = String
-    default = ""
-    missing = ""
-    title = "SQL dialect to view DDL in"
-
-    def __init__(self, *args, **kwargs) -> None:
-        values, pv = get_values_and_permissible(DIALECT_CHOICES)
-        self.widget = RadioChoiceWidget(values=values)
-        self.validator = OneOf(pv)
-        super().__init__(*args, **kwargs)
-
-
 class ViewDdlSchema(CSRFSchema):
     dialect = DatabaseDialectSelector()  # must match ViewParam.DIALECT
 
@@ -1485,7 +1535,8 @@ class EditUserSchema(CSRFSchema):
     )
     view_all_patients_when_unfiltered = BooleanNode(  # match ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED and User attribute  # noqa
         default=False,
-        title="May log in to web front end",
+        title="May view (browse) records from all patients when no patient "
+              "filter set",
     )
     superuser = BooleanNode(  # match ViewParam.SUPERUSER and User attribute  # noqa
         default=False,
@@ -1665,6 +1716,60 @@ class DeleteGroupForm(InformativeForm):
                 Button(name=FormAction.DELETE, title="Delete",
                        css_class="btn-danger"),
                 Button(name=FormAction.CANCEL, title="Cancel"),
+            ],
+            **kwargs
+        )
+
+
+# =============================================================================
+# Offer research dumps
+# =============================================================================
+
+class OfferDumpManualSchema(Schema):
+    group_ids = AllowedGroupsSequence()  # must match ViewParam.GROUP_IDS
+    tasks = AllTasksMultiTaskSelector()  # must match ViewParam.TASKS
+
+    title = "Manual settings"
+    widget = MappingWidget(template="mapping_accordion", open=False)
+
+
+class OfferBasicDumpSchema(CSRFSchema):
+    dump_method = DumpTypeSelector()  # must match ViewParam.DUMP_METHOD
+    sort = SortTsvByHeadingsNode()  # must match ViewParam.SORT
+    manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
+
+
+class OfferBasicDumpForm(InformativeForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = OfferBasicDumpSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title="Submit"),
+            ],
+            **kwargs
+        )
+
+
+class OfferSqlDumpManualSchema(Schema):
+    group_ids = AllowedGroupsSequence()  # must match ViewParam.GROUP_IDS
+    tasks = AllTasksMultiTaskSelector()  # must match ViewParam.TASKS
+
+
+class OfferSqlDumpSchema(CSRFSchema):
+    dump_method = DumpTypeSelector()  # must match ViewParam.DUMP_METHOD
+    sqlite_method = SqliteSelector()  # must match ViewParam.SQLITE_METHOD
+    include_blobs = IncludeBlobsNode()  # must match ViewParam.INCLUDE_BLOBS
+    manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
+
+
+class OfferSqlDumpForm(InformativeForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = OfferSqlDumpSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title="Submit"),
             ],
             **kwargs
         )
