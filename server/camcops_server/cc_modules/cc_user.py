@@ -56,7 +56,6 @@ from .cc_sqla_coltypes import (
     UserNameColType,
 )
 from .cc_sqlalchemy import Base
-from .cc_storedvar import ServerStoredVar
 from .cc_unittest import unit_test_ignore
 
 if TYPE_CHECKING:

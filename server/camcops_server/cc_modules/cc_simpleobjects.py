@@ -22,8 +22,9 @@
 ===============================================================================
 """
 
-from typing import Any, List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 
+from cardinal_pythonlib.reprfunc import simple_repr
 from pendulum import Date
 
 if TYPE_CHECKING:
@@ -34,10 +35,15 @@ if TYPE_CHECKING:
 
 
 # =============================================================================
-# HL7PatientIdentifier
+# IdNumReference
 # =============================================================================
 
-class IdNumDefinition(object):
+class IdNumReference(object):
+    """
+    A simple way of referring to an ID number.
+    Not stored in the database - just an object to be passed around that
+    encapsulates which_idnum and idnum_value.
+    """
     def __init__(self, which_idnum: int, idnum_value: int) -> None:
         self.which_idnum = which_idnum
         self.idnum_value = idnum_value
@@ -48,8 +54,8 @@ class IdNumDefinition(object):
             self.idnum_value is not None and self.idnum_value > 0
         )
 
-    def __eq__(self, other: "IdNumDefinition") -> bool:
-        if not isinstance(other, IdNumDefinition):
+    def __eq__(self, other: "IdNumReference") -> bool:
+        if not isinstance(other, IdNumReference):
             return False
         return (
             self.which_idnum == other.which_idnum and
@@ -58,9 +64,8 @@ class IdNumDefinition(object):
 
     def description(self, req: "CamcopsRequest") -> str:
         if not self.is_valid():
-            return "[invalid_IdNumDefinition]"
-        cfg = req.config
-        return "{d} = {v}".format(d=cfg.get_id_shortdesc(self.which_idnum),
+            return "[invalid_IdNumReference]"
+        return "{d} = {v}".format(d=req.get_id_shortdesc(self.which_idnum),
                                   v=self.idnum_value)
 
 
@@ -90,12 +95,12 @@ class BarePatientInfo(object):
                  surname: str = None,
                  dob: Date = None,
                  sex: str = None,
-                 idnum_definitions: List[IdNumDefinition] = None) -> None:
+                 idnum_definitions: List[IdNumReference] = None) -> None:
         self.forename = forename
         self.surname = surname
         self.dob = dob
         self.sex = sex
-        self.idnum_definitions = idnum_definitions or []  # type: List[IdNumDefinition]  # noqa
+        self.idnum_definitions = idnum_definitions or []  # type: List[IdNumReference]  # noqa
 
 
 # =============================================================================
@@ -119,3 +124,7 @@ class IntrospectionFileDetails(object):
         self.fullpath = fullpath
         self.prettypath = prettypath
         self.ext = ext
+
+    def __repr__(self) -> str:
+        return simple_repr(self, ["prettypath", "ext", "fullpath"],
+                           with_addr=False)

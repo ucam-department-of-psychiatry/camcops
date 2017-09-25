@@ -37,7 +37,7 @@ from sqlalchemy.sql.sqltypes import DateTime, Integer
 from .cc_constants import DateFormat
 from .cc_dt import format_datetime
 from .cc_pyramid import CookieKey
-from .cc_simpleobjects import IdNumDefinition
+from .cc_simpleobjects import IdNumReference
 from .cc_sqla_coltypes import IPAddressColType, SessionTokenColType
 from .cc_sqlalchemy import Base
 from .cc_taskfilter import TaskFilter

@@ -95,6 +95,33 @@ Base.__table_args__ = {
     # - https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation  # noqa
     # Therefore, we can set the table collation for all our tables, and not
     # worry about the column collation, e.g. Text(collation=...).
+    #
+    # To check a MySQL database, and connection/server settings:
+    #       SHOW VARIABLES LIKE '%character%';
+    #       SHOW VARIABLES LIKE '%collation%';
+    # To check tables:
+    #       SHOW TABLE STATUS WHERE NAME LIKE 'my_tablename'\G
+    # ... note use of \G to produce long-form output!
+    # To check columns:
+    #       SHOW FULL COLUMNS FROM my_tablename;
+    #
+    # ONE THING IN PARTICULAR TO BEWARE: utf8mb4_unicode_ci produces
+    # CASE-INSENSITIVE COMPARISON. For example:
+    #       SELECT 'a' = 'A';  -- produces 1
+    #       SELECT 'a' = 'B';  -- produces 0
+    #       SELECT BINARY 'a' = BINARY 'A';  -- produces 0
+    # This is a PROBLEM FOR PASSWORD FIELDS, so we must ensure a different
+    # collation is set; specifically, use
+    #
+    #       utf8mb4_bin
+    #
+    # and see also
+    #       SHOW COLLATION WHERE `Collation` LIKE 'utf8mb4%';
+    # and
+    #   https://dev.mysql.com/doc/refman/5.6/en/charset-binary-collations.html
+    #
+    # To check, run
+    #       SHOW FULL COLUMNS FROM _security_users;
 }
 
 # MySQL things we can't set via SQLAlchemy, but would like to be set:

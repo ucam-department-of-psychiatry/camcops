@@ -53,13 +53,15 @@ from .cc_dirtytables import DirtyTable
 # noinspection PyUnresolvedReferences
 from .cc_hl7 import HL7Run
 # noinspection PyUnresolvedReferences
-from .cc_patient import Patient, PatientIdNum
+from .cc_patientidnum import IdNumDefinition, PatientIdNum
+# noinspection PyUnresolvedReferences
+from .cc_patient import Patient
 # noinspection PyUnresolvedReferences
 from .cc_session import CamcopsSession
 # noinspection PyUnresolvedReferences
 from .cc_specialnote import SpecialNote
 # noinspection PyUnresolvedReferences
-from .cc_storedvar import DeviceStoredVar, ServerStoredVar
+from .cc_serversettings import ServerSettings
 # noinspection PyUnresolvedReferences
 from .cc_task import Task
 # noinspection PyUnresolvedReferences

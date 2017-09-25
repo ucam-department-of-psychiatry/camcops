@@ -90,7 +90,7 @@ def create_database_from_scratch(cfg: "CamcopsConfig") -> None:
 
     log.warning("Performing one-step database creation.")
     metadata = Base.metadata  # type: MetaData
-    engine = cfg.create_engine()
+    engine = cfg.create_sqla_engine()
     metadata.create_all(engine)
 
     alembic_cfg = Config(ALEMBIC_CONFIG_FILENAME)

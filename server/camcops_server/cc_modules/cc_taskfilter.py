@@ -46,10 +46,10 @@ from .cc_group import Group
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
 from .cc_request import CamcopsRequest
-from .cc_simpleobjects import IdNumDefinition
+from .cc_simpleobjects import IdNumReference
 from .cc_sqla_coltypes import (
     PendulumDateTimeAsIsoTextColType,
-    IdNumDefinitionListColType,
+    IdNumReferenceListColType,
     PatientNameColType,
     SexColType,
 )
@@ -182,7 +182,7 @@ class TaskFilter(Base):
         comment="Task filter: sex"
     )
     idnum_criteria = Column(  # new in v2.0.1
-        "idnum_criteria", IdNumDefinitionListColType,
+        "idnum_criteria", IdNumReferenceListColType,
         comment="ID filters as JSON; the ID number definitions are joined "
                 "with OR"
     )
@@ -223,7 +223,7 @@ class TaskFilter(Base):
         # without any recourse to our database to-and-fro conversion code for
         # each fieldtype.
         # (If we load from a database, things will be fine.)
-        self.idnum_criteria = []  # type: List[IdNumDefinition]
+        self.idnum_criteria = []  # type: List[IdNumReference]
         self.device_ids = []  # type: List[int]
         self.adding_user_ids = []  # type: List[int]
         self.group_ids = []  # type: List[int]
@@ -287,7 +287,7 @@ class TaskFilter(Base):
             bool(self.idnum_criteria)
         )
 
-    def get_only_iddef(self) -> Optional[IdNumDefinition]:
+    def get_only_iddef(self) -> Optional[IdNumReference]:
         if len(self.idnum_criteria) != 1:
             return None
         return self.idnum_criteria[0]
@@ -441,7 +441,7 @@ class TaskFilter(Base):
         self.forename = None
         self.dob = None
         self.sex = None
-        self.idnum_criteria = []  # type: List[IdNumDefinition]
+        self.idnum_criteria = []  # type: List[IdNumReference]
 
         self.device_ids = []  # type: List[int]
         self.adding_user_ids = []  # type: List[int]

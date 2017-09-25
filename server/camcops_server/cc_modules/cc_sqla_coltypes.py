@@ -86,6 +86,7 @@ from typing import (Any, Generator, List, Optional, Tuple, Type, TYPE_CHECKING,
 
 from cardinal_pythonlib.lists import chunks
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from pendulum import Pendulum
@@ -113,7 +114,7 @@ from .cc_dt import (
     convert_datetime_to_utc,
     PotentialDatetimeType,
 )
-from .cc_simpleobjects import IdNumDefinition
+from .cc_simpleobjects import IdNumReference
 from .cc_version import make_version
 
 if TYPE_CHECKING:
@@ -143,22 +144,72 @@ if (DEBUG_DATETIME_AS_ISO_TEXT or
 # Constants
 # =============================================================================
 
-ICD9_CODE_MAX_LENGTH = 6  # longest is "xxx.xx"; thus, 6; see
+AUDIT_SOURCE_MAX_LEN = 20  # our choice based on use in CamCOPS code
+
+DATABASE_TITLE_MAX_LEN = 255  # our choice
+DEVICE_NAME_MAX_LEN = 255  # our choice; must be compatible with tablet
+
+EMAIL_ADDRESS_MAX_LEN = 255  # https://en.wikipedia.org/wiki/Email_address
+
+FILTER_TEXT_MAX_LEN = 255  # our choice
+FULLNAME_MAX_LEN = 255  # our choice; used for user full names on the server
+
+GROUP_DESCRIPTION_MAX_LEN = 255  # our choice
+GROUP_NAME_MAX_LEN = 255  # our choice
+
+HASHED_PW_MAX_LEN = 60  # for bcrypt
+# ... empirically; we use bcrypt; its length is:
+#       "$2a$" (4)
+#       cost parameter, e.g. "$09" for 9 rounds (3)
+#       b64-enc 128-bit salt (22)
+#       b64enc 184-bit hash (31)
+# ... total 60
+# https://stackoverflow.com/questions/5881169/what-column-type-length-should-i-use-for-storing-a-bcrypt-hashed-password-in-a-d  # noqa
+HOSTNAME_MAX_LEN = 255
+# ... FQDN; https://stackoverflow.com/questions/8724954/what-is-the-maximum-number-of-characters-for-a-host-name-in-unix  # noqa
+
+ICD9_CODE_MAX_LEN = 6  # longest is "xxx.xx"; thus, 6; see
 # https://www.cms.gov/Medicare/Quality-Initiatives-Patient-Assessment-Instruments/HospitalQualityInits/Downloads/HospitalAppendix_F.pdf  # noqa
-ICD10_CODE_MAX_LENGTH = 7  # longest is e.g. "F00.000"; "F10.202"; thus, 7
-MAX_DIAGNOSTIC_CODE_LENGTH = max(
-    ICD9_CODE_MAX_LENGTH,
-    ICD10_CODE_MAX_LENGTH
-)
-ISO8601_STRING_LENGTH = 32
+ICD10_CODE_MAX_LEN = 7  # longest is e.g. "F00.000"; "F10.202"; thus, 7
+
+DIAGNOSTIC_CODE_MAX_LEN = max(ICD9_CODE_MAX_LEN, ICD10_CODE_MAX_LEN)
+
+ID_DESCRIPTOR_MAX_LEN = 255  # our choice
+ID_POLICY_MAX_LEN = 255  # our choice
+IP_ADDRESS_MAX_LEN = 45  # http://stackoverflow.com/questions/166132  # noqa
+ISO8601_STRING_MAX_LEN = 32
 # ... max length e.g. 2013-07-24T20:04:07.123456+01:00
 #                     1234567890123456789012345678901234567890
 #     (with punctuation, T, microseconds, colon in timezone).
 
-LONGBLOB_LONGTEXT_LENGTH = (2 ** 32) - 1
+LONGBLOB_LONGTEXT_MAX_LEN = (2 ** 32) - 1
+
+MIMETYPE_MAX_LEN = 255  # https://stackoverflow.com/questions/643690
+
+PATIENT_NAME_MAX_LEN = 255  # for forename and surname, each; our choice but must match tablet  # noqa
+
+SENDING_FORMAT_MAX_LEN = 50  # for HL7; our choice based on use in CamCOPS code
+SESSION_TOKEN_MAX_BYTES = 64  # our choice; 64 bytes => 512 bits, which is a lot in 2017  # noqa
+SESSION_TOKEN_MAX_LEN = len(
+    create_base64encoded_randomness(SESSION_TOKEN_MAX_BYTES))
+
+TABLENAME_MAX_LEN = 128
+# MySQL: 64 -- https://dev.mysql.com/doc/refman/5.7/en/identifiers.html
+# SQL Server: 128  -- https://msdn.microsoft.com/en-us/library/ms191240.aspx
+# Oracle: 32, then 128 from v12.2 (2017)
+
+TASK_SUMMARY_TEXT_FIELD_DEFAULT_MAX_LEN = 50
+# ... our choice, contains short strings like "normal", "abnormal", "severe".
+# Easy to change, since it's only used when exporting summaries, and not in
+# the core database.
+
+USERNAME_MAX_LEN = 255  # our choice
 
 
 class RelationshipInfo(object):
+    """
+    Used for the "info" parameter to SQLAlchemy "relationship" calls.
+    """
     IS_ANCILLARY = "is_ancillary"
     IS_BLOB = "is_blob"
 
@@ -168,7 +219,7 @@ class RelationshipInfo(object):
 # =============================================================================
 # If you insert something too long into a VARCHAR, it just gets truncated.
 
-AuditSourceColType = String(length=20)
+AuditSourceColType = String(length=AUDIT_SOURCE_MAX_LEN)
 
 # BigIntUnsigned = Integer().with_variant(mysql.BIGINT(unsigned=True), 'mysql')
 # ... partly because Alembic breaks on variants (Aug 2017), and partly because
@@ -177,24 +228,29 @@ AuditSourceColType = String(length=20)
 
 CharColType = String(length=1)
 
-DeviceNameColType = String(length=255)
-DiagnosticCodeColType = String(length=MAX_DIAGNOSTIC_CODE_LENGTH)
+DatabaseTitleColType = Unicode(length=DATABASE_TITLE_MAX_LEN)
+DeviceNameColType = String(length=DEVICE_NAME_MAX_LEN)
+DiagnosticCodeColType = String(length=DIAGNOSTIC_CODE_MAX_LEN)
 
-EmailAddressColType = Unicode(length=255)  # https://en.wikipedia.org/wiki/Email_address  # noqa
-EraColType = String(length=ISO8601_STRING_LENGTH)  # underlying SQL type
+EmailAddressColType = Unicode(length=EMAIL_ADDRESS_MAX_LEN)
+EraColType = String(length=ISO8601_STRING_MAX_LEN)  # underlying SQL type
 
-FilterTextColType = Unicode(length=255)
-FullNameColType = Unicode(length=255)
+FilterTextColType = Unicode(length=FILTER_TEXT_MAX_LEN)
+FullNameColType = Unicode(length=FULLNAME_MAX_LEN)
 
-GroupDescriptionColType = Unicode(length=255)
-GroupNameColType = Unicode(length=255)
+GroupDescriptionColType = Unicode(length=GROUP_DESCRIPTION_MAX_LEN)
+GroupNameColType = Unicode(length=GROUP_NAME_MAX_LEN)
 
-HashedPasswordColType = String(length=255)
-HostnameColType = String(length=255)
+HashedPasswordColType = String(length=HASHED_PW_MAX_LEN,
+                               collation='utf8mb4_bin')
+# NOTE that we must ensure case-SENSITIVE comparison on this field.
+# See further notes in cc_sqlalchemy.py
+HostnameColType = String(length=HOSTNAME_MAX_LEN)
 
-IdDescriptorColType = Unicode(length=255)
+IdDescriptorColType = Unicode(length=ID_DESCRIPTOR_MAX_LEN)
+IdPolicyColType = String(length=ID_POLICY_MAX_LEN)
 # IntUnsigned = Integer().with_variant(mysql.INTEGER(unsigned=True), 'mysql')
-IPAddressColType = String(length=45)  # http://stackoverflow.com/questions/166132  # noqa
+IPAddressColType = String(length=IP_ADDRESS_MAX_LEN)
 # This is a plain string.
 # See also e.g. http://sqlalchemy-utils.readthedocs.io/en/latest/_modules/sqlalchemy_utils/types/ip_address.html  # noqa
 
@@ -202,25 +258,23 @@ IPAddressColType = String(length=45)  # http://stackoverflow.com/questions/16613
 # https://stackoverflow.com/questions/43791725/sqlalchemy-how-to-make-a-longblob-column-in-mysql  # noqa
 # One of these:
 # LongBlob = LargeBinary().with_variant(mysql.LONGBLOB, "mysql")
-LongBlob = LargeBinary(length=LONGBLOB_LONGTEXT_LENGTH)
+LongBlob = LargeBinary(length=LONGBLOB_LONGTEXT_MAX_LEN)
 
 # LongText = UnicodeText().with_variant(mysql.LONGTEXT, 'mysql')
-LongText = UnicodeText(length=LONGBLOB_LONGTEXT_LENGTH)
+LongText = UnicodeText(length=LONGBLOB_LONGTEXT_MAX_LEN)
 
-MimeTypeColType = String(length=255)  # https://stackoverflow.com/questions/643690  # noqa
+MimeTypeColType = String(length=MIMETYPE_MAX_LEN)
 
-PatientNameColType = Unicode(length=255)
+PatientNameColType = Unicode(length=PATIENT_NAME_MAX_LEN)
 
-SendingFormatColType = String(length=50)
-SessionTokenColType = String(length=50)  # previously: TOKEN
+SendingFormatColType = String(length=SENDING_FORMAT_MAX_LEN)
+SessionTokenColType = String(length=SESSION_TOKEN_MAX_LEN)
 SexColType = String(length=1)
-StoredVarNameColType = String(length=255)  # probably overkill!
-StoredVarTypeColType = String(length=255)  # probably overkill!
-SummaryCategoryColType = String(length=50)  # pretty generic
+SummaryCategoryColType = String(length=TASK_SUMMARY_TEXT_FIELD_DEFAULT_MAX_LEN)  # pretty generic  # noqa
 
-TableNameColType = String(length=255)
+TableNameColType = String(length=TABLENAME_MAX_LEN)
 
-UserNameColType = String(length=255)
+UserNameColType = String(length=USERNAME_MAX_LEN)
 
 
 # =============================================================================
@@ -265,7 +319,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
     Uses Pendulum on the Python side.
     """
 
-    impl = String(length=ISO8601_STRING_LENGTH)  # underlying SQL type
+    impl = String(length=ISO8601_STRING_MAX_LEN)  # underlying SQL type
+
+    _coltype_name = "PendulumDateTimeAsIsoTextColType"
 
     @property
     def python_type(self):
@@ -301,9 +357,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         retval = self.pendulum_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
-                "DateTimeAsIsoTextColType.process_bind_param("
+                "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self, value, dialect, retval)
+                self._coltype_name, self, value, dialect, retval)
         return retval
 
     def process_literal_param(self, value: Optional[Pendulum],
@@ -312,9 +368,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         retval = self.pendulum_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
-                "DateTimeAsIsoTextColType.process_literal_param("
+                "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self, value, dialect, retval)
+                self._coltype_name, self, value, dialect, retval)
         return retval
 
     def process_result_value(self, value: Optional[str],
@@ -323,9 +379,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         retval = self.isostring_to_pendulum(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
             log.debug(
-                "DateTimeAsIsoTextColType.process_result_value("
+                "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self, value, dialect, retval)
+                self._coltype_name, self, value, dialect, retval)
         return retval
 
     # noinspection PyPep8Naming
@@ -372,6 +428,8 @@ class SemanticVersionColType(TypeDecorator):
 
     impl = String(length=147)  # https://github.com/mojombo/semver/issues/79
 
+    _coltype_name = "SemanticVersionColType"
+
     @property
     def python_type(self):
         return Version
@@ -382,9 +440,9 @@ class SemanticVersionColType(TypeDecorator):
         retval = str(value) if value is not None else None
         if DEBUG_SEMANTIC_VERSION:
             log.debug(
-                "SemanticVersionColType.process_bind_param("
+                "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self, value, dialect, retval)
+                self._coltype_name, self, value, dialect, retval)
         return retval
 
     def process_literal_param(self, value: Optional[Version],
@@ -393,9 +451,9 @@ class SemanticVersionColType(TypeDecorator):
         retval = str(value) if value is not None else None
         if DEBUG_SEMANTIC_VERSION:
             log.debug(
-                "SemanticVersionColType.process_literal_param("
+                "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> !r",
-                self, value, dialect, retval)
+                self._coltype_name, self, value, dialect, retval)
         return retval
 
     def process_result_value(self, value: Optional[str],
@@ -410,9 +468,9 @@ class SemanticVersionColType(TypeDecorator):
             retval = make_version(value)
         if DEBUG_SEMANTIC_VERSION:
             log.debug(
-                "SemanticVersionColType.process_result_value("
+                "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self, value, dialect, retval)
+                self._coltype_name, self, value, dialect, retval)
         return retval
 
     # noinspection PyPep8Naming
@@ -435,16 +493,17 @@ class SemanticVersionColType(TypeDecorator):
 
 
 # =============================================================================
-# IdNumDefinition; IdNumDefinitionColType
+# IdNumReferenceListColType
 # =============================================================================
 
-class IdNumDefinitionListColType(TypeDecorator):
+class IdNumReferenceListColType(TypeDecorator):
     """
-    Stores a list of IdNumDefinition objects.
+    Stores a list of IdNumReference objects.
     On the database side, uses a comma-separated list of integers.
     """
 
     impl = Text()
+    _coltype_name = "IdNumReferenceListColType"
 
     @property
     def python_type(self):
@@ -452,7 +511,7 @@ class IdNumDefinitionListColType(TypeDecorator):
 
     @staticmethod
     def _idnumdef_list_to_dbstr(
-            idnumdef_list: Optional[List[IdNumDefinition]]) -> str:
+            idnumdef_list: Optional[List[IdNumReference]]) -> str:
         if not idnumdef_list:
             return ""
         elements = []  # type: List[int]
@@ -462,8 +521,8 @@ class IdNumDefinitionListColType(TypeDecorator):
         return ",".join(str(x) for x in elements)
 
     @staticmethod
-    def _dbstr_to_idnumdef_list(dbstr: Optional[str]) -> List[IdNumDefinition]:
-        idnumdef_list = []  # type: List[IdNumDefinition]
+    def _dbstr_to_idnumdef_list(dbstr: Optional[str]) -> List[IdNumReference]:
+        idnumdef_list = []  # type: List[IdNumReference]
         try:
             intlist = [int(numstr) for numstr in dbstr.split(",")]
         except (AttributeError, TypeError, ValueError):
@@ -474,41 +533,41 @@ class IdNumDefinitionListColType(TypeDecorator):
         for which_idnum, idnum_value in chunks(intlist, n=2):
             if which_idnum < 0 or idnum_value < 0:  # enforce positive integers
                 return []
-            idnumdef_list.append(IdNumDefinition(which_idnum=which_idnum,
-                                                 idnum_value=idnum_value))
+            idnumdef_list.append(IdNumReference(which_idnum=which_idnum,
+                                                idnum_value=idnum_value))
         return idnumdef_list
 
-    def process_bind_param(self, value: Optional[List[IdNumDefinition]],
+    def process_bind_param(self, value: Optional[List[IdNumReference]],
                            dialect: Dialect) -> str:
         """Convert things on the way from Python to the database."""
         retval = self._idnumdef_list_to_dbstr(value)
         if DEBUG_IDNUMDEF_LIST:
             log.debug(
-                "IdNumDefinitionColType.process_bind_param("
+                "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self, value, dialect, retval)
+                self._coltype_name, self, value, dialect, retval)
         return retval
 
-    def process_literal_param(self, value: Optional[List[IdNumDefinition]],
+    def process_literal_param(self, value: Optional[List[IdNumReference]],
                               dialect: Dialect) -> str:
         """Convert things on the way from Python to the database."""
         retval = self._idnumdef_list_to_dbstr(value)
         if DEBUG_IDNUMDEF_LIST:
             log.debug(
-                "IdNumDefinitionColType.process_literal_param("
+                "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> !r",
-                self, value, dialect, retval)
+                self._coltype_name, self, value, dialect, retval)
         return retval
 
     def process_result_value(self, value: Optional[str],
-                             dialect: Dialect) -> List[IdNumDefinition]:
+                             dialect: Dialect) -> List[IdNumReference]:
         """Convert things on the way from the database to Python."""
         retval = self._dbstr_to_idnumdef_list(value)
         if DEBUG_IDNUMDEF_LIST:
             log.debug(
-                "IdNumDefinitionColType.process_result_value("
+                "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self, value, dialect, retval)
+                self._coltype_name, self, value, dialect, retval)
         return retval
 
 

@@ -75,12 +75,16 @@ from .cc_group import Group
 from .cc_hl7 import HL7Message, HL7Run
 from .cc_jointables import user_group_table
 from .cc_patient import Patient
-from .cc_patientidnum import fake_tablet_id_for_patientidnum, PatientIdNum
+from .cc_patientidnum import (
+    fake_tablet_id_for_patientidnum,
+    IdNumDefinition,
+    PatientIdNum,
+)
 from .cc_pyramid import Routes
 from .cc_request import CamcopsRequest
 from .cc_session import CamcopsSession
 from .cc_specialnote import SpecialNote
-from .cc_storedvar import ServerStoredVar
+from .cc_serversettings import ServerSettings
 from .cc_tabletsession import TabletSession
 from .cc_taskfilter import TaskFilter
 from .cc_unittest import (
@@ -132,9 +136,10 @@ RESERVED_TABLES = [
     Group.__tablename__,
     HL7Message.__tablename__,
     HL7Run.__tablename__,
+    IdNumDefinition.__tablename__,
     SecurityAccountLockout.__tablename__,
     SecurityLoginFailure.__tablename__,
-    ServerStoredVar.__tablename__,
+    ServerSettings.__tablename__,
     SpecialNote.__tablename__,
     TaskFilter.__tablename__,
     User.__tablename__,
@@ -356,7 +361,7 @@ def get_server_id_info() -> Dict:
         "idPolicyFinalize": pls.ID_POLICY_FINALIZE_STRING,
         "serverCamcopsVersion": CAMCOPS_SERVER_VERSION,
     }
-    for n in pls.get_which_idnums():
+    for n in pls.valid_which_idnums():
         nstr = str(n)
         reply["idDescription" + nstr] = pls.get_id_desc(n, "")
         reply["idShortDescription" + nstr] = pls.get_id_shortdesc(n, "")

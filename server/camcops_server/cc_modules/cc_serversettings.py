@@ -1,0 +1,178 @@
+#!/usr/bin/env python
+# camcops_server/cc_modules/cc_serversettings.py
+
+"""
+===============================================================================
+    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+===============================================================================
+
+Previously, we had a key/value pair system, both for device stored variables
+(table "storedvars") and server ones ("_server_storedvars"). We used a "type"
+column to indicate type, and then columns named "valueInteger", "valueText",
+"valueReal" for the actual values.
+
+Subsequently
+- There's no need for devices to upload their settings here, so that table
+  goes.
+- The server stored vars stored
+
+    idDescription1 - idDescription8             } now have their own table
+    idShortDescription1 - idShortDescription8   }
+
+    idPolicyUpload                              } now part of Group definition
+    idPolicyFinalize                            }
+
+    lastAnalyticsSentAt                         now unused
+
+    serverCamcopsVersion                        unnecessary (is in code)
+
+    databaseTitle                               still needed somehow
+
+So, two options:
+
+    https://stackoverflow.com/questions/2300356/using-a-single-row-configuration-table-in-sql-server-database-bad-idea  # noqa
+
+Let's use a single row, based on a fixed PK (of 1).
+
+On some databases, you can constrain the PK value to enforce "one row only";
+MySQL isn't one of those.
+
+    http://docs.sqlalchemy.org/en/latest/core/constraints.html#check-constraint
+    https://stackoverflow.com/questions/3967372/sql-server-how-to-constrain-a-table-to-contain-a-single-row  # noqa
+"""
+
+import logging
+
+from cardinal_pythonlib.logs import BraceStyleAdapter
+from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.sql.schema import Column, MetaData, Table
+from sqlalchemy.sql.sqltypes import Float, Integer, String, UnicodeText
+
+from .cc_cache import cache_region_static
+from .cc_sqla_coltypes import DatabaseTitleColType
+from .cc_sqlalchemy import Base
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
+
+
+# =============================================================================
+# ServerStoredVars - defunct, but maintained for database imports
+# =============================================================================
+
+class StoredVarTypesDefunct(object):
+    # values for the "type" column
+    TYPE_INTEGER = "integer"
+    TYPE_TEXT = "text"
+    TYPE_REAL = "real"
+
+
+class ServerStoredVarNamesDefunct(object):
+    # values for the "name" column
+    ID_POLICY_UPLOAD = "idPolicyUpload"  # text
+    ID_POLICY_FINALIZE = "idPolicyFinalize"  # text
+    SERVER_CAMCOPS_VERSION = "serverCamcopsVersion"  # text
+    DATABASE_TITLE = "databaseTitle"  # text
+    LAST_ANALYTICS_SENT_AT = "lastAnalyticsSentAt"  # text
+    ID_DESCRIPTION_PREFIX = "idDescription"  # text; apply suffixes 1-8
+    ID_SHORT_DESCRIPTION_PREFIX = "idShortDescription"  # text; apply suffixes 1-8  # noqa
+
+
+StoredVarNameColTypeDefunct = String(length=255)
+StoredVarTypeColTypeDefunct = String(length=255)
+_ssv_metadata = MetaData()
+
+
+server_stored_var_table_defunct = Table(
+    "_server_storedvars",  # table name
+    _ssv_metadata,  # metadata separate from everything else
+    Column(
+        "name", StoredVarNameColTypeDefunct,
+        primary_key=True, index=True,
+        comment="Variable name"
+    ),
+    Column(
+        "type", StoredVarTypeColTypeDefunct,
+        nullable=False,
+        comment="Variable type ('integer', 'real', 'text')"
+    ),
+    Column(
+        "valueInteger", Integer,
+        comment="Value of an integer variable"
+    ),
+    Column(
+        "valueText", UnicodeText,
+        comment="Value of a text variable"
+    ),
+    Column(
+        "valueReal", Float,
+        comment="Value of a real (floating-point) variable"
+    )
+)
+
+
+# =============================================================================
+# ServerSettings
+# =============================================================================
+
+SERVER_SETTINGS_SINGLETON_PK = 1
+CACHE_KEY_DATABASE_TITLE = "database_title"
+
+
+class ServerSettings(Base):
+    __tablename__ = "_server_settings"
+
+    id = Column(
+        "id", Integer,
+        primary_key=True, autoincrement=True, index=True,
+        comment="PK (arbitrary integer but only a value of {} is ever "
+                "used)".format(SERVER_SETTINGS_SINGLETON_PK)
+    )
+    database_title = Column(
+        "database_title", DatabaseTitleColType,
+        comment="Database title"
+    )
+
+
+def get_server_settings(dbsession: SqlASession) -> ServerSettings:
+    server_settings = dbsession.query(ServerSettings)\
+        .filter(ServerSettings.id == SERVER_SETTINGS_SINGLETON_PK)\
+        .first()
+    if server_settings is None:
+        server_settings = ServerSettings()
+        server_settings.id = SERVER_SETTINGS_SINGLETON_PK
+        server_settings.database_title = "DATABASE_TITLE_UNSET"
+        dbsession.add(server_settings)
+    return server_settings
+
+
+def get_database_title(dbsession: SqlASession) -> str:
+    def creator() -> str:
+        server_settings = get_server_settings(dbsession)
+        return server_settings.database_title
+
+    return cache_region_static.get_or_create(CACHE_KEY_DATABASE_TITLE, creator)
+
+
+def clear_database_title_cache() -> None:
+    cache_region_static.delete(CACHE_KEY_DATABASE_TITLE)
+
+
+def set_database_title(dbsession: SqlASession, title: str) -> None:
+    server_settings = get_server_settings(dbsession)
+    server_settings.database_title = title
+    clear_database_title_cache()

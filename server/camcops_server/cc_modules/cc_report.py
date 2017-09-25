@@ -25,7 +25,7 @@
 import cgi
 import datetime
 import re
-from typing import (Any, Dict, Iterable, List, Optional, Sequence, Tuple,
+from typing import (Any, List, Optional, Sequence, Tuple,
                     Type, TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.classes import all_subclasses, classproperty
@@ -34,13 +34,22 @@ from deform.form import Form
 import pyramid.httpexceptions as exc
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
+from sqlalchemy.engine.result import ResultProxy
+from sqlalchemy.orm.query import Query
+from sqlalchemy.sql.selectable import Select
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 from .cc_convert import tsv_from_query
-from .cc_constants import DateFormat, FP_ID_NUM_DEFUNCT
+from .cc_constants import DateFormat, DEFAULT_ROWS_PER_PAGE
 from .cc_dt import format_datetime
 from .cc_forms import ReportParamForm, ReportParamSchema
-from .cc_pyramid import TsvResponse, ViewArg, ViewParam
+from .cc_pyramid import (
+    CamcopsPage,
+    PageUrl,
+    TsvResponse,
+    ViewArg,
+    ViewParam,
+)
 from .cc_unittest import (
     unit_test_ignore,
     unit_test_require_truthy_attribute,
@@ -56,7 +65,7 @@ SESSION_FWD_REF = "CamcopsSession"
 # Other constants
 # =============================================================================
 
-REPORT_RESULT_TYPE = Tuple[Sequence[Sequence[Any]], Sequence[str]]
+PlainReportType = Tuple[Sequence[Sequence[Any]], Sequence[str]]
 
 
 # =============================================================================
@@ -98,11 +107,16 @@ class Report(object):
     def title(cls) -> str:
         raise NotImplementedError()
 
-    def get_rows_descriptions(self, req: "CamcopsRequest") -> REPORT_RESULT_TYPE:
-        """Execute the report. Must override. Parameters are passed in via
-        **kwargs."""
-        raise NotImplementedError()
-        # return [], []
+    def get_query(self, req: "CamcopsRequest") -> Union[None, Select, Query]:
+        """
+        Return the Select statement to execute the report. Must override.
+        Parameters are passed in via the Request.
+        """
+        return None
+
+    def get_rows_colnames(self, req: "CamcopsRequest") \
+            -> Optional[PlainReportType]:
+        return None
 
     @staticmethod
     def get_schema_class() -> Type[ReportParamSchema]:
@@ -131,6 +145,10 @@ class Report(object):
     def get_response(self, req: "CamcopsRequest") -> Response:
         # Check the basic parameters
         report_id = req.get_str_param(ViewParam.REPORT_ID)
+        rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                          DEFAULT_ROWS_PER_PAGE)
+        page_num = req.get_int_param(ViewParam.PAGE, 1)
+
         if report_id != self.report_id:
             raise exc.HTTPBadRequest(
                 "Error - request directed to wrong report!")
@@ -141,18 +159,31 @@ class Report(object):
 
         # Run the report (which may take additional parameters from the
         # request)
-        rows, descriptions = self.get_rows_descriptions(req)
-        if rows is None or descriptions is None:
-            raise exc.HTTPBadRequest("Report failed to return a list of "
-                                     "descriptions/results")
+        statement = self.get_query(req)
+        if statement is not None:
+            rp = req.dbsession.execute(statement)  # type: ResultProxy
+            column_names = rp.keys()
+            rows = rp.fetchall()
+        else:
+            rows_colnames = self.get_rows_colnames(req)
+            if rows_colnames is None:
+                raise NotImplementedError(
+                    "Report did not implement either of get_select_statement()"
+                    " or get_rows_colnames()")
+            rows = rows_colnames[0]
+            column_names = rows_colnames[1]
 
         # Serve the result
         if viewtype == ViewArg.HTML:
+            page = CamcopsPage(collection=rows,
+                               page=page_num,
+                               items_per_page=rows_per_page,
+                               url_maker=PageUrl(req))
             return render_to_response(
                 "report.mako",
                 dict(title=self.title,
-                     rows=rows,
-                     descriptions=descriptions),
+                     page=page,
+                     column_names=column_names),
                 request=req
             )
         else:  # TSV
@@ -163,13 +194,18 @@ class Report(object):
                 format_datetime(req.now, DateFormat.FILENAME) +
                 ".tsv"
             )
-            content = tsv_from_query(rows, descriptions)
+            content = tsv_from_query(rows, column_names)
             return TsvResponse(body=content, filename=filename)
 
 
 # =============================================================================
 # Report framework
 # =============================================================================
+
+def get_all_report_classes() -> List[Type["Report"]]:
+    classes = Report.all_subclasses(sort_title=True)
+    return classes
+
 
 def get_all_report_ids() -> List[str]:
     """Get all report IDs.
@@ -190,39 +226,6 @@ def get_report_instance(report_id: str) -> Optional[Report]:
 
 
 # =============================================================================
-# Helper functions
-# =============================================================================
-
-def get_all_report_classes() -> List[Type["Report"]]:
-    classes = Report.all_subclasses(sort_title=True)
-    return classes
-
-
-def expand_id_descriptions(fieldnames: Iterable[str]) -> List[str]:
-    """
-    Not easy to get UTF-8 fields out of a query in the column headings!
-    So don't do SELECT idnum8 AS 'idnum8 (Addenbrooke's number)';
-    change it post hoc like this:
-
-        SELECT idnum1 FROM ...
-    ...
-        fieldnames = expand_id_descriptions(fieldnames)
-    """
-    def replacer(fieldname: str) -> str:
-        if fieldname.startswith(FP_ID_NUM_DEFUNCT):
-            nstr = fieldname[len(FP_ID_NUM_DEFUNCT):]
-            try:
-                n = int(nstr)
-                if n in pls.get_which_idnums():
-                    return "{} ({})".format(fieldname, pls.get_id_desc(n))
-            except (TypeError, ValueError):
-                pass
-        return fieldname  # unmodified
-
-    return [replacer(f) for f in fieldnames]
-
-
-# =============================================================================
 # Unit testing
 # =============================================================================
 
@@ -231,7 +234,7 @@ def task_unit_test_report(name: str, r: Report) -> None:
     unit_test_require_truthy_attribute(r, 'report_id')
     unit_test_require_truthy_attribute(r, 'report_title')
     unit_test_ignore("Testing {}.get_rows_descriptions".format(name),
-                     r.get_rows_descriptions)
+                     r.get_query)
 
 
 def ccreport_unit_tests(req: "CamcopsRequest") -> None:

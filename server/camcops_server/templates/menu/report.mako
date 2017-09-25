@@ -1,5 +1,5 @@
 ## report.mako
-## <%page args="title: str, descriptions: List[str], rows: List[List[Any]]"/>
+## <%page args="title: str, column_names: List[str], page: CamcopsPage"/>
 <%inherit file="base_web.mako"/>
 
 <%!
@@ -10,13 +10,15 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <h1>${ title | h }</h1>
 
+<div>${page.pager()}</div>
+
 <table>
     <tr>
-        %for d in descriptions:
-            <th>${d | h}</th>
+        %for c in column_names:
+            <th>${c | h}</th>
         %endfor
     </tr>
-    %for row in rows:
+    %for row in page:
         <tr>
             %for val in row:
                 <td>
@@ -31,6 +33,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         </tr>
     %endfor
 </table>
+
+<div>${page.pager()}</div>
 
 <div>
     <a href="${request.route_url(Routes.REPORTS_MENU)}">Return to reports menu</a>

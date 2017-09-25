@@ -64,6 +64,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import and_, desc, func, literal, select
 from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.selectable import Select
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
 from .cc_anon import (
@@ -110,7 +111,7 @@ from .cc_patientidnum import PatientIdNum
 from .cc_pdf import pdf_from_html
 from .cc_pyramid import ViewArg
 from .cc_recipdef import RecipientDefinition
-from .cc_report import Report, REPORT_RESULT_TYPE
+from .cc_report import Report, PlainReportType
 from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
@@ -896,23 +897,23 @@ class Task(GenericTabletRecordMixin, Base):
     def apply_special_note(self,
                            req: CamcopsRequest,
                            note: str,
-                           user_id: int,
                            from_console: bool = False) -> None:
-        """Manually applies a special note to a task.
+        """
+        Manually applies a special note to a task.
 
         Applies it to all predecessor/successor versions as well.
         WRITES TO DATABASE.
         """
-        # *** needs fixing
         sn = SpecialNote()
         sn.basetable = self.tablename
         sn.task_id = self.id
         sn.device_id = self._device_id
         sn.era = self._era
-        sn.note_at = format_datetime(pls.NOW_LOCAL_TZ, DateFormat.ISO8601)
-        sn.user_id = user_id
+        sn.note_at = req.now
+        sn.user_id = req.user_id
         sn.note = note
-        sn.save()
+        dbsession = req.dbsession
+        dbsession.add(sn)
         self.audit(req, "Special note applied manually", from_console)
         self.delete_from_hl7_message_log(from_console)
 
@@ -960,9 +961,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_patient_server_pk(self) -> Optional[int]:
         """Get the server PK of the patient, or None."""
-        if self.is_anonymous:
-            return None
-        return self.patient.get_pk()
+        return self.patient.get_pk() if self.patient else None
 
     def get_patient(self) -> Optional[Patient]:
         """Get the associated Patient() object."""
@@ -2338,9 +2337,9 @@ class TaskCountReport(Report):
     def title(cls) -> str:
         return "(Server) Count current task instances, by creation date"
 
-    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
+    def get_rows_colnames(self, req: CamcopsRequest) -> PlainReportType:
         final_rows = []
-        fieldnames = []
+        colnames = []
         dbsession = req.dbsession
         classes = Task.all_subclasses_by_tablename()
         for cls in classes:
@@ -2363,9 +2362,9 @@ class TaskCountReport(Report):
                 .group_by(*group_by) \
                 .order_by(*order_by)
             # log.critical(str(query))
-            rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
+            rows, colnames = get_rows_fieldnames_from_query(dbsession, query)
             final_rows.extend(rows)
-        return final_rows, fieldnames
+        return final_rows, colnames
 
 
 # =============================================================================
@@ -2433,7 +2432,7 @@ def task_instance_unit_test(req: CamcopsRequest,
     # *** req: CamcopsRequest
 
     recipient_def = RecipientDefinition(
-        valid_which_idnums=pls.get_which_idnums())
+        valid_which_idnums=pls.valid_which_idnums())
 
     # -------------------------------------------------------------------------
     # Test methods

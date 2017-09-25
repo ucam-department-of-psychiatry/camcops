@@ -23,7 +23,7 @@
 """
 
 import logging
-from typing import List, Optional, Union
+from typing import List, Optional, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -37,6 +37,7 @@ from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import and_, ClauseElement, select
 from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.selectable import Select
 from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
 
 from .cc_audit import audit
@@ -60,16 +61,11 @@ from .cc_hl7core import make_pid_segment
 from .cc_html import answer
 from .cc_simpleobjects import BarePatientInfo, HL7PatientIdentifier
 from .cc_patientidnum import PatientIdNum
-from .cc_policy import (
-    satisfies_finalize_id_policy,
-    satisfies_id_policy,
-    satisfies_upload_id_policy,
-    TOKENIZED_POLICY_TYPE,
-)
+from .cc_policy import TokenizedPolicy
 from .cc_recipdef import RecipientDefinition
-from .cc_report import Report, REPORT_RESULT_TYPE
+from .cc_report import Report
 from .cc_request import CamcopsRequest
-from .cc_simpleobjects import IdNumDefinition
+from .cc_simpleobjects import IdNumReference
 from .cc_specialnote import SpecialNote
 from .cc_sqla_coltypes import (
     CamcopsColumn,
@@ -81,6 +77,9 @@ from .cc_tsv import TsvChunk
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING
 from .cc_xml import XML_COMMENT_SPECIAL_NOTES, XmlElement
+
+if TYPE_CHECKING:
+    from .cc_group import Group
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -236,7 +235,7 @@ class Patient(GenericTabletRecordMixin, Base):
     def get_idnum_objects(self) -> List[PatientIdNum]:
         return self.idnums  # type: List[PatientIdNum]
 
-    def get_idnum_definitions(self) -> List[IdNumDefinition]:
+    def get_idnum_definitions(self) -> List[IdNumReference]:
         idnums = self.idnums  # type: List[PatientIdNum]
         return [x.get_idnum_definition() for x in idnums if x.is_valid()]
 
@@ -277,11 +276,11 @@ class Patient(GenericTabletRecordMixin, Base):
         # 2. ID number details
         #    We can't just iterate through the ID numbers; we have to iterate
         #    through all possible ID numbers.
-        cfg = req.config
-        for n in cfg.get_which_idnums():
+        for iddef in req.idnum_definitions:
+            n = iddef.which_idnum
             nstr = str(n)
-            shortdesc = cfg.get_id_shortdesc(n)
-            longdesc = cfg.get_id_desc(n)
+            shortdesc = iddef.short_description
+            longdesc = iddef.description
             idnum_value = next(
                 (idnum.idnum_value for idnum in self.idnums
                  if idnum.which_idnum == n and idnum.is_valid()),
@@ -310,16 +309,21 @@ class Patient(GenericTabletRecordMixin, Base):
 
     def satisfies_upload_id_policy(self) -> bool:
         """Does the patient satisfy the uploading ID policy?"""
-        return satisfies_upload_id_policy(self.get_bare_ptinfo())
+        group = self._group  # type: Optional[Group]
+        if not group:
+            return False
+        return self.satisfies_id_policy(group.tokenized_upload_policy())
 
     def satisfies_finalize_id_policy(self) -> bool:
         """Does the patient satisfy the finalizing ID policy?"""
-        return satisfies_finalize_id_policy(self.get_bare_ptinfo())
+        group = self._group  # type: Optional[Group]
+        if not group:
+            return False
+        return self.satisfies_id_policy(group.tokenized_finalize_policy())
 
-    def satisfies_id_policy(self,
-                            policy: TOKENIZED_POLICY_TYPE) -> bool:
+    def satisfies_id_policy(self, policy: TokenizedPolicy) -> bool:
         """Does the patient satisfy a particular ID policy?"""
-        return satisfies_id_policy(policy, self.get_bare_ptinfo())
+        return policy.satisfies_id_policy(self.get_bare_ptinfo())
 
     def dump(self) -> None:
         """Dump object to database's log."""
@@ -598,11 +602,7 @@ class DistinctPatientReport(Report):
                 "numbers")
 
     # noinspection PyProtectedMember
-    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
-        # Not easy to get UTF-8 fields out of a query in the column headings!
-        # So don't do SELECT idnum8 AS 'idnum8 (Addenbrooke's number)';
-        # change it post hoc using cc_report.expand_id_descriptions()
-        dbsession = req.dbsession
+    def get_query(self, req: CamcopsRequest) -> Select:
         select_fields = [
             Patient.surname.label("surname"),
             Patient.forename.label("forename"),
@@ -612,8 +612,9 @@ class DistinctPatientReport(Report):
         select_from = Patient.__table__
         # noinspection PyPep8
         wheres = [Patient._current == True]  # type: List[ClauseElement]
-        for n in req.config.get_which_idnums():
-            desc = req.config.get_id_shortdesc(n)
+        for iddef in req.idnum_definitions:
+            n = iddef.which_idnum
+            desc = iddef.short_description
             aliased_table = PatientIdNum.__table__.alias("i{}".format(n))
             select_fields.append(aliased_table.c.idnum_value.label(desc))
             # noinspection PyPep8
@@ -638,9 +639,7 @@ class DistinctPatientReport(Report):
             .where(and_(*wheres))\
             .order_by(*order_by)\
             .distinct()
-        # log.critical(str(query))
-        rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
-        return rows, fieldnames
+        return query
 
 
 # =============================================================================

@@ -39,7 +39,7 @@ from camcops_server.cc_modules.cc_dt import format_datetime
     %if task_filter.idnum_criteria:
         ID numbers match one of:
         ${ ("; ".join("{which} = <b>{value}</b>".format(
-                which=request.config.get_id_shortdesc(iddef.which_idnum),
+                which=request.get_id_shortdesc(iddef.which_idnum),
                 value=iddef.idnum_value,
             ) for iddef in task_filter.idnum_criteria) + ".") }
         <% some_filter = True %>

@@ -28,10 +28,10 @@ from typing import Any, List, Optional, Type
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 from colander import Integer
 import pyramid.httpexceptions as exc
 from sqlalchemy.sql.expression import and_, exists, select
+from sqlalchemy.sql.selectable import Select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
@@ -59,7 +59,7 @@ from ..cc_modules.cc_nhs import (
 from ..cc_modules.cc_patient import Patient
 from ..cc_modules.cc_patientidnum import PatientIdNum
 from ..cc_modules.cc_pyramid import ViewParam
-from ..cc_modules.cc_report import Report, REPORT_RESULT_TYPE
+from ..cc_modules.cc_report import Report
 from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import (
     BoolColumn,
@@ -748,7 +748,7 @@ class LPSReportReferredNotDischarged(Report):
         return LPSReportSchema
 
     # noinspection PyProtectedMember
-    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
+    def get_query(self, req: CamcopsRequest) -> Select:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
         if which_idnum is None:
             raise exc.HTTPBadRequest("{} not specified".format(
@@ -757,7 +757,7 @@ class LPSReportReferredNotDischarged(Report):
         # Step 1: link referral and patient
         p1 = Patient.__table__.alias("p1")
         i1 = PatientIdNum.__table__.alias("i1")
-        desc = req.config.get_id_shortdesc(which_idnum)
+        desc = req.get_id_shortdesc(which_idnum)
         select_fields = [
             CPFTLPSReferral.lps_division,
             CPFTLPSReferral.referral_date_time,
@@ -826,10 +826,7 @@ class LPSReportReferredNotDischarged(Report):
             .select_from(select_from) \
             .where(and_(*wheres)) \
             .order_by(*order_by)
-        # log.critical(str(query))
-        dbsession = req.dbsession
-        rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
-        return rows, fieldnames
+        return query
 
 
 class LPSReportReferredNotClerkedOrDischarged(Report):
@@ -848,7 +845,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         return LPSReportSchema
 
     # noinspection PyProtectedMember
-    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
+    def get_query(self, req: CamcopsRequest) -> Select:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
         if which_idnum is None:
             raise exc.HTTPBadRequest("{} not specified".format(
@@ -857,7 +854,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         # Step 1: link referral and patient
         p1 = Patient.__table__.alias("p1")
         i1 = PatientIdNum.__table__.alias("i1")
-        desc = req.config.get_id_shortdesc(which_idnum)
+        desc = req.get_id_shortdesc(which_idnum)
         select_fields = [
             CPFTLPSReferral.lps_division,
             CPFTLPSReferral.referral_date_time,
@@ -955,7 +952,4 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
             .select_from(select_from) \
             .where(and_(*wheres)) \
             .order_by(*order_by)
-        # log.critical(str(query))
-        dbsession = req.dbsession
-        rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
-        return rows, fieldnames
+        return query

@@ -44,7 +44,7 @@ from .cc_patientidnum import PatientIdNum
 from .cc_pdf import pdf_from_html
 from .cc_pyramid import ViewArg, ViewParam
 from .cc_request import CamcopsRequest
-from .cc_simpleobjects import IdNumDefinition
+from .cc_simpleobjects import IdNumReference
 from .cc_task import Task
 from .cc_taskfactory import (
     TaskCollection,

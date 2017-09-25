@@ -13,38 +13,13 @@
         <th>Description</th>
         <th>Short description</th>
     </tr>
-    %for i in range(len(which_idnums)):
+    %for iddef in idnum_definitions:
         <tr>
-            <td>${which_idnums[i]}</td>
-            <td>${descriptions[i] | h}</td>
-            <td>${short_descriptions[i] | h}</td>
+            <td>${iddef.which_idnum}</td>
+            <td>${iddef.description | h}</td>
+            <td>${iddef.short_description | h}</td>
         </tr>
     %endfor
-</table>
-
-<h2>ID policies</h2>
-
-<table>
-    <tr>
-        <th>Policy</th>
-        <th>Details</th>
-    </tr>
-    <tr>
-        <td>Upload</td>
-        <td>${upload | h}</td>
-    </tr>
-    <tr>
-        <td>Finalize</td>
-        <td>${finalize | h}</td>
-    </tr>
-    <tr>
-        <td>Principal (single necessary) ID number required by Upload policy</td>
-        <td>${upload_principal}</td>
-    </tr>
-    <tr>
-        <td>Principal (single necessary) ID number required by Finalize policy</td>
-        <td>${finalize_principal}</td>
-    </tr>
 </table>
 
 <h2>Extra string families present</h2>

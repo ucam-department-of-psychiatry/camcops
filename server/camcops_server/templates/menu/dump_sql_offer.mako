@@ -1,4 +1,4 @@
-## offer_sql_dump.mako
+## dump_sql_offer.mako
 <%inherit file="base_web_form.mako"/>
 
 <%!

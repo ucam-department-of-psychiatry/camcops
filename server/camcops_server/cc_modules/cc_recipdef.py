@@ -40,13 +40,10 @@ from .cc_filename import (
     get_export_filename,
     patient_spec_for_filename_is_valid,
 )
-from .cc_policy import (
-    is_idnum_mandatory_in_finalize_policy,
-    is_idnum_mandatory_in_upload_policy,
-)
 
 if TYPE_CHECKING:
     from .cc_patientidnum import PatientIdNum
+    from .cc_policy import TokenizedPolicy
     from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))

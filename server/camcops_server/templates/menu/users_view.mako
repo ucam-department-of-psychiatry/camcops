@@ -1,4 +1,4 @@
-## view_users.mako
+## users_view.mako
 <%inherit file="base_web.mako"/>
 <%namespace file="displayfunc.mako" import="one_per_line"/>
 

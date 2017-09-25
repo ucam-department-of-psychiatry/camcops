@@ -2,7 +2,7 @@
 <%page args="offer_main_menu=False"/>
 
 <div>
-    ${request.config.get_database_title_html()}
+    Database: <b>${ request.database_title | h }</b>.
     %if request.camcops_session.username:
         Logged in as <b>${request.camcops_session.username | h}</b>.
     %endif

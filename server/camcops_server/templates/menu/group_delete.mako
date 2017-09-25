@@ -1,4 +1,4 @@
-## delete_group.mako
+## group_delete.mako
 <%inherit file="base_web_form.mako"/>
 
 <%include file="db_user_info.mako"/>

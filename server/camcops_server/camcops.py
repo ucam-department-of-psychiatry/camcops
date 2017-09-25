@@ -70,11 +70,11 @@ from .cc_modules.cc_config import (
 )
 from .cc_modules.cc_constants import (
     CAMCOPS_URL,
+    DEMO_SUPERVISORD_CONF,
     SEPARATOR_EQUALS,
 )  # nopep8
 from .cc_modules.cc_blob import ccblob_unit_tests  # nopep8
 from .cc_modules.cc_device import ccdevice_unit_tests  # nopep8
-from .cc_modules.cc_dump import ccdump_unit_tests  # nopep8
 from .cc_modules.cc_hl7 import send_all_pending_hl7_messages  # nopep8
 from .cc_modules.cc_hl7core import cchl7core_unit_tests  # nopep8
 from .cc_modules.cc_patient import ccpatient_unit_tests  # nopep8
@@ -90,11 +90,7 @@ from .cc_modules.cc_policy import ccpolicy_unit_tests  # nopep8
 from .cc_modules.cc_report import ccreport_unit_tests  # nopep8
 from .cc_modules.cc_request import CamcopsRequest, command_line_request  # nopep8
 from .cc_modules.cc_session import ccsession_unit_tests  # nopep8
-from .cc_modules.cc_storedvar import (
-    ServerStoredVar,
-    ServerStoredVarNames,
-    StoredVarTypes,
-)  # nopep8
+from .cc_modules.cc_serversettings import ServerSettings  # nopep8
 from .cc_modules.cc_task import (
     cctask_unit_tests,
     cctask_unit_tests_basic,
@@ -299,7 +295,9 @@ def test_serve(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT,
 
 def start_server(host: str,
                  port: int,
-                 threads: int,
+                 unix_domain_socket_filename: str,
+                 threads_start: int,
+                 threads_max: int,  # -1 for no limit
                  server_name: str,
                  log_screen: bool,
                  ssl_certificate: Optional[str],
@@ -310,15 +308,16 @@ def start_server(host: str,
     """
     Start CherryPy server
     """
-
     application = make_wsgi_app(debug_toolbar=debug_toolbar,
                                 serve_static_files=serve_static_files)
 
     cherrypy.config.update({
+        # See http://svn.cherrypy.org/trunk/cherrypy/_cpserver.py
         'server.socket_host': host,
         'server.socket_port': port,
-        'server.thread_pool': threads,
-        'server.thread_pool_max': threads,
+        'server.socket_file': unix_domain_socket_filename,
+        'server.thread_pool': threads_start,
+        'server.thread_pool_max': threads_max,
         'server.server_name': server_name,
         'server.log_screen': log_screen,
     })
@@ -329,11 +328,16 @@ def start_server(host: str,
             'server.ssl_private_key': ssl_private_key,
         })
 
-    log.info("Starting on host: {}", host)
-    log.info("Starting on port: {}", port)
+    if unix_domain_socket_filename:
+        # If this is specified, it takes priority
+        log.info("Starting via UNIX domain socket at: {}",
+                 unix_domain_socket_filename)
+    else:
+        log.info("Starting on host: {}", host)
+        log.info("Starting on port: {}", port)
     log.info("CamCOPS will be at: {}", root_path)
-    log.info("Thread pool size: {}", threads)
-    log.info("Thread pool max size: {}", threads)
+    log.info("Thread pool starting size: {}", threads_start)
+    log.info("Thread pool max size: {}", threads_max)
 
     cherrypy.tree.graft(application, root_path)
 
@@ -355,37 +359,8 @@ def print_demo_config() -> None:
     print(demo_config)
 
 
-def reset_storedvars() -> None:
-    """Copy key descriptions (database title, ID descriptions, policies) from
-    the config file to the database.
-
-    These are stored so researchers can access them from the database.
-    However, they're not used directly by the server (or the database.pl upload
-    script).
-    """
-    print("Setting database title/ID descriptions from configuration file")
-    dbt = ServerStoredVar(ServerStoredVarNames.DATABASE_TITLE,
-                          StoredVarTypes.TYPE_TEXT)
-    dbt.set_value(pls.DATABASE_TITLE)
-    pls.db.db_exec_literal(
-        "DELETE FROM {ssvtable} WHERE name LIKE 'idDescription%'".format(
-            ssvtable=ServerStoredVar.__tablename__,
-        ))
-    pls.db.db_exec_literal(
-        "DELETE FROM {ssvtable} WHERE name LIKE 'idShortDescription%'".format(
-            ssvtable=ServerStoredVar.__tablename__,
-        ))
-    for n in pls.get_which_idnums():
-        nstr = str(n)
-        sv_id = ServerStoredVar("idDescription" + nstr, "text")
-        sv_id.set_value(pls.get_id_desc(n))
-        sv_sd = ServerStoredVar("idShortDescription" + nstr, "text")
-        sv_sd.set_value(pls.get_id_shortdesc(n))
-    sv_id_policy_upload = ServerStoredVar("idPolicyUpload", "text")
-    sv_id_policy_upload.set_value(pls.ID_POLICY_UPLOAD_STRING)
-    sv_id_policy_finalize = ServerStoredVar("idPolicyFinalize", "text")
-    sv_id_policy_finalize.set_value(pls.ID_POLICY_FINALIZE_STRING)
-    audit("Reset stored variables", from_console=True)
+def print_demo_supervisorconf() -> None:
+    print(DEMO_SUPERVISORD_CONF)
 
 
 def generate_anonymisation_staging_db() -> None:
@@ -628,6 +603,12 @@ def camcops_main() -> None:
         help="Print a demo CamCOPS config file")
     democonfig_parser.set_defaults(func=lambda args: print_demo_config())
 
+    demosupervisorconf_parser = add_sub(
+        subparsers, "demosupervisorconf", config_mandatory=None,
+        help="Print a demo 'supervisor' config file for CamCOPS")
+    demosupervisorconf_parser.set_defaults(
+        func=lambda args: print_demo_supervisorconf())
+
     # -------------------------------------------------------------------------
     # Database commands
     # -------------------------------------------------------------------------
@@ -636,11 +617,6 @@ def camcops_main() -> None:
         subparsers, "upgradedb", config_mandatory=True,
         help="Upgrade database to most recent version (via Alembic)")
     upgradedb_parser.set_defaults(func=None)
-
-    resetsv_parser = add_sub(
-        subparsers, "resetstoredvars",
-        help="Redefine database title/patient ID number meanings/ID policy")
-    resetsv_parser.set_defaults(func=None)
 
     showtitle_parser = add_sub(
         subparsers, "showtitle",
@@ -806,6 +782,8 @@ def camcops_main() -> None:
         debug_toolbar=args.debug_toolbar
     ))
 
+    # *** add unit test
+
     # -------------------------------------------------------------------------
     # Web server options
     # -------------------------------------------------------------------------
@@ -823,11 +801,18 @@ def camcops_main() -> None:
         '--port', type=int, default=DEFAULT_PORT,
         help="port to listen on")
     serve_parser.add_argument(
+        '--unix_domain_socket', type=str, default="",
+        help="UNIX domain socket to listen on (overrides host/port if "
+             "specified)")
+    serve_parser.add_argument(
         "--server_name", type=str, default="localhost",
         help="CherryPy's SERVER_NAME environ entry")
     serve_parser.add_argument(
-        "--threads", type=int, default=40,
-        help="Number of threads for server to use")
+        "--threads_start", type=int, default=10,
+        help="Number of threads for server to start with")
+    serve_parser.add_argument(
+        "--threads_max", type=int, default=-1,
+        help="Maximum number of threads for server to use (-1 for no limit)")
     serve_parser.add_argument(
         "--ssl_certificate", type=str,
         help="SSL certificate file "
@@ -857,7 +842,9 @@ def camcops_main() -> None:
     serve_parser.set_defaults(func=lambda args: start_server(
         host=args.host,
         port=args.port,
-        threads=args.threads,
+        threads_start=args.threads_start,
+        threads_max=args.threads_max,
+        unix_domain_socket_filename=args.unix_domain_socket,
         server_name=args.server_name,
         log_screen=args.log_screen,
         ssl_certificate=args.ssl_certificate,
@@ -910,10 +897,6 @@ def camcops_main() -> None:
 
     if progargs.upgradedb:
         upgrade_database_to_head()
-        n_actions += 1
-
-    if progargs.resetstoredvars:
-        reset_storedvars()
         n_actions += 1
 
     if progargs.showtitle:

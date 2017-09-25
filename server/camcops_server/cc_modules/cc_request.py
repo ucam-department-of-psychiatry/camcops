@@ -68,8 +68,10 @@ from .cc_dt import (
     convert_datetime_to_utc,
     format_datetime,
 )
+from .cc_patientidnum import get_idnum_definitions, IdNumDefinition
 from .cc_plot import ccplot_no_op
 from .cc_pyramid import CookieKey, get_session_factory
+from .cc_serversettings import get_database_title
 from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
 from .cc_tabletsession import TabletSession
 
@@ -198,7 +200,7 @@ class CamcopsRequest(Request):
     @reify
     def engine(self) -> Engine:
         cfg = self.config
-        return cfg.create_engine()
+        return cfg.create_sqla_engine()
 
     @reify
     def dbsession(self) -> SqlASession:
@@ -661,6 +663,42 @@ class CamcopsRequest(Request):
     @property
     def user_id(self) -> Optional[int]:
         return self.camcops_session.user_id
+
+    # -------------------------------------------------------------------------
+    # ID number definitions
+    # -------------------------------------------------------------------------
+
+    @reify
+    def idnum_definitions(self) -> List[IdNumDefinition]:
+        return get_idnum_definitions(self.dbsession)  # cached
+
+    @reify
+    def valid_which_idnums(self) -> List[int]:
+        return [iddef.which_idnum for iddef in self.idnum_definitions]
+        # ... pre-sorted
+
+    def get_id_desc(self, which_idnum: int,
+                    default: str = None) -> Optional[str]:
+        """Get server's ID description."""
+        return next((iddef.description for iddef in self.idnum_definitions
+                     if iddef.which_idnum == which_idnum),
+                    default)
+
+    def get_id_shortdesc(self, which_idnum: int,
+                         default: str = None) -> Optional[str]:
+        """Get server's short ID description."""
+        return next((iddef.short_description
+                     for iddef in self.idnum_definitions
+                     if iddef.which_idnum == which_idnum),
+                    default)
+
+    # -------------------------------------------------------------------------
+    # Database title
+    # -------------------------------------------------------------------------
+
+    @reify
+    def database_title(self) -> str:
+        return get_database_title(self.dbsession)  # cached
 
 
 # noinspection PyUnusedLocal

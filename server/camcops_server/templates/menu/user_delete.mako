@@ -1,11 +1,13 @@
-## add_user.mako
+## user_delete.mako
 <%inherit file="base_web_form.mako"/>
 
 <%include file="db_user_info.mako"/>
 
-<h1>Add user</h1>
+<h1>Delete user ${ user.username | h }?</h1>
 
-<div class="important">Once created, you can set permissions.</div>
+%if error:
+    <div class="error">${ error | h }</div>
+%endif
 
 ${ form }
 

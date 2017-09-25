@@ -60,30 +60,20 @@ from .cc_constants import (
     CONFIG_FILE_MAIN_SECTION,
     CONFIG_FILE_RECIPIENTLIST_SECTION,
     DEFAULT_CAMCOPS_LOGO_FILE,
-    DEFAULT_DATABASE_TITLE,
     DEFAULT_LOCAL_INSTITUTION_URL,
     DEFAULT_LOCAL_LOGO_FILE,
     DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES,
     DEFAULT_LOCKOUT_THRESHOLD,
-    DEFAULT_MYSQL,
-    DEFAULT_MYSQLDUMP,
     DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS,
     DEFAULT_PLOT_FONTSIZE,
     DEFAULT_TIMEOUT_MINUTES,
     INTROSPECTION_BASE_DIRECTORY,
-    PDF_ENGINE,
 )
 from .cc_filename import (
     filename_spec_is_valid,
     patient_spec_for_filename_is_valid,
 )
 from .cc_simpleobjects import IntrospectionFileDetails
-from .cc_policy import (
-    finalize_id_policy_valid,
-    tokenize_finalize_id_policy,
-    tokenize_upload_id_policy,
-    upload_id_policy_valid,
-)
 from .cc_recipdef import RecipientDefinition
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -174,92 +164,10 @@ DB_URL = mysql+mysqldb://${DEFAULT_DB_USER}:P${DEFAULT_DB_PASSWORD}@localhost:33
 
 DB_ECHO = False
 
-# MYSQL: Specify the full path to the mysql executable, by default
-# /usr/bin/mysql (used for data dumps for privileged users).
-
-MYSQL = /usr/bin/mysql
-
-# MYSQLDUMP: Specify the full path to the mysqldump executable, by default
-# /usr/bin/mysqldump (used for data dumps for privileged users).
-
-MYSQLDUMP = /usr/bin/mysqldump
-
-# -----------------------------------------------------------------------------
-# Database title and ID descriptions
-# -----------------------------------------------------------------------------
-# NOTE: WHENEVER YOU CHANGE THESE, YOU MUST USE THE CAMCOPS COMMAND-LINE TOOL
-# TO REWRITE THEM INTO THE DATABASE.
-
-# DATABASE_TITLE: the friendly title of your database (as Unicode UTF-8).
-
-DATABASE_TITLE = My First CamCOPS Database
-
-# IDDESC_1 to IDDESC_8: full descriptions of each of the possible ID numbers.
-# IDSHORTDESC_1 to IDSHORTDESC_8: short versions of the same descriptions.
-# All are Unicode UTF-8.
-
-IDDESC_1 = NHS number
-IDSHORTDESC_1 = NHS
-IDDESC_2 = CPFT RiO number
-IDSHORTDESC_2 = RiO
-IDDESC_3 = CPFT M number
-IDSHORTDESC_3 = M
-IDDESC_4 = Addenbrooke’s number
-IDSHORTDESC_4 = Add
-IDDESC_5 = Papworth number
-IDSHORTDESC_5 = Pap
-IDDESC_6 = Hinchingbrooke number
-IDSHORTDESC_6 = Hinch
-IDDESC_7 = Peterborough City Hosp number
-IDSHORTDESC_7 = PCH
-IDDESC_8 = Spare_8_idnum
-IDSHORTDESC_8 = Spare8
-
-# -----------------------------------------------------------------------------
-# ID policies
-# -----------------------------------------------------------------------------
-# NOTE: WHENEVER YOU CHANGE THESE, YOU MUST USE THE CAMCOPS COMMAND-LINE TOOL
-# TO REWRITE THEM INTO THE DATABASE.
-
-# UPLOAD_POLICY and FINALIZE_POLICY define two ID policies. The upload policy
-# is the looser policy, allowing upload from tablets to the server. The
-# finalize policy is typically the same or stricter, and allows records to
-# be deleted from the tablets. See documentation.
-#
-# Case-insensitive. Valid tokens are:
-#   (
-#   )
-#   AND
-#   OR
-#   forename
-#   surname
-#   dob
-#   sex
-#   idnum1 ... idnum8
-#
-# Liaison psychiatry upload example, allowing upload with any of multiple
-# institutional IDs, but finalizing only with the institution's core ID:
-#
-# UPLOAD_POLICY = forename AND surname AND dob AND sex AND (idnum1 OR idnum2 OR idnum3 OR idnum4 OR idnum5 OR idnum6 OR idnum7 OR idnum8)
-# FINALIZE_POLICY = forename AND surname AND dob AND sex AND idnum1
-#
-# Research pseudonym example, in which a single number is used and no
-# patient-identifying information:
-#
-# UPLOAD_POLICY = sex AND idnum1
-# FINALIZE_POLICY = sex AND idnum1
-
-UPLOAD_POLICY = forename AND surname AND dob AND sex AND (idnum1 OR idnum2 OR idnum3 OR idnum4 OR idnum5 OR idnum6 OR idnum7 OR idnum8)
-FINALIZE_POLICY = forename AND surname AND dob AND sex AND idnum1
-
 # -----------------------------------------------------------------------------
 # URLs and paths
 # -----------------------------------------------------------------------------
-
-# =============================================================================
-# Site URL configuration
-# =============================================================================
-
+#
 # A quick note on absolute and relative URLs, and how CamCOPS is mounted.
 #
 # Suppose your CamCOPS site is visible at
@@ -849,8 +757,6 @@ class CamcopsConfig(object):
         self.ctv_filename_spec = get_config_parameter(
             config, section, "CTV_FILENAME_SPEC", str, None)
 
-        self.database_title = get_config_parameter(
-            config, section, "DATABASE_TITLE", str, DEFAULT_DATABASE_TITLE)
         self.db_url = config.get(section, "DB_URL")
         # ... no default: will fail if not provided
         self.db_echo = get_config_parameter_boolean(
@@ -872,39 +778,6 @@ class CamcopsConfig(object):
         self.hl7_lockfile = get_config_parameter(
             config, section, "HL7_LOCKFILE", str, None)
 
-        # The ConfigParser forces all its keys to lower care.
-        self.iddesc = {}  # type: Dict[int, str]
-        self.idshortdesc = {}  # type: Dict[int, str]
-        descprefix = "iddesc_"
-        shortdescprefix = "idshortdesc_"
-        for key, desc in config.items(section):
-            if key.startswith(descprefix):
-                nstr = key[len(descprefix):]
-                try:
-                    which_idnum = int(nstr)
-                except (TypeError, ValueError):
-                    raise AssertionError(
-                        "Bad ID description config key: " + repr(key))
-                if which_idnum <= 0:
-                    raise AssertionError(
-                        "Bad ID number: {} (must be >=1)".format(nstr))
-                if not desc:
-                    raise AssertionError(
-                        "Bad description for ID {}: {}".format(
-                            nstr, repr(desc)))
-                shortdesc = get_config_parameter(
-                    config, section, shortdescprefix + nstr, str, "")
-                if not shortdesc:
-                    raise AssertionError(
-                        "ID number {} has description but no short "
-                        "description".format(nstr))
-                self.iddesc[which_idnum] = desc
-                self.idshortdesc[which_idnum] = shortdesc
-
-        self.id_policy_upload_string = get_config_parameter(
-            config, section, "UPLOAD_POLICY", str, "")
-        self.id_policy_finalize_string = get_config_parameter(
-            config, section, "FINALIZE_POLICY", str, "")
         self.introspection = get_config_parameter_boolean(
             config, section, "INTROSPECTION", True)
 
@@ -920,11 +793,6 @@ class CamcopsConfig(object):
         self.lockout_duration_increment_minutes = get_config_parameter(
             config, section, "LOCKOUT_DURATION_INCREMENT_MINUTES",
             int, DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)
-
-        self.mysql = get_config_parameter(
-            config, section, "MYSQL", str, DEFAULT_MYSQL)
-        self.mysqldump = get_config_parameter(
-            config, section, "MYSQLDUMP", str, DEFAULT_MYSQLDUMP)
 
         self.password_change_frequency_days = get_config_parameter(
             config, section, "PASSWORD_CHANGE_FREQUENCY_DAYS",
@@ -971,8 +839,9 @@ class CamcopsConfig(object):
             for key, recipientdef_name in hl7_items:
                 log.debug("HL7 config: key={}, recipientdef_name={}",
                           key, recipientdef_name)
+                # *** fixme
                 h = RecipientDefinition(
-                    valid_which_idnums=self.get_which_idnums(),
+                    valid_which_idnums=[], # *** self.get_which_idnums(),
                     config=config,
                     section=recipientdef_name)
                 if h.valid:
@@ -1011,25 +880,11 @@ class CamcopsConfig(object):
                 self.introspection_files,
                 key=operator.attrgetter("prettypath"))
 
-        valid_which_idnums = self.get_which_idnums()
+        valid_which_idnums = [] # *** self.get_which_idnums()
 
-        # Cache tokenized ID policies
-        tokenize_upload_id_policy(policy=self.id_policy_upload_string,
-                                  valid_which_idnums=valid_which_idnums)
-        tokenize_finalize_id_policy(policy=self.id_policy_finalize_string,
-                                    valid_which_idnums=valid_which_idnums)
         # ---------------------------------------------------------------------
         # Valid?
         # ---------------------------------------------------------------------
-        if not upload_id_policy_valid():
-            raise RuntimeError(
-                "UPLOAD_POLICY invalid in config (policy: {})".format(
-                    repr(self.id_policy_upload_string)))
-        if not finalize_id_policy_valid():
-            raise RuntimeError(
-                "FINALIZE_POLICY invalid in config (policy: {})".format(
-                    repr(self.id_policy_finalize_string)))
-
         if not self.patient_spec_if_anonymous:
             raise RuntimeError("Blank PATIENT_SPEC_IF_ANONYMOUS in [server] "
                                "section of config file")
@@ -1124,7 +979,7 @@ class CamcopsConfig(object):
         #
         #           -> ***
 
-    def create_engine(self) -> Engine:
+    def create_sqla_engine(self) -> Engine:
         return create_engine(
             self.db_url,
             echo=self.db_echo,
@@ -1135,25 +990,12 @@ class CamcopsConfig(object):
     @property
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
     def get_all_table_names(self) -> List[str]:
-        engine = self.create_engine()
+        engine = self.create_sqla_engine()
         return get_table_names(engine=engine)
-
-    def get_which_idnums(self) -> List[int]:
-        return sorted(list(self.iddesc.keys()))
-
-    def get_id_desc(self, which_idnum: int,
-                    default: str = None) -> Optional[str]:
-        """Get server's ID description."""
-        return self.iddesc.get(which_idnum, default)
-
-    def get_id_shortdesc(self, which_idnum: int,
-                         default: str = None) -> Optional[str]:
-        """Get server's short ID description."""
-        return self.idshortdesc.get(which_idnum, default)
 
     @contextlib.contextmanager
     def get_dbsession_context(self) -> Generator[SqlASession, None, None]:
-        engine = self.create_engine()
+        engine = self.create_sqla_engine()
         maker = sessionmaker(bind=engine)
         dbsession = maker()  # type: SqlASession
         # noinspection PyBroadException
@@ -1231,12 +1073,6 @@ class CamcopsConfig(object):
     #     # -------------------------------------------------------------------
     #     return db
 
-    def get_database_title_html(self) -> str:
-        """Database title as HTML-safe unicode."""
-        if not self.database_title:
-            return ""
-        return "Database: <b>{}</b>.".format(ws.webify(self.database_title))
-
 
 # =============================================================================
 # Get config filename from an appropriate environment (WSGI or OS)
@@ -1272,3 +1108,99 @@ def get_config(config_filename: str) -> CamcopsConfig:
 
 def get_default_config_from_os_env() -> CamcopsConfig:
     return get_config(get_config_filename())
+
+
+XXX = """
+
+# -----------------------------------------------------------------------------
+# Database title and ID descriptions
+# -----------------------------------------------------------------------------
+
+# IDDESC_1 to IDDESC_8: full descriptions of each of the possible ID numbers.
+# IDSHORTDESC_1 to IDSHORTDESC_8: short versions of the same descriptions.
+# All are Unicode UTF-8.
+
+IDDESC_1 = NHS number
+IDSHORTDESC_1 = NHS
+IDDESC_2 = CPFT RiO number
+IDSHORTDESC_2 = RiO
+IDDESC_3 = CPFT M number
+IDSHORTDESC_3 = M
+IDDESC_4 = Addenbrooke’s number
+IDSHORTDESC_4 = Add
+IDDESC_5 = Papworth number
+IDSHORTDESC_5 = Pap
+IDDESC_6 = Hinchingbrooke number
+IDSHORTDESC_6 = Hinch
+IDDESC_7 = Peterborough City Hosp number
+IDSHORTDESC_7 = PCH
+IDDESC_8 = Spare_8_idnum
+IDSHORTDESC_8 = Spare8
+
+# -----------------------------------------------------------------------------
+# ID policies
+# -----------------------------------------------------------------------------
+# NOTE: WHENEVER YOU CHANGE THESE, YOU MUST USE THE CAMCOPS COMMAND-LINE TOOL
+# TO REWRITE THEM INTO THE DATABASE.
+
+# UPLOAD_POLICY and FINALIZE_POLICY define two ID policies. The upload policy
+# is the looser policy, allowing upload from tablets to the server. The
+# finalize policy is typically the same or stricter, and allows records to
+# be deleted from the tablets. See documentation.
+#
+# Case-insensitive. Valid tokens are:
+#   (
+#   )
+#   AND
+#   OR
+#   forename
+#   surname
+#   dob
+#   sex
+#   idnum1 ... idnum8
+#
+# Liaison psychiatry upload example, allowing upload with any of multiple
+# institutional IDs, but finalizing only with the institution's core ID:
+#
+# UPLOAD_POLICY = forename AND surname AND dob AND sex AND (idnum1 OR idnum2 OR idnum3 OR idnum4 OR idnum5 OR idnum6 OR idnum7 OR idnum8)
+# FINALIZE_POLICY = forename AND surname AND dob AND sex AND idnum1
+#
+# Research pseudonym example, in which a single number is used and no
+# patient-identifying information:
+#
+# UPLOAD_POLICY = sex AND idnum1
+# FINALIZE_POLICY = sex AND idnum1
+
+UPLOAD_POLICY = forename AND surname AND dob AND sex AND (idnum1 OR idnum2 OR idnum3 OR idnum4 OR idnum5 OR idnum6 OR idnum7 OR idnum8)
+FINALIZE_POLICY = forename AND surname AND dob AND sex AND idnum1
+
+
+
+"""
+
+YYY = """
+
+
+XXXXXXXXXX        self.id_policy_upload_string = get_config_parameter(
+            config, section, "UPLOAD_POLICY", str, "")
+        self.id_policy_finalize_string = get_config_parameter(
+            config, section, "FINALIZE_POLICY", str, "")
+
+
+        # Cache tokenized ID policies
+        tokenize_upload_id_policy(policy=self.id_policy_upload_string,
+                                  valid_which_idnums=valid_which_idnums)
+        tokenize_finalize_id_policy(policy=self.id_policy_finalize_string,
+                                    valid_which_idnums=valid_which_idnums)
+
+        if not upload_id_policy_valid():
+            raise RuntimeError(
+                "UPLOAD_POLICY invalid in config (policy: {})".format(
+                    repr(self.id_policy_upload_string)))
+        if not finalize_id_policy_valid():
+            raise RuntimeError(
+                "FINALIZE_POLICY invalid in config (policy: {})".format(
+                    repr(self.id_policy_finalize_string)))
+
+
+""" # ***fixme

@@ -56,6 +56,7 @@ from pyramid_mako import (
     text_error_template,
 )
 from sqlalchemy.orm import Query
+from sqlalchemy.sql.selectable import Select
 from zope.interface import implementer
 
 from .cc_baseconstants import TEMPLATE_DIR
@@ -128,10 +129,12 @@ class ViewParam(object):
       metaclass mess);
     """
     # QUERY = "_query"  # built in to Pyramid
+    ADD_SPECIAL_NOTE = "add_special_note"
     ADMIN = "admin"
     ALL_TASKS = "all_tasks"
     ANONYMISE = "anonymise"
     CSRF_TOKEN = "csrf"
+    DATABASE_TITLE = "database_title"
     DIALECT = "dialect"
     DESCRIPTION = "description"
     DEVICE_IDS = "device_ids"
@@ -140,6 +143,7 @@ class ViewParam(object):
     EMAIL = "email"
     END_DATETIME = "end_datetime"
     FILENAME = "filename"
+    FINALIZE_POLICY = "finalize_policy"
     FORENAME = "forename"
     FULLNAME = "fullname"
     GROUP_ID = "group_id"
@@ -147,6 +151,7 @@ class ViewParam(object):
     HL7_MSG_ID = "hl7_msg_id"
     HL7_RUN_ID = "hl7_run_id"
     ID_DEFINITIONS = "id_definitions"
+    ID_REFERENCES = "id_references"
     IDNUM_VALUE = "idnum_value"
     INCLUDE_BLOBS = "include_blobs"
     INCLUDE_CALCULATED = "include_calculated"
@@ -161,6 +166,7 @@ class ViewParam(object):
     MAY_USE_WEBVIEWER = "may_use_webviewer"
     MUST_CHANGE_PASSWORD = "must_change_password"
     NAME = "name"
+    NOTE = "note"
     NEW_PASSWORD = "new_password"
     OLD_PASSWORD = "old_password"
     COMPLETE_ONLY = "complete_only"
@@ -172,6 +178,7 @@ class ViewParam(object):
     ROWS_PER_PAGE = "rows_per_page"
     SERVER_PK = "server_pk"
     SEX = "sex"
+    SHORT_DESCRIPTION = "short_description"
     SORT = "sort"
     SOURCE = "source"
     SQLITE_METHOD = "sqlite_method"
@@ -183,6 +190,7 @@ class ViewParam(object):
     TEXT_CONTENTS = "text_contents"
     TRUNCATE = "truncate"
     UPLOAD_GROUP_ID = "upload_group_id"
+    UPLOAD_POLICY = "upload_policy"
     USER_ID = "user_id"
     USER_IDS = "user_ids"
     USERNAME = "username"
@@ -416,6 +424,7 @@ class Routes(object):
 
     # Implemented
     ADD_GROUP = "add_group"
+    ADD_ID_DEFINITION = "add_id_definition"
     ADD_SPECIAL_NOTE = "add_special_note"
     ADD_USER = "add_user"
     BASIC_DUMP = "basic_dump"
@@ -427,9 +436,12 @@ class Routes(object):
     CTV = "ctv"
     DATABASE_API = "database"
     DELETE_GROUP = "delete_group"
+    DELETE_ID_DEFINITION = "delete_id_definition"
     DELETE_PATIENT = "delete_patient"
     DELETE_USER = "delete_user"
     EDIT_GROUP = "edit_group"
+    EDIT_ID_DEFINITION = "edit_id_definition"
+    EDIT_SERVER_SETTINGS = "edit_server_settings"
     EDIT_USER = "edit_user"
     ERASE_TASK = "erase_task"
     FORCIBLY_FINALIZE = "forcibly_finalize"
@@ -468,6 +480,7 @@ class Routes(object):
     VIEW_HL7_MESSAGE_LOG = "view_hl7_message_log"
     VIEW_HL7_RUN = "view_hl7_run"
     VIEW_HL7_RUN_LOG = "view_hl7_run_log"
+    VIEW_ID_DEFINITIONS = "view_id_definitions"
     VIEW_USER = "view_user"
     VIEW_SERVER_INFO = "view_server_info"
     VIEW_TASKS = "view_tasks"
@@ -508,6 +521,8 @@ class RouteCollection(object):
 
     # Implemented
     ADD_GROUP = RoutePath(Routes.ADD_GROUP, "/add_group")
+    ADD_ID_DEFINITION = RoutePath(Routes.ADD_ID_DEFINITION,
+                                  "/add_id_definition")
     ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE, "/add_special_note")
     ADD_USER = RoutePath(Routes.ADD_USER, "/add_user")
     BASIC_DUMP = RoutePath(Routes.BASIC_DUMP, "/basic_dump")
@@ -527,9 +542,15 @@ class RouteCollection(object):
     CTV = RoutePath(Routes.CTV, "/ctv")
     DATABASE_API = RoutePath(Routes.DATABASE_API, '/database')
     DELETE_GROUP = RoutePath(Routes.DELETE_GROUP, "/delete_group")
+    DELETE_ID_DEFINITION = RoutePath(Routes.DELETE_ID_DEFINITION,
+                                     "/delete_id_definition")
     DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT, "/delete_patient")
     DELETE_USER = RoutePath(Routes.DELETE_USER, "/delete_user")
     EDIT_GROUP = RoutePath(Routes.EDIT_GROUP, "/edit_group")
+    EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION,
+                                   '/edit_id_definitions')
+    EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS,
+                                     '/edit_server_settings')
     EDIT_USER = RoutePath(Routes.EDIT_USER, "/edit_user")
     ERASE_TASK = RoutePath(Routes.ERASE_TASK, "/erase_task")
     FORCIBLY_FINALIZE = RoutePath(
@@ -577,6 +598,8 @@ class RouteCollection(object):
     VIEW_HL7_RUN = RoutePath(Routes.VIEW_HL7_RUN, "/view_hl7_run")
     VIEW_HL7_RUN_LOG = RoutePath(Routes.VIEW_HL7_RUN_LOG,
                                  "/view_hl7_run_log")
+    VIEW_ID_DEFINITIONS = RoutePath(Routes.VIEW_ID_DEFINITIONS,
+                                    "/view_id_definitions")
     VIEW_OWN_USER_INFO = RoutePath(Routes.VIEW_OWN_USER_INFO,
                                    "/view_own_user_info")
     VIEW_SERVER_INFO = RoutePath(Routes.VIEW_SERVER_INFO, "/view_server_info")
@@ -880,12 +903,12 @@ PAGER_PATTERN = (
 class CamcopsPage(Page):
     # noinspection PyShadowingBuiltins
     def __init__(self,
-                 collection: Union[Sequence[Any], Query],
+                 collection: Union[Sequence[Any], Query, Select],
+                 url_maker: Callable[[int], str],
                  page: int = 1,
                  items_per_page: int = 20,
                  item_count: int = None,
                  wrapper_class: Type[Any] = None,
-                 url_maker: Callable[[int], str] = None,
                  ellipsis: str = "&hellip;",
                  **kwargs) -> None:
         # Bug in paginate: it slices its collection BEFORE it realizes that the
@@ -1097,18 +1120,18 @@ class CamcopsPage(Page):
 class SqlalchemyOrmPage(CamcopsPage):
     """A pagination page that deals with SQLAlchemy ORM objects."""
     def __init__(self,
-                 collection: Query,
+                 query: Query,
+                 url_maker: Callable[[int], str],
                  page: int = 1,
                  items_per_page: int = DEFAULT_ROWS_PER_PAGE,
                  item_count: int = None,
-                 url_maker: Callable[[int], str] = None,
                  **kwargs) -> None:
         # Since views may accidentally throw strings our way:
         assert isinstance(page, int)
         assert isinstance(items_per_page, int)
         assert isinstance(item_count, int) or item_count is None
         super().__init__(
-            collection=collection,
+            collection=query,
             page=page,
             items_per_page=items_per_page,
             item_count=item_count,

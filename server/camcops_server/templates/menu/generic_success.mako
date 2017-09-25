@@ -1,4 +1,4 @@
-## success.mako
+## generic_success.mako
 ## <%page args="msg"/>
 <%inherit file="base_web.mako"/>
 

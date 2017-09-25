@@ -31,7 +31,12 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer
 
 from .cc_jointables import user_group_table, group_group_table
-from .cc_sqla_coltypes import GroupNameColType, GroupDescriptionColType
+from .cc_policy import TokenizedPolicy
+from .cc_sqla_coltypes import (
+    GroupNameColType,
+    GroupDescriptionColType,
+    IdPolicyColType,
+)
 from .cc_sqlalchemy import Base
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -121,6 +126,11 @@ class Group(Base):
 
     If that's not enough, consider starting another CamCOPS database...
 
+    Then, we want a per-group ID policy. The prototypical example is where
+    clinical studies are hosted from a clinical organization; all group may be
+    required to share a common institutional ID, but individual studies may
+    want to enforce their own ID, so ID policies cannot be global.
+
     """
     __tablename__ = "_security_groups"
 
@@ -137,6 +147,14 @@ class Group(Base):
     description = Column(
         "description", GroupDescriptionColType,
         comment="Description of the group"
+    )
+    upload_policy = Column(
+        "upload_policy", IdPolicyColType,
+        comment="Upload policy for the group, as a string"
+    )
+    finalize_policy = Column(
+        "finalize_policy", IdPolicyColType,
+        comment="Finalize policy for the group, as a string"
     )
 
     users = relationship(
@@ -184,3 +202,16 @@ class Group(Base):
         if not name:
             return None
         return dbsession.query(cls).filter(cls.name == name).first()
+
+    @classmethod
+    def get_group_by_id(cls, dbsession: SqlASession,
+                        group_id: int) -> Optional["Group"]:
+        if group_id is None:
+            return None
+        return dbsession.query(cls).filter(cls.id == group_id).first()
+
+    def tokenized_upload_policy(self) -> TokenizedPolicy:
+        return TokenizedPolicy(self.upload_policy)
+
+    def tokenized_finalize_policy(self) -> TokenizedPolicy:
+        return TokenizedPolicy(self.finalize_policy)

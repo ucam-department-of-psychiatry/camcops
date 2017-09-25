@@ -36,16 +36,19 @@ Thus, always complete and contemporaneous.
 """
 
 import logging
-from typing import TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from sqlalchemy.sql.schema import Column
+from cardinal_pythonlib.reprfunc import simple_repr
+from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
+from .cc_cache import cache_region_static
 from .cc_constants import NUMBER_OF_IDNUMS_DEFUNCT
 from .cc_db import GenericTabletRecordMixin
-from .cc_simpleobjects import IdNumDefinition
-from .cc_sqla_coltypes import CamcopsColumn
+from .cc_simpleobjects import IdNumReference
+from .cc_sqla_coltypes import CamcopsColumn, IdDescriptorColType
 from .cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
@@ -55,8 +58,71 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
+# IdNumDefinition
+# =============================================================================
+# Stores the server's master ID number definitions
+
+class IdNumDefinition(Base):
+    __tablename__ = "_idnum_definitions"
+
+    which_idnum = Column(
+        "which_idnum", Integer, primary_key=True, index=True,
+        comment="Which of the server's ID numbers is this?"
+    )
+    description = Column(
+        "description", IdDescriptorColType,
+        comment="Full description of the ID number"
+    )
+    short_description = Column(
+        "short_description", IdDescriptorColType,
+        comment="Short description of the ID number"
+    )
+
+    def __init__(self,
+                 which_idnum: int,
+                 description: str,
+                 short_description: str):
+        self.which_idnum = which_idnum
+        self.description = description
+        self.short_description = short_description
+
+    def __repr__(self) -> str:
+        return simple_repr(self,
+                           ["which_idnum", "description", "short_description"],
+                           with_addr=False)
+
+
+# =============================================================================
+# Caching IdNumDefinition
+# =============================================================================
+
+CACHE_KEY_IDNUMDEFS = "id_num_definitions"
+
+
+def get_idnum_definitions(dbsession: SqlASession) -> List[IdNumDefinition]:
+    def creator() -> List[IdNumDefinition]:
+        defs = list(
+            dbsession.query(IdNumDefinition)\
+                .order_by(IdNumDefinition.which_idnum)
+        )
+        # Now make these objects persist outside the scope of a session:
+        # https://stackoverflow.com/questions/8253978/sqlalchemy-get-object-not-bound-to-a-session  # noqa
+        # http://docs.sqlalchemy.org/en/latest/orm/session_state_management.html#expunging  # noqa
+        for iddef in defs:
+            dbsession.expunge(iddef)
+        return defs
+
+    return cache_region_static.get_or_create(CACHE_KEY_IDNUMDEFS, creator)
+
+
+def clear_idnum_definition_cache() -> None:
+    cache_region_static.delete(CACHE_KEY_IDNUMDEFS)
+
+
+# =============================================================================
 # PatientIdNum class
 # =============================================================================
+# Stores ID numbers for a specific patient
 
 class PatientIdNum(GenericTabletRecordMixin, Base):
     __tablename__ = "patient_idnum"
@@ -72,7 +138,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         comment="FK to patient.id (for this device/era)"
     )
     which_idnum = Column(
-        "which_idnum", Integer,
+        "which_idnum", Integer, ForeignKey(IdNumDefinition.which_idnum),
         nullable=False,
         comment="Which of the server's ID numbers is this?"
     )
@@ -82,9 +148,9 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         comment="The value of the ID number"
     )
 
-    def get_idnum_definition(self) -> IdNumDefinition:
-        return IdNumDefinition(which_idnum=self.which_idnum,
-                               idnum_value=self.idnum_value)
+    def get_idnum_definition(self) -> IdNumReference:
+        return IdNumReference(which_idnum=self.which_idnum,
+                              idnum_value=self.idnum_value)
 
     def is_valid(self) -> bool:
         return (
@@ -96,11 +162,11 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
 
     def description(self, req: "CamcopsRequest") -> str:
         which_idnum = self.which_idnum  # type: int
-        return req.config.get_id_desc(which_idnum, default="?")
+        return req.get_id_desc(which_idnum, default="?")
 
     def short_description(self, req: "CamcopsRequest") -> str:
         which_idnum = self.which_idnum  # type: int
-        return req.config.get_id_shortdesc(which_idnum, default="?")
+        return req.get_id_shortdesc(which_idnum, default="?")
 
     def get_filename_component(self, req: "CamcopsRequest") -> str:
         if self.which_idnum is None or self.idnum_value is None:

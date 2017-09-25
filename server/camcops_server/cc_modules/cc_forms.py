@@ -49,6 +49,7 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 import colander
 from colander import (
     Boolean,
@@ -91,7 +92,19 @@ from pendulum.parsing.exceptions import ParserError
 from .cc_constants import DEFAULT_ROWS_PER_PAGE, MINIMUM_PASSWORD_LENGTH
 from .cc_dt import coerce_to_pendulum, PotentialDatetimeType
 from .cc_group import Group
+from .cc_patientidnum import IdNumDefinition
+from .cc_policy import TokenizedPolicy
 from .cc_pyramid import Dialect, FormAction, ViewArg, ViewParam
+from .cc_sqla_coltypes import (
+    DATABASE_TITLE_MAX_LEN,
+    EMAIL_ADDRESS_MAX_LEN,
+    FILTER_TEXT_MAX_LEN,
+    FULLNAME_MAX_LEN,
+    GROUP_DESCRIPTION_MAX_LEN,
+    GROUP_NAME_MAX_LEN,
+    ID_DESCRIPTOR_MAX_LEN,
+    USERNAME_MAX_LEN,
+)
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
@@ -129,6 +142,7 @@ class Binding:
     OPEN_WHEN = "open_when"
     OPEN_WHO = "open_who"
     REQUEST = "request"
+    TRACKER_TASKS_ONLY = "tracker_tasks_only"
     USER = "user"
 
 
@@ -349,6 +363,17 @@ def get_values_and_permissible(values: Iterable[Tuple[Any, str]],
     return values, permissible_values
 
 
+class EmailValidatorWithLengthConstraint(Email):
+    """The Colander Email validator doesn't check length. This does."""
+    def __init__(self, *args, min_length: int = 0, **kwargs) -> None:
+        self._length = Length(min_length, EMAIL_ADDRESS_MAX_LEN)
+        super().__init__(*args, **kwargs)
+
+    def __call__(self, node: SchemaNode, value: Any) -> None:
+        self._length(node, value)
+        super().__call__(node, value)  # call Email regex validator
+
+
 # =============================================================================
 # CSRF
 # =============================================================================
@@ -450,6 +475,22 @@ class OptionalStringNode(SchemaNode):
     missing = ""
 
 
+class MandatoryStringNode(SchemaNode):
+    """
+    Obligatory string node.
+
+    CAVEAT: WHEN YOU PASS DATA INTO THE FORM, YOU MUST USE
+        appstruct = {
+            somekey: somevalue or "",
+            #                  ^^^^^
+            #                  without this, None is converted to "None"
+        }
+    """
+    @staticmethod
+    def schema_type() -> SchemaType:
+        return String(allow_empty=False)
+
+
 class HiddenIntegerNode(OptionalIntNode):
     widget = HiddenWidget()
 
@@ -498,21 +539,30 @@ class BooleanNode(SchemaNode):
 class OptionalSingleTaskSelector(OptionalStringNode):
     title = "Task type"
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, tracker_tasks_only: bool = False,
+                 **kwargs) -> None:
+        self.tracker_tasks_only = tracker_tasks_only
         self.widget = None  # type: Widget
         self.validator = None  # type: ValidatorType
         super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        if Binding.TRACKER_TASKS_ONLY in kw:
+            self.tracker_tasks_only = kw[Binding.TRACKER_TASKS_ONLY]
         values, pv = get_values_and_permissible(self.get_task_choices(),
                                                 True, "[Any]")
         self.widget = SelectWidget(values=values)
         self.validator = OneOf(pv)
 
-    @staticmethod
-    def get_task_choices() -> List[Tuple[str, str]]:
-        raise NotImplementedError
+    def get_task_choices(self) -> List[Tuple[str, str]]:
+        from .cc_task import Task  # delayed import
+        choices = []  # type: List[Tuple[str, str]]
+        for tc in Task.all_subclasses_by_shortname():
+            if self.tracker_tasks_only and not tc.provides_trackers:
+                continue
+            choices.append((tc.tablename, tc.shortname))
+        return choices
 
 
 class MultiTaskSelector(SchemaNode):
@@ -524,57 +574,29 @@ class MultiTaskSelector(SchemaNode):
         "If none are selected, all task types will be offered. " + OR_JOIN
     )
 
-    def __init__(self, *args, minimum_length: int = 1, **kwargs) -> None:
-        self.minimum_length = minimum_length
+    def __init__(self, *args, tracker_tasks_only: bool = False,
+                 minimum_number: int = 0, **kwargs) -> None:
+        self.tracker_tasks_only = tracker_tasks_only
+        self.minimum_number = minimum_number
         self.widget = None  # type: Widget
         self.validator = None  # type: object
         super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        if Binding.TRACKER_TASKS_ONLY in kw:
+            self.tracker_tasks_only = kw[Binding.TRACKER_TASKS_ONLY]
         values, pv = get_values_and_permissible(self.get_task_choices())
         self.widget = CheckboxChoiceWidget(values=values)
-        self.validator = Length(min=self.minimum_length)
+        self.validator = Length(min=self.minimum_number)
 
-    @staticmethod
-    def get_task_choices() -> List[Tuple[str, str]]:
-        raise NotImplementedError()
-
-
-class AllTasksOptionalSingleTaskSelector(OptionalSingleTaskSelector):
-    @staticmethod
-    def get_task_choices() -> List[Tuple[str, str]]:
+    def get_task_choices(self) -> List[Tuple[str, str]]:
         from .cc_task import Task  # delayed import
         choices = []  # type: List[Tuple[str, str]]
         for tc in Task.all_subclasses_by_shortname():
+            if self.tracker_tasks_only and not tc.provides_trackers:
+                continue
             choices.append((tc.tablename, tc.shortname))
-        return choices
-
-
-class AllTasksMultiTaskSelector(MultiTaskSelector):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, minimum_length=0, **kwargs)
-
-    @staticmethod
-    def get_task_choices() -> List[Tuple[str, str]]:
-        from .cc_task import Task  # delayed import
-        choices = []  # type: List[Tuple[str, str]]
-        for tc in Task.all_subclasses_by_shortname():
-            choices.append((tc.tablename, tc.shortname))
-        return choices
-
-
-class TrackerTaskSelector(MultiTaskSelector):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, minimum_length=0, **kwargs)
-
-    @staticmethod
-    def get_task_choices() -> List[Tuple[str, str]]:
-        from .cc_task import Task  # delayed import
-        choices = []  # type: List[Tuple[str, str]]
-        for tc in Task.all_subclasses_by_shortname():
-            if tc.provides_trackers:
-                choices.append((tc.tablename, tc.shortname))
         return choices
 
 
@@ -592,10 +614,9 @@ class MandatoryWhichIdNumSelector(SchemaNode):
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         req = kw[Binding.REQUEST]  # type: CamcopsRequest
-        cfg = req.config
         values = []  # type: List[Tuple[Optional[int], str]]
-        for which_idnum in cfg.get_which_idnums():
-            values.append((which_idnum, cfg.get_id_desc(which_idnum)))
+        for iddef in req.idnum_definitions:
+            values.append((iddef.which_idnum, iddef.description))
         values, pv = get_values_and_permissible(values, self.allow_none,
                                                 "[ignore]")
         # ... can't use None, because SelectWidget() will convert that to
@@ -638,20 +659,20 @@ class OptionalIdNumValue(MandatoryIdNumValue):
         return AllowNoneType(Integer())
 
 
-class MandatoryIdNumDefinitionNode(MappingSchema):
+class MandatoryIdNumNode(MappingSchema):
     which_idnum = MandatoryWhichIdNumSelector()  # must match ViewParam.WHICH_IDNUM  # noqa
     idnum_value = MandatoryIdNumValue()  # must match ViewParam.IDNUM_VALUE
     title = "ID number"
 
 
-class IdNumDefinitionSequence(SequenceSchema):
-    idnum_def_sequence = MandatoryIdNumDefinitionNode()
+class IdNumSequence(SequenceSchema):
+    idnum_sequence = MandatoryIdNumNode()
     title = "ID numbers"
     description = OR_JOIN
 
     # noinspection PyMethodMayBeStatic
     def validator(self, node: SchemaNode, value: List[Dict[str, int]]) -> None:
-        # log.critical("IdNumDefinitionSequence.validator: {!r}", value)
+        # log.critical("IdNumSequence.validator: {!r}", value)
         assert isinstance(value, list)
         list_of_lists = [(x[ViewParam.WHICH_IDNUM], x[ViewParam.IDNUM_VALUE])
                          for x in value]
@@ -828,6 +849,7 @@ class DumpTypeSelector(SchemaNode):
 class UsernameNode(SchemaNode):
     schema_type = String
     title = "Username"
+    validator = Length(1, USERNAME_MAX_LEN)
 
 
 class MustChangePasswordNode(SchemaNode):
@@ -1013,7 +1035,8 @@ class AllowedGroupsSequence(GroupsSequenceBase):
 class TextContentsSequence(SequenceSchema):
     text_sequence = SchemaNode(
         String(),
-        title="Text contents criterion"
+        title="Text contents criterion",
+        validator=Length(0, FILTER_TEXT_MAX_LEN)
     )
     title = "Text contents"
     description = OR_JOIN
@@ -1061,7 +1084,10 @@ DIALECT_CHOICES = (
     # http://docs.sqlalchemy.org/en/latest/dialects/
     (Dialect.MYSQL, "MySQL"),
     (Dialect.MSSQL, "Microsoft SQL Server"),
-    (Dialect.ORACLE, "Oracle"),
+    (Dialect.ORACLE, "Oracle [WILL NOT WORK]"),
+    # ... Oracle doesn't work; SQLAlchemy enforces the Oracle rule of a 30-
+    # character limit for identifiers, only relaxed to 128 characters in
+    # Oracle 12.2 (March 2017).
     (Dialect.FIREBIRD, "Firebird"),
     (Dialect.POSTGRES, "PostgreSQL"),
     (Dialect.SQLITE, "SQLite"),
@@ -1108,6 +1134,33 @@ class IncludeBlobsNode(SchemaNode):
     missing = False
     title = "Include BLOBs?"
     label = "Include binary large objects (BLOBs)? WARNING: may be large"
+
+
+class PolicyNode(MandatoryStringNode):
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        if not isinstance(value, str):
+            # unlikely!
+            raise Invalid(node, "Not a string")
+        req = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        policy = TokenizedPolicy(value)
+        if not policy.is_syntactically_valid():
+            raise Invalid(node, "Syntactically invalid policy")
+        if not policy.is_valid_from_req(req):
+            raise Invalid(node, "Invalid policy (have you referred to "
+                                "non-existent ID numbers?")
+
+
+class IdDefinitionDescriptionNode(SchemaNode):
+    schema_type = String
+    title = "Full description (e.g. “NHS number”)"
+    validator = Length(1, ID_DESCRIPTOR_MAX_LEN)
+
+
+class IdDefinitionShortDescriptionNode(SchemaNode):
+    schema_type = String
+    title = "Short description (e.g. “NHS#”)"
+    description = "Try to keep it very short!"
+    validator = Length(1, ID_DESCRIPTOR_MAX_LEN)
 
 
 # =============================================================================
@@ -1238,7 +1291,7 @@ class AuditTrailSchema(CSRFSchema):
     source = OptionalStringNode(title="Source (e.g. webviewer, tablet, console)")  # must match ViewParam.SOURCE  # noqa
     remote_ip_addr = OptionalStringNode(title="Remote IP address")  # must match ViewParam.REMOTE_IP_ADDR  # noqa
     username = OptionalUserNameSelector()  # must match ViewParam.USERNAME  # noqa
-    table_name = AllTasksOptionalSingleTaskSelector()  # must match ViewParam.TABLENAME  # noqa
+    table_name = OptionalSingleTaskSelector()  # must match ViewParam.TABLENAME  # noqa
     server_pk = ServerPkSelector()  # must match ViewParam.SERVER_PK
     truncate = BooleanNode(  # must match ViewParam.TRUNCATE
         default=True,
@@ -1262,7 +1315,7 @@ class AuditTrailForm(InformativeForm):
 
 class HL7MessageLogSchema(CSRFSchema):
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
-    table_name = AllTasksOptionalSingleTaskSelector()  # must match ViewParam.TABLENAME  # noqa
+    table_name = OptionalSingleTaskSelector()  # must match ViewParam.TABLENAME  # noqa
     server_pk = ServerPkSelector()  # must match ViewParam.SERVER_PK
     hl7_run_id = OptionalIntNode(title="Run ID")  # must match ViewParam.HL7_RUN_ID  # noqa
     start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
@@ -1314,7 +1367,7 @@ class EditTaskFilterWhoSchema(Schema):
         title="Date of birth",
     )
     sex = SexSelector()  # must match ViewParam.SEX
-    id_definitions = IdNumDefinitionSequence()  # must match ViewParam.ID_DEFINITIONS  # noqa
+    id_references = IdNumSequence()  # must match ViewParam.ID_REFERENCES  # noqa
 
 
 class EditTaskFilterWhenSchema(Schema):
@@ -1328,7 +1381,7 @@ class EditTaskFilterWhatSchema(Schema):
         default=False,
         title="Only completed tasks?",
     )
-    tasks = AllTasksMultiTaskSelector()  # must match ViewParam.TASKS
+    tasks = MultiTaskSelector()  # must match ViewParam.TASKS
 
 
 class EditTaskFilterAdminSchema(Schema):
@@ -1453,14 +1506,16 @@ class ChooseTrackerSchema(CSRFSchema):
         default=True,
         title="Use all eligible task types?",
     )
-    tasks = TrackerTaskSelector()  # must match ViewParam.TASKS
-    viewtype = TaskTrackerOutputTypeSelector()  # must match ViewParams.VIEWTYPE
+    tasks = MultiTaskSelector()  # must match ViewParam.TASKS
+    # tracker_tasks_only will be set via the binding
+    viewtype = TaskTrackerOutputTypeSelector()  # must match ViewParams.VIEWTYPE  # noqa
 
 
 class ChooseTrackerForm(InformativeForm):
     def __init__(self, request: "CamcopsRequest",
                  as_ctv: bool, **kwargs) -> None:
-        schema = ChooseTrackerSchema().bind(request=request)
+        schema = ChooseTrackerSchema().bind(request=request,
+                                            tracker_tasks_only=not as_ctv)
         super().__init__(
             schema,
             buttons=[Button(name=FormAction.SUBMIT,
@@ -1516,9 +1571,10 @@ class EditUserSchema(CSRFSchema):
     username = UsernameNode()  # name must match ViewParam.USERNAME and User attribute  # noqa
     fullname = OptionalStringNode(  # name must match ViewParam.FULLNAME and User attribute  # noqa
         title="Full name",
+        validator=Length(0, FULLNAME_MAX_LEN)
     )
     email = OptionalStringNode(  # name must match ViewParam.EMAIL and User attribute  # noqa
-        validator=Email(),
+        validator=EmailValidatorWithLengthConstraint(),
         title="E-mail address",
     )
     may_upload = BooleanNode(  # match ViewParam.MAY_UPLOAD and User attribute
@@ -1593,6 +1649,7 @@ class AddUserForm(InformativeForm):
 class SetUserUploadGroupSchema(CSRFSchema):
     upload_group_id = OptionalGroupIdSelectorUserGroups(  # must match ViewParam.UPLOAD_GROUP_ID  # noqa
         title="Group into which to upload data",
+        description="Select a group from those to which the user belongs"
     )
 
 
@@ -1647,12 +1704,36 @@ class DeleteUserForm(InformativeForm):
 # =============================================================================
 
 class EditGroupSchema(CSRFSchema):
+    group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
     name = SchemaNode(  # must match ViewParam.NAME
         String(),
         title="Group name",
+        validator=Length(1, GROUP_NAME_MAX_LEN),
     )
-    description = OptionalStringNode()  # must match ViewParam.DESCRIPTION
-    group_ids = AllOtherGroupsSequence()  # must match ViewParam.GROUP_IDS
+    description = MandatoryStringNode(  # must match ViewParam.DESCRIPTION
+        validator=Length(1, GROUP_DESCRIPTION_MAX_LEN),
+    )
+    group_ids = AllOtherGroupsSequence(  # must match ViewParam.GROUP_IDS
+        title="Other groups this group may see"
+    )
+    upload_policy = PolicyNode(  # must match ViewParam.UPLOAD_POLICY
+        title="Upload policy",
+        description="Minimum required patient information to copy data to "
+                    "server"
+    )
+    finalize_policy = PolicyNode(  # must match ViewParam.FINALIZE_POLICY
+        title="Finalize policy",
+        description="Minimum required patient information to clear data off "
+                    "source device"
+    )
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        req = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        q = CountStarSpecializedQuery(Group, session=req.dbsession)\
+            .filter(Group.id != value[ViewParam.GROUP_ID])\
+            .filter(Group.name == value[ViewParam.NAME])
+        if q.count_star() > 0:
+            raise Invalid(node, "Name is used by another group!")
 
 
 class EditGroupForm(InformativeForm):
@@ -1675,6 +1756,13 @@ class AddGroupSchema(CSRFSchema):
         String(),
         title="Group name"
     )
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        req = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        q = CountStarSpecializedQuery(Group, session=req.dbsession)\
+            .filter(Group.name == value[ViewParam.NAME])
+        if q.count_star() > 0:
+            raise Invalid(node, "Name is used by another group!")
 
 
 class AddGroupForm(InformativeForm):
@@ -1727,7 +1815,7 @@ class DeleteGroupForm(InformativeForm):
 
 class OfferDumpManualSchema(Schema):
     group_ids = AllowedGroupsSequence()  # must match ViewParam.GROUP_IDS
-    tasks = AllTasksMultiTaskSelector()  # must match ViewParam.TASKS
+    tasks = MultiTaskSelector()  # must match ViewParam.TASKS
 
     title = "Manual settings"
     widget = MappingWidget(template="mapping_accordion", open=False)
@@ -1753,7 +1841,7 @@ class OfferBasicDumpForm(InformativeForm):
 
 class OfferSqlDumpManualSchema(Schema):
     group_ids = AllowedGroupsSequence()  # must match ViewParam.GROUP_IDS
-    tasks = AllTasksMultiTaskSelector()  # must match ViewParam.TASKS
+    tasks = MultiTaskSelector()  # must match ViewParam.TASKS
 
 
 class OfferSqlDumpSchema(CSRFSchema):
@@ -1770,6 +1858,143 @@ class OfferSqlDumpForm(InformativeForm):
             schema,
             buttons=[
                 Button(name=FormAction.SUBMIT, title="Submit"),
+            ],
+            **kwargs
+        )
+
+
+# =============================================================================
+# Edit server settings
+# =============================================================================
+
+class EditServerSettingsSchema(CSRFSchema):
+    database_title = SchemaNode(  # must match ViewParam.DATABASE_TITLE
+        String(),
+        title="Database friendly title",
+        validator=Length(1, DATABASE_TITLE_MAX_LEN),
+    )
+
+
+class EditServerSettingsForm(InformativeForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = EditServerSettingsSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title="Submit"),
+                Button(name=FormAction.CANCEL, title="Cancel"),
+            ],
+            **kwargs
+        )
+
+
+class EditIdDefinitionSchema(CSRFSchema):
+    which_idnum = HiddenIntegerNode()  # must match ViewParam.WHICH_IDNUM
+    description = IdDefinitionDescriptionNode()  # must match ViewParam.DESCRIPTION  # noqa
+    short_description = IdDefinitionShortDescriptionNode()  # must match ViewParam.SHORT_DESCRIPTION  # noqa
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        req = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        qd = CountStarSpecializedQuery(IdNumDefinition, session=req.dbsession)\
+            .filter(IdNumDefinition.which_idnum !=
+                    value[ViewParam.WHICH_IDNUM])\
+            .filter(IdNumDefinition.description ==
+                    value[ViewParam.DESCRIPTION])
+        if qd.count_star() > 0:
+            raise Invalid(node, "Description is used by another ID number!")
+        qs = CountStarSpecializedQuery(IdNumDefinition, session=req.dbsession)\
+            .filter(IdNumDefinition.which_idnum !=
+                    value[ViewParam.WHICH_IDNUM])\
+            .filter(IdNumDefinition.short_description ==
+                    value[ViewParam.SHORT_DESCRIPTION])
+        if qs.count_star() > 0:
+            raise Invalid(node, "Short description is used by another ID "
+                                "number!")
+
+
+class EditIdDefinitionForm(InformativeForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = EditIdDefinitionSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title="Submit"),
+                Button(name=FormAction.CANCEL, title="Cancel"),
+            ],
+            **kwargs
+        )
+
+
+class AddIdDefinitionSchema(CSRFSchema):
+    which_idnum = SchemaNode(  # must match ViewParam.WHICH_IDNUM
+        Integer(),
+        title="Which ID number?",
+        description="Specify the integer to represent the type of this ID "
+                    "number class (e.g. consecutive numbering from 1)",
+        validator=Range(min=1)
+    )
+    description = IdDefinitionDescriptionNode()  # must match ViewParam.DESCRIPTION  # noqa
+    short_description = IdDefinitionShortDescriptionNode()  # must match ViewParam.SHORT_DESCRIPTION  # noqa
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        req = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        qw = CountStarSpecializedQuery(IdNumDefinition, session=req.dbsession)\
+            .filter(IdNumDefinition.which_idnum ==
+                    value[ViewParam.WHICH_IDNUM])
+        if qw.count_star() > 0:
+            raise Invalid(node, "ID# clashes with another ID number!")
+        qd = CountStarSpecializedQuery(IdNumDefinition, session=req.dbsession)\
+            .filter(IdNumDefinition.description ==
+                    value[ViewParam.DESCRIPTION])
+        if qd.count_star() > 0:
+            raise Invalid(node, "Description is used by another ID number!")
+        qs = CountStarSpecializedQuery(IdNumDefinition, session=req.dbsession)\
+            .filter(IdNumDefinition.short_description ==
+                    value[ViewParam.SHORT_DESCRIPTION])
+        if qs.count_star() > 0:
+            raise Invalid(node, "Short description is used by another ID "
+                                "number!")
+
+
+class AddIdDefinitionForm(InformativeForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = AddIdDefinitionSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title="Add"),
+                Button(name=FormAction.CANCEL, title="Cancel"),
+            ],
+            **kwargs
+        )
+
+
+class DeleteIdDefinitionSchema(CSRFSchema):
+    which_idnum = HiddenIntegerNode()  # name must match ViewParam.WHICH_IDNUM
+    confirm_1_t = BooleanNode(title="Really delete ID number?", default=False)
+    confirm_2_t = BooleanNode(title="Leave ticked to confirm", default=True)
+    confirm_3_f = BooleanNode(title="Please untick to confirm", default=True)
+    confirm_4_t = BooleanNode(title="Be really sure; tick here also to "
+                                    "confirm", default=False)
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        if ((not value['confirm_1_t']) or
+                (not value['confirm_2_t']) or
+                value['confirm_3_f'] or
+                (not value['confirm_4_t'])):
+            raise Invalid(node, "Not fully confirmed")
+
+
+class DeleteIdDefinitionForm(InformativeForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = DeleteIdDefinitionSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.DELETE, title="Delete",
+                       css_class="btn-danger"),
+                Button(name=FormAction.CANCEL, title="Cancel"),
             ],
             **kwargs
         )

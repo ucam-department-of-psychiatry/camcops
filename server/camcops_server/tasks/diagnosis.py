@@ -28,7 +28,6 @@ from typing import List, Type
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 import hl7
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import and_, literal, select, Select, union
@@ -49,7 +48,7 @@ from ..cc_modules.cc_task import (
 )
 from ..cc_modules.cc_recipdef import RecipientDefinition
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_report import Report, REPORT_RESULT_TYPE
+from ..cc_modules.cc_report import Report
 from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_sqla_coltypes import DiagnosticCodeColType
 
@@ -292,8 +291,9 @@ def get_diagnosis_report_query(req: CamcopsRequest,
         item_class._device_id == diagnosis_class._device_id,
         item_class._era == diagnosis_class._era
     ))
-    for n in req.config.get_which_idnums():
-        desc = req.config.get_id_shortdesc(n)
+    for iddef in req.idnum_definitions:
+        n = iddef.which_idnum
+        desc = iddef.short_description
         aliased_table = PatientIdNum.__table__.alias("i{}".format(n))
         select_fields.append(aliased_table.c.idnum_value.label(desc))
         # noinspection PyPep8
@@ -330,14 +330,11 @@ def get_diagnosis_report(req: CamcopsRequest,
                          diagnosis_class: Type[DiagnosisBase],
                          item_class: Type[DiagnosisItemBase],
                          item_fk_fieldname: str,
-                         system: str) -> REPORT_RESULT_TYPE:
+                         system: str) -> Select:
     query = get_diagnosis_report_query(req, diagnosis_class, item_class,
                                        item_fk_fieldname, system)
     query = query.order_by(*ORDER_BY)
-    # log.critical(str(query))
-    dbsession = req.dbsession
-    rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
-    return rows, fieldnames
+    return query
 
 
 class DiagnosisICD9CMReport(Report):
@@ -354,7 +351,7 @@ class DiagnosisICD9CMReport(Report):
         return ("Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all "
                 "patients")
 
-    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
+    def get_query(self, req: CamcopsRequest) -> Select:
         return get_diagnosis_report(
             req,
             diagnosis_class=DiagnosisIcd9CM,
@@ -377,7 +374,7 @@ class DiagnosisICD10Report(Report):
     def title(cls) -> str:
         return "Diagnosis – ICD-10 diagnoses for all patients"
 
-    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
+    def get_query(self, req: CamcopsRequest) -> Select:
         return get_diagnosis_report(
             req,
             diagnosis_class=DiagnosisIcd10,
@@ -400,7 +397,7 @@ class DiagnosisAllReport(Report):
     def title(cls) -> str:
         return "Diagnosis – All diagnoses for all patients"
 
-    def get_rows_descriptions(self, req: CamcopsRequest) -> REPORT_RESULT_TYPE:
+    def get_query(self, req: CamcopsRequest) -> Select:
         sql_icd9cm = get_diagnosis_report_query(
             req,
             diagnosis_class=DiagnosisIcd9CM,
@@ -417,7 +414,4 @@ class DiagnosisAllReport(Report):
         )
         query = union(sql_icd9cm, sql_icd10)
         query = query.order_by(*ORDER_BY)
-        # log.critical(str(query))
-        dbsession = req.dbsession
-        rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
-        return rows, fieldnames
+        return query

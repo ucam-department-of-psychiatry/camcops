@@ -8,4 +8,8 @@
 
 <%include file="user_info_detail.mako" args="user=user"/>
 
+<h1>Groups that user ${ user.username | h } is a member of</h1>
+
+<%include file="groups_table.mako" args="groups_page=groups_page, with_edit=False"/>
+
 <%include file="to_main_menu.mako"/>

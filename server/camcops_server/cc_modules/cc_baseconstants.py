@@ -32,6 +32,7 @@ Also, for visibility, environment variable names.
 
 from os import pardir
 from os.path import abspath, dirname, join
+import sys
 
 # =============================================================================
 # Environment variable names
@@ -45,6 +46,15 @@ ENVVAR_CONFIG_FILE = "CAMCOPS_CONFIG_FILE"
 
 _this_directory = dirname(abspath(__file__))  # cc_modules
 CAMCOPS_SERVER_DIRECTORY = abspath(join(_this_directory, pardir))  # camcops_server  # noqa
+
+if hasattr(sys, 'real_prefix'):
+    # We're running in a virtual environment.
+    # https://stackoverflow.com/questions/1871549/python-determine-if-running-inside-virtualenv
+    _venv = sys.prefix
+    _venv_bin = join(_venv, 'bin')
+    CAMCOPS_EXECUTABLE = join(_venv_bin, "camcops")
+else:
+    CAMCOPS_EXECUTABLE = "camcops"  # fallback; may not work
 
 ALEMBIC_BASE_DIR = CAMCOPS_SERVER_DIRECTORY
 ALEMBIC_CONFIG_FILENAME = join(ALEMBIC_BASE_DIR, 'alembic.ini')

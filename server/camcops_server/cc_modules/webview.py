@@ -111,22 +111,16 @@ import codecs
 import io
 import logging
 import os
+from pprint import pformat
 import sqlite3
 import tempfile
-from typing import (Any, Dict, Iterable, IO, List, Optional, Set, Tuple,
-                    Type, TYPE_CHECKING, Union)
+from typing import Any, Dict, Iterable, List, Optional, Type
 import zipfile
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.rnc_web import WSGI_TUPLE_TYPE
 from cardinal_pythonlib.sqlalchemy.dialect import get_dialect_name
-from cardinal_pythonlib.sqlalchemy.orm_inspect import (
-    deepcopy_sqla_objects,
-    gen_columns,
-    gen_orm_classes_from_base,
-    walk_orm_tree,
-)
+from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
@@ -146,10 +140,8 @@ import pygments.lexers.sql
 import pygments.lexers.web
 import pygments.formatters
 from sqlalchemy.engine import create_engine
-from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import Session as SqlASession, sessionmaker
 from sqlalchemy.sql.expression import desc, or_
-from sqlalchemy.sql.schema import Column, MetaData, Table
 
 from .cc_audit import audit, AuditEntry
 from .cc_constants import CAMCOPS_URL, DateFormat, MINIMUM_PASSWORD_LENGTH
@@ -161,14 +153,10 @@ from .cc_dt import (
     get_now_localtz,
     format_datetime,
 )
-from .cc_dump import (
-    get_database_dump_as_sql,
-    get_multiple_views_data_as_tsv_zip,
-    get_permitted_tables_views_sorted_labelled,
-    NOTHING_VALID_SPECIFIED,
-)
+from .cc_dump import copy_tasks_and_summaries
 from .cc_forms import (
     AddGroupForm,
+    AddIdDefinitionForm,
     AddUserForm,
     AuditTrailForm,
     ChangeOtherPasswordForm,
@@ -176,9 +164,12 @@ from .cc_forms import (
     ChooseTrackerForm,
     DEFAULT_ROWS_PER_PAGE,
     DeleteGroupForm,
+    DeleteIdDefinitionForm,
     DeleteUserForm,
     DIALECT_CHOICES,
     EditGroupForm,
+    EditIdDefinitionForm,
+    EditServerSettingsForm,
     EditUserForm,
     get_head_form_html,
     HL7MessageLogForm,
@@ -195,14 +186,13 @@ from .cc_forms import (
 )
 from .cc_group import Group
 from .cc_hl7 import HL7Message, HL7Run
-from .cc_jointables import user_group_table, group_group_table
 from .cc_patient import Patient
-from .cc_plot import ccplot_no_op
-from .cc_policy import (
-    get_finalize_id_policy_principal_numeric_id,
-    get_upload_id_policy_principal_numeric_id,
-    id_policies_valid,
+from .cc_patientidnum import (
+    clear_idnum_definition_cache,
+    IdNumDefinition,
+    PatientIdNum,
 )
+from .cc_plot import ccplot_no_op
 from .cc_pyramid import (
     CamcopsPage,
     Dialect,
@@ -221,11 +211,11 @@ from .cc_pyramid import (
 )
 from .cc_report import get_report_instance
 from .cc_request import CamcopsRequest
+from .cc_serversettings import get_database_title, set_database_title
 from .cc_session import CamcopsSession
-from .cc_simpleobjects import IdNumDefinition
+from .cc_simpleobjects import IdNumReference
 from .cc_specialnote import SpecialNote
 from .cc_sqlalchemy import Base, get_all_ddl
-from .cc_storedvar import DeviceStoredVar
 from .cc_task import (
     gen_tasks_for_patient_deletion,
     gen_tasks_live_on_tablet,
@@ -247,7 +237,6 @@ from .cc_tsv import TsvCollection
 from .cc_unittest import unit_test_ignore
 from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 from .cc_version import CAMCOPS_SERVER_VERSION
-
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 ccplot_no_op()
@@ -646,12 +635,22 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
     """Main HTML menu."""
     ccsession = req.camcops_session
     cfg = req.config
+    if req.user.superuser:
+        groups = req.dbsession.query(Group)  # type: Iterable[Group]
+        warn_bad_id_policies = any(
+            (not g.tokenized_upload_policy().is_valid_from_req(req)) or
+            (not g.tokenized_finalize_policy().is_valid_from_req(req))
+            for g in groups
+        )
+    else:
+        # Let's make things a little faster for non-superusers:
+        warn_bad_id_policies = False
     return dict(
         authorized_as_superuser=ccsession.authorized_as_superuser(),
         authorized_for_reports=ccsession.authorized_for_reports(),
         authorized_to_dump=ccsession.authorized_to_dump(),
         camcops_url=CAMCOPS_URL,
-        id_policies_valid=id_policies_valid(),
+        warn_bad_id_policies=warn_bad_id_policies,
         introspection=cfg.introspection,
         now=format_datetime(req.now, DateFormat.SHORT_DATETIME_SECONDS),
         server_version=CAMCOPS_SERVER_VERSION,
@@ -679,9 +678,9 @@ def edit_filter(req: CamcopsRequest, task_filter: TaskFilter,
             task_filter.dob = who.get(ViewParam.DOB)
             task_filter.sex = who.get(ViewParam.SEX)
             task_filter.idnum_criteria = [
-                IdNumDefinition(which_idnum=x[ViewParam.WHICH_IDNUM],
-                                idnum_value=x[ViewParam.IDNUM_VALUE])
-                for x in who.get(ViewParam.ID_DEFINITIONS)
+                IdNumReference(which_idnum=x[ViewParam.WHICH_IDNUM],
+                               idnum_value=x[ViewParam.IDNUM_VALUE])
+                for x in who.get(ViewParam.ID_REFERENCES)
             ]
             task_filter.task_types = what.get(ViewParam.TASKS)
             task_filter.text_contents = what.get(ViewParam.TEXT_CONTENTS)
@@ -704,7 +703,7 @@ def edit_filter(req: CamcopsRequest, task_filter: TaskFilter,
             ViewParam.FORENAME: task_filter.forename,
             ViewParam.DOB: task_filter.dob,
             ViewParam.SEX: task_filter.sex or "",
-            ViewParam.ID_DEFINITIONS: [
+            ViewParam.ID_REFERENCES: [
                 {ViewParam.WHICH_IDNUM: x.which_idnum,
                  ViewParam.IDNUM_VALUE: x.idnum_value}
                 for x in task_filter.idnum_criteria
@@ -742,7 +741,7 @@ def edit_filter(req: CamcopsRequest, task_filter: TaskFilter,
         rendered_form = form.render(fa)
 
     return render_to_response(
-        "edit_filter.mako",
+        "filter_edit.mako",
         dict(
             form=rendered_form,
             head_form_html=get_head_form_html(req, [form])
@@ -955,7 +954,7 @@ def serve_tracker_or_ctv(req: CamcopsRequest,
     if viewtype not in ALLOWED_TRACKER_VIEW_TYPE:
         return HTTPBadRequest("Invalid view type")
 
-    iddefs = [IdNumDefinition(which_idnum, idnum_value)]
+    iddefs = [IdNumReference(which_idnum, idnum_value)]
 
     as_tracker = not as_ctv
     taskfilter = TaskFilter()
@@ -1014,7 +1013,7 @@ def reports_menu(req: CamcopsRequest) -> Dict[str, Any]:
     return {}
 
 
-@view_config(route_name=Routes.OFFER_REPORT, renderer="offer_report.mako",
+@view_config(route_name=Routes.OFFER_REPORT, renderer="report_offer.mako",
              permission=Permission.REPORTS)
 def offer_report(req: CamcopsRequest) -> Dict[str, Any]:
     """Offer configuration options for a single report."""
@@ -1080,7 +1079,7 @@ def offer_basic_dump(req: CamcopsRequest) -> Response:
     else:
         rendered_form = form.render()
     return render_to_response(
-        "offer_basic_dump.mako",
+        "dump_basic_offer.mako",
         dict(form=rendered_form,
              head_form_html=get_head_form_html(req, [form])),
         request=req
@@ -1191,7 +1190,7 @@ def offer_sql_dump(req: CamcopsRequest) -> Response:
     else:
         rendered_form = form.render()
     return render_to_response(
-        "offer_sql_dump.mako",
+        "dump_sql_offer.mako",
         dict(form=rendered_form,
              head_form_html=get_head_form_html(req, [form])),
         request=req
@@ -1338,194 +1337,6 @@ def sql_dump(req: CamcopsRequest) -> Response:
                                           filename=filename_stem + ".sql")
 
 
-# Restrict specified tables to certain columns only:
-DUMP_ONLY_COLNAMES = {  # mapping of tablename : list_of_column_names
-    Device.__tablename__: [
-        "camcops_version",
-        "friendly_name",
-        "id",
-        "name",
-    ],
-    User.__tablename__: [
-        "fullname",
-        "id",
-        "username",
-    ]
-}
-# Drop specific columns from certain tables:
-DUMP_DROP_COLNAMES = {
-}
-# List of columns to be skipped regardless of table:
-DUMP_SKIP_COLNAMES = [
-    # We restrict to current records only, so many of these are irrelevant:
-    "_addition_pending",
-    "_forcibly_preserved",
-    "_manually_erased",
-    "_manually_erased_at",
-    "_manually_erasing_user_id",
-    "_move_off_tablet",
-    "_removal_pending",
-    "_removing_user_id",
-    "_successor_pk",
-    "_when_removed_batch_utc",
-    "_when_removed_exact",
-]
-# List of table names to be skipped at all times:
-DUMP_SKIP_TABLES = [
-    group_group_table.name,
-    user_group_table.name,
-]
-
-
-def _dump_skip_table(tablename: str, include_blobs: bool) -> bool:
-    if not include_blobs and tablename == Blob.__tablename__:
-        return True
-    if tablename in DUMP_SKIP_TABLES:
-        return True
-    return False
-
-
-def _dump_skip_column(tablename: str, columnname: str) -> bool:
-    if columnname in DUMP_SKIP_COLNAMES:
-        return True
-    if (tablename in DUMP_ONLY_COLNAMES and
-            columnname not in DUMP_ONLY_COLNAMES[tablename]):
-        return True
-    if (tablename in DUMP_DROP_COLNAMES and
-                columnname in DUMP_DROP_COLNAMES[tablename]):
-        return True
-    return False
-
-
-def _add_dump_table(dst_tables: Dict[str, Table],  # modified
-                    dst_metadata: MetaData,  # modified
-                    src_table: Table,
-                    src_obj: object,
-                    dst_session: SqlASession,
-                    dst_engine: Engine,
-                    include_blobs: bool,
-                    req: CamcopsRequest) -> None:
-    tablename = src_table.name
-    # Skip the table?
-    if _dump_skip_table(tablename, include_blobs):
-        return
-        return
-    # Copy columns, dropping any we don't want, and dropping FK constraints
-    dst_columns = []  # type: List[Column]
-    for src_column in src_table.columns:
-        # log.critical("trying {!r}", src_column.name)
-        if _dump_skip_column(tablename, src_column.name):
-            # log.critical("... skipping {!r}", src_column.name)
-            continue
-        # You can't add the source column directly; you get
-        # "sqlalchemy.exc.ArgumentError: Column object 'ccc' already assigned
-        # to Table 'ttt'"
-        dst_columns.append(Column(
-            name=src_column.name,
-            type_=src_column.type,  # __init__ parameter is "type_"; stored as "type"  # noqa
-            primary_key=src_column.primary_key,
-            nullable=src_column.nullable,
-            server_default=src_column.server_default,
-            server_onupdate=src_column.server_onupdate,
-            index=src_column.index,
-            unique=src_column.unique,
-            doc=src_column.doc,
-            autoincrement=src_column.autoincrement,
-            comment=src_column.comment,
-            # this is also an opportunity to fail to copy the FK stuff!
-        ))
-    # Add extra columns?
-    if isinstance(src_obj, Task):
-        for summary_element in src_obj.get_summaries(req):
-            dst_columns.append(Column(summary_element.name,
-                                      summary_element.coltype))
-    # Create the table
-    # log.critical("Adding table {!r} to dump output", tablename)
-    dst_table = Table(tablename, dst_metadata, *dst_columns)
-    dst_tables[tablename] = dst_table
-    # You have to use an engine, not a session, to create tables (or you get
-    # "AttributeError: 'Session' object has no attribute '_run_visitor'").
-    # However, you have to commit the session, or you get
-    #     "sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) database
-    #     is locked", since a session is also being used.
-    dst_session.commit()
-    dst_table.create(dst_engine)
-
-
-def _copy_object_to_dump(dst_table: Table,
-                         dst_session: SqlASession,
-                         src_obj: object,
-                         req: CamcopsRequest) -> None:
-    tablename = dst_table.name
-    row = {}  # type: Dict[str, Any]
-    # Copy columns, skipping any we don't want
-    for attrname, column in gen_columns(src_obj):
-        if _dump_skip_column(tablename, column.name):
-            continue
-        row[column.name] = getattr(src_obj, attrname)
-    # Any other columns to add?
-    if isinstance(src_obj, Task):
-        for summary_element in src_obj.get_summaries(req):
-            row[summary_element.name] = summary_element.value
-    dst_session.execute(dst_table.insert(row))
-
-
-def copy_tasks_and_summaries(tasks: Iterable[Task],
-                             dst_engine: Engine,
-                             dst_session: SqlASession,
-                             include_blobs: bool,
-                             req: CamcopsRequest) -> None:
-    # How best to create the structure that's required?
-    #
-    # https://stackoverflow.com/questions/21770829/sqlalchemy-copy-schema-and-data-of-subquery-to-another-database  # noqa
-    # https://stackoverflow.com/questions/40155340/sqlalchemy-reflect-and-copy-only-subset-of-existing-schema  # noqa
-    #
-    # - Should we attempt to copy the MetaData object? That seems extremely
-    #   laborious, since every ORM class is tied to it. Moreover,
-    #   MetaData.tables is an immutabledict, so we're not going to be editing
-    #   anything. Even if we cloned the MetaData, that's not going to give us
-    #   ORM classes to walk.
-    # - Shall we operate at a lower level? That seems sensible.
-    # - Given that... we don't need to translate the PKs at all, unlike
-    #   merge_db.
-    # - Let's not create FK constraints explicitly. Most are not achievable
-    #   anyway (e.g. linking on device/era; omission of BLOBs).
-
-    # We start with blank metadata.
-    dst_metadata = MetaData()
-    # Tables we are inserting into the destination database:
-    dst_tables = {}  # type: Dict[str, Table]
-    # Tables we've processed, though we may ignore them:
-    tablenames_seen = set()  # type: Set[str]
-    # ORM objects we've visited:
-    instances_seen = set()  # type: Set[object]
-
-    # We walk through all the objects.
-    for startobj in tasks:
-        for src_obj in walk_orm_tree(startobj, seen=instances_seen):
-            # If we encounter a table we've not seen, offer our "table decider"
-            # the opportunity to add it to the metadata and create the table.
-            src_table = src_obj.__table__  # type: Table
-            tablename = src_table.name
-            if tablename not in tablenames_seen:
-                _add_dump_table(dst_tables=dst_tables,
-                                dst_metadata=dst_metadata,
-                                src_table=src_table,
-                                src_obj=src_obj,
-                                dst_session=dst_session,
-                                dst_engine=dst_engine,
-                                include_blobs=include_blobs,
-                                req=req)
-                tablenames_seen.add(tablename)
-            # If this table is going into the destination, copy the object
-            # (and maybe remove columns from it, or add columns to it).
-            if tablename in dst_tables:
-                _copy_object_to_dump(dst_table=dst_tables[tablename],
-                                     dst_session=dst_session,
-                                     src_obj=src_obj,
-                                     req=req)
-
-
 # =============================================================================
 # View DDL (table definitions)
 # =============================================================================
@@ -1669,7 +1480,7 @@ def view_audit_trail(req: CamcopsRequest) -> Response:
     # ... no! That executes to give you row-type results.
     # audit_entries = q.all()
     # ... yes! But let's paginate, too:
-    page = SqlalchemyOrmPage(collection=q,
+    page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req))
@@ -1755,7 +1566,7 @@ def view_hl7_message_log(req: CamcopsRequest) -> Response:
 
     q = q.order_by(desc(HL7Message.msg_id))
 
-    page = SqlalchemyOrmPage(collection=q,
+    page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req))
@@ -1844,7 +1655,7 @@ def view_hl7_run_log(req: CamcopsRequest) -> Response:
 
     q = q.order_by(desc(HL7Run.run_id))
 
-    page = SqlalchemyOrmPage(collection=q,
+    page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req))
@@ -1876,25 +1687,21 @@ def view_hl7_run(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.VIEW_OWN_USER_INFO,
              renderer="view_own_user_info.mako")
 def view_own_user_info(req: CamcopsRequest) -> Dict[str, Any]:
-    return dict(user=req.camcops_session.user)
+    groups_page = CamcopsPage(req.user.groups,
+                              url_maker=PageUrl(req))
+    return dict(user=req.user,
+                groups_page=groups_page)
 
 
 @view_config(route_name=Routes.VIEW_SERVER_INFO,
              renderer="view_server_info.mako")
 def view_server_info(req: CamcopsRequest) -> Dict[str, Any]:
-    """HTML showing server's ID policies."""
-    cfg = req.config
-    which_idnums = cfg.get_which_idnums()
-    string_families = req.extrastring_families()
+    """
+    HTML showing server's ID policies, etc..
+    """
     return dict(
-        which_idnums=which_idnums,
-        descriptions=[cfg.get_id_desc(n) for n in which_idnums],
-        short_descriptions=[cfg.get_id_shortdesc(n) for n in which_idnums],
-        upload=cfg.id_policy_upload_string,
-        finalize=cfg.id_policy_finalize_string,
-        upload_principal=get_upload_id_policy_principal_numeric_id(),
-        finalize_principal=get_finalize_id_policy_principal_numeric_id(),
-        string_families=string_families,
+        idnum_definitions=req.idnum_definitions,
+        string_families=req.extrastring_families(),
     )
 
 
@@ -1930,14 +1737,14 @@ def get_user_from_request_user_id_or_raise(req: CamcopsRequest) -> User:
 
 @view_config(route_name=Routes.VIEW_ALL_USERS,
              permission=Permission.SUPERUSER,
-             renderer="view_users.mako")
+             renderer="users_view.mako")
 def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     dbsession = req.dbsession
     q = dbsession.query(User).order_by(User.username)
-    page = SqlalchemyOrmPage(collection=q,
+    page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req))
@@ -1954,10 +1761,11 @@ def view_user(req: CamcopsRequest) -> Dict[str, Any]:
 
 @view_config(route_name=Routes.EDIT_USER,
              permission=Permission.SUPERUSER,
-             renderer="edit_user.mako")
+             renderer="user_edit.mako")
 def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
+    route_back = Routes.VIEW_ALL_USERS
     if FormAction.CANCEL in req.POST:
-        raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+        raise HTTPFound(req.route_url(route_back))
     user = get_user_from_request_user_id_or_raise(req)
     form = EditUserForm(request=req)
     if FormAction.SUBMIT in req.POST:
@@ -1982,7 +1790,7 @@ def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
             # longer a member of, we need to fix that
             if user.upload_group_id not in group_ids:
                 user.upload_group_id = None
-            raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+            raise HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -1998,9 +1806,9 @@ def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
 def set_user_upload_group(req: CamcopsRequest,
                           user: User,
                           as_superuser: bool) -> Response:
-    destination = Routes.VIEW_ALL_USERS if as_superuser else Routes.HOME
+    route_back = Routes.VIEW_ALL_USERS if as_superuser else Routes.HOME
     if FormAction.CANCEL in req.POST:
-        return HTTPFound(req.route_url(destination))
+        return HTTPFound(req.route_url(route_back))
     form = SetUserUploadGroupForm(request=req, user=user)
     # ... need to show the groups permitted to THAT user, not OUR user
     if FormAction.SUBMIT in req.POST:
@@ -2008,7 +1816,7 @@ def set_user_upload_group(req: CamcopsRequest,
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
             user.upload_group_id = appstruct.get(ViewParam.UPLOAD_GROUP_ID)
-            return HTTPFound(req.route_url(destination))
+            return HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -2048,10 +1856,11 @@ def unlock_user(req: CamcopsRequest) -> Response:
 
 @view_config(route_name=Routes.ADD_USER,
              permission=Permission.SUPERUSER,
-             renderer="add_user.mako")
+             renderer="user_add.mako")
 def add_user(req: CamcopsRequest) -> Dict[str, Any]:
+    route_back = Routes.VIEW_ALL_USERS
     if FormAction.CANCEL in req.POST:
-        raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+        raise HTTPFound(req.route_url(route_back))
     form = AddUserForm(request=req)
     dbsession = req.dbsession
     if FormAction.SUBMIT in req.POST:
@@ -2066,7 +1875,7 @@ def add_user(req: CamcopsRequest) -> Dict[str, Any]:
                 raise HTTPBadRequest("User with username {!r} already "
                                      "exists!".format(user.username))
             dbsession.add(user)
-            raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
+            raise HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -2079,37 +1888,29 @@ def any_records_use_user(req: CamcopsRequest, user: User) -> bool:
     dbsession = req.dbsession
     user_id = user.id
     # Our own or users filtering on us?
-    q = CountStarSpecializedQuery(CamcopsSession, session=dbsession).filter(
-        CamcopsSession.filter_user_id == user_id,
-    )
+    q = CountStarSpecializedQuery(CamcopsSession, session=dbsession)\
+        .filter(CamcopsSession.filter_user_id == user_id)
     if q.count_star() > 0:
         return True
     # Device?
-    q = CountStarSpecializedQuery(Device, session=dbsession).filter(
-        or_(
-            Device.registered_by_user_id == user_id,
-            Device.uploading_user_id == user_id,
-        )
-    )
+    q = CountStarSpecializedQuery(Device, session=dbsession)\
+        .filter(or_(Device.registered_by_user_id == user_id,
+                    Device.uploading_user_id == user_id))
     if q.count_star() > 0:
         return True
     # SpecialNote?
-    q = CountStarSpecializedQuery(SpecialNote, session=dbsession).filter(
-        SpecialNote.user_id == user_id
-    )
+    q = CountStarSpecializedQuery(SpecialNote, session=dbsession)\
+        .filter(SpecialNote.user_id == user_id)
     if q.count_star() > 0:
         return True
     # Uploaded records?
     for cls in gen_orm_classes_from_base(GenericTabletRecordMixin):  # type: Type[GenericTabletRecordMixin]  # noqa
         # noinspection PyProtectedMember
-        q = CountStarSpecializedQuery(cls, session=dbsession).filter(
-            or_(
-                cls._adding_user_id == user_id,
-                cls._removing_user_id == user_id,
-                cls._preserving_user_id == user_id,
-                cls._manually_erasing_user_id == user_id,
-            )
-        )
+        q = CountStarSpecializedQuery(cls, session=dbsession)\
+            .filter(or_(cls._adding_user_id == user_id,
+                        cls._removing_user_id == user_id,
+                        cls._preserving_user_id == user_id,
+                        cls._manually_erasing_user_id == user_id))
         if q.count_star() > 0:
             return True
     # No; all clean.
@@ -2118,7 +1919,7 @@ def any_records_use_user(req: CamcopsRequest, user: User) -> bool:
 
 @view_config(route_name=Routes.DELETE_USER,
              permission=Permission.SUPERUSER,
-             renderer="delete_user.mako")
+             renderer="user_delete.mako")
 def delete_user(req: CamcopsRequest) -> Dict[str, Any]:
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
@@ -2169,18 +1970,18 @@ def delete_user(req: CamcopsRequest) -> Dict[str, Any]:
 
 @view_config(route_name=Routes.VIEW_GROUPS,
              permission=Permission.SUPERUSER,
-             renderer="view_groups.mako")
+             renderer="groups_view.mako")
 def view_groups(req: CamcopsRequest) -> Dict[str, Any]:
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     dbsession = req.dbsession
     q = dbsession.query(Group).order_by(Group.name)
-    page = SqlalchemyOrmPage(collection=q,
+    page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req))
-    return dict(page=page)
+    return dict(groups_page=page)
 
 
 def get_group_from_request_group_id_or_raise(req: CamcopsRequest) -> Group:
@@ -2196,10 +1997,11 @@ def get_group_from_request_group_id_or_raise(req: CamcopsRequest) -> Group:
 
 @view_config(route_name=Routes.EDIT_GROUP,
              permission=Permission.SUPERUSER,
-             renderer="edit_group.mako")
+             renderer="group_edit.mako")
 def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
+    route_back = Routes.VIEW_GROUPS
     if FormAction.CANCEL in req.POST:
-        raise HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+        raise HTTPFound(req.route_url(route_back))
     group = get_group_from_request_group_id_or_raise(req)
     form = EditGroupForm(request=req, group=group)
     dbsession = req.dbsession
@@ -2207,23 +2009,18 @@ def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
-            new_group_name = appstruct.get(ViewParam.NAME)
-            existing_group = Group.get_group_by_name(dbsession, new_group_name)
-            if existing_group and existing_group.id != group.id:
-                raise HTTPBadRequest(
-                    "Can't rename group {!r} (ID {!r}) to {!r}; that "
-                    "conflicts with existing group with ID {!r}".format(
-                        group.name, group.id, new_group_name,
-                        existing_group.id
-                    ))
-            group.name = new_group_name
+            # Simple attributes
+            group.name = appstruct.get(ViewParam.NAME)
             group.description = appstruct.get(ViewParam.DESCRIPTION)
+            group.upload_policy = appstruct.get(ViewParam.UPLOAD_POLICY)
+            group.finalize_policy = appstruct.get(ViewParam.FINALIZE_POLICY)
+            # Group cross-references
             group_ids = appstruct.get(ViewParam.GROUP_IDS)
             group_ids = [gid for gid in group_ids if gid != group.id]
             # ... don't bother saying "you can see yourself"
             other_groups = Group.get_groups_from_id_list(dbsession, group_ids)
             group.can_see_other_groups = other_groups
-            raise HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+            raise HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -2233,7 +2030,9 @@ def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
         appstruct = {
             ViewParam.GROUP_ID: group.id,
             ViewParam.NAME: group.name,
-            ViewParam.DESCRIPTION: group.description,
+            ViewParam.DESCRIPTION: group.description or "",
+            ViewParam.UPLOAD_POLICY: group.upload_policy or "",
+            ViewParam.FINALIZE_POLICY: group.finalize_policy or "",
             ViewParam.GROUP_IDS: [g.id for g in other_groups],
         }
         rendered_form = form.render(appstruct)
@@ -2244,10 +2043,11 @@ def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
 
 @view_config(route_name=Routes.ADD_GROUP,
              permission=Permission.SUPERUSER,
-             renderer="add_group.mako")
+             renderer="group_add.mako")
 def add_group(req: CamcopsRequest) -> Dict[str, Any]:
+    route_back = Routes.VIEW_GROUPS
     if FormAction.CANCEL in req.POST:
-        raise HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+        raise HTTPFound(req.route_url(route_back))
     form = AddGroupForm(request=req)
     dbsession = req.dbsession
     if FormAction.SUBMIT in req.POST:
@@ -2256,11 +2056,8 @@ def add_group(req: CamcopsRequest) -> Dict[str, Any]:
             appstruct = form.validate(controls)
             group = Group()
             group.name = appstruct.get(ViewParam.NAME)
-            if Group.get_group_by_name(dbsession, group.name):
-                raise HTTPBadRequest("Group with name {!r} already "
-                                     "exists!".format(group.name))
             dbsession.add(group)
-            raise HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+            raise HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -2273,13 +2070,13 @@ def any_records_use_group(req: CamcopsRequest, group: Group) -> bool:
     dbsession = req.dbsession
     group_id = group.id
     # Our own or users filtering on us?
-    # *** IMPLEMENT
+    # ... doesn't matter; see TaskFilter; stored as a CSV list so not part of
+    #     database integrity checks.
     # Uploaded records?
     for cls in gen_orm_classes_from_base(GenericTabletRecordMixin):  # type: Type[GenericTabletRecordMixin]  # noqa
         # noinspection PyProtectedMember
-        q = CountStarSpecializedQuery(cls, session=dbsession).filter(
-            cls._group_id == group_id
-        )
+        q = CountStarSpecializedQuery(cls, session=dbsession)\
+            .filter(cls._group_id == group_id)
         if q.count_star() > 0:
             return True
     # No; all clean.
@@ -2288,10 +2085,11 @@ def any_records_use_group(req: CamcopsRequest, group: Group) -> bool:
 
 @view_config(route_name=Routes.DELETE_GROUP,
              permission=Permission.SUPERUSER,
-             renderer="delete_group.mako")
+             renderer="group_delete.mako")
 def delete_group(req: CamcopsRequest) -> Dict[str, Any]:
+    route_back = Routes.VIEW_GROUPS
     if FormAction.CANCEL in req.POST:
-        raise HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+        raise HTTPFound(req.route_url(route_back))
     group = get_group_from_request_group_id_or_raise(req)
     form = DeleteGroupForm(request=req)
     rendered_form = ""
@@ -2308,15 +2106,166 @@ def delete_group(req: CamcopsRequest) -> Dict[str, Any]:
                     appstruct = form.validate(controls)
                     assert appstruct.get(ViewParam.GROUP_ID) == group.id
                     req.dbsession.delete(group)
-                    # Done
-                    raise HTTPFound(req.route_url(Routes.VIEW_GROUPS))
+                    raise HTTPFound(req.route_url(route_back))
                 except ValidationFailure as e:
                     rendered_form = e.render()
             else:
                 appstruct = {ViewParam.GROUP_ID: group.id}
                 rendered_form = form.render(appstruct)
-
     return dict(group=group,
+                error=error,
+                form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
+
+
+# =============================================================================
+# Edit server settings
+# =============================================================================
+
+@view_config(route_name=Routes.EDIT_SERVER_SETTINGS,
+             permission=Permission.SUPERUSER,
+             renderer="server_settings_edit.mako")
+def edit_server_settings(req: CamcopsRequest) -> Dict[str, Any]:
+    if FormAction.CANCEL in req.POST:
+        raise HTTPFound(req.route_url(Routes.HOME))
+    form = EditServerSettingsForm(request=req)
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            dbsession = req.dbsession
+            title = appstruct.get(ViewParam.DATABASE_TITLE)
+            set_database_title(dbsession, title)
+            raise HTTPFound(req.route_url(Routes.HOME))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        title = req.database_title
+        appstruct = {ViewParam.DATABASE_TITLE: title}
+        rendered_form = form.render(appstruct)
+    return dict(form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
+
+
+@view_config(route_name=Routes.VIEW_ID_DEFINITIONS,
+             permission=Permission.SUPERUSER,
+             renderer="id_definitions_view.mako")
+def view_id_definitions(req: CamcopsRequest) -> Dict[str, Any]:
+    return dict(
+        idnum_definitions=req.idnum_definitions,
+    )
+
+
+def get_iddef_from_request_which_idnum_or_raise(
+        req: CamcopsRequest) -> IdNumDefinition:
+    which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
+    iddef = req.dbsession.query(IdNumDefinition)\
+        .filter(IdNumDefinition.which_idnum == which_idnum)\
+        .first()
+    if not iddef:
+        raise HTTPBadRequest("No such ID definition: {}".format(
+            repr(which_idnum)))
+    return iddef
+
+
+@view_config(route_name=Routes.EDIT_ID_DEFINITION,
+             permission=Permission.SUPERUSER,
+             renderer="id_definition_edit.mako")
+def edit_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
+    route_back = Routes.VIEW_ID_DEFINITIONS
+    if FormAction.CANCEL in req.POST:
+        raise HTTPFound(req.route_url(route_back))
+    iddef = get_iddef_from_request_which_idnum_or_raise(req)
+    form = EditIdDefinitionForm(request=req)
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            iddef.description = appstruct.get(ViewParam.DESCRIPTION)
+            iddef.short_description = appstruct.get(ViewParam.SHORT_DESCRIPTION)  # noqa
+            clear_idnum_definition_cache()  # SPECIAL
+            raise HTTPFound(req.route_url(route_back))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        appstruct = {
+            ViewParam.WHICH_IDNUM: iddef.which_idnum,
+            ViewParam.DESCRIPTION: iddef.description or "",
+            ViewParam.SHORT_DESCRIPTION: iddef.short_description or "",
+        }
+        rendered_form = form.render(appstruct)
+    return dict(iddef=iddef,
+                form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
+
+
+@view_config(route_name=Routes.ADD_ID_DEFINITION,
+             permission=Permission.SUPERUSER,
+             renderer="id_definition_add.mako")
+def add_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
+    route_back = Routes.VIEW_ID_DEFINITIONS
+    if FormAction.CANCEL in req.POST:
+        raise HTTPFound(req.route_url(route_back))
+    form = AddIdDefinitionForm(request=req)
+    dbsession = req.dbsession
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            iddef = IdNumDefinition(
+                which_idnum=appstruct.get(ViewParam.WHICH_IDNUM),
+                description=appstruct.get(ViewParam.DESCRIPTION),
+                short_description=appstruct.get(ViewParam.SHORT_DESCRIPTION),
+            )
+            dbsession.add(iddef)
+            clear_idnum_definition_cache()  # SPECIAL
+            raise HTTPFound(req.route_url(route_back))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        rendered_form = form.render()
+    return dict(form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
+
+
+def any_records_use_iddef(req: CamcopsRequest, iddef: IdNumDefinition) -> bool:
+    # Helpfully, these are only referred to permanently from one place:
+    q = CountStarSpecializedQuery(PatientIdNum, session=req.dbsession)\
+        .filter(PatientIdNum.which_idnum == iddef.which_idnum)
+    if q.count_star() > 0:
+        return True
+    # No; all clean.
+    return False
+
+
+@view_config(route_name=Routes.DELETE_ID_DEFINITION,
+             permission=Permission.SUPERUSER,
+             renderer="id_definition_delete.mako")
+def delete_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
+    route_back = Routes.VIEW_ID_DEFINITIONS
+    if FormAction.CANCEL in req.POST:
+        raise HTTPFound(req.route_url(route_back))
+    iddef = get_iddef_from_request_which_idnum_or_raise(req)
+    form = DeleteIdDefinitionForm(request=req)
+    rendered_form = ""
+    error = ""
+    if any_records_use_iddef(req, iddef):
+        error = "Unable to delete ID definition; records refer to it."
+    else:
+        if FormAction.DELETE in req.POST:
+            try:
+                controls = list(req.POST.items())
+                appstruct = form.validate(controls)
+                assert appstruct.get(ViewParam.WHICH_IDNUM) == iddef.which_idnum  # noqa
+                req.dbsession.delete(iddef)
+                clear_idnum_definition_cache()  # SPECIAL
+                raise HTTPFound(req.route_url(route_back))
+            except ValidationFailure as e:
+                rendered_form = e.render()
+        else:
+            appstruct = {ViewParam.WHICH_IDNUM: iddef.which_idnum}
+            rendered_form = form.render(appstruct)
+    return dict(iddef=iddef,
                 error=error,
                 form=rendered_form,
                 head_form_html=get_head_form_html(req, [form]))
@@ -2376,25 +2325,45 @@ def introspect(req: CamcopsRequest) -> Response:
 # Altering data
 # =============================================================================
 
-def add_special_note(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Add a special note to a task (after confirmation)."""
-
-    if not session.authorized_to_add_special_note():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    n_confirmations = 2
-    tablename = ws.get_cgi_parameter_str(form, PARAM.TABLENAME)
-    serverpk = ws.get_cgi_parameter_int(form, PARAM.SERVERPK)
-    confirmation_sequence = ws.get_cgi_parameter_int(
-        form, PARAM.CONFIRMATION_SEQUENCE)
-    note = ws.get_cgi_parameter_str(form, PARAM.NOTE)
-    task = task_factory(tablename, serverpk)
+@view_config(route_name=Routes.ADD_SPECIAL_NOTE,
+             permission=Permission.ADD_NOTES,
+             renderer="special_note_add.mako")
+def add_special_note(req: CamcopsRequest) -> str:
+    """
+    Add a special note to a task (after confirmation).
+    """
+    table_name = req.get_str_param(ViewParam.TABLE_NAME)
+    server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
+    url_back = req.route_url(
+        Routes.TASK,
+        _query={
+            ViewParam.TABLE_NAME: table_name,
+            ViewParam.SERVER_PK: server_pk,
+            ViewParam.VIEWTYPE: ViewArg.HTML,
+        }
+    )
+    if FormAction.CANCEL in req.POST:
+        raise HTTPFound(url_back)
+    task = task_factory(req, table_name, server_pk)
     if task is None:
+        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
         return fail_task_not_found()
-    if (confirmation_sequence is None or
-            confirmation_sequence < 0 or
-            confirmation_sequence > n_confirmations):
-        confirmation_sequence = 0
-    textarea = ""
+    form = AddSpecialNoteForm(request=req)
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            note = appstruct.get(ViewParam.NOTE)
+            task.apply_special_note(req, note)
+            raise HTTPFound(url_back)
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        rendered_form = form.render()
+    return dict(form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
+
+
     if confirmation_sequence == n_confirmations - 1:
         textarea = """
                 <textarea name="{PARAM.NOTE}" rows="20" cols="80"></textarea>
@@ -2439,19 +2408,9 @@ def add_special_note(session: CamcopsSession, form: cgi.FieldStorage) -> str:
             textarea=textarea,
             cancelurl=get_url_task_html(tablename, serverpk),
         ) + WEBEND
-    # If we get here, we'll apply the note.
-    task.apply_special_note(note, session.user_id)
-    return simple_success(
-        "Note applied ({}, server PK {}).".format(
-            tablename,
-            serverpk
-        ),
-        """
-            <div><a href={}>View amended task</div>
-        """.format(get_url_task_html(tablename, serverpk))
-    )
 
 
+# ***
 def erase_task(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Wipe all data from a task (after confirmation).
 
@@ -2522,6 +2481,8 @@ def erase_task(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     )
 
 
+
+# ***
 def delete_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Completely delete all data from a patient (after confirmation)."""
 
@@ -2632,6 +2593,7 @@ def delete_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     return simple_success(msg)
 
 
+# ***
 def info_html_for_patient_edit(title: str,
                                display: str,
                                param: str,
@@ -2656,6 +2618,7 @@ def info_html_for_patient_edit(title: str,
     )
 
 
+# ***
 def edit_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     if not session.authorized_as_superuser():
         return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
@@ -2679,7 +2642,7 @@ def edit_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
         changes["surname"] = changes["surname"].upper()
     changes["dob"] = format_datetime(
         changes["dob"], DateFormat.ISO8601_DATE_ONLY, default="")
-    for n in pls.get_which_idnums():
+    for n in pls.valid_which_idnums():
         val = ws.get_cgi_parameter_int(form, PARAM.IDNUM_PREFIX + str(n))
         if val is not None:
             idnum_changes[n] = val
@@ -2733,7 +2696,7 @@ def edit_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
                                            PARAM.OTHER, changes["other"],
                                            patient.other)
             )
-            for n in pls.get_which_idnums():
+            for n in pls.valid_which_idnums():
                 oldvalue = patient.get_idnum_value(n)
                 newvalue = idnum_changes.get(n, None)
                 if newvalue is None:
@@ -2775,7 +2738,7 @@ def edit_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
                 gp=patient.gp or "",
                 other=patient.other or "",
             )
-            for n in pls.get_which_idnums():
+            for n in pls.valid_which_idnums():
                 details += """
                     ID number {n} ({desc}):
                     <input type="number" name="{paramprefix}{n}"
@@ -2860,6 +2823,7 @@ def edit_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     return simple_success(msg)
 
 
+# ***
 def task_list_from_generator(generator: Iterable[Task]) -> str:
     tasklist_html = ""
     for task in generator:
@@ -2875,6 +2839,7 @@ def task_list_from_generator(generator: Iterable[Task]) -> str:
     )
 
 
+# ***
 def forcibly_finalize(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     """Force-finalize all live (_era == ERA_NOW) records from a device."""
 
@@ -2977,24 +2942,6 @@ def forcibly_finalize(session: CamcopsSession, form: cgi.FieldStorage) -> str:
     msg = "Live records for device {} forcibly finalized".format(device_id)
     audit(msg)
     return simple_success(msg)
-
-
-# =============================================================================
-# Main HTTP processor
-# =============================================================================
-
-# -------------------------------------------------------------------------
-# Main set of action mappings.
-# All functions take parameters (session, form)
-# -------------------------------------------------------------------------
-ACTIONDICT = {
-    # Amending and deleting data
-    # ACTION.ADD_SPECIAL_NOTE: add_special_note,
-    # ACTION.ERASE_TASK: erase_task,
-    # ACTION.DELETE_PATIENT: delete_patient,
-    # ACTION.EDIT_PATIENT: edit_patient,
-    # ACTION.FORCIBLY_FINALIZE: forcibly_finalize,
-}
 
 
 # =============================================================================

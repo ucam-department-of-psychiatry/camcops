@@ -24,13 +24,11 @@
 
 import logging
 from pprint import pformat
-from typing import List, Optional, Type, TYPE_CHECKING
+from typing import Dict, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.merge_db import merge_db, TranslationContext
-from cardinal_pythonlib.sqlalchemy.orm_schema import (
-    create_table_from_orm_class,
-)
 from cardinal_pythonlib.sqlalchemy.orm_query import exists_orm
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
@@ -51,12 +49,17 @@ from camcops_server.cc_modules.cc_hl7 import HL7Message, HL7Run
 from camcops_server.cc_modules.cc_jointables import user_group_table, group_group_table
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import (
+    IdNumDefinition,
     fake_tablet_id_for_patientidnum,
     PatientIdNum,
 )
 from camcops_server.cc_modules.cc_request import command_line_request
 from camcops_server.cc_modules.cc_session import CamcopsSession
-from camcops_server.cc_modules.cc_storedvar import ServerStoredVar
+from camcops_server.cc_modules.cc_serversettings import (
+    server_stored_var_table_defunct,
+    ServerSettings,
+    ServerStoredVarNamesDefunct,
+)
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_user import (
     SecurityAccountLockout,
@@ -65,7 +68,7 @@ from camcops_server.cc_modules.cc_user import (
 )
 
 if TYPE_CHECKING:
-    from sqlalchemy.engine import ResultProxy
+    from sqlalchemy.engine.result import ResultProxy
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -76,10 +79,9 @@ DEBUG_VIA_PDB = False
 # Preprocess
 # =============================================================================
 
-def preprocess(src_engine: Engine) -> List[TableIdentity]:
+def get_skip_tables(src_engine: Engine,
+                    src_tables: List[str]) -> List[TableIdentity]:
     skip_tables = []  # type: List[TableIdentity]
-
-    src_tables = get_table_names(src_engine)
 
     # Check we have some core tables present in the sources
 
@@ -97,12 +99,13 @@ def preprocess(src_engine: Engine) -> List[TableIdentity]:
     # PatientIdNum. In the context of merges we're going to run, that means
     # PatientIdNum.
 
-    if False:  # SKIP -- disable eager loading instead
-        # Create patient ID number table, because it's eager-loaded
-        if PatientIdNum.__tablename__ not in src_tables:
-            create_table_from_orm_class(engine=src_engine,
-                                        ormclass=PatientIdNum,
-                                        without_constraints=True)
+    # SKIP -- disable eager loading instead
+    # # Create patient ID number table in SOURCE database, because it's
+    # # eager-loaded
+    # if PatientIdNum.__tablename__ not in src_tables:
+    #     create_table_from_orm_class(engine=src_engine,
+    #                                 ormclass=PatientIdNum,
+    #                                 without_constraints=True)
 
     if Group.__tablename__ not in src_tables:
         log.warning("No Group information in source database; skipping source "
@@ -111,6 +114,59 @@ def preprocess(src_engine: Engine) -> List[TableIdentity]:
         skip_tables.append(TableIdentity(tablename=Group.__tablename__))
 
     return skip_tables
+
+
+def get_src_iddefs(src_engine: Engine,
+                   src_tables: List[str]) -> Dict[int, IdNumDefinition]:
+    """
+    Returns a list of IdNumDefinition options, not attached to any session.
+    """
+    iddefs = {}  # type: Dict[int, IdNumDefinition]
+    if IdNumDefinition.__tablename__ in src_tables:
+        # Source is a more modern CamCOPS database, with an IdNumDefinition
+        # table.
+        log.info("Fetching source ID number definitions from {!r} table",
+                 IdNumDefinition.__tablename__)
+        q = select([IdNumDefinition.which_idnum,
+                    IdNumDefinition.description,
+                    IdNumDefinition.short_description])\
+            .select_from(IdNumDefinition.__table__)\
+            .order_by(IdNumDefinition.which_idnum)
+        rows = src_engine.execute(q).fetchall()
+        for row in rows:
+            which_idnum = row[0]
+            iddefs[which_idnum] = IdNumDefinition(
+                which_idnum=which_idnum,
+                description=row[1],
+                short_description=row[2]
+            )
+    elif server_stored_var_table_defunct.name in src_tables:
+        # Source is an older CamCOPS database.
+        log.info("Fetching source ID number definitions from {!r} table",
+                 server_stored_var_table_defunct.name)
+        for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
+            nstr = str(which_idnum)
+            qd = select([server_stored_var_table_defunct.columns.valueText])\
+                .select_from(server_stored_var_table_defunct)\
+                .where(server_stored_var_table_defunct.columns.name ==
+                       ServerStoredVarNamesDefunct.ID_DESCRIPTION_PREFIX
+                       + nstr)
+            rd = src_engine.execute(qd).fetchall()
+            qs = select([server_stored_var_table_defunct.columns.valueText])\
+                .select_from(server_stored_var_table_defunct)\
+                .where(server_stored_var_table_defunct.columns.name ==
+                       ServerStoredVarNamesDefunct.ID_SHORT_DESCRIPTION_PREFIX
+                       + nstr)
+            rs = src_engine.execute(qs).fetchall()
+            iddefs[which_idnum] = IdNumDefinition(
+                which_idnum=which_idnum,
+                description=rd[0][0] if rd else None,
+                short_description=rs[0][0] if rs else None
+            )
+    else:
+        log.warning("No information available on source ID number "
+                    "descriptions")
+    return iddefs
 
 
 # =============================================================================
@@ -174,9 +230,69 @@ def ensure_default_group_id(trcon: TranslationContext) -> None:
         trcon.info["default_group_id"] = default_group_id  # for next time!
 
 
+def get_dst_iddef(dst_session: Session,
+                  which_idnum: int) -> Optional[IdNumDefinition]:
+    return dst_session.query(IdNumDefinition)\
+            .filter(IdNumDefinition.which_idnum == which_idnum)\
+            .first()
+
+
+def ensure_idnumdef(trcon: TranslationContext,
+                    which_idnum: int) -> IdNumDefinition:
+    dst_iddef = get_dst_iddef(trcon.dst_session, which_idnum=which_idnum)
+    src_iddefs = trcon.info['src_iddefs']  # type: Dict[int, IdNumDefinition]  # noqa
+    if dst_iddef:
+        if which_idnum in src_iddefs.keys():
+            src_iddef = src_iddefs[which_idnum]
+            ensure_no_iddef_clash(src_iddef=src_iddef, dst_iddef=dst_iddef)
+        return dst_iddef
+    else:
+        assert which_idnum in src_iddefs.keys(), (
+            "Descriptions for ID#{} are missing from the source "
+            "database!".format(which_idnum)
+        )
+        src_iddef = src_iddefs[which_idnum]
+        new_iddef = IdNumDefinition(
+            which_idnum=src_iddef.which_idnum,
+            description=src_iddef.description,
+            short_description=src_iddef.short_description
+        )
+        log.info("Adding ID number definition: {!r}", new_iddef)
+        trcon.dst_session.add(new_iddef)
+        flush_session(trcon.dst_session)  # required, or database FK checks fail  # noqa
+        return new_iddef
+
+
+def ensure_no_iddef_clash(src_iddef: IdNumDefinition,
+                          dst_iddef: IdNumDefinition):
+    assert src_iddef.which_idnum == dst_iddef.which_idnum, (
+        "Bug: ensure_no_iddef_clash() called with IdNumDefinition objects"
+        "that don't share the same value for which_idnum (silly!)."
+    )
+    if src_iddef.description != dst_iddef.description:
+        raise ValueError(
+            "ID description mismatch for ID#{}: source {!r}, "
+            "destination {!r}".format(
+                src_iddef.which_idnum,
+                src_iddef.description,
+                dst_iddef.description
+            )
+        )
+    if src_iddef.short_description != dst_iddef.short_description:
+        raise ValueError(
+            "ID short_description mismatch for ID#{}: source {!r}, "
+            "destination {!r}".format(
+                src_iddef.which_idnum,
+                src_iddef.short_description,
+                dst_iddef.short_description
+            )
+        )
+
+
 # noinspection PyProtectedMember
 def translate_fn(trcon: TranslationContext) -> None:
-    log.debug("Translating: {!r}", trcon.oldobj)
+    log.debug("Translating object from table: {!r}", trcon.tablename)
+    # log.debug("Translating: {}", auto_repr(trcon.oldobj))
 
     # -------------------------------------------------------------------------
     # Set _group_id, if it's blank
@@ -276,7 +392,6 @@ def translate_fn(trcon: TranslationContext) -> None:
         assert len(list_of_dicts) == 1, (
             "Failed to fetch old patient IDs correctly; bug?"
         )
-        # log.critical("list_of_dicts: {}", pformat(list_of_dicts))
         old_patient_dict = list_of_dicts[0]
 
         # (b) If any don't exist in the new database, create them.
@@ -287,7 +402,9 @@ def translate_fn(trcon: TranslationContext) -> None:
             old_fieldname = FP_ID_NUM_DEFUNCT + str(which_idnum)
             idnum_value = old_patient_dict[old_fieldname]
             if idnum_value is None:
+                # Old Patient record didn't contain this ID number
                 continue
+            # Old Patient record *did* contain the ID number...
             src_idnum_query = select([func.count()])\
                 .select_from(table(PatientIdNum.__tablename__))\
                 .where(column(PatientIdNum.patient_id.name) == old_patient.id)\
@@ -297,10 +414,13 @@ def translate_fn(trcon: TranslationContext) -> None:
                        old_patient._device_id)\
                 .where(column(PatientIdNum._era.name) == old_patient._era)\
                 .where(column(PatientIdNum.which_idnum.name) == which_idnum)
-            n_present = trcon.dst_session.execute(src_idnum_query).scalar()
-            # log.critical("{} -> {}", src_idnum_query, n_present)
+            n_present = trcon.src_session.execute(src_idnum_query).scalar()
+            #                 ^^^
+            #                  !
             if n_present != 0:
+                # There was already a PatientIdNum for this which_idnum
                 continue
+            _dst_iddef = ensure_idnumdef(trcon, which_idnum=which_idnum)
             pidnum = PatientIdNum()
             # PatientIdNum fields:
             pidnum.id = fake_tablet_id_for_patientidnum(
@@ -350,6 +470,35 @@ def translate_fn(trcon: TranslationContext) -> None:
             # OK.
             log.debug("Inserting new PatientIdNum: {}", pidnum)
             trcon.dst_session.add(pidnum)
+
+    # -------------------------------------------------------------------------
+    # If we're inserting a PatientIdNum, make sure there is a corresponding
+    # IdNumDefinition, and that it's valid
+    # -------------------------------------------------------------------------
+    if trcon.tablename == PatientIdNum.__tablename__:
+        src_pidnum = trcon.oldobj  # type: PatientIdNum
+        which_idnum = src_pidnum.which_idnum
+        # Is it valid?
+        if which_idnum is None:
+            raise ValueError("Bad PatientIdNum: {!r}".format(src_pidnum))
+        # Is there a corresponding IdNumDefinition, or shall we create one?
+        ensure_idnumdef(trcon, which_idnum=which_idnum)
+        # Ensure the new object has an appropriate FK (which will have been
+        # wiped)
+        dst_pidnum = trcon.newobj  # type: PatientIdNum
+        dst_pidnum.which_idnum = which_idnum
+
+    # -------------------------------------------------------------------------
+    # If we're merging from a more modern database with the IdNumDefinition
+    # table, check our ID number definitions don't conflict
+    # -------------------------------------------------------------------------
+    if trcon.tablename == IdNumDefinition.__tablename__:
+        src_iddef = trcon.oldobj  # type: IdNumDefinition
+        which_idnum = src_iddef.which_idnum
+        dst_iddef = get_dst_iddef(trcon.dst_session, which_idnum=which_idnum)
+        if dst_iddef:  # there's an entry in the destination DB already
+            ensure_no_iddef_clash(src_iddef=src_iddef, dst_iddef=dst_iddef)
+            trcon.newobj = None  # don't bother inserting it again
 
     # -------------------------------------------------------------------------
     # Check we're not creating duplicates for anything uploaded
@@ -511,7 +660,7 @@ def merge_camcops_db(src: str,
         # overwrite the destination with, or where the PK structure has
         # changed and we don't care about old data:
         TableIdentity(tablename=CamcopsSession.__tablename__),
-        TableIdentity(tablename=ServerStoredVar.__tablename__),
+        TableIdentity(tablename=ServerSettings.__tablename__),
         TableIdentity(tablename=SecurityAccountLockout.__tablename__),
         TableIdentity(tablename=SecurityLoginFailure.__tablename__),
     ]
@@ -529,7 +678,11 @@ def merge_camcops_db(src: str,
     # Initial operations on SOURCE database
     # -------------------------------------------------------------------------
 
-    skip_tables += preprocess(src_engine=src_engine)
+    src_tables = get_table_names(src_engine)
+    skip_tables += get_skip_tables(src_engine=src_engine,
+                                   src_tables=src_tables)
+    src_iddefs = get_src_iddefs(src_engine, src_tables)
+    log.info("Source ID number definitions: {!r}", src_iddefs)
 
     # -------------------------------------------------------------------------
     # Merge
@@ -538,7 +691,8 @@ def merge_camcops_db(src: str,
     # Merge! It's easy...
     dst_session = req.dbsession
     trcon_info = dict(default_group_id=default_group_id,
-                      default_group_name=default_group_name)
+                      default_group_name=default_group_name,
+                      src_iddefs=src_iddefs)
     merge_db(
         base_class=Base,
         src_engine=src_engine,

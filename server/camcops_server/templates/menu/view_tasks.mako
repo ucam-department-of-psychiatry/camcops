@@ -116,8 +116,8 @@ ${ refresh_form }
                 <td
                     %if not task._current:
                         ## Shouldn't occur these days; we pre-filter for this!
+                        class="warning"
                     %endif
-                    class="warning"
                     >
                     <b> ${ task.shortname | h }</b>
                 </td>

@@ -44,7 +44,7 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     font-size: ${va.MAINFONTSIZE};
     line-height: ${va.MAINLINEHEIGHT};
-    margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.ELEMENTGAP} ${va.ZERO};
+    margin: ${va.ZERO} ${va.ZERO} ${va.ZERO} ${va.ZERO};  /* margin here affects form layout too */
     padding: ${va.BODYPADDING};
 }
 code {
@@ -66,27 +66,27 @@ h1 {
     font-size: ${va.GIANTFONTSIZE};
     line-height: ${va.GIANTLINEHEIGHT};
     font-weight: bold;
-    margin: ${va.ZERO};
+    margin: ${va.TWICE_ELEMENTGAP} ${va.ZERO} ${va.ZERO} ${va.ZERO};
 }
 h2 {
     font-size: ${va.LARGEFONTSIZE};
     line-height: ${va.LARGELINEHEIGHT};
     font-weight: bold;
-    margin: ${va.ZERO};
+    margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.ZERO} ${va.ZERO};
 }
 h3 {
-    font-size: ${va.LARGEFONTSIZE};
-    line-height: ${va.LARGELINEHEIGHT};
-    font-weight: bold;
+    font-size: ${va.NORMALFONTSIZE};
+    line-height: ${va.MAINLINEHEIGHT};
+    font-weight: normal;
     font-style: italic;
-    margin: ${va.ZERO};
+    margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.ZERO} ${va.ZERO};
 }
 img {
     max-width: 100%;
     max-height: 100%;
 }
 p {
-    margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.ELEMENTGAP} ${va.ZERO};
+    margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.ELEMENTGAP} ${va.ZERO};  /* see esp. p within div, such as task footnotes for web version */
 }
 sup, sub {
     font-size: 0.7em; /* 1 em is the size of the parent font */
@@ -117,10 +117,10 @@ tr, th, td {
 /* Specific classes */
 
 .badidpolicy_mild {
-    background-color: rgb(255, 255, 153);
+    background-color: rgb(255, 255, 153);  /* pale yellow */
 }
 .badidpolicy_severe {
-    background-color: rgb(255, 255, 0);
+    background-color: rgb(255, 255, 0);  /* bright yellow */
 }
 .banner {
     text-align: center;

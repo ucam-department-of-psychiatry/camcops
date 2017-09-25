@@ -25,13 +25,11 @@
 from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
-from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.orm import Query, relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
 
-from .cc_report import Report, REPORT_RESULT_TYPE
+from .cc_report import Report
 from .cc_unittest import unit_test_ignore
 from .cc_sqla_coltypes import (
     DeviceNameColType,
@@ -147,8 +145,7 @@ class DeviceReport(Report):
     def title(cls) -> str:
         return "(Server) Devices registered with the server"
 
-    def get_rows_descriptions(self,
-                              req: "CamcopsRequest") -> REPORT_RESULT_TYPE:
+    def get_query(self, req: "CamcopsRequest") -> Query:
         dbsession = req.dbsession
         query = dbsession.query(Device.id,
                                 Device.name,
@@ -158,8 +155,7 @@ class DeviceReport(Report):
                                 Device.camcops_version,
                                 Device.last_upload_batch_utc)\
             .order_by(Device.id)
-        rows, fieldnames = get_rows_fieldnames_from_query(dbsession, query)
-        return rows, fieldnames
+        return query
 
 
 # =============================================================================

@@ -5,6 +5,7 @@
 class CssArgsBase(object):
     SMALLFONTSIZE = "0.85em"
     TINYFONTSIZE = "0.7em"
+    NORMALFONTSIZE = "1.0em"
     LARGEFONTSIZE = "1.2em"
     GIANTFONTSIZE = "1.4em"
     BANNERFONTSIZE = "1.6em"
@@ -30,7 +31,8 @@ class CssArgsBase(object):
 class CssVarArgsBase(CssArgsBase):
     MAINFONTSIZE = 'medium' 
     SMALLGAP = '2px' 
-    ELEMENTGAP = '5px' 
+    ELEMENTGAP = '5px'
+    TWICE_ELEMENTGAP = '10px'
     NORMALPAD = '2px' 
     TABLEPAD = '2px' 
     INDENT_NORMAL = '20px' 
@@ -55,6 +57,7 @@ class CssVarArgsPdf(CssVarArgsBase):
     MAINFONTSIZE = '10pt'
     SMALLGAP = '0.2mm'
     ELEMENTGAP = '1mm'
+    TWICE_ELEMENTGAP = '2mm'
     NORMALPAD = '0.5mm'
     TABLEPAD = '0.5mm'
     INDENT_NORMAL = '5mm'
