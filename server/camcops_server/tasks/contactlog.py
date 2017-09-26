@@ -24,11 +24,11 @@
 
 from typing import List
 
+from cardinal_pythonlib.datetimefunc import format_datetime, get_duration_h_m
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from ..cc_modules.cc_dt import format_datetime, get_duration_h_m
 from ..cc_modules.cc_constants import (
     DateFormat,
     PV,

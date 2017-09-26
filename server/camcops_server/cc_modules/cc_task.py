@@ -45,6 +45,11 @@ from cardinal_pythonlib.classes import (
     classproperty,
     derived_class_implements_method,
 )
+from cardinal_pythonlib.datetimefunc import (
+    convert_datetime_to_utc,
+    get_now_utc,
+    format_datetime,
+)
 from cardinal_pythonlib.lists import flatten_list
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.rnc_db import DatabaseSupporter, FIELDSPECLIST_TYPE
@@ -62,7 +67,8 @@ from pyramid.renderers import render
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
-from sqlalchemy.sql.expression import and_, desc, func, literal, select
+from sqlalchemy.sql.expression import (and_, desc, func, literal, not_,
+                                       select, update)
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.selectable import Select
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
@@ -84,18 +90,12 @@ from .cc_constants import (
     CSS_PAGED_MEDIA,
     DateFormat,
     ERA_NOW,
-    HL7MESSAGE_TABLENAME,
     INVALID_VALUE,
     PKNAME,
     TSV_PATIENT_FIELD_PREFIX,
 )
 from .cc_ctvinfo import CtvInfo
 from .cc_db import GenericTabletRecordMixin
-from .cc_dt import (
-    convert_datetime_to_utc,
-    get_now_utc,
-    format_datetime,
-)
 from .cc_filename import get_export_filename
 from .cc_hl7core import make_obr_segment, make_obx_segment
 from .cc_html import (
@@ -915,7 +915,7 @@ class Task(GenericTabletRecordMixin, Base):
         dbsession = req.dbsession
         dbsession.add(sn)
         self.audit(req, "Special note applied manually", from_console)
-        self.delete_from_hl7_message_log(from_console)
+        self.delete_from_hl7_message_log(req, from_console)
 
     # -------------------------------------------------------------------------
     # Clinician
@@ -1055,28 +1055,24 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return []
 
-    def delete_from_hl7_message_log(self, from_console: bool = False) -> None:
-        """Erases the object from the HL7 message log (so it will be resent).
+    def delete_from_hl7_message_log(self, req: CamcopsRequest,
+                                    from_console: bool = False) -> None:
+        """
+        Erases the object from the HL7 message log (so it will be resent).
         """
         if self._pk is None:
             return
-        sql = """
-            UPDATE  {}
-            SET     cancelled = 1,
-                    cancelled_at_utc = ?
-            WHERE   basetable = ?
-            AND     serverpk = ?
-            AND     (NOT cancelled OR cancelled IS NULL)
-        """.format(
-            HL7MESSAGE_TABLENAME,
-            self._pk
-        )
-        args = [
-            pls.NOW_UTC_NO_TZ,
-            self.tablename,
-            self._pk,
-        ]
-        pls.db.db_exec(sql, *args)
+        from .cc_hl7 import HL7Message  # delayed import
+        statement = update(HL7Message.__table__)\
+            .where(HL7Message.basetable == self.tablename)\
+            .where(HL7Message.serverpk == self._pk)\
+            .where(not_(HL7Message.cancelled) |
+                   HL7Message.cancelled.is_(None))\
+            .values(cancelled=1,
+                    cancelled_at_utc=req.now_utc)
+        # ... this bit: ... AND (NOT cancelled OR cancelled IS NULL) ...:
+        # https://stackoverflow.com/questions/37445041/sqlalchemy-how-to-filter-column-which-contains-both-null-and-integer-values  # noqa
+        req.dbsession.execute(statement)
         self.audit(
             req,
             "Task cancelled in outbound HL7 message log (may trigger "

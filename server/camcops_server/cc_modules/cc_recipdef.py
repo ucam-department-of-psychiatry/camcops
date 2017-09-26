@@ -31,10 +31,10 @@ from cardinal_pythonlib.configfiles import (
     get_config_parameter,
     get_config_parameter_boolean,
 )
+from cardinal_pythonlib.datetimefunc import coerce_to_date
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Pendulum
 
-from .cc_dt import coerce_to_date
 from .cc_filename import (
     filename_spec_is_valid,
     get_export_filename,

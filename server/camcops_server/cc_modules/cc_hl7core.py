@@ -25,11 +25,11 @@
 import base64
 from typing import List, Optional, Tuple, Union
 
+from cardinal_pythonlib.datetimefunc import format_datetime, get_now_localtz
 import hl7
 from pendulum import Date, Pendulum
 from sqlalchemy.orm import Session as SqlASession
 
-from .cc_dt import format_datetime, get_now_localtz
 from .cc_constants import DateFormat
 from .cc_simpleobjects import HL7PatientIdentifier
 from .cc_unittest import unit_test_ignore

@@ -23,8 +23,9 @@
 """
 
 import logging
-from typing import List, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
+from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
@@ -35,9 +36,7 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime, Integer
 
 from .cc_constants import DateFormat
-from .cc_dt import format_datetime
 from .cc_pyramid import CookieKey
-from .cc_simpleobjects import IdNumReference
 from .cc_sqla_coltypes import IPAddressColType, SessionTokenColType
 from .cc_sqlalchemy import Base
 from .cc_taskfilter import TaskFilter

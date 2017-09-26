@@ -117,6 +117,11 @@ import tempfile
 from typing import Any, Dict, Iterable, List, Optional, Type
 import zipfile
 
+from cardinal_pythonlib.datetimefunc import (
+    get_now_localtz,
+    format_datetime,
+)
+from cardinal_pythonlib.deform_utils import get_head_form_html
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.dialect import get_dialect_name
@@ -149,14 +154,11 @@ from .cc_blob import Blob
 from camcops_server.cc_modules import cc_db
 from .cc_db import GenericTabletRecordMixin
 from .cc_device import Device
-from .cc_dt import (
-    get_now_localtz,
-    format_datetime,
-)
 from .cc_dump import copy_tasks_and_summaries
 from .cc_forms import (
     AddGroupForm,
     AddIdDefinitionForm,
+    AddSpecialNoteForm,
     AddUserForm,
     AuditTrailForm,
     ChangeOtherPasswordForm,
@@ -171,7 +173,6 @@ from .cc_forms import (
     EditIdDefinitionForm,
     EditServerSettingsForm,
     EditUserForm,
-    get_head_form_html,
     HL7MessageLogForm,
     HL7RunLogForm,
     LoginForm,
@@ -2328,7 +2329,7 @@ def introspect(req: CamcopsRequest) -> Response:
 @view_config(route_name=Routes.ADD_SPECIAL_NOTE,
              permission=Permission.ADD_NOTES,
              renderer="special_note_add.mako")
-def add_special_note(req: CamcopsRequest) -> str:
+def add_special_note(req: CamcopsRequest) -> Dict[str, Any]:
     """
     Add a special note to a task (after confirmation).
     """
@@ -2346,8 +2347,8 @@ def add_special_note(req: CamcopsRequest) -> str:
         raise HTTPFound(url_back)
     task = task_factory(req, table_name, server_pk)
     if task is None:
-        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
-        return fail_task_not_found()
+        raise HTTPBadRequest("No such task: {}, PK={}".format(
+            table_name, server_pk))
     form = AddSpecialNoteForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -2360,54 +2361,9 @@ def add_special_note(req: CamcopsRequest) -> str:
             rendered_form = e.render()
     else:
         rendered_form = form.render()
-    return dict(form=rendered_form,
+    return dict(task=task,
+                form=rendered_form,
                 head_form_html=get_head_form_html(req, [form]))
-
-
-    if confirmation_sequence == n_confirmations - 1:
-        textarea = """
-                <textarea name="{PARAM.NOTE}" rows="20" cols="80"></textarea>
-                <br>
-        """.format(
-            PARAM=PARAM,
-        )
-    if confirmation_sequence < n_confirmations:
-        return pls.WEBSTART + """
-            {user}
-            <h1>Add special note to task instance irrevocably</h1>
-            {taskinfo}
-            <div class="warning">
-                <b>Are you {really} sure you want to apply a note?</b>
-            </div>
-            <p><i>Your note will be appended to any existing note.</i></p>
-            <form name="myform" action="{script}" method="POST">
-                <input type="hidden" name="{PARAM.ACTION}"
-                        value="{ACTION.ADD_SPECIAL_NOTE}">
-                <input type="hidden" name="{PARAM.TABLENAME}"
-                        value="{tablename}">
-                <input type="hidden" name="{PARAM.SERVERPK}"
-                        value="{serverpk}">
-                <input type="hidden" name="{PARAM.CONFIRMATION_SEQUENCE}"
-                        value="{confirmation_sequence}">
-                {textarea}
-                <input type="submit" class="important" value="Apply note">
-            </form>
-            <div>
-                <b><a href="{cancelurl}">CANCEL</a></b>
-            </div>
-        """.format(
-            user=session.get_current_user_html(),
-            taskinfo=task.get_task_header_html(),
-            really=" really" * confirmation_sequence,
-            script=pls.SCRIPT_NAME,
-            ACTION=ACTION,
-            PARAM=PARAM,
-            tablename=tablename,
-            serverpk=serverpk,
-            confirmation_sequence=confirmation_sequence + 1,
-            textarea=textarea,
-            cancelurl=get_url_task_html(tablename, serverpk),
-        ) + WEBEND
 
 
 # ***

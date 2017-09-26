@@ -3,7 +3,15 @@
 
 <%include file="db_user_info.mako"/>
 
-<h1>Add special note to task XXX</h1>
+<h1>Add special note to task instance irrevocably?</h1>
+
+<%include file="task_descriptive_header.mako" args="task=task, anonymise=False"/>
+
+<div class="warning">
+    <b>Be very sure you want to apply a note.</b>
+</div>
+
+<p><i>Your note will be appended to any existing note.</i></p>
 
 ${ form }
 

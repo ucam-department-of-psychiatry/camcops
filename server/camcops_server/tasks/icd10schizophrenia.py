@@ -24,6 +24,7 @@
 
 from typing import List, Optional
 
+from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.typetests import is_false
 from sqlalchemy.sql.schema import Column
@@ -31,7 +32,6 @@ from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 
 from ..cc_modules.cc_constants import DateFormat, ICD10_COPYRIGHT_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_dt import format_datetime
 from ..cc_modules.cc_html import (
     get_true_false_none,
     heading_spanning_two_columns,

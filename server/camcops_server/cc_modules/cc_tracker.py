@@ -25,6 +25,7 @@
 import logging
 from typing import Any, Dict, List, Optional, Set, Tuple, Type
 
+from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Pendulum
 from pyramid.renderers import render
@@ -36,7 +37,6 @@ from .cc_constants import (
     FULLWIDTH_PLOT_WIDTH,
     WHOLE_PANEL,
 )
-from .cc_dt import format_datetime
 from .cc_filename import get_export_filename
 from .cc_plot import matplotlib
 from .cc_patient import Patient

@@ -26,6 +26,7 @@ import logging
 from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.classes import classproperty
+from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from colander import Integer
@@ -35,7 +36,6 @@ from sqlalchemy.sql.selectable import Select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from ..cc_modules.cc_dt import format_datetime
 from ..cc_modules.cc_constants import DateFormat, INVALID_VALUE
 from ..cc_modules.cc_ctvinfo import CtvInfo
 from ..cc_modules.cc_forms import (

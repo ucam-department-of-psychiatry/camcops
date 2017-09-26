@@ -34,6 +34,12 @@ import sys
 import typing
 from typing import Any, List, Optional, Tuple, TYPE_CHECKING, Union
 
+from cardinal_pythonlib.datetimefunc import (
+    convert_datetime_to_utc,
+    format_datetime,
+    get_now_localtz,
+    get_now_utc,
+)
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.network import ping
 import cardinal_pythonlib.rnc_web as ws
@@ -53,12 +59,6 @@ from sqlalchemy.sql.sqltypes import (
 
 from .cc_constants import DateFormat, HL7MESSAGE_TABLENAME, ERA_NOW
 from . import cc_db
-from .cc_dt import (
-    convert_datetime_to_utc,
-    format_datetime,
-    get_now_localtz,
-    get_now_utc,
-)
 from .cc_filename import change_filename_ext
 from .cc_hl7core import (
     escape_hl7_text,

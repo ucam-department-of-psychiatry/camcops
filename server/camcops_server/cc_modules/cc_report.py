@@ -24,11 +24,11 @@
 
 import cgi
 import datetime
-import re
 from typing import (Any, List, Optional, Sequence, Tuple,
                     Type, TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.classes import all_subclasses, classproperty
+from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from deform.form import Form
 import pyramid.httpexceptions as exc
@@ -41,7 +41,6 @@ from sqlalchemy.sql.selectable import Select
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 from .cc_convert import tsv_from_query
 from .cc_constants import DateFormat, DEFAULT_ROWS_PER_PAGE
-from .cc_dt import format_datetime
 from .cc_forms import ReportParamForm, ReportParamSchema
 from .cc_pyramid import (
     CamcopsPage,

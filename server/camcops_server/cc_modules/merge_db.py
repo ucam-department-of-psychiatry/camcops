@@ -205,7 +205,7 @@ def fetch_group_id_by_name(group_name: str, dst_session: Session) -> int:
 
 
 def ensure_default_group_id(trcon: TranslationContext) -> None:
-    default_group_id = trcon.info["default_group_id"]
+    default_group_id = trcon.info["default_group_id"]  # type: Optional[int]
     if default_group_id is not None:
         # The user specified a group ID to use for records without one
         assert group_exists(group_id=default_group_id,
@@ -216,7 +216,7 @@ def ensure_default_group_id(trcon: TranslationContext) -> None:
                 default_group_id, trcon.oldobj, Group.__tablename__)
         )
     else:
-        default_group_name = trcon.info["default_group_name"]
+        default_group_name = trcon.info["default_group_name"]  # type: Optional[str]  # noqa
         if not default_group_name:
             assert False, (
                 "User specified neither default_group_id or "
@@ -304,7 +304,7 @@ def translate_fn(trcon: TranslationContext) -> None:
         # source, don't touch trcon.oldobj._group_id or it'll trigger a DB
         # query that fails.
         ensure_default_group_id(trcon)
-        default_group_id = trcon.info["default_group_id"]
+        default_group_id = trcon.info["default_group_id"]  # type: int
         log.debug("Assiging new _group_id of {!r}", default_group_id)
         trcon.newobj._group_id = default_group_id
 
@@ -398,6 +398,7 @@ def translate_fn(trcon: TranslationContext) -> None:
         # -- no, that's not right; we will be processing Patient before
         # PatientIdNum, so that should be: if any don't exist in the *source*
         # database, create them.
+        src_tables = trcon.info["src_tables"]  # type: List[str]
         for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
             old_fieldname = FP_ID_NUM_DEFUNCT + str(which_idnum)
             idnum_value = old_patient_dict[old_fieldname]
@@ -405,22 +406,26 @@ def translate_fn(trcon: TranslationContext) -> None:
                 # Old Patient record didn't contain this ID number
                 continue
             # Old Patient record *did* contain the ID number...
-            src_idnum_query = select([func.count()])\
-                .select_from(table(PatientIdNum.__tablename__))\
-                .where(column(PatientIdNum.patient_id.name) == old_patient.id)\
-                .where(column(PatientIdNum._current.name) ==
-                       old_patient._current)\
-                .where(column(PatientIdNum._device_id.name) ==
-                       old_patient._device_id)\
-                .where(column(PatientIdNum._era.name) == old_patient._era)\
-                .where(column(PatientIdNum.which_idnum.name) == which_idnum)
-            n_present = trcon.src_session.execute(src_idnum_query).scalar()
-            #                 ^^^
-            #                  !
-            if n_present != 0:
-                # There was already a PatientIdNum for this which_idnum
-                continue
-            _dst_iddef = ensure_idnumdef(trcon, which_idnum=which_idnum)
+            if PatientIdNum.__tablename__ in src_tables:
+                src_idnum_query = select([func.count()])\
+                    .select_from(table(PatientIdNum.__tablename__))\
+                    .where(column(PatientIdNum.patient_id.name) ==
+                           old_patient.id)\
+                    .where(column(PatientIdNum._current.name) ==
+                           old_patient._current)\
+                    .where(column(PatientIdNum._device_id.name) ==
+                           old_patient._device_id)\
+                    .where(column(PatientIdNum._era.name) ==
+                           old_patient._era)\
+                    .where(column(PatientIdNum.which_idnum.name) ==
+                           which_idnum)
+                n_present = trcon.src_session.execute(src_idnum_query).scalar()
+                #                 ^^^
+                #                  !
+                if n_present != 0:
+                    # There was already a PatientIdNum for this which_idnum
+                    continue
+            _ = ensure_idnumdef(trcon, which_idnum=which_idnum)
             pidnum = PatientIdNum()
             # PatientIdNum fields:
             pidnum.id = fake_tablet_id_for_patientidnum(
@@ -625,7 +630,10 @@ def merge_camcops_db(src: str,
                      skip_audit_logs: bool,
                      default_group_id: Optional[int],
                      default_group_name: Optional[str]) -> None:
-
+    """
+    Merge an existing database (with a pre-v2 or later) structure into a
+    comtemporary CamCOPS database.
+    """
     req = command_line_request()
     src_engine = create_engine(src, echo=echo, pool_pre_ping=True)
     log.info("SOURCE: " + get_safe_url_from_engine(src_engine))
@@ -692,6 +700,7 @@ def merge_camcops_db(src: str,
     dst_session = req.dbsession
     trcon_info = dict(default_group_id=default_group_id,
                       default_group_name=default_group_name,
+                      src_tables=src_tables,
                       src_iddefs=src_iddefs)
     merge_db(
         base_class=Base,

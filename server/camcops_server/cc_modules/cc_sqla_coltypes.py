@@ -84,6 +84,11 @@ import logging
 from typing import (Any, Generator, List, Optional, Tuple, Type, TYPE_CHECKING,
                     Union)
 
+from cardinal_pythonlib.datetimefunc import (
+    coerce_to_pendulum,
+    convert_datetime_to_utc,
+    PotentialDatetimeType,
+)
 from cardinal_pythonlib.lists import chunks
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
@@ -109,11 +114,6 @@ from sqlalchemy.sql.sqltypes import (
 from sqlalchemy.sql.type_api import TypeDecorator
 
 from .cc_constants import PV
-from .cc_dt import (
-    coerce_to_pendulum,
-    convert_datetime_to_utc,
-    PotentialDatetimeType,
-)
 from .cc_simpleobjects import IdNumReference
 from .cc_version import make_version
 

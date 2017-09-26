@@ -4,8 +4,8 @@
 
 <%!
 
+from cardinal_pythonlib.datetimefunc import format_datetime
 from camcops_server.cc_modules.cc_constants import DateFormat
-from camcops_server.cc_modules.cc_dt import format_datetime
 from camcops_server.cc_modules.cc_html import get_true_false
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 

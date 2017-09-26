@@ -22,14 +22,13 @@
 ===============================================================================
 """
 
-import datetime
 import os
-from typing import List, TYPE_CHECKING, Union
+from typing import List, TYPE_CHECKING
 
+from cardinal_pythonlib.datetimefunc import format_datetime, get_now_localtz
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 from pendulum import Date, Pendulum
 
-from .cc_dt import format_datetime, get_now_localtz
 from .cc_constants import (
     DateFormat,
     FP_ID_NUM_DEFUNCT,

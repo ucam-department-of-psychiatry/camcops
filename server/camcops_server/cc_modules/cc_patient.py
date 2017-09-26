@@ -26,10 +26,15 @@ import logging
 from typing import List, Optional, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import classproperty
+from cardinal_pythonlib.datetimefunc import (
+    format_datetime,
+    get_age,
+    get_now_localtz,
+    PotentialDatetimeType,
+)
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 import hl7
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
@@ -51,12 +56,6 @@ from .cc_constants import (
     TSV_PATIENT_FIELD_PREFIX,
 )
 from .cc_db import GenericTabletRecordMixin
-from .cc_dt import (
-    format_datetime,
-    get_age,
-    get_now_localtz,
-    PotentialDatetimeType,
-)
 from .cc_hl7core import make_pid_segment
 from .cc_html import answer
 from .cc_simpleobjects import BarePatientInfo, HL7PatientIdentifier
@@ -557,15 +556,15 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         sn = SpecialNote()
         sn.basetable = self.__tablename__
-        sn.task_id = self.id
+        sn.task_id = self.id  # patient ID, in this case
         sn.device_id = self._device_id
         sn.era = self._era
-        sn.note_at = req.now_iso8601_era_format
-        sn.user_id = req.camcops_session.user_id
+        sn.note_at = req.now
+        sn.user_id = req.user_id
         sn.note = note
         req.dbsession.add(sn)
         self.special_notes.append(sn)
-        self.audit(audit_msg)
+        self.audit(req, audit_msg)
         # HL7 deletion of corresponding tasks is done in camcops.py
 
     def get_special_notes_html(self) -> str:

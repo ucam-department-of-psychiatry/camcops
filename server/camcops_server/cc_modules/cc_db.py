@@ -25,6 +25,7 @@
 import logging
 from typing import Any, Dict, Iterable, List, Union, Type, TypeVar
 
+from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.rnc_db import FIELDSPECLIST_TYPE
@@ -37,7 +38,6 @@ from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 # from sqlalchemy.sql.type_api import TypeEngine
 
 from .cc_constants import DateFormat, ERA_NOW
-from .cc_dt import format_datetime
 from .cc_sqla_coltypes import (
     CamcopsColumn,
     PendulumDateTimeAsIsoTextColType,

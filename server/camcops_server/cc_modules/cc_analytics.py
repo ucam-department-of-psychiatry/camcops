@@ -33,6 +33,10 @@ import urllib.parse
 import urllib.request
 from typing import List, Tuple, TYPE_CHECKING
 
+from cardinal_pythonlib.datetimefunc import (
+    coerce_to_pendulum,
+    format_datetime,
+)
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.core_query import count_star
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
@@ -40,10 +44,6 @@ from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from sqlalchemy.orm import Session as SqlASession
 
 from .cc_constants import DateFormat
-from .cc_dt import (
-    coerce_to_pendulum,
-    format_datetime,
-)
 from .cc_storedvar import ServerStoredVar, ServerStoredVarNames, StoredVarTypes
 from .cc_unittest import unit_test_ignore
 from .cc_version import CAMCOPS_SERVER_VERSION

@@ -27,21 +27,20 @@
 # =============================================================================
 
 import cgi
-import datetime
 import logging
 import re
 import time
-from typing import (Any, Callable, Dict, Iterable, List,
+from typing import (Any, Dict, Iterable, List,
                     Optional, Sequence, Tuple, Type)
 
 from cardinal_pythonlib.convert import (
     base64_64format_encode,
     hex_xformat_encode,
 )
+from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.rnc_web import HEADERS_TYPE
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
 from pendulum import Pendulum
 from pyramid.view import view_config
@@ -50,7 +49,6 @@ from pyramid.response import Response
 from ..cc_modules import cc_audit  # avoids "audit" name clash
 from .cc_db import GenericTabletRecordMixin
 from .cc_dirtytables import DirtyTable
-from .cc_dt import format_datetime
 from .cc_version import CAMCOPS_SERVER_VERSION
 from .cc_audit import AuditEntry
 from .cc_constants import (

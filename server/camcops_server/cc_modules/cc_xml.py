@@ -348,8 +348,9 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue, str,
         # The lowest-level thing a value. No extra indent.
         xmltext += xml_escape_value(str(element.value))
         # Regarding newlines: no need to do anything special (although some
-        # browsers may fail to display them correctly):
+        # browsers may fail to display them correctly -- e.g. Firefox, Chrome):
         # http://stackoverflow.com/questions/2004386
+        # ... just try saving and inspecting the results with a text editor.
 
     else:
         # A user-inserted piece of XML. Insert, but indent.

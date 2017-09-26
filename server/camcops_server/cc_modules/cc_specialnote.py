@@ -24,13 +24,14 @@
 
 from typing import List, Optional
 
+from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.expression import update
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from .cc_constants import DateFormat, ERA_NOW
-from .cc_dt import format_datetime
 from .cc_request import CamcopsRequest
 from .cc_sqla_coltypes import (
     PendulumDateTimeAsIsoTextColType,
@@ -127,23 +128,36 @@ class SpecialNote(Base):
         skip_fields = skip_fields or []
         branches = make_xml_branches_from_columns(
             self, skip_fields=skip_fields)
-        return XmlElement(name=self.TABLENAME, value=branches)
+        return XmlElement(name=self.__tablename__, value=branches)
 
     @classmethod
-    def forcibly_preserve_special_notes(cls, req: CamcopsRequest,
-                                        device_id: int) -> None:
+    def forcibly_preserve_special_notes_for_device(cls, req: CamcopsRequest,
+                                                   device_id: int) -> None:
         """
         WRITES TO DATABASE.
 
-        We could do an UPDATE, or something involving the ORM more. See also
+        For update methods, see also:
         http://docs.sqlalchemy.org/en/latest/orm/persistence_techniques.html
         """
         dbsession = req.dbsession
-        new_era = format_datetime(pls.NOW_UTC_NO_TZ, DateFormat.ERA)
+        new_era = format_datetime(req.now_utc, DateFormat.ERA)
+
+        # METHOD 1: use the ORM, object by object
+        #
         # noinspection PyProtectedMember
-        notes = dbsession.query(cls)\
-            .filter(cls._device_id == device_id)\
-            .filter(cls._era == ERA_NOW)\
-            .all()
-        for note in notes:
-            note._era = new_era
+        # notes = dbsession.query(cls)\
+        #     .filter(cls._device_id == device_id)\
+        #     .filter(cls._era == ERA_NOW)\
+        #     .all()
+        # for note in notes:
+        #     note._era = new_era
+
+        # METHOD 2: use the Core, in bulk
+        # You can use update(table)... or table.update()...;
+        # http://docs.sqlalchemy.org/en/latest/core/dml.html#sqlalchemy.sql.expression.update  # noqa
+
+        statement = update(cls.__table__)\
+            .where(cls._device_id == device_id)\
+            .where(cls._era == ERA_NOW)\
+            .values(_era=new_era)
+        dbsession.execute(statement)

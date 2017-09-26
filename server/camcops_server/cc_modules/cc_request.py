@@ -26,6 +26,12 @@ import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
+from cardinal_pythonlib.datetimefunc import (
+    coerce_to_date,
+    coerce_to_pendulum,
+    convert_datetime_to_utc,
+    format_datetime,
+)
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.plot import (
     png_img_html_from_pyplot_figure,
@@ -61,12 +67,6 @@ from .cc_constants import (
     LOCAL_LOGO_FILE_WEBREF,
     STATIC_URL_PREFIX,
     USE_SVG_IN_HTML,
-)
-from .cc_dt import (
-    coerce_to_date,
-    coerce_to_pendulum,
-    convert_datetime_to_utc,
-    format_datetime,
 )
 from .cc_patientidnum import get_idnum_definitions, IdNumDefinition
 from .cc_plot import ccplot_no_op

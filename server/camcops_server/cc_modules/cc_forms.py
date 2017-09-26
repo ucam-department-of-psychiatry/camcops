@@ -41,10 +41,29 @@ COLANDER NODES, NULLS, AND VALIDATION
 
 import logging
 from pprint import pformat
-from typing import (Any, Callable, Dict, Iterable, List, Optional, Tuple, Type,
-                    TYPE_CHECKING, Union)
+from typing import (Any, Callable, Dict, List, Optional,
+                    Tuple, Type, TYPE_CHECKING)
 import unittest
 
+from cardinal_pythonlib.colander_utils import (
+    AllowNoneType,
+    BooleanNode,
+    DateSelectorNode,
+    DateTimeSelectorNode,
+    EmailValidatorWithLengthConstraint,
+    get_values_and_permissible,
+    HiddenIntegerNode,
+    HiddenStringNode,
+    MandatoryStringNode,
+    OptionalIntNode,
+    OptionalPendulumNode,
+    OptionalStringNode,
+    ValidateDangerousOperationNode,
+)
+from cardinal_pythonlib.deform_utils import (
+    DynamicDescriptionsForm,
+    InformativeForm,
+)
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
@@ -54,8 +73,6 @@ import colander
 from colander import (
     Boolean,
     Date,
-    DateTime,
-    Email,
     Integer,
     Invalid,
     Length,
@@ -69,35 +86,28 @@ from colander import (
     Set,
     String,
 )
-from deform.exception import ValidationFailure
-from deform.field import Field
-from deform.form import Button, Form
+from deform.form import Button
 from deform.widget import (
     CheckboxChoiceWidget,
-    CheckboxWidget,
     CheckedPasswordWidget,
-    DateTimeInputWidget,
     HiddenWidget,
     MappingWidget,
     PasswordWidget,
     RadioChoiceWidget,
     SelectWidget,
+    TextAreaWidget,
     Widget,
 )
-from pendulum import Pendulum
-from pendulum.parsing.exceptions import ParserError
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 # We use some delayed imports here (search for "delayed import")
 from .cc_constants import DEFAULT_ROWS_PER_PAGE, MINIMUM_PASSWORD_LENGTH
-from .cc_dt import coerce_to_pendulum, PotentialDatetimeType
 from .cc_group import Group
 from .cc_patientidnum import IdNumDefinition
 from .cc_policy import TokenizedPolicy
 from .cc_pyramid import Dialect, FormAction, ViewArg, ViewParam
 from .cc_sqla_coltypes import (
     DATABASE_TITLE_MAX_LEN,
-    EMAIL_ADDRESS_MAX_LEN,
     FILTER_TEXT_MAX_LEN,
     FULLNAME_MAX_LEN,
     GROUP_DESCRIPTION_MAX_LEN,
@@ -119,11 +129,9 @@ ValidatorType = Callable[[SchemaNode, Any], None]  # called as v(node, value)
 # Debugging options
 # =============================================================================
 
-DEBUG_COLANDER = False
 DEBUG_CSRF_CHECK = False
-DEBUG_FORM_VALIDATION = False
 
-if DEBUG_COLANDER or DEBUG_CSRF_CHECK or DEBUG_FORM_VALIDATION:
+if DEBUG_CSRF_CHECK:
     log.warning("Debugging options enabled!")
 
 # =============================================================================
@@ -131,7 +139,6 @@ if DEBUG_COLANDER or DEBUG_CSRF_CHECK or DEBUG_FORM_VALIDATION:
 # =============================================================================
 
 OR_JOIN = "If you specify more than one, they will be joined with OR."
-SERIALIZED_NONE = ""
 
 
 class Binding:
@@ -144,234 +151,6 @@ class Binding:
     REQUEST = "request"
     TRACKER_TASKS_ONLY = "tracker_tasks_only"
     USER = "user"
-
-
-# =============================================================================
-# Widget resources
-# =============================================================================
-
-def get_head_form_html(req: "CamcopsRequest", forms: List[Form]) -> str:
-    """
-    Returns the extra HTML that needs to be injected into the <head> section
-    for a Deform form to work properly.
-    """
-    # https://docs.pylonsproject.org/projects/deform/en/latest/widget.html#widget-requirements
-    js_resources = []  # type: List[str]
-    css_resources = []  # type: List[str]
-    for form in forms:
-        resources = form.get_widget_resources()  # type: Dict[str, List[str]]
-        # Add, ignoring duplicates:
-        js_resources.extend(x for x in resources['js']
-                            if x not in js_resources)
-        css_resources.extend(x for x in resources['css']
-                             if x not in css_resources)
-    js_links = [req.static_url(r) for r in js_resources]
-    css_links = [req.static_url(r) for r in css_resources]
-    js_tags = ['<script type="text/javascript" src="%s"></script>' % link
-               for link in js_links]
-    css_tags = ['<link rel="stylesheet" href="%s"/>' % link
-                for link in css_links]
-    tags = js_tags + css_tags
-    head_html = "\n".join(tags)
-    return head_html
-
-
-# =============================================================================
-# Debugging form errors (which can be hidden in their depths)
-# =============================================================================
-# I'm not alone in the problem of errors from a HiddenWidget:
-# https://groups.google.com/forum/?fromgroups#!topic/pylons-discuss/LNHDq6KvNLI
-# https://groups.google.com/forum/#!topic/pylons-discuss/Lr1d1VpMycU
-
-class DeformErrorInterface(object):
-    def __init__(self, msg: str, *children: "DeformErrorInterface") -> None:
-        self._msg = msg
-        self.children = children
-
-    def __str__(self) -> str:
-        return self._msg
-
-
-class InformativeForm(Form):
-    def validate(self, controls, subcontrol=None) -> Any:
-        """Returns a Colander appstruct, or raises."""
-        try:
-            return super().validate(controls, subcontrol)
-        except ValidationFailure as e:
-            if DEBUG_FORM_VALIDATION:
-                log.warning("Validation failure: {!r}; {}",
-                            e, self._get_form_errors())
-            self._show_hidden_widgets_for_fields_with_errors(self)
-            raise
-
-    def _show_hidden_widgets_for_fields_with_errors(self,
-                                                    field: Field) -> None:
-        if field.error:
-            widget = getattr(field, "widget", None)
-            # log.warning(repr(widget))
-            # log.warning(repr(widget.hidden))
-            if widget is not None and widget.hidden:
-                # log.critical("Found hidden widget for field with error!")
-                widget.hidden = False
-        for child_field in field.children:
-            self._show_hidden_widgets_for_fields_with_errors(child_field)
-
-    def _collect_error_errors(self,
-                              errorlist: List[str],
-                              error: DeformErrorInterface) -> None:
-        if error is None:
-            return
-        errorlist.append(str(error))
-        for child_error in error.children:  # typically: subfields
-            self._collect_error_errors(errorlist, child_error)
-
-    def _collect_form_errors(self,
-                             errorlist: List[str],
-                             field: Field,
-                             hidden_only: bool = False):
-        if hidden_only:
-            widget = getattr(field, "widget", None)
-            if not isinstance(widget, HiddenWidget):
-                return
-        # log.critical(repr(field))
-        self._collect_error_errors(errorlist, field.error)
-        for child_field in field.children:
-            self._collect_form_errors(errorlist, child_field,
-                                      hidden_only=hidden_only)
-
-    def _get_form_errors(self, hidden_only: bool = False) -> str:
-        errorlist = []  # type: List[str]
-        self._collect_form_errors(errorlist, self, hidden_only=hidden_only)
-        return "; ".join(repr(e) for e in errorlist)
-
-
-def debug_validator(validator: ValidatorType) -> ValidatorType:
-    """
-    Use as a wrapper around a validator, e.g.
-        self.validator = debug_validator(OneOf(["some", "values"]))
-    """
-    def _validate(node: SchemaNode, value: Any) -> None:
-        log.debug("Validating: {!r}", value)
-        try:
-            validator(node, value)
-            log.debug("... accepted")
-        except Invalid:
-            log.debug("... rejected")
-            raise
-
-    return _validate
-
-
-# =============================================================================
-# New generic SchemaType classes
-# =============================================================================
-
-class PendulumType(SchemaType):
-    def __init__(self, use_local_tz: bool = True):
-        self.use_local_tz = use_local_tz
-        super().__init__()  # not necessary; SchemaType has no __init__
-
-    def serialize(self,
-                  node: SchemaNode,
-                  appstruct: Union[PotentialDatetimeType,
-                                   ColanderNullType]) \
-            -> Union[str, ColanderNullType]:
-        if not appstruct:
-            return colander.null
-        try:
-            appstruct = coerce_to_pendulum(appstruct,
-                                           assume_local=self.use_local_tz)
-        except (ValueError, ParserError) as e:
-            raise Invalid(node, "{!r} is not a Pendulum object; error was "
-                                "{!r}".format(appstruct, e))
-        return appstruct.isoformat()
-
-    def deserialize(self,
-                    node: SchemaNode,
-                    cstruct: Union[str, ColanderNullType]) \
-            -> Optional[Pendulum]:
-        if not cstruct:
-            return colander.null
-        try:
-            result = coerce_to_pendulum(cstruct,
-                                        assume_local=self.use_local_tz)
-        except (ValueError, ParserError) as e:
-            raise Invalid(node, "Invalid date/time: value={!r}, error="
-                                "{!r}".format(cstruct, e))
-        return result
-
-
-class AllowNoneType(SchemaType):
-    """
-    Serializes None to '', and deserializes '' to None; otherwise defers
-    to the parent type.
-    A type which accept serialize None to '' and deserialize '' to None.
-    When the value is not equal to None/'', it will use (de)serialization of
-    the given type. This can be used to make nodes optional.
-    Example:
-        date = colander.SchemaNode(
-            colander.NoneType(colander.DateTime()),
-            default=None,
-            missing=None,
-        )
-    """
-    def __init__(self, type_: SchemaType) -> None:
-        self.type_ = type_
-
-    def serialize(self, node: SchemaNode,
-                  value: Any) -> Union[str, ColanderNullType]:
-        if value is None:
-            retval = ''
-        else:
-            # noinspection PyUnresolvedReferences
-            retval = self.type_.serialize(node, value)
-        if DEBUG_COLANDER:
-            log.debug("AllowNoneType.serialize: {!r} -> {!r}", value, retval)
-        return retval
-
-    def deserialize(self, node: SchemaNode,
-                    value: Union[str, ColanderNullType]) -> Any:
-        if value is None or value == '':
-            retval = None
-        else:
-            # noinspection PyUnresolvedReferences
-            retval = self.type_.deserialize(node, value)
-        if DEBUG_COLANDER:
-            log.debug("AllowNoneType.deserialize: {!r} -> {!r}", value, retval)
-        return retval
-
-
-# NOTE ALSO that Colander nodes explicitly never validate a missing value; see
-# colander/__init__.py, in _SchemaNode.deserialize().
-# We want them to do so, essentially so we can pass in None to a form but
-# have the form refuse to validate if it's still None at submission.
-
-
-# =============================================================================
-# Node helper functions
-# =============================================================================
-
-def get_values_and_permissible(values: Iterable[Tuple[Any, str]],
-                               add_none: bool = False,
-                               none_description: str = "[None]") \
-        -> Tuple[List[Tuple[Any, str]], List[Any]]:
-    permissible_values = list(x[0] for x in values)
-    # ... does not include the None value; those do not go to the validator
-    if add_none:
-        none_tuple = (SERIALIZED_NONE, none_description)
-        values = [none_tuple] + list(values)
-    return values, permissible_values
-
-
-class EmailValidatorWithLengthConstraint(Email):
-    """The Colander Email validator doesn't check length. This does."""
-    def __init__(self, *args, min_length: int = 0, **kwargs) -> None:
-        self._length = Length(min_length, EMAIL_ADDRESS_MAX_LEN)
-        super().__init__(*args, **kwargs)
-
-    def __call__(self, node: SchemaNode, value: Any) -> None:
-        self._length(node, value)
-        super().__call__(node, value)  # call Email regex validator
 
 
 # =============================================================================
@@ -443,93 +222,6 @@ class CSRFSchema(Schema):
     """
 
     csrf = CSRFToken()  # name must match ViewParam.CSRF_TOKEN
-
-
-# =============================================================================
-# Other new generic SchemaNode classes
-# =============================================================================
-# Note that we must pass both *args and **kwargs upwards, because SchemaNode
-# does some odd stuff with clone().
-
-class OptionalIntNode(SchemaNode):
-    # YOU CANNOT USE ARGUMENTS THAT INFLUENCE THE STRUCTURE, because these Node
-    # objects get default-copied by Deform.
-    @staticmethod
-    def schema_type() -> SchemaType:
-        return AllowNoneType(Integer())
-
-    default = None
-    missing = None
-
-
-class OptionalStringNode(SchemaNode):
-    """
-    Coerces None to "" when serializing; otherwise it is coerced to "None",
-    which is much more wrong.
-    """
-    @staticmethod
-    def schema_type() -> SchemaType:
-        return AllowNoneType(String(allow_empty=True))
-
-    default = ""
-    missing = ""
-
-
-class MandatoryStringNode(SchemaNode):
-    """
-    Obligatory string node.
-
-    CAVEAT: WHEN YOU PASS DATA INTO THE FORM, YOU MUST USE
-        appstruct = {
-            somekey: somevalue or "",
-            #                  ^^^^^
-            #                  without this, None is converted to "None"
-        }
-    """
-    @staticmethod
-    def schema_type() -> SchemaType:
-        return String(allow_empty=False)
-
-
-class HiddenIntegerNode(OptionalIntNode):
-    widget = HiddenWidget()
-
-
-class HiddenStringNode(OptionalStringNode):
-    widget = HiddenWidget()
-
-
-class DateTimeSelectorNode(SchemaNode):
-    schema_type = DateTime
-    missing = None
-
-
-class DateSelectorNode(SchemaNode):
-    schema_type = Date
-    missing = None
-
-
-class OptionalPendulumNode(SchemaNode):
-    @staticmethod
-    def schema_type() -> SchemaType:
-        return AllowNoneType(PendulumType())
-
-    default = None
-    missing = None
-    widget = DateTimeInputWidget()
-
-
-class BooleanNode(SchemaNode):
-    schema_type = Boolean
-    widget = CheckboxWidget()
-
-    def __init__(self, *args, title: str = "?", label: str = "",
-                 default: bool = False, **kwargs) -> None:
-        self.title = title  # above the checkbox
-        self.label = label or title  # to the right of the checkbox
-        self.default = default
-        self.missing = default
-        super().__init__(*args, **kwargs)
 
 
 # =============================================================================
@@ -1976,6 +1668,7 @@ class DeleteIdDefinitionSchema(CSRFSchema):
     confirm_3_f = BooleanNode(title="Please untick to confirm", default=True)
     confirm_4_t = BooleanNode(title="Be really sure; tick here also to "
                                     "confirm", default=False)
+    danger = ValidateDangerousOperationNode()
 
     # noinspection PyMethodMayBeStatic
     def validator(self, node: SchemaNode, value: Any) -> None:
@@ -1986,7 +1679,7 @@ class DeleteIdDefinitionSchema(CSRFSchema):
             raise Invalid(node, "Not fully confirmed")
 
 
-class DeleteIdDefinitionForm(InformativeForm):
+class DeleteIdDefinitionForm(DynamicDescriptionsForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = DeleteIdDefinitionSchema().bind(request=request)
         super().__init__(
@@ -1994,6 +1687,30 @@ class DeleteIdDefinitionForm(InformativeForm):
             buttons=[
                 Button(name=FormAction.DELETE, title="Delete",
                        css_class="btn-danger"),
+                Button(name=FormAction.CANCEL, title="Cancel"),
+            ],
+            **kwargs
+        )
+
+
+# =============================================================================
+# Special notes
+# =============================================================================
+
+class AddSpecialNoteSchema(CSRFSchema):
+    note = MandatoryStringNode(  # must match ViewParam.NOTE
+        widget=TextAreaWidget(rows=20, cols=80)
+    )
+    danger = ValidateDangerousOperationNode()
+
+
+class AddSpecialNoteForm(DynamicDescriptionsForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = AddSpecialNoteSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title="Add"),
                 Button(name=FormAction.CANCEL, title="Cancel"),
             ],
             **kwargs

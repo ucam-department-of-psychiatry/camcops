@@ -37,6 +37,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.sql.literals import gen_items_from_sql_csv, SQUOTE
 from cardinal_pythonlib.text import escape_newlines
+from markupsafe import escape, Markup
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -186,3 +187,16 @@ def tsv_from_query(rows: Iterable[Iterable[Any]],
     for row in rows:
         tsv += "\t".join([tsv_escape(x) for x in row]) + "\n"
     return tsv
+
+
+# =============================================================================
+# Escape for HTML/XML
+# =============================================================================
+
+def br_html(text: str) -> str:
+    r"""
+    Filter that esscapes text safely whilst also converting \n to <br>.
+    """
+    # https://stackoverflow.com/questions/2285507/converting-n-to-br-in-mako-files
+    # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br
+    return escape(text).replace('\n', Markup('<br>'))

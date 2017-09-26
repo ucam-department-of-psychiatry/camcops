@@ -3,8 +3,8 @@
 
 <%!
 
+from cardinal_pythonlib.datetimefunc import format_datetime
 from camcops_server.cc_modules.cc_constants import CSS_PAGED_MEDIA, DateFormat
-from camcops_server.cc_modules.cc_dt import format_datetime
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_tracker import format_daterange
 from camcops_server.cc_modules.cc_version_string import CAMCOPS_SERVER_VERSION_STRING
