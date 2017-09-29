@@ -50,6 +50,10 @@ class Group(Base):
     """
     Represents a CamCOPS group.
 
+    ---------------------------------------------------------------------------
+    Basic group security concepts
+    ---------------------------------------------------------------------------
+
     -   Users may be in one or more groups.
 
     -   Users have a default "upload to" group.
@@ -126,10 +130,52 @@ class Group(Base):
 
     If that's not enough, consider starting another CamCOPS database...
 
+    ---------------------------------------------------------------------------
+    Per-group ID policy
+    ---------------------------------------------------------------------------
+
     Then, we want a per-group ID policy. The prototypical example is where
     clinical studies are hosted from a clinical organization; all group may be
     required to share a common institutional ID, but individual studies may
     want to enforce their own ID, so ID policies cannot be global.
+
+    ---------------------------------------------------------------------------
+    Group administrators
+    ---------------------------------------------------------------------------
+
+    For a large-scale system, it'd be desirable to be able to delegate user
+    management to group administrators, such that groupadmins can manage their
+    own users WITHOUT being able to see all records on the system.
+    This is a bit tricky.
+
+    - The superuser, alone, should be able to set groupadmin status, and to
+      create/delete groups.
+
+    - We'd want them to be able to add users
+        => add if user doesn't exist already (=> some information leakage)
+
+    - We can't let them delete users arbitrarily. We could say that they could
+      delete a user if all the users' groups were administered by this
+      groupadmin.
+
+    - The groupadmin should be able to grant/revoke access for their groups
+      only.
+
+    - This would entail some permissions being group-specific:
+        - login     [can login if "login" permission set for ANY group]
+        - upload    [can upload to a group only if "upload" permission for
+                     that group]
+        - register devices  [similar to upload]
+        - view_all_patients_when_unfiltered
+                    [if you're in >1 group, this per-group setting would be
+                     applied to patients belonging to that group]
+        - may_dump_data
+                    [applies to data for that group only]
+        - may_run_reports   [also per-group]
+        - may_add_notes [also per-group]
+
+    - A certain amount of crosstalk is hard to avoid: e.g.
+        must_change_password
 
     """
     __tablename__ = "_security_groups"
@@ -159,7 +205,7 @@ class Group(Base):
 
     users = relationship(
         "User",  # defined with string to avoid circular import
-        secondary=user_group_table,
+        secondary=user_group_table,  # link via this mapping table
         back_populates="groups"  # see User.groups
     )
     can_see_other_groups = relationship(

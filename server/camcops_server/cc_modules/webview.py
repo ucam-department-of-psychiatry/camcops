@@ -1021,8 +1021,10 @@ def offer_report(req: CamcopsRequest) -> Dict[str, Any]:
     report_id = req.get_str_param(ViewParam.REPORT_ID)
     report = get_report_instance(report_id)
     if not report:
-        raise HTTPBadRequest("No such report ID: {}".format(
-            repr(report_id)))
+        raise HTTPBadRequest("No such report ID: {!r}".format(report_id))
+    if report.superuser_only and not req.user.superuser:
+        raise HTTPBadRequest("Report {!r} is restricted to the "
+                             "superuser".format(report_id))
     form = report.get_form(req)
     if FormAction.SUBMIT in req.POST:
         try:

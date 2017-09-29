@@ -600,6 +600,11 @@ class DistinctPatientReport(Report):
         return ("(Server) Patients, distinct by name, sex, DOB, all ID "
                 "numbers")
 
+    # noinspection PyMethodParameters
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
+
     # noinspection PyProtectedMember
     def get_query(self, req: CamcopsRequest) -> Select:
         select_fields = [
@@ -611,6 +616,10 @@ class DistinctPatientReport(Report):
         select_from = Patient.__table__
         # noinspection PyPep8
         wheres = [Patient._current == True]  # type: List[ClauseElement]
+        if not req.user.superuser:
+            # Restrict to accessible groups
+            group_ids = req.user.ids_of_groups_user_may_see()
+            wheres.append(Patient._group_id.in_(group_ids))
         for iddef in req.idnum_definitions:
             n = iddef.which_idnum
             desc = iddef.short_description

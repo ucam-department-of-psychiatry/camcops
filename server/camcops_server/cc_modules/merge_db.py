@@ -27,7 +27,6 @@ from pprint import pformat
 from typing import Dict, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.merge_db import merge_db, TranslationContext
 from cardinal_pythonlib.sqlalchemy.orm_query import exists_orm
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
@@ -46,7 +45,10 @@ from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_hl7 import HL7Message, HL7Run
-from camcops_server.cc_modules.cc_jointables import user_group_table, group_group_table
+from camcops_server.cc_modules.cc_jointables import (
+    user_group_table,
+    group_group_table,
+)
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import (
     IdNumDefinition,
@@ -79,8 +81,7 @@ DEBUG_VIA_PDB = False
 # Preprocess
 # =============================================================================
 
-def get_skip_tables(src_engine: Engine,
-                    src_tables: List[str]) -> List[TableIdentity]:
+def get_skip_tables(src_tables: List[str]) -> List[TableIdentity]:
     skip_tables = []  # type: List[TableIdentity]
 
     # Check we have some core tables present in the sources
@@ -398,7 +399,7 @@ def translate_fn(trcon: TranslationContext) -> None:
         # -- no, that's not right; we will be processing Patient before
         # PatientIdNum, so that should be: if any don't exist in the *source*
         # database, create them.
-        src_tables = trcon.info["src_tables"]  # type: List[str]
+        src_tables = trcon.src_table_names
         for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
             old_fieldname = FP_ID_NUM_DEFUNCT + str(which_idnum)
             idnum_value = old_patient_dict[old_fieldname]
@@ -687,8 +688,7 @@ def merge_camcops_db(src: str,
     # -------------------------------------------------------------------------
 
     src_tables = get_table_names(src_engine)
-    skip_tables += get_skip_tables(src_engine=src_engine,
-                                   src_tables=src_tables)
+    skip_tables += get_skip_tables(src_tables=src_tables)
     src_iddefs = get_src_iddefs(src_engine, src_tables)
     log.info("Source ID number definitions: {!r}", src_iddefs)
 
@@ -700,7 +700,6 @@ def merge_camcops_db(src: str,
     dst_session = req.dbsession
     trcon_info = dict(default_group_id=default_group_id,
                       default_group_name=default_group_name,
-                      src_tables=src_tables,
                       src_iddefs=src_iddefs)
     merge_db(
         base_class=Base,

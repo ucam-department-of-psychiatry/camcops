@@ -743,8 +743,13 @@ class LPSReportReferredNotDischarged(Report):
     def title(cls) -> str:
         return "CPFT LPS – referred but not yet discharged"
 
+    # noinspection PyMethodParameters
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
+
     @staticmethod
-    def get_schema_class() -> Type[ReportParamSchema]:
+    def get_paramform_schema_class() -> Type[ReportParamSchema]:
         return LPSReportSchema
 
     # noinspection PyProtectedMember
@@ -753,6 +758,8 @@ class LPSReportReferredNotDischarged(Report):
         if which_idnum is None:
             raise exc.HTTPBadRequest("{} not specified".format(
                 ViewParam.WHICH_IDNUM))
+
+        group_ids = req.user.ids_of_groups_user_may_see()
 
         # Step 1: link referral and patient
         p1 = Patient.__table__.alias("p1")
@@ -786,12 +793,15 @@ class LPSReportReferredNotDischarged(Report):
         wheres = [
             i1.c.which_idnum == which_idnum,
         ]
+        if not req.user.superuser:
+            # Restrict to accessible groups
+            wheres.append(CPFTLPSReferral._group_id.in_(group_ids))
 
         # Step 2: not yet discharged
         p2 = Patient.__table__.alias("p2")
         i2 = PatientIdNum.__table__.alias("i2")
         # noinspection PyPep8
-        referral = select(['*'])\
+        discharge = select(['*'])\
             .select_from(
                 p2.join(CPFTLPSDischarge.__table__, and_(
                     p2.c._current == True,
@@ -814,7 +824,12 @@ class LPSReportReferredNotDischarged(Report):
                 (CPFTLPSDischarge.discharge_date >=
                  CPFTLPSReferral.referral_date_time),
             ))
-        wheres.append(~exists(referral))
+        if not req.user.superuser:
+            # Restrict to accessible groups
+            discharge = discharge.where(
+                CPFTLPSDischarge._group_id.in_(group_ids))
+
+        wheres.append(~exists(discharge))
 
         # Finish up
         order_by = [
@@ -840,8 +855,13 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
     def title(cls) -> str:
         return "CPFT LPS – referred but not yet fully assessed or discharged"
 
+    # noinspection PyMethodParameters
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
+
     @staticmethod
-    def get_schema_class() -> Type[ReportParamSchema]:
+    def get_paramform_schema_class() -> Type[ReportParamSchema]:
         return LPSReportSchema
 
     # noinspection PyProtectedMember
@@ -850,6 +870,8 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         if which_idnum is None:
             raise exc.HTTPBadRequest("{} not specified".format(
                 ViewParam.WHICH_IDNUM))
+
+        group_ids = req.user.ids_of_groups_user_may_see()
 
         # Step 1: link referral and patient
         p1 = Patient.__table__.alias("p1")
@@ -883,12 +905,15 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         wheres = [
             i1.c.which_idnum == which_idnum,
         ]
+        if not req.user.superuser:
+            # Restrict to accessible groups
+            wheres.append(CPFTLPSReferral._group_id.in_(group_ids))
 
         # Step 2: not yet discharged
         p2 = Patient.__table__.alias("p2")
         i2 = PatientIdNum.__table__.alias("i2")
         # noinspection PyPep8
-        referral = select(['*'])\
+        discharge = select(['*'])\
             .select_from(
                 p2.join(CPFTLPSDischarge.__table__, and_(
                     p2.c._current == True,
@@ -911,7 +936,11 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
                 (CPFTLPSDischarge.discharge_date >=
                  CPFTLPSReferral.referral_date_time),
             ))
-        wheres.append(~exists(referral))
+        if not req.user.superuser:
+            # Restrict to accessible groups
+            discharge = discharge.where(
+                CPFTLPSDischarge._group_id.in_(group_ids))
+        wheres.append(~exists(discharge))
 
         # Step 3: not yet clerked
         p3 = Patient.__table__.alias("p3")
@@ -940,6 +969,10 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
             (PsychiatricClerking.when_created >=
              CPFTLPSReferral.referral_date_time),
         ))
+        if not req.user.superuser:
+            # Restrict to accessible groups
+            discharge = discharge.where(
+                PsychiatricClerking._group_id.in_(group_ids))
         wheres.append(~exists(clerking))
 
         # Finish up

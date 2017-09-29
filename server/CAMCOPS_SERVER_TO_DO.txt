@@ -1,3 +1,7 @@
+===============================================================================
+CAMCOPS SERVER THINGS TO DO NOW
+===============================================================================
+
 
 
 *** database upload code
@@ -24,12 +28,46 @@
     for PDF creation!).
 
 ===============================================================================
-CAMCOPS SERVER THINGS TO DO NOW
+KEY THOUGHTS
 ===============================================================================
 
-- sort out SQLAlchemy, field type, and get_summaries()
-    - use mixins to inherit fields; see
-    http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html
+- "tasks need doing" in the context of a research study
+
+    - define patients on server (per group)
+
+    - "task needs doing"
+        - patient (by ID number)
+        - group
+        - task
+        - due_from
+        - due_by
+        - cancelled?
+
+        Example: "PHQ9 due for Mr X on 1 July; must be completed by 1 Aug"
+
+    then for metacreation
+    - "task menu"
+        = list of tasks, each with
+            - task
+            - due_from_relative_to_start_date
+            - due_by_relative_to_start_date
+        - instantiate with patient, group, start date
+
+        example:
+            "In our study, we want a PHQ9 and GAD7 at the start, a PHQ9 at
+            3 months, and a PHQ9 and GAD7 at 6 months."
+
+            "Mr Jones starts today."
+
+    Tablets should fetch "what needs doing" for any patients defined on the
+    tablet, and display them nicely.
+
+    Tasks must be complete to satisfy the requirement.
+
+-   "This tablet client is attached to a specific patient and will operate in
+    a patient-friendly, single-patient mode."
+
+    "Show me what needs completing."
 
 ===============================================================================
 CAMCOPS SERVER THINGS TO DO

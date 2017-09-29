@@ -98,13 +98,20 @@ class Report(object):
     # Attributes that must be provided
     # -------------------------------------------------------------------------
 
+    # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
         raise NotImplementedError()
 
+    # noinspection PyMethodParameters
     @classproperty
     def title(cls) -> str:
         raise NotImplementedError()
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return True  # must explicitly override to permit others!
 
     def get_query(self, req: "CamcopsRequest") -> Union[None, Select, Query]:
         """
@@ -118,11 +125,11 @@ class Report(object):
         return None
 
     @staticmethod
-    def get_schema_class() -> Type[ReportParamSchema]:
+    def get_paramform_schema_class() -> Type[ReportParamSchema]:
         return ReportParamSchema
 
     def get_form(self, req: "CamcopsRequest") -> Form:
-        schema_class = self.get_schema_class()
+        schema_class = self.get_paramform_schema_class()
         return ReportParamForm(request=req, schema_class=schema_class)
 
     # -------------------------------------------------------------------------

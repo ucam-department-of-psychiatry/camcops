@@ -136,11 +136,16 @@ class Device(Base):
 # =============================================================================
 
 class DeviceReport(Report):
-    """Report to show registered devices."""
+    """
+    Report to show registered devices.
+    This is a superuser-only report, so we do not override superuser_only.
+    """
+    # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
         return "devices"
 
+    # noinspection PyMethodParameters
     @classproperty
     def title(cls) -> str:
         return "(Server) Devices registered with the server"

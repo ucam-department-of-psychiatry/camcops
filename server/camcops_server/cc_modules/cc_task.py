@@ -2333,10 +2333,16 @@ class TaskCountReport(Report):
     def title(cls) -> str:
         return "(Server) Count current task instances, by creation date"
 
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
+
     def get_rows_colnames(self, req: CamcopsRequest) -> PlainReportType:
         final_rows = []
         colnames = []
         dbsession = req.dbsession
+        group_ids = req.user.ids_of_groups_user_may_see()
+        superuser = req.user.superuser
         classes = Task.all_subclasses_by_tablename()
         for cls in classes:
             # noinspection PyProtectedMember
@@ -2349,6 +2355,9 @@ class TaskCountReport(Report):
             select_from = cls.__table__
             # noinspection PyPep8,PyProtectedMember
             wheres = [cls._current == True]
+            if not superuser:
+                # Restrict to accessible groups
+                wheres.append(cls._group_id.in_(group_ids))
             group_by = ["year", "month"]
             order_by = [desc("year"), desc("month")]
             # ... http://docs.sqlalchemy.org/en/latest/core/tutorial.html#ordering-or-grouping-by-a-label  # noqa

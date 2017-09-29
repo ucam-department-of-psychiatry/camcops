@@ -320,9 +320,13 @@ def get_diagnosis_report_query(req: CamcopsRequest,
         diagnosis_class._current == True,
         item_class._current == True,
     ]
-    query = select(select_fields) \
-        .select_from(select_from) \
-        .where(and_(*wheres))
+    if not req.user.superuser:
+        # Restrict to accessible groups
+        group_ids = req.user.ids_of_groups_user_may_see()
+        wheres.append(diagnosis_class._group_id.in_(group_ids))
+        # Helpfully, SQLAlchemy will render this as "... AND 1 != 1" if we
+        # pass an empty list to in_().
+    query = select(select_fields).select_from(select_from).where(and_(*wheres))
     return query
 
 
@@ -351,6 +355,10 @@ class DiagnosisICD9CMReport(Report):
         return ("Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all "
                 "patients")
 
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
+
     def get_query(self, req: CamcopsRequest) -> Select:
         return get_diagnosis_report(
             req,
@@ -374,6 +382,10 @@ class DiagnosisICD10Report(Report):
     def title(cls) -> str:
         return "Diagnosis – ICD-10 diagnoses for all patients"
 
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
+
     def get_query(self, req: CamcopsRequest) -> Select:
         return get_diagnosis_report(
             req,
@@ -396,6 +408,10 @@ class DiagnosisAllReport(Report):
     @classproperty
     def title(cls) -> str:
         return "Diagnosis – All diagnoses for all patients"
+
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
 
     def get_query(self, req: CamcopsRequest) -> Select:
         sql_icd9cm = get_diagnosis_report_query(
