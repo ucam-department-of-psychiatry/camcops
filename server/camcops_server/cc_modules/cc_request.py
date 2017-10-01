@@ -71,7 +71,11 @@ from .cc_constants import (
 from .cc_patientidnum import get_idnum_definitions, IdNumDefinition
 from .cc_plot import ccplot_no_op
 from .cc_pyramid import CookieKey, get_session_factory
-from .cc_serversettings import get_database_title
+from .cc_serversettings import (
+    get_database_title,
+    get_server_settings,
+    ServerSettings,
+)
 from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
 from .cc_tabletsession import TabletSession
 
@@ -693,12 +697,15 @@ class CamcopsRequest(Request):
                     default)
 
     # -------------------------------------------------------------------------
-    # Database title
+    # Server settings
     # -------------------------------------------------------------------------
+
+    def get_server_settings(self) -> ServerSettings:
+        return get_server_settings(self)
 
     @reify
     def database_title(self) -> str:
-        return get_database_title(self.dbsession)  # cached
+        return get_database_title(self)  # cached
 
 
 # noinspection PyUnusedLocal

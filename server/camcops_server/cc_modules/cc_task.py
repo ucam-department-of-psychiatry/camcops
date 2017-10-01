@@ -2341,7 +2341,7 @@ class TaskCountReport(Report):
         final_rows = []
         colnames = []
         dbsession = req.dbsession
-        group_ids = req.user.ids_of_groups_user_may_see()
+        group_ids = req.user.ids_of_groups_user_may_report_on
         superuser = req.user.superuser
         classes = Task.all_subclasses_by_tablename()
         for cls in classes:

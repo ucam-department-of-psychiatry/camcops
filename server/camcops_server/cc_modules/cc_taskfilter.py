@@ -320,7 +320,11 @@ class TaskFilter(Base):
                                         req: CamcopsRequest,
                                         q: Query,
                                         cls: Type[Task]) -> Optional[Query]:
-        ccsession = req.camcops_session
+        user = req.user
+        if self.group_ids:
+            permitted_group_ids = self.group_ids.copy()
+        else:
+            permitted_group_ids = None  # unrestricted
 
         if (self.start_datetime and self.end_datetime and
                 self.end_datetime < self.start_datetime):
@@ -338,13 +342,26 @@ class TaskFilter(Base):
                 return None
         else:
             # Not anonymous.
-            if (not ccsession.user_may_view_all_patients_when_unfiltered() and
-                    not self.any_specific_patient_filtering()):
-                # (a) User not permitted to view all patients when
-                # unfiltered. (b) Not filtered to a level that would
-                # reasonably restrict to one or a small number of
-                # patients. Skip the task class.
-                return None
+            if not self.any_specific_patient_filtering():
+                if user.may_view_all_patients_when_unfiltered:
+                    pass
+                elif user.may_view_no_patients_when_unfiltered:
+                    # (a) User not permitted to view any patients when
+                    # unfiltered. (b) Not filtered to a level that would
+                    # reasonably restrict to one or a small number of
+                    # patients. Skip the task class.
+                    return None
+                else:
+                    liberal_group_ids = user.group_ids_that_nonsuperuser_may_see_when_unfiltered()  # noqa
+                    if not permitted_group_ids:  # was unrestricted
+                        permitted_group_ids = liberal_group_ids
+                    else:  # was restricted; restrict further
+                        permitted_group_ids = [
+                            gid for gid in permitted_group_ids
+                            if gid in liberal_group_ids
+                        ]
+                        if not permitted_group_ids:
+                            return None  # down to zero; no point continuing
 
             # Patient filtering
             if self.any_patient_filtering():
@@ -389,9 +406,9 @@ class TaskFilter(Base):
                              for u in self.adding_user_ids]
             q = q.filter(or_(*user_criteria))
 
-        if self.group_ids is not None:
+        if permitted_group_ids:
             # noinspection PyProtectedMember
-            group_criteria = [cls._group_id == g for g in self.group_ids]
+            group_criteria = [cls._group_id == g for g in permitted_group_ids]
             q = q.filter(or_(*group_criteria))
 
         if self.start_datetime is not None:

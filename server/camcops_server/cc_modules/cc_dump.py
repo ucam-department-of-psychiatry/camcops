@@ -36,8 +36,8 @@ from sqlalchemy.sql.schema import Column, ForeignKey, MetaData, Table
 
 from .cc_blob import Blob
 from .cc_device import Device
-from .cc_group import Group
-from .cc_jointables import user_group_table, group_group_table
+from .cc_group import Group, group_group_table
+from .cc_membership import UserGroupMembership
 from .cc_request import CamcopsRequest
 from .cc_task import Task
 from .cc_user import User
@@ -89,7 +89,7 @@ DUMP_SKIP_RELNAMES = [
 # List of table names to be skipped at all times:
 DUMP_SKIP_TABLES = [
     group_group_table.name,
-    user_group_table.name,
+    UserGroupMembership.__tablename__,
 ]
 DUMP_SKIP_ALL_RELS_FOR_TABLES = [
     Group.__tablename__

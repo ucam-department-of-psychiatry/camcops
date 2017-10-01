@@ -28,26 +28,22 @@ import re
 from typing import List, Optional, Set, TYPE_CHECKING
 
 import cardinal_pythonlib.crypto as rnc_crypto
-from cardinal_pythonlib.datetimefunc import (
-    coerce_to_pendulum,
-    convert_datetime_to_local,
-    format_datetime,
-)
+from cardinal_pythonlib.datetimefunc import convert_datetime_to_local
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_query import (
     CountStarSpecializedQuery,
     exists_orm,
 )
 from pendulum import Pendulum
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql import func
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from .cc_audit import audit
-from .cc_constants import DateFormat
 from .cc_group import Group
-from .cc_jointables import user_group_table
+from .cc_membership import UserGroupMembership
 from .cc_sqla_coltypes import (
     EmailAddressColType,
     FullNameColType,
@@ -258,28 +254,17 @@ class SecurityLoginFailure(Base):
 
         Not too often! See CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS.
         """
-        now = req.now
-        last_cleared_var = ServerStoredVar.get_or_create(
-            dbsession=req.dbsession,
-            name="lastDummyLoginFailureClearanceAt",
-            type_on_creation="text",
-            default_value=None
-        )
-        try:
-            last_cleared_val = last_cleared_var.get_value()
-            when_last_cleared = coerce_to_pendulum(last_cleared_val)
-        except ValueError:
-            when_last_cleared = None
-        if when_last_cleared is not None:
-            elapsed = now - when_last_cleared
+        now = req.now_utc
+        ss = req.get_server_settings()
+        if ss.last_dummy_login_failure_clearance_at_utc is not None:
+            elapsed = now - ss.last_dummy_login_failure_clearance_at_utc
             if elapsed < CLEAR_DUMMY_LOGIN_PERIOD:
                 # We cleared it recently.
                 return
 
         cls.clear_login_failures_for_nonexistent_users(req)
         log.debug("Dummy login failures cleared.")
-        now_as_utc_iso_string = format_datetime(now, DateFormat.ISO8601)
-        last_cleared_var.set_value(now_as_utc_iso_string)
+        ss.last_dummy_login_failure_clearance_at_utc = now
 
 
 # =============================================================================
@@ -323,48 +308,10 @@ class User(Base):
         "last_password_change_utc", DateTime,
         comment="Date/time this user last changed their password (UTC)"
     )
-    may_upload = Column(
-        "may_upload", Boolean,
-        default=True,
-        comment="May the user upload data from a tablet device?"
-    )
-    may_register_devices = Column(
-        "may_register_devices", Boolean,
-        default=True,
-        comment="May the user register tablet devices?"
-    )
-    may_use_webviewer = Column(
-        "may_use_webviewer", Boolean,
-        default=True,
-        comment="May the user use the web front end to view "
-                "CamCOPS data?"
-    )
-    view_all_patients_when_unfiltered = Column(
-        "view_all_patients_when_unfiltered", Boolean,
-        default=False,
-        comment="When no record filters are applied, can the user see "
-                "all records? (If not, then none are shown.)"
-    )
     superuser = Column(
         "superuser", Boolean,
         default=False,
         comment="Superuser?"
-    )
-    may_dump_data = Column(
-        "may_dump_data", Boolean,
-        default=False,
-        comment="May the user run database data dumps via the web interface?"
-    )
-    may_run_reports = Column(
-        "may_run_reports", Boolean,
-        default=False,
-        comment="May the user run reports via the web interface? "
-                "(Overrides other view restrictions.)"
-    )
-    may_add_notes = Column(
-        "may_add_notes", Boolean,
-        default=False,
-        comment="May the user add special notes to tasks?"
     )
     must_change_password = Column(
         "must_change_password", Boolean,
@@ -384,11 +331,14 @@ class User(Base):
         # upload while it is. *** implement check in database.py
     )
 
-    groups = relationship(
-        Group,
-        secondary=user_group_table,
-        back_populates="users"  # see Group.users
-    )
+    # groups = relationship(
+    #     Group,
+    #     secondary=user_group_table,
+    #     back_populates="users"  # see Group.users
+    # )
+    user_group_memberships = relationship(
+        "UserGroupMembership", back_populates="user")
+    groups = association_proxy("user_group_memberships", "group")
 
     upload_group = relationship("Group", foreign_keys=[upload_group_id])
 
@@ -432,15 +382,7 @@ class User(Base):
             return False
         user = cls.get_user_by_name(dbsession, username, True)  # now create
 
-        user.may_upload = True
-        user.may_register_devices = True
-        user.may_use_webstorage = True
-        user.may_use_webviewer = True
-        user.view_all_patients_when_unfiltered = True
         user.superuser = True
-        user.may_dump_data = True
-        user.may_run_reports = True
-        user.may_add_notes = True
         user.set_password(req, password)
         audit(req, "SUPERUSER CREATED: " + user.username, from_console=True)
         return True
@@ -481,7 +423,9 @@ class User(Base):
 
     @staticmethod
     def is_username_permissible(username: str) -> bool:
-        """Is this a permissible username?"""
+        """
+        Is this a permissible username?
+        """
         return bool(re.match(VALID_USERNAME_REGEX, username))
 
     @staticmethod
@@ -494,7 +438,9 @@ class User(Base):
         rnc_crypto.hash_password("dummy!", BCRYPT_DEFAULT_LOG_ROUNDS)
 
     def set_password(self, req: "CamcopsRequest", new_password: str) -> None:
-        """Set a user's password."""
+        """
+        Set a user's password.
+        """
         self.hashedpw = rnc_crypto.hash_password(new_password,
                                                  BCRYPT_DEFAULT_LOG_ROUNDS)
         self.last_password_change_utc = req.now_utc
@@ -502,15 +448,20 @@ class User(Base):
         audit(req, "Password changed for user " + self.username)
 
     def is_password_valid(self, password: str) -> bool:
-        """Is the supplied password valid?"""
+        """
+        Is the supplied password valid?
+        """
         return rnc_crypto.is_password_valid(password, self.hashedpw)
 
     def force_password_change(self) -> None:
-        """Make the user change their password at next login."""
+        """
+        Make the user change their password at next login.
+        """
         self.must_change_password = True
 
     def login(self, req: "CamcopsRequest") -> None:
-        """Called when the framework has determined a successful login.
+        """
+        Called when the framework has determined a successful login.
 
         Clears any login failures.
         Requires the user to change their password if policies say they should.
@@ -521,8 +472,10 @@ class User(Base):
 
     def set_password_change_flag_if_necessary(self,
                                               req: "CamcopsRequest") -> None:
-        """If we're requiring users to change their passwords, then check to
-        see if they must do so now."""
+        """
+        If we're requiring users to change their passwords, then check to
+        see if they must do so now.
+        """
         if self.must_change_password:
             # already required, pointless to check again
             return
@@ -538,6 +491,7 @@ class User(Base):
         if delta.days >= cfg.password_change_frequency_days:
             self.force_password_change()
 
+    @property
     def must_agree_terms(self) -> bool:
         """Does the user still need to agree the terms/conditions of use?"""
         return self.when_agreed_terms_of_use is None
@@ -575,6 +529,7 @@ class User(Base):
     def may_login_as_tablet(self) -> bool:
         return self.may_upload or self.may_register_devices
 
+    @property
     def group_ids(self) -> List[int]:
         return sorted(list(g.id for g in self.groups))
 
@@ -582,9 +537,23 @@ class User(Base):
         dbsession = SqlASession.object_session(self)
         assert dbsession, ("User.set_group_ids() called on a User that's not "
                            "yet in a session")
-        groups = Group.get_groups_from_id_list(dbsession, group_ids)
-        self.groups = groups
+        # groups = Group.get_groups_from_id_list(dbsession, group_ids)
 
+        # Remove groups that no longer apply
+        for m in self.user_group_memberships:
+            if m.group_id not in group_ids:
+                dbsession.delete(m)
+        # Add new groups
+        current_group_ids = [m.group_id for m in self.user_group_memberships]
+        new_group_ids = [gid for gid in group_ids
+                         if gid not in current_group_ids]
+        for gid in new_group_ids:
+            self.user_group_memberships.append(UserGroupMembership(
+                user_id=self.id,
+                group_id=gid,
+            ))
+
+    @property
     def ids_of_groups_user_may_see(self) -> List[int]:
         # Incidentally: "list_a += list_b" vs "list_a.extend(list_b)":
         # https://stackoverflow.com/questions/3653298/concatenating-two-lists-difference-between-and-extend  # noqa
@@ -600,6 +569,31 @@ class User(Base):
         # Return as a list rather than a set, because SQLAlchemy's in_()
         # operator only likes lists and sets.
 
+    @property
+    def ids_of_groups_user_may_dump(self) -> List[int]:
+        if self.superuser:
+            return Group.all_group_ids(
+                dbsession=SqlASession.object_session(self))
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return [m.group_id for m in memberships if m.may_dump_data]
+
+    @property
+    def ids_of_groups_user_may_report_on(self) -> List[int]:
+        if self.superuser:
+            return Group.all_group_ids(
+                dbsession=SqlASession.object_session(self))
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return [m.group_id for m in memberships if m.may_run_reports]
+
+    @property
+    def ids_of_groups_user_is_admin_for(self) -> List[int]:
+        if self.superuser:
+            return Group.all_group_ids(
+                dbsession=SqlASession.object_session(self))
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return [m.group_id for m in memberships if m.groupadmin]
+
+    @property
     def groups_user_may_see(self) -> List[Group]:
         # A less efficient version, for visual display (see
         # view_own_user_info.mako)
@@ -607,6 +601,140 @@ class User(Base):
         for my_group in self.groups:  # type: Group
             groups.update(set(my_group.can_see_other_groups))
         return sorted(list(groups), key=lambda g: g.name)
+
+    @property
+    def groups_user_may_dump(self) -> List[Group]:
+        # For visual display (see view_own_user_info.mako).
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return sorted([m.group for m in memberships if m.may_dump_data],
+                      key=lambda g: g.name)
+
+    @property
+    def groups_user_may_report_on(self) -> List[Group]:
+        # For visual display (see view_own_user_info.mako).
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return sorted([m.group for m in memberships if m.may_run_reports],
+                      key=lambda g: g.name)
+
+    @property
+    def groups_user_may_upload_into(self) -> List[Group]:
+        # For visual display (see view_own_user_info.mako).
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return sorted([m.group for m in memberships if m.may_upload],
+                      key=lambda g: g.name)
+
+    @property
+    def groups_user_may_add_special_notes(self) -> List[Group]:
+        # For visual display (see view_own_user_info.mako).
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return sorted([m.group for m in memberships if m.may_add_notes],
+                      key=lambda g: g.name)
+
+    @property
+    def groups_user_may_see_all_pts_when_unfiltered(self) -> List[Group]:
+        # For visual display (see view_own_user_info.mako).
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return sorted([m.group for m in memberships
+                       if m.view_all_patients_when_unfiltered],
+                      key=lambda g: g.name)
+
+    @property
+    def groups_user_is_admin_for(self) -> List[Group]:
+        # For visual display (see view_own_user_info.mako).
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return sorted([m.group for m in memberships if m.groupadmin],
+                      key=lambda g: g.name)
+
+    @property
+    def is_a_groupadmin(self) -> bool:
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.groupadmin for m in memberships)
+
+    @property
+    def authorized_as_groupadmin(self) -> bool:
+        return self.superuser or self.is_a_groupadmin
+
+    def membership_for_group_id(self, group_id: int) -> UserGroupMembership:
+        return next(
+            (m for m in self.user_group_memberships if m.group_id == group_id),
+            None
+        )
+
+    @property
+    def may_use_webviewer(self) -> bool:
+        if self.superuser:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.may_use_webviewer for m in memberships)
+
+    def authorized_to_add_special_note(self, group_id: int) -> bool:
+        if self.superuser:
+            return True
+        membership = self.membership_for_group_id(group_id)
+        if not membership:
+            return False
+        return membership.may_add_notes
+
+    @property
+    def authorized_to_dump(self) -> bool:
+        """Is the user authorized to dump data?"""
+        if self.superuser:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.may_dump_data for m in memberships)
+
+    @property
+    def authorized_for_reports(self) -> bool:
+        """Is the user authorized to run reports?"""
+        if self.superuser:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.may_run_reports for m in memberships)
+
+    @property
+    def may_view_all_patients_when_unfiltered(self) -> bool:
+        """May the user view all patients when no filters are applied?"""
+        if self.superuser:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return all(m.view_all_patients_when_unfiltered for m in memberships)
+
+    @property
+    def may_view_no_patients_when_unfiltered(self) -> bool:
+        """May the user view *no* patients when no filters are applied?"""
+        if self.superuser:
+            return False
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return all(not m.view_all_patients_when_unfiltered
+                   for m in memberships)
+
+    def group_ids_that_nonsuperuser_may_see_when_unfiltered(self) -> List[int]:
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return [m.group_id for m in memberships
+                if m.view_all_patients_when_unfiltered]
+
+    def may_upload_to_group(self, group_id: int) -> bool:
+        if self.superuser:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.may_upload for m in memberships if m.group_id == group_id)
+
+    @property
+    def may_upload(self) -> bool:
+        if self.upload_group_id is None:
+            return False
+        return self.may_upload_to_group(self.upload_group_id)
+
+    @property
+    def may_register_devices(self) -> bool:
+        """
+        You can register a device if any of your groups allow you to do so
+        (since devices are not registered to a particular group).
+        """
+        if self.superuser:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.may_register_devices for m in memberships)
 
 
 def set_password_directly(req: "CamcopsRequest",

@@ -26,11 +26,11 @@ import logging
 from typing import List, Optional, Set
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship, Session as SqlASession
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import Integer
 
-from .cc_jointables import user_group_table, group_group_table
 from .cc_policy import TokenizedPolicy
 from .cc_sqla_coltypes import (
     GroupNameColType,
@@ -43,7 +43,24 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
-# Patient class
+# Group-to-group association table
+# =============================================================================
+# A group can always see itself, but may also have permission to see others;
+# see help(Group).
+
+# http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#self-referential-many-to-many-relationship  # noqa
+group_group_table = Table(
+    "_security_group_group",
+    Base.metadata,
+    Column("group_id", Integer, ForeignKey("_security_groups.id"),
+           primary_key=True),
+    Column("can_see_group_id", Integer, ForeignKey("_security_groups.id"),
+           primary_key=True)
+)
+
+
+# =============================================================================
+# Group
 # =============================================================================
 
 class Group(Base):
@@ -203,11 +220,15 @@ class Group(Base):
         comment="Finalize policy for the group, as a string"
     )
 
-    users = relationship(
-        "User",  # defined with string to avoid circular import
-        secondary=user_group_table,  # link via this mapping table
-        back_populates="groups"  # see User.groups
-    )
+    # users = relationship(
+    #     "User",  # defined with string to avoid circular import
+    #     secondary=user_group_table,  # link via this mapping table
+    #     back_populates="groups"  # see User.groups
+    # )
+    user_group_memberships = relationship(
+        "UserGroupMembership", back_populates="group")
+    users = association_proxy("user_group_memberships", "user")
+
     can_see_other_groups = relationship(
         "Group",  # link back to our own class
         secondary=group_group_table,  # via this mapping table
@@ -255,6 +276,11 @@ class Group(Base):
         if group_id is None:
             return None
         return dbsession.query(cls).filter(cls.id == group_id).first()
+
+    @classmethod
+    def all_group_ids(cls, dbsession: SqlASession) -> List[int]:
+        query = dbsession.query(cls).order_by(cls.id)
+        return [g.id for g in query]
 
     def tokenized_upload_policy(self) -> TokenizedPolicy:
         return TokenizedPolicy(self.upload_policy)

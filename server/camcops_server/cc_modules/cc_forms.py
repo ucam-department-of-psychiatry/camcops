@@ -225,6 +225,74 @@ class CSRFSchema(Schema):
 
 
 # =============================================================================
+# Specialized Form classes
+# =============================================================================
+
+class SimpleSubmitForm(InformativeForm):
+    def __init__(self,
+                 schema_class: Type[Schema],
+                 submit_title: str,
+                 request: "CamcopsRequest",
+                 **kwargs):
+        schema = schema_class().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SUBMIT,
+                            title=submit_title)],
+            **kwargs
+        )
+
+
+class ApplyCancelForm(InformativeForm):
+    def __init__(self,
+                 schema_class: Type[Schema],
+                 request: "CamcopsRequest",
+                 **kwargs):
+        schema = schema_class().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title="Apply"),
+                Button(name=FormAction.CANCEL, title="Cancel"),
+            ],
+            **kwargs
+        )
+
+
+class AddCancelForm(InformativeForm):
+    def __init__(self,
+                 schema_class: Type[Schema],
+                 request: "CamcopsRequest",
+                 **kwargs):
+        schema = schema_class().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title="Add"),
+                Button(name=FormAction.CANCEL, title="Cancel"),
+            ],
+            **kwargs
+        )
+
+
+class DeleteCancelForm(InformativeForm):
+    def __init__(self,
+                 schema_class: Type[Schema],
+                 request: "CamcopsRequest",
+                 **kwargs):
+        schema = schema_class().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.DELETE, title="Delete",
+                       css_class="btn-danger"),
+                Button(name=FormAction.CANCEL, title="Cancel"),
+            ],
+            **kwargs
+        )
+
+
+# =============================================================================
 # Specialized SchemaNode classes
 # =============================================================================
 
@@ -402,7 +470,7 @@ class MandatoryUserIdSelectorUsersAllowedToSee(SchemaNode):
             users = dbsession.query(User).order_by(User.username)
         else:
             # Users in my groups, or groups I'm allowed to see
-            my_allowed_group_ids = user.ids_of_groups_user_may_see()
+            my_allowed_group_ids = user.ids_of_groups_user_may_see
             users = dbsession.query(User)\
                 .join(Group)\
                 .filter(Group.id.in_(my_allowed_group_ids))\
@@ -563,7 +631,7 @@ class NewPasswordNode(SchemaNode):
 class MandatoryGroupIdSelectorAllGroups(SchemaNode):
     """
     Offers a picklist of groups from ALL POSSIBLE GROUPS.
-    Used by superusers (e.g. add user to group).
+    Used by superusers: add user to any group.
     """
     title = "Group"
 
@@ -587,10 +655,39 @@ class MandatoryGroupIdSelectorAllGroups(SchemaNode):
         return Integer()
 
 
+class MandatoryGroupIdSelectorAdministeredGroups(SchemaNode):
+    """
+    Offers a picklist of groups from GROUPS ADMINISTERED BY REQUESTOR.
+    Used by groupadmins: add user to my group(s).
+    """
+    title = "Group"
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.validator = None  # type: object
+        self.widget = None  # type: Widget
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        req = kw[Binding.REQUEST]  # type: CamcopsRequest
+        dbsession = req.dbsession
+        administered_group_ids = req.user.ids_of_groups_user_is_admin_for
+        groups = dbsession.query(Group).order_by(Group.name)
+        values = [(g.id, g.name) for g in groups
+                  if g.id in administered_group_ids]
+        values, pv = get_values_and_permissible(values)
+        self.widget = SelectWidget(values=values)
+        self.validator = OneOf(pv)
+
+    @staticmethod
+    def schema_type() -> SchemaType:
+        return Integer()
+
+
 class MandatoryGroupIdSelectorOtherGroups(SchemaNode):
     """
     Offers a picklist of groups THAT ARE NOT THE SPECIFIED GROUP.
-    Used by superusers, typically: "which other groups can this group see?"
+    Used by superusers: "which other groups can this group see?"
     """
     title = "Other group"
 
@@ -618,6 +715,7 @@ class MandatoryGroupIdSelectorOtherGroups(SchemaNode):
 class MandatoryGroupIdSelectorUserGroups(SchemaNode):
     """
     Offers a picklist of groups from THOSE THE USER IS A MEMBER OF.
+    Used for: "which of your groups do you want to upload into?"
     """
     title = "Group"
 
@@ -695,12 +793,21 @@ class MandatoryGroupIdSelectorAllowedGroups(SchemaNode):
 class GroupsSequenceBase(SequenceSchema):
     title = "Groups"
 
+    def __init__(self, *args, minimum_number: int = 0, **kwargs) -> None:
+        self.minimum_number = minimum_number
+        super().__init__(*args, **kwargs)
+
     # noinspection PyMethodMayBeStatic
-    def validator(self, node: SchemaNode, value: List[int]) -> None:
+    def validator(self,
+                  node: SchemaNode,
+                  value: List[int]) -> None:
         # log.critical("GroupsSequenceBase.validator: {!r}", value)
         assert isinstance(value, list)
         if len(value) != len(set(value)):
             raise Invalid(node, "You have specified duplicate groups")
+        if len(value) < self.minimum_number:
+            raise Invalid(node, "You must specify at least {} group(s)".format(
+                self.minimum_number))
 
 
 class AllGroupsSequence(GroupsSequenceBase):
@@ -709,6 +816,18 @@ class AllGroupsSequence(GroupsSequenceBase):
     Offer all possible groups.
     """
     group_id_sequence = MandatoryGroupIdSelectorAllGroups()
+
+
+class AdministeredGroupsSequence(GroupsSequenceBase):
+    """
+    Typical use: (non-superuser) group administrator assigns group memberships
+    to a user.
+    Offers the groups administered by the requestor.
+    """
+    group_id_sequence = MandatoryGroupIdSelectorAdministeredGroups()
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, minimum_number=1, **kwargs)
 
 
 class AllOtherGroupsSequence(GroupsSequenceBase):
@@ -940,15 +1059,11 @@ class ChangeOtherPasswordSchema(CSRFSchema):
     new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
 
 
-class ChangeOtherPasswordForm(InformativeForm):
+class ChangeOtherPasswordForm(SimpleSubmitForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = ChangeOtherPasswordSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[Button(name=FormAction.SUBMIT,
-                            title=CHANGE_PASSWORD_TITLE)],
-            **kwargs
-        )
+        super().__init__(schema_class=ChangeOtherPasswordSchema,
+                         submit_title=CHANGE_PASSWORD_TITLE,
+                         request=request, **kwargs)
 
 
 # =============================================================================
@@ -959,17 +1074,14 @@ class OfferTermsSchema(CSRFSchema):
     pass
 
 
-class OfferTermsForm(InformativeForm):
+class OfferTermsForm(SimpleSubmitForm):
     def __init__(self,
                  request: "CamcopsRequest",
                  agree_button_text: str,
                  **kwargs) -> None:
-        schema = OfferTermsSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[Button(name=FormAction.SUBMIT, title=agree_button_text)],
-            **kwargs
-        )
+        super().__init__(schema_class=OfferTermsSchema,
+                         submit_title=agree_button_text,
+                         request=request, **kwargs)
 
 
 # =============================================================================
@@ -991,14 +1103,11 @@ class AuditTrailSchema(CSRFSchema):
     )
 
 
-class AuditTrailForm(InformativeForm):
+class AuditTrailForm(SimpleSubmitForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = AuditTrailSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[Button(name=FormAction.SUBMIT, title="View audit trail")],
-            **kwargs
-        )
+        super().__init__(schema_class=AuditTrailSchema,
+                         submit_title="View audit trail",
+                         request=request, **kwargs)
 
 
 # =============================================================================
@@ -1014,15 +1123,11 @@ class HL7MessageLogSchema(CSRFSchema):
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
 
 
-class HL7MessageLogForm(InformativeForm):
+class HL7MessageLogForm(SimpleSubmitForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = HL7MessageLogSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[Button(name=FormAction.SUBMIT,
-                            title="View HL7 message log")],
-            **kwargs
-        )
+        super().__init__(schema_class=HL7MessageLogSchema,
+                         submit_title="View HL7 message log",
+                         request=request, **kwargs)
 
 
 # =============================================================================
@@ -1036,14 +1141,11 @@ class HL7RunLogSchema(CSRFSchema):
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
 
 
-class HL7RunLogForm(InformativeForm):
+class HL7RunLogForm(SimpleSubmitForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = HL7RunLogSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[Button(name=FormAction.SUBMIT, title="View HL7 run log")],
-            **kwargs
-        )
+        super().__init__(schema_class=HL7RunLogSchema,
+                         submit_title="View HL7 run log",
+                         request=request, **kwargs)
 
 
 # =============================================================================
@@ -1226,15 +1328,12 @@ class ReportParamSchema(CSRFSchema):
     # Specific forms may inherit from this.
 
 
-class ReportParamForm(InformativeForm):
+class ReportParamForm(SimpleSubmitForm):
     def __init__(self, request: "CamcopsRequest",
                  schema_class: Type[ReportParamSchema], **kwargs) -> None:
-        schema = schema_class().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[Button(name=FormAction.SUBMIT, title="View report")],
-            **kwargs
-        )
+        super().__init__(schema_class=schema_class,
+                         submit_title="View report",
+                         request=request, **kwargs)
 
 
 # =============================================================================
@@ -1245,30 +1344,21 @@ class ViewDdlSchema(CSRFSchema):
     dialect = DatabaseDialectSelector()  # must match ViewParam.DIALECT
 
 
-class ViewDdlForm(InformativeForm):
+class ViewDdlForm(SimpleSubmitForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = ViewDdlSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[Button(name=FormAction.SUBMIT, title="View DDL")],
-            **kwargs
-        )
+        super().__init__(schema_class=ViewDdlSchema,
+                         submit_title="View DDL",
+                         request=request, **kwargs)
 
 
 # =============================================================================
 # Add/edit/delete users
 # =============================================================================
 
-class EditUserSchema(CSRFSchema):
-    username = UsernameNode()  # name must match ViewParam.USERNAME and User attribute  # noqa
-    fullname = OptionalStringNode(  # name must match ViewParam.FULLNAME and User attribute  # noqa
-        title="Full name",
-        validator=Length(0, FULLNAME_MAX_LEN)
-    )
-    email = OptionalStringNode(  # name must match ViewParam.EMAIL and User attribute  # noqa
-        validator=EmailValidatorWithLengthConstraint(),
-        title="E-mail address",
-    )
+class UserGroupMembershipGroupAdminSchema(CSRFSchema):
+    """
+    Edit group membership - for group administrators.
+    """
     may_upload = BooleanNode(  # match ViewParam.MAY_UPLOAD and User attribute
         default=True,
         title="Permitted to upload from a tablet/device",
@@ -1286,10 +1376,6 @@ class EditUserSchema(CSRFSchema):
         title="May view (browse) records from all patients when no patient "
               "filter set",
     )
-    superuser = BooleanNode(  # match ViewParam.SUPERUSER and User attribute  # noqa
-        default=False,
-        title="Superuser (CAUTION!)",
-    )
     may_dump_data = BooleanNode(  # match ViewParam.MAY_DUMP_DATA and User attribute  # noqa
         default=False,
         title="May perform bulk data dumps",
@@ -1302,40 +1388,85 @@ class EditUserSchema(CSRFSchema):
         default=False,
         title="May add special notes to tasks",
     )
+
+
+class UserGroupMembershipFullSchema(UserGroupMembershipGroupAdminSchema):
+    """
+    Edit group membership - for superusers.
+    """
+    groupadmin = BooleanNode(  # match ViewParam.GROUPADMIN and User attribute  # noqa
+        default=True,
+        title="User is a privileged group administrator for this group",
+    )
+
+
+class EditUserGroupAdminSchema(CSRFSchema):
+    username = UsernameNode()  # name must match ViewParam.USERNAME and User attribute  # noqa
+    fullname = OptionalStringNode(  # name must match ViewParam.FULLNAME and User attribute  # noqa
+        title="Full name",
+        validator=Length(0, FULLNAME_MAX_LEN)
+    )
+    email = OptionalStringNode(  # name must match ViewParam.EMAIL and User attribute  # noqa
+        validator=EmailValidatorWithLengthConstraint(),
+        title="E-mail address",
+    )
+    must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute  # noqa
+    group_ids = AdministeredGroupsSequence()  # must match ViewParam.GROUP_IDS
+
+
+class EditUserFullSchema(EditUserGroupAdminSchema):
+    superuser = BooleanNode(  # match ViewParam.SUPERUSER and User attribute  # noqa
+        default=False,
+        title="Superuser (CAUTION!)",
+    )
+    group_ids = AllGroupsSequence()  # must match ViewParam.GROUP_IDS
+
+
+class EditUserFullForm(ApplyCancelForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=EditUserFullSchema,
+                         request=request, **kwargs)
+
+
+class EditUserGroupAdminForm(ApplyCancelForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=EditUserGroupAdminSchema,
+                         request=request, **kwargs)
+
+
+class EditUserGroupMembershipFullForm(ApplyCancelForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=UserGroupMembershipFullSchema,
+                         request=request, **kwargs)
+
+
+class EditUserGroupMembershipGroupAdminForm(ApplyCancelForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=UserGroupMembershipGroupAdminSchema,
+                         request=request, **kwargs)
+
+
+class AddUserSuperuserSchema(CSRFSchema):
+    username = UsernameNode()  # name must match ViewParam.USERNAME and User attribute  # noqa
+    new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
     must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute  # noqa
     group_ids = AllGroupsSequence()  # must match ViewParam.GROUP_IDS
 
 
-class EditUserForm(InformativeForm):
+class AddUserGroupadminSchema(AddUserSuperuserSchema):
+    group_ids = AdministeredGroupsSequence()  # must match ViewParam.GROUP_IDS
+
+
+class AddUserSuperuserForm(AddCancelForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = EditUserSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.SUBMIT, title="Apply"),
-                Button(name=FormAction.CANCEL, title="Cancel"),
-            ],
-            **kwargs
-        )
+        super().__init__(schema_class=AddUserSuperuserSchema,
+                         request=request, **kwargs)
 
 
-class AddUserSchema(CSRFSchema):
-    username = UsernameNode()  # name must match ViewParam.USERNAME and User attribute  # noqa
-    new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
-    must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute  # noqa
-
-
-class AddUserForm(InformativeForm):
+class AddUserGroupadminForm(AddCancelForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = AddUserSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.SUBMIT, title="Add"),
-                Button(name=FormAction.CANCEL, title="Cancel"),
-            ],
-            **kwargs
-        )
+        super().__init__(schema_class=AddUserGroupadminSchema,
+                         request=request, **kwargs)
 
 
 class SetUserUploadGroupSchema(CSRFSchema):
@@ -1377,18 +1508,10 @@ class DeleteUserSchema(CSRFSchema):
             raise Invalid(node, "Not fully confirmed")
 
 
-class DeleteUserForm(InformativeForm):
+class DeleteUserForm(DeleteCancelForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = DeleteUserSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.DELETE, title="Delete",
-                       css_class="btn-danger"),
-                Button(name=FormAction.CANCEL, title="Cancel"),
-            ],
-            **kwargs
-        )
+        super().__init__(schema_class=DeleteUserSchema,
+                         request=request, **kwargs)
 
 
 # =============================================================================
@@ -1457,17 +1580,10 @@ class AddGroupSchema(CSRFSchema):
             raise Invalid(node, "Name is used by another group!")
 
 
-class AddGroupForm(InformativeForm):
+class AddGroupForm(AddCancelForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = AddGroupSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.SUBMIT, title="Add"),
-                Button(name=FormAction.CANCEL, title="Cancel"),
-            ],
-            **kwargs
-        )
+        super().__init__(schema_class=AddGroupSchema,
+                         request=request, **kwargs)
 
 
 class DeleteGroupSchema(CSRFSchema):
@@ -1487,18 +1603,10 @@ class DeleteGroupSchema(CSRFSchema):
             raise Invalid(node, "Not fully confirmed")
 
 
-class DeleteGroupForm(InformativeForm):
+class DeleteGroupForm(DeleteCancelForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = DeleteGroupSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.DELETE, title="Delete",
-                       css_class="btn-danger"),
-                Button(name=FormAction.CANCEL, title="Cancel"),
-            ],
-            **kwargs
-        )
+        super().__init__(schema_class=DeleteGroupSchema,
+                         request=request, **kwargs)
 
 
 # =============================================================================
@@ -1519,16 +1627,11 @@ class OfferBasicDumpSchema(CSRFSchema):
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
 
 
-class OfferBasicDumpForm(InformativeForm):
+class OfferBasicDumpForm(SimpleSubmitForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = OfferBasicDumpSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.SUBMIT, title="Submit"),
-            ],
-            **kwargs
-        )
+        super().__init__(schema_class=OfferBasicDumpSchema,
+                         submit_title="Dump",
+                         request=request, **kwargs)
 
 
 class OfferSqlDumpManualSchema(Schema):
@@ -1543,16 +1646,11 @@ class OfferSqlDumpSchema(CSRFSchema):
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
 
 
-class OfferSqlDumpForm(InformativeForm):
+class OfferSqlDumpForm(SimpleSubmitForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = OfferSqlDumpSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.SUBMIT, title="Submit"),
-            ],
-            **kwargs
-        )
+        super().__init__(schema_class=OfferSqlDumpSchema,
+                         submit_title="Dump",
+                         request=request, **kwargs)
 
 
 # =============================================================================
@@ -1567,17 +1665,10 @@ class EditServerSettingsSchema(CSRFSchema):
     )
 
 
-class EditServerSettingsForm(InformativeForm):
+class EditServerSettingsForm(ApplyCancelForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = EditServerSettingsSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.SUBMIT, title="Submit"),
-                Button(name=FormAction.CANCEL, title="Cancel"),
-            ],
-            **kwargs
-        )
+        super().__init__(schema_class=EditServerSettingsSchema,
+                         request=request, **kwargs)
 
 
 class EditIdDefinitionSchema(CSRFSchema):
@@ -1604,17 +1695,10 @@ class EditIdDefinitionSchema(CSRFSchema):
                                 "number!")
 
 
-class EditIdDefinitionForm(InformativeForm):
+class EditIdDefinitionForm(ApplyCancelForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = EditIdDefinitionSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.SUBMIT, title="Submit"),
-                Button(name=FormAction.CANCEL, title="Cancel"),
-            ],
-            **kwargs
-        )
+        super().__init__(schema_class=EditIdDefinitionSchema,
+                         request=request, **kwargs)
 
 
 class AddIdDefinitionSchema(CSRFSchema):
@@ -1648,17 +1732,10 @@ class AddIdDefinitionSchema(CSRFSchema):
                                 "number!")
 
 
-class AddIdDefinitionForm(InformativeForm):
+class AddIdDefinitionForm(AddCancelForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = AddIdDefinitionSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.SUBMIT, title="Add"),
-                Button(name=FormAction.CANCEL, title="Cancel"),
-            ],
-            **kwargs
-        )
+        super().__init__(schema_class=AddIdDefinitionSchema,
+                         request=request, **kwargs)
 
 
 class DeleteIdDefinitionSchema(CSRFSchema):

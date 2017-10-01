@@ -43,12 +43,9 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_device import Device
-from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_group import Group, group_group_table
 from camcops_server.cc_modules.cc_hl7 import HL7Message, HL7Run
-from camcops_server.cc_modules.cc_jointables import (
-    user_group_table,
-    group_group_table,
-)
+from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import (
     IdNumDefinition,
@@ -613,7 +610,8 @@ def translate_fn(trcon: TranslationContext) -> None:
 # noinspection PyUnusedLocal
 def postprocess(src_engine: Engine, dst_session: Session) -> None:
     log.warning("NOT IMPLEMENTED AUTOMATICALLY: copying user/group mapping "
-                "from table {!r}; do this by hand.", user_group_table.name)
+                "from table {!r}; do this by hand.",
+                UserGroupMembership.__tablename__)
     log.warning("NOT IMPLEMENTED AUTOMATICALLY: copying group/group mapping "
                 "from table {!r}; do this by hand.", group_group_table.name)
 
@@ -672,6 +670,7 @@ def merge_camcops_db(src: str,
         TableIdentity(tablename=ServerSettings.__tablename__),
         TableIdentity(tablename=SecurityAccountLockout.__tablename__),
         TableIdentity(tablename=SecurityLoginFailure.__tablename__),
+        TableIdentity(tablename=UserGroupMembership.__tablename__),
     ]
 
     # Tedious and bulky stuff the user may want to skip:

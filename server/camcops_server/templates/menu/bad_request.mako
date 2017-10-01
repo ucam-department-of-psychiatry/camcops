@@ -2,5 +2,5 @@
 <%inherit file="generic_failure.mako"/>
 
 <div class="error">
-    Mis-configured request!
+    Bad request!
 </div>

@@ -322,7 +322,7 @@ def get_diagnosis_report_query(req: CamcopsRequest,
     ]
     if not req.user.superuser:
         # Restrict to accessible groups
-        group_ids = req.user.ids_of_groups_user_may_see()
+        group_ids = req.user.ids_of_groups_user_may_report_on
         wheres.append(diagnosis_class._group_id.in_(group_ids))
         # Helpfully, SQLAlchemy will render this as "... AND 1 != 1" if we
         # pass an empty list to in_().

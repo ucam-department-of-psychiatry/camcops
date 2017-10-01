@@ -759,7 +759,7 @@ class LPSReportReferredNotDischarged(Report):
             raise exc.HTTPBadRequest("{} not specified".format(
                 ViewParam.WHICH_IDNUM))
 
-        group_ids = req.user.ids_of_groups_user_may_see()
+        group_ids = req.user.ids_of_groups_user_may_report_on
 
         # Step 1: link referral and patient
         p1 = Patient.__table__.alias("p1")
@@ -871,7 +871,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
             raise exc.HTTPBadRequest("{} not specified".format(
                 ViewParam.WHICH_IDNUM))
 
-        group_ids = req.user.ids_of_groups_user_may_see()
+        group_ids = req.user.ids_of_groups_user_may_report_on
 
         # Step 1: link referral and patient
         p1 = Patient.__table__.alias("p1")

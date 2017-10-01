@@ -146,7 +146,7 @@ import pygments.lexers.web
 import pygments.formatters
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import Session as SqlASession, sessionmaker
-from sqlalchemy.sql.expression import desc, or_
+from sqlalchemy.sql.expression import and_, desc, exists, not_, or_
 
 from .cc_audit import audit, AuditEntry
 from .cc_constants import CAMCOPS_URL, DateFormat, MINIMUM_PASSWORD_LENGTH
@@ -159,7 +159,8 @@ from .cc_forms import (
     AddGroupForm,
     AddIdDefinitionForm,
     AddSpecialNoteForm,
-    AddUserForm,
+    AddUserGroupadminForm,
+    AddUserSuperuserForm,
     AuditTrailForm,
     ChangeOtherPasswordForm,
     ChangeOwnPasswordForm,
@@ -172,7 +173,10 @@ from .cc_forms import (
     EditGroupForm,
     EditIdDefinitionForm,
     EditServerSettingsForm,
-    EditUserForm,
+    EditUserFullForm,
+    EditUserGroupAdminForm,
+    EditUserGroupMembershipFullForm,
+    EditUserGroupMembershipGroupAdminForm,
     HL7MessageLogForm,
     HL7RunLogForm,
     LoginForm,
@@ -187,6 +191,7 @@ from .cc_forms import (
 )
 from .cc_group import Group
 from .cc_hl7 import HL7Message, HL7Run
+from .cc_membership import UserGroupMembership
 from .cc_patient import Patient
 from .cc_patientidnum import (
     clear_idnum_definition_cache,
@@ -251,15 +256,14 @@ ALLOWED_TASK_VIEW_TYPES = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML,
 ALLOWED_TRACKER_VIEW_TYPE = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML,
                              ViewArg.XML]
 AFFECTED_TASKS_HTML = "<h1>Affected tasks:</h1>"
-CANNOT_DUMP = "User not authorized to dump data/regenerate summary tables."
-CANNOT_REPORT = "User not authorized to run reports."
-CAN_ONLY_CHANGE_OWN_PASSWORD = "You can only change your own password!"
-TASK_FAIL_MSG = "Task not found or user not authorized."
-NOT_AUTHORIZED_MSG = "User not authorized."
-NO_INTROSPECTION_MSG = "Introspection not permitted"
+CANNOT_DUMP = "User not authorized to dump data (for any group)."
+CANNOT_REPORT = "User not authorized to run reports (for any group)."
+# CAN_ONLY_CHANGE_OWN_PASSWORD = "You can only change your own password!"
+# TASK_FAIL_MSG = "Task not found or user not authorized."
+# NOT_AUTHORIZED_MSG = "User not authorized."
+NO_INTROSPECTION_MSG = "Introspection has been disabled by your administrator."
 INTROSPECTION_INVALID_FILE_MSG = "Invalid file for introspection"
 INTROSPECTION_FAILED_MSG = "Failed to read file for introspection"
-MISSING_PARAMETERS_MSG = "Missing parameters"
 ERROR_TASK_LIVE = (
     "Task is live on tablet; finalize (or force-finalize) first.")
 
@@ -499,7 +503,7 @@ def offer_terms(req: CamcopsRequest) -> Response:
         agree_button_text=req.wappstring("disclaimer_agree"))
 
     if FormAction.SUBMIT in req.POST:
-        req.camcops_session.agree_terms(req)
+        req.user.agree_terms(req)
         return HTTPFound(req.route_url(Routes.HOME))  # redirect
 
     return render_to_response(
@@ -523,7 +527,7 @@ def forbidden(req: CamcopsRequest) -> Response:
         assert user, "Bug! Authenticated but no user...!?"
         if user.must_change_password:
             return HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
-        if user.must_agree_terms():
+        if user.must_agree_terms:
             return HTTPFound(req.route_url(Routes.OFFER_TERMS))
     # ... but with "raise HTTPFound" instead.
     # BUT there is only one level of exception handling in Pyramid, i.e. you
@@ -546,11 +550,10 @@ def forbidden(req: CamcopsRequest) -> Response:
 
 @view_config(route_name=Routes.CHANGE_OWN_PASSWORD, permission=Authenticated)
 def change_own_password(req: CamcopsRequest) -> Response:
-    ccsession = req.camcops_session
-    expired = ccsession.user_must_change_password()
-    form = ChangeOwnPasswordForm(request=req, must_differ=True)
     user = req.user
     assert user is not None
+    expired = user.must_change_password
+    form = ChangeOwnPasswordForm(request=req, must_differ=True)
     extra_msg = ""
     if FormAction.SUBMIT in req.POST:
         try:
@@ -634,9 +637,9 @@ def password_changed(req: CamcopsRequest,
 @view_config(route_name=Routes.HOME, renderer="main_menu.mako")
 def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
     """Main HTML menu."""
-    ccsession = req.camcops_session
+    user = req.user
     cfg = req.config
-    if req.user.superuser:
+    if user.superuser:
         groups = req.dbsession.query(Group)  # type: Iterable[Group]
         warn_bad_id_policies = any(
             (not g.tokenized_upload_policy().is_valid_from_req(req)) or
@@ -647,9 +650,10 @@ def main_menu(req: CamcopsRequest) -> Dict[str, Any]:
         # Let's make things a little faster for non-superusers:
         warn_bad_id_policies = False
     return dict(
-        authorized_as_superuser=ccsession.authorized_as_superuser(),
-        authorized_for_reports=ccsession.authorized_for_reports(),
-        authorized_to_dump=ccsession.authorized_to_dump(),
+        authorized_as_groupadmin=user.authorized_as_groupadmin,
+        authorized_as_superuser=user.superuser,
+        authorized_for_reports=user.authorized_for_reports,
+        authorized_to_dump=user.authorized_to_dump,
         camcops_url=CAMCOPS_URL,
         warn_bad_id_policies=warn_bad_id_policies,
         introspection=cfg.introspection,
@@ -821,7 +825,7 @@ def view_tasks(req: CamcopsRequest) -> Dict[str, Any]:
         tpp_form=rendered_tpp_form,
         refresh_form=rendered_refresh_form,
         no_patient_selected_and_user_restricted=(
-            not ccsession.user_may_view_all_patients_when_unfiltered() and
+            not user.may_view_all_patients_when_unfiltered and
             not taskfilter.any_specific_patient_filtering()
         ),
         user=user,
@@ -1007,15 +1011,19 @@ def serve_ctv(req: CamcopsRequest) -> Response:
 # Reports
 # =============================================================================
 
-@view_config(route_name=Routes.REPORTS_MENU, renderer="reports_menu.mako",
-             permission=Permission.REPORTS)
+@view_config(route_name=Routes.REPORTS_MENU, renderer="reports_menu.mako")
 def reports_menu(req: CamcopsRequest) -> Dict[str, Any]:
     """Offer a menu of reports."""
+    if not req.user.authorized_for_reports:
+        raise HTTPBadRequest(CANNOT_REPORT)
+    # Reports are not group-specific.
+    # If you're authorized to see any, you'll see the whole menu.
+    # (The *data* you get will be restricted to the group's you're authorized
+    # to run reports for.)
     return {}
 
 
-@view_config(route_name=Routes.OFFER_REPORT, renderer="report_offer.mako",
-             permission=Permission.REPORTS)
+@view_config(route_name=Routes.OFFER_REPORT, renderer="report_offer.mako")
 def offer_report(req: CamcopsRequest) -> Dict[str, Any]:
     """Offer configuration options for a single report."""
     report_id = req.get_str_param(ViewParam.REPORT_ID)
@@ -1044,9 +1052,11 @@ def offer_report(req: CamcopsRequest) -> Dict[str, Any]:
     )
 
 
-@view_config(route_name=Routes.REPORT, permission=Permission.REPORTS)
+@view_config(route_name=Routes.REPORT)
 def provide_report(req: CamcopsRequest) -> Response:
     """Serve up a configured report."""
+    if not req.user.authorized_for_reports:
+        raise HTTPBadRequest(CANNOT_REPORT)
     report_id = req.get_str_param(ViewParam.REPORT_ID)
     report = get_report_instance(report_id)
     if not report:
@@ -1058,9 +1068,11 @@ def provide_report(req: CamcopsRequest) -> Response:
 # Research downloads
 # =============================================================================
 
-@view_config(route_name=Routes.OFFER_BASIC_DUMP, permission=Permission.DUMP)
+@view_config(route_name=Routes.OFFER_BASIC_DUMP)
 def offer_basic_dump(req: CamcopsRequest) -> Response:
     """Form for basic research dump selection."""
+    if not req.user.authorized_to_dump:
+        raise HTTPBadRequest(CANNOT_DUMP)
     form = OfferBasicDumpForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1089,8 +1101,10 @@ def offer_basic_dump(req: CamcopsRequest) -> Response:
     )
 
 
-@view_config(route_name=Routes.BASIC_DUMP, permission=Permission.DUMP)
+@view_config(route_name=Routes.BASIC_DUMP)
 def serve_basic_dump(req: CamcopsRequest) -> Response:
+    if not req.user.authorized_to_dump:
+        raise HTTPBadRequest(CANNOT_DUMP)
     # -------------------------------------------------------------------------
     # Get parameters
     # -------------------------------------------------------------------------
@@ -1115,6 +1129,7 @@ def serve_basic_dump(req: CamcopsRequest) -> Response:
     collection = TaskCollection(
         req=req,
         taskfilter=taskfilter,
+        as_dump=True,
         sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
     )
 
@@ -1169,9 +1184,11 @@ def serve_basic_dump(req: CamcopsRequest) -> Response:
     return ZipResponse(body=zip_contents, filename=zip_filename)
 
 
-@view_config(route_name=Routes.OFFER_SQL_DUMP, permission=Permission.DUMP)
+@view_config(route_name=Routes.OFFER_SQL_DUMP)
 def offer_sql_dump(req: CamcopsRequest) -> Response:
     """Form for SQL research dump selection."""
+    if not req.user.authorized_to_dump:
+        raise HTTPBadRequest(CANNOT_DUMP)
     form = OfferSqlDumpForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1200,8 +1217,10 @@ def offer_sql_dump(req: CamcopsRequest) -> Response:
     )
 
 
-@view_config(route_name=Routes.SQL_DUMP, permission=Permission.DUMP)
+@view_config(route_name=Routes.SQL_DUMP)
 def sql_dump(req: CamcopsRequest) -> Response:
+    if not req.user.authorized_to_dump:
+        raise HTTPBadRequest(CANNOT_DUMP)
     # -------------------------------------------------------------------------
     # Get parameters
     # -------------------------------------------------------------------------
@@ -1227,6 +1246,7 @@ def sql_dump(req: CamcopsRequest) -> Response:
     collection = TaskCollection(
         req=req,
         taskfilter=taskfilter,
+        as_dump=True,
         sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
     )
 
@@ -1712,21 +1732,28 @@ def view_server_info(req: CamcopsRequest) -> Dict[str, Any]:
 # User management
 # =============================================================================
 
-EDIT_USER_KEYS = [
+EDIT_USER_KEYS_GROUPADMIN = [
     # SPECIAL HANDLING # ViewParam.USER_ID,
     ViewParam.USERNAME,
     ViewParam.FULLNAME,
     ViewParam.EMAIL,
+    ViewParam.MUST_CHANGE_PASSWORD,
+    # SPECIAL HANDLING # ViewParam.GROUP_IDS,
+]
+EDIT_USER_KEYS_SUPERUSER = EDIT_USER_KEYS_GROUPADMIN + [
+    ViewParam.SUPERUSER,
+]
+EDIT_USER_GROUP_MEMBERSHIP_KEYS_GROUPADMIN = [
     ViewParam.MAY_UPLOAD,
     ViewParam.MAY_REGISTER_DEVICES,
     ViewParam.MAY_USE_WEBVIEWER,
     ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED,
-    ViewParam.SUPERUSER,
     ViewParam.MAY_DUMP_DATA,
     ViewParam.MAY_RUN_REPORTS,
     ViewParam.MAY_ADD_NOTES,
-    ViewParam.MUST_CHANGE_PASSWORD,
-    # SPECIAL HANDLING # ViewParam.GROUP_IDS,
+]
+EDIT_USER_GROUP_MEMBERSHIP_KEYS_SUPERUSER = EDIT_USER_GROUP_MEMBERSHIP_KEYS_GROUPADMIN + [  # noqa
+    ViewParam.GROUPADMIN,
 ]
 
 
@@ -1739,7 +1766,7 @@ def get_user_from_request_user_id_or_raise(req: CamcopsRequest) -> User:
 
 
 @view_config(route_name=Routes.VIEW_ALL_USERS,
-             permission=Permission.SUPERUSER,
+             permission=Permission.GROUPADMIN,
              renderer="users_view.mako")
 def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
@@ -1747,30 +1774,94 @@ def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     dbsession = req.dbsession
     q = dbsession.query(User).order_by(User.username)
+    if not req.user.superuser:
+        # LOGIC SHOULD MATCH assert_may_edit_user
+        # Restrict to users who are members of groups that I am an admin for:
+        groupadmin_group_ids = req.user.ids_of_groups_user_is_admin_for
+        ugm2 = UserGroupMembership.__table__.alias("ugm2")
+        q = q.join(User.user_group_memberships)\
+            .filter(not_(User.superuser))\
+            .filter(UserGroupMembership.group_id.in_(groupadmin_group_ids))\
+            .filter(
+                ~exists().select_from(ugm2).where(
+                    and_(
+                        ugm2.c.user_id == User.id,
+                        ugm2.c.groupadmin
+                    )
+                )
+            )
+        # ... no superusers
+        # ... user must be a member of one of our groups
+        # ... no groupadmins
+        # https://stackoverflow.com/questions/14600619/using-not-exists-clause-in-sqlalchemy-orm-query  # noqa
+        # log.critical(str(q))
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req))
-    return dict(page=page)
+    return dict(page=page,
+                as_superuser=req.user.superuser)
+
+
+def assert_may_edit_user(req: CamcopsRequest, user: User) -> None:
+    # LOGIC SHOULD MATCH view_all_users
+    if not req.user.superuser:
+        if user.superuser:
+            raise HTTPBadRequest("You may not edit a superuser")
+        if user.is_a_groupadmin:
+            raise HTTPBadRequest("You may not edit a group administrator")
+        groupadmin_group_ids = req.user.ids_of_groups_user_is_admin_for
+        if not any(gid in groupadmin_group_ids for gid in user.group_ids):
+            raise HTTPBadRequest("You are not a group administrator for any "
+                                 "groups that this user is in")
 
 
 @view_config(route_name=Routes.VIEW_USER,
-             permission=Permission.SUPERUSER,
+             permission=Permission.GROUPADMIN,
              renderer="view_other_user_info.mako")
 def view_user(req: CamcopsRequest) -> Dict[str, Any]:
     user = get_user_from_request_user_id_or_raise(req)
+    assert_may_edit_user(req, user)
     return dict(user=user)
+    # Groupadmins may see some information regarding groups that aren't theirs
+    # here, but can't alter it.
 
 
 @view_config(route_name=Routes.EDIT_USER,
-             permission=Permission.SUPERUSER,
+             permission=Permission.GROUPADMIN,
              renderer="user_edit.mako")
 def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
     route_back = Routes.VIEW_ALL_USERS
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(route_back))
     user = get_user_from_request_user_id_or_raise(req)
-    form = EditUserForm(request=req)
+    assert_may_edit_user(req, user)
+    # Superusers can do everything, of course.
+    # Groupadmins can change group memberships only for groups they control
+    # (here: "fluid"). That means that there may be a subset of group
+    # memberships for this user that they will neither see nor be able to
+    # alter (here: "frozen"). They can also edit only a restricted set of
+    # permissions.
+    if req.user.superuser:
+        form = EditUserFullForm(request=req)
+        keys = EDIT_USER_KEYS_SUPERUSER
+    else:
+        form = EditUserGroupAdminForm(request=req)
+        keys = EDIT_USER_KEYS_GROUPADMIN
+    # Groups that we might change memberships for:
+    all_fluid_groups = req.user.ids_of_groups_user_is_admin_for
+    # All groups that the user is currently in:
+    user_group_ids = user.group_ids
+    # Group membership we won't touch:
+    user_frozen_group_ids = list(set(user_group_ids) - set(all_fluid_groups))
+    # Group memberships we might alter:
+    user_fluid_group_ids = list(set(user_group_ids) & set(all_fluid_groups))
+    log.critical(
+        "all_fluid_groups={}, user_group_ids={}, "
+        "user_frozen_group_ids={}, user_fluid_group_ids={}".format(
+            all_fluid_groups, user_group_ids,
+            user_frozen_group_ids, user_fluid_group_ids)
+    )
     if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
@@ -1785,23 +1876,63 @@ def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
                         user.name, user.id, new_user_name,
                         existing_user.id
                     ))
-            for k in EDIT_USER_KEYS:
+            for k in keys:
                 setattr(user, k, appstruct.get(k))
             group_ids = appstruct.get(ViewParam.GROUP_IDS)
-            user.set_group_ids(group_ids)
+            # Add back in the groups we're not going to alter:
+            final_group_ids = list(set(group_ids) | set(user_frozen_group_ids))
+            user.set_group_ids(final_group_ids)
             # Also, if the user was uploading to a group that they are now no
             # longer a member of, we need to fix that
-            if user.upload_group_id not in group_ids:
+            if user.upload_group_id not in final_group_ids:
                 user.upload_group_id = None
             raise HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
-        appstruct = {k: getattr(user, k) for k in EDIT_USER_KEYS}
+        appstruct = {k: getattr(user, k) for k in keys}
         appstruct[ViewParam.USER_ID] = user.id
-        appstruct[ViewParam.GROUP_IDS] = user.group_ids()
+        appstruct[ViewParam.GROUP_IDS] = user_fluid_group_ids
         rendered_form = form.render(appstruct)
     return dict(user=user,
+                form=rendered_form,
+                head_form_html=get_head_form_html(req, [form]))
+
+
+@view_config(route_name=Routes.EDIT_USER_GROUP_MEMBERSHIP,
+             permission=Permission.GROUPADMIN,
+             renderer="user_edit_group_membership.mako")
+def edit_user_group_membership(req: CamcopsRequest) -> Dict[str, Any]:
+    route_back = Routes.VIEW_ALL_USERS
+    if FormAction.CANCEL in req.POST:
+        raise HTTPFound(req.route_url(route_back))
+    ugm_id = req.get_int_param(ViewParam.USER_GROUP_MEMBERSHIP_ID)
+    ugm = UserGroupMembership.get_ugm_by_id(req.dbsession, ugm_id)
+    if not ugm:
+        raise HTTPBadRequest("No such UserGroupMembership ID: {}".format(
+            repr(ugm_id)))
+    user = ugm.user
+    assert_may_edit_user(req, user)
+    if req.user.superuser:
+        form = EditUserGroupMembershipFullForm(request=req)
+        keys = EDIT_USER_GROUP_MEMBERSHIP_KEYS_SUPERUSER
+    else:
+        form = EditUserGroupMembershipGroupAdminForm(request=req)
+        keys = EDIT_USER_GROUP_MEMBERSHIP_KEYS_GROUPADMIN
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            dbsession = req.dbsession
+            for k in keys:
+                setattr(ugm, k, appstruct.get(k))
+            raise HTTPFound(req.route_url(route_back))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        appstruct = {k: getattr(ugm, k) for k in keys}
+        rendered_form = form.render(appstruct)
+    return dict(ugm=ugm,
                 form=rendered_form,
                 head_form_html=get_head_form_html(req, [form]))
 
@@ -1850,21 +1981,25 @@ def set_other_user_upload_group(req: CamcopsRequest) -> Response:
 
 
 @view_config(route_name=Routes.UNLOCK_USER,
-             permission=Permission.SUPERUSER)
+             permission=Permission.GROUPADMIN)
 def unlock_user(req: CamcopsRequest) -> Response:
     user = get_user_from_request_user_id_or_raise(req)
+    assert_may_edit_user(req, user)
     user.enable(req)
     return simple_success(req, "User {} enabled".format(user.username))
 
 
 @view_config(route_name=Routes.ADD_USER,
-             permission=Permission.SUPERUSER,
+             permission=Permission.GROUPADMIN,
              renderer="user_add.mako")
 def add_user(req: CamcopsRequest) -> Dict[str, Any]:
     route_back = Routes.VIEW_ALL_USERS
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(route_back))
-    form = AddUserForm(request=req)
+    if req.user.superuser:
+        form = AddUserSuperuserForm(request=req)
+    else:
+        form = AddUserGroupadminForm(request=req)
     dbsession = req.dbsession
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1878,6 +2013,12 @@ def add_user(req: CamcopsRequest) -> Dict[str, Any]:
                 raise HTTPBadRequest("User with username {!r} already "
                                      "exists!".format(user.username))
             dbsession.add(user)
+            group_ids = appstruct.get(ViewParam.GROUP_IDS)
+            for gid in group_ids:
+                user.user_group_memberships.append(UserGroupMembership(
+                    user_id=user.id,
+                    group_id=gid
+                ))
             raise HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
             rendered_form = e.render()
@@ -1921,20 +2062,26 @@ def any_records_use_user(req: CamcopsRequest, user: User) -> bool:
 
 
 @view_config(route_name=Routes.DELETE_USER,
-             permission=Permission.SUPERUSER,
+             permission=Permission.GROUPADMIN,
              renderer="user_delete.mako")
 def delete_user(req: CamcopsRequest) -> Dict[str, Any]:
     if FormAction.CANCEL in req.POST:
         raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
     user = get_user_from_request_user_id_or_raise(req)
+    assert_may_edit_user(req, user)
     form = DeleteUserForm(request=req)
     rendered_form = ""
     error = ""
     if user.id == req.user.id:
         error = "Can't delete your own user!"
     elif user.may_use_webviewer or user.may_upload:
-        error = "Unable to delete user; still has webviewer login and/or " \
-                "tablet upload permission"
+        error = "Unable to delete user: user still has webviewer login " \
+                "and/or tablet upload permission"
+    elif ((not req.user.superuser) and
+            bool(set(user.group_ids) -
+                 set(req.user.ids_of_groups_user_is_admin_for))):
+        error = "Unable to delete user: user belongs to groups that you do " \
+                "not administer"
     else:
         if any_records_use_user(req, user):
             error = "Unable to delete user; records refer to that user. " \
@@ -2136,9 +2283,8 @@ def edit_server_settings(req: CamcopsRequest) -> Dict[str, Any]:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
-            dbsession = req.dbsession
             title = appstruct.get(ViewParam.DATABASE_TITLE)
-            set_database_title(dbsession, title)
+            set_database_title(req, title)
             raise HTTPFound(req.route_url(Routes.HOME))
         except ValidationFailure as e:
             rendered_form = e.render()
@@ -2329,7 +2475,6 @@ def introspect(req: CamcopsRequest) -> Response:
 # =============================================================================
 
 @view_config(route_name=Routes.ADD_SPECIAL_NOTE,
-             permission=Permission.ADD_NOTES,
              renderer="special_note_add.mako")
 def add_special_note(req: CamcopsRequest) -> Dict[str, Any]:
     """
@@ -2351,6 +2496,10 @@ def add_special_note(req: CamcopsRequest) -> Dict[str, Any]:
     if task is None:
         raise HTTPBadRequest("No such task: {}, PK={}".format(
             table_name, server_pk))
+    user = req.user
+    if not user.authorized_to_add_special_note(task._group_id):
+        raise HTTPBadRequest("Not authorized to add special notes for this "
+                             "task's group")
     form = AddSpecialNoteForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:

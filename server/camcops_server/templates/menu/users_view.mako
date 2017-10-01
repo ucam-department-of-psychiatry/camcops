@@ -20,11 +20,12 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <th>Flags</th>
         <th>Full name</th>
         <th>Email</th>
-        <th>View</th>
-        <th>Last login at</th>
-        <th>Groups</th>
-        <th>Upload group</th>
+        <th>View details</th>
         <th>Edit</th>
+        <th>Groups</th>
+        %if as_superuser:
+            <th>Upload group</th>
+        %endif
         <th>Change password</th>
         <th>Delete</th>
     </tr>
@@ -36,6 +37,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                 %if user.superuser:
                     <span class="important">Superuser.</span>
                 %endif
+                %if user.is_a_groupadmin:
+                    <span class="important">Group administrator.</span>
+                %endif
                 %if user.is_locked_out(request):
                     <span class="warning">Locked out; <a href="${ req.route_url(Routes.UNLOCK_USER, _query={ViewParam.USER_ID: user.id}) }">unlock</a>.</span>
                 %endif
@@ -43,13 +47,22 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             <td>${ (user.fullname or "") | h }</td>
             <td>${ (user.email or "") | h }</td>
             <td><a href="${ req.route_url(Routes.VIEW_USER, _query={ViewParam.USER_ID: user.id}) }">View</a></td>
-            <td>${ user.last_login_at_utc | h }</td>
-            <td>${ one_per_line(g.name for g in sorted(list(user.groups), key=lambda g: g.name)) }</td>
-            <td>
-                ${ (escape(user.upload_group.name) if user.upload_group else "<i>(None)</i>") }
-                [<a href="${request.route_url(Routes.SET_OTHER_USER_UPLOAD_GROUP, _query={ViewParam.USER_ID: user.id})}">change</a>]
-            </td>
             <td><a href="${ req.route_url(Routes.EDIT_USER, _query={ViewParam.USER_ID: user.id}) }">Edit</a></td>
+            <td>
+                ${ one_per_line(
+                ['{} [<a href="{}">Permissions</a>]'.format(
+                    ugm.group.name,
+                    req.route_url(Routes.EDIT_USER_GROUP_MEMBERSHIP, _query={ViewParam.USER_GROUP_MEMBERSHIP_ID: ugm.id})
+                )
+                for ugm in sorted(list(user.user_group_memberships), key=lambda ugm: ugm.group.name)],
+                escape=False) }
+            </td>
+            %if as_superuser:
+                <td>
+                    ${ (escape(user.upload_group.name) if user.upload_group else "<i>(None)</i>") }
+                    [<a href="${request.route_url(Routes.SET_OTHER_USER_UPLOAD_GROUP, _query={ViewParam.USER_ID: user.id})}">change</a>]
+                </td>
+            %endif
             <td><a href="${ req.route_url(Routes.CHANGE_OTHER_PASSWORD, _query={ViewParam.USER_ID: user.id}) }">Change password</a></td>
             <td><a href="${ req.route_url(Routes.DELETE_USER, _query={ViewParam.USER_ID: user.id}) }">Delete</a></td>
         </tr>

@@ -34,11 +34,12 @@ ${ refresh_form }
     <div class="explanation">
         Your user isn’t configured to view all patients’ records when no
         patient filters are applied, and none is.
-        Only anonymous records will be shown.
-        Choose a patient to see their records.
+        Records will only be shown if they are anonymous, or for groups that
+        allow you to see all patients in these circumstances.
+        Choose a specific patient to see their records.
     </div>
 %endif
-%if not user.superuser and not user.group_ids():
+%if not user.superuser and not user.group_ids:
     <div class="warning">
         Your administrator has not assigned you to any groups.
         You won’t be able to see any tasks.

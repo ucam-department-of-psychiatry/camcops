@@ -57,15 +57,20 @@ MySQL isn't one of those.
 """
 
 import logging
+from typing import TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, MetaData, Table
-from sqlalchemy.sql.sqltypes import Float, Integer, String, UnicodeText
+from sqlalchemy.sql.sqltypes import (
+    DateTime, Float, Integer, String, UnicodeText,
+)
 
 from .cc_cache import cache_region_static
 from .cc_sqla_coltypes import DatabaseTitleColType
 from .cc_sqlalchemy import Base
+
+if TYPE_CHECKING:
+    from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -146,9 +151,15 @@ class ServerSettings(Base):
         "database_title", DatabaseTitleColType,
         comment="Database title"
     )
+    last_dummy_login_failure_clearance_at_utc = Column(
+        "last_dummy_login_failure_clearance_at_utc", DateTime,
+        comment="Date/time (in UTC) when login failure records were cleared "
+                "for nonexistent users (security feature)"
+    )
 
 
-def get_server_settings(dbsession: SqlASession) -> ServerSettings:
+def get_server_settings(req: "CamcopsRequest") -> ServerSettings:
+    dbsession = req.dbsession
     server_settings = dbsession.query(ServerSettings)\
         .filter(ServerSettings.id == SERVER_SETTINGS_SINGLETON_PK)\
         .first()
@@ -160,10 +171,10 @@ def get_server_settings(dbsession: SqlASession) -> ServerSettings:
     return server_settings
 
 
-def get_database_title(dbsession: SqlASession) -> str:
+def get_database_title(req: "CamcopsRequest") -> str:
     def creator() -> str:
-        server_settings = get_server_settings(dbsession)
-        return server_settings.database_title
+        server_settings = get_server_settings(req)
+        return server_settings.database_title or ""
 
     return cache_region_static.get_or_create(CACHE_KEY_DATABASE_TITLE, creator)
 
@@ -172,7 +183,7 @@ def clear_database_title_cache() -> None:
     cache_region_static.delete(CACHE_KEY_DATABASE_TITLE)
 
 
-def set_database_title(dbsession: SqlASession, title: str) -> None:
-    server_settings = get_server_settings(dbsession)
+def set_database_title(req: "CamcopsRequest", title: str) -> None:
+    server_settings = get_server_settings(req)
     server_settings.database_title = title
     clear_database_title_cache()

@@ -69,9 +69,9 @@ from .cc_convert import (
     encode_single_value,
 )
 from .cc_device import Device
-from .cc_group import Group
+from .cc_group import Group, group_group_table
 from .cc_hl7 import HL7Message, HL7Run
-from .cc_jointables import user_group_table
+from .cc_membership import UserGroupMembership
 from .cc_patient import Patient
 from .cc_patientidnum import (
     fake_tablet_id_for_patientidnum,
@@ -132,6 +132,7 @@ RESERVED_TABLES = [
     Device.__tablename__,
     DirtyTable.__tablename__,
     Group.__tablename__,
+    group_group_table.name,
     HL7Message.__tablename__,
     HL7Run.__tablename__,
     IdNumDefinition.__tablename__,
@@ -141,7 +142,7 @@ RESERVED_TABLES = [
     SpecialNote.__tablename__,
     TaskFilter.__tablename__,
     User.__tablename__,
-    user_group_table.name,
+    UserGroupMembership.__tablename__,
 ]
 RESERVED_FIELDS = GenericTabletRecordMixin.RESERVED_FIELDS
 

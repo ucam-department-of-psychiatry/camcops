@@ -2,6 +2,11 @@
 CAMCOPS SERVER THINGS TO DO NOW
 ===============================================================================
 
+*** groupadmin concept
+    - user editing
+*** erase task
+*** delete patient
+*** forcibly preserve
 
 
 *** database upload code
@@ -9,10 +14,6 @@ CAMCOPS SERVER THINGS TO DO NOW
         Fetch at upload and recheck patients conform
 
 *** Test framework via cfg based on demo text but using sqlite memory db
-
-*** erase task
-*** delete patient
-*** forcibly preserve
 
 *** HL7 backend
 
@@ -23,10 +24,6 @@ CAMCOPS SERVER THINGS TO DO NOW
 *** ?special device for "manually uploaded"
     ... string constants; prevent devices from being registered with that name?
 
-??? make main pages refer to CSS as a file; provide views to serve those CSS
-    files; mark them as cacheable by the browser (but still need inline CSS
-    for PDF creation!).
-
 ===============================================================================
 KEY THOUGHTS
 ===============================================================================
@@ -34,6 +31,11 @@ KEY THOUGHTS
 - "tasks need doing" in the context of a research study
 
     - define patients on server (per group)
+        -- share main patient/patient_idnum tables
+        -- have a device code for "server" -- such as "server"
+            ... prevent devices registering that
+            ... fix merge_db to create and import that properly
+        -- always in era "NOW"
 
     - "task needs doing"
         - patient (by ID number)
@@ -52,12 +54,17 @@ KEY THOUGHTS
             - due_from_relative_to_start_date
             - due_by_relative_to_start_date
         - instantiate with patient, group, start date
+                -- PatientSchedule
 
         example:
             "In our study, we want a PHQ9 and GAD7 at the start, a PHQ9 at
             3 months, and a PHQ9 and GAD7 at 6 months."
+                -- StudySchedule
+
+            +
 
             "Mr Jones starts today."
+                -- "enrol"
 
     Tablets should fetch "what needs doing" for any patients defined on the
     tablet, and display them nicely.
@@ -97,6 +104,10 @@ CAMCOPS SERVER THINGS TO DO
 THOUGHTS/POTENTIAL THINGS TO DO
 ===============================================================================
 
+??? make main pages refer to CSS as a file; provide views to serve those CSS
+    files; mark them as cacheable by the browser (but still need inline CSS
+    for PDF creation!).
+
 - refine unit testing, i.e. more branch coverage, and use of real or dummy
   database-record instances in more cases
 - see also Python modules for unit testing
@@ -132,7 +143,7 @@ CONSIDERED BUT NOT IMPLEMENTED
   user's custom Python) to generate a research ID, for the anonymisation step,
   e.g. hashing an NHS number using a secret method not known to CamCOPS.
   ... anonymisation is Somebody Else's Business; we have a separate tool for
-      that.
+      that (see CRATE).
 
 - Filter on multiple patient IDs. Would only be relevant for researchers trying
   to take a subset of data.

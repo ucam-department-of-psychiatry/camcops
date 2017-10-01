@@ -84,17 +84,20 @@ def sort_tasks_in_place(tasklist: List[Task],
 # =============================================================================
 
 def task_query_restricted_to_permitted_users(
-        req: CamcopsRequest, q: Query, cls: Type[Task]) -> Optional[Query]:
+        req: CamcopsRequest, q: Query, cls: Type[Task],
+        as_dump: bool) -> Optional[Query]:
     user = req.user
 
     if user.superuser:
         return q  # anything goes
 
     # Implement group security. Simple:
-    group_ids = user.ids_of_groups_user_may_see()
+    if as_dump:
+        group_ids = user.ids_of_groups_user_may_dump
+    else:
+        group_ids = user.ids_of_groups_user_may_see
+
     if not group_ids:
-        # log.warning("User {!r} (ID {!r}) can see no groups!",
-        #             user.username, user.id)
         return None
 
     # noinspection PyProtectedMember
@@ -121,7 +124,7 @@ def task_factory(req: CamcopsRequest, basetable: str,
     dbsession = req.dbsession
     # noinspection PyProtectedMember
     q = dbsession.query(cls).filter(cls._pk == serverpk)
-    q = task_query_restricted_to_permitted_users(req, q, cls)
+    q = task_query_restricted_to_permitted_users(req, q, cls, as_dump=False)
     return q.first()
 
 
@@ -199,11 +202,13 @@ class TaskCollection(object):
     def __init__(self,
                  req: CamcopsRequest,
                  taskfilter: TaskFilter,
+                 as_dump: bool = False,
                  sort_method_by_class: TaskSortMethod = TaskSortMethod.NONE,
                  sort_method_global: TaskSortMethod = TaskSortMethod.NONE) \
             -> None:
         self._req = req
         self._filter = taskfilter
+        self.as_dump = as_dump
         self._sort_method_by_class = sort_method_by_class
         self._sort_method_global = sort_method_global
         self._tasks_by_class = None  # type: OrderedDict[Type[Task], List[Task]]  # noqa
@@ -248,7 +253,8 @@ class TaskCollection(object):
 
         # Restrict to what is PERMITTED
         # Cache group IDs
-        q = task_query_restricted_to_permitted_users(self._req, q, task_class)
+        q = task_query_restricted_to_permitted_users(self._req, q, task_class,
+                                                     as_dump=self.as_dump)
 
         # Restrict to what is DESIRED
         if q:

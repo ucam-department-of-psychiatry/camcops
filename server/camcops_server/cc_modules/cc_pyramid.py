@@ -65,6 +65,7 @@ from .cc_constants import DEFAULT_ROWS_PER_PAGE
 
 if TYPE_CHECKING:
     from pyramid.request import Request
+    from .cc_membership import UserGroupMembership
     from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -146,6 +147,7 @@ class ViewParam(object):
     FINALIZE_POLICY = "finalize_policy"
     FORENAME = "forename"
     FULLNAME = "fullname"
+    GROUPADMIN = "groupadmin"
     GROUP_ID = "group_id"
     GROUP_IDS = "group_ids"
     HL7_MSG_ID = "hl7_msg_id"
@@ -191,6 +193,7 @@ class ViewParam(object):
     TRUNCATE = "truncate"
     UPLOAD_GROUP_ID = "upload_group_id"
     UPLOAD_POLICY = "upload_policy"
+    USER_GROUP_MEMBERSHIP_ID = "user_group_membership_id"
     USER_ID = "user_id"
     USER_IDS = "user_ids"
     USERNAME = "username"
@@ -443,6 +446,7 @@ class Routes(object):
     EDIT_ID_DEFINITION = "edit_id_definition"
     EDIT_SERVER_SETTINGS = "edit_server_settings"
     EDIT_USER = "edit_user"
+    EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
     ERASE_TASK = "erase_task"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
@@ -552,6 +556,8 @@ class RouteCollection(object):
     EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS,
                                      '/edit_server_settings')
     EDIT_USER = RoutePath(Routes.EDIT_USER, "/edit_user")
+    EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP,
+                                           "/edit_user_group_membership")
     ERASE_TASK = RoutePath(Routes.ERASE_TASK, "/erase_task")
     FORCIBLY_FINALIZE = RoutePath(
         Routes.FORCIBLY_FINALIZE, "/forcibly_finalize"
@@ -688,15 +694,11 @@ def get_session_factory() -> SignedCookieSessionFactory:
 class Permission(object):
     # Permissions are strings.
     # For "logged in", use pyramid.security.Authenticated
-    ADD_NOTES = "add_notes"
-    DUMP = "dump"
+    GROUPADMIN = "groupadmin"
     HAPPY = "happy"  # logged in, can use webview, no need to change p/w, agreed to terms  # noqa
     MUST_AGREE_TERMS = "must_agree_terms"
     MUST_CHANGE_PASSWORD = "must_change_password"
-    REGISTER_DEVICE = "register"
-    REPORTS = "reports"
     SUPERUSER = "superuser"
-    UPLOAD = "upload"
 
 
 @implementer(IAuthenticationPolicy)
@@ -726,22 +728,14 @@ class CamcopsAuthenticationPolicy(object):
             if user.may_use_webviewer:
                 if user.must_change_password:
                     principals.append(Permission.MUST_CHANGE_PASSWORD)
-                elif user.must_agree_terms():
+                elif user.must_agree_terms:
                     principals.append(Permission.MUST_AGREE_TERMS)
                 else:
                     principals.append(Permission.HAPPY)
-                    if user.may_dump_data:
-                        principals.append(Permission.DUMP)
-                    if user.may_run_reports:
-                        principals.append(Permission.REPORTS)
-                    if user.may_add_notes:
-                        principals.append(Permission.ADD_NOTES)
-            if user.may_upload:
-                principals.append(Permission.UPLOAD)
-            if user.may_register_devices:
-                principals.append(Permission.REGISTER_DEVICE)
             if user.superuser:
                 principals.append(Permission.SUPERUSER)
+            if user.authorized_as_groupadmin:
+                principals.append(Permission.GROUPADMIN)
             # principals.extend(('g:%s' % g.name for g in user.groups))
         if DEBUG_EFFECTIVE_PRINCIPALS:
             log.debug("effective_principals: {!r}", principals)

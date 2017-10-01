@@ -18,6 +18,7 @@ from markupsafe import escape
         <th>Principal (single necessary) ID number required by Upload policy</th>
         <th>Finalize ID policy</th>
         <th>Principal (single necessary) ID number required by Finalize policy</th>
+        <th>Members</th>
         %if with_edit:
             <th>Edit</th>
             <th>Delete</th>
@@ -57,6 +58,10 @@ from markupsafe import escape
             </td>
 
             <td>${ finalize_tk.find_critical_single_numerical_id_from_req(request) }</td>
+
+            <td>
+                ${ (",".join(sorted(u.username for u in group.users))) | h }
+            </td>
 
             %if with_edit:
                 <td><a href="${ req.route_url(Routes.EDIT_GROUP, _query={ViewParam.GROUP_ID: group.id}) }">Edit</a></td>

@@ -175,7 +175,7 @@ ${ task.get_task_html(req) }
     ## Superuser options
     <div class="superuser">
         ## check this collapses to zero height with no content!
-        %if req.camcops_session.authorized_to_add_special_note():
+        %if req.user.authorized_to_add_special_note(task._group_id):
             <p><a href="${ req.route_url(
                         Routes.ADD_SPECIAL_NOTE,
                         _query={

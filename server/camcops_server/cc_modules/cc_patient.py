@@ -618,7 +618,7 @@ class DistinctPatientReport(Report):
         wheres = [Patient._current == True]  # type: List[ClauseElement]
         if not req.user.superuser:
             # Restrict to accessible groups
-            group_ids = req.user.ids_of_groups_user_may_see()
+            group_ids = req.user.ids_of_groups_user_may_report_on
             wheres.append(Patient._group_id.in_(group_ids))
         for iddef in req.idnum_definitions:
             n = iddef.which_idnum
