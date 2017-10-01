@@ -102,7 +102,6 @@ from .cc_modules.cc_user import set_password_directly, User  # nopep8
 from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
 from .cc_modules.database import database_unit_tests  # nopep8
 from .cc_modules.merge_db import merge_camcops_db
-from .cc_modules.webview import webview_unit_tests  # nopep8
 
 log.debug("All imports complete")
 

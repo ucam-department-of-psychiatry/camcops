@@ -244,11 +244,16 @@ def blob_relationship(classname: str,
             " remote(Blob._device_id) == foreign({cls}._device_id), "
             " remote(Blob._era) == foreign({cls}._era), "
             " remote(Blob._current) == True "
-            ")".format(cls=classname, fk=blob_id_col_attr_name)
+            ")".format(
+                cls=classname,
+                fk=blob_id_col_attr_name
+            )
         ),
         uselist=False,
         viewonly=read_only,
-        info={RelationshipInfo.IS_BLOB: True},
+        info={
+            RelationshipInfo.IS_BLOB: True,
+        },
     )
 
 

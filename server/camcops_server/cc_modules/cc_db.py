@@ -23,16 +23,17 @@
 """
 
 import logging
-from typing import Any, Dict, Iterable, List, Union, Type, TypeVar
+from typing import (Any, Dict, Generator, Iterable, List, Set, Type,
+                    TYPE_CHECKING, TypeVar, Union)
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
-import cardinal_pythonlib.rnc_db as rnc_db
 from cardinal_pythonlib.rnc_db import FIELDSPECLIST_TYPE
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
+from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 # from sqlalchemy.sql.type_api import TypeEngine
@@ -40,8 +41,11 @@ from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 from .cc_constants import DateFormat, ERA_NOW
 from .cc_sqla_coltypes import (
     CamcopsColumn,
-    PendulumDateTimeAsIsoTextColType,
     EraColType,
+    gen_ancillary_relationships,
+    gen_blob_relationships,
+    gen_camcops_blob_columns,
+    PendulumDateTimeAsIsoTextColType,
     PermittedValueChecker,
     RelationshipInfo,
     SemanticVersionColType,
@@ -52,6 +56,10 @@ from .cc_xml import (
     make_xml_branches_from_columns,
     XmlElement,
 )
+
+if TYPE_CHECKING:
+    from .cc_blob import Blob
+    from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -347,6 +355,10 @@ class GenericTabletRecordMixin(object):
         return relationship("Group",
                             foreign_keys=[cls._group_id])
 
+    # -------------------------------------------------------------------------
+    # Autoscanning objects and their relationships
+    # -------------------------------------------------------------------------
+
     def _get_xml_root(self,
                       skip_attrs: List[str] = None,
                       include_plain_columns: bool=True,
@@ -393,7 +405,7 @@ class GenericTabletRecordMixin(object):
             branches += make_xml_branches_from_blobs(self,
                                                      skip_fields=skip_attrs)
         if sort_by_attr:
-            branches.sort(key = lambda el: el.name)
+            branches.sort(key=lambda el: el.name)
         # log.critical("... branches for {!r}: {!r}", self, branches)
         return branches
 
@@ -409,6 +421,111 @@ class GenericTabletRecordMixin(object):
             headings=headings,
             rows=[row]
         )
+
+    # -------------------------------------------------------------------------
+    # Erasing (overwriting data, not deleting the database records)
+    # -------------------------------------------------------------------------
+
+    def manually_erase_with_dependants(self, req: "CamcopsRequest") -> None:
+        """
+        Manually erases a standard record and marks it so erased.
+        The object remains _current (if it was), as a placeholder, but its
+        contents are wiped.
+        WRITES TO DATABASE.
+        """
+        if self._manually_erased or self._pk is None or self._era == ERA_NOW:
+            # ... _manually_erased: don't do it twice
+            # ... _pk: basic sanity check
+            # ... _era: don't erase things that are current on the tablet
+            return
+        # 1. "Erase my dependants"
+        for ancillary in self.gen_ancillary_instances_even_noncurrent():
+            ancillary.manually_erase_with_dependants(req)
+        for blob in self.gen_blobs_even_noncurrent():
+            blob.manually_erase_with_dependants(req)
+        # 2. "Erase me"
+        erasure_attrs = []  # type: List[str]
+        for attrname, column in gen_columns(self):
+            if attrname.startswith("_"):  # system field
+                continue
+            if not column.nullable:  # this should cover FKs
+                continue
+            if column.foreign_keys:  # ... but to be sure...
+                continue
+            erasure_attrs.append(attrname)
+        for attrname in erasure_attrs:
+            setattr(self, attrname, None)
+        self._current = False
+        self._manually_erased = True
+        self._manually_erased_at = req.now
+        self._manually_erasing_user_id = req.user_id
+
+    def delete_with_dependants(self, req: "CamcopsRequest") -> None:
+        if self._pk is None:
+            return
+        # 1. "Delete my dependants"
+        for ancillary in self.gen_ancillary_instances_even_noncurrent():
+            ancillary.delete_with_dependants(req)
+        for blob in self.gen_blobs_even_noncurrent():
+            blob.delete_with_dependants(req)
+        # 2. "Delete me"
+        dbsession = SqlASession.object_session(self)
+        dbsession.delete(self)
+
+    def gen_ancillary_instances(self) -> Generator["GenericTabletRecordMixin",
+                                                   None, None]:
+        for attrname, rel_prop, rel_cls in gen_ancillary_relationships(self):
+            if rel_prop.uselist:
+                ancillaries = getattr(self, attrname)  # type: List[GenericTabletRecordMixin]  # noqa
+            else:
+                ancillaries = [getattr(self, attrname)]  # type: List[GenericTabletRecordMixin]  # noqa
+            for ancillary in ancillaries:
+                if ancillary is None:
+                    continue
+                yield ancillary
+
+    def gen_ancillary_instances_even_noncurrent(self) \
+            -> Generator["GenericTabletRecordMixin", None, None]:
+        seen = set()  # type: Set[GenericTabletRecordMixin]
+        for ancillary in self.gen_ancillary_instances():
+            for lineage_member in ancillary.get_lineage():
+                if lineage_member in seen:
+                    continue
+                seen.add(lineage_member)
+                yield lineage_member
+
+    def gen_blobs(self) -> Generator["Blob", None, None]:
+        for id_attrname, column in gen_camcops_blob_columns(self):
+            relationship_attr = column.blob_relationship_attr_name
+            blob = getattr(self, relationship_attr)
+            if blob is None:
+                continue
+            yield blob
+
+    def gen_blobs_even_noncurrent(self) -> Generator["Blob", None, None]:
+        seen = set()  # type: Set["Blob"]
+        for blob in self.gen_blobs():
+            if blob is None:
+                continue
+            for lineage_member in blob.get_lineage():
+                if lineage_member in seen:
+                    continue
+                seen.add(lineage_member)
+                yield lineage_member
+
+    def get_lineage(self) -> List["GenericTabletRecordMixin"]:
+        """
+        Returns all records that are part of the same "lineage", that is:
+        matching on id/device_id/era, but including both current and any
+        historical non-current versions.
+        """
+        dbsession = SqlASession.object_session(self)
+        cls = self.__class__
+        q = dbsession.query(cls)\
+            .filter(cls.id == self.id)\
+            .filter(cls._device_id == self._device_id)\
+            .filter(cls._era == self._era)
+        return list(q)
 
 
 # =============================================================================
@@ -444,7 +561,9 @@ def ancillary_relationship(
         order_by="{a}.{f}".format(a=ancillary_class_name,
                                   f=ancillary_order_by_attr_name),
         viewonly=read_only,
-        info={RelationshipInfo.IS_ANCILLARY: True},
+        info={
+            RelationshipInfo.IS_ANCILLARY: True,
+        },
         # ... "info" is a user-defined dictionary; see
         # http://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship.params.info  # noqa
         # http://docs.sqlalchemy.org/en/latest/orm/internals.html#MapperProperty.info  # noqa
@@ -529,31 +648,6 @@ def delete_from_table_by_pklist(tablename: str,
     query = "DELETE FROM {} WHERE {} = ?".format(tablename, pkname)
     for pk in pklist:
         pls.db.db_exec(query, pk)
-
-
-# noinspection PyProtectedMember
-def manually_erase_record_object_and_save(obj: T,
-                                          table: str,
-                                          fields: Iterable[str],
-                                          user_id: int) -> None:
-    """Manually erases a standard record and marks it so erased.
-    The object remains _current, as a placeholder, but its contents are wiped.
-    WRITES TO DATABASE."""
-    if obj._pk is None or obj._era == ERA_NOW:
-        return
-    standard_task_fields = [x["name"] for x in STANDARD_TASK_FIELDSPECS]
-    erasure_fields = [
-        x
-        for x in fields
-        if x not in standard_task_fields
-    ]
-    rnc_db.blank_object(obj, erasure_fields)
-    obj._current = False
-    obj._manually_erased = True
-    obj._manually_erased_at = format_datetime(pls.NOW_LOCAL_TZ,
-                                              DateFormat.ISO8601)
-    obj._manually_erasing_user_id = user_id
-    pls.db.update_object_in_db(obj, table, fields)
 
 
 def delete_subtable_records_common(tablename: str,

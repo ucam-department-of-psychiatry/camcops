@@ -675,6 +675,14 @@ class User(Base):
             return False
         return membership.may_add_notes
 
+    def authorized_to_erase_tasks(self, group_id: int) -> bool:
+        if self.superuser:
+            return True
+        membership = self.membership_for_group_id(group_id)
+        if not membership:
+            return False
+        return membership.groupadmin
+
     @property
     def authorized_to_dump(self) -> bool:
         """Is the user authorized to dump data?"""

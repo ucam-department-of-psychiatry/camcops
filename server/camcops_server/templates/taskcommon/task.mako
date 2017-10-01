@@ -183,11 +183,11 @@ ${ task.get_task_html(req) }
                             ViewParam.SERVER_PK: task._pk,
                         }) }">Apply special note</a></p>
         %endif
-        %if req.camcops_session.authorized_as_superuser():
+        %if req.user.authorized_to_erase_tasks(task._group_id):
             %if not task.is_erased() and task._era != ERA_NOW:
                 ## Note: prohibit manual erasure for non-finalized tasks.
                 <p><a href="${ req.route_url(
-                            Routes.ADD_SPECIAL_NOTE,
+                            Routes.ERASE_TASK,
                             _query={
                                 ViewParam.TABLE_NAME: task.tablename,
                                 ViewParam.SERVER_PK: task._pk,

@@ -204,11 +204,13 @@ class TaskCollection(object):
                  taskfilter: TaskFilter,
                  as_dump: bool = False,
                  sort_method_by_class: TaskSortMethod = TaskSortMethod.NONE,
-                 sort_method_global: TaskSortMethod = TaskSortMethod.NONE) \
+                 sort_method_global: TaskSortMethod = TaskSortMethod.NONE,
+                 current_only: bool = True) \
             -> None:
         self._req = req
         self._filter = taskfilter
-        self.as_dump = as_dump
+        self._as_dump = as_dump
+        self._current_only = current_only
         self._sort_method_by_class = sort_method_by_class
         self._sort_method_global = sort_method_global
         self._tasks_by_class = None  # type: OrderedDict[Type[Task], List[Task]]  # noqa
@@ -249,12 +251,13 @@ class TaskCollection(object):
 
         # Restrict to what the web front end will supply
         # noinspection PyProtectedMember
-        q = q.filter(task_class._current == True)  # nopep8
+        if self._current_only:
+            q = q.filter(task_class._current == True)  # nopep8
 
         # Restrict to what is PERMITTED
         # Cache group IDs
         q = task_query_restricted_to_permitted_users(self._req, q, task_class,
-                                                     as_dump=self.as_dump)
+                                                     as_dump=self._as_dump)
 
         # Restrict to what is DESIRED
         if q:

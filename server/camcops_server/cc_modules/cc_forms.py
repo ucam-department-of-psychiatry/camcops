@@ -292,6 +292,25 @@ class DeleteCancelForm(InformativeForm):
         )
 
 
+class DangerousForm(DynamicDescriptionsForm):
+    def __init__(self,
+                 schema_class: Type[Schema],
+                 submit_action: str,
+                 submit_title: str,
+                 request: "CamcopsRequest",
+                 **kwargs):
+        schema = schema_class().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=submit_action, title=submit_title,
+                       css_class="btn-danger"),
+                Button(name=FormAction.CANCEL, title="Cancel"),
+            ],
+            **kwargs
+        )
+
+
 # =============================================================================
 # Specialized SchemaNode classes
 # =============================================================================
@@ -974,6 +993,22 @@ class IdDefinitionShortDescriptionNode(SchemaNode):
     validator = Length(1, ID_DESCRIPTOR_MAX_LEN)
 
 
+class HardWorkConfirmationSchema(CSRFSchema):
+    confirm_1_t = BooleanNode(title="Really?", default=False)
+    confirm_2_t = BooleanNode(title="Leave ticked to confirm", default=True)
+    confirm_3_f = BooleanNode(title="Please untick to confirm", default=True)
+    confirm_4_t = BooleanNode(title="Be really sure; tick here also to "
+                                    "confirm", default=False)
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        if ((not value['confirm_1_t']) or
+                (not value['confirm_2_t']) or
+                value['confirm_3_f'] or
+                (not value['confirm_4_t'])):
+            raise Invalid(node, "Not fully confirmed")
+
+
 # =============================================================================
 # Login
 # =============================================================================
@@ -1472,7 +1507,7 @@ class AddUserGroupadminForm(AddCancelForm):
 class SetUserUploadGroupSchema(CSRFSchema):
     upload_group_id = OptionalGroupIdSelectorUserGroups(  # must match ViewParam.UPLOAD_GROUP_ID  # noqa
         title="Group into which to upload data",
-        description="Select a group from those to which the user belongs"
+        description="Pick a group from those to which the user belongs"
     )
 
 
@@ -1491,21 +1526,8 @@ class SetUserUploadGroupForm(InformativeForm):
         )
 
 
-class DeleteUserSchema(CSRFSchema):
+class DeleteUserSchema(HardWorkConfirmationSchema):
     user_id = HiddenIntegerNode()  # name must match ViewParam.USER_ID
-    confirm_1_t = BooleanNode(title="Really delete user?", default=False)
-    confirm_2_f = BooleanNode(title="Please untick to confirm", default=True)
-    confirm_3_t = BooleanNode(title="Leave ticked to confirm", default=True)
-    confirm_4_t = BooleanNode(title="Be really sure; tick here also to "
-                                    "confirm", default=False)
-
-    # noinspection PyMethodMayBeStatic
-    def validator(self, node: SchemaNode, value: Any) -> None:
-        if ((not value['confirm_1_t']) or
-                value['confirm_2_f'] or
-                (not value['confirm_3_t']) or
-                (not value['confirm_4_t'])):
-            raise Invalid(node, "Not fully confirmed")
 
 
 class DeleteUserForm(DeleteCancelForm):
@@ -1586,21 +1608,8 @@ class AddGroupForm(AddCancelForm):
                          request=request, **kwargs)
 
 
-class DeleteGroupSchema(CSRFSchema):
+class DeleteGroupSchema(HardWorkConfirmationSchema):
     group_id = HiddenIntegerNode()  # name must match ViewParam.GROUP_ID
-    confirm_1_t = BooleanNode(title="Really delete group?", default=False)
-    confirm_2_t = BooleanNode(title="Leave ticked to confirm", default=True)
-    confirm_3_f = BooleanNode(title="Please untick to confirm", default=True)
-    confirm_4_t = BooleanNode(title="Be really sure; tick here also to "
-                                    "confirm", default=False)
-
-    # noinspection PyMethodMayBeStatic
-    def validator(self, node: SchemaNode, value: Any) -> None:
-        if ((not value['confirm_1_t']) or
-                (not value['confirm_2_t']) or
-                value['confirm_3_f'] or
-                (not value['confirm_4_t'])):
-            raise Invalid(node, "Not fully confirmed")
 
 
 class DeleteGroupForm(DeleteCancelForm):
@@ -1738,36 +1747,17 @@ class AddIdDefinitionForm(AddCancelForm):
                          request=request, **kwargs)
 
 
-class DeleteIdDefinitionSchema(CSRFSchema):
+class DeleteIdDefinitionSchema(HardWorkConfirmationSchema):
     which_idnum = HiddenIntegerNode()  # name must match ViewParam.WHICH_IDNUM
-    confirm_1_t = BooleanNode(title="Really delete ID number?", default=False)
-    confirm_2_t = BooleanNode(title="Leave ticked to confirm", default=True)
-    confirm_3_f = BooleanNode(title="Please untick to confirm", default=True)
-    confirm_4_t = BooleanNode(title="Be really sure; tick here also to "
-                                    "confirm", default=False)
     danger = ValidateDangerousOperationNode()
 
-    # noinspection PyMethodMayBeStatic
-    def validator(self, node: SchemaNode, value: Any) -> None:
-        if ((not value['confirm_1_t']) or
-                (not value['confirm_2_t']) or
-                value['confirm_3_f'] or
-                (not value['confirm_4_t'])):
-            raise Invalid(node, "Not fully confirmed")
 
-
-class DeleteIdDefinitionForm(DynamicDescriptionsForm):
+class DeleteIdDefinitionForm(DangerousForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = DeleteIdDefinitionSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.DELETE, title="Delete",
-                       css_class="btn-danger"),
-                Button(name=FormAction.CANCEL, title="Cancel"),
-            ],
-            **kwargs
-        )
+        super().__init__(schema_class=DeleteIdDefinitionSchema,
+                         submit_action=FormAction.DELETE,
+                         submit_title="Delete",
+                         request=request, **kwargs)
 
 
 # =============================================================================
@@ -1775,23 +1765,67 @@ class DeleteIdDefinitionForm(DynamicDescriptionsForm):
 # =============================================================================
 
 class AddSpecialNoteSchema(CSRFSchema):
+    table_name = HiddenStringNode()  # must match ViewParam.TABLENAME
+    server_pk = HiddenIntegerNode()  # must match ViewParam.SERVER_PK
     note = MandatoryStringNode(  # must match ViewParam.NOTE
         widget=TextAreaWidget(rows=20, cols=80)
     )
     danger = ValidateDangerousOperationNode()
 
 
-class AddSpecialNoteForm(DynamicDescriptionsForm):
+class AddSpecialNoteForm(DangerousForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = AddSpecialNoteSchema().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.SUBMIT, title="Add"),
-                Button(name=FormAction.CANCEL, title="Cancel"),
-            ],
-            **kwargs
-        )
+        super().__init__(schema_class=AddSpecialNoteSchema,
+                         submit_action=FormAction.SUBMIT,
+                         submit_title="Add",
+                         request=request, **kwargs)
+
+
+# =============================================================================
+# The unusual data manipulation operations
+# =============================================================================
+
+class EraseTaskSchema(HardWorkConfirmationSchema):
+    table_name = HiddenStringNode()  # must match ViewParam.TABLENAME
+    server_pk = HiddenIntegerNode()  # must match ViewParam.SERVER_PK
+    danger = ValidateDangerousOperationNode()
+
+
+class EraseTaskForm(DangerousForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=EraseTaskSchema,
+                         submit_action=FormAction.DELETE,
+                         submit_title="Erase",
+                         request=request, **kwargs)
+
+
+class DeletePatientChooseSchema(CSRFSchema):
+    which_idnum = MandatoryWhichIdNumSelector()  # must match ViewParam.WHICH_IDNUM  # noqa
+    idnum_value = MandatoryIdNumValue()  # must match ViewParam.IDNUM_VALUE
+    group_id = MandatoryGroupIdSelectorAdministeredGroups()  # must match ViewParam.GROUP_ID
+    danger = ValidateDangerousOperationNode()
+
+
+class DeletePatientChooseForm(SimpleSubmitForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=DeletePatientChooseSchema,
+                         submit_title="Show tasks that will be deleted",
+                         request=request, **kwargs)
+
+
+class DeletePatientConfirmSchema(HardWorkConfirmationSchema):
+    which_idnum = HiddenIntegerNode()  # must match ViewParam.WHICH_IDNUM
+    idnum_value = HiddenIntegerNode()  # must match ViewParam.IDNUM_VALUE
+    group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
+    danger = ValidateDangerousOperationNode()
+
+
+class DeletePatientConfirmForm(DangerousForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=DeletePatientConfirmSchema,
+                         submit_action=FormAction.DELETE,
+                         submit_title="Delete",
+                         request=request, **kwargs)
 
 
 # =============================================================================

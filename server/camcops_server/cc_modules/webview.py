@@ -168,6 +168,8 @@ from .cc_forms import (
     DEFAULT_ROWS_PER_PAGE,
     DeleteGroupForm,
     DeleteIdDefinitionForm,
+    DeletePatientChooseForm,
+    DeletePatientConfirmForm,
     DeleteUserForm,
     DIALECT_CHOICES,
     EditGroupForm,
@@ -177,6 +179,7 @@ from .cc_forms import (
     EditUserGroupAdminForm,
     EditUserGroupMembershipFullForm,
     EditUserGroupMembershipGroupAdminForm,
+    EraseTaskForm,
     HL7MessageLogForm,
     HL7RunLogForm,
     LoginForm,
@@ -559,6 +562,9 @@ def change_own_password(req: CamcopsRequest) -> Response:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
+            # -----------------------------------------------------------------
+            # Change the password
+            # -----------------------------------------------------------------
             new_password = appstruct.get(ViewParam.NEW_PASSWORD)
             # ... form will validate old password, etc.
             # OK
@@ -589,6 +595,9 @@ def change_other_password(req: CamcopsRequest) -> Response:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
+            # -----------------------------------------------------------------
+            # Change the password
+            # -----------------------------------------------------------------
             user_id = appstruct.get(ViewParam.USER_ID)
             must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
             new_password = appstruct.get(ViewParam.NEW_PASSWORD)
@@ -673,7 +682,9 @@ def edit_filter(req: CamcopsRequest, task_filter: TaskFilter,
         try:
             controls = list(req.POST.items())
             fa = form.validate(controls)
-
+            # -----------------------------------------------------------------
+            # Apply the changes
+            # -----------------------------------------------------------------
             who = fa.get(ViewParam.WHO)
             what = fa.get(ViewParam.WHAT)
             when = fa.get(ViewParam.WHEN)
@@ -984,11 +995,11 @@ def serve_tracker_or_ctv(req: CamcopsRequest,
             body=tracker.get_pdf(),
             filename=tracker.suggested_pdf_filename()
         )
-    elif viewtype == VALUE.OUTPUTTYPE_PDFHTML:  # debugging option
+    elif viewtype == ViewArg.PDFHTML:  # debugging option
         return Response(
             tracker.get_pdf_html()
         )
-    elif viewtype == VALUE.OUTPUTTYPE_XML:
+    elif viewtype == ViewArg.XML:
         include_comments = req.get_bool_param(ViewParam.INCLUDE_COMMENTS, True)
         return XmlResponse(
             tracker.get_xml(include_comments=include_comments)
@@ -1866,6 +1877,9 @@ def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
+            # -----------------------------------------------------------------
+            # Apply the edits
+            # -----------------------------------------------------------------
             dbsession = req.dbsession
             new_user_name = appstruct.get(ViewParam.USERNAME)
             existing_user = User.get_user_by_name(dbsession, new_user_name)
@@ -1923,7 +1937,9 @@ def edit_user_group_membership(req: CamcopsRequest) -> Dict[str, Any]:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
-            dbsession = req.dbsession
+            # -----------------------------------------------------------------
+            # Apply the changes
+            # -----------------------------------------------------------------
             for k in keys:
                 setattr(ugm, k, appstruct.get(k))
             raise HTTPFound(req.route_url(route_back))
@@ -1949,6 +1965,9 @@ def set_user_upload_group(req: CamcopsRequest,
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
+            # -----------------------------------------------------------------
+            # Apply the changes
+            # -----------------------------------------------------------------
             user.upload_group_id = appstruct.get(ViewParam.UPLOAD_GROUP_ID)
             return HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
@@ -2005,6 +2024,9 @@ def add_user(req: CamcopsRequest) -> Dict[str, Any]:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
+            # -----------------------------------------------------------------
+            # Add the user
+            # -----------------------------------------------------------------
             user = User()
             user.username = appstruct.get(ViewParam.USERNAME)
             user.set_password(req, appstruct.get(ViewParam.NEW_PASSWORD))
@@ -2092,6 +2114,9 @@ def delete_user(req: CamcopsRequest) -> Dict[str, Any]:
                     controls = list(req.POST.items())
                     appstruct = form.validate(controls)
                     assert appstruct.get(ViewParam.USER_ID) == user.id
+                    # ---------------------------------------------------------
+                    # Delete the user and associated objects
+                    # ---------------------------------------------------------
                     # (*) Sessions belonging to this user
                     # ... done by modifying its ForeignKey to use "ondelete"
                     # (*) user_group_table mapping
@@ -2159,6 +2184,9 @@ def edit_group(req: CamcopsRequest) -> Dict[str, Any]:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
+            # -----------------------------------------------------------------
+            # Apply the changes
+            # -----------------------------------------------------------------
             # Simple attributes
             group.name = appstruct.get(ViewParam.NAME)
             group.description = appstruct.get(ViewParam.DESCRIPTION)
@@ -2204,6 +2232,9 @@ def add_group(req: CamcopsRequest) -> Dict[str, Any]:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
+            # -----------------------------------------------------------------
+            # Add the group
+            # -----------------------------------------------------------------
             group = Group()
             group.name = appstruct.get(ViewParam.NAME)
             dbsession.add(group)
@@ -2255,6 +2286,9 @@ def delete_group(req: CamcopsRequest) -> Dict[str, Any]:
                     controls = list(req.POST.items())
                     appstruct = form.validate(controls)
                     assert appstruct.get(ViewParam.GROUP_ID) == group.id
+                    # ---------------------------------------------------------
+                    # Delete the group
+                    # ---------------------------------------------------------
                     req.dbsession.delete(group)
                     raise HTTPFound(req.route_url(route_back))
                 except ValidationFailure as e:
@@ -2284,6 +2318,9 @@ def edit_server_settings(req: CamcopsRequest) -> Dict[str, Any]:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
             title = appstruct.get(ViewParam.DATABASE_TITLE)
+            # -----------------------------------------------------------------
+            # Apply changes
+            # -----------------------------------------------------------------
             set_database_title(req, title)
             raise HTTPFound(req.route_url(Routes.HOME))
         except ValidationFailure as e:
@@ -2330,6 +2367,9 @@ def edit_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
+            # -----------------------------------------------------------------
+            # Alter the ID definition
+            # -----------------------------------------------------------------
             iddef.description = appstruct.get(ViewParam.DESCRIPTION)
             iddef.short_description = appstruct.get(ViewParam.SHORT_DESCRIPTION)  # noqa
             clear_idnum_definition_cache()  # SPECIAL
@@ -2366,6 +2406,9 @@ def add_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
                 description=appstruct.get(ViewParam.DESCRIPTION),
                 short_description=appstruct.get(ViewParam.SHORT_DESCRIPTION),
             )
+            # -----------------------------------------------------------------
+            # Add ID definition
+            # -----------------------------------------------------------------
             dbsession.add(iddef)
             clear_idnum_definition_cache()  # SPECIAL
             raise HTTPFound(req.route_url(route_back))
@@ -2406,6 +2449,9 @@ def delete_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
                 controls = list(req.POST.items())
                 appstruct = form.validate(controls)
                 assert appstruct.get(ViewParam.WHICH_IDNUM) == iddef.which_idnum  # noqa
+                # -------------------------------------------------------------
+                # Delete ID definition
+                # -------------------------------------------------------------
                 req.dbsession.delete(iddef)
                 clear_idnum_definition_cache()  # SPECIAL
                 raise HTTPFound(req.route_url(route_back))
@@ -2471,7 +2517,7 @@ def introspect(req: CamcopsRequest) -> Response:
 
 
 # =============================================================================
-# Altering data
+# Altering data. Some of the more complex logic is here.
 # =============================================================================
 
 @view_config(route_name=Routes.ADD_SPECIAL_NOTE,
@@ -2506,198 +2552,206 @@ def add_special_note(req: CamcopsRequest) -> Dict[str, Any]:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
             note = appstruct.get(ViewParam.NOTE)
+            # -----------------------------------------------------------------
+            # Apply special note
+            # -----------------------------------------------------------------
             task.apply_special_note(req, note)
             raise HTTPFound(url_back)
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
-        rendered_form = form.render()
+        appstruct = {
+            ViewParam.TABLE_NAME: table_name,
+            ViewParam.SERVER_PK: server_pk,
+        }
+        rendered_form = form.render(appstruct)
     return dict(task=task,
                 form=rendered_form,
                 head_form_html=get_head_form_html(req, [form]))
 
 
-# ***
-def erase_task(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Wipe all data from a task (after confirmation).
+@view_config(route_name=Routes.ERASE_TASK,
+             permission=Permission.GROUPADMIN)
+def erase_task(req: CamcopsRequest) -> Response:
+    """
+    Wipe all data from a task (after confirmation).
 
     Leaves the task record as a placeholder.
     """
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    n_confirmations = 3
-    tablename = ws.get_cgi_parameter_str(form, PARAM.TABLENAME)
-    serverpk = ws.get_cgi_parameter_int(form, PARAM.SERVERPK)
-    confirmation_sequence = ws.get_cgi_parameter_int(
-        form, PARAM.CONFIRMATION_SEQUENCE)
-    task = task_factory(tablename, serverpk)
+    table_name = req.get_str_param(ViewParam.TABLE_NAME)
+    server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
+    url_back = req.route_url(
+        Routes.TASK,
+        _query={
+            ViewParam.TABLE_NAME: table_name,
+            ViewParam.SERVER_PK: server_pk,
+            ViewParam.VIEWTYPE: ViewArg.HTML,
+        }
+    )
+    if FormAction.CANCEL in req.POST:
+        return HTTPFound(url_back)
+    task = task_factory(req, table_name, server_pk)
     if task is None:
-        return fail_task_not_found()
+        return HTTPBadRequest("No such task: {}, PK={}".format(
+            table_name, server_pk))
     if task.is_erased():
-        return fail_with_error_stay_logged_in("Task already erased.")
+        return HTTPBadRequest("Task already erased")
     if task.is_live_on_tablet():
-        return fail_with_error_stay_logged_in(ERROR_TASK_LIVE)
-    if (confirmation_sequence is None or
-            confirmation_sequence < 0 or
-            confirmation_sequence > n_confirmations):
-        confirmation_sequence = 0
-    if confirmation_sequence < n_confirmations:
-        return pls.WEBSTART + """
-            {user}
-            <h1>Erase task instance irrevocably</h1>
-            {taskinfo}
-            <div class="warning">
-                <b>ARE YOU {really} SURE YOU WANT TO ERASE THIS TASK?</b>
-            </div>
-            <form name="myform" action="{script}" method="POST">
-                <input type="hidden" name="{PARAM.ACTION}"
-                        value="{ACTION.ERASE_TASK}">
-                <input type="hidden" name="{PARAM.TABLENAME}"
-                        value="{tablename}">
-                <input type="hidden" name="{PARAM.SERVERPK}"
-                        value="{serverpk}">
-                <input type="hidden" name="{PARAM.CONFIRMATION_SEQUENCE}"
-                        value="{confirmation_sequence}">
-                <input type="submit" class="important" value="Erase task">
-            </form>
-            <div>
-                <b><a href="{cancelurl}">CANCEL</a></b>
-            </div>
-        """.format(
-            user=session.get_current_user_html(),
-            taskinfo=task.get_task_header_html(),
-            really=" REALLY" * confirmation_sequence,
-            script=pls.SCRIPT_NAME,
-            ACTION=ACTION,
-            PARAM=PARAM,
-            tablename=tablename,
-            serverpk=serverpk,
-            confirmation_sequence=confirmation_sequence + 1,
-            cancelurl=get_url_task_html(tablename, serverpk),
-        ) + WEBEND
-    # If we get here, we'll do the erasure.
-    task.manually_erase(session.user_id)
-    return simple_success(
-        "Task erased ({}, server PK {}).".format(
-            tablename,
-            serverpk
+        return HTTPBadRequest(ERROR_TASK_LIVE)
+    user = req.user
+    if not user.authorized_to_erase_tasks(task._group_id):
+        return HTTPBadRequest("Not authorized to erase tasks for this "
+                              "task's group")
+    form = EraseTaskForm(request=req)
+    if FormAction.DELETE in req.POST:
+        try:
+            controls = list(req.POST.items())
+            form.validate(controls)
+            # -----------------------------------------------------------------
+            # Erase task
+            # -----------------------------------------------------------------
+            task.manually_erase(req)
+            return simple_success(
+                req,
+                "Task erased ({t}, server PK {pk}).".format(t=table_name,
+                                                            pk=server_pk),
+                '<a href="{url}">View amended task</a>.'.format(url=url_back)
+            )
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        appstruct = {
+            ViewParam.TABLE_NAME: table_name,
+            ViewParam.SERVER_PK: server_pk,
+        }
+        rendered_form = form.render(appstruct)
+    return render_to_response(
+        "task_erase.mako",
+        dict(
+            task=task,
+            form=rendered_form,
+            head_form_html=get_head_form_html(req, [form])
         ),
-        """
-            <div><a href={}>View amended task</div>
-        """.format(get_url_task_html(tablename, serverpk))
+        request=req
     )
 
 
+@view_config(route_name=Routes.DELETE_PATIENT,
+             permission=Permission.GROUPADMIN)
+def delete_patient(req: CamcopsRequest) -> Response: # *** check IDnums deleted
+    """
+    Completely delete all data from a patient (after confirmation),
+    within a specific group.
+    """
+    if FormAction.CANCEL in req.POST:
+        raise HTTPFound(req.route_url(Routes.HOME))
 
-# ***
-def delete_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Completely delete all data from a patient (after confirmation)."""
-
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    n_confirmations = 3
-    which_idnum = ws.get_cgi_parameter_int(form, PARAM.WHICH_IDNUM)
-    idnum_value = ws.get_cgi_parameter_int(form, PARAM.IDNUM_VALUE)
-    confirmation_sequence = ws.get_cgi_parameter_int(
-        form, PARAM.CONFIRMATION_SEQUENCE)
-    if (confirmation_sequence is None or
-            confirmation_sequence < 0 or
-            confirmation_sequence > n_confirmations):
-        confirmation_sequence = 0
-    patient_server_pks = get_patient_server_pks_by_idnum(
-        which_idnum, idnum_value, current_only=False)
-    if which_idnum is not None or idnum_value is not None:
-        # A patient was asked for...
-        if not patient_server_pks:
-            # ... but not found
-            return fail_with_error_stay_logged_in("No such patient found.")
-    if confirmation_sequence < n_confirmations:
-        # First call. Offer method.
-        tasks = ""
-        if which_idnum is not None and idnum_value is not None:
-            tasks = AFFECTED_TASKS_HTML + task_list_from_generator(
-                gen_tasks_for_patient_deletion(which_idnum, idnum_value))
-        if confirmation_sequence > 0:
-            warning = """
-                <div class="warning">
-                    <b>ARE YOU {really} SURE YOU WANT TO ERASE THIS PATIENT AND
-                    ALL ASSOCIATED TASKS?</b>
-                </div>
-            """.format(
-                really=" REALLY" * confirmation_sequence,
+    first_form = DeletePatientChooseForm(request=req)
+    second_form = DeletePatientConfirmForm(request=req)
+    form = None
+    final_phase = False
+    if FormAction.SUBMIT in req.POST:
+        # FIRST form has been submitted
+        form = first_form
+    elif FormAction.DELETE in req.POST:
+        # SECOND AND FINAL form has been submitted
+        form = second_form
+        final_phase = True
+    if form is not None:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            which_idnum = appstruct.get(ViewParam.WHICH_IDNUM)
+            idnum_value = appstruct.get(ViewParam.IDNUM_VALUE)
+            group_id = appstruct.get(ViewParam.GROUP_ID)
+            if group_id not in req.user.ids_of_groups_user_is_admin_for:
+                # rare occurrence; form should prevent it;
+                # unless superuser has changed status since form was read
+                return HTTPBadRequest("You're not an admin for this group")
+            # -----------------------------------------------------------------
+            # Fetch tasks to be deleted.
+            # -----------------------------------------------------------------
+            dbsession = req.dbsession
+            # Tasks first:
+            idnum_ref = IdNumReference(which_idnum=which_idnum,
+                                       idnum_value=idnum_value)
+            taskfilter = TaskFilter()
+            taskfilter.idnum_criteria = [idnum_ref]
+            taskfilter.group_ids = [group_id]
+            collection = TaskCollection(
+                req=req,
+                taskfilter=taskfilter,
+                sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
+                current_only=False  # unusual option!
             )
-            patient_picker_or_label = """
-                <input type="hidden" name="{PARAM.WHICH_IDNUM}"
-                        value="{which_idnum}">
-                <input type="hidden" name="{PARAM.IDNUM_VALUE}"
-                        value="{idnum_value}">
-                {id_desc}:
-                <b>{idnum_value}</b>
-            """.format(
-                PARAM=PARAM,
+            tasks = collection.all_tasks
+            n_tasks = len(tasks)
+            patient_lineage_instances = Patient.get_patients_by_idnum(
+                dbsession=dbsession,
                 which_idnum=which_idnum,
                 idnum_value=idnum_value,
-                id_desc=pls.get_id_desc(which_idnum),
+                group_id=group_id,
+                current_only=False
             )
-        else:
-            warning = ""
-            patient_picker_or_label = """
-                ID number: {which_idnum_picker}
-                <input type="number" name="{PARAM.IDNUM_VALUE}"
-                        value="{idnum_value}">
-            """.format(
-                PARAM=PARAM,
-                which_idnum_picker=get_html_which_idnum_picker(
-                    PARAM.WHICH_IDNUM, selected=which_idnum),
-                idnum_value="" if idnum_value is None else idnum_value,
+            n_patient_instances = len(patient_lineage_instances)
+
+            # -----------------------------------------------------------------
+            # Bin out at this stage and offer confirmation page?
+            # -----------------------------------------------------------------
+            if not final_phase:
+                # New appstruct; we don't want the validation code persisting
+                appstruct = {
+                    ViewParam.WHICH_IDNUM: which_idnum,
+                    ViewParam.IDNUM_VALUE: idnum_value,
+                    ViewParam.GROUP_ID: group_id,
+                }
+                rendered_form = second_form.render(appstruct)
+                return render_to_response(
+                    "patient_delete_confirm.mako",
+                    dict(
+                        form=rendered_form,
+                        tasks=tasks,
+                        n_patient_instances=n_patient_instances,
+                        head_form_html=get_head_form_html(req, [form])
+                    ),
+                    request=req
+                )
+
+            # -----------------------------------------------------------------
+            # Delete patient and associated tasks
+            # -----------------------------------------------------------------
+            for task in tasks:
+                task.delete_entirely(req)
+            # Then patients:
+            for p in patient_lineage_instances:
+                p.idnums = []  # or ID numbers won't be deleted
+                p.delete_with_dependants(req)
+            msg = (
+                "Patient with idnum{wi} = {iv} and associated tasks DELETED "
+                "from group {g}. Deleted {nt} task records and {np} patient "
+                "records (current and/or old).".format(
+                    wi=which_idnum,
+                    iv=idnum_value,
+                    g=group_id,
+                    nt=n_tasks,
+                    np=n_patient_instances,
+                )
             )
-        return pls.WEBSTART + """
-            {user}
-            <h1>Completely erase patient and associated tasks</h1>
-            {warning}
-            <form name="myform" action="{script}" method="POST">
-                <input type="hidden" name="{PARAM.ACTION}"
-                        value="{ACTION.DELETE_PATIENT}">
-                {patient_picker_or_label}
-                <input type="hidden" name="{PARAM.CONFIRMATION_SEQUENCE}"
-                        value="{confirmation_sequence}">
-                <input type="submit" class="important"
-                        value="Erase patient and tasks">
-            </form>
-            <div>
-                <b><a href="{cancelurl}">CANCEL</a></b>
-            </div>
-            {tasks}
-        """.format(
-            user=session.get_current_user_html(),
-            warning=warning,
-            script=pls.SCRIPT_NAME,
-            ACTION=ACTION,
-            patient_picker_or_label=patient_picker_or_label,
-            PARAM=PARAM,
-            confirmation_sequence=confirmation_sequence + 1,
-            cancelurl=get_url_main_menu(),
-            tasks=tasks,
-        ) + WEBEND
-    if not patient_server_pks:
-        return fail_with_error_stay_logged_in("No such patient found.")
-    # If we get here, we'll do the erasure.
-    # Delete tasks (with subtables)
-    for cls in get_all_task_classes():
-        tablename = cls.tablename
-        serverpks = cls.get_task_pks_for_patient_deletion(which_idnum,
-                                                          idnum_value)
-        for serverpk in serverpks:
-            task = task_factory(tablename, serverpk)
-            task.delete_entirely()
-    # Delete patients
-    for ppk in patient_server_pks:
-        pls.db.db_exec("DELETE FROM patient WHERE _pk = ?", ppk)
-        audit("Patient deleted", patient_server_pk=ppk)
-    msg = "Patient with idnum{} = {} and associated tasks DELETED".format(
-        which_idnum, idnum_value)
-    audit(msg)
-    return simple_success(msg)
+            audit(req, msg)
+            return simple_success(req, msg)
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        form = first_form
+        rendered_form = first_form.render()
+    return render_to_response(
+        "patient_delete_choose.mako",
+        dict(
+            form=rendered_form,
+            head_form_html=get_head_form_html(req, [form])
+        ),
+        request=req
+    )
 
 
 # ***
@@ -3054,51 +3108,3 @@ def forcibly_finalize(session: CamcopsSession, form: cgi.FieldStorage) -> str:
 # =============================================================================
 # Unit tests
 # =============================================================================
-
-def webview_unit_tests() -> None:
-    """Unit tests for camcops.py"""
-    session = CamcopsSession()
-    form = cgi.FieldStorage()
-    # suboptimal tests, as form isn't tailed to these things
-
-    # skip: ask_user
-    # skip: ask_user_password
-    unit_test_ignore("", login_failed, "test_redirect")
-    unit_test_ignore("", account_locked, get_now_localtz(), "test_redirect")
-    unit_test_ignore("", fail_not_user, "test_action", "test_redirect")
-    unit_test_ignore("", fail_not_authorized_for_task)
-    unit_test_ignore("", fail_task_not_found)
-    unit_test_ignore("", fail_not_manager, "test_action")
-    unit_test_ignore("", fail_unknown_action, "test_action")
-
-    for ignorekey, func in ACTIONDICT.items():
-        if func.__name__ == "crash":
-            continue  # maybe skip this one!
-        unit_test_ignore("", func, session, form)
-
-    unit_test_ignore("", get_tracker, session, form)
-    unit_test_ignore("", get_clinicaltextview, session, form)
-    unit_test_ignore("", tsv_escape, "x\t\nhello")
-    unit_test_ignore("", tsv_escape, None)
-    unit_test_ignore("", tsv_escape, 3.45)
-    # ignored: get_tsv_header_from_dict
-    # ignored: get_tsv_line_from_dict
-
-    unit_test_ignore("", get_url_next_page, 100)
-    unit_test_ignore("", get_url_last_page, 100)
-    unit_test_ignore("", get_url_introspect, "test_filename")
-    unit_test_ignore("", redirect_to, "test_location")
-    # ignored: main_http_processor
-    # ignored: upgrade_database
-    # ignored: make_tables
-
-    f = io.StringIO()
-    unit_test_ignore("", write_descriptions_comments, f, False)
-    unit_test_ignore("", write_descriptions_comments, f, True)
-    # ignored: export_descriptions_comments
-    unit_test_ignore("", get_database_title)
-    # ignored: reset_storedvars
-    # ignored: make_summary_tables
-    # ignored: make_superuser
-    # ignored: reset_password
-    # ignored: enable_user_cli

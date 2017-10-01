@@ -65,7 +65,7 @@ import hl7
 from pendulum import Date, Pendulum
 from pyramid.renderers import render
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import (and_, desc, func, literal, not_,
                                        select, update)
@@ -198,6 +198,32 @@ class TaskHasPatientMixin(object):
     @classproperty
     def has_patient(cls) -> bool:
         return True
+
+    @classmethod
+    def get_tasks_for_patient(cls,
+                              dbsession: SqlASession,
+                              which_idnum: int,
+                              idnum_value: int,
+                              group_id: int = None,
+                              current_only: bool = True) -> List['Task']:
+        if not which_idnum or which_idnum < 1:
+            return []
+        if idnum_value is None:
+            return []
+        q = dbsession.query(cls)\
+            .join(Patient)\
+            .join(PatientIdNum)
+        # ... the join to Patient pre-restricts to current Patients
+        # ... the join to PatientIdNum pre-restricts to current ID numbers
+        q = q.filter(PatientIdNum.which_idnum == which_idnum)
+        q = q.filter(PatientIdNum.idnum_value == idnum_value)
+        if group_id is not None:
+            q = q.filter(cls._group_id == group_id)
+            q = q.filter(Patient._group_id == group_id)
+        if current_only:
+            q = q.filter(cls._current == True)
+        patients = q.all()  # type: List[Task]
+        return patients
 
 
 # =============================================================================
@@ -1098,73 +1124,24 @@ class Task(GenericTabletRecordMixin, Base):
     # Erasure (wiping, leaving record as placeholder)
     # -------------------------------------------------------------------------
 
-    def manually_erase(self, req: CamcopsRequest, user_id: int) -> None:
-        """Manually erases a task (including sub-tables).
+    def manually_erase(self, req: CamcopsRequest) -> None:
+        """
+        Manually erases a task (including sub-tables).
         Also erases linked non-current records.
         This WIPES THE CONTENTS but LEAVES THE RECORD AS A PLACEHOLDER.
 
         Audits the erasure. Propagates erase through to the HL7 log, so those
         records will be re-sent. WRITES TO DATABASE.
         """
-        if self._pk is None or self._era == ERA_NOW:
-            return
-
-        # 1. Erase subtable records
-        self.erase_subtable_records_even_noncurrent(user_id)
-        # ... running that for each task would just duplicate DELETE calls
-
-        # 2. Erase BLOBs
-        blob_pks = self.get_blob_pks_of_record_group()
-        for bpk in blob_pks:
-            blob = Blob(bpk)
-            cc_db.manually_erase_record_object_and_save(
-                blob, Blob.__tablename__, Blob.FIELDS, user_id)
-
-        # 3. Erase tasks
-        tablename = self.tablename
-        fields = self.get_fields()
-        pklist = self.get_server_pks_of_record_group()
-        for pk in pklist:
-            task = task_factory(tablename, pk)
-            cc_db.manually_erase_record_object_and_save(task, tablename,
-                                                        fields, user_id)
-
-        # 4. Audit and clear HL7 message log
+        # Erase ourself and any other in our "family"
+        for task in self.get_lineage():
+            task.manually_erase_with_dependants(req)
+        # Audit and clear HL7 message log
         self.audit(req, "Task details erased manually")
-        self.delete_from_hl7_message_log()
-
-    def get_server_pks_of_record_group(self) -> List[int]:
-        """Returns server PKs of all records that represent versions of this
-        one."""
-        return cc_db.get_server_pks_of_record_group(
-            self.tablename,
-            PKNAME,
-            "id",
-            self.id,
-            self._device_id,
-            self._era
-        )
+        self.delete_from_hl7_message_log(req)
 
     def is_erased(self) -> bool:
         return self._manually_erased
-
-    def erase_subtable_records_even_noncurrent(self, user_id: int) -> None:
-        """Override to erase contents of subtable records that are linked to
-        this record, and save to database.
-
-        Usually, done with DELETE FROM subtable WHERE fk = self.id AND ...
-
-        See manually_erase().
-        """
-        for depclass in self.dependent_classes:
-            tablename = depclass.tablename
-            fieldspecs = depclass.get_full_fieldspecs()
-            fkname = depclass.fkname
-            fieldnames = [f["name"] for f in fieldspecs]
-            cc_db.erase_subtable_records_common(
-                depclass, tablename, fieldnames, PKNAME,
-                fkname, self.id, self._device_id, self._era,
-                user_id)
 
     # -------------------------------------------------------------------------
     # Complete deletion
@@ -1204,66 +1181,23 @@ class Task(GenericTabletRecordMixin, Base):
                                                          idnum_value)
         return [row[0] for row in pk_wc]
 
+    @classmethod
+    def get_tasks_for_patient(cls,
+                              dbsession: SqlASession,
+                              which_idnum: int,
+                              idnum_value: int,
+                              group_id: int = None,
+                              current_only: bool = True) -> List['Task']:
+        return []
+        # overridden by TaskHasPatientMixin
+
     def delete_entirely(self, req: CamcopsRequest) -> None:
-        if self._pk is None:
-            return
-
-        # 1. Get rid of subtable records
-        self.delete_subtable_records_even_noncurrent()
-        # ... running that for each task would just duplicate DELETE calls
-
-        # 2. Get rid of BLOBs
-        blob_pks = self.get_blob_pks_of_record_group()
-        cc_db.delete_from_table_by_pklist(Blob.__tablename__,
-                                          PKNAME, blob_pks)
-
-        # 3. Get rid of tasks
-        tablename = self.tablename
-        taskpks = self.get_server_pks_of_record_group()
-        cc_db.delete_from_table_by_pklist(tablename, PKNAME, taskpks)
-
-        # 4. Audit
-        audit(req,
-              "Task deleted",
-              patient_server_pk=self.get_patient_server_pk(),
-              table=tablename,
-              server_pk=self._pk)
-
-    def delete_subtable_records_even_noncurrent(self) -> None:
-        """Override to DELETE subtable records from the database that are
-        linked to this record (even non-current, historical ones).
-
-        Used for whole-patient deletion.
-        See delete_entirely().
         """
-        for depclass in self.dependent_classes:
-            tablename = depclass.tablename
-            fkname = depclass.fkname
-            cc_db.delete_subtable_records_common(
-                tablename, PKNAME,
-                fkname, self.id, self._device_id, self._era)
-
-    def get_blob_ids(self) -> List[int]:
-        blob_fields = self.get_blob_fields()
-        blob_ids = [getattr(self, f) for f in blob_fields]
-        blob_ids = [x for x in blob_ids if x is not None]
-        return blob_ids
-
-    def get_blob_pks_of_record_group(self) -> List[int]:
-        tablename = self.tablename
-        taskpks = self.get_server_pks_of_record_group()
-        tasks = [task_factory(tablename, pk) for pk in taskpks]
-        list_of_blob_id_lists = [t.get_blob_ids() for t in tasks]
-        blob_ids = flatten_list(list_of_blob_id_lists)
-        blob_ids = list(set(blob_ids))  # remove duplicates
-        list_of_blob_pk_lists = [
-            cc_db.get_server_pks_of_record_group(
-                Blob.__tablename__, PKNAME, "id", i,
-                self._device_id, self._era)
-            for i in blob_ids]
-        blob_pks = flatten_list(list_of_blob_pk_lists)
-        blob_pks = list(set(blob_pks))
-        return blob_pks
+        Completely delete this task, its lineage, and its dependents.
+        """
+        for task in self.get_lineage():
+            task.delete_with_dependants(req)
+        self.audit(req, "Task deleted")
 
     # -------------------------------------------------------------------------
     # Viewing the task in the list of tasks
@@ -1488,14 +1422,9 @@ class Task(GenericTabletRecordMixin, Base):
         in the TSV output, if the default method isn't good enough.
         """
         tsv_chunks = []  # type: List[TsvChunk]
-        for attrname, rel_prop, rel_cls in gen_ancillary_relationships(self):
-            if rel_prop.uselist:
-                ancillaries = getattr(self, attrname)  # type: List[GenericTabletRecordMixin]  # noqa
-            else:
-                ancillaries = [getattr(self, attrname)]  # type: List[GenericTabletRecordMixin]  # noqa
-            for ancillary in ancillaries:
-                chunk = ancillary._get_core_tsv_chunk()
-                tsv_chunks.append(chunk)
+        for ancillary in self.gen_ancillary_instances():  # type: GenericTabletRecordMixin  # noqa
+            chunk = ancillary._get_core_tsv_chunk()
+            tsv_chunks.append(chunk)
         return tsv_chunks
 
     # -------------------------------------------------------------------------

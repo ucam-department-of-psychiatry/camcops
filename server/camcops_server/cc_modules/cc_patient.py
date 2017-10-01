@@ -212,22 +212,29 @@ class Patient(GenericTabletRecordMixin, Base):
             ),
             uselist=True,
             order_by="SpecialNote.note_at",
-            viewonly=True,  # *** for now!
+            viewonly=True,  # for now!
         )
 
     @classmethod
     def get_patients_by_idnum(cls,
                               dbsession: SqlASession,
                               which_idnum: int,
-                              idnum_value: int) -> List['Patient']:
+                              idnum_value: int,
+                              group_id: int = None,
+                              current_only: bool = True) -> List['Patient']:
         if not which_idnum or which_idnum < 1:
             return []
         if idnum_value is None:
             return []
-        q = dbsession.query(cls).join(PatientIdNum)  # the join pre-restricts to current ID numbers  # noqa
+        q = dbsession.query(cls).join(cls.idnums)
+        # ... the join pre-restricts to current ID numbers
+        # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#using-custom-operators-in-join-conditions  # noqa
         q = q.filter(PatientIdNum.which_idnum == which_idnum)
         q = q.filter(PatientIdNum.idnum_value == idnum_value)
-        q = q.filter(cls._current == True)  # noqa
+        if group_id is not None:
+            q = q.filter(Patient._group_id == group_id)
+        if current_only:
+            q = q.filter(cls._current == True)
         patients = q.all()  # type: List[Patient]
         return patients
 
@@ -566,20 +573,6 @@ class Patient(GenericTabletRecordMixin, Base):
         self.special_notes.append(sn)
         self.audit(req, audit_msg)
         # HL7 deletion of corresponding tasks is done in camcops.py
-
-    def get_special_notes_html(self) -> str:
-        special_notes = self.special_notes  # type: List[SpecialNote]
-        if not special_notes:
-            return ""
-        note_html = "<br>".join([x.get_note_as_html() for x in special_notes])
-        return """
-            <div class="specialnote">
-                <b>PATIENT SPECIAL NOTES:</b><br>
-                {}
-            </div>
-        """.format(
-            note_html
-        )
 
 
 # =============================================================================

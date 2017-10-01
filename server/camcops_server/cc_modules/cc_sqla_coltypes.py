@@ -93,13 +93,15 @@ from cardinal_pythonlib.lists import chunks
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.reprfunc import auto_repr
-from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
+from cardinal_pythonlib.sqlalchemy.orm_inspect import (
+    gen_columns,
+    gen_relationships,
+)
 from pendulum import Pendulum
 from pendulum.parsing.exceptions import ParserError
 from semantic_version import Version
 from sqlalchemy import util
 from sqlalchemy.engine.interfaces import Dialect
-from sqlalchemy.inspection import inspect
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.schema import Column
@@ -790,16 +792,21 @@ def gen_ancillary_relationships(obj) -> Generator[
         (attrname, RelationshipProperty, related_class)
     for all relationships that are marked as a CamCOPS ancillary relationship.
     """
-    insp = inspect(obj)  # type: InstanceState
-    # insp.mapper.relationships is of type
-    # sqlalchemy.utils._collections.ImmutableProperties, which is basically
-    # a sort of AttrDict.
-    for attrname, rel_prop in insp.mapper.relationships.items():  # type: Tuple[str, RelationshipProperty]  # noqa
-        related_class = rel_prop.mapper.class_
-        # log.critical("gen_ancillary_relationships: attrname={!r}, "
-        #              "rel_prop={!r}, related_class={!r}, rel_prop.info={!r}",
-        #              attrname, rel_prop, related_class, rel_prop.info)
+    for attrname, rel_prop, related_class in gen_relationships(obj):
         if rel_prop.info.get(RelationshipInfo.IS_ANCILLARY, None) is True:
+            yield attrname, rel_prop, related_class
+
+
+def gen_blob_relationships(obj) -> Generator[
+        Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
+        None, None]:
+    """
+    Yields tuples of
+        (attrname, RelationshipProperty, related_class)
+    for all relationships that are marked as a CamCOPS BLOB relationship.
+    """
+    for attrname, rel_prop, related_class in gen_relationships(obj):
+        if rel_prop.info.get(RelationshipInfo.IS_BLOB, None) is True:
             yield attrname, rel_prop, related_class
 
 
