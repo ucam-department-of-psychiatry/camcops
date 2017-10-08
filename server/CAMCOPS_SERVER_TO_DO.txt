@@ -2,13 +2,6 @@
 CAMCOPS SERVER THINGS TO DO NOW
 ===============================================================================
 
-*** groupadmin concept
-    - user editing
-*** erase task
-*** delete patient
-*** forcibly preserve
-
-
 *** database upload code
     re per-group ID policy
         Fetch at upload and recheck patients conform
@@ -37,7 +30,7 @@ KEY THOUGHTS
             ... fix merge_db to create and import that properly
         -- always in era "NOW"
 
-    - "task needs doing"
+    - ScheduledTask -- "task needs doing"
         - patient (by ID number)
         - group
         - task
@@ -48,7 +41,7 @@ KEY THOUGHTS
         Example: "PHQ9 due for Mr X on 1 July; must be completed by 1 Aug"
 
     then for metacreation
-    - "task menu"
+    - TaskPanel
         = list of tasks, each with
             - task
             - due_from_relative_to_start_date

@@ -183,6 +183,15 @@ ${ task.get_task_html(req) }
                             ViewParam.SERVER_PK: task._pk,
                         }) }">Apply special note</a></p>
         %endif
+        %if req.user.may_administer_group(task._group_id):
+            %if task.has_patient and task.patient and task.patient.is_editable:
+                <p><a href="${ req.route_url(
+                            Routes.EDIT_PATIENT,
+                            _query={
+                                ViewParam.SERVER_PK: task.patient._pk
+                            }) }">Edit patient details</a></p>
+            %endif
+        %endif
         %if req.user.authorized_to_erase_tasks(task._group_id):
             %if not task.is_erased() and task._era != ERA_NOW:
                 ## Note: prohibit manual erasure for non-finalized tasks.

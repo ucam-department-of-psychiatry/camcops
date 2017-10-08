@@ -27,14 +27,20 @@ they're registered (and also Task knows about all its subclasses).
 """
 
 import logging
+# from pprint import pformat
+from typing import Dict, Type
 import unittest
 
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from sqlalchemy.orm import configure_mappers
+from sqlalchemy.sql.schema import Table
 
+from .cc_constants import ALEMBIC_VERSION_TABLENAME
+from .cc_db import GenericTabletRecordMixin
 from .cc_sqlalchemy import Base, make_debug_sqlite_engine, log_all_ddl
 
 # =============================================================================
@@ -44,29 +50,22 @@ from .cc_sqlalchemy import Base, make_debug_sqlite_engine, log_all_ddl
 # https://stackoverflow.com/questions/21139329/false-unused-import-statement-in-pycharm  # noqa
 # http://codeoptimism.com/blog/pycharm-suppress-inspections-list/
 
-# noinspection PyUnresolvedReferences
 from .cc_audit import AuditEntry
-# noinspection PyUnresolvedReferences
 from .cc_blob import Blob
-# noinspection PyUnresolvedReferences
+from .cc_device import Device
 from .cc_dirtytables import DirtyTable
-# noinspection PyUnresolvedReferences
-from .cc_hl7 import HL7Run
+from .cc_group import Group, group_group_table
+from .cc_hl7 import HL7Message, HL7Run
+from .cc_membership import UserGroupMembership
 # noinspection PyUnresolvedReferences
 from .cc_patientidnum import IdNumDefinition, PatientIdNum
 # noinspection PyUnresolvedReferences
 from .cc_patient import Patient
-# noinspection PyUnresolvedReferences
 from .cc_session import CamcopsSession
-# noinspection PyUnresolvedReferences
 from .cc_specialnote import SpecialNote
-# noinspection PyUnresolvedReferences
 from .cc_serversettings import ServerSettings
-# noinspection PyUnresolvedReferences
 from .cc_task import Task
-# noinspection PyUnresolvedReferences
 from .cc_taskfilter import TaskFilter
-# noinspection PyUnresolvedReferences
 from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 
 
@@ -99,6 +98,49 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 configure_mappers()
+
+
+# =============================================================================
+# Tables (and fields) that clients can't touch
+# =============================================================================
+
+RESERVED_TABLE_NAMES = [
+    ALEMBIC_VERSION_TABLENAME,
+    AuditEntry.__tablename__,
+    CamcopsSession.__tablename__,
+    Device.__tablename__,
+    DirtyTable.__tablename__,
+    Group.__tablename__,
+    group_group_table.name,
+    HL7Message.__tablename__,
+    HL7Run.__tablename__,
+    IdNumDefinition.__tablename__,
+    SecurityAccountLockout.__tablename__,
+    SecurityLoginFailure.__tablename__,
+    ServerSettings.__tablename__,
+    SpecialNote.__tablename__,
+    TaskFilter.__tablename__,
+    User.__tablename__,
+    UserGroupMembership.__tablename__,
+]
+RESERVED_FIELDS = GenericTabletRecordMixin.RESERVED_FIELDS
+
+
+# =============================================================================
+# Tables that clients use
+# =============================================================================
+
+CLIENT_TABLE_MAP = {}  # type: Dict[str, Table]
+
+# Add all tables that clients may upload to (including ancillary tables).
+for __orm_class in gen_orm_classes_from_base(Base):  # type: Type[Base]
+    # noinspection PyUnresolvedReferences
+    if issubclass(__orm_class, GenericTabletRecordMixin):
+        __tablename = __orm_class.__tablename__
+        if __tablename not in RESERVED_TABLE_NAMES:
+            # noinspection PyUnresolvedReferences
+            __table = __orm_class.__table__  # type: Table
+            CLIENT_TABLE_MAP[__tablename] = __table
 
 
 # =============================================================================

@@ -29,6 +29,7 @@ from typing import (Any, List, Optional, Sequence, Tuple,
 
 from cardinal_pythonlib.classes import all_subclasses, classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
+from cardinal_pythonlib.pyramid.responses import TsvResponse
 import cardinal_pythonlib.rnc_web as ws
 from deform.form import Form
 import pyramid.httpexceptions as exc
@@ -41,21 +42,12 @@ from sqlalchemy.sql.selectable import Select
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 from .cc_convert import tsv_from_query
 from .cc_constants import DateFormat, DEFAULT_ROWS_PER_PAGE
-from .cc_forms import ReportParamForm, ReportParamSchema
-from .cc_pyramid import (
-    CamcopsPage,
-    PageUrl,
-    TsvResponse,
-    ViewArg,
-    ViewParam,
-)
-from .cc_unittest import (
-    unit_test_ignore,
-    unit_test_require_truthy_attribute,
-)
+from .cc_pyramid import CamcopsPage, PageUrl, ViewArg, ViewParam
+from .cc_unittest import unit_test_ignore, unit_test_require_truthy_attribute
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
+    from .cc_forms import ReportParamForm, ReportParamSchema
 
 SESSION_FWD_REF = "CamcopsSession"
 
@@ -125,10 +117,12 @@ class Report(object):
         return None
 
     @staticmethod
-    def get_paramform_schema_class() -> Type[ReportParamSchema]:
+    def get_paramform_schema_class() -> Type["ReportParamSchema"]:
+        from .cc_forms import ReportParamSchema  # delayed import
         return ReportParamSchema
 
     def get_form(self, req: "CamcopsRequest") -> Form:
+        from .cc_forms import ReportParamForm  # delayed import
         schema_class = self.get_paramform_schema_class()
         return ReportParamForm(request=req, schema_class=schema_class)
 

@@ -28,7 +28,7 @@ from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.typetests import is_false
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
+from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
 
 from ..cc_modules.cc_constants import DateFormat, ICD10_COPYRIGHT_DIV
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -285,7 +285,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     )
 
     date_pertains_to = Column(
-        "date_pertains_to", PendulumDateTimeAsIsoTextColType,
+        "date_pertains_to", Date,
         comment="Date the assessment pertains to"
     )
     comments = Column(

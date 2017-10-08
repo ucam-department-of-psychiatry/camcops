@@ -26,7 +26,7 @@ from typing import Any, Dict, List, Tuple, Type
 
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer, Time, UnicodeText
+from sqlalchemy.sql.sqltypes import Date, Float, Integer, Time, UnicodeText
 
 from ..cc_modules.cc_blob import blob_relationship
 from ..cc_modules.cc_db import add_multiple_columns
@@ -92,7 +92,7 @@ class DemoQuestionnaire(Task,
     typedvar_text_rich = Column("typedvar_text_rich", UnicodeText)  # v2
     typedvar_int = Column("typedvar_int", Integer)
     typedvar_real = Column("typedvar_real", Float)
-    date_only = Column("date_only", PendulumDateTimeAsIsoTextColType)
+    date_only = Column("date_only", Date)
     date_time = Column("date_time", PendulumDateTimeAsIsoTextColType)
     thermometer = Column("thermometer", Integer)
     diagnosticcode_code = Column("diagnosticcode_code", DiagnosticCodeColType)

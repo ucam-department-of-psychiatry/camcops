@@ -23,12 +23,10 @@
 """
 
 import logging
-from typing import (Any, Dict, Generator, Iterable, List, Set, Type,
+from typing import (Any, Dict, Generator, List, Optional, Set, Type,
                     TYPE_CHECKING, TypeVar, Union)
 
-from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from cardinal_pythonlib.rnc_db import FIELDSPECLIST_TYPE
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
@@ -36,14 +34,12 @@ from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
-# from sqlalchemy.sql.type_api import TypeEngine
 
-from .cc_constants import DateFormat, ERA_NOW
+from .cc_constants import ERA_NOW
 from .cc_sqla_coltypes import (
     CamcopsColumn,
     EraColType,
     gen_ancillary_relationships,
-    gen_blob_relationships,
     gen_camcops_blob_columns,
     PendulumDateTimeAsIsoTextColType,
     PermittedValueChecker,
@@ -51,6 +47,7 @@ from .cc_sqla_coltypes import (
     SemanticVersionColType,
 )
 from .cc_tsv import TsvChunk
+from .cc_version import CAMCOPS_SERVER_VERSION
 from .cc_xml import (
     make_xml_branches_from_blobs,
     make_xml_branches_from_columns,
@@ -70,7 +67,14 @@ T = TypeVar('T')
 # Base classes implementing common fields
 # =============================================================================
 
+# noinspection PyAttributeOutsideInit
 class GenericTabletRecordMixin(object):
+    """
+    From the server's perspective, _pk is unique.
+    However, records are defined also in their tablet context, for which
+    an individual tablet (defined by the combination of _device_id and _era)
+    sees its own PK, "id".
+    """
     __tablename__ = None  # type: str  # sorts out some mixin type checking
 
     # -------------------------------------------------------------------------
@@ -185,7 +189,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _forcibly_preserved(cls) -> Column:
         return Column(
-            "_forcibly_preserved", Boolean,
+            "_forcibly_preserved", Boolean, default=False,
             comment="(SERVER) Forcibly preserved by superuser (rather than "
                     "normally preserved by tablet)?"
         )
@@ -211,7 +215,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _manually_erased(cls) -> Column:
         return Column(
-            "_manually_erased", Boolean,
+            "_manually_erased", Boolean, default=False,
             comment="(SERVER) Record manually erased (content destroyed)?"
         )
 
@@ -237,6 +241,7 @@ class GenericTabletRecordMixin(object):
     def _camcops_version(cls) -> Column:
         return Column(
             "_camcops_version", SemanticVersionColType,
+            default=CAMCOPS_SERVER_VERSION,
             comment="(SERVER) CamCOPS version number of the uploading device"
         )
 
@@ -244,8 +249,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _addition_pending(cls) -> Column:
         return Column(
-            "_addition_pending", Boolean,
-            nullable=False,
+            "_addition_pending", Boolean, nullable=False, default=False,
             comment="(SERVER) Addition pending?"
         )
 
@@ -253,7 +257,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _removal_pending(cls) -> Column:
         return Column(
-            "_removal_pending", Boolean,
+            "_removal_pending", Boolean, default=False,
             comment="(SERVER) Removal pending?"
         )
 
@@ -308,20 +312,22 @@ class GenericTabletRecordMixin(object):
     def when_last_modified(cls) -> Column:
         return Column(
             "when_last_modified", PendulumDateTimeAsIsoTextColType,
+            index=True,  # ... as used by database upload script
             comment="(STANDARD) Date/time this row was last modified on the "
                     "source tablet device (ISO 8601)"
-            # *** WHEN ALEMBIC UP: INDEX THIS: USED BY DATABASE UPLOAD SCRIPT.
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _move_off_tablet(cls) -> Column:
         return Column(
-            "_move_off_tablet", Boolean,
+            "_move_off_tablet", Boolean, default=False,
             comment="(SERVER/TABLET) Record-specific preservation pending?"
         )
 
+    # -------------------------------------------------------------------------
     # Relationships
+    # -------------------------------------------------------------------------
 
     # noinspection PyMethodParameters
     @declared_attr
@@ -354,6 +360,22 @@ class GenericTabletRecordMixin(object):
     def _group(cls) -> RelationshipProperty:
         return relationship("Group",
                             foreign_keys=[cls._group_id])
+
+    # -------------------------------------------------------------------------
+    # Fetching attributes
+    # -------------------------------------------------------------------------
+
+    def get_pk(self) -> Optional[int]:
+        return self._pk
+
+    def get_era(self) -> Optional[str]:
+        return self._era
+
+    def get_device_id(self) -> Optional[int]:
+        return self._device_id
+
+    def get_group_id(self) -> Optional[int]:
+        return self._group_id
 
     # -------------------------------------------------------------------------
     # Autoscanning objects and their relationships
@@ -527,6 +549,74 @@ class GenericTabletRecordMixin(object):
             .filter(cls._era == self._era)
         return list(q)
 
+    # -------------------------------------------------------------------------
+    # History functions for server-side editing
+    # -------------------------------------------------------------------------
+
+    def set_predecessor(self, req: "CamcopsRequest",
+                        predecessor: "GenericTabletRecordMixin") -> None:
+        """
+        Used for some unusual server-side manipulations (e.g. editing patient
+        details).
+        The "self" object replaces the predecessor, so "self" becomes current
+        and refers back to "predecessor", while "predecessor" becomes
+        non-current and refers forward to "self".
+        """
+        assert predecessor._current
+        # We become new and current, and refer to our predecessor
+        self._device_id = predecessor._device_id
+        self._era = predecessor._era
+        self._current = True
+        self._when_added_exact = req.now
+        self._when_added_batch_utc = req.now_utc
+        self._adding_user_id = req.user_id
+        if self._era != ERA_NOW:
+            self._preserving_user_id = req.user_id
+            self._forcibly_preserved = True
+        self._predecessor_pk = predecessor._pk
+        self._camcops_version = predecessor._camcops_version
+        self._group_id = predecessor._group_id
+        # Make our predecessor refer to us
+        if self._pk is None:
+            req.dbsession.add(self)  # ensure we have a PK, part 1
+            req.dbsession.flush()  # ensure we have a PK, part 2
+        predecessor._set_successor(req, self)
+
+    def _set_successor(self, req: "CamcopsRequest",
+                       successor: "GenericTabletRecordMixin") -> None:
+        """
+        See set_predecessor() above.
+        """
+        assert successor._pk is not None
+        self._current = False
+        self._when_removed_exact = req.now
+        self._when_removed_batch_utc = req.now_utc
+        self._removing_user_id = req.user_id
+        self._successor_pk = successor._pk
+
+    def mark_as_deleted(self, req: "CamcopsRequest") -> None:
+        """
+        Ends the history chain and marks this record as non-current.
+        """
+        if self._current:
+            self._when_removed_exact = req.now
+            self._when_removed_batch_utc = req.now_utc
+            self._removing_user_id = req.user_id
+            self._current = False
+
+    def create_fresh(self, req: "CamcopsRequest", device_id: int,
+                     era: str, group_id: int) -> None:
+        """
+        Used to create a record from scratch.
+        """
+        self._device_id = device_id
+        self._era = era
+        self._group_id = group_id
+        self._current = True
+        self._when_added_exact = req.now
+        self._when_added_batch_utc = req.now_utc
+        self._adding_user_id = req.user_id
+
 
 # =============================================================================
 # Relationships
@@ -618,7 +708,6 @@ def add_multiple_columns(
     """
     colkwargs = {} if colkwargs is None else colkwargs  # type: Dict[str, Any]
     comment_strings = comment_strings or []
-    fieldspecs = []
     for n in range(start, end + 1):
         nstr = str(n)
         i = n - start
@@ -637,254 +726,3 @@ def add_multiple_columns(
             setattr(cls, colname, CamcopsColumn(colname, coltype, **colkwargs))
         else:
             setattr(cls, colname, Column(colname, coltype, **colkwargs))
-
-# =============================================================================
-# Database routines.
-# =============================================================================
-
-def delete_from_table_by_pklist(tablename: str,
-                                pkname: str,
-                                pklist: Iterable[int]) -> None:
-    query = "DELETE FROM {} WHERE {} = ?".format(tablename, pkname)
-    for pk in pklist:
-        pls.db.db_exec(query, pk)
-
-
-def delete_subtable_records_common(tablename: str,
-                                   pkname: str,
-                                   fkname: str,
-                                   fkvalue: Any,
-                                   device_id: int,
-                                   era: str) -> None:
-    """Used to delete records entirely from the database."""
-    pklist = get_server_pks_of_record_group(
-        tablename, pkname, fkname, fkvalue, device_id, era)
-    delete_from_table_by_pklist(tablename, pkname, pklist)
-
-
-def erase_subtable_records_common(itemclass: Type[T],
-                                  tablename: str,
-                                  fieldnames: Iterable[str],
-                                  pkname: str,
-                                  fkname: str,
-                                  fkvalue: Any,
-                                  device_id: int,
-                                  era: str,
-                                  user_id: int) -> None:
-    """Used to wipe objects and re-save them."""
-    pklist = get_server_pks_of_record_group(
-        tablename, pkname, fkname, fkvalue, device_id, era)
-    items = pls.db.fetch_all_objects_from_db_by_pklist(
-        itemclass, tablename, fieldnames, pklist, True)
-    for i in items:
-        manually_erase_record_object_and_save(i, tablename, fieldnames,
-                                              user_id)
-
-
-def forcibly_preserve_client_table(table: str,
-                                   device_id: int,
-                                   user_id: int) -> None:
-    """WRITES TO DATABASE."""
-    new_era = format_datetime(pls.NOW_UTC_NO_TZ, DateFormat.ERA)
-    query = """
-        UPDATE  {table}
-        SET     _era = ?,
-                _forcibly_preserved = 1,
-                _preserving_user_id = ?
-        WHERE   _device_id = ?
-        AND     _era = '{now}'
-    """.format(table=table, now=ERA_NOW)
-    args = [
-        new_era,
-        user_id,
-        device_id
-    ]
-    pls.db.db_exec(query, *args)
-
-
-# =============================================================================
-# More SQL
-# =============================================================================
-
-def create_or_update_table(tablename: str,
-                           fieldspecs_with_cctype: FIELDSPECLIST_TYPE,
-                           drop_superfluous_columns: bool = False) -> None:
-    """Adds the sqltype to a set of fieldspecs using cctype, then creates the
-    table."""
-    add_sqltype_to_fieldspeclist_in_place(fieldspecs_with_cctype)
-    pls.db.create_or_update_table(
-        tablename, fieldspecs_with_cctype,
-        drop_superfluous_columns=drop_superfluous_columns,
-        dynamic=True,
-        compressed=False)
-    if not pls.db.mysql_table_using_barracuda(tablename):
-        pls.db.mysql_convert_table_to_barracuda(tablename, compressed=False)
-
-
-def create_standard_table(tablename: str,
-                          fieldspeclist: FIELDSPECLIST_TYPE,
-                          drop_superfluous_columns: bool = False) -> None:
-    """Create a table and its associated current view."""
-    create_or_update_table(tablename, fieldspeclist,
-                           drop_superfluous_columns=drop_superfluous_columns)
-    create_simple_current_view(tablename)
-
-
-def create_standard_task_table(tablename: str,
-                               fieldspeclist: FIELDSPECLIST_TYPE,
-                               anonymous: bool = False,
-                               drop_superfluous_columns: bool = False) -> None:
-    """Create a task's table and its associated current view."""
-    create_standard_table(tablename, fieldspeclist,
-                          drop_superfluous_columns=drop_superfluous_columns)
-    if anonymous:
-        create_simple_current_view(tablename)
-    else:
-        create_task_current_view(tablename)
-
-
-def create_standard_ancillary_table(
-        tablename: str,
-        fieldspeclist: FIELDSPECLIST_TYPE,
-        ancillaryfk: str,
-        tasktable: str,
-        drop_superfluous_columns: bool = False) -> None:
-    """Create an ancillary table and its associated current view."""
-    create_standard_table(tablename, fieldspeclist,
-                          drop_superfluous_columns=drop_superfluous_columns)
-    create_ancillary_current_view(tablename, ancillaryfk, tasktable)
-
-
-def create_simple_current_view(table: str) -> None:
-    """Create a current view for a table."""
-    pass
-    # sql = """
-    #     CREATE OR REPLACE VIEW {0}_current AS
-    #     SELECT *
-    #     FROM {0}
-    #     WHERE _current
-    # """.format(table)
-    # pls.db.db_exec_literal(sql)
-
-
-def create_task_current_view(tasktable: str) -> None:
-    """Create tasks views that link to patient information (either giving the
-    FK to the patient table, or bringing across more detail for convenience).
-
-    Only to be used for non-anonymous tasks.
-    """
-    pass
-
-    # # Simple view
-    # sql = """
-    #     CREATE OR REPLACE VIEW {0}_current AS
-    #     SELECT {0}.*, patient._pk AS _patient_server_pk
-    #     FROM {0}
-    #     INNER JOIN patient
-    #         ON {0}.patient_id = patient.id
-    #         AND {0}._device_id = patient._device_id
-    #         AND {0}._era = patient._era
-    #     WHERE
-    #         {0}._current
-    #         AND patient._current
-    # """.format(tasktable)
-    # pls.db.db_exec_literal(sql)
-    #
-    # # View joined to patient info
-    # sql = """
-    #     CREATE OR REPLACE VIEW {0}_current_withpt AS
-    #     SELECT
-    #         {0}_current.*
-    #         , patient_current.forename AS patient_forename
-    #         , patient_current.surname AS patient_surname
-    #         , patient_current.dob AS patient_dob
-    #         , patient_current.sex AS patient_sex
-    # """.format(tasktable)
-    # for n in range(1, NUMBER_OF_IDNUMS + 1):
-    #     sql += """
-    #         , patient_current.idnum{0} AS patient_idnum{0}
-    #     """.format(n)
-    # sql += """
-    #         , patient_current.address AS patient_address
-    #         , patient_current.gp AS patient_gp
-    #         , patient_current.other AS patient_other
-    #     FROM {0}_current
-    #     INNER JOIN patient_current
-    #         ON {0}_current._patient_server_pk = patient_current._pk
-    # """.format(tasktable)
-    # pls.db.db_exec_literal(sql)
-    # # MySQL can't add comments to view columns.
-
-
-def create_ancillary_current_view(ancillarytable: str,
-                                  ancillaryfk: str,
-                                  tasktable: str) -> None:
-    """Create an ancillary view that links to its task's table."""
-    pass
-
-    # sql = """
-    #     CREATE OR REPLACE VIEW {1}_current AS
-    #     SELECT {1}.*, {0}._pk AS _task_server_pk
-    #     FROM {1}
-    #     INNER JOIN {0}
-    #         ON {1}.{2} = {0}.id
-    #         AND {1}._device_id = {0}._device_id
-    #         AND {1}._era = {0}._era
-    #     WHERE
-    #         {1}._current
-    #         AND {0}._current
-    # """.format(tasktable, ancillarytable, ancillaryfk)
-    # pls.db.db_exec_literal(sql)
-
-
-def create_summary_table_current_view_withpt(
-        summarytable: str,
-        basetable: str,
-        summarytable_fkfieldname: str) -> None:
-    """Create a current view for the summary table, in versions with simple
-    (FK) or more detailed patient information.
-
-    Only to be used for non-anonymous tasks.
-    """
-    pass
-
-    # # Current view with patient ID
-    # sql = """
-    #     CREATE OR REPLACE VIEW {0}_current AS
-    #     SELECT {0}.*, patient._pk AS _patient_server_pk
-    #     FROM {0}
-    #     INNER JOIN {1}
-    #         ON {0}.{2} = {1}._pk
-    #     INNER JOIN patient
-    #         ON {1}.patient_id = patient.id
-    #         AND {1}._device_id = patient._device_id
-    #         AND {1}._era = patient._era
-    #     WHERE
-    #         {1}._current
-    #         AND patient._current
-    # """.format(summarytable, basetable, summarytable_fkfieldname)
-    # pls.db.db_exec_literal(sql)
-    #
-    # # Current view with patient info
-    # sql = """
-    #     CREATE OR REPLACE VIEW {0}_current_withpt AS
-    #     SELECT
-    #         {0}_current.*
-    #         , patient_current.forename AS patient_forename
-    #         , patient_current.surname AS patient_surname
-    #         , patient_current.dob AS patient_dob
-    #         , patient_current.sex AS patient_sex
-    # """.format(summarytable)
-    # for n in range(1, NUMBER_OF_IDNUMS + 1):
-    #     sql += """
-    #         , patient_current.idnum{0} AS patient_idnum{0}
-    #     """.format(n)
-    # sql += """
-    #         , patient_current.address AS patient_address
-    #         , patient_current.gp AS patient_gp
-    #         , patient_current.other AS patient_other
-    #     FROM {0}_current
-    #     INNER JOIN patient_current
-    #         ON {0}_current._patient_server_pk = patient_current._pk
-    # """.format(summarytable)
-    # pls.db.db_exec_literal(sql)

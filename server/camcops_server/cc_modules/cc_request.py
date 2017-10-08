@@ -267,6 +267,7 @@ class CamcopsRequest(Request):
         ts = TabletSession(self)
         new_cc_session = CamcopsSession.get_session_for_tablet(ts)
         self.replace_camcops_session(new_cc_session)
+        ts.set_session_id_token(new_cc_session.id, new_cc_session.token)
         return ts
 
     # -------------------------------------------------------------------------

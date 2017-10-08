@@ -32,7 +32,7 @@ import hl7
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import and_, literal, select, Select, union
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import DateTime, Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
 
 from ..cc_modules.cc_ctvinfo import CtvInfo
 from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
@@ -126,7 +126,7 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     @declared_attr
     def relates_to_date(cls) -> Column:
         return Column(  # new in v2.0.0
-            "relates_to_date", DateTime,
+            "relates_to_date", Date,
             comment="Date that diagnoses relate to"
         )
 

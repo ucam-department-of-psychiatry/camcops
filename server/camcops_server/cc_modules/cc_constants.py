@@ -90,38 +90,11 @@ DEFAULT_LOCAL_LOGO_FILE = os.path.join(CAMCOPS_SERVER_DIRECTORY,
 
 INTROSPECTION_BASE_DIRECTORY = CAMCOPS_SERVER_DIRECTORY
 
-
 # =============================================================================
-# HTTP actions, parameters, values
+# Webview constants
 # =============================================================================
-
-class TABLET_PARAM(object):
-    CAMCOPS_VERSION = "camcops_version"
-    DATEVALUES = "datevalues"
-    DEVICE = "device"
-    FIELDS = "fields"
-    NRECORDS = "nrecords"
-    OPERATION = "operation"
-    PASSWORD = "password"
-    PKNAME = "pkname"
-    PKVALUES = "pkvalues"
-    RESULT = "result"   # server to tablet
-    SESSION_ID = "session_id"   # bidirectional
-    SESSION_TOKEN = "session_token"   # bidirectional
-    SUCCESS = "success"   # server to tablet
-    ERROR = "error"   # server to tablet
-    TABLE = "table"
-    TABLES = "tables"
-    USER = "user"
-    WHEREFIELDS = "wherefields"
-    WHERENOTFIELDS = "wherenotfields"
-    WHERENOTVALUES = "wherenotvalues"
-    WHEREVALUES = "wherevalues"
-    VALUES = "values"
-
 
 DEFAULT_ROWS_PER_PAGE = 25
-
 
 # =============================================================================
 # Date formats

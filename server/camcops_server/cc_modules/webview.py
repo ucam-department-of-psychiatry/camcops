@@ -106,24 +106,27 @@ Quick tutorial on Pyramid views:
 
 """
 
-import cgi
 import codecs
+from collections import OrderedDict
 import io
 import logging
 import os
-from pprint import pformat
+# from pprint import pformat
 import sqlite3
 import tempfile
-from typing import Any, Dict, Iterable, List, Optional, Type
+from typing import Any, Dict, Iterable, List, Tuple, Type
 import zipfile
 
-from cardinal_pythonlib.datetimefunc import (
-    get_now_localtz,
-    format_datetime,
-)
+from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
 from cardinal_pythonlib.logs import BraceStyleAdapter
-import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.pyramid.responses import (
+    PdfResponse,
+    SqliteBinaryResponse,
+    TextAttachmentResponse,
+    XmlResponse,
+    ZipResponse,
+)
 from cardinal_pythonlib.sqlalchemy.dialect import get_dialect_name
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
@@ -146,12 +149,18 @@ import pygments.lexers.web
 import pygments.formatters
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import Session as SqlASession, sessionmaker
-from sqlalchemy.sql.expression import and_, desc, exists, not_, or_
+from sqlalchemy.sql.functions import func
+from sqlalchemy.sql.expression import (and_, column, desc, exists, not_, or_,
+                                       select, table, update)
 
 from .cc_audit import audit, AuditEntry
-from .cc_constants import CAMCOPS_URL, DateFormat, MINIMUM_PASSWORD_LENGTH
-from .cc_blob import Blob
-from camcops_server.cc_modules import cc_db
+from .cc_all_models import CLIENT_TABLE_MAP
+from .cc_constants import (
+    CAMCOPS_URL,
+    DateFormat,
+    ERA_NOW,
+    MINIMUM_PASSWORD_LENGTH,
+)
 from .cc_db import GenericTabletRecordMixin
 from .cc_device import Device
 from .cc_dump import copy_tasks_and_summaries
@@ -174,12 +183,16 @@ from .cc_forms import (
     DIALECT_CHOICES,
     EditGroupForm,
     EditIdDefinitionForm,
+    EditPatientForm,
+    EDIT_PATIENT_SIMPLE_PARAMS,
     EditServerSettingsForm,
     EditUserFullForm,
     EditUserGroupAdminForm,
     EditUserGroupMembershipFullForm,
     EditUserGroupMembershipGroupAdminForm,
     EraseTaskForm,
+    ForciblyFinalizeChooseDeviceForm,
+    ForciblyFinalizeConfirmForm,
     HL7MessageLogForm,
     HL7RunLogForm,
     LoginForm,
@@ -207,30 +220,20 @@ from .cc_pyramid import (
     Dialect,
     FormAction,
     PageUrl,
-    PdfResponse,
     Permission,
     Routes,
     SqlalchemyOrmPage,
-    SqliteBinaryResponse,
-    TextAttachmentResponse,
     ViewArg,
     ViewParam,
-    XmlResponse,
-    ZipResponse,
 )
 from .cc_report import get_report_instance
 from .cc_request import CamcopsRequest
-from .cc_serversettings import get_database_title, set_database_title
+from .cc_serversettings import set_database_title
 from .cc_session import CamcopsSession
 from .cc_simpleobjects import IdNumReference
 from .cc_specialnote import SpecialNote
-from .cc_sqlalchemy import Base, get_all_ddl
-from .cc_task import (
-    gen_tasks_for_patient_deletion,
-    gen_tasks_live_on_tablet,
-    gen_tasks_using_patient,
-    Task,
-)
+from .cc_sqlalchemy import get_all_ddl
+from .cc_task import Task
 from .cc_taskfactory import (
     task_factory,
     TaskFilter,
@@ -243,7 +246,6 @@ from .cc_taskfilter import (
 )
 from .cc_tracker import ClinicalTextView, Tracker
 from .cc_tsv import TsvCollection
-from .cc_unittest import unit_test_ignore
 from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 from .cc_version import CAMCOPS_SERVER_VERSION
 
@@ -258,7 +260,6 @@ ALLOWED_TASK_VIEW_TYPES = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML,
                            ViewArg.XML]
 ALLOWED_TRACKER_VIEW_TYPE = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML,
                              ViewArg.XML]
-AFFECTED_TASKS_HTML = "<h1>Affected tasks:</h1>"
 CANNOT_DUMP = "User not authorized to dump data (for any group)."
 CANNOT_REPORT = "User not authorized to run reports (for any group)."
 # CAN_ONLY_CHANGE_OWN_PASSWORD = "You can only change your own password!"
@@ -325,13 +326,22 @@ def simple_failure(req: CamcopsRequest, msg: str,
 # Error views
 # =============================================================================
 
+# noinspection PyUnusedLocal
 @notfound_view_config(renderer="not_found.mako")
 def not_found(req: CamcopsRequest) -> Dict[str, Any]:
     return {}
 
 
+# noinspection PyUnusedLocal
 @view_config(context=HTTPBadRequest, renderer="bad_request.mako")
 def bad_request(req: CamcopsRequest) -> Dict[str, Any]:
+    """
+    NOTE that this view only gets used from
+        raise HTTPBadRequest("message")
+    and not
+        return HTTPBadRequest("message")
+    ... so always raise it.
+    """
     return {}
 
 
@@ -340,17 +350,20 @@ def bad_request(req: CamcopsRequest) -> Dict[str, Any]:
 # =============================================================================
 # Not on the menus...
 
+# noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PUBLIC_1,
              permission=NO_PERMISSION_REQUIRED)
 def test_page_1(req: CamcopsRequest) -> Response:
     return Response("Hello! This is a public CamCOPS test page.")
 
 
+# noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PRIVATE_1)
 def test_page_private_1(req: CamcopsRequest) -> Response:
     return Response("Private test page.")
 
 
+# noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PRIVATE_2,
              renderer="testpage.mako",
              permission=Permission.SUPERUSER)
@@ -360,6 +373,7 @@ def test_page_2(req: CamcopsRequest) -> Dict[str, Any]:
     return dict(param1="world")
 
 
+# noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PRIVATE_3,
              renderer="inherit_cache_test_child.mako",
              permission=Permission.SUPERUSER)
@@ -367,6 +381,7 @@ def test_page_3(req: CamcopsRequest) -> Dict[str, Any]:
     return {}
 
 
+# noinspection PyUnusedLocal
 @view_config(route_name=Routes.CRASH, permission=Permission.SUPERUSER)
 def crash(req: CamcopsRequest) -> Response:
     """Deliberately raises an exception."""
@@ -852,7 +867,7 @@ def serve_task(req: CamcopsRequest) -> Response:
     anonymise = req.get_bool_param(ViewParam.ANONYMISE, False)
 
     if viewtype not in ALLOWED_TASK_VIEW_TYPES:
-        return HTTPBadRequest(
+        raise HTTPBadRequest(
             "Bad output type: {!r} (permissible: {!r}".format(
                 viewtype, ALLOWED_TASK_VIEW_TYPES))
 
@@ -963,12 +978,12 @@ def serve_tracker_or_ctv(req: CamcopsRequest,
             task_classes = task_classes_from_table_names(
                 tasks, sortmethod=TaskClassSortMethod.SHORTNAME)
         except KeyError:
-            return HTTPBadRequest("Invalid tasks specified")
+            raise HTTPBadRequest("Invalid tasks specified")
         if not all(c.provides_trackers for c in task_classes):
-            return HTTPBadRequest("Not all tasks specified provide trackers")
+            raise HTTPBadRequest("Not all tasks specified provide trackers")
 
     if viewtype not in ALLOWED_TRACKER_VIEW_TYPE:
-        return HTTPBadRequest("Invalid view type")
+        raise HTTPBadRequest("Invalid view type")
 
     iddefs = [IdNumReference(which_idnum, idnum_value)]
 
@@ -1071,7 +1086,7 @@ def provide_report(req: CamcopsRequest) -> Response:
     report_id = req.get_str_param(ViewParam.REPORT_ID)
     report = get_report_instance(report_id)
     if not report:
-        return HTTPBadRequest("No such report ID: {}".format(repr(report_id)))
+        raise HTTPBadRequest("No such report ID: {}".format(repr(report_id)))
     return report.get_response(req)
 
 
@@ -1136,7 +1151,7 @@ def serve_basic_dump(req: CamcopsRequest) -> Response:
         taskfilter.task_types = task_names
         taskfilter.group_ids = group_ids
     else:
-        return HTTPBadRequest("Bad {} parameter".format(ViewParam.DUMP_METHOD))
+        raise HTTPBadRequest("Bad {} parameter".format(ViewParam.DUMP_METHOD))
     collection = TaskCollection(
         req=req,
         taskfilter=taskfilter,
@@ -1253,7 +1268,7 @@ def sql_dump(req: CamcopsRequest) -> Response:
         taskfilter.task_types = task_names
         taskfilter.group_ids = group_ids
     else:
-        return HTTPBadRequest("Bad {} parameter".format(ViewParam.DUMP_METHOD))
+        raise HTTPBadRequest("Bad {} parameter".format(ViewParam.DUMP_METHOD))
     collection = TaskCollection(
         req=req,
         taskfilter=taskfilter,
@@ -1262,7 +1277,7 @@ def sql_dump(req: CamcopsRequest) -> Response:
     )
 
     if sqlite_method not in [ViewArg.SQL, ViewArg.SQLITE]:
-        return HTTPBadRequest("Bad {} parameter".format(
+        raise HTTPBadRequest("Bad {} parameter".format(
             ViewParam.SQLITE_METHOD))
 
     # -------------------------------------------------------------------------
@@ -1329,6 +1344,7 @@ def sql_dump(req: CamcopsRequest) -> Response:
         for cls in collection.task_classes():
             tasks = collection.tasks_for_task_class(cls)
             all_tasks.extend(tasks)
+            # noinspection PyProtectedMember
             pks = [task._pk for task in tasks]
             audit_descriptions.append("{}: {}".format(
                 cls.__tablename__, ",".join(str(pk) for pk in pks)))
@@ -1619,7 +1635,7 @@ def view_hl7_message(req: CamcopsRequest) -> Response:
         .filter(HL7Message.msg_id == hl7_msg_id)\
         .first()
     if hl7msg is None:
-        return HTTPBadRequest("Bad HL7 message ID {}".format(hl7_msg_id))
+        raise HTTPBadRequest("Bad HL7 message ID {}".format(hl7_msg_id))
     return render_to_response("hl7_message_view.mako",
                               dict(msg=hl7msg),
                               request=req)
@@ -1708,7 +1724,7 @@ def view_hl7_run(req: CamcopsRequest) -> Response:
         .filter(HL7Run.run_id == hl7_run_id)\
         .first()
     if hl7run is None:
-        return HTTPBadRequest("Bad HL7 run ID {}".format(hl7_run_id))
+        raise HTTPBadRequest("Bad HL7 run ID {}".format(hl7_run_id))
     return render_to_response("hl7_run_view.mako",
                               dict(hl7run=hl7run),
                               request=req)
@@ -2543,6 +2559,7 @@ def add_special_note(req: CamcopsRequest) -> Dict[str, Any]:
         raise HTTPBadRequest("No such task: {}, PK={}".format(
             table_name, server_pk))
     user = req.user
+    # noinspection PyProtectedMember
     if not user.authorized_to_add_special_note(task._group_id):
         raise HTTPBadRequest("Not authorized to add special notes for this "
                              "task's group")
@@ -2592,16 +2609,17 @@ def erase_task(req: CamcopsRequest) -> Response:
         return HTTPFound(url_back)
     task = task_factory(req, table_name, server_pk)
     if task is None:
-        return HTTPBadRequest("No such task: {}, PK={}".format(
+        raise HTTPBadRequest("No such task: {}, PK={}".format(
             table_name, server_pk))
     if task.is_erased():
-        return HTTPBadRequest("Task already erased")
+        raise HTTPBadRequest("Task already erased")
     if task.is_live_on_tablet():
-        return HTTPBadRequest(ERROR_TASK_LIVE)
+        raise HTTPBadRequest(ERROR_TASK_LIVE)
     user = req.user
+    # noinspection PyProtectedMember
     if not user.authorized_to_erase_tasks(task._group_id):
-        return HTTPBadRequest("Not authorized to erase tasks for this "
-                              "task's group")
+        raise HTTPBadRequest("Not authorized to erase tasks for this "
+                             "task's group")
     form = EraseTaskForm(request=req)
     if FormAction.DELETE in req.POST:
         try:
@@ -2638,7 +2656,7 @@ def erase_task(req: CamcopsRequest) -> Response:
 
 @view_config(route_name=Routes.DELETE_PATIENT,
              permission=Permission.GROUPADMIN)
-def delete_patient(req: CamcopsRequest) -> Response: # *** check IDnums deleted
+def delete_patient(req: CamcopsRequest) -> Response:
     """
     Completely delete all data from a patient (after confirmation),
     within a specific group.
@@ -2667,7 +2685,7 @@ def delete_patient(req: CamcopsRequest) -> Response: # *** check IDnums deleted
             if group_id not in req.user.ids_of_groups_user_is_admin_for:
                 # rare occurrence; form should prevent it;
                 # unless superuser has changed status since form was read
-                return HTTPBadRequest("You're not an admin for this group")
+                raise HTTPBadRequest("You're not an admin for this group")
             # -----------------------------------------------------------------
             # Fetch tasks to be deleted.
             # -----------------------------------------------------------------
@@ -2724,7 +2742,6 @@ def delete_patient(req: CamcopsRequest) -> Response: # *** check IDnums deleted
                 task.delete_entirely(req)
             # Then patients:
             for p in patient_lineage_instances:
-                p.idnums = []  # or ID numbers won't be deleted
                 p.delete_with_dependants(req)
             msg = (
                 "Patient with idnum{wi} = {iv} and associated tasks DELETED "
@@ -2754,355 +2771,284 @@ def delete_patient(req: CamcopsRequest) -> Response: # *** check IDnums deleted
     )
 
 
-# ***
-def info_html_for_patient_edit(title: str,
-                               display: str,
-                               param: str,
-                               value: Optional[str],
-                               oldvalue: Optional[str]) -> str:
-    different = value != oldvalue
-    newblank = (value is None or value == "")
-    oldblank = (oldvalue is None or oldvalue == "")
-    changetonull = different and (newblank and not oldblank)
-    titleclass = ' class="important"' if changetonull else ''
-    spanclass = ' class="important"' if different else ''
-    return """
-        <span{titleclass}>{title}:</span> <span{spanclass}>{display}</span><br>
-        <input type="hidden" name="{param}" value="{value}">
-    """.format(
-        titleclass=titleclass,
-        title=title,
-        spanclass=spanclass,
-        display=display,
-        param=param,
-        value=value,
+@view_config(route_name=Routes.EDIT_PATIENT, permission=Permission.GROUPADMIN)
+def edit_patient(req: CamcopsRequest) -> Response:
+    if FormAction.CANCEL in req.POST:
+        return HTTPFound(req.route_url(Routes.HOME))
+
+    server_pk = req.get_int_param(ViewParam.SERVER_PK)
+    patient = Patient.get_patient_by_pk(req.dbsession, server_pk)
+
+    if not patient:
+        raise HTTPBadRequest("No such patient")
+    if not patient.group:
+        raise HTTPBadRequest("Bad patient: not in a group")
+    if not patient.user_may_edit(req):
+        raise HTTPBadRequest("Not authorized to edit this patient")
+    if not patient.is_editable:
+        raise HTTPBadRequest(
+            "Patient is not editable (likely: not finalized, so a copy is "
+            "still on a client device")
+
+    taskfilter = TaskFilter()
+    taskfilter.device_ids = [patient.get_device_id()]
+    taskfilter.group_ids = [patient.group.id]
+    taskfilter.era = patient.get_era()
+    collection = TaskCollection(
+        req=req,
+        taskfilter=taskfilter,
+        sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
+        current_only=False  # unusual option!
+    )
+    affected_tasks = collection.all_tasks
+
+    form = EditPatientForm(request=req)
+    dbsession = req.dbsession
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            # -----------------------------------------------------------------
+            # Apply edits
+            # -----------------------------------------------------------------
+            # Calculate the changes, and apply them to the Patient object
+            changes = OrderedDict()  # type: Dict[str, Tuple[Any, Any]]
+            for k in EDIT_PATIENT_SIMPLE_PARAMS:
+                new_value = appstruct.get(k)
+                if k in [ViewParam.FORENAME, ViewParam.SURNAME]:
+                    new_value = new_value.upper()
+                old_value = getattr(patient, k)
+                if new_value == old_value:
+                    continue
+                if new_value in [None, ""] and old_value in [None, ""]:
+                    # Nothing really changing!
+                    continue
+                changes[k] = (old_value, new_value)
+                setattr(patient, k, new_value)
+            # The ID numbers are more complex.
+            # log.critical("{}", pformat(appstruct))
+            new_idrefs = [
+                IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
+                               idnum_value=idrefdict[ViewParam.IDNUM_VALUE])
+                for idrefdict in appstruct.get(ViewParam.ID_REFERENCES)
+            ]
+            for idnum in patient.idnums:
+                matching_idref = next(
+                    (idref for idref in new_idrefs
+                     if idref.which_idnum == idnum.which_idnum), None)
+                if not matching_idref:
+                    # Delete ID numbers not present in the new set
+                    changes["idnum{} ({})".format(
+                        idnum.which_idnum,
+                        req.get_id_desc(idnum.which_idnum))
+                    ] = (idnum.idnum_value, None)
+                    idnum.mark_as_deleted(req)
+                elif matching_idref.idnum_value != idnum.idnum_value:
+                    # Modify altered ID numbers present in the old + new sets
+                    changes["idnum{} ({})".format(
+                        idnum.which_idnum,
+                        req.get_id_desc(idnum.which_idnum))
+                    ] = (idnum.idnum_value, matching_idref.idnum_value)
+                    new_idnum = PatientIdNum()
+                    new_idnum.id = idnum.id
+                    new_idnum.patient_id = idnum.patient_id
+                    new_idnum.which_idnum = idnum.which_idnum
+                    new_idnum.idnum_value = matching_idref.idnum_value
+                    new_idnum.set_predecessor(req, idnum)
+            max_existing_pidnum_id = None
+            for idref in new_idrefs:
+                matching_idnum = next(
+                    (idnum for idnum in patient.idnums
+                     if idnum.which_idnum == idref.which_idnum), None)
+                if not matching_idnum:
+                    # Create ID numbers where they were absent
+                    changes["idnum{} ({})".format(
+                        idref.which_idnum,
+                        req.get_id_desc(idref.which_idnum))
+                    ] = (None, idref.idnum_value)
+                    # We need to establish an "id" field, which is the PK as
+                    # seen by the tablet. The tablet has lost interest in these
+                    # records, since _era != ERA_NOW, so all we have to do is
+                    # pick a number that's not in use.
+                    if max_existing_pidnum_id is None:
+                        # noinspection PyProtectedMember
+                        max_existing_pidnum_id = dbsession\
+                            .query(func.max(PatientIdNum.id))\
+                            .filter(PatientIdNum._device_id ==
+                                    patient.get_device_id())\
+                            .filter(PatientIdNum._era == patient.get_era())\
+                            .scalar()
+                        if max_existing_pidnum_id is None:
+                            max_existing_pidnum_id = 0  # so start at 1
+                    new_idnum = PatientIdNum()
+                    new_idnum.id = max_existing_pidnum_id + 1
+                    max_existing_pidnum_id += 1
+                    new_idnum.patient_id = patient.id
+                    new_idnum.which_idnum = idref.which_idnum
+                    new_idnum.idnum_value = idref.idnum_value
+                    new_idnum.create_fresh(req,
+                                           device_id=patient.get_device_id(),
+                                           era=patient.get_era(),
+                                           group_id=patient.get_group_id())
+                    dbsession.add(new_idnum)
+            if not changes:
+                return simple_success(
+                    req,
+                    "No changes required for patient record with server PK {} "
+                    "(all new values matched old values)".format(server_pk))
+
+            # Below here, changes have definitely been made.
+            change_msg = "Patient details edited. Changes: " + "; ".join(
+                "{k}: {old!r} → {new!r}".format(k=k, old=old, new=new)
+                for k, (old, new) in changes.items()
+            )
+
+            # Apply special note to patient
+            patient.apply_special_note(req, change_msg, "Patient edited")
+
+            # Patient details changed, so resend any tasks via HL7
+            for task in affected_tasks:
+                task.delete_from_hl7_message_log(req)
+
+            # Done
+            return simple_success(
+                req,
+                "Amended patient record with server PK {}. Changes were: "
+                "{}".format(server_pk, change_msg))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        appstruct = {k: getattr(patient, k)
+                     for k in EDIT_PATIENT_SIMPLE_PARAMS}
+        appstruct[ViewParam.SERVER_PK] = server_pk
+        appstruct[ViewParam.GROUP_ID] = patient.group.id
+        appstruct[ViewParam.ID_REFERENCES] = [
+            {ViewParam.WHICH_IDNUM: pidnum.which_idnum,
+             ViewParam.IDNUM_VALUE: pidnum.idnum_value}
+            for pidnum in patient.idnums
+        ]
+        rendered_form = form.render(appstruct)
+    return render_to_response(
+        "patient_edit.mako",
+        dict(
+            patient=patient,
+            form=rendered_form,
+            tasks=affected_tasks,
+            head_form_html=get_head_form_html(req, [form])
+        ),
+        request=req
     )
 
 
-# ***
-def edit_patient(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    # Inputs. We operate with text, for HTML reasons.
-    patient_server_pk = ws.get_cgi_parameter_int(form, PARAM.SERVERPK)
-    confirmation_sequence = ws.get_cgi_parameter_int(
-        form, PARAM.CONFIRMATION_SEQUENCE)
-    changes = {
-        "forename": ws.get_cgi_parameter_str(form, PARAM.FORENAME, default=""),
-        "surname": ws.get_cgi_parameter_str(form, PARAM.SURNAME, default=""),
-        "dob": ws.get_cgi_parameter_datetime(form, PARAM.DOB),
-        "sex": ws.get_cgi_parameter_str(form, PARAM.SEX, default=""),
-        "address": ws.get_cgi_parameter_str(form, PARAM.ADDRESS, default=""),
-        "gp": ws.get_cgi_parameter_str(form, PARAM.GP, default=""),
-        "other": ws.get_cgi_parameter_str(form, PARAM.OTHER, default=""),
-    }
-    idnum_changes = {}  # type: Dict[int, int]  # which_idnum, idnum_value
-    if changes["forename"]:
-        changes["forename"] = changes["forename"].upper()
-    if changes["surname"]:
-        changes["surname"] = changes["surname"].upper()
-    changes["dob"] = format_datetime(
-        changes["dob"], DateFormat.ISO8601_DATE_ONLY, default="")
-    for n in pls.valid_which_idnums():
-        val = ws.get_cgi_parameter_int(form, PARAM.IDNUM_PREFIX + str(n))
-        if val is not None:
-            idnum_changes[n] = val
-    # Calculations
-    n_confirmations = 2
-    if (confirmation_sequence is None or
-            confirmation_sequence < 0 or
-            confirmation_sequence > n_confirmations):
-        confirmation_sequence = 0
-    patient = Patient(patient_server_pk)
-    if patient.get_pk() is None:
-        return fail_with_error_stay_logged_in(
-            "No such patient found.")
-    if not patient.is_preserved():
-        return fail_with_error_stay_logged_in(
-            "Patient record is still live on tablet; cannot edit.")
-    if confirmation_sequence < n_confirmations:
-        # First call. Offer method.
-        tasks = AFFECTED_TASKS_HTML + task_list_from_generator(
-            gen_tasks_using_patient(
-                patient.id, patient.get_device_id(), patient.get_era()))
-        if confirmation_sequence > 0:
-            warning = """
-                <div class="warning">
-                    <b>ARE YOU {really} SURE YOU WANT TO ALTER THIS PATIENT
-                    RECORD (AFFECTING ASSOCIATED TASKS)?</b>
-                </div>
-            """.format(
-                really=" REALLY" * confirmation_sequence,
-            )
-            details = (
-                info_html_for_patient_edit("Forename", changes["forename"],
-                                           PARAM.FORENAME, changes["forename"],
-                                           patient.forename) +
-                info_html_for_patient_edit("Surname", changes["surname"],
-                                           PARAM.SURNAME, changes["surname"],
-                                           patient.surname) +
-                info_html_for_patient_edit("DOB", changes["dob"],
-                                           PARAM.DOB, changes["dob"],
-                                           patient.dob) +
-                info_html_for_patient_edit("Sex", changes["sex"],
-                                           PARAM.SEX, changes["sex"],
-                                           patient.sex) +
-                info_html_for_patient_edit("Address", changes["address"],
-                                           PARAM.ADDRESS, changes["address"],
-                                           patient.address) +
-                info_html_for_patient_edit("GP", changes["gp"],
-                                           PARAM.GP, changes["gp"],
-                                           patient.gp) +
-                info_html_for_patient_edit("Other", changes["other"],
-                                           PARAM.OTHER, changes["other"],
-                                           patient.other)
-            )
-            for n in pls.valid_which_idnums():
-                oldvalue = patient.get_idnum_value(n)
-                newvalue = idnum_changes.get(n, None)
-                if newvalue is None:
-                    newvalue = oldvalue
-                desc = pls.get_id_desc(n)
-                details += info_html_for_patient_edit(
-                    "ID number {} ({})".format(n, desc),
-                    str(newvalue),
-                    PARAM.IDNUM_PREFIX + str(n),
-                    str(newvalue),
-                    str(oldvalue))
-        else:
-            warning = ""
-            dob_for_html = format_datetime(
-                patient.dob, DateFormat.ISO8601_DATE_ONLY, default="")
-            details = """
-                Forename: <input type="text" name="{PARAM.FORENAME}"
-                                value="{forename}"><br>
-                Surname: <input type="text" name="{PARAM.SURNAME}"
-                                value="{surname}"><br>
-                DOB: <input type="date" name="{PARAM.DOB}"
-                                value="{dob}"><br>
-                Sex: {sex_picker}<br>
-                Address: <input type="text" name="{PARAM.ADDRESS}"
-                                value="{address}"><br>
-                GP: <input type="text" name="{PARAM.GP}"
-                                value="{gp}"><br>
-                Other: <input type="text" name="{PARAM.OTHER}"
-                                value="{other}"><br>
-            """.format(
-                PARAM=PARAM,
-                forename=patient.forename or "",
-                surname=patient.surname or "",
-                dob=dob_for_html,
-                sex_picker=get_html_sex_picker(param=PARAM.SEX,
-                                               selected=patient.sex,
-                                               offer_all=False),
-                address=patient.address or "",
-                gp=patient.gp or "",
-                other=patient.other or "",
-            )
-            for n in pls.valid_which_idnums():
-                details += """
-                    ID number {n} ({desc}):
-                    <input type="number" name="{paramprefix}{n}"
-                            value="{value}"><br>
-                """.format(
-                    n=n,
-                    desc=pls.get_id_desc(n),
-                    paramprefix=PARAM.IDNUM_PREFIX,
-                    value=patient.get_idnum_value(n),
+@view_config(route_name=Routes.FORCIBLY_FINALIZE,
+             permission=Permission.GROUPADMIN)
+def forcibly_finalize(req: CamcopsRequest) -> Response:
+    """
+    Force-finalize all live (_era == ERA_NOW) records from a device.
+    Available to group administrators if all those records are within their
+    groups (otherwise, it's a superuser operation).
+
+    This is a superuser permission, since we can't guarantee to know what group
+    the device relates to.
+    """
+    if FormAction.CANCEL in req.POST:
+        return HTTPFound(req.route_url(Routes.HOME))
+
+    dbsession = req.dbsession
+    first_form = ForciblyFinalizeChooseDeviceForm(request=req)
+    second_form = ForciblyFinalizeConfirmForm(request=req)
+    form = None
+    final_phase = False
+    if FormAction.SUBMIT in req.POST:
+        # FIRST form has been submitted
+        form = first_form
+    elif FormAction.FINALIZE in req.POST:
+        # SECOND form has been submitted:
+        form = second_form
+        final_phase = True
+    if form is not None:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            # log.critical("{}", pformat(appstruct))
+            device_id = appstruct.get(ViewParam.DEVICE_ID)
+            device = Device.get_device_by_id(dbsession, device_id)
+            if device is None:
+                raise HTTPBadRequest("No such device: {!r}".format(device_id))
+            # -----------------------------------------------------------------
+            # If at the first stage, bin out and offer confirmation page
+            # -----------------------------------------------------------------
+            if not final_phase:
+                appstruct = {ViewParam.DEVICE_ID: device_id}
+                rendered_form = second_form.render(appstruct)
+                taskfilter = TaskFilter()
+                taskfilter.device_ids = [device_id]
+                taskfilter.era = ERA_NOW
+                collection = TaskCollection(
+                    req=req,
+                    taskfilter=taskfilter,
+                    sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
+                    current_only=False  # unusual option!
                 )
-        return pls.WEBSTART + """
-            {user}
-            <h1>Edit finalized patient details</h1>
-            {warning}
-            <form name="myform" action="{script}" method="POST">
-                <input type="hidden" name="{PARAM.ACTION}"
-                        value="{ACTION.EDIT_PATIENT}">
-                <input type="hidden" name="{PARAM.SERVERPK}"
-                        value="{patient_server_pk}">
-                {details}
-                <input type="hidden" name="{PARAM.CONFIRMATION_SEQUENCE}"
-                        value="{confirmation_sequence}">
-                <input type="submit" class="important"
-                        value="Change patient details">
-            </form>
-            <div>
-                <b><a href="{cancelurl}">CANCEL</a></b>
-            </div>
-            {tasks}
-        """.format(
-            user=session.get_current_user_html(),
-            warning=warning,
-            script=pls.SCRIPT_NAME,
-            PARAM=PARAM,
-            ACTION=ACTION,
-            patient_server_pk=patient_server_pk,
-            details=details,
-            confirmation_sequence=confirmation_sequence + 1,
-            cancelurl=get_url_main_menu(),
-            tasks=tasks,
-        ) + WEBEND
-    # Line up the changes and validate, but DO NOT SAVE THE PATIENT as yet.
-    changemessages = []
-    for k, v in changes.items():
-        if v == "":
-            v = None
-        oldval = getattr(patient, k)
-        if v is None and oldval == "":
-            # Nothing really changing!
-            continue
-        if v != oldval:
-            changemessages.append(" {key}, {oldval} → {newval}".format(
-                key=k,
-                oldval=oldval,
-                newval=v
-            ))
-            setattr(patient, k, v)
-    for which_idnum, idnum_value in idnum_changes.items():
-        oldvalue = patient.get_idnum_value(which_idnum)
-        if idnum_value != oldvalue:
-            patient.set_idnum_value(which_idnum, idnum_value)
-    # Valid?
-    if (not patient.satisfies_upload_id_policy() or
-            not patient.satisfies_finalize_id_policy()):
-        return fail_with_error_stay_logged_in(
-            "New version does not satisfy uploading or finalizing policy; "
-            "no changes made.")
-    # Anything to do?
-    if not changemessages:
-        return simple_success("No changes made.")
-    # If we get here, we'll make the change.
-    patient.save()
-    msg = "Patient details edited. Changes: "
-    msg += "; ".join(changemessages) + "."
-    patient.apply_special_note(msg, session.user_id,
-                               audit_msg="Patient details edited")
-    for task in gen_tasks_using_patient(patient.id,
-                                        patient.get_device_id(),
-                                        patient.get_era()):
-        # Patient details changed, so resend any tasks via HL7
-        task.delete_from_hl7_message_log()
-    return simple_success(msg)
+                tasks = collection.all_tasks
+                return render_to_response(
+                    "device_forcibly_finalize_confirm.mako",
+                    dict(form=rendered_form,
+                         tasks=tasks,
+                         head_form_html=get_head_form_html(req, [form])),
+                    request=req
+                )
+            # -----------------------------------------------------------------
+            # Check it's permitted
+            # -----------------------------------------------------------------
+            if not req.user.superuser:
+                admin_group_ids = req.user.ids_of_groups_user_is_admin_for
+                for clienttable in CLIENT_TABLE_MAP.values():
+                    count_query = select([func.count()]) \
+                        .select_from(clienttable) \
+                        .where(clienttable.c._device_id == device_id) \
+                        .where(clienttable.c._era == ERA_NOW) \
+                        .where(clienttable.c._group_id.notin_(admin_group_ids))
+                    n = dbsession.execute(count_query).scalar()
+                    if n > 0:
+                        raise HTTPBadRequest(
+                            "Some records for this device are in groups for "
+                            "which you are not an administrator")
+            # -----------------------------------------------------------------
+            # Forcibly finalize
+            # -----------------------------------------------------------------
+            new_era = req.now_iso8601_era_format
+            for clienttable in CLIENT_TABLE_MAP.values():
+                finalize_statement = update(clienttable) \
+                    .where(clienttable.c._device_id == device_id) \
+                    .where(clienttable.c._era == ERA_NOW) \
+                    .values(_era=new_era,
+                            _preserving_user_id=req.user_id,
+                            _forcibly_preserved=True)
+                dbsession.execute(finalize_statement)
+            # Field names are different in server-side tables, so they need
+            # special handling:
+            SpecialNote.forcibly_preserve_special_notes_for_device(req,
+                                                                   device_id)
+            # -----------------------------------------------------------------
+            # Done
+            # -----------------------------------------------------------------
+            msg = "Live records for device {} ({}) forcibly finalized".format(
+                device_id, device.friendly_name)
+            audit(req, msg)
+            return simple_success(req, msg)
 
-
-# ***
-def task_list_from_generator(generator: Iterable[Task]) -> str:
-    tasklist_html = ""
-    for task in generator:
-        tasklist_html += task.get_task_list_row()
-    return """
-        {TASK_LIST_HEADER}
-        {tasklist_html}
-        {TASK_LIST_FOOTER}
-    """.format(
-        TASK_LIST_HEADER=TASK_LIST_HEADER,
-        tasklist_html=tasklist_html,
-        TASK_LIST_FOOTER=TASK_LIST_FOOTER,
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        form = first_form
+        rendered_form = form.render()  # no appstruct
+    return render_to_response(
+        "device_forcibly_finalize_choose.mako",
+        dict(form=rendered_form,
+             head_form_html=get_head_form_html(req, [form])),
+        request=req
     )
-
-
-# ***
-def forcibly_finalize(session: CamcopsSession, form: cgi.FieldStorage) -> str:
-    """Force-finalize all live (_era == ERA_NOW) records from a device."""
-
-    if not session.authorized_as_superuser():
-        return fail_with_error_stay_logged_in(NOT_AUTHORIZED_MSG)
-    n_confirmations = 3
-    device_id = ws.get_cgi_parameter_int(form, PARAM.DEVICE)
-    confirmation_sequence = ws.get_cgi_parameter_int(
-        form, PARAM.CONFIRMATION_SEQUENCE)
-    if (confirmation_sequence is None or
-            confirmation_sequence < 0 or
-            confirmation_sequence > n_confirmations):
-        confirmation_sequence = 0
-    if confirmation_sequence > 0 and device_id is None:
-        return fail_with_error_stay_logged_in("Device not specified.")
-    d = None
-    if device_id is not None:
-        # A device was asked for...
-        d = Device(device_id)
-        if not d.is_valid():
-            # ... but not found
-            return fail_with_error_stay_logged_in("No such device found.")
-        device_id = d.id
-    if confirmation_sequence < n_confirmations:
-        # First call. Offer method.
-        tasks = ""
-        if device_id is not None:
-            tasks = AFFECTED_TASKS_HTML + task_list_from_generator(
-                gen_tasks_live_on_tablet(device_id))
-        if confirmation_sequence > 0:
-            warning = """
-                <div class="warning">
-                    <b>ARE YOU {really} SURE YOU WANT TO FORCIBLY
-                    PRESERVE/FINALIZE RECORDS FROM THIS DEVICE?</b>
-                </div>
-            """.format(
-                really=" REALLY" * confirmation_sequence,
-            )
-            device_picker_or_label = """
-                <input type="hidden" name="{PARAM.DEVICE}"
-                        value="{device_id}">
-                <b>{device_nicename}</b>
-            """.format(
-                PARAM=PARAM,
-                device_id=device_id,
-                device_nicename=(ws.webify(d.get_friendly_name_and_id())
-                                 if d is not None else ''),
-            )
-        else:
-            warning = ""
-            device_picker_or_label = get_device_filter_dropdown(device_id)
-        return pls.WEBSTART + """
-            {user}
-            <h1>
-                Forcibly preserve/finalize records from a given tablet device
-            </h1>
-            {warning}
-            <form name="myform" action="{script}" method="POST">
-                <input type="hidden" name="{PARAM.ACTION}"
-                        value="{ACTION.FORCIBLY_FINALIZE}">
-                Device: {device_picker_or_label}
-                <input type="hidden" name="{PARAM.CONFIRMATION_SEQUENCE}"
-                        value="{confirmation_sequence}">
-                <input type="submit" class="important"
-                        value="Forcibly finalize records from this device">
-            </form>
-            <div>
-                <b><a href="{cancelurl}">CANCEL</a></b>
-            </div>
-            {tasks}
-        """.format(
-            user=session.get_current_user_html(),
-            warning=warning,
-            script=pls.SCRIPT_NAME,
-            ACTION=ACTION,
-            device_picker_or_label=device_picker_or_label,
-            PARAM=PARAM,
-            confirmation_sequence=confirmation_sequence + 1,
-            cancelurl=get_url_main_menu(),
-            tasks=tasks
-        ) + WEBEND
-
-    # If we get here, we'll do the forced finalization.
-    # Force-finalize tasks (with subtables)
-    tables = [
-        # non-task but tablet-based tables
-        Patient.__tablename__,
-        Blob.__tablename__,
-        DeviceStoredVar.__tablename__,
-    ]
-    for cls in get_all_task_classes():
-        tables.append(cls.tablename)
-        tables.extend(cls.get_extra_table_names())
-    for t in tables:
-        cc_db.forcibly_preserve_client_table(t, device_id, pls.session.user_id)
-    # Field names are different in server-side tables, so they need special
-    # handling:
-    forcibly_preserve_special_notes(device_id)
-    # OK, done.
-    msg = "Live records for device {} forcibly finalized".format(device_id)
-    audit(msg)
-    return simple_success(msg)
 
 
 # =============================================================================

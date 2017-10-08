@@ -34,7 +34,7 @@ import pyramid.httpexceptions as exc
 from sqlalchemy.sql.expression import and_, exists, select
 from sqlalchemy.sql.selectable import Select
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
 
 from ..cc_modules.cc_constants import DateFormat, INVALID_VALUE
 from ..cc_modules.cc_ctvinfo import CtvInfo
@@ -99,10 +99,8 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     referring_specialty = Column("referring_specialty", UnicodeText)
     referring_specialty_other = Column("referring_specialty_other", UnicodeText)
     patient_location = Column("patient_location", UnicodeText)
-    admission_date = Column("admission_date", PendulumDateTimeAsIsoTextColType)
-    estimated_discharge_date = Column(
-        "estimated_discharge_date", PendulumDateTimeAsIsoTextColType
-    )
+    admission_date = Column("admission_date", Date)
+    estimated_discharge_date = Column("estimated_discharge_date", Date)
     patient_aware_of_referral = BoolColumn("patient_aware_of_referral")
     interpreter_required = BoolColumn("interpreter_required")
     sensory_impairment = BoolColumn("sensory_impairment")
@@ -376,7 +374,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     shortname = "CPFT_LPS_Discharge"
     longname = "Discharge from CPFT Liaison Psychiatry Service"
 
-    discharge_date = Column("discharge_date", PendulumDateTimeAsIsoTextColType)
+    discharge_date = Column("discharge_date", Date)
     discharge_reason_code = Column("discharge_reason_code", UnicodeText)
 
     leaflet_or_discharge_card_given = BoolColumn(

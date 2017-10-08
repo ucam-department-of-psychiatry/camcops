@@ -37,7 +37,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
 from pendulum import Pendulum
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship, Session as SqlASession
-from sqlalchemy.sql import func
+from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
@@ -328,7 +328,7 @@ class User(Base):
         "upload_group_id", Integer, ForeignKey("_security_groups.id"),
         comment="ID of the group to which this user uploads at present",
         # OK to be NULL in the database, but the user will not be able to
-        # upload while it is. *** implement check in database.py
+        # upload while it is. *** implement check in client_api.py
     )
 
     # groups = relationship(
@@ -592,6 +592,11 @@ class User(Base):
                 dbsession=SqlASession.object_session(self))
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return [m.group_id for m in memberships if m.groupadmin]
+
+    def may_administer_group(self, group_id: int) -> bool:
+        if self.superuser:
+            return True
+        return group_id in self.ids_of_groups_user_is_admin_for
 
     @property
     def groups_user_may_see(self) -> List[Group]:

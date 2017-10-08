@@ -37,14 +37,15 @@ from .cc_sqlalchemy import Base
 class DirtyTable(Base):
     __tablename__ = "_dirty_tables"
 
+    id = Column(
+        "id", Integer, primary_key=True,  # new in 2.1.0; ditch composite PK
+    )
     device_id = Column(
         "device_id", Integer,
         ForeignKey(Device.id),
-        primary_key=True,  # composite primary key
         comment="Source tablet device ID"
     )
     tablename = Column(
         "tablename", TableNameColType,
-        primary_key=True,  # composite primary key
         comment="Table in the process of being preserved"
     )

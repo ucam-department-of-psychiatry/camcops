@@ -217,7 +217,7 @@ from sqlalchemy import (
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.functions import func
 from typing import Any, Optional, Type
 
 logger = logging.getLogger(__name__)

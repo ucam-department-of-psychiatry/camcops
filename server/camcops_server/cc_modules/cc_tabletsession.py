@@ -27,7 +27,7 @@ from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 
-from .cc_constants import TABLET_PARAM
+from .cc_client_api_core import fail_user_error, TabletParam
 from .cc_device import Device
 from .cc_user import User
 from .cc_version import (
@@ -48,13 +48,13 @@ class TabletSession(object):
         # Read key things
         self.req = req
         post = req.POST
-        self.operation = post.getone(TABLET_PARAM.OPERATION)  # type: str
-        self.device_name = post.getone(TABLET_PARAM.DEVICE)  # type: str
-        self.username = post.getone(TABLET_PARAM.USER)  # type: str
-        self.password = post.getone(TABLET_PARAM.PASSWORD)  # type: str
-        self.session_id = ws.get_cgi_parameter_int(form, TABLET_PARAM.SESSION_ID)
-        self.session_token = post.getone(TABLET_PARAM.SESSION_TOKEN)  # type: str  # noqa
-        self.tablet_version_str = post.getone(TABLET_PARAM.CAMCOPS_VERSION)  # type: str  # noqa
+        self.operation = post.getone(TabletParam.OPERATION)  # type: str
+        self.device_name = post.getone(TabletParam.DEVICE)  # type: str
+        self.username = post.getone(TabletParam.USER)  # type: str
+        self.password = post.getone(TabletParam.PASSWORD)  # type: str
+        self.session_id = req.get_int_param(TabletParam.SESSION_ID)
+        self.session_token = post.getone(TabletParam.SESSION_TOKEN)  # type: str  # noqa
+        self.tablet_version_str = post.getone(TabletParam.CAMCOPS_VERSION)  # type: str  # noqa
         self.tablet_version_ver = make_version(self.tablet_version_str)
         # Look up device and user
         dbsession = req.dbsession
@@ -63,7 +63,7 @@ class TabletSession(object):
         self._user_obj = User.get_user_by_name(dbsession, self.username)
 
         # Ensure table version is OK
-        if self.tablet_version_ver < MINIMUM_TABLET_VERSION:  # noqa
+        if self.tablet_version_ver < MINIMUM_TABLET_VERSION:
             fail_user_error(
                 "Tablet CamCOPS version too old: is {v}, need {r}".format(
                     v=self.tablet_version_str,
@@ -102,7 +102,8 @@ class TabletSession(object):
         return self._device_obj is not None
 
     def reload_device(self):
-        self._device_obj = Device.get_device_by_name(self.device_name)
+        self._device_obj = Device.get_device_by_name(self.req.dbsession,
+                                                     self.device_name)
 
     def ensure_device_registered(self) -> None:
         """
@@ -116,16 +117,32 @@ class TabletSession(object):
         Ensure the device/username/password combination is valid for uploading.
         Raises UserErrorException on failure.
         """
-        if not pls.session.authorized_to_upload():
-            fail_user_error(INVALID_USERNAME_PASSWORD)
+        if not self.req.user or not self.req.user.may_upload:
+            fail_user_error(
+                "Invalid username/password, or user not authorized to upload, "
+                "or no upload group set")
         # Username/password combination found and is valid. Now check device.
         self.ensure_device_registered()
 
-    @staticmethod
-    def ensure_valid_user_for_device_registration() -> None:
+    def ensure_valid_user_for_device_registration(self) -> None:
         """
         Ensure the username/password combination is valid for device
         registration. Raises UserErrorException on failure.
         """
-        if not pls.session.authorized_for_registration():
-            fail_user_error(INVALID_USERNAME_PASSWORD)
+        if not self.req.user or not self.req.user.may_register_devices:
+            fail_user_error("Invalid username/password, or user not "
+                            "authorized to register devices")
+
+    def set_session_id_token(self, session_id: int,
+                             session_token: str) -> None:
+        """
+        Sets the session ID and token.
+        Typical situation:
+            - TabletSession created; may or may not have an ID/token as part
+              of the POST request
+            - CamcopsRequest translates that into a server-side session
+            - If one wasn't found and needs to be created, we write back
+              the values here.
+        """
+        self.session_id = session_id
+        self.session_token = session_token

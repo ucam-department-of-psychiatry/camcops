@@ -148,7 +148,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         comment="The value of the ID number"
     )
 
-    def get_idnum_definition(self) -> IdNumReference:
+    def get_idnum_reference(self) -> IdNumReference:
         return IdNumReference(which_idnum=self.which_idnum,
                               idnum_value=self.idnum_value)
 

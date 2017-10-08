@@ -19,7 +19,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.functions import func
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())

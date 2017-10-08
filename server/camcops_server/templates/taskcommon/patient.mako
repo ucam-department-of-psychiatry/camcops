@@ -22,5 +22,5 @@
 </div>
 
 %if include_special_notes and patient.special_notes:
-    <%include file="special_note.mako" args="special_notes=patient.special_notes, title='PATIENT SPECIAL NOTES'"/>
+    <%include file="special_notes.mako" args="special_notes=patient.special_notes, title='PATIENT SPECIAL NOTES'"/>
 %endif

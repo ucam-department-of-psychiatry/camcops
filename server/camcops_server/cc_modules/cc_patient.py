@@ -23,7 +23,7 @@
 """
 
 import logging
-from typing import List, Optional, TYPE_CHECKING, Union
+from typing import Generator, List, Optional, Set, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -238,12 +238,17 @@ class Patient(GenericTabletRecordMixin, Base):
         patients = q.all()  # type: List[Patient]
         return patients
 
+    @classmethod
+    def get_patient_by_pk(cls, dbsession: SqlASession,
+                          server_pk: int) -> Optional["Patient"]:
+        return dbsession.query(cls).filter(cls._pk == server_pk).first()
+
     def get_idnum_objects(self) -> List[PatientIdNum]:
         return self.idnums  # type: List[PatientIdNum]
 
     def get_idnum_definitions(self) -> List[IdNumReference]:
         idnums = self.idnums  # type: List[PatientIdNum]
-        return [x.get_idnum_definition() for x in idnums if x.is_valid()]
+        return [x.get_idnum_reference() for x in idnums if x.is_valid()]
 
     def get_idnum_raw_values_only(self) -> List[int]:
         idnums = self.idnums  # type: List[PatientIdNum]
@@ -313,6 +318,10 @@ class Patient(GenericTabletRecordMixin, Base):
             idnum_definitions=self.get_idnum_definitions()
         )
 
+    @property
+    def group(self) -> Optional["Group"]:
+        return self._group
+
     def satisfies_upload_id_policy(self) -> bool:
         """Does the patient satisfy the uploading ID policy?"""
         group = self._group  # type: Optional[Group]
@@ -334,15 +343,6 @@ class Patient(GenericTabletRecordMixin, Base):
     def dump(self) -> None:
         """Dump object to database's log."""
         rnc_db.dump_database_object(self, Patient.FIELDS)
-
-    def get_pk(self) -> Optional[int]:
-        return self._pk
-
-    def get_era(self) -> Optional[str]:
-        return self._era
-
-    def get_device_id(self) -> Optional[int]:
-        return self._device_id
 
     def get_surname(self) -> str:
         """Get surname (in upper case) or ""."""
@@ -573,6 +573,41 @@ class Patient(GenericTabletRecordMixin, Base):
         self.special_notes.append(sn)
         self.audit(req, audit_msg)
         # HL7 deletion of corresponding tasks is done in camcops.py
+
+    # -------------------------------------------------------------------------
+    # Deletion
+    # -------------------------------------------------------------------------
+
+    def gen_patient_idnums_even_noncurrent(self) -> \
+            Generator[PatientIdNum, None, None]:
+        seen = set()  # type: Set[PatientIdNum]
+        for live_pidnum in self.idnums:
+            for lineage_member in live_pidnum.get_lineage():
+                if lineage_member in seen:
+                    continue
+                seen.add(lineage_member)
+                yield lineage_member
+
+    def delete_with_dependants(self, req: "CamcopsRequest") -> None:
+        if self._pk is None:
+            return
+        for pidnum in self.gen_patient_idnums_even_noncurrent():
+            req.dbsession.delete(pidnum)
+        super().delete_with_dependants(req)
+
+    # -------------------------------------------------------------------------
+    # Editing
+    # -------------------------------------------------------------------------
+
+    @property
+    def is_editable(self) -> bool:
+        if self._era == ERA_NOW:
+            # Not finalized; no editing on server
+            return False
+        return True
+
+    def user_may_edit(self, req: "CamcopsRequest") -> bool:
+        return req.user.may_administer_group(self._group_id)
 
 
 # =============================================================================

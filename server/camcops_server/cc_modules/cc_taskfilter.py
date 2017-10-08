@@ -229,13 +229,25 @@ class TaskFilter(Base):
         self.group_ids = []  # type: List[int]
         self.text_contents = []  # type: List[str]
 
+        # ANYTHING YOU ADD BELOW HERE MUST ALSO BE IN init_on_load().
+        # Or call it, of course, but we like to keep on the happy side of the
+        # PyCharm type checker.
+
+        # Python-only (non-database) filtering attributes:
+        self.era = None  # type: str
+        self.patient_ids = []  # type: List[int]
+
+        # Other Python-only attributes
         self.sort_method = TaskClassSortMethod.NONE
-        self._task_classes = None
+        self._task_classes = None  # type: List[Type[Task]]
 
     @reconstructor
     def init_on_load(self):
+        self.era = None  # type: str
+        self.patient_ids = []  # type: List[int]
+
         self.sort_method = TaskClassSortMethod.NONE
-        self._task_classes = None
+        self._task_classes = None  # type: List[Type[Task]]
 
     def __repr__(self) -> str:
         return auto_repr(self, with_addr=True)
@@ -272,9 +284,10 @@ class TaskFilter(Base):
         return (
             bool(self.surname) or
             bool(self.forename) or
-            self.dob is not None or
+            (self.dob is not None) or
             bool(self.sex) or
-            bool(self.idnum_criteria)
+            bool(self.idnum_criteria) or
+            bool(self.patient_ids)
         )
 
     def any_specific_patient_filtering(self) -> bool:
@@ -284,7 +297,8 @@ class TaskFilter(Base):
             bool(self.surname) or
             bool(self.forename) or
             self.dob is not None or
-            bool(self.idnum_criteria)
+            bool(self.idnum_criteria) or
+            bool(self.patient_ids)
         )
 
     def get_only_iddef(self) -> Optional[IdNumReference]:
@@ -393,23 +407,26 @@ class TaskFilter(Base):
                     # Use OR (disjunction) of the specified values:
                     q = q.filter(or_(*id_filter_parts))
 
+                if self.patient_ids:
+                    q = q.filter(cls.patient_id.in_(self.patient_ids))
+
         # Patient-independent filtering
 
-        if self.device_ids is not None:
+        if self.device_ids:
             # noinspection PyProtectedMember
-            device_criteria = [cls._device_id == d for d in self.device_ids]
-            q = q.filter(or_(*device_criteria))
+            q = q.filter(cls._device_id.in_(self.device_ids))
 
-        if self.adding_user_ids is not None:
+        if self.era:
             # noinspection PyProtectedMember
-            user_criteria = [cls._adding_user_id == u
-                             for u in self.adding_user_ids]
-            q = q.filter(or_(*user_criteria))
+            q = q.filter(cls._era == self.era)
+
+        if self.adding_user_ids:
+            # noinspection PyProtectedMember
+            q = q.filter(cls._adding_user_id.in_(self.adding_user_ids))
 
         if permitted_group_ids:
             # noinspection PyProtectedMember
-            group_criteria = [cls._group_id == g for g in permitted_group_ids]
-            q = q.filter(or_(*group_criteria))
+            q = q.filter(cls._group_id.in_(permitted_group_ids))
 
         if self.start_datetime is not None:
             q = q.filter(cls.when_created >= self.start_datetime)

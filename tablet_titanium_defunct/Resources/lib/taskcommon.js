@@ -192,7 +192,7 @@ lang.extendPrototype(BaseTask, {
             if (store) {
                 this.dbstore();
                 // Note that this will 'touch' when_last_modified.
-                // See CLIENT_DATE_FIELD in database.py on the server, and
+                // See CLIENT_DATE_FIELD in client_api.py on the server, and
                 // MODIFICATION_TIMESTAMP_FIELDNAME on the tablet.
             }
         }

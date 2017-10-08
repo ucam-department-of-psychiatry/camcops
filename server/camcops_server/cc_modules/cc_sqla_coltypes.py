@@ -103,7 +103,7 @@ from semantic_version import Version
 from sqlalchemy import util
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.orm.relationships import RelationshipProperty
-from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import (
     Boolean,

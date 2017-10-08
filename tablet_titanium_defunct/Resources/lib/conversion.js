@@ -498,7 +498,7 @@ function sql_dequote_string(s) {
 }
 
 function unescape_newlines(s) {
-    // See escape_newlines() and unescape_newlines() in database.py
+    // See escape_newlines() and unescape_newlines() in client_api.py
     var d = "",  // the destination string
         in_escape = false,
         i,
@@ -530,7 +530,7 @@ function unescape_newlines(s) {
 
 function decode_single_sql_literal(v) {
     // Takes a string representing an SQL value. Returns the value.
-    // See encode_single_value(), decode_single_value() in database.py
+    // See encode_single_value(), decode_single_value() in client_api.py
 
     var lang = require('lib/lang'),
         t;
@@ -567,7 +567,7 @@ function decode_single_sql_literal(v) {
 }
 
 function CSVSQLtoArray(s) {
-    // Equivalent, broadly speaking, to gen_items_from_sql_csv() in database.py
+    // Equivalent, broadly speaking, to gen_items_from_sql_csv() in client_api.py
     // Titanium.API.trace("CSVSQLtoArray: s = " + s);
     if (!s) {
         return [];

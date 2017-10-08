@@ -27,7 +27,7 @@ from typing import List, Optional
 from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import Boolean, Date, Integer, UnicodeText
 
 from ..cc_modules.cc_constants import (
     DateFormat,
@@ -213,7 +213,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     )
 
     date_pertains_to = CamcopsColumn(
-        "date_pertains_to", PendulumDateTimeAsIsoTextColType,
+        "date_pertains_to", Date,
         comment="Date the assessment pertains to"
     )
     comments = Column(

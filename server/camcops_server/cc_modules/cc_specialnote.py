@@ -157,7 +157,7 @@ class SpecialNote(Base):
         # http://docs.sqlalchemy.org/en/latest/core/dml.html#sqlalchemy.sql.expression.update  # noqa
 
         statement = update(cls.__table__)\
-            .where(cls._device_id == device_id)\
-            .where(cls._era == ERA_NOW)\
-            .values(_era=new_era)
+            .where(cls.device_id == device_id)\
+            .where(cls.era == ERA_NOW)\
+            .values(era=new_era)
         dbsession.execute(statement)

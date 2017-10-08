@@ -105,6 +105,16 @@ class Device(Base):
             .first()  # type: Optional[Device]
         return device
 
+    @classmethod
+    def get_device_by_id(cls, dbsession: SqlASession,
+                           device_id: int) -> Optional['Device']:
+        if device_id is None:
+            return None
+        device = dbsession.query(cls)\
+            .filter(cls.id == device_id)\
+            .first()  # type: Optional[Device]
+        return device
+
     def get_friendly_name(self) -> str:
         """Get device friendly name (or failing that, device name)."""
         if self.friendly_name is None:

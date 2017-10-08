@@ -103,7 +103,8 @@ from deform.widget import (
 # We use some delayed imports here (search for "delayed import")
 from .cc_constants import DEFAULT_ROWS_PER_PAGE, MINIMUM_PASSWORD_LENGTH
 from .cc_group import Group
-from .cc_patientidnum import IdNumDefinition
+from .cc_patient import Patient
+from .cc_patientidnum import IdNumDefinition, PatientIdNum
 from .cc_policy import TokenizedPolicy
 from .cc_pyramid import Dialect, FormAction, ViewArg, ViewParam
 from .cc_sqla_coltypes import (
@@ -444,10 +445,9 @@ class MandatoryIdNumNode(MappingSchema):
     title = "ID number"
 
 
-class IdNumSequence(SequenceSchema):
+class IdNumSequenceAnyCombination(SequenceSchema):
     idnum_sequence = MandatoryIdNumNode()
     title = "ID numbers"
-    description = OR_JOIN
 
     # noinspection PyMethodMayBeStatic
     def validator(self, node: SchemaNode, value: List[Dict[str, int]]) -> None:
@@ -459,12 +459,39 @@ class IdNumSequence(SequenceSchema):
             raise Invalid(node, "You have specified duplicate ID definitions")
 
 
-class SexSelector(OptionalStringNode):
-    _sex_choices = [("F", "F"), ("M", "M"), ("X", "X")]
+class IdNumSequenceUniquePerWhichIdnum(SequenceSchema):
+    idnum_sequence = MandatoryIdNumNode()
+    title = "ID numbers"
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: List[Dict[str, int]]) -> None:
+        # log.critical("IdNumSequence.validator: {!r}", value)
+        assert isinstance(value, list)
+        which_idnums = [x[ViewParam.WHICH_IDNUM] for x in value]
+        if len(which_idnums) != len(set(which_idnums)):
+            raise Invalid(
+                node,
+                "You have specified >1 value for one ID number type")
+
+
+SEX_CHOICES = [("F", "F"), ("M", "M"), ("X", "X")]
+
+
+class OptionalSexSelector(OptionalStringNode):
     title = "Sex"
 
     def __init__(self, *args, **kwargs) -> None:
-        values, pv = get_values_and_permissible(self._sex_choices, True, "Any")
+        values, pv = get_values_and_permissible(SEX_CHOICES, True, "Any")
+        self.widget = RadioChoiceWidget(values=values)
+        self.validator = OneOf(pv)
+        super().__init__(*args, **kwargs)
+
+
+class MandatorySexSelector(MandatoryStringNode):
+    title = "Sex"
+
+    def __init__(self, *args, **kwargs) -> None:
+        values, pv = get_values_and_permissible(SEX_CHOICES)
         self.widget = RadioChoiceWidget(values=values)
         self.validator = OneOf(pv)
         super().__init__(*args, **kwargs)
@@ -1195,8 +1222,8 @@ class EditTaskFilterWhoSchema(Schema):
         missing=None,
         title="Date of birth",
     )
-    sex = SexSelector()  # must match ViewParam.SEX
-    id_references = IdNumSequence()  # must match ViewParam.ID_REFERENCES  # noqa
+    sex = OptionalSexSelector()  # must match ViewParam.SEX
+    id_references = IdNumSequenceAnyCombination(description=OR_JOIN)  # must match ViewParam.ID_REFERENCES  # noqa
 
 
 class EditTaskFilterWhenSchema(Schema):
@@ -1825,6 +1852,86 @@ class DeletePatientConfirmForm(DangerousForm):
         super().__init__(schema_class=DeletePatientConfirmSchema,
                          submit_action=FormAction.DELETE,
                          submit_title="Delete",
+                         request=request, **kwargs)
+
+
+EDIT_PATIENT_SIMPLE_PARAMS = [
+    ViewParam.FORENAME,
+    ViewParam.SURNAME,
+    ViewParam.DOB,
+    ViewParam.SEX,
+    ViewParam.ADDRESS,
+    ViewParam.GP,
+    ViewParam.OTHER,
+]
+
+
+class EditPatientSchema(CSRFSchema):
+    server_pk = HiddenIntegerNode()  # must match ViewParam.SERVER_PK
+    group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
+    forename = OptionalStringNode()  # must match ViewParam.FORENAME
+    surname = OptionalStringNode()  # must match ViewParam.SURNAME
+    dob = DateSelectorNode(title="Date of birth")  # must match ViewParam.DOB
+    sex = MandatorySexSelector()  # must match ViewParam.SEX
+    address = OptionalStringNode()  # must match ViewParam.ADDRESS
+    gp = OptionalStringNode(title="GP")  # must match ViewParam.GP
+    other = OptionalStringNode()  # must match ViewParam.OTHER
+    id_references = IdNumSequenceUniquePerWhichIdnum()  # must match ViewParam.ID_REFERENCES  # noqa
+    danger = ValidateDangerousOperationNode()
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        req = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        dbsession = req.dbsession
+        group_id = value[ViewParam.GROUP_ID]
+        group = Group.get_group_by_id(dbsession, group_id)
+        testpatient = Patient()
+        for k in EDIT_PATIENT_SIMPLE_PARAMS:
+            setattr(testpatient, k, value[k])
+        testpatient.idnums = []  # type: List[PatientIdNum]
+        for idrefdict in value[ViewParam.ID_REFERENCES]:
+            pidnum = PatientIdNum()
+            pidnum.which_idnum = idrefdict[ViewParam.WHICH_IDNUM]
+            pidnum.idnum_value = idrefdict[ViewParam.IDNUM_VALUE]
+            testpatient.idnums.append(pidnum)
+        tk_finalize_policy = TokenizedPolicy(group.finalize_policy)
+        if not testpatient.satisfies_id_policy(tk_finalize_policy):
+            raise Invalid(
+                node,
+                "Patient would not meet 'finalize' ID policy for group {}! "
+                "[That policy is: {!r}]".format(
+                    group.name, group.finalize_policy))
+
+
+class EditPatientForm(DangerousForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=EditPatientSchema,
+                         submit_action=FormAction.SUBMIT,
+                         submit_title="Submit",
+                         request=request, **kwargs)
+
+
+class ForciblyFinalizeChooseDeviceSchema(CSRFSchema):
+    device_id = MandatoryDeviceIdSelector()  # must match ViewParam.DEVICE_ID
+    danger = ValidateDangerousOperationNode()
+
+
+class ForciblyFinalizeChooseDeviceForm(SimpleSubmitForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=ForciblyFinalizeChooseDeviceSchema,
+                         submit_title="View affected tasks",
+                         request=request, **kwargs)
+
+
+class ForciblyFinalizeConfirmSchema(HardWorkConfirmationSchema):
+    device_id = HiddenIntegerNode()  # must match ViewParam.DEVICE_ID
+    danger = ValidateDangerousOperationNode()
+
+
+class ForciblyFinalizeConfirmForm(DangerousForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=ForciblyFinalizeConfirmSchema,
+                         submit_action=FormAction.FINALIZE,
+                         submit_title="Forcibly finalize",
                          request=request, **kwargs)
 
 

@@ -199,32 +199,6 @@ class TaskHasPatientMixin(object):
     def has_patient(cls) -> bool:
         return True
 
-    @classmethod
-    def get_tasks_for_patient(cls,
-                              dbsession: SqlASession,
-                              which_idnum: int,
-                              idnum_value: int,
-                              group_id: int = None,
-                              current_only: bool = True) -> List['Task']:
-        if not which_idnum or which_idnum < 1:
-            return []
-        if idnum_value is None:
-            return []
-        q = dbsession.query(cls)\
-            .join(Patient)\
-            .join(PatientIdNum)
-        # ... the join to Patient pre-restricts to current Patients
-        # ... the join to PatientIdNum pre-restricts to current ID numbers
-        q = q.filter(PatientIdNum.which_idnum == which_idnum)
-        q = q.filter(PatientIdNum.idnum_value == idnum_value)
-        if group_id is not None:
-            q = q.filter(cls._group_id == group_id)
-            q = q.filter(Patient._group_id == group_id)
-        if current_only:
-            q = q.filter(cls._current == True)
-        patients = q.all()  # type: List[Task]
-        return patients
-
 
 # =============================================================================
 # Clinician mixin
@@ -1147,50 +1121,6 @@ class Task(GenericTabletRecordMixin, Base):
     # Complete deletion
     # -------------------------------------------------------------------------
 
-    @classmethod
-    def get_task_pks_wc_for_patient_deletion(
-            cls,
-            which_idnum: int,
-            idnum_value: int) -> Sequence[Tuple[int, Pendulum]]:
-        if cls.is_anonymous:
-            return []
-        table = cls.tablename
-        wcfield_utc = cls.whencreated_fieldexpr_as_utc()
-        query = """
-            SELECT {table}._pk, {wcfield_utc}
-            FROM {table}
-            INNER JOIN patient
-                ON {table}.patient_id = patient.id
-                AND {table}._device_id = patient._device_id
-                AND {table}._era = patient._era
-            WHERE
-                patient.idnum{which_idnum} = ?
-        """.format(
-            table=table,
-            wcfield_utc=wcfield_utc,
-            which_idnum=which_idnum,
-        )
-        args = [idnum_value]
-        return pls.db.fetchall(query, *args)
-
-    @classmethod
-    def get_task_pks_for_patient_deletion(cls,
-                                          which_idnum: int,
-                                          idnum_value: int) -> Sequence[int]:
-        pk_wc = cls.get_task_pks_wc_for_patient_deletion(which_idnum,
-                                                         idnum_value)
-        return [row[0] for row in pk_wc]
-
-    @classmethod
-    def get_tasks_for_patient(cls,
-                              dbsession: SqlASession,
-                              which_idnum: int,
-                              idnum_value: int,
-                              group_id: int = None,
-                              current_only: bool = True) -> List['Task']:
-        return []
-        # overridden by TaskHasPatientMixin
-
     def delete_entirely(self, req: CamcopsRequest) -> None:
         """
         Completely delete this task, its lineage, and its dependents.
@@ -2112,6 +2042,7 @@ class Ancillary(object):
 # Cross-class generators and the like
 # =============================================================================
 
+# *** remove this
 def gen_tasks_live_on_tablet(device_id: int) -> Generator[Task, None, None]:
     """Generate tasks that are live on the device.
     Includes non-current ones."""
@@ -2131,66 +2062,6 @@ def gen_tasks_live_on_tablet(device_id: int) -> Generator[Task, None, None]:
         )
         args = [ERA_NOW, device_id]
         pk_wc = pls.db.fetchall(query, *args)
-        cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
-    # Sort by when_created (conjointly across task classes)
-    cls_pk_wc = sorted(cls_pk_wc, key=second_item_or_min, reverse=True)
-    # Yield them up
-    for cls, pk, wc in cls_pk_wc:
-        task = cls(pk)
-        if task is not None:
-            yield task
-    # *** CHANGE THIS: inefficient; runs multiple queries where one would do
-
-
-def gen_tasks_using_patient(patient_id: int,
-                            device_id: int,
-                            era: str) -> Generator[Task, None, None]:
-    """Generate tasks sharing a particular patient record.
-    Includes non-current ones."""
-
-    cls_pk_wc = []
-    for cls in Task.all_subclasses():
-        if cls.is_anonymous:
-            continue
-        table = cls.tablename
-        wcfield_utc = cls.whencreated_fieldexpr_as_utc()
-        query = """
-            SELECT  _pk, {wcfield_utc}
-            FROM    {t}
-            WHERE   patient_id = ?
-            AND     _device_id = ?
-            AND     _era = ?
-        """.format(
-            wcfield_utc=wcfield_utc,
-            t=table,
-        )
-        args = [
-            patient_id,
-            device_id,
-            era
-        ]
-        pk_wc = pls.db.fetchall(query, *args)
-        cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
-    # Sort by when_created (conjointly across task classes)
-    cls_pk_wc = sorted(cls_pk_wc, key=second_item_or_min, reverse=True)
-    # Yield them up
-    for cls, pk, wc in cls_pk_wc:
-        task = cls(pk)
-        if task is not None:
-            yield task
-    # *** CHANGE THIS: inefficient; runs multiple queries where one would do
-
-
-def gen_tasks_for_patient_deletion(
-        which_idnum: int, idnum_value: int) -> Generator[Task, None, None]:
-    """Generate tasks to be affected by a delete-patient command."""
-
-    cls_pk_wc = []
-    for cls in Task.all_subclasses():
-        if cls.is_anonymous:
-            continue
-        pk_wc = cls.get_task_pks_wc_for_patient_deletion(which_idnum,
-                                                         idnum_value)
         cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
     # Sort by when_created (conjointly across task classes)
     cls_pk_wc = sorted(cls_pk_wc, key=second_item_or_min, reverse=True)

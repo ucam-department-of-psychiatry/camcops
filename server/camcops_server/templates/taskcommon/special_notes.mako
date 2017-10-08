@@ -1,4 +1,4 @@
-## all_special_notes.mako
+## special_notes.mako
 <%page args="special_notes: List[SpecialNote], title: str"/>
 
 <%!

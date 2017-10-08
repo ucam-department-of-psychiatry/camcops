@@ -46,6 +46,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <h3>Group administrator options</h3>
     <ul>
         <li><a href="${request.route_url(Routes.VIEW_ALL_USERS)}">View/manage users</a></li>
+        <li><a href="${request.route_url(Routes.DELETE_PATIENT)}">Delete patient entirely</a></li>
+        <li><a href="${request.route_url(Routes.FORCIBLY_FINALIZE)}">Forcibly preserve/finalize records for a device</a></li>
     </ul>
 %endif
 
@@ -53,8 +55,6 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <h3>Superuser options</h3>
     <ul>
         <li><a href="${request.route_url(Routes.VIEW_GROUPS)}">View/manage groups</a></li>
-        <li><a href="${request.route_url(Routes.DELETE_PATIENT)}">Delete patient entirely</a></li>
-        <li><a href="${request.route_url(Routes.FORCIBLY_FINALIZE)}">Forcibly preserve/finalize records for a device</a></li>
         <li><a href="${request.route_url(Routes.OFFER_AUDIT_TRAIL)}">View audit trail</a></li>
         <li><a href="${request.route_url(Routes.OFFER_HL7_MESSAGE_LOG)}">View HL7 message log</a></li>
         <li><a href="${request.route_url(Routes.OFFER_HL7_RUN_LOG)}">View HL7 run log</a></li>

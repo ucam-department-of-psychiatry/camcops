@@ -110,12 +110,18 @@ class Dialect(object):
 
 class FormAction(object):
     CANCEL = 'cancel'
-    DELETE = 'delete'
     CLEAR_FILTERS = 'clear_filters'
+    DELETE = 'delete'
+    FINALIZE = 'finalize'
     SET_FILTERS = 'set_filters'
     SUBMIT = 'submit'  # the default for many forms
     SUBMIT_TASKS_PER_PAGE = 'submit_tpp'
     REFRESH_TASKS = 'refresh_tasks'
+
+
+class RequestMethod(object):
+    GET = "get"
+    POST = "post"
 
 
 class ViewParam(object):
@@ -130,6 +136,7 @@ class ViewParam(object):
       metaclass mess);
     """
     # QUERY = "_query"  # built in to Pyramid
+    ADDRESS = "address"
     ADD_SPECIAL_NOTE = "add_special_note"
     ADMIN = "admin"
     ALL_TASKS = "all_tasks"
@@ -138,6 +145,7 @@ class ViewParam(object):
     DATABASE_TITLE = "database_title"
     DIALECT = "dialect"
     DESCRIPTION = "description"
+    DEVICE_ID = "device_id"
     DEVICE_IDS = "device_ids"
     DUMP_METHOD = "dump_method"
     DOB = "dob"
@@ -147,6 +155,7 @@ class ViewParam(object):
     FINALIZE_POLICY = "finalize_policy"
     FORENAME = "forename"
     FULLNAME = "fullname"
+    GP = "gp"
     GROUPADMIN = "groupadmin"
     GROUP_ID = "group_id"
     GROUP_IDS = "group_ids"
@@ -171,6 +180,7 @@ class ViewParam(object):
     NOTE = "note"
     NEW_PASSWORD = "new_password"
     OLD_PASSWORD = "old_password"
+    OTHER = "other"
     COMPLETE_ONLY = "complete_only"
     PAGE = "page"
     PASSWORD = "password"
@@ -435,15 +445,16 @@ class Routes(object):
     CHANGE_OTHER_PASSWORD = "change_other_password"
     CHOOSE_CTV = "choose_ctv"
     CHOOSE_TRACKER = "choose_tracker"
+    CLIENT_API = "client_api"
     CRASH = "crash"
     CTV = "ctv"
-    DATABASE_API = "database"
     DELETE_GROUP = "delete_group"
     DELETE_ID_DEFINITION = "delete_id_definition"
     DELETE_PATIENT = "delete_patient"
     DELETE_USER = "delete_user"
     EDIT_GROUP = "edit_group"
     EDIT_ID_DEFINITION = "edit_id_definition"
+    EDIT_PATIENT = "edit_patient"
     EDIT_SERVER_SETTINGS = "edit_server_settings"
     EDIT_USER = "edit_user"
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
@@ -507,6 +518,10 @@ class RoutePath(object):
         self.ignore_in_all_routes = ignore_in_all_routes
 
 
+MASTER_ROUTE_WEBVIEW = "/"
+MASTER_ROUTE_CLIENT_API = "/database"
+
+
 class RouteCollection(object):
     """
     All routes, with their paths, for CamCOPS.
@@ -544,7 +559,7 @@ class RouteCollection(object):
     CHOOSE_TRACKER = RoutePath(Routes.CHOOSE_TRACKER, "/choose_tracker")
     CRASH = RoutePath(Routes.CRASH, "/crash")
     CTV = RoutePath(Routes.CTV, "/ctv")
-    DATABASE_API = RoutePath(Routes.DATABASE_API, '/database')
+    CLIENT_API = RoutePath(Routes.CLIENT_API, MASTER_ROUTE_CLIENT_API)
     DELETE_GROUP = RoutePath(Routes.DELETE_GROUP, "/delete_group")
     DELETE_ID_DEFINITION = RoutePath(Routes.DELETE_ID_DEFINITION,
                                      "/delete_id_definition")
@@ -553,6 +568,7 @@ class RouteCollection(object):
     EDIT_GROUP = RoutePath(Routes.EDIT_GROUP, "/edit_group")
     EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION,
                                    '/edit_id_definitions')
+    EDIT_PATIENT = RoutePath(Routes.EDIT_PATIENT, '/edit_patient')
     EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS,
                                      '/edit_server_settings')
     EDIT_USER = RoutePath(Routes.EDIT_USER, "/edit_user")
@@ -562,7 +578,7 @@ class RouteCollection(object):
     FORCIBLY_FINALIZE = RoutePath(
         Routes.FORCIBLY_FINALIZE, "/forcibly_finalize"
     )
-    HOME = RoutePath(Routes.HOME, '/webview')
+    HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)
     INTROSPECT = RoutePath(Routes.INTROSPECT, '/introspect')
     # ... filename via query param (sorts out escaping)
     LOGIN = RoutePath(Routes.LOGIN, "/login")
@@ -771,93 +787,6 @@ class CamcopsAuthorizationPolicy(object):
     def principals_allowed_by_permission(context: ILocation,
                                          permission: str) -> List[str]:
         raise NotImplementedError()
-
-
-# =============================================================================
-# Responses
-# =============================================================================
-
-class BinaryResponse(Response):
-    def __init__(self, body: bytes, filename: str,
-                 content_type: str, as_inline: bool = False) -> None:
-        # Inline: display within browser, if possible.
-        # Attachment: download.
-        disp = "inline" if as_inline else "attachment"
-        super().__init__(
-            content_type=content_type,
-            content_disposition="{}; filename={}".format(disp, filename),
-            content_encoding="binary",
-            content_length=len(body),
-            body=body,
-        )
-
-
-class PdfResponse(BinaryResponse):
-    def __init__(self, body: bytes, filename: str,
-                 as_inline: bool = True) -> None:
-        super().__init__(
-            content_type="application/pdf",
-            filename=filename,
-            as_inline=as_inline,
-            body=body,
-        )
-
-
-class SqliteBinaryResponse(BinaryResponse):
-    def __init__(self, body: bytes, filename: str) -> None:
-        super().__init__(
-            content_type="application/x-sqlite3",
-            filename=filename,
-            body=body,
-        )
-
-
-class TextAttachmentResponse(Response):
-    def __init__(self, body: str, filename: str) -> None:
-        super().__init__(
-            content_type="text/plain",
-            content_disposition="attachment; filename={}".format(filename),
-            body=body,
-        )
-
-
-class TextResponse(Response):
-    def __init__(self, body: str) -> None:
-        super().__init__(
-            content_type="text/plain",
-            body=body,
-        )
-
-
-class TsvResponse(Response):
-    def __init__(self, body: str, filename: str) -> None:
-        super().__init__(
-            content_type="text/tab-separated-values",
-            content_disposition="attachment; filename={}".format(filename),
-            body=body,
-        )
-
-
-class XmlResponse(Response):
-    def __init__(self, body: str) -> None:
-        # application/xml versus text/xml:
-        # https://stackoverflow.com/questions/4832357
-        super().__init__(
-            content_type="text/xml",
-            body=body,
-        )
-
-
-class ZipResponse(BinaryResponse):
-    def __init__(self, body: bytes, filename: str) -> None:
-        # For ZIP, "inline" and "attachment" dispositions are equivalent, since
-        # browsers don't display ZIP files inline.
-        # https://stackoverflow.com/questions/1395151
-        super().__init__(
-            content_type="application/zip",
-            filename=filename,
-            body=body,
-        )
 
 
 # =============================================================================
