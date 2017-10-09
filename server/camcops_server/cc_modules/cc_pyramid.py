@@ -120,8 +120,8 @@ class FormAction(object):
 
 
 class RequestMethod(object):
-    GET = "get"
-    POST = "post"
+    GET = "GET"
+    POST = "POST"
 
 
 class ViewParam(object):

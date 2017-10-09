@@ -51,6 +51,7 @@ from .cc_sqlalchemy import Base, make_debug_sqlite_engine, log_all_ddl
 # http://codeoptimism.com/blog/pycharm-suppress-inspections-list/
 
 from .cc_audit import AuditEntry
+# noinspection PyUnresolvedReferences
 from .cc_blob import Blob
 from .cc_device import Device
 from .cc_dirtytables import DirtyTable

@@ -26,9 +26,12 @@ import logging
 from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from pyramid.exceptions import HTTPBadRequest
 
 from .cc_client_api_core import fail_user_error, TabletParam
+from .cc_constants import DEVICE_NAME_FOR_SERVER
 from .cc_device import Device
+from .cc_pyramid import RequestMethod
 from .cc_user import User
 from .cc_version import (
     FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE,
@@ -45,17 +48,27 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 class TabletSession(object):
     def __init__(self, req: "CamcopsRequest") -> None:
+        # Check the basics
+        if req.method != RequestMethod.POST:
+            raise HTTPBadRequest("Must use POST method")
+            # ... this is for humans to view, so it has a pretty error
+
         # Read key things
         self.req = req
-        post = req.POST
-        self.operation = post.getone(TabletParam.OPERATION)  # type: str
-        self.device_name = post.getone(TabletParam.DEVICE)  # type: str
-        self.username = post.getone(TabletParam.USER)  # type: str
-        self.password = post.getone(TabletParam.PASSWORD)  # type: str
+        self.operation = req.get_str_param(TabletParam.OPERATION)
+        self.device_name = req.get_str_param(TabletParam.DEVICE)
+        self.username = req.get_str_param(TabletParam.USER)
+        self.password = req.get_str_param(TabletParam.PASSWORD)
         self.session_id = req.get_int_param(TabletParam.SESSION_ID)
-        self.session_token = post.getone(TabletParam.SESSION_TOKEN)  # type: str  # noqa
-        self.tablet_version_str = post.getone(TabletParam.CAMCOPS_VERSION)  # type: str  # noqa
+        self.session_token = req.get_str_param(TabletParam.SESSION_TOKEN)
+        self.tablet_version_str = req.get_str_param(TabletParam.CAMCOPS_VERSION)  # noqa
         self.tablet_version_ver = make_version(self.tablet_version_str)
+
+        # Basic security check: no pretending to be the server
+        if self.device_name == DEVICE_NAME_FOR_SERVER:
+            fail_user_error("Tablets cannot use the device name {!r}".format(
+                DEVICE_NAME_FOR_SERVER))
+
         # Look up device and user
         dbsession = req.dbsession
         self._device_obj = Device.get_device_by_name(dbsession,
@@ -77,8 +90,8 @@ class TabletSession(object):
             FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE)
 
         # Report
-        log.info("Incoming connection from IP={i}, port={p}, device_name={dn},"
-                 " device_id={di}, user={u}, operation={o}",
+        log.info("Incoming client API connection from IP={i}, port={p}, "
+                 "device_name={dn!r}, device_id={di}, user={u}, operation={o}",
                  i=req.remote_addr,
                  p=req.remote_port,
                  dn=self.device_name,

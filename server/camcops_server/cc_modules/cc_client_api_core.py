@@ -73,6 +73,15 @@ class TabletParam(object):
 # const QString KEYSPEC_ID_SHORT_DESCRIPTION(KEYPREFIX_ID_SHORT_DESCRIPTION + "%1");  // S->C
 
 
+class ExtraStringFieldNames(object):
+    """
+    To match extrastring.cpp on the tablet.
+    """
+    TASK = "task"
+    NAME = "name"
+    VALUE = "value"
+
+
 # =============================================================================
 # Exceptions used by client API
 # =============================================================================

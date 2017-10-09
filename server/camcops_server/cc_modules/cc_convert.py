@@ -139,8 +139,10 @@ def decode_single_value(v: str) -> Any:
 
 
 def decode_values(valuelist: str) -> List[Any]:
-    """Takes a SQL CSV value list and returns the corresponding list of decoded
-    values."""
+    """
+    Takes a SQL CSV value list and returns the corresponding list of decoded
+    values.
+    """
     # log.debug("decode_values: valuelist={}", valuelist)
     v = [decode_single_value(v) for v in gen_items_from_sql_csv(valuelist)]
     # log.debug("decode_values: values={}", v)

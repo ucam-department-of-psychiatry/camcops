@@ -70,16 +70,26 @@ class CssVarArgsPdf(CssVarArgsBase):
 
 
 class CssVarArgsPdfPortrait(CssVarArgsPdf):
+    """"
+    For PDF generation using paged media in portrait mode. NOT CURRENTLY USED.
+    """
     paged_media = True
     ORIENTATION = 'portrait'
 
 
 class CssVarArgsPdfLandscape(CssVarArgsPdf):
+    """"
+    For PDF generation using paged media in landscape mode. NOT CURRENTLY USED.
+    """
     paged_media = True
     ORIENTATION = 'landscape'
 
 
 class CssVarArgsPdfNoPagedMedia(CssVarArgsPdf):
+    """"
+    For PDF generation WITHOUT paged media.
+    As for wkhtmltopdf, but see also below.
+    """
     paged_media = False
 
 class CssVarArgsWkhtmltopdf(CssVarArgsPdf):

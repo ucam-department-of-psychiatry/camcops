@@ -28,6 +28,7 @@
 # for gunicorn from the command line; I'm less clear about whether the disk
 # logs look polluted by ANSI codes; needs checking.
 import logging
+import urllib.parse
 
 from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction  # nopep8
 from cardinal_pythonlib.debugging import pdb_run
@@ -335,8 +336,13 @@ def start_server(host: str,
         log.info("Starting on host: {}", host)
         log.info("Starting on port: {}", port)
     log.info("CamCOPS will be at: {}", root_path)
+    log.info("... webview at: {}",
+             urllib.parse.urljoin(root_path, RouteCollection.HOME.path))
+    log.info("... tablet client API at: {}",
+             urllib.parse.urljoin(root_path, RouteCollection.CLIENT_API.path))
     log.info("Thread pool starting size: {}", threads_start)
     log.info("Thread pool max size: {}", threads_max)
+    log.critical("boo! this is critical")
 
     cherrypy.tree.graft(application, root_path)
 

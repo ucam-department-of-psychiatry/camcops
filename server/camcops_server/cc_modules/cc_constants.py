@@ -95,6 +95,8 @@ INTROSPECTION_BASE_DIRECTORY = CAMCOPS_SERVER_DIRECTORY
 # =============================================================================
 
 DEFAULT_ROWS_PER_PAGE = 25
+DEVICE_NAME_FOR_SERVER = "server"  # Do not alter.
+
 
 # =============================================================================
 # Date formats

@@ -12,10 +12,13 @@ CAMCOPS SERVER THINGS TO DO NOW
 
 *** host script at funny paths
 
+*** NB special device servered for "web front end"/"manually uploaded"
+    ... see DEVICE_NAME_FOR_SERVER
+    ... client devices cannot use that name
+    ... *** implement creation of this by default, or on demand
+        [... on demand is better]
 
-*** ?special device for "web front end"
-*** ?special device for "manually uploaded"
-    ... string constants; prevent devices from being registered with that name?
+*** unit tests
 
 ===============================================================================
 KEY THOUGHTS

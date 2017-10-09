@@ -43,6 +43,7 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_dirtytables import DirtyTable
 from camcops_server.cc_modules.cc_group import Group, group_group_table
 from camcops_server.cc_modules.cc_hl7 import HL7Message, HL7Run
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
@@ -667,6 +668,7 @@ def merge_camcops_db(src: str,
         # overwrite the destination with, or where the PK structure has
         # changed and we don't care about old data:
         TableIdentity(tablename=CamcopsSession.__tablename__),
+        TableIdentity(tablename=DirtyTable.__tablename__),
         TableIdentity(tablename=ServerSettings.__tablename__),
         TableIdentity(tablename=SecurityAccountLockout.__tablename__),
         TableIdentity(tablename=SecurityLoginFailure.__tablename__),
