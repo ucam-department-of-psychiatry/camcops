@@ -30,6 +30,7 @@ from typing import List, Optional, Set, TYPE_CHECKING
 import cardinal_pythonlib.crypto as rnc_crypto
 from cardinal_pythonlib.datetimefunc import convert_datetime_to_local
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.sqlalchemy.orm_query import (
     CountStarSpecializedQuery,
     exists_orm,
@@ -341,6 +342,13 @@ class User(Base):
     groups = association_proxy("user_group_memberships", "group")
 
     upload_group = relationship("Group", foreign_keys=[upload_group_id])
+
+    def __repr__(self) -> str:
+        return simple_repr(
+            self,
+            ["id", "username", "fullname"],
+            with_addr=True
+        )
 
     @classmethod
     def get_user_by_id(cls,
@@ -741,13 +749,18 @@ class User(Base):
     @property
     def may_register_devices(self) -> bool:
         """
-        You can register a device if any of your groups allow you to do so
-        (since devices are not registered to a particular group).
+        You can register a device if your chosen upload groups allow you to do
+        so. (You have to have a chosen group -- even for superusers -- because
+        the tablet wants group ID policies at the moment of registration, so we
+        have to know which group.)
         """
+        if self.upload_group_id is None:
+            return False
         if self.superuser:
             return True
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return any(m.may_register_devices for m in memberships)
+        return any(m.may_register_devices for m in memberships
+                   if m.group_id == self.upload_group_id)
 
 
 def set_password_directly(req: "CamcopsRequest",

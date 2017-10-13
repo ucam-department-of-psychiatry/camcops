@@ -3,8 +3,7 @@ CAMCOPS SERVER THINGS TO DO NOW
 ===============================================================================
 
 *** database upload code
-    re per-group ID policy
-        Fetch at upload and recheck patients conform
+    ... test
 
 *** Test framework via cfg based on demo text but using sqlite memory db
 
@@ -12,11 +11,13 @@ CAMCOPS SERVER THINGS TO DO NOW
 
 *** host script at funny paths
 
-*** NB special device servered for "web front end"/"manually uploaded"
+*** NB special device for "web front end"/"manually uploaded"
     ... see DEVICE_NAME_FOR_SERVER
     ... client devices cannot use that name
     ... *** implement creation of this by default, or on demand
         [... on demand is better]
+
+*** similarly: special use for "system"
 
 *** unit tests
 

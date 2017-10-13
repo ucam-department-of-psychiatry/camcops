@@ -48,7 +48,7 @@ all_models_no_op()
 # Debugging options
 # =============================================================================
 
-DEBUG_QUERY_TIMING = True
+DEBUG_QUERY_TIMING = False
 
 if DEBUG_QUERY_TIMING:
     log.warning("Debugging options enabled!")

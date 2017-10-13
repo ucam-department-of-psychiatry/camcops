@@ -56,6 +56,7 @@ from .diagnosis import DiagnosisIcd9CM, DiagnosisIcd10
 from .distressthermometer import DistressThermometer
 from .fast import Fast
 from .fft import Fft
+from .frs import Frs
 from .gad7 import Gad7
 from .gaf import Gaf
 from .gds import Gds15

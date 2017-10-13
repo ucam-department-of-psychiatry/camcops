@@ -41,6 +41,7 @@
 #include "dialogs/passwordentrydialog.h"
 #include "dialogs/logbox.h"
 #include "dbobjects/blob.h"
+#include "lib/containers.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"
 #include "lib/idpolicy.h"
@@ -1433,7 +1434,9 @@ bool NetworkManager::arePoliciesOK()
 bool NetworkManager::areDescriptionsOK()
 {
     statusMessage("Checking ID descriptions match server");
-    bool ok = true;
+    bool idnums_all_on_server = true;
+    bool descriptions_match = true;
+    QVector<int> which_idnums_on_server;
 #ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
     for (int n = 1; n <= dbconst::NUMBER_OF_IDNUMS; ++n) {
         const QString varname_desc = dbconst::IDDESC_FIELD_FORMAT.arg(n);
@@ -1449,16 +1452,51 @@ bool NetworkManager::areDescriptionsOK()
 #endif
         const QString key_desc = KEYSPEC_ID_DESCRIPTION.arg(n);
         const QString key_shortdesc = KEYSPEC_ID_SHORT_DESCRIPTION.arg(n);
-        const QString server_desc = m_reply_dict[key_desc];
-        const QString server_shortdesc = m_reply_dict[key_shortdesc];
-        ok = ok && local_desc == server_desc && local_shortdesc == server_shortdesc;
+        if (m_reply_dict.contains(key_desc) &&
+                m_reply_dict.contains(key_shortdesc)) {
+            const QString server_desc = m_reply_dict[key_desc];
+            const QString server_shortdesc = m_reply_dict[key_shortdesc];
+            descriptions_match = descriptions_match &&
+                    local_desc == server_desc &&
+                    local_shortdesc == server_shortdesc;
+            which_idnums_on_server.append(n);
+        } else {
+            idnums_all_on_server = false;
+        }
     }
+    QVector<int> which_idnums_on_tablet = whichIdnumsUsedOnTablet();
+    QVector<int> extra_idnums_on_tablet = containers::setSubtract(
+                which_idnums_on_tablet, which_idnums_on_server);
+    const bool extra_idnums = !extra_idnums_on_tablet.isEmpty();
+
+    const bool ok = descriptions_match && idnums_all_on_server && !extra_idnums;
     if (ok) {
         statusMessage("... OK");
-    } else {
+    } else if (!idnums_all_on_server) {
+        statusMessage("Some ID numbers defined on the tablet are absent on "
+                      "the server! " + PLEASE_REREGISTER);
+    } else if (!descriptions_match) {
         statusMessage("Descriptions do not match! " + PLEASE_REREGISTER);
+    } else if (extra_idnums) {
+        statusMessage(QString(
+                "ID numbers %1 are used on the tablet but not defined "
+                "on the server! Please edit patient records to remove "
+                "them.").arg(convert::intVectorToCsvString(
+                                 extra_idnums_on_tablet)));
+    } else {
+        statusMessage("Logic bug: something not OK but don't know why");
     }
     return ok;
+}
+
+
+QVector<int> NetworkManager::whichIdnumsUsedOnTablet()
+{
+    const QString sql = QString("SELECT DISTINCT %1 FROM %2 ORDER BY %1")
+            .arg(delimit(PatientIdNum::FN_WHICH_IDNUM),
+                 delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME));
+    const QueryResult result = m_db.query(sql);
+    return result.firstColumnAsIntList();
 }
 
 
@@ -1497,6 +1535,18 @@ void NetworkManager::sendTableWhole(const QString& tablename)
     dict[KEY_OPERATION] = OP_UPLOAD_TABLE;
     dict[KEY_TABLE] = tablename;
     const QStringList fieldnames = m_db.getFieldNames(tablename);
+    dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;  // version 2.0.4
+    // There was a BUG here before v2.0.4:
+    // - the old Titanium code gave fieldnames starting with the PK
+    // - the SQLite reporting order isn't necessarily like that
+    // - for the upload_table command, the receiving code relied on the PK
+    //   being first
+    // - So as of tablet v2.0.4, the client explicitly reports PK name (and
+    //   makes no guarantee about field order) and as of server v2.1.0, the
+    //   server takes the PK name if the tablet is >=2.0.4, or "id" otherwise
+    //   (because the client PK name always was "id"!). This allows old tablets
+    //   to work (for which: could use fieldnames[0] or "id") and early buggy
+    //   C++ clients to work (for which: "id" is the only valid option).
     dict[KEY_FIELDS] = fieldnames.join(",");
     const QString sql = dbfunc::selectColumns(fieldnames, tablename);
     const QueryResult result = m_db.query(sql);

@@ -21,7 +21,7 @@
 
 namespace camcopsversion {  // http://semver.org/
 
-const Version CAMCOPS_VERSION(2, 0, 3);
+const Version CAMCOPS_VERSION(2, 0, 4);
 const Version MINIMUM_SERVER_VERSION(2, 0, 0);
 
 }  // namespace camcopsversion

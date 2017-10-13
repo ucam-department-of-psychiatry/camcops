@@ -59,11 +59,13 @@ from wsgiref.simple_server import make_server  # nopep8
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_session  # nopep8
 from cardinal_pythonlib.ui import ask_user, ask_user_password  # nopep8
 
+# Import this one early:
+from .cc_modules.cc_all_models import all_models_no_op  # nopep8
+
 from .cc_modules.cc_alembic import (
     create_database_from_scratch,
     upgrade_database_to_head,
 )  # nopep8
-from .cc_modules.cc_audit import audit  # nopep8
 from .cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE, STATIC_ROOT_DIR  # nopep8
 from .cc_modules.cc_config import (
     get_default_config_from_os_env,  # nopep8
@@ -91,7 +93,6 @@ from .cc_modules.cc_policy import ccpolicy_unit_tests  # nopep8
 from .cc_modules.cc_report import ccreport_unit_tests  # nopep8
 from .cc_modules.cc_request import CamcopsRequest, command_line_request  # nopep8
 from .cc_modules.cc_session import ccsession_unit_tests  # nopep8
-from .cc_modules.cc_serversettings import ServerSettings  # nopep8
 from .cc_modules.cc_task import (
     cctask_unit_tests,
     cctask_unit_tests_basic,
@@ -104,6 +105,7 @@ from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
 from .cc_modules.client_api import database_unit_tests  # nopep8
 from .cc_modules.merge_db import merge_camcops_db
 
+all_models_no_op()
 log.debug("All imports complete")
 
 if TYPE_CHECKING:
@@ -342,7 +344,6 @@ def start_server(host: str,
              urllib.parse.urljoin(root_path, RouteCollection.CLIENT_API.path))
     log.info("Thread pool starting size: {}", threads_start)
     log.info("Thread pool max size: {}", threads_max)
-    log.critical("boo! this is critical")
 
     cherrypy.tree.graft(application, root_path)
 

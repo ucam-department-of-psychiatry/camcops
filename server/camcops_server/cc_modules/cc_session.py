@@ -51,6 +51,15 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
+# Debugging options
+# =============================================================================
+
+DEBUG_CAMCOPS_SESSION_CREATION = False
+
+if DEBUG_CAMCOPS_SESSION_CREATION:
+    log.warning("Debugging options enabled!")
+
+# =============================================================================
 # Constants
 # =============================================================================
 
@@ -126,7 +135,8 @@ class CamcopsSession(Base):
     def __repr__(self) -> str:
         return simple_repr(
             self,
-            ["id", "token", "ip_address", "user_id", "last_activity_utc_iso"],
+            ["id", "token", "ip_address", "user_id", "last_activity_utc_iso",
+             "user"],
             with_addr=True
         )
 
@@ -153,10 +163,31 @@ class CamcopsSession(Base):
 
     @classmethod
     def get_session_for_tablet(cls, ts: "TabletSession") -> "CamcopsSession":
+
+        def login_from_ts(cc: "CamcopsSession", ts_: "TabletSession") -> None:
+            if DEBUG_CAMCOPS_SESSION_CREATION:
+                log.debug("Considering login from tablet (with username: {!r}",
+                          ts_.username)
+            if ts_.username:
+                user = User.get_user_from_username_password(
+                    ts.req, ts.username, ts.password)
+                if DEBUG_CAMCOPS_SESSION_CREATION:
+                    log.debug("... looked up User: {!r}", user)
+                if user:
+                    # Successful login of sorts, ALTHOUGH the user may be
+                    # severely restricted (if they can neither register nor
+                    # upload). However, effecting a "login" here means that the
+                    # error messages can become more helpful!
+                    cc.login(user)
+            if DEBUG_CAMCOPS_SESSION_CREATION:
+                log.debug("... final session user: {!r}", cc.user)
+
         session = cls.get_session(req=ts.req,
                                   session_id_str=ts.session_id,
                                   session_token=ts.session_token)
-        if session.user and session.user.username != ts.username:
+        if not session.user:
+            login_from_ts(session, ts)
+        elif session.user and session.user.username != ts.username:
             # We found a session, and it's associated with a user, but with
             # the wrong user. This is unlikely to happen!
             # Wipe the old one:
@@ -165,24 +196,21 @@ class CamcopsSession(Base):
             # Create a fresh session.
             session = cls.get_session(req=req, session_id_str=None,
                                       session_token=None)
-            if ts.username:
-                user = User.get_user_from_username_password(
-                    req, ts.username, ts.password)
-                if user and user.may_login_as_tablet:
-                    # Successful login.
-                    session.login(user)
-
+            login_from_ts(session, ts)
         return session
 
     @classmethod
     def get_session(cls,
                     req: "CamcopsRequest",
-                    session_id_str: str,
-                    session_token: str) -> 'CamcopsSession':
+                    session_id_str: Optional[str],
+                    session_token: Optional[str]) -> 'CamcopsSession':
         """
         Retrieves, or makes, a new CamcopsSession for this Pyramid Request,
         for a specific session_id and session_token.
         """
+        if DEBUG_CAMCOPS_SESSION_CREATION:
+            log.debug("CamcopsSession.get_session: session_id_str={!r}, "
+                      "session_token={!r}", session_id_str, session_token)
         # ---------------------------------------------------------------------
         # Starting variables
         # ---------------------------------------------------------------------
@@ -206,19 +234,23 @@ class CamcopsSession(Base):
                 filter(cls.ip_address == ip_addr).\
                 filter(cls.last_activity_utc >= oldest_last_activity_allowed).\
                 first()  # type: Optional[CamcopsSession]
-            if candidate is None:
-                log.debug("Session not found in database")
+            if DEBUG_CAMCOPS_SESSION_CREATION:
+                if candidate is None:
+                    log.debug("Session not found in database")
         else:
-            log.debug("Session ID and/or session token is missing.")
+            if DEBUG_CAMCOPS_SESSION_CREATION:
+                log.debug("Session ID and/or session token is missing.")
             candidate = None
         found = candidate is not None
         if found:
             candidate.last_activity_utc = now
             ccsession = candidate
         else:
-            log.debug("Creating new CamcopsSession")
             new_http_session = cls(ip_addr=ip_addr, last_activity_utc=now)
             dbsession.add(new_http_session)
+            if DEBUG_CAMCOPS_SESSION_CREATION:
+                log.debug("Creating new CamcopsSession: {!r}",
+                          new_http_session)
             # But we DO NOT FLUSH and we DO NOT SET THE COOKIES YET, because
             # we might hot-swap the session.
             # See complete_request_add_cookies().
@@ -279,9 +311,13 @@ class CamcopsSession(Base):
         # send_analytics_if_necessary(req)
 
     def login(self, user: User) -> None:
-        """Log in. Associates the user with the session and makes a new
-        token."""
-        log.debug("login: username = {}", user.username)
+        """
+        Log in. Associates the user with the session and makes a new
+        token.
+        """
+        if DEBUG_CAMCOPS_SESSION_CREATION:
+            log.debug("Session {} login: username={!r}",
+                      self.id, user.username)
         self.user = user  # will set our user_id FK
         self.token = generate_token()
         # fresh token: https://www.owasp.org/index.php/Session_fixation

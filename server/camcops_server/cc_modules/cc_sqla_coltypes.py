@@ -130,16 +130,16 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 DEBUG_DATETIME_AS_ISO_TEXT = False
-DEBUG_IDNUMDEF_LIST = True
-DEBUG_INT_LIST_COLTYPE = True
+DEBUG_IDNUMDEF_LIST = False
+DEBUG_INT_LIST_COLTYPE = False
 DEBUG_SEMANTIC_VERSION = False
-DEBUG_STRING_LIST_COLTYPE = True
+DEBUG_STRING_LIST_COLTYPE = False
 
-if (DEBUG_DATETIME_AS_ISO_TEXT or
-        DEBUG_SEMANTIC_VERSION or
-        DEBUG_IDNUMDEF_LIST or
-        DEBUG_INT_LIST_COLTYPE or
-        DEBUG_STRING_LIST_COLTYPE):
+if any([DEBUG_DATETIME_AS_ISO_TEXT,
+        DEBUG_SEMANTIC_VERSION,
+        DEBUG_IDNUMDEF_LIST,
+        DEBUG_INT_LIST_COLTYPE,
+        DEBUG_STRING_LIST_COLTYPE]):
     log.warning("Debugging options enabled!")
 
 # =============================================================================

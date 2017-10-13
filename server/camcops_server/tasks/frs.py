@@ -39,7 +39,6 @@ from ..cc_modules.cc_sqla_coltypes import (
     PermittedValueChecker,
     SummaryCategoryColType,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
     Task,
@@ -53,7 +52,7 @@ from ..cc_modules.cc_task import (
 # FRS
 # =============================================================================
 
-"""
+SCORING_NOTES = """
 
 SCORING
 Confirmed by Eneida Mioshi 2015-01-20; "sometimes" and "always" score the same.
@@ -203,12 +202,12 @@ class FrsMetaclass(DeclarativeMeta):
                 pc.append("{} = N/A".format(NA))
             comment = "Q{}, {} ({})".format(n, QUESTION_SNIPPETS[n - 1],
                                             ", ".join(pc))
-            name = "q" + str(n)
+            colname = "q" + str(n)
             setattr(
                 cls,
-                name,
+                colname,
                 CamcopsColumn(
-                    name, Integer,
+                    colname, Integer,
                     permitted_value_checker=PermittedValueChecker(
                         permitted_values=pv),
                     comment=comment
@@ -301,7 +300,7 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
             self.are_all_fields_complete(self.TASK_FIELDS)
         )
 
-    def get_answer(self, q: int) -> Optional[str]:
+    def get_answer(self, req: CamcopsRequest, q: int) -> Optional[str]:
         qstr = str(q)
         value = getattr(self, "q" + qstr)
         if value is None:
@@ -362,7 +361,7 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
         )
         for q in range(1, NQUESTIONS + 1):
             qtext = self.wxstring(req, "q" + str(q) + "_q")
-            atext = self.get_answer(q)
+            atext = self.get_answer(req, q)
             h += tr_qa(qtext, atext)
         h += """
             </table>

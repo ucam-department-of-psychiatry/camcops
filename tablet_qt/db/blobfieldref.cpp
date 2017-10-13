@@ -32,8 +32,9 @@ BlobFieldRef::BlobFieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
 }
 
 
-BlobFieldRef::BlobFieldRef(QSharedPointer<Blob> blob, bool mandatory) :
-    FieldRef(blob, mandatory)
+BlobFieldRef::BlobFieldRef(QSharedPointer<Blob> blob, bool mandatory,
+                           bool disable_creation_warning) :
+    FieldRef(blob, mandatory, disable_creation_warning)
 {
     Q_ASSERT(m_blob);
 }

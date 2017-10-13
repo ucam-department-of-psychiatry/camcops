@@ -80,13 +80,18 @@ FieldRef::FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
 }
 
 
-FieldRef::FieldRef(QSharedPointer<Blob> blob, bool mandatory)  // for widget testing only; specimen BLOB
+FieldRef::FieldRef(QSharedPointer<Blob> blob, bool mandatory,
+                   bool disable_creation_warning)
 {
+    // for widget testing only; specimen BLOB
     commonConstructor();
     m_method = FieldRefMethod::IsolatedBlobFieldForTesting;
     m_blob = blob;
     m_mandatory = mandatory;
-    qWarning() << "FieldRef constructed with reference to specimen BLOB; FOR TESTING ONLY";
+    if (!disable_creation_warning) {
+        qWarning() << "FieldRef constructed with reference to specimen BLOB; "
+                      "FOR TESTING ONLY";
+    }
 }
 
 

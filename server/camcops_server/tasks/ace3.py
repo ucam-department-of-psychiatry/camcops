@@ -217,7 +217,6 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     __tablename__ = "ace3"
     shortname = "ACE-III"
     longname = "Addenbrooke’s Cognitive Examination III"
-    has_clinician = True
     provides_trackers = True
 
     age_at_leaving_full_time_education = Column(

@@ -90,7 +90,8 @@ public:
     FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
              bool mandatory, bool autosave = true, bool blob = false,
              CamcopsApp* p_app = nullptr);
-    FieldRef(QSharedPointer<Blob> blob, bool mandatory);  // for widget testing only; specimen BLOB
+    FieldRef(QSharedPointer<Blob> blob, bool mandatory,
+             bool disable_creation_warning = false);  // for widget testing only; specimen BLOB
     FieldRef(const GetterFunction& getterfunc,
              const SetterFunction& setterfunc,
              bool mandatory);

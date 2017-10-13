@@ -26,6 +26,7 @@ import logging
 from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.reprfunc import simple_repr
 from pyramid.exceptions import HTTPBadRequest
 
 from .cc_client_api_core import fail_user_error, TabletParam
@@ -34,8 +35,10 @@ from .cc_device import Device
 from .cc_pyramid import RequestMethod
 from .cc_user import User
 from .cc_version import (
+    FIRST_CPP_TABLET_VER,
     FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE,
     FIRST_TABLET_VER_WITHOUT_IDDESC_IN_PT_TABLE,
+    FIRST_TABLET_VER_WITH_EXPLICIT_PKNAME_IN_UPLOAD_TABLE,
     make_version,
     MINIMUM_TABLET_VERSION,
 )
@@ -44,6 +47,9 @@ if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+
+INVALID_USERNAME_PASSWORD = "Invalid username/password"
+NO_UPLOAD_GROUP_SET = "No upload group set for user"
 
 
 class TabletSession(object):
@@ -62,7 +68,11 @@ class TabletSession(object):
         self.session_id = req.get_int_param(TabletParam.SESSION_ID)
         self.session_token = req.get_str_param(TabletParam.SESSION_TOKEN)
         self.tablet_version_str = req.get_str_param(TabletParam.CAMCOPS_VERSION)  # noqa
-        self.tablet_version_ver = make_version(self.tablet_version_str)
+        try:
+            self.tablet_version_ver = make_version(self.tablet_version_str)
+        except:
+            fail_user_error("CamCOPS tablet version nonsensical: {!r}".format(
+                self.tablet_version_str))
 
         # Basic security check: no pretending to be the server
         if self.device_name == DEVICE_NAME_FOR_SERVER:
@@ -81,35 +91,44 @@ class TabletSession(object):
                 "Tablet CamCOPS version too old: is {v}, need {r}".format(
                     v=self.tablet_version_str,
                     r=MINIMUM_TABLET_VERSION))
-        # Other version things
-        self.cope_with_deleted_patient_descriptors = (
-            self.tablet_version_ver <
-            FIRST_TABLET_VER_WITHOUT_IDDESC_IN_PT_TABLE)
-        self.cope_with_old_idnums = (
-            self.tablet_version_ver <
-            FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE)
+        # Other version things are done via properties
 
         # Report
         log.info("Incoming client API connection from IP={i}, port={p}, "
-                 "device_name={dn!r}, device_id={di}, user={u}, operation={o}",
+                 "device_name={dn!r}, device_id={di}, "
+                 "camcops_version={v}, "
+                 "user={u}, operation={o}",
                  i=req.remote_addr,
                  p=req.remote_port,
                  dn=self.device_name,
                  di=self.device_id,
+                 v=self.tablet_version_str,
                  u=self.username,
                  o=self.operation)
+
+    def __repr__(self) -> str:
+        return simple_repr(
+            self,
+            ["session_id", "session_token", "device_name", "username",
+             "operation"],
+            with_addr=True
+        )
+
+    # -------------------------------------------------------------------------
+    # Permissions and similar
+    # -------------------------------------------------------------------------
 
     @property
     def device_id(self) -> Optional[int]:
         if not self._device_obj:
             return None
-        return self._device_obj.get_id()
+        return self._device_obj.id
 
     @property
     def user_id(self) -> Optional[int]:
         if self._user_obj is None:
             return None
-        return self._user_obj.get_id()
+        return self._user_obj.id
 
     def is_device_registered(self) -> bool:
         return self._device_obj is not None
@@ -130,10 +149,13 @@ class TabletSession(object):
         Ensure the device/username/password combination is valid for uploading.
         Raises UserErrorException on failure.
         """
-        if not self.req.user or not self.req.user.may_upload:
-            fail_user_error(
-                "Invalid username/password, or user not authorized to upload, "
-                "or no upload group set")
+        user = self.req.user
+        if not user:
+            fail_user_error(INVALID_USERNAME_PASSWORD)
+        if user.upload_group_id is None:
+            fail_user_error(NO_UPLOAD_GROUP_SET)
+        if not user.may_upload:
+            fail_user_error("User not authorized to upload to selected group")
         # Username/password combination found and is valid. Now check device.
         self.ensure_device_registered()
 
@@ -142,9 +164,14 @@ class TabletSession(object):
         Ensure the username/password combination is valid for device
         registration. Raises UserErrorException on failure.
         """
-        if not self.req.user or not self.req.user.may_register_devices:
-            fail_user_error("Invalid username/password, or user not "
-                            "authorized to register devices")
+        user = self.req.user
+        if not user:
+            fail_user_error(INVALID_USERNAME_PASSWORD)
+        if user.upload_group_id is None:
+            fail_user_error(NO_UPLOAD_GROUP_SET)
+        if not user.may_register_devices:
+            fail_user_error("User not authorized to register devices for "
+                            "selected group")
 
     def set_session_id_token(self, session_id: int,
                              session_token: str) -> None:
@@ -159,3 +186,29 @@ class TabletSession(object):
         """
         self.session_id = session_id
         self.session_token = session_token
+
+    # -------------------------------------------------------------------------
+    # Version information (via property as not always needed)
+    # -------------------------------------------------------------------------
+
+    @property
+    def cope_with_deleted_patient_descriptors(self) -> bool:
+        return (self.tablet_version_ver <
+                FIRST_TABLET_VER_WITHOUT_IDDESC_IN_PT_TABLE)
+
+    @property
+    def cope_with_old_idnums(self) -> bool:
+        return (self.tablet_version_ver <
+                FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE)
+
+    @property
+    def explicit_pkname_for_upload_table(self) -> bool:
+        return (self.tablet_version_ver >=
+                FIRST_TABLET_VER_WITH_EXPLICIT_PKNAME_IN_UPLOAD_TABLE)
+
+    @property
+    def pkname_in_upload_table_neither_first_nor_explicit(self):
+        return (self.tablet_version_ver >= FIRST_CPP_TABLET_VER and
+                not self.explicit_pkname_for_upload_table)
+        # See discussion of bug in NetworkManager::sendTableWhole (C++).
+        # For these versions, the only safe thing is to take "id".

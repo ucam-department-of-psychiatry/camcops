@@ -96,10 +96,11 @@ ccplot_no_op()
 
 DEBUG_REQUEST_CREATION = False
 DEBUG_CAMCOPS_SESSION = False
+DEBUG_TABLET_SESSION = False
 DEBUG_DBSESSION_MANAGEMENT = False
 
-if (DEBUG_REQUEST_CREATION or DEBUG_CAMCOPS_SESSION or
-        DEBUG_DBSESSION_MANAGEMENT):
+if any([DEBUG_REQUEST_CREATION, DEBUG_CAMCOPS_SESSION, DEBUG_TABLET_SESSION,
+        DEBUG_DBSESSION_MANAGEMENT]):
     log.warning("Debugging options enabled!")
 
 
@@ -147,8 +148,8 @@ class CamcopsRequest(Request):
         # Don't make the _camcops_session yet; it will want a Registry, and
         # we may not have one yet; see command_line_request().
         if DEBUG_REQUEST_CREATION:
-            log.critical("CamcopsRequest.__init__: args={!r}, kwargs={!r}",
-                         args, kwargs)
+            log.debug("CamcopsRequest.__init__: args={!r}, kwargs={!r}",
+                      args, kwargs)
 
     # -------------------------------------------------------------------------
     # CamcopsSession
@@ -174,7 +175,8 @@ class CamcopsRequest(Request):
         # not from the cookies, but from the POST data. At that point, we
         # want to replace the session in the Request, without committing the
         # first one to disk.
-        self.dbsession.expunge(self.camcops_session)
+        if self._camcops_session is not None:
+            self.dbsession.expunge(self._camcops_session)
         self._camcops_session = ccsession
 
     # -------------------------------------------------------------------------
@@ -268,6 +270,11 @@ class CamcopsRequest(Request):
         new_cc_session = CamcopsSession.get_session_for_tablet(ts)
         self.replace_camcops_session(new_cc_session)
         ts.set_session_id_token(new_cc_session.id, new_cc_session.token)
+        if DEBUG_TABLET_SESSION:
+            log.debug("CamcopsRequest: {!r}", self)
+            log.debug("CamcopsRequest.tabletsession: {!r}", ts)
+            log.debug("CamcopsRequest.camcops_session: {!r}",
+                      self._camcops_session)
         return ts
 
     # -------------------------------------------------------------------------

@@ -146,6 +146,7 @@ protected:
     bool isServerVersionOK();
     bool arePoliciesOK();
     bool areDescriptionsOK();
+    QVector<int> whichIdnumsUsedOnTablet();
     void startUpload();
     void startPreservation();
     void sendEmptyTables(const QStringList& tablenames);

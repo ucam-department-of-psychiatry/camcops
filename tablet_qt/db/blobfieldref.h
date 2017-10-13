@@ -30,7 +30,8 @@ class BlobFieldRef : public FieldRef
 public:
     BlobFieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
                  bool mandatory, CamcopsApp* p_app);
-    BlobFieldRef(QSharedPointer<Blob> blob, bool mandatory);
+    BlobFieldRef(QSharedPointer<Blob> blob, bool mandatory,
+                 bool disable_creation_warning = false);
 
     virtual QImage image(bool* p_loaded = nullptr) const override;
     virtual QPixmap pixmap(bool* p_loaded = nullptr) const override;

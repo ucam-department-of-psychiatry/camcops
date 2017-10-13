@@ -35,7 +35,6 @@ from ..cc_modules.cc_html import (
 )
 from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
     Task,

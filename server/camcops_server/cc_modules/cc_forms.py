@@ -1444,7 +1444,7 @@ class UserGroupMembershipGroupAdminSchema(CSRFSchema):
     )
     may_run_reports = BooleanNode(  # match ViewParam.MAY_RUN_REPORTS and User attribute  # noqa
         default=False,
-        title="May run reports (OVERRIDES OTHER VIEW RESTRICTIONS)",
+        title="May run administrative reports",
     )
     may_add_notes = BooleanNode(  # match ViewParam.MAY_ADD_NOTES and User attribute  # noqa
         default=False,
@@ -1833,9 +1833,10 @@ class DeletePatientChooseSchema(CSRFSchema):
     danger = ValidateDangerousOperationNode()
 
 
-class DeletePatientChooseForm(SimpleSubmitForm):
+class DeletePatientChooseForm(DangerousForm):
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         super().__init__(schema_class=DeletePatientChooseSchema,
+                         submit_action=FormAction.SUBMIT,
                          submit_title="Show tasks that will be deleted",
                          request=request, **kwargs)
 

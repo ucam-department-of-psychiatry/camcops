@@ -1883,12 +1883,12 @@ def edit_user(req: CamcopsRequest) -> Dict[str, Any]:
     user_frozen_group_ids = list(set(user_group_ids) - set(all_fluid_groups))
     # Group memberships we might alter:
     user_fluid_group_ids = list(set(user_group_ids) & set(all_fluid_groups))
-    log.critical(
-        "all_fluid_groups={}, user_group_ids={}, "
-        "user_frozen_group_ids={}, user_fluid_group_ids={}".format(
-            all_fluid_groups, user_group_ids,
-            user_frozen_group_ids, user_fluid_group_ids)
-    )
+    # log.critical(
+    #     "all_fluid_groups={}, user_group_ids={}, "
+    #     "user_frozen_group_ids={}, user_fluid_group_ids={}".format(
+    #         all_fluid_groups, user_group_ids,
+    #         user_frozen_group_ids, user_fluid_group_ids)
+    # )
     if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())

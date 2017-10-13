@@ -110,7 +110,8 @@ WidgetTestMenu::WidgetTestMenu(CamcopsApp& app) :
     m_fieldref_2 = FieldRefPtr(new FieldRef(getter2, setter2, mandatory));
 
     m_blob = QSharedPointer<Blob>(new Blob(app, app.db()));  // specimen BLOB
-    m_fieldref_blob = BlobFieldRefPtr(new BlobFieldRef(m_blob, true));
+    m_fieldref_blob = BlobFieldRefPtr(new BlobFieldRef(m_blob, true, true));
+    // ... disable_creation_warning = true
 
     m_options_1.append(NameValuePair("Option A1", 1));
     m_options_1.append(NameValuePair("Option A2", 2));

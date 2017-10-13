@@ -31,7 +31,6 @@ from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 from ..cc_modules.cc_html import tr_qa
 from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, ZERO_TO_FOUR_CHECKER
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 
 
@@ -163,7 +162,8 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
 # ReferrerSatisfactionSpec
 # =============================================================================
 
-class ReferrerSatisfactionSpec(AbstractSatisfaction, Task):
+class ReferrerSatisfactionSpec(TaskHasPatientMixin, AbstractSatisfaction,
+                               Task):
     __tablename__ = "ref_satis_spec"
     shortname = "ReferrerSatisfactionSpecific"
     longname = "Referrer Satisfaction Scale, patient-specific"

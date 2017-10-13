@@ -77,13 +77,13 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 DEBUG_EFFECTIVE_PRINCIPALS = False
 DEBUG_TEMPLATE_PARAMETERS = False
 # ... logs more information about template creation
-DEBUG_TEMPLATE_SOURCE = True
+DEBUG_TEMPLATE_SOURCE = False
 # ... writes the templates in their compiled-to-Python version to a debugging
 #     directory (see below), which is very informative.
 DEBUGGING_MAKO_DIR = os.path.expanduser("~/tmp/mako_template_source")
 
-if (DEBUG_EFFECTIVE_PRINCIPALS or DEBUG_TEMPLATE_PARAMETERS or
-        DEBUG_TEMPLATE_SOURCE):
+if any([DEBUG_EFFECTIVE_PRINCIPALS, DEBUG_TEMPLATE_PARAMETERS,
+        DEBUG_TEMPLATE_SOURCE]):
     log.warning("Debugging options enabled!")
 
 # =============================================================================

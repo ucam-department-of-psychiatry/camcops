@@ -79,6 +79,7 @@ from .cc_constants import (
     FP_ID_SHORT_DESC_DEFUNCT,
     MOVE_OFF_TABLET_FIELD,
     NUMBER_OF_IDNUMS_DEFUNCT,  # allowed; for old tablet versions
+    TABLET_ID_FIELD,
 )
 from .cc_convert import decode_values, encode_single_value
 from .cc_device import Device
@@ -362,6 +363,8 @@ def record_exists(req: CamcopsRequest,
     Returns (exists, serverpk), where exists is Boolean.
     If exists is False, serverpk will be None.
     """
+    # log.critical("record_exists: checking table={}, {}={}",
+    #              table.name, clientpk_name, clientpk_value)
     # noinspection PyProtectedMember
     query = (
         select([table.c._pk])
@@ -465,7 +468,7 @@ def upload_record_core(req: CamcopsRequest,
                        table: Table,
                        clientpk_name: str,
                        valuedict: Dict,
-                       recordnum: int) -> Tuple[int, int]:
+                       recordnum: int) -> Tuple[Optional[int], int]:
     """
     Uploads a record. Deals with IDENTICAL, NEW, and MODIFIED records.
     """
@@ -480,18 +483,21 @@ def upload_record_core(req: CamcopsRequest,
         client_date_value = valuedict[CLIENT_DATE_FIELD]
         if record_identical_by_date(req, table, oldserverpk,
                                     client_date_value):
+            # log.critical("... record is identical")
             # IDENTICAL. No action needed...
             # UNLESS MOVE_OFF_TABLET_FIELDNAME is set
             if valuedict[MOVE_OFF_TABLET_FIELD]:
                 flag_record_for_preservation(req, table, oldserverpk)
-                log.debug("Table {table}, uploaded record {recordnum}: "
-                          "identical but moving off tablet",
-                          table=table, recordnum=recordnum)
+                # log.debug("Table {table}, uploaded record {recordnum}: "
+                #           "identical but moving off tablet",
+                #           table=table, recordnum=recordnum)
             else:
-                log.debug("Table {table}, uploaded record {recordnum}: "
-                          "identical", table=table, recordnum=recordnum)
+                # log.debug("Table {table}, uploaded record {recordnum}: "
+                #           "identical", table=table, recordnum=recordnum)
+                pass
         else:
             # MODIFIED
+            # log.critical("... record is modified")
             if table == Patient.__tablename__:
                 if ts.cope_with_deleted_patient_descriptors:
                     # Old tablets (pre-2.0.0) will upload copies of the ID
@@ -538,11 +544,14 @@ def upload_record_core(req: CamcopsRequest,
 
             newserverpk = insert_record(req, table, valuedict, oldserverpk)
             flag_modified(req, table, oldserverpk, newserverpk)
-            log.debug("Table {table}, record {recordnum}: modified",
-                      table=table.name, recordnum=recordnum)
+            # log.debug("Table {table}, record {recordnum}: modified",
+            #           table=table.name, recordnum=recordnum)
     else:
+        # log.critical("... record is new")
         # NEW
         newserverpk = insert_record(req, table, valuedict, None)
+        # log.debug("Table {table}, record {recordnum}: new",
+        #           table=table.name, recordnum=recordnum)
     return oldserverpk, newserverpk
 
 
@@ -563,6 +572,7 @@ def insert_record(req: CamcopsRequest,
         "_removal_pending": 0,
         "_predecessor_pk": predecessor_pk,
         "_camcops_version": ts.tablet_version_str,
+        "_group_id": req.user.upload_group_id,
     })
     rp = req.dbsession.execute(
         table.insert().values(valuedict)
@@ -585,7 +595,8 @@ def duplicate_record(req: CamcopsRequest, table: Table, serverpk: int) -> int:
         .select_from(table)
         .where(table.c._pk == serverpk)
     )
-    row = req.dbsession.execute(query).one()
+    rp = req.dbsession.execute(query)  # type: ResultProxy
+    row = rp.fetchone()
     if not row:
         raise ServerErrorException(
             "Tried to fetch nonexistent record: table {t}, PK {pk}".format(
@@ -657,8 +668,8 @@ def get_batch_details_start_if_needed(req: CamcopsRequest) \
         # previous pending changes)
         start_device_upload_batch(req)
         return req.now_utc, False
-    log.debug("get_batch_details_start_if_needed: upload_batch_utc = {!r}",
-              upload_batch_utc)
+    # log.debug("get_batch_details_start_if_needed: upload_batch_utc = {!r}",
+    #           upload_batch_utc)
     return upload_batch_utc, currently_preserving
 
 
@@ -855,6 +866,7 @@ def commit_table(req: CamcopsRequest,
     """
     Commits additions, removals, and preservations for one table.
     """
+    # log.debug("commit_table: {}", table.name)
     user_id = req.user_id
     device_id = req.tabletsession.device_id
     exacttime = req.now
@@ -908,7 +920,7 @@ def commit_table(req: CamcopsRequest,
             .where(SpecialNote.basetable == table.name)
             .where(SpecialNote.device_id == device_id)
             .where(SpecialNote.era == ERA_NOW)
-            .values(_era=new_era)
+            .values(era=new_era)
         )
 
     else:
@@ -935,7 +947,7 @@ def commit_table(req: CamcopsRequest,
                    .where(table.c.id == SpecialNote.task_id)
                    .where(table.c._device_id == SpecialNote.device_id)
                    .where(table.c._era == new_era))
-            .values(_era=new_era)
+            .values(era=new_era)
         )
 
     # Remove individually from list of dirty tables?
@@ -1168,9 +1180,23 @@ def upload_table(req: CamcopsRequest) -> str:
             TabletParam.NRECORDS, nrecords))
 
     _, _ = get_batch_details_start_if_needed(req)
-    clientpk_name = fields[0]
-    server_uploaded_pks = []
-    new_or_updated = 0
+
+    ts = req.tabletsession
+    if ts.explicit_pkname_for_upload_table:  # q.v.
+        # New client: tells us the PK name explicitly.
+        clientpk_name = get_single_field_from_post_var(req, table,
+                                                       TabletParam.PKNAME)
+    else:
+        # Old client. Either (a) old Titanium client, in which the client PK
+        # is in fields[0], or (b) an early C++ client, in which there was no
+        # guaranteed order (and no explicit PK name was sent). However, in
+        # either case, the client PK name was (is) always "id".
+        clientpk_name = TABLET_ID_FIELD
+        ensure_valid_field_name(table, clientpk_name)
+    server_pks_uploaded = []
+    n_new = 0
+    n_modified = 0
+    n_identical = 0
     server_active_record_pks = get_server_pks_of_active_records(req, table)
     mark_table_dirty(req, table)
     for r in range(nrecords):
@@ -1187,17 +1213,26 @@ def upload_table(req: CamcopsRequest) -> str:
             log.warning("fields: {!r}", fields)
             log.warning("values: {!r}", values)
             fail_user_error(errmsg)
-        valuedict = dict(list(zip(fields, values)))
+        valuedict = dict(zip(fields, values))
+        # log.critical("table {!r}, record {}: {!r}", table.name, r, valuedict)
         # CORE: CALLS upload_record_core
         oldserverpk, newserverpk = upload_record_core(
             req, table, clientpk_name, valuedict, r)
-        new_or_updated += 1
-        server_uploaded_pks.append(oldserverpk)
+        if oldserverpk is not None:
+            server_pks_uploaded.append(oldserverpk)
+            if newserverpk is None:
+                n_identical += 1
+            else:
+                n_modified += 1
+        else:
+            n_new += 1
 
     # Now deal with any ABSENT (not in uploaded data set) conditions.
     server_pks_for_deletion = [x for x in server_active_record_pks
-                               if x not in server_uploaded_pks]
-    flag_deleted(req, table, server_pks_for_deletion)
+                               if x not in server_pks_uploaded]
+    n_deleted = len(server_pks_for_deletion)
+    if n_deleted > 0:
+        flag_deleted(req, table, server_pks_for_deletion)
 
     # Special for old tablets:
     if req.tabletsession.cope_with_old_idnums and table == Patient.__table__:
@@ -1217,14 +1252,22 @@ def upload_table(req: CamcopsRequest) -> str:
         )
 
     # Success
-    log.debug("server_active_record_pks: {}", server_active_record_pks)
-    log.debug("server_uploaded_pks: {}", server_uploaded_pks)
-    log.debug("server_pks_for_deletion: {}", server_pks_for_deletion)
-    log.debug("Table {tablename}, number of missing records (deleted): {d}",
-              tablename=table.name, d=len(server_pks_for_deletion))
+    # log.debug(
+    #     "Table {t}: server_active_record_pks: {a}; server_pks_uploaded: {u}; "
+    #     "server_pks_for_deletion: {d}; "
+    #     "number of missing records (deleted): {nd}".format(
+    #         t=table.name,
+    #         a=server_active_record_pks,
+    #         u=server_pks_uploaded,
+    #         d=server_pks_for_deletion,
+    #         nd=n_deleted
+    #     )
+    # )
     # Auditing occurs at commit_all.
-    log.info("Upload successful; {n} records uploaded to table {t}",
-             n=nrecords, t=table.name)
+    log.info("Upload successful; {n} records uploaded to table {t} "
+             "({new} new, {mod} modified, {i} identical, {nd} deleted)",
+             n=nrecords, t=table.name, new=n_new, mod=n_modified,
+             i=n_identical, nd=n_deleted)
     return "Table {} upload successful".format(table.name)
 
 
@@ -1313,7 +1356,7 @@ def delete_where_key_not(req: CamcopsRequest) -> str:
     _, _ = get_batch_details_start_if_needed(req)
     flag_deleted_where_clientpk_not(req, table, clientpk_name, clientpk_values)
     # Auditing occurs at commit_all.
-    log.info("delete_where_key_not successful; table {} trimmed", table)
+    # log.info("delete_where_key_not successful; table {} trimmed", table)
     return "Trimmed"
 
 
@@ -1379,7 +1422,7 @@ def which_keys_to_send(req: CamcopsRequest) -> str:
 
     # Success
     pk_csv_list = ",".join([str(x) for x in pks_needed if x is not None])
-    log.info("which_keys_to_send successful: table {}", table.name)
+    # log.info("which_keys_to_send successful: table {}", table.name)
     return pk_csv_list
 
 
@@ -1419,8 +1462,8 @@ def main_client_api(req: CamcopsRequest) -> Dict[str, str]:
     For success, returns a dictionary to send (will use status '200 OK')
     For failure, raises an exception.
     """
-    log.info("CamCOPS database script starting at {}",
-             format_datetime(req.now, DateFormat.ISO8601))
+    # log.info("CamCOPS database script starting at {}",
+    #          format_datetime(req.now, DateFormat.ISO8601))
     ts = req.tabletsession
     fn = None
 
@@ -1492,7 +1535,7 @@ def client_api(req: CamcopsRequest) -> Response:
     txt = "".join("{}:{}\n".format(k, v) for k, v in resultdict.items())
 
     t1 = time.time()
-    log.info("Time in script (s): {t}", t=t1 - t0)
+    log.debug("Time in script (s): {t}", t=t1 - t0)
 
     return TextResponse(txt, status=status)
 
