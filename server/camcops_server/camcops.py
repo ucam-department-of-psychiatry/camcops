@@ -40,12 +40,16 @@ from cardinal_pythonlib.logs import (
 )
 
 main_only_quicksetup_rootlogger(
-    logging.DEBUG, with_process_id=True, with_thread_id=True
+    logging.INFO, with_process_id=True, with_thread_id=True
 )
 log = BraceStyleAdapter(logging.getLogger(__name__))
 log.info("CamCOPS starting")
 
-from argparse import ArgumentParser, RawDescriptionHelpFormatter  # nopep8
+from argparse import (
+    ArgumentParser,
+    ArgumentDefaultsHelpFormatter,
+    RawDescriptionHelpFormatter,
+)  # nopep8
 import codecs  # nopep8
 import os  # nopep8
 import sys  # nopep8
@@ -74,7 +78,8 @@ from .cc_modules.cc_config import (
 from .cc_modules.cc_constants import (
     CAMCOPS_URL,
     DEMO_SUPERVISORD_CONF,
-    SEPARATOR_EQUALS,
+    MINIMUM_PASSWORD_LENGTH,
+    USER_NAME_FOR_SYSTEM,
 )  # nopep8
 from .cc_modules.cc_blob import ccblob_unit_tests  # nopep8
 from .cc_modules.cc_device import ccdevice_unit_tests  # nopep8
@@ -91,8 +96,9 @@ from .cc_modules.cc_pyramid import (
 )  # nopep8
 from .cc_modules.cc_policy import ccpolicy_unit_tests  # nopep8
 from .cc_modules.cc_report import ccreport_unit_tests  # nopep8
-from .cc_modules.cc_request import CamcopsRequest, command_line_request  # nopep8
+from .cc_modules.cc_request import CamcopsRequest, command_line_request_context  # nopep8
 from .cc_modules.cc_session import ccsession_unit_tests  # nopep8
+from .cc_modules.cc_sqlalchemy import ALL_DIALECTS, Dialect, get_all_ddl  # nopep8
 from .cc_modules.cc_task import (
     cctask_unit_tests,
     cctask_unit_tests_basic,
@@ -145,6 +151,9 @@ if (DEBUG_ADD_ROUTES or DEBUG_AUTHORIZATION or DEBUG_LOG_CONFIG or
 
 DEFAULT_CONFIG_FILENAME = "/etc/camcops/camcops.conf"
 DEFAULT_HOST = "127.0.0.1"
+DEFAULT_MAX_THREADS = 100
+# ... beware the default MySQL connection limit of 151;
+#     https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html
 DEFAULT_PORT = 8000
 DEFAULT_URL_PATH_ROOT = '/'  # TODO: from config file?
 
@@ -233,8 +242,6 @@ def make_wsgi_app(debug_toolbar: bool = False,
             config.add_static_view(name=RouteCollection.STATIC.route,
                                    path=STATIC_ROOT_DIR)
 
-        config.add_static_view('deform_static', 'deform:static/')
-
         # Add all the routes:
         for pr in RouteCollection.all_routes():
             if DEBUG_ADD_ROUTES:
@@ -242,6 +249,10 @@ def make_wsgi_app(debug_toolbar: bool = False,
             config.add_route(pr.route, pr.path)
         # See also:
         # https://stackoverflow.com/questions/19184612/how-to-ensure-urls-generated-by-pyramids-route-url-and-route-path-are-valid  # noqa
+
+        # Routes added EARLIER have priority. So add this AFTER our custom
+        # bugfix:
+        config.add_static_view('deform_static', 'deform:static/')
 
         # Most views are using @view_config() which calls add_view().
         # Scan for @view_config decorators, to map views to routes:
@@ -369,6 +380,11 @@ def print_demo_supervisorconf() -> None:
     print(DEMO_SUPERVISORD_CONF)
 
 
+def print_database_title() -> None:
+    with command_line_request_context() as req:
+        print(req.database_title)
+
+
 def generate_anonymisation_staging_db() -> None:
     db = pls.get_anonymisation_database()  # may raise
     ddfilename = pls.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE
@@ -393,58 +409,116 @@ def generate_anonymisation_staging_db() -> None:
     print("Draft data dictionary written to {}".format(ddfilename))
 
 
-def make_superuser(req: CamcopsRequest) -> None:
-    """Make a superuser from the command line."""
-    print("MAKE SUPERUSER")
-    username = ask_user("New superuser")
-    if User.user_exists(req, username):
-        print("... user already exists!")
-        return
-    password1 = ask_user_password("New superuser password")
-    password2 = ask_user_password("New superuser password (again)")
-    if password1 != password2:
-        print("... passwords don't match; try again")
-        return
-    result = User.create_superuser(req, username, password1)
-    print("Success: " + str(result))
+def get_username_from_cli(req: CamcopsRequest,
+                          starting_username: str,
+                          prompt: str,
+                          must_exist: bool = False,
+                          must_not_exist: bool = False) -> str:
+    assert must_exist != must_not_exist
+    first = True
+    while True:
+        if first:
+            username = starting_username
+            first = False
+        else:
+            username = ""
+        username = username or ask_user(prompt)
+        exists = User.user_exists(req, username)
+        if must_not_exist and exists:
+            print("... user already exists!")
+            continue
+        if must_exist and not exists:
+            print("... no such user!")
+            continue
+        if username == USER_NAME_FOR_SYSTEM:
+            print("... username {!r} is reserved".format(
+                USER_NAME_FOR_SYSTEM))
+            continue
+        return username
 
 
-def reset_password(req: CamcopsRequest) -> None:
-    """Reset a password from the command line."""
-    print("RESET PASSWORD")
-    username = ask_user("Username")
-    if not User.user_exists(req, username):
-        print("... user doesn't exist!")
-        return
-    password1 = ask_user_password("New password")
-    password2 = ask_user_password("New password (again)")
-    if password1 != password2:
-        print("... passwords don't match; try again")
-        return
-    result = set_password_directly(req, username, password1)
-    print("Success: " + str(result))
+def get_new_password_from_cli(username: str) -> str:
+    while True:
+        password1 = ask_user_password("New password for user "
+                                      "{}".format(username))
+        if not password1 or len(password1) < MINIMUM_PASSWORD_LENGTH:
+            print("... passwords can't be blank or shorter than {} "
+                  "characters".format(MINIMUM_PASSWORD_LENGTH))
+            continue
+        password2 = ask_user_password("New password for user {} "
+                                      "(again)".format(username))
+        if password1 != password2:
+            print("... passwords don't match; try again")
+            continue
+        return password1
 
 
-def enable_user_cli(req: CamcopsRequest) -> None:
-    """Re-enable a locked user account from the command line."""
-    print("ENABLE LOCKED USER ACCOUNT")
-    username = ask_user("Username")
-    if not User.user_exists(req, username):
-        print("... user doesn't exist!")
-        return
-    User.enable_user(username)
-    print("Enabled.")
+def make_superuser(username: str = None) -> None:
+    """
+    Make a superuser from the command line.
+    """
+    with command_line_request_context() as req:
+        username = get_username_from_cli(
+            req=req,
+            prompt="Username for new superuser",
+            starting_username=username,
+            must_not_exist=True,
+        )
+        print("Creating superuser {!r}".format(username))
+        password = get_new_password_from_cli(username=username)
+        result = User.create_superuser(req, username, password)
+        print("Success: " + str(result))
+
+
+def reset_password(username: str = None) -> None:
+    """
+    Reset a password from the command line.
+    """
+    with command_line_request_context() as req:
+        username = get_username_from_cli(
+            req=req,
+            prompt="Username to reset password for",
+            starting_username=username,
+            must_exist=True,
+        )
+        print("Resetting password for user {!r}".format(username))
+        password = get_new_password_from_cli(username)
+        result = set_password_directly(req, username, password)
+        print("Success: " + str(result))
+
+
+def enable_user_cli(username: str = None) -> None:
+    """
+    Re-enable a locked user account from the command line.
+    """
+    with command_line_request_context() as req:
+        username = get_username_from_cli(
+            req=req,
+            prompt="Username to unlock",
+            starting_username=username,
+            must_exist=True,
+        )
+        User.enable_user(username)
+        print("Enabled.")
+
+
+def send_hl7(show_queue_only: bool) -> None:
+    with command_line_request_context() as req:
+        send_all_pending_hl7_messages(req.config,
+                                      show_queue_only=show_queue_only)
 
 
 # -----------------------------------------------------------------------------
 # Test rig
 # -----------------------------------------------------------------------------
 
-def test() -> None:
-    """Run all unit tests."""
+def self_test() -> None:
+    """
+    Run all unit tests.
+    """
     # We do some rollbacks so as not to break performance of ongoing tasks.
-
-    req = command_line_request()
+    XXXcrashmeXXX
+    req = get_command_line_request()
 
     print("-- Ensuring all tasks have basic info")
     cctask_unit_tests_basic()
@@ -557,7 +631,7 @@ def camcops_main() -> None:
         """
         subparser = sp.add_parser(
             cmd, help=help,
-            formatter_class=RawDescriptionHelpFormatter
+            formatter_class=ArgumentDefaultsHelpFormatter
         )  # type: ArgumentParser
         subparser.add_argument(
             '--verbose', action='count', default=0,
@@ -568,8 +642,11 @@ def camcops_main() -> None:
                 "from the {ev} variable in (1) the WSGI environment, "
                 "or (2) the operating system environment.)".format(
                     ev=ENVVAR_CONFIG_FILE))
-        else:
+        elif config_mandatory:
             cfg_help = "Configuration file"
+        else:
+            cfg_help = ("Configuration file (if not specified, the environment"
+                        " variable {} is checked)".format(ENVVAR_CONFIG_FILE))
         if config_mandatory is None:
             pass
         elif config_mandatory:
@@ -622,12 +699,14 @@ def camcops_main() -> None:
     upgradedb_parser = add_sub(
         subparsers, "upgradedb", config_mandatory=True,
         help="Upgrade database to most recent version (via Alembic)")
-    upgradedb_parser.set_defaults(func=None)
+    upgradedb_parser.set_defaults(
+        func=lambda args: upgrade_database_to_head())
 
     showtitle_parser = add_sub(
         subparsers, "showtitle",
         help="Show database title")
-    showtitle_parser.set_defaults(func=None)
+    showtitle_parser.set_defaults(
+        func=lambda args: print_database_title())
 
     mergedb_parser = add_sub(
         subparsers, "mergedb", config_mandatory=True,
@@ -706,12 +785,10 @@ def camcops_main() -> None:
         createdb_parser,
         '--confirm_create_db', action="store_true",
         help="Must specify this too, as a safety measure")
-
-    def _create_db(args):
-        cfg = get_default_config_from_os_env()
-        create_database_from_scratch(cfg)
-
-    createdb_parser.set_defaults(func=_create_db)
+    createdb_parser.set_defaults(
+        func=lambda args: create_database_from_scratch(
+            cfg=get_default_config_from_os_env()
+        ))
 
     # db_group.add_argument(
     #     "-s", "--summarytables", action="store_true", default=False,
@@ -724,40 +801,66 @@ def camcops_main() -> None:
     superuser_parser = add_sub(
         subparsers, "superuser",
         help="Make superuser")
-    superuser_parser.set_defaults(func=None)
+    superuser_parser.add_argument(
+        '--username',
+        help="Username of superuser to create (if omitted, you will be asked "
+             "to type it in)")
+    superuser_parser.set_defaults(func=lambda args: make_superuser(
+        username=args.username
+    ))
 
     password_parser = add_sub(
         subparsers, "password",
         help="Reset a user's password")
-    password_parser.set_defaults(func=None)
+    password_parser.add_argument(
+        '--username',
+        help="Username to change password for (if omitted, you will be asked "
+             "to type it in)")
+    password_parser.set_defaults(func=lambda args: reset_password(
+        username=args.username
+    ))
 
     enableuser_parser = add_sub(
         subparsers, "enableuser",
         help="Re-enable a locked user account")
-    enableuser_parser.set_defaults(func=None)
+    enableuser_parser.add_argument(
+        '--username',
+        help="Username to enable (if omitted, you will be asked "
+             "to type it in)")
+    enableuser_parser.set_defaults(func=lambda args: enable_user_cli(
+        username=args.username
+    ))
 
     # -------------------------------------------------------------------------
     # Export options
     # -------------------------------------------------------------------------
 
-    descriptions_parser = add_sub(
-        subparsers, "descriptions",
-        help="Export table descriptions")
-    descriptions_parser.set_defaults(func=None)
+    ddl_parser = add_sub(
+        subparsers, "ddl",
+        help="Print database schema (data definition language; DDL)")
+    ddl_parser.add_argument(
+        '--dialect', type=str, default=Dialect.MYSQL,
+        help="SQL dialect (options: {})".format(", ".join(ALL_DIALECTS)))
+    ddl_parser.set_defaults(
+        func=lambda args: print(get_all_ddl(dialect_name=args.dialect)))
 
     hl7_parser = add_sub(
         subparsers, "hl7",
         help="Send pending HL7 messages and outbound files")
-    hl7_parser.set_defaults(func=None)
+    hl7_parser.set_defaults(
+        func=lambda args: send_hl7(show_queue_only=False))
 
     showhl7queue_parser = add_sub(
         subparsers, "show_hl7_queue",
         help="View outbound HL7/file queue (without sending)")
-    showhl7queue_parser.set_defaults(func=None)
+    showhl7queue_parser.set_defaults(
+        func=lambda args: send_hl7(show_queue_only=True))
 
-    # export_group.add_argument(
-    #     "-y", "--anonstaging", action="store_true", default=False,
-    #     help="Generate/regenerate anonymisation staging database")
+    anonstaging_parser = add_sub(
+        subparsers, "anonstaging",
+        help="Generate/regenerate anonymisation staging database")
+    anonstaging_parser.set_defaults(
+        func=lambda args: generate_anonymisation_staging_db())
 
     # -------------------------------------------------------------------------
     # Test options
@@ -766,7 +869,7 @@ def camcops_main() -> None:
     unittest_parser = add_sub(
         subparsers, "unittest", config_mandatory=None,
         help="Test internal code")
-    unittest_parser.set_defaults(func=None)
+    unittest_parser.set_defaults(func=lambda args: self_test())
 
     testserve_parser = add_sub(
         subparsers, "testserve",
@@ -787,8 +890,6 @@ def camcops_main() -> None:
         port=args.port,
         debug_toolbar=args.debug_toolbar
     ))
-
-    # *** add unit test
 
     # -------------------------------------------------------------------------
     # Web server options
@@ -817,7 +918,7 @@ def camcops_main() -> None:
         "--threads_start", type=int, default=10,
         help="Number of threads for server to start with")
     serve_parser.add_argument(
-        "--threads_max", type=int, default=-1,
+        "--threads_max", type=int, default=DEFAULT_MAX_THREADS,
         help="Maximum number of threads for server to use (-1 for no limit)")
     serve_parser.add_argument(
         "--ssl_certificate", type=str,
@@ -839,8 +940,7 @@ def camcops_main() -> None:
         help="show debug info for static file requests")
     serve_parser.add_argument(
         "--root_path", type=str, default=DEFAULT_URL_PATH_ROOT,
-        help="Root path to serve CRATE at. Default: {}".format(
-            DEFAULT_URL_PATH_ROOT))
+        help="Root path to serve CRATE at")
     serve_parser.add_argument(
         '--debug_toolbar', action="store_true",
         help="Enable the Pyramid debug toolbar"
@@ -886,141 +986,10 @@ def camcops_main() -> None:
     cfg_name = os.environ.get(ENVVAR_CONFIG_FILE, None)
     log.info("Using configuration file: {!r}", cfg_name)
 
+    if progargs.func is None:
+        raise NotImplementedError("Command-line function not implemented!")
     progargs.func(progargs)
     sys.exit(0)
-
-    raise NotImplementedError("Bugs below here!")
-
-    # -------------------------------------------------------------------------
-    # Subsequent actions require a command-line request.
-    # -------------------------------------------------------------------------
-    # Request objects are ubiquitous, and allow code to refer to the HTTP
-    # request, config, HTTP session, database session, and so on. Here we make
-    # a special sort of request for use from the command line.
-    req = command_line_request()
-    # Note also that any database accesses will be auto-committed via the
-    # request.
-
-    if progargs.upgradedb:
-        upgrade_database_to_head()
-        n_actions += 1
-
-    if progargs.showtitle:
-        print("Database title: {}".format(req.config.database_title))
-        n_actions += 1
-
-    if progargs.summarytables:
-        make_summary_tables()
-        n_actions += 1
-
-    if progargs.superuser:
-        make_superuser(req)
-        n_actions += 1
-
-    if progargs.password:
-        reset_password(req)
-        n_actions += 1
-
-    if progargs.enableuser:
-        enable_user_cli(req)
-        n_actions += 1
-
-    if progargs.hl7:
-        send_all_pending_hl7_messages(req.config)
-        n_actions += 1
-
-    if progargs.show_hl7_queue:
-        send_all_pending_hl7_messages(req.config, show_queue_only=True)
-        n_actions += 1
-
-    if progargs.anonstaging:
-        generate_anonymisation_staging_db()
-        n_actions += 1
-
-    if progargs.test:
-        test(req)
-        n_actions += 1
-
-    if progargs.dbunittest:
-        database_unit_tests()
-        n_actions += 1
-
-    if progargs.testserve:
-        test_serve()
-        n_actions += 1
-
-    # Menu
-    while True:
-        print("""
-{sep}
-CamCOPS version {version} (command line).
-Using database: {dburl} ({dbtitle}).
-
-1) Make/remake tables and views
-   ... MUST be the first action on a new database
-   ... will not destroy existing data
-   ... also performs item 3 below
-2) Show database title
-3) Copy database title/patient ID number meanings/ID policy into database
-4) Make summary tables
-5) Make superuser
-6) Reset a user's password
-7) Enable a locked user account
-8) Export table descriptions with field comments
-9) Test internal code (should always succeed)
-10) Send all pending HL7 messages
-11) Show HL7 queue without sending
-12) Regenerate anonymisation staging database
-13) Drop all views and summary tables
-14) Run test web server directly
-15) Exit
-""".format(sep=SEPARATOR_EQUALS,
-           version=CAMCOPS_SERVER_VERSION,
-           dburl=get_safe_url_from_session(req.dbsession),
-           dbtitle=req.config.database_title))
-
-        # avoid input():
-        # http://www.gossamer-threads.com/lists/python/python/46911
-        choice = input("Choose: ")
-        try:
-            choice = int(choice)
-        except ValueError:
-            choice = None
-
-        if choice == 1:
-            upgrade_database_to_head()
-            reset_storedvars()
-        elif choice == 2:
-            print("Database title: {}".format(req.config.database_title))
-        elif choice == 3:
-            reset_storedvars()
-        elif choice == 4:
-            make_summary_tables(from_console=True)
-        elif choice == 5:
-            make_superuser()
-        elif choice == 6:
-            reset_password()
-        elif choice == 7:
-            enable_user_cli()
-        elif choice == 8:
-            export_descriptions_comments()
-        elif choice == 9:
-            test()
-        elif choice == 10:
-            send_all_pending_hl7_messages(req.config)
-        elif choice == 11:
-            send_all_pending_hl7_messages(req.config, show_queue_only=True)
-        elif choice == 12:
-            generate_anonymisation_staging_db()
-        elif choice == 13:
-            drop_all_views_and_summary_tables()
-        elif choice == 14:
-            test_serve()
-        elif choice == 15:
-            sys.exit(0)
-
-        # Must commit, or we may lock the database while watching the menu
-        req.dbsession.commit()  # command-line interactive menu route commit
 
 
 # =============================================================================

@@ -189,11 +189,11 @@ class ModelTests(unittest.TestCase):
 
     @staticmethod
     def test_query_via_command_line_request() -> None:
-        from camcops_server.cc_modules.cc_request import command_line_request
+        from camcops_server.cc_modules.cc_request import get_command_line_request
         from camcops_server.tasks import Phq9
         all_models_no_op()
 
-        req = command_line_request()
+        req = get_command_line_request()
         dbsession = req.dbsession
         phq9_query = dbsession.query(Phq9)
         phq9s = phq9_query.all()

@@ -65,6 +65,38 @@ ALL_RECIPIENT_TYPES = [
 ]
 
 
+class ConfigParamRecipient(object):
+    DIVERT_TO_FILE = "DIVERT_TO_FILE"
+    END_DATE = "END_DATE"
+    FILENAME_SPEC = "FILENAME_SPEC"
+    FINALIZED_ONLY = "FINALIZED_ONLY"
+    HOST = "HOST"
+    IDNUM_AA_PREFIX = "IDNUM_AA_"  # unusual
+    IDNUM_TYPE_PREFIX = "IDNUM_TYPE_"  # unusual
+    INCLUDE_ANONYMOUS = "INCLUDE_ANONYMOUS"
+    KEEP_MESSAGE = "KEEP_MESSAGE"
+    KEEP_REPLY = "KEEP_REPLY"
+    MAKE_DIRECTORY = "MAKE_DIRECTORY"
+    NETWORK_TIMEOUT_MS = "NETWORK_TIMEOUT_MS"
+    OVERWRITE_FILES = "OVERWRITE_FILES"
+    PATIENT_SPEC = "PATIENT_SPEC"
+    PATIENT_SPEC_IF_ANONYMOUS = "PATIENT_SPEC_IF_ANONYMOUS"
+    PING_FIRST = "PING_FIRST"
+    PORT = "PORT"
+    PRIMARY_IDNUM = "PRIMARY_IDNUM"
+    REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = "REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY"  # noqa
+    RIO_DOCUMENT_TYPE = "RIO_DOCUMENT_TYPE"
+    RIO_IDNUM = "RIO_IDNUM"
+    RIO_METADATA = "RIO_METADATA"
+    RIO_UPLOADING_USER = "RIO_UPLOADING_USER"
+    SCRIPT_AFTER_FILE_EXPORT = "SCRIPT_AFTER_FILE_EXPORT"
+    START_DATE = "START_DATE"
+    TASK_FORMAT = "TASK_FORMAT"
+    TREAT_DIVERTED_AS_SENT = "TREAT_DIVERTED_AS_SENT"
+    TYPE = "TYPE"
+    XML_FIELD_COMMENTS = "XML_FIELD_COMMENTS"
+
+
 # =============================================================================
 # RecipientDefinition class
 # =============================================================================
@@ -209,53 +241,54 @@ class RecipientDefinition(object):
 
         # Standard constructor
         self.recipient = section
+        cpr = ConfigParamRecipient
         try:
             self.type = get_config_parameter(
-                config, section, "TYPE", str, "hl7")
+                config, section, cpr.TYPE, str, "hl7")
             self.type = str(self.type).lower()
             self.primary_idnum = get_config_parameter(
-                config, section, "PRIMARY_IDNUM", int, None)
+                config, section, cpr.PRIMARY_IDNUM, int, None)
             self.require_idnum_mandatory = get_config_parameter_boolean(
-                config, section, "REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY",
+                config, section, cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY,
                 True)
             sd = get_config_parameter(
-                config, section, "START_DATE", str, None)
+                config, section, cpr.START_DATE, str, None)
             self.start_date = coerce_to_date(sd)
             ed = get_config_parameter(
-                config, section, "END_DATE", str, None)
+                config, section, cpr.END_DATE, str, None)
             self.end_date = coerce_to_date(ed)
             self.finalized_only = get_config_parameter_boolean(
-                config, section, "FINALIZED_ONLY", True)
+                config, section, cpr.FINALIZED_ONLY, True)
             self.task_format = get_config_parameter(
-                config, section, "TASK_FORMAT", str, VALUE.OUTPUTTYPE_PDF)
+                config, section, cpr.TASK_FORMAT, str, VALUE.OUTPUTTYPE_PDF)
             self.xml_field_comments = get_config_parameter_boolean(
-                config, section, "XML_FIELD_COMMENTS", True)
+                config, section, cpr.XML_FIELD_COMMENTS, True)
 
             # HL7
             if self.using_hl7():
                 self.host = get_config_parameter(
-                    config, section, "HOST", str, None)
+                    config, section, cpr.HOST, str, None)
                 self.port = get_config_parameter(
-                    config, section, "PORT", int, DEFAULT_HL7_PORT)
+                    config, section, cpr.PORT, int, DEFAULT_HL7_PORT)
                 self.ping_first = get_config_parameter_boolean(
-                    config, section, "PING_FIRST", True)
+                    config, section, cpr.PING_FIRST, True)
                 self.network_timeout_ms = get_config_parameter(
-                    config, section, "NETWORK_TIMEOUT_MS", int, 10000)
+                    config, section, cpr.NETWORK_TIMEOUT_MS, int, 10000)
                 for n in self.valid_which_idnums:
                     nstr = str(n)
                     self.idnum_type_list[n] = get_config_parameter(
-                        config, section, "IDNUM_TYPE_" + nstr, str, "")
+                        config, section, cpr.IDNUM_TYPE_PREFIX + nstr, str, "")
                     self.idnum_aa_list[n] = get_config_parameter(
-                        config, section, "IDNUM_AA_" + nstr, str, "")
+                        config, section, cpr.IDNUM_AA_PREFIX + nstr, str, "")
                 self.keep_message = get_config_parameter_boolean(
-                    config, section, "KEEP_MESSAGE", False)
+                    config, section, cpr.KEEP_MESSAGE, False)
                 self.keep_reply = get_config_parameter_boolean(
-                    config, section, "KEEP_REPLY", False)
+                    config, section, cpr.KEEP_REPLY, False)
                 self.divert_to_file = get_config_parameter(
                     # a filename:
-                    config, section, "DIVERT_TO_FILE", str, None)
+                    config, section, cpr.DIVERT_TO_FILE, str, None)
                 self.treat_diverted_as_sent = get_config_parameter_boolean(
-                    config, section, "TREAT_DIVERTED_AS_SENT", False)
+                    config, section, cpr.TREAT_DIVERTED_AS_SENT, False)
                 if self.divert_to_file:
                     self.host = None
                     self.port = None
@@ -267,28 +300,28 @@ class RecipientDefinition(object):
             # File
             if self.using_file():
                 self.include_anonymous = get_config_parameter_boolean(
-                    config, section, "INCLUDE_ANONYMOUS", False)
+                    config, section, cpr.INCLUDE_ANONYMOUS, False)
                 self.patient_spec_if_anonymous = get_config_parameter(
-                    config, section, "PATIENT_SPEC_IF_ANONYMOUS", str,
+                    config, section, cpr.PATIENT_SPEC_IF_ANONYMOUS, str,
                     "anonymous")
                 self.patient_spec = get_config_parameter(
-                    config, section, "PATIENT_SPEC", str, None)
+                    config, section, cpr.PATIENT_SPEC, str, None)
                 self.filename_spec = get_config_parameter(
-                    config, section, "FILENAME_SPEC", str, None)
+                    config, section, cpr.FILENAME_SPEC, str, None)
                 self.overwrite_files = get_config_parameter_boolean(
-                    config, section, "OVERWRITE_FILES", False)
+                    config, section, cpr.OVERWRITE_FILES, False)
                 self.make_directory = get_config_parameter_boolean(
-                    config, section, "MAKE_DIRECTORY", False)
+                    config, section, cpr.MAKE_DIRECTORY, False)
                 self.rio_metadata = get_config_parameter_boolean(
-                    config, section, "RIO_METADATA", False)
+                    config, section, cpr.RIO_METADATA, False)
                 self.rio_idnum = get_config_parameter(
-                    config, section, "RIO_IDNUM", int, None)
+                    config, section, cpr.RIO_IDNUM, int, None)
                 self.rio_uploading_user = get_config_parameter(
-                    config, section, "RIO_UPLOADING_USER", str, None)
+                    config, section, cpr.RIO_UPLOADING_USER, str, None)
                 self.rio_document_type = get_config_parameter(
-                    config, section, "RIO_DOCUMENT_TYPE", str, None)
+                    config, section, cpr.RIO_DOCUMENT_TYPE, str, None)
                 self.script_after_file_export = get_config_parameter(
-                    config, section, "SCRIPT_AFTER_FILE_EXPORT", str, None)
+                    config, section, cpr.SCRIPT_AFTER_FILE_EXPORT, str, None)
 
             self.check_valid()
 

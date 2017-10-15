@@ -55,6 +55,7 @@ TestMenu::TestMenu(CamcopsApp& app)
                  uifunc::iconFilename(uiconst::CBS_SPANNER)),
       m_player(nullptr)
 {
+    const QString spanner(uifunc::iconFilename(uiconst::CBS_SPANNER));
     m_items = {
         MenuItem(tr("User testing")).setLabelOnly(),
         MenuItem(
@@ -64,68 +65,83 @@ TestMenu::TestMenu(CamcopsApp& app)
         MenuItem(tr("Developer testing")).setLabelOnly(),
         MenuItem(
             tr("Test debug console"),
-            std::bind(&TestMenu::testDebugConsole, this)
+            std::bind(&TestMenu::testDebugConsole, this),
+            spanner
         ),
         MenuItem(
             tr("Test network (HTTP)"),
-            std::bind(&TestMenu::testHttp, this)
+            std::bind(&TestMenu::testHttp, this),
+            spanner
         ).setNotIfLocked(),
         MenuItem(
             tr("Test network (HTTPS/SSL)"),
-            std::bind(&TestMenu::testHttps, this)
+            std::bind(&TestMenu::testHttps, this),
+            spanner
         ).setNotIfLocked(),
 #ifdef DEBUG_OPTIONS
         MenuItem(
             tr("Test PHQ9 creation (nothing is saved)"),
-            std::bind(&TestMenu::testPhq9Creation, this)
+            std::bind(&TestMenu::testPhq9Creation, this),
+            spanner
         ).setNotIfLocked(),
         MenuItem(
             tr("Test ICD-10 code set creation (nothing is saved)"),
-            std::bind(&TestMenu::testIcd10CodeSetCreation, this)
+            std::bind(&TestMenu::testIcd10CodeSetCreation, this),
+            spanner
         ),
         MenuItem(
             tr("Test ICD-9-CM code set creation (nothing is saved)"),
-            std::bind(&TestMenu::testIcd9cmCodeSetCreation, this)
+            std::bind(&TestMenu::testIcd9cmCodeSetCreation, this),
+            spanner
         ),
 #endif
         MenuItem(
             tr("Test HTML display, and fullscreen display"),
             HtmlMenuItem("Example HTML: this window should be full-screen",
                          filefunc::taskHtmlFilename("ace3"),
-                         "", true)
+                         "", true),
+            spanner
         ),
         MenuItem(
             tr("Test progress dialog"),
-            std::bind(&TestMenu::testProgress, this)
+            std::bind(&TestMenu::testProgress, this),
+            spanner
         ),
         MenuItem(
             tr("Test wait dialog"),
-            std::bind(&TestMenu::testWait, this)
+            std::bind(&TestMenu::testWait, this),
+            spanner
         ),
         MenuItem(
             tr("Test scrolling message dialog"),
-            std::bind(&TestMenu::testScrollMessageBox, this)
+            std::bind(&TestMenu::testScrollMessageBox, this),
+            spanner
         ),
         MenuItem(
             tr("Test size formatter"),
-            std::bind(&TestMenu::testSizeFormatter, this)
+            std::bind(&TestMenu::testSizeFormatter, this),
+            spanner
         ),
         MenuItem(
             tr("Test conversions"),
-            std::bind(&TestMenu::testConversions, this)
+            std::bind(&TestMenu::testConversions, this),
+            spanner
         ),
         MenuItem(
             tr("Test Eigen functions"),
-            std::bind(&TestMenu::testEigenFunctions, this)
+            std::bind(&TestMenu::testEigenFunctions, this),
+            spanner
         ),
         MenuItem(
             tr("Test random number functions (and associated floating point "
                "assistance functions)"),
-            std::bind(&TestMenu::testRandom, this)
+            std::bind(&TestMenu::testRandom, this),
+            spanner
         ),
         MenuItem(
             tr("Test logistic regression, and the underlying generalized linear model (GLM)"),
-            std::bind(&TestMenu::testLogisticRegression, this)
+            std::bind(&TestMenu::testLogisticRegression, this),
+            spanner
         ),
         MAKE_MENU_MENU_ITEM(WidgetTestMenu, app),
         MAKE_TASK_MENU_ITEM(DemoQuestionnaire::DEMOQUESTIONNAIRE_TABLENAME, app),

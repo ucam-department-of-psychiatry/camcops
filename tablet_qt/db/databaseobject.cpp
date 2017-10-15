@@ -750,6 +750,7 @@ void DatabaseObject::deleteFromDatabase()
     const bool success = m_db.deleteFrom(m_tablename, where_self);
     if (success) {
         nullify();
+        m_app.setNeedsUpload(true);
     } else {
         qWarning() << "Failed to delete object with PK" << pk
                    << "from table" << m_tablename;

@@ -29,13 +29,16 @@ from sqlalchemy.orm import Query, relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
 
+from .cc_constants import DEVICE_NAME_FOR_SERVER
 from .cc_report import Report
 from .cc_unittest import unit_test_ignore
+from .cc_user import User
 from .cc_sqla_coltypes import (
     DeviceNameColType,
     SemanticVersionColType,
 )
 from .cc_sqlalchemy import Base
+from .cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
@@ -91,7 +94,7 @@ class Device(Base):
     )
     uploading_user = relationship("User", foreign_keys=[uploading_user_id])
     currently_preserving = Column(
-        "currently_preserving", Boolean,
+        "currently_preserving", Boolean, default=False,
         comment="Preservation currently in progress"
     )
 
@@ -107,12 +110,26 @@ class Device(Base):
 
     @classmethod
     def get_device_by_id(cls, dbsession: SqlASession,
-                           device_id: int) -> Optional['Device']:
+                         device_id: int) -> Optional['Device']:
         if device_id is None:
             return None
         device = dbsession.query(cls)\
             .filter(cls.id == device_id)\
             .first()  # type: Optional[Device]
+        return device
+
+    @classmethod
+    def get_server_device(cls, req: "CamcopsRequest") -> "Device":
+        dbsession = req.dbsession
+        device = cls.get_device_by_name(dbsession, DEVICE_NAME_FOR_SERVER)
+        if device is None:
+            device = Device()
+            device.name = DEVICE_NAME_FOR_SERVER
+            device.friendly_name = "CamCOPS server"
+            device.registered_by_user = User.get_system_user(dbsession)
+            device.when_registered_utc = req.now_utc
+            device.camcops_version = CAMCOPS_SERVER_VERSION
+            dbsession.add(device)
         return device
 
     def get_friendly_name(self) -> str:
@@ -162,14 +179,16 @@ class DeviceReport(Report):
 
     def get_query(self, req: "CamcopsRequest") -> Query:
         dbsession = req.dbsession
-        query = dbsession.query(Device.id,
-                                Device.name,
-                                Device.registered_by_user_id,
-                                Device.when_registered_utc,
-                                Device.friendly_name,
-                                Device.camcops_version,
-                                Device.last_upload_batch_utc)\
+        query = (
+            dbsession.query(Device.id,
+                            Device.name,
+                            Device.registered_by_user_id,
+                            Device.when_registered_utc,
+                            Device.friendly_name,
+                            Device.camcops_version,
+                            Device.last_upload_batch_utc)
             .order_by(Device.id)
+        )
         return query
 
 

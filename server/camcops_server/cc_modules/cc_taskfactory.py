@@ -153,6 +153,9 @@ def task_factory(req: CamcopsRequest, basetable: str,
 # eager loading (lazy="joined") of patients from tasks.
 
 class FetchThread(Thread):
+    """
+    CURRENTLY UNUSED.
+    """
     def __init__(self,
                  req: CamcopsRequest,
                  task_class: Type[Task],

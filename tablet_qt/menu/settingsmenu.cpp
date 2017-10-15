@@ -87,6 +87,7 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
                 varconst::QUESTIONNAIRE_SIZE_PERCENT, true);
     m_ip_clinical_fr = m_app.storedVarFieldRef(
                 varconst::IP_USE_CLINICAL, false);
+    const QString spanner(uifunc::iconFilename(uiconst::CBS_SPANNER));
 
     // Safe object lifespan signal: can use std::bind
     m_items = {
@@ -149,36 +150,44 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
 #ifdef OFFER_VIEW_SQL
         MenuItem(
             tr("(†) View data database as SQL"),
-            std::bind(&SettingsMenu::viewDataDbAsSql, this)
+            std::bind(&SettingsMenu::viewDataDbAsSql, this),
+            spanner
         ).setNeedsPrivilege(),
         MenuItem(
             tr("(†) View system database as SQL"),
-            std::bind(&SettingsMenu::viewSystemDbAsSql, this)
+            std::bind(&SettingsMenu::viewSystemDbAsSql, this),
+            spanner
         ).setNeedsPrivilege(),
 #endif
         MenuItem(
             tr("(†) View record counts for all data tables"),
-            std::bind(&SettingsMenu::viewDataCounts, this)
+            std::bind(&SettingsMenu::viewDataCounts, this),
+            spanner
         ).setNeedsPrivilege(),
         MenuItem(
             tr("(†) View record counts for all system tables"),
-            std::bind(&SettingsMenu::viewSystemCounts, this)
+            std::bind(&SettingsMenu::viewSystemCounts, this),
+            spanner
         ).setNeedsPrivilege(),
         MenuItem(
             tr("(†) Send decrypted data database to debugging stream"),
-            std::bind(&SettingsMenu::debugDataDbAsSql, this)
+            std::bind(&SettingsMenu::debugDataDbAsSql, this),
+            spanner
         ).setNeedsPrivilege(),
         MenuItem(
             tr("(†) Send decrypted system database to debugging stream"),
-            std::bind(&SettingsMenu::debugSystemDbAsSql, this)
+            std::bind(&SettingsMenu::debugSystemDbAsSql, this),
+            spanner
         ).setNeedsPrivilege(),
         MenuItem(
             tr("(†) Dump decrypted data database to SQL file (not on iOS)"),
-            std::bind(&SettingsMenu::saveDataDbAsSql, this)
+            std::bind(&SettingsMenu::saveDataDbAsSql, this),
+            spanner
         ).setNeedsPrivilege().setUnsupported(platform::PLATFORM_IOS),
         MenuItem(
             tr("(†) Dump decrypted system database to SQL file (not on iOS)"),
-            std::bind(&SettingsMenu::saveSystemDbAsSql, this)
+            std::bind(&SettingsMenu::saveSystemDbAsSql, this),
+            spanner
         ).setNeedsPrivilege().setUnsupported(platform::PLATFORM_IOS),
     };
     connect(&m_app, &CamcopsApp::fontSizeChanged,

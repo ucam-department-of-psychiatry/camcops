@@ -65,6 +65,8 @@ def upgrade_database_to_head() -> None:
     import_all_models()  # delayed, for command-line interfaces
     upgrade_database(alembic_base_dir=ALEMBIC_BASE_DIR,
                      alembic_config_filename=ALEMBIC_CONFIG_FILENAME)
+    # ... will get its config information from the OS environment; see
+    # run_alembic() in alembic/env.py
 
 
 @preserve_cwd

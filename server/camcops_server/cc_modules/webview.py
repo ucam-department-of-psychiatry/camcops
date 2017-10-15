@@ -140,7 +140,7 @@ from pyramid.view import (
     view_config,
 )
 from pyramid.renderers import render_to_response
-from pyramid.response import Response
+from pyramid.response import FileResponse, Response
 from pyramid.security import Authenticated, NO_PERMISSION_REQUIRED
 import pygments
 import pygments.lexers
@@ -155,11 +155,13 @@ from sqlalchemy.sql.expression import (and_, column, desc, exists, not_, or_,
 
 from .cc_audit import audit, AuditEntry
 from .cc_all_models import CLIENT_TABLE_MAP
+from .cc_baseconstants import STATIC_ROOT_DIR
 from .cc_constants import (
     CAMCOPS_URL,
     DateFormat,
     ERA_NOW,
     MINIMUM_PASSWORD_LENGTH,
+    USER_NAME_FOR_SYSTEM,
 )
 from .cc_db import GenericTabletRecordMixin
 from .cc_device import Device
@@ -1800,7 +1802,11 @@ def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     dbsession = req.dbsession
-    q = dbsession.query(User).order_by(User.username)
+    q = (
+        dbsession.query(User)
+        .filter(User.username != USER_NAME_FOR_SYSTEM)
+        .order_by(User.username)
+    )
     if not req.user.superuser:
         # LOGIC SHOULD MATCH assert_may_edit_user
         # Restrict to users who are members of groups that I am an admin for:
@@ -1832,6 +1838,8 @@ def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
 
 def assert_may_edit_user(req: CamcopsRequest, user: User) -> None:
     # LOGIC SHOULD MATCH view_all_users
+    if user.username == USER_NAME_FOR_SYSTEM:
+        raise HTTPBadRequest("Nobody may edit the system user")
     if not req.user.superuser:
         if user.superuser:
             raise HTTPBadRequest("You may not edit a superuser")
@@ -2069,11 +2077,6 @@ def add_user(req: CamcopsRequest) -> Dict[str, Any]:
 def any_records_use_user(req: CamcopsRequest, user: User) -> bool:
     dbsession = req.dbsession
     user_id = user.id
-    # Our own or users filtering on us?
-    q = CountStarSpecializedQuery(CamcopsSession, session=dbsession)\
-        .filter(CamcopsSession.filter_user_id == user_id)
-    if q.count_star() > 0:
-        return True
     # Device?
     q = CountStarSpecializedQuery(Device, session=dbsession)\
         .filter(or_(Device.registered_by_user_id == user_id,
@@ -3049,6 +3052,24 @@ def forcibly_finalize(req: CamcopsRequest) -> Response:
              head_form_html=get_head_form_html(req, [form])),
         request=req
     )
+
+
+# =============================================================================
+# Static assets
+# =============================================================================
+# https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html#advanced-static  # noqa
+
+DEFORM_MISSING_GLYPH = os.path.join(STATIC_ROOT_DIR,
+                                    "glyphicons-halflings-regular.woff2")
+
+
+@view_config(route_name=Routes.BUGFIX_DEFORM_MISSING_GLYPHS,
+             permission=NO_PERMISSION_REQUIRED)
+def static_bugfix_deform_missing_glyphs(req: CamcopsRequest) -> Response:
+    """
+    Hack for a missing-file bug in deform==2.0.4:
+    """
+    return FileResponse(DEFORM_MISSING_GLYPH, request=req)
 
 
 # =============================================================================

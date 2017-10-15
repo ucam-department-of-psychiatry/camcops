@@ -705,7 +705,9 @@ void CamcopsApp::registerTasks()
     m_p_task_factory = TaskFactoryPtr(new TaskFactory(*this));
     InitTasks(*m_p_task_factory);  // ensures all tasks are registered
     m_p_task_factory->finishRegistration();
-    qInfo() << "Registered tasks:" << m_p_task_factory->tablenames();
+    const QStringList tablenames = m_p_task_factory->tablenames();
+    qInfo().nospace() << "Registered tasks (n = " << tablenames.length()
+                      << "): " << tablenames;
 }
 
 

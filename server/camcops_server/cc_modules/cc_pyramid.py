@@ -98,16 +98,6 @@ class CookieKey:
     SESSION_TOKEN = 'session_token'
 
 
-class Dialect(object):
-    MYSQL = "mysql"
-    MSSQL = "mssql"
-    ORACLE = "oracle"
-    FIREBIRD = "firebird"
-    POSTGRES = "postgres"
-    SQLITE = "sqlite"
-    SYBASE = "sybase"
-
-
 class FormAction(object):
     CANCEL = 'cancel'
     CLEAR_FILTERS = 'clear_filters'
@@ -441,6 +431,7 @@ class Routes(object):
     ADD_SPECIAL_NOTE = "add_special_note"
     ADD_USER = "add_user"
     BASIC_DUMP = "basic_dump"
+    BUGFIX_DEFORM_MISSING_GLYPHS = "bugfix_deform_missing_glyphs"
     CHANGE_OWN_PASSWORD = "change_own_password"
     CHANGE_OTHER_PASSWORD = "change_other_password"
     CHOOSE_CTV = "choose_ctv"
@@ -545,6 +536,10 @@ class RouteCollection(object):
     ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE, "/add_special_note")
     ADD_USER = RoutePath(Routes.ADD_USER, "/add_user")
     BASIC_DUMP = RoutePath(Routes.BASIC_DUMP, "/basic_dump")
+    BUGFIX_DEFORM_MISSING_GLYPHS = RoutePath(
+        Routes.BUGFIX_DEFORM_MISSING_GLYPHS,
+        "/deform_static/fonts/glyphicons-halflings-regular.woff2"
+    )
     CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD,
                                     '/change_own_password')
     CHANGE_OTHER_PASSWORD = RoutePath(

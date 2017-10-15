@@ -92,7 +92,8 @@ const QString& sampleText(bool long_text)
 
 
 WidgetTestMenu::WidgetTestMenu(CamcopsApp& app) :
-    MenuWindow(app, tr("Widget tests"), "")
+    MenuWindow(app, tr("Widget tests"),
+               uifunc::iconFilename(uiconst::CBS_SPANNER))
 
 {
     const bool qutext_bold = false;

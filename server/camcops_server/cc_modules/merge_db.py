@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_patientidnum import (
     fake_tablet_id_for_patientidnum,
     PatientIdNum,
 )
-from camcops_server.cc_modules.cc_request import command_line_request
+from camcops_server.cc_modules.cc_request import get_command_line_request
 from camcops_server.cc_modules.cc_session import CamcopsSession
 from camcops_server.cc_modules.cc_serversettings import (
     server_stored_var_table_defunct,
@@ -634,7 +634,7 @@ def merge_camcops_db(src: str,
     Merge an existing database (with a pre-v2 or later) structure into a
     comtemporary CamCOPS database.
     """
-    req = command_line_request()
+    req = get_command_line_request()
     src_engine = create_engine(src, echo=echo, pool_pre_ping=True)
     log.info("SOURCE: " + get_safe_url_from_engine(src_engine))
     log.info("DESTINATION: " + get_safe_url_from_engine(req.engine))

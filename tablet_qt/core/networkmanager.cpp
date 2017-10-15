@@ -1672,7 +1672,7 @@ void NetworkManager::wipeTables()
 {
     DbNestableTransaction trans(m_db);
 
-    // Plain wipes
+    // Plain wipes, of entire tables
     for (const QString& wipe_table : m_upload_tables_to_wipe) {
         // Note: m_upload_tables_to_wipe will contain the patient table if
         // we're moving everything; see catalogueTablesForUpload()
@@ -1684,23 +1684,28 @@ void NetworkManager::wipeTables()
         }
     }
 
-    if (!m_upload_patient_ids_to_move_off.isEmpty()) {
-        statusMessage(tr("Wiping specifically requested patients"));
-        WhereConditions where;
-        where.add(dbconst::MOVE_OFF_TABLET_FIELDNAME, 1);
-        // Selective wipes: tasks
-        if (m_upload_method == UploadMethod::Copy) {
-            for (const QString& tablename : m_p_task_factory->allTablenames()) {
-                if (m_upload_tables_to_wipe.contains(tablename)) {
-                    continue;  // already wiped
-                }
-                m_db.deleteFrom(tablename, where);
+    // Selective wipes: tasks, patients, ancillary tables...
+    // - We wipe: (a) records in tasks whose patient record was marked for
+    //   moving (and whose _move_off_tablet field was propagated through to the
+    //   task, as above); (b) any anonymous tasks specifically marked for
+    //   moving; (c) any ancillary tasks of the above.
+    // - The simplest way is to go through ALL tables (task + ancillary +
+    //   patient + patient ID...) and delete records for which
+    //   "_move_off_tablet" is set (skipping any tables we've already wiped
+    //   completely, for speed).
+    if (m_upload_method != UploadMethod::Move) {
+        // ... if we were doing a Move, *everything* has gone
+        statusMessage(tr("Wiping any specifically requested patients and/or anonymous tasks"));
+        WhereConditions where_move_off;
+        where_move_off.add(dbconst::MOVE_OFF_TABLET_FIELDNAME, 1);
+
+        const QStringList all_tables = m_db.getAllTables();
+        for (const QString& tablename : all_tables) {
+            if (m_upload_tables_to_wipe.contains(tablename)) {
+                continue;  // Already totally wiped
             }
+            m_db.deleteFrom(tablename, where_move_off);
         }
-        // Selective wipes: patients
-        m_db.deleteFrom(Patient::TABLENAME, where);
-        // Selective wipes: patient ID numbers
-        m_db.deleteFrom(PatientIdNum::PATIENT_IDNUM_TABLENAME, where);
     }
 }
 

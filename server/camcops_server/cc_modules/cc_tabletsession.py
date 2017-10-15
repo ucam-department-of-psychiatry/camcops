@@ -30,7 +30,7 @@ from cardinal_pythonlib.reprfunc import simple_repr
 from pyramid.exceptions import HTTPBadRequest
 
 from .cc_client_api_core import fail_user_error, TabletParam
-from .cc_constants import DEVICE_NAME_FOR_SERVER
+from .cc_constants import DEVICE_NAME_FOR_SERVER, USER_NAME_FOR_SYSTEM
 from .cc_device import Device
 from .cc_pyramid import RequestMethod
 from .cc_user import User
@@ -49,7 +49,7 @@ if TYPE_CHECKING:
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 INVALID_USERNAME_PASSWORD = "Invalid username/password"
-NO_UPLOAD_GROUP_SET = "No upload group set for user"
+NO_UPLOAD_GROUP_SET = "No upload group set for user "
 
 
 class TabletSession(object):
@@ -78,6 +78,9 @@ class TabletSession(object):
         if self.device_name == DEVICE_NAME_FOR_SERVER:
             fail_user_error("Tablets cannot use the device name {!r}".format(
                 DEVICE_NAME_FOR_SERVER))
+        if self.username == USER_NAME_FOR_SYSTEM:
+            fail_user_error("Tablets cannot use the username {!r}".format(
+                USER_NAME_FOR_SYSTEM))
 
         # Look up device and user
         dbsession = req.dbsession
@@ -153,7 +156,7 @@ class TabletSession(object):
         if not user:
             fail_user_error(INVALID_USERNAME_PASSWORD)
         if user.upload_group_id is None:
-            fail_user_error(NO_UPLOAD_GROUP_SET)
+            fail_user_error(NO_UPLOAD_GROUP_SET + user.username)
         if not user.may_upload:
             fail_user_error("User not authorized to upload to selected group")
         # Username/password combination found and is valid. Now check device.
@@ -168,7 +171,7 @@ class TabletSession(object):
         if not user:
             fail_user_error(INVALID_USERNAME_PASSWORD)
         if user.upload_group_id is None:
-            fail_user_error(NO_UPLOAD_GROUP_SET)
+            fail_user_error(NO_UPLOAD_GROUP_SET + user.username)
         if not user.may_register_devices:
             fail_user_error("User not authorized to register devices for "
                             "selected group")

@@ -1,3 +1,9 @@
+camcops (2.1.0) all; urgency=low
+
+  * Major changes, including...
+  * SQLAlchemy for database connections
+  * Group concept
+
 camcops (1.50) all; urgency=low
 
   * Change _device VARCHAR(255) fields to _device_id INT.

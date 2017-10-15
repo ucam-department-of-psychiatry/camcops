@@ -147,12 +147,21 @@ def ensure_valid_field_name(table: Table, fieldname: str) -> None:
     ... 2017-10-08: shortcut: it's OK if it's a column name for a particular
     table.
     """
-    if fieldname in RESERVED_FIELDS:
-        fail_user_error("Reserved field name for table {!r}: {!r}".format(
-            table.name, fieldname))
+    # if fieldname in RESERVED_FIELDS:
+    if fieldname.startswith("_"):  # all reserved fields start with _
+        # ... but not all fields starting with "_" are reserved; e.g.
+        # "_move_off_tablet" is allowed.
+        if fieldname in RESERVED_FIELDS:
+            fail_user_error("Reserved field name for table {!r}: {!r}".format(
+                table.name, fieldname))
     if fieldname not in table.columns.keys():
         fail_user_error("Invalid field name for table {!r}: {!r}".format(
             table.name, fieldname))
+    # Note that the reserved-field check is case-sensitive, but so is the
+    # "present in table" check. So for a malicious uploader trying to use, for
+    # example, "_PK", this would not be picked up as a reserved field (so would
+    # pass that check) but then wouldn't be recognized as a valid field (so
+    # would fail).
 
 
 # =============================================================================

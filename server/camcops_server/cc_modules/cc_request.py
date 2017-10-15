@@ -22,9 +22,10 @@
 ===============================================================================
 """
 
+from contextlib import contextmanager
 import logging
 import os
-from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Dict, Generator, List, Optional, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import (
     coerce_to_date,
@@ -220,29 +221,42 @@ class CamcopsRequest(Request):
         session = self.get_bare_dbsession()
 
         def end_sqlalchemy_session(req: Request) -> None:
-            # Do NOT roll back "if req.exception is not None"; that includes
-            # all sorts of exceptions like HTTPFound, HTTPForbidden, etc.
-            # See also
-            # - https://docs.pylonsproject.org/projects/pyramid_cookbook/en/latest/pylons/exceptions.html  # noqa
-            # But they are neatly subclasses of HTTPException, and isinstance()
-            # deals with None, so:
-            if (req.exception is not None and
-                    not isinstance(req.exception, HTTPException)):
-                log.critical(
-                    "Request raised exception that wasn't an HTTPException; "
-                    "rolling back; exception was: {!r}", req.exception)
-                session.rollback()
-            else:
-                if DEBUG_DBSESSION_MANAGEMENT:
-                    log.debug("Committing to database")
-                session.commit()
-            if DEBUG_DBSESSION_MANAGEMENT:
-                log.debug("Closing SQLAlchemy session")
-            session.close()
+            # noinspection PyProtectedMember
+            req._finish_dbsession()
 
+        # - For command-line pseudo-requests, add_finished_callback is no use,
+        #   because that's called by the Pyramid routing framework.
+        # - So how do we autocommit a command-line session?
+        # - Hooking into CamcopsRequest.__del__ did not work: called, yes, but
+        #   object state (e.g. newly inserted User objects) went wrong (e.g.
+        #   the objects had been blanked somehow, or that's what the INSERT
+        #   statements looked like).
+        # - Use a context manager instead; see below.
         self.add_finished_callback(end_sqlalchemy_session)
 
         return session
+
+    def _finish_dbsession(self) -> None:
+        # Do NOT roll back "if req.exception is not None"; that includes
+        # all sorts of exceptions like HTTPFound, HTTPForbidden, etc.
+        # See also
+        # - https://docs.pylonsproject.org/projects/pyramid_cookbook/en/latest/pylons/exceptions.html  # noqa
+        # But they are neatly subclasses of HTTPException, and isinstance()
+        # deals with None, so:
+        session = self.dbsession
+        if (self.exception is not None and
+                not isinstance(self.exception, HTTPException)):
+            log.critical(
+                "Request raised exception that wasn't an HTTPException; "
+                "rolling back; exception was: {!r}", self.exception)
+            session.rollback()
+        else:
+            if DEBUG_DBSESSION_MANAGEMENT:
+                log.debug("Committing to database")
+            session.commit()
+        if DEBUG_DBSESSION_MANAGEMENT:
+            log.debug("Closing SQLAlchemy session")
+        session.close()
 
     def get_bare_dbsession(self) -> SqlASession:
         if DEBUG_DBSESSION_MANAGEMENT:
@@ -335,17 +349,14 @@ class CamcopsRequest(Request):
 
     @property
     def url_camcops_favicon(self) -> str:
-        # *** check/revise ***
         return STATIC_URL_PREFIX + "favicon_camcops.png"
 
     @property
     def url_camcops_logo(self) -> str:
-        # *** check/revise ***
         return STATIC_URL_PREFIX + "logo_camcops.png"
 
     @property
     def url_local_logo(self) -> str:
-        # *** check/revise ***
         return STATIC_URL_PREFIX + "logo_local.png"
 
     # -------------------------------------------------------------------------
@@ -742,7 +753,7 @@ def complete_request_add_cookies(req: CamcopsRequest, response: Response):
     # which will be called immediately after this one.
 
 
-def command_line_request() -> CamcopsRequest:
+def get_command_line_request() -> CamcopsRequest:
     """
     Creates a dummy CamcopsRequest for use on the command line.
     Presupposes that os.environ[ENVVAR_CONFIG_FILE] has been set, as it is
@@ -754,8 +765,9 @@ def command_line_request() -> CamcopsRequest:
         ENVVAR_CONFIG_FILE: os.environ[ENVVAR_CONFIG_FILE],
     }
     req = CamcopsRequest(environ=os_env_dict)
-    # ... must pass an actual dict; os.environ itself isn't OK ("TypeError:
-    # WSGI environ must be a dict; you passed environ({'key1': 'value1', ...})
+    # ... must pass an actual dict to the "environ" parameter; os.environ
+    # itself isn't OK ("TypeError: WSGI environ must be a dict; you passed
+    # environ({'key1': 'value1', ...})
 
     registry = Registry()
 
@@ -769,3 +781,18 @@ def command_line_request() -> CamcopsRequest:
     assert_database_is_at_head(req.config)
 
     return req
+
+
+@contextmanager
+def command_line_request_context() -> Generator[CamcopsRequest, None, None]:
+    """
+    Request objects are ubiquitous, and allow code to refer to the HTTP
+    request, config, HTTP session, database session, and so on. Here we make
+    a special sort of request for use from the command line, and provide it
+    as a context manager that will COMMIT the database afterwards (because the
+    normal method, via the Pyramid router, is unavailable).
+    """
+    req = get_command_line_request()
+    yield req
+    # noinspection PyProtectedMember
+    req._finish_dbsession()

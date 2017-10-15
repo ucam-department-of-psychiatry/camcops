@@ -43,6 +43,7 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from .cc_audit import audit
+from .cc_constants import USER_NAME_FOR_SYSTEM
 from .cc_group import Group
 from .cc_membership import UserGroupMembership
 from .cc_sqla_coltypes import (
@@ -361,16 +362,10 @@ class User(Base):
     @classmethod
     def get_user_by_name(cls,
                          dbsession: SqlASession,
-                         username: str,
-                         create_if_not_exists: bool = False) \
-            -> Optional['User']:
+                         username: str) -> Optional['User']:
         if not username:
             return None
-        user = dbsession.query(cls).filter(cls.username == username).first()
-        if user is None and create_if_not_exists:
-            user = cls(username=username)
-            dbsession.add(user)
-        return user
+        return dbsession.query(cls).filter(cls.username == username).first()
 
     @classmethod
     def user_exists(cls, req: "CamcopsRequest", username: str) -> bool:
@@ -383,16 +378,18 @@ class User(Base):
     def create_superuser(cls, req: "CamcopsRequest", username: str,
                          password: str) -> bool:
         assert username, "Can't create superuser with no name"
+        assert username != USER_NAME_FOR_SYSTEM, (
+            "Can't create user with name {!r}".format(USER_NAME_FOR_SYSTEM))
         dbsession = req.dbsession
-        user = cls.get_user_by_name(dbsession, username, False)
+        user = cls.get_user_by_name(dbsession, username)
         if user:
             # already exists!
             return False
-        user = cls.get_user_by_name(dbsession, username, True)  # now create
-
+        user = cls(username=username)  # does work!
         user.superuser = True
-        user.set_password(req, password)
         audit(req, "SUPERUSER CREATED: " + user.username, from_console=True)
+        user.set_password(req, password)  # will audit
+        dbsession.add(user)
         return True
 
     @classmethod
@@ -427,6 +424,16 @@ class User(Base):
             return None
         if not user.is_password_valid(password):
             return None
+        return user
+
+    @classmethod
+    def get_system_user(cls, dbsession: SqlASession) -> "User":
+        user = cls.get_user_by_name(dbsession, USER_NAME_FOR_SYSTEM)
+        if not user:
+            user = cls(username=USER_NAME_FOR_SYSTEM)
+            dbsession.add(user)
+        user.fullname = "CamCOPS system user"
+        user.superuser = True
         return user
 
     @staticmethod

@@ -101,12 +101,17 @@ from deform.widget import (
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 # We use some delayed imports here (search for "delayed import")
-from .cc_constants import DEFAULT_ROWS_PER_PAGE, MINIMUM_PASSWORD_LENGTH
+from .cc_constants import (
+    DEFAULT_ROWS_PER_PAGE,
+    MINIMUM_PASSWORD_LENGTH,
+    USER_NAME_FOR_SYSTEM,
+)
 from .cc_group import Group
 from .cc_patient import Patient
 from .cc_patientidnum import IdNumDefinition, PatientIdNum
 from .cc_policy import TokenizedPolicy
-from .cc_pyramid import Dialect, FormAction, ViewArg, ViewParam
+from .cc_pyramid import FormAction, ViewArg, ViewParam
+from .cc_sqlalchemy import Dialect
 from .cc_sqla_coltypes import (
     DATABASE_TITLE_MAX_LEN,
     FILTER_TEXT_MAX_LEN,
@@ -276,23 +281,6 @@ class AddCancelForm(InformativeForm):
         )
 
 
-class DeleteCancelForm(InformativeForm):
-    def __init__(self,
-                 schema_class: Type[Schema],
-                 request: "CamcopsRequest",
-                 **kwargs):
-        schema = schema_class().bind(request=request)
-        super().__init__(
-            schema,
-            buttons=[
-                Button(name=FormAction.DELETE, title="Delete",
-                       css_class="btn-danger"),
-                Button(name=FormAction.CANCEL, title="Cancel"),
-            ],
-            **kwargs
-        )
-
-
 class DangerousForm(DynamicDescriptionsForm):
     def __init__(self,
                  schema_class: Type[Schema],
@@ -308,6 +296,20 @@ class DangerousForm(DynamicDescriptionsForm):
                        css_class="btn-danger"),
                 Button(name=FormAction.CANCEL, title="Cancel"),
             ],
+            **kwargs
+        )
+
+
+class DeleteCancelForm(DangerousForm):
+    def __init__(self,
+                 schema_class: Type[Schema],
+                 request: "CamcopsRequest",
+                 **kwargs):
+        super().__init__(
+            schema_class=schema_class,
+            submit_action=FormAction.DELETE,
+            submit_title="Delete",
+            request=request,
             **kwargs
         )
 
@@ -655,7 +657,13 @@ class DumpTypeSelector(SchemaNode):
 class UsernameNode(SchemaNode):
     schema_type = String
     title = "Username"
-    validator = Length(1, USERNAME_MAX_LEN)
+    _length_validator = Length(1, USERNAME_MAX_LEN)
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        if value == USER_NAME_FOR_SYSTEM:
+            raise Invalid(node, "Cannot use system username {!r}".format(
+                USER_NAME_FOR_SYSTEM))
+        self._length_validator(node, value)
 
 
 class MustChangePasswordNode(SchemaNode):
@@ -1555,6 +1563,7 @@ class SetUserUploadGroupForm(InformativeForm):
 
 class DeleteUserSchema(HardWorkConfirmationSchema):
     user_id = HiddenIntegerNode()  # name must match ViewParam.USER_ID
+    danger = ValidateDangerousOperationNode()
 
 
 class DeleteUserForm(DeleteCancelForm):
@@ -1637,6 +1646,7 @@ class AddGroupForm(AddCancelForm):
 
 class DeleteGroupSchema(HardWorkConfirmationSchema):
     group_id = HiddenIntegerNode()  # name must match ViewParam.GROUP_ID
+    danger = ValidateDangerousOperationNode()
 
 
 class DeleteGroupForm(DeleteCancelForm):
@@ -1942,8 +1952,8 @@ class ForciblyFinalizeConfirmForm(DangerousForm):
 
 class SchemaTests(unittest.TestCase):
     def setUp(self) -> None:
-        from .cc_request import command_line_request
-        self.req = command_line_request()
+        from .cc_request import get_command_line_request
+        self.req = get_command_line_request()
 
     def tearDown(self) -> None:
         pass

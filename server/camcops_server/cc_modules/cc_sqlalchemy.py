@@ -161,6 +161,24 @@ def log_all_ddl(dialect_name: str = "mysql") -> None:
 
 
 # =============================================================================
+# Dialects known to SQLAlchemy
+# =============================================================================
+
+class Dialect(object):
+    MYSQL = "mysql"
+    MSSQL = "mssql"
+    ORACLE = "oracle"
+    FIREBIRD = "firebird"
+    POSTGRES = "postgres"
+    SQLITE = "sqlite"
+    SYBASE = "sybase"
+
+
+ALL_DIALECTS = [getattr(Dialect, k)
+                for k in dir(Dialect) if not k.startswith("_")]
+
+
+# =============================================================================
 # Database engine hacks
 # =============================================================================
 

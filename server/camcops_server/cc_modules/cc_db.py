@@ -292,7 +292,7 @@ class GenericTabletRecordMixin(object):
         "_addition_pending",
         "_removal_pending",
         "_group_id",
-    ]
+    ]  # but more generally: they start with "_"...
 
     # -------------------------------------------------------------------------
     # Fields that *all* client tables have:
