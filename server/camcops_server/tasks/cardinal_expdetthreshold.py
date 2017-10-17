@@ -26,7 +26,6 @@ import math
 from typing import List, Optional
 
 from cardinal_pythonlib.maths_numpy import inv_logistic, logistic
-import cardinal_pythonlib.plot as rnc_plot
 import cardinal_pythonlib.rnc_web as ws
 import numpy as np
 from sqlalchemy.sql.schema import Column

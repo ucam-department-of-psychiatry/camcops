@@ -23,7 +23,7 @@
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Set, Tuple, Type
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -44,17 +44,17 @@ from .cc_patientidnum import PatientIdNum
 from .cc_pdf import pdf_from_html
 from .cc_pyramid import ViewArg, ViewParam
 from .cc_request import CamcopsRequest
-from .cc_simpleobjects import IdNumReference
 from .cc_task import Task
 from .cc_taskfactory import (
     TaskCollection,
     TaskFilter,
     TaskSortMethod,
 )
-from .cc_taskfilter import TaskClassSortMethod
 from .cc_trackerhelpers import TrackerInfo
 from .cc_unittest import unit_test_ignore
 from .cc_xml import get_xml_document, XmlDataTypes, XmlElement
+
+import matplotlib.dates  # delayed until after the cc_plot import
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

@@ -33,7 +33,6 @@ from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, get_yes_no_unknown, tr
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
     Task,
@@ -104,8 +103,7 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
     MAX_DISTRESS = 5 * NQUESTIONS
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="n_endorsed", coltype=Integer(),
                 value=self.n_endorsed(),

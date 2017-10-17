@@ -120,7 +120,6 @@ from .cc_simpleobjects import IdNumReference
 from .cc_version import make_version
 
 if TYPE_CHECKING:
-    from sqlalchemy.orm.state import InstanceState
     from .cc_db import GenericTabletRecordMixin
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -175,6 +174,21 @@ ICD9_CODE_MAX_LEN = 6  # longest is "xxx.xx"; thus, 6; see
 ICD10_CODE_MAX_LEN = 7  # longest is e.g. "F00.000"; "F10.202"; thus, 7
 
 DIAGNOSTIC_CODE_MAX_LEN = max(ICD9_CODE_MAX_LEN, ICD10_CODE_MAX_LEN)
+
+HL7_AA_MAX_LEN = 20
+# ... the AA appears in Table 4.6 "Extended composite ID", p46-47 of
+#     hl7guide-1-4-2012-08.pdf
+# ... but is defined in Table 4.9 "Entity Identifier", p50, in which:
+#     - component 2 is the Assigning Authority (see component 1)
+#     - component 2 is also a Namespace ID with a length of 20
+# ... and multiple other examples of an Assigning Authority being one example
+#     of a Namespace ID
+# ... and examples are in Table 0363 (p229 of the PDF), which are all 3-char.
+# ... and several other examples of "Namespace ID" being of length 1..20
+#     meaning 1-20.
+HL7_ID_TYPE_MAX_LEN = 5
+# ... Table 4.6 "Extended composite ID", p46-47 of hl7guide-1-4-2012-08.pdf
+# ... and Table 0203 "Identifier type", p204 of that PDF, in Appendix B
 
 ID_DESCRIPTOR_MAX_LEN = 255  # our choice
 ID_POLICY_MAX_LEN = 255  # our choice
@@ -247,6 +261,8 @@ HashedPasswordColType = String(length=HASHED_PW_MAX_LEN,
                                collation='utf8mb4_bin')
 # NOTE that we must ensure case-SENSITIVE comparison on this field.
 # See further notes in cc_sqlalchemy.py
+HL7AssigningAuthorityType = String(length=HL7_AA_MAX_LEN)
+HL7IdTypeType = String(length=HL7_ID_TYPE_MAX_LEN)
 HostnameColType = String(length=HOSTNAME_MAX_LEN)
 
 IdDescriptorColType = Unicode(length=ID_DESCRIPTOR_MAX_LEN)
@@ -529,8 +545,8 @@ class IdNumReferenceListColType(TypeDecorator):
             intlist = [int(numstr) for numstr in dbstr.split(",")]
         except (AttributeError, TypeError, ValueError):
             return []
-        l = len(intlist)
-        if l == 0 or l % 2 != 0:  # enforce pairs
+        length = len(intlist)
+        if length == 0 or length % 2 != 0:  # enforce pairs
             return []
         for which_idnum, idnum_value in chunks(intlist, n=2):
             if which_idnum < 0 or idnum_value < 0:  # enforce positive integers

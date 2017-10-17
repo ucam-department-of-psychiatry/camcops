@@ -75,7 +75,9 @@ class AbstractSatisfaction(object):
     TASK_FIELDS = ["service", "rating", "good", "bad"]
 
     def is_complete(self) -> bool:
+        # noinspection PyUnresolvedReferences
         return self.rating is not None and self.field_contents_valid()
+        # ... self.field_contents_valid() is from Task, and we are a mixin
 
     def get_rating_text(self, req: CamcopsRequest) -> Optional[str]:
         ratingdict = {
@@ -97,6 +99,7 @@ class AbstractSatisfaction(object):
             r = "{}. {}".format(self.rating, self.get_rating_text(req))
         else:
             r = None
+        # noinspection PyUnresolvedReferences
         h = """
             <div class="summary">
                 <table class="summary">
@@ -109,6 +112,7 @@ class AbstractSatisfaction(object):
                     <th width="50%">Answer</th>
                 </tr>
         """
+        # ... self.get_is_complete_tr() is from Task, and we are a mixin
         h += tr_qa(req.wappstring("satis_service_being_rated"), self.service)
         h += tr_qa("{} {}?".format(rating_q, self.service), r)
         h += tr_qa(good_q, self.good)

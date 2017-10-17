@@ -42,7 +42,6 @@ import cardinal_pythonlib.rnc_web as ws
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
-import pendulum
 from pendulum import Date, Pendulum
 from pendulum.parsing.exceptions import ParserError
 from pyramid.decorator import reify
@@ -66,12 +65,15 @@ from .cc_constants import (
     DateFormat,
     DEFAULT_PLOT_DPI,
     LOCAL_LOGO_FILE_WEBREF,
-    STATIC_URL_PREFIX,
     USE_SVG_IN_HTML,
 )
-from .cc_patientidnum import get_idnum_definitions, IdNumDefinition
+from .cc_idnumdef import get_idnum_definitions, IdNumDefinition
 from .cc_plot import ccplot_no_op
-from .cc_pyramid import CookieKey, get_session_factory
+from .cc_pyramid import (
+    CookieKey,
+    get_session_factory,
+    STATIC_PYRAMID_PACKAGE_PATH,
+)
 from .cc_serversettings import (
     get_database_title,
     get_server_settings,
@@ -302,7 +304,7 @@ class CamcopsRequest(Request):
         (Reified, so a request only ever has one time.)
         Exposed as a property.
         """
-        return pendulum.now()
+        return Pendulum.now()
 
     @reify
     def now_utc(self) -> Pendulum:
@@ -349,15 +351,19 @@ class CamcopsRequest(Request):
 
     @property
     def url_camcops_favicon(self) -> str:
-        return STATIC_URL_PREFIX + "favicon_camcops.png"
+        # Cope with reverse proxies, etc.
+        # https://docs.pylonsproject.org/projects/pyramid/en/latest/api/request.html#pyramid.request.Request.static_url  # noqa
+        return self.static_url(STATIC_PYRAMID_PACKAGE_PATH +
+                               "favicon_camcops.png")
 
     @property
     def url_camcops_logo(self) -> str:
-        return STATIC_URL_PREFIX + "logo_camcops.png"
+        return self.static_url(STATIC_PYRAMID_PACKAGE_PATH +
+                               "logo_camcops.png")
 
     @property
     def url_local_logo(self) -> str:
-        return STATIC_URL_PREFIX + "logo_local.png"
+        return self.static_url(STATIC_PYRAMID_PACKAGE_PATH + "logo_local.png")
 
     # -------------------------------------------------------------------------
     # Low-level HTTP information
@@ -699,6 +705,11 @@ class CamcopsRequest(Request):
     def valid_which_idnums(self) -> List[int]:
         return [iddef.which_idnum for iddef in self.idnum_definitions]
         # ... pre-sorted
+
+    def get_idnum_definition(self,
+                             which_idnum: int) -> Optional[IdNumDefinition]:
+        return next((iddef for iddef in self.idnum_definitions
+                     if iddef.which_idnum == which_idnum), None)
 
     def get_id_desc(self, which_idnum: int,
                     default: str = None) -> Optional[str]:

@@ -43,7 +43,6 @@ from ..cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     PermittedValueChecker,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
     Task,
@@ -154,8 +153,7 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="total_score",
                 coltype=Integer(),

@@ -22,42 +22,70 @@
 ===============================================================================
 """
 
+import logging
 import os
 from typing import List, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import format_datetime, get_now_localtz
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 from pendulum import Date, Pendulum
 
-from .cc_constants import (
-    DateFormat,
-    FP_ID_NUM_DEFUNCT,
-    FP_ID_SHORT_DESC_DEFUNCT,
-)
+from .cc_constants import DateFormat
 
 if TYPE_CHECKING:
     from .cc_patientidnum import PatientIdNum
     from .cc_request import CamcopsRequest
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
 # Ancillary functions for export filenames
 # =============================================================================
 
+class FileType(object):
+    HTML = "html"
+    PDF = "pdf"
+    XML = "xml"
+
+
+class PatientSpecElementForFilename(object):
+    SURNAME = "surname"
+    FORENAME = "forename"
+    DOB = "dob"
+    SEX = "sex"
+    ALLIDNUMS = "allidnums"
+    IDSHORTDESC_PREFIX = "idshortdesc"  # special
+    IDNUM_PREFIX = "idnum"  # special
+
+
+class FilenameSpecElement(object):
+    PATIENT = "patient"
+    CREATED = "created"
+    NOW = "now"
+    TASKTYPE = "tasktype"
+    SERVERPK = "serverpk"
+    FILETYPE = "filetype"
+    ANONYMOUS = "anonymous"
+    # ... plus all those from PatientSpecElementForFilename
+
+
 def patient_spec_for_filename_is_valid(patient_spec: str,
                                        valid_which_idnums: List[int]) -> bool:
     """Returns True if the patient_spec appears valid; otherwise False."""
-    testdict = dict(
-        surname="surname",
-        forename="forename",
-        dob="dob",
-        sex="sex",
-        allidnums="allidnums",
-    )
+    pse = PatientSpecElementForFilename
+    testdict = {
+        pse.SURNAME: "surname",
+        pse.FORENAME: "forename",
+        pse.DOB: "dob",
+        pse.SEX: "sex",
+        pse.ALLIDNUMS: "allidnums",
+    }
     for n in valid_which_idnums:
         nstr = str(n)
-        testdict[FP_ID_SHORT_DESC_DEFUNCT + nstr] = FP_ID_SHORT_DESC_DEFUNCT + nstr
-        testdict[FP_ID_NUM_DEFUNCT + nstr] = FP_ID_NUM_DEFUNCT + nstr
+        testdict[pse.IDSHORTDESC_PREFIX + nstr] = pse.IDSHORTDESC_PREFIX + nstr
+        testdict[pse.IDNUM_PREFIX + nstr] = pse.IDNUM_PREFIX + nstr
     # noinspection PyBroadException
     try:
         # Legal substitutions only?
@@ -70,26 +98,28 @@ def patient_spec_for_filename_is_valid(patient_spec: str,
 def filename_spec_is_valid(filename_spec: str,
                            valid_which_idnums: List[int]) -> bool:
     """Returns True if the filename_spec appears valid; otherwise False."""
-    testdict = dict(
+    pse = PatientSpecElementForFilename
+    fse = FilenameSpecElement
+    testdict = {
         # As above:
-        surname="surname",
-        forename="forename",
-        dob="dob",
-        sex="sex",
-        allidnums="allidnums",
+        pse.SURNAME: "surname",
+        pse.FORENAME: "forename",
+        pse.DOB: "dob",
+        pse.SEX: "sex",
+        pse.ALLIDNUMS: "allidnums",
         # Plus:
-        patient="patient",
-        created="created",
-        now="now",
-        tasktype="tasktype",
-        serverpk="serverpk",
-        filetype="filetype",
-        anonymous="anonymous",
-    )
+        fse.PATIENT: "patient",
+        fse.CREATED: "created",
+        fse.NOW: "now",
+        fse.TASKTYPE: "tasktype",
+        fse.SERVERPK: "serverpk",
+        fse.FILETYPE: "filetype",
+        fse.ANONYMOUS: "anonymous",
+    }
     for n in valid_which_idnums:
         nstr = str(n)
-        testdict[FP_ID_SHORT_DESC_DEFUNCT + nstr] = FP_ID_SHORT_DESC_DEFUNCT + nstr
-        testdict[FP_ID_NUM_DEFUNCT + nstr] = FP_ID_NUM_DEFUNCT + nstr
+        testdict[pse.IDSHORTDESC_PREFIX + nstr] = pse.IDSHORTDESC_PREFIX + nstr
+        testdict[pse.IDNUM_PREFIX + nstr] = pse.IDNUM_PREFIX + nstr
     # noinspection PyBroadException
     try:
         # Legal substitutions only?
@@ -97,6 +127,9 @@ def filename_spec_is_valid(filename_spec: str,
         return True
     except:  # duff filename_spec; details unimportant
         return False
+
+
+FORMAT_FAIL_EXCEPTIONS = (IndexError, KeyError)
 
 
 def get_export_filename(req: "CamcopsRequest",
@@ -115,40 +148,51 @@ def get_export_filename(req: "CamcopsRequest",
                         serverpk: int = None) -> str:
     """Get filename, for file exports/transfers."""
     idnum_objects = idnum_objects or []  # type: List['PatientIdNum']
-    d = dict(
-        surname=surname or "",
-        forename=forename or "",
-        dob=(
+    pse = PatientSpecElementForFilename
+    fse = FilenameSpecElement
+    d = {
+        pse.SURNAME: surname or "",
+        pse.FORENAME: forename or "",
+        pse.DOB: (
             format_datetime(dob, DateFormat.FILENAME_DATE_ONLY, "")
             if dob else ""
         ),
-        sex=sex or "",
-    )
+        pse.SEX: sex or "",
+    }
     all_id_components = []
     for idobj in idnum_objects:
         if idobj.which_idnum is not None:
             nstr = str(idobj.which_idnum)
             has_num = idobj.idnum_value is not None
-            d[FP_ID_NUM_DEFUNCT + nstr] = str(idobj.idnum_value) if has_num else ""
-            d[FP_ID_SHORT_DESC_DEFUNCT + nstr] = idobj.short_description(req) or ""
+            d[pse.IDNUM_PREFIX + nstr] = str(idobj.idnum_value) if has_num else ""  # noqa
+            d[pse.IDSHORTDESC_PREFIX + nstr] = idobj.short_description(req) or ""  # noqa
             if has_num and idobj.short_description(req):
                 all_id_components.append(idobj.get_filename_component(req))
-    d["allidnums"] = "_".join(all_id_components)
+    d[pse.ALLIDNUMS] = "_".join(all_id_components)
     if is_anonymous:
         patient = patient_spec_if_anonymous
     else:
-        patient = str(patient_spec).format(**d)
-    d.update(dict(
-        patient=patient,
-        created=format_datetime(creation_datetime, DateFormat.FILENAME, ""),
-        now=format_datetime(get_now_localtz(), DateFormat.FILENAME),
-        tasktype=str(basetable or ""),
-        serverpk=str(serverpk or ""),
-        filetype=task_format.lower(),
-        anonymous=patient_spec_if_anonymous if is_anonymous else "",
-    ))
-    return convert_string_for_filename(
-        str(filename_spec).format(**d), allow_paths=True)
+        try:
+            patient = str(patient_spec).format(**d)
+        except FORMAT_FAIL_EXCEPTIONS:
+            log.warning("Bad patient_spec: {!r}", patient_spec)
+            patient = "invalid_patient_spec"
+    d.update({
+        fse.PATIENT: patient,
+        fse.CREATED: format_datetime(creation_datetime,
+                                     DateFormat.FILENAME, ""),
+        fse.NOW: format_datetime(get_now_localtz(), DateFormat.FILENAME),
+        fse.TASKTYPE: str(basetable or ""),
+        fse.SERVERPK: str(serverpk or ""),
+        fse.FILETYPE: task_format.lower(),
+        fse.ANONYMOUS: patient_spec_if_anonymous if is_anonymous else "",
+    })
+    try:
+        formatted = str(filename_spec).format(**d)
+    except FORMAT_FAIL_EXCEPTIONS:
+        log.warning("Bad filename_spec: {!r}", filename_spec)
+        formatted = "invalid_filename_spec"
+    return convert_string_for_filename(formatted, allow_paths=True)
 
 
 def convert_string_for_filename(s: str, allow_paths: bool = False) -> str:

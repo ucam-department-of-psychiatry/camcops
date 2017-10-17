@@ -33,7 +33,6 @@ from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, identity, tr, tr_span_col
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     ONE_TO_FIVE_CHECKER,
@@ -247,8 +246,7 @@ class Rand36(TaskHasPatientMixin, Task,
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="overall", coltype=Float(),
                 value=self.score_overall(),

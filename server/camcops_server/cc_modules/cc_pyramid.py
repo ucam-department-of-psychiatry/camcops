@@ -39,7 +39,6 @@ from pyramid.authentication import IAuthenticationPolicy
 from pyramid.authorization import IAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.interfaces import ILocation, ISession
-from pyramid.response import Response
 from pyramid.security import (
     Allowed,
     Denied,
@@ -65,7 +64,6 @@ from .cc_constants import DEFAULT_ROWS_PER_PAGE
 
 if TYPE_CHECKING:
     from pyramid.request import Request
-    from .cc_membership import UserGroupMembership
     from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -149,6 +147,8 @@ class ViewParam(object):
     GROUPADMIN = "groupadmin"
     GROUP_ID = "group_id"
     GROUP_IDS = "group_ids"
+    HL7_ID_TYPE = "hl7_id_type"
+    HL7_ASSIGNING_AUTHORITY = "hl7_assigning_authority"
     HL7_MSG_ID = "hl7_msg_id"
     HL7_RUN_ID = "hl7_run_id"
     ID_DEFINITIONS = "id_definitions"
@@ -432,6 +432,7 @@ class Routes(object):
     ADD_USER = "add_user"
     BASIC_DUMP = "basic_dump"
     BUGFIX_DEFORM_MISSING_GLYPHS = "bugfix_deform_missing_glyphs"
+    # ... test by visiting the Task Filters page
     CHANGE_OWN_PASSWORD = "change_own_password"
     CHANGE_OTHER_PASSWORD = "change_other_password"
     CHOOSE_CTV = "choose_ctv"
@@ -443,6 +444,7 @@ class Routes(object):
     DELETE_ID_DEFINITION = "delete_id_definition"
     DELETE_PATIENT = "delete_patient"
     DELETE_USER = "delete_user"
+    DEVELOPER = "developer"
     EDIT_GROUP = "edit_group"
     EDIT_ID_DEFINITION = "edit_id_definition"
     EDIT_PATIENT = "edit_patient"
@@ -511,6 +513,9 @@ class RoutePath(object):
 
 MASTER_ROUTE_WEBVIEW = "/"
 MASTER_ROUTE_CLIENT_API = "/database"
+STATIC_PYRAMID_PACKAGE_PATH = "camcops_server.static:"
+# ... the "static" package (directory with __init__.py) within the
+# "camcops_server" owning package
 
 
 class RouteCollection(object):
@@ -526,7 +531,7 @@ class RouteCollection(object):
     # Hard-coded special paths
     DEBUG_TOOLBAR = RoutePath('debug_toolbar', '/_debug_toolbar/',
                               ignore_in_all_routes=True)  # hard-coded path
-    STATIC = RoutePath(Routes.STATIC, "",  # path is ignored
+    STATIC = RoutePath(Routes.STATIC, "",  # path ignored
                        ignore_in_all_routes=True)
 
     # Implemented
@@ -560,6 +565,7 @@ class RouteCollection(object):
                                      "/delete_id_definition")
     DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT, "/delete_patient")
     DELETE_USER = RoutePath(Routes.DELETE_USER, "/delete_user")
+    DEVELOPER = RoutePath(Routes.DEVELOPER, "/developer")
     EDIT_GROUP = RoutePath(Routes.EDIT_GROUP, "/edit_group")
     EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION,
                                    '/edit_id_definitions')

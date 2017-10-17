@@ -32,7 +32,6 @@ from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import answer, identity, tr
 from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
@@ -104,8 +103,7 @@ class QolBasic(TaskHasPatientMixin, Task):
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="tto_qol", coltype=Float(),
                 value=self.get_tto_qol(),

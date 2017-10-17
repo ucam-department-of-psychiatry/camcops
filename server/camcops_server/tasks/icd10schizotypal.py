@@ -41,12 +41,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import (
-    BIT_CHECKER,
-    CamcopsColumn,
-    PendulumDateTimeAsIsoTextColType,
-)
-from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_sqla_coltypes import BIT_CHECKER, CamcopsColumn
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
     Task,
@@ -134,8 +129,7 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         return infolist
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(name="meets_criteria", coltype=Boolean(),
                            value=self.meets_criteria(),
                            comment="Meets criteria for schizotypal disorder?"),

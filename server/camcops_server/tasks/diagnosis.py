@@ -279,24 +279,21 @@ def get_diagnosis_report_query(req: CamcopsRequest,
         Patient.sex.label("sex"),
     ]
     select_from = Patient.__table__
-    # noinspection PyPep8
     select_from = select_from.join(diagnosis_class.__table__, and_(
         diagnosis_class.patient_id == Patient.id,
         diagnosis_class._device_id == Patient._device_id,
         diagnosis_class._era == Patient._era
-    ))
-    # noinspection PyPep8
+    ))  # nopep8
     select_from = select_from.join(item_class.__table__, and_(
         getattr(item_class, item_fk_fieldname) == diagnosis_class.id,
         item_class._device_id == diagnosis_class._device_id,
         item_class._era == diagnosis_class._era
-    ))
+    ))  # nopep8
     for iddef in req.idnum_definitions:
         n = iddef.which_idnum
         desc = iddef.short_description
         aliased_table = PatientIdNum.__table__.alias("i{}".format(n))
         select_fields.append(aliased_table.c.idnum_value.label(desc))
-        # noinspection PyPep8
         select_from = select_from.outerjoin(aliased_table, and_(
             aliased_table.c.patient_id == Patient.id,
             aliased_table.c._device_id == Patient._device_id,
@@ -304,22 +301,20 @@ def get_diagnosis_report_query(req: CamcopsRequest,
             # Note: the following are part of the JOIN, not the WHERE:
             # (or failure to match a row will wipe out the Patient from the
             # OUTER JOIN):
-            # noinspection PyPep8
             aliased_table.c._current == True,
             aliased_table.c.which_idnum == n,
-        ))
+        ))  # nopep8
     select_fields += [
         diagnosis_class.when_created.label("when_created"),
         literal(system).label("system"),
         item_class.code.label("code"),
         item_class.description.label("description"),
     ]
-    # noinspection PyPep8
     wheres = [
         Patient._current == True,
         diagnosis_class._current == True,
         item_class._current == True,
-    ]
+    ]  # nopep8
     if not req.user.superuser:
         # Restrict to accessible groups
         group_ids = req.user.ids_of_groups_user_may_report_on
@@ -355,6 +350,7 @@ class DiagnosisICD9CMReport(Report):
         return ("Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all "
                 "patients")
 
+    # noinspection PyMethodParameters
     @classproperty
     def superuser_only(cls) -> bool:
         return False
@@ -382,6 +378,7 @@ class DiagnosisICD10Report(Report):
     def title(cls) -> str:
         return "Diagnosis – ICD-10 diagnoses for all patients"
 
+    # noinspection PyMethodParameters
     @classproperty
     def superuser_only(cls) -> bool:
         return False
@@ -409,6 +406,7 @@ class DiagnosisAllReport(Report):
     def title(cls) -> str:
         return "Diagnosis – All diagnoses for all patients"
 
+    # noinspection PyMethodParameters
     @classproperty
     def superuser_only(cls) -> bool:
         return False

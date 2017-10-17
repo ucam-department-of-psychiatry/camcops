@@ -34,16 +34,25 @@ class TabletParam(object):
     Keys used by server or client (S server, C client, B bidirectional)
     """
     CAMCOPS_VERSION = "camcops_version"  # C->S
+    DATABASE_TITLE = "databaseTitle"  # S->C
     DATEVALUES = "datevalues"  # C->S
     DEVICE = "device"  # C->S
+    DEVICE_FRIENDLY_NAME = "devicefriendlyname"  # C->S
     ERROR = "error"   # S->C
     FIELDS = "fields"  # B
+    ID_DESCRIPTION_PREFIX = "idDescription"  # S->C
+    ID_POLICY_FINALIZE = "idPolicyFinalize"  # S->C
+    ID_POLICY_UPLOAD = "idPolicyUpload"  # S->C
+    ID_SHORT_DESCRIPTION_PREFIX = "idShortDescription"  # S->C
+    NFIELDS = "nfields"  # B
     NRECORDS = "nrecords"  # B
     OPERATION = "operation"  # C->S
     PASSWORD = "password"  # C->S
     PKNAME = "pkname"  # C->S
     PKVALUES = "pkvalues"  # C->S
+    RECORD_PREFIX = "record"  # B
     RESULT = "result"   # S->C
+    SERVER_CAMCOPS_VERSION = "serverCamcopsVersion"  # S->C
     SESSION_ID = "session_id"   # B
     SESSION_TOKEN = "session_token"   # B
     SUCCESS = "success"   # S->C
@@ -56,21 +65,6 @@ class TabletParam(object):
     # WHERENOTFIELDS = "wherenotfields"
     # WHERENOTVALUES = "wherenotvalues"
     # WHEREVALUES = "wherevalues"
-
-    DATABASE_TITLE = "databaseTitle"  # S->C
-    DEVICE_FRIENDLY_NAME = "devicefriendlyname"  # C->S
-    ID_POLICY_UPLOAD = "idPolicyUpload"  # S->C
-    ID_POLICY_FINALIZE = "idPolicyFinalize"  # S->C
-    SERVER_CAMCOPS_VERSION = "serverCamcopsVersion"  # S->C
-    ID_DESCRIPTION_PREFIX = "idDescription"  # S->C
-    ID_SHORT_DESCRIPTION_PREFIX = "idShortDescription"  # S->C
-
-    NFIELDS = "nfields"  # B
-    RESULT = "result"  # S->C
-    RECORD_PREFIX = "record"  # B
-
-# const QString KEYSPEC_ID_DESCRIPTION(KEYPREFIX_ID_DESCRIPTION + "%1");  // S->C
-# const QString KEYSPEC_ID_SHORT_DESCRIPTION(KEYPREFIX_ID_SHORT_DESCRIPTION + "%1");  // S->C
 
 
 class ExtraStringFieldNames(object):

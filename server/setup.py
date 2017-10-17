@@ -39,15 +39,20 @@ To install in development mode:
 # http://jtushman.github.io/blog/2013/06/17/sharing-code-across-applications-with-python/  # noqa
 
 import argparse
-from setuptools import setup, find_packages
-# from codecs import open
+import fnmatch
 import os
+from pprint import pformat
+from setuptools import setup, find_packages
 import shutil
+import subprocess
 import sys
 from typing import List
 
 from camcops_server.cc_modules.cc_baseconstants import (
+    DOCS_DIR,
     INTROSPECTABLE_EXTENSIONS,
+    MANUAL_FILENAME_ODT,
+    MANUAL_FILENAME_PDF,
     TABLET_SOURCE_COPY_DIR,
 )
 from camcops_server.cc_modules.cc_version_string import (
@@ -104,9 +109,16 @@ def delete_empty_directories(root_dir: str, verbose: bool = False) -> None:
             deltree(dir_, verbose=verbose)
 
 
-def add_all_files(root_dir: str, filelist: List[str],
-                  absolute: bool = False, include_n_parents: int = 0,
-                  verbose: bool = False) -> None:
+SKIP_PATTERNS = ['*.pyc', '~*']
+
+
+def add_all_files(root_dir: str,
+                  filelist: List[str],
+                  absolute: bool = False,
+                  include_n_parents: int = 0,
+                  verbose: bool = False,
+                  skip_patterns: List[str] = None) -> None:
+    skip_patterns = skip_patterns or SKIP_PATTERNS
     if absolute:
         base_dir = root_dir
     else:
@@ -118,7 +130,13 @@ def add_all_files(root_dir: str, filelist: List[str],
         else:
             final_dir = os.path.relpath(dir_, base_dir)
         for filename in files:
+            _, ext = os.path.splitext(filename)
             final_filename = os.path.join(final_dir, filename)
+            if any(fnmatch.fnmatch(final_filename, pattern)
+                   for pattern in skip_patterns):
+                if verbose:
+                    print("Skipping: {}".format(final_filename))
+                continue
             if verbose:
                 print("Adding: {}".format(final_filename))
             filelist.append(final_filename)
@@ -177,22 +195,30 @@ if getattr(our_args, EXTRAS_ARG):
 
     for d in required_dirs:
         if not os.path.isdir(d):
-            print("You have used the --{} argument, but {} is missing. "
-                  "That argument is only for use in development, to create a "
-                  "Python package.".format(repr(EXTRAS_ARG), repr(d)))
+            print("You have used the --{} argument, but directory {!r} is "
+                  "missing. That argument is only for use in development, to "
+                  "create a Python package.".format(EXTRAS_ARG, d))
             sys.exit(1)
+
+    print("Converting manual ({!r}) to PDF ({!r})".format(
+        MANUAL_FILENAME_ODT, MANUAL_FILENAME_PDF))
+    os.remove(MANUAL_FILENAME_PDF)  # don't delete the wrong one (again...)
+    subprocess.check_call([
+        "soffice",
+        "--convert-to", "pdf:writer_pdf_Export",
+        "--outdir", DOCS_DIR,
+        MANUAL_FILENAME_ODT
+    ])  # this is pretty nippy!
+    assert os.path.exists(MANUAL_FILENAME_PDF)
 
     dst_tablet = TABLET_SOURCE_COPY_DIR
     print("Creating copy of tablet source files in {}".format(dst_tablet))
 
-    # dst_tablet_ti = os.path.join(dst_tablet, 'tablet_titanium')
     dst_tablet_qt = os.path.join(dst_tablet, 'tablet_qt')
 
     deltree(dst_tablet)
     mkdir_p(dst_tablet)
-    # deltree(dst_tablet_ti)
     deltree(dst_tablet_qt)
-    # shutil.copytree(src=src_tablet_ti, dst=dst_tablet_ti, copy_function=copier)  # noqa
     # noinspection PyArgumentList
     shutil.copytree(src=src_tablet_qt, dst=dst_tablet_qt, copy_function=copier)
     delete_empty_directories(dst_tablet)
@@ -202,19 +228,22 @@ if getattr(our_args, EXTRAS_ARG):
 
     camcops_server_dir = os.path.join(here, 'camcops_server')
 
-    add_all_files(os.path.join(camcops_server_dir, 'static'),
-                  EXTRA_FILES, absolute=False, include_n_parents=1)
-    # add_all_files(os.path.join(camcops_server_dir, 'extra_strings'),
-    #               EXTRA_FILES, absolute=False, include_n_parents=1)
-    EXTRA_FILES.append('alembic.ini')  # *** check this works
+    EXTRA_FILES.append('alembic.ini')
     add_all_files(os.path.join(camcops_server_dir, 'alembic'),
+                  EXTRA_FILES, absolute=False, include_n_parents=1)
+    add_all_files(os.path.join(camcops_server_dir, 'docs'),
+                  EXTRA_FILES, absolute=False, include_n_parents=1)
+    add_all_files(os.path.join(camcops_server_dir, 'extra_strings'),
+                  EXTRA_FILES, absolute=False, include_n_parents=1)
+    add_all_files(os.path.join(camcops_server_dir, 'extra_string_templates'),
+                  EXTRA_FILES, absolute=False, include_n_parents=1)
+    add_all_files(os.path.join(camcops_server_dir, 'static'),
                   EXTRA_FILES, absolute=False, include_n_parents=1)
     add_all_files(os.path.join(camcops_server_dir, 'templates'),
                   EXTRA_FILES, absolute=False, include_n_parents=1)
 
     EXTRA_FILES.sort()
-
-    # print("EXTRA_FILES: {}".format(EXTRA_FILES))
+    print("EXTRA_FILES: \n{}".format(pformat(EXTRA_FILES)))
     # print("find_packages(): {}".format(find_packages()))
 
     MANIFEST_LINES = ['include camcops_server/' + x for x in EXTRA_FILES]
@@ -305,37 +334,38 @@ camcops_server
 
     install_requires=[
         # 'arrow==0.10.0',  # better datetime
-        'cardinal_pythonlib==1.0.2',  # RNC libraries
-        'colorlog==2.6.1',  # colour in logs
+        'cardinal_pythonlib==1.0.3',  # RNC libraries
+        'colorlog==3.1.0',  # colour in logs
+        'CherryPy==11.0.0',  # web server
         'deform==2.0.4',  # web forms
         # 'deform-bootstrap==0.2.9',  # deform with layout made easier
         'distro==1.0.4',  # detecting Linux distribution
         'dogpile.cache==0.6.4',  # web caching
-        'gunicorn==19.3.0',  # 'Internal' web server
-        'hl7==0.3.3',  # For HL7 export
+        # 'gunicorn==19.7.1',  # Alternative 'internal' web server
+        'hl7==0.3.4',  # For HL7 export
         'lockfile==0.12.2',  # File locking for background tasks
-        'matplotlib==2.0.2',  # Used for trackers and some tasks. SLOW INSTALLATION. Previously 1.5.0.  # noqa
-        'mysqlclient==1.3.10',  # for mysql+mysqldb://...
-        'numpy==1.13.1',  # Used by some tasks. SLOW INSTALLATION. Previously 1.10.2. ??? BEFORE MATPLOTLIB ??? See https://stackoverflow.com/questions/37515053  # noqa
+        'matplotlib==2.1.0',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
+        'mysqlclient==1.3.12',  # for mysql+mysqldb://...
+        'numpy==1.13.3',  # Used by some tasks. SLOW INSTALLATION.
         'paginate==0.5.6',  # pagination for web server
-        'pendulum==1.2.5',  # better than Arrow
-        'pdfkit==0.5.0',  # wkhtmltopdf interface, for PDF generation from HTML
+        'pendulum==1.3.0',  # better than Arrow
+        'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
         'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt
-        'Pygments==2.0.2',  # Syntax highlighting for introspection
-        'PyMySQL==0.7.1',  # One of the options for MySQL interfacing via rnc_db.py.  # noqa
-        'PyPDF2==1.25.1',  # Used by rnc_pdf.py
+        'Pygments==2.2.0',  # Syntax highlighting for introspection
+        'PyMySQL==0.7.1',  # for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may break Pendulum handling  # noqa
+        'PyPDF2==1.26.0',  # Used by rnc_pdf.py
         'pyramid==1.9.1',  # web framework
         'pyramid_debugtoolbar==4.3',  # debugging for Pyramid
-        'python-dateutil==2.4.2',  # Date/time extensions.
-        'pytz==2015.7',  # Timezone definitions, specifically UTC.
-        'scipy==0.16.1',  # Used by some tasks. SLOW INSTALLATION.
-        'semantic_version>=2.6.0',  # semantic versioning; better than semver
+        'python-dateutil==2.6.1',  # Date/time extensions.
+        'pytz==2017.2',  # Timezone definitions, specifically UTC.
+        'scipy==1.0.0rc1',  # Used by some tasks. SLOW INSTALLATION.
+        'semantic_version==2.6.0',  # semantic versioning; better than semver
         'sqlalchemy==1.2.0b2',  # database access
         # 'SQLAlchemy-Utils==0.32.16',  # extra column types
-        'typing==3.5.2.2',  # part of stdlib in Python 3.5, but not 3.4
-        'Wand==0.4.2',  # ImageMagick for Python; used e.g. for BLOB PNG display; may need "sudo apt-get install libmagickwand-dev"  # noqa
+        'typing==3.6.2',  # part of stdlib in Python 3.5, but not 3.4
+        'Wand==0.4.4',  # ImageMagick for Python; used e.g. for BLOB PNG display; may need "sudo apt-get install libmagickwand-dev"  # noqa
         # Incompatible with Python 3.5; use paginate instead # 'WebHelpers==1.3',  # e.g. paginator and other tools for Pyramid  # noqa
-        'Werkzeug==0.11.3',  # Profiling middleware
+        # 'Werkzeug==0.11.3',  # Profiling middleware
     ],
 
     entry_points={

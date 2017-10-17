@@ -31,7 +31,6 @@ from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
     Task,
@@ -79,7 +78,7 @@ class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         return [CtvInfo(content="GAF score {}".format(self.total_score()))]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [self.is_complete_summary_field()]
+        return self.standard_task_summary_fields()
 
     def total_score(self) -> Optional[int]:
         if self.score == 0:

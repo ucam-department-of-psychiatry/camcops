@@ -22,7 +22,7 @@
 ===============================================================================
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, Tuple, Type
 
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
@@ -37,7 +37,6 @@ from ..cc_modules.cc_sqla_coltypes import (
     PendulumDateTimeAsIsoTextColType,
     DiagnosticCodeColType,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import Task
 
 

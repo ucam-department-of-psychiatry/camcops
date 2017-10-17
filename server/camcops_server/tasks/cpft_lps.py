@@ -773,21 +773,19 @@ class LPSReportReferredNotDischarged(Report):
             i1.c.idnum_value.label(desc),
             CPFTLPSReferral.patient_location,
         ]
-        # noinspection PyPep8
         select_from = p1.join(CPFTLPSReferral.__table__, and_(
             p1.c._current == True,
             CPFTLPSReferral.patient_id == p1.c.id,
             CPFTLPSReferral._device_id == p1.c._device_id,
             CPFTLPSReferral._era == p1.c._era,
             CPFTLPSReferral._current == True,
-        ))
-        # noinspection PyPep8
+        ))  # nopep8
         select_from = select_from.join(i1, and_(
             i1.c.patient_id == p1.c.id,
             i1.c._device_id == p1.c._device_id,
             i1.c._era == p1.c._era,
             i1.c._current == True,
-        ))
+        ))  # nopep8
         wheres = [
             i1.c.which_idnum == which_idnum,
         ]
@@ -798,8 +796,8 @@ class LPSReportReferredNotDischarged(Report):
         # Step 2: not yet discharged
         p2 = Patient.__table__.alias("p2")
         i2 = PatientIdNum.__table__.alias("i2")
-        # noinspection PyPep8
-        discharge = select(['*'])\
+        discharge = (
+            select(['*'])
             .select_from(
                 p2.join(CPFTLPSDischarge.__table__, and_(
                     p2.c._current == True,
@@ -813,7 +811,7 @@ class LPSReportReferredNotDischarged(Report):
                     i2.c._era == p2.c._era,
                     i2.c._current == True,
                 ))
-            )\
+            )
             .where(and_(
                 # Link on ID to main query: same patient
                 i2.c.which_idnum == which_idnum,
@@ -822,6 +820,7 @@ class LPSReportReferredNotDischarged(Report):
                 (CPFTLPSDischarge.discharge_date >=
                  CPFTLPSReferral.referral_date_time),
             ))
+        )  # nopep8
         if not req.user.superuser:
             # Restrict to accessible groups
             discharge = discharge.where(
@@ -885,21 +884,19 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
             i1.c.idnum_value.label(desc),
             CPFTLPSReferral.patient_location,
         ]
-        # noinspection PyPep8
         select_from = p1.join(CPFTLPSReferral.__table__, and_(
             p1.c._current == True,
             CPFTLPSReferral.patient_id == p1.c.id,
             CPFTLPSReferral._device_id == p1.c._device_id,
             CPFTLPSReferral._era == p1.c._era,
             CPFTLPSReferral._current == True,
-        ))
-        # noinspection PyPep8
+        ))  # nopep8
         select_from = select_from.join(i1, and_(
             i1.c.patient_id == p1.c.id,
             i1.c._device_id == p1.c._device_id,
             i1.c._era == p1.c._era,
             i1.c._current == True,
-        ))
+        ))  # nopep8
         wheres = [
             i1.c.which_idnum == which_idnum,
         ]
@@ -910,8 +907,8 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         # Step 2: not yet discharged
         p2 = Patient.__table__.alias("p2")
         i2 = PatientIdNum.__table__.alias("i2")
-        # noinspection PyPep8
-        discharge = select(['*'])\
+        discharge = (
+            select(['*'])
             .select_from(
                 p2.join(CPFTLPSDischarge.__table__, and_(
                     p2.c._current == True,
@@ -925,7 +922,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
                     i2.c._era == p2.c._era,
                     i2.c._current == True,
                 ))
-            )\
+            )
             .where(and_(
                 # Link on ID to main query: same patient
                 i2.c.which_idnum == which_idnum,
@@ -934,6 +931,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
                 (CPFTLPSDischarge.discharge_date >=
                  CPFTLPSReferral.referral_date_time),
             ))
+        )  # nopep8
         if not req.user.superuser:
             # Restrict to accessible groups
             discharge = discharge.where(
@@ -943,33 +941,34 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         # Step 3: not yet clerked
         p3 = Patient.__table__.alias("p3")
         i3 = PatientIdNum.__table__.alias("i3")
-        # noinspection PyPep8
-        clerking = select(['*']) \
+        clerking = (
+            select(['*'])
             .select_from(
-            p3.join(PsychiatricClerking.__table__, and_(
-                p3.c._current == True,
-                PsychiatricClerking.patient_id == p3.c.id,
-                PsychiatricClerking._device_id == p3.c._device_id,
-                PsychiatricClerking._era == p3.c._era,
-                PsychiatricClerking._current == True,
-            )).join(i3, and_(
-                i3.c.patient_id == p3.c.id,
-                i3.c._device_id == p3.c._device_id,
-                i3.c._era == p3.c._era,
-                i3.c._current == True,
+                p3.join(PsychiatricClerking.__table__, and_(
+                    p3.c._current == True,
+                    PsychiatricClerking.patient_id == p3.c.id,
+                    PsychiatricClerking._device_id == p3.c._device_id,
+                    PsychiatricClerking._era == p3.c._era,
+                    PsychiatricClerking._current == True,
+                )).join(i3, and_(
+                    i3.c.patient_id == p3.c.id,
+                    i3.c._device_id == p3.c._device_id,
+                    i3.c._era == p3.c._era,
+                    i3.c._current == True,
+                ))
+            )
+            .where(and_(
+                # Link on ID to main query: same patient
+                i3.c.which_idnum == which_idnum,
+                i3.c.idnum_value == i1.c.idnum_value,
+                # Discharge later than referral
+                (PsychiatricClerking.when_created >=
+                 CPFTLPSReferral.referral_date_time),
             ))
-        ) \
-        .where(and_(
-            # Link on ID to main query: same patient
-            i3.c.which_idnum == which_idnum,
-            i3.c.idnum_value == i1.c.idnum_value,
-            # Discharge later than referral
-            (PsychiatricClerking.when_created >=
-             CPFTLPSReferral.referral_date_time),
-        ))
+        )  # nopep8
         if not req.user.superuser:
             # Restrict to accessible groups
-            discharge = discharge.where(
+            clerking = clerking.where(
                 PsychiatricClerking._group_id.in_(group_ids))
         wheres.append(~exists(clerking))
 
@@ -979,8 +978,10 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
             CPFTLPSReferral.referral_date_time,
             CPFTLPSReferral.referral_priority,
         ]
-        query = select(select_fields) \
-            .select_from(select_from) \
-            .where(and_(*wheres)) \
+        query = (
+            select(select_fields)
+            .select_from(select_from)
+            .where(and_(*wheres))
             .order_by(*order_by)
+        )
         return query

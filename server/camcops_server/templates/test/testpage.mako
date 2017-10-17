@@ -15,6 +15,9 @@
     Request (in str format) is:<br>
     <pre>${request | h}</pre><br>
 
+    request.environ (WSGI environment):<br>
+    <pre>${pprint.pformat(request.environ) | h}</pre>
+
     pageargs:<br>
     <pre>${pprint.pformat(pageargs) | h}</pre>
 

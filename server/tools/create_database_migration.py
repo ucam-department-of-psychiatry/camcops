@@ -22,13 +22,16 @@
 ===============================================================================
 """
 
-import argparse
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 import logging
-from os import pardir
+from os import environ, pardir
 from os.path import abspath, dirname, join
+import textwrap
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from cardinal_pythonlib.sqlalchemy.alembic_func import create_database_migration_numbered_style  # noqa
+
+from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +54,30 @@ def main() -> None:
     - https://bitbucket.org/zzzeek/alembic/issues/433/variant-base-not-taken-into-account-when
     - https://bitbucket.org/zzzeek/alembic/issues/131/create-special-rendering-for-variant
     """  # noqa
-    parser = argparse.ArgumentParser()
+    desc = (
+        "Create database revision. Note:\n"
+        "- The config used will be that from the environment variable {} "
+        "(currently {!r}).\n"
+        "- Alembic compares (a) the current state of the database to (b) "
+        "the state of the SQLAlchemy metadata.\n"
+        "- Accordingly, in the rare event of wanting to do a fresh start, you "
+        "need an *empty* database.\n"
+        "- More commonly, you want a database that is synced to a specific "
+        "Alembic version (with the correct structure, and the correct version "
+        "in the alembic_version table). If you have made manual changes, such "
+        "that the actual database structure doesn't match the structure that "
+        "Alembic expects based on that version, there's likely to be "
+        "trouble.\n".format(
+            ENVVAR_CONFIG_FILE,
+            environ.get(ENVVAR_CONFIG_FILE, None)
+        )
+    )
+    wrapped = "\n\n".join(
+        textwrap.fill(x, width=79, initial_indent='', subsequent_indent='  ')
+        for x in desc.splitlines()
+    )
+    parser = ArgumentParser(description=wrapped,
+                            formatter_class=RawDescriptionHelpFormatter)
     parser.add_argument("message", help="Revision message")
     args = parser.parse_args()
     create_database_migration_numbered_style(

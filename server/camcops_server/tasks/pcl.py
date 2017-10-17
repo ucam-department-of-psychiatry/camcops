@@ -22,7 +22,7 @@
 ===============================================================================
 """
 
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -39,7 +39,6 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
@@ -126,8 +125,7 @@ class PclCommon(TaskHasPatientMixin, Task,
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="total",
                 coltype=Integer(),

@@ -47,7 +47,6 @@ from ..cc_modules.cc_sqla_coltypes import (
     ZERO_TO_TWO_CHECKER,
     ZERO_TO_THREE_CHECKER,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
     Task,
@@ -189,8 +188,7 @@ class Ifs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         scoredict = self.get_score()
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="total",
                 coltype=Float(),

@@ -38,7 +38,7 @@ import collections
 import copy
 import logging
 import statistics
-from typing import (Any, Dict, Iterable, Generator, List, Optional, Sequence,
+from typing import (Any, Dict, Iterable, Generator, List, Optional,
                     Tuple, Type, Union)
 
 from cardinal_pythonlib.classes import (
@@ -50,10 +50,8 @@ from cardinal_pythonlib.datetimefunc import (
     get_now_utc,
     format_datetime,
 )
-from cardinal_pythonlib.lists import flatten_list
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.rnc_db import DatabaseSupporter, FIELDSPECLIST_TYPE
-import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_columns,
@@ -65,12 +63,11 @@ import hl7
 from pendulum import Date, Pendulum
 from pyramid.renderers import render
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship, Session as SqlASession
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import (and_, desc, func, literal, not_,
                                        select, update)
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.selectable import Select
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
 from .cc_anon import (
@@ -82,7 +79,6 @@ from .cc_audit import audit
 from .cc_blob import Blob, get_blob_img_html
 from .cc_cache import cache_region_static, fkg
 from .cc_constants import (
-    COMMENT_IS_COMPLETE,
     CRIS_CLUSTER_KEY_FIELDSPEC,
     CRIS_PATIENT_COMMENT_PREFIX,
     CRIS_SUMMARY_COMMENT_PREFIX,
@@ -91,7 +87,6 @@ from .cc_constants import (
     DateFormat,
     ERA_NOW,
     INVALID_VALUE,
-    PKNAME,
     TSV_PATIENT_FIELD_PREFIX,
 )
 from .cc_ctvinfo import CtvInfo
@@ -817,11 +812,22 @@ class Task(GenericTabletRecordMixin, Base):
                                                                basetable,
                                                                pkfieldname)
 
-    def is_complete_summary_field(self) -> SummaryElement:
-        return SummaryElement(name="is_complete",
-                              coltype=Boolean(),
-                              value=self.is_complete(),
-                              comment=COMMENT_IS_COMPLETE)
+    def standard_task_summary_fields(self) -> List[SummaryElement]:
+        return [
+            SummaryElement(
+                name="is_complete",
+                coltype=Boolean(),
+                value=self.is_complete(),
+                comment="(GENERIC) Task complete?"
+            ),
+            SummaryElement(
+                name="seconds_from_creation_to_first_finish",
+                coltype=Float(),
+                value=self.get_seconds_from_creation_to_first_finish(),
+                comment="(GENERIC) Time (in seconds) from record creation to "
+                         "first exit, if that was a finish not an abort",
+            ),
+        ]
 
     def get_summary_names(self, req: CamcopsRequest) -> List[str]:
         """
@@ -1013,11 +1019,12 @@ class Task(GenericTabletRecordMixin, Base):
         return idobj.idnum_value if idobj else None
 
     def get_patient_hl7_pid_segment(self,
+                                    req: CamcopsRequest,
                                     recipient_def: RecipientDefinition) \
             -> Union[hl7.Segment, str]:
         """Get patient HL7 PID segment, or ""."""
-        return (self.patient.get_hl7_pid_segment(recipient_def) if self.patient
-                else "")
+        return (self.patient.get_hl7_pid_segment(req, recipient_def)
+                if self.patient else "")
 
     # -------------------------------------------------------------------------
     # HL7
@@ -1346,6 +1353,7 @@ class Task(GenericTabletRecordMixin, Base):
         # 4. +/- Ancillary objects
         return [tsv_chunk] + self.get_extra_chunks_for_tsv(req)
 
+    # noinspection PyUnusedLocal
     def get_extra_chunks_for_tsv(self, req: CamcopsRequest) -> List[TsvChunk]:
         """
         Override for tasks with subtables to be encoded as separate files
@@ -1536,7 +1544,7 @@ class Task(GenericTabletRecordMixin, Base):
         elif include_patient:
             branches.append(XML_COMMENT_PATIENT)
             if self.patient:
-                branches.append(self.patient.get_xml_root(req))
+                branches.append(self.patient.get_xml_root())
         # BLOBs
         if include_blobs:
             branches.append(XML_COMMENT_BLOBS)
@@ -2039,77 +2047,8 @@ class Ancillary(object):
 
 
 # =============================================================================
-# Cross-class generators and the like
-# =============================================================================
-
-# *** remove this
-def gen_tasks_live_on_tablet(device_id: int) -> Generator[Task, None, None]:
-    """Generate tasks that are live on the device.
-    Includes non-current ones."""
-
-    cls_pk_wc = []
-    for cls in Task.all_subclasses():
-        table = cls.tablename
-        wcfield_utc = cls.whencreated_fieldexpr_as_utc()
-        query = """
-            SELECT  _pk, {wcfield_utc}
-            FROM    {t}
-            WHERE   _era = ?
-            AND     _device_id = ?
-        """.format(
-            wcfield_utc=wcfield_utc,
-            t=table,
-        )
-        args = [ERA_NOW, device_id]
-        pk_wc = pls.db.fetchall(query, *args)
-        cls_pk_wc.extend([(cls, row[0], row[1]) for row in pk_wc])
-    # Sort by when_created (conjointly across task classes)
-    cls_pk_wc = sorted(cls_pk_wc, key=second_item_or_min, reverse=True)
-    # Yield them up
-    for cls, pk, wc in cls_pk_wc:
-        task = cls(pk)
-        if task is not None:
-            yield task
-    # *** CHANGE THIS: inefficient; runs multiple queries where one would do
-
-
-# =============================================================================
-# Tables used by tasks suitable for HL-7 export (i.e. not anonymous ones)
-# =============================================================================
-
-def get_base_tables(include_anonymous: bool = True) -> List[str]:
-    """Get a list of all tasks' base tables."""
-    return [
-        cls.tablename
-        for cls in Task.all_subclasses_by_tablename()
-        if (not cls.is_anonymous or include_anonymous)
-    ]
-
-
-# =============================================================================
 # Support functions
 # =============================================================================
-
-def get_task_filter_dropdown(currently_selected: str = None) -> str:
-    """Iterates through all tasks, generating a drop-down list."""
-    taskoptions = []
-    for cls in Task.all_subclasses_by_shortname():
-        t = ws.webify(cls.tablename)
-        taskoptions.append({
-            "shortname": cls.shortname,
-            "html": """<option value="{t}"{sel}>{name}</option>""".format(
-                t=t,
-                name=ws.webify(cls.shortname),
-                sel=ws.option_selected(currently_selected, t),
-            )
-        })
-    return """
-        <select name="{}">
-            <option value="">(all)</option>
-    """.format(PARAM.TASK) + "".join(
-        [taskopt["html"] for taskopt in taskoptions]
-    ) + "</select>"
-
 
 def get_from_dict(d: Dict, key: str, default: Any = INVALID_VALUE) -> Any:
     """Returns a value from a dictionary."""
@@ -2133,6 +2072,7 @@ class TaskCountReport(Report):
     def title(cls) -> str:
         return "(Server) Count current task instances, by creation date"
 
+    # noinspection PyMethodParameters
     @classproperty
     def superuser_only(cls) -> bool:
         return False
@@ -2153,10 +2093,11 @@ class TaskCountReport(Report):
                 func.count().label("num_tasks_added"),
             ]
             select_from = cls.__table__
-            # noinspection PyPep8,PyProtectedMember
-            wheres = [cls._current == True]
+            # noinspection PyProtectedMember
+            wheres = [cls._current == True]  # nopep8
             if not superuser:
                 # Restrict to accessible groups
+                # noinspection PyProtectedMember
                 wheres.append(cls._group_id.in_(group_ids))
             group_by = ["year", "month"]
             order_by = [desc("year"), desc("month")]
@@ -2303,7 +2244,7 @@ def task_instance_unit_test(req: CamcopsRequest,
     # not make_summary_table
     # not make_standard_summary_table
     unit_test_ignore("Testing {}.is_complete_summary_field".format(name),
-                     instance.is_complete_summary_field)
+                     instance.standard_task_summary_fields)
     unit_test_ignore("Testing {}.get_summary_names".format(name),
                      instance.get_summary_names)
 

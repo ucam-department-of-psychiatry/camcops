@@ -569,8 +569,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return bool(self.finished)
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(name="final_score",
                            coltype=Integer(),
                            value=self.get_final_score()),

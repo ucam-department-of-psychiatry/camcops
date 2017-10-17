@@ -28,22 +28,19 @@
 # for gunicorn from the command line; I'm less clear about whether the disk
 # logs look polluted by ANSI codes; needs checking.
 import logging
-import urllib.parse
-
-from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction  # nopep8
-from cardinal_pythonlib.debugging import pdb_run
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
     print_report_on_all_logs,
     set_level_for_logger_and_its_handlers,
 )
-
 main_only_quicksetup_rootlogger(
     logging.INFO, with_process_id=True, with_thread_id=True
 )
 log = BraceStyleAdapter(logging.getLogger(__name__))
 log.info("CamCOPS starting")
+
+# Main imports
 
 from argparse import (
     ArgumentParser,
@@ -52,16 +49,24 @@ from argparse import (
 )  # nopep8
 import codecs  # nopep8
 import os  # nopep8
+# from pprint import pformat  # nopep8
 import sys  # nopep8
-from typing import Optional, TYPE_CHECKING  # nopep8
+from typing import Optional, List, TYPE_CHECKING  # nopep8
 
 import cherrypy  # nopep8
 from pyramid.config import Configurator  # nopep8
 from pyramid.router import Router  # nopep8
 from wsgiref.simple_server import make_server  # nopep8
 
-from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_session  # nopep8
+from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction  # nopep8
+from cardinal_pythonlib.debugging import pdb_run  # nopep8
+from cardinal_pythonlib.process import launch_external_file  # nopep8
 from cardinal_pythonlib.ui import ask_user, ask_user_password  # nopep8
+from cardinal_pythonlib.wsgi.constants import WsgiEnvVar  # nopep8
+from cardinal_pythonlib.wsgi.reverse_proxied_mw import (
+    ReverseProxiedConfig,
+    ReverseProxiedMiddleware,
+)  # nopep8
 
 # Import this one early:
 from .cc_modules.cc_all_models import all_models_no_op  # nopep8
@@ -70,14 +75,20 @@ from .cc_modules.cc_alembic import (
     create_database_from_scratch,
     upgrade_database_to_head,
 )  # nopep8
-from .cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE, STATIC_ROOT_DIR  # nopep8
+from .cc_modules.cc_baseconstants import (
+    ENVVAR_CONFIG_FILE,
+    MANUAL_FILENAME_PDF,
+)  # nopep8
 from .cc_modules.cc_config import (
     get_default_config_from_os_env,  # nopep8
+    get_demo_apache_config,
     get_demo_config,
+    get_demo_mysql_create_db,
+    get_demo_mysql_dump_script,
+    get_demo_supervisor_config,
 )
 from .cc_modules.cc_constants import (
     CAMCOPS_URL,
-    DEMO_SUPERVISORD_CONF,
     MINIMUM_PASSWORD_LENGTH,
     USER_NAME_FOR_SYSTEM,
 )  # nopep8
@@ -93,6 +104,7 @@ from .cc_modules.cc_pyramid import (
     get_session_factory,
     Permission,
     RouteCollection,
+    STATIC_PYRAMID_PACKAGE_PATH,
 )  # nopep8
 from .cc_modules.cc_policy import ccpolicy_unit_tests  # nopep8
 from .cc_modules.cc_report import ccreport_unit_tests  # nopep8
@@ -109,7 +121,7 @@ from .cc_modules.cc_user import ccuser_unit_tests  # nopep8
 from .cc_modules.cc_user import set_password_directly, User  # nopep8
 from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
 from .cc_modules.client_api import database_unit_tests  # nopep8
-from .cc_modules.merge_db import merge_camcops_db
+from .cc_modules.merge_db import merge_camcops_db  # nopep8
 
 all_models_no_op()
 log.debug("All imports complete")
@@ -155,7 +167,7 @@ DEFAULT_MAX_THREADS = 100
 # ... beware the default MySQL connection limit of 151;
 #     https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html
 DEFAULT_PORT = 8000
-DEFAULT_URL_PATH_ROOT = '/'  # TODO: from config file?
+URL_PATH_ROOT = '/'
 
 
 # =============================================================================
@@ -163,7 +175,8 @@ DEFAULT_URL_PATH_ROOT = '/'  # TODO: from config file?
 # =============================================================================
 
 def make_wsgi_app(debug_toolbar: bool = False,
-                  serve_static_files: bool = True) -> Router:
+                  reverse_proxied_config: ReverseProxiedConfig = None,
+                  debug_reverse_proxy: bool = False) -> Router:
     """
     Makes and returns a WSGI application, attaching all our special methods.
 
@@ -238,9 +251,15 @@ def make_wsgi_app(debug_toolbar: bool = False,
 
         # Add static views
         # https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html#serving-static-assets  # noqa
-        if serve_static_files:
-            config.add_static_view(name=RouteCollection.STATIC.route,
-                                   path=STATIC_ROOT_DIR)
+        # Hmm. We cannot fail to set up a static file route, because otherwise
+        # we can't provide URLs to them.
+        static_filepath = STATIC_PYRAMID_PACKAGE_PATH
+        static_name = RouteCollection.STATIC.route
+        log.debug("... including static files from {!r} at Pyramid static "
+                  "name {!r}", static_filepath, static_name)
+        # ... does the name needs to start with "/" or the pattern "static/"
+        # will override the later "deform_static"? Not sure.
+        config.add_static_view(name=static_name, path=static_filepath)
 
         # Add all the routes:
         for pr in RouteCollection.all_routes():
@@ -252,7 +271,7 @@ def make_wsgi_app(debug_toolbar: bool = False,
 
         # Routes added EARLIER have priority. So add this AFTER our custom
         # bugfix:
-        config.add_static_view('deform_static', 'deform:static/')
+        config.add_static_view('/deform_static', 'deform:static/')
 
         # Most views are using @view_config() which calls add_view().
         # Scan for @view_config decorators, to map views to routes:
@@ -287,7 +306,10 @@ def make_wsgi_app(debug_toolbar: bool = False,
     # -------------------------------------------------------------------------
     # 2. Middleware above the Pyramid level
     # -------------------------------------------------------------------------
-    # ...
+    if reverse_proxied_config and reverse_proxied_config.necessary():
+        app = ReverseProxiedMiddleware(app=app,
+                                       config=reverse_proxied_config,
+                                       debug=debug_reverse_proxy)
 
     # -------------------------------------------------------------------------
     # 3. Done
@@ -297,13 +319,17 @@ def make_wsgi_app(debug_toolbar: bool = False,
 
 
 def test_serve(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT,
-               debug_toolbar: bool = True,
-               serve_static_files: bool = True) -> None:
-    application = make_wsgi_app(debug_toolbar=debug_toolbar,
-                                serve_static_files=serve_static_files)
+               debug_toolbar: bool = True) -> None:
+    application = make_wsgi_app(debug_toolbar=debug_toolbar)
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}".format(host, port))
     server.serve_forever()
+
+
+def join_url_fragments(*fragments: str) -> str:
+    # urllib.parse.urljoin doesn't do what we want
+    newfrags = [f[1:] if f.startswith("/") else f for f in fragments]
+    return "/".join(newfrags)
 
 
 def start_server(host: str,
@@ -317,13 +343,39 @@ def start_server(host: str,
                  ssl_private_key: Optional[str],
                  root_path: str,
                  debug_toolbar: bool = False,
-                 serve_static_files: bool = True) -> None:
+                 trusted_proxy_headers: List[str] = None,
+                 proxy_http_host: str = None,
+                 proxy_remote_addr: str = None,
+                 proxy_script_name: str = None,
+                 proxy_server_port: int = None,
+                 proxy_server_name: str = None,
+                 proxy_url_scheme: str = None,
+                 proxy_rewrite_path_info: bool = False,
+                 debug_reverse_proxy: bool = False) -> None:
     """
     Start CherryPy server
     """
-    application = make_wsgi_app(debug_toolbar=debug_toolbar,
-                                serve_static_files=serve_static_files)
+    # Report on options
+    if unix_domain_socket_filename:
+        # If this is specified, it takes priority
+        log.info("Starting via UNIX domain socket at: {}",
+                 unix_domain_socket_filename)
+    else:
+        log.info("Starting on host: {}", host)
+        log.info("Starting on port: {}", port)
+    log.info("Within this web server instance, CamCOPS will be at: {}",
+             root_path)
+    log.info(
+        "... webview at: {}",
+        # urllib.parse.urljoin is useless for this
+        join_url_fragments(root_path, RouteCollection.HOME.path))
+    log.info(
+        "... tablet client API at: {}",
+        join_url_fragments(root_path, RouteCollection.CLIENT_API.path))
+    log.info("Thread pool starting size: {}", threads_start)
+    log.info("Thread pool max size: {}", threads_max)
 
+    # Set up CherryPy
     cherrypy.config.update({
         # See http://svn.cherrypy.org/trunk/cherrypy/_cpserver.py
         'server.socket_host': host,
@@ -341,23 +393,23 @@ def start_server(host: str,
             'server.ssl_private_key': ssl_private_key,
         })
 
-    if unix_domain_socket_filename:
-        # If this is specified, it takes priority
-        log.info("Starting via UNIX domain socket at: {}",
-                 unix_domain_socket_filename)
-    else:
-        log.info("Starting on host: {}", host)
-        log.info("Starting on port: {}", port)
-    log.info("CamCOPS will be at: {}", root_path)
-    log.info("... webview at: {}",
-             urllib.parse.urljoin(root_path, RouteCollection.HOME.path))
-    log.info("... tablet client API at: {}",
-             urllib.parse.urljoin(root_path, RouteCollection.CLIENT_API.path))
-    log.info("Thread pool starting size: {}", threads_start)
-    log.info("Thread pool max size: {}", threads_max)
-
+    # Create and mount WSGI application
+    reverse_proxied_config = ReverseProxiedConfig(
+        trusted_proxy_headers=trusted_proxy_headers,
+        http_host=proxy_http_host,
+        remote_addr=proxy_remote_addr,
+        script_name=proxy_script_name,
+        server_port=proxy_server_port,
+        server_name=proxy_server_name,
+        url_scheme=proxy_url_scheme,
+        rewrite_path_info=proxy_rewrite_path_info,
+    )
+    application = make_wsgi_app(debug_toolbar=debug_toolbar,
+                                reverse_proxied_config=reverse_proxied_config,
+                                debug_reverse_proxy=debug_reverse_proxy)
     cherrypy.tree.graft(application, root_path)
 
+    # Start server
     try:
         # log.debug("cherrypy.server.thread_pool: {}",
         #           cherrypy.server.thread_pool)
@@ -371,13 +423,28 @@ def start_server(host: str,
 # Command-line functions
 # =============================================================================
 
-def print_demo_config() -> None:
-    demo_config = get_demo_config()
-    print(demo_config)
+def launch_manual() -> None:
+    launch_external_file(MANUAL_FILENAME_PDF)
 
 
-def print_demo_supervisorconf() -> None:
-    print(DEMO_SUPERVISORD_CONF)
+def print_demo_camcops_config() -> None:
+    print(get_demo_config())
+
+
+def print_demo_supervisor_config() -> None:
+    print(get_demo_supervisor_config())
+
+
+def print_demo_apache_config() -> None:
+    print(get_demo_apache_config())
+
+
+def print_demo_mysql_create_db() -> None:
+    print(get_demo_mysql_create_db())
+
+
+def print_demo_mysql_dump_script() -> None:
+    print(get_demo_mysql_dump_script())
 
 
 def print_database_title() -> None:
@@ -619,6 +686,7 @@ def camcops_main() -> None:
 
     _reqnamed = 'required named arguments'
 
+    # noinspection PyShadowingBuiltins
     def add_sub(sp: "_SubParsersAction", cmd: str,
                 config_mandatory: Optional[bool] = False,
                 help: str = None,
@@ -634,7 +702,7 @@ def camcops_main() -> None:
             formatter_class=ArgumentDefaultsHelpFormatter
         )  # type: ArgumentParser
         subparser.add_argument(
-            '--verbose', action='count', default=0,
+            '-v', '--verbose', action='count', default=0,
             help="Be verbose")
         if give_config_wsgi_help:
             cfg_help = (
@@ -657,6 +725,7 @@ def camcops_main() -> None:
             subparser.add_argument("--config", help=cfg_help)
         return subparser
 
+    # noinspection PyShadowingBuiltins
     def add_req_named(sp: ArgumentParser, switch: str, help: str,
                       action: str = None) -> None:
         # noinspection PyProtectedMember
@@ -681,35 +750,60 @@ def camcops_main() -> None:
     # Getting started commands
     # -------------------------------------------------------------------------
 
+    docs_parser = add_sub(
+        subparsers, "docs", config_mandatory=None,
+        help="Launch the main documentation (CamCOPS manual)")
+    docs_parser.set_defaults(
+        func=lambda args: launch_manual())
+
     democonfig_parser = add_sub(
-        subparsers, "democonfig", config_mandatory=None,
+        subparsers, "demo_camcops_config", config_mandatory=None,
         help="Print a demo CamCOPS config file")
-    democonfig_parser.set_defaults(func=lambda args: print_demo_config())
+    democonfig_parser.set_defaults(
+        func=lambda args: print_demo_camcops_config())
 
     demosupervisorconf_parser = add_sub(
-        subparsers, "demosupervisorconf", config_mandatory=None,
+        subparsers, "demo_supervisor_config", config_mandatory=None,
         help="Print a demo 'supervisor' config file for CamCOPS")
     demosupervisorconf_parser.set_defaults(
-        func=lambda args: print_demo_supervisorconf())
+        func=lambda args: print_demo_supervisor_config())
+
+    demoapacheconf_parser = add_sub(
+        subparsers, "demo_apache_config", config_mandatory=None,
+        help="Print a demo Apache config file section for CamCOPS")
+    demoapacheconf_parser.set_defaults(
+        func=lambda args: print_demo_apache_config())
+
+    demo_mysql_create_db_parser = add_sub(
+        subparsers, "demo_mysql_create_db", config_mandatory=None,
+        help="Print demo instructions to create a MySQL database for CamCOPS")
+    demo_mysql_create_db_parser.set_defaults(
+        func=lambda args: print_demo_mysql_create_db())
+
+    demo_mysql_dump_script_parser = add_sub(
+        subparsers, "demo_mysql_dump_script", config_mandatory=None,
+        help="Print demo instructions to dump all current MySQL databases")
+    demo_mysql_dump_script_parser.set_defaults(
+        func=lambda args: print_demo_mysql_dump_script())
 
     # -------------------------------------------------------------------------
     # Database commands
     # -------------------------------------------------------------------------
 
     upgradedb_parser = add_sub(
-        subparsers, "upgradedb", config_mandatory=True,
+        subparsers, "upgrade_db", config_mandatory=True,
         help="Upgrade database to most recent version (via Alembic)")
     upgradedb_parser.set_defaults(
         func=lambda args: upgrade_database_to_head())
 
     showtitle_parser = add_sub(
-        subparsers, "showtitle",
+        subparsers, "show_title",
         help="Show database title")
     showtitle_parser.set_defaults(
         func=lambda args: print_database_title())
 
     mergedb_parser = add_sub(
-        subparsers, "mergedb", config_mandatory=True,
+        subparsers, "merge_db", config_mandatory=True,
         help="Merge in data from an old or recent CamCOPS database")
     mergedb_parser.add_argument(
         '--report_every', type=int, default=10000,
@@ -778,7 +872,7 @@ def camcops_main() -> None:
     # that might need it...
 
     createdb_parser = add_sub(
-        subparsers, "createdb", config_mandatory=True,
+        subparsers, "create_db", config_mandatory=True,
         help="Create CamCOPS database from scratch (AVOID; use the upgrade "
              "facility instead)")
     add_req_named(
@@ -799,7 +893,7 @@ def camcops_main() -> None:
     # -------------------------------------------------------------------------
 
     superuser_parser = add_sub(
-        subparsers, "superuser",
+        subparsers, "make_superuser",
         help="Make superuser")
     superuser_parser.add_argument(
         '--username',
@@ -810,7 +904,7 @@ def camcops_main() -> None:
     ))
 
     password_parser = add_sub(
-        subparsers, "password",
+        subparsers, "reset_password",
         help="Reset a user's password")
     password_parser.add_argument(
         '--username',
@@ -821,7 +915,7 @@ def camcops_main() -> None:
     ))
 
     enableuser_parser = add_sub(
-        subparsers, "enableuser",
+        subparsers, "enable_user",
         help="Re-enable a locked user account")
     enableuser_parser.add_argument(
         '--username',
@@ -844,23 +938,26 @@ def camcops_main() -> None:
     ddl_parser.set_defaults(
         func=lambda args: print(get_all_ddl(dialect_name=args.dialect)))
 
-    hl7_parser = add_sub(
-        subparsers, "hl7",
-        help="Send pending HL7 messages and outbound files")
-    hl7_parser.set_defaults(
-        func=lambda args: send_hl7(show_queue_only=False))
+    # *** HL7 DISABLED TEMPORARILY
+    # hl7_parser = add_sub(
+    #     subparsers, "hl7",
+    #     help="Send pending HL7 messages and outbound files")
+    # hl7_parser.set_defaults(
+    #     func=lambda args: send_hl7(show_queue_only=False))
 
-    showhl7queue_parser = add_sub(
-        subparsers, "show_hl7_queue",
-        help="View outbound HL7/file queue (without sending)")
-    showhl7queue_parser.set_defaults(
-        func=lambda args: send_hl7(show_queue_only=True))
+    # *** HL7 DISABLED TEMPORARILY
+    # showhl7queue_parser = add_sub(
+    #     subparsers, "show_hl7_queue",
+    #     help="View outbound HL7/file queue (without sending)")
+    # showhl7queue_parser.set_defaults(
+    #     func=lambda args: send_hl7(show_queue_only=True))
 
-    anonstaging_parser = add_sub(
-        subparsers, "anonstaging",
-        help="Generate/regenerate anonymisation staging database")
-    anonstaging_parser.set_defaults(
-        func=lambda args: generate_anonymisation_staging_db())
+    # *** ANONYMOUS STAGING DATABASE DISABLED TEMPORARILY
+    # anonstaging_parser = add_sub(
+    #     subparsers, "anonstaging",
+    #     help="Generate/regenerate anonymisation staging database")
+    # anonstaging_parser.set_defaults(
+    #     func=lambda args: generate_anonymisation_staging_db())
 
     # -------------------------------------------------------------------------
     # Test options
@@ -877,10 +974,10 @@ def camcops_main() -> None:
              "Pyramid; for development use only")
     testserve_parser.add_argument(
         '--host', type=str, default=DEFAULT_HOST,
-        help="hostname to listen on")
+        help="Hostname to listen on")
     testserve_parser.add_argument(
         '--port', type=int, default=DEFAULT_PORT,
-        help="port to listen on")
+        help="Port to listen on")
     testserve_parser.add_argument(
         '--debug_toolbar', action="store_true",
         help="Enable the Pyramid debug toolbar"
@@ -919,7 +1016,8 @@ def camcops_main() -> None:
         help="Number of threads for server to start with")
     serve_parser.add_argument(
         "--threads_max", type=int, default=DEFAULT_MAX_THREADS,
-        help="Maximum number of threads for server to use (-1 for no limit)")
+        help="Maximum number of threads for server to use (-1 for no limit) "
+             "(BEWARE exceeding the permitted number of database connections)")
     serve_parser.add_argument(
         "--ssl_certificate", type=str,
         help="SSL certificate file "
@@ -930,17 +1028,119 @@ def camcops_main() -> None:
              "(e.g. /etc/ssl/private/ssl-cert-snakeoil.key)")
     serve_parser.add_argument(
         "--log_screen", dest="log_screen", action="store_true",
-        help="log access requests etc. to terminal (default)")
+        help="Log access requests etc. to terminal (default)")
     serve_parser.add_argument(
         "--no_log_screen", dest="log_screen", action="store_false",
-        help="don't log access requests etc. to terminal")
+        help="Don't log access requests etc. to terminal")
     serve_parser.set_defaults(log_screen=True)
     serve_parser.add_argument(
-        "--debug_static", action="store_true",
-        help="show debug info for static file requests")
+        "--root_path", type=str, default=URL_PATH_ROOT,
+        help=(
+            "Root path to serve CRATE at, WITHIN this CherryPy web server "
+            "instance. (There is unlikely to be a reason to use something "
+            "other than '/'; do not confuse this with the mount point within "
+            "a wider, e.g. Apache, configuration, which is set instead by "
+            "the WSGI variable {}; see the --trusted_proxy_headers"
+            "and --proxy_script_name options.)".format(WsgiEnvVar.SCRIPT_NAME)
+        )
+    )
     serve_parser.add_argument(
-        "--root_path", type=str, default=DEFAULT_URL_PATH_ROOT,
-        help="Root path to serve CRATE at")
+        "--trusted_proxy_headers", type=str, nargs="*",
+        help=(
+            "Trust these WSGI environment variables for when the server is "
+            "behind a reverse proxy (e.g. an Apache front-end web server). "
+            "Options: {!r}".format(ReverseProxiedMiddleware.ALL_CANDIDATES)
+        )
+    )
+    serve_parser.add_argument(
+        '--proxy_http_host', type=str, default=None,
+        help=(
+            "Option to set the WSGI HTTP host directly. "
+            "This affects the WSGI variable {w}. If not specified, trusted "
+            "variables within {v!r} will be used.".format(
+                w=WsgiEnvVar.HTTP_HOST,
+                v=ReverseProxiedMiddleware.CANDIDATES_HTTP_HOST,
+            )
+        )
+    )
+    serve_parser.add_argument(
+        '--proxy_remote_addr', type=str, default=None,
+        help=(
+            "Option to set the WSGI remote address directly. "
+            "This affects the WSGI variable {w}. If not specified, trusted "
+            "variables within {v!r} will be used.".format(
+                w=WsgiEnvVar.REMOTE_ADDR,
+                v=ReverseProxiedMiddleware.CANDIDATES_REMOTE_ADDR,
+            )
+        )
+    )
+    serve_parser.add_argument(
+        "--proxy_script_name", type=str, default=None,
+        help=(
+            "Path at which this script is mounted. Set this if you are "
+            "hosting this CamCOPS instance at a non-root path, unless you set"
+            "trusted WSGI headers instead. For example, "
+            "if you are running an Apache server and want this instance of "
+            "CamCOPS to appear at /somewhere/camcops, then (a) configure "
+            "your Apache instance to proxy requests to /somewhere/camcops/..."
+            " to this server (e.g. via an internal TCP/IP port or UNIX "
+            "socket) and specify this option. If this option is not set, "
+            "then the OS environment variable {sn} will be checked as well, "
+            "and if that is not set, trusted variables within {v!r} will be "
+            "used. This option affects the WSGI variables {sn} "
+            "and {pi}.".format(
+                sn=WsgiEnvVar.SCRIPT_NAME,
+                pi=WsgiEnvVar.PATH_INFO,
+                v=ReverseProxiedMiddleware.CANDIDATES_SCRIPT_NAME,
+            )
+        )
+    )
+    serve_parser.add_argument(
+        '--proxy_server_port', type=int, default=None,
+        help=(
+            "Option to set the WSGI server port directly. "
+            "This affects the WSGI variable {w}. If not specified, trusted "
+            "variables within {v!r} will be used.".format(
+                w=WsgiEnvVar.SERVER_PORT,
+                v=ReverseProxiedMiddleware.CANDIDATES_SERVER_PORT,
+            )
+        )
+    )
+    serve_parser.add_argument(
+        '--proxy_server_name', type=str, default=None,
+        help=(
+            "Option to set the WSGI server name directly. "
+            "This affects the WSGI variable {w}. If not specified, trusted "
+            "variables within {v!r} will be used.".format(
+                w=WsgiEnvVar.SERVER_NAME,
+                v=ReverseProxiedMiddleware.CANDIDATES_SERVER_NAME,
+            )
+        )
+    )
+    serve_parser.add_argument(
+        '--proxy_url_scheme', type=str, default=None,
+        help=(
+            "Option to set the WSGI scheme (e.g. http, https) directly. "
+            "This affects the WSGI variable {w}. If not specified, trusted "
+            "variables within {v!r} will be used.".format(
+                w=WsgiEnvVar.URL_SCHEME,
+                v=ReverseProxiedMiddleware.CANDIDATES_URL_SCHEME,
+            )
+        )
+    )
+    serve_parser.add_argument(
+        '--proxy_rewrite_path_info', action="store_true",
+        help="If SCRIPT_NAME is rewritten, this option causes PATH_INFO to be "
+             "rewritten, if it starts with SCRIPT_NAME, to strip off "
+             "SCRIPT_NAME. Appropriate for some front-end web browsers with "
+             "limited reverse proxying support (but do not use for Apache "
+             "with ProxyPass, because that rewrites incoming URLs properly)."
+    )
+    serve_parser.add_argument(
+        '--debug_reverse_proxy', action="store_true",
+        help="For --behind_reverse_proxy: show debugging information as WSGI "
+             "variables are rewritten."
+    )
     serve_parser.add_argument(
         '--debug_toolbar', action="store_true",
         help="Enable the Pyramid debug toolbar"
@@ -956,7 +1156,17 @@ def camcops_main() -> None:
         ssl_certificate=args.ssl_certificate,
         ssl_private_key=args.ssl_private_key,
         root_path=args.root_path,
-        debug_toolbar=args.debug_toolbar
+        debug_toolbar=args.debug_toolbar,
+        trusted_proxy_headers=args.trusted_proxy_headers,
+        proxy_http_host=args.proxy_http_host,
+        proxy_remote_addr=args.proxy_remote_addr,
+        proxy_script_name=args.proxy_script_name or os.environ.get(
+            WsgiEnvVar.SCRIPT_NAME, ""),
+        proxy_server_port=args.proxy_server_port,
+        proxy_server_name=args.proxy_server_name,
+        proxy_url_scheme=args.proxy_url_scheme,
+        proxy_rewrite_path_info=args.proxy_rewrite_path_info,
+        debug_reverse_proxy=args.debug_reverse_proxy,
     ))
 
     # -------------------------------------------------------------------------

@@ -57,9 +57,10 @@ from .cc_device import Device
 from .cc_dirtytables import DirtyTable
 from .cc_group import Group, group_group_table
 from .cc_hl7 import HL7Message, HL7Run
+from .cc_idnumdef import IdNumDefinition
 from .cc_membership import UserGroupMembership
 # noinspection PyUnresolvedReferences
-from .cc_patientidnum import IdNumDefinition, PatientIdNum
+from .cc_patientidnum import PatientIdNum
 # noinspection PyUnresolvedReferences
 from .cc_patient import Patient
 from .cc_session import CamcopsSession
@@ -189,7 +190,7 @@ class ModelTests(unittest.TestCase):
 
     @staticmethod
     def test_query_via_command_line_request() -> None:
-        from camcops_server.cc_modules.cc_request import get_command_line_request
+        from camcops_server.cc_modules.cc_request import get_command_line_request  # noqa
         from camcops_server.tasks import Phq9
         all_models_no_op()
 

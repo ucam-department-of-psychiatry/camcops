@@ -46,10 +46,10 @@ from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_dirtytables import DirtyTable
 from camcops_server.cc_modules.cc_group import Group, group_group_table
 from camcops_server.cc_modules.cc_hl7 import HL7Message, HL7Run
+from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import (
-    IdNumDefinition,
     fake_tablet_id_for_patientidnum,
     PatientIdNum,
 )
@@ -379,13 +379,14 @@ def translate_fn(trcon: TranslationContext) -> None:
     if trcon.tablename == Patient.__tablename__:
         # (a) Find old patient numbers
         old_patient = trcon.oldobj  # type: Patient
-        # noinspection PyPep8
-        src_pt_query = select([text('*')])\
-            .select_from(table(trcon.tablename))\
-            .where(column(Patient.id.name) == old_patient.id)\
-            .where(column(Patient._current.name) == True)\
-            .where(column(Patient._device_id.name) == old_patient._device_id)\
+        src_pt_query = (
+            select([text('*')])
+            .select_from(table(trcon.tablename))
+            .where(column(Patient.id.name) == old_patient.id)
+            .where(column(Patient._current.name) == True)
+            .where(column(Patient._device_id.name) == old_patient._device_id)
             .where(column(Patient._era.name) == old_patient._era)
+        )  # nopep8
         rows = trcon.src_session.execute(src_pt_query)  # type: ResultProxy
         list_of_dicts = [dict(row.items()) for row in rows]
         assert len(list_of_dicts) == 1, (
@@ -694,11 +695,18 @@ def merge_camcops_db(src: str,
     log.info("Source ID number definitions: {!r}", src_iddefs)
 
     # -------------------------------------------------------------------------
+    # Initial operations on DESTINATION database
+    # -------------------------------------------------------------------------
+    dst_session = req.dbsession
+    # So that system users get the first ID (cosmetic!):
+    _ = User.get_system_user(dbsession=dst_session)
+    _ = Device.get_server_device(dbsession=dst_session)
+
+    # -------------------------------------------------------------------------
     # Merge
     # -------------------------------------------------------------------------
 
     # Merge! It's easy...
-    dst_session = req.dbsession
     trcon_info = dict(default_group_id=default_group_id,
                       default_group_name=default_group_name,
                       src_iddefs=src_iddefs)

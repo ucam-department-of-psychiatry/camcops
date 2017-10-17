@@ -1,8 +1,12 @@
 camcops (2.1.0) all; urgency=low
 
   * Major changes, including...
-  * SQLAlchemy for database connections
+  * SQLAlchemy for database work
   * Group concept
+  * HOWEVER, HL7 EXPORT AND ANONYMOUS STAGING DATABASE SUPPORT DISABLED;
+    further release pending.
+
+ -- Rudolf Cardinal <rudolf@pobox.com>  Tue, 17 Oct 2017 17:12:00 +0100
 
 camcops (1.50) all; urgency=low
 

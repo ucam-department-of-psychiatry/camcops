@@ -32,7 +32,6 @@ from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
@@ -100,8 +99,7 @@ class Pswq(TaskHasPatientMixin, Task,
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(name="total_score", coltype=Integer(),
                            value=self.total_score(),
                            comment="Total score (16-80)"),

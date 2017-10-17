@@ -23,7 +23,7 @@
 """
 
 import logging
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -34,7 +34,6 @@ from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr_qa
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
     Task,
@@ -124,7 +123,8 @@ class HadsMetaclass(DeclarativeMeta):
                          bases: Tuple[Type, ...],
                          classdict: Dict[str, Any]) -> None:
                 HadsMetaclass.__init__(cls, name, bases, classdict)
-                # ... will call DeclarativeMeta.__init__ via its super().__init__()
+                # ... will call DeclarativeMeta.__init__ via its
+                #     super().__init__()
 
         class Hads(HadsBase,                            # ACTUAL TASK
                    metaclass=HadsBlendedMetaclass):
@@ -134,9 +134,10 @@ class HadsMetaclass(DeclarativeMeta):
     DeclarativeMeta, but add it in at the last stage.
 
     IGNORE THIS, NO LONGER TRUE:
-        ALL THIS SOMEWHAT REVISED to handle SQLAlchemy concrete inheritance (q.v.),
-        with the rule that "the only things that inherit from Task are actual
-        tasks"; Task then inherits from both AbstractConcreteBase and Base.
+        ALL THIS SOMEWHAT REVISED to handle SQLAlchemy concrete inheritance
+        (q.v.), with the rule that "the only things that inherit from Task are
+        actual tasks"; Task then inherits from both AbstractConcreteBase and
+        Base.
     SEE ALSO sqla_database_structure.txt
 
     FINAL ANSWER:
@@ -230,8 +231,7 @@ class HadsBase(TaskHasPatientMixin, Task,
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="anxiety", coltype=Integer(),
                 value=self.anxiety_score(),

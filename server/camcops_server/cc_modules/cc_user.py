@@ -428,12 +428,18 @@ class User(Base):
 
     @classmethod
     def get_system_user(cls, dbsession: SqlASession) -> "User":
+        """
+        Returns a user representing "command-line access".
+        """
         user = cls.get_user_by_name(dbsession, USER_NAME_FOR_SYSTEM)
         if not user:
             user = cls(username=USER_NAME_FOR_SYSTEM)
             dbsession.add(user)
         user.fullname = "CamCOPS system user"
         user.superuser = True
+        user.hashedpw = ''  # because it's not nullable
+        # ... note that no password will hash to '', in addition to the fact
+        # that the system will not allow logon attempts for this user!
         return user
 
     @staticmethod

@@ -232,8 +232,7 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         scoredict = self.get_score()
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=scoredict['total'],

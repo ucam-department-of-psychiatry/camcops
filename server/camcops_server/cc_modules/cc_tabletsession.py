@@ -70,7 +70,7 @@ class TabletSession(object):
         self.tablet_version_str = req.get_str_param(TabletParam.CAMCOPS_VERSION)  # noqa
         try:
             self.tablet_version_ver = make_version(self.tablet_version_str)
-        except:
+        except ValueError:
             fail_user_error("CamCOPS tablet version nonsensical: {!r}".format(
                 self.tablet_version_str))
 

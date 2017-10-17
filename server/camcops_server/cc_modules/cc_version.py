@@ -48,6 +48,9 @@ FIRST_TABLET_VER_WITH_EXPLICIT_PKNAME_IN_UPLOAD_TABLE = Version("2.0.4")
 # =============================================================================
 
 def make_version(v: Union[str, float, None]) -> Version:
+    """
+    Returns a Version or raises ValueError.
+    """
     if v is None:
         return Version("0.0.0")
     vstr = str(v)

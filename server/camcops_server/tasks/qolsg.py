@@ -37,7 +37,6 @@ from ..cc_modules.cc_sqla_coltypes import (
     PendulumDateTimeAsIsoTextColType,
     ZERO_TO_ONE_CHECKER,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
 

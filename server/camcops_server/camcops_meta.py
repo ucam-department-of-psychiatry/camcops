@@ -24,30 +24,35 @@
 
 import argparse
 import glob
+import logging
 import os
 import sys
 
+from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+
 from camcops_server.camcops import main as camcops_main
+
+log = logging.getLogger(__name__)
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 PROJECT_BASE_DIRECTORY = os.path.abspath(os.path.join(THIS_DIRECTORY,
                                                       os.pardir))
 DEFAULT_CAMCOPS = os.path.join(PROJECT_BASE_DIRECTORY, 'camcops.py')
 
-# too dangerous # DEFAULT_FILESPEC = '/etc/camcops/*'
-DEFAULT_CCARGS = ['maketables']
-
 
 def meta_main() -> None:
     parser = argparse.ArgumentParser(
         description="Run commands across multiple CamCOPS databases")
     parser.add_argument(
+        'cc_command', type=str,
+        help="Main command to pass to CamCOPS"
+    )
+    parser.add_argument(
         '--filespecs', nargs='+', required=True,
         help="List of CamCOPS config files (wildcards OK)")
     parser.add_argument(
-        '--ccargs', nargs='+', default=DEFAULT_CCARGS,
-        help="List of CamCOPS arguments, to which '--' will be prefixed; "
-             "default: {}".format(" ".join(DEFAULT_CCARGS)))
+        '--ccargs', nargs='*',
+        help="List of CamCOPS arguments, to which '--' will be prefixed")
     parser.add_argument(
         '--python', default=sys.executable,
         help="Python interpreter (default: {})".format(sys.executable))
@@ -59,24 +64,29 @@ def meta_main() -> None:
         help="Dummy run (show filenames only)")
     parser.add_argument('-v', '--verbose', action="store_true", help="Verbose")
     args = parser.parse_args()
-    if args.verbose:
-        print("Arguments: {}".format(args))
+    main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
+                                    else logging.INFO)
+    log.debug("Arguments: {}".format(args))
 
     did_something = False
+    # old_sys_argv = sys.argv.copy()
     for filespec in args.filespecs:
         for filename in glob.glob(filespec):
             did_something = True
-            print("Processing: {}".format(filename))
-            sys.argv = ["--config", filename] + ['--{}'.format(x)
-                                                 for x in args.ccargs]
-            if args.verbose:
-                print("Executing command: {}".format(sys.argv))
+            log.info("Processing: {}".format(filename))
+            sys.argv = (
+                ['camcops',  # dummy argv[0]
+                 args.cc_command,
+                 "--config", filename] +
+                ['--{}'.format(x) for x in args.ccargs or []]
+            )
+            log.debug("Executing command: {}".format(sys.argv))
             if args.dummyrun:
                 continue
-            camcops_main()
+            camcops_main()  # using the new sys.argv
             # subprocess.check_call(cmdargs)
     if not did_something:
-        print("Nothing to do; no files found")
+        log.warning("Nothing to do; no files found")
 
 
 if __name__ == '__main__':

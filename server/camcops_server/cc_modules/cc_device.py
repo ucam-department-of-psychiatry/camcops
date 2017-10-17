@@ -25,6 +25,7 @@
 from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
+from pendulum import Pendulum
 from sqlalchemy.orm import Query, relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
@@ -119,15 +120,14 @@ class Device(Base):
         return device
 
     @classmethod
-    def get_server_device(cls, req: "CamcopsRequest") -> "Device":
-        dbsession = req.dbsession
+    def get_server_device(cls, dbsession: SqlASession) -> "Device":
         device = cls.get_device_by_name(dbsession, DEVICE_NAME_FOR_SERVER)
         if device is None:
             device = Device()
             device.name = DEVICE_NAME_FOR_SERVER
             device.friendly_name = "CamCOPS server"
             device.registered_by_user = User.get_system_user(dbsession)
-            device.when_registered_utc = req.now_utc
+            device.when_registered_utc = Pendulum.utcnow()
             device.camcops_version = CAMCOPS_SERVER_VERSION
             dbsession.add(device)
         return device
@@ -212,5 +212,3 @@ def ccdevice_unit_tests(dbsession: SqlASession) -> None:
     if device is None:
         device = Device()
     unit_tests_device(device)
-
-    unit_test_ignore("", get_device_filter_dropdown)

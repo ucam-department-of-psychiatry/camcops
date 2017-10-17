@@ -26,7 +26,7 @@
 
 import os
 
-from .cc_baseconstants import CAMCOPS_EXECUTABLE, CAMCOPS_SERVER_DIRECTORY
+from .cc_baseconstants import CAMCOPS_SERVER_DIRECTORY
 
 # =============================================================================
 # Number of ID numbers. Don't alter this lightly; influences database fields.
@@ -48,11 +48,6 @@ DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES = 10
 DEFAULT_LOCKOUT_THRESHOLD = 10
 DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
 
-# SERVER_BASE_DIRECTORY = os.path.join(PROJECT_BASE_DIRECTORY, "server")
-# DEFAULT_STRING_FILE = os.path.join(
-#     TABLET_SOURCE_COPY_DIR, "tablet_titanium", "i18n", "en", "strings.xml")
-# DEFAULT_EXTRA_STRING_SPEC = os.path.join(
-#     PROJECT_BASE_DIRECTORY, "server", "extra_strings", "*")
 DEFAULT_TIMEOUT_MINUTES = 30
 DEFAULT_PLOT_FONTSIZE = 8
 
@@ -263,7 +258,6 @@ ALEMBIC_VERSION_TABLENAME = "alembic_version"
 # =============================================================================
 
 ANON_PATIENT = "XXXX"
-COMMENT_IS_COMPLETE = "Task complete?"
 DATA_COLLECTION_ONLY_DIV = """
     <div class="copyright">
         Reproduction of the original task/scale is not permitted.
@@ -297,80 +291,3 @@ CRIS_SUMMARY_COMMENT_PREFIX = "(SUMMARY) "
 CRIS_TABLENAME_PREFIX = "camcops_"
 
 QUESTION = "Question"
-
-# =============================================================================
-# Demo configuration files, other than the CamCOPS config file itself
-# =============================================================================
-
-DEMO_SUPERVISORD_CONF = """
-# =============================================================================
-# Demo supervisor config file for CamCOPS
-# =============================================================================
-# - Supervisor is a system for controlling background processes running on
-#   UNIX-like operating systems. See:
-#       http://supervisord.org
-# - On Ubuntu systems, you would typically install supervisor with
-#       sudo apt install supervisor
-#   and then save this file as
-#       /etc/supervisor/conf.d/camcops.conf
-#
-# - IF YOU EDIT THIS FILE, run:
-#       sudo service supervisor restart
-# - TO MONITOR SUPERVISOR, run:
-#       sudo supervisorctl status
-#   ... or just "sudo supervisorctl" for an interactive prompt.
-#
-# - TO ADD MORE CAMCOPS INSTANCES, first consider whether you wouldn't be 
-#   better off just adding groups. If you decide you want a completely new
-#   instance, make a copy of the [program:camcops] section, renaming the copy, 
-#   and change the following:
-#   - the --config switch;
-#   - the port or socket;
-#   - the log files.
-#   Then make the main web server point to the copy as well.
-#
-# NOTES ON THE SUPERVISOR CONFIG FILE AND ENVIRONMENT:
-# - You can't put quotes around the directory variable
-#   http://stackoverflow.com/questions/10653590
-# - Python programs that are installed within a Python virtual environment 
-#   automatically use the virtualenv's copy of Python via their shebang; you do
-#   not need to specify that by hand, nor the PYTHONPATH.
-# - The "environment" setting sets the OS environment. The "--env" parameter
-#   to gunicorn, if you use it, sets the WSGI environment.
-
-[program:camcops]
-
-command = {CAMCOPS_EXECUTABLE}
-    serve
-    --config /etc/camcops/camcops.conf
-    --unix_domain_socket /tmp/.camcops.sock
-    --threads_start 10 --thread_max 1000
-
-    # To run via a TCP socket, use e.g.:
-    #   --host 127.0.0.1 --port 8000
-    # To run via a UNIX domain socket, use e.g.
-    #   --unix_domain_socket /tmp/.camcops.sock 
-
-directory = {CAMCOPS_SERVER_DIRECTORY}
-
-environment = MPLCONFIGDIR="/var/cache/camcops/matplotlib"
-
-    # MPLCONFIGDIR specifies a cache directory for matplotlib, which greatly
-    # speeds up its subsequent loading. 
-
-user = www-data
-    # ... Ubuntu: typically www-data
-    # ... CentOS: typically apache
-
-stdout_logfile = /var/log/supervisor/camcops_out.log
-stderr_logfile = /var/log/supervisor/camcops_err.log
-
-autostart = true
-autorestart = true
-startsecs = 10
-stopwaitsecs = 60
-
-""".format(
-    CAMCOPS_EXECUTABLE=CAMCOPS_EXECUTABLE,
-    CAMCOPS_SERVER_DIRECTORY=CAMCOPS_SERVER_DIRECTORY,
-)

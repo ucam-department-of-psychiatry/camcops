@@ -150,8 +150,8 @@ import pygments.formatters
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import Session as SqlASession, sessionmaker
 from sqlalchemy.sql.functions import func
-from sqlalchemy.sql.expression import (and_, column, desc, exists, not_, or_,
-                                       select, table, update)
+from sqlalchemy.sql.expression import (and_, desc, exists, not_, or_,
+                                       select, update)
 
 from .cc_audit import audit, AuditEntry
 from .cc_all_models import CLIENT_TABLE_MAP
@@ -209,17 +209,13 @@ from .cc_forms import (
 )
 from .cc_group import Group
 from .cc_hl7 import HL7Message, HL7Run
+from .cc_idnumdef import clear_idnum_definition_cache, IdNumDefinition
 from .cc_membership import UserGroupMembership
 from .cc_patient import Patient
-from .cc_patientidnum import (
-    clear_idnum_definition_cache,
-    IdNumDefinition,
-    PatientIdNum,
-)
+from .cc_patientidnum import PatientIdNum
 from .cc_plot import ccplot_no_op
 from .cc_pyramid import (
     CamcopsPage,
-    Dialect,
     FormAction,
     PageUrl,
     Permission,
@@ -231,10 +227,9 @@ from .cc_pyramid import (
 from .cc_report import get_report_instance
 from .cc_request import CamcopsRequest
 from .cc_serversettings import set_database_title
-from .cc_session import CamcopsSession
 from .cc_simpleobjects import IdNumReference
 from .cc_specialnote import SpecialNote
-from .cc_sqlalchemy import get_all_ddl
+from .cc_sqlalchemy import Dialect, get_all_ddl
 from .cc_task import Task
 from .cc_taskfactory import (
     task_factory,
@@ -389,6 +384,14 @@ def crash(req: CamcopsRequest) -> Response:
     """Deliberately raises an exception."""
     raise RuntimeError("Deliberately crashed. Should not affect other "
                        "processes.")
+
+
+# noinspection PyUnusedLocal
+@view_config(route_name=Routes.DEVELOPER, permission=Permission.SUPERUSER,
+             renderer="developer.mako")
+def developer_page(req: CamcopsRequest) -> Dict[str, Any]:
+    """Shows developer menu."""
+    return {}
 
 
 # =============================================================================
@@ -2391,6 +2394,8 @@ def edit_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
             # -----------------------------------------------------------------
             iddef.description = appstruct.get(ViewParam.DESCRIPTION)
             iddef.short_description = appstruct.get(ViewParam.SHORT_DESCRIPTION)  # noqa
+            iddef.hl7_id_type = appstruct.get(ViewParam.HL7_ID_TYPE)
+            iddef.hl7_assigning_authority = appstruct.get(ViewParam.HL7_ASSIGNING_AUTHORITY)  # noqa
             clear_idnum_definition_cache()  # SPECIAL
             raise HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
@@ -2400,6 +2405,8 @@ def edit_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
             ViewParam.WHICH_IDNUM: iddef.which_idnum,
             ViewParam.DESCRIPTION: iddef.description or "",
             ViewParam.SHORT_DESCRIPTION: iddef.short_description or "",
+            ViewParam.HL7_ID_TYPE: iddef.hl7_id_type or "",
+            ViewParam.HL7_ASSIGNING_AUTHORITY: iddef.hl7_assigning_authority or "",  # noqa
         }
         rendered_form = form.render(appstruct)
     return dict(iddef=iddef,
@@ -3007,11 +3014,14 @@ def forcibly_finalize(req: CamcopsRequest) -> Response:
             if not req.user.superuser:
                 admin_group_ids = req.user.ids_of_groups_user_is_admin_for
                 for clienttable in CLIENT_TABLE_MAP.values():
-                    count_query = select([func.count()]) \
-                        .select_from(clienttable) \
-                        .where(clienttable.c._device_id == device_id) \
-                        .where(clienttable.c._era == ERA_NOW) \
+                    # noinspection PyProtectedMember
+                    count_query = (
+                        select([func.count()])
+                        .select_from(clienttable)
+                        .where(clienttable.c._device_id == device_id)
+                        .where(clienttable.c._era == ERA_NOW)
                         .where(clienttable.c._group_id.notin_(admin_group_ids))
+                    )
                     n = dbsession.execute(count_query).scalar()
                     if n > 0:
                         raise HTTPBadRequest(
@@ -3022,12 +3032,15 @@ def forcibly_finalize(req: CamcopsRequest) -> Response:
             # -----------------------------------------------------------------
             new_era = req.now_iso8601_era_format
             for clienttable in CLIENT_TABLE_MAP.values():
-                finalize_statement = update(clienttable) \
-                    .where(clienttable.c._device_id == device_id) \
-                    .where(clienttable.c._era == ERA_NOW) \
+                # noinspection PyProtectedMember
+                finalize_statement = (
+                    update(clienttable)
+                    .where(clienttable.c._device_id == device_id)
+                    .where(clienttable.c._era == ERA_NOW)
                     .values(_era=new_era,
                             _preserving_user_id=req.user_id,
                             _forcibly_preserved=True)
+                )
                 dbsession.execute(finalize_statement)
             # Field names are different in server-side tables, so they need
             # special handling:

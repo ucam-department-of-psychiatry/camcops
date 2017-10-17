@@ -234,7 +234,7 @@ class Patient(GenericTabletRecordMixin, Base):
         if group_id is not None:
             q = q.filter(Patient._group_id == group_id)
         if current_only:
-            q = q.filter(cls._current == True)
+            q = q.filter(cls._current == True)  # nopep8
         patients = q.all()  # type: List[Patient]
         return patients
 
@@ -254,8 +254,7 @@ class Patient(GenericTabletRecordMixin, Base):
         idnums = self.idnums  # type: List[PatientIdNum]
         return [x.idnum_value for x in idnums if x.is_valid()]
 
-    def get_xml_root(self, req: CamcopsRequest,
-                     skip_fields: List[str] = None) -> XmlElement:
+    def get_xml_root(self, skip_fields: List[str] = None) -> XmlElement:
         """Get root of XML tree, as an XmlElementTuple."""
         skip_fields = skip_fields or []
         # Exclude old ID fields:
@@ -414,6 +413,7 @@ class Patient(GenericTabletRecordMixin, Base):
         return address
 
     def get_hl7_pid_segment(self,
+                            req: CamcopsRequest,
                             recipient_def: RecipientDefinition) -> hl7.Segment:
         """Get HL7 patient identifier (PID) segment."""
         # Put the primary one first:
@@ -421,8 +421,10 @@ class Patient(GenericTabletRecordMixin, Base):
             HL7PatientIdentifier(
                 id=str(self.get_idnum_value(recipient_def.primary_idnum)),
                 id_type=recipient_def.get_id_type(
+                    req,
                     recipient_def.primary_idnum),
                 assigning_authority=recipient_def.get_id_aa(
+                    req,
                     recipient_def.primary_idnum)
             )
         ]
@@ -437,8 +439,9 @@ class Patient(GenericTabletRecordMixin, Base):
             patient_id_tuple_list.append(
                 HL7PatientIdentifier(
                     id=str(idnum_value),
-                    id_type=recipient_def.get_id_type(which_idnum),
-                    assigning_authority=recipient_def.get_id_aa(which_idnum)
+                    id_type=recipient_def.get_id_type(req, which_idnum),
+                    assigning_authority=recipient_def.get_id_aa(
+                        req, which_idnum)
                 )
             )
         return make_pid_segment(
@@ -524,11 +527,6 @@ class Patient(GenericTabletRecordMixin, Base):
             FP_ID_NUM_DEFUNCT + nstr,
             label_id_numbers
         )
-
-    def get_url_edit_patient(self, req: CamcopsRequest) -> str:
-        url = get_generic_action_url(req, ACTION.EDIT_PATIENT)
-        url += get_url_field_value_pair(PARAM.SERVERPK, self._pk)
-        return url
 
     def is_preserved(self) -> bool:
         """Is the patient record preserved and erased from the tablet?"""
@@ -642,8 +640,7 @@ class DistinctPatientReport(Report):
             Patient.sex.label("sex"),
         ]
         select_from = Patient.__table__
-        # noinspection PyPep8
-        wheres = [Patient._current == True]  # type: List[ClauseElement]
+        wheres = [Patient._current == True]  # type: List[ClauseElement]  # nopep8
         if not req.user.superuser:
             # Restrict to accessible groups
             group_ids = req.user.ids_of_groups_user_may_report_on
@@ -653,7 +650,6 @@ class DistinctPatientReport(Report):
             desc = iddef.short_description
             aliased_table = PatientIdNum.__table__.alias("i{}".format(n))
             select_fields.append(aliased_table.c.idnum_value.label(desc))
-            # noinspection PyPep8
             select_from = select_from.outerjoin(aliased_table, and_(
                 aliased_table.c.patient_id == Patient.id,
                 aliased_table.c._device_id == Patient._device_id,
@@ -663,18 +659,20 @@ class DistinctPatientReport(Report):
                 # OUTER JOIN):
                 aliased_table.c._current == True,
                 aliased_table.c.which_idnum == n,
-            ))
+            ))  # nopep8
         order_by = [
             Patient.surname,
             Patient.forename,
             Patient.dob,
             Patient.sex,
         ]
-        query = select(select_fields)\
-            .select_from(select_from)\
-            .where(and_(*wheres))\
-            .order_by(*order_by)\
+        query = (
+            select(select_fields)
+            .select_from(select_from)
+            .where(and_(*wheres))
+            .order_by(*order_by)
             .distinct()
+        )
         return query
 
 
@@ -721,7 +719,6 @@ def unit_tests_patient(p: Patient, req: CamcopsRequest) -> None:
     unit_test_ignore("", p.get_html_for_task_header, True)
     unit_test_ignore("", p.get_html_for_task_header, False)
     unit_test_ignore("", p.get_html_for_webview_patient_column)
-    unit_test_ignore("", p.get_url_edit_patient, req)
     unit_test_ignore("", p.get_special_notes_html)
 
     # Lastly:

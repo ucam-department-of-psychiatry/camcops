@@ -9,15 +9,15 @@ from camcops_server.cc_modules.cc_constants import PDF_ENGINE
 
 ## For CSS paged media:
 <%block name="header_block">
-    <div name="headerContent">
+    <div id="headerContent">
         <%block name="extra_header_content"/>
     </div>
 </%block>
 
 ## For CSS paged media:
 <%block name="footer_block">
-    <div name="footerContent">
-        Page <pdf:pagenumber> of <pdf:pagecount>.
+    <div id="footerContent">
+        Page <pdf:pagenumber/> of <pdf:pagecount/>.
         <%block name="extra_footer_content"/>
     </div>
 </%block>

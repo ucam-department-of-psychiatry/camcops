@@ -49,7 +49,6 @@ from ..cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     PermittedValueChecker,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
     Task,
@@ -356,21 +355,21 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         a = self.attn_score()
         m = self.mem_score()
         f = self.fluency_score()
-        l = self.lang_score()
+        lang = self.lang_score()
         v = self.vsp_score()
-        t = a + m + f + l + v
+        t = a + m + f + lang + v
         text = (
             "ACE-III total: {t}/{tmax} "
             "(attention {a}/{amax}, memory {m}/{mmax}, "
-            "fluency {f}/{fmax}, language {l}/{lmax}, visuospatial {v}/{vmax})"
-        ).format(t=t, a=a, m=m, f=f, l=l, v=v,
+            "fluency {f}/{fmax}, language {lang}/{lmax}, "
+            "visuospatial {v}/{vmax})"
+        ).format(t=t, a=a, m=m, f=f, lang=lang, v=v,
                  tmax=TOTAL_MAX, amax=ATTN_MAX, mmax=MEMORY_MAX,
                  fmax=FLUENCY_MAX, lmax=LANG_MAX, vmax=VSP_MAX)
         return [CtvInfo(content=text)]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),
@@ -506,16 +505,16 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         a = self.attn_score()
         m = self.mem_score()
         f = self.fluency_score()
-        l = self.lang_score()
+        lang = self.lang_score()
         v = self.vsp_score()
-        t = a + m + f + l + v
+        t = a + m + f + lang + v
         figurehtml = ""
         if self.is_complete():
             figsize = (FULLWIDTH_PLOT_WIDTH / 3, FULLWIDTH_PLOT_WIDTH / 4)
             width = 0.9
             fig = req.create_figure(figsize=figsize)
             ax = fig.add_subplot(1, 1, 1)
-            scores = numpy.array([a, m, f, l, v])
+            scores = numpy.array([a, m, f, lang, v])
             maxima = numpy.array([ATTN_MAX, MEMORY_MAX, FLUENCY_MAX,
                                   LANG_MAX, VSP_MAX])
             y = 100 * scores / maxima
@@ -551,8 +550,8 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 MEMORY_MAX, percent(m, MEMORY_MAX))) +
             tr("Fluency", answer(f) + " / {} ({}%)".format(
                 FLUENCY_MAX, percent(f, FLUENCY_MAX))) +
-            tr("Language", answer(l) + " / {} ({}%)".format(
-                LANG_MAX, percent(l, LANG_MAX))) +
+            tr("Language", answer(lang) + " / {} ({}%)".format(
+                LANG_MAX, percent(lang, LANG_MAX))) +
             tr("Visuospatial", answer(v) + " / {} ({}%)".format(
                 VSP_MAX, percent(v, VSP_MAX))) +
             """

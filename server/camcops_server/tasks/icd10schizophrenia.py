@@ -39,12 +39,7 @@ from ..cc_modules.cc_html import (
     tr_qa,
 )
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import (
-    BIT_CHECKER,
-    CamcopsColumn,
-    PendulumDateTimeAsIsoTextColType,
-)
-from ..cc_modules.cc_sqlalchemy import Base
+from ..cc_modules.cc_sqla_coltypes import BIT_CHECKER, CamcopsColumn
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
     Task,
@@ -57,8 +52,7 @@ from ..cc_modules.cc_task import (
 # Icd10Schizophrenia
 # =============================================================================
 
-class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task, 
-                         Base):
+class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     __tablename__ = "icd10schizophrenia"
     shortname = "ICD10-SZ"
     longname = "ICD-10 criteria for schizophrenia (F20)"
@@ -337,8 +331,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         return infolist
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="meets_general_criteria",
                 coltype=Boolean(),

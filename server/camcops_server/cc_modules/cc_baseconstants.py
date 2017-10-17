@@ -59,7 +59,22 @@ else:
 ALEMBIC_BASE_DIR = CAMCOPS_SERVER_DIRECTORY
 ALEMBIC_CONFIG_FILENAME = join(ALEMBIC_BASE_DIR, 'alembic.ini')
 
+DEFAULT_EXTRA_STRINGS_DIR = join(CAMCOPS_SERVER_DIRECTORY, "extra_strings")
+
+LINUX_DEFAULT_CAMCOPS_CONFIG_DIR = "/etc/camcops"
+LINUX_DEFAULT_CAMCOPS_DIR = "/usr/share/camcops"
+# Lintian dislikes files/subdirectories in: /usr/bin/X, /usr/local/X, /opt/X
+# It dislikes images in /usr/lib
+LINUX_DEFAULT_LOCK_DIR = "/var/lock/camcops"
+LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR = "/var/cache/camcops/matplotlib"
+# ... Lintian dislikes using /var/local
+
+DOCS_DIR = join(CAMCOPS_SERVER_DIRECTORY, "docs")
+MANUAL_FILENAME_ODT = join(DOCS_DIR, "CAMCOPS_MANUAL.odt")
+MANUAL_FILENAME_PDF = join(DOCS_DIR, "CAMCOPS_MANUAL.pdf")
+
 STATIC_ROOT_DIR = join(CAMCOPS_SERVER_DIRECTORY, 'static')
+# ... mostly but not entirely superseded by STATIC_PYRAMID_PACKAGE_PATH
 TEMPLATE_DIR = join(CAMCOPS_SERVER_DIRECTORY, 'templates')
 TABLET_SOURCE_COPY_DIR = join(CAMCOPS_SERVER_DIRECTORY, "tablet_source_copy")
 # ... used by setup.py to copy tablet source files into package

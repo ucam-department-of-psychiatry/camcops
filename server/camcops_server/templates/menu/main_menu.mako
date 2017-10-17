@@ -60,6 +60,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <li><a href="${request.route_url(Routes.OFFER_HL7_RUN_LOG)}">View HL7 run log</a></li>
         <li><a href="${request.route_url(Routes.VIEW_ID_DEFINITIONS)}">View/edit ID number definitions</a></li>
         <li><a href="${request.route_url(Routes.EDIT_SERVER_SETTINGS)}">Edit server settings</a></li>
+        <li><a href="${request.route_url(Routes.DEVELOPER)}">Developer test page</a></li>
     </ul>
 %endif
 

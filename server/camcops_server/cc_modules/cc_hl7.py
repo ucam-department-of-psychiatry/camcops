@@ -31,22 +31,18 @@ import os
 import socket
 import subprocess
 import sys
-import typing
-from typing import Any, List, Optional, Tuple, TYPE_CHECKING, Union
+from typing import List, Optional, TextIO, Tuple, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.datetimefunc import (
-    convert_datetime_to_utc,
     format_datetime,
     get_now_localtz,
     get_now_utc,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.network import ping
-import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.sqlalchemy.orm_inspect import get_orm_column_names
-from pendulum import Pendulum
 from sqlalchemy.orm import reconstructor, relationship
 from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.sql.expression import or_, not_
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import (
     BigInteger,
@@ -58,8 +54,7 @@ from sqlalchemy.sql.sqltypes import (
 )
 
 from .cc_constants import DateFormat, HL7MESSAGE_TABLENAME, ERA_NOW
-from . import cc_db
-from .cc_filename import change_filename_ext
+from .cc_filename import change_filename_ext, FileType
 from .cc_hl7core import (
     escape_hl7_text,
     get_mod11_checkdigit,
@@ -81,7 +76,6 @@ from .cc_sqla_coltypes import (
     TableNameColType,
 )
 from .cc_sqlalchemy import Base
-from .cc_task import get_base_tables
 from .cc_unittest import unit_test_ignore
 
 if TYPE_CHECKING:
@@ -416,8 +410,7 @@ class HL7Message(Base):
     )
 
     def __init__(self,
-                 basetable: str = None,
-                 serverpk: int = None,
+                 task: "Task" = None,
                  recipient_def: RecipientDefinition = None,
                  hl7run: HL7Run = None,
                  show_queue_only: bool = False) -> None:
@@ -425,17 +418,21 @@ class HL7Message(Base):
         Must support parameter-free construction, not least for merge_db().
         """
         super().__init__()
+        # Internal attributes
         self._host = None  # type: str
         self._port = None  # type: int
         self._msg = None  # type: str
         self._recipient_def = recipient_def
         self._show_queue_only = show_queue_only
-        self._task = None  # type: Task
-        if basetable and serverpk is not None and recipient_def:
-            self.basetable = basetable
-            self.serverpk = serverpk
-            self.hl7run = hl7run
-            self._task = task_factory(basetable, serverpk)
+        self._task = task  # type: Task
+        # Columns
+        self.hl7run = hl7run
+        if task:
+            self.basetable = task.__tablename__
+            self.serverpk = task.get_pk()
+        else:
+            self.basetable = None
+            self.serverpk = None
 
     @reconstructor
     def init_on_load(self) -> None:
@@ -446,9 +443,9 @@ class HL7Message(Base):
         self._show_queue_only = True
         self._task = None  # type: Task
 
-    def valid(self) -> bool:
+    def valid(self, req: CamcopsRequest) -> bool:
         """Checks for internal validity; returns Boolean."""
-        if not self._recipient_def or not self._recipient_def.valid:
+        if not self._recipient_def or not self._recipient_def.valid(req):
             return False
         if not self.basetable or self.serverpk is None:
             return False
@@ -466,7 +463,7 @@ class HL7Message(Base):
             return False
         return True
 
-    def divert_to_file(self, f: typing.io.TextIO) -> None:
+    def divert_to_file(self, f: TextIO) -> None:
         """Write an HL7 message to a file."""
         infomsg = (
             "OUTBOUND MESSAGE DIVERTED FROM RECIPIENT {} AT {}\n".format(
@@ -484,11 +481,11 @@ class HL7Message(Base):
 
     def send(self,
              req: CamcopsRequest,
-             queue_file: typing.io.TextIO = None,
-             divert_file: typing.io.TextIO = None) -> Tuple[bool, bool]:
+             queue_file: TextIO = None,
+             divert_file: TextIO = None) -> Tuple[bool, bool]:
         """Send an outbound HL7/file message, by the appropriate method."""
         # returns: tried, succeeded
-        if not self.valid():
+        if not self.valid(req):
             return False, False
 
         if self._show_queue_only:
@@ -504,12 +501,15 @@ class HL7Message(Base):
         if not self.hl7run:
             return True, False
 
-        assert self.id is not None # *** check!
-        now = get_now_localtz()
-        self.sent_at_utc = convert_datetime_to_utc(now)
+        if self.msg_id is None:
+            # The "self" object should be in the request's dbsession, so:
+            req.dbsession.flush()
+            assert self.msg_id is not None
+
+        self.sent_at_utc = req.now_utc
 
         if self._recipient_def.using_hl7():
-            self.make_hl7_message(now)  # will write its own error msg/flags
+            self.make_hl7_message(req)  # will write its own error msg/flags
             if self._recipient_def.divert_to_file:
                 self.divert_to_file(divert_file)
             else:
@@ -529,6 +529,7 @@ class HL7Message(Base):
     def send_to_filestore(self, req: CamcopsRequest) -> None:
         """Send a file to a filestore."""
         self.filename = self._recipient_def.get_filename(
+            req=req,
             is_anonymous=self._task.is_anonymous,
             surname=self._task.get_patient_surname(),
             forename=self._task.get_patient_forename(),
@@ -546,12 +547,15 @@ class HL7Message(Base):
         task_format = self._recipient_def.task_format
         allow_overwrite = self._recipient_def.overwrite_files
 
-        if task_format == VALUE.OUTPUTTYPE_PDF:
-            data = task.get_pdf(req)
-        elif task_format == VALUE.OUTPUTTYPE_HTML:
-            data = task.get_html(req)
-        elif task_format == VALUE.OUTPUTTYPE_XML:
-            data = task.get_xml(req)
+        if task_format == FileType.PDF:
+            binary_data = task.get_pdf(req)
+            string_data = None
+        elif task_format == FileType.HTML:
+            binary_data = None
+            string_data = task.get_html(req)
+        elif task_format == FileType.XML:
+            binary_data = None
+            string_data = task.get_xml(req)
         else:
             raise AssertionError("write_to_filestore_file: bug")
 
@@ -568,14 +572,14 @@ class HL7Message(Base):
                 return
 
         try:
-            if task_format == VALUE.OUTPUTTYPE_PDF:
+            if task_format == FileType.PDF:
                 # binary for PDF
                 with open(filename, mode="wb") as f:
-                    f.write(data)
+                    f.write(binary_data)
             else:
                 # UTF-8 for HTML, XML
                 with codecs.open(filename, mode="w", encoding="utf8") as f:
-                    f.write(data)
+                    f.write(string_data)
         except Exception as e:
             self.failure_reason = "Failed to open or write file: {}".format(e)
             return
@@ -607,7 +611,7 @@ class HL7Message(Base):
 
         self.success = True
 
-    def make_hl7_message(self, now: Pendulum) -> None:
+    def make_hl7_message(self, req: CamcopsRequest) -> None:
         """
         Stores HL7 message in self.msg.
 
@@ -617,11 +621,11 @@ class HL7Message(Base):
         # http://python-hl7.readthedocs.org/en/latest/index.html
 
         msh_segment = make_msh_segment(
-            message_datetime=now,
-            message_control_id=str(self.id)
+            message_datetime=req.now,
+            message_control_id=str(self.msg_id)
         )
         pid_segment = self._task.get_patient_hl7_pid_segment(
-            self._recipient_def)
+            req, self._recipient_def)
         other_segments = self._task.get_hl7_data_segments(self._recipient_def)
 
         # ---------------------------------------------------------------------
@@ -674,49 +678,6 @@ class HL7Message(Base):
             return
 
         self.success, self.failure_reason = msg_is_successful_ack(replymsg)
-
-    @classmethod
-    def get_html_header_row(cls,
-                            showmessage: bool = False,
-                            showreply: bool = False) -> str:
-        """Returns HTML table header row for this class."""
-        html = "<tr>"
-        for colname in get_orm_column_names(cls):
-            if colname == "message" and not showmessage:
-                continue
-            if colname == "reply" and not showreply:
-                continue
-            html += "<th>{}</th>".format(fs["name"])
-        html += "</tr>\n"
-        return html
-
-    def get_html_data_row(self,
-                          req: CamcopsRequest,
-                          showmessage: bool = False,
-                          showreply: bool = False) -> bool:
-        """Returns HTML table data row for this instance."""
-        html = "<tr>"
-        for name in get_orm_column_names(self.__class__):
-            if name == "message" and not showmessage:
-                continue
-            if name == "reply" and not showreply:
-                continue
-            value = ws.webify(getattr(self, name))
-            if name == "serverpk":
-                contents = "<a href={}>{}</a>".format(
-                    get_url_task_html(req, self.basetable, self.serverpk),
-                    value
-                )
-            elif name == "run_id":
-                contents = "<a href={}>{}</a>".format(
-                    get_url_hl7_run(req, value),
-                    value
-                )
-            else:
-                contents = str(value)
-            html += "<td>{}</td>".format(contents)
-        html += "</tr>\n"
-        return html
 
 
 # =============================================================================
@@ -816,10 +777,10 @@ def send_all_pending_hl7_messages(cfg: CamcopsConfig,
                                           show_queue_only, queue_stdout)
 
 
-def send_pending_hl7_messages(dbsession: SqlASession,
+def send_pending_hl7_messages(req: CamcopsRequest,
                               recipient_def: RecipientDefinition,
                               show_queue_only: bool,
-                              queue_stdout: typing.io.TextIO) -> None:
+                              queue_stdout: TextIO) -> None:
     """Pings recipient if necessary, opens any files required, creates an
     HL7Run, then sends all pending HL7/file messages to a specific
     recipient."""
@@ -854,7 +815,7 @@ def send_pending_hl7_messages(dbsession: SqlASession,
     if use_divert:
         try:
             with codecs.open(recipient_def.divert_to_file, "a", "utf8") as f:
-                send_pending_hl7_messages_2(dbsession, recipient_def,
+                send_pending_hl7_messages_2(req, recipient_def,
                                             show_queue_only,
                                             queue_stdout, hl7run, f)
         except Exception as e:
@@ -862,98 +823,74 @@ def send_pending_hl7_messages(dbsession: SqlASession,
                       recipient_def.divert_to_file, e)
             return
     else:
-        send_pending_hl7_messages_2(dbsession, recipient_def, show_queue_only,
+        send_pending_hl7_messages_2(req, recipient_def, show_queue_only,
                                     queue_stdout, hl7run, None)
 
 
 def send_pending_hl7_messages_2(
-        dbsession: SqlASession,
+        req: CamcopsRequest,
         recipient_def: RecipientDefinition,
         show_queue_only: bool,
-        queue_stdout: typing.io.TextIO,
+        queue_stdout: TextIO,
         hl7run: HL7Run,
-        divert_file: Optional[typing.io.TextIO]) -> None:
+        divert_file: Optional[TextIO]) -> None:
     """
     Sends all pending HL7/file messages to a specific recipient.
 
     Also called once per recipient, but after diversion files safely
     opened and recipient pinged successfully (if desired).
     """
-    raise NotImplementedError() # ***
+    dbsession = req.dbsession
     n_hl7_sent = 0
     n_hl7_successful = 0
     n_file_sent = 0
     n_file_successful = 0
     files_exported = []
-    basetables = get_base_tables(recipient_def.include_anonymous)
-    for bt in basetables:
+    for cls in Task.all_subclasses_by_tablename():
+        if cls.is_anonymous and not recipient_def.include_anonymous:
+            continue
+        basetable = cls.__tablename__
         # Current records...
-        args = []
-        sql = """
-            SELECT _pk
-            FROM {basetable}
-            WHERE _current
-        """.format(basetable=bt)
-
+        # noinspection PyProtectedMember, PyPep8
+        q = dbsession.query(cls).filter(cls._current == True)
         # Having an appropriate date...
         # Best to use when_created, or _when_added_batch_utc?
         # The former. Because nobody would want a system that would miss
         # amendments to records, and records are defined (date-wise) by
         # when_created.
         if recipient_def.start_date:
-            sql += """
-                AND {} >= ?
-            """.format(
-                cc_db.mysql_select_utc_date_field_from_iso8601_field(
-                    "when_created")
-            )
-            args.append(recipient_def.start_date)
+            q = q.filter(cls.when_created >= recipient_def.start_date)
         if recipient_def.end_date:
-            sql += """
-                AND {} <= ?
-            """.format(
-                cc_db.mysql_select_utc_date_field_from_iso8601_field(
-                    "when_created")
-            )
-            args.append(recipient_def.end_date)
-
+            q = q.filter(cls.when_created <= recipient_def.end_date)
         # That haven't already had a successful HL7 message sent to this
-        # server...
-        sql += """
-            AND _pk NOT IN (
-                SELECT m.serverpk
-                FROM {hl7table} m
-                INNER JOIN {hl7runtable} r
-                ON m.run_id = r.run_id
-                WHERE m.basetable = ?
-                AND r.recipient = ?
-                AND m.success
-                AND (NOT m.cancelled OR m.cancelled IS NULL)
-            )
-        """.format(hl7table=HL7Message.__tablename__,
-                   hl7runtable=HL7Run.__tablename__)
-        args.append(bt)
-        args.append(recipient_def.recipient)
+        # server..
+        subquery = (
+            dbsession.query(HL7Message.serverpk)
+            .join(HL7Run)  # automatic: HL7Run.run_id == HL7Message.run_id
+            .filter(HL7Message.basetable == basetable)
+            .filter(HL7Run.recipient == recipient_def.recipient)
+            .filter(HL7Message.success == True)
+            .filter(or_(not_(HL7Message.cancelled),
+                        HL7Message.cancelled.is_(None)))
+        )  # nopep8
+        # noinspection PyProtectedMember
+        q = q.filter(cls._pk.notin_(subquery))
         # http://explainextended.com/2009/09/18/not-in-vs-not-exists-vs-left-join-is-null-mysql/  # noqa
 
         # That are finalized (i.e. aren't still on the tablet and potentially
         # subject to modification)?
         if recipient_def.finalized_only:
-            sql += """
-                AND _era <> ?
-            """
-            args.append(ERA_NOW)
+            # noinspection PyProtectedMember
+            q = q.filter(cls._era != ERA_NOW)
 
         # OK. Fetch PKs and send information.
-        # log.debug("{}, args={}".format(sql, args))
-        pklist = pls.db.fetchallfirstvalues(sql, *args)
-        for serverpk in pklist:
-            msg = HL7Message(basetable=bt,
-                             serverpk=serverpk,
+        for task in q:
+            msg = HL7Message(task=task,
                              hl7run=hl7run,
                              recipient_def=recipient_def,
                              show_queue_only=show_queue_only)
-            tried, succeeded = msg.send(queue_stdout, divert_file)
+            dbsession.add(msg)
+            tried, succeeded = msg.send(req, queue_stdout, divert_file)
             if not tried:
                 continue
             if recipient_def.using_hl7():
@@ -991,17 +928,6 @@ def make_sure_path_exists(path: str) -> None:
 
 
 # =============================================================================
-# URLs
-# =============================================================================
-
-def get_url_hl7_run(req: CamcopsRequest, run_id: Any) -> str:
-    """URL to view an HL7Run instance."""
-    url = get_generic_action_url(req, ACTION.VIEW_HL7_RUN)
-    url += get_url_field_value_pair(PARAM.HL7RUNID, run_id)
-    return url
-
-
-# =============================================================================
 # Unit tests
 # =============================================================================
 
@@ -1033,14 +959,14 @@ def unit_tests(dbsession: SqlASession) -> None:
     unit_test_ignore("", make_pid_segment, "fname", "sname", now, "sex",
                      "addr", pitlist)
     unit_test_ignore("", make_obr_segment, task)
-    unit_test_ignore("", make_obx_segment, task, VALUE.OUTPUTTYPE_PDF,
+    unit_test_ignore("", make_obx_segment, task, FileType.PDF,
                      "obs_id", now, "responsible_observer")
-    unit_test_ignore("", make_obx_segment, task, VALUE.OUTPUTTYPE_HTML,
+    unit_test_ignore("", make_obx_segment, task, FileType.HTML,
                      "obs_id", now, "responsible_observer")
-    unit_test_ignore("", make_obx_segment, task, VALUE.OUTPUTTYPE_XML,
+    unit_test_ignore("", make_obx_segment, task, FileType.XML,
                      "obs_id", now, "responsible_observer",
                      xml_field_comments=True)
-    unit_test_ignore("", make_obx_segment, task, VALUE.OUTPUTTYPE_XML,
+    unit_test_ignore("", make_obx_segment, task, FileType.XML,
                      "obs_id", now, "responsible_observer",
                      xml_field_comments=False)
     unit_test_ignore("", escape_hl7_text, "blahblah")

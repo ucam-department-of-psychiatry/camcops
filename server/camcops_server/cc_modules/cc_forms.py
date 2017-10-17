@@ -107,8 +107,9 @@ from .cc_constants import (
     USER_NAME_FOR_SYSTEM,
 )
 from .cc_group import Group
+from .cc_idnumdef import IdNumDefinition
 from .cc_patient import Patient
-from .cc_patientidnum import IdNumDefinition, PatientIdNum
+from .cc_patientidnum import PatientIdNum
 from .cc_policy import TokenizedPolicy
 from .cc_pyramid import FormAction, ViewArg, ViewParam
 from .cc_sqlalchemy import Dialect
@@ -118,6 +119,8 @@ from .cc_sqla_coltypes import (
     FULLNAME_MAX_LEN,
     GROUP_DESCRIPTION_MAX_LEN,
     GROUP_NAME_MAX_LEN,
+    HL7_AA_MAX_LEN,
+    HL7_ID_TYPE_MAX_LEN,
     ID_DESCRIPTOR_MAX_LEN,
     USERNAME_MAX_LEN,
 )
@@ -1028,6 +1031,29 @@ class IdDefinitionShortDescriptionNode(SchemaNode):
     validator = Length(1, ID_DESCRIPTOR_MAX_LEN)
 
 
+class Hl7AssigningAuthorityNode(OptionalStringNode):
+    schema_type = String
+    title = "HL7 Assigning Authority"
+    description = (
+        "For HL7 messaging: "
+        "HL7 Assigning Authority for ID number (unique name of the "
+        "system/organization/agency/department that creates the data)."
+    )
+    validator = Length(0, HL7_AA_MAX_LEN)
+
+
+class Hl7IdTypeNode(OptionalStringNode):
+    schema_type = String
+    title = "HL7 Identifier Type"
+    description = (
+        "For HL7 messaging: "
+        "HL7 Identifier Type code: 'a code corresponding to the type "
+        "of identifier. In some cases, this code may be used as a "
+        "qualifier to the \"Assigning Authority\" component.'"
+    )
+    validator = Length(0, HL7_ID_TYPE_MAX_LEN)
+
+
 class HardWorkConfirmationSchema(CSRFSchema):
     confirm_1_t = BooleanNode(title="Really?", default=False)
     confirm_2_t = BooleanNode(title="Leave ticked to confirm", default=True)
@@ -1721,6 +1747,8 @@ class EditIdDefinitionSchema(CSRFSchema):
     which_idnum = HiddenIntegerNode()  # must match ViewParam.WHICH_IDNUM
     description = IdDefinitionDescriptionNode()  # must match ViewParam.DESCRIPTION  # noqa
     short_description = IdDefinitionShortDescriptionNode()  # must match ViewParam.SHORT_DESCRIPTION  # noqa
+    hl7_id_type = Hl7IdTypeNode()  # must match ViewParam.HL7_ID_TYPE
+    hl7_assigning_authority = Hl7AssigningAuthorityNode()  # must match ViewParam.HL7_ASSIGNING_AUTHORITY  # noqa
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         req = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
@@ -1839,7 +1867,7 @@ class EraseTaskForm(DangerousForm):
 class DeletePatientChooseSchema(CSRFSchema):
     which_idnum = MandatoryWhichIdNumSelector()  # must match ViewParam.WHICH_IDNUM  # noqa
     idnum_value = MandatoryIdNumValue()  # must match ViewParam.IDNUM_VALUE
-    group_id = MandatoryGroupIdSelectorAdministeredGroups()  # must match ViewParam.GROUP_ID
+    group_id = MandatoryGroupIdSelectorAdministeredGroups()  # must match ViewParam.GROUP_ID  # noqa
     danger = ValidateDangerousOperationNode()
 
 

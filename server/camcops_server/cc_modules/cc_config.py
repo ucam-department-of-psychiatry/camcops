@@ -33,7 +33,7 @@ import datetime
 import operator
 import os
 import logging
-from typing import Dict, Generator, List, Optional
+from typing import Dict, Generator, List
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -45,13 +45,22 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.sqlalchemy.logs import pre_disable_sqlalchemy_extra_echo_log  # noqa
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
+from cardinal_pythonlib.sqlalchemy.session import make_mysql_url
+from pendulum import Pendulum
 from sqlalchemy.engine import create_engine, Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session as SqlASession
 
 from .cc_baseconstants import (
+    CAMCOPS_EXECUTABLE,
+    CAMCOPS_SERVER_DIRECTORY,
+    DEFAULT_EXTRA_STRINGS_DIR,
     ENVVAR_CONFIG_FILE,
     INTROSPECTABLE_EXTENSIONS,
+    LINUX_DEFAULT_CAMCOPS_DIR,
+    LINUX_DEFAULT_LOCK_DIR,
+    LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
+    STATIC_ROOT_DIR,
 )
 from .cc_cache import cache_region_static, fkg
 from .cc_constants import (
@@ -67,12 +76,11 @@ from .cc_constants import (
     DEFAULT_TIMEOUT_MINUTES,
     INTROSPECTION_BASE_DIRECTORY,
 )
-from .cc_filename import (
-    filename_spec_is_valid,
-    patient_spec_for_filename_is_valid,
-)
+from .cc_filename import FilenameSpecElement, PatientSpecElementForFilename
+from .cc_pyramid import MASTER_ROUTE_CLIENT_API
 from .cc_simpleobjects import IntrospectionFileDetails
 from .cc_recipdef import ConfigParamRecipient, RecipientDefinition
+from .cc_version_string import CAMCOPS_SERVER_VERSION_STRING
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -131,37 +139,35 @@ def get_demo_config(camcops_base_dir: str = None,
                     summary_table_lock_file_stem: str = None,
                     db_url: str = None,
                     db_echo: bool = False) -> str:
-    camcops_base_dir = camcops_base_dir or '/usr/share/camcops'
-    _server_base_dir = os.path.join(camcops_base_dir, 'server')
-    extra_strings_dir = extra_strings_dir or os.path.join(
-        _server_base_dir, 'extra_strings')
-    lock_dir = lock_dir or '/var/lock/camcops'
+    camcops_base_dir = camcops_base_dir or LINUX_DEFAULT_CAMCOPS_DIR
+    server_base_dir = os.path.join(camcops_base_dir, 'server')
+    extra_strings_dir = extra_strings_dir or DEFAULT_EXTRA_STRINGS_DIR
+    extra_strings_spec = os.path.join(extra_strings_dir, '*')
+    lock_dir = lock_dir or LINUX_DEFAULT_LOCK_DIR
     hl7_lockfile_stem = hl7_lockfile_stem or os.path.join(
         lock_dir, 'camcops.hl7')
-    static_dir = static_dir or os.path.join(_server_base_dir, 'static')
+    static_dir = static_dir or os.path.join(server_base_dir, 'static')
     summary_table_lock_file_stem = (
         summary_table_lock_file_stem or os.path.join(
             lock_dir, 'camcops.summarytables'
         )
     )
+    # ...
+    # http://www.debian.org/doc/debian-policy/ch-opersys.html#s-writing-init
+    # https://people.canonical.com/~cjwatson/ubuntu-policy/policy.html/ch-opersys.html  # noqa
     session_cookie_secret = create_base64encoded_randomness(num_bytes=64)
 
     if not db_url:
-        db_url = (
-            "mysql+mysqldb://{u}:P{p}@localhost:3306/{db}?charset=utf8".format(
-                db=DEFAULT_DB_NAME,
-                u=DEFAULT_DB_USER,
-                p=DEFAULT_DB_PASSWORD,
-            )
-        )
-    anonstag_db_url = (
-        "mysql+mysqldb://{u}:P{p}@localhost:3306/{db}?charset=utf8".format(
-            db=DEFAULT_ANONSTAG_DB_NAME,
-            u=DEFAULT_ANONSTAG_DB_USER,
-            p=DEFAULT_ANONSTAG_DB_PASSWORD,
-        )
-    )
+        db_url = make_mysql_url(username=DEFAULT_DB_USER,
+                                password=DEFAULT_DB_PASSWORD,
+                                dbname=DEFAULT_DB_NAME)
+    anonstag_db_url = make_mysql_url(username=DEFAULT_ANONSTAG_DB_USER,
+                                     password=DEFAULT_ANONSTAG_DB_PASSWORD,
+                                     dbname=DEFAULT_ANONSTAG_DB_NAME)
     return """
+# Demonstration CamCOPS configuration file.
+# Created by CamCOPS version {version} at {now}.
+
 # =============================================================================
 # Format of the CamCOPS configuration file
 # =============================================================================
@@ -229,7 +235,7 @@ def get_demo_config(camcops_base_dir: str = None,
 # For it to operate in absolute mode, it would need to know (3).
 # Part 4 is visible to the CamCOPS script.
 #
-# If CamCOPS used URLs starting with '/', it would need to be told at least
+# If CamCOPS emitted URLs starting with '/', it would need to be told at least
 # part (3). To use absolute URLs, it would need to know all of (1), (2), (3).
 # We will follow others (e.g. http://stackoverflow.com/questions/2005079) and
 # use only relative URLs.
@@ -246,12 +252,12 @@ def get_demo_config(camcops_base_dir: str = None,
 # to your file via the Apache configuration file).
 # Edit the next line to point to your local institution's logo file:
 
-{cp.LOCAL_LOGO_FILE_ABSOLUTE} = {DSTSTATICDIR}/logo_local.png
+{cp.LOCAL_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_local.png
 
 # {cp.CAMCOPS_LOGO_FILE_ABSOLUTE}: similarly, but for the CamCOPS logo.
 # It's fine not to specify this.
 
-# {cp.CAMCOPS_LOGO_FILE_ABSOLUTE} = {DSTSTATICDIR}/logo_camcops.png
+# {cp.CAMCOPS_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_camcops.png
 
 # {cp.EXTRA_STRING_FILES}: multiline list of filenames (with absolute paths), read
 # by the server, and used as EXTRA STRING FILES. Should at the MINIMUM point
@@ -259,7 +265,7 @@ def get_demo_config(camcops_base_dir: str = None,
 # May use "glob" pattern-matching (see
 # https://docs.python.org/3.5/library/glob.html).
 
-{cp.EXTRA_STRING_FILES} = {DSTEXTRASTRINGS}/*
+{cp.EXTRA_STRING_FILES} = {extra_strings_spec}
 
 # {cp.INTROSPECTION}: permits the offering of CamCOPS source code files to the user,
 # allowing inspection of tasks' internal calculating algorithms. Default is
@@ -268,24 +274,24 @@ def get_demo_config(camcops_base_dir: str = None,
 {cp.INTROSPECTION} = true
 
 # {cp.HL7_LOCKFILE}: filename stem used for process locking for HL7 message
-# transmission. Default is {DSTHL7LOCKFILESTEM}
+# transmission. Default is {hl7_lockfile_stem}
 # The actual lockfile will, in this case, be called
-#     {DSTHL7LOCKFILESTEM}.lock
+#     {hl7_lockfile_stem}.lock
 # and other process-specific files will be created in the same directory (so
 # the CamCOPS script must have permission from the operating system to do so).
-# The installation script will create the directory {DSTLOCKDIR}
+# The installation script will create the directory {lock_dir}
 
-{cp.HL7_LOCKFILE} = {DSTHL7LOCKFILESTEM}
+{cp.HL7_LOCKFILE} = {hl7_lockfile_stem}
 
 # {cp.SUMMARY_TABLES_LOCKFILE}: file stem used for process locking for summary table
-# generation. Default is {DSTSUMMARYTABLELOCKFILESTEM}.
+# generation. Default is {summary_table_lock_file_stem}.
 # The lockfile will, in this case, be called
-#     {DSTSUMMARYTABLELOCKFILESTEM}.lock
+#     {summary_table_lock_file_stem}.lock
 # and other process-specific files will be created in the same directory (so
 # the CamCOPS script must have permission from the operating system to do so).
-# The installation script will create the directory {DSTLOCKDIR}
+# The installation script will create the directory {lock_dir}
 
-{cp.SUMMARY_TABLES_LOCKFILE} = {DSTSUMMARYTABLELOCKFILESTEM}
+{cp.SUMMARY_TABLES_LOCKFILE} = {summary_table_lock_file_stem}
 
 # {cp.WKHTMLTOPDF_FILENAME}: for the pdfkit PDF engine, specify a filename for
 # wkhtmltopdf that incorporates any need for an X Server (not the default
@@ -303,7 +309,7 @@ def get_demo_config(camcops_base_dir: str = None,
 # Put something random in here and keep it secret.
 # (When you make a CamCOPS demo config, the value shown is fresh and random.)
 
-{cp.SESSION_COOKIE_SECRET} = camcops_autogenerated_secret_{SESSION_COOKIE_SECRET}
+{cp.SESSION_COOKIE_SECRET} = camcops_autogenerated_secret_{session_cookie_secret}
 
 # {cp.SESSION_TIMEOUT_MINUTES}: Time after which a session will expire (default 30).
 
@@ -344,36 +350,36 @@ def get_demo_config(camcops_base_dir: str = None,
 # -----------------------------------------------------------------------------
 # Try with Chrome, Firefox. Internet Explorer may be less obliging.
 
-# {cp.PATIENT_SPEC_IF_ANONYMOUS}: for anonymous tasks, this string is used as the
-# patient descriptor (see also {cp.PATIENT_SPEC} below).
+# {cp.PATIENT_SPEC_IF_ANONYMOUS}: for anonymous tasks, this fixed string is 
+# used as the patient descriptor (see also {cp.PATIENT_SPEC} below).
 # Typically "anonymous".
 
 {cp.PATIENT_SPEC_IF_ANONYMOUS} = anonymous
 
 # {cp.PATIENT_SPEC}: string, into which substitutions will be made, that defines the
-# {{patient}} element available for substitution into the *_FILENAME_SPEC
+# {{{fse.PATIENT}}} element available for substitution into the *_FILENAME_SPEC
 # variables (see below). Possible substitutions:
 #
-#   {{surname}}      : patient's surname in upper case
-#   {{forename}}     : patient's forename in upper case
-#   {{dob}}          : patient's date of birth (format "%Y-%m-%d", e.g.
+#   {{{pse.SURNAME}}}      : patient's surname in upper case
+#   {{{pse.FORENAME}}}     : patient's forename in upper case
+#   {{{pse.DOB}}}          : patient's date of birth (format "%Y-%m-%d", e.g.
 #                    2013-07-24)
-#   {{sex}}          : patient's sex (M, F, X)
+#   {{{pse.SEX}}}          : patient's sex (M, F, X)
 #
-#   {{idshortdesc1}} : short description of the relevant ID number, if that ID
-#   ...              number is not blank; otherwise blank
-#   {{idshortdesc8}}
-#
-#   {{idnum1}}       : ID numbers
-#   {{idnum2}}
+#   {{{pse.IDSHORTDESC_PREFIX}1}} : short description of the relevant ID number, if that ID
+#   {{{pse.IDSHORTDESC_PREFIX}2}}   number is not blank; otherwise blank
 #   ...
 #
-#   {{allidnums}}    : all available ID numbers in "shortdesc-value" pairs joined
+#   {{{pse.IDNUM_PREFIX}1}}       : ID numbers
+#   {{{pse.IDNUM_PREFIX}2}}
+#   ...
+#
+#   {{{pse.ALLIDNUMS}}}    : all available ID numbers in "shortdesc-value" pairs joined
 #                    by "_". For example, if ID numbers 1, 4, and 5 are
 #                    non-blank, this would have the format
-#                    idshortdesc1-idval1_idshortdesc4-idval4_idshortdesc5-idval5
+#                    {pse.IDSHORTDESC_PREFIX}1-{pse.IDNUM_PREFIX}1_{pse.IDSHORTDESC_PREFIX}4-{pse.IDNUM_PREFIX}4_{pse.IDSHORTDESC_PREFIX}5-{pse.IDNUM_PREFIX}5
 
-{cp.PATIENT_SPEC} = {{surname}}_{{forename}}_{{allidnums}}
+{cp.PATIENT_SPEC} = {{{pse.SURNAME}}}_{{{pse.FORENAME}}}_{{{pse.ALLIDNUMS}}}
 
 # {cp.TASK_FILENAME_SPEC}:
 # {cp.TRACKER_FILENAME_SPEC}:
@@ -382,23 +388,23 @@ def get_demo_config(camcops_base_dir: str = None,
 # trackers, and clinical text views. Substitutions will be made to determine
 # the filename to be used for each file. Possible substitutions:
 #
-#   {{patient}}   : Patient string. If the task is anonymous, this is
-#                 PATIENT_SPEC_IF_ANONYMOUS; otherwise, it is defined by
-#                 PATIENT_SPEC above.
-#   {{created}}   : Date/time of task creation.  Dates/times are of the format
+#   {{{fse.PATIENT}}}   : Patient string. If the task is anonymous, this is
+#                 {cp.PATIENT_SPEC_IF_ANONYMOUS}; otherwise, it is defined by
+#                 {cp.PATIENT_SPEC} above.
+#   {{{fse.CREATED}}}   : Date/time of task creation.  Dates/times are of the format
 #                 "%Y-%m-%dT%H%M", e.g. 2013-07-24T2004. They are expressed in
 #                 the timezone of creation (but without the timezone
 #                 information for filename brevity).
-#   {{now}}       : Time of access/download (i.e. time now), in local timezone.
-#   {{tasktype}}  : Base table name of the task (e.g. "phq9"). May contain an
+#   {{{fse.NOW}}}       : Time of access/download (i.e. time now), in local timezone.
+#   {{{fse.TASKTYPE}}}  : Base table name of the task (e.g. "phq9"). May contain an
 #                 underscore. Blank for to trackers/CTVs.
-#   {{serverpk}}  : Server's primary key. (In combination with tasktype, this
+#   {{{fse.SERVERPK}}}  : Server's primary key. (In combination with tasktype, this
 #                 uniquely identifies not just a task but a version of that
 #                 task.) Blank for trackers/CTVs.
-#   {{filetype}}  : e.g. "pdf", "html", "xml" (lower case)
-#   {{anonymous}} : evaluates to PATIENT_SPEC_IF_ANONYMOUS if anonymous,
+#   {{{fse.FILETYPE}}}  : e.g. "pdf", "html", "xml" (lower case)
+#   {{{fse.ANONYMOUS}}} : evaluates to {cp.PATIENT_SPEC_IF_ANONYMOUS} if anonymous,
 #                 otherwise ""
-#   ... plus all those substitutions applicable to PATIENT_SPEC
+#   ... plus all those substitutions applicable to {cp.PATIENT_SPEC}
 #
 # After these substitutions have been made, the entire filename is then
 # processed to ensure that only characters generally acceptable to filenames
@@ -570,32 +576,6 @@ def get_demo_config(camcops_base_dir: str = None,
 
 {cpr.NETWORK_TIMEOUT_MS} = 10000
 
-# {cpr.IDNUM_TYPE_PREFIX}1 ...: strings used as the HL7 identifier type code
-# in the PID segment, field 3 (internal ID) list of identifiers. If one is
-# blank, its information will not be sent. (If the {cpr.PRIMARY_IDNUM}'s type is
-# blank, the system will not process messages.)
-
-{cpr.IDNUM_TYPE_PREFIX}1 = NHS
-{cpr.IDNUM_TYPE_PREFIX}2 = RiO
-{cpr.IDNUM_TYPE_PREFIX}3 = M
-{cpr.IDNUM_TYPE_PREFIX}4 = Add
-{cpr.IDNUM_TYPE_PREFIX}5 = Pap
-{cpr.IDNUM_TYPE_PREFIX}6 = Hinch
-{cpr.IDNUM_TYPE_PREFIX}7 = PCH
-{cpr.IDNUM_TYPE_PREFIX}8 =
-
-# {cpr.IDNUM_AA_PREFIX}1 ...: strings used as the Assigning Authority in the PID
-# segment, field 3 (internal ID) list of identifiers. Optional.
-
-{cpr.IDNUM_AA_PREFIX}1 = NHS
-{cpr.IDNUM_AA_PREFIX}2 = CPFT
-{cpr.IDNUM_AA_PREFIX}3 = CPFT
-{cpr.IDNUM_AA_PREFIX}4 = CUH
-{cpr.IDNUM_AA_PREFIX}5 = CUH
-{cpr.IDNUM_AA_PREFIX}6 = HHC
-{cpr.IDNUM_AA_PREFIX}7 = PSH
-{cpr.IDNUM_AA_PREFIX}8 =
-
 # {cpr.KEEP_MESSAGE}: keep a copy of the entire message in the databaase. Default is
 # false. WARNING: may consume significant space in the database.
 
@@ -731,15 +711,438 @@ def get_demo_config(camcops_base_dir: str = None,
         DEFAULT_DB_NAME=DEFAULT_DB_NAME,
         DEFAULT_DB_PASSWORD=DEFAULT_DB_PASSWORD,
         DEFAULT_DB_USER=DEFAULT_DB_USER,
-        DSTBASEDIR=camcops_base_dir,
-        DSTEXTRASTRINGS=extra_strings_dir,
-        DSTHL7LOCKFILESTEM=hl7_lockfile_stem,
-        DSTLOCKDIR=lock_dir,
-        DSTSTATICDIR=static_dir,
-        DSTSUMMARYTABLELOCKFILESTEM=summary_table_lock_file_stem,
+        extra_strings_spec=extra_strings_spec,
+        hl7_lockfile_stem=hl7_lockfile_stem,
+        lock_dir=lock_dir,
+        static_dir=static_dir,
+        summary_table_lock_file_stem=summary_table_lock_file_stem,
         DUMMY_INSTITUTION_URL=DUMMY_INSTITUTION_URL,
-        SESSION_COOKIE_SECRET=session_cookie_secret,
+        fse=FilenameSpecElement,
+        now=str(Pendulum.now()),
+        pse=PatientSpecElementForFilename,
+        session_cookie_secret=session_cookie_secret,
+        version=CAMCOPS_SERVER_VERSION_STRING,
     )
+
+
+# =============================================================================
+# Demo configuration files, other than the CamCOPS config file itself
+# =============================================================================
+
+DEFAULT_INTERNAL_PORT = 8000
+DEFAULT_SOCKET_FILENAME = "/tmp/.camcops.sock"
+
+
+def get_demo_supervisor_config(
+        specimen_internal_port: int = DEFAULT_INTERNAL_PORT,
+        specimen_socket_file: str = DEFAULT_SOCKET_FILENAME) -> str:
+    return """
+# =============================================================================
+# Demonstration 'supervisor' config file for CamCOPS.
+# Created by CamCOPS version {version} at {now}.
+# =============================================================================
+# - Supervisor is a system for controlling background processes running on
+#   UNIX-like operating systems. See:
+#       http://supervisord.org
+# - On Ubuntu systems, you would typically install supervisor with
+#       sudo apt install supervisor
+#   and then save this file as
+#       /etc/supervisor/conf.d/camcops.conf
+#
+# - IF YOU EDIT THIS FILE, run:
+#       sudo service supervisor restart
+# - TO MONITOR SUPERVISOR, run:
+#       sudo supervisorctl status
+#   ... or just "sudo supervisorctl" for an interactive prompt.
+#
+# - TO ADD MORE CAMCOPS INSTANCES, first consider whether you wouldn't be 
+#   better off just adding groups. If you decide you want a completely new
+#   instance, make a copy of the [program:camcops] section, renaming the copy, 
+#   and change the following:
+#   - the --config switch;
+#   - the port or socket;
+#   - the log files.
+#   Then make the main web server point to the copy as well.
+#
+# NOTES ON THE SUPERVISOR CONFIG FILE AND ENVIRONMENT:
+# - Indented lines are treated as continuation (even in commands; no need for
+#   end-of-line backslashes or similar).
+# - You can't put quotes around the directory variable
+#   http://stackoverflow.com/questions/10653590
+# - Python programs that are installed within a Python virtual environment 
+#   automatically use the virtualenv's copy of Python via their shebang; you do
+#   not need to specify that by hand, nor the PYTHONPATH.
+# - The "environment" setting sets the OS environment. The "--env" parameter
+#   to gunicorn, if you use it, sets the WSGI environment.
+
+[program:camcops]
+
+command = {CAMCOPS_EXECUTABLE}
+    serve
+    --config /etc/camcops/camcops.conf
+    --unix_domain_socket {specimen_socket_file}
+    --threads_start 10 
+    --thread_max 100
+    --trusted_proxy_headers 
+        HTTP_X_FORWARDED_HOST 
+        HTTP_X_FORWARDED_SERVER 
+        HTTP_X_FORWARDED_PORT 
+        HTTP_X_FORWARDED_PROTO 
+        HTTP_X_SCRIPT_NAME
+
+    # To run via a TCP socket, use e.g.:
+    #   --host 127.0.0.1 --port {specimen_internal_port}
+    # To run via a UNIX domain socket, use e.g.
+    #   --unix_domain_socket {specimen_socket_file} 
+
+directory = {CAMCOPS_SERVER_DIRECTORY}
+
+environment = MPLCONFIGDIR="{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}"
+
+    # MPLCONFIGDIR specifies a cache directory for matplotlib, which greatly
+    # speeds up its subsequent loading. 
+
+user = www-data
+    # ... Ubuntu: typically www-data
+    # ... CentOS: typically apache
+
+stdout_logfile = /var/log/supervisor/camcops_out.log
+stderr_logfile = /var/log/supervisor/camcops_err.log
+
+autostart = true
+autorestart = true
+startsecs = 10
+stopwaitsecs = 60
+
+    """.format(
+        CAMCOPS_EXECUTABLE=CAMCOPS_EXECUTABLE,
+        CAMCOPS_SERVER_DIRECTORY=CAMCOPS_SERVER_DIRECTORY,
+        LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR=LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
+        now=str(Pendulum.now()),
+        specimen_internal_port=specimen_internal_port,
+        specimen_socket_file=specimen_socket_file,
+        version=CAMCOPS_SERVER_VERSION_STRING,
+    )
+
+
+def get_demo_apache_config(
+        urlbase: str = "/camcops",
+        specimen_internal_port: int = DEFAULT_INTERNAL_PORT,
+        specimen_socket_file: str = DEFAULT_SOCKET_FILENAME) -> str:
+    return """
+    # Demonstration Apache config file section for CamCOPS.
+    # Created by CamCOPS version {version} at {now}.
+    #
+    # Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
+    # Under CentOS, the Apache config will be somewhere in /etc/httpd/
+    #
+    # This section should go within the <VirtualHost> directive for the secure
+    # (SSL, HTTPS) part of the web site. 
+
+<VirtualHost *:443>
+    # ...
+
+    # =========================================================================
+    # CamCOPS
+    # =========================================================================
+
+        # ---------------------------------------------------------------------
+        # 1. Proxy requests to the CamCOPS web server and back; allow access
+        # ---------------------------------------------------------------------
+        # ... either via an internal TCP/IP port (e.g. 1024 or higher, and NOT
+        #     accessible to users);
+        # ... or, better, via a Unix socket, e.g. /tmp/.camcops.sock
+        #
+        # NOTES
+        # - When you ProxyPass {urlbase}, you should browse to
+        #       https://YOURSITE{urlbase}
+        #   and point your tablet devices to
+        #       https://YOURSITE{urlbase}{MASTER_ROUTE_CLIENT_API}
+        # - Don't specify trailing slashes for the ProxyPass and 
+        #   ProxyPassReverse directives.
+        #   If you do, http://host/camcops will fail though
+        #              http://host/camcops/ will succeed.
+        # - Ensure that you put the CORRECT PROTOCOL (http, https) in the rules
+        #   below.
+        # - For ProxyPass options, see https://httpd.apache.org/docs/2.2/mod/mod_proxy.html#proxypass
+        #   ... including "retry=0" to stop Apache disabling the connection for
+        #       a while on failure.
+        # - Using a socket
+        #   - this requires Apache 2.4.9, and passes after the '|' character a
+        #     URL that determines the Host: value of the request; see
+        #     https://httpd.apache.org/docs/trunk/mod/mod_proxy.html#proxypass
+        # - CamCOPS MUST BE TOLD about its location and protocol, because that
+        #   information is critical for synthesizing URLs, but is stripped out
+        #   by the reverse proxy system. There are two ways:
+        #   (i)  specifying headers or WSGI environment variables, such as
+        #        the HTTP(S) headers X-Forwarded-Proto and X-Script-Name below
+        #        (CamCOPS is aware of these);
+        #   (ii) specifying options to "camcops serve", including
+        #           --script_name
+        #           --scheme
+        #        and optionally
+        #           --server
+        #
+        # So:
+        #
+        # ~~~~~~~~~~~~~~~~~
+        # (a) Reverse proxy
+        # ~~~~~~~~~~~~~~~~~
+        #
+        # PORT METHOD
+        # Note the use of "http" (reflecting the backend), not https (like the
+        # front end).
+        
+    ProxyPass {urlbase} http://127.0.0.1:{specimen_internal_port} retry=0
+    ProxyPassReverse {urlbase} http://127.0.0.1:{specimen_internal_port} retry=0
+
+        # UNIX SOCKET METHOD (Apache 2.4.9 and higher)
+        #
+        # The general syntax is:
+        #   ProxyPass /URL_USER_SEES unix:SOCKETFILE|PROTOCOL://HOST/EXTRA_URL_FOR_BACKEND retry=0
+        # Note that:
+        #   - the protocol should be http, not https (Apache deals with the
+        #     HTTPS part and passes HTTP on)
+        #   - the EXTRA_URL_FOR_BACKEND needs to be (a) unique for each
+        #     instance or Apache will use a single worker for multiple
+        #     instances, and (b) blank for the backend's benefit. Since those
+        #     two conflict when there's >1 instance, there's a problem.
+        #   - Normally, HOST is given as localhost. It may be that this problem
+        #     is solved by using a dummy unique value for HOST:
+        #     https://bz.apache.org/bugzilla/show_bug.cgi?id=54101#c1
+        #
+        # If your Apache version is too old, you will get the error
+        #   "AH00526: Syntax error on line 56 of /etc/apache2/sites-enabled/SOMETHING:
+        #    ProxyPass URL must be absolute!"
+        # On Ubuntu, if your Apache is too old, you could use
+        #   sudo add-apt-repository ppa:ondrej/apache2
+        # ... details at https://launchpad.net/~ondrej/+archive/ubuntu/apache2
+        #
+        # If you get this error:
+        #   AH01146: Ignoring parameter 'retry=0' for worker 'unix:/tmp/.camcops_gunicorn.sock|https://localhost' because of worker sharing
+        #   https://wiki.apache.org/httpd/ListOfErrors
+        # ... then your URLs are overlapping and should be redone or sorted:
+        #   http://httpd.apache.org/docs/2.4/mod/mod_proxy.html#workers
+        # The part that must be unique for each instance, with no part a
+        # leading substring of any other, is THIS_BIT in:
+        #   ProxyPass /URL_USER_SEES unix:SOCKETFILE|https://localhost/THIS_BIT retry=0
+        #
+        # If you get an error like this:
+        #   AH01144: No protocol handler was valid for the URL /SOMEWHERE. If you are using a DSO version of mod_proxy, make sure the proxy submodules are included in the configuration using LoadModule.
+        # Then do this:
+        #   sudo a2enmod proxy proxy_http
+        #   sudo apache2ctl restart
+        #
+        # If you get an error like this:
+        #   ... [proxy_http:error] [pid 32747] (103)Software caused connection abort: [client 109.151.49.173:56898] AH01102: error reading status line from remote server httpd-UDS:0
+        #       [proxy:error] [pid 32747] [client 109.151.49.173:56898] AH00898: Error reading from remote server returned by /camcops_bruhl/webview
+        # then check you are specifying http://, not https://, in the ProxyPass
+        #
+        # Other information sources:
+        #   https://emptyhammock.com/projects/info/pyweb/webconfig.html
+
+    # ProxyPass /camcops unix:{specimen_socket_file}|https://dummy1/ retry=0
+    # ProxyPassReverse /camcops unix:{specimen_socket_file}|https://dummy1/ retry=0
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~
+        # (b) Allow proxy over SSL.
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Without this, you will get errors like:
+        #   ... SSL Proxy requested for wombat:443 but not enabled [Hint: SSLProxyEngine]
+        #   ... failed to enable ssl support for 0.0.0.0:0 (httpd-UDS)
+        
+    SSLProxyEngine on
+
+    <Location /camcops>
+
+            # ~~~~~~~~~~~~~~~~    
+            # (c) Allow access
+            # ~~~~~~~~~~~~~~~~
+            
+        Require all granted
+
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # (d) Tell the proxied application that we are using HTTPS, and
+            #     where the application is installed
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            #     ... https://stackoverflow.com/questions/16042647
+            #
+            # EITHER enable mod_headers (e.g. "sudo a2enmod headers") and set:
+            
+        RequestHeader set X-Forwarded-Proto https
+        RequestHeader set X-Script-Name {urlbase}
+        
+            # and call CamCOPS like:
+            #
+            # camcops serve \\
+            #       --config SOMECONFIG \\
+            #       --trusted_proxy_headers \\
+            #           HTTP_X_FORWARDED_HOST \\
+            #           HTTP_X_FORWARDED_SERVER \\
+            #           HTTP_X_FORWARDED_PORT \\
+            #           HTTP_X_FORWARDED_PROTO \\
+            #           HTTP_X_SCRIPT_NAME
+            #
+            # (X-Forwarded-For, X-Forwarded-Host, and X-Forwarded-Server are
+            # supplied by Apache automatically)
+            #
+            # ... OR specify those options by hand in the CamCOPS command.
+            
+    </Location>
+
+        # ---------------------------------------------------------------------
+        # 2. Serve static files
+        # ---------------------------------------------------------------------
+        # a) offer them at the appropriate URL
+        # b) provide permission
+        # c) disable ProxyPass for static files
+
+    Alias {urlbase}/static/ {STATIC_ROOT_DIR}/
+
+        # Change this: aim the alias at your own institutional logo.
+        
+    Alias {urlbase}/static/logo_local.png {STATIC_ROOT_DIR}/logo_local.png
+
+    <Directory {STATIC_ROOT_DIR}>
+        Require all granted
+    </Directory>
+    
+        # Don't ProxyPass the static files; we'll serve them via Apache.
+        
+    ProxyPassMatch ^{urlbase}/static/ !
+
+        # ---------------------------------------------------------------------
+        # 3. For additional instances
+        # ---------------------------------------------------------------------
+        # (a) duplicate section 1 above, editing the base URL and CamCOPS
+        #     connection (socket/port);
+        # (b) you will also need to create an additional CamCOPS instance,
+        #     as above;
+        # (c) add additional static aliases (in section 2 above).
+        #
+        # HOWEVER, consider adding more CamCOPS groups, rather than creating
+        # additional instances; the former are *much* easier to administer!
+
+
+    #==========================================================================
+    # SSL security (for HTTPS)
+    #==========================================================================
+
+        # You will also need to install your SSL certificate; see the 
+        # instructions that came with it. You get a certificate by creating a 
+        # certificate signing request (CSR). You enter some details about your 
+        # site, and a software tool makes (1) a private key, which you keep 
+        # utterly private, and (2) a CSR, which you send to a Certificate 
+        # Authority (CA) for signing. They send back a signed certificate, and 
+        # a chain of certificates leading from yours to a trusted root CA.
+        #
+        # You can create your own (a 'snake-oil' certificate), but your tablets
+        # and browsers will not trust it, so this is a bad idea.
+        #
+        # Once you have your certificate: edit and uncomment these lines:
+
+    # SSLEngine on
+
+    # SSLCertificateKeyFile /etc/ssl/private/my.private.key
+
+        # ... a private file that you made before creating the certificate
+        # request, and NEVER GAVE TO ANYBODY, and NEVER WILL (or your
+        # security is broken and you need a new certificate).
+
+    # SSLCertificateFile /etc/ssl/certs/my.public.cert
+
+        # ... signed and supplied to you by the certificate authority (CA),
+        # from the public certificate you sent to them.
+
+    # SSLCertificateChainFile /etc/ssl/certs/my-institution.ca-bundle
+
+        # ... made from additional certificates in a chain, supplied to you by
+        # the CA. For example, mine is univcam.ca-bundle, made with the
+        # command:
+        #
+        # cat TERENASSLCA.crt UTNAddTrustServer_CA.crt AddTrustExternalCARoot.crt > univcam.ca-bundle
+
+</VirtualHost>
+
+    """.format(  # noqa
+        MASTER_ROUTE_CLIENT_API=MASTER_ROUTE_CLIENT_API,
+        now=str(Pendulum.now()),
+        specimen_internal_port=specimen_internal_port,
+        specimen_socket_file=specimen_socket_file,
+        STATIC_ROOT_DIR=STATIC_ROOT_DIR,
+        urlbase=urlbase,
+        version=CAMCOPS_SERVER_VERSION_STRING,
+    )
+
+
+def get_demo_mysql_create_db() -> str:
+    return """
+# First, from the Linux command line, log in to MySQL as root:
+
+mysql --host=127.0.0.1 --port=3306 --user=root --password
+# ... or the usual short form: mysql -u root -p
+
+# Create the database:
+
+CREATE DATABASE {DEFAULT_DB_NAME};
+
+# Ideally, create another user that only has access to the CamCOPS database.
+# You should do this, so that you don’t use the root account unnecessarily.
+
+GRANT ALL PRIVILEGES ON {DEFAULT_DB_NAME}.* TO '{DEFAULT_DB_USER}'@'localhost' IDENTIFIED BY '{DEFAULT_DB_PASSWORD}';
+
+# For future use: if you plan to explore your database directly for analysis,
+# you may want to create a read-only user. Though it may not be ideal (check:
+# are you happy the user can see the audit trail?), you can create a user with
+# read-only access to the entire database like this:
+
+GRANT SELECT {DEFAULT_DB_NAME}.* TO '{DEFAULT_DB_READONLY_USER}'@'localhost' IDENTIFIED BY '{DEFAULT_DB_READONLY_PASSWORD}';
+
+# All done. Quit MySQL:
+
+exit
+    """.format(  # noqa
+        DEFAULT_DB_NAME=DEFAULT_DB_NAME,
+        DEFAULT_DB_USER=DEFAULT_DB_USER,
+        DEFAULT_DB_PASSWORD=DEFAULT_DB_PASSWORD,
+        DEFAULT_DB_READONLY_USER=DEFAULT_DB_READONLY_USER,
+        DEFAULT_DB_READONLY_PASSWORD=DEFAULT_DB_READONLY_PASSWORD,
+    )
+
+
+def get_demo_mysql_dump_script() -> str:
+    return """#!/bin/bash
+
+# Minimal simple script to dump all current MySQL databases.
+# This file must be READABLE ONLY BY ROOT (or equivalent, backup)!
+# The password is in cleartext.
+# Once you have copied this file and edited it, perform:
+#     sudo chown root:root <filename>
+#     sudo chmod 700 <filename>
+# Then you can add it to your /etc/crontab for regular execution.
+
+BACKUPDIR='/var/backups/mysql'
+BACKUPFILE='all_my_mysql_databases.sql'
+USERNAME='root'  # MySQL username
+PASSWORD='PPPPPP_REPLACE_ME'  # MySQL password
+
+# Make directory unless it exists already:
+
+mkdir -p $BACKUPDIR
+
+# Dump the database:
+
+mysqldump -u $USERNAME -p$PASSWORD --all-databases --force > $BACKUPDIR/$BACKUPFILE
+
+# Make sure the backups (which may contain sensitive information) are only
+# readable by the 'backup' user group:
+
+cd $BACKUPDIR
+chown -R backup:backup *
+chmod -R o-rwx *
+chmod -R ug+rw *
+
+    """  # noqa
 
 
 # =============================================================================
@@ -862,13 +1265,9 @@ class CamcopsConfig(object):
             for key, recipientdef_name in hl7_items:
                 log.debug("HL7 config: key={}, recipientdef_name={}",
                           key, recipientdef_name)
-                # *** fixme
-                h = RecipientDefinition(
-                    valid_which_idnums=[], # *** self.get_which_idnums(),
-                    config=config,
-                    section=recipientdef_name)
-                if h.valid:
-                    self.hl7_recipient_defs.append(h)
+                h = RecipientDefinition(config=config,
+                                        section=recipientdef_name)
+                self.hl7_recipient_defs.append(h)
         except configparser.NoSectionError:
             log.info("No config file section [{}]",
                      CONFIG_FILE_RECIPIENTLIST_SECTION)
@@ -903,104 +1302,35 @@ class CamcopsConfig(object):
                 self.introspection_files,
                 key=operator.attrgetter("prettypath"))
 
-        valid_which_idnums = [] # *** self.get_which_idnums()
-
         # ---------------------------------------------------------------------
-        # Valid?
+        # More validity checks
         # ---------------------------------------------------------------------
         if not self.patient_spec_if_anonymous:
-            raise RuntimeError("Blank PATIENT_SPEC_IF_ANONYMOUS in [server] "
-                               "section of config file")
+            raise RuntimeError(
+                "Blank PATIENT_SPEC_IF_ANONYMOUS in [server] "
+                "section of config file")
 
         if not self.patient_spec:
-            raise RuntimeError("Missing/blank PATIENT_SPEC in [server] section"
-                               " of config file")
-        if not patient_spec_for_filename_is_valid(
-                patient_spec=self.patient_spec,
-                valid_which_idnums=valid_which_idnums):
-            raise RuntimeError("Invalid PATIENT_SPEC in [server] section of "
-                               "config file")
+            raise RuntimeError(
+                "Missing/blank PATIENT_SPEC in [server] section"
+                " of config file")
 
         if not self.session_cookie_secret:
-            raise RuntimeError("Invalid or missing SESSION_COOKIE_SECRET "
-                               "setting in [server] section of config file")
+            raise RuntimeError(
+                "Invalid or missing SESSION_COOKIE_SECRET "
+                "setting in [server] section of config file")
 
         if not self.task_filename_spec:
             raise RuntimeError("Missing/blank TASK_FILENAME_SPEC in "
-                               "[server] section of config file")
-        if not filename_spec_is_valid(self.task_filename_spec,
-                                      valid_which_idnums=valid_which_idnums):
-            raise RuntimeError("Invalid TASK_FILENAME_SPEC in "
                                "[server] section of config file")
 
         if not self.tracker_filename_spec:
             raise RuntimeError("Missing/blank TRACKER_FILENAME_SPEC in "
                                "[server] section of config file")
-        if not filename_spec_is_valid(self.tracker_filename_spec,
-                                      valid_which_idnums=valid_which_idnums):
-            raise RuntimeError("Invalid TRACKER_FILENAME_SPEC in "
-                               "[server] section of config file")
 
         if not self.ctv_filename_spec:
             raise RuntimeError("Missing/blank CTV_FILENAME_SPEC in "
                                "[server] section of config file")
-        if not filename_spec_is_valid(self.ctv_filename_spec,
-                                      valid_which_idnums=valid_which_idnums):
-            raise RuntimeError("Invalid CTV_FILENAME_SPEC in "
-                               "[server] section of config file")
-
-        # Moved out from CamcopsConfig:
-        # ---------------------------------------------------------------------
-        # Read from the WSGI environment
-        # ---------------------------------------------------------------------
-        # self.remote_addr = environ.get("REMOTE_ADDR")
-        #       -> Request.remote_addr (Pyramid)
-        # self.remote_port = environ.get("REMOTE_PORT")
-        #       -> not in Pyramid Request object? Unimportant
-        #          Will be available as request.environ["REMOTE_PORT"]
-        # # self.SCRIPT_NAME = environ.get("SCRIPT_NAME", "")
-        # self.SCRIPT_NAME = URL_RELATIVE_WEBVIEW
-        #       -> Request.script_name (Pyramid)
-        #       *** CHECK: script_name is different from URL_RELATIVE_WEBVIEW
-        # self.SERVER_NAME = environ.get("SERVER_NAME")
-        #       -> Request.server_name (Pyramid)
-        # ---------------------------------------------------------------------
-        # More complex, WSGI-derived
-        # ---------------------------------------------------------------------
-        #     # Reconstruct URL:
-        #     # http://www.python.org/dev/peps/pep-0333/#url-reconstruction
-        #     protocol = environ.get("wsgi.url_scheme", "")
-        #     if environ.get("HTTP_HOST"):
-        #         host = environ.get("HTTP_HOST")
-        #     else:
-        #         host = environ.get("SERVER_NAME", "")
-        #     port = ""
-        #     server_port = environ.get("SERVER_PORT")
-        #     if (server_port and
-        #             ":" not in host and
-        #             not(protocol == "https" and server_port == "443") and
-        #             not(protocol == "http" and server_port == "80")):
-        #         port = ":" + server_port
-        #     script = urllib.parse.quote(environ.get("SCRIPT_NAME", ""))
-        #     path = urllib.parse.quote(environ.get("PATH_INFO", ""))
-        #
-        #     # But not the query string:
-        #     # if environ.get("QUERY_STRING"):
-        #     #    query += "?" + environ.get("QUERY_STRING")
-        #     # else:
-        #     #    query = ""
-        #
-        #     url = "{protocol}://{host}{port}{script}{path}".format(
-        #         protocol=protocol,
-        #         host=host,
-        #         port=port,
-        #         script=script,
-        #         path=path,
-        #     )
-        #
-        #     self.SCRIPT_PUBLIC_URL_ESCAPED = escape(url)
-        #
-        #           -> ***
 
     def create_sqla_engine(self) -> Engine:
         return create_engine(

@@ -111,7 +111,9 @@ def assert_database_is_at_head(cfg: "CamcopsConfig") -> None:
     if current == head:
         log.debug("Database is at correct (head) revision of {}", current)
     else:
-        log.critical(
+        msg = (
             "Database structure is at version {} but should be at version {}. "
-            "CamCOPS will not start. Please use the --upgradedb command to "
-            "fix this.", current, head)
+            "CamCOPS will not start. Please use the 'upgrade_db' command to "
+            "fix this.".format(current, head))
+        log.critical(msg)
+        raise RuntimeError(msg)

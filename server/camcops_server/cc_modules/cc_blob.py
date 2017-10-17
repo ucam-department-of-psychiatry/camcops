@@ -278,6 +278,7 @@ def unit_tests_blob(blob: Blob) -> None:
     unit_test_ignore("", blob.dump)
     unit_test_ignore("", blob.get_rotated_image)
     unit_test_ignore("", blob.get_img_html)
+    # noinspection PyProtectedMember
     unit_test_ignore("", blob._get_xml_theblob_value_binary, "name")
     unit_test_ignore("", blob.get_data_url)
 

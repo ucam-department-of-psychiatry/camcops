@@ -255,6 +255,7 @@ class TaskCollection(object):
         # Restrict to what the web front end will supply
         # noinspection PyProtectedMember
         if self._current_only:
+            # noinspection PyProtectedMember
             q = q.filter(task_class._current == True)  # nopep8
 
         # Restrict to what is PERMITTED

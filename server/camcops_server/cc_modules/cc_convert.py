@@ -149,11 +149,6 @@ def decode_values(valuelist: str) -> List[Any]:
     return v
 
 
-def delimit(f: str) -> str:
-    """Delimits a field for SQL queries."""
-    return pls.db.delimit(f)
-
-
 # =============================================================================
 # Conversion to TSV
 # =============================================================================

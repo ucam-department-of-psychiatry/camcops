@@ -36,7 +36,6 @@ from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     PermittedValueChecker,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
 
@@ -124,8 +123,7 @@ class CopeBrief(TaskHasPatientMixin, Task,
     )
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(name="self_distraction",
                            coltype=Integer(),
                            value=self.self_distraction(),

@@ -31,8 +31,7 @@ We use primarily SQLAlchemy Core here (in contrast to the ORM used elsewhere).
 
 import logging
 import time
-from typing import (Any, Dict, Iterable, List,
-                    Optional, Sequence, Tuple, Type)
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 from cardinal_pythonlib.convert import (
     base64_64format_encode,
@@ -48,7 +47,6 @@ from cardinal_pythonlib.sqlalchemy.core_query import (
 )
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
 from pendulum import Pendulum
-from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
@@ -87,7 +85,7 @@ from .cc_dirtytables import DirtyTable
 from .cc_group import Group
 from .cc_patient import Patient
 from .cc_patientidnum import fake_tablet_id_for_patientidnum, PatientIdNum
-from .cc_pyramid import RequestMethod, Routes
+from .cc_pyramid import Routes
 from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
 from .cc_unittest import (
@@ -383,9 +381,9 @@ def record_exists(req: CamcopsRequest,
         .where(table.c[clientpk_name] == clientpk_value)
     )
     pklist = fetch_all_first_values(req.dbsession, query)
-    record_exists = bool(len(pklist) >= 1)
-    serverpk = pklist[0] if record_exists else None
-    return record_exists, serverpk
+    rec_exists = bool(len(pklist) >= 1)
+    serverpk = pklist[0] if rec_exists else None
+    return rec_exists, serverpk
     # Consider a warning/failure if we have >1 row meeting these criteria.
     # Not currently checked for.
 
@@ -1305,9 +1303,9 @@ def upload_record(req: CamcopsRequest) -> str:
         # Update
         oldserverpk = serverpks[0]
         client_date_value = valuedict[CLIENT_DATE_FIELD]
-        exists = record_identical_by_date(req, table, oldserverpk,
-                                          client_date_value)
-        if exists:
+        rec_exists = record_identical_by_date(req, table, oldserverpk,
+                                              client_date_value)
+        if rec_exists:
             log.info("upload-update: skipping existing record")
         else:
             newserverpk = duplicate_record(req, table, oldserverpk)

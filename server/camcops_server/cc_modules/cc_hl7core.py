@@ -31,6 +31,7 @@ from pendulum import Date, Pendulum
 from sqlalchemy.orm import Session as SqlASession
 
 from .cc_constants import DateFormat
+from .cc_filename import FileType
 from .cc_simpleobjects import HL7PatientIdentifier
 from .cc_unittest import unit_test_ignore
 
@@ -158,13 +159,13 @@ def make_msh_segment(message_datetime: Pendulum,
     return segment
 
 
-def make_pid_segment(forename: str,
-                     surname: str,
-                     dob: Date,
-                     sex: str,
-                     address: str,
-                     patient_id_list: List[
-                         HL7PatientIdentifier] = None) -> hl7.Segment:
+def make_pid_segment(
+        forename: str,
+        surname: str,
+        dob: Date,
+        sex: str,
+        address: str,
+        patient_id_list: List[HL7PatientIdentifier] = None) -> hl7.Segment:
     """Creates an HL7 patient identification (PID) segment."""
     patient_id_list = patient_id_list or []
 
@@ -195,12 +196,14 @@ def make_pid_segment(forename: str,
         check_digit_scheme = "M11"  # Mod 11 algorithm
         type_id = patient_id_list[i].id_type
         assigning_authority = patient_id_list[i].assigning_authority
+        # Now, as per Table 4.6 "Extended composite ID" of
+        # hl7guide-1-4-2012-08.pdf:
         internal_id_element = hl7.Field(COMPONENT_SEPARATOR, [
             pid,
             check_digit,
             check_digit_scheme,
             assigning_authority,
-            type_id
+            type_id  # length "2..5" meaning 2-5
         ])
         internal_id_element_list.append(internal_id_element)
     patient_internal_id = hl7.Field(REPETITION_SEPARATOR,
@@ -402,7 +405,7 @@ def make_obx_segment(task: TASK_FWD_REF,
     set_id = str(1)
 
     source_application = "CamCOPS"
-    if task_format == VALUE.OUTPUTTYPE_PDF:
+    if task_format == FileType.PDF:
         value_type = "ED"  # Encapsulated data (ED) field
         observation_value = hl7.Field(COMPONENT_SEPARATOR, [
             source_application,
@@ -411,7 +414,7 @@ def make_obx_segment(task: TASK_FWD_REF,
             "Base64",  # base 64 encoding
             base64.standard_b64encode(task.get_pdf())  # data
         ])
-    elif task_format == VALUE.OUTPUTTYPE_HTML:
+    elif task_format == FileType.HTML:
         value_type = "ED"  # Encapsulated data (ED) field
         observation_value = hl7.Field(COMPONENT_SEPARATOR, [
             source_application,
@@ -420,7 +423,7 @@ def make_obx_segment(task: TASK_FWD_REF,
             "A",  # no encoding (see table 0299), but need to escape
             escape_hl7_text(task.get_html())  # data
         ])
-    elif task_format == VALUE.OUTPUTTYPE_XML:
+    elif task_format == FileType.XML:
         value_type = "ED"  # Encapsulated data (ED) field
         observation_value = hl7.Field(COMPONENT_SEPARATOR, [
             source_application,
@@ -744,14 +747,14 @@ def cchl7core_unit_tests(dbsession: SqlASession) -> None:
     unit_test_ignore("", make_pid_segment, "fname", "sname", now, "sex",
                      "addr", pitlist)
     unit_test_ignore("", make_obr_segment, task)
-    unit_test_ignore("", make_obx_segment, task, VALUE.OUTPUTTYPE_PDF,
+    unit_test_ignore("", make_obx_segment, task, FileType.PDF,
                      "obs_id", now, "responsible_observer")
-    unit_test_ignore("", make_obx_segment, task, VALUE.OUTPUTTYPE_HTML,
+    unit_test_ignore("", make_obx_segment, task, FileType.HTML,
                      "obs_id", now, "responsible_observer")
-    unit_test_ignore("", make_obx_segment, task, VALUE.OUTPUTTYPE_XML,
+    unit_test_ignore("", make_obx_segment, task, FileType.XML,
                      "obs_id", now, "responsible_observer",
                      xml_field_comments=True)
-    unit_test_ignore("", make_obx_segment, task, VALUE.OUTPUTTYPE_XML,
+    unit_test_ignore("", make_obx_segment, task, FileType.XML,
                      "obs_id", now, "responsible_observer",
                      xml_field_comments=False)
     unit_test_ignore("", escape_hl7_text, "blahblah")

@@ -29,10 +29,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from ..cc_modules.cc_constants import (
-    DateFormat,
-    PV,
-)
+from ..cc_modules.cc_constants import DateFormat
 from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from ..cc_modules.cc_html import (
     italic,
@@ -46,7 +43,6 @@ from ..cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     PendulumDateTimeAsIsoTextColType,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,

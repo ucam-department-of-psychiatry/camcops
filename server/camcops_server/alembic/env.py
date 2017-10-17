@@ -30,7 +30,11 @@ import logging
 
 from alembic import context
 from alembic.config import Config
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
+from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_url
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy.sql.schema import MetaData
 
@@ -39,7 +43,7 @@ from camcops_server.cc_modules.cc_config import get_default_config_from_os_env
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_all_models import all_models_no_op
 
-log = logging.getLogger(__name__)
+log = BraceStyleAdapter(logging.getLogger(__name__))
 all_models_no_op()  # to suppress "Unused import statement"
 
 
@@ -106,6 +110,7 @@ def run_alembic() -> None:
     camcops_config = get_default_config_from_os_env()
     dburl = camcops_config.db_url
     alembic_config.set_main_option('sqlalchemy.url', dburl)
+    log.warning("Using database URL: {}", get_safe_url_from_url(dburl))
 
     if context.is_offline_mode():
         run_migrations_offline(alembic_config, target_metadata)

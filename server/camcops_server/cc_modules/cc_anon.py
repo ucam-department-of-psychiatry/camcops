@@ -24,8 +24,7 @@
 
 from collections import OrderedDict
 import re
-import typing
-from typing import Dict, List, Tuple
+from typing import Dict, List, Pattern, Tuple
 
 from cardinal_pythonlib.rnc_db import (
     FIELDSPEC_TYPE,
@@ -40,7 +39,7 @@ from . import cc_db
 # For anonymisation
 # =============================================================================
 
-def get_literal_regex(x: str) -> typing.re.Pattern:
+def get_literal_regex(x: str) -> Pattern:
     """Regex for anonymisation. Literal at word boundaries."""
     # http://stackoverflow.com/questions/919056
     wb = "\\b"  # word boundary; escape the slash

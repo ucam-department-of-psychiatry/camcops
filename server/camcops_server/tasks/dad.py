@@ -144,7 +144,7 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         d = self.get_score_dict()
-        s = [self.is_complete_summary_field()]
+        s = self.standard_task_summary_fields()
         for item in d:
             s.extend([
                 SummaryElement(name=item + "_n",

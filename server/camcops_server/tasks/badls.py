@@ -39,7 +39,6 @@ from ..cc_modules.cc_html import (
 )
 from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import CharColType
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
     Task,
@@ -102,8 +101,7 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(name="total_score",
                            coltype=Integer(),
                            value=self.total_score(),

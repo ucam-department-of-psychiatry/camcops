@@ -23,9 +23,8 @@
 """
 
 import configparser
-import datetime
 import logging
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -33,17 +32,18 @@ from cardinal_pythonlib.configfiles import (
 )
 from cardinal_pythonlib.datetimefunc import coerce_to_date
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.reprfunc import simple_repr
 from pendulum import Pendulum
 
 from .cc_filename import (
     filename_spec_is_valid,
+    FileType,
     get_export_filename,
     patient_spec_for_filename_is_valid,
 )
 
 if TYPE_CHECKING:
     from .cc_patientidnum import PatientIdNum
-    from .cc_policy import TokenizedPolicy
     from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -56,12 +56,15 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 DEFAULT_HL7_PORT = 2575
 RIO_MAX_USER_LEN = 10
 
-RECIPIENT_TYPE_HL7 = 'hl7'
-RECIPIENT_TYPE_FILE = 'file'
+
+class Hl7RecipientType(object):
+    HL7 = "hl7"
+    FILE = "file"
+
 
 ALL_RECIPIENT_TYPES = [
-    RECIPIENT_TYPE_HL7,
-    RECIPIENT_TYPE_FILE,
+    Hl7RecipientType.HL7,
+    Hl7RecipientType.FILE,
 ]
 
 
@@ -107,71 +110,21 @@ class RecipientDefinition(object):
 
     Full details of parameters are in the demonstration config file.
     """
-    FIELDSPECS = [
-        # common
-        dict(name="recipient", cctype="HOSTNAME", indexed=True,
-             comment="Recipient definition name (determines uniqueness)"),
-        dict(name="type", cctype="SENDINGFORMAT",
-             comment="Recipient type (e.g. hl7, file)"),
-        dict(name="primary_idnum", cctype="INT_UNSIGNED",
-             comment="Which ID number was used as the primary ID?"),
-        dict(name="require_idnum_mandatory", cctype="BOOL",
-             comment="Must the primary ID number be mandatory in the relevant "
-             "policy?"),
-        dict(name="start_date", cctype="DATETIME",
-             comment="Start date for tasks (UTC)"),
-        dict(name="end_date", cctype="DATETIME",
-             comment="End date for tasks (UTC)"),
-        dict(name="finalized_only", cctype="BOOL",
-             comment="Send only finalized tasks"),
-        dict(name="task_format", cctype="SENDINGFORMAT",
-             comment="Format that task information was sent in (e.g. PDF)"),
-        dict(name="xml_field_comments", cctype="BOOL",
-             comment="Whether to include field comments in XML output"),
-        # HL7
-        dict(name="host", cctype="HOSTNAME",
-             comment="(HL7) Destination host name/IP address"),
-        dict(name="port", cctype="INT_UNSIGNED",
-             comment="(HL7) Destination port number"),
-        dict(name="divert_to_file", cctype="TEXT",
-             comment="(HL7) Divert to file"),
-        dict(name="treat_diverted_as_sent", cctype="BOOL",
-             comment="(HL7) Treat messages diverted to file as sent"),
-        # File
-        dict(name="include_anonymous", cctype="BOOL",
-             comment="(FILE) Include anonymous tasks"),
-        dict(name="overwrite_files", cctype="BOOL",
-             comment="(FILE) Overwrite existing files"),
-        dict(name="rio_metadata", cctype="BOOL",
-             comment="(FILE) Export RiO metadata file along with main file?"),
-        dict(name="rio_idnum", cctype="INT",
-             comment="(FILE) RiO metadata: which ID number is the RiO ID?"),
-        dict(name="rio_uploading_user", cctype="TEXT",
-             comment="(FILE) RiO metadata: name of automatic upload user"),
-        dict(name="rio_document_type", cctype="TEXT",
-             comment="(FILE) RiO metadata: document type for RiO"),
-        dict(name="script_after_file_export", cctype="TEXT",
-             comment="(FILE) Command/script to run after file export")
-    ]
-    # ... fieldspecs are actually used by HL7Run class
-    FIELDS = [x["name"] for x in FIELDSPECS]
 
     def __init__(self,
-                 valid_which_idnums: List[int],
                  config: configparser.ConfigParser = None,
                  section: str = None) -> None:
         """
         Initialize. Possible methods:
 
-            RecipientDefinition(valid_which_idnums)
-            RecipientDefinition(valid_which_idnums, config, section)
+            RecipientDefinition()
+            RecipientDefinition(config, section)
 
         Args:
-            valid_which_idnums: list of valid which_idnum
             config: configparser INI file object
             section: name of recipient and of INI file section
         """
-        # Copy:
+        # Some attributes will be copied to HL7Run:
         # ... common
         self.recipient = None  # type: str
         self.type = None  # type: str
@@ -212,18 +165,15 @@ class RecipientDefinition(object):
         self.make_directory = True
         # Some default values we never want to be None
         self.include_anonymous = False
-        # Internal use
-        self.valid = False
-        self.valid_which_idnums = valid_which_idnums
 
         # Variable constructor...
         if config is None and section is None:
             # dummy one
-            self.type = RECIPIENT_TYPE_FILE
+            self.type = Hl7RecipientType.FILE
             self.primary_idnum = 1
             self.require_idnum_mandatory = False
             self.finalized_only = False
-            self.task_format = VALUE.OUTPUTTYPE_XML
+            self.task_format = FileType.XML
             # File
             self.include_anonymous = True
             self.patient_spec_if_anonymous = "anonymous"
@@ -260,7 +210,7 @@ class RecipientDefinition(object):
             self.finalized_only = get_config_parameter_boolean(
                 config, section, cpr.FINALIZED_ONLY, True)
             self.task_format = get_config_parameter(
-                config, section, cpr.TASK_FORMAT, str, VALUE.OUTPUTTYPE_PDF)
+                config, section, cpr.TASK_FORMAT, str, FileType.PDF)
             self.xml_field_comments = get_config_parameter_boolean(
                 config, section, cpr.XML_FIELD_COMMENTS, True)
 
@@ -323,103 +273,99 @@ class RecipientDefinition(object):
                 self.script_after_file_export = get_config_parameter(
                     config, section, cpr.SCRIPT_AFTER_FILE_EXPORT, str, None)
 
-            self.check_valid()
-
         except configparser.NoSectionError:
             log.warning("Config file section missing: [{}]", section)
-            self.valid = False
 
     @staticmethod
     def report_error(msg) -> None:
         log.error("RecipientDefinition: {}", msg)
 
-    def check_valid(self) -> None:
-        """Performs validity check and sets self.valid"""
-        self.valid = False
+    def valid(self, req: "CamcopsRequest") -> bool:
+        """Is this definition valid?"""
         if self.type not in ALL_RECIPIENT_TYPES:
             self.report_error("missing/invalid type: {}".format(self.type))
-            return
+            return False
         if not self.primary_idnum and self.using_hl7():
             self.report_error("missing primary_idnum")
-            return
-        if self.primary_idnum not in self.valid_which_idnums:
+            return False
+
+        valid_which_idnums = req.valid_which_idnums
+
+        if self.primary_idnum not in valid_which_idnums:
             self.report_error("invalid primary_idnum: {}".format(
                 self.primary_idnum))
-            return
+            return False
         if self.primary_idnum and self.require_idnum_mandatory:
             # (a) ID number must be mandatory in finalized records
             if not is_idnum_mandatory_in_finalize_policy(
                     which_idnum=self.primary_idnum,
-                    valid_which_idnums=self.valid_which_idnums):
+                    valid_which_idnums=valid_which_idnums):
                 self.report_error(
                     "primary_idnum ({}) not mandatory in finalizing policy, "
                     "but needs to be".format(self.primary_idnum))
-                return
+                return False
             if not self.finalized_only:
                 # (b) ID number must also be mandatory in uploaded,
                 # non-finalized records
                 if not is_idnum_mandatory_in_upload_policy(
                         which_idnum=self.primary_idnum,
-                        valid_which_idnums=self.valid_which_idnums):
+                        valid_which_idnums=valid_which_idnums):
                     self.report_error(
                         "primary_idnum ({}) not mandatory in upload policy, "
                         "but needs to be".format(self.primary_idnum))
-                    return
-        if not self.task_format or \
-                self.task_format not in [
-                    VALUE.OUTPUTTYPE_PDF,
-                    VALUE.OUTPUTTYPE_HTML,
-                    VALUE.OUTPUTTYPE_XML,
-                ]:
+                    return False
+        if not self.task_format or self.task_format not in [FileType.HTML,
+                                                            FileType.PDF,
+                                                            FileType.XML]:
             self.report_error(
                 "missing/invalid task_format: {}".format(self.task_format))
-            return
-        if not self.task_format == VALUE.OUTPUTTYPE_XML:
+            return False
+        if not self.task_format == FileType.XML:
             self.xml_field_comments = None
         # HL7
-        if self.type == RECIPIENT_TYPE_HL7:
+        if self.type == Hl7RecipientType.HL7:
             if not self.divert_to_file:
                 if not self.host:
                     self.report_error("missing host")
-                    return
+                    return False
                 if not self.port or self.port <= 0:
                     self.report_error(
                         "missing/invalid port: {}".format(self.port))
-                    return
+                    return False
             if not self.idnum_type_list.get(self.primary_idnum, None):
                 self.report_error(
                     "missing IDNUM_TYPE_{} (for primary ID)".format(
                         self.primary_idnum))
-                return
+                return False
         # File
-        if self.type == RECIPIENT_TYPE_FILE:
+        if self.type == Hl7RecipientType.FILE:
             if not self.patient_spec_if_anonymous:
                 self.report_error("missing patient_spec_if_anonymous")
-                return
+                return False
             if not self.patient_spec:
                 self.report_error("missing patient_spec")
-                return
+                return False
             if not patient_spec_for_filename_is_valid(
                     patient_spec=self.patient_spec,
-                    valid_which_idnums=self.valid_which_idnums):
+                    valid_which_idnums=valid_which_idnums):
                 self.report_error(
                     "invalid patient_spec: {}".format(self.patient_spec))
-                return
+                return False
             if not self.filename_spec:
                 self.report_error("missing filename_spec")
-                return
+                return False
             if not filename_spec_is_valid(
                     filename_spec=self.filename_spec,
-                    valid_which_idnums=self.valid_which_idnums):
+                    valid_which_idnums=valid_which_idnums):
                 self.report_error(
                     "invalid filename_spec: {}".format(self.filename_spec))
-                return
+                return False
             # RiO metadata
             if self.rio_metadata:
-                if self.rio_idnum not in self.valid_which_idnums:
+                if self.rio_idnum not in valid_which_idnums:
                     self.report_error(
                         "invalid rio_idnum: {}".format(self.rio_idnum))
-                    return
+                    return False
                 if (not self.rio_uploading_user or
                         " " in self.rio_uploading_user or
                         len(self.rio_uploading_user) > RIO_MAX_USER_LEN):
@@ -429,32 +375,36 @@ class RecipientDefinition(object):
                         "{})".format(
                             self.rio_uploading_user,
                             RIO_MAX_USER_LEN))
-                    return
+                    return False
                 if not self.rio_document_type:
                     self.report_error("missing rio_document_type")
-                    return
+                    return False
 
         # This section would be BETTER with a try/raise/except block, rather
         # than a bunch of return statements.
 
         # Done
-        self.valid = True
+        return True
 
     def using_hl7(self) -> bool:
         """Is the recipient an HL7 recipient?"""
-        return self.type == RECIPIENT_TYPE_HL7
+        return self.type == Hl7RecipientType.HL7
 
     def using_file(self) -> bool:
         """Is the recipient a filestore?"""
-        return self.type == RECIPIENT_TYPE_FILE
+        return self.type == Hl7RecipientType.FILE
 
-    def get_id_type(self, which_idnum: int) -> Optional[str]:
+    @staticmethod
+    def get_id_type(req: "CamcopsRequest", which_idnum: int) -> str:
         """Get HL7 ID type for a specific ID number."""
-        return self.idnum_type_list.get(which_idnum, None)
+        iddef = req.get_idnum_definition(which_idnum)
+        return (iddef.hl7_id_type or '') if iddef else ''
 
-    def get_id_aa(self, which_idnum: int) -> Optional[str]:
+    @staticmethod
+    def get_id_aa(req: "CamcopsRequest", which_idnum: int) -> str:
         """Get HL7 ID type for a specific ID number."""
-        return self.idnum_aa_list.get(which_idnum, None)
+        iddef = req.get_idnum_definition(which_idnum)
+        return (iddef.hl7_assigning_authority or '') if iddef else ''
 
     def get_filename(self,
                      req: "CamcopsRequest",
@@ -487,9 +437,5 @@ class RecipientDefinition(object):
 
     def __str__(self):
         """String representation."""
-        return (
-            "RecipientDefinition: " + ", ".join([
-                "{}={}".format(key, str(getattr(self, key)))
-                for key in self.__dict__ if not key.startswith('_')
-            ])
-        )
+        attrnames = [key for key in self.__dict__ if not key.startswith('_')]
+        return simple_repr(self, attrnames)

@@ -31,7 +31,6 @@ from sqlalchemy.sql.sqltypes import Float, Integer
 from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 from ..cc_modules.cc_trackerhelpers import TrackerInfo
@@ -191,8 +190,7 @@ class Cape42(TaskHasPatientMixin, Task,
         wtr = " ({low}-{high})".format(
             low=MIN_SCORE_PER_Q,
             high=MAX_SCORE_PER_Q)
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="all_freq", coltype=Integer(),
                 value=self.frequency_score(ALL),

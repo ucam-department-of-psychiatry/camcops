@@ -45,7 +45,6 @@ from ..cc_modules.cc_sqla_coltypes import (
     SummaryCategoryColType,
     ZERO_TO_THREE_CHECKER,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import (
     Task, 
@@ -248,8 +247,7 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(name="total",
                            coltype=Integer(),
                            value=self.total_score(),

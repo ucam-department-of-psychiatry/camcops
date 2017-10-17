@@ -32,7 +32,6 @@ from ..cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from ..cc_modules.cc_db import add_multiple_columns
 from ..cc_modules.cc_html import answer, tr, tr_qa
 from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_sqla_coltypes import CharColType, SummaryCategoryColType
 from ..cc_modules.cc_summaryelement import SummaryElement
 from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
@@ -109,8 +108,7 @@ class Smast(TaskHasPatientMixin, Task,
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        return [
-            self.is_complete_summary_field(),
+        return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="total",
                 coltype=Integer(),

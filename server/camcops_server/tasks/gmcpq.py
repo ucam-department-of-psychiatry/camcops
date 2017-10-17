@@ -41,7 +41,6 @@ from ..cc_modules.cc_sqla_coltypes import (
     PermittedValueChecker,
     ZERO_TO_FIVE_CHECKER,
 )
-from ..cc_modules.cc_sqlalchemy import Base
 from ..cc_modules.cc_sqla_coltypes import SexColType
 from ..cc_modules.cc_task import get_from_dict, Task
 
