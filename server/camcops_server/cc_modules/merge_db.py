@@ -28,7 +28,6 @@ from typing import Dict, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.merge_db import merge_db, TranslationContext
-from cardinal_pythonlib.sqlalchemy.orm_query import exists_orm
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
 from cardinal_pythonlib.sqlalchemy.table_identity import TableIdentity
@@ -179,7 +178,7 @@ def flush_session(dst_session: Session) -> None:
 
 
 def group_exists(group_id: int, dst_session: Session) -> bool:
-    return exists_orm(dst_session, Group, Group.id == group_id)
+    return Group.group_exists(dbsession=dst_session, group_id=group_id)
 
 
 def fetch_group_id_by_name(group_name: str, dst_session: Session) -> int:

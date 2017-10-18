@@ -5,12 +5,11 @@ CAMCOPS SERVER THINGS TO DO NOW
 *** Test framework via cfg based on demo text but using sqlite memory db
 *** unit tests
 
-*** HL7 backend
-    *** per-group? (so ID policies make sense)
+*** test HL7 backend
 
-*** NB special device for "web front end"/"manually uploaded"
+--- NB special device for "web front end"/"manually uploaded"
     ... see DEVICE_NAME_FOR_SERVER
-    *** similarly: special user for "system"
+    --- similarly: special user for "system"
     ... see USER_NAME_FOR_SYSTEM
     *** creation and merge_db are implemented, but not used much; fix
 

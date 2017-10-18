@@ -167,6 +167,7 @@ class HL7Run(Base):
     )
     start_at_utc = Column(
         "start_at_utc", DateTime,
+        nullable=False, index=True,
         comment="Time run was started (UTC)"
     )
     finish_at_utc = Column(
@@ -182,10 +183,17 @@ class HL7Run(Base):
     # Common to all ways of sending:
     type = Column(
         "type", SendingFormatColType,
+        nullable=False,
         comment="Recipient type (e.g. hl7, file)"
+    )
+    group_id = Column(
+        "group_id", Integer, ForeignKey("_security_groups.id"),
+        nullable=False, index=True,
+        comment="ID of CamCOPS group to export data from"
     )
     primary_idnum = Column(
         "primary_idnum", Integer,
+        nullable=False,
         comment="Which ID number was used as the primary ID?"
     )
     require_idnum_mandatory = Column(
@@ -289,6 +297,7 @@ class HL7Run(Base):
             # ... common
             self.recipient = recipdef.recipient
             self.type = recipdef.type
+            self.group_id = recipdef.group_id
             self.primary_idnum = recipdef.primary_idnum
             self.require_idnum_mandatory = recipdef.require_idnum_mandatory
             self.start_date = recipdef.start_date
@@ -850,9 +859,18 @@ def send_pending_hl7_messages_2(
         if cls.is_anonymous and not recipient_def.include_anonymous:
             continue
         basetable = cls.__tablename__
+
+        # FETCH TASKS TO SEND.
+
+        # Records from the correct group...
         # Current records...
         # noinspection PyProtectedMember, PyPep8
-        q = dbsession.query(cls).filter(cls._current == True)
+        q = (
+            dbsession.query(cls)
+            .filter(cls._group_id == recipient_def.group_id)
+            .filter(cls._current == True)
+        )
+
         # Having an appropriate date...
         # Best to use when_created, or _when_added_batch_utc?
         # The former. Because nobody would want a system that would miss
@@ -862,6 +880,7 @@ def send_pending_hl7_messages_2(
             q = q.filter(cls.when_created >= recipient_def.start_date)
         if recipient_def.end_date:
             q = q.filter(cls.when_created <= recipient_def.end_date)
+
         # That haven't already had a successful HL7 message sent to this
         # server..
         subquery = (

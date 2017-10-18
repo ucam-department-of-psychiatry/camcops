@@ -26,6 +26,7 @@ import logging
 from typing import List, Optional, Set
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.sqlalchemy.orm_query import exists_orm
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
@@ -281,6 +282,10 @@ class Group(Base):
     def all_group_ids(cls, dbsession: SqlASession) -> List[int]:
         query = dbsession.query(cls).order_by(cls.id)
         return [g.id for g in query]
+
+    @classmethod
+    def group_exists(cls, dbsession: SqlASession, group_id: int) -> bool:
+        return exists_orm(dbsession, cls, cls.id == group_id)
 
     def tokenized_upload_policy(self) -> TokenizedPolicy:
         return TokenizedPolicy(self.upload_policy)

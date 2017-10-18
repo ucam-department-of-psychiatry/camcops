@@ -41,6 +41,7 @@ from .cc_filename import (
     get_export_filename,
     patient_spec_for_filename_is_valid,
 )
+from .cc_group import Group
 
 if TYPE_CHECKING:
     from .cc_patientidnum import PatientIdNum
@@ -73,6 +74,7 @@ class ConfigParamRecipient(object):
     END_DATE = "END_DATE"
     FILENAME_SPEC = "FILENAME_SPEC"
     FINALIZED_ONLY = "FINALIZED_ONLY"
+    GROUP_ID = "GROUP_ID"
     HOST = "HOST"
     IDNUM_AA_PREFIX = "IDNUM_AA_"  # unusual
     IDNUM_TYPE_PREFIX = "IDNUM_TYPE_"  # unusual
@@ -117,7 +119,7 @@ class RecipientDefinition(object):
         """
         Initialize. Possible methods:
 
-            RecipientDefinition()
+            RecipientDefinition()  # FOR TESTING ONLY
             RecipientDefinition(config, section)
 
         Args:
@@ -128,6 +130,7 @@ class RecipientDefinition(object):
         # ... common
         self.recipient = None  # type: str
         self.type = None  # type: str
+        self.group_id = None  # type: int
         self.primary_idnum = None  # type: int
         self.require_idnum_mandatory = True
         self.start_date = None  # type: Pendulum
@@ -170,6 +173,7 @@ class RecipientDefinition(object):
         if config is None and section is None:
             # dummy one
             self.type = Hl7RecipientType.FILE
+            self.group_id = 1
             self.primary_idnum = 1
             self.require_idnum_mandatory = False
             self.finalized_only = False
@@ -196,6 +200,8 @@ class RecipientDefinition(object):
             self.type = get_config_parameter(
                 config, section, cpr.TYPE, str, "hl7")
             self.type = str(self.type).lower()
+            self.group_id = get_config_parameter(
+                config, section, cpr.GROUP_ID, int, None)
             self.primary_idnum = get_config_parameter(
                 config, section, cpr.PRIMARY_IDNUM, int, None)
             self.require_idnum_mandatory = get_config_parameter_boolean(
@@ -224,12 +230,6 @@ class RecipientDefinition(object):
                     config, section, cpr.PING_FIRST, True)
                 self.network_timeout_ms = get_config_parameter(
                     config, section, cpr.NETWORK_TIMEOUT_MS, int, 10000)
-                for n in self.valid_which_idnums:
-                    nstr = str(n)
-                    self.idnum_type_list[n] = get_config_parameter(
-                        config, section, cpr.IDNUM_TYPE_PREFIX + nstr, str, "")
-                    self.idnum_aa_list[n] = get_config_parameter(
-                        config, section, cpr.IDNUM_AA_PREFIX + nstr, str, "")
                 self.keep_message = get_config_parameter_boolean(
                     config, section, cpr.KEEP_MESSAGE, False)
                 self.keep_reply = get_config_parameter_boolean(
@@ -285,6 +285,13 @@ class RecipientDefinition(object):
         if self.type not in ALL_RECIPIENT_TYPES:
             self.report_error("missing/invalid type: {}".format(self.type))
             return False
+        if not self.group_id:
+            self.report_error("missing group_id")
+            return False
+        group = Group.get_group_by_id(req.dbsession, self.group_id)
+        if not group:
+            self.report_error("invalid group_id: {}".format(self.group_id))
+            return False
         if not self.primary_idnum and self.using_hl7():
             self.report_error("missing primary_idnum")
             return False
@@ -297,7 +304,8 @@ class RecipientDefinition(object):
             return False
         if self.primary_idnum and self.require_idnum_mandatory:
             # (a) ID number must be mandatory in finalized records
-            if not is_idnum_mandatory_in_finalize_policy(
+            finalize_policy = group.tokenized_finalize_policy()
+            if not finalize_policy.is_idnum_mandatory_in_policy(
                     which_idnum=self.primary_idnum,
                     valid_which_idnums=valid_which_idnums):
                 self.report_error(
@@ -307,7 +315,8 @@ class RecipientDefinition(object):
             if not self.finalized_only:
                 # (b) ID number must also be mandatory in uploaded,
                 # non-finalized records
-                if not is_idnum_mandatory_in_upload_policy(
+                upload_policy = group.tokenized_upload_policy()
+                if not upload_policy.is_idnum_mandatory_in_policy(
                         which_idnum=self.primary_idnum,
                         valid_which_idnums=valid_which_idnums):
                     self.report_error(

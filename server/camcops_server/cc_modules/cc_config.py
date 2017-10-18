@@ -504,6 +504,14 @@ def get_demo_config(camcops_base_dir: str = None,
 # Options applicable to HL7 messages and file transfers
 # -----------------------------------------------------------------------------
 
+# {cpr.GROUP_ID}: CamCOPS group to export from.
+# HL7 messages are sent from one group at a time. Which group will this
+# recipient definition use? (Note that you can just duplicate a recipient
+# definition to export a second or subsequent group.)
+# This is an integer.
+
+{cpr.GROUP_ID} = 1
+
 # {cpr.PRIMARY_IDNUM}: which ID number (1-8) should be considered the "internal"
 # (primary) ID number? Must be specified for HL7 messages. May be blank for
 # file transmission.
