@@ -341,7 +341,7 @@ camcops_server
         # 'deform-bootstrap==0.2.9',  # deform with layout made easier
         'distro==1.0.4',  # detecting Linux distribution
         'dogpile.cache==0.6.4',  # web caching
-        # 'gunicorn==19.7.1',  # Alternative 'internal' web server
+        'gunicorn==19.7.1',  # Alternative 'internal' web server. Installs fine under Windows, but won't run (ImportError: No module named 'fcntl').  # noqa
         'hl7==0.3.4',  # For HL7 export
         'lockfile==0.12.2',  # File locking for background tasks
         'matplotlib==2.1.0',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
