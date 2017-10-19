@@ -257,7 +257,7 @@ class SecurityLoginFailure(Base):
         Not too often! See CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS.
         """
         now = req.now_utc
-        ss = req.get_server_settings()
+        ss = req.server_settings
         if ss.last_dummy_login_failure_clearance_at_utc is not None:
             elapsed = now - ss.last_dummy_login_failure_clearance_at_utc
             if elapsed < CLEAR_DUMMY_LOGIN_PERIOD:

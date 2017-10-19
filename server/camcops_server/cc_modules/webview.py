@@ -209,7 +209,7 @@ from .cc_forms import (
 )
 from .cc_group import Group
 from .cc_hl7 import HL7Message, HL7Run
-from .cc_idnumdef import clear_idnum_definition_cache, IdNumDefinition
+from .cc_idnumdef import IdNumDefinition
 from .cc_membership import UserGroupMembership
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
@@ -226,7 +226,6 @@ from .cc_pyramid import (
 )
 from .cc_report import get_report_instance
 from .cc_request import CamcopsRequest
-from .cc_serversettings import set_database_title
 from .cc_simpleobjects import IdNumReference
 from .cc_specialnote import SpecialNote
 from .cc_sqlalchemy import Dialect, get_all_ddl
@@ -2343,7 +2342,7 @@ def edit_server_settings(req: CamcopsRequest) -> Dict[str, Any]:
             # -----------------------------------------------------------------
             # Apply changes
             # -----------------------------------------------------------------
-            set_database_title(req, title)
+            req.set_database_title(title)
             raise HTTPFound(req.route_url(Routes.HOME))
         except ValidationFailure as e:
             rendered_form = e.render()
@@ -2396,7 +2395,7 @@ def edit_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
             iddef.short_description = appstruct.get(ViewParam.SHORT_DESCRIPTION)  # noqa
             iddef.hl7_id_type = appstruct.get(ViewParam.HL7_ID_TYPE)
             iddef.hl7_assigning_authority = appstruct.get(ViewParam.HL7_ASSIGNING_AUTHORITY)  # noqa
-            clear_idnum_definition_cache()  # SPECIAL
+            # REMOVED # clear_idnum_definition_cache()  # SPECIAL
             raise HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
             rendered_form = e.render()
@@ -2436,7 +2435,7 @@ def add_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
             # Add ID definition
             # -----------------------------------------------------------------
             dbsession.add(iddef)
-            clear_idnum_definition_cache()  # SPECIAL
+            # REMOVED # clear_idnum_definition_cache()  # SPECIAL
             raise HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
             rendered_form = e.render()
@@ -2479,7 +2478,7 @@ def delete_id_definition(req: CamcopsRequest) -> Dict[str, Any]:
                 # Delete ID definition
                 # -------------------------------------------------------------
                 req.dbsession.delete(iddef)
-                clear_idnum_definition_cache()  # SPECIAL
+                # REMOVED # clear_idnum_definition_cache()  # SPECIAL
                 raise HTTPFound(req.route_url(route_back))
             except ValidationFailure as e:
                 rendered_form = e.render()

@@ -646,7 +646,8 @@ class DumpTypeSelector(SchemaNode):
     _choices = (
         (ViewArg.EVERYTHING, "Everything"),
         (ViewArg.USE_SESSION_FILTER, "Use the session filter settings"),
-        (ViewArg.SPECIFIC_TASKS_GROUPS, "Specify tasks/groups manually")
+        (ViewArg.SPECIFIC_TASKS_GROUPS, "Specify tasks/groups manually "
+                                        "(see below)")
     )
 
     schema_type = String

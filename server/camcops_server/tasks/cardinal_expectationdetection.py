@@ -26,9 +26,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from matplotlib.axes import Axes
 import numpy
-from pendulum import Pendulum
 import scipy.stats  # http://docs.scipy.org/doc/scipy/reference/stats.html
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Float, Integer
 
 from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH
@@ -46,7 +45,7 @@ from ..cc_modules.cc_html import (
 from ..cc_modules.cc_request import CamcopsRequest
 from ..cc_modules.cc_sqla_coltypes import PendulumDateTimeAsIsoTextColType
 from ..cc_modules.cc_sqlalchemy import Base
-from ..cc_modules.cc_summaryelement import SummaryElement
+from ..cc_modules.cc_summaryelement import ExtraSummaryTable, SummaryElement
 from ..cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
@@ -365,6 +364,74 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, Base):
         )
 
 
+BLOCKPROB_COLUMNS = [
+    Column("id", Integer, primary_key=True, autoincrement=True,
+           comment="Arbitrary PK"),
+    Column("cardinal_expdet_pk", Integer, ForeignKey("cardinal_expdet._pk"),
+           nullable=False,
+           comment="FK to the source table's _pk field"),
+    Column("n_blocks_overall", Integer,
+           comment="Number of blocks (OVERALL)"),
+    Column("block", Integer,
+           comment="Block number"),
+    Column("target_probability_low_high", Integer,
+           comment="Target probability given stimulus (0 low, 1 high)"),
+    Column("n_trials", Integer,
+           comment="Number of trials in this condition"),
+    Column("p_detect_present", Float,
+           comment="P(detect | present)"),
+    Column("p_detect_absent", Float,
+           comment="P(detect | absent)"),
+    Column("c", Float,
+           comment="c (bias; c > 0 when miss rate > false alarm rate; "
+                   "c < 0 when false alarm rate > miss rate)"),
+    Column("d", Float,
+           comment="d' (discriminability)"),
+    Column("auditory_n_trials", Integer,
+           comment="Number of auditory trials in this condition"),
+    Column("auditory_p_detect_present", Float,
+           comment="AUDITORY P(detect | present)"),
+    Column("auditory_p_detect_absent", Float,
+           comment="AUDITORY P(detect | absent)"),
+    Column("auditory_c", Float,
+           comment="AUDITORY c"),
+    Column("auditory_d", Float,
+           comment="AUDITORY d'"),
+]
+HALFPROB_COLUMNS = [
+    Column("id", Integer, primary_key=True, autoincrement=True,
+           comment="Arbitrary PK"),
+    Column("cardinal_expdet_pk", Integer, ForeignKey("cardinal_expdet._pk"),
+           nullable=False,
+           comment="FK to the source table's _pk field"),
+    Column("half", Integer,
+           comment="Half number"),
+    Column("target_probability_low_high", Integer,
+           comment="Target probability given stimulus (0 low, 1 high)"),
+    Column("n_trials", Integer,
+           comment="Number of trials in this condition"),
+    Column("p_detect_present", Float,
+           comment="P(detect | present)"),
+    Column("p_detect_absent", Float,
+           comment="P(detect | absent)"),
+    Column("c", Float,
+           comment="c (bias; c > 0 when miss rate > false alarm rate; "
+                   "c < 0 when false alarm rate > miss rate)"),
+    Column("d", Float,
+           comment="d' (discriminability)"),
+    Column("auditory_n_trials", Integer,
+           comment="Number of auditory trials in this condition"),
+    Column("auditory_p_detect_present", Float,
+           comment="AUDITORY P(detect | present)"),
+    Column("auditory_p_detect_absent", Float,
+           comment="AUDITORY P(detect | absent)"),
+    Column("auditory_c", Float,
+           comment="AUDITORY c"),
+    Column("auditory_d", Float,
+           comment="AUDITORY d'"),
+]
+
+
 class CardinalExpectationDetection(TaskHasPatientMixin, Task):
     __tablename__ = "cardinal_expdet"
     shortname = "Cardinal_ExpDet"
@@ -472,98 +539,6 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         ancillary_fk_to_parent_attr_name="cardinal_expdet_id",
         ancillary_order_by_attr_name="group_num"
     )
-
-    # -------------------------------------------------------------------------
-    # extra_summary_table_info
-    # -------------------------------------------------------------------------
-
-    # ***** fix this bit:
-
-    # pkfieldname = tablename + "_pk"
-    # fs_blockprobs = [
-    #     XXX = Column(pkfieldname, Integer, notnull=True,
-    #          comment="FK to the source table's _pk field"),
-    #     XXX = Column("is_complete", cctype="BOOL",
-    #          comment="Task complete?"),
-    #     XXX = Column("when_source_record_created_utc",
-    #          cctype="DATETIME",
-    #          comment="When was the source record created?"),
-    #     XXX = Column("when_summary_created_utc", cctype=group"DATETIME",
-    #          comment="When was this summary created?"),
-    #     XXX = Column("n_blocks_overall", Integer,
-    #          comment="Number of blocks (OVERALL)"),
-    #     XXX = Column("block", Integer,
-    #          comment="Block number"),
-    #     XXX = Column("target_probability_low_high", Integer,
-    #          comment="Target probability given stimulus (0 low, 1 high)"),
-    #     XXX = Column("n_trials", Integer,
-    #          comment="Number of trials in this condition"),
-    #     XXX = Column("p_detect_present", Float,
-    #          comment="P(detect | present)"),
-    #     XXX = Column("p_detect_absent", Float,
-    #          comment="P(detect | absent)"),
-    #     XXX = Column("c", Float,
-    #          comment="c (bias; c > 0 when miss rate > false alarm rate; "
-    #          "c < 0 when false alarm rate > miss rate)"),
-    #     XXX = Column("d", Float,
-    #          comment="d' (discriminability)"),
-    #     XXX = Column("auditory_n_trials", Integer,
-    #          comment="Number of auditory trials in this condition"),
-    #     XXX = Column("auditory_p_detect_present", Float,
-    #          comment="AUDITORY P(detect | present)"),
-    #     XXX = Column("auditory_p_detect_absent", Float,
-    #          comment="AUDITORY P(detect | absent)"),
-    #     XXX = Column("auditory_c", Float,
-    #          comment="AUDITORY c"),
-    #     XXX = Column("auditory_d", Float,
-    #          comment="AUDITORY d'"),
-    # ]
-    # fs_halfprobs = [
-    #     XXX = Column(pkfieldname, Integer, notnull=True,
-    #          comment="FK to the source table's _pk field"),
-    #     XXX = Column("is_complete", cctype="BOOL",
-    #          comment="Task complete?"),
-    #     XXX = Column("when_source_record_created_utc",
-    #          cctype="DATETIME",
-    #          comment="When was the source record created?"),
-    #     XXX = Column("when_summary_created_utc", cctype="DATETIME",
-    #          comment="When was this summary created?"),
-    #     XXX = Column("half", Integer,
-    #          comment="Half number"),
-    #     XXX = Column("target_probability_low_high", Integer,
-    #          comment="Target probability given stimulus (0 low, 1 high)"),
-    #     XXX = Column("n_trials", Integer,
-    #          comment="Number of trials in this condition"),
-    #     XXX = Column("p_detect_present", Float,
-    #          comment="P(detect | present)"),
-    #     XXX = Column("p_detect_absent", Float,
-    #          comment="P(detect | absent)"),
-    #     XXX = Column("c", Float,
-    #          comment="c (bias; c > 0 when miss rate > false alarm rate; "
-    #          "c < 0 when false alarm rate > miss rate)"),
-    #     XXX = Column("d", Float,
-    #          comment="d' (discriminability)"),
-    #     XXX = Column("auditory_n_trials", Integer,
-    #          comment="Number of auditory trials in this condition"),
-    #     XXX = Column("auditory_p_detect_present", Float,
-    #          comment="AUDITORY P(detect | present)"),
-    #     XXX = Column("auditory_p_detect_absent", Float,
-    #          comment="AUDITORY P(detect | absent)"),
-    #     XXX = Column("auditory_c", Float,
-    #          comment="AUDITORY c"),
-    #     XXX = Column("auditory_d", Float,
-    #          comment="AUDITORY d'"),
-    # ]
-    # extra_summary_table_info = [
-    #     dict(
-    #         tablename=tablename + "_BLOCKPROBS_TEMP",
-    #         fieldspecs=fs_blockprobs
-    #     ),
-    #     dict(
-    #         tablename=tablename + "_HALFPROBS_TEMP",
-    #         fieldspecs=fs_halfprobs
-    #     )
-    # ]
 
     def is_complete(self) -> bool:
         return bool(self.finished)
@@ -1185,100 +1160,102 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return (p_detected_given_present, p_detected_given_absent, c, dprime,
                 n_trials)
 
-    def get_extra_summary_table_data(self, now: Pendulum) \
-            -> List[List[List[Any]]]:
+    def get_extra_summary_tables(self, req: CamcopsRequest) \
+            -> List[ExtraSummaryTable]:
         grouparray = self.groupspecs  # type: List[ExpDetTrialGroupSpec]
         trialarray = self.trials  # type: List[ExpDetTrial]
         trialarray_auditory = [x for x in trialarray
                                if x.target_modality == AUDITORY]
-        if (not grouparray) or (not trialarray):
-            return [[], []]  # no rows for either table
+        blockprob_values = []  # type: List[Dict[str, Any]]
+        halfprob_values = []  # type: List[Dict[str, Any]]
 
-        blockprob_values = []
-        n_target_highprob = max([x.n_target for x in grouparray])
-        n_target_lowprob = min([x.n_target for x in grouparray])
-        groups_highprob = [x.group_num for x in grouparray
-                           if x.n_target == n_target_highprob]
-        groups_lowprob = [x.group_num for x in grouparray
-                          if x.n_target == n_target_lowprob]
-        for block in range(self.num_blocks):
-            for target_probability_low_high in (0, 1):
-                groups = (
-                    groups_lowprob if target_probability_low_high == 0
-                    else groups_highprob
-                )
-                (p_detected_given_present,
-                 p_detected_given_absent,
-                 c, dprime,
-                 n_trials) = self.get_p_detected(trialarray, [block], groups)
-                (auditory_p_detected_given_present,
-                 auditory_p_detected_given_absent,
-                 auditory_c, auditory_dprime,
-                 auditory_n_trials) = self.get_p_detected(trialarray_auditory,
-                                                          [block], groups)
-                blockprob_values.append([
-                    self._pk,  # tablename_pk
-                    self.is_complete(),
-                    self.get_creation_datetime_utc(),
-                    # ... when_source_record_created_utc
-                    now,  # when_summary_created_utc
-                    self.num_blocks,
-                    block,
-                    target_probability_low_high,
-                    n_trials,
-                    p_detected_given_present,
-                    p_detected_given_absent,
-                    c,
-                    dprime,
-                    auditory_n_trials,
-                    auditory_p_detected_given_present,
-                    auditory_p_detected_given_absent,
-                    auditory_c,
-                    auditory_dprime,
-                ])  # ... list of lists
+        if grouparray and trialarray:
+            n_target_highprob = max([x.n_target for x in grouparray])
+            n_target_lowprob = min([x.n_target for x in grouparray])
+            groups_highprob = [x.group_num for x in grouparray
+                               if x.n_target == n_target_highprob]
+            groups_lowprob = [x.group_num for x in grouparray
+                              if x.n_target == n_target_lowprob]
+            for block in range(self.num_blocks):
+                for target_probability_low_high in (0, 1):
+                    groups = (
+                        groups_lowprob if target_probability_low_high == 0
+                        else groups_highprob
+                    )
+                    (p_detected_given_present,
+                     p_detected_given_absent,
+                     c, dprime,
+                     n_trials) = self.get_p_detected(
+                        trialarray, [block], groups)
+                    (auditory_p_detected_given_present,
+                     auditory_p_detected_given_absent,
+                     auditory_c, auditory_dprime,
+                     auditory_n_trials) = self.get_p_detected(
+                        trialarray_auditory, [block], groups)
+                    blockprob_values.append(dict(
+                        cardinal_expdet_pk=self._pk,  # tablename_pk
+                        n_blocks_overall=self.num_blocks,
+                        block=block,
+                        target_probability_low_high=target_probability_low_high,  # noqa
+                        n_trials=n_trials,
+                        p_detect_present=p_detected_given_present,
+                        p_detect_absent=p_detected_given_absent,
+                        c=c,
+                        d=dprime,
+                        auditory_n_trials=auditory_n_trials,
+                        auditory_p_detect_present=auditory_p_detected_given_present,  # noqa
+                        auditory_p_detect_absent=auditory_p_detected_given_absent,  # noqa
+                        auditory_c=auditory_c,
+                        auditory_d=auditory_dprime,
+                    ))
 
-        # Now another one...
-        halfprob_values = []
-        for half in range(2):
-            blocks = list(range(half * self.num_blocks // 2,
-                                self.num_blocks // (2 - half)))
-            for target_probability_low_high in (0, 1):
-                groups = (
-                    groups_lowprob if target_probability_low_high == 0
-                    else groups_highprob
-                )
-                (p_detected_given_present,
-                 p_detected_given_absent,
-                 c,
-                 dprime,
-                 n_trials) = self.get_p_detected(trialarray, blocks,
-                                                 groups)
-                (auditory_p_detected_given_present,
-                 auditory_p_detected_given_absent,
-                 auditory_c, auditory_dprime,
-                 auditory_n_trials) = self.get_p_detected(
-                    trialarray_auditory, blocks, groups)
-                halfprob_values.append([
-                    self._pk,  # tablename_pk
-                    self.is_complete(),
-                    self.get_creation_datetime_utc(),
-                    # ... when_source_record_created_utc
-                    now,  # when_summary_created_utc
-                    half,
-                    target_probability_low_high,
-                    n_trials,
-                    p_detected_given_present,
-                    p_detected_given_absent,
-                    c,
-                    dprime,
-                    auditory_n_trials,
-                    auditory_p_detected_given_present,
-                    auditory_p_detected_given_absent,
-                    auditory_c,
-                    auditory_dprime,
-                ])  # ... list of lists
+            # Now another one...
+            for half in range(2):
+                blocks = list(range(half * self.num_blocks // 2,
+                                    self.num_blocks // (2 - half)))
+                for target_probability_low_high in (0, 1):
+                    groups = (
+                        groups_lowprob if target_probability_low_high == 0
+                        else groups_highprob
+                    )
+                    (p_detected_given_present,
+                     p_detected_given_absent,
+                     c,
+                     dprime,
+                     n_trials) = self.get_p_detected(
+                        trialarray, blocks, groups)
+                    (auditory_p_detected_given_present,
+                     auditory_p_detected_given_absent,
+                     auditory_c, auditory_dprime,
+                     auditory_n_trials) = self.get_p_detected(
+                        trialarray_auditory, blocks, groups)
+                    halfprob_values.append(dict(
+                        cardinal_expdet_pk=self._pk,  # tablename_pk
+                        half=half,
+                        target_probability_low_high=target_probability_low_high,  # noqa
+                        n_trials=n_trials,
+                        p_detect_present=p_detected_given_present,
+                        p_detect_absent=p_detected_given_absent,
+                        c=c,
+                        d=dprime,
+                        auditory_n_trials=auditory_n_trials,
+                        auditory_p_detect_present=auditory_p_detected_given_present,  # noqa
+                        auditory_p_detect_absent=auditory_p_detected_given_absent,  # noqa
+                        auditory_c=auditory_c,
+                        auditory_d=auditory_dprime,
+                    ))
 
-        return [blockprob_values, halfprob_values]
+        blockprob_table = ExtraSummaryTable(
+            tablename="cardinal_expdet_blockprobs",
+            columns=BLOCKPROB_COLUMNS,
+            rows=blockprob_values
+        )
+        halfprob_table = ExtraSummaryTable(
+            tablename="cardinal_expdet_halfprobs",
+            columns=HALFPROB_COLUMNS,
+            rows=halfprob_values
+        )
+        return [blockprob_table, halfprob_table]
 
     def get_overall_p_detect_present(self) -> Optional[float]:
         trialarray = self.trials  # type: List[ExpDetTrial]

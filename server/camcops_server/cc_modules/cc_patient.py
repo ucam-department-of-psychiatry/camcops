@@ -254,20 +254,16 @@ class Patient(GenericTabletRecordMixin, Base):
         idnums = self.idnums  # type: List[PatientIdNum]
         return [x.idnum_value for x in idnums if x.is_valid()]
 
-    def get_xml_root(self, skip_fields: List[str] = None) -> XmlElement:
+    def get_xml_root(self, req: CamcopsRequest,
+                     skip_fields: List[str] = None) -> XmlElement:
         """Get root of XML tree, as an XmlElementTuple."""
         skip_fields = skip_fields or []
-        # Exclude old ID fields:
-        for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
-            nstr = str(n)
-            skip_fields.append(FP_ID_NUM_DEFUNCT + nstr)
-            skip_fields.append(FP_ID_DESC_DEFUNCT + nstr)
-            skip_fields.append(FP_ID_SHORT_DESC_DEFUNCT + nstr)
-        branches = self._get_xml_branches(skip_attrs=skip_fields)
-        # Now add newer IDs:
+        # No point in skipping old ID columns (1-8) now; they're gone.
+        branches = self._get_xml_branches(req, skip_attrs=skip_fields)
+        # Now add new-style IDs:
         pidnum_branches = []  # type: List[XmlElement]
         for pidnum in self.idnums:  # type: PatientIdNum
-            pidnum_branches.append(pidnum._get_xml_root())
+            pidnum_branches.append(pidnum._get_xml_root(req))
         branches.append(XmlElement(
             name="idnums",
             value=pidnum_branches
@@ -282,7 +278,7 @@ class Patient(GenericTabletRecordMixin, Base):
     def get_tsv_chunk(self, req: CamcopsRequest) -> TsvChunk:
         # 1. Our core fields.
         tsv_chunk = self._get_core_tsv_chunk(
-            heading_prefix=TSV_PATIENT_FIELD_PREFIX)
+            req, heading_prefix=TSV_PATIENT_FIELD_PREFIX)
         # 2. ID number details
         #    We can't just iterate through the ID numbers; we have to iterate
         #    through all possible ID numbers.

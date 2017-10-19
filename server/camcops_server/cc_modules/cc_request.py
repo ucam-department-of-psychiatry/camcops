@@ -74,11 +74,7 @@ from .cc_pyramid import (
     get_session_factory,
     STATIC_PYRAMID_PACKAGE_PATH,
 )
-from .cc_serversettings import (
-    get_database_title,
-    get_server_settings,
-    ServerSettings,
-)
+from .cc_serversettings import get_server_settings, ServerSettings
 from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
 from .cc_tabletsession import TabletSession
 
@@ -699,7 +695,7 @@ class CamcopsRequest(Request):
 
     @reify
     def idnum_definitions(self) -> List[IdNumDefinition]:
-        return get_idnum_definitions(self.dbsession)  # cached
+        return get_idnum_definitions(self.dbsession)  # no longer cached
 
     @reify
     def valid_which_idnums(self) -> List[int]:
@@ -730,12 +726,18 @@ class CamcopsRequest(Request):
     # Server settings
     # -------------------------------------------------------------------------
 
-    def get_server_settings(self) -> ServerSettings:
+    @reify
+    def server_settings(self) -> ServerSettings:
         return get_server_settings(self)
 
     @reify
     def database_title(self) -> str:
-        return get_database_title(self)  # cached
+        ss = self.server_settings
+        return ss.database_title or ""
+
+    def set_database_title(self, title: str) -> None:
+        ss = self.server_settings
+        ss.database_title = title
 
 
 # noinspection PyUnusedLocal

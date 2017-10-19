@@ -25,7 +25,7 @@
 import base64
 import datetime
 import logging
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, TYPE_CHECKING, Union
 import xml.sax.saxutils
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -38,7 +38,9 @@ from sqlalchemy.sql.type_api import TypeEngine
 
 from .cc_simpleobjects import XmlSimpleValue
 from .cc_sqla_coltypes import gen_camcops_blob_columns
-from .cc_summaryelement import SummaryElement
+
+if TYPE_CHECKING:
+    from .cc_summaryelement import SummaryElement
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -135,7 +137,7 @@ def make_xml_branches_from_columns(
 
 
 def make_xml_branches_from_summaries(
-        summaries: List[SummaryElement],
+        summaries: List["SummaryElement"],
         skip_fields: List[str] = None,
         sort_by_name: bool = True) -> List[XmlElement]:
     """Returns a list of XML branches, each an XmlElement, from a

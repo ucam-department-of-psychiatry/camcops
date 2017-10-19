@@ -119,7 +119,7 @@ from .cc_sqla_coltypes import (
     permitted_values_ok,
 )
 from .cc_sqlalchemy import Base
-from .cc_summaryelement import SummaryElement
+from .cc_summaryelement import ExtraSummaryTable, SummaryElement
 from .cc_trackerhelpers import TrackerInfo
 from .cc_tsv import TsvChunk
 from .cc_unittest import (
@@ -132,14 +132,12 @@ from .cc_unittest import (
 )
 from .cc_xml import (
     get_xml_document,
-    make_xml_branches_from_summaries,
     XML_COMMENT_ANCILLARY,
     XML_COMMENT_ANONYMOUS,
     XML_COMMENT_BLOBS,
     XML_COMMENT_CALCULATED,
     XML_COMMENT_PATIENT,
     XML_COMMENT_SPECIAL_NOTES,
-    XML_COMMENT_STORED,
     XmlElement,
 )
 
@@ -510,23 +508,12 @@ class Task(GenericTabletRecordMixin, Base):
     # Override some of these if you provide summaries
     # -------------------------------------------------------------------------
 
-    # noinspection PyMethodMayBeStatic
-    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        """
-        Return a list of summary value objects, for this database object
-        (not any dependent classes/tables).
-        """
-        return []  # type: List[SummaryElement]
-
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def get_extra_summary_table_data(self, now: Pendulum) \
-            -> List[List[List[Any]]]:
-        """If used, must correspond exactly to extra_summary_table_info,
-        but returning the data.
-
-        LIST OF TABLES (matching tables in extra_summary_table_info),
-            each containing a list of ZERO OR MORE ROWS,
-                each containing a list of VALUES (matching fieldspecs above).
+    def get_extra_summary_tables(
+            self, req: CamcopsRequest) -> List[ExtraSummaryTable]:
+        """
+        Override if you wish to create extra summary tables, not just add
+        summary columns to task/ancillary tables.
         """
         return []
 
@@ -706,112 +693,6 @@ class Task(GenericTabletRecordMixin, Base):
     # Summary tables
     # -------------------------------------------------------------------------
 
-    @classmethod
-    def get_standard_summary_table_name(cls) -> str:
-        """Returns the main summary table for the task."""
-        return cls.tablename + "_SUMMARY_TEMP"
-
-    @classmethod
-    def provides_summaries(cls, req: CamcopsRequest) -> bool:
-        """Does the task provide summary information?"""
-        specimen_instance = cls(None)  # blank PK
-        return len(specimen_instance.get_summaries(req)) > 0
-
-    @classmethod
-    def make_summary_table(cls) -> None:
-        """Drop and remake (temporary) summary tables."""
-        # now = get_now_utc()
-        cls.drop_summary_tables()
-
-        # DISABLED FOR NOW:
-        # cls.make_standard_summary_table(now)
-        # cls.make_extra_summary_tables(now)
-        # # ... in case the task wants to make extra tables
-
-    @classmethod
-    def make_standard_summary_table(cls,
-                                    req: CamcopsRequest,
-                                    now: Pendulum) -> None:
-        """Make the task's main summary table."""
-        table = cls.tablename
-        if not cls.provides_summaries(req):
-            return
-        log.info("Generating summary tables for: {}", cls.shortname)
-
-        # Table
-        summarytable = cls.get_standard_summary_table_name()
-        pkfieldname = table + "_pk"
-        dummy_instance = cls(None)  # blank PK
-        fieldspecs = [
-            dict(name=pkfieldname, cctype="INT_UNSIGNED", notnull=True,
-                 comment="(GENERIC) FK to the source table's _pk field"),
-            dict(name="when_source_record_created_utc",
-                 cctype="DATETIME",
-                 comment="(GENERIC) When was the source record created?"),
-            dict(name="when_summary_created_utc", cctype="DATETIME",
-                 comment="(GENERIC) When was this summary created?"),
-            dict(name="seconds_from_creation_to_first_finish",
-                 cctype="FLOAT",
-                 comment="(GENERIC) Time (in seconds) from record creation to "
-                         "first exit, if that was a finish not an abort")
-        ] + dummy_instance.get_summaries(req)
-        cc_db.add_sqltype_to_fieldspeclist_in_place(fieldspecs)
-        fields = [d["name"] for d in fieldspecs]
-        pls.db.make_table(summarytable, fieldspecs, dynamic=True)
-        for i in cls.gen_all_current_tasks():
-            # noinspection PyProtectedMember
-            values = [
-                i._pk,  # tablename_pk
-                i.get_creation_datetime_utc(),
-                # ... when_source_record_created_utc
-                now,  # when_summary_created_utc
-                i.get_seconds_from_creation_to_first_finish()
-                # ... seconds_from_creation_to_first_finish
-            ] + [
-                s["value"] for s in i.get_summaries(req)
-            ]
-            pls.db.insert_record(summarytable, fields, values)
-        # All records are current (see generator above).
-        # For non-anonymous tasks, we can add patient information:
-        if not cls.is_anonymous:
-            cc_db.create_summary_table_current_view_withpt(summarytable, table,
-                                                           pkfieldname)
-
-    @classmethod
-    def make_extra_summary_tables(cls, now: Pendulum) -> None:
-        # Get details of what the task wants
-        infolist = list(cls.extra_summary_table_info)
-        # ... copy; one entry per table
-        # Make simple fieldnames from fieldspecs
-        for i in range(len(infolist)):
-            infolist[i]["fields"] = [fs["name"]
-                                     for fs in infolist[i]["fieldspecs"]]
-        # Make tables
-        for i in range(len(infolist)):
-            summarytable = infolist[i]["tablename"]
-            fieldspecs = infolist[i]["fieldspecs"]
-            cc_db.add_sqltype_to_fieldspeclist_in_place(fieldspecs)
-            pls.db.make_table(summarytable, fieldspecs, dynamic=True)
-        # Populate tables
-        for task in cls.gen_all_current_tasks():
-            datalist = task.get_extra_summary_table_data(now)
-            for i in range(len(infolist)):
-                summarytable = infolist[i]["tablename"]
-                fields = infolist[i]["fields"]
-                rows_to_insert = datalist[i]
-                pls.db.insert_multiple_records(summarytable, fields,
-                                               rows_to_insert)
-        # All records are current (see generator above).
-        # Make views:
-        if not cls.is_anonymous:
-            for i in range(len(infolist)):
-                basetable = cls.tablename
-                summarytable = infolist[i]["tablename"]
-                pkfieldname = infolist[i]["fields"][0]
-                cc_db.create_summary_table_current_view_withpt(summarytable,
-                                                               basetable,
-                                                               pkfieldname)
-
     def standard_task_summary_fields(self) -> List[SummaryElement]:
         return [
             SummaryElement(
@@ -825,63 +706,9 @@ class Task(GenericTabletRecordMixin, Base):
                 coltype=Float(),
                 value=self.get_seconds_from_creation_to_first_finish(),
                 comment="(GENERIC) Time (in seconds) from record creation to "
-                         "first exit, if that was a finish not an abort",
+                        "first exit, if that was a finish not an abort",
             ),
         ]
-
-    def get_summary_names(self, req: CamcopsRequest) -> List[str]:
-        """
-        Returns a list of summary field names.
-        """
-        return [x.name for x in self.get_summaries(req)]
-
-    # -------------------------------------------------------------------------
-    # More on tables
-    # -------------------------------------------------------------------------
-
-    @classmethod
-    def get_all_table_and_view_names(cls) -> Tuple[List[str], List[str]]:
-        """Returns a tuple (tables, views) with lists of all tables and views
-        used by this task."""
-        basetablename = cls.tablename
-        tables = [basetablename]
-        views = [basetablename + "_current"]
-        if not cls.is_anonymous:
-            views.append(basetablename + "_current_withpt")
-
-        extratables = cls.get_extra_table_names()
-        for et in extratables:
-            tables.append(et)
-            views.append(et + "_current")
-
-        summarytable = cls.get_standard_summary_table_name()
-        tables.append(summarytable)
-        if not cls.is_anonymous:
-            views.append(summarytable + "_current")
-            # ... includes patient info too
-            views.append(summarytable + "_current_withpt")
-
-        extrasummarytables = cls.get_extra_summary_table_names()
-        for est in extrasummarytables:
-            tables.append(est)
-            if not cls.is_anonymous:
-                views.append(est + "_current")
-                # ... includes patient info too
-                views.append(est + "_current_withpt")
-
-        return tables, views
-
-    @classmethod
-    def get_extra_summary_table_names(cls) -> List[str]:
-        return [x["tablename"] for x in cls.extra_summary_table_info]
-
-    # -------------------------------------------------------------------------
-    # BLOB fetching
-    # -------------------------------------------------------------------------
-
-    def get_blob_by_id(self, blobid: int) -> Optional[Blob]:
-        """Get Blob() object from blob ID, or None."""
-        return get_blob_by_id(self, blobid)
 
     # -------------------------------------------------------------------------
     # Testing
@@ -1144,66 +971,6 @@ class Task(GenericTabletRecordMixin, Base):
         """Is the instance live on a tablet?"""
         return self._era == ERA_NOW
 
-    def get_task_list_row(self, req: CamcopsRequest) -> str:
-        """HTML table row for including in task summary list."""
-        complete = self.is_complete()
-        anonymous = self.is_anonymous
-        if anonymous:
-            patient_id = "—"
-        else:
-            patient_id = self.patient.get_html_for_webview_patient_column(req)
-        satisfies_upload = (
-            anonymous or self.patient.satisfies_upload_id_policy()
-        )
-        satisfies_finalize = (
-            anonymous or self.patient.satisfies_finalize_id_policy()
-        )
-        # device = Device(self._device_id)
-        live_on_tablet = self.is_live_on_tablet()
-
-        if anonymous:
-            # conflict = False
-            idmsg = "—"
-        else:
-            # conflict, idmsg = self.patient.get_conflict_html_for_id_col()
-            idmsg = self.patient.get_html_for_id_col(req)
-
-        if satisfies_upload and satisfies_finalize:
-            colour_policy = ''
-        elif not satisfies_upload:
-            colour_policy = ' class="badidpolicy_severe"'
-        else:
-            colour_policy = ' class="badidpolicy_mild"'
-
-        return """
-            <tr>
-                <td{colour_policy}>{patient_id}</td>
-                <td>{idmsg}</td>
-                <td{colour_not_current}><b>{tasktype}</b></td>
-                <td>{adding_user}</td>
-                <td{colour_live}>{created}</td>
-                <td{colour_incomplete}>{html}</td>
-                <td{colour_incomplete}>{pdf}</td>
-            </tr>
-        """.format(
-            colour_policy=colour_policy,
-            patient_id=patient_id,
-            # colour_conflict=' class="warning"' if conflict else '',
-            idmsg=idmsg,
-            colour_not_current=' class="warning"' if not self._current else '',
-            tasktype=self.shortname,
-            adding_user=self.get_adding_user_username(),
-            colour_live=' class="live_on_tablet"' if live_on_tablet else '',
-            created=format_datetime(self.when_created,
-                                    DateFormat.SHORT_DATETIME),
-            colour_incomplete='' if complete else ' class="incomplete"',
-            html=self.get_hyperlink_html(req, "HTML"),
-            pdf=self.get_hyperlink_pdf(req, "PDF"),
-        )
-        # Note: target="_blank" is deprecated, but preferred by users (it
-        # obviates the need to manually confirm refresh of the view-tasks page,
-        # which is generated following a POST submission).
-
     # -------------------------------------------------------------------------
     # Filtering tasks for the task list
     # -------------------------------------------------------------------------
@@ -1222,118 +989,6 @@ class Task(GenericTabletRecordMixin, Base):
                 continue
             yield attrname, column
 
-    # def compatible_with_text_filter(self, filtertext: str) -> bool:
-    #     """
-    #     Is this task allowed through the text contents filter?
-    #     Does one of its text fields contain the filtertext?
-    #
-    #     (Searches all text fields, ignoring "administrative" ones.)
-    #     """
-    #     filtertext = filtertext.upper()
-    #     for attrname, column in gen_columns(self):
-    #         if attrname.startswith("_"):  # system field
-    #             continue
-    #         if not is_sqlatype_string(column.type):
-    #             continue
-    #         value = getattr(self, attrname)
-    #         if not isinstance(value, str):
-    #             # handles None and anything unexpectedly odd
-    #             continue
-    #         if filtertext in value.upper():
-    #             return True
-    #     return False
-
-    # -------------------------------------------------------------------------
-    # Fetching tasks for trackers/CTVs
-    # -------------------------------------------------------------------------
-
-    @classmethod
-    def get_task_pks_for_tracker(
-            cls,
-            idnum_criteria: List[Tuple[int, int]],  # which_idnum, idnum_value
-            start_datetime: Optional[Pendulum],
-            end_datetime: Optional[Pendulum]) -> List[int]:
-        """Get server PKs for tracker information matching the requested
-        criteria, or []."""
-        if not cls.provides_trackers:
-            return []
-        return cls.get_task_pks_for_tracker_or_clinical_text_view(
-            idnum_criteria, start_datetime, end_datetime)
-
-    @classmethod
-    def get_task_pks_for_clinical_text_view(
-            cls,
-            idnum_criteria: List[Tuple[int, int]],  # which_idnum, idnum_value
-            start_datetime: Optional[Pendulum],
-            end_datetime: Optional[Pendulum]) -> List[int]:
-        """Get server PKs for CTV information matching the requested criteria,
-        or []."""
-        # Return ALL tasks (those not providing clinical text appear as
-        # hypertext headings)
-        return cls.get_task_pks_for_tracker_or_clinical_text_view(
-            idnum_criteria, start_datetime, end_datetime)
-
-    @classmethod
-    def get_task_pks_for_tracker_or_clinical_text_view(
-            cls,
-            idnum_criteria: List[Tuple[int, int]],  # which_idnum, idnum_value
-            start_datetime: Optional[Pendulum],
-            end_datetime: Optional[Pendulum]) -> List[int]:
-        """Get server PKs matching requested criteria.
-
-        Args:
-            idnum_criteria: List of tuples of (which_idnum, idnum_value) to
-                restrict to
-            start_datetime: earliest date, or None
-            end_datetime: latest date, or None
-
-        Must not be called for anonymous tasks.
-        """
-        if not idnum_criteria:
-            return []
-        table = cls.tablename
-        # We don't do trackers/clinical_text_view for anonymous tasks
-        # (nonsensical), so this is always OK:
-        query = """
-            SELECT t._pk
-            FROM {tasktable} t
-            INNER JOIN {patienttable} p
-                ON t.patient_id = p.id
-                AND t._device_id = p._device_id
-                AND t._era = p._era
-            INNER JOIN {idtable} i
-                ON i.patient_id = p.id
-                AND i._device_id = p._device_id
-                AND i._era = p._era
-            WHERE
-                t._current
-                AND p._current
-                AND i._current
-        """.format(
-            tasktable=table,
-            patienttable=Patient.__tablename__,
-            idtable=PatientIdNum.__tablename__,
-        )
-        wheres = []
-        args = []
-        for which_idnum, idnum_value in idnum_criteria:
-            if which_idnum is None or idnum_value is None:
-                continue
-            wheres.append("i.which_idnum = ?")
-            args.append(which_idnum)
-            wheres.append("i.idnum_value = ?")
-            args.append(idnum_value)
-        wcfield_utc = cls.whencreated_fieldexpr_as_utc(table_alias='t')
-        if start_datetime is not None:
-            wheres.append("{} >= ?".format(wcfield_utc))
-            args.append(start_datetime)
-        if end_datetime is not None:
-            wheres.append("{} <= ?".format(wcfield_utc))
-            args.append(end_datetime)
-        if wheres:
-            query += " AND " + " AND ".join(wheres)
-        return pls.db.fetchallfirstvalues(query, *args)
-
     # -------------------------------------------------------------------------
     # TSV export for basic research dump
     # -------------------------------------------------------------------------
@@ -1342,26 +997,15 @@ class Task(GenericTabletRecordMixin, Base):
         """
         Returns information used for the basic research dump in TSV format.
         """
-        # 1. Our core fields.
-        tsv_chunk = self._get_core_tsv_chunk()
+        # 1. Our core fields, plus summary information
+        main_chunk = self._get_core_tsv_chunk(req)
         # 2. Patient details.
         if self.patient:
-            tsv_chunk.add_tsv_chunk(self.patient.get_tsv_chunk(req))
-        # 3. Any summary elements.
-        for s in self.get_summaries(req):
-            tsv_chunk.add_value(heading=s.name, value=s.value)
-        # 4. +/- Ancillary objects
-        return [tsv_chunk] + self.get_extra_chunks_for_tsv(req)
-
-    # noinspection PyUnusedLocal
-    def get_extra_chunks_for_tsv(self, req: CamcopsRequest) -> List[TsvChunk]:
-        """
-        Override for tasks with subtables to be encoded as separate files
-        in the TSV output, if the default method isn't good enough.
-        """
-        tsv_chunks = []  # type: List[TsvChunk]
+            main_chunk.add_tsv_chunk(self.patient.get_tsv_chunk(req))
+        tsv_chunks = [main_chunk]
+        # 3. +/- Ancillary objects
         for ancillary in self.gen_ancillary_instances():  # type: GenericTabletRecordMixin  # noqa
-            chunk = ancillary._get_core_tsv_chunk()
+            chunk = ancillary._get_core_tsv_chunk(req)
             tsv_chunks.append(chunk)
         return tsv_chunks
 
@@ -1521,41 +1165,47 @@ class Task(GenericTabletRecordMixin, Base):
         calculated, patient, and/or BLOB fields, depending on the options.
         """
         skip_fields = skip_fields or []
-        # Stored values
-        branches = [XML_COMMENT_STORED]
-        branches += self._get_xml_branches(skip_attrs=skip_fields,
-                                           include_plain_columns=True,
-                                           include_blobs=False)
+
+        # Stored values +/- calculated values
+        branches = self._get_xml_branches(
+            req=req,
+            skip_attrs=skip_fields,
+            include_plain_columns=True,
+            include_blobs=False,
+            include_calculated=include_calculated
+        )
+
         # Special notes
         branches.append(XML_COMMENT_SPECIAL_NOTES)
         for sn in self.special_notes:
             branches.append(sn.get_xml_root())
-        # Calculated
-        if include_calculated:
-            branches.append(XML_COMMENT_CALCULATED)
-            branches.extend(make_xml_branches_from_summaries(
-                self.get_summaries(req),
-                skip_fields=skip_fields,
-                sort_by_name=True
-            ))
+
         # Patient details
         if self.is_anonymous:
             branches.append(XML_COMMENT_ANONYMOUS)
         elif include_patient:
             branches.append(XML_COMMENT_PATIENT)
             if self.patient:
-                branches.append(self.patient.get_xml_root())
+                branches.append(self.patient.get_xml_root(req))
+
         # BLOBs
         if include_blobs:
             branches.append(XML_COMMENT_BLOBS)
-            branches += self._get_xml_branches(skip_attrs=skip_fields,
+            branches += self._get_xml_branches(req=req,
+                                               skip_attrs=skip_fields,
                                                include_plain_columns=False,
                                                include_blobs=True,
+                                               include_calculated=False,
                                                sort_by_attr=True)
+
         # Ancillary objects
         if include_ancillary:
             item_collections = []  # type: List[XmlElement]
             found_ancillary = False
+            # We use a slightly more manual iteration process here so that
+            # we iterate through individual ancillaries but clustered by their
+            # name (e.g. if we have 50 trials and 5 groups, we do them in
+            # collections).
             for attrname, rel_prop, rel_cls in gen_ancillary_relationships(self):  # noqa
                 if not found_ancillary:
                     branches.append(XML_COMMENT_ANCILLARY)
@@ -1567,18 +1217,32 @@ class Task(GenericTabletRecordMixin, Base):
                     ancillaries = [getattr(self, attrname)]  # type: List[GenericTabletRecordMixin]  # noqa
                 for ancillary in ancillaries:
                     itembranches.append(
-                        ancillary._get_xml_root(skip_attrs=skip_fields,
-                                                include_plain_columns=True,
-                                                include_blobs=True,
-                                                sort_by_attr=True)
+                        ancillary._get_xml_root(
+                            req=req,
+                            skip_attrs=skip_fields,
+                            include_plain_columns=True,
+                            include_blobs=True,
+                            include_calculated=include_calculated,
+                            sort_by_attr=True
+                        )
                     )
-                itemcollection = XmlElement(
-                    name=attrname,
-                    value=itembranches
-                )
+                itemcollection = XmlElement(name=attrname, value=itembranches)
                 item_collections.append(itemcollection)
             item_collections.sort(key=lambda el: el.name)
             branches += item_collections
+
+        # Completely separate additional summary tables
+        if include_calculated:
+            item_collections = []  # type: List[XmlElement]
+            found_est = False
+            for est in self.get_extra_summary_tables(req):
+                if not found_est and est.rows:
+                    branches.append(XML_COMMENT_CALCULATED)
+                    found_est = True
+                item_collections.append(est.get_xml_element())
+            item_collections.sort(key=lambda el: el.name)
+            branches += item_collections
+
         return branches
 
     # -------------------------------------------------------------------------
@@ -1994,59 +1658,6 @@ def text_filter_exempt_fields(task: Type[Task]) -> List[str]:
 
 
 # =============================================================================
-# Ancillary
-# =============================================================================
-
-class Ancillary(object):
-    """
-    Abstract base class for subtables of tasks.
-
-    Overridable attributes are a subset of those for Task.
-    """
-    # -------------------------------------------------------------------------
-    # Attributes that must be provided
-    # -------------------------------------------------------------------------
-    tablename = None
-    fkname = None
-    fieldspecs = []
-
-    # -------------------------------------------------------------------------
-    # Attributes that can be overridden
-    # -------------------------------------------------------------------------
-    sortfield = None
-    blob_name_idfield_list = []
-
-    @classmethod
-    def get_full_fieldspecs(cls) -> FIELDSPECLIST_TYPE:
-        full_fieldspecs = list(STANDARD_ANCILLARY_FIELDSPECS)  # copy
-        full_fieldspecs.extend(cls.fieldspecs)
-        return full_fieldspecs
-
-    @classmethod
-    def get_fieldnames(cls) -> List[str]:
-        return [x["name"] for x in cls.get_full_fieldspecs()]
-
-    def __init__(self, serverpk: int = None) -> None:
-        """Only call with serverpk=None if you will populate all fields
-        manually (see e.g.
-        get_contemporaneous_matching_ancillary_objects_by_fk)."""
-        if serverpk is not None:
-            pls.db.fetch_object_from_db_by_pk(
-                self,
-                self.tablename,
-                self.get_fieldnames(),
-                serverpk)
-
-    # *** move to GenericTabletRecordMixin
-    def get_cris_fieldspecs_values(self, common_fsv: FIELDSPECLIST_TYPE) \
-            -> FIELDSPECLIST_TYPE:
-        fieldspecs = copy.deepcopy(self.get_full_fieldspecs())
-        for fs in fieldspecs:
-            fs["value"] = getattr(self, fs["name"])
-        return common_fsv + fieldspecs
-
-
-# =============================================================================
 # Support functions
 # =============================================================================
 
@@ -2114,26 +1725,6 @@ class TaskCountReport(Report):
 
 
 # =============================================================================
-# URLs
-# =============================================================================
-
-def get_url_erase_task(req: CamcopsRequest,
-                       tablename: str, serverpk: int) -> str:
-    url = get_generic_action_url(req, ACTION.ERASE_TASK)
-    url += get_url_field_value_pair(PARAM.TABLENAME, tablename)
-    url += get_url_field_value_pair(PARAM.SERVERPK, serverpk)
-    return url
-
-
-def get_url_add_special_note(req: CamcopsRequest,
-                             tablename: str, serverpk: int) -> str:
-    url = get_generic_action_url(req, ACTION.ADD_SPECIAL_NOTE)
-    url += get_url_field_value_pair(PARAM.TABLENAME, tablename)
-    url += get_url_field_value_pair(PARAM.SERVERPK, serverpk)
-    return url
-
-
-# =============================================================================
 # Unit testing
 # =============================================================================
 
@@ -2177,8 +1768,7 @@ def task_instance_unit_test(req: CamcopsRequest,
 
     # *** req: CamcopsRequest
 
-    recipient_def = RecipientDefinition(
-        valid_which_idnums=pls.valid_which_idnums())
+    recipient_def = RecipientDefinition()
 
     # -------------------------------------------------------------------------
     # Test methods
@@ -2448,16 +2038,6 @@ def task_instance_unit_test(req: CamcopsRequest,
                 "Prefixed patient field {} (as {}) conflicts with a "
                 "main field or summary field name".format(f, test_field)
             )
-
-    # -------------------------------------------------------------------------
-    # Ensure field types are valid
-    # -------------------------------------------------------------------------
-    fieldspeclist = instance.get_full_fieldspecs()
-    for fs in fieldspeclist:
-        cc_db.ensure_valid_cctype(fs["cctype"])
-    summarylist = instance.get_summaries(req)
-    for fs in summarylist:
-        cc_db.ensure_valid_cctype(fs["cctype"])
 
     # -------------------------------------------------------------------------
     # Any task-specific unit tests?

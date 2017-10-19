@@ -92,26 +92,31 @@ class IdNumDefinition(Base):
 # Caching IdNumDefinition
 # =============================================================================
 
-CACHE_KEY_IDNUMDEFS = "id_num_definitions"
+# CACHE_KEY_IDNUMDEFS = "id_num_definitions"
+
+
+# def get_idnum_definitions(dbsession: SqlASession) -> List[IdNumDefinition]:
+#     def creator() -> List[IdNumDefinition]:
+#         defs = list(
+#             dbsession.query(IdNumDefinition)
+#             .order_by(IdNumDefinition.which_idnum)
+#         )
+#         # Now make these objects persist outside the scope of a session:
+#         # https://stackoverflow.com/questions/8253978/sqlalchemy-get-object-not-bound-to-a-session  # noqa
+#         # http://docs.sqlalchemy.org/en/latest/orm/session_state_management.html#expunging  # noqa
+#         for iddef in defs:
+#             dbsession.expunge(iddef)
+#         return defs
+#
+#     return cache_region_static.get_or_create(CACHE_KEY_IDNUMDEFS, creator)
+
+
+# def clear_idnum_definition_cache() -> None:
+#     cache_region_static.delete(CACHE_KEY_IDNUMDEFS)
 
 
 def get_idnum_definitions(dbsession: SqlASession) -> List[IdNumDefinition]:
-    def creator() -> List[IdNumDefinition]:
-        defs = list(
-            dbsession.query(IdNumDefinition)
-            .order_by(IdNumDefinition.which_idnum)
-        )
-        # Now make these objects persist outside the scope of a session:
-        # https://stackoverflow.com/questions/8253978/sqlalchemy-get-object-not-bound-to-a-session  # noqa
-        # http://docs.sqlalchemy.org/en/latest/orm/session_state_management.html#expunging  # noqa
-        for iddef in defs:
-            dbsession.expunge(iddef)
-        return defs
-
-    return cache_region_static.get_or_create(CACHE_KEY_IDNUMDEFS, creator)
-
-
-def clear_idnum_definition_cache() -> None:
-    cache_region_static.delete(CACHE_KEY_IDNUMDEFS)
-
-
+    return list(
+        dbsession.query(IdNumDefinition)
+        .order_by(IdNumDefinition.which_idnum)
+    )

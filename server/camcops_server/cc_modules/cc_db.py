@@ -23,7 +23,7 @@
 """
 
 import logging
-from typing import (Any, Dict, Generator, List, Optional, Set, Type,
+from typing import (Any, Dict, Generator, List, Optional, Set, Tuple, Type,
                     TYPE_CHECKING, TypeVar, Union)
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -46,11 +46,15 @@ from .cc_sqla_coltypes import (
     RelationshipInfo,
     SemanticVersionColType,
 )
+from .cc_summaryelement import SummaryElement
 from .cc_tsv import TsvChunk
 from .cc_version import CAMCOPS_SERVER_VERSION
 from .cc_xml import (
     make_xml_branches_from_blobs,
     make_xml_branches_from_columns,
+    make_xml_branches_from_summaries,
+    XML_COMMENT_STORED,
+    XML_COMMENT_CALCULATED,
     XmlElement,
 )
 
@@ -382,9 +386,11 @@ class GenericTabletRecordMixin(object):
     # -------------------------------------------------------------------------
 
     def _get_xml_root(self,
+                      req: "CamcopsRequest",
                       skip_attrs: List[str] = None,
                       include_plain_columns: bool=True,
                       include_blobs: bool = True,
+                      include_calculated: bool = True,
                       sort_by_attr: bool = True) -> XmlElement:
         """
         Called to create an XML root object for records ancillary to Task
@@ -398,17 +404,21 @@ class GenericTabletRecordMixin(object):
         return XmlElement(
             name=self.__tablename__,
             value=self._get_xml_branches(
+                req=req,
                 skip_attrs=skip_attrs,
                 include_plain_columns=include_plain_columns,
                 include_blobs=include_blobs,
+                include_calculated=include_calculated,
                 sort_by_attr=sort_by_attr
             )
         )
 
     def _get_xml_branches(self,
+                          req: "CamcopsRequest",
                           skip_attrs: List[str],
                           include_plain_columns: bool = True,
                           include_blobs: bool = True,
+                          include_calculated: bool = True,
                           sort_by_attr: bool = True) -> List[XmlElement]:
         """
         Gets the values of SQLAlchemy columns as XmlElement objects.
@@ -419,25 +429,38 @@ class GenericTabletRecordMixin(object):
         """
         # log.critical("_get_xml_branches for {!r}", self)
         skip_attrs = skip_attrs or []  # type: List[str]
-        branches = []  # type: List[XmlElement]
+        stored_branches = []  # type: List[XmlElement]
         if include_plain_columns:
-            branches += make_xml_branches_from_columns(self,
-                                                       skip_fields=skip_attrs)
+            stored_branches += make_xml_branches_from_columns(
+                self, skip_fields=skip_attrs)
         if include_blobs:
-            branches += make_xml_branches_from_blobs(self,
-                                                     skip_fields=skip_attrs)
+            stored_branches += make_xml_branches_from_blobs(
+                self, skip_fields=skip_attrs)
         if sort_by_attr:
-            branches.sort(key=lambda el: el.name)
+            stored_branches.sort(key=lambda el: el.name)
+        branches = [XML_COMMENT_STORED] + stored_branches
+        # Calculated
+        if include_calculated:
+            branches.append(XML_COMMENT_CALCULATED)
+            branches.extend(make_xml_branches_from_summaries(
+                self.get_summaries(req),
+                skip_fields=skip_attrs,
+                sort_by_name=sort_by_attr
+            ))
         # log.critical("... branches for {!r}: {!r}", self, branches)
         return branches
 
-    def _get_core_tsv_chunk(self, heading_prefix: str = "") -> TsvChunk:
+    def _get_core_tsv_chunk(self, req: "CamcopsRequest",
+                            heading_prefix: str = "") -> TsvChunk:
         headings = []  # type: List[str]
         row = []  # type: List[Any]
         for attrname, column in gen_columns(self):
             value = getattr(self, attrname)
             headings.append(heading_prefix + attrname)
             row.append(value)
+        for s in self.get_summaries(req):
+            headings.append(s.name)
+            row.append(s.value)
         return TsvChunk(
             filename_stem=self.__tablename__,
             headings=headings,
@@ -494,8 +517,8 @@ class GenericTabletRecordMixin(object):
         dbsession = SqlASession.object_session(self)
         dbsession.delete(self)
 
-    def gen_ancillary_instances(self) -> Generator["GenericTabletRecordMixin",
-                                                   None, None]:
+    def gen_attrname_ancillary_pairs(self) \
+            -> Generator[Tuple[str, "GenericTabletRecordMixin"], None, None]:
         for attrname, rel_prop, rel_cls in gen_ancillary_relationships(self):
             if rel_prop.uselist:
                 ancillaries = getattr(self, attrname)  # type: List[GenericTabletRecordMixin]  # noqa
@@ -504,7 +527,12 @@ class GenericTabletRecordMixin(object):
             for ancillary in ancillaries:
                 if ancillary is None:
                     continue
-                yield ancillary
+                yield attrname, ancillary
+
+    def gen_ancillary_instances(self) -> Generator["GenericTabletRecordMixin",
+                                                   None, None]:
+        for attrname, ancillary in self.gen_attrname_ancillary_pairs():
+            yield ancillary
 
     def gen_ancillary_instances_even_noncurrent(self) \
             -> Generator["GenericTabletRecordMixin", None, None]:
@@ -616,6 +644,24 @@ class GenericTabletRecordMixin(object):
         self._when_added_exact = req.now
         self._when_added_batch_utc = req.now_utc
         self._adding_user_id = req.user_id
+
+    # -------------------------------------------------------------------------
+    # Override this if you provide summaries
+    # -------------------------------------------------------------------------
+
+    # noinspection PyMethodMayBeStatic
+    def get_summaries(self, req: "CamcopsRequest") -> List[SummaryElement]:
+        """
+        Return a list of summary value objects, for this database object
+        (not any dependent classes/tables).
+        """
+        return []  # type: List[SummaryElement]
+
+    def get_summary_names(self, req: "CamcopsRequest") -> List[str]:
+        """
+        Returns a list of summary field names.
+        """
+        return [x.name for x in self.get_summaries(req)]
 
 
 # =============================================================================

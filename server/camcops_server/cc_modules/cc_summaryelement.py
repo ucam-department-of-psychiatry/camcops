@@ -22,9 +22,12 @@
 ===============================================================================
 """
 
-from typing import Any
+from typing import Any, Dict, List
 
+from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
+
+from .cc_xml import XmlElement
 
 
 # =============================================================================
@@ -35,6 +38,9 @@ class SummaryElement(object):
     """
     Returned by tasks to represent extra summary information that they
     calculate.
+
+    Use this for extra information that can be added to a row represented by a
+    task or its ancillary object.
     """
     def __init__(self,
                  name: str,
@@ -45,3 +51,34 @@ class SummaryElement(object):
         self.coltype = coltype
         self.value = value
         self.comment = comment
+
+
+# =============================================================================
+# ExtraSummaryTable
+# =============================================================================
+
+class ExtraSummaryTable(object):
+    """
+    Additional summary information returned by a task.
+
+    Use this to represent an entire table that doesn't have a 1:1 relationship
+    with rows of a task or ancillary object.
+    """
+    def __init__(self,
+                 tablename: str,
+                 columns: List[Column],
+                 rows: List[Dict[str, Any]]) -> None:
+        self.tablename = tablename
+        self.columns = columns
+        self.rows = rows
+
+    def get_xml_element(self) -> XmlElement:
+        itembranches = []  # type: List[XmlElement]
+        for rownum, valuedict in enumerate(self.rows):
+            fronds = []  # type: List[XmlElement]
+            for k, v in valuedict.items():
+                fronds.append(XmlElement(name=k, value=v))
+            leaf = XmlElement(name="{}_{}".format(self.tablename, rownum),
+                              value=fronds)
+            itembranches.append(leaf)
+        return XmlElement(name=self.tablename, value=itembranches)

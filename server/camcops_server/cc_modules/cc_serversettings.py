@@ -135,7 +135,7 @@ server_stored_var_table_defunct = Table(
 # =============================================================================
 
 SERVER_SETTINGS_SINGLETON_PK = 1
-CACHE_KEY_DATABASE_TITLE = "database_title"
+# CACHE_KEY_DATABASE_TITLE = "database_title"
 
 
 class ServerSettings(Base):
@@ -171,19 +171,19 @@ def get_server_settings(req: "CamcopsRequest") -> ServerSettings:
     return server_settings
 
 
-def get_database_title(req: "CamcopsRequest") -> str:
-    def creator() -> str:
-        server_settings = get_server_settings(req)
-        return server_settings.database_title or ""
-
-    return cache_region_static.get_or_create(CACHE_KEY_DATABASE_TITLE, creator)
-
-
-def clear_database_title_cache() -> None:
-    cache_region_static.delete(CACHE_KEY_DATABASE_TITLE)
+# def get_database_title(req: "CamcopsRequest") -> str:
+#     def creator() -> str:
+#         server_settings = get_server_settings(req)
+#         return server_settings.database_title or ""
+#
+#     return cache_region_static.get_or_create(CACHE_KEY_DATABASE_TITLE, creator)  # noqa
 
 
-def set_database_title(req: "CamcopsRequest", title: str) -> None:
-    server_settings = get_server_settings(req)
-    server_settings.database_title = title
-    clear_database_title_cache()
+# def clear_database_title_cache() -> None:
+#     cache_region_static.delete(CACHE_KEY_DATABASE_TITLE)
+
+
+# def set_database_title(req: "CamcopsRequest", title: str) -> None:
+#     server_settings = get_server_settings(req)
+#     server_settings.database_title = title
+#     clear_database_title_cache()

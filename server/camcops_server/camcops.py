@@ -463,7 +463,7 @@ def serve_gunicorn(application: Router,
         def __init__(self,
                      app: Router,
                      options: Dict[str, Any] = None,
-                     debug_show_known_settings: bool = True) -> None:
+                     debug_show_known_settings: bool = False) -> None:
             self.options = options or {}  # type: Dict[str, Any]
             self.application = app
             super().__init__()
@@ -471,7 +471,7 @@ def serve_gunicorn(application: Router,
                 # log.info("Gunicorn settings:\n{}", pformat(self.cfg.settings))
                 # ... which basically tells us to look in gunicorn/config.py
                 # at every class that inherits from Setting.
-                # Each has helpful documentation.
+                # Each has helpful documentation, as follows:
                 possible_keys = sorted(self.cfg.settings.keys())
                 for k in possible_keys:
                     v = self.cfg.settings[k]
