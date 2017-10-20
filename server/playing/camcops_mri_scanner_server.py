@@ -47,7 +47,7 @@ FS_PULSE = "p"
 # Messages to/from response button box (TB, FB)
 # =============================================================================
 
-# ***
+# TODO: MRI scanner server
 
 # =============================================================================
 # Messages to/from tablet (TT, FT)

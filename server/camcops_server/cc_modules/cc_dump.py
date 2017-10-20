@@ -66,7 +66,7 @@ DUMP_ONLY_COLNAMES = {  # mapping of tablename : list_of_column_names
     ]
 }
 # Drop specific columns from certain tables:
-DUMP_DROP_COLNAMES = {
+DUMP_DROP_COLNAMES = {  # mapping of tablename : list_of_column_names
 }
 # List of columns to be skipped regardless of table:
 DUMP_SKIP_COLNAMES = [
@@ -93,6 +93,7 @@ DUMP_SKIP_TABLES = [
     group_group_table.name,
     UserGroupMembership.__tablename__,
 ]
+# Tables for which no relationships will be traversed:
 DUMP_SKIP_ALL_RELS_FOR_TABLES = [
     Group.__tablename__
 ]
@@ -103,7 +104,7 @@ FOREIGN_KEY_CONSTRAINTS_IN_DUMP = False
 # Handy place to hold the controlling information
 # =============================================================================
 
-class DumpControllerInfo(object):
+class DumpController(object):
     def __init__(self,
                  dst_engine: Engine,
                  dst_session: SqlASession,
@@ -163,18 +164,18 @@ class DumpControllerInfo(object):
                 copied_column.foreign_keys = set(
                     fk.copy() for fk in src_column.foreign_keys
                 )
-                log.warning(
-                    "NOT WORKING: foreign key commands not being emitted")
-                # but http://docs.sqlalchemy.org/en/latest/core/constraints.html
+                log.warning("NOT WORKING: foreign key commands not being "
+                            "emitted")
+                # but http://docs.sqlalchemy.org/en/latest/core/constraints.html  # noqa
                 # works fine under SQLite, even if the other table hasn't been
                 # created yet. Does the table to which the FK refer have to be
                 # in the metadata already?
                 # That's quite possible, but I've not checked.
-                # Would need to iterate through tables in dependency order, like
-                # merge_db() does.
+                # Would need to iterate through tables in dependency order,
+                # like merge_db() does.
             else:
-                # Probably blank already, as the copy() command only copies non-
-                # constraint-bound ForeignKey objects, but to be sure:
+                # Probably blank already, as the copy() command only copies
+                # non-constraint-bound ForeignKey objects, but to be sure:
                 copied_column.foreign_keys = set()  # type: Set[ForeignKey]
             # if src_column.foreign_keys:
             #     log.critical("Column {}, FKs {!r} -> {!r}", src_column.name,
@@ -191,8 +192,9 @@ class DumpControllerInfo(object):
         # log.critical("Adding table {!r} to dump output", tablename)
         dst_table = Table(tablename, self.dst_metadata, *dst_columns)
         self.dst_tables[tablename] = dst_table
-        # You have to use an engine, not a session, to create tables (or you get
-        # "AttributeError: 'Session' object has no attribute '_run_visitor'").
+        # You have to use an engine, not a session, to create tables (or you
+        # get "AttributeError: 'Session' object has no attribute
+        # '_run_visitor'").
         # However, you have to commit the session, or you get
         #     "sqlalchemy.exc.OperationalError: (sqlite3.OperationalError)
         #     database is locked", since a session is also being used.
@@ -286,10 +288,10 @@ def copy_tasks_and_summaries(tasks: Iterable[Task],
     # - Let's not create FK constraints explicitly. Most are not achievable
     #   anyway (e.g. linking on device/era; omission of BLOBs).
 
-    controller = DumpControllerInfo(dst_engine=dst_engine,
-                                    dst_session=dst_session,
-                                    include_blobs=include_blobs,
-                                    req=req)
+    controller = DumpController(dst_engine=dst_engine,
+                                dst_session=dst_session,
+                                include_blobs=include_blobs,
+                                req=req)
 
     # We walk through all the objects.
     for startobj in tasks:

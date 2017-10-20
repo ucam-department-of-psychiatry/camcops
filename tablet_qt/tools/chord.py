@@ -28,7 +28,7 @@ def synth_complex(freq_coefs: List[Tuple[float, float]] = None,
         for k in range(len(freq_coefs)):
             freq = freq_coefs[k][0]
             coef = freq_coefs[k][1]
-            samp = samp + coef * math.sin(2 * math.pi * freq * (x / frate_hz))
+            samp += coef * math.sin(2 * math.pi * freq * (x / frate_hz))
             # each component can contribute (+/- coef) to each sample
         if samp > 1 or samp < -1:
             clipped = True

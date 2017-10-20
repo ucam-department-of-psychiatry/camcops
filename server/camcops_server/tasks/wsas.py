@@ -29,14 +29,18 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
-from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
-from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import add_multiple_columns
-from ..cc_modules.cc_html import answer, get_true_false, tr, tr_qa
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
-from ..cc_modules.cc_trackerhelpers import TrackerInfo
+from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV  # noqa
+from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
+from camcops_server.cc_modules.cc_db import add_multiple_columns
+from camcops_server.cc_modules.cc_html import answer, get_true_false, tr, tr_qa
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_summaryelement import SummaryElement
+from camcops_server.cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasPatientMixin,
+)
+from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================

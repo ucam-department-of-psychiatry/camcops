@@ -22,41 +22,43 @@
 ===============================================================================
 """
 
-import cgi
-import datetime
+import logging
 from typing import (Any, List, Optional, Sequence, Tuple,
                     Type, TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.classes import all_subclasses, classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import TsvResponse
-import cardinal_pythonlib.rnc_web as ws
 from deform.form import Form
-import pyramid.httpexceptions as exc
+from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.orm.query import Query
-from sqlalchemy.sql.selectable import Select
+from sqlalchemy.sql.selectable import SelectBase
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 from .cc_convert import tsv_from_query
 from .cc_constants import DateFormat, DEFAULT_ROWS_PER_PAGE
 from .cc_pyramid import CamcopsPage, PageUrl, ViewArg, ViewParam
-from .cc_unittest import unit_test_ignore, unit_test_require_truthy_attribute
+from .cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
     from .cc_forms import ReportParamForm, ReportParamSchema
 
-SESSION_FWD_REF = "CamcopsSession"
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
 # Other constants
 # =============================================================================
 
-PlainReportType = Tuple[Sequence[Sequence[Any]], Sequence[str]]
+class PlainReportType(object):
+    def __init__(self, rows: List[List[Any]], columns: List[str]) -> None:
+        self.rows = rows
+        self.columns = columns
 
 
 # =============================================================================
@@ -105,7 +107,8 @@ class Report(object):
     def superuser_only(cls) -> bool:
         return True  # must explicitly override to permit others!
 
-    def get_query(self, req: "CamcopsRequest") -> Union[None, Select, Query]:
+    def get_query(self, req: "CamcopsRequest") -> Union[None, SelectBase,
+                                                        Query]:
         """
         Return the Select statement to execute the report. Must override.
         Parameters are passed in via the Request.
@@ -150,12 +153,11 @@ class Report(object):
         page_num = req.get_int_param(ViewParam.PAGE, 1)
 
         if report_id != self.report_id:
-            raise exc.HTTPBadRequest(
-                "Error - request directed to wrong report!")
+            raise HTTPBadRequest("Error - request directed to wrong report!")
         viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML,
                                      lower=True)
         if viewtype not in [ViewArg.HTML, ViewArg.TSV]:
-            raise exc.HTTPBadRequest("Bad viewtype")
+            raise HTTPBadRequest("Bad viewtype")
 
         # Run the report (which may take additional parameters from the
         # request)
@@ -165,13 +167,13 @@ class Report(object):
             column_names = rp.keys()
             rows = rp.fetchall()
         else:
-            rows_colnames = self.get_rows_colnames(req)
-            if rows_colnames is None:
+            plain_report = self.get_rows_colnames(req)
+            if plain_report is None:
                 raise NotImplementedError(
                     "Report did not implement either of get_select_statement()"
                     " or get_rows_colnames()")
-            rows = rows_colnames[0]
-            column_names = rows_colnames[1]
+            rows = plain_report.rows
+            column_names = plain_report.columns
 
         # Serve the result
         if viewtype == ViewArg.HTML:
@@ -229,45 +231,42 @@ def get_report_instance(report_id: str) -> Optional[Report]:
 # Unit testing
 # =============================================================================
 
-def task_unit_test_report(name: str, r: Report) -> None:
-    """Unit tests for reports."""
-    unit_test_require_truthy_attribute(r, 'report_id')
-    unit_test_require_truthy_attribute(r, 'report_title')
-    unit_test_ignore("Testing {}.get_rows_descriptions".format(name),
-                     r.get_query)
+class ReportTests(DemoDatabaseTestCase):
+    def test_reports(self) -> None:
+        self.announce("test_reports")
+        req = self.req
+        for cls in get_all_report_classes():
+            log.info("Testing report: {}", cls)
+            from camcops_server.cc_modules.cc_forms import ReportParamSchema
+            r = cls()
 
+            self.assertIsInstance(r.report_id, str)
+            self.assertIsInstance(r.title, str)
+            self.assertIsInstance(r.superuser_only, bool)
 
-def ccreport_unit_tests(req: "CamcopsRequest") -> None:
-    """Unit tests for cc_report module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS (UNIT TESTING ONLY)
-    # -------------------------------------------------------------------------
-    from . import cc_session
+            try:
+                q = r.get_query(req)
+                assert (q is None or
+                        isinstance(q, SelectBase) or
+                        isinstance(q, Query)), (
+                    "get_query() method of class {cls} returned {q} which is "
+                    "of type {t}".format(cls=cls, q=q, t=type(q))
+                )
+            except HTTPBadRequest:
+                pass
 
-    session = cc_session.CamcopsSession(
-        ip_addr="127.0.0.1",
-        last_activity_utc=datetime.datetime.now())
-    form = cgi.FieldStorage()
-    rows = [
-        ["a1", "a2", "a3"],
-        ["b1", "b2", "b3"],
-    ]
-    descriptions = ["one", "two", "three"]
+            try:
+                self.assertIsInstanceOrNone(r.get_rows_colnames(req),
+                                            PlainReportType)
+            except HTTPBadRequest:
+                pass
 
-    unit_test_ignore("", offer_report_menu, req)
-    unit_test_ignore("", get_param_html, paramspec)
-    unit_test_ignore("", get_params_from_form, req, [paramspec], form)
-    unit_test_ignore("", get_all_report_ids)
-    unit_test_ignore("", get_report_instance, "hello")
-    unit_test_ignore("", offer_individual_report, req, form)
-    unit_test_ignore("", ws.html_table_from_query, rows, descriptions)
-    unit_test_ignore("", escape_for_tsv, "x")
-    unit_test_ignore("", tsv_from_query, rows, descriptions)
-    unit_test_ignore("", serve_report, req, form)
-    unit_test_ignore("", get_param_html, paramspec)
-    unit_test_ignore("", get_param_html, paramspec)
+            cls = r.get_paramform_schema_class()
+            assert issubclass(cls, ReportParamSchema)
 
-    for cls in Report.all_subclasses(sort_title=True):
-        name = cls.__name__
-        report = cls()
-        task_unit_test_report(name, report)
+            self.assertIsInstance(r.get_form(req), Form)
+
+            try:
+                self.assertIsInstance(r.get_response(req), Response)
+            except HTTPBadRequest:
+                pass

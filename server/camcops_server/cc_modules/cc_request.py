@@ -39,17 +39,19 @@ from cardinal_pythonlib.plot import (
     svg_html_from_pyplot_figure,
 )
 import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 from pendulum import Date, Pendulum
 from pendulum.parsing.exceptions import ParserError
+from pyramid.config import Configurator
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPException
-from pyramid.interfaces import ISession, ISessionFactory
-from pyramid.registry import Registry
+from pyramid.interfaces import ISession
 from pyramid.request import Request
 from pyramid.response import Response
+from pyramid.testing import DummyRequest
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session as SqlASession
@@ -70,13 +72,19 @@ from .cc_constants import (
 from .cc_idnumdef import get_idnum_definitions, IdNumDefinition
 from .cc_plot import ccplot_no_op
 from .cc_pyramid import (
+    camcops_add_mako_renderer,
+    CamcopsAuthenticationPolicy,
+    CamcopsAuthorizationPolicy,
     CookieKey,
     get_session_factory,
+    Permission,
+    RouteCollection,
     STATIC_PYRAMID_PACKAGE_PATH,
 )
 from .cc_serversettings import get_server_settings, ServerSettings
 from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
 from .cc_tabletsession import TabletSession
+from .cc_user import User
 
 if TYPE_CHECKING:
     from matplotlib.axis import Axis
@@ -84,7 +92,6 @@ if TYPE_CHECKING:
     # from matplotlib.figure import SubplotBase
     from matplotlib.text import Text
     from .cc_session import CamcopsSession
-    from .cc_user import User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 ccplot_no_op()
@@ -93,12 +100,18 @@ ccplot_no_op()
 # Debugging options
 # =============================================================================
 
+DEBUG_ADD_ROUTES = False
+DEBUG_AUTHORIZATION = False
 DEBUG_REQUEST_CREATION = False
 DEBUG_CAMCOPS_SESSION = False
 DEBUG_TABLET_SESSION = False
 DEBUG_DBSESSION_MANAGEMENT = False
 
-if any([DEBUG_REQUEST_CREATION, DEBUG_CAMCOPS_SESSION, DEBUG_TABLET_SESSION,
+if any([DEBUG_ADD_ROUTES,
+        DEBUG_AUTHORIZATION,
+        DEBUG_REQUEST_CREATION,
+        DEBUG_CAMCOPS_SESSION,
+        DEBUG_TABLET_SESSION,
         DEBUG_DBSESSION_MANAGEMENT]):
     log.warning("Debugging options enabled!")
 
@@ -144,6 +157,8 @@ class CamcopsRequest(Request):
         self.use_svg = False
         self.add_response_callback(complete_request_add_cookies)
         self._camcops_session = None
+        self._debugging_db_session = None  # type: SqlASession  # for unit testing only  # noqa
+        self._debugging_user = None  # type: User  # for unit testing only  # noqa
         # Don't make the _camcops_session yet; it will want a Registry, and
         # we may not have one yet; see command_line_request().
         if DEBUG_REQUEST_CREATION:
@@ -257,6 +272,9 @@ class CamcopsRequest(Request):
         session.close()
 
     def get_bare_dbsession(self) -> SqlASession:
+        if self._debugging_db_session:
+            log.debug("Request is using debugging SQLAlchemy session")
+            return self._debugging_db_session
         if DEBUG_DBSESSION_MANAGEMENT:
             log.debug("Making SQLAlchemy session")
         engine = self.engine
@@ -683,10 +701,12 @@ class CamcopsRequest(Request):
 
     @property
     def user(self) -> Optional["User"]:
-        return self.camcops_session.user
+        return self._debugging_user or self.camcops_session.user
 
     @property
     def user_id(self) -> Optional[int]:
+        if self._debugging_user:
+            return self._debugging_user.user_id
         return self.camcops_session.user_id
 
     # -------------------------------------------------------------------------
@@ -766,6 +786,134 @@ def complete_request_add_cookies(req: CamcopsRequest, response: Response):
     # which will be called immediately after this one.
 
 
+# =============================================================================
+# Configurator
+# =============================================================================
+
+@contextmanager
+def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
+    # Note this includes settings that transcend the config file.
+    #
+    # Most things should be in the config file. This enables us to run multiple
+    # configs (e.g. multiple CamCOPS databases) through the same process.
+    # However, some things we need to know right now, to make the WSGI app.
+    # Here, OS environment variables and command-line switches are appropriate.
+
+    # -------------------------------------------------------------------------
+    # 1. Base app
+    # -------------------------------------------------------------------------
+    settings = {  # Settings that can't be set directly?
+        'debug_authorization': DEBUG_AUTHORIZATION,
+    }
+    with Configurator(settings=settings) as config:
+        # ---------------------------------------------------------------------
+        # Authentication; authorizaion (permissions)
+        # ---------------------------------------------------------------------
+        authentication_policy = CamcopsAuthenticationPolicy()
+        config.set_authentication_policy(authentication_policy)
+        # Let's not use ACLAuthorizationPolicy, which checks an access control
+        # list for a resource hierarchy of objects, but instead:
+        authorization_policy = CamcopsAuthorizationPolicy()
+        config.set_authorization_policy(authorization_policy)
+        config.set_default_permission(Permission.HAPPY)
+        # ... applies to all SUBSEQUENT view configuration registrations
+
+        # ---------------------------------------------------------------------
+        # Factories
+        # ---------------------------------------------------------------------
+        config.set_request_factory(CamcopsRequest)
+        # ... for request attributes: config, database, etc.
+        config.set_session_factory(get_session_factory())
+        # ... for request.session
+
+        camcops_add_mako_renderer(config, extension='.mako')
+
+        # deform_bootstrap.includeme(config)
+
+        # ---------------------------------------------------------------------
+        # Routes and accompanying views
+        # ---------------------------------------------------------------------
+
+        # Add static views
+        # https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html#serving-static-assets  # noqa
+        # Hmm. We cannot fail to set up a static file route, because otherwise
+        # we can't provide URLs to them.
+        static_filepath = STATIC_PYRAMID_PACKAGE_PATH
+        static_name = RouteCollection.STATIC.route
+        log.debug("... including static files from {!r} at Pyramid static "
+                  "name {!r}", static_filepath, static_name)
+        # ... does the name needs to start with "/" or the pattern "static/"
+        # will override the later "deform_static"? Not sure.
+        config.add_static_view(name=static_name, path=static_filepath)
+
+        # Add all the routes:
+        for pr in RouteCollection.all_routes():
+            if DEBUG_ADD_ROUTES:
+                log.info("{} -> {}", pr.route, pr.path)
+            config.add_route(pr.route, pr.path)
+        # See also:
+        # https://stackoverflow.com/questions/19184612/how-to-ensure-urls-generated-by-pyramids-route-url-and-route-path-are-valid  # noqa
+
+        # Routes added EARLIER have priority. So add this AFTER our custom
+        # bugfix:
+        config.add_static_view('/deform_static', 'deform:static/')
+
+        # Most views are using @view_config() which calls add_view().
+        # Scan for @view_config decorators, to map views to routes:
+        # https://docs.pylonsproject.org/projects/venusian/en/latest/api.html
+        config.scan("camcops_server.cc_modules")
+
+        # ---------------------------------------------------------------------
+        # Add tweens (inner to outer)
+        # ---------------------------------------------------------------------
+        # We will use implicit positioning:
+        # - https://www.slideshare.net/aconrad/alex-conrad-pyramid-tweens-ploneconf-2011  # noqa
+
+        # config.add_tween('camcops_server.camcops.http_session_tween_factory')
+
+        # ---------------------------------------------------------------------
+        # Debug toolbar
+        # ---------------------------------------------------------------------
+        if debug_toolbar:
+            log.debug("Enabling Pyramid debug toolbar")
+            config.include('pyramid_debugtoolbar')  # BEWARE! SIDE EFFECTS
+            # ... Will trigger an import that hooks events into all
+            # SQLAlchemy queries. There's a bug somewhere relating to that;
+            # see notes below relating to the "mergedb" function.
+            config.add_route(RouteCollection.DEBUG_TOOLBAR.route,
+                             RouteCollection.DEBUG_TOOLBAR.path)
+
+        yield config
+
+
+# =============================================================================
+# Debugging requests
+# =============================================================================
+
+
+class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
+    pass
+
+
+def _get_core_debugging_request() -> CamcopsRequest:
+    with pyramid_configurator_context(debug_toolbar=False) as config:
+        req = CamcopsDummyRequest(environ={
+            ENVVAR_CONFIG_FILE: os.environ[ENVVAR_CONFIG_FILE],
+            WsgiEnvVar.PATH_INFO: '/',
+            WsgiEnvVar.SCRIPT_NAME: '',
+            WsgiEnvVar.SERVER_NAME: '127.0.0.1',
+            WsgiEnvVar.SERVER_PORT: '8000',
+            WsgiEnvVar.URL_SCHEME: 'http',
+        })
+        # ... must pass an actual dict to the "environ" parameter; os.environ
+        # itself isn't OK ("TypeError: WSGI environ must be a dict; you passed
+        # environ({'key1': 'value1', ...})
+
+        req.registry = config.registry
+        config.begin(request=req)
+        return req
+
+
 def get_command_line_request() -> CamcopsRequest:
     """
     Creates a dummy CamcopsRequest for use on the command line.
@@ -773,21 +921,7 @@ def get_command_line_request() -> CamcopsRequest:
     in camcops.main().
     """
     log.debug("Creating command-line pseudo-request")
-
-    os_env_dict = {
-        ENVVAR_CONFIG_FILE: os.environ[ENVVAR_CONFIG_FILE],
-    }
-    req = CamcopsRequest(environ=os_env_dict)
-    # ... must pass an actual dict to the "environ" parameter; os.environ
-    # itself isn't OK ("TypeError: WSGI environ must be a dict; you passed
-    # environ({'key1': 'value1', ...})
-
-    registry = Registry()
-
-    session_factory = get_session_factory()
-    registry.registerUtility(session_factory, ISessionFactory)
-
-    req.registry = registry
+    req = _get_core_debugging_request()
 
     # If we proceed with an out-of-date database, we will have problems, and
     # those problems may not be immediately apparent, which is bad. So:
@@ -809,3 +943,21 @@ def command_line_request_context() -> Generator[CamcopsRequest, None, None]:
     yield req
     # noinspection PyProtectedMember
     req._finish_dbsession()
+
+
+def get_unittest_request(dbsession: SqlASession) -> CamcopsRequest:
+    """
+    Creates a dummy CamcopsRequest for use by unit tests.
+    Points to an existing database (e.g. SQLite in-memory database).
+    Presupposes that os.environ[ENVVAR_CONFIG_FILE] has been set, as it is
+    in camcops.main().
+    """
+    log.debug("Creating unit testing pseudo-request")
+    req = _get_core_debugging_request()
+
+    req._debugging_db_session = dbsession
+    user = User()
+    user.superuser = True
+    req._debugging_user = user
+
+    return req

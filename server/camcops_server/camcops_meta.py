@@ -86,7 +86,7 @@ def meta_main() -> None:
             camcops_main()  # using the new sys.argv
             # subprocess.check_call(cmdargs)
     if not did_something:
-        log.warning("Nothing to do; no files found")
+        log.info("Nothing to do; no files found")
 
 
 if __name__ == '__main__':

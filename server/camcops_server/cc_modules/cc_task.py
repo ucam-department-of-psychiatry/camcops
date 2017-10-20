@@ -41,13 +41,9 @@ import statistics
 from typing import (Any, Dict, Iterable, Generator, List, Optional,
                     Tuple, Type, Union)
 
-from cardinal_pythonlib.classes import (
-    classproperty,
-    derived_class_implements_method,
-)
+from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
     convert_datetime_to_utc,
-    get_now_utc,
     format_datetime,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -58,6 +54,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_orm_classes_from_base,
 )
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
+from cardinal_pythonlib.sqlalchemy.sqlfunc import extract_month, extract_year
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 import hl7
 from pendulum import Date, Pendulum
@@ -70,11 +67,7 @@ from sqlalchemy.sql.expression import (and_, desc, func, literal, not_,
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
-from .cc_anon import (
-    get_cris_dd_rows_from_fieldspecs,
-    get_literal_regex,
-    get_type_size_as_text_from_sqltype,
-)
+from .cc_anon import get_cris_dd_rows_from_fieldspecs
 from .cc_audit import audit
 from .cc_blob import Blob, get_blob_img_html
 from .cc_cache import cache_region_static, fkg
@@ -121,15 +114,8 @@ from .cc_sqla_coltypes import (
 from .cc_sqlalchemy import Base
 from .cc_summaryelement import ExtraSummaryTable, SummaryElement
 from .cc_trackerhelpers import TrackerInfo
-from .cc_tsv import TsvChunk
-from .cc_unittest import (
-    get_object_name,
-    unit_test_ignore,
-    unit_test_require_truthy_attribute,
-    unit_test_show,
-    unit_test_verify,
-    unit_test_verify_not
-)
+from .cc_tsv import TsvPage
+from .cc_unittest import DemoDatabaseTestCase
 from .cc_xml import (
     get_xml_document,
     XML_COMMENT_ANCILLARY,
@@ -268,7 +254,7 @@ class TaskHasClinicianMixin(object):
         return True
 
     def get_clinician_name(self) -> str:
-        return self.clinician_name
+        return self.clinician_name or ""
 
 
 # =============================================================================
@@ -306,7 +292,7 @@ class TaskHasRespondentMixin(object):
         return True
 
     def is_respondent_complete(self) -> bool:
-        return self.respondent_name and self.respondent_relationship
+        return all([self.respondent_name, self.respondent_relationship])
 
 
 # =============================================================================
@@ -322,34 +308,6 @@ class Task(GenericTabletRecordMixin, Base):
         Use CamcopsColumn, not Column, if you have fields that need to define
         permitted values, mark them as BLOB-referencing fields, or do other
         CamCOPS-specific things.
-
-    - Overridable attributes:
-
-        dependent_classes
-            Override this if your task uses sub-tables (or sub-sub-tables,
-            etc.). Give a list of classes that inherit from Ancillary, e.g.
-
-                dependent_classes = [ClassRepresentingObject]
-
-            Each class MUST derive from Ancillary, overriding: ********
-                tablename
-                fieldspecs
-                fkname  # FK to main task table
-
-        extra_summary_table_info *************
-            Does the task provide extra summary tables? If so, override.
-            Example:
-
-                extra_summary_table_info = [
-                    {
-                        tablename: XXX,
-                        fieldspecs: [ ... ]
-                    },
-                    {
-                        tablename: XXX,
-                        fieldspecs: [ ... ]
-                    },
-                ]
     """
     __abstract__ = True
 
@@ -431,7 +389,7 @@ class Task(GenericTabletRecordMixin, Base):
             ),
             uselist=True,
             order_by="SpecialNote.note_at",
-            viewonly=True,  # *** for now!
+            viewonly=True,  # for now!
         )
 
     # =========================================================================
@@ -452,7 +410,6 @@ class Task(GenericTabletRecordMixin, Base):
     provides_trackers = False
     use_landscape_for_pdf = False
     dependent_classes = []
-    extra_summary_table_info = []  # type: List[Dict[str, Any]]
 
     # -------------------------------------------------------------------------
     # Methods always overridden by the actual task
@@ -516,18 +473,6 @@ class Task(GenericTabletRecordMixin, Base):
         summary columns to task/ancillary tables.
         """
         return []
-
-    # -------------------------------------------------------------------------
-    # Other potential overrides
-    # -------------------------------------------------------------------------
-
-    @classmethod
-    def unit_tests(cls) -> None:
-        """Perform unit tests on the task.
-
-        May be overridden.
-        """
-        pass
 
     # =========================================================================
     # PART 2: INTERNALS
@@ -796,11 +741,6 @@ class Task(GenericTabletRecordMixin, Base):
         """Get the server PK of the patient, or None."""
         return self.patient.get_pk() if self.patient else None
 
-    def get_patient(self) -> Optional[Patient]:
-        """Get the associated Patient() object."""
-        log.critical("Deprecated; remove")
-        return self.patient
-
     def get_patient_forename(self) -> str:
         """Get the patient's forename, in upper case, or ""."""
         return self.patient.get_forename() if self.patient else ""
@@ -811,7 +751,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_patient_dob(self) -> Optional[Date]:
         """Get the patient's DOB, or None."""
-        return self.patient.get_surname() if self.patient else None
+        return self.patient.get_dob() if self.patient else None
 
     def get_patient_dob_first11chars(self) -> Optional[str]:
         """For example: '29 Dec 1999'."""
@@ -857,7 +797,8 @@ class Task(GenericTabletRecordMixin, Base):
     # HL7
     # -------------------------------------------------------------------------
 
-    def get_hl7_data_segments(self, recipient_def: RecipientDefinition) \
+    def get_hl7_data_segments(self, req: CamcopsRequest,
+                              recipient_def: RecipientDefinition) \
             -> List[hl7.Segment]:
         """Returns a list of HL7 data segments.
 
@@ -868,6 +809,7 @@ class Task(GenericTabletRecordMixin, Base):
         """
         obr_segment = make_obr_segment(self)
         obx_segment = make_obx_segment(
+            req,
             self,
             task_format=recipient_def.task_format,
             observation_identifier=self.tablename + "_" + str(self._pk),
@@ -993,21 +935,25 @@ class Task(GenericTabletRecordMixin, Base):
     # TSV export for basic research dump
     # -------------------------------------------------------------------------
 
-    def get_tsv_chunks(self, req: CamcopsRequest) -> List[TsvChunk]:
+    def get_tsv_pages(self, req: CamcopsRequest) -> List[TsvPage]:
         """
         Returns information used for the basic research dump in TSV format.
         """
         # 1. Our core fields, plus summary information
-        main_chunk = self._get_core_tsv_chunk(req)
+        main_page = self._get_core_tsv_page(req)
         # 2. Patient details.
         if self.patient:
-            main_chunk.add_tsv_chunk(self.patient.get_tsv_chunk(req))
-        tsv_chunks = [main_chunk]
+            main_page.add_or_set_columns_from_page(
+                self.patient.get_tsv_page(req))
+        tsv_pages = [main_page]
         # 3. +/- Ancillary objects
         for ancillary in self.gen_ancillary_instances():  # type: GenericTabletRecordMixin  # noqa
-            chunk = ancillary._get_core_tsv_chunk(req)
-            tsv_chunks.append(chunk)
-        return tsv_chunks
+            page = ancillary._get_core_tsv_page(req)
+            tsv_pages.append(page)
+        # 4. +/- Extra summary tables
+        for est in self.get_extra_summary_tables(req):
+            tsv_pages.append(est.get_tsv_page())
+        return tsv_pages
 
     # -------------------------------------------------------------------------
     # Data structure for CRIS data dictionary
@@ -1445,9 +1391,13 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic
-    def get_standard_clinician_comments_block(self, comments: str) -> str:
+    def get_standard_clinician_comments_block(self,
+                                              req: CamcopsRequest,
+                                              comments: str) -> str:
         """HTML DIV for clinician's comments."""
-        return render("clinician_comments.mako", dict(comment=comments))
+        return render("clinician_comments.mako",
+                      dict(comment=comments),
+                      request=req)
 
     def get_is_complete_td_pair(self, req: CamcopsRequest) -> str:
         """HTML to indicate whether task is complete or not, and to make it
@@ -1699,8 +1649,10 @@ class TaskCountReport(Report):
             # noinspection PyProtectedMember
             select_fields = [
                 literal(cls.__tablename__).label("task"),
-                func.year(cls._when_added_batch_utc).label("year"),
-                func.month(cls._when_added_batch_utc).label("month"),
+                # func.year() is specific to some DBs, e.g. MySQL
+                # so is func.extract(); http://modern-sql.com/feature/extract
+                extract_year(cls._when_added_batch_utc).label("year"),
+                extract_month(cls._when_added_batch_utc).label("month"),
                 func.count().label("num_tasks_added"),
             ]
             select_from = cls.__table__
@@ -1721,432 +1673,134 @@ class TaskCountReport(Report):
             # log.critical(str(query))
             rows, colnames = get_rows_fieldnames_from_query(dbsession, query)
             final_rows.extend(rows)
-        return final_rows, colnames
+        return PlainReportType(rows=final_rows, columns=colnames)
 
 
 # =============================================================================
 # Unit testing
 # =============================================================================
 
-def require_implementation(class_name: str,
-                           instance: Task,
-                           method_name: str) -> None:
-    if not derived_class_implements_method(instance, Task, method_name):
-        raise NotImplementedError("class {} must implement {}".format(
-            class_name, method_name
-        ))
+class TaskTests(DemoDatabaseTestCase):
+    def test_query_phq9(self) -> None:
+        self.announce("test_query_phq9")
+        from camcops_server.tasks import Phq9
+        phq9_query = self.dbsession.query(Phq9)
+        results = phq9_query.all()
+        log.info("{}", results)
 
+    def test_all_tasks(self) -> None:
+        self.announce("test_all_tasks")
+        from datetime import date
+        import hl7
+        from sqlalchemy.sql.schema import Column
+        from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
+        from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
+        from camcops_server.cc_modules.cc_summaryelement import SummaryElement
+        from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
+        from camcops_server.cc_modules.cc_tsv import TsvPage
+        from camcops_server.cc_modules.cc_xml import XmlElement
 
-def task_class_unit_test(cls: Type[Task]) -> None:
-    unit_test_require_truthy_attribute(cls, 'tablename')
-    unit_test_require_truthy_attribute(cls, 'shortname')
-    unit_test_require_truthy_attribute(cls, 'longname')
-    if cls.fieldspecs is None:
-        raise AssertionError("Class {} has fieldspecs = None".format(
-            get_object_name(cls)))
-    fieldnames = cls.get_fieldnames()
-    # No duplicate field names
-    # noinspection PyArgumentList
-    duplicate_fieldnames = [
-        x for x, count in collections.Counter(fieldnames).items() if count > 1]
-    if duplicate_fieldnames:
-        raise AssertionError("Class {}: duplicate fieldnames: {}".format(
-            get_object_name(cls), duplicate_fieldnames))
-    # Field names don't conflict with object attributes
-    attributes = list(cls.__dict__)
-    conflict = set(attributes).intersection(set(fieldnames))
-    if conflict:
-        raise AssertionError(
-            "Fields conflict with object attributes in class {}: {}".format(
-                cls.__name__, conflict))
+        subclasses = Task.all_subclasses_by_tablename()
+        tables = [cls.tablename for cls in subclasses]
+        log.info("Actual task table names: {!r} (n={})", tables, len(tables))
+        req = self.req
+        recipdef = self.recipdef
+        for cls in subclasses:
+            log.info("Testing {}", cls)
+            q = self.dbsession.query(cls)
+            t = q.first()  # type: Task
 
+            self.assertIsNotNone(t, "Missing task!")
 
-def task_instance_unit_test(req: CamcopsRequest,
-                            name: str,
-                            instance: Task) -> None:
-    """Unit test for an named instance of Task."""
+            self.assertIsInstance(t.is_complete(), bool)
+            self.assertIsInstance(t.get_task_html(req), str)
+            for trackerinfo in t.get_trackers(req):
+                self.assertIsInstance(trackerinfo, TrackerInfo)
+            ctvlist = t.get_clinical_text(req)
+            if ctvlist is not None:
+                for ctvinfo in ctvlist:
+                    self.assertIsInstance(ctvinfo, CtvInfo)
+            for est in t.get_extra_summary_tables(req):
+                self.assertIsInstance(est.get_tsv_page(), TsvPage)
+                self.assertIsInstance(est.get_xml_element(), XmlElement)
 
-    # *** req: CamcopsRequest
+            self.assertIsInstance(t.has_patient, bool)
+            self.assertIsInstance(t.is_anonymous, bool)
+            self.assertIsInstance(t.has_clinician, bool)
+            self.assertIsInstance(t.has_respondent, bool)
+            self.assertIsInstance(t.tablename, str)
+            for fn in t.get_fieldnames():
+                self.assertIsInstance(fn, str)
+            self.assertIsInstance(t.field_contents_valid(), bool)
+            for msg in t.field_contents_invalid_because():
+                self.assertIsInstance(msg, str)
+            for fn in t.get_blob_fields():
+                self.assertIsInstance(fn, str)
 
-    recipient_def = RecipientDefinition()
+            self.assertIsInstance(t.get_pk(), int)  # all our examples do have PKs  # noqa
+            self.assertIsInstance(t.is_preserved(), bool)
+            self.assertIsInstance(t.was_forcibly_preserved(), bool)
+            self.assertIsInstanceOrNone(t.get_creation_datetime(), Pendulum)
+            self.assertIsInstanceOrNone(
+                t.get_creation_datetime_utc(), Pendulum)
+            self.assertIsInstanceOrNone(
+                t.get_seconds_from_creation_to_first_finish(), float)
 
-    # -------------------------------------------------------------------------
-    # Test methods
-    # -------------------------------------------------------------------------
-    # Core things to override
-    unit_test_ignore("Testing {}.is_complete".format(name),
-                     instance.is_complete)
-    unit_test_ignore("Testing {}.get_task_html".format(name),
-                     instance.get_task_html)
+            self.assertIsInstance(t.get_adding_user_id(), int)
+            self.assertIsInstance(t.get_adding_user_username(), str)
+            self.assertIsInstance(t.get_removing_user_username(), str)
+            self.assertIsInstance(t.get_preserving_user_username(), str)
+            self.assertIsInstance(t.get_manually_erasing_user_username(), str)
 
-    # not make_tables
-    unit_test_ignore("Testing {}.get_fieldnames".format(name),
-                     instance.get_fieldnames)
-    unit_test_ignore("Testing {}.get_extra_table_names".format(name),
-                     instance.get_extra_table_names)
+            for se in t.standard_task_summary_fields():
+                self.assertIsInstance(se, SummaryElement)
 
-    if instance.provides_trackers:
-        unit_test_ignore("Testing {}.get_trackers".format(name),
-                         instance.get_trackers)
-
-    unit_test_ignore("Testing {}.get_clinical_text".format(name),
-                     instance.get_clinical_text)
-
-    unit_test_ignore("Testing {}.get_summaries".format(name),
-                     instance.get_summaries)
-    # not make_extra_summary_tables
-    unit_test_ignore("Testing {}.get_extra_summary_table_names".format(name),
-                     instance.get_extra_summary_table_names)
-
-    unit_test_ignore("Testing {}.get_extra_dictlist_for_tsv".format(
-        name), instance.get_extra_chunks_for_tsv)
-
-    unit_test_ignore("Testing {}.get_fields".format(name),
-                     instance.get_fields)
-    unit_test_ignore("Testing {}.field_contents_valid".format(name),
-                     instance.field_contents_valid)
-    unit_test_ignore("Testing {}.field_contents_invalid_because".format(name),
-                     instance.field_contents_invalid_because)
-    unit_test_ignore("Testing {}.get_blob_fields".format(name),
-                     instance.get_blob_fields)
-
-    unit_test_ignore("Testing {}.is_preserved".format(name),
-                     instance.is_preserved)
-
-    unit_test_ignore("Testing {}.get_creation_datetime".format(name),
-                     instance.get_creation_datetime)
-    unit_test_ignore("Testing {}.get_creation_datetime_utc".format(name),
-                     instance.get_creation_datetime_utc)
-    unit_test_ignore("Testing {}.get_seconds_from_creation_to_"
-                     "first_finish".format(name),
-                     instance.get_seconds_from_creation_to_first_finish)
-    unit_test_ignore("Testing {}.whencreated_field_iso8601".format(name),
-                     instance.whencreated_field_iso8601)
-    unit_test_ignore("Testing {}.whencreated_fieldexpr_as_utc".format(name),
-                     instance.whencreated_fieldexpr_as_utc)
-    unit_test_ignore("Testing {}.whencreated_fieldexpr_as_local".format(name),
-                     instance.whencreated_fieldexpr_as_local)
-
-    unit_test_ignore("Testing {}.get_standard_summary_table_name".format(name),
-                     instance.get_standard_summary_table_name)
-    unit_test_ignore("Testing {}.provides_summaries".format(name),
-                     instance.provides_summaries)
-    # not make_summary_table
-    # not make_standard_summary_table
-    unit_test_ignore("Testing {}.is_complete_summary_field".format(name),
-                     instance.standard_task_summary_fields)
-    unit_test_ignore("Testing {}.get_summary_names".format(name),
-                     instance.get_summary_names)
-
-    unit_test_ignore("Testing {}.get_all_table_and_view_names".format(name),
-                     instance.get_all_table_and_view_names)
-
-    # not get_blob
-
-    unit_test_ignore("Testing {}.dump".format(name), instance.dump)
-
-    # not tested: apply_special_note
-
-    unit_test_ignore("Testing {}.get_clinician_name".format(name),
-                     instance.get_clinician_name)
-
-    unit_test_ignore("Testing {}.is_female".format(name),
-                     instance.is_female)
-    unit_test_ignore("Testing {}.is_male".format(name),
-                     instance.is_male)
-    unit_test_ignore("Testing {}.get_patient_server_pk".format(name),
-                     instance.get_patient_server_pk)
-    unit_test_ignore("Testing {}.get_patient".format(name),
-                     instance.get_patient)
-    unit_test_ignore("Testing {}.get_patient_forename".format(name),
-                     instance.get_patient_forename)
-    unit_test_ignore("Testing {}.get_patient_surname".format(name),
-                     instance.get_patient_surname)
-    unit_test_ignore("Testing {}.get_patient_dob".format(name),
-                     instance.get_patient_dob)
-    unit_test_ignore("Testing {}.get_patient_sex".format(name),
-                     instance.get_patient_sex)
-    unit_test_ignore("Testing {}.get_patient_address".format(name),
-                     instance.get_patient_address)
-    unit_test_ignore("Testing {}.get_patient_idnum_objects".format(name),
-                     instance.get_patient_idnum_objects)
-    unit_test_ignore("Testing {}.get_patient_idnum_object(1)".format(name),
-                     instance.get_patient_idnum_object, 1)
-    unit_test_ignore("Testing {}.get_patient_hl7_pid_segment".format(name),
-                     instance.get_patient_hl7_pid_segment, recipient_def)
-
-    unit_test_ignore("Testing {}.get_hl7_data_segments".format(name),
-                     instance.get_hl7_data_segments, recipient_def)
-    unit_test_ignore("Testing {}.get_hl7_extra_data_segments".format(name),
-                     instance.get_hl7_extra_data_segments, recipient_def)
-    # not tested: delete_from_hl7_message_log
-
-    # not tested: audit
-    # not tested: save
-    # not tested: manually_erase
-    unit_test_ignore("Testing {}.get_server_pks_of_record_group".format(name),
-                     instance.get_server_pks_of_record_group)
-    unit_test_ignore("Testing {}.is_erased".format(name), instance.is_erased)
-    # not tested: erase_subtable_records_even_noncurrent
-
-    # not tested: get_task_pks_for_patient_deletion
-    # not tested: delete_entirely
-    # not tested: delete_subtable_records_even_noncurrent
-    unit_test_ignore("Testing {}.get_blob_ids".format(name),
-                     instance.get_blob_ids)
-    unit_test_ignore("Testing {}.get_blob_pks_of_record_group".format(name),
-                     instance.get_blob_pks_of_record_group)
-
-    unit_test_ignore("Testing {}.get_task_list_row".format(name),
-                     instance.get_task_list_row)
-
-    # not tested: get_session_candidate_task_pks_whencreated
-    # not tested: allowed_to_user
-    # not tested: filter_allows_task_type
-    # not tested: is_compatible_with_filter
-    # not tested: compatible_with_text_filter
-
-    # not tested: get_task_pks_for_tracker
-    # not tested: get_task_pks_for_clinical_text_view
-    # not tested: get_task_pks_for_tracker_or_clinical_text_view
-
-    unit_test_ignore("Testing {}.get_all_current_pks".format(name),
-                     instance.get_all_current_pks)
-    # not tested: gen_all_current_tasks
-    # not tested: gen_all_tasks_matching_session_filter
-
-    unit_test_ignore("Testing {}.get_dictlist_for_tsv".format(
-        name), instance.get_dictlist_for_tsv)
-    dictlist = instance.get_dictlist_for_tsv(req)
-    if len(dictlist) == 0:
-        raise AssertionError("get_dictlist_for_tsv: zero-length result")
-    for d in dictlist:
-        if "filenamestem" not in d:
-            raise AssertionError("get_dictlist_for_tsv: no filenamestem")
-        if "rows" not in d:
-            raise AssertionError("get_dictlist_for_tsv: no rows")
-        rows = d.get("rows")
-        if rows is None:
-            raise AssertionError("get_dictlist_for_tsv: rows is None")
-        if len(rows) == 0:
-            continue
-        r = rows[0]  # as a specimen row
-        if r is None:
-            raise AssertionError("get_dictlist_for_tsv: first row is None")
-
-    unit_test_verify_not("Testing {}.get_xml".format(name),
-                         instance.get_xml,
-                         include_calculated=False, include_blobs=False,
-                         include_patient=False, indent_spaces=4, eol='\n',
-                         skip_fields=None, include_comments=False,
-                         must_not_return=None)
-    unit_test_verify_not("Testing {}.get_xml".format(name),
-                         instance.get_xml,
-                         include_calculated=True, include_blobs=True,
-                         include_patient=True, indent_spaces=4, eol='\n',
-                         skip_fields=None, include_comments=True,
-                         must_not_return=None)
-    unit_test_ignore("Testing {}.get_xml_root".format(name),
-                     instance.get_xml_root)
-    unit_test_ignore("Testing {}.get_xml_core_branches".format(name),
-                     instance.get_xml_core_branches)
-
-    unit_test_verify_not("Testing {}.get_html".format(name),
-                         instance.get_html,
-                         must_not_return=None)
-    unit_test_ignore("Testing {}.get_hyperlink_html".format(name),
-                     instance.get_hyperlink_html, "HTML")
-
-    unit_test_ignore("Testing {}.suggested_pdf_filename".format(name),
-                     instance.suggested_pdf_filename)
-    # not write_pdf_to_disk
-    unit_test_ignore("Testing {}.get_pdf_html".format(name),
-                     instance.get_pdf_html)
-    unit_test_ignore("Testing {}.get_hyperlink_pdf".format(name),
-                     instance.get_hyperlink_pdf, "PDF")
-
-    unit_test_ignore("Testing {}.get_pdf_start".format(name),
-                     instance.get_pdf_start)
-    unit_test_ignore("Testing {}.get_anonymous_page_header_html".format(name),
-                     instance.get_anonymous_page_header_html)
-    unit_test_ignore("Testing {}.get_anonymous_task_header_html".format(name),
-                     instance.get_anonymous_task_header_html)
-    unit_test_ignore("Testing {}.get_task_header_html".format(name),
-                     instance.get_task_header_html)
-    unit_test_ignore("Testing {}.get_not_current_warning".format(name),
-                     instance.get_not_current_warning)
-    unit_test_ignore("Testing {}.get_invalid_warning".format(name),
-                     instance.get_invalid_warning)
-    unit_test_ignore("Testing {}.get_erasure_notice".format(name),
-                     instance.get_erasure_notice)
-    unit_test_ignore("Testing {}.get_special_notes".format(name),
-                     instance.get_special_notes_html)
-    unit_test_ignore("Testing {}.get_office_html".format(name),
-                     instance.get_office_html)
-    unit_test_ignore("Testing {}.get_xml_nav_html".format(name),
-                     instance.get_xml_nav_html)
-    unit_test_ignore("Testing {}.get_superuser_nav_options".format(name),
-                     instance.get_superuser_nav_options, True, True, True)
-    unit_test_ignore("Testing {}.get_predecessor_html_line".format(name),
-                     instance.get_predecessor_html_line)
-    unit_test_ignore("Testing {}.get_successor_html_line".format(name),
-                     instance.get_successor_html_line)
-
-    unit_test_ignore("Testing {}.get_standard_clinician_block".format(name),
-                     instance.get_standard_clinician_block)
-    unit_test_ignore("Testing {}.get_standard_clinician_comments_block".format(
-        name), instance.get_standard_clinician_comments_block, "blahblah")
-    # some helper functions here not tested
-
-    # -------------------------------------------------------------------------
-    # Test inheritance; are the necessary extras implemented?
-    # -------------------------------------------------------------------------
-    depclasslist = instance.dependent_classes
-    for depclass in depclasslist:
-        ancillary_class_unit_test(depclass)
-
-    infolist = instance.extra_summary_table_info
-    now = get_now_utc()
-    data = instance.get_extra_summary_table_data(now)
-    ntables = len(infolist)
-    if len(data) != ntables:
-        raise AssertionError(
-            "extra_summary_table_info: different # tables [{}] to "
-            "get_extra_summary_table_data() [{}]".format(ntables, len(data)))
-    for i in range(ntables):
-        for row_valuelist in data[i]:
-            if len(row_valuelist) != len(infolist[i]["fieldspecs"]):
-                raise AssertionError(
-                    "extra_summary_table_info: different # fields [{}] to"
-                    " get_extra_summary_table_data() "
-                    "[{}]".format(len(infolist[i]), len(row_valuelist)))
-
-    # -------------------------------------------------------------------------
-    # Ensure the summary names don't overlap with the field names, etc.
-    # -------------------------------------------------------------------------
-    field_names = instance.get_fields()
-    summary_names = instance.get_summary_names(req)
-    if set(field_names).intersection(set(summary_names)):
-        raise AssertionError("Summary field names overlap with main field "
-                             "names")
-
-    field_and_summary_names = field_names + summary_names
-    for f in Patient.FIELDS:
-        test_field = TSV_PATIENT_FIELD_PREFIX + f
-        if test_field in field_and_summary_names:
-            raise AssertionError(
-                "Prefixed patient field {} (as {}) conflicts with a "
-                "main field or summary field name".format(f, test_field)
+            self.assertIsInstance(t.get_clinician_name(), str)
+            self.assertIsInstance(t.is_respondent_complete(), bool)
+            self.assertIsInstanceOrNone(t.patient, Patient)
+            self.assertIsInstance(t.is_female(), bool)
+            self.assertIsInstance(t.is_male(), bool)
+            self.assertIsInstanceOrNone(t.get_patient_server_pk(), int)
+            self.assertIsInstance(t.get_patient_forename(), str)
+            self.assertIsInstance(t.get_patient_surname(), str)
+            dob = t.get_patient_dob()
+            assert (
+                dob is None or
+                isinstance(dob, date) or
+                isinstance(dob, Date)
             )
-
-    # -------------------------------------------------------------------------
-    # Any task-specific unit tests?
-    # -------------------------------------------------------------------------
-    unit_test_ignore("Calling {}.unit_tests".format(name),
-                     instance.unit_tests)
-
-
-# noinspection PyUnusedLocal
-def task_instance_unit_test_slow(name: str,
-                                 instance: Task,
-                                 skip_tasks: List[str] = None) -> None:
-    unit_test_ignore("Testing {}.get_pdf".format(name),
-                     instance.get_pdf)
-
-
-def task_unit_test(req: CamcopsRequest, cls: Type[Task]) -> None:
-    """Unit test for a Task subclass."""
-    name = cls.__name__
-    # Test class framework
-    task_class_unit_test(cls)
-    # Test creation with a numeric PK, which may or may not exist in the DB
-    unit_test_ignore("Testing {}.__init__(0)".format(name),
-                     cls, 0)
-    # Test creation with a blank PK
-    unit_test_ignore("Testing {}.__init__(None)".format(name),
-                     cls, None)
-    # Find (if one exists) an actual task that's current, and test with that
-    # and a "fresh" task initialized with a blank PK
-    current_pks = pls.db.fetchallfirstvalues(
-        "SELECT _pk FROM {} WHERE _current".format(cls.tablename)
-    )
-    test_pks = [None, current_pks[0]] if current_pks else [None]
-    for pk in test_pks:
-        task_instance_unit_test(req, name, cls(pk))
-
-    # Other classmethod tests
-
-
-def cctask_unit_tests() -> None:
-    """Unit tests for cc_task module."""
-    unit_test_ignore("", task_factory, "xxx", 0)
-    unit_test_ignore("", task_factory, "phq9", 0)
-    unit_test_show("", get_base_tables, True)
-    unit_test_show("", get_base_tables, False)
-    unit_test_ignore("", get_literal_regex, "hello")
-    unit_test_verify("", get_type_size_as_text_from_sqltype,
-                     ("INT", ""), "INT")
-    unit_test_verify("", get_type_size_as_text_from_sqltype,
-                     ("VARCHAR", "10"), "VARCHAR(10)")
-
-    unit_test_ignore("", get_task_filter_dropdown)
-    unit_test_ignore("", get_url_task_pdf, "nonexistenttable", 3)
-    unit_test_ignore("", get_url_task_html, "nonexistenttable", 3)
-    unit_test_ignore("", get_url_task_xml, "nonexistenttable", 3)
-    unit_test_ignore("", get_url_erase_task, "nonexistenttable", 3)
-    unit_test_ignore("", get_url_add_special_note, "nonexistenttable", 3)
-    pls.db.rollback()
-
-    skip_tasks = []
-    classes = Task.all_subclasses_by_shortname()
-    longnames = set()
-    shortnames = set()
-    tasktables = set()
-    for cls in classes:
-        # Sanity checking
-        ln = cls.longname
-        if ln in longnames:
-            raise AssertionError(
-                "Task longname ({}) duplicates another".format(ln))
-        longnames.add(ln)
-
-        sn = cls.shortname
-        if sn in shortnames:
-            raise AssertionError(
-                "Task shortname ({}) duplicates another".format(sn))
-        shortnames.add(sn)
-
-        basetable = cls.tablename
-        if basetable in tasktables:
-            raise AssertionError(
-                "Task basetable ({}) duplicates another".format(basetable))
-        tasktables.add(basetable)
-
-        extratables = cls.get_extra_table_names()
-        for t in extratables:
-            if t in tasktables:
-                raise AssertionError(
-                    "Task extratable ({}) duplicates another".format(t))
-            tasktables.add(t)
-
-        if cls.tablename in skip_tasks:
-            continue
-
-        # Task unit tests
-        task_unit_test(req, cls)
-        pls.db.rollback()
-
-    for cls in classes:
-        if cls.tablename in skip_tasks:
-            continue
-        # Slow task unit tests
-        instance = cls(None)
-        task_instance_unit_test_slow(cls.__name__, instance)
-        pls.db.rollback()
-
-
-def cctask_unit_tests_basic() -> None:
-    "Preliminary quick checks."""
-    classes = Task.all_subclasses_by_tablename()
-    for cls in classes:
-        task_class_unit_test(cls)
+            self.assertIsInstanceOrNone(t.get_patient_dob_first11chars(), str)
+            self.assertIsInstance(t.get_patient_sex(), str)
+            self.assertIsInstance(t.get_patient_address(), str)
+            for idnum in t.get_patient_idnum_objects():
+                self.assertIsInstance(idnum.get_idnum_reference(),
+                                      IdNumReference)
+                self.assertIsInstance(idnum.is_valid(), bool)
+                self.assertIsInstance(idnum.description(req), str)
+                self.assertIsInstance(idnum.short_description(req), str)
+                self.assertIsInstance(idnum.get_filename_component(req), str)
+            pidseg = t.get_patient_hl7_pid_segment(req, recipdef)
+            assert isinstance(pidseg, str) or isinstance(pidseg, hl7.Segment)
+            for dataseg in t.get_hl7_data_segments(req, recipdef):
+                self.assertIsInstance(dataseg, hl7.Segment)
+            for dataseg in t.get_hl7_extra_data_segments(recipdef):
+                self.assertIsInstance(dataseg, hl7.Segment)
+            self.assertIsInstance(t.is_erased(), bool)
+            self.assertIsInstance(t.is_live_on_tablet(), bool)
+            for attrname, col in t.gen_text_filter_columns():
+                self.assertIsInstance(attrname, str)
+                self.assertIsInstance(col, Column)
+            for page in t.get_tsv_pages(req):
+                self.assertIsInstance(page.get_tsv(), str)
+            # *** get_cris_dd_rows
+            self.assertIsInstance(t.get_xml(req), str)
+            self.assertIsInstance(t.get_html(req), str)
+            self.assertIsInstance(t.get_pdf(req), bytes)
+            self.assertIsInstance(t.get_pdf_html(req), str)
+            self.assertIsInstance(t.suggested_pdf_filename(req), str)
+            self.assertIsInstance(
+                t.get_rio_metadata(which_idnum=1,
+                                   uploading_user_id=self.u.id,
+                                   document_type="some_doc_type"),
+                str
+            )

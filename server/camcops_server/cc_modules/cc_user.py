@@ -54,7 +54,7 @@ from .cc_sqla_coltypes import (
     UserNameColType,
 )
 from .cc_sqlalchemy import Base
-from .cc_unittest import unit_test_ignore
+from .cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
@@ -134,7 +134,8 @@ class SecurityAccountLockout(Base):
         locked_until_utc = dbsession.query(func.max(cls.locked_until))\
             .filter(cls.username == username)\
             .filter(cls.locked_until > now)\
-            .first()  # type: Optional[Pendulum]
+            .scalar()  # type: Optional[Pendulum]
+        # ... NOT first(), which returns (result,); we want just result
         if not locked_until_utc:
             return None
         return convert_datetime_to_local(locked_until_utc)
@@ -330,7 +331,7 @@ class User(Base):
         "upload_group_id", Integer, ForeignKey("_security_groups.id"),
         comment="ID of the group to which this user uploads at present",
         # OK to be NULL in the database, but the user will not be able to
-        # upload while it is. *** implement check in client_api.py
+        # upload while it is.
     )
 
     # groups = relationship(
@@ -795,45 +796,55 @@ def set_password_directly(req: "CamcopsRequest",
 # Unit testing
 # =============================================================================
 
-def ccuser_unit_tests(req: "CamcopsRequest") -> None:
-    """Unit tests for cc_user module."""
-    dbsession = req.dbsession
+class UserTests(DemoDatabaseTestCase):
+    def test_user(self) -> None:
+        self.announce("test_user")
+        req = self.req
+        dbsession = req.dbsession
 
-    unit_test_ignore("", SecurityAccountLockout.delete_old_account_lockouts)
-    unit_test_ignore("", SecurityAccountLockout.is_user_locked_out,
-                     req, "dummy_user")
-    unit_test_ignore("", SecurityAccountLockout.user_locked_out_until,
-                     req, "dummy_user")
-    # skip: lock_user_out
-    # skip: unlock_user
+        SecurityAccountLockout.delete_old_account_lockouts(req)
+        self.assertIsInstance(
+            SecurityAccountLockout.is_user_locked_out(req, "dummy_user"),
+            bool
+        )
+        self.assertIsInstanceOrNone(
+            SecurityAccountLockout.user_locked_out_until(req, "dummy_user"),
+            Pendulum
+        )
 
-    # skip: record_login_failure
-    # skip: act_on_login_failure
-    # skip: clear_login_failures
-    unit_test_ignore("", SecurityLoginFailure.how_many_login_failures,
-                     req, "dummy_user")
-    # skip: enable_user
-    unit_test_ignore("", SecurityLoginFailure.clear_login_failures_for_nonexistent_users)  # noqa
-    unit_test_ignore("", SecurityLoginFailure.clear_dummy_login_failures_if_necessary)  # noqa
+        self.assertIsInstance(
+            SecurityLoginFailure.how_many_login_failures(req, "dummy_user"),
+            int
+        )
+        SecurityLoginFailure.clear_login_failures_for_nonexistent_users(req)
+        SecurityLoginFailure.clear_dummy_login_failures_if_necessary(req)
 
-    unit_test_ignore("", User.take_some_time_mimicking_password_encryption)
+        self.assertIsInstance(User.is_username_permissible("some_user"), bool)
+        User.take_some_time_mimicking_password_encryption()
 
-    user = User(username="dummy_user")
-    # skip: user.save
-    # skip: user.set_password
-    unit_test_ignore("", user.is_password_valid, "dummy_password")
-    # skip: user.force_password_change
-    # skip: user.login
-    # skip: user.set_password_change_flag_if_necessary
-    unit_test_ignore("", user.must_agree_terms)
-    # skip: user.agree_terms
-    # skip: user.clear_login_failures
-    # skip: user.enable
+        u = self.dbsession.query(User).first()  # type: User
+        assert u, "Missing user in demo database!"
 
-    unit_test_ignore("", User.user_exists,
-                     dbsession, "dummy_user")
-    # skip: create_superuser
-    unit_test_ignore("", User.get_user_from_username_password,
-                     req, "dummy_user", "dummy_password")
-    unit_test_ignore("", User.is_username_permissible,
-                     "dummy_user")
+        g = self.dbsession.query(Group).first()  # type: Group
+        assert g, "Missing group in demo database!"
+
+        self.assertIsInstance(u.is_password_valid("dummy_password"), bool)
+        self.assertIsInstance(u.must_agree_terms, bool)
+        u.agree_terms(req)
+        u.clear_login_failures(req)
+        self.assertIsInstance(u.is_locked_out(req), bool)
+        self.assertIsInstanceOrNone(u.locked_out_until(req), Pendulum)
+        u.enable(req)
+        self.assertIsInstance(u.may_login_as_tablet, bool)
+        # TODO: etc... could do more here
+        self.assertIsInstance(u.authorized_as_groupadmin, bool)
+        self.assertIsInstance(u.may_use_webviewer, bool)
+        self.assertIsInstance(u.authorized_to_add_special_note(g.id), bool)
+        self.assertIsInstance(u.authorized_to_erase_tasks(g.id), bool)
+        self.assertIsInstance(u.authorized_to_dump, bool)
+        self.assertIsInstance(u.authorized_for_reports, bool)
+        self.assertIsInstance(u.may_view_all_patients_when_unfiltered, bool)
+        self.assertIsInstance(u.may_view_no_patients_when_unfiltered, bool)
+        self.assertIsInstance(u.may_upload_to_group(g.id), bool)
+        self.assertIsInstance(u.may_upload, bool)
+        self.assertIsInstance(u.may_register_devices, bool)

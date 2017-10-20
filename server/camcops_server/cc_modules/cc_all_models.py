@@ -29,19 +29,16 @@ they're registered (and also Task knows about all its subclasses).
 import logging
 # from pprint import pformat
 from typing import Dict, Type
-import unittest
 
-from cardinal_pythonlib.logs import (
-    BraceStyleAdapter,
-    main_only_quicksetup_rootlogger,
-)
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
+from pendulum import Date, Pendulum
 from sqlalchemy.orm import configure_mappers
 from sqlalchemy.sql.schema import Table
 
 from .cc_constants import ALEMBIC_VERSION_TABLENAME
 from .cc_db import GenericTabletRecordMixin
-from .cc_sqlalchemy import Base, make_debug_sqlite_engine, log_all_ddl
+from .cc_sqlalchemy import Base, log_all_ddl
 
 # =============================================================================
 # Non-task model imports
@@ -68,6 +65,7 @@ from .cc_specialnote import SpecialNote
 from .cc_serversettings import ServerSettings
 from .cc_task import Task
 from .cc_taskfilter import TaskFilter
+from .cc_unittest import DemoDatabaseTestCase
 from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 
 
@@ -84,7 +82,7 @@ from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 # We need something equivalent to "from tasks.phq9 import Phq9".
 
 # noinspection PyUnresolvedReferences
-from ..tasks import *  # see tasks/__init__.py
+from camcops_server.tasks import *  # see tasks/__init__.py
 
 
 # =============================================================================
@@ -157,87 +155,7 @@ def all_models_no_op() -> None:
 # Notes
 # =============================================================================
 
-class ModelTests(unittest.TestCase):
-    # Logging in unit tests:
-    # https://stackoverflow.com/questions/7472863/pydev-unittesting-how-to-capture-text-logged-to-a-logging-logger-in-captured-o  # noqa
-    # https://stackoverflow.com/questions/7472863/pydev-unittesting-how-to-capture-text-logged-to-a-logging-logger-in-captured-o/15969985#15969985
-    # ... but actually, my code below is simpler and works fine.
-
-    def setUp(self) -> None:
-        pass
-
-    def tearDown(self) -> None:
-        pass
-
-    @staticmethod
-    def test_show_ddl() -> None:
-        # from cardinal_pythonlib.debugging import pdb_run
+class ModelTests(DemoDatabaseTestCase):
+    def test_show_ddl(self) -> None:
+        self.announce("test_show_ddl")
         log_all_ddl()
-        # pdb_run(print_all_ddl)
-
-    @staticmethod
-    def test_query_phq9() -> None:
-        from sqlalchemy.orm.session import sessionmaker
-        from camcops_server.tasks import Phq9
-
-        engine = make_debug_sqlite_engine()
-        Base.metadata.create_all(engine)
-        session = sessionmaker()(bind=engine)
-
-        phq9_query = session.query(Phq9)
-        results = phq9_query.all()
-        log.info("{}", results)
-
-    @staticmethod
-    def test_query_via_command_line_request() -> None:
-        from camcops_server.cc_modules.cc_request import get_command_line_request  # noqa
-        from camcops_server.tasks import Phq9
-        all_models_no_op()
-
-        req = get_command_line_request()
-        dbsession = req.dbsession
-        phq9_query = dbsession.query(Phq9)
-        phq9s = phq9_query.all()
-        if phq9s:
-            p = phq9s[0]
-            log.info("PHQ9 is_complete(): {}", p.is_complete())
-        else:
-            log.info("No PHQ9 instances found")
-
-    @staticmethod
-    def concrete_inheritance_disabled__test() -> None:
-        from sqlalchemy.engine import create_engine
-        from sqlalchemy.orm import configure_mappers
-        from sqlalchemy.orm.session import sessionmaker
-        from camcops_server.cc_modules.cc_task import Task
-        all_models_no_op()
-
-        engine = create_engine("sqlite://", echo=True)
-        Base.metadata.create_all(engine)
-        session = sessionmaker()(bind=engine)
-
-        log.debug("configure_mappers()...")
-        configure_mappers()
-        log.debug("... done")
-
-        task_query = session.query(Task)
-        tasks = task_query.all()
-        log.info(tasks)
-
-    @staticmethod
-    def test_task_subclasses() -> None:
-        subclasses = Task.all_subclasses_by_tablename()
-        tables = [cls.tablename for cls in subclasses]
-        log.info("Actual task table names: {!r} (n={})", tables, len(tables))
-
-
-# =============================================================================
-# main
-# =============================================================================
-# run with "python -m camcops_server.cc_modules.cc_all_models -v" to be verbose
-
-if __name__ == "__main__":
-    main_only_quicksetup_rootlogger(level=logging.DEBUG)
-    unittest.main()
-    # tests = SqlalchemyTests()
-    # tests.test_1()

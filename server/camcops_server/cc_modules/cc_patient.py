@@ -27,23 +27,25 @@ from typing import Generator, List, Optional, Set, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
+    coerce_to_date,
     format_datetime,
     get_age,
-    get_now_localtz,
     PotentialDatetimeType,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 import hl7
+import pendulum
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import and_, ClauseElement, select
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.selectable import Select
-from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
+from sqlalchemy.sql.selectable import SelectBase
+from sqlalchemy.sql import sqltypes
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from .cc_audit import audit
 from .cc_constants import (
@@ -52,7 +54,6 @@ from .cc_constants import (
     FP_ID_DESC_DEFUNCT,
     FP_ID_SHORT_DESC_DEFUNCT,
     FP_ID_NUM_DEFUNCT,
-    NUMBER_OF_IDNUMS_DEFUNCT,
     TSV_PATIENT_FIELD_PREFIX,
 )
 from .cc_db import GenericTabletRecordMixin
@@ -72,8 +73,8 @@ from .cc_sqla_coltypes import (
     SexColType,
 )
 from .cc_sqlalchemy import Base
-from .cc_tsv import TsvChunk
-from .cc_unittest import unit_test_ignore
+from .cc_tsv import TsvPage
+from .cc_unittest import DemoDatabaseTestCase
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING
 from .cc_xml import XML_COMMENT_SPECIAL_NOTES, XmlElement
 
@@ -112,7 +113,7 @@ class Patient(GenericTabletRecordMixin, Base):
         comment="Surname"
     )
     dob = CamcopsColumn(
-        "dob", Date,  # verified: merge_db handles this correctly
+        "dob", sqltypes.Date,  # verified: merge_db handles this correctly
         index=True,
         identifies_patient=True, cris_include=True,
         comment="Date of birth"
@@ -149,8 +150,6 @@ class Patient(GenericTabletRecordMixin, Base):
             " remote(PatientIdNum._device_id) == foreign(Patient._device_id), "
             " remote(PatientIdNum._era) == foreign(Patient._era), "
             " remote(PatientIdNum._current) == True "
-            # " remote(PatientIdNum._when_added_batch_utc) <= foreign(Patient._when_added_batch_utc), "  # noqa
-            # " remote(PatientIdNum._when_removed_batch_utc) == foreign(Patient._when_removed_batch_utc), "  # noqa # *** check logic! Wrong!
             ")"
         ),
         uselist=True,
@@ -160,7 +159,7 @@ class Patient(GenericTabletRecordMixin, Base):
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN
-    # THE UPLOAD API; DELETE ONCE SQLALCHEMY/ALEMBIC RUNNING:
+    # THE UPLOAD API.
     #
     # idnum1 = Column("idnum1", BigInteger, comment="ID number 1")
     # idnum2 = Column("idnum2", BigInteger, comment="ID number 2")
@@ -246,7 +245,7 @@ class Patient(GenericTabletRecordMixin, Base):
     def get_idnum_objects(self) -> List[PatientIdNum]:
         return self.idnums  # type: List[PatientIdNum]
 
-    def get_idnum_definitions(self) -> List[IdNumReference]:
+    def get_idnum_references(self) -> List[IdNumReference]:
         idnums = self.idnums  # type: List[PatientIdNum]
         return [x.get_idnum_reference() for x in idnums if x.is_valid()]
 
@@ -275,9 +274,9 @@ class Patient(GenericTabletRecordMixin, Base):
             branches.append(sn.get_xml_root())
         return XmlElement(name=self.__tablename__, value=branches)
 
-    def get_tsv_chunk(self, req: CamcopsRequest) -> TsvChunk:
+    def get_tsv_page(self, req: CamcopsRequest) -> TsvPage:
         # 1. Our core fields.
-        tsv_chunk = self._get_core_tsv_chunk(
+        page = self._get_core_tsv_page(
             req, heading_prefix=TSV_PATIENT_FIELD_PREFIX)
         # 2. ID number details
         #    We can't just iterate through the ID numbers; we have to iterate
@@ -291,17 +290,17 @@ class Patient(GenericTabletRecordMixin, Base):
                 (idnum.idnum_value for idnum in self.idnums
                  if idnum.which_idnum == n and idnum.is_valid()),
                 None)
-            tsv_chunk.add_value(
+            page.add_or_set_value(
                 heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM_DEFUNCT + nstr,
                 value=idnum_value)
-            tsv_chunk.add_value(
+            page.add_or_set_value(
                 heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC_DEFUNCT + nstr,
                 value=longdesc)
-            tsv_chunk.add_value(
+            page.add_or_set_value(
                 heading=(TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC_DEFUNCT +
                          nstr),
                 value=shortdesc)
-        return tsv_chunk
+        return page
 
     def get_bare_ptinfo(self) -> BarePatientInfo:
         """Get basic identifying information, as a BarePatientInfo."""
@@ -310,7 +309,7 @@ class Patient(GenericTabletRecordMixin, Base):
             surname=self.surname,
             dob=self.dob,
             sex=self.sex,
-            idnum_definitions=self.get_idnum_definitions()
+            idnum_definitions=self.get_idnum_references()
         )
 
     @property
@@ -369,9 +368,12 @@ class Patient(GenericTabletRecordMixin, Base):
         now = req.now
         return self.get_age_at(now, default=default)
 
-    def get_dob(self) -> Optional[Date]:
+    def get_dob(self) -> Optional[pendulum.Date]:
         """Date of birth, as a a timezone-naive date."""
-        return self.dob
+        dob = self.dob
+        if not dob:
+            return None
+        return coerce_to_date(dob)
 
     def get_dob_str(self) -> Optional[str]:
         dob_dt = self.get_dob()
@@ -397,7 +399,7 @@ class Patient(GenericTabletRecordMixin, Base):
 
     def get_sex(self) -> str:
         """Return sex or ""."""
-        return "" if not self.sex else self.sex
+        return self.sex or ""
 
     def get_sex_verbose(self, default: str = "sex unknown") -> str:
         """Returns HTML-safe version of sex, or default."""
@@ -406,7 +408,7 @@ class Patient(GenericTabletRecordMixin, Base):
     def get_address(self) -> Optional[str]:
         """Returns address (NOT necessarily web-safe)."""
         address = self.address  # type: Optional[str]
-        return address
+        return address or ""
 
     def get_hl7_pid_segment(self,
                             req: CamcopsRequest,
@@ -497,32 +499,6 @@ class Patient(GenericTabletRecordMixin, Base):
         """Get value of a specific ID short description, if present."""
         idobj = self.get_idnum_object(which_idnum)
         return idobj.short_description(req) if idobj else None
-
-    def get_idnum_html(self,
-                       req: CamcopsRequest,
-                       which_idnum: int,
-                       longform: bool,
-                       label_id_numbers: bool = False) -> str:
-        """Returns description HTML.
-
-        Args:
-            req: Pyramid request
-            which_idnum: which ID number? From 1 to NUMBER_OF_IDNUMS inclusive.
-            longform: see get_id_generic
-            label_id_numbers: whether to use prefix
-        """
-        idobj = self.get_idnum_object(which_idnum)
-        if not idobj:
-            return ""
-        nstr = str(which_idnum)  # which ID number?
-        return self._get_id_generic(
-            longform,
-            idobj.idnum_value,
-            idobj.description(req),
-            idobj.short_description(req),
-            FP_ID_NUM_DEFUNCT + nstr,
-            label_id_numbers
-        )
 
     def is_preserved(self) -> bool:
         """Is the patient record preserved and erased from the tablet?"""
@@ -628,7 +604,7 @@ class DistinctPatientReport(Report):
         return False
 
     # noinspection PyProtectedMember
-    def get_query(self, req: CamcopsRequest) -> Select:
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
         select_fields = [
             Patient.surname.label("surname"),
             Patient.forename.label("forename"),
@@ -676,61 +652,51 @@ class DistinctPatientReport(Report):
 # Unit tests
 # =============================================================================
 
-def unit_tests_patient(p: Patient, req: CamcopsRequest) -> None:
-    """Unit tests for Patient class."""
-    # skip make_tables
-    unit_test_ignore("", p.get_xml_root)
-    unit_test_ignore("", p.get_literals_for_anonymisation)
-    unit_test_ignore("", p.get_dates_for_anonymisation)
-    unit_test_ignore("", p.get_bare_ptinfo)
-    unit_test_ignore("", p.get_idnum_definitions)
-    unit_test_ignore("", p.satisfies_upload_id_policy)
-    unit_test_ignore("", p.satisfies_finalize_id_policy)
-    # implicitly tested: satisfies_id_policy
-    unit_test_ignore("", p.dump)
-    unit_test_ignore("", p.get_surname)
-    unit_test_ignore("", p.get_forename)
-    unit_test_ignore("", p.get_surname_forename_upper)
-    unit_test_ignore("", p.get_dob_html, True)
-    unit_test_ignore("", p.get_dob_html, False)
-    unit_test_ignore("", p.get_age)
-    unit_test_ignore("", p.get_dob)
-    unit_test_ignore("", p.get_age_at, get_now_localtz())
-    unit_test_ignore("", p.is_female)
-    unit_test_ignore("", p.is_male)
-    unit_test_ignore("", p.get_sex)
-    unit_test_ignore("", p.get_sex_verbose)
-    # get_hl7_pid_segment: skipped as no default RecipientDefinition yet
-    for i in range(-1, 10):  # deliberate, includes duff values
-        unit_test_ignore("", p.get_idnum_value, i)
-        unit_test_ignore("", p.get_iddesc, i)
-        unit_test_ignore("", p.get_idshortdesc, i)
-    unit_test_ignore("", p.get_idother_html, True)
-    unit_test_ignore("", p.get_idother_html, False)
-    unit_test_ignore("", p.get_gp_html, True)
-    unit_test_ignore("", p.get_gp_html, False)
-    unit_test_ignore("", p.get_address_html, True)
-    unit_test_ignore("", p.get_address_html, False)
-    unit_test_ignore("", p.get_html_for_page_header)
-    unit_test_ignore("", p.get_html_for_task_header, True)
-    unit_test_ignore("", p.get_html_for_task_header, False)
-    unit_test_ignore("", p.get_html_for_webview_patient_column)
-    unit_test_ignore("", p.get_special_notes_html)
+class PatientTests(DemoDatabaseTestCase):
+    def test_patient(self) -> None:
+        self.announce("test_patient")
+        from camcops_server.cc_modules.cc_group import Group
+        
+        req = self.req
+        q = self.dbsession.query(Patient)
+        p = q.first()  # type: Patient
+        assert p, "Missing Patient in demo database!"
 
-    # Lastly:
-    unit_test_ignore("", p.anonymise)
-
-
-def ccpatient_unit_tests(req: CamcopsRequest) -> None:
-    """Unit tests for cc_patient module."""
-    dbsession = req.dbsession
-    q = dbsession.query(Patient)
-    # noinspection PyProtectedMember
-    q = q.filter(Patient._current == True)  # noqa
-    patient = q.first()
-    if patient is None:
-        patient = Patient()
-        dbsession.add(patient)
-    unit_tests_patient(patient, req)
-
-    # Patient_Report_Distinct: tested via cc_report
+        for pidnum in p.get_idnum_objects():
+            self.assertIsInstance(pidnum, PatientIdNum)
+        for idref in p.get_idnum_references():
+            self.assertIsInstance(idref, IdNumReference)
+        for idnum in p.get_idnum_raw_values_only():
+            self.assertIsInstance(idnum, int)
+        self.assertIsInstance(p.get_xml_root(req), XmlElement)
+        self.assertIsInstance(p.get_tsv_page(req), TsvPage)
+        self.assertIsInstance(p.get_bare_ptinfo(), BarePatientInfo)
+        self.assertIsInstanceOrNone(p.group, Group)
+        self.assertIsInstance(p.satisfies_upload_id_policy(), bool)
+        self.assertIsInstance(p.satisfies_finalize_id_policy(), bool)
+        self.assertIsInstance(p.get_surname(), str)
+        self.assertIsInstance(p.get_forename(), str)
+        self.assertIsInstance(p.get_surname_forename_upper(), str)
+        for longform in [True, False]:
+            self.assertIsInstance(p.get_dob_html(longform), str)
+        age_str_int = p.get_age(req)
+        assert isinstance(age_str_int, str) or isinstance(age_str_int, int)
+        self.assertIsInstanceOrNone(p.get_dob(), pendulum.Date)
+        self.assertIsInstanceOrNone(p.get_dob_str(), str)
+        age_at_str_int = p.get_age_at(req.now)
+        assert isinstance(age_at_str_int, str) or isinstance(age_at_str_int, int)  # noqa
+        self.assertIsInstance(p.is_female(), bool)
+        self.assertIsInstance(p.is_male(), bool)
+        self.assertIsInstance(p.get_sex(), str)
+        self.assertIsInstance(p.get_sex_verbose(), str)
+        self.assertIsInstance(p.get_address(), str)
+        self.assertIsInstance(p.get_hl7_pid_segment(req, self.recipdef),
+                              hl7.Segment)
+        self.assertIsInstanceOrNone(p.get_idnum_object(which_idnum=1),
+                                    PatientIdNum)
+        self.assertIsInstanceOrNone(p.get_idnum_value(which_idnum=1), int)
+        self.assertIsInstance(p.get_iddesc(req, which_idnum=1), str)
+        self.assertIsInstance(p.get_idshortdesc(req, which_idnum=1), str)
+        self.assertIsInstance(p.is_preserved(), bool)
+        self.assertIsInstance(p.is_editable, bool)
+        self.assertIsInstance(p.user_may_edit(req), bool)

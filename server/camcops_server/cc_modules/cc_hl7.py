@@ -76,7 +76,6 @@ from .cc_sqla_coltypes import (
     TableNameColType,
 )
 from .cc_sqlalchemy import Base
-from .cc_unittest import unit_test_ignore
 
 if TYPE_CHECKING:
     from .cc_task import Task
@@ -635,7 +634,8 @@ class HL7Message(Base):
         )
         pid_segment = self._task.get_patient_hl7_pid_segment(
             req, self._recipient_def)
-        other_segments = self._task.get_hl7_data_segments(self._recipient_def)
+        other_segments = self._task.get_hl7_data_segments(
+            req, self._recipient_def)
 
         # ---------------------------------------------------------------------
         # Whole message
@@ -944,50 +944,3 @@ def make_sure_path_exists(path: str) -> None:
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-
-
-# =============================================================================
-# Unit tests
-# =============================================================================
-
-def unit_tests(dbsession: SqlASession) -> None:
-    """Unit tests for cc_hl7 module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS (UNIT TESTING ONLY)
-    # -------------------------------------------------------------------------
-    from ..tasks.phq9 import Phq9
-
-    # skip: send_all_pending_hl7_messages
-    # skip: send_pending_hl7_messages
-
-    # noinspection PyProtectedMember
-    task = dbsession.query(Phq9)\
-        .filter(Phq9._current == True)\
-        .first()  # type: Optional[Phq9]  # nopep8
-    if task is None:
-        task = Phq9()
-    pitlist = [
-        HL7PatientIdentifier(id="1", id_type="TT", assigning_authority="AA")
-    ]
-    now = get_now_localtz()
-
-    unit_test_ignore("", get_mod11_checkdigit, "12345")
-    unit_test_ignore("", get_mod11_checkdigit, "badnumber")
-    unit_test_ignore("", get_mod11_checkdigit, None)
-    unit_test_ignore("", make_msh_segment, now, "control_id")
-    unit_test_ignore("", make_pid_segment, "fname", "sname", now, "sex",
-                     "addr", pitlist)
-    unit_test_ignore("", make_obr_segment, task)
-    unit_test_ignore("", make_obx_segment, task, FileType.PDF,
-                     "obs_id", now, "responsible_observer")
-    unit_test_ignore("", make_obx_segment, task, FileType.HTML,
-                     "obs_id", now, "responsible_observer")
-    unit_test_ignore("", make_obx_segment, task, FileType.XML,
-                     "obs_id", now, "responsible_observer",
-                     xml_field_comments=True)
-    unit_test_ignore("", make_obx_segment, task, FileType.XML,
-                     "obs_id", now, "responsible_observer",
-                     xml_field_comments=False)
-    unit_test_ignore("", escape_hl7_text, "blahblah")
-    # not yet tested: HL7Message class
-    # not yet tested: MLLPTimeoutClient class

@@ -27,33 +27,33 @@ from typing import Any, Dict, List, Tuple, Type
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
-from ..cc_modules.cc_constants import (
+from camcops_server.cc_modules.cc_constants import (
     DATA_COLLECTION_UNLESS_UPGRADED_DIV,
     INVALID_VALUE,
 )
-from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_html import (
+from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
+from camcops_server.cc_modules.cc_html import (
     answer,
     get_correct_incorrect_none,
     td,
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
     ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
     ZERO_TO_THREE_CHECKER,
 )
-from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import (
+from camcops_server.cc_modules.cc_summaryelement import SummaryElement
+from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
-from ..cc_modules.cc_trackerhelpers import TrackerInfo
+from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================

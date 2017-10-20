@@ -29,17 +29,20 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from ..cc_modules.cc_constants import PV
-from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import add_multiple_columns
-from ..cc_modules.cc_html import (
+from camcops_server.cc_modules.cc_constants import PV
+from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
+from camcops_server.cc_modules.cc_db import add_multiple_columns
+from camcops_server.cc_modules.cc_html import (
     get_yes_no_none,
     subheading_spanning_two_columns,
     tr_qa,
 )
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
-from ..cc_modules.cc_task import Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    PermittedValueChecker,
+)
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 # =============================================================================

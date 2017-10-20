@@ -323,4 +323,4 @@ class TaskCollection(object):
             end_time = Pendulum.now()
             # noinspection PyUnboundLocalVariable
             time_taken = end_time - start_time
-            log.warning("_fetch_all_tasks took {}", time_taken)
+            log.info("_fetch_all_tasks took {}", time_taken)

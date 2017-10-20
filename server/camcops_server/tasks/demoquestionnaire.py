@@ -28,16 +28,16 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Date, Float, Integer, Time, UnicodeText
 
-from ..cc_modules.cc_blob import blob_relationship
-from ..cc_modules.cc_db import add_multiple_columns
-from ..cc_modules.cc_html import answer
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_blob import blob_relationship
+from camcops_server.cc_modules.cc_db import add_multiple_columns
+from camcops_server.cc_modules.cc_html import answer
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     PendulumDateTimeAsIsoTextColType,
     DiagnosticCodeColType,
 )
-from ..cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_task import Task
 
 
 # =============================================================================

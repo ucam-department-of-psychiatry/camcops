@@ -31,16 +31,22 @@ import numpy as np
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer, Text, UnicodeText
 
-from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH, WHOLE_PANEL
-from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
-from ..cc_modules.cc_html import (
+from camcops_server.cc_modules.cc_constants import (
+    FULLWIDTH_PLOT_WIDTH,
+    WHOLE_PANEL,
+)
+from camcops_server.cc_modules.cc_db import (
+    ancillary_relationship,
+    GenericTabletRecordMixin,
+)
+from camcops_server.cc_modules.cc_html import (
     get_yes_no_none,
     tr_qa,
 )
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import PendulumDateTimeAsIsoTextColType
-from ..cc_modules.cc_sqlalchemy import Base
-from ..cc_modules.cc_task import Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import PendulumDateTimeAsIsoTextColType  # noqa
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 LOWER_MARKER = 0.25

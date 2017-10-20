@@ -39,11 +39,11 @@ from .cc_db import GenericTabletRecordMixin
 from .cc_html import get_data_url, get_embedded_img_tag
 from .cc_sqla_coltypes import (
     MimeTypeColType,
-    # TableNameColType, # *** to be added once Alembic up
+    TableNameColType,
 )
 from .cc_sqla_coltypes import LongBlob, RelationshipInfo
 from .cc_sqlalchemy import Base
-from .cc_unittest import unit_test_ignore
+from .cc_unittest import DemoDatabaseTestCase
 from .cc_xml import get_xml_blob_element, XmlElement
 
 if TYPE_CHECKING:
@@ -80,17 +80,18 @@ class Blob(GenericTabletRecordMixin, Base):
                 "tablet device"
     )
     tablename = Column(
-        "tablename", Text,  # *** change to TableNameColType once Alembic up
+        "tablename", TableNameColType,
         nullable=False,
         comment="Name of the table referring to this BLOB"
     )
     tablepk = Column(
         "tablepk", Integer,
         nullable=False,
-        comment="Primary key (id field) of the row referring to this BLOB"
+        comment="Client-perspective primary key (id field) of the row "
+                "referring to this BLOB"
     )
     fieldname = Column(
-        "fieldname", Text,  # *** change to TableNameColType once Alembic up
+        "fieldname", TableNameColType,
         nullable=False,
         comment="Field name of the field referring to this BLOB by ID"
     )
@@ -177,9 +178,9 @@ class Blob(GenericTabletRecordMixin, Base):
         return get_embedded_img_tag(self.mimetype or MIMETYPE_PNG, image_bits)
         # Historically, CamCOPS supported only PNG, so add this as a default
 
-    def get_xml_element(self) -> XmlElement:
-        log.critical("get_xml_element")
+    def get_xml_element(self, req: "CamcopsRequest") -> XmlElement:
         branches = self._get_xml_branches(
+            req,
             skip_attrs=["theblob"],
             include_plain_columns=True,
             include_blobs=False
@@ -272,30 +273,13 @@ def get_blob_img_html(blob: Optional[Blob]) -> str:
 # Unit tests
 # =============================================================================
 
-def unit_tests_blob(blob: Blob) -> None:
-    """Unit tests for the Blob class."""
-    # skip Blob.make_tables
-    unit_test_ignore("", blob.dump)
-    unit_test_ignore("", blob.get_rotated_image)
-    unit_test_ignore("", blob.get_img_html)
-    # noinspection PyProtectedMember
-    unit_test_ignore("", blob._get_xml_theblob_value_binary, "name")
-    unit_test_ignore("", blob.get_data_url)
-
-
-def ccblob_unit_tests(req: "CamcopsRequest") -> None:
-    """Unit tests for the cc_blob module."""
-    dbsession = req.dbsession
-    # noinspection PyProtectedMember
-    blobs = dbsession.query(Blob)\
-        .filter(Blob._current == True)\
-        .all()  # noqa
-    if not blobs:
-        blobs = [Blob()]
-    for blob in blobs:
-        unit_tests_blob(blob)
-
-    unit_test_ignore("", Blob.get_current_blob_by_client_info,
-                     dbsession, 0, 0, ERA_NOW)
-    unit_test_ignore("", Blob.get_contemporaneous_blob_by_client_info,
-                     dbsession, 0, 0, ERA_NOW, None, None)
+class BlobTests(DemoDatabaseTestCase):
+    def test_blob(self) -> None:
+        self.announce("test_blob")
+        q = self.dbsession.query(Blob)
+        b = q.first()  # type: Blob
+        assert b, "Missing BLOB in demo database!"
+        self.assertIsInstanceOrNone(b.get_rotated_image(), bytes)
+        self.assertIsInstance(b.get_img_html(), str)
+        self.assertIsInstance(b.get_xml_element(self.req), XmlElement)
+        self.assertIsInstance(b.get_data_url(), str)

@@ -30,9 +30,12 @@ import scipy.stats  # http://docs.scipy.org/doc/scipy/reference/stats.html
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Float, Integer
 
-from ..cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH
-from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
-from ..cc_modules.cc_html import (
+from camcops_server.cc_modules.cc_constants import FULLWIDTH_PLOT_WIDTH
+from camcops_server.cc_modules.cc_db import (
+    ancillary_relationship,
+    GenericTabletRecordMixin,
+)
+from camcops_server.cc_modules.cc_html import (
     answer,
     div,
     get_yes_no_none,
@@ -42,11 +45,16 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import PendulumDateTimeAsIsoTextColType
-from ..cc_modules.cc_sqlalchemy import Base
-from ..cc_modules.cc_summaryelement import ExtraSummaryTable, SummaryElement
-from ..cc_modules.cc_task import Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    PendulumDateTimeAsIsoTextColType,
+)
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_summaryelement import (
+    ExtraSummaryTable,
+    SummaryElement,
+)
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 CONVERT_0_P_TO = 0.001  # for Z-transformed ROC plot
@@ -1247,11 +1255,13 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
 
         blockprob_table = ExtraSummaryTable(
             tablename="cardinal_expdet_blockprobs",
+            xmlname="blockprobs",
             columns=BLOCKPROB_COLUMNS,
             rows=blockprob_values
         )
         halfprob_table = ExtraSummaryTable(
             tablename="cardinal_expdet_halfprobs",
+            xmlname="halfprobs",
             columns=HALFPROB_COLUMNS,
             rows=halfprob_values
         )

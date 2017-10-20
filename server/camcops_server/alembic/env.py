@@ -110,7 +110,8 @@ def run_alembic() -> None:
     camcops_config = get_default_config_from_os_env()
     dburl = camcops_config.db_url
     alembic_config.set_main_option('sqlalchemy.url', dburl)
-    log.warning("Using database URL: {}", get_safe_url_from_url(dburl))
+    log.warning("Applying migrations to database at URL: {}",
+                get_safe_url_from_url(dburl))
 
     if context.is_offline_mode():
         run_migrations_offline(alembic_config, target_metadata)

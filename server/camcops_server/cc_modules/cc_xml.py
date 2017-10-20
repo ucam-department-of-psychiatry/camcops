@@ -31,7 +31,8 @@ import xml.sax.saxutils
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
-from pendulum import Date, Pendulum, Time
+import pendulum  # avoid name confusion with Date
+from pendulum import Pendulum
 from semantic_version.base import Version
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
@@ -40,6 +41,7 @@ from .cc_simpleobjects import XmlSimpleValue
 from .cc_sqla_coltypes import gen_camcops_blob_columns
 
 if TYPE_CHECKING:
+    from .cc_request import CamcopsRequest
     from .cc_summaryelement import SummaryElement
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -160,6 +162,7 @@ def make_xml_branches_from_summaries(
 
 
 def make_xml_branches_from_blobs(
+        req: "CamcopsRequest",
         obj,
         skip_fields: List[str] = None) -> List[XmlElement]:
     skip_fields = skip_fields or []  # type: List[str]
@@ -172,7 +175,7 @@ def make_xml_branches_from_blobs(
         blob = getattr(obj, relationship_attr)
         branches.append(XmlElement(
             name=relationship_attr,
-            value=None if blob is None else blob.get_xml_element(),
+            value=None if blob is None else blob.get_xml_element(req),
             comment=column.comment,
         ))
     return branches
@@ -187,8 +190,7 @@ def xml_header(eol: str = '\n') -> str:
     )
 
 
-def get_xml_datatype_from_sqla_column_type(
-        coltype: TypeEngine) -> Optional[str]:
+def get_xml_datatype_from_sqla_column_type(coltype: TypeEngine) -> str:
     """
     Returns the XML schema datatype from an SQLAlchemy column type,
     such as Integer.
@@ -197,29 +199,26 @@ def get_xml_datatype_from_sqla_column_type(
     # http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html
     pt = coltype.python_type
     # pt is a *type*, not an *instance* of that type, so we use issubclass:
-    try:
-        # Watch the order. Move from more specific to less specific.
-        # For example, issubclass(bool, int) == True, so do bool first.
-        if issubclass(pt, datetime.datetime) or issubclass(pt, Pendulum):
-            return XmlDataTypes.DATETIME
-        if issubclass(pt, datetime.date) or issubclass(pt, Date):
-            return XmlDataTypes.DATE
-        if issubclass(pt, datetime.date) or issubclass(pt, Time):
-            return XmlDataTypes.TIME
-        if issubclass(pt, bool):
-            return XmlDataTypes.BOOLEAN
-        if issubclass(pt, int):
-            return XmlDataTypes.INTEGER
-        if issubclass(pt, float):
-            return XmlDataTypes.DOUBLE
-        if issubclass(pt, str) or issubclass(pt, Version):
-            return XmlDataTypes.STRING
-        # BLOBs are handled separately.
-    except NotImplementedError:
-        pass
-    log.warning("Don't know XML type for SQLAlchemy type {!r} with Python "
-                "type {!r}", coltype, pt)
-    return None
+    # Watch the order. Move from more specific to less specific.
+    # For example, issubclass(bool, int) == True, so do bool first.
+    if issubclass(pt, datetime.datetime) or issubclass(pt, Pendulum):
+        return XmlDataTypes.DATETIME
+    if issubclass(pt, datetime.date) or issubclass(pt, pendulum.Date):
+        return XmlDataTypes.DATE
+    if issubclass(pt, datetime.time) or issubclass(pt, pendulum.Time):
+        return XmlDataTypes.TIME
+    if issubclass(pt, bool):
+        return XmlDataTypes.BOOLEAN
+    if issubclass(pt, int):
+        return XmlDataTypes.INTEGER
+    if issubclass(pt, float):
+        return XmlDataTypes.DOUBLE
+    if issubclass(pt, str) or issubclass(pt, Version):
+        return XmlDataTypes.STRING
+    # BLOBs are handled separately.
+    raise NotImplementedError(
+        "Don't know XML type for SQLAlchemy type {!r} with Python "
+        "type {!r}".format(coltype, pt))
 
 
 def get_xml_datatype_from_sqla_column(column: Column) -> Optional[str]:

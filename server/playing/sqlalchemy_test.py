@@ -88,7 +88,7 @@ So, combining a TypeDecorator with a Comparator:
 
 - https://bitbucket.org/zzzeek/sqlalchemy/wiki/UsageRecipes/DatabaseCrypt
 - https://bitbucket.org/zzzeek/sqlalchemy/wiki/UsageRecipes/SymmetricEncryption
-    ... *** explore this; no explicit Comparator used; does it work?
+    ... explore this; no explicit Comparator used; does it work?
 
 Testing:
 

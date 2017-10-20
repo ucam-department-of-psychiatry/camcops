@@ -23,19 +23,20 @@
 """
 
 import base64
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, TYPE_CHECKING, Union
 
-from cardinal_pythonlib.datetimefunc import format_datetime, get_now_localtz
+from cardinal_pythonlib.datetimefunc import format_datetime
 import hl7
 from pendulum import Date, Pendulum
-from sqlalchemy.orm import Session as SqlASession
 
 from .cc_constants import DateFormat
 from .cc_filename import FileType
 from .cc_simpleobjects import HL7PatientIdentifier
-from .cc_unittest import unit_test_ignore
+from .cc_unittest import DemoDatabaseTestCase
 
-TASK_FWD_REF = "Task"
+if TYPE_CHECKING:
+    from .cc_request import CamcopsRequest
+    from .cc_task import Task
 
 # =============================================================================
 # Constants
@@ -276,7 +277,7 @@ def make_pid_segment(
 
 
 # noinspection PyUnusedLocal
-def make_obr_segment(task: TASK_FWD_REF) -> hl7.Segment:
+def make_obr_segment(task: "Task") -> hl7.Segment:
     """Creates an HL7 observation request (OBR) segment."""
     # -------------------------------------------------------------------------
     # Observation request segment (OBR)
@@ -383,7 +384,8 @@ def make_obr_segment(task: TASK_FWD_REF) -> hl7.Segment:
     return segment
 
 
-def make_obx_segment(task: TASK_FWD_REF,
+def make_obx_segment(req: "CamcopsRequest",
+                     task: "Task",
                      task_format: str,
                      observation_identifier: str,
                      observation_datetime: Pendulum,
@@ -412,7 +414,7 @@ def make_obx_segment(task: TASK_FWD_REF,
             "Application",  # type of data
             "PDF",  # data subtype
             "Base64",  # base 64 encoding
-            base64.standard_b64encode(task.get_pdf())  # data
+            base64.standard_b64encode(task.get_pdf(req))  # data
         ])
     elif task_format == FileType.HTML:
         value_type = "ED"  # Encapsulated data (ED) field
@@ -421,7 +423,7 @@ def make_obx_segment(task: TASK_FWD_REF,
             "TEXT",  # type of data
             "HTML",  # data subtype
             "A",  # no encoding (see table 0299), but need to escape
-            escape_hl7_text(task.get_html())  # data
+            escape_hl7_text(task.get_html(req))  # data
         ])
     elif task_format == FileType.XML:
         value_type = "ED"  # Encapsulated data (ED) field
@@ -431,7 +433,9 @@ def make_obx_segment(task: TASK_FWD_REF,
             "XML",  # data subtype
             "A",  # no encoding (see table 0299), but need to escape
             escape_hl7_text(task.get_xml(
-                indent_spaces=0, eol="",
+                req,
+                indent_spaces=0,
+                eol="",
                 include_comments=xml_field_comments
             ))  # data
         ])
@@ -718,45 +722,40 @@ def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
 # Unit tests
 # =============================================================================
 
-def cchl7core_unit_tests(dbsession: SqlASession) -> None:
-    """Unit tests for cc_hl7 module."""
-    # -------------------------------------------------------------------------
-    # DELAYED IMPORTS (UNIT TESTING ONLY)
-    # -------------------------------------------------------------------------
-    from ..tasks.phq9 import Phq9
+class HL7CoreTests(DemoDatabaseTestCase):
+    def test_hl7core_func(self) -> None:
+        self.announce("test_hl7core_func")
+        from camcops_server.tasks.phq9 import Phq9
+        pitlist = [
+            HL7PatientIdentifier(id="1", id_type="TT", assigning_authority="AA")
+        ]
+        dob = Date.today()
+        now = Pendulum.now()
+        task = self.dbsession.query(Phq9).first()
+        assert task, "Missing Phq9 in demo database!"
 
-    # skip: send_all_pending_hl7_messages
-    # skip: send_pending_hl7_messages
-
-    # noinspection PyProtectedMember
-    task = dbsession.query(Phq9)\
-        .filter(Phq9._current == True)\
-        .first()  # type: Optional[Phq9]  # nopep8
-    if task is None:
-        task = Phq9()
-    pitlist = [
-        HL7PatientIdentifier(
-            id="1", id_type="TT", assigning_authority="AA")
-    ]
-    now = get_now_localtz()
-
-    unit_test_ignore("", get_mod11_checkdigit, "12345")
-    unit_test_ignore("", get_mod11_checkdigit, "badnumber")
-    unit_test_ignore("", get_mod11_checkdigit, None)
-    unit_test_ignore("", make_msh_segment, now, "control_id")
-    unit_test_ignore("", make_pid_segment, "fname", "sname", now, "sex",
-                     "addr", pitlist)
-    unit_test_ignore("", make_obr_segment, task)
-    unit_test_ignore("", make_obx_segment, task, FileType.PDF,
-                     "obs_id", now, "responsible_observer")
-    unit_test_ignore("", make_obx_segment, task, FileType.HTML,
-                     "obs_id", now, "responsible_observer")
-    unit_test_ignore("", make_obx_segment, task, FileType.XML,
-                     "obs_id", now, "responsible_observer",
-                     xml_field_comments=True)
-    unit_test_ignore("", make_obx_segment, task, FileType.XML,
-                     "obs_id", now, "responsible_observer",
-                     xml_field_comments=False)
-    unit_test_ignore("", escape_hl7_text, "blahblah")
-    # not yet tested: HL7Message class
-    # not yet tested: MLLPTimeoutClient class
+        self.assertIsInstance(get_mod11_checkdigit("12345"), str)
+        self.assertIsInstance(get_mod11_checkdigit("badnumber"), str)
+        self.assertIsInstance(get_mod11_checkdigit("None"), str)
+        self.assertIsInstance(make_msh_segment(now, "control_id"), hl7.Segment)
+        self.assertIsInstance(make_pid_segment(
+            forename="fname",
+            surname="sname",
+            dob=dob,
+            sex="M",
+            address="Somewhere",
+            patient_id_list=pitlist
+        ), hl7.Segment)
+        self.assertIsInstance(make_obr_segment(task), hl7.Segment)
+        for task_format in [FileType.PDF, FileType.HTML, FileType.XML]:
+            for comments in [True, False]:
+                self.assertIsInstance(make_obx_segment(
+                    req=self.req,
+                    task=task,
+                    task_format=task_format,
+                    observation_identifier="obs_id",
+                    observation_datetime=now,
+                    responsible_observer="responsible_observer",
+                    xml_field_comments=comments
+                ), hl7.Segment)
+        self.assertIsInstance(escape_hl7_text("blahblah"), str)

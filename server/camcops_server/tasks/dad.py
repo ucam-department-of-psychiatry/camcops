@@ -27,16 +27,19 @@ from typing import Any, Dict, Iterable, List, Tuple, Type
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from ..cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV
-from ..cc_modules.cc_html import (
+from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_UNLESS_UPGRADED_DIV  # noqa
+from camcops_server.cc_modules.cc_html import (
     answer,
     subheading_spanning_two_columns,
     tr,
 )
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
-from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import (
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    PermittedValueChecker,
+)
+from camcops_server.cc_modules.cc_summaryelement import SummaryElement
+from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,
     TaskHasPatientMixin,

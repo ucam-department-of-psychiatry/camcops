@@ -39,7 +39,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Date
 
 from .cc_simpleobjects import BarePatientInfo, IdNumReference
-from .cc_unittest import unit_test_ignore
+from .cc_unittest import ExtendedTestCase
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
@@ -350,65 +350,43 @@ class TokenizedPolicy(object):
 # Unit tests
 # =============================================================================
 
-def ccpolicy_unit_tests() -> None:
-    """Unit tests for cc_policy module."""
-    test_policies = [
-        "",
-        "sex AND (failure",
-        "sex AND idnum1",
-    ]
-    test_idnums = [
-        None,
-        -1,
-        1
-    ]
-    valid_which_idnums = [1, 2, 3]
-    bpi = BarePatientInfo(
-        forename="forename",
-        surname="surname",
-        dob=Date.today(),  # random value
-        sex="sex",
-        idnum_definitions=[
-            IdNumReference(1, 1),
-            IdNumReference(10, 3),
-        ],
-    )
-    for p in test_policies:
-        unit_test_ignore("", tokenize_upload_id_policy, p,
-                         valid_which_idnums=valid_which_idnums)
-        unit_test_ignore("", tokenize_finalize_id_policy, p,
-                         valid_which_idnums=valid_which_idnums)
-        unit_test_ignore("", get_tokenized_id_policy, p)
-    unit_test_ignore("", find_critical_single_numerical_id,
-                     tokenized_policy=ID_POLICY_UPLOAD_TOKENIZED,
-                     valid_which_idnums=valid_which_idnums)
-    for i in test_idnums:
-        unit_test_ignore("", is_idnum_mandatory_in_upload_policy,
-                         which_idnum=i,
-                         valid_which_idnums=valid_which_idnums)
-        unit_test_ignore("", is_idnum_mandatory_in_finalize_policy,
-                         which_idnum=i,
-                         valid_which_idnums=valid_which_idnums)
-        unit_test_ignore("", is_idnum_mandatory_in_policy,
-                         which_idnum=i,
-                         tokenized_policy=ID_POLICY_UPLOAD_TOKENIZED,
-                         valid_which_idnums=valid_which_idnums)
-    unit_test_ignore("", upload_id_policy_valid)
-    unit_test_ignore("", finalize_id_policy_valid)
-    unit_test_ignore("", get_upload_id_policy_principal_numeric_id)
-    unit_test_ignore("", get_finalize_id_policy_principal_numeric_id)
-    unit_test_ignore("", satisfies_upload_id_policy, bpi)
-    unit_test_ignore("", satisfies_finalize_id_policy, bpi)
-    unit_test_ignore("", satisfies_id_policy,
-                     policy=ID_POLICY_UPLOAD_TOKENIZED,
-                     ptinfo=bpi)
+class PolicyTests(ExtendedTestCase):
+    def test_policies(self) -> None:
+        self.announce("test_policies")
 
-    # id_policy_chunk tested implicitly
-    # id_policy_content tested implicitly
-    # id_policy_op tested implicitly
-    # id_policy_element tested implicitly
+        empty = ""
+        bad1 = "sex AND (failure"
+        good1 = "sex AND idnum1"
+        test_idnums = [
+            None,
+            -1,
+            1
+        ]
+        valid_which_idnums = [1, 2, 3]
+        bpi = BarePatientInfo(
+            forename="forename",
+            surname="surname",
+            dob=Date.today(),  # random value
+            sex="sex",
+            idnum_definitions=[
+                IdNumReference(1, 1),
+                IdNumReference(10, 3),
+            ],
+        )
+        for policy_string in [empty, bad1, good1]:
+            p = TokenizedPolicy(policy_string)
+            self.assertIsInstance(p.is_syntactically_valid(), bool)
+            self.assertIsInstance(p.is_valid(valid_idnums=valid_which_idnums),
+                                  bool)
+            self.assertIsInstanceOrNone(p.find_critical_single_numerical_id(
+                valid_which_idnums=valid_which_idnums), int)
 
+            for which_idnum in test_idnums:
+                self.assertIsInstance(p.is_idnum_mandatory_in_policy(
+                    which_idnum=which_idnum,
+                    valid_which_idnums=valid_which_idnums), bool)
+            self.assertIsInstance(p.satisfies_id_policy(bpi), bool)
 
-if __name__ == '__main__':
-    ccpolicy_unit_tests()
-    # Run this with: python -m camcops_server.cc_modules.cc_policy
+            if policy_string == good1:
+                self.assertEqual(p.find_critical_single_numerical_id(
+                    valid_which_idnums=valid_which_idnums), 1)

@@ -52,21 +52,27 @@ import os  # nopep8
 import multiprocessing  # nopep8
 # from pprint import pformat  # nopep8
 import sys  # nopep8
+import tempfile  # nopep8
 from typing import Any, Dict, Optional, TYPE_CHECKING  # nopep8
+import unittest  # nopep8
 
 import cherrypy  # nopep8
 try:
     from gunicorn.app.base import BaseApplication
 except ImportError:
     BaseApplication = None  # e.g. on Windows: "ImportError: no module named 'fcntl'".  # noqa
-from pyramid.config import Configurator  # nopep8
 from pyramid.router import Router  # nopep8
 from wsgiref.simple_server import make_server  # nopep8
 
 from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction  # nopep8
+from cardinal_pythonlib.classes import gen_all_subclasses  # nopep8
 from cardinal_pythonlib.debugging import pdb_run  # nopep8
 from cardinal_pythonlib.process import launch_external_file  # nopep8
 from cardinal_pythonlib.ui import ask_user, ask_user_password  # nopep8
+from cardinal_pythonlib.sqlalchemy.dialect import (
+    ALL_SQLA_DIALECTS,
+    SqlaDialectName,
+)  # nopep8
 from cardinal_pythonlib.wsgi.constants import WsgiEnvVar  # nopep8
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import (
     ReverseProxiedConfig,
@@ -74,17 +80,17 @@ from cardinal_pythonlib.wsgi.reverse_proxied_mw import (
 )  # nopep8
 
 # Import this one early:
-from .cc_modules.cc_all_models import all_models_no_op  # nopep8
+from camcops_server.cc_modules.cc_all_models import all_models_no_op  # nopep8
 
-from .cc_modules.cc_alembic import (
+from camcops_server.cc_modules.cc_alembic import (
     create_database_from_scratch,
     upgrade_database_to_head,
 )  # nopep8
-from .cc_modules.cc_baseconstants import (
+from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
     MANUAL_FILENAME_PDF,
 )  # nopep8
-from .cc_modules.cc_config import (
+from camcops_server.cc_modules.cc_config import (
     get_default_config_from_os_env,  # nopep8
     get_demo_apache_config,
     get_demo_config,
@@ -92,41 +98,28 @@ from .cc_modules.cc_config import (
     get_demo_mysql_dump_script,
     get_demo_supervisor_config,
 )
-from .cc_modules.cc_constants import (
+from camcops_server.cc_modules.cc_constants import (
     CAMCOPS_URL,
     MINIMUM_PASSWORD_LENGTH,
     USER_NAME_FOR_SYSTEM,
 )  # nopep8
-from .cc_modules.cc_blob import ccblob_unit_tests  # nopep8
-from .cc_modules.cc_device import ccdevice_unit_tests  # nopep8
-from .cc_modules.cc_hl7 import send_all_pending_hl7_messages  # nopep8
-from .cc_modules.cc_hl7core import cchl7core_unit_tests  # nopep8
-from .cc_modules.cc_patient import ccpatient_unit_tests  # nopep8
-from .cc_modules.cc_pyramid import (
-    CamcopsAuthenticationPolicy,
-    CamcopsAuthorizationPolicy,
-    camcops_add_mako_renderer,
-    get_session_factory,
-    Permission,
-    RouteCollection,
-    STATIC_PYRAMID_PACKAGE_PATH,
+from camcops_server.cc_modules.cc_hl7 import send_all_pending_hl7_messages  # nopep8
+from camcops_server.cc_modules.cc_pyramid import RouteCollection  # nopep8
+from camcops_server.cc_modules.cc_request import (
+    CamcopsRequest,
+    command_line_request_context,
+    pyramid_configurator_context,
 )  # nopep8
-from .cc_modules.cc_policy import ccpolicy_unit_tests  # nopep8
-from .cc_modules.cc_report import ccreport_unit_tests  # nopep8
-from .cc_modules.cc_request import CamcopsRequest, command_line_request_context  # nopep8
-from .cc_modules.cc_session import ccsession_unit_tests  # nopep8
-from .cc_modules.cc_sqlalchemy import ALL_DIALECTS, Dialect, get_all_ddl  # nopep8
-from .cc_modules.cc_task import (
-    cctask_unit_tests,
-    cctask_unit_tests_basic,
-    Task,
+from camcops_server.cc_modules.cc_sqlalchemy import get_all_ddl  # nopep8
+from camcops_server.cc_modules.cc_task import Task  # nopep8
+from camcops_server.cc_modules.cc_unittest import (
+    DemoDatabaseTestCase,
+    DemoRequestTestCase,
+    ExtendedTestCase,
 )  # nopep8
-from .cc_modules.cc_tracker import cctracker_unit_tests  # imports matplotlib; SLOW  # nopep8
-from .cc_modules.cc_user import ccuser_unit_tests  # nopep8
-from .cc_modules.cc_user import set_password_directly, User  # nopep8
-from .cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
-from .cc_modules.client_api import database_unit_tests  # nopep8
-from .cc_modules.merge_db import merge_camcops_db  # nopep8
+from camcops_server.cc_modules.cc_user import set_password_directly, User  # nopep8
+from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
+from camcops_server.cc_modules.merge_db import merge_camcops_db  # nopep8
 
 all_models_no_op()
 log.debug("All imports complete")
@@ -153,13 +146,10 @@ if sys.version_info[0] != 3:
 # Debugging options
 # =============================================================================
 
-DEBUG_ADD_ROUTES = False
-DEBUG_AUTHORIZATION = False
 DEBUG_LOG_CONFIG = False
 DEBUG_RUN_WITH_PDB = False
 
-if (DEBUG_ADD_ROUTES or DEBUG_AUTHORIZATION or DEBUG_LOG_CONFIG or
-        DEBUG_RUN_WITH_PDB):
+if DEBUG_LOG_CONFIG or DEBUG_RUN_WITH_PDB:
     log.warning("Debugging options enabled!")
 
 # =============================================================================
@@ -209,116 +199,16 @@ def make_wsgi_app(debug_toolbar: bool = False,
     """
     log.debug("Creating WSGI app")
 
-    # -------------------------------------------------------------------------
-    # 0. Settings that transcend the config file
-    # -------------------------------------------------------------------------
-    # Most things should be in the config file. This enables us to run multiple
-    # configs (e.g. multiple CamCOPS databases) through the same process.
-    # However, some things we need to know right now, to make the WSGI app.
-    # Here, OS environment variables and command-line switches are appropriate.
-
-    # See parameters above.
-
-    # -------------------------------------------------------------------------
-    # 1. Base app
-    # -------------------------------------------------------------------------
-    settings = {  # Settings that can't be set directly?
-        'debug_authorization': DEBUG_AUTHORIZATION,
-    }
-    with Configurator(settings=settings) as config:
-        # ---------------------------------------------------------------------
-        # Authentication; authorizaion (permissions)
-        # ---------------------------------------------------------------------
-        authentication_policy = CamcopsAuthenticationPolicy()
-        config.set_authentication_policy(authentication_policy)
-        # Let's not use ACLAuthorizationPolicy, which checks an access control
-        # list for a resource hierarchy of objects, but instead:
-        authorization_policy = CamcopsAuthorizationPolicy()
-        config.set_authorization_policy(authorization_policy)
-        config.set_default_permission(Permission.HAPPY)
-        # ... applies to all SUBSEQUENT view configuration registrations
-
-        # ---------------------------------------------------------------------
-        # Factories
-        # ---------------------------------------------------------------------
-        config.set_request_factory(CamcopsRequest)
-        # ... for request attributes: config, database, etc.
-        config.set_session_factory(get_session_factory())
-        # ... for request.session
-
-        camcops_add_mako_renderer(config, extension='.mako')
-
-        # deform_bootstrap.includeme(config)
-
-        # ---------------------------------------------------------------------
-        # Routes and accompanying views
-        # ---------------------------------------------------------------------
-
-        # Add static views
-        # https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html#serving-static-assets  # noqa
-        # Hmm. We cannot fail to set up a static file route, because otherwise
-        # we can't provide URLs to them.
-        static_filepath = STATIC_PYRAMID_PACKAGE_PATH
-        static_name = RouteCollection.STATIC.route
-        log.debug("... including static files from {!r} at Pyramid static "
-                  "name {!r}", static_filepath, static_name)
-        # ... does the name needs to start with "/" or the pattern "static/"
-        # will override the later "deform_static"? Not sure.
-        config.add_static_view(name=static_name, path=static_filepath)
-
-        # Add all the routes:
-        for pr in RouteCollection.all_routes():
-            if DEBUG_ADD_ROUTES:
-                log.info("{} -> {}", pr.route, pr.path)
-            config.add_route(pr.route, pr.path)
-        # See also:
-        # https://stackoverflow.com/questions/19184612/how-to-ensure-urls-generated-by-pyramids-route-url-and-route-path-are-valid  # noqa
-
-        # Routes added EARLIER have priority. So add this AFTER our custom
-        # bugfix:
-        config.add_static_view('/deform_static', 'deform:static/')
-
-        # Most views are using @view_config() which calls add_view().
-        # Scan for @view_config decorators, to map views to routes:
-        # https://docs.pylonsproject.org/projects/venusian/en/latest/api.html
-        config.scan("camcops_server.cc_modules")
-
-        # ---------------------------------------------------------------------
-        # Add tweens (inner to outer)
-        # ---------------------------------------------------------------------
-        # We will use implicit positioning:
-        # - https://www.slideshare.net/aconrad/alex-conrad-pyramid-tweens-ploneconf-2011  # noqa
-
-        # config.add_tween('camcops_server.camcops.http_session_tween_factory')
-
-        # ---------------------------------------------------------------------
-        # Debug toolbar
-        # ---------------------------------------------------------------------
-        if debug_toolbar:
-            log.debug("Enabling Pyramid debug toolbar")
-            config.include('pyramid_debugtoolbar')  # BEWARE! SIDE EFFECTS
-            # ... Will trigger an import that hooks events into all
-            # SQLAlchemy queries. There's a bug somewhere relating to that;
-            # see notes below relating to the "mergedb" function.
-            config.add_route(RouteCollection.DEBUG_TOOLBAR.route,
-                             RouteCollection.DEBUG_TOOLBAR.path)
-
-        # ---------------------------------------------------------------------
-        # Make app
-        # ---------------------------------------------------------------------
+    # Make app
+    with pyramid_configurator_context(debug_toolbar=debug_toolbar) as config:
         app = config.make_wsgi_app()
 
-    # -------------------------------------------------------------------------
-    # 2. Middleware above the Pyramid level
-    # -------------------------------------------------------------------------
+    # Middleware above the Pyramid level
     if reverse_proxied_config and reverse_proxied_config.necessary():
         app = ReverseProxiedMiddleware(app=app,
                                        config=reverse_proxied_config,
                                        debug=debug_reverse_proxy)
 
-    # -------------------------------------------------------------------------
-    # 3. Done
-    # -------------------------------------------------------------------------
     log.debug("WSGI app created")
     return app
 
@@ -441,7 +331,8 @@ def serve_gunicorn(application: Router,
       "shan't, because I use global state".
     """
     if BaseApplication is None:
-        raise RuntimeError("Gunicorn does not run under Windows.")
+        raise RuntimeError("Gunicorn does not run under Windows. "
+                           "(It relies on the UNIX fork() facility.)")
 
     # Report on options, and calculate Gunicorn versions
     if unix_domain_socket_filename:
@@ -661,74 +552,67 @@ def self_test() -> None:
     """
     Run all unit tests.
     """
-    # We do some rollbacks so as not to break performance of ongoing tasks.
-    XXXcrashmeXXX
-    req = get_command_line_request()
 
-    print("-- Ensuring all tasks have basic info")
-    cctask_unit_tests_basic()
-    pls.db.rollback()
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        tmpconfigfilename = os.path.join(tmpdirname, "dummy_config.conf")
+        configtext = get_demo_config()
+        with open(tmpconfigfilename, "w") as file:
+            file.write(configtext)
+        # First, for safety:
+        os.environ[ENVVAR_CONFIG_FILE] = tmpconfigfilename
+        # ... we're going to be using a test (SQLite) database, but we want to
+        # be very sure that nothing writes to a real database! Also, we will
+        # want to read from this dummy config at some point.
 
-    print("-- Testing camcopswebview")
-    webview_unit_tests()
-    pls.db.rollback()
+        # If you use this:
+        #       loader = TestLoader()
+        #       suite = loader.discover(CAMCOPS_SERVER_DIRECTORY)
+        # ... then it fails because submodules contain relative imports (e.g.
+        # "from ..cc_modules.something import x" and this gives "ValueError:
+        # attemped relative import beyond top-level package". As the unittest
+        # docs say, "In order to be compatible with test discovery, all of the
+        # test files must be modules or packages... importable from the
+        # top-level directory of the project".
+        #
+        # However, having imported everything, all our tests should be
+        # subclasses of TestCase... but so are some other things.
+        #
+        # So we have a choice:
+        # 1. manual test specification (yuk)
+        # 2. hack around TestCase.__subclasses__ to exclude "built-in" ones
+        # 3. abandon relative imports
+        #   ... not a bad general idea (they often seem to cause problems!)
+        #   ... however, the discovery process (a) fails with importing
+        #       "alembic.versions", but more problematically, imports tasks
+        #       twice, which gives errors like
+        #       "sqlalchemy.exc.InvalidRequestError: Table 'ace3' is already
+        #       defined for this MetaData instance."
+        # So, hack it is.
 
-    print("-- Testing cc_analytics")
-    ccanalytics_unit_tests(req)
-    pls.db.rollback()
-
-    print("-- Testing cc_blob")
-    ccblob_unit_tests(req)
-    pls.db.rollback()
-
-    # cc_constants: no functions
-
-    print("-- Testing cc_device")
-    ccdevice_unit_tests(req.dbsession)
-    pls.db.rollback()
-
-    print("-- Testing cc_dump")
-    ccdump_unit_tests()
-    pls.db.rollback()
-
-    print("-- Testing cc_hl7core")
-    cchl7core_unit_tests(req.dbsession)
-    pls.db.rollback()
-
-    # cc_namedtuples: simple, and doesn't need cc_shared
-
-    print("-- Testing cc_patient")
-    ccpatient_unit_tests(req)
-    pls.db.rollback()
-
-    print("-- Testing cc_policy")
-    ccpolicy_unit_tests()
-    pls.db.rollback()
-
-    print("-- Testing cc_report")
-    ccreport_unit_tests(req)
-    pls.db.rollback()
-
-    print("-- Testing cc_session")
-    ccsession_unit_tests(req)
-    pls.db.rollback()
-
-    # at present only tested implicitly: cc_shared
-
-    print("-- Testing cc_tracker")
-    cctracker_unit_tests(req)
-    pls.db.rollback()
-
-    print("-- Testing cc_user")
-    ccuser_unit_tests(req)
-    pls.db.rollback()
-
-    # cc_version: no functions
-
-    # Done last (slowest)
-    print("-- Testing cc_task")
-    cctask_unit_tests()
-    pls.db.rollback()
+        # noinspection PyProtectedMember
+        skip_testclass_subclasses = [
+            # The ugly hack: what you see from
+            # unittest.TestCase.__subclasses__() from a clean import:
+            unittest.case.FunctionTestCase,  # built in
+            unittest.case._SubTest,  # built in
+            unittest.loader._FailedTest,  # built in
+            # plus our extras:
+            DemoDatabaseTestCase,  # our base class
+            DemoRequestTestCase,  # also a base class
+            ExtendedTestCase,  # also a base class
+        ]
+        suite = unittest.TestSuite()
+        for cls in gen_all_subclasses(unittest.TestCase):
+            # log.critical("Considering: {}", cls)
+            if cls in skip_testclass_subclasses:
+                continue
+            if not cls.__module__.startswith("camcops_server"):
+                # don't, for example, run cardinal_pythonlib self-tests
+                continue
+            log.info("Discovered test: {}", cls)
+            suite.addTest(unittest.makeSuite(cls))
+        runner = unittest.TextTestRunner()
+        runner.run(suite)
 
 
 # =============================================================================
@@ -981,10 +865,10 @@ def camcops_main() -> None:
     upgradedb_parser.set_defaults(
         func=lambda args: upgrade_database_to_head())
 
-    showtitle_parser = add_sub(
-        subparsers, "show_title",
+    showdbtitle_parser = add_sub(
+        subparsers, "show_db_title",
         help="Show database title")
-    showtitle_parser.set_defaults(
+    showdbtitle_parser.set_defaults(
         func=lambda args: print_database_title())
 
     mergedb_parser = add_sub(
@@ -1118,24 +1002,22 @@ def camcops_main() -> None:
         subparsers, "ddl",
         help="Print database schema (data definition language; DDL)")
     ddl_parser.add_argument(
-        '--dialect', type=str, default=Dialect.MYSQL,
-        help="SQL dialect (options: {})".format(", ".join(ALL_DIALECTS)))
+        '--dialect', type=str, default=SqlaDialectName.MYSQL,
+        help="SQL dialect (options: {})".format(", ".join(ALL_SQLA_DIALECTS)))
     ddl_parser.set_defaults(
         func=lambda args: print(get_all_ddl(dialect_name=args.dialect)))
 
-    # *** HL7 DISABLED TEMPORARILY
-    # hl7_parser = add_sub(
-    #     subparsers, "hl7",
-    #     help="Send pending HL7 messages and outbound files")
-    # hl7_parser.set_defaults(
-    #     func=lambda args: send_hl7(show_queue_only=False))
+    hl7_parser = add_sub(
+        subparsers, "hl7",
+        help="Send pending HL7 messages and outbound files")
+    hl7_parser.set_defaults(
+        func=lambda args: send_hl7(show_queue_only=False))
 
-    # *** HL7 DISABLED TEMPORARILY
-    # showhl7queue_parser = add_sub(
-    #     subparsers, "show_hl7_queue",
-    #     help="View outbound HL7/file queue (without sending)")
-    # showhl7queue_parser.set_defaults(
-    #     func=lambda args: send_hl7(show_queue_only=True))
+    showhl7queue_parser = add_sub(
+        subparsers, "show_hl7_queue",
+        help="View outbound HL7/file queue (without sending)")
+    showhl7queue_parser.set_defaults(
+        func=lambda args: send_hl7(show_queue_only=True))
 
     # *** ANONYMOUS STAGING DATABASE DISABLED TEMPORARILY
     # anonstaging_parser = add_sub(
@@ -1148,10 +1030,10 @@ def camcops_main() -> None:
     # Test options
     # -------------------------------------------------------------------------
 
-    unittest_parser = add_sub(
-        subparsers, "unittest", config_mandatory=None,
+    selftest_parser = add_sub(
+        subparsers, "selftest", config_mandatory=None,
         help="Test internal code")
-    unittest_parser.set_defaults(func=lambda args: self_test())
+    selftest_parser.set_defaults(func=lambda args: self_test())
 
     serve_pyr_parser = add_sub(
         subparsers, "serve_pyramid",

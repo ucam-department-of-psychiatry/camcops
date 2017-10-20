@@ -32,17 +32,17 @@ import cardinal_pythonlib.rnc_web as ws
 from colander import Integer
 import pyramid.httpexceptions as exc
 from sqlalchemy.sql.expression import and_, exists, select
-from sqlalchemy.sql.selectable import Select
+from sqlalchemy.sql.selectable import SelectBase
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
 
-from ..cc_modules.cc_constants import DateFormat, INVALID_VALUE
-from ..cc_modules.cc_ctvinfo import CtvInfo
-from ..cc_modules.cc_forms import (
+from camcops_server.cc_modules.cc_constants import DateFormat, INVALID_VALUE
+from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
+from camcops_server.cc_modules.cc_forms import (
     MandatoryWhichIdNumSelector,
     ReportParamSchema,
 )
-from ..cc_modules.cc_html import (
+from camcops_server.cc_modules.cc_html import (
     answer,
     get_yes_no_none,
     subheading_spanning_four_columns,
@@ -50,18 +50,18 @@ from ..cc_modules.cc_html import (
     tr_qa,
     tr_span_col,
 )
-from ..cc_modules.cc_nhs import (
+from camcops_server.cc_modules.cc_nhs import (
     get_nhs_dd_ethnic_category_code,
     get_nhs_dd_person_marital_status,
     PV_NHS_ETHNIC_CATEGORY,
     PV_NHS_MARITAL_STATUS
 )
-from ..cc_modules.cc_patient import Patient
-from ..cc_modules.cc_patientidnum import PatientIdNum
-from ..cc_modules.cc_pyramid import ViewParam
-from ..cc_modules.cc_report import Report
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_pyramid import ViewParam
+from camcops_server.cc_modules.cc_report import Report
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
     CamcopsColumn,
     CharColType,
@@ -69,7 +69,7 @@ from ..cc_modules.cc_sqla_coltypes import (
     DiagnosticCodeColType,
     PermittedValueChecker,
 )
-from ..cc_modules.cc_task import (
+from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
@@ -133,7 +133,7 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     referral_reason = Column("referral_reason", UnicodeText)
 
     def is_complete(self) -> bool:
-        return (
+        return bool(
             self.patient_location and
             self.referral_reason and
             self.field_contents_valid()
@@ -331,7 +331,7 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
     reason = Column("reason", UnicodeText)
 
     def is_complete(self) -> bool:
-        return (
+        return bool(
             self.reset_start_time_to and
             self.reason and
             self.field_contents_valid()
@@ -381,10 +381,9 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         "leaflet_or_discharge_card_given"
     )
     frequent_attender = BoolColumn("frequent_attender")
-    patient_wanted_copy_of_letter = Column(
-        # *** It's odd that this is text. Fix it. Tablet now using bool.
-        # *** ONCE ALEMBIC UP, change from Text to Bool.
-        "patient_wanted_copy_of_letter", UnicodeText
+    patient_wanted_copy_of_letter = BoolColumn(
+        # Was previously text! That wasn't right.
+        "patient_wanted_copy_of_letter",
     )
     gaf_at_first_assessment = CamcopsColumn(
         "gaf_at_first_assessment", Integer,
@@ -523,7 +522,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     outcome_other_detail = Column("outcome_other_detail", UnicodeText)
 
     def is_complete(self) -> bool:
-        return (
+        return bool(
             self.discharge_date and
             self.discharge_reason_code and
             # self.outcome and  # v2.0.0
@@ -751,7 +750,7 @@ class LPSReportReferredNotDischarged(Report):
         return LPSReportSchema
 
     # noinspection PyProtectedMember
-    def get_query(self, req: CamcopsRequest) -> Select:
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
         if which_idnum is None:
             raise exc.HTTPBadRequest("{} not specified".format(
@@ -862,7 +861,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         return LPSReportSchema
 
     # noinspection PyProtectedMember
-    def get_query(self, req: CamcopsRequest) -> Select:
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
         if which_idnum is None:
             raise exc.HTTPBadRequest("{} not specified".format(

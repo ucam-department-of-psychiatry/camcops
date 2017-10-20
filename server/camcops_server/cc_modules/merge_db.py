@@ -192,13 +192,13 @@ def fetch_group_id_by_name(group_name: str, dst_session: Session) -> int:
                      "Group name was {!r}", group_name)
         raise
     except NoResultFound:
-        log.warning("Creating new group named {!r}", group_name)
+        log.info("Creating new group named {!r}", group_name)
         group = Group()
         group.name = group_name
         dst_session.add(group)
         flush_session(dst_session)  # creates the PK
         # https://stackoverflow.com/questions/1316952/sqlalchemy-flush-and-get-inserted-id  # noqa
-        log.warning("... new group has ID {!r}", group.id)
+        log.info("... new group has ID {!r}", group.id)
     return group.id
 
 
@@ -641,7 +641,7 @@ def merge_camcops_db(src: str,
 
     # Delay the slow import until we've checked our syntax
     log.info("Loading all models...")
-    from ..cc_modules.cc_all_models import all_models_no_op  # delayed import
+    from camcops_server.cc_modules.cc_all_models import all_models_no_op  # delayed import  # noqa
     all_models_no_op()
     log.info("Models loaded.")
 

@@ -27,10 +27,17 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, ZERO_TO_TWO_CHECKER
-from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    ZERO_TO_TWO_CHECKER,
+)
+from camcops_server.cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasPatientMixin,
+)
 
 
 # =============================================================================

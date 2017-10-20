@@ -27,9 +27,12 @@ from typing import List
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
-from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_html import (
+from camcops_server.cc_modules.cc_blob import (
+    blob_relationship,
+    get_blob_img_html,
+)
+from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
+from camcops_server.cc_modules.cc_html import (
     answer,
     get_yes_no_none,
     subheading_spanning_two_columns,
@@ -37,21 +40,24 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
     PermittedValueChecker,
     SummaryCategoryColType,
     ZERO_TO_THREE_CHECKER,
 )
-from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import (
+from camcops_server.cc_modules.cc_summaryelement import SummaryElement
+from camcops_server.cc_modules.cc_task import (
     Task, 
     TaskHasClinicianMixin, 
     TaskHasPatientMixin,
 )
-from ..cc_modules.cc_trackerhelpers import TrackerInfo, TrackerLabel
+from camcops_server.cc_modules.cc_trackerhelpers import (
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 # =============================================================================
@@ -288,10 +294,12 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         category = self.category(req)
-        h = self.get_standard_clinician_comments_block(self.comments) + """
+        h = self.get_standard_clinician_comments_block(req, self.comments)
+        h += """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr(req)
+        """
+        h += self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score"),
                 answer(score) + " / {}".format(self.MAX_SCORE))
         h += tr_qa(req.wappstring("category") + " <sup>[1]</sup>", category)

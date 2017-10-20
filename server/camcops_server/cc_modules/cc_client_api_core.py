@@ -102,11 +102,12 @@ def exception_description(e: Exception) -> str:
     return "{t}: {m}".format(t=type(e).__name__, m=str(e))
 
 
-def succeed_generic(operation: str) -> str:
-    """
-    Generic success message to tablet.
-    """
-    return "CamCOPS: {}".format(operation)
+# NO LONGER USED:
+# def succeed_generic(operation: str) -> str:
+#     """
+#     Generic success message to tablet.
+#     """
+#     return "CamCOPS: {}".format(operation)
 
 
 def fail_user_error(msg: str) -> None:

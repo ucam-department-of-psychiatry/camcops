@@ -25,16 +25,16 @@
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, String, Text, UnicodeText
 
-from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
     CamcopsColumn,
     MIN_ZERO_CHECKER,
     PermittedValueChecker,
     ZERO_TO_FOUR_CHECKER,
 )
-from ..cc_modules.cc_task import Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 # =============================================================================

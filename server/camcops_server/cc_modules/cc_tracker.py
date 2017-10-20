@@ -51,7 +51,7 @@ from .cc_taskfactory import (
     TaskSortMethod,
 )
 from .cc_trackerhelpers import TrackerInfo
-from .cc_unittest import unit_test_ignore
+from .cc_unittest import DemoDatabaseTestCase
 from .cc_xml import get_xml_document, XmlDataTypes, XmlElement
 
 import matplotlib.dates  # delayed until after the cc_plot import
@@ -679,56 +679,27 @@ class ClinicalTextView(TrackerCtvCommon):
 # Unit tests
 # =============================================================================
 
-def unit_tests_tracker(t: Tracker) -> None:
-    """Unit tests for Tracker objects."""
-    unit_test_ignore("", t.get_xml)
-    unit_test_ignore("", t.get_html)
-    unit_test_ignore("", t.get_pdf)
-    unit_test_ignore("", t.get_pdf_html)
-    unit_test_ignore("", t.suggested_pdf_filename)
-    # get_all_plots_for_one_task_html: tested implicitly
-    # get_single_plot_html: tested implicitly
+class TrackerCtvTests(DemoDatabaseTestCase):
+    def test_tracker(self) -> None:
+        self.announce("test_tracker")
+        req = self.req
+        taskfilter = TaskFilter()
+        t = Tracker(req, taskfilter)
 
+        self.assertIsInstance(t.get_html(), str)
+        self.assertIsInstance(t.get_pdf(), str)
+        self.assertIsInstance(t.get_pdf_html(), str)
+        self.assertIsInstance(t.get_xml(), str)
+        self.assertIsInstance(t.suggested_pdf_filename(), str)
 
-def unit_tests_ctv(c: ClinicalTextView) -> None:
-    """Unit tests for ClinicalTextView objects."""
-    unit_test_ignore("", c.get_xml)
-    unit_test_ignore("", c.get_html)
-    unit_test_ignore("", c.get_pdf)
-    unit_test_ignore("", c.get_pdf_html)
-    unit_test_ignore("", c.suggested_pdf_filename)
-    # get_textview_for_one_task_instance_html: tested implicitly
+    def test_ctv(self) -> None:
+        self.announce("test_ctv")
+        req = self.req
+        taskfilter = TaskFilter()
+        c = ClinicalTextView(req, taskfilter)
 
-
-def cctracker_unit_tests(req: CamcopsRequest) -> None:
-    """Unit tests for cc_tracker module."""
-    session = req.camcops_session
-    tasktables = []
-    for cls in Task.all_subclasses_by_tablename():
-        tasktables.append(cls.tablename)
-    which_idnum = 1
-    idnum_value = 3
-
-    unit_test_ignore("", consistency, [1, 1, 1, 1])
-    unit_test_ignore("", consistency, [1, 1, 2, 1])
-    unit_test_ignore("", consistency, [None, None, 1])
-    # get_summary_of_tasks tested implicitly
-    unit_test_ignore("", format_daterange, None, None)
-    # ConsistencyInfo tested implicitly
-    tracker = Tracker(
-        session,
-        tasktables,
-        which_idnum,
-        idnum_value,
-        None,
-        None
-    )
-    unit_tests_tracker(tracker)
-    ctv = ClinicalTextView(
-        session,
-        which_idnum,
-        idnum_value,
-        None,
-        None
-    )
-    unit_tests_ctv(ctv)
+        self.assertIsInstance(c.get_html(), str)
+        self.assertIsInstance(c.get_pdf(), str)
+        self.assertIsInstance(c.get_pdf_html(), str)
+        self.assertIsInstance(c.get_xml(), str)
+        self.assertIsInstance(c.suggested_pdf_filename(), str)

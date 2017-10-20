@@ -32,7 +32,7 @@ from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
 
 from .cc_constants import DEVICE_NAME_FOR_SERVER
 from .cc_report import Report
-from .cc_unittest import unit_test_ignore
+from .cc_unittest import DemoDatabaseTestCase
 from .cc_user import User
 from .cc_sqla_coltypes import (
     DeviceNameColType,
@@ -196,19 +196,12 @@ class DeviceReport(Report):
 # Unit tests
 # =============================================================================
 
-def unit_tests_device(d: Device) -> None:
-    """Unit tests for Device class."""
-    # skip make_tables
-    unit_test_ignore("", d.get_friendly_name)
-    unit_test_ignore("", d.get_friendly_name_and_id)
-    unit_test_ignore("", d.get_id)
-
-
-def ccdevice_unit_tests(dbsession: SqlASession) -> None:
-    """Unit tests for cc_device module."""
-    device = dbsession.query(Device)\
-        .order_by(Device.id)\
-        .first()  # type: Optional[Device]
-    if device is None:
-        device = Device()
-    unit_tests_device(device)
+class DeviceTests(DemoDatabaseTestCase):
+    def test_device(self) -> None:
+        self.announce("test_device")
+        q = self.dbsession.query(Device)
+        d = q.first()  # type: Device
+        assert d, "Missing Device in demo database!"
+        self.assertIsInstance(d.get_friendly_name(), str)
+        self.assertIsInstance(d.get_id(), int)
+        self.assertIsInstance(d.is_valid(), bool)

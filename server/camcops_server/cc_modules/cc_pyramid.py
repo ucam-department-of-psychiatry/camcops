@@ -22,6 +22,7 @@
 ===============================================================================
 """
 
+from contextlib import contextmanager
 from enum import Enum
 import logging
 import os
@@ -72,6 +73,8 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Debugging options
 # =============================================================================
 
+DEBUG_ADD_ROUTES = False
+DEBUG_AUTHORIZATION = False
 DEBUG_EFFECTIVE_PRINCIPALS = False
 DEBUG_TEMPLATE_PARAMETERS = False
 # ... logs more information about template creation
@@ -80,9 +83,13 @@ DEBUG_TEMPLATE_SOURCE = False
 #     directory (see below), which is very informative.
 DEBUGGING_MAKO_DIR = os.path.expanduser("~/tmp/mako_template_source")
 
-if any([DEBUG_EFFECTIVE_PRINCIPALS, DEBUG_TEMPLATE_PARAMETERS,
+if any([DEBUG_ADD_ROUTES,
+        DEBUG_AUTHORIZATION,
+        DEBUG_EFFECTIVE_PRINCIPALS,
+        DEBUG_TEMPLATE_PARAMETERS,
         DEBUG_TEMPLATE_SOURCE]):
     log.warning("Debugging options enabled!")
+
 
 # =============================================================================
 # Constants

@@ -26,11 +26,11 @@ from typing import List
 
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
-from ..cc_modules.cc_cache import cache_region_static, fkg
-from ..cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
-from ..cc_modules.cc_html import tr_qa
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
+from camcops_server.cc_modules.cc_constants import DATA_COLLECTION_ONLY_DIV
+from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
     gen_camcops_columns,
@@ -39,7 +39,7 @@ from ..cc_modules.cc_sqla_coltypes import (
     ZERO_TO_FOUR_CHECKER,
     ZERO_TO_FIVE_CHECKER,
 )
-from ..cc_modules.cc_task import (
+from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
     TaskHasClinicianMixin,

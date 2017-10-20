@@ -26,23 +26,26 @@ from typing import Dict, List
 
 from sqlalchemy.sql.sqltypes import Integer
 
-from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_html import (
+from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
+from camcops_server.cc_modules.cc_html import (
     answer,
     italic,
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import CamcopsColumn, PermittedValueChecker
-from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import (
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    PermittedValueChecker,
+)
+from camcops_server.cc_modules.cc_summaryelement import SummaryElement
+from camcops_server.cc_modules.cc_task import (
     get_from_dict,
     Task,
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
-from ..cc_modules.cc_trackerhelpers import TrackerInfo
+from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================

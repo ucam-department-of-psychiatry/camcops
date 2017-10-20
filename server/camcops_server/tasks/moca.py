@@ -29,11 +29,14 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, String, UnicodeText
 
-from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
-from ..cc_modules.cc_constants import PV
-from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import add_multiple_columns
-from ..cc_modules.cc_html import (
+from camcops_server.cc_modules.cc_blob import (
+    blob_relationship,
+    get_blob_img_html,
+)
+from camcops_server.cc_modules.cc_constants import PV
+from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
+from camcops_server.cc_modules.cc_db import add_multiple_columns
+from camcops_server.cc_modules.cc_html import (
     answer,
     italic,
     subheading_spanning_two_columns,
@@ -41,19 +44,23 @@ from ..cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER, 
     CamcopsColumn,
     ZERO_TO_THREE_CHECKER,
 )
-from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import (
+from camcops_server.cc_modules.cc_summaryelement import SummaryElement
+from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
-from ..cc_modules.cc_trackerhelpers import LabelAlignment, TrackerInfo, TrackerLabel  # noqa
+from camcops_server.cc_modules.cc_trackerhelpers import (
+    LabelAlignment,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 
 WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
@@ -275,10 +282,12 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         totalscore = self.total_score()
         category = self.category(req)
 
-        h = self.get_standard_clinician_comments_block(self.comments) + """
+        h = self.get_standard_clinician_comments_block(req, self.comments)
+        h += """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr(req)
+        """
+        h += self.get_is_complete_tr(req)
         h += tr(req.wappstring("total_score"),
                 answer(totalscore) + " / {}".format(self.MAX_SCORE))
         h += tr_qa(self.wxstring(req, "category") + " <sup>[1]</sup>",

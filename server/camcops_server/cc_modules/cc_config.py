@@ -131,22 +131,19 @@ class ConfigParamMain(object):
     WKHTMLTOPDF_FILENAME = "WKHTMLTOPDF_FILENAME"
 
 
-def get_demo_config(camcops_base_dir: str = None,
-                    extra_strings_dir: str = None,
+def get_demo_config(extra_strings_dir: str = None,
                     lock_dir: str = None,
                     hl7_lockfile_stem: str = None,
                     static_dir: str = None,
                     summary_table_lock_file_stem: str = None,
                     db_url: str = None,
                     db_echo: bool = False) -> str:
-    camcops_base_dir = camcops_base_dir or LINUX_DEFAULT_CAMCOPS_DIR
-    server_base_dir = os.path.join(camcops_base_dir, 'server')
     extra_strings_dir = extra_strings_dir or DEFAULT_EXTRA_STRINGS_DIR
     extra_strings_spec = os.path.join(extra_strings_dir, '*')
     lock_dir = lock_dir or LINUX_DEFAULT_LOCK_DIR
     hl7_lockfile_stem = hl7_lockfile_stem or os.path.join(
         lock_dir, 'camcops.hl7')
-    static_dir = static_dir or os.path.join(server_base_dir, 'static')
+    static_dir = static_dir or STATIC_ROOT_DIR
     summary_table_lock_file_stem = (
         summary_table_lock_file_stem or os.path.join(
             lock_dir, 'camcops.summarytables'

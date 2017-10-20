@@ -22,11 +22,13 @@
 ===============================================================================
 """
 
-from typing import Any, Dict, List
+from collections import OrderedDict
+from typing import Any, Dict, List, Union
 
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
+from .cc_tsv import TsvPage
 from .cc_xml import XmlElement
 
 
@@ -66,19 +68,23 @@ class ExtraSummaryTable(object):
     """
     def __init__(self,
                  tablename: str,
+                 xmlname: str,
                  columns: List[Column],
-                 rows: List[Dict[str, Any]]) -> None:
+                 rows: List[Union[Dict[str, Any], OrderedDict]]) -> None:
         self.tablename = tablename
+        self.xmlname = xmlname
         self.columns = columns
         self.rows = rows
 
     def get_xml_element(self) -> XmlElement:
         itembranches = []  # type: List[XmlElement]
-        for rownum, valuedict in enumerate(self.rows):
-            fronds = []  # type: List[XmlElement]
+        for valuedict in self.rows:
+            leaves = []  # type: List[XmlElement]
             for k, v in valuedict.items():
-                fronds.append(XmlElement(name=k, value=v))
-            leaf = XmlElement(name="{}_{}".format(self.tablename, rownum),
-                              value=fronds)
-            itembranches.append(leaf)
-        return XmlElement(name=self.tablename, value=itembranches)
+                leaves.append(XmlElement(name=k, value=v))
+            branch = XmlElement(name=self.tablename, value=leaves)
+            itembranches.append(branch)
+        return XmlElement(name=self.xmlname, value=itembranches)
+
+    def get_tsv_page(self) -> TsvPage:
+        return TsvPage(name=self.tablename, rows=self.rows)

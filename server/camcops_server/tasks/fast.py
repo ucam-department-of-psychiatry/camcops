@@ -28,13 +28,17 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
-from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import add_multiple_columns
-from ..cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import get_from_dict, Task, TaskHasPatientMixin
-from ..cc_modules.cc_trackerhelpers import TrackerInfo
+from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
+from camcops_server.cc_modules.cc_db import add_multiple_columns
+from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_summaryelement import SummaryElement
+from camcops_server.cc_modules.cc_task import (
+    get_from_dict,
+    Task,
+    TaskHasPatientMixin,
+)
+from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 # =============================================================================
@@ -109,10 +113,11 @@ class Fast(TaskHasPatientMixin, Task,
         return self.sum_fields(self.TASK_FIELDS)
 
     def is_positive(self) -> bool:
-        if self.q1 is not None and self.q1 == 0:
-            return False
-        if self.q1 is not None and self.q1 >= 3:
-            return True
+        if self.q1 is not None:
+            if self.q1 == 0:
+                return False
+            if self.q1 >= 3:
+                return True
         return self.total_score() >= 3
 
     def get_task_html(self, req: CamcopsRequest) -> str:

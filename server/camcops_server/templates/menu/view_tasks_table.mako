@@ -94,7 +94,6 @@ OFFER_PDF_ANON_VERSION = False
                 %endif
                 >
                 ${ format_datetime(task.when_created, DateFormat.SHORT_DATETIME) }
-                ## ***
             </td>
             ## ------------------------------------------------------------
             ## Hyperlink to HTML

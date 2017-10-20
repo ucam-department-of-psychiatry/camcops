@@ -127,7 +127,10 @@ from cardinal_pythonlib.pyramid.responses import (
     XmlResponse,
     ZipResponse,
 )
-from cardinal_pythonlib.sqlalchemy.dialect import get_dialect_name
+from cardinal_pythonlib.sqlalchemy.dialect import (
+    get_dialect_name,
+    SqlaDialectName,
+)
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
@@ -228,7 +231,7 @@ from .cc_report import get_report_instance
 from .cc_request import CamcopsRequest
 from .cc_simpleobjects import IdNumReference
 from .cc_specialnote import SpecialNote
-from .cc_sqlalchemy import Dialect, get_all_ddl
+from .cc_sqlalchemy import get_all_ddl
 from .cc_task import Task
 from .cc_taskfactory import (
     task_factory,
@@ -1182,18 +1185,18 @@ def serve_basic_dump(req: CamcopsRequest) -> Response:
         for task in tasks:
             # noinspection PyProtectedMember
             pks.append(task._pk)
-            tsv_elements = task.get_tsv_chunks(req)
-            tsvcoll.add_chunks(tsv_elements)
+            tsv_pages = task.get_tsv_pages(req)
+            tsvcoll.add_pages(tsv_pages)
 
         if sort_by_heading:
-            tsvcoll.sort_by_headings()
+            tsvcoll.sort_headings_within_all_pages()
 
         audit_descriptions.append("{}: {}".format(
             cls.__tablename__, ",".join(str(pk) for pk in pks)))
 
         # Write to ZIP.
         # If there are no valid task instances, there'll be no TSV; that's OK.
-        for filename_stem in tsvcoll.get_filename_stems():
+        for filename_stem in tsvcoll.get_page_names():
             tsv_filename = filename_stem + ".tsv"
             tsv_contents = tsvcoll.get_tsv_file(filename_stem)
             z.writestr(tsv_filename, tsv_contents.encode("utf-8"))
@@ -1396,13 +1399,13 @@ def sql_dump(req: CamcopsRequest) -> Response:
 # =============================================================================
 
 LEXERMAP = {
-    Dialect.MYSQL: pygments.lexers.sql.MySqlLexer,
-    Dialect.MSSQL: pygments.lexers.sql.SqlLexer,  # generic
-    Dialect.ORACLE: pygments.lexers.sql.SqlLexer,  # generic
-    Dialect.FIREBIRD: pygments.lexers.sql.SqlLexer,  # generic
-    Dialect.POSTGRES: pygments.lexers.sql.PostgresLexer,
-    Dialect.SQLITE: pygments.lexers.sql.SqlLexer,  # generic; SqliteConsoleLexer is wrong  # noqa
-    Dialect.SYBASE: pygments.lexers.sql.SqlLexer,  # generic
+    SqlaDialectName.MYSQL: pygments.lexers.sql.MySqlLexer,
+    SqlaDialectName.MSSQL: pygments.lexers.sql.SqlLexer,  # generic
+    SqlaDialectName.ORACLE: pygments.lexers.sql.SqlLexer,  # generic
+    SqlaDialectName.FIREBIRD: pygments.lexers.sql.SqlLexer,  # generic
+    SqlaDialectName.POSTGRES: pygments.lexers.sql.PostgresLexer,
+    SqlaDialectName.SQLITE: pygments.lexers.sql.SqlLexer,  # generic; SqliteConsoleLexer is wrong  # noqa
+    SqlaDialectName.SYBASE: pygments.lexers.sql.SqlLexer,  # generic
 }
 
 
@@ -3082,8 +3085,3 @@ def static_bugfix_deform_missing_glyphs(req: CamcopsRequest) -> Response:
     Hack for a missing-file bug in deform==2.0.4:
     """
     return FileResponse(DEFORM_MISSING_GLYPH, request=req)
-
-
-# =============================================================================
-# Unit tests
-# =============================================================================

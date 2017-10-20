@@ -77,10 +77,14 @@ class IdNumDefinition(Base):
     def __init__(self,
                  which_idnum: int,
                  description: str,
-                 short_description: str):
+                 short_description: str,
+                 hl7_id_type: str = "",
+                 hl7_assigning_authority: str = ""):
         self.which_idnum = which_idnum
         self.description = description
         self.short_description = short_description
+        self.hl7_id_type = hl7_id_type
+        self.hl7_assigning_authority = hl7_assigning_authority
 
     def __repr__(self) -> str:
         return simple_repr(self,

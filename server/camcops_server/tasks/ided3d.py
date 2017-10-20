@@ -28,22 +28,25 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
 
-from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
-from ..cc_modules.cc_html import (
+from camcops_server.cc_modules.cc_db import (
+    ancillary_relationship,
+    GenericTabletRecordMixin,
+)
+from camcops_server.cc_modules.cc_html import (
     answer,
     get_yes_no_none,
     identity,
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
     PendulumDateTimeAsIsoTextColType,
 )
-from ..cc_modules.cc_sqlalchemy import Base
-from ..cc_modules.cc_task import Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 def a(x: Any) -> str:

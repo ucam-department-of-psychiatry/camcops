@@ -43,6 +43,7 @@ from io import StringIO
 import logging
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.dump import dump_ddl
 from pendulum import Pendulum
 
@@ -127,8 +128,9 @@ Base.__table_args__ = {
     #       SELECT 'a' = 'A';  -- produces 1
     #       SELECT 'a' = 'B';  -- produces 0
     #       SELECT BINARY 'a' = BINARY 'A';  -- produces 0
-    # This is a PROBLEM FOR PASSWORD FIELDS, so we must ensure a different
-    # collation is set; specifically, use
+    # This is a PROBLEM FOR PASSWORD FIELDS IF WE INTEND TO DO DATABASE-LEVEL
+    # COMPARISONS WITH THEM. In that case we must ensure a different collation
+    # is set; specifically, use
     #
     #       utf8mb4_bin
     #
@@ -157,8 +159,8 @@ def make_memory_sqlite_engine() -> Engine:
     return create_engine('sqlite://')
 
 
-def make_debug_sqlite_engine() -> Engine:
-    return create_engine('sqlite://', echo=True)
+def make_debug_sqlite_engine(echo: bool = True) -> Engine:
+    return create_engine('sqlite://', echo=echo)
 
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
@@ -175,24 +177,6 @@ def log_all_ddl(dialect_name: str = "mysql") -> None:
     text = get_all_ddl(dialect_name)
     log.info(text)
     log.info("DDL length: {} characters", len(text))
-
-
-# =============================================================================
-# Dialects known to SQLAlchemy
-# =============================================================================
-
-class Dialect(object):
-    MYSQL = "mysql"
-    MSSQL = "mssql"
-    ORACLE = "oracle"
-    FIREBIRD = "firebird"
-    POSTGRES = "postgres"
-    SQLITE = "sqlite"
-    SYBASE = "sybase"
-
-
-ALL_DIALECTS = [getattr(Dialect, k)
-                for k in dir(Dialect) if not k.startswith("_")]
 
 
 # =============================================================================

@@ -55,7 +55,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.expression import exists, select, text, update
 from sqlalchemy.sql.schema import Table
 
-from ..cc_modules import cc_audit  # avoids "audit" name clash
+from camcops_server.cc_modules import cc_audit  # avoids "audit" name clash
 from .cc_all_models import CLIENT_TABLE_MAP, RESERVED_FIELDS
 from .cc_client_api_core import (
     exception_description,
@@ -88,17 +88,13 @@ from .cc_patientidnum import fake_tablet_id_for_patientidnum, PatientIdNum
 from .cc_pyramid import Routes
 from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
-from .cc_unittest import (
-    unit_test_ignore,
-    unit_test_must_raise,
-    unit_test_verify
-)
+from .cc_unittest import ExtendedTestCase
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
-# *** handle DeviceStoredVar table from old clients?
+# ****** handle DeviceStoredVar table from old clients?
 
 # =============================================================================
 # Constants
@@ -1216,9 +1212,10 @@ def upload_table(req: CamcopsRequest) -> str:
                 "number of values in record {r} ({nvalues})".format(
                     nfields=nfields, r=r, nvalues=nvalues)
             )
-            log.warning(errmsg)
-            log.warning("fields: {!r}", fields)
-            log.warning("values: {!r}", values)
+            log.warning(errmsg +
+                        "\nfields: {!r}\n"
+                        "values: {!r}",
+                        fields, values)
             fail_user_error(errmsg)
         valuedict = dict(zip(fields, values))
         # log.critical("table {!r}, record {}: {!r}", table.name, r, valuedict)
@@ -1551,63 +1548,60 @@ def client_api(req: CamcopsRequest) -> Response:
 # Unit tests
 # =============================================================================
 
-def database_unit_tests() -> None:
-    """Unit tests for database script."""
-    # a = (UserErrorException, ServerErrorException)
-    u = UserErrorException
-    s = ServerErrorException
+class ClientApiTests(ExtendedTestCase):
+    def test_client_api(self) -> None:
+        self.announce("test_client_api")
+        u = UserErrorException
+        s = ServerErrorException
 
-    print("pls.VALID_TABLE_NAMES: {}".format(pls.VALID_TABLE_NAMES))
+        with self.assertRaises(UserErrorException):
+            fail_user_error("testmsg")
+        with self.assertRaises(ServerErrorException):
+            fail_server_error("testmsg")
+        with self.assertRaises(UserErrorException):
+            fail_unsupported_operation("duffop")
 
-    unit_test_ignore("", succeed_generic, "testmsg")
-    unit_test_must_raise("", fail_user_error, u, "testmsg")
-    unit_test_must_raise("", fail_server_error, s, "testmsg")
-    unit_test_must_raise("", fail_unsupported_operation, u, "duffop")
-    unit_test_verify("", nvp, "n:v\n", "n", "v")
+        # Encoding/decoding tests
+        # data = bytearray("hello")
+        data = b"hello"
+        enc_b64data = base64_64format_encode(data)
+        enc_hexdata = hex_xformat_encode(data)
+        not_enc_1 = "X'012345'"
+        not_enc_2 = "64'aGVsbG8='"
+        teststring = """one, two, 3, 4.5, NULL, 'hello "hi
+            with linebreak"', 'NULL', 'quote''s here', {b}, {h}, {s1}, {s2}"""
+        sql_csv_testdict = {
+            teststring.format(
+                b=enc_b64data,
+                h=enc_hexdata,
+                s1=rnc_db.sql_quote_string(not_enc_1),
+                s2=rnc_db.sql_quote_string(not_enc_2),
+            ): [
+                "one",
+                "two",
+                3,
+                4.5,
+                None,
+                'hello "hi\n        with linebreak"',
+                "NULL",
+                "quote's here",
+                data,
+                data,
+                not_enc_1,
+                not_enc_2,
+            ],
+            "": [],
+        }
+        for k, v in sql_csv_testdict.items():
+            r = decode_values(k)
+            self.assertEqual(r, v, "Mismatch! Result: {r!s}\n"
+                                   "Should have been: {v!s}\n"
+                                   "Key was: {k!s}".format(r=r, v=v, k=k))
 
-    # Encoding/decoding tests
-    # data = bytearray("hello")
-    data = b"hello"
-    enc_b64data = base64_64format_encode(data)
-    enc_hexdata = hex_xformat_encode(data)
-    not_enc_1 = "X'012345'"
-    not_enc_2 = "64'aGVsbG8='"
-    teststring = """one, two, 3, 4.5, NULL, 'hello "hi
-        with linebreak"', 'NULL', 'quote''s here', {b}, {h}, {s1}, {s2}"""
-    sql_csv_testdict = {
-        teststring.format(
-            b=enc_b64data,
-            h=enc_hexdata,
-            s1=rnc_db.sql_quote_string(not_enc_1),
-            s2=rnc_db.sql_quote_string(not_enc_2),
-        ): [
-            "one",
-            "two",
-            3,
-            4.5,
-            None,
-            'hello "hi\n        with linebreak"',
-            "NULL",
-            "quote's here",
-            data,
-            data,
-            not_enc_1,
-            not_enc_2,
-        ],
-        "": [],
-    }
-    for k, v in sql_csv_testdict.items():
-        r = decode_values(k)
-        if r != v:
-            raise AssertionError(
-                "Mismatch! Result: {r!s}\n"
-                "Should have been: {v!s}\n"
-                "Key was: {k!s}".format(r=r, v=v, k=k))
+        # Newline encoding/decodine
+        ts2 = "slash \\ newline \n ctrl_r \r special \\n other special \\r " \
+              "quote ' doublequote \" "
+        self.assertEqual(unescape_newlines(escape_newlines(ts2)), ts2,
+                         "Bug in escape_newlines() or unescape_newlines()")
 
-    # Newline encoding/decodine
-    ts2 = "slash \\ newline \n ctrl_r \r special \\n other special \\r " \
-          "quote ' doublequote \" "
-    if unescape_newlines(escape_newlines(ts2)) != ts2:
-        raise AssertionError("Bug in escape_newlines() or unescape_newlines()")
-
-    # more... ?
+        # TODO: more tests here... ?

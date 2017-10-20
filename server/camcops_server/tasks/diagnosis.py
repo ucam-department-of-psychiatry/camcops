@@ -30,27 +30,30 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 import hl7
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.sql.expression import and_, literal, select, Select, union
+from sqlalchemy.sql.expression import and_, literal, select, SelectBase, union
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
 
-from ..cc_modules.cc_ctvinfo import CtvInfo
-from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
-from ..cc_modules.cc_hl7core import make_dg1_segment
-from ..cc_modules.cc_html import answer, tr
-from ..cc_modules.cc_nlp import guess_name_components
-from ..cc_modules.cc_patient import Patient
-from ..cc_modules.cc_patientidnum import PatientIdNum
-from ..cc_modules.cc_task import (
+from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
+from camcops_server.cc_modules.cc_db import (
+    ancillary_relationship,
+    GenericTabletRecordMixin,
+)
+from camcops_server.cc_modules.cc_hl7core import make_dg1_segment
+from camcops_server.cc_modules.cc_html import answer, tr
+from camcops_server.cc_modules.cc_nlp import guess_name_components
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
-from ..cc_modules.cc_recipdef import RecipientDefinition
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_report import Report
-from ..cc_modules.cc_sqlalchemy import Base
-from ..cc_modules.cc_sqla_coltypes import DiagnosticCodeColType
+from camcops_server.cc_modules.cc_recipdef import RecipientDefinition
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_report import Report
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_sqla_coltypes import DiagnosticCodeColType
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -271,7 +274,7 @@ def get_diagnosis_report_query(req: CamcopsRequest,
                                diagnosis_class: Type[DiagnosisBase],
                                item_class: Type[DiagnosisItemBase],
                                item_fk_fieldname: str,
-                               system: str) -> Select:
+                               system: str) -> SelectBase:
     select_fields = [
         Patient.surname.label("surname"),
         Patient.forename.label("forename"),
@@ -329,7 +332,7 @@ def get_diagnosis_report(req: CamcopsRequest,
                          diagnosis_class: Type[DiagnosisBase],
                          item_class: Type[DiagnosisItemBase],
                          item_fk_fieldname: str,
-                         system: str) -> Select:
+                         system: str) -> SelectBase:
     query = get_diagnosis_report_query(req, diagnosis_class, item_class,
                                        item_fk_fieldname, system)
     query = query.order_by(*ORDER_BY)
@@ -355,7 +358,7 @@ class DiagnosisICD9CMReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest) -> Select:
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
         return get_diagnosis_report(
             req,
             diagnosis_class=DiagnosisIcd9CM,
@@ -383,7 +386,7 @@ class DiagnosisICD10Report(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest) -> Select:
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
         return get_diagnosis_report(
             req,
             diagnosis_class=DiagnosisIcd10,
@@ -411,7 +414,7 @@ class DiagnosisAllReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest) -> Select:
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
         sql_icd9cm = get_diagnosis_report_query(
             req,
             diagnosis_class=DiagnosisIcd9CM,

@@ -30,14 +30,20 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from ..cc_modules.cc_blob import blob_relationship, get_blob_img_html
-from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import ancillary_relationship, GenericTabletRecordMixin
-from ..cc_modules.cc_html import answer, tr_qa
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import CamcopsColumn
-from ..cc_modules.cc_sqlalchemy import Base
-from ..cc_modules.cc_task import (
+from camcops_server.cc_modules.cc_blob import (
+    blob_relationship,
+    get_blob_img_html,
+)
+from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
+from camcops_server.cc_modules.cc_db import (
+    ancillary_relationship,
+    GenericTabletRecordMixin,
+)
+from camcops_server.cc_modules.cc_html import answer, tr_qa
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
+from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
@@ -105,7 +111,6 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
 class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
     __tablename__ = "photosequence_photos"
-    # *** fkname = "photosequence_id"
 
     photosequence_id = Column(
         "photosequence_id", Integer, nullable=False,

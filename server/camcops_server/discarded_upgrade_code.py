@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # camcops_server/discarded_upgrade_code.py
 
+# noinspection PySingleQuotedDocstring
 '''
 ===============================================================================
     Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
@@ -381,7 +382,7 @@ def upgrade_database_first_phase(old_version: Version) -> None:
 
         # NOTE: from client version 2.0.0, "iddesc{n}" and "idshortdesc{n}"
         # fields are no longer uploaded - they are just duplicates of the
-        # server's own values - DUE FOR REMOVAL FROM SERVER *** (plus handling
+        # server's own values - DUE FOR REMOVAL FROM SERVER (plus handling
         # of old clients).
 
 
@@ -534,7 +535,7 @@ def make_tables(drop_superfluous_columns: bool = False) -> None:
     sv_potential_old_version = ServerStoredVar(
         ServerStoredVarNames.SERVER_CAMCOPS_VERSION,
         ServerStoredVar.TYPE_REAL)
-    # ***this bit above is buggered***
+    # !!! this bit above is buggered !!!
     old_version = make_version(sv_version.get_value() or
                                sv_potential_old_version.get_value())
     upgrade_database_first_phase(old_version)

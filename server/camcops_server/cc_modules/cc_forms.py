@@ -68,6 +68,7 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 import colander
 from colander import (
@@ -112,7 +113,6 @@ from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
 from .cc_policy import TokenizedPolicy
 from .cc_pyramid import FormAction, ViewArg, ViewParam
-from .cc_sqlalchemy import Dialect
 from .cc_sqla_coltypes import (
     DATABASE_TITLE_MAX_LEN,
     FILTER_TEXT_MAX_LEN,
@@ -124,6 +124,7 @@ from .cc_sqla_coltypes import (
     ID_DESCRIPTOR_MAX_LEN,
     USERNAME_MAX_LEN,
 )
+from .cc_unittest import DemoRequestTestCase
 
 if TYPE_CHECKING:
     from .cc_request import CamcopsRequest
@@ -951,23 +952,23 @@ class SortTsvByHeadingsNode(SchemaNode):
 
 DIALECT_CHOICES = (
     # http://docs.sqlalchemy.org/en/latest/dialects/
-    (Dialect.MYSQL, "MySQL"),
-    (Dialect.MSSQL, "Microsoft SQL Server"),
-    (Dialect.ORACLE, "Oracle [WILL NOT WORK]"),
+    (SqlaDialectName.MYSQL, "MySQL"),
+    (SqlaDialectName.MSSQL, "Microsoft SQL Server"),
+    (SqlaDialectName.ORACLE, "Oracle [WILL NOT WORK]"),
     # ... Oracle doesn't work; SQLAlchemy enforces the Oracle rule of a 30-
     # character limit for identifiers, only relaxed to 128 characters in
     # Oracle 12.2 (March 2017).
-    (Dialect.FIREBIRD, "Firebird"),
-    (Dialect.POSTGRES, "PostgreSQL"),
-    (Dialect.SQLITE, "SQLite"),
-    (Dialect.SYBASE, "Sybase"),
+    (SqlaDialectName.FIREBIRD, "Firebird"),
+    (SqlaDialectName.POSTGRES, "PostgreSQL"),
+    (SqlaDialectName.SQLITE, "SQLite"),
+    (SqlaDialectName.SYBASE, "Sybase"),
 )
 
 
 class DatabaseDialectSelector(SchemaNode):
     schema_type = String
-    default = Dialect.MYSQL
-    missing = Dialect.MYSQL
+    default = SqlaDialectName.MYSQL
+    missing = SqlaDialectName.MYSQL
     title = "SQL dialect to use (not all may be valid)"
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1979,17 +1980,11 @@ class ForciblyFinalizeConfirmForm(DangerousForm):
 # Unit tests
 # =============================================================================
 
-class SchemaTests(unittest.TestCase):
-    def setUp(self) -> None:
-        from .cc_request import get_command_line_request
-        self.req = get_command_line_request()
-
-    def tearDown(self) -> None:
-        pass
-
+class SchemaTests(DemoRequestTestCase):
     @staticmethod
     def serialize_deserialize(schema: Schema,
                               appstruct: Dict[str, Any]) -> None:
+        log.debug("camcops_server.cc_forms.SchemaTests.serialize_deserialize")
         cstruct = schema.serialize(appstruct)
         log.info("0. starting appstruct: {!r}", appstruct)
         log.info("1. serialize(appstruct) -> cstruct = {!r}", cstruct)
@@ -2012,6 +2007,7 @@ class SchemaTests(unittest.TestCase):
                  "elements of starting appstruct")
 
     def test_login_schema(self) -> None:
+        self.announce("test_login_schema")  # noqa
         appstruct = {
             ViewParam.USERNAME: "testuser",
             ViewParam.PASSWORD: "testpw",

@@ -28,10 +28,10 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import UnicodeText
 
-from ..cc_modules.cc_ctvinfo import CtvInfo
-from ..cc_modules.cc_html import answer
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_task import (
+from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
+from camcops_server.cc_modules.cc_html import answer
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,
     TaskHasPatientMixin,

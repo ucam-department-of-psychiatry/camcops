@@ -334,7 +334,7 @@ camcops_server
 
     install_requires=[
         # 'arrow==0.10.0',  # better datetime
-        'cardinal_pythonlib==1.0.3',  # RNC libraries
+        'cardinal_pythonlib==1.0.4',  # RNC libraries
         'colorlog==3.1.0',  # colour in logs
         'CherryPy==11.0.0',  # web server
         'deform==2.0.4',  # web forms

@@ -493,10 +493,10 @@ def main() -> None:
     if qt_version:
         tablet_icon_dir = join(args.base_dir, "tablet_qt", "resources",
                                "camcops", "images")
-        android_res_dir = join(args.base_dir, "working", "dummy_image_android_res_dir")  # *** # noqa
+        android_res_dir = join(args.base_dir, "working", "dummy_image_android_res_dir")  # !!! # noqa
         android_plt_res = join(args.base_dir, "tablet_qt", "android", "res")
-        ios_dir = join(args.base_dir, "working", "dummy_image_ios_dir")  # *** # noqa
-        windows_dir = join(args.base_dir, "working", "dummy_image_windows_dir")  # *** # noqa
+        ios_dir = join(args.base_dir, "working", "dummy_image_ios_dir")  # !!! # noqa
+        windows_dir = join(args.base_dir, "working", "dummy_image_windows_dir")  # !!! # noqa
     else:
         tablet_icon_dir = join(args.base_dir, "tablet_qt", "Resources",
                                "images", "camcops")

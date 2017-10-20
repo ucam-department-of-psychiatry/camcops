@@ -1703,12 +1703,12 @@ def main() -> None:
         log.info("Qt build: Mac OS/X x86 64-bit +SQLite/SQLCipher +OpenSSL")
         build_for(OS_OSX, CPU_X86_64)
 
-    # *** cfg.ios*  # for iOS (iPad, etc.)
+    # *** cfg.ios*  # build_qt for iOS (iPad, etc.)
     #     http://doc.qt.io/qt-5/building-from-source-ios.html
     #     http://doc.qt.io/qt-5/ios-support.html
     #     https://gist.github.com/foozmeat/5154962
 
-    # *** cfg.windows*  # for Windows
+    # *** cfg.windows*  # build_qt for Windows
     #     http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
 
     if not installdirs and not done_extra:

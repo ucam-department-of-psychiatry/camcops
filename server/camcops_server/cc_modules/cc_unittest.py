@@ -22,114 +22,208 @@
 ===============================================================================
 """
 
-import sys
-from typing import Any, Tuple, Union
+import base64
+import logging
+import unittest
+from typing import Type, TYPE_CHECKING
+
+from cardinal_pythonlib.logs import BraceStyleAdapter
+from pendulum import Pendulum
+from sqlalchemy.orm import Session as SqlASession
+
+from .cc_constants import MIMETYPE_PNG
+from .cc_idnumdef import IdNumDefinition
+from .cc_sqlalchemy import Base, make_debug_sqlite_engine
+
+if TYPE_CHECKING:
+    from .cc_db import GenericTabletRecordMixin
+    from .cc_task import Task
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
+
+
+# =============================================================================
+# Constants
+# =============================================================================
+
+DEMO_PNG_BYTES = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII="  # noqa
+    # https://stackoverflow.com/questions/6018611
+    # 1x1 pixel, black
+)
 
 
 # =============================================================================
 # Unit testing
 # =============================================================================
 
-FAILEDMSG = "Unit test failed"
+class ExtendedTestCase(unittest.TestCase):
+    # Logging in unit tests:
+    # https://stackoverflow.com/questions/7472863/pydev-unittesting-how-to-capture-text-logged-to-a-logging-logger-in-captured-o  # noqa
+    # https://stackoverflow.com/questions/7472863/pydev-unittesting-how-to-capture-text-logged-to-a-logging-logger-in-captured-o/15969985#15969985
+    # ... but actually, my code below is simpler and works fine.
+
+    @classmethod
+    def announce(cls, msg: str) -> None:
+        log.info(cls.__module__ + "." + cls.__name__ + ":" + msg)
+
+    def assertIsInstanceOrNone(self, obj: object, cls: Type, msg: str = None):
+        if obj is None:
+            return
+        self.assertIsInstance(obj, cls, msg)
 
 
-def unit_test(message: str, func, *args, **kwargs) -> Any:
-    """Print message; return function(*args, **kwargs)."""
-    message = message or "Testing " + func.__name__
-    print(message + "... ", end="")
-    sys.stdout.flush()
-    return func(*args, **kwargs)
+class DemoRequestTestCase(ExtendedTestCase):
+    def setUp(self) -> None:
+        self.announce("setUp")
+        from sqlalchemy.orm.session import sessionmaker
+        from camcops_server.cc_modules.cc_request import get_unittest_request
+        from camcops_server.cc_modules.cc_recipdef import RecipientDefinition
+
+        # Create SQLite in-memory database
+        self.engine = make_debug_sqlite_engine(echo=False)
+        self.dbsession = sessionmaker()(bind=self.engine)  # type: SqlASession
+
+        self.req = get_unittest_request(self.dbsession)
+        self.recipdef = RecipientDefinition()
 
 
-def unit_test_ignore(message: str, func, *args, **kwargs) -> None:
-    """Print message; call/ignore function(*args, **kwargs); print "OK"."""
-    unit_test(message, func, *args, **kwargs)
-    print("OK")
+class DemoDatabaseTestCase(DemoRequestTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        from cardinal_pythonlib.datetimefunc import (
+            convert_datetime_to_utc,
+            format_datetime,
+        )
+        from camcops_server.cc_modules.cc_blob import Blob
+        from camcops_server.cc_modules.cc_constants import DateFormat
+        from camcops_server.cc_modules.cc_device import Device
+        from camcops_server.cc_modules.cc_group import Group
+        from camcops_server.cc_modules.cc_patient import Patient
+        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+        from camcops_server.cc_modules.cc_task import Task
+        from camcops_server.cc_modules.cc_user import User
+        from camcops_server.tasks.photo import Photo
 
+        Base.metadata.create_all(self.engine)
 
-def unit_test_show(message: str, func, *args, **kwargs) -> None:
-    """Print message; call function(*args, **kwargs); print "OK: <result>"."""
-    x = unit_test(message, func, *args, **kwargs)
-    print("OK: " + str(x))
+        self.era_time = Pendulum.parse("2010-07-07T13:40+0100")
+        self.era_time_utc = convert_datetime_to_utc(self.era_time)
+        self.era = format_datetime(self.era_time, DateFormat.ISO8601)
 
+        # Set up groups, users, etc.
+        # ... ID number definitions
+        iddef1 = IdNumDefinition(which_idnum=1,
+                                 description="NHS number",
+                                 short_description="NHS#",
+                                 hl7_assigning_authority="NHS",
+                                 hl7_id_type="NHSN")
+        self.dbsession.add(iddef1)
+        iddef2 = IdNumDefinition(which_idnum=2,
+                                 description="RiO number",
+                                 short_description="RiO",
+                                 hl7_assigning_authority="CPFT",
+                                 hl7_id_type="CPFT_RiO")
+        self.dbsession.add(iddef2)
+        # ... group
+        self.g = Group()
+        self.g.name = "testgroup"
+        self.g.description = "Test group"
+        self.g.upload_policy = "sex AND anyidnum"
+        self.g.finalize_policy = "sex AND idnum1"
+        self.dbsession.add(self.g)
+        # ... device (will also create system user)
+        self.d = Device.get_server_device(self.dbsession)
+        self.u = User.get_system_user(self.dbsession)
+        self.req._debugging_user = self.u  # improve our debugging user
 
-def unit_test_verify(message: str, func, intended_result: Any,
-                     *args, **kwargs) -> None:
-    """Print message; call function(*args, **kwargs); raise an AssertionError
-    if the result was not intended_result."""
-    x = unit_test(message, func, *args, **kwargs)
-    if x != intended_result:
-        raise AssertionError(FAILEDMSG)
-    print("OK")
+        self.dbsession.flush()  # sets PK fields
 
+        # Populate database with two of everything
+        p1 = Patient()
+        p1.id = 1
+        self._apply_standard_db_fields(p1)
+        p1.forename = "Forename1"
+        p1.surname = "Surname1"
+        p1.dob = Pendulum.parse("1950-01-01")
+        self.dbsession.add(p1)
+        p1_idnum1 = PatientIdNum()
+        p1_idnum1.id = 1
+        self._apply_standard_db_fields(p1_idnum1)
+        p1_idnum1.patient_id = p1.id
+        p1_idnum1.which_idnum = iddef1.which_idnum
+        p1_idnum1.idnum_value = 333
+        self.dbsession.add(p1_idnum1)
+        p1_idnum2 = PatientIdNum()
+        p1_idnum2.id = 2
+        self._apply_standard_db_fields(p1_idnum2)
+        p1_idnum2.patient_id = p1.id
+        p1_idnum2.which_idnum = iddef2.which_idnum
+        p1_idnum2.idnum_value = 444
+        self.dbsession.add(p1_idnum2)
 
-def unit_test_verify_not(message: str, func,
-                         must_not_return: Any, *args, **kwargs) -> None:
-    """Print message; call function(*args, **kwargs); raise an AssertionError
-    if the result was must_not_return."""
-    x = unit_test(message, func, *args, **kwargs)
-    if x == must_not_return:
-        raise AssertionError(FAILEDMSG)
-    print("OK")
+        p2 = Patient()
+        p2.id = 2
+        self._apply_standard_db_fields(p2)
+        p2.forename = "Forename2"
+        p2.surname = "Surname2"
+        p2.dob = Pendulum.parse("1975-12-12")
+        self.dbsession.add(p2)
+        p2_idnum1 = PatientIdNum()
+        p2_idnum1.id = 3
+        self._apply_standard_db_fields(p2_idnum1)
+        p2_idnum1.patient_id = p2.id
+        p2_idnum1.which_idnum = iddef1.which_idnum
+        p2_idnum1.idnum_value = 555
+        self.dbsession.add(p2_idnum1)
 
+        self.dbsession.flush()
 
-def unit_test_ignore_except(message: str,
-                            func,
-                            allowed_asserts: Union[Exception,
-                                                   Tuple[Exception]],
-                            *args, **kwargs) -> None:
-    """Print message; call function(*args, **kwargs); allow any exceptions
-    passed in the tuple allowed_asserts."""
-    try:
-        unit_test(message, func, *args, **kwargs)
-    except allowed_asserts:
+        for cls in Task.all_subclasses_by_tablename():
+            t1 = cls()
+            t1.id = 1
+            self._apply_standard_task_fields(t1)
+            if t1.has_patient:
+                t1.patient_id = p1.id
+
+            if isinstance(t1, Photo):
+                b = Blob()
+                b.id = 1
+                self._apply_standard_db_fields(b)
+                b.tablename = t1.tablename
+                b.tablepk = t1.id
+                b.fieldname = 'photo_blobid'
+                b.filename = "some_picture.png"
+                b.mimetype = MIMETYPE_PNG
+                b.image_rotation_deg_cw = 0
+                b.theblob = DEMO_PNG_BYTES
+                self.dbsession.add(b)
+
+                t1.photo_blobid = b.id
+
+            self.dbsession.add(t1)
+
+            t2 = cls()
+            t2.id = 2
+            self._apply_standard_task_fields(t2)
+            if t2.has_patient:
+                t2.patient_id = p2.id
+            self.dbsession.add(t2)
+
+        self.dbsession.commit()
+
+    def _apply_standard_task_fields(self, task: "Task") -> None:
+        self._apply_standard_db_fields(task)
+        task.when_created = self.era_time
+
+    def _apply_standard_db_fields(self,
+                                  obj: "GenericTabletRecordMixin") -> None:
+        obj._device_id = self.d.id
+        obj._era = self.era
+        obj._group_id = self.g.id
+        obj._current = True
+        obj._adding_user_id = self.u.id
+        obj._when_added_batch_utc = self.era_time_utc
+
+    def tearDown(self) -> None:
         pass
-    print("OK")
-
-
-def unit_test_verify_except(message: str,
-                            func,
-                            intended_result: any,
-                            allowed_asserts: Union[Exception,
-                                                   Tuple[Exception]],
-                            *args, **kwargs) -> None:
-    """Print message; call function(*args, **kwargs); raise an AssertionError
-    if the result was not intended_result; allow any exceptions passed in
-    the tuple allowed_asserts."""
-    try:
-        x = unit_test(message, func, *args, **kwargs)
-        if x != intended_result:
-            raise AssertionError(FAILEDMSG)
-    except allowed_asserts:
-        pass
-    print("OK")
-
-
-def unit_test_must_raise(message: str,
-                         func,
-                         required_asserts: Union[Exception,
-                                                 Tuple[Exception]],
-                         *args, **kwargs) -> None:
-    """Print message; call function(*args, **kwargs); raise an AssertionError
-    if the function does not raise an exception within the tuple
-    required_asserts."""
-    try:
-        unit_test(message, func, *args, **kwargs)
-        raise AssertionError(FAILEDMSG)
-    except required_asserts:
-        print("OK")
-
-
-def get_object_name(obj) -> str:
-    if hasattr(obj, '__name__'):
-        # a class
-        return obj.__name__
-    else:
-        # an instance
-        return type(obj).__name__
-
-
-def unit_test_require_truthy_attribute(obj, attrname: str) -> None:
-    if not getattr(obj, attrname):
-        raise AssertionError("Object {}: missing attribute {}".format(
-            get_object_name(obj), attrname))

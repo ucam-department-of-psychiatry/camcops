@@ -26,23 +26,23 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from ..cc_modules.cc_html import (
+from camcops_server.cc_modules.cc_html import (
     get_yes_no_none,
     subheading_spanning_two_columns,
     td,
     tr,
     tr_qa,
 )
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import (
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
     ONE_TO_FIVE_CHECKER,
     PermittedValueChecker,
     ZERO_TO_FIVE_CHECKER,
 )
-from ..cc_modules.cc_sqla_coltypes import SexColType
-from ..cc_modules.cc_task import get_from_dict, Task
+from camcops_server.cc_modules.cc_sqla_coltypes import SexColType
+from camcops_server.cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================

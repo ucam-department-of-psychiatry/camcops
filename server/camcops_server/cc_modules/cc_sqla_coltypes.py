@@ -257,9 +257,16 @@ FullNameColType = Unicode(length=FULLNAME_MAX_LEN)
 GroupDescriptionColType = Unicode(length=GROUP_DESCRIPTION_MAX_LEN)
 GroupNameColType = Unicode(length=GROUP_NAME_MAX_LEN)
 
-HashedPasswordColType = String(length=HASHED_PW_MAX_LEN,
-                               collation='utf8mb4_bin')
-# NOTE that we must ensure case-SENSITIVE comparison on this field.
+HashedPasswordColType = String(length=HASHED_PW_MAX_LEN)
+# ... You might think that we must ensure case-SENSITIVE comparison on this
+# field. That would require the option collation='utf8mb4_bin' to String(),
+# for MySQL. However, that is MySQL-specific, and SQLAlchemy currently (Oct
+# 2017) doesn't support database-specific *per-column* collations. SQLite
+# accepts COLLATE commands but chokes on 'utf8mb4_bin'. Now, the hashed
+# password from bcrypt() is case-sensitive. HOWEVER, the important thing is
+# that we always retrieve the string from the database and do a case-sensitive
+# comparison in Python (see calls to is_password_valid()). So the database
+# collation doesn't matter. So we don't set it.
 # See further notes in cc_sqlalchemy.py
 HL7AssigningAuthorityType = String(length=HL7_AA_MAX_LEN)
 HL7IdTypeType = String(length=HL7_ID_TYPE_MAX_LEN)
@@ -427,8 +434,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
                 # traceback.print_stack()
             return op(mysql_isotzdatetime_to_utcdatetime(self.expr),
                       processed_other)
-            # NOT YET IMPLEMENTED: dialects other than MySQL, and how to
-            # detect the dialect at this point. ***
+            # ****** PendulumDateTimeAsIsoTextColType: NOT YET IMPLEMENTED:
+            # dialects other than MySQL, and how to detect the dialect at this
+            # point.
 
         def reverse_operate(self, op, *other, **kwargs):
             assert False, "I don't think this is ever being called"

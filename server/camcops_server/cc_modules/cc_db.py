@@ -22,6 +22,7 @@
 ===============================================================================
 """
 
+from collections import OrderedDict
 import logging
 from typing import (Any, Dict, Generator, List, Optional, Set, Tuple, Type,
                     TYPE_CHECKING, TypeVar, Union)
@@ -47,7 +48,7 @@ from .cc_sqla_coltypes import (
     SemanticVersionColType,
 )
 from .cc_summaryelement import SummaryElement
-from .cc_tsv import TsvChunk
+from .cc_tsv import TsvPage
 from .cc_version import CAMCOPS_SERVER_VERSION
 from .cc_xml import (
     make_xml_branches_from_blobs,
@@ -435,7 +436,7 @@ class GenericTabletRecordMixin(object):
                 self, skip_fields=skip_attrs)
         if include_blobs:
             stored_branches += make_xml_branches_from_blobs(
-                self, skip_fields=skip_attrs)
+                req, self, skip_fields=skip_attrs)
         if sort_by_attr:
             stored_branches.sort(key=lambda el: el.name)
         branches = [XML_COMMENT_STORED] + stored_branches
@@ -450,22 +451,14 @@ class GenericTabletRecordMixin(object):
         # log.critical("... branches for {!r}: {!r}", self, branches)
         return branches
 
-    def _get_core_tsv_chunk(self, req: "CamcopsRequest",
-                            heading_prefix: str = "") -> TsvChunk:
-        headings = []  # type: List[str]
-        row = []  # type: List[Any]
+    def _get_core_tsv_page(self, req: "CamcopsRequest",
+                           heading_prefix: str = "") -> TsvPage:
+        row = OrderedDict()
         for attrname, column in gen_columns(self):
-            value = getattr(self, attrname)
-            headings.append(heading_prefix + attrname)
-            row.append(value)
+            row[heading_prefix + attrname] = getattr(self, attrname)
         for s in self.get_summaries(req):
-            headings.append(s.name)
-            row.append(s.value)
-        return TsvChunk(
-            filename_stem=self.__tablename__,
-            headings=headings,
-            rows=[row]
-        )
+            row[heading_prefix + s.name] = s.value
+        return TsvPage(name=self.__tablename__, rows=[row])
 
     # -------------------------------------------------------------------------
     # Erasing (overwriting data, not deleting the database records)

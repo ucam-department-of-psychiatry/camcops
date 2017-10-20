@@ -40,7 +40,7 @@ from .cc_pyramid import CookieKey
 from .cc_sqla_coltypes import IPAddressColType, SessionTokenColType
 from .cc_sqlalchemy import Base
 from .cc_taskfilter import TaskFilter
-from .cc_unittest import unit_test_ignore
+from .cc_unittest import DemoDatabaseTestCase
 from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 
 if TYPE_CHECKING:
@@ -121,7 +121,7 @@ class CamcopsSession(Base):
     )
     task_filter_id = Column(
         "task_filter_id", Integer,
-        ForeignKey("_task_filters.id"), # *** cascade deletes? CHECK DIRECTION!
+        ForeignKey("_task_filters.id"), # ****** cascade deletes? CHECK DIRECTION!
         comment="Task filter ID"
     )
 
@@ -341,82 +341,23 @@ class CamcopsSession(Base):
 # Unit tests
 # =============================================================================
 
-def unit_tests_session(s: CamcopsSession) -> None:
-    """Unit tests for Session class."""
-    ntasks = 75
+class SessionTests(DemoDatabaseTestCase):
+    def test_sessions(self) -> None:
+        self.announce("test_sessions")
+        req = self.req
 
-    # skip: make_tables
-    # skip: logout
-    # skip: save
-    unit_test_ignore("", s.get_cookies)
-    # skip: login
-    unit_test_ignore("", s.authorized_as_viewer)
-    unit_test_ignore("", s.authorized_to_add_special_note)
-    unit_test_ignore("", s.user_must_change_password)
-    unit_test_ignore("", s.user_must_agree_terms)
-    # skip: agree_terms
-    unit_test_ignore("", s.authorized_as_superuser)
-    unit_test_ignore("", s.authorized_to_dump)
-    unit_test_ignore("", s.authorized_for_reports)
-    unit_test_ignore("", s.restricted_to_viewing_user)
-    unit_test_ignore("", s.user_may_view_all_patients_when_unfiltered)
-    unit_test_ignore("", s.get_current_user_html, True)
-    unit_test_ignore("", s.get_current_user_html, False)
-    unit_test_ignore("", s.any_patient_filtering)
-    unit_test_ignore("", s.any_specific_patient_filtering)
-    unit_test_ignore("", s.get_current_filter_html)
-    # skip: apply_filters
-    # skip: apply_filter_surname
-    # skip: apply_filter_forename
-    # skip: apply_filter_dob
-    # skip: apply_filter_sex
-    # skip: apply_filter_idnums
-    # skip: apply_filter_task
-    # skip: apply_filter_complete
-    # skip: apply_filter_include_old_versions
-    # skip: apply_filter_device
-    # skip: apply_filter_user
-    # skip: apply_filter_start_datetime
-    # skip: apply_filter_end_datetime
-    # skip: apply_filter_text
-    # skip: clear_filters
-    # skip: clear_filter_surname
-    # skip: clear_filter_forename
-    # skip: clear_filter_dob
-    # skip: clear_filter_sex
-    # skip: clear_filter_idnums
-    # skip: clear_filter_task
-    # skip: clear_filter_complete
-    # skip: clear_filter_include_old_versions
-    # skip: clear_filter_device
-    # skip: clear_filter_user
-    # skip: clear_filter_start_datetime
-    # skip: clear_filter_end_datetime
-    # skip: clear_filter_text
-    unit_test_ignore("", s.get_filter_dob)
-    unit_test_ignore("", s.get_filter_start_datetime)
-    unit_test_ignore("", s.get_filter_end_datetime)
-    unit_test_ignore("", s.get_filter_end_datetime_corrected_1day)
-    unit_test_ignore("", s.get_first_task_to_view)
-    unit_test_ignore("", s.get_last_task_to_view, ntasks)
-    unit_test_ignore("", s.get_npages, ntasks)
-    unit_test_ignore("", s.get_current_page)
-    # skip: change_number_to_view
-    unit_test_ignore("", s.get_number_to_view_selector)
-    # skip: reset_pagination
-    # skip: first_page
-    # skip: previous_page
-    # skip: next_page
-    # skip: last_page
+        self.assertIsInstance(generate_token(), str)
 
-    # get_filter_html: tested implicitly
+        CamcopsSession.delete_old_sessions(req)
+        self.assertIsInstance(
+            CamcopsSession.get_oldest_last_activity_allowed(req), Pendulum)
 
+        s = req.camcops_session
+        u = self.dbsession.query(User).first()  # type: User
+        assert u, "Missing user in demo database!"
 
-def ccsession_unit_tests(request: "CamcopsRequest") -> None:
-    """Unit tests for cc_session module."""
-    unit_test_ignore("", CamcopsSession.delete_old_sessions, request)
-    unit_test_ignore("", generate_token)
-    # skip: establish_session
-
-    ccsession = request.camcops_session
-    unit_tests_session(ccsession)
+        self.assertIsInstance(s.last_activity_utc_iso, str)
+        self.assertIsInstanceOrNone(s.username, str)
+        s.logout(req)
+        s.login(u)
+        self.assertIsInstance(s.get_task_filter(), TaskFilter)

@@ -32,20 +32,27 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
 
-from ..cc_modules.cc_constants import DateFormat, ICD10_COPYRIGHT_DIV, PV
-from ..cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from ..cc_modules.cc_db import add_multiple_columns
-from ..cc_modules.cc_html import (
+from camcops_server.cc_modules.cc_constants import (
+    DateFormat,
+    ICD10_COPYRIGHT_DIV,
+    PV,
+)
+from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
+from camcops_server.cc_modules.cc_db import add_multiple_columns
+from camcops_server.cc_modules.cc_html import (
     answer,
     get_yes_no_none,
     get_yes_no_unknown,
     subheading_spanning_two_columns,
     tr_qa,
 )
-from ..cc_modules.cc_request import CamcopsRequest
-from ..cc_modules.cc_sqla_coltypes import BIT_CHECKER, CamcopsColumn
-from ..cc_modules.cc_summaryelement import SummaryElement
-from ..cc_modules.cc_task import (
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    BIT_CHECKER,
+    CamcopsColumn,
+)
+from camcops_server.cc_modules.cc_summaryelement import SummaryElement
+from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
@@ -537,10 +544,12 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         return html
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = self.get_standard_clinician_comments_block(self.comments) + """
+        h = self.get_standard_clinician_comments_block(req, self.comments)
+        h += """
             <div class="summary">
                 <table class="summary">
-        """ + self.get_is_complete_tr(req)
+        """
+        h += self.get_is_complete_tr(req)
         h += tr_qa(req.wappstring("date_pertains_to"),
                    format_datetime(self.date_pertains_to,
                                    DateFormat.LONG_DATE, default=None))
