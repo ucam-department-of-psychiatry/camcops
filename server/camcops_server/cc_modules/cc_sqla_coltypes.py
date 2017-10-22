@@ -80,9 +80,11 @@ Also:
 # Imports
 # =============================================================================
 
+import datetime
 import logging
 from typing import (Any, Generator, List, Optional, Tuple, Type, TYPE_CHECKING,
                     Union)
+import unittest
 
 from cardinal_pythonlib.datetimefunc import (
     coerce_to_pendulum,
@@ -90,23 +92,36 @@ from cardinal_pythonlib.datetimefunc import (
     PotentialDatetimeType,
 )
 from cardinal_pythonlib.lists import chunks
-from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.reprfunc import auto_repr
+from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_columns,
     gen_relationships,
+)
+from cardinal_pythonlib.sqlalchemy.session import SQLITE_MEMORY_URL
+from cardinal_pythonlib.sqlalchemy.sqlfunc import (
+    fail_unknown_dialect,
+    fetch_processed_single_clause
 )
 from pendulum import Pendulum
 from pendulum.parsing.exceptions import ParserError
 from semantic_version import Version
 from sqlalchemy import util
 from sqlalchemy.engine.interfaces import Dialect
+from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm.relationships import RelationshipProperty
+from sqlalchemy.sql.expression import FunctionElement
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import (
     Boolean,
+    DateTime,
+    Integer,
     LargeBinary,
     String,
     Text,
@@ -120,6 +135,8 @@ from .cc_simpleobjects import IdNumReference
 from .cc_version import make_version
 
 if TYPE_CHECKING:
+    from sqlalchemy.sql.elements import ClauseElement
+    from sqlalchemy.sql.compiler import SQLCompiler
     from .cc_db import GenericTabletRecordMixin
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -303,11 +320,40 @@ UserNameColType = String(length=USERNAME_MAX_LEN)
 
 
 # =============================================================================
-# Custom date/time field as ISO-8601 text including timezone, using Pendulum
-# on the Python side.
+# Helper operations for PendulumDateTimeAsIsoTextColType
 # =============================================================================
+# Database string format is e.g.
+#   2013-07-24T20:04:07.123456+01:00
+#   2013-07-24T20:04:07.123+01:00
+#   0        1         2         3      } position in string; 1-based
+#   12345678901234567890123456789012    }
+#
+# So: rightmost 6 characters are time zone; rest is date/time.
 
-def mysql_isotzdatetime_to_utcdatetime(x):
+
+# -----------------------------------------------------------------------------
+# isotzdatetime_to_utcdatetime
+# -----------------------------------------------------------------------------
+
+# noinspection PyPep8Naming
+class isotzdatetime_to_utcdatetime(FunctionElement):
+    type = DateTime()
+    name = 'isotzdatetime_to_utcdatetime'
+
+
+# noinspection PyUnusedLocal
+@compiles(isotzdatetime_to_utcdatetime)
+def isotzdatetime_to_utcdatetime_default(
+        element: "ClauseElement",
+        compiler: "SQLCompiler", **kw) -> None:
+    fail_unknown_dialect(compiler, "perform isotzdatetime_to_utcdatetime")
+
+
+# noinspection PyUnusedLocal
+@compiles(isotzdatetime_to_utcdatetime, SqlaDialectName.MYSQL)
+def isotzdatetime_to_utcdatetime_mysql(
+        element: "ClauseElement",
+        compiler: "SQLCompiler", **kw) -> str:
     """
     Creates an SQL expression wrapping a field containing our ISO-8601 text,
     making a DATETIME out of it, in the UTC timezone.
@@ -318,25 +364,105 @@ def mysql_isotzdatetime_to_utcdatetime(x):
     Things after "func." get passed to the database engine as literal SQL
     functions; http://docs.sqlalchemy.org/en/latest/core/tutorial.html
     """
-    return func.CONVERT_TZ(  # convert a DATETIME's timezone...
-        func.STR_TO_DATE(    # for this DATETIME...
-            func.LEFT(x, func.LENGTH(x) - 6),  # drop the rightmost 6 chars
-            '%Y-%m-%dT%H:%i:%S.%f'             # and read from this format
-        ),
-        func.RIGHT(x, 6),    # from this old timezone...
-        "+00:00"             # ... to this new timezone.
-    )
+    x = fetch_processed_single_clause(element, compiler)
+    # Let's do this in a clear way:
+    date_part = "LEFT({x}, LENGTH({x}) - 6)".format(x=x)  # drop the rightmost 6 chars  # noqa
+    fmt = "'%Y-%m-%dT%H:%i:%S.%f'"
+    the_date = "STR_TO_DATE({date_part}, {fmt)".format(
+        date_part=date_part, fmt=fmt)
+    old_timezone = "RIGHT({x}, 6)".format(x=x)
+    result = "CONVERT_TZ({the_date}, {old_timezone}, '+00:00')".format(
+        the_date=the_date, old_timezone=old_timezone)
+    # log.critical(result)
+    return result
 
 
-def mysql_unknown_field_to_utcdatetime(x):
+# noinspection PyUnusedLocal
+@compiles(isotzdatetime_to_utcdatetime, SqlaDialectName.SQLITE)
+def isotzdatetime_to_utcdatetime_sqlite(
+        element: "ClauseElement",
+        compiler: "SQLCompiler", **kw) -> str:
+    x = fetch_processed_single_clause(element, compiler)
+    # https://sqlite.org/lang_corefunc.html#substr
+    # https://sqlite.org/lang_datefunc.html
+    # http://www.sqlite.org/lang_expr.html
+
+    # Get an SQL expression for the timezone adjustment in hours.
+    # Note that if a time is 12:00+01:00, that means e.g. midday BST, which
+    # is 11:00+00:00 or 11:00 UTC. So you SUBTRACT the displayed timezone from
+    # the time, which I've always thought is a bit odd.
+
+    # Ha! Was busy implementing this, but SQLite is magic; if there's a
+    # timezone at the end, STRFTIME() will convert it to UTC automatically!
+    # Moreover, the format is the OUTPUT format that a Python datetime will
+    # recognize, so no 'T'.
+    fmt = "'%Y-%m-%d %H:%M:%f'"
+    result = "STRFTIME({fmt}, {x})".format(fmt=fmt, x=x)
+    # log.critical(result)
+    return result
+
+
+# TODO: isotzdatetime_to_utcdatetime_sqlserver
+# ... will probably use TODATETIMEOFFSET
+# https://docs.microsoft.com/en-us/sql/t-sql/functions/todatetimeoffset-transact-sql  # noqa
+
+
+# -----------------------------------------------------------------------------
+# unknown_field_to_utcdatetime
+# -----------------------------------------------------------------------------
+
+# noinspection PyPep8Naming
+class unknown_field_to_utcdatetime(FunctionElement):
+    type = DateTime()
+    name = 'unknown_field_to_utcdatetime'
+
+
+# noinspection PyUnusedLocal
+@compiles(unknown_field_to_utcdatetime)
+def unknown_field_to_utcdatetime_default(
+        element: "ClauseElement",
+        compiler: "SQLCompiler", **kw) -> None:
+    fail_unknown_dialect(compiler, "perform unknown_field_to_utcdatetime")
+
+
+# noinspection PyUnusedLocal
+@compiles(unknown_field_to_utcdatetime, SqlaDialectName.MYSQL)
+def unknown_field_to_utcdatetime_mysql(
+        element: "ClauseElement",
+        compiler: "SQLCompiler", **kw) -> str:
     """The field might be a DATETIME, or an ISO-formatted field."""
-    return func.IF(
-        func.LENGTH(x) == 19,
-        # ... length of a plain DATETIME e.g. 2013-05-30 00:00:00
-        x,
-        mysql_isotzdatetime_to_utcdatetime(x)
+    x = fetch_processed_single_clause(element, compiler)
+    result = "IF(LENGTH({x}) = 19, {x}, {converted})".format(
+        x=x,
+        converted=isotzdatetime_to_utcdatetime_mysql(element, compiler, **kw)
     )
+    # If it's the length of a plain DATETIME e.g. "2013-05-30 00:00:00" (19),
+    # leave it as a DATETIME; otherwise convert ISO -> DATETIME
+    # log.critical(result)
+    return result
 
+
+# noinspection PyUnusedLocal
+@compiles(unknown_field_to_utcdatetime, SqlaDialectName.SQLITE)
+def unknown_field_to_utcdatetime_sqlite(
+        element: "ClauseElement",
+        compiler: "SQLCompiler", **kw) -> str:
+    x = fetch_processed_single_clause(element, compiler)
+    fmt = "'%Y-%m-%d %H:%M:%f'"
+    result = "STRFTIME({fmt}, {x})".format(fmt=fmt, x=x)
+    # log.critical(result)
+    return result
+
+
+# TODO: unknown_field_to_utcdatetime_sqlserver
+# ... will probably use TODATETIMEOFFSET
+# https://docs.microsoft.com/en-us/sql/t-sql/functions/todatetimeoffset-transact-sql  # noqa
+
+
+# =============================================================================
+# Custom date/time field as ISO-8601 text including timezone, using Pendulum
+# on the Python side.
+# =============================================================================
 
 class PendulumDateTimeAsIsoTextColType(TypeDecorator):
     """
@@ -411,8 +537,15 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
 
     # noinspection PyPep8Naming
     class comparator_factory(TypeDecorator.Comparator):
-        """Process SQL for when we are comparing our column, in the database,
-        to something else."""
+        """
+        Process SQL for when we are comparing our column, in the database,
+        to something else.
+
+        We make this dialect-independent by calling functions like
+            unknown_field_to_utcdatetime
+            isotzdatetime_to_utcdatetime
+        ... which we then specialize for specific dialects.
+        """
 
         def operate(self, op, *other, **kwargs):
             assert len(other) == 1
@@ -426,17 +559,14 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
                 # or a PendulumDateTimeAsIsoTextColType field (or potentially
                 # something else that we don't really care about). If it's a
                 # DATETIME, then we assume it is already in UTC.
-                processed_other = mysql_unknown_field_to_utcdatetime(other)
+                processed_other = unknown_field_to_utcdatetime(other)
             if DEBUG_DATETIME_AS_ISO_TEXT:
                 log.debug("operate(self={!r}, op={!r}, other={!r})",
                           self, op, other)
                 log.debug("self.expr = {!r}", self.expr)
                 # traceback.print_stack()
-            return op(mysql_isotzdatetime_to_utcdatetime(self.expr),
+            return op(isotzdatetime_to_utcdatetime(self.expr),
                       processed_other)
-            # ****** PendulumDateTimeAsIsoTextColType: NOT YET IMPLEMENTED:
-            # dialects other than MySQL, and how to detect the dialect at this
-            # point.
 
         def reverse_operate(self, op, *other, **kwargs):
             assert False, "I don't think this is ever being called"
@@ -895,3 +1025,109 @@ class BoolColumn(CamcopsColumn):
     def _constructor(self, *args: Any, **kwargs: Any) -> "BoolColumn":
         # https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass  # noqa
         return BoolColumn(*args, **kwargs)
+
+
+# =============================================================================
+# Unit testing
+# =============================================================================
+
+class SqlaColtypesTest(unittest.TestCase):
+    # don't inherit from ExtendedTestCase; circular import
+
+    @staticmethod
+    def _assert_dt_equal(a: Union[datetime.datetime, Pendulum],
+                         b: Union[datetime.datetime, Pendulum]) -> None:
+        # Accept that one may have been truncated or rounded to milliseconds.
+        a = coerce_to_pendulum(a)
+        b = coerce_to_pendulum(b)
+        diff = a - b
+        assert diff.microseconds < 1000, "{!r} != {!r}".format(a, b)
+
+    def test_iso_field(self) -> None:
+        log.info("test_iso_field")
+
+        # from pprint import pformat
+        import pendulum
+        from sqlalchemy.engine import create_engine
+        from sqlalchemy.sql.expression import select
+        from sqlalchemy.sql.schema import MetaData, Table
+
+        engine = create_engine(SQLITE_MEMORY_URL, echo=True)
+        meta = MetaData()
+        meta.bind = engine  # adds execute() method to select() etc.
+        # ... http://docs.sqlalchemy.org/en/latest/core/connections.html
+
+        id_colname = 'id'
+        dt_local_colname = 'dt_local'
+        dt_utc_colname = 'dt_utc'
+        iso_colname = 'iso'
+        id_col = Column(id_colname, Integer, primary_key=True)
+        dt_local_col = Column(dt_local_colname, DateTime)
+        dt_utc_col = Column(dt_utc_colname, DateTime)
+        iso_col = Column(iso_colname, PendulumDateTimeAsIsoTextColType)
+
+        table = Table('testtable', meta,
+                      id_col, dt_local_col, dt_utc_col, iso_col)
+        table.create()
+
+        now = Pendulum.now()
+        now_utc = now.in_tz(pendulum.UTC)
+        yesterday = now.subtract(days=1)
+        yesterday_utc = yesterday.in_tz(pendulum.UTC)
+
+        table.insert().values([
+            {
+                id_colname: 1,
+                dt_local_colname: now,
+                dt_utc_colname: now_utc,
+                iso_colname: now,
+            },
+            {
+                id_colname: 2,
+                dt_local_colname: yesterday,
+                dt_utc_colname: yesterday_utc,
+                iso_colname: yesterday
+            },
+        ]).execute()
+        select_fields = [
+            id_col,
+            dt_local_col,
+            dt_utc_col,
+            iso_col,
+            func.length(dt_local_col).label("len_dt_local_col"),
+            func.length(dt_utc_col).label("len_dt_utc_col"),
+            func.length(iso_col).label("len_iso_col"),
+            isotzdatetime_to_utcdatetime(iso_col).label("iso_to_utcdt"),
+            unknown_field_to_utcdatetime(dt_utc_col).label("uk_utcdt_to_utcdt"),
+            unknown_field_to_utcdatetime(iso_col).label("uk_iso_to_utc_dt"),
+        ]
+        rows = list(
+            select(select_fields)
+            .select_from(table)
+            .order_by(id_col)
+            .execute()
+        )
+        # for row in rows:
+        #     log.critical("\n{}", pformat(dict(row)))
+        self._assert_dt_equal(rows[0][dt_local_col], now)
+        self._assert_dt_equal(rows[0][dt_utc_col], now_utc)
+        self._assert_dt_equal(rows[0][iso_colname], now)
+        self._assert_dt_equal(rows[0]["iso_to_utcdt"], now_utc)
+        self._assert_dt_equal(rows[0]["uk_utcdt_to_utcdt"], now_utc)
+        self._assert_dt_equal(rows[0]["uk_iso_to_utc_dt"], now_utc)
+        self._assert_dt_equal(rows[1][dt_local_col], yesterday)
+        self._assert_dt_equal(rows[1][dt_utc_col], yesterday_utc)
+        self._assert_dt_equal(rows[1][iso_colname], yesterday)
+        self._assert_dt_equal(rows[1]["iso_to_utcdt"], yesterday_utc)
+        self._assert_dt_equal(rows[1]["uk_utcdt_to_utcdt"], yesterday_utc)
+        self._assert_dt_equal(rows[1]["uk_iso_to_utc_dt"], yesterday_utc)
+
+
+# =============================================================================
+# main
+# =============================================================================
+# run with "python -m camcops_server.cc_modules.cc_sqla_coltypes -v" to be verbose  # noqa
+
+if __name__ == "__main__":
+    main_only_quicksetup_rootlogger(level=logging.DEBUG)
+    unittest.main()

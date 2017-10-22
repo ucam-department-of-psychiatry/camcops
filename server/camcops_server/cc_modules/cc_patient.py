@@ -33,7 +33,6 @@ from cardinal_pythonlib.datetimefunc import (
     PotentialDatetimeType,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
-import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 import hl7
 import pendulum
@@ -333,10 +332,6 @@ class Patient(GenericTabletRecordMixin, Base):
     def satisfies_id_policy(self, policy: TokenizedPolicy) -> bool:
         """Does the patient satisfy a particular ID policy?"""
         return policy.satisfies_id_policy(self.get_bare_ptinfo())
-
-    def dump(self) -> None:
-        """Dump object to database's log."""
-        rnc_db.dump_database_object(self, Patient.FIELDS)
 
     def get_surname(self) -> str:
         """Get surname (in upper case) or ""."""

@@ -34,8 +34,12 @@ from cardinal_pythonlib.convert import (
     REGEX_HEX_XFORMAT,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
-import cardinal_pythonlib.rnc_db as rnc_db
-from cardinal_pythonlib.sql.literals import gen_items_from_sql_csv, SQUOTE
+from cardinal_pythonlib.sql.literals import (
+    gen_items_from_sql_csv,
+    SQUOTE,
+    sql_dequote_string,
+    sql_quote_string,
+)
 from cardinal_pythonlib.text import escape_newlines
 from markupsafe import escape, Markup
 
@@ -66,7 +70,7 @@ def encode_single_value(v: Any, is_blob=False) -> str:
     if is_blob:
         return base64_64format_encode(v)
     if isinstance(v, str):
-        return escape_newlines(rnc_db.sql_quote_string(v))
+        return escape_newlines(sql_quote_string(v))
     # for int, float, etc.:
     return str(v)
 
@@ -117,7 +121,7 @@ def decode_single_value(v: str) -> Any:
 
     if len(v) >= 2 and v[0] == SQUOTE and v[-1] == SQUOTE:
         # v is a quoted string
-        s = rnc_db.sql_dequote_string(v)
+        s = sql_dequote_string(v)
         # s is the underlying string that the source started with
         # log.debug("UNDERLYING STRING: {}", s)
         return s

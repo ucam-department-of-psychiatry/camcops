@@ -57,7 +57,6 @@ from .cc_baseconstants import (
     DEFAULT_EXTRA_STRINGS_DIR,
     ENVVAR_CONFIG_FILE,
     INTROSPECTABLE_EXTENSIONS,
-    LINUX_DEFAULT_CAMCOPS_DIR,
     LINUX_DEFAULT_LOCK_DIR,
     LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
     STATIC_ROOT_DIR,
@@ -96,14 +95,10 @@ DEFAULT_DB_USER = 'YYY_USERNAME_REPLACE_ME'
 DEFAULT_DB_PASSWORD = 'ZZZ_PASSWORD_REPLACE_ME'
 DEFAULT_DB_READONLY_USER = 'QQQ_USERNAME_REPLACE_ME'
 DEFAULT_DB_READONLY_PASSWORD = 'PPP_PASSWORD_REPLACE_ME'
-DEFAULT_ANONSTAG_DB_NAME = 'anon_staging_camcops'
-DEFAULT_ANONSTAG_DB_USER = 'UUU_USERNAME_REPLACE_ME'
-DEFAULT_ANONSTAG_DB_PASSWORD = 'WWW_PASSWORD_REPLACE_ME'
 DUMMY_INSTITUTION_URL = 'http://www.mydomain/'
 
 
 class ConfigParamMain(object):
-    ANONSTAG_DB_URL = "ANONSTAG_DB_URL"
     ALLOW_INSECURE_COOKIES = "ALLOW_INSECURE_COOKIES"
     CAMCOPS_LOGO_FILE_ABSOLUTE = "CAMCOPS_LOGO_FILE_ABSOLUTE"
     CTV_FILENAME_SPEC = "CTV_FILENAME_SPEC"
@@ -111,7 +106,6 @@ class ConfigParamMain(object):
     DB_URL = "DB_URL"
     DB_ECHO = "DB_ECHO"
     DISABLE_PASSWORD_AUTOCOMPLETE = "DISABLE_PASSWORD_AUTOCOMPLETE"
-    EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE = "EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE"  # noqa
     EXTRA_STRING_FILES = "EXTRA_STRING_FILES"
     HL7_LOCKFILE = "HL7_LOCKFILE"
     INTROSPECTION = "INTROSPECTION"
@@ -158,9 +152,6 @@ def get_demo_config(extra_strings_dir: str = None,
         db_url = make_mysql_url(username=DEFAULT_DB_USER,
                                 password=DEFAULT_DB_PASSWORD,
                                 dbname=DEFAULT_DB_NAME)
-    anonstag_db_url = make_mysql_url(username=DEFAULT_ANONSTAG_DB_USER,
-                                     password=DEFAULT_ANONSTAG_DB_PASSWORD,
-                                     dbname=DEFAULT_ANONSTAG_DB_NAME)
     return """
 # Demonstration CamCOPS configuration file.
 # Created by CamCOPS version {version} at {now}.
@@ -440,14 +431,6 @@ def get_demo_config(extra_strings_dir: str = None,
 
 {cp.ALLOW_INSECURE_COOKIES} = false
 
-# -----------------------------------------------------------------------------
-# Export to a staging database for CRIS, CRATE, or similar anonymisation
-# software (anonymisation staging database; ANONSTAG)
-# -----------------------------------------------------------------------------
-
-{cp.ANONSTAG_DB_URL} = {anonstag_db_url}
-{cp.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE} = /tmp/camcops_cris_dd_draft.tsv
-
 # =============================================================================
 # List of HL7/file recipients, and then details for each one
 # =============================================================================
@@ -703,16 +686,12 @@ def get_demo_config(extra_strings_dir: str = None,
 {cpr.SCRIPT_AFTER_FILE_EXPORT} =
 
     """.format(  # noqa
-        anonstag_db_url=anonstag_db_url,
         cp=ConfigParamMain,
         cpr=ConfigParamRecipient,
         CONFIG_FILE_MAIN_SECTION=CONFIG_FILE_MAIN_SECTION,
         CONFIG_FILE_RECIPIENTLIST_SECTION=CONFIG_FILE_RECIPIENTLIST_SECTION,
         db_echo=db_echo,
         db_url=db_url,
-        DEFAULT_ANONSTAG_DB_NAME=DEFAULT_ANONSTAG_DB_NAME,
-        DEFAULT_ANONSTAG_DB_PASSWORD=DEFAULT_ANONSTAG_DB_PASSWORD,
-        DEFAULT_ANONSTAG_DB_USER=DEFAULT_ANONSTAG_DB_USER,
         DEFAULT_DB_NAME=DEFAULT_DB_NAME,
         DEFAULT_DB_PASSWORD=DEFAULT_DB_PASSWORD,
         DEFAULT_DB_USER=DEFAULT_DB_USER,
@@ -1202,8 +1181,6 @@ class CamcopsConfig(object):
         self.disable_password_autocomplete = get_config_parameter_boolean(
             config, section, cp.DISABLE_PASSWORD_AUTOCOMPLETE, True)
 
-        self.export_cris_data_dictionary_tsv_file = get_config_parameter(
-            config, section, cp.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE, str, None)
         self.extra_string_files = get_config_parameter_multiline(
             config, section, cp.EXTRA_STRING_FILES, [])
 
@@ -1365,90 +1342,18 @@ class CamcopsConfig(object):
         finally:
             dbsession.close()
 
-    # def get_anonymisation_database(self) -> rnc_db.DatabaseSupporter:
-    #     """Open the anonymisation staging database. That is not performance-
-    #     critical and the connection does not need to be cached. Will raise
-    #     an exception upon a connection error."""
-    #     # Follows same security principles as above.
-    #     config = configparser.ConfigParser()
-    #     config.read_file(codecs.open(self.CAMCOPS_CONFIG_FILE, "r", "utf8"))
-    #     section = CONFIG_FILE_MAIN_SECTION
-    #
-    #     server = get_config_parameter(
-    #         config, section, "ANONSTAG_DB_SERVER", str, DEFAULT_DB_SERVER)
-    #     port = get_config_parameter(
-    #         config, section, "ANONSTAG_DB_PORT", int, DEFAULT_DB_PORT)
-    #     database = get_config_parameter(
-    #         config, section, "ANONSTAG_DB_NAME", str, None)
-    #     if database is None:
-    #         raise RuntimeError("ANONSTAG_DB_NAME not specified in config")
-    #     user = get_config_parameter(
-    #         config, section, "ANONSTAG_DB_USER", str, None)
-    #     if user is None:
-    #         raise RuntimeError("ANONSTAG_DB_USER not specified in config")
-    #     # It is a potential disaster if the anonymisation database is the same
-    #     # database as the main database - risk of destroying original data.
-    #     # We mitigate this risk in two ways.
-    #     # (1) We check here. Since different server/port combinations could
-    #     #     resolve to the same host, we take the extremely conservative
-    #     #     approach of requiring a different database name.
-    #     if database == self.DB_NAME:
-    #         raise RuntimeError("ANONSTAG_DB_NAME must be different from "
-    #                            "DB_NAME")
-    #     # (2) We prefix all tablenames in the CRIS staging database;
-    #     #     see cc_task.
-    #     try:
-    #         password = get_config_parameter(
-    #             config, section, "ANONSTAG_DB_PASSWORD", str, None)
-    #     except:  # deliberately conceal details for security
-    #         # noinspection PyUnusedLocal
-    #         password = None
-    #         raise RuntimeError("Problem reading ANONSTAG_DB_PASSWORD from "
-    #                            "config")
-    #     if password is None:
-    #         raise RuntimeError("ANONSTAG_DB_PASSWORD not specified in config")
-    #     try:
-    #         db = rnc_db.DatabaseSupporter()
-    #         db.connect_to_database_mysql(
-    #             server=server,
-    #             port=port,
-    #             database=database,
-    #             user=user,
-    #             password=password,
-    #             autocommit=False  # NB therefore need to commit
-    #             # ... done in camcops.py at the end of a session
-    #         )
-    #     except:  # deliberately conceal details for security
-    #         raise rnc_db.NoDatabaseError(
-    #             "Problem opening or reading from database; details concealed "
-    #             "for security reasons")
-    #     finally:
-    #         # Executed whether an exception is raised or not.
-    #         # noinspection PyUnusedLocal
-    #         password = None
-    #     # -------------------------------------------------------------------
-    #     # Password is now re-obscured in all situations. Onwards...
-    #     # -------------------------------------------------------------------
-    #     return db
-
 
 # =============================================================================
 # Get config filename from an appropriate environment (WSGI or OS)
 # =============================================================================
 
-def get_config_filename(environ: Dict[str, str] = None) -> str:
-    config_filename = None
-    if environ is not None:
-        # This may be used for WSGI environments
-        config_filename = environ.get(ENVVAR_CONFIG_FILE)
-    if config_filename is None:
-        # Fall back to OS environment
-        config_filename = os.environ.get(ENVVAR_CONFIG_FILE)
+def get_config_filename_from_os_env() -> str:
+    # We do NOT trust the WSGI environment for this.
+    config_filename = os.environ.get(ENVVAR_CONFIG_FILE)
     if not config_filename:
         raise AssertionError(
-            "Neither WSGI nor OS environment provided the required "
+            "OS environment did not provide the required "
             "environment variable {}".format(ENVVAR_CONFIG_FILE))
-    # log.critical("get_config_filename() -> {!r}", config_filename)
     return config_filename
 
 
@@ -1466,4 +1371,27 @@ def get_config(config_filename: str) -> CamcopsConfig:
 # =============================================================================
 
 def get_default_config_from_os_env() -> CamcopsConfig:
-    return get_config(get_config_filename())
+    return get_config(get_config_filename_from_os_env())
+
+
+# =============================================================================
+# NOTES
+# =============================================================================
+
+TO_BE_IMPLEMENTED_AS_COMMAND_LINE_SWITCH = """
+
+# -----------------------------------------------------------------------------
+# Export to a staging database for CRIS, CRATE, or similar anonymisation
+# software (anonymisation staging database; ANONSTAG)
+# -----------------------------------------------------------------------------
+
+{cp.ANONSTAG_DB_URL} = {anonstag_db_url}
+{cp.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE} = /tmp/camcops_cris_dd_draft.tsv
+
+*** Note that we must check that the anonymisation staging database doesn't
+    have the same URL as the main one (or "isn't the same one" in a more
+    robust fashion)! Because this is so critical, probably best to:
+    - require a completely different database name
+    - ensure no table names overlap (e.g. add a prefix)
+
+"""

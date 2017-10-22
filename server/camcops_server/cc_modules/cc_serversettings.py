@@ -65,7 +65,6 @@ from sqlalchemy.sql.sqltypes import (
     DateTime, Float, Integer, String, UnicodeText,
 )
 
-from .cc_cache import cache_region_static
 from .cc_sqla_coltypes import DatabaseTitleColType
 from .cc_sqlalchemy import Base
 

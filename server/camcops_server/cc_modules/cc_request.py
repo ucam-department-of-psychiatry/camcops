@@ -60,7 +60,7 @@ from sqlalchemy.orm import Session as SqlASession
 # imports as minimal as possible.
 from .cc_alembic import assert_database_is_at_head
 from .cc_baseconstants import ENVVAR_CONFIG_FILE
-from .cc_config import CamcopsConfig, get_config, get_config_filename
+from .cc_config import CamcopsConfig, get_config, get_config_filename_from_os_env
 from .cc_constants import (
     CAMCOPS_LOGO_FILE_WEBREF,
     CSS_PAGED_MEDIA,
@@ -70,7 +70,8 @@ from .cc_constants import (
     USE_SVG_IN_HTML,
 )
 from .cc_idnumdef import get_idnum_definitions, IdNumDefinition
-from .cc_plot import ccplot_no_op
+# noinspection PyUnresolvedReferences
+import camcops_server.cc_modules.cc_plot  # import side effects (configure matplotlib)  # noqa
 from .cc_pyramid import (
     camcops_add_mako_renderer,
     CamcopsAuthenticationPolicy,
@@ -94,7 +95,6 @@ if TYPE_CHECKING:
     from .cc_session import CamcopsSession
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
-ccplot_no_op()
 
 # =============================================================================
 # Debugging options
@@ -202,7 +202,7 @@ class CamcopsRequest(Request):
         """
         Gets the config filename in use.
         """
-        return get_config_filename(environ=self.environ)
+        return get_config_filename_from_os_env()
 
     @reify
     def config(self) -> CamcopsConfig:
@@ -903,7 +903,7 @@ def _get_core_debugging_request() -> CamcopsRequest:
             WsgiEnvVar.SCRIPT_NAME: '',
             WsgiEnvVar.SERVER_NAME: '127.0.0.1',
             WsgiEnvVar.SERVER_PORT: '8000',
-            WsgiEnvVar.URL_SCHEME: 'http',
+            WsgiEnvVar.WSGI_URL_SCHEME: 'http',
         })
         # ... must pass an actual dict to the "environ" parameter; os.environ
         # itself isn't OK ("TypeError: WSGI environ must be a dict; you passed

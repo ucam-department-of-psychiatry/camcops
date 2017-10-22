@@ -31,16 +31,22 @@ We use primarily SQLAlchemy Core here (in contrast to the ORM used elsewhere).
 
 import logging
 import time
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import (Any, Dict, Iterable, List, Optional, Sequence, Tuple,
+                    TYPE_CHECKING)
+import unittest
+import urllib.parse
 
 from cardinal_pythonlib.convert import (
     base64_64format_encode,
     hex_xformat_encode,
 )
 from cardinal_pythonlib.datetimefunc import coerce_to_pendulum, format_datetime
-from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.logs import (
+    BraceStyleAdapter,
+    main_only_quicksetup_rootlogger,
+)
 from cardinal_pythonlib.pyramid.responses import TextResponse
-import cardinal_pythonlib.rnc_db as rnc_db
+from cardinal_pythonlib.sql.literals import sql_quote_string
 from cardinal_pythonlib.sqlalchemy.core_query import (
     exists_in_table,
     fetch_all_first_values,
@@ -63,6 +69,7 @@ from .cc_client_api_core import (
     fail_server_error,
     fail_unsupported_operation,
     fail_user_error,
+    IgnoringAntiqueTableException,
     require_keys,
     ServerErrorException,
     TabletParam,
@@ -85,16 +92,17 @@ from .cc_dirtytables import DirtyTable
 from .cc_group import Group
 from .cc_patient import Patient
 from .cc_patientidnum import fake_tablet_id_for_patientidnum, PatientIdNum
-from .cc_pyramid import Routes
+from .cc_pyramid import RequestMethod, Routes
 from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
-from .cc_unittest import ExtendedTestCase
-from .cc_version import CAMCOPS_SERVER_VERSION_STRING
+from .cc_unittest import DemoDatabaseTestCase
+from .cc_version import CAMCOPS_SERVER_VERSION_STRING, MINIMUM_TABLET_VERSION
+
+if TYPE_CHECKING:
+    from pyramid.request import Request
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
-
-# ****** handle DeviceStoredVar table from old clients?
 
 # =============================================================================
 # Constants
@@ -113,6 +121,20 @@ INSERT_FAILED = "Failed to insert record"
 # REGEX_INVALID_TABLE_FIELD_CHARS = re.compile("[^a-zA-Z0-9_]")
 # ... the ^ within the [] means the expression will match any character NOT in
 # the specified range
+
+DEVICE_STORED_VAR_TABLENAME_DEFUNCT = "storedvars"
+# ... old table, no longer in use, that Titanium clients used to upload.
+# We recognize and ignore it now so that old clients can still work.
+
+SILENTLY_IGNORE_TABLENAMES = [DEVICE_STORED_VAR_TABLENAME_DEFUNCT]
+
+IGNORING_ANTIQUE_TABLE_MESSAGE = (
+    "Ignoring user request to upload antique/defunct table, but reporting "
+    "success to the client"
+)
+
+SUCCESS_CODE = "1"
+FAILURE_CODE = "0"
 
 
 # =============================================================================
@@ -199,6 +221,9 @@ def get_table_from_req(req: CamcopsRequest, var: str) -> Table:
     table.
     """
     tablename = get_str_var(req, var, mandatory=True)
+    if tablename in SILENTLY_IGNORE_TABLENAMES:
+        raise IgnoringAntiqueTableException(
+            "Ignoring table {}".format(tablename))
     ensure_valid_table_name(tablename)
     return CLIENT_TABLE_MAP[tablename]
 
@@ -218,6 +243,9 @@ def get_tables_from_post_var(req: CamcopsRequest,
     tablenames = [x.strip() for x in cstables.split(",")]
     tables = []  # type: List[Table]
     for tn in tablenames:
+        if tn in SILENTLY_IGNORE_TABLENAMES:
+            log.warning(IGNORING_ANTIQUE_TABLE_MESSAGE)
+            continue
         ensure_valid_table_name(tn)
         tables.append(CLIENT_TABLE_MAP[tn])
     return tables
@@ -1374,7 +1402,10 @@ def which_keys_to_send(req: CamcopsRequest) -> str:
     Used particularly for BLOBs, to reduce traffic, i.e. so we don't have to
     send a lot of BLOBs.
     """
-    table = get_table_from_req(req, TabletParam.TABLE)
+    try:
+        table = get_table_from_req(req, TabletParam.TABLE)
+    except IgnoringAntiqueTableException:
+        raise IgnoringAntiqueTableException("")
     clientpk_name = get_single_field_from_post_var(req, table,
                                                    TabletParam.PKNAME)
     clientpk_values = get_values_from_post_var(req, TabletParam.PKVALUES,
@@ -1434,24 +1465,40 @@ def which_keys_to_send(req: CamcopsRequest) -> str:
 # Action maps
 # =============================================================================
 
+class Operations:
+    CHECK_DEVICE_REGISTERED = "check_device_registered"
+    CHECK_UPLOAD_USER_DEVICE = "check_upload_user_and_device"
+    DELETE_WHERE_KEY_NOT = "delete_where_key_not"
+    END_UPLOAD = "end_upload"
+    GET_EXTRA_STRINGS = "get_extra_strings"
+    GET_ID_INFO = "get_id_info"
+    REGISTER = "register"
+    START_PRESERVATION = "start_preservation"
+    START_UPLOAD = "start_upload"
+    UPLOAD_TABLE = "upload_table"
+    UPLOAD_RECORD = "upload_record"
+    UPLOAD_EMPTY_TABLES = "upload_empty_tables"
+    WHICH_KEYS_TO_SEND = "which_keys_to_send"
+
+
 OPERATIONS_ANYONE = {
-    "check_device_registered": check_device_registered,
+    Operations.CHECK_DEVICE_REGISTERED: check_device_registered,
 }
 OPERATIONS_REGISTRATION = {
-    "register": register,
-    "get_extra_strings": get_extra_strings,
+    Operations.REGISTER: register,
+    Operations.GET_EXTRA_STRINGS: get_extra_strings,
 }
 OPERATIONS_UPLOAD = {
-    "check_upload_user_and_device": check_upload_user_and_device,
-    "get_id_info": get_id_info,
-    "start_upload": start_upload,
-    "end_upload": end_upload,
-    "upload_table": upload_table,
-    "upload_record": upload_record,
-    "upload_empty_tables": upload_empty_tables,
-    "start_preservation": start_preservation,
-    "delete_where_key_not": delete_where_key_not,
-    "which_keys_to_send": which_keys_to_send,
+    Operations.CHECK_UPLOAD_USER_DEVICE: check_upload_user_and_device,
+    Operations.GET_ID_INFO: get_id_info,
+    Operations.START_UPLOAD: start_upload,
+    Operations.END_UPLOAD: end_upload,
+    Operations.UPLOAD_TABLE: upload_table,
+    Operations.UPLOAD_RECORD: upload_record,
+    Operations.UPLOAD_EMPTY_TABLES: upload_empty_tables,
+    Operations.START_PRESERVATION: start_preservation,
+    Operations.DELETE_WHERE_KEY_NOT: delete_where_key_not,
+    Operations.WHICH_KEYS_TO_SEND: which_keys_to_send,
 }
 
 
@@ -1498,16 +1545,25 @@ def client_api(req: CamcopsRequest) -> Response:
     View for client API. All tablet interaction comes through here.
     Wraps main_client_api().
     """
+    # log.critical("{!r}", req.environ)
+    # log.critical("{!r}", req.params)
     t0 = time.time()  # in seconds
 
     try:
         resultdict = main_client_api(req)
-        resultdict[TabletParam.SUCCESS] = 1
+        resultdict[TabletParam.SUCCESS] = SUCCESS_CODE
+        status = '200 OK'
+    except IgnoringAntiqueTableException as e:
+        log.warning(IGNORING_ANTIQUE_TABLE_MESSAGE)
+        resultdict = {
+            TabletParam.RESULT: escape_newlines(str(e)),
+            TabletParam.SUCCESS: SUCCESS_CODE,
+        }
         status = '200 OK'
     except UserErrorException as e:
         log.warning("CLIENT-SIDE SCRIPT ERROR: {}", e)
         resultdict = {
-            TabletParam.SUCCESS: 0,
+            TabletParam.SUCCESS: FAILURE_CODE,
             TabletParam.ERROR: escape_newlines(str(e))
         }
         status = '200 OK'
@@ -1515,7 +1571,7 @@ def client_api(req: CamcopsRequest) -> Response:
         log.error("SERVER-SIDE SCRIPT ERROR: {}", e)
         # rollback? Not sure
         resultdict = {
-            TabletParam.SUCCESS: 0,
+            TabletParam.SUCCESS: FAILURE_CODE,
             TabletParam.ERROR: escape_newlines(str(e))
         }
         status = "503 Database Unavailable: " + str(e)
@@ -1525,7 +1581,7 @@ def client_api(req: CamcopsRequest) -> Response:
         # the tablet user will at least see the message.
         log.exception("Unhandled exception")  # + traceback.format_exc()
         resultdict = {
-            TabletParam.SUCCESS: 0,
+            TabletParam.SUCCESS: FAILURE_CODE,
             TabletParam.ERROR: escape_newlines(exception_description(e))
         }
         status = '200 OK'
@@ -1548,11 +1604,56 @@ def client_api(req: CamcopsRequest) -> Response:
 # Unit tests
 # =============================================================================
 
-class ClientApiTests(ExtendedTestCase):
-    def test_client_api(self) -> None:
-        self.announce("test_client_api")
-        u = UserErrorException
-        s = ServerErrorException
+def make_post_body_from_dict(d: Dict[str, str],
+                             encoding: str = "utf8") -> bytes:
+    # https://docs.pylonsproject.org/projects/pyramid-cookbook/en/latest/testing/testing_post_curl.html  # noqa
+    txt = urllib.parse.urlencode(query=d)
+    # ... this encoding mimics how the tablet operates
+    body = txt.encode(encoding)
+    return body
+
+
+def fake_request_post_from_dict(req: "Request",
+                                d: Dict[str, str],
+                                encoding: str = "utf8") -> None:
+    req.method = RequestMethod.POST
+    body = make_post_body_from_dict(d, encoding=encoding)
+    log.debug("Applying fake POST body: {!r}", body)
+    req.body = body
+    req.content_length = len(body)
+
+
+def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
+    txt = str(response)
+    d = {}  # type: Dict[str, str]
+    # Format is: "200 OK\r\n<other headers>\r\n\r\n<content>"
+    # There's a blank line between the heads and the body.
+    http_gap = "\r\n\r\n"
+    camcops_linesplit = "\n"
+    camcops_k_v_sep = ":"
+    try:
+        start_of_content = txt.index(http_gap) + len(http_gap)
+        txt = txt[start_of_content:]
+        for line in txt.split(camcops_linesplit):
+            if not line:
+                continue
+            colon_pos = line.index(camcops_k_v_sep)
+            key = line[:colon_pos]
+            value = line[colon_pos + len(camcops_k_v_sep):]
+            key = key.strip()
+            value = value.strip()
+            d[key] = value
+        return d
+    except ValueError:
+        return {}
+
+
+class ClientApiTests(DemoDatabaseTestCase):
+    def _set_req_post_dict(self, d: Dict[str, str]) -> None:
+        fake_request_post_from_dict(self.req, d)
+
+    def test_client_api_basics(self) -> None:
+        self.announce("test_client_api_basics")
 
         with self.assertRaises(UserErrorException):
             fail_user_error("testmsg")
@@ -1574,15 +1675,15 @@ class ClientApiTests(ExtendedTestCase):
             teststring.format(
                 b=enc_b64data,
                 h=enc_hexdata,
-                s1=rnc_db.sql_quote_string(not_enc_1),
-                s2=rnc_db.sql_quote_string(not_enc_2),
+                s1=sql_quote_string(not_enc_1),
+                s2=sql_quote_string(not_enc_2),
             ): [
                 "one",
                 "two",
                 3,
                 4.5,
                 None,
-                'hello "hi\n        with linebreak"',
+                'hello "hi\n            with linebreak"',
                 "NULL",
                 "quote's here",
                 data,
@@ -1605,3 +1706,49 @@ class ClientApiTests(ExtendedTestCase):
                          "Bug in escape_newlines() or unescape_newlines()")
 
         # TODO: more tests here... ?
+
+    def test_client_api_antique_support_1(self):
+        self.announce("test_client_api_antique_support_1")
+        self._set_req_post_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.WHICH_KEYS_TO_SEND,
+            TabletParam.TABLE: DEVICE_STORED_VAR_TABLENAME_DEFUNCT,
+        })
+        response = client_api(self.req)
+        d = get_reply_dict_from_response(response)
+        assert d[TabletParam.SUCCESS] == SUCCESS_CODE
+
+    def test_client_api_antique_support_2(self):
+        self.announce("test_client_api_antique_support_2")
+        self._set_req_post_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.WHICH_KEYS_TO_SEND,
+            TabletParam.TABLE: "nonexistent_table",
+        })
+        response = client_api(self.req)
+        d = get_reply_dict_from_response(response)
+        assert d[TabletParam.SUCCESS] == FAILURE_CODE
+
+    def test_client_api_antique_support_3(self):
+        self.announce("test_client_api_antique_support_3")
+        self._set_req_post_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.UPLOAD_TABLE,
+            TabletParam.TABLE: DEVICE_STORED_VAR_TABLENAME_DEFUNCT,
+        })
+        response = client_api(self.req)
+        d = get_reply_dict_from_response(response)
+        assert d[TabletParam.SUCCESS] == SUCCESS_CODE
+
+
+# =============================================================================
+# main
+# =============================================================================
+# run with "python -m camcops_server.cc_modules.client_api -v" to be verbose
+
+if __name__ == "__main__":
+    main_only_quicksetup_rootlogger(level=logging.DEBUG)
+    unittest.main()

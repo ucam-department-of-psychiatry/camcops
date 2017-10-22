@@ -80,9 +80,11 @@ from cardinal_pythonlib.wsgi.reverse_proxied_mw import (
 )  # nopep8
 
 # Import this one early:
-from camcops_server.cc_modules.cc_all_models import all_models_no_op  # nopep8
+# noinspection PyUnresolvedReferences
+import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
 
 from camcops_server.cc_modules.cc_alembic import (
+    assert_database_is_at_head,
     create_database_from_scratch,
     upgrade_database_to_head,
 )  # nopep8
@@ -90,6 +92,8 @@ from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
     MANUAL_FILENAME_PDF,
 )  # nopep8
+# noinspection PyUnresolvedReferences
+import camcops_server.cc_modules.client_api  # import side effects (register unit test)  # nopep8
 from camcops_server.cc_modules.cc_config import (
     get_default_config_from_os_env,  # nopep8
     get_demo_apache_config,
@@ -121,7 +125,6 @@ from camcops_server.cc_modules.cc_user import set_password_directly, User  # nop
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
 from camcops_server.cc_modules.merge_db import merge_camcops_db  # nopep8
 
-all_models_no_op()
 log.debug("All imports complete")
 
 if TYPE_CHECKING:
@@ -168,6 +171,11 @@ URL_PATH_ROOT = '/'
 # =============================================================================
 # WSGI entry point
 # =============================================================================
+
+def ensure_database_is_at_head() -> None:
+    config = get_default_config_from_os_env()
+    assert_database_is_at_head(config)
+
 
 def make_wsgi_app(debug_toolbar: bool = False,
                   reverse_proxied_config: ReverseProxiedConfig = None,
@@ -236,6 +244,7 @@ def make_wsgi_app_from_argparse_args(args) -> Router:
 def test_serve_pyramid(application: Router,
                        host: str = DEFAULT_HOST,
                        port: int = DEFAULT_PORT) -> None:
+    ensure_database_is_at_head()
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}".format(host, port))
     server.serve_forever()
@@ -263,6 +272,8 @@ def serve_cherrypy(application: Router,
     - Multithreading.
     - Any platform.
     """
+    ensure_database_is_at_head()
+
     # Report on options
     if unix_domain_socket_filename:
         # If this is specified, it takes priority
@@ -333,6 +344,8 @@ def serve_gunicorn(application: Router,
     if BaseApplication is None:
         raise RuntimeError("Gunicorn does not run under Windows. "
                            "(It relies on the UNIX fork() facility.)")
+
+    ensure_database_is_at_head()
 
     # Report on options, and calculate Gunicorn versions
     if unix_domain_socket_filename:
@@ -548,7 +561,7 @@ def send_hl7(show_queue_only: bool) -> None:
 # Test rig
 # -----------------------------------------------------------------------------
 
-def self_test() -> None:
+def self_test(show_only: bool = False) -> None:
     """
     Run all unit tests.
     """
@@ -611,6 +624,8 @@ def self_test() -> None:
                 continue
             log.info("Discovered test: {}", cls)
             suite.addTest(unittest.makeSuite(cls))
+        if show_only:
+            return
         runner = unittest.TextTestRunner()
         runner.run(suite)
 
@@ -625,8 +640,7 @@ _REQNAMED = 'required named arguments'
 # noinspection PyShadowingBuiltins
 def add_sub(sp: "_SubParsersAction", cmd: str,
             config_mandatory: Optional[bool] = False,
-            help: str = None,
-            give_config_wsgi_help: bool = False) -> ArgumentParser:
+            help: str = None) -> ArgumentParser:
     """
     config_mandatory:
         None = don't ask for config
@@ -640,13 +654,7 @@ def add_sub(sp: "_SubParsersAction", cmd: str,
     subparser.add_argument(
         '-v', '--verbose', action='count', default=0,
         help="Be verbose")
-    if give_config_wsgi_help:
-        cfg_help = (
-            "Configuration file. (When run in WSGI mode, this is read "
-            "from the {ev} variable in (1) the WSGI environment, "
-            "or (2) the operating system environment.)".format(
-                ev=ENVVAR_CONFIG_FILE))
-    elif config_mandatory:
+    if config_mandatory:
         cfg_help = "Configuration file"
     else:
         cfg_help = ("Configuration file (if not specified, the environment"
@@ -754,7 +762,7 @@ def add_wsgi_options(sp: ArgumentParser) -> None:
             "Option to set the WSGI scheme (e.g. http, https) directly. "
             "This affects the WSGI variable {w}. If not specified, "
             "trusted variables within {v!r} will be used.".format(
-                w=WsgiEnvVar.URL_SCHEME,
+                w=WsgiEnvVar.WSGI_URL_SCHEME,
                 v=ReverseProxiedMiddleware.CANDIDATES_URL_SCHEME,
             )
         )
@@ -1030,8 +1038,13 @@ def camcops_main() -> None:
     # Test options
     # -------------------------------------------------------------------------
 
+    showtests_parser = add_sub(
+        subparsers, "show_tests", config_mandatory=None,
+        help="Show available self-tests")
+    showtests_parser.set_defaults(func=lambda args: self_test(show_only=True))
+
     selftest_parser = add_sub(
-        subparsers, "selftest", config_mandatory=None,
+        subparsers, "self_test", config_mandatory=None,
         help="Test internal code")
     selftest_parser.set_defaults(func=lambda args: self_test())
 

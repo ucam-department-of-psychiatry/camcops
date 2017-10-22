@@ -26,11 +26,6 @@ from collections import OrderedDict
 import re
 from typing import Dict, List, Pattern, Tuple
 
-from cardinal_pythonlib.rnc_db import (
-    FIELDSPEC_TYPE,
-    FIELDSPECLIST_TYPE,
-)
-
 from .cc_constants import TSV_PATIENT_FIELD_PREFIX
 from . import cc_db
 
@@ -62,7 +57,7 @@ def get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
 
 def get_cris_dd_row(taskname: str,
                     tablename: str,
-                    fieldspec: FIELDSPEC_TYPE) -> Dict:
+                    fieldspec: "FIELDSPEC_TYPE") -> Dict:
     """Returns an OrderedDict with information for a CRIS Data Dictionary row,
     given a fieldspec."""
 
@@ -149,7 +144,7 @@ def get_cris_dd_row(taskname: str,
 def get_cris_dd_rows_from_fieldspecs(
         taskname: str,
         tablename: str,
-        fieldspecs: FIELDSPECLIST_TYPE) -> List[Dict]:
+        fieldspecs: "FIELDSPECLIST_TYPE") -> List[Dict]:
     rows = []
     for fs in fieldspecs:
         rows.append(get_cris_dd_row(taskname, tablename, fs))

@@ -34,7 +34,6 @@ NOTES:
     - classmethods to make summary tables
 """
 
-import collections
 import copy
 import logging
 import statistics
@@ -47,7 +46,6 @@ from cardinal_pythonlib.datetimefunc import (
     format_datetime,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from cardinal_pythonlib.rnc_db import DatabaseSupporter, FIELDSPECLIST_TYPE
 from cardinal_pythonlib.sqlalchemy.orm_query import get_rows_fieldnames_from_query  # noqa
 from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_columns,
@@ -984,7 +982,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     @classmethod
     def make_cris_tables(cls, req: CamcopsRequest,
-                         db: DatabaseSupporter) -> None:
+                         db: "DatabaseSupporter") -> None:
         # DO NOT CONFUSE pls.db and db. HERE WE ONLY USE db.
         log.info("Generating CRIS staging tables for: {}", cls.shortname)
         cc_db.set_db_to_utf8(db)
@@ -1013,7 +1011,7 @@ class Task(GenericTabletRecordMixin, Base):
                     db.insert_record_by_fieldspecs_with_values(item_table,
                                                                item_fsv)
 
-    def get_cris_common_fieldspecs_values(self) -> FIELDSPECLIST_TYPE:
+    def get_cris_common_fieldspecs_values(self) -> "FIELDSPECLIST_TYPE":
         # Store the task's PK in its own but all linked records
         clusterpk_fs = copy.deepcopy(CRIS_CLUSTER_KEY_FIELDSPEC)
         clusterpk_fs["value"] = self._pk
@@ -1032,7 +1030,7 @@ class Task(GenericTabletRecordMixin, Base):
     def get_cris_fieldspecs_values(
             self,
             req: CamcopsRequest,
-            common_fsv: FIELDSPECLIST_TYPE) -> FIELDSPECLIST_TYPE:
+            common_fsv: "FIELDSPECLIST_TYPE") -> "FIELDSPECLIST_TYPE":
         fieldspecs = copy.deepcopy(self.get_full_fieldspecs())
         for fs in fieldspecs:
             fs["value"] = getattr(self, fs["name"])
@@ -1800,7 +1798,7 @@ class TaskTests(DemoDatabaseTestCase):
             self.assertIsInstance(t.suggested_pdf_filename(req), str)
             self.assertIsInstance(
                 t.get_rio_metadata(which_idnum=1,
-                                   uploading_user_id=self.u.id,
+                                   uploading_user_id=self.user.id,
                                    document_type="some_doc_type"),
                 str
             )

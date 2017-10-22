@@ -35,13 +35,13 @@ import pyramid.httpexceptions as exc
 from sqlalchemy.orm import Query
 from sqlalchemy.orm.session import Session as SqlASession
 
-from .cc_all_models import all_models_no_op
+# noinspection PyUnresolvedReferences
+import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
 from .cc_request import CamcopsRequest
 from .cc_task import Task
 from .cc_taskfilter import tablename_to_task_class_dict, TaskFilter
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
-all_models_no_op()
 
 
 # =============================================================================

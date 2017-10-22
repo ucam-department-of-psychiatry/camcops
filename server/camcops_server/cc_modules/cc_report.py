@@ -23,8 +23,7 @@
 """
 
 import logging
-from typing import (Any, List, Optional, Sequence, Tuple,
-                    Type, TYPE_CHECKING, Union)
+from typing import Any, List, Optional, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import all_subclasses, classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime

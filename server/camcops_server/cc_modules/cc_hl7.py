@@ -33,15 +33,10 @@ import subprocess
 import sys
 from typing import List, Optional, TextIO, Tuple, TYPE_CHECKING, Union
 
-from cardinal_pythonlib.datetimefunc import (
-    format_datetime,
-    get_now_localtz,
-    get_now_utc,
-)
+from cardinal_pythonlib.datetimefunc import format_datetime, get_now_utc
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.network import ping
 from sqlalchemy.orm import reconstructor, relationship
-from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.expression import or_, not_
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import (
@@ -56,16 +51,10 @@ from sqlalchemy.sql.sqltypes import (
 from .cc_constants import DateFormat, HL7MESSAGE_TABLENAME, ERA_NOW
 from .cc_filename import change_filename_ext, FileType
 from .cc_hl7core import (
-    escape_hl7_text,
-    get_mod11_checkdigit,
     make_msh_segment,
-    make_obr_segment,
-    make_obx_segment,
-    make_pid_segment,
     msg_is_successful_ack,
     SEGMENT_SEPARATOR,
 )
-from .cc_simpleobjects import HL7PatientIdentifier
 from .cc_config import CamcopsConfig
 from .cc_recipdef import RecipientDefinition
 from .cc_request import CamcopsRequest
@@ -117,6 +106,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # - Locking via UNIX lockfiles:
 #       https://pypi.python.org/pypi/lockfile
 #       http://pythonhosted.org/lockfile/
+#           ... which also works on Windows.
 
 # CALLING THE HL7 PROCESSOR
 # - Use "camcops -7 ..." or "camcops --hl7 ..."
@@ -777,7 +767,7 @@ def send_all_pending_hl7_messages(cfg: CamcopsConfig,
         log.warning("send_all_pending_hl7_messages: locked by another"
                     " process; aborting")
         return
-    with lock:
+    with lock:  # calls lock.__enter__() and, later, lock.__exit__()
         with cfg.get_dbsession_context() as dbsession:
             if show_queue_only:
                 print("recipient,basetable,_pk,when_created", file=queue_stdout)

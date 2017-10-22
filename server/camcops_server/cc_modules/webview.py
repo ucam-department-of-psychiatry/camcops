@@ -216,7 +216,8 @@ from .cc_idnumdef import IdNumDefinition
 from .cc_membership import UserGroupMembership
 from .cc_patient import Patient
 from .cc_patientidnum import PatientIdNum
-from .cc_plot import ccplot_no_op
+# noinspection PyUnresolvedReferences
+import camcops_server.cc_modules.cc_plot  # import side effects (configure matplotlib)  # noqa
 from .cc_pyramid import (
     CamcopsPage,
     FormAction,
@@ -249,7 +250,6 @@ from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 from .cc_version import CAMCOPS_SERVER_VERSION
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
-ccplot_no_op()
 
 # =============================================================================
 # Constants

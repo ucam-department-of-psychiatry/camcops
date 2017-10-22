@@ -34,6 +34,7 @@ from sqlalchemy.orm import Session as SqlASession
 from .cc_constants import MIMETYPE_PNG
 from .cc_idnumdef import IdNumDefinition
 from .cc_sqlalchemy import Base, make_debug_sqlite_engine
+from .cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
     from .cc_db import GenericTabletRecordMixin
@@ -126,16 +127,29 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
                                  hl7_id_type="CPFT_RiO")
         self.dbsession.add(iddef2)
         # ... group
-        self.g = Group()
-        self.g.name = "testgroup"
-        self.g.description = "Test group"
-        self.g.upload_policy = "sex AND anyidnum"
-        self.g.finalize_policy = "sex AND idnum1"
-        self.dbsession.add(self.g)
-        # ... device (will also create system user)
-        self.d = Device.get_server_device(self.dbsession)
-        self.u = User.get_system_user(self.dbsession)
-        self.req._debugging_user = self.u  # improve our debugging user
+        self.group = Group()
+        self.group.name = "testgroup"
+        self.group.description = "Test group"
+        self.group.upload_policy = "sex AND anyidnum"
+        self.group.finalize_policy = "sex AND idnum1"
+        self.dbsession.add(self.group)
+        self.dbsession.flush()  # sets PK fields
+
+        # ... users
+
+        self.user = User.get_system_user(self.dbsession)
+        self.user.upload_group_id = self.group.id
+        self.req._debugging_user = self.user  # improve our debugging user
+
+        # ... devices
+        self.server_device = Device.get_server_device(self.dbsession)
+        self.other_device = Device()
+        self.other_device.name = "other_device"
+        self.other_device.friendly_name = "Test device that may upload"
+        self.other_device.registered_by_user = self.user
+        self.other_device.when_registered_utc = self.era_time_utc
+        self.other_device.camcops_version = CAMCOPS_SERVER_VERSION
+        self.dbsession.add(self.other_device)
 
         self.dbsession.flush()  # sets PK fields
 
@@ -218,11 +232,11 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
     def _apply_standard_db_fields(self,
                                   obj: "GenericTabletRecordMixin") -> None:
-        obj._device_id = self.d.id
+        obj._device_id = self.server_device.id
         obj._era = self.era
-        obj._group_id = self.g.id
+        obj._group_id = self.group.id
         obj._current = True
-        obj._adding_user_id = self.u.id
+        obj._adding_user_id = self.user.id
         obj._when_added_batch_utc = self.era_time_utc
 
     def tearDown(self) -> None:

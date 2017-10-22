@@ -34,7 +34,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text
 import wand.image
 
-from .cc_constants import ERA_NOW, MIMETYPE_PNG
+from .cc_constants import MIMETYPE_PNG
 from .cc_db import GenericTabletRecordMixin
 from .cc_html import get_data_url, get_embedded_img_tag
 from .cc_sqla_coltypes import (

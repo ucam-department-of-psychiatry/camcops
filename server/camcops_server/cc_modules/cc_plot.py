@@ -126,13 +126,3 @@ if _old_home is not None:
 log.debug("... finished importing matplotlib")
 
 # REPLACED BY OO METHOD # # THEN DO e.g. # import matplotlib.pyplot as plt
-
-
-# =============================================================================
-# Functions
-# =============================================================================
-
-def ccplot_no_op() -> None:
-    """Call to justify an import, as seen by pyflakes, whereas the real
-    justification is to configure matplotlib at first import."""
-    pass

@@ -39,12 +39,13 @@ from sqlalchemy import engine_from_config, pool
 from sqlalchemy.sql.schema import MetaData
 
 # No relative imports from within the Alembic zone.
+from camcops_server.cc_modules.cc_baseconstants import ALEMBIC_VERSION_TABLE
 from camcops_server.cc_modules.cc_config import get_default_config_from_os_env
 from camcops_server.cc_modules.cc_sqlalchemy import Base
-from camcops_server.cc_modules.cc_all_models import all_models_no_op
+# noinspection PyUnresolvedReferences
+import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
-all_models_no_op()  # to suppress "Unused import statement"
 
 
 # =============================================================================
@@ -69,6 +70,7 @@ def run_migrations_offline(config: Config,
         target_metadata=target_metadata,
         render_as_batch=True,  # for SQLite mode; http://stackoverflow.com/questions/30378233  # noqa
         literal_binds=True,
+        version_table=ALEMBIC_VERSION_TABLE,
     )
     with context.begin_transaction():
         context.run_migrations()
@@ -93,6 +95,7 @@ def run_migrations_online(config: Config,
             connection=connection,
             target_metadata=target_metadata,
             render_as_batch=True,  # for SQLite mode; http://stackoverflow.com/questions/30378233  # noqa
+            version_table=ALEMBIC_VERSION_TABLE,
         )
         with context.begin_transaction():
             context.run_migrations()
@@ -120,4 +123,5 @@ def run_alembic() -> None:
 
 
 main_only_quicksetup_rootlogger(level=logging.DEBUG)
+# log.critical("IN CAMCOPS MIGRATION SCRIPT env.py")
 run_alembic()

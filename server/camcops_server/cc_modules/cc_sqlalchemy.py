@@ -45,6 +45,7 @@ import logging
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.dump import dump_ddl
+from cardinal_pythonlib.sqlalchemy.session import SQLITE_MEMORY_URL
 from pendulum import Pendulum
 
 from sqlalchemy.engine import create_engine
@@ -156,15 +157,15 @@ Base.__table_args__ = {
 # =============================================================================
 
 def make_memory_sqlite_engine() -> Engine:
-    return create_engine('sqlite://')
+    return create_engine(SQLITE_MEMORY_URL)
 
 
 def make_debug_sqlite_engine(echo: bool = True) -> Engine:
-    return create_engine('sqlite://', echo=echo)
+    return create_engine(SQLITE_MEMORY_URL, echo=echo)
 
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-def get_all_ddl(dialect_name: str = "mysql") -> str:
+def get_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> str:
     metadata = Base.metadata  # type: MetaData
     with StringIO() as f:
         dump_ddl(metadata, dialect_name=dialect_name, fileobj=f)
@@ -173,7 +174,7 @@ def get_all_ddl(dialect_name: str = "mysql") -> str:
     return text
 
 
-def log_all_ddl(dialect_name: str = "mysql") -> None:
+def log_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> None:
     text = get_all_ddl(dialect_name)
     log.info(text)
     log.info("DDL length: {} characters", len(text))

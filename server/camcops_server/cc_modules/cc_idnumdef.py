@@ -31,7 +31,6 @@ from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer
 
-from .cc_cache import cache_region_static
 from .cc_sqla_coltypes import (
     HL7AssigningAuthorityType,
     HL7IdTypeType,

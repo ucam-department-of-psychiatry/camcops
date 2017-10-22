@@ -79,6 +79,13 @@ class ExtraStringFieldNames(object):
 # =============================================================================
 # Exceptions used by client API
 # =============================================================================
+# Note the following about exception strings:
+#
+# class Blah(Exception):
+#     pass
+#
+# x = Blah("hello")
+# str(x)  # 'hello'
 
 class UserErrorException(Exception):
     """
@@ -90,6 +97,14 @@ class UserErrorException(Exception):
 class ServerErrorException(Exception):
     """
     Exception class for when something's broken on the server side.
+    """
+    pass
+
+
+class IgnoringAntiqueTableException(Exception):
+    """
+    Special exception to return success when we're ignoring an old tablet's
+    request to upload the "storedvars" table.
     """
     pass
 

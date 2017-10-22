@@ -41,9 +41,14 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.alembic_func import (
     get_current_and_head_revision,
     upgrade_database,
+    stamp_allowing_unusual_version_table,
 )
 
-from .cc_baseconstants import ALEMBIC_BASE_DIR, ALEMBIC_CONFIG_FILENAME
+from .cc_baseconstants import (
+    ALEMBIC_BASE_DIR,
+    ALEMBIC_CONFIG_FILENAME,
+    ALEMBIC_VERSION_TABLE,
+)
 from .cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
@@ -54,8 +59,8 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 def import_all_models():
-    from .cc_all_models import all_models_no_op
-    all_models_no_op()  # to suppress "Unused import statement"
+    # noinspection PyUnresolvedReferences
+    import camcops_server.cc_modules.cc_all_models  # delayed import  # import side effects (ensure all models registered)  # noqa
 
 
 def upgrade_database_to_head() -> None:
@@ -64,7 +69,8 @@ def upgrade_database_to_head() -> None:
     """
     import_all_models()  # delayed, for command-line interfaces
     upgrade_database(alembic_base_dir=ALEMBIC_BASE_DIR,
-                     alembic_config_filename=ALEMBIC_CONFIG_FILENAME)
+                     alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
+                     version_table=ALEMBIC_VERSION_TABLE)
     # ... will get its config information from the OS environment; see
     # run_alembic() in alembic/env.py
 
@@ -97,7 +103,9 @@ def create_database_from_scratch(cfg: "CamcopsConfig") -> None:
 
     alembic_cfg = Config(ALEMBIC_CONFIG_FILENAME)
     os.chdir(ALEMBIC_BASE_DIR)
-    command.stamp(alembic_cfg, "head")
+    # command.stamp(alembic_cfg, "head")
+    stamp_allowing_unusual_version_table(alembic_cfg, "head",
+                                         version_table=ALEMBIC_VERSION_TABLE)
     log.info("One-step database creation complete.")
 
 
@@ -107,6 +115,7 @@ def assert_database_is_at_head(cfg: "CamcopsConfig") -> None:
         database_url=cfg.db_url,
         alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
         alembic_base_dir=ALEMBIC_BASE_DIR,
+        version_table=ALEMBIC_VERSION_TABLE,
     )
     if current == head:
         log.debug("Database is at correct (head) revision of {}", current)

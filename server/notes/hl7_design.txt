@@ -1,0 +1,77 @@
+Should the HL7 recipients be in the config, or in the database?
+
+First, locking: this needs to be solid and in particular needs to avoid:
+- two processes trying to do HL7 work at the same time
+  ... could make this per-group later, but a global lock is fine for now
+- the user editing HL7 definitions whilst outbound work is occurring
+We'll stick with the lockfile approach.
+
+Then, benefits of HL7 config being in the database include:
+- easier user editing
+- shorter downtime - you don't want to be repeatedly restarting CamCOPS just
+  to edit HL7 definitions and test them.
+
+At present, we have a config definition and then make a database copy. We make
+the copy so there's a permanent record. If the definition were in the database,
+we could make a copy again, but that seems silly if we're repeatedly copying
+the same thing. We could have a "frozen" flag, set when a definition is used;
+that could prevent editing, and then one would have to "clone" the definition
+(plus an "enabled" flag which could be turned off for frozen definitions).
+
+Mind you, what we have at present isn't too bad: the recipient definition is
+copied into an HL7Run, but that does add some extra information.
+
+
+Quick row-size query:
+... https://dba.stackexchange.com/questions/46069/how-to-estimate-predict-data-size-and-index-size-of-a-table-in-mysql
+
+SELECT
+    CONCAT(FORMAT(DAT/POWER(1024,pw1),2),' ',SUBSTR(units,pw1*2+1,2)) DATSIZE,
+    CONCAT(FORMAT(NDX/POWER(1024,pw2),2),' ',SUBSTR(units,pw2*2+1,2)) NDXSIZE,
+    CONCAT(FORMAT(TBL/POWER(1024,pw3),2),' ',SUBSTR(units,pw3*2+1,2)) TBLSIZE
+FROM
+(
+    SELECT DAT,NDX,TBL,IF(px>4,4,px) pw1,IF(py>4,4,py) pw2,IF(pz>4,4,pz) pw3
+    FROM
+    (
+        SELECT data_length DAT,index_length NDX,data_length+index_length TBL,
+        FLOOR(LOG(IF(data_length=0,1,data_length))/LOG(1024)) px,
+        FLOOR(LOG(IF(index_length=0,1,index_length))/LOG(1024)) py,
+        FLOOR(LOG(data_length+index_length)/LOG(1024)) pz
+        FROM information_schema.tables
+        WHERE table_schema='camcops_alembic_test'
+        AND table_name='phq9'
+    ) AA
+) A,(SELECT 'B KBMBGBTB' units) B;
+
+
+... more helpfully for calculating future size, TEXT fields take L + 2 bytes,
+where L is the actual length of the contents:
+
+https://dev.mysql.com/doc/refman/5.7/en/storage-requirements.html#data-types-storage-reqs-strings
+
+... so size isn't likely to be a real consideration.
+
+From the user's point of view, which is the main thing, some sort of "frozen"
+system is probably pretty confusing (can I edit this one? Should I clone it?
+If I clone it, do I have to deactivate the old one?), though the mechanics
+could be concealed a bit more (e.g. if you edit a frozen one, it auto-clones
+and deactivates the predecessor).
+
+What about editing from the front end while backend processes try to send
+HL7 messages? Helpful? Unhelpful?
+    - would have to ensure that the front-end only tries to obtain a lock when
+      actually writing!
+
+Having them in the config brings problems/suboptimality because they need to
+refer to group ID and ID numbers.
+- you'd have to prevent group removal for a group that an HL7 definition was
+  aiming at, etc.
+
+At this point, should we also be considering an on-demand system, where task
+upload triggers an HL7 message?
+
+Perhaps we should always constrain to "finalized only"! We don't want
+half-finished data winging its way around.
+
+Anyway: 2017-20-21 DEFER until server up for CPFT/ADRD.

@@ -1982,14 +1982,10 @@ class ForciblyFinalizeConfirmForm(DangerousForm):
 
 class SchemaTests(DemoRequestTestCase):
     @staticmethod
-    def serialize_deserialize(schema: Schema,
-                              appstruct: Dict[str, Any]) -> None:
-        log.debug("camcops_server.cc_forms.SchemaTests.serialize_deserialize")
+    def _serialize_deserialize(schema: Schema,
+                               appstruct: Dict[str, Any]) -> None:
         cstruct = schema.serialize(appstruct)
-        log.info("0. starting appstruct: {!r}", appstruct)
-        log.info("1. serialize(appstruct) -> cstruct = {!r}", cstruct)
         final = schema.deserialize(cstruct)
-        log.info("2. deserialize(cstruct) -> final = {!r}", final)
         mismatch = False
         for k, v in appstruct.items():
             if final[k] != v:
@@ -2003,8 +1999,6 @@ class SchemaTests(DemoRequestTestCase):
                 pformat(final), pformat(appstruct)
             )
         )
-        log.info("... all elements of final appstruct match corresponding "
-                 "elements of starting appstruct")
 
     def test_login_schema(self) -> None:
         self.announce("test_login_schema")  # noqa
@@ -2013,7 +2007,7 @@ class SchemaTests(DemoRequestTestCase):
             ViewParam.PASSWORD: "testpw",
         }
         schema = LoginSchema().bind(request=self.req)
-        self.serialize_deserialize(schema, appstruct)
+        self._serialize_deserialize(schema, appstruct)
 
 
 # =============================================================================
@@ -2022,5 +2016,5 @@ class SchemaTests(DemoRequestTestCase):
 # run with "python -m camcops_server.cc_modules.forms -v" to be verbose
 
 if __name__ == "__main__":
-    main_only_quicksetup_rootlogger()
+    main_only_quicksetup_rootlogger(level=logging.DEBUG)
     unittest.main()

@@ -333,6 +333,7 @@ camcops_server
     include_package_data=True,  # use MANIFEST.in during install?
 
     install_requires=[
+        'alembic==0.9.6',  # database migrations
         # 'arrow==0.10.0',  # better datetime
         'cardinal_pythonlib==1.0.4',  # RNC libraries
         'colorlog==3.1.0',  # colour in logs

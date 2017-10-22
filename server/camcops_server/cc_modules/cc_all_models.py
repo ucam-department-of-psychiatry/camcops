@@ -32,11 +32,10 @@ from typing import Dict, Type
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
-from pendulum import Date, Pendulum
 from sqlalchemy.orm import configure_mappers
 from sqlalchemy.sql.schema import Table
 
-from .cc_constants import ALEMBIC_VERSION_TABLENAME
+from .cc_baseconstants import ALEMBIC_VERSION_TABLE
 from .cc_db import GenericTabletRecordMixin
 from .cc_sqlalchemy import Base, log_all_ddl
 
@@ -63,6 +62,7 @@ from .cc_patient import Patient
 from .cc_session import CamcopsSession
 from .cc_specialnote import SpecialNote
 from .cc_serversettings import ServerSettings
+# noinspection PyUnresolvedReferences
 from .cc_task import Task
 from .cc_taskfilter import TaskFilter
 from .cc_unittest import DemoDatabaseTestCase
@@ -105,7 +105,7 @@ configure_mappers()
 # =============================================================================
 
 RESERVED_TABLE_NAMES = [
-    ALEMBIC_VERSION_TABLENAME,
+    ALEMBIC_VERSION_TABLE,
     AuditEntry.__tablename__,
     CamcopsSession.__tablename__,
     Device.__tablename__,
@@ -141,14 +141,6 @@ for __orm_class in gen_orm_classes_from_base(Base):  # type: Type[Base]
             # noinspection PyUnresolvedReferences
             __table = __orm_class.__table__  # type: Table
             CLIENT_TABLE_MAP[__tablename] = __table
-
-
-# =============================================================================
-# A silly way to suppress "Unused import statement"
-# =============================================================================
-
-def all_models_no_op() -> None:
-    pass
 
 
 # =============================================================================

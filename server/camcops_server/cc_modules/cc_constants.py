@@ -251,7 +251,6 @@ SEPARATOR_EQUALS = "=" * 79
 # =============================================================================
 
 HL7MESSAGE_TABLENAME = "_hl7_message_log"
-ALEMBIC_VERSION_TABLENAME = "alembic_version"
 
 # =============================================================================
 # Task constants

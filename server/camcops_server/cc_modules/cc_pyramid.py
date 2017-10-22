@@ -22,7 +22,6 @@
 ===============================================================================
 """
 
-from contextlib import contextmanager
 from enum import Enum
 import logging
 import os
@@ -34,12 +33,14 @@ from typing import (Any, Callable, Dict, List, Optional, Sequence, Tuple,
 from urllib.parse import urlencode
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
 from mako.lookup import TemplateLookup
 from paginate import Page
 from pyramid.authentication import IAuthenticationPolicy
 from pyramid.authorization import IAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.interfaces import ILocation, ISession
+from pyramid.request import Request
 from pyramid.security import (
     Allowed,
     Denied,
@@ -64,7 +65,6 @@ from .cc_cache import cache_region_static
 from .cc_constants import DEFAULT_ROWS_PER_PAGE
 
 if TYPE_CHECKING:
-    from pyramid.request import Request
     from .cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -1135,3 +1135,15 @@ class PageUrl(object):
         else:
             path = self.request.path
         return make_page_url(path, self.request.GET, page, partial)
+
+
+# =============================================================================
+# Debugging requests
+# =============================================================================
+
+def get_body_from_request(req: Request) -> bytes:
+    log.warning("Attempting to read body from request -- but a previous read "
+                "may have left this empty. Consider using Wireshark!")
+    wsgi_input = req.environ[WsgiEnvVar.WSGI_INPUT]
+    # ... under gunicorn, is an instance of gunicorn.http.body.Body
+    return wsgi_input.read()

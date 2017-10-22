@@ -641,8 +641,8 @@ def merge_camcops_db(src: str,
 
     # Delay the slow import until we've checked our syntax
     log.info("Loading all models...")
-    from camcops_server.cc_modules.cc_all_models import all_models_no_op  # delayed import  # noqa
-    all_models_no_op()
+    # noinspection PyUnresolvedReferences
+    import camcops_server.cc_modules.cc_all_models  # delayed import  # import side effects (ensure all models registered)  # noqa
     log.info("Models loaded.")
 
     # Now, any special dependencies?

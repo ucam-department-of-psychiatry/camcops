@@ -2,8 +2,10 @@
 CAMCOPS SERVER THINGS TO DO NOW
 ===============================================================================
 
-*** Test framework via cfg based on demo text but using sqlite memory db
-*** unit tests
+NOW:
+
+
+SOON:
 
 *** test HL7 backend
 
@@ -12,6 +14,9 @@ CAMCOPS SERVER THINGS TO DO NOW
     --- similarly: special user for "system"
     ... see USER_NAME_FOR_SYSTEM
     *** creation and merge_db are implemented, but not used much; fix
+
+*** implement (from command line) "export to anonymisation staging database"
+    = with patient info per table.
 
 ===============================================================================
 KEY THOUGHTS

@@ -121,12 +121,17 @@ class CamcopsSession(Base):
     )
     task_filter_id = Column(
         "task_filter_id", Integer,
-        ForeignKey("_task_filters.id"), # ****** cascade deletes? CHECK DIRECTION!
+        ForeignKey("_task_filters.id"),
         comment="Task filter ID"
     )
 
     user = relationship("User", lazy="joined", foreign_keys=[user_id])
-    task_filter = relationship("TaskFilter", foreign_keys=[task_filter_id])
+    task_filter = relationship("TaskFilter", foreign_keys=[task_filter_id],
+                               cascade="save-update, merge, delete")
+    # ... "save-update, merge" is the default. We are adding "delete", which
+    # means that when this CamcopsSession is deleted, the corresponding
+    # TaskFilter will be deleted as well. See
+    # http://docs.sqlalchemy.org/en/latest/orm/cascades.html#delete
 
     # -------------------------------------------------------------------------
     # Basic info
@@ -345,6 +350,7 @@ class SessionTests(DemoDatabaseTestCase):
     def test_sessions(self) -> None:
         self.announce("test_sessions")
         req = self.req
+        dbsession = self.dbsession
 
         self.assertIsInstance(generate_token(), str)
 
@@ -361,3 +367,15 @@ class SessionTests(DemoDatabaseTestCase):
         s.logout(req)
         s.login(u)
         self.assertIsInstance(s.get_task_filter(), TaskFilter)
+
+        # Now test deletion cascade
+        dbsession.commit()
+        numfilters = dbsession.query(TaskFilter).count()
+        assert numfilters == 1, "TaskFilter count should be 1"
+
+        dbsession.delete(s)
+        dbsession.commit()
+        numfilters = dbsession.query(TaskFilter).count()
+        assert numfilters == 0, (
+            "TaskFilter count should be 0; cascade delete not working"
+        )

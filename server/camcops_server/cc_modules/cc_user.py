@@ -800,7 +800,6 @@ class UserTests(DemoDatabaseTestCase):
     def test_user(self) -> None:
         self.announce("test_user")
         req = self.req
-        dbsession = req.dbsession
 
         SecurityAccountLockout.delete_old_account_lockouts(req)
         self.assertIsInstance(
