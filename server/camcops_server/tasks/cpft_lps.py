@@ -696,9 +696,9 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         h += subheading_spanning_two_columns(
             self.wxstring(req, "diagnoses_t"))
         h += tr_qa(self.wxstring(req, "psychiatric_t"),
-                   "<br>".join(self.get_psychiatric_diagnoses(req)), "")
+                   "\n".join(self.get_psychiatric_diagnoses(req)), "")
         h += tr_qa(self.wxstring(req, "medical_t"),
-                   "<br>".join(self.get_medical_diagnoses()), "")
+                   "\n".join(self.get_medical_diagnoses()), "")
 
         h += subheading_spanning_two_columns(self.wxstring(req, "management_t"))
         h += tr_span_col(answer(", ".join(self.get_managements(req))), cols=2)

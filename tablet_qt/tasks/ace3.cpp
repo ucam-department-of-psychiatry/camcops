@@ -208,8 +208,8 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS), QVariant::Int);
     addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1, N_MEM_RECOGNIZE_ADDRESS), QVariant::Int);
     addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS), QVariant::Char);
-    addField(FN_PICTURE1_BLOBID, QVariant::Int);
-    addField(FN_PICTURE2_BLOBID, QVariant::Int);
+    addField(FN_PICTURE1_BLOBID, QVariant::Int);  // FK to BLOB table
+    addField(FN_PICTURE2_BLOBID, QVariant::Int);  // FK to BLOB table
     addField(FN_COMMENTS, QVariant::String);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

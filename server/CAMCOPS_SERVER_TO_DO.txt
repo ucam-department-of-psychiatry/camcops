@@ -9,6 +9,11 @@ SOON:
 
 *** test HL7 backend
 
+    *** think re HL7 implementation carefully; see hl7_design.txt
+    *** also: ensure we can efficiently distinguish between "previously sent"
+        and "needs to be sent" in the context of re-sending stuff that changes
+        in important ways (if we continue to allow this)
+
 --- NB special device for "web front end"/"manually uploaded"
     ... see DEVICE_NAME_FOR_SERVER
     --- similarly: special user for "system"
@@ -122,6 +127,11 @@ THOUGHTS/POTENTIAL THINGS TO DO
         https://cni.stanford.edu/wiki/MR_Hardware
         https://raw.githubusercontent.com/cni/widgets/master/python/startScan.py
         https://cni.stanford.edu/wiki/SaveTriggers.py
+
+
+CLIENT:
+- Cardinal_ExpDet* tasks: generate noise on the fly?
+- Text boxes for rich text: intercept tabs?
 
 ===============================================================================
 CONSIDERED BUT NOT IMPLEMENTED

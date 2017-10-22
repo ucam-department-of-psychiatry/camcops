@@ -119,8 +119,8 @@ Slums::Slums(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     addField(ALERT, QVariant::Int);
     addField(HIGHSCHOOLEDUCATION, QVariant::Int);
     addFields(QLIST, QVariant::Int);
-    addField(CLOCKPICTURE_BLOBID, QVariant::Int);
-    addField(SHAPESPICTURE_BLOBID, QVariant::Int);
+    addField(CLOCKPICTURE_BLOBID, QVariant::Int);  // FK to BLOB table
+    addField(SHAPESPICTURE_BLOBID, QVariant::Int);  // FK to BLOB table
     addField(COMMENTS, QVariant::String);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

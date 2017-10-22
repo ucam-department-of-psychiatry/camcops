@@ -40,7 +40,7 @@ PhotoSequencePhoto::PhotoSequencePhoto(CamcopsApp& app, DatabaseManager& db,
     addField(FK_NAME, QVariant::Int);
     addField(SEQNUM, QVariant::Int);
     addField(DESCRIPTION, QVariant::String);
-    addField(PHOTO_BLOBID, QVariant::Int);
+    addField(PHOTO_BLOBID, QVariant::Int);  // FK to BLOB table
 
     load(load_pk);
 }

@@ -51,8 +51,14 @@ VERSION HISTORY
   QuBoolean (its image option), QuCanvas, QuImage, QuThermometer.
 
 2.0.3
-- 2018-08-07
+- 2017-08-07
 - Trivial type fix to patient_wanted_copy_of_letter (String -> Bool) in the
   unused task CPFTLPSDischarge.
+
+2.0.4
+- 2017-10-22
+- Bugfix: BLOB FKs weren't being set properly from BlobFieldRef helper
+  functions.
+
 
 */

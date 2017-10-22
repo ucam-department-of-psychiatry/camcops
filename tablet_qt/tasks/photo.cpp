@@ -45,7 +45,7 @@ Photo::Photo(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     Task(app, db, PHOTO_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(DESCRIPTION, QVariant::String);
-    addField(PHOTO_BLOBID, QVariant::String);  // FK to BLOB table
+    addField(PHOTO_BLOBID, QVariant::Int);  // FK to BLOB table
     // addField(ROTATION, QVariant::Int);  // DEFUNCT in v2
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
@@ -86,6 +86,8 @@ QString Photo::infoFilenameStem() const
 
 bool Photo::isComplete() const
 {
+    qDebug() << "valueIsNullOrEmpty(DESCRIPTION)" << valueIsNullOrEmpty(DESCRIPTION);  // ***
+    qDebug() << "valueIsNull(PHOTO_BLOBID)" << valueIsNull(PHOTO_BLOBID);  // ***
     return !valueIsNullOrEmpty(DESCRIPTION) && !valueIsNull(PHOTO_BLOBID);
 }
 

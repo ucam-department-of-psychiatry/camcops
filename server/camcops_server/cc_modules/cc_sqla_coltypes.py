@@ -115,7 +115,7 @@ from sqlalchemy import util
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm.relationships import RelationshipProperty
-from sqlalchemy.sql.expression import FunctionElement
+from sqlalchemy.sql.expression import FunctionElement, text
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import (
@@ -330,6 +330,8 @@ UserNameColType = String(length=USERNAME_MAX_LEN)
 #
 # So: rightmost 6 characters are time zone; rest is date/time.
 
+_SQLITE_DATETIME_FMT_FOR_PYTHON = "'%Y-%m-%d %H:%M:%f'"
+
 
 # -----------------------------------------------------------------------------
 # isotzdatetime_to_utcdatetime
@@ -367,8 +369,9 @@ def isotzdatetime_to_utcdatetime_mysql(
     x = fetch_processed_single_clause(element, compiler)
     # Let's do this in a clear way:
     date_part = "LEFT({x}, LENGTH({x}) - 6)".format(x=x)  # drop the rightmost 6 chars  # noqa
-    fmt = "'%Y-%m-%dT%H:%i:%S.%f'"
-    the_date = "STR_TO_DATE({date_part}, {fmt)".format(
+    fmt = compiler.process(text("'%Y-%m-%dT%H:%i:%S.%f'"))
+    # ... the text() part deals with the necessary escaping of % for the DBAPI
+    the_date = "STR_TO_DATE({date_part}, {fmt})".format(
         date_part=date_part, fmt=fmt)
     old_timezone = "RIGHT({x}, 6)".format(x=x)
     result = "CONVERT_TZ({the_date}, {old_timezone}, '+00:00')".format(
@@ -396,7 +399,7 @@ def isotzdatetime_to_utcdatetime_sqlite(
     # timezone at the end, STRFTIME() will convert it to UTC automatically!
     # Moreover, the format is the OUTPUT format that a Python datetime will
     # recognize, so no 'T'.
-    fmt = "'%Y-%m-%d %H:%M:%f'"
+    fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
     result = "STRFTIME({fmt}, {x})".format(fmt=fmt, x=x)
     # log.critical(result)
     return result
@@ -448,7 +451,7 @@ def unknown_field_to_utcdatetime_sqlite(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> str:
     x = fetch_processed_single_clause(element, compiler)
-    fmt = "'%Y-%m-%d %H:%M:%f'"
+    fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
     result = "STRFTIME({fmt}, {x})".format(fmt=fmt, x=x)
     # log.critical(result)
     return result

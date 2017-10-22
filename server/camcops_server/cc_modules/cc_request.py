@@ -804,6 +804,7 @@ def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
     # -------------------------------------------------------------------------
     settings = {  # Settings that can't be set directly?
         'debug_authorization': DEBUG_AUTHORIZATION,
+        # ... see https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/security.html#debugging-view-authorization-failures  # noqa
     }
     with Configurator(settings=settings) as config:
         # ---------------------------------------------------------------------

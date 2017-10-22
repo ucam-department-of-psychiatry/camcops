@@ -36,6 +36,7 @@
 
 FieldRef::FieldRef()
 {
+    qDebug() << "argh";
     commonConstructor();
 }
 
@@ -222,10 +223,9 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
         break;
 
     case FieldRefMethod::DatabaseObjectBlobField:
-        changed = m_blob->setBlob(value, true);
+        changed = m_blob->setBlob(value, true);  // will save the blobb
         if (changed) {
-            // it will ALREADY have saved (see setBlob); don't save it twice!
-            m_p_dbobject->setValue(m_fieldname, m_blob->pkvalue(), true);
+            setFkToBlob();
         }
         // ... (a) sets the BLOB, and (b) if the BLOB has changed or is being
         // set for the first time, sets the "original" field to contain the PK
@@ -233,6 +233,10 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
         // ... and (c) we ensure that the setValue() command touches the
         // record, on the basis that a task has changed if one of its BLOBs has
         // changed, even if the BLOB PK has not changed.
+        // NOTE ALSO THE OTHER FUNCTIONS THAT MUST DO THIS:
+        //      BlobFieldRef::rotateImage
+        //      BlobFieldRef::setImage
+        //      BlobFieldRef::setRawImage
         break;
 
     case FieldRefMethod::IsolatedBlobFieldForTesting:
@@ -257,6 +261,13 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
     }
 
     return signalSetValue(changed, originator);
+}
+
+
+void FieldRef::setFkToBlob()
+{
+    Q_ASSERT(m_method == FieldRefMethod::DatabaseObjectBlobField && m_blob);
+    m_p_dbobject->setValue(m_fieldname, m_blob->pkvalue(), true);
 }
 
 

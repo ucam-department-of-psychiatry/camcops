@@ -87,9 +87,9 @@ Moca::Moca(CamcopsApp& app, DatabaseManager& db, int load_pk) :
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
     addField(EDUCATION12Y_OR_LESS, QVariant::Int);
-    addField(TRAILPICTURE_BLOBID, QVariant::Int);
-    addField(CUBEPICTURE_BLOBID, QVariant::Int);
-    addField(CLOCKPICTURE_BLOBID, QVariant::Int);
+    addField(TRAILPICTURE_BLOBID, QVariant::Int);  // FK to BLOB table
+    addField(CUBEPICTURE_BLOBID, QVariant::Int);  // FK to BLOB table
+    addField(CLOCKPICTURE_BLOBID, QVariant::Int);  // FK to BLOB table
     addFields(strseq(REGISTER_TRIAL1_PREFIX, 1, N_REG_RECALL), QVariant::Int);
     addFields(strseq(REGISTER_TRIAL2_PREFIX, 1, N_REG_RECALL), QVariant::Int);
     addFields(strseq(RECALL_CATEGORY_CUE_PREFIX, 1, N_REG_RECALL), QVariant::Int);

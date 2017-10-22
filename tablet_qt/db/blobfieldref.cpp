@@ -56,6 +56,7 @@ void BlobFieldRef::rotateImage(int angle_degrees_clockwise,
                                    const QObject* originator)
 {
     m_blob->rotateImage(angle_degrees_clockwise, true);
+    setFkToBlob();  // see discussion in FieldRef::setValue
     signalSetValue(true, originator);
 }
 
@@ -63,6 +64,9 @@ void BlobFieldRef::rotateImage(int angle_degrees_clockwise,
 bool BlobFieldRef::setImage(const QImage& image, const QObject* originator)
 {
     const bool changed = m_blob->setImage(image, true);
+    if (changed) {
+        setFkToBlob();  // see discussion in FieldRef::setValue
+    }
     return signalSetValue(changed, originator);
 }
 
@@ -74,5 +78,8 @@ bool BlobFieldRef::setRawImage(const QByteArray& data,
 {
     const bool changed = m_blob->setRawImage(data, true,
                                              extension_without_dot, mimetype);
+    if (changed) {
+        setFkToBlob();  // see discussion in FieldRef::setValue
+    }
     return signalSetValue(changed, originator);
 }

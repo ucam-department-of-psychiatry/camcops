@@ -159,6 +159,7 @@ public:
 protected:
     void commonConstructor();
     bool signalSetValue(bool changed, const QObject* originator);
+    void setFkToBlob();
 
 signals:
     void valueChanged(const FieldRef* fieldref,
