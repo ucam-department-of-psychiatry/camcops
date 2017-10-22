@@ -101,8 +101,8 @@ DUMMY_INSTITUTION_URL = 'http://www.mydomain/'
 class ConfigParamMain(object):
     ALLOW_INSECURE_COOKIES = "ALLOW_INSECURE_COOKIES"
     CAMCOPS_LOGO_FILE_ABSOLUTE = "CAMCOPS_LOGO_FILE_ABSOLUTE"
+    CLIENT_API_LOGLEVEL = "CLIENT_API_LOGLEVEL"
     CTV_FILENAME_SPEC = "CTV_FILENAME_SPEC"
-    DBCLIENT_LOGLEVEL = "DBCLIENT_LOGLEVEL"
     DB_URL = "DB_URL"
     DB_ECHO = "DB_ECHO"
     DISABLE_PASSWORD_AUTOCOMPLETE = "DISABLE_PASSWORD_AUTOCOMPLETE"
@@ -421,10 +421,10 @@ def get_demo_config(extra_strings_dir: str = None,
 
 {cp.WEBVIEW_LOGLEVEL} = info
 
-# DBCLIENT_LOGLEVEL: Set the log level for the tablet client database access
+# {cp.CLIENT_API_LOGLEVEL}: Set the log level for the tablet client database access
 # script. (Loglevel option; see above.)
 
-{cp.DBCLIENT_LOGLEVEL} = info
+{cp.CLIENT_API_LOGLEVEL} = info
 
 # {cp.ALLOW_INSECURE_COOKIES}: DANGEROUS option that removes the requirement that
 # cookies be HTTPS (SSL) only.
@@ -751,6 +751,8 @@ def get_demo_supervisor_config(
 # NOTES ON THE SUPERVISOR CONFIG FILE AND ENVIRONMENT:
 # - Indented lines are treated as continuation (even in commands; no need for
 #   end-of-line backslashes or similar).
+# - The downside of that is that indented comment blocks can join onto your
+#   commands! Beware that.
 # - You can't put quotes around the directory variable
 #   http://stackoverflow.com/questions/10653590
 # - Python programs that are installed within a Python virtual environment 
@@ -762,11 +764,9 @@ def get_demo_supervisor_config(
 [program:camcops]
 
 command = {CAMCOPS_EXECUTABLE}
-    serve
+    serve_gunicorn
     --config /etc/camcops/camcops.conf
     --unix_domain_socket {specimen_socket_file}
-    --threads_start 10 
-    --thread_max 100
     --trusted_proxy_headers 
         HTTP_X_FORWARDED_HOST 
         HTTP_X_FORWARDED_SERVER 
@@ -774,28 +774,29 @@ command = {CAMCOPS_EXECUTABLE}
         HTTP_X_FORWARDED_PROTO 
         HTTP_X_SCRIPT_NAME
 
-    # To run via a TCP socket, use e.g.:
-    #   --host 127.0.0.1 --port {specimen_internal_port}
-    # To run via a UNIX domain socket, use e.g.
-    #   --unix_domain_socket {specimen_socket_file} 
+# To run via a TCP socket, use e.g.:
+#   --host 127.0.0.1 --port {specimen_internal_port}
+# To run via a UNIX domain socket, use e.g.
+#   --unix_domain_socket {specimen_socket_file} 
 
 directory = {CAMCOPS_SERVER_DIRECTORY}
 
 environment = MPLCONFIGDIR="{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}"
 
-    # MPLCONFIGDIR specifies a cache directory for matplotlib, which greatly
-    # speeds up its subsequent loading. 
+# MPLCONFIGDIR specifies a cache directory for matplotlib, which greatly
+# speeds up its subsequent loading. 
 
 user = www-data
-    # ... Ubuntu: typically www-data
-    # ... CentOS: typically apache
+
+# ... Ubuntu: typically www-data
+# ... CentOS: typically apache
 
 stdout_logfile = /var/log/supervisor/camcops_out.log
 stderr_logfile = /var/log/supervisor/camcops_err.log
 
 autostart = true
 autorestart = true
-startsecs = 10
+startsecs = 30
 stopwaitsecs = 60
 
     """.format(
@@ -829,9 +830,41 @@ def get_demo_apache_config(
     # =========================================================================
     # CamCOPS
     # =========================================================================
+    # Apache operates on the principle that the first match wins. So, if we
+    # want to serve CamCOPS but then override some of its URLs to serve static
+    # files faster, we define the static stuff first.
 
         # ---------------------------------------------------------------------
-        # 1. Proxy requests to the CamCOPS web server and back; allow access
+        # 1. Serve static files
+        # ---------------------------------------------------------------------
+        # a) offer them at the appropriate URL
+        # b) provide permission
+        # c) disable ProxyPass for static files
+
+        # Change this: aim the alias at your own institutional logo.
+        
+    Alias {urlbase}/static/logo_local.png {STATIC_ROOT_DIR}/logo_local.png
+    
+        # We move from more specific to less specific aliases; the first match
+        # takes precedence. (Apache will warn about conflicting aliases if
+        # specified in a wrong, less-to-more-specific, order.)
+
+    Alias {urlbase}/static/ {STATIC_ROOT_DIR}/
+
+    <Directory {STATIC_ROOT_DIR}>
+        Require all granted
+        
+        # ... for old Apache version (e.g. 2.2), use instead:
+        # Order allow,deny
+        # Allow from all
+    </Directory>
+    
+        # Don't ProxyPass the static files; we'll serve them via Apache.
+        
+    ProxyPassMatch ^{urlbase}/static/ !
+
+        # ---------------------------------------------------------------------
+        # 2. Proxy requests to the CamCOPS web server and back; allow access
         # ---------------------------------------------------------------------
         # ... either via an internal TCP/IP port (e.g. 1024 or higher, and NOT
         #     accessible to users);
@@ -945,6 +978,10 @@ def get_demo_apache_config(
             
         Require all granted
 
+        # ... for old Apache version (e.g. 2.2), use instead:
+        # Order allow,deny
+        # Allow from all
+
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # (d) Tell the proxied application that we are using HTTPS, and
             #     where the application is installed
@@ -958,7 +995,7 @@ def get_demo_apache_config(
         
             # and call CamCOPS like:
             #
-            # camcops serve \\
+            # camcops serve_gunicorn \\
             #       --config SOMECONFIG \\
             #       --trusted_proxy_headers \\
             #           HTTP_X_FORWARDED_HOST \\
@@ -973,27 +1010,6 @@ def get_demo_apache_config(
             # ... OR specify those options by hand in the CamCOPS command.
             
     </Location>
-
-        # ---------------------------------------------------------------------
-        # 2. Serve static files
-        # ---------------------------------------------------------------------
-        # a) offer them at the appropriate URL
-        # b) provide permission
-        # c) disable ProxyPass for static files
-
-    Alias {urlbase}/static/ {STATIC_ROOT_DIR}/
-
-        # Change this: aim the alias at your own institutional logo.
-        
-    Alias {urlbase}/static/logo_local.png {STATIC_ROOT_DIR}/logo_local.png
-
-    <Directory {STATIC_ROOT_DIR}>
-        Require all granted
-    </Directory>
-    
-        # Don't ProxyPass the static files; we'll serve them via Apache.
-        
-    ProxyPassMatch ^{urlbase}/static/ !
 
         # ---------------------------------------------------------------------
         # 3. For additional instances
@@ -1172,10 +1188,10 @@ class CamcopsConfig(object):
         # ... no default: will fail if not provided
         self.db_echo = get_config_parameter_boolean(
             config, section, cp.DB_ECHO, False)
-        self.dbclient_loglevel = get_config_parameter_loglevel(
-            config, section, cp.DBCLIENT_LOGLEVEL, logging.INFO)
-        logging.getLogger("camcops_server.database")\
-            .setLevel(self.dbclient_loglevel)
+        self.client_api_loglevel = get_config_parameter_loglevel(
+            config, section, cp.CLIENT_API_LOGLEVEL, logging.INFO)
+        logging.getLogger("camcops_server.cc_modules.client_api")\
+            .setLevel(self.client_api_loglevel)
         # ... MUTABLE GLOBAL STATE (if relatively unimportant); *** fix
 
         self.disable_password_autocomplete = get_config_parameter_boolean(

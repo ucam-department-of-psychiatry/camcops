@@ -809,7 +809,7 @@ def camcops_main() -> None:
         '-h', '--help', action=ShowAllSubparserHelpAction,
         help='show this help message and exit')
     parser.add_argument(
-        "-v", "--version", action="version",
+        "--version", action="version",
         version="CamCOPS {}".format(CAMCOPS_SERVER_VERSION))
 
     # -------------------------------------------------------------------------

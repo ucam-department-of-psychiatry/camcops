@@ -23,6 +23,17 @@ SOON:
 *** implement (from command line) "export to anonymisation staging database"
     = with patient info per table.
 
+*** sort out manual
+
+*** search for all '***'
+
+*** merge doesn't yet allow you to say "ID#8 in database A means something
+    different to ID#8 in database B; don't merge that". Should it?
+    (Example: "research ID" that is group-specific, versus "NHS number" that
+    isn't.)
+
+*** command-line restoration of superuser status (for superusers who screw up)
+
 ===============================================================================
 KEY THOUGHTS
 ===============================================================================

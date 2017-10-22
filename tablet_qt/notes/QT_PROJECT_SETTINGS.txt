@@ -127,6 +127,28 @@ Google Play Store settings
 - Note that "Pending publication" means you're waiting for Google Play to sort
   itself out, not that you have to do anything.
 
+- Note re versions:
+    - As above, the AndroidManifest.xml has an INTEGER version, so we may as
+      well use consecutive numbers. For example:
+
+            CamCOPS version     AndroidManifest.xml version code / name
+            --------------------------------------------------------------
+            2.0.1 (beta)                                    2      2.0.1
+            2.0.4 (beta)                                    3      2.0.4
+
+  The Google Developer site will check the version codes.
+
+- Note also that if you try to install the .apk directly to a device that's
+  had an installation from Google Play Store, you'll get the error
+  INSTALL_FAILED_UPDATE_INCOMPATIBLE (I think). Or if you mix debug/release
+  versions.
+
+- Finally, note that there can be a significant delay between uploading a new
+  release and client devices seeing it on Google Play (or even being able to
+  see it at https://play.google.com/store, or via the direct link at
+  https://play.google.com/store/apps/details?id=org.camcops.camcops). Perhaps
+  10 minutes to the main web site?
+
 ===============================================================================
 NOTE ALSO
 ===============================================================================

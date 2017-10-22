@@ -202,14 +202,22 @@ if getattr(our_args, EXTRAS_ARG):
 
     print("Converting manual ({!r}) to PDF ({!r})".format(
         MANUAL_FILENAME_ODT, MANUAL_FILENAME_PDF))
-    os.remove(MANUAL_FILENAME_PDF)  # don't delete the wrong one (again...)
-    subprocess.check_call([
+    try:
+        os.remove(MANUAL_FILENAME_PDF)  # don't delete the wrong one (again...)
+    except OSError:
+        pass
+    libreoffice_args = [
         "soffice",
         "--convert-to", "pdf:writer_pdf_Export",
         "--outdir", DOCS_DIR,
         MANUAL_FILENAME_ODT
-    ])  # this is pretty nippy!
-    assert os.path.exists(MANUAL_FILENAME_PDF)
+    ]
+    print("... calling: {!r}".format(libreoffice_args))
+    subprocess.check_call(libreoffice_args)  # this is pretty nippy!
+    assert os.path.exists(MANUAL_FILENAME_PDF), (
+        "If this fails, there are a number of possible reasons, but one is "
+        "simply that you're using LibreOffice for something else!"
+    )
 
     dst_tablet = TABLET_SOURCE_COPY_DIR
     print("Creating copy of tablet source files in {}".format(dst_tablet))
@@ -335,7 +343,7 @@ camcops_server
     install_requires=[
         'alembic==0.9.6',  # database migrations
         # 'arrow==0.10.0',  # better datetime
-        'cardinal_pythonlib==1.0.5',  # RNC libraries
+        'cardinal_pythonlib==1.0.6',  # RNC libraries
         'colorlog==3.1.0',  # colour in logs
         'CherryPy==11.0.0',  # web server
         'deform==2.0.4',  # web forms
@@ -353,7 +361,7 @@ camcops_server
         'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
         'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt
         'Pygments==2.2.0',  # Syntax highlighting for introspection
-        'PyMySQL==0.7.1',  # for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may break Pendulum handling  # noqa
+        'PyMySQL==0.7.1',  # for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may break Pendulum handling *** FIX THIS *** # noqa
         'PyPDF2==1.26.0',  # Used by rnc_pdf.py
         'pyramid==1.9.1',  # web framework
         'pyramid_debugtoolbar==4.3',  # debugging for Pyramid
@@ -374,7 +382,7 @@ camcops_server
             # Format is 'script=module:function".
             'camcops=camcops_server.camcops:main',
             'camcops_meta=camcops_server.camcops_meta:meta_main',
-            'camcops_backup_mysql_database=cardinal_pythonlib.tools.camcops_backup_mysql_database:main',  # noqa
+            'camcops_backup_mysql_database=cardinal_pythonlib.tools.backup_mysql_database:main',  # noqa
         ],
     },
 )

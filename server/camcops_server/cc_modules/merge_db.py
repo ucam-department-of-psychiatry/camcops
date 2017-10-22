@@ -564,42 +564,50 @@ def translate_fn(trcon: TranslationContext) -> None:
                        old_instance._when_removed_exact)
             resultproxy = trcon.dst_session.execute(existing_rec_q).fetchall()
             existing_rec = [dict(row) for row in resultproxy]
-            errmsg = (
+            log.critical(
                 "Source record, inheriting from GenericTabletRecordMixin and "
-                "shown below, already exists in destination database:\n\n"
-                "{o}\n\n"
-                "... in table {t!r}, clashing on: id="
-                "{i!r}, device_id={d!r}, era={e!r}, "
+                "shown below, already exists in destination database... "
+                "in table {t!r}, clashing on: "
+                "id={i!r}, device_id={d!r}, era={e!r}, "
                 "_when_removed_exact={w!r}.\n"
-                "The existing record(s) in the destination database "
-                "was/were:\n\n"
-                "{rec}.\n\n"
                 "ARE YOU TRYING TO MERGE THE SAME DATABASE IN TWICE? "
                 "DON'T.".format(
-                    o=pformat(old_instance.__dict__),
                     t=trcon.tablename,
                     i=old_instance.id,
                     d=old_instance._device_id,
                     e=old_instance._era,
                     w=old_instance._when_removed_exact,
-                    rec=pformat(existing_rec),
                 )
             )
-            log.critical("{}", errmsg)
             if (trcon.tablename == PatientIdNum.__tablename__ and
-                    old_instance.id == 0):
+                    (old_instance.id % NUMBER_OF_IDNUMS_DEFUNCT == 0)):
                 log.critical(
-                    'Since this error has occurred for table {!r} and '
-                    'id == 0, this error likely indicates a previous bug in '
-                    'the patient ID number fix for the database upload '
-                    'script, in which all ID numbers for patients with '
-                    'patient.id = n were given patient_idnum.id = n * {} '
-                    'themselves (or possibly were all given patient_idnum.id '
-                    '= 0). Fix this by running, on the source database:\n\n'
+                    'Since this error has occurred for table {t!r} '
+                    '(and for id % {n} == 0), '
+                    'this error may reflect a previous bug in the patient ID '
+                    'number fix for the database upload script, in which all '
+                    'ID numbers for patients with patient.id = n were given '
+                    'patient_idnum.id = n * {n} themselves (or possibly were '
+                    'all given patient_idnum.id = 0). '
+                    'Fix this by running, on the source database:\n\n'
                     '    UPDATE patient_idnum SET id = _pk;\n\n'.format(
-                        trcon.tablename, NUMBER_OF_IDNUMS_DEFUNCT,
+                        t=trcon.tablename,
+                        n=NUMBER_OF_IDNUMS_DEFUNCT,
                     )
                 )
+            # Print the actual instance last; accessing them via pformat can
+            # lead to crashes if there are missing source fields, as an
+            # on-demand SELECT is executed sometimes (e.g. when a PatientIdNum
+            # is printed, its Patient is selected, including the 'fullname'
+            # attribute that is absent in old databases). *** FIX THIS!
+            # Not a breaking point, since we're going to crash anyway, but
+            # inelegant.
+            log.critical(
+                "Source was:\n\n{}\n\n",
+                pformat(old_instance.__dict__))
+            log.critical(
+                "Existing record(s) in destination DB was/were:\n\n{}\n\n",
+                pformat(existing_rec))
             raise ValueError("Attempt to insert duplicate record; see log "
                              "message above.")
 
