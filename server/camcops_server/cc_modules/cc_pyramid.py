@@ -39,6 +39,7 @@ from paginate import Page
 from pyramid.authentication import IAuthenticationPolicy
 from pyramid.authorization import IAuthorizationPolicy
 from pyramid.config import Configurator
+from pyramid.httpexceptions import HTTPFound
 from pyramid.interfaces import ILocation, ISession
 from pyramid.request import Request
 from pyramid.security import (
@@ -1136,7 +1137,7 @@ class PageUrl(object):
 
 
 # =============================================================================
-# Debugging requests
+# Debugging requests and responses
 # =============================================================================
 
 def get_body_from_request(req: Request) -> bytes:
@@ -1145,3 +1146,12 @@ def get_body_from_request(req: Request) -> bytes:
     wsgi_input = req.environ[WsgiEnvVar.WSGI_INPUT]
     # ... under gunicorn, is an instance of gunicorn.http.body.Body
     return wsgi_input.read()
+
+
+class HTTPFoundDebugVersion(HTTPFound):
+    """
+    For debugging redirections.
+    """
+    def __init__(self, location: str = '', **kwargs) -> None:
+        log.debug("Redirecting to {!r}", location)
+        super().__init__(location, **kwargs)

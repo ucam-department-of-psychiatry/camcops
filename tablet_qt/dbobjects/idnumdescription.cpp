@@ -36,6 +36,10 @@ IdNumDescription::IdNumDescription(CamcopsApp& app, DatabaseManager& db,
     addField(FN_IDSHORTDESC, QVariant::String);
 
     m_exists = load(which_idnum);
+    if (!m_exists) {
+        // PK will have been nullified, but we want it
+        setValue(FN_IDNUM, which_idnum);
+    }
 }
 
 

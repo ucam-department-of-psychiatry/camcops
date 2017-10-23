@@ -318,9 +318,10 @@ QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
     // don't use fm.width(text()), that's something else (see Qt docs)
     const QString t = text();
 
-    QRect br = fm.boundingRect(QRect(0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX),
-                               0,  // definitely not Qt::TextWordWrap
-                               t);
+    const QRect br = fm.boundingRect(
+                QRect(0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX),
+                0,  // definitely not Qt::TextWordWrap
+                t);
     // Right. Potentially some bugs relating to the output of boundingRect
     // being inconsistent. For example, in the same font, with text =
     // "Option C1", the size can come back as (60, 84) on one call and (60, 14)
@@ -336,7 +337,7 @@ QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
 
     // int width = br.width();
     // QSize text_size(width, height);
-    QSize unwrapped_text_size = br.size();
+    const QSize unwrapped_text_size = br.size();
 
     #ifdef DEBUG_CALCULATIONS
         qDebug() << Q_FUNC_INFO << "->" << unwrapped_text_size
@@ -360,7 +361,7 @@ QSize LabelWordWrapWide::extraSizeForCssOrLayout() const
         return m_cached_extra_for_css_or_layout;
     }
 #endif
-    QSize dummy(0, 0);
+    const QSize dummy(0, 0);
     QStyleOptionFrame opt;
     initStyleOption(&opt);  // protected
     QSize extra_for_css_or_layout = sizehelpers::labelExtraSizeRequired(
@@ -380,7 +381,7 @@ QSize LabelWordWrapWide::extraSizeForCssOrLayout() const
 bool LabelWordWrapWide::event(QEvent* e)
 {
 #ifdef LWWW_USE_ANY_CACHE
-    bool result = QLabel::event(e);
+    const bool result = QLabel::event(e);
     QEvent::Type type = e->type();
     switch (type) {
 
@@ -416,7 +417,7 @@ bool LabelWordWrapWide::event(QEvent* e)
 
 QSize LabelWordWrapWide::sizeHint() const
 {
-    QSize text_size = sizeOfTextWithoutWrap();
+    const QSize text_size = sizeOfTextWithoutWrap();
     // QSize w_smallest_word_h_unclear = QLabel::minimumSizeHint();
     // text_size.rheight() = heightForWidth(w_smallest_word_h_unclear.width());
 
@@ -448,9 +449,9 @@ QSize LabelWordWrapWide::minimumSizeHint() const
     QSize smallest_word = QSize(w_smallest_word_h_unclear.width(),
                                 unwrapped_size.height());
 #ifdef ADD_EXTRA_FOR_LAYOUT_OR_CSS
-    QSize minimum_size_hint = smallest_word + extraSizeForCssOrLayout();
+    const QSize minimum_size_hint = smallest_word + extraSizeForCssOrLayout();
 #else
-    QSize& minimum_size_hint = smallest_word;
+    const QSize& minimum_size_hint = smallest_word;
 #endif
 #ifdef DEBUG_CALCULATIONS
     qDebug() << Q_FUNC_INFO

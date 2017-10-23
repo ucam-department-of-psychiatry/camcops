@@ -532,7 +532,8 @@ SOURCES += main.cpp \
     common/dbconst.cpp \
     dbobjects/patientidnumsorter.cpp \
     widgets/treeviewcontroldelegate.cpp \
-    widgets/treeviewproxystyle.cpp
+    widgets/treeviewproxystyle.cpp \
+    widgets/growingplaintextedit.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -895,7 +896,8 @@ HEADERS += \
     common/dbconst.h \
     dbobjects/patientidnumsorter.h \
     widgets/treeviewcontroldelegate.h \
-    widgets/treeviewproxystyle.h
+    widgets/treeviewproxystyle.h \
+    widgets/growingplaintextedit.h
 
 DISTFILES += \
     android/AndroidManifest.xml \
@@ -934,7 +936,6 @@ DISTFILES += \
     notes/compilation_linux.txt \
     notes/compilation_windows.txt \
     notes/database_performance.txt \
-    notes/known_problems.txt \
     notes/layout_notes.txt \
     notes/overall_design.txt \
     notes/qt_notes.txt \
@@ -951,4 +952,5 @@ DISTFILES += \
     tools/decrypt_sqlcipher.py \
     notes/QT_PROJECT_SETTINGS.txt \
     notes/blob_handling.txt \
-    notes/hardware.txt
+    notes/hardware.txt \
+    notes/known_problems.txt

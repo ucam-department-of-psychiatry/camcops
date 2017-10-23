@@ -221,6 +221,7 @@ import camcops_server.cc_modules.cc_plot  # import side effects (configure matpl
 from .cc_pyramid import (
     CamcopsPage,
     FormAction,
+    HTTPFoundDebugVersion,
     PageUrl,
     Permission,
     Routes,
@@ -250,6 +251,19 @@ from .cc_user import SecurityAccountLockout, SecurityLoginFailure, User
 from .cc_version import CAMCOPS_SERVER_VERSION
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+
+# =============================================================================
+# Debugging options
+# =============================================================================
+
+DEBUG_REDIRECT = False
+
+if DEBUG_REDIRECT:
+    log.warning("Debugging options enabled!")
+
+if DEBUG_REDIRECT:
+    HTTPFound = HTTPFoundDebugVersion
+
 
 # =============================================================================
 # Constants

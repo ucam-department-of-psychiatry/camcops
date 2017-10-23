@@ -85,16 +85,19 @@ class Wsas(TaskHasPatientMixin, Task,
     MAX_PER_Q = 8
     NQUESTIONS = 5
     QUESTION_FIELDS = strseq("q", 1, NQUESTIONS)
+    Q2_TO_END = strseq("q", 2, NQUESTIONS)
     TASK_FIELDS = QUESTION_FIELDS + ["retired_etc"]
-    MAX_TOTAL = MAX_PER_Q * NQUESTIONS
+    MAX_IF_WORKING = MAX_PER_Q * NQUESTIONS
+    MAX_IF_RETIRED = MAX_PER_Q * (NQUESTIONS - 1)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         return [TrackerInfo(
             value=self.total_score(),
             plot_label="WSAS total score (lower is better)",
-            axis_label="Total score (out of {})".format(self.MAX_TOTAL),
+            axis_label="Total score (out of {}–{})".format(
+                self.MAX_IF_RETIRED, self.MAX_IF_WORKING),
             axis_min=-0.5,
-            axis_max=self.MAX_TOTAL + 0.5
+            axis_max=self.MAX_IF_WORKING + 0.5
         )]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -103,22 +106,27 @@ class Wsas(TaskHasPatientMixin, Task,
                 name="total_score",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment="Total score (/ {})".format(self.MAX_TOTAL)),
+                comment="Total score (/ {})".format(self.max_score())),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content="WSAS total score {t}/{tm}".format(
-            t=self.total_score(), tm=self.MAX_TOTAL)
+        return [CtvInfo(content="WSAS total score {t}/{m}".format(
+            t=self.total_score(), m=self.max_score())
         )]
 
     def total_score(self) -> int:
-        return self.sum_fields(self.QUESTION_FIELDS)
+        return self.sum_fields(self.Q2_TO_END if self.retired_etc
+                               else self.QUESTION_FIELDS)
+
+    def max_score(self) -> int:
+        return self.MAX_IF_RETIRED if self.retired_etc else self.MAX_IF_WORKING
 
     def is_complete(self) -> bool:
         return (
-            self.are_all_fields_complete(self.QUESTION_FIELDS) and
+            self.are_all_fields_complete(self.Q2_TO_END if self.retired_etc
+                                         else self.QUESTION_FIELDS) and
             self.field_contents_valid()
         )
 

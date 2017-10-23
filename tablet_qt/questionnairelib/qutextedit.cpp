@@ -24,6 +24,7 @@
 #include "qobjects/focuswatcher.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/growingtextedit.h"
+#include "widgets/growingplaintextedit.h"
 
 
 const int WRITE_DELAY_MS = 400;
@@ -32,8 +33,12 @@ const int WRITE_DELAY_MS = 400;
 QuTextEdit::QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text) :
     m_fieldref(fieldref),
     m_accept_rich_text(accept_rich_text),
+    m_allow_tabs_in_content(false),
     m_hint("text"),
-    m_editor(nullptr),
+#ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR
+    m_plain_editor(nullptr),
+#endif
+    m_rich_editor(nullptr),
     m_ignore_widget_signal(false),
     m_focus_watcher(nullptr)
 {
@@ -45,6 +50,13 @@ QuTextEdit::QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text) :
             this, &QuTextEdit::fieldValueChanged);
     connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
             this, &QuTextEdit::fieldValueChanged);
+}
+
+
+QuTextEdit* QuTextEdit::setAllowTabsInContent(bool allow_tabs_in_content)
+{
+    m_allow_tabs_in_content = allow_tabs_in_content;
+    return this;
 }
 
 
@@ -66,23 +78,50 @@ void QuTextEdit::setFromField()
 QPointer<QWidget> QuTextEdit::makeWidget(Questionnaire* questionnaire)
 {
     const bool read_only = questionnaire->readOnly();
-    m_editor = new GrowingTextEdit();
-    m_editor->setEnabled(!read_only);
-    m_editor->setAcceptRichText(m_accept_rich_text);
-    m_editor->setPlaceholderText(m_hint);
-    if (!read_only) {
-        connect(m_editor.data(), &GrowingTextEdit::textChanged,
-                this, &QuTextEdit::widgetTextChanged);
-        // QTextEdit::textChanged - Called *whenever* contents changed.
-        // http://doc.qt.io/qt-5.7/qtextedit.html#textChanged
-        // Note: no data sent along with the signal
+    // A bit ugly, but since QPlainTextEdit and QTextEdit share no useful
+    // parent class...
+#ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR
+    if (m_accept_rich_text) {
+#endif
+        m_rich_editor = new GrowingTextEdit();
+        m_rich_editor->setEnabled(!read_only);
+        m_rich_editor->setAcceptRichText(m_accept_rich_text);
+        m_rich_editor->setPlaceholderText(m_hint);
+        m_rich_editor->setTabChangesFocus(!m_allow_tabs_in_content);
+        if (!read_only) {
+            connect(m_rich_editor.data(), &GrowingTextEdit::textChanged,
+                    this, &QuTextEdit::widgetTextChanged);
+            // QTextEdit::textChanged - Called *whenever* contents changed.
+            // http://doc.qt.io/qt-5.7/qtextedit.html#textChanged
+            // Note: no data sent along with the signal
 
-        m_focus_watcher = new FocusWatcher(m_editor.data());
-        connect(m_focus_watcher.data(), &FocusWatcher::focusChanged,
-                this, &QuTextEdit::widgetFocusChanged);
+            m_focus_watcher = new FocusWatcher(m_rich_editor.data());
+            connect(m_focus_watcher.data(), &FocusWatcher::focusChanged,
+                    this, &QuTextEdit::widgetFocusChanged);
+        }
+        setFromField();
+        return QPointer<QWidget>(m_rich_editor);
+
+#ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR
+    } else {
+        m_plain_editor = new GrowingPlainTextEdit();
+        m_plain_editor->setEnabled(!read_only);
+        m_plain_editor->setPlaceholderText(m_hint);
+        m_plain_editor->setTabChangesFocus(!m_allow_tabs_in_content);
+        if (!read_only) {
+            connect(m_plain_editor.data(), &GrowingPlainTextEdit::textChanged,
+                    this, &QuTextEdit::widgetTextChanged);
+            // QPlainTextEdit::textChanged - Called *whenever* contents changed.
+            // http://doc.qt.io/qt-5/qplaintextedit.html#textChanged
+
+            m_focus_watcher = new FocusWatcher(m_plain_editor.data());
+            connect(m_focus_watcher.data(), &FocusWatcher::focusChanged,
+                    this, &QuTextEdit::widgetFocusChanged);
+        }
+        setFromField();
+        return QPointer<QWidget>(m_plain_editor);
     }
-    setFromField();
-    return QPointer<QWidget>(m_editor);
+#endif
 }
 
 
@@ -108,15 +147,30 @@ void QuTextEdit::widgetTextChanged()
 
 void QuTextEdit::textChanged()
 {
-    if (!m_editor) {
+#ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR
+    if (!m_plain_editor && !m_rich_editor) {
         return;
     }
-    QString text = m_editor->toPlainText();
-    if (m_accept_rich_text && !text.isEmpty()) {
-        text = m_editor->toHtml();
+#else
+    if (!m_rich_editor) {
+        return;
     }
-    // ... That forces the text to empty (rather than a bunch of HTML
-    // representing nothing) if there is no real text.
+#endif
+    QString text;
+    if (m_accept_rich_text) {
+        text = m_rich_editor->toPlainText();
+        if (!text.isEmpty()) {
+            text = m_rich_editor->toHtml();
+        }
+        // ... That forces the text to empty (rather than a bunch of HTML
+        // representing nothing) if there is no real text.
+    } else {
+#ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR
+        text = m_plain_editor->toPlainText();
+#else
+        text = m_rich_editor->toPlainText();
+#endif
+    }
     const bool changed = m_fieldref->setValue(text, this);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
@@ -127,20 +181,31 @@ void QuTextEdit::textChanged()
 void QuTextEdit::fieldValueChanged(const FieldRef* fieldref,
                                    const QObject* originator)
 {
-    if (!m_editor) {
+#ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR
+    QWidget* pwidget = m_accept_rich_text
+            ? static_cast<QWidget*>(m_rich_editor.data())
+            : static_cast<QWidget*>(m_plain_editor.data());
+#else
+    QWidget* pwidget = static_cast<QWidget*>(m_rich_editor.data());
+#endif
+    if (!pwidget) {
         return;
     }
-    uifunc::setPropertyMissing(m_editor, fieldref->missingInput());
+    uifunc::setPropertyMissing(pwidget, fieldref->missingInput());
     if (originator != this) {
         // In this case we don't want to block all signals, because the
-        // GrowingTextEdit widget needs internal signals. However, we want
-        // to stop signal receipt by our own textChanged() slot. So we
-        // can set a flag:
+        // GrowingPlainTextEdit/GrowingTextEdit widget needs internal signals.
+        // However, we want to stop signal receipt by our own textChanged()
+        // slot. So we can set a flag:
         m_ignore_widget_signal = true;
         if (m_accept_rich_text) {
-            m_editor->setHtml(fieldref->valueString());
+            m_rich_editor->setHtml(fieldref->valueString());
         } else {
-            m_editor->setPlainText(fieldref->valueString());
+#ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR
+            m_plain_editor->setPlainText(fieldref->valueString());
+#else
+            m_rich_editor->setPlainText(fieldref->valueString());
+#endif
         }
         m_ignore_widget_signal = false;
     }
@@ -150,9 +215,15 @@ void QuTextEdit::fieldValueChanged(const FieldRef* fieldref,
 void QuTextEdit::widgetFocusChanged(bool in)
 {
     // If focus is leaving the widget, save the field value.
-    if (in || !m_editor) {
+#ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR
+    if (in || (!m_plain_editor && !m_rich_editor)) {
         return;
     }
+#else
+    if (in || !m_rich_editor) {
+        return;
+    }
+#endif
     const bool change_pending = m_timer->isActive();
     m_timer->stop();  // just in case it's running
     if (change_pending) {

@@ -261,6 +261,7 @@ protected:
     MapType m_record;  // Note: no intrinsic ordering to fields from this. So:
     QStringList m_ordered_fieldnames;
     QMap<QString, FieldRefPtr> m_fieldrefs;
+    bool m_exists_in_db;
 
 public:
     friend QDebug operator<<(QDebug debug, const DatabaseObject& d);

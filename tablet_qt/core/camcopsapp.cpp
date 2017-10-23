@@ -1518,6 +1518,9 @@ void CamcopsApp::deleteAllIdDescriptions()
 bool CamcopsApp::setIdDescription(int which_idnum, const QString& desc,
                                   const QString& shortdesc)
 {
+//    qDebug().nospace()
+//            << "Setting ID descriptions for which_idnum==" << which_idnum
+//            << " to " << desc << ", " << shortdesc;
     IdNumDescription idnumdesc(*this, *m_sysdb, which_idnum);
     const bool success = idnumdesc.setDescriptions(desc, shortdesc);
     if (success) {

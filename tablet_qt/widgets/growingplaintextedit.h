@@ -18,23 +18,18 @@
 */
 
 #pragma once
-#include <QTextEdit>
+#include <QPlainTextEdit>
 
-
-class GrowingTextEdit : public QTextEdit
+class GrowingPlainTextEdit : public QPlainTextEdit
 {
-    // Text editor that expands to its contents.
-
-    // see http://stackoverflow.com/questions/11677499
-    // http://stackoverflow.com/questions/3050537
-    // http://stackoverflow.com/questions/1153714
-    // http://www.qtcentre.org/threads/9840-QTextEdit-auto-resize
-    // http://stackoverflow.com/questions/11851020
+    // This is to PlainTextEdit as GrowingTextEdit is to TextEdit.
+    // HOWEVER, IT DOES NOT AUTO_SIZE PROPERLY YET (see sizeHint).
+    // NOT CURRENTLY IN USE.
     Q_OBJECT
 public:
-    GrowingTextEdit(QWidget* parent = nullptr);
-    GrowingTextEdit(const QString& text, QWidget* parent = nullptr);
-    virtual ~GrowingTextEdit();
+    GrowingPlainTextEdit(QWidget* parent = nullptr);
+    GrowingPlainTextEdit(const QString& text, QWidget* parent = nullptr);
+    virtual ~GrowingPlainTextEdit();
     void setAutoResize(bool auto_resize);
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;

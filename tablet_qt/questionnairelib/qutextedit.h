@@ -22,7 +22,10 @@
 #include "questionnairelib/quelement.h"
 
 class FocusWatcher;
+class GrowingPlainTextEdit;
 class GrowingTextEdit;
+
+// #define QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR  // not resizing properly!
 
 
 class QuTextEdit : public QuElement
@@ -33,6 +36,7 @@ class QuTextEdit : public QuElement
     Q_OBJECT
 public:
     QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text = false);
+    QuTextEdit* setAllowTabsInContent(bool allow_tabs_in_content);
     QuTextEdit* setHint(const QString& hint);
 protected:
     void setFromField();
@@ -47,8 +51,12 @@ protected slots:
 protected:
     FieldRefPtr m_fieldref;
     bool m_accept_rich_text;
+    bool m_allow_tabs_in_content;
     QString m_hint;
-    QPointer<GrowingTextEdit> m_editor;
+#ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR
+    QPointer<GrowingPlainTextEdit> m_plain_editor;
+#endif
+    QPointer<GrowingTextEdit> m_rich_editor;
     bool m_ignore_widget_signal;
     QPointer<FocusWatcher> m_focus_watcher;
     QSharedPointer<QTimer> m_timer;

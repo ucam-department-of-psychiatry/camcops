@@ -239,10 +239,12 @@ QLabel#picker_inline {
    Editors
    ========================================================================= */
 
+GrowingPlainTextEdit,
 GrowingTextEdit,
 QDateTimeEdit,
 QDoubleSpinBox,
 QLineEdit,
+QPlainTextEdit,
 QSpinBox,
 QTextEdit {
     /* https://www.w3schools.com/colors/colors_picker.asp */

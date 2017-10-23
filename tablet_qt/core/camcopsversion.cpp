@@ -21,7 +21,7 @@
 
 namespace camcopsversion {  // http://semver.org/
 
-const Version CAMCOPS_VERSION(2, 0, 4);
+const Version CAMCOPS_VERSION(2, 0, 5);
 const Version MINIMUM_SERVER_VERSION(2, 0, 0);
 
 }  // namespace camcopsversion
@@ -31,34 +31,7 @@ const Version MINIMUM_SERVER_VERSION(2, 0, 0);
 ===============================================================================
 VERSION HISTORY
 ===============================================================================
-2.0.0
-- Development of C++ version from scratch. Replaces Titanium version.
-- Released as beta to Google Play on 2017-07-17.
-
-2.0.1
-- More const checking.
-- Bugfix to stone/pound/ounce conversion.
-- Bugfix to raw SQL dump.
-- ID numbers generalized so you can have >8 (= table structure change).
-
-2.0.2
-- Cosmetic bug fixes, mainly for phones, including a re-layout of the ACE-III
-  address learning for very small screens.
-- Bugfix: deleting a patient didn't deselect that patient.
-- Default software keyboard for date entry changed.
-- Bugfix for canvas widget on Android (size was going wrong).
-- Automatic adjustment for high-DPI screens as standard in
-  QuBoolean (its image option), QuCanvas, QuImage, QuThermometer.
-
-2.0.3
-- 2017-08-07
-- Trivial type fix to patient_wanted_copy_of_letter (String -> Bool) in the
-  unused task CPFTLPSDischarge.
-
-2.0.4
-- 2017-10-22
-- Bugfix: BLOB FKs weren't being set properly from BlobFieldRef helper
-  functions.
-
+See CAMCOPS_MANUAL.odt.
+Update that whenever changes are made.
 
 */

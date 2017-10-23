@@ -59,7 +59,8 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
     m_pk_fieldname(pk_fieldname),
     m_has_modification_timestamp(has_modification_timestamp),
     m_has_move_off_tablet_field(has_move_off_tablet_field),
-    m_triggers_need_upload(triggers_need_upload)
+    m_triggers_need_upload(triggers_need_upload),
+    m_exists_in_db(false)
 {
     if (pk_fieldname.isEmpty()) {
         uifunc::stopApp(
@@ -529,6 +530,7 @@ bool DatabaseObject::load(const WhereConditions& where)
     } else {
         nullify();
     }
+    m_exists_in_db = found;
     return found;
 }
 
@@ -589,12 +591,13 @@ bool DatabaseObject::save()
         return true;  // nothing to do, so let's not bother the database
     }
     bool success;
-    if (isPkNull()) {
-        success = saveInsert();
-    } else {
+    if (m_exists_in_db) {
         success = saveUpdate();
+    } else {
+        success = saveInsert(isPkNull());
     }
     clearAllDirty();
+    m_exists_in_db = success;
     return success;
 }
 
@@ -608,11 +611,12 @@ void DatabaseObject::saveWithoutKeepingPk()
     if (!anyDirty()) {
         return;
     }
-    if (isPkNull()) {
-        saveInsert(false);
-    } else {
+    if (m_exists_in_db) {
         saveUpdate();
+    } else {
+        saveInsert(false);
     }
+    m_exists_in_db = true;
     clearAllDirty();
 }
 
@@ -896,7 +900,7 @@ bool DatabaseObject::saveInsert(bool read_pk_from_database)
         i.next();
         const QString fieldname = i.key();
         const Field field = i.value();
-        if (field.isPk()) {
+        if (field.isPk() && field.value().isNull()) {
             continue;
         }
         fieldnames.append(dbfunc::delimit(fieldname));
