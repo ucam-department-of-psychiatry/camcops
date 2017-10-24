@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.5
 
 """
 When is it NECESSARY to compile OpenSSL from source?
@@ -54,6 +54,8 @@ import logging
 import multiprocessing
 import os
 from os.path import abspath, expanduser, isdir, isfile, join, split
+import platform
+from pprint import pformat
 import shlex
 import shutil
 import subprocess
@@ -224,8 +226,8 @@ QT_CONFIG_COMMON_ARGS = [
     "-skip", "qtserialport",
 
     # Except the webkit stuff, which ends up giving problems with Wayland-EGL:
-    "-skip", "qtwebkit",
-    "-skip", "qtwebkit-examples",
+    # "-skip", "qtwebkit",  # disabled 2017-10-22: "Project ERROR: -skip command line argument used with non-existent module 'qtwebkit'."  # noqa
+    # "-skip", "qtwebkit-examples",  # disabled 2017-10-22: ditto
 ]
 
 # -----------------------------------------------------------------------------
@@ -244,15 +246,16 @@ OPENSSL_COMMON_OPTIONS = [
 # -----------------------------------------------------------------------------
 
 CMAKE = "cmake"
+GOBJDUMP = "gobjdump"  # OS/X equivalent of readelf
 MAKE = "make"
-READELF = "readelf"
-TAR = "tar"
+READELF = "readelf"  # read ELF-format library files
+SED = "sed"  # stream editor
+TAR = "tar"  # manipulate tar files
+XCODE_SELECT = "xcode-select"  # OS/X tool to find paths for XCode
 
 # -----------------------------------------------------------------------------
 # Constants for building
 # -----------------------------------------------------------------------------
-
-DEFAULT_IOS_MIN_SDK = "8.2"
 
 # -----------------------------------------------------------------------------
 # Logging
@@ -274,6 +277,9 @@ class Os(object):
     IOS = "ios"
 
 
+ALL_OSS = [getattr(Os, _) for _ in dir(Os) if not _.startswith("_")]
+
+
 class Cpu(object):
     X86_32 = "x86"
     X86_64 = "x86_64"
@@ -282,31 +288,36 @@ class Cpu(object):
     ARM_V8_64 = "armv8_64"
 
 
+ALL_CPUS = [getattr(Cpu, _) for _ in dir(Cpu) if not _.startswith("_")]
+
+
 class Platform(object):
     # noinspection PyShadowingNames
-    def __init__(self, os: str, cpu: str = "") -> None:
+    def __init__(self, os: str, cpu: str) -> None:
         self.os = os
         self.cpu = cpu
-        if os not in [Os.LINUX, Os.ANDROID, Os.WINDOWS, Os.OSX, Os.IOS]:
-            raise ValueError("Unknown target system: " + os)
-        if cpu not in [Cpu.X86_32, Cpu.X86_64,
-                       Cpu.ARM_V5, Cpu.ARM_V7]:
-            raise ValueError("Unknown target CPU: " + cpu)
+        if os not in ALL_OSS:
+            raise ValueError("Unknown target OS: {!r}".format(os))
+        if cpu not in ALL_CPUS:
+            raise ValueError("Unknown target CPU: {!r}".format(cpu))
 
-        if os == "android" and not cpu:
-            raise ValueError("Must specify CPU for Android")
         if os in [Os.LINUX, Os.OSX, Os.WINDOWS] and cpu != Cpu.X86_64:
             raise ValueError("Don't know how to build for CPU " + cpu +
                              " on system " + os)
 
+    def __str__(self) -> str:
+        return self.description
+
+    @property
     def description(self) -> str:
         return "{}/{}".format(self.os, self.cpu)
 
+    @property
     def dirpart(self) -> str:
         return "{}_{}".format(self.os, self.cpu)
 
     def shared_lib_suffix(self) -> str:
-        if self.os == Os.OSX:
+        if self.os in [Os.IOS, Os.OSX]:
             return ".dylib"
         else:
             return ".so"
@@ -314,6 +325,10 @@ class Platform(object):
     @property
     def linux(self) -> bool:
         return self.os == Os.LINUX
+
+    @property
+    def osx(self) -> bool:
+        return self.os == Os.OSX
 
     @property
     def android(self) -> bool:
@@ -365,19 +380,47 @@ class Platform(object):
         # e.g. arch-x86
         return "arch-{}".format(self.android_arch_short)
 
+    def ensure_elf_reader(self) -> None:
+        """Only to be called for the host platform."""
+        if self.linux:
+            require(READELF)
+        elif self.osx:
+            require(GOBJDUMP)
+        else:
+            raise ValueError("Don't know ELF reader for {}".format(hostplatform))
+
     def verify_elf(self, filename: str) -> None:
         """
         Check an ELF file matches our architecture.
         """
-        elf_arm_tag = "Tag_ARM_ISA_use: Yes"
-        elfcmd = [READELF, "-A", filename]
-        log.info("Checking ELF information for " + repr(filename))
-        elfresult, _ = run(elfcmd, get_output=True)
-        if self.cpu_arm_family:
-            if elf_arm_tag not in elfresult:
-                log.critical(elfresult)
-                raise ValueError(
-                    "File {} was not build for ARM".format(filename))
+        log.info("Verifying type of ELF file: {!r}".format(filename))
+        hostplatform = get_host_platform()
+        if hostplatform.linux:
+            elf_arm_tag = "Tag_ARM_ISA_use: Yes"
+            elfcmd = [READELF, "-A", filename]
+            log.info("Checking ELF information for " + repr(filename))
+            elfresult, _ = run(elfcmd, get_output=True)
+            if self.cpu_arm_family:
+                if elf_arm_tag not in elfresult:
+                    log.critical(elfresult)
+                    raise ValueError(
+                        "File {} was not build for ARM".format(filename))
+        elif hostplatform.osx:
+            # https://lowlevelbits.org/parsing-mach-o-files/
+            # https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
+            # gobjdump --help
+            dumpcmd = [GOBJDUMP, "-f", filename]
+            dumpresult, _ = run(dumpcmd, get_output=True)
+            arm64tag = "file format mach-o-arm64"
+            if self.cpu == Cpu.ARM_V8_64:
+                if arm64tag not in dumpresult:
+                    log.critical(dumpresult)
+                    raise ValueError(
+                        "File {} was not build for ARM64".format(filename))
+        else:
+            raise ValueError("Don't know how to verify ELF for {}".format(
+                hostplatform))
+        log.info("ELF file is good: {!r}".format(filename))
 
     @property
     def ios_platform_name(self) -> str:
@@ -404,6 +447,27 @@ class Platform(object):
             raise ValueError("Unknown architecture for iOS")
 
 
+def get_host_platform() -> Platform:
+    """Find the architecture this script is running on."""
+    s = platform.system()
+    if s == "Linux":
+        os = Os.LINUX
+    elif s == "Darwin":
+        os = Os.OSX
+    elif s == "Windows":
+        os = Os.WINDOWS
+    else:
+        raise ValueError("Don't know host OS {!r}".format(s))
+    m = platform.machine()
+    if m == "i386":
+        cpu = Cpu.X86_32
+    elif m == "x86_64":
+        cpu = Cpu.X86_64
+    else:
+        raise ValueError("Don't know host CPU {!r}".format(m))
+    return Platform(os, cpu)
+
+
 # =============================================================================
 # Config class, just to make sure we check the argument namespace properly
 # =============================================================================
@@ -420,7 +484,7 @@ class Config(object):
         self.windows_x86_64 = args.windows_x86_64  # type: bool
         self.ios = args.ios  # type: bool
         self.ios_simulator = args.ios_simulator  # type: bool
-        self.ios_min_sdk = args.ios_min_sdk  # type: str
+        self.ios_sdk = args.ios_sdk  # type: str
 
         # General
         self.show_config_only = args.show_config_only  # type: bool
@@ -565,8 +629,8 @@ class Config(object):
         # https://gist.github.com/foozmeat/5154962
         encoding = sys.getdefaultencoding()
         developer = (
-            subprocess.check_output("xcode-select -print-path")
-                .decode(encoding)
+            subprocess.check_output([XCODE_SELECT, "-print-path"])
+                .decode(encoding).strip()
         )
 
         env["BUILD_TOOLS"] = developer
@@ -582,7 +646,8 @@ class Config(object):
         )
         env["CROSS_SDK"] = "{plt}{sdkv}.sdk".format(
             plt=platform.ios_platform_name,
-            sdkv=self.ios_min_sdk,
+            sdkv=self.ios_sdk,
+            # ... can be blank; e.g. iPhoneOS9.3.sdk symlinks to iPhoneOS.sdk
         )
         env["PLATFORM"] = platform.ios_platform_name
 
@@ -599,7 +664,7 @@ class Config(object):
         Calculates local OpenSSL directories.
         """
         rootdir = join(self.root_dir,
-                       "openssl_{}_build".format(platform.dirpart()))
+                       "openssl_{}_build".format(platform.dirpart))
         workdir = join(rootdir, "openssl-{}".format(self.openssl_version))
         return rootdir, workdir
 
@@ -682,10 +747,10 @@ class Config(object):
         return newlibfilename
 
     def qt_build_dir(self, platform: Platform) -> str:
-        return join(self.root_dir, "qt_{}_build".format(platform.dirpart()))
+        return join(self.root_dir, "qt_{}_build".format(platform.dirpart))
 
     def qt_install_dir(self, platform: Platform) -> str:
-        return join(self.root_dir, "qt_{}_install".format(platform.dirpart()))
+        return join(self.root_dir, "qt_{}_install".format(platform.dirpart))
 
 
 # =============================================================================
@@ -727,7 +792,7 @@ def run(args: List[str],
     csep = "=" * 79
     esep = "-" * 79
     if env is not None:
-        log.info("Using environment: {}".format(env))
+        log.info("Using environment: \n" + pformat(env))
         copy_paste_env = make_copy_paste_env(env)
         log.debug(
             "Copy/paste version of environment:\n{esep}\n{env}\n{esep}".format(
@@ -761,6 +826,14 @@ def require(command: str) -> None:
     Checks that an external command is available, or raises an exception.
     """
     if not shutil.which(command):
+        log.info("""
+If core commands are missing:
+
+OS/X
+-------------------------------------------------------------------------------
+cmake             brew update && brew install cmake
+gobjdump          brew update && brew install binutils
+        """)
         raise ValueError("Missing OS command: {}".format(command))
 
 
@@ -942,14 +1015,38 @@ def build_openssl(cfg: Config, platform: Platform) -> None:
         # https://gist.github.com/tmiz/1441111
         target_os = "darwin64-x86_64-cc"
     elif platform.os == Os.IOS:
+
         # https://gist.github.com/foozmeat/5154962
+        # https://gist.github.com/felix-schwarz/c61c0f7d9ab60f53ebb0
+        # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
+        # If Bitcode is later required, see the other ones above and
+        # https://stackoverflow.com/questions/30722606/what-does-enable-bitcode-do-in-xcode-7  # noqa
+
         if platform.cpu == Cpu.ARM_V8_64:
             target_os = "iphoneos-cross"
         elif platform.cpu == Cpu.X86_64:
             target_os = "darwin64-x86_64-cc"
+
+        # iOS specials
+        run([
+            SED,
+            "-ie",
+            "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!",
+            join(workdir, "crypto", "ui", "ui_openssl.c")
+        ])
+
+        # At some point (transiently!) we also got something like:
+        #    ar  r ../../libcrypto.a o_names.o obj_dat.o obj_lib.o 
+        #        obj_err.o obj_xref.
+        # failing with:
+        #     /usr/bin/ranlib: archive member: libcrypto.a(....o) size too 
+        #         large (archive member extends past the end of the file)
+        #     ar: internal ranlib command failed
+        # ... not sure why.
+
     if not target_os:
         raise ValueError("Don't know how to make OpenSSL for " +
-                         platform.description())
+                         platform.description)
 
     configure_args = [target_os] + OPENSSL_COMMON_OPTIONS
     if platform.mobile:
@@ -1109,7 +1206,7 @@ def build_qt(cfg: Config, platform: Platform) -> str:
     # -------------------------------------------------------------------------
     # Directories
     # -------------------------------------------------------------------------
-    log.info("Configuring {} build in {}".format(platform.description(),
+    log.info("Configuring {} build in {}".format(platform.description,
                                                  builddir))
     mkdir_p(builddir)
     mkdir_p(installdir)
@@ -1153,6 +1250,14 @@ def build_qt(cfg: Config, platform: Platform) -> str:
             "-qt-xcb",  # use XCB source bundled with Qt?
             "-gstreamer", "1.0",  # gstreamer version; see notes at top of file
         ]
+    elif platform.osx:
+        pass
+    elif platform.ios:
+        # http://doc.qt.io/qt-5/building-from-source-ios.html
+        # "A default build builds both the simulator and device libraries."
+        qt_config_args += [
+            "-xplatform", "macx-ios-clang"
+        ]
 
     qt_config_args.extend(QT_CONFIG_COMMON_ARGS)
 
@@ -1176,7 +1281,7 @@ def build_qt(cfg: Config, platform: Platform) -> str:
     # -------------------------------------------------------------------------
     # make (can take several hours)
     # -------------------------------------------------------------------------
-    log.info("Making Qt {} build into {}".format(platform.description(),
+    log.info("Making Qt {} build into {}".format(platform.description,
                                                  installdir))
     chdir(builddir)
     if platform.android:
@@ -1250,7 +1355,7 @@ def build_sqlcipher(cfg: Config, platform: Platform) -> None:
     # Setup
     # -------------------------------------------------------------------------
     destdir = join(cfg.root_dir,
-                   "sqlcipher_" + platform.dirpart(),
+                   "sqlcipher_" + platform.dirpart,
                    "sqlcipher")  # this allows #include <sqlcipher/sqlite3.h>
 
     target_h = join(destdir, "sqlite3.h")
@@ -1535,7 +1640,9 @@ def main() -> None:
     """
     logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT,
                         datefmt=LOG_DATEFMT)
-    require(READELF)
+    hostplatform = get_host_platform()
+    log.info("Running on {}".format(hostplatform))
+    hostplatform.ensure_elf_reader()
 
     # -------------------------------------------------------------------------
     # Command-line arguments
@@ -1599,8 +1706,8 @@ def main() -> None:
              "iOS simulator)"
     )
     archgroup.add_argument(
-        "--ios_min_sdk", default=DEFAULT_IOS_MIN_SDK,
-        help="Minimum SDK level for iOS"
+        "--ios_sdk", default="",
+        help="iOS SDK to use (leave blank for system default)"
     )
 
     # Qt
