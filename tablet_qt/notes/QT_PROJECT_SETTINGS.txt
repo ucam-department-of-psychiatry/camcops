@@ -72,7 +72,7 @@ General:
     8-CPU machine to get it compiling in parallel.
     ... but to save this effort, set
         MAKEFLAGS="-j8"
-    to your user environment (e.g. to ~/.bashrc).
+    to your user environment (e.g. to ~/.bashrc, or ~/.profile).
 
     - https://stackoverflow.com/questions/8860712/setting-default-make-options-for-qt-creator
 
