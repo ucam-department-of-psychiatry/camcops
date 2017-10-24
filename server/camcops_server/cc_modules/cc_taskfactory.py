@@ -26,7 +26,7 @@ from collections import OrderedDict
 from enum import Enum
 import logging
 from threading import Thread
-from typing import List, Optional, Type, Union
+from typing import Dict, List, Optional, Type, Union
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
@@ -216,7 +216,7 @@ class TaskCollection(object):
         self._current_only = current_only
         self._sort_method_by_class = sort_method_by_class
         self._sort_method_global = sort_method_global
-        self._tasks_by_class = None  # type: OrderedDict[Type[Task], List[Task]]  # noqa
+        self._tasks_by_class = OrderedDict()  # type: Dict[Type[Task], List[Task]]  # noqa
         self._all_tasks = None  # type: List[Task]
         # log.critical("TaskCollection(): taskfilter={!r}", self._filter)
 
@@ -225,19 +225,18 @@ class TaskCollection(object):
     # =========================================================================
 
     def task_classes(self) -> List[Type[Task]]:
-        self._fetch_all_tasks()
-        return list(self._tasks_by_class.keys())
+        return self._filter.task_classes
 
-    def tasks_for_task_class(self, cls: Type[Task]):
-        self._fetch_all_tasks()
-        tasklist = self._tasks_by_class.get(cls, [])
+    def tasks_for_task_class(self, task_class: Type[Task]):
+        self._fetch_task_class(task_class)
+        tasklist = self._tasks_by_class.get(task_class, [])
         sort_tasks_in_place(tasklist, self._sort_method_by_class)
         return tasklist
 
     @property
     def all_tasks(self) -> List[Task]:
-        self._fetch_all_tasks()
         if self._all_tasks is None:
+            self._fetch_all_tasks()
             self._all_tasks = []  # type: List[Task]
             for single_task_list in self._tasks_by_class.values():
                 self._all_tasks += single_task_list
@@ -282,16 +281,27 @@ class TaskCollection(object):
             if self._filter.task_matches_python_parts_of_filter(t)
         ]
 
+    def forget_task_class(self, task_class: Type[Task]) -> None:
+        self._tasks_by_class.pop(task_class, None)
+        # https://stackoverflow.com/questions/11277432/how-to-remove-a-key-from-a-python-dictionary  # noqa
+
+    def _fetch_task_class(self, task_class: Type[Task]) -> None:
+        """Fetch one set of tasks from database."""
+        if task_class in self._tasks_by_class:
+            return  # already fetched
+        q = self._serial_query(task_class)
+        if q is None:
+            newtasks = []  # type: List[Task]
+        else:
+            newtasks = q.all()  # type: List[Task]
+            # Apply Python-side filters?
+            newtasks = self._filter_through_python(newtasks)
+        self._tasks_by_class[task_class] = newtasks
+
     def _fetch_all_tasks(self, parallel: bool = False) -> None:
+        """Fetch all tasks from database."""
+
         # AVOID parallel=True; see notes above.
-
-        if self._tasks_by_class is not None:
-            # Already fetched
-            return
-
-        self._tasks_by_class = OrderedDict()  # type: OrderedDict[Type[Task], List[Task]]  # noqa
-
-        # Fetch from database
         if DEBUG_QUERY_TIMING:
             start_time = Pendulum.now()
 
@@ -308,16 +318,7 @@ class TaskCollection(object):
 
         else:
             for task_class in self._filter.task_classes:
-                q = self._serial_query(task_class)
-                if q is None:
-                    newtasks = []  # type: List[Task]
-                else:
-                    newtasks = q.all()  # type: List[Task]
-
-                    # Apply Python-side filters?
-                    newtasks = self._filter_through_python(newtasks)
-
-                self._tasks_by_class[task_class] = newtasks
+                self._fetch_task_class(task_class)
 
         if DEBUG_QUERY_TIMING:
             end_time = Pendulum.now()

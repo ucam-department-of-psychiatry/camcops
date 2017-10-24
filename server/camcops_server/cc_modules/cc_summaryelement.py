@@ -25,6 +25,7 @@
 from collections import OrderedDict
 from typing import Any, Dict, List, Union
 
+from cardinal_pythonlib.reprfunc import auto_repr
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
@@ -88,3 +89,6 @@ class ExtraSummaryTable(object):
 
     def get_tsv_page(self) -> TsvPage:
         return TsvPage(name=self.tablename, rows=self.rows)
+
+    def __repr__(self) -> str:
+        return auto_repr(self)

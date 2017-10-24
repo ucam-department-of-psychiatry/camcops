@@ -138,6 +138,12 @@ class DumpController(object):
             self._copy_object_to_dump(src_obj)
 
     def _add_dump_table_for_src_object(self, src_obj: object) -> None:
+        """
+        - Mark the object's table as seen.
+        - If we want it, add it to the metadata and execute a CREATE TABLE
+          command.
+        - We may translate the table en route.
+        """
         # noinspection PyUnresolvedReferences
         src_table = src_obj.__table__  # type: Table
         tablename = src_table.name

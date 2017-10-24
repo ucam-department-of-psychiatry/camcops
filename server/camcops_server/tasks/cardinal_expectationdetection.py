@@ -372,74 +372,6 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, Base):
         )
 
 
-BLOCKPROB_COLUMNS = [
-    Column("id", Integer, primary_key=True, autoincrement=True,
-           comment="Arbitrary PK"),
-    Column("cardinal_expdet_pk", Integer, ForeignKey("cardinal_expdet._pk"),
-           nullable=False,
-           comment="FK to the source table's _pk field"),
-    Column("n_blocks_overall", Integer,
-           comment="Number of blocks (OVERALL)"),
-    Column("block", Integer,
-           comment="Block number"),
-    Column("target_probability_low_high", Integer,
-           comment="Target probability given stimulus (0 low, 1 high)"),
-    Column("n_trials", Integer,
-           comment="Number of trials in this condition"),
-    Column("p_detect_present", Float,
-           comment="P(detect | present)"),
-    Column("p_detect_absent", Float,
-           comment="P(detect | absent)"),
-    Column("c", Float,
-           comment="c (bias; c > 0 when miss rate > false alarm rate; "
-                   "c < 0 when false alarm rate > miss rate)"),
-    Column("d", Float,
-           comment="d' (discriminability)"),
-    Column("auditory_n_trials", Integer,
-           comment="Number of auditory trials in this condition"),
-    Column("auditory_p_detect_present", Float,
-           comment="AUDITORY P(detect | present)"),
-    Column("auditory_p_detect_absent", Float,
-           comment="AUDITORY P(detect | absent)"),
-    Column("auditory_c", Float,
-           comment="AUDITORY c"),
-    Column("auditory_d", Float,
-           comment="AUDITORY d'"),
-]
-HALFPROB_COLUMNS = [
-    Column("id", Integer, primary_key=True, autoincrement=True,
-           comment="Arbitrary PK"),
-    Column("cardinal_expdet_pk", Integer, ForeignKey("cardinal_expdet._pk"),
-           nullable=False,
-           comment="FK to the source table's _pk field"),
-    Column("half", Integer,
-           comment="Half number"),
-    Column("target_probability_low_high", Integer,
-           comment="Target probability given stimulus (0 low, 1 high)"),
-    Column("n_trials", Integer,
-           comment="Number of trials in this condition"),
-    Column("p_detect_present", Float,
-           comment="P(detect | present)"),
-    Column("p_detect_absent", Float,
-           comment="P(detect | absent)"),
-    Column("c", Float,
-           comment="c (bias; c > 0 when miss rate > false alarm rate; "
-                   "c < 0 when false alarm rate > miss rate)"),
-    Column("d", Float,
-           comment="d' (discriminability)"),
-    Column("auditory_n_trials", Integer,
-           comment="Number of auditory trials in this condition"),
-    Column("auditory_p_detect_present", Float,
-           comment="AUDITORY P(detect | present)"),
-    Column("auditory_p_detect_absent", Float,
-           comment="AUDITORY P(detect | absent)"),
-    Column("auditory_c", Float,
-           comment="AUDITORY c"),
-    Column("auditory_d", Float,
-           comment="AUDITORY d'"),
-]
-
-
 class CardinalExpectationDetection(TaskHasPatientMixin, Task):
     __tablename__ = "cardinal_expdet"
     shortname = "Cardinal_ExpDet"
@@ -1256,16 +1188,97 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         blockprob_table = ExtraSummaryTable(
             tablename="cardinal_expdet_blockprobs",
             xmlname="blockprobs",
-            columns=BLOCKPROB_COLUMNS,
+            columns=self.get_blockprob_columns(),
             rows=blockprob_values
         )
         halfprob_table = ExtraSummaryTable(
             tablename="cardinal_expdet_halfprobs",
             xmlname="halfprobs",
-            columns=HALFPROB_COLUMNS,
+            columns=self.get_halfprob_columns(),
             rows=halfprob_values
         )
         return [blockprob_table, halfprob_table]
+
+    @staticmethod
+    def get_blockprob_columns() -> List[Column]:
+        # Must be a function, not a constant, because as SQLAlchemy builds the
+        # tables, it assigns the Table object to each Column. Therefore, a
+        # constant list works for the first request, but fails on subsequent
+        # requests with e.g. "sqlalchemy.exc.ArgumentError: Column object 'id'
+        # already assigned to Table 'cardinal_expdet_blockprobs'"
+        return [
+            Column("id", Integer, primary_key=True, autoincrement=True,
+                   comment="Arbitrary PK"),
+            Column("cardinal_expdet_pk", Integer,
+                   ForeignKey("cardinal_expdet._pk"),
+                   nullable=False,
+                   comment="FK to the source table's _pk field"),
+            Column("n_blocks_overall", Integer,
+                   comment="Number of blocks (OVERALL)"),
+            Column("block", Integer,
+                   comment="Block number"),
+            Column("target_probability_low_high", Integer,
+                   comment="Target probability given stimulus "
+                           "(0 low, 1 high)"),
+            Column("n_trials", Integer,
+                   comment="Number of trials in this condition"),
+            Column("p_detect_present", Float,
+                   comment="P(detect | present)"),
+            Column("p_detect_absent", Float,
+                   comment="P(detect | absent)"),
+            Column("c", Float,
+                   comment="c (bias; c > 0 when miss rate > false alarm rate; "
+                           "c < 0 when false alarm rate > miss rate)"),
+            Column("d", Float,
+                   comment="d' (discriminability)"),
+            Column("auditory_n_trials", Integer,
+                   comment="Number of auditory trials in this condition"),
+            Column("auditory_p_detect_present", Float,
+                   comment="AUDITORY P(detect | present)"),
+            Column("auditory_p_detect_absent", Float,
+                   comment="AUDITORY P(detect | absent)"),
+            Column("auditory_c", Float,
+                   comment="AUDITORY c"),
+            Column("auditory_d", Float,
+                   comment="AUDITORY d'"),
+        ]
+
+    @staticmethod
+    def get_halfprob_columns() -> List[Column]:
+        return [
+            Column("id", Integer, primary_key=True, autoincrement=True,
+                   comment="Arbitrary PK"),
+            Column("cardinal_expdet_pk", Integer,
+                   ForeignKey("cardinal_expdet._pk"),
+                   nullable=False,
+                   comment="FK to the source table's _pk field"),
+            Column("half", Integer,
+                   comment="Half number"),
+            Column("target_probability_low_high", Integer,
+                   comment="Target probability given stimulus "
+                           "(0 low, 1 high)"),
+            Column("n_trials", Integer,
+                   comment="Number of trials in this condition"),
+            Column("p_detect_present", Float,
+                   comment="P(detect | present)"),
+            Column("p_detect_absent", Float,
+                   comment="P(detect | absent)"),
+            Column("c", Float,
+                   comment="c (bias; c > 0 when miss rate > false alarm rate; "
+                           "c < 0 when false alarm rate > miss rate)"),
+            Column("d", Float,
+                   comment="d' (discriminability)"),
+            Column("auditory_n_trials", Integer,
+                   comment="Number of auditory trials in this condition"),
+            Column("auditory_p_detect_present", Float,
+                   comment="AUDITORY P(detect | present)"),
+            Column("auditory_p_detect_absent", Float,
+                   comment="AUDITORY P(detect | absent)"),
+            Column("auditory_c", Float,
+                   comment="AUDITORY c"),
+            Column("auditory_d", Float,
+                   comment="AUDITORY d'"),
+        ]
 
     def get_overall_p_detect_present(self) -> Optional[float]:
         trialarray = self.trials  # type: List[ExpDetTrial]

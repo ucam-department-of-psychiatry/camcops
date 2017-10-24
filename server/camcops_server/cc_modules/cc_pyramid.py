@@ -436,7 +436,6 @@ class Routes(object):
     ADD_ID_DEFINITION = "add_id_definition"
     ADD_SPECIAL_NOTE = "add_special_note"
     ADD_USER = "add_user"
-    BASIC_DUMP = "basic_dump"
     BUGFIX_DEFORM_MISSING_GLYPHS = "bugfix_deform_missing_glyphs"
     # ... test by visiting the Task Filters page
     CHANGE_OWN_PASSWORD = "change_own_password"
@@ -464,7 +463,6 @@ class Routes(object):
     LOGIN = "login"
     LOGOUT = "logout"
     OFFER_AUDIT_TRAIL = "offer_audit_trail"
-    OFFER_BASIC_DUMP = "offer_basic_dump"
     OFFER_HL7_MESSAGE_LOG = "offer_hl7_message_log"
     OFFER_HL7_RUN_LOG = "offer_hl7_run_log"
     OFFER_INTROSPECTION = "offer_introspect"
@@ -472,6 +470,7 @@ class Routes(object):
     OFFER_REPORT = "offer_report"
     OFFER_SQL_DUMP = "offer_sql_dump"
     OFFER_TERMS = "offer_terms"
+    OFFER_TSV_DUMP = "offer_tsv_dump"
     REPORT = "report"
     REPORTS_MENU = "reports_menu"
     SET_FILTERS = "set_filters"
@@ -484,6 +483,7 @@ class Routes(object):
     TESTPAGE_PRIVATE_3 = "testpage_private_3"
     TESTPAGE_PUBLIC_1 = "testpage_public_1"
     TRACKER = "tracker"
+    TSV_DUMP = "tsv_dump"
     UNLOCK_USER = "unlock_user"
     VIEW_OWN_USER_INFO = "view_own_user_info"
     VIEW_DDL = "inspect_ddl"
@@ -546,7 +546,7 @@ class RouteCollection(object):
                                   "/add_id_definition")
     ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE, "/add_special_note")
     ADD_USER = RoutePath(Routes.ADD_USER, "/add_user")
-    BASIC_DUMP = RoutePath(Routes.BASIC_DUMP, "/basic_dump")
+    TSV_DUMP = RoutePath(Routes.TSV_DUMP, "/tsv_dump")
     BUGFIX_DEFORM_MISSING_GLYPHS = RoutePath(
         Routes.BUGFIX_DEFORM_MISSING_GLYPHS,
         "/deform_static/fonts/glyphicons-halflings-regular.woff2"
@@ -592,7 +592,6 @@ class RouteCollection(object):
     LOGOUT = RoutePath(Routes.LOGOUT, "/logout")
     OFFER_AUDIT_TRAIL = RoutePath(Routes.OFFER_AUDIT_TRAIL,
                                   "/offer_audit_trail")
-    OFFER_BASIC_DUMP = RoutePath(Routes.OFFER_BASIC_DUMP, "/offer_basic_dump")
     OFFER_HL7_MESSAGE_LOG = RoutePath(Routes.OFFER_HL7_MESSAGE_LOG,
                                       "/offer_hl7_message_log")
     OFFER_HL7_RUN_LOG = RoutePath(Routes.OFFER_HL7_RUN_LOG,
@@ -602,6 +601,7 @@ class RouteCollection(object):
     OFFER_REPORT = RoutePath(Routes.OFFER_REPORT, "/offer_report")
     OFFER_SQL_DUMP = RoutePath(Routes.OFFER_SQL_DUMP, "/offer_sql_dump")
     OFFER_TERMS = RoutePath(Routes.OFFER_TERMS, '/offer_terms')
+    OFFER_TSV_DUMP = RoutePath(Routes.OFFER_TSV_DUMP, "/offer_tsv_dump")
     REPORT = RoutePath(Routes.REPORT, '/report')
     REPORTS_MENU = RoutePath(Routes.REPORTS_MENU, "/reports_menu")
     SET_FILTERS = RoutePath(Routes.SET_FILTERS, '/set_filters')

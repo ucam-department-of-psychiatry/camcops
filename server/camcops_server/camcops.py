@@ -463,7 +463,7 @@ def get_username_from_cli(req: CamcopsRequest,
                           prompt: str,
                           must_exist: bool = False,
                           must_not_exist: bool = False) -> str:
-    assert must_exist != must_not_exist
+    assert not (must_exist and must_not_exist)
     first = True
     while True:
         if first:
@@ -509,14 +509,19 @@ def make_superuser(username: str = None) -> None:
     with command_line_request_context() as req:
         username = get_username_from_cli(
             req=req,
-            prompt="Username for new superuser",
+            prompt="Username for new superuser (or to gain superuser status)",
             starting_username=username,
-            must_not_exist=True,
         )
-        print("Creating superuser {!r}".format(username))
-        password = get_new_password_from_cli(username=username)
-        result = User.create_superuser(req, username, password)
-        print("Success: " + str(result))
+        existing_user = User.get_user_by_name(req.dbsession, username)
+        if existing_user:
+            print("Giving superuser status to {!r}".format(username))
+            existing_user.superuser = True
+            success = True
+        else:
+            print("Creating superuser {!r}".format(username))
+            password = get_new_password_from_cli(username=username)
+            success = User.create_superuser(req, username, password)
+        print("Success: " + str(success))
 
 
 def reset_password(username: str = None) -> None:
@@ -971,11 +976,11 @@ def camcops_main() -> None:
 
     superuser_parser = add_sub(
         subparsers, "make_superuser",
-        help="Make superuser")
+        help="Make superuser, or give superuser status to an existing user")
     superuser_parser.add_argument(
         '--username',
-        help="Username of superuser to create (if omitted, you will be asked "
-             "to type it in)")
+        help="Username of superuser to create/promote (if omitted, you will "
+             "be asked to type it in)")
     superuser_parser.set_defaults(func=lambda args: make_superuser(
         username=args.username
     ))

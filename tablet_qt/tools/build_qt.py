@@ -248,6 +248,11 @@ MAKE = "make"
 READELF = "readelf"
 TAR = "tar"
 
+# -----------------------------------------------------------------------------
+# Constants for building
+# -----------------------------------------------------------------------------
+
+DEFAULT_IOS_MIN_SDK = "8.2"
 
 # -----------------------------------------------------------------------------
 # Logging
@@ -261,16 +266,20 @@ LOG_DATEFMT = '%Y-%m-%d %H:%M:%S'
 # Information about the target system
 # =============================================================================
 
-OS_ANDROID = "android"
-OS_LINUX = "linux"
-OS_WINDOWS = "windows"
-OS_OSX = "osx"
-OS_IOS = "ios"
+class Os(object):
+    ANDROID = "android"
+    LINUX = "linux"
+    WINDOWS = "windows"
+    OSX = "osx"
+    IOS = "ios"
 
-CPU_X86_32 = "x86"
-CPU_X86_64 = "x86_64"
-CPU_ARM_V5 = "armv5"
-CPU_ARM_V7 = "armv7"
+
+class Cpu(object):
+    X86_32 = "x86"
+    X86_64 = "x86_64"
+    ARM_V5 = "armv5"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture
+    ARM_V7 = "armv7"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture
+    ARM_V8_64 = "armv8_64"
 
 
 class Platform(object):
@@ -278,15 +287,15 @@ class Platform(object):
     def __init__(self, os: str, cpu: str = "") -> None:
         self.os = os
         self.cpu = cpu
-        if os not in [OS_LINUX, OS_ANDROID, OS_WINDOWS, OS_OSX]:
+        if os not in [Os.LINUX, Os.ANDROID, Os.WINDOWS, Os.OSX, Os.IOS]:
             raise ValueError("Unknown target system: " + os)
-        if cpu not in [CPU_X86_32, CPU_X86_64,
-                       CPU_ARM_V5, CPU_ARM_V7]:
+        if cpu not in [Cpu.X86_32, Cpu.X86_64,
+                       Cpu.ARM_V5, Cpu.ARM_V7]:
             raise ValueError("Unknown target CPU: " + cpu)
 
         if os == "android" and not cpu:
             raise ValueError("Must specify CPU for Android")
-        if os in [OS_LINUX, OS_OSX, OS_WINDOWS] and cpu != CPU_X86_64:
+        if os in [Os.LINUX, Os.OSX, Os.WINDOWS] and cpu != Cpu.X86_64:
             raise ValueError("Don't know how to build for CPU " + cpu +
                              " on system " + os)
 
@@ -297,22 +306,26 @@ class Platform(object):
         return "{}_{}".format(self.os, self.cpu)
 
     def shared_lib_suffix(self) -> str:
-        if self.os == OS_OSX:
+        if self.os == Os.OSX:
             return ".dylib"
         else:
             return ".so"
 
     @property
     def linux(self) -> bool:
-        return self.os == OS_LINUX
+        return self.os == Os.LINUX
 
     @property
     def android(self) -> bool:
-        return self.os == OS_ANDROID
+        return self.os == Os.ANDROID
+
+    @property
+    def ios(self) -> bool:
+        return self.os == Os.IOS
 
     @property
     def mobile(self) -> bool:
-        return self.os in [OS_ANDROID, OS_IOS]
+        return self.os in [Os.ANDROID, Os.IOS]
 
     @property
     def desktop(self) -> bool:
@@ -320,11 +333,11 @@ class Platform(object):
 
     @property
     def cpu_x86_family(self) -> bool:
-        return self.cpu in [CPU_X86_32, CPU_X86_64]
+        return self.cpu in [Cpu.X86_32, Cpu.X86_64]
 
     @property
     def cpu_arm_family(self) -> bool:
-        return self.cpu in [CPU_ARM_V5, CPU_ARM_V7]
+        return self.cpu in [Cpu.ARM_V5, Cpu.ARM_V7, Cpu.ARM_V8_64]
 
     @property
     def android_cpu(self) -> str:
@@ -333,14 +346,14 @@ class Platform(object):
         """
         if not self.android:
             raise ValueError("Platform is not Android")
-        if self.cpu == CPU_X86_64:
+        if self.cpu == Cpu.X86_64:
             return "x86_64"
-        elif self.cpu == CPU_ARM_V7:
+        elif self.cpu == Cpu.ARM_V7:
             return "arm"
-        elif self.cpu == CPU_ARM_V5:
+        elif self.cpu == Cpu.ARM_V5:
             return "armv5"
         else:
-            raise ValueError("Don't know how to build Android on for CPU " +
+            raise ValueError("Don't know how to build Android for CPU " +
                              self.cpu)
 
     @property
@@ -353,6 +366,9 @@ class Platform(object):
         return "arch-{}".format(self.android_arch_short)
 
     def verify_elf(self, filename: str) -> None:
+        """
+        Check an ELF file matches our architecture.
+        """
         elf_arm_tag = "Tag_ARM_ISA_use: Yes"
         elfcmd = [READELF, "-A", filename]
         log.info("Checking ELF information for " + repr(filename))
@@ -362,6 +378,30 @@ class Platform(object):
                 log.critical(elfresult)
                 raise ValueError(
                     "File {} was not build for ARM".format(filename))
+
+    @property
+    def ios_platform_name(self) -> str:
+        if not self.ios:
+            raise ValueError("ios_platform_name requested but not using iOS")
+        if self.cpu_x86_family:
+            return "iPhoneSimulator"
+        elif self.cpu_arm_family:
+            return "iPhoneOS"
+        else:
+            raise ValueError("Unknown combination for ios_platform_name")
+
+    @property
+    def ios_arch(self) -> str:
+        if self.cpu == Cpu.X86_64:
+            return "x86_64"
+        elif self.cpu == Cpu.X86_32:
+            return "i386"
+        elif self.cpu == Cpu.ARM_V7:
+            return "armv7"
+        elif self.cpu == Cpu.ARM_V8_64:
+            return "arm64"
+        else:
+            raise ValueError("Unknown architecture for iOS")
 
 
 # =============================================================================
@@ -377,6 +417,10 @@ class Config(object):
         self.android_arm = args.android_arm  # type: bool
         self.linux_x86_64 = args.linux_x86_64  # type: bool
         self.osx_x86_64 = args.osx_x86_64  # type: bool
+        self.windows_x86_64 = args.windows_x86_64  # type: bool
+        self.ios = args.ios  # type: bool
+        self.ios_simulator = args.ios_simulator  # type: bool
+        self.ios_min_sdk = args.ios_min_sdk  # type: str
 
         # General
         self.show_config_only = args.show_config_only  # type: bool
@@ -494,6 +538,54 @@ class Config(object):
                 "eigen-{}.tar.gz".format(self.eigen_version))
             self.eigen_unpacked_dir = join(self.root_dir, "eigen")
 
+    def set_android_env(self,
+                        env: Dict[str, str],
+                        platform: Platform) -> None:
+        android_sysroot = self.android_sysroot(platform)
+        android_toolchain = self.android_toolchain(platform)
+
+        env["ANDROID_API"] = self.android_api
+        env["ANDROID_API_VERSION"] = self.android_api
+        env["ANDROID_ARCH"] = platform.android_arch_full
+        env["ANDROID_DEV"] = join(android_sysroot, "usr")
+        env["ANDROID_EABI"] = self.android_eabi(platform)
+        env["ANDROID_NDK_ROOT"] = self.android_ndk_root
+        env["ANDROID_SDK_ROOT"] = self.android_sdk_root
+        env["ANDROID_SYSROOT"] = android_sysroot
+        env["ANDROID_TOOLCHAIN"] = android_toolchain
+        env["AR"] = self.android_ar(platform)
+        env["ARCH"] = platform.android_arch_short
+        env["CC"] = self.android_cc(platform)
+        env["PATH"] = "{}{}{}".format(android_toolchain, os.pathsep,
+                                      env["PATH"])
+        env["SYSROOT"] = android_sysroot
+        env["NDK_SYSROOT"] = android_sysroot
+
+    def set_ios_env(self, env: Dict[str, str], platform: Platform) -> None:
+        # https://gist.github.com/foozmeat/5154962
+        encoding = sys.getdefaultencoding()
+        developer = (
+            subprocess.check_output("xcode-select -print-path")
+                .decode(encoding)
+        )
+
+        env["BUILD_TOOLS"] = developer
+        env["CC"] = "{cc} -arch {arch}".format(
+            cc=os.path.join(developer, 'usr', 'bin', 'gcc'),
+            arch=platform.ios_arch
+        )
+        env["CROSS_TOP"] = os.path.join(
+            developer,
+            "Platforms",
+            "{}.platform".format(platform.ios_platform_name),
+            "Developer"
+        )
+        env["CROSS_SDK"] = "{plt}{sdkv}.sdk".format(
+            plt=platform.ios_platform_name,
+            sdkv=self.ios_min_sdk,
+        )
+        env["PLATFORM"] = platform.ios_platform_name
+
     def __repr__(self) -> str:
         elements = ["    {}={}".format(k, repr(v))
                     for k, v in self.__dict__.items()]
@@ -538,10 +630,10 @@ class Config(object):
                     "prebuilt", self.android_ndk_host, "bin")
 
     def android_ar(self, platform: Platform) -> str:
-        if platform.cpu == CPU_X86_32:
+        if platform.cpu == Cpu.X86_32:
             return join(self.android_toolchain(platform),
                         "i686-linux-android-gcc-ar")
-        elif platform.cpu == CPU_ARM_V7:
+        elif platform.cpu == Cpu.ARM_V7:
             return join(self.android_toolchain(platform),
                         "arm-linux-androideabi-gcc-ar")
         else:
@@ -549,11 +641,11 @@ class Config(object):
                              platform.cpu)
 
     def android_cc(self, platform: Platform) -> str:
-        if platform.cpu == CPU_X86_32:
+        if platform.cpu == Cpu.X86_32:
             return join(self.android_toolchain(platform),
                         "i686-linux-android-gcc-{}".format(
                             self.android_toolchain_version))
-        elif platform.cpu == CPU_ARM_V7:
+        elif platform.cpu == Cpu.ARM_V7:
             return join(self.android_toolchain(platform),
                         "arm-linux-androideabi-gcc-{}".format(
                             self.android_toolchain_version))
@@ -836,19 +928,26 @@ def build_openssl(cfg: Config, platform: Platform) -> None:
     # However, it does seem to be screwing up. Let's try Configure instead.
 
     # http://doc.qt.io/qt-5/opensslsupport.html
-    if platform.os == OS_ANDROID:
-        if platform.cpu == CPU_ARM_V5:
+    target_os = ""
+    if platform.os == Os.ANDROID:
+        if platform.cpu == Cpu.ARM_V5:
             target_os = "android"  # ... NB "android" means ARMv5
-        elif platform.cpu == CPU_ARM_V7:
+        elif platform.cpu == Cpu.ARM_V7:
             target_os = "android-armv7"
         else:
             target_os = "android-{}".format(platform.cpu)
-    elif platform.os == OS_LINUX and platform.cpu == CPU_X86_64:
+    elif platform.os == Os.LINUX and platform.cpu == Cpu.X86_64:
         target_os = "linux-x86_64"
-    elif platform.os == OS_OSX and platform.cpu == CPU_X86_64:
+    elif platform.os == Os.OSX and platform.cpu == Cpu.X86_64:
         # https://gist.github.com/tmiz/1441111
         target_os = "darwin64-x86_64-cc"
-    else:
+    elif platform.os == Os.IOS:
+        # https://gist.github.com/foozmeat/5154962
+        if platform.cpu == Cpu.ARM_V8_64:
+            target_os = "iphoneos-cross"
+        elif platform.cpu == Cpu.X86_64:
+            target_os = "darwin64-x86_64-cc"
+    if not target_os:
         raise ValueError("Don't know how to make OpenSSL for " +
                          platform.description())
 
@@ -871,32 +970,15 @@ def build_openssl(cfg: Config, platform: Platform) -> None:
         # https://wiki.openssl.org/index.php/Android
         # We're not using the Setenv-android.sh script, but replicating its
         # functions.
-
-        android_sysroot = cfg.android_sysroot(platform)
-        android_toolchain = cfg.android_toolchain(platform)
-
-        env["ANDROID_API"] = cfg.android_api
-        env["ANDROID_ARCH"] = platform.android_arch_full
-        env["ANDROID_DEV"] = join(android_sysroot, "usr")
-        env["ANDROID_EABI"] = cfg.android_eabi(platform)
-        env["ANDROID_NDK_ROOT"] = cfg.android_ndk_root
-        env["ANDROID_SDK_ROOT"] = cfg.android_sdk_root
-        env["ANDROID_SYSROOT"] = android_sysroot
-        env["ANDROID_TOOLCHAIN"] = android_toolchain
-        env["ARCH"] = platform.android_arch_short
+        cfg.set_android_env(env, platform)
         # env["CROSS_COMPILE"] = "i686-linux-android-"
         env["FIPS_SIG"] = ""  # OK to leave blank if not building FIPS
         env["HOSTCC"] = "gcc"
         env["MACHINE"] = "i686"
-        env["NDK_SYSROOT"] = android_sysroot
-        env["PATH"] = "{}{}{}".format(android_toolchain, os.pathsep,
-                                      env["PATH"])
         env["RELEASE"] = "2.6.37"  # ??
-        env["SYSROOT"] = android_sysroot
         env["SYSTEM"] = target_os
-        env["ANDROID_DEV"] = join(android_sysroot, "usr")
-        env["CC"] = cfg.android_cc(platform)
-        env["AR"] = cfg.android_ar(platform)
+    elif platform.ios:
+        cfg.set_ios_env(env, platform)
 
     # -------------------------------------------------------------------------
     # Makefile
@@ -1052,9 +1134,9 @@ def build_qt(cfg: Config, platform: Platform) -> str:
     if platform.android:
         # We use a dynamic build of Qt (bundled into the APK), not a static
         # version; see android_compilation.txt
-        if platform.cpu == CPU_X86_32:
+        if platform.cpu == Cpu.X86_32:
             android_arch_short = "x86"
-        elif platform.cpu == CPU_ARM_V7:
+        elif platform.cpu == Cpu.ARM_V7:
             android_arch_short = "armeabi-v7a"
         else:
             raise ValueError("Unknown CPU: {}".format(platform.cpu))
@@ -1098,9 +1180,9 @@ def build_qt(cfg: Config, platform: Platform) -> str:
                                                  installdir))
     chdir(builddir)
     if platform.android:
-        env["ANDROID_API_VERSION"] = cfg.android_api
-        env["ANDROID_NDK_ROOT"] = cfg.android_ndk_root
-        env["ANDROID_SDK_ROOT"] = cfg.android_sdk_root
+        cfg.set_android_env(env, platform)
+        # ... only need ANDROID_API_VERSION, ANDROID_NDK_ROOT, ANDROID_SDK_ROOT
+
     run([MAKE, "-j", str(cfg.nparallel)], env)
 
     # -------------------------------------------------------------------------
@@ -1238,7 +1320,7 @@ def build_sqlcipher(cfg: Config, platform: Platform) -> None:
     # its "configure" script.
 
     # Platform-specific tweaks; cross-compilation
-    if platform.cpu == CPU_ARM_V7:
+    if platform.cpu == Cpu.ARM_V7:
         # arm? [1]
         # arm-linux? [2]
         config_args.append("--build=x86_64-unknown-linux")
@@ -1503,6 +1585,23 @@ def main() -> None:
         help="An architecture target (Mac OS/X under an Intel 64-bit CPU; "
              "check with 'sysctl -a|grep cpu', and see "
              "https://support.apple.com/en-gb/HT201948 )")
+    archgroup.add_argument(
+        "--windows_x86_64", action="store_true",
+        help="An architecture target (Windows with an Intel 64-bit CPU)"
+    )
+    archgroup.add_argument(
+        "--ios", action="store_true",
+        help="An architecture target (iOS with a 64-bit ARM processor)"
+    )
+    archgroup.add_argument(
+        "--ios_simulator", action="store_true",
+        help="An architecture target (iOS with an Intel 64-bit CPU, for the "
+             "iOS simulator)"
+    )
+    archgroup.add_argument(
+        "--ios_min_sdk", default=DEFAULT_IOS_MIN_SDK,
+        help="Minimum SDK level for iOS"
+    )
 
     # Qt
     qt = parser.add_argument_group(
@@ -1685,31 +1784,46 @@ def main() -> None:
         if platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
             make_missing_libqtforandroid_so(cfg, platform)
         build_sqlcipher(cfg, platform)
+        
+    extras = " +SQLite/SQLCipher +OpenSSL"
 
     if cfg.android_x86:  # for x86 Android emulator
-        log.info("Qt build: Android x86 +SQLite/SQLCipher +OpenSSL")
-        build_for(OS_ANDROID, CPU_X86_32)
+        log.info("Qt build: Android x86" + extras)
+        build_for(Os.ANDROID, Cpu.X86_32)
 
     if cfg.android_arm:  # for native Android
-        log.info("Qt build: Android ARM +SQLite/SQLCipher +OpenSSL")
-        build_for(OS_ANDROID, CPU_ARM_V7)
+        log.info("Qt build: Android ARM" + extras)
+        build_for(Os.ANDROID, Cpu.ARM_V7)
 
     if cfg.linux_x86_64:  # for 64-bit Linux
-        log.info("Qt build: Linux x86 64-bit +SQLite/SQLCipher +OpenSSL")
-        build_for(OS_LINUX, CPU_X86_64)
+        log.info("Qt build: Linux x86 64-bit" + extras)
+        build_for(Os.LINUX, Cpu.X86_64)
 
     if cfg.osx_x86_64:  # for 64-bit Intel Mac OS/X
         # http://doc.qt.io/qt-5/osx.html
-        log.info("Qt build: Mac OS/X x86 64-bit +SQLite/SQLCipher +OpenSSL")
-        build_for(OS_OSX, CPU_X86_64)
+        log.info("Qt build: Mac OS/X x86 64-bit" + extras)
+        build_for(Os.OSX, Cpu.X86_64)
+        
+    if cfg.windows_x86_64:
+        # *** NOT IMPLEMENTED PROPERLY YET
+        log.info("Qt build: Windows, Intel 64-bit" + extras)
+        build_for(Os.WINDOWS, Cpu.X86_64)
+        # *** cfg.windows*  # build_qt for Windows
+        #   http://doc.qt.io/qt-5/windows-building.html
+        #     http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
 
-    # *** cfg.ios*  # build_qt for iOS (iPad, etc.)
-    #     http://doc.qt.io/qt-5/building-from-source-ios.html
-    #     http://doc.qt.io/qt-5/ios-support.html
-    #     https://gist.github.com/foozmeat/5154962
+    if cfg.ios:
+        # *** NOT IMPLEMENTED PROPERLY YET
+        log.info("Qt build: iOS, 64-bit ARM" + extras)
+        build_for(Os.IOS, Cpu.ARM_V8_64)
 
-    # *** cfg.windows*  # build_qt for Windows
-    #     http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
+    if cfg.ios_simulator:
+        # *** NOT IMPLEMENTED PROPERLY YET
+        log.info("Qt build: iOS simulator, x64 64-bit" + extras)
+        build_for(Os.IOS, Cpu.X86_64)
+        # *** cfg.ios*  # build_qt for iOS (iPad, etc.)
+        #     http://doc.qt.io/qt-5/building-from-source-ios.html
+        #     http://doc.qt.io/qt-5/ios-support.html
 
     if not installdirs and not done_extra:
         log.warning("Nothing more to do. Run with --help argument for help.")

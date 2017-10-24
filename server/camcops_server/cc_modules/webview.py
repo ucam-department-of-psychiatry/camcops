@@ -1115,8 +1115,8 @@ def provide_report(req: CamcopsRequest) -> Response:
 # Research downloads
 # =============================================================================
 
-@view_config(route_name=Routes.OFFER_BASIC_DUMP)
-def offer_basic_dump(req: CamcopsRequest) -> Response:
+@view_config(route_name=Routes.OFFER_TSV_DUMP)
+def offer_tsv_dump(req: CamcopsRequest) -> Response:
     """Form for basic research dump selection."""
     if not req.user.authorized_to_dump:
         raise HTTPBadRequest(CANNOT_DUMP)
@@ -1134,7 +1134,7 @@ def offer_basic_dump(req: CamcopsRequest) -> Response:
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
-            return HTTPFound(req.route_url(Routes.BASIC_DUMP,
+            return HTTPFound(req.route_url(Routes.TSV_DUMP,
                                            _query=querydict))
         except ValidationFailure as e:
             rendered_form = e.render()
@@ -1148,8 +1148,8 @@ def offer_basic_dump(req: CamcopsRequest) -> Response:
     )
 
 
-@view_config(route_name=Routes.BASIC_DUMP)
-def serve_basic_dump(req: CamcopsRequest) -> Response:
+@view_config(route_name=Routes.TSV_DUMP)
+def serve_tsv_dump(req: CamcopsRequest) -> Response:
     if not req.user.authorized_to_dump:
         raise HTTPBadRequest(CANNOT_DUMP)
     # -------------------------------------------------------------------------
@@ -1214,6 +1214,9 @@ def serve_basic_dump(req: CamcopsRequest) -> Response:
             tsv_filename = filename_stem + ".tsv"
             tsv_contents = tsvcoll.get_tsv_file(filename_stem)
             z.writestr(tsv_filename, tsv_contents.encode("utf-8"))
+
+        # Attempt a little memory efficiency:
+        collection.forget_task_class(cls)
 
     # -------------------------------------------------------------------------
     # Finish and serve
@@ -1366,9 +1369,8 @@ def sql_dump(req: CamcopsRequest) -> Response:
             tasks = collection.tasks_for_task_class(cls)
             all_tasks.extend(tasks)
             # noinspection PyProtectedMember
-            pks = [task._pk for task in tasks]
             audit_descriptions.append("{}: {}".format(
-                cls.__tablename__, ",".join(str(pk) for pk in pks)))
+                cls.__tablename__, ",".join(str(task._pk) for task in tasks)))
         # ---------------------------------------------------------------------
         # Next bit very tricky. We're trying to achieve several things:
         # - a copy of part of the database structure
