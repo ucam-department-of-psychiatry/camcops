@@ -317,7 +317,8 @@ class Platform(object):
         return "{}_{}".format(self.os, self.cpu)
 
     def shared_lib_suffix(self) -> str:
-        if self.os in [Os.IOS, Os.OSX]:
+        # I think this depends on the host, not the target.
+        if HOST_PLATFORM.os in [Os.OSX]:
             return ".dylib"
         else:
             return ".so"
@@ -387,15 +388,14 @@ class Platform(object):
         elif self.osx:
             require(GOBJDUMP)
         else:
-            raise ValueError("Don't know ELF reader for {}".format(hostplatform))
+            raise ValueError("Don't know ELF reader for {}".format(HOST_PLATFORM))
 
     def verify_elf(self, filename: str) -> None:
         """
         Check an ELF file matches our architecture.
         """
         log.info("Verifying type of ELF file: {!r}".format(filename))
-        hostplatform = get_host_platform()
-        if hostplatform.linux:
+        if HOST_PLATFORM.linux:
             elf_arm_tag = "Tag_ARM_ISA_use: Yes"
             elfcmd = [READELF, "-A", filename]
             log.info("Checking ELF information for " + repr(filename))
@@ -405,7 +405,7 @@ class Platform(object):
                     log.critical(elfresult)
                     raise ValueError(
                         "File {} was not build for ARM".format(filename))
-        elif hostplatform.osx:
+        elif HOST_PLATFORM.osx:
             # https://lowlevelbits.org/parsing-mach-o-files/
             # https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
             # gobjdump --help
@@ -419,7 +419,7 @@ class Platform(object):
                         "File {} was not build for ARM64".format(filename))
         else:
             raise ValueError("Don't know how to verify ELF for {}".format(
-                hostplatform))
+                HOST_PLATFORM))
         log.info("ELF file is good: {!r}".format(filename))
 
     @property
@@ -466,6 +466,9 @@ def get_host_platform() -> Platform:
     else:
         raise ValueError("Don't know host CPU {!r}".format(m))
     return Platform(os, cpu)
+
+
+HOST_PLATFORM = get_host_platform()
 
 
 # =============================================================================
@@ -1640,9 +1643,8 @@ def main() -> None:
     """
     logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT,
                         datefmt=LOG_DATEFMT)
-    hostplatform = get_host_platform()
-    log.info("Running on {}".format(hostplatform))
-    hostplatform.ensure_elf_reader()
+    log.info("Running on {}".format(HOST_PLATFORM))
+    HOST_PLATFORM.ensure_elf_reader()
 
     # -------------------------------------------------------------------------
     # Command-line arguments
