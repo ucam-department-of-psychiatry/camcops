@@ -519,7 +519,7 @@ class RoutePath(object):
 
 MASTER_ROUTE_WEBVIEW = "/"
 MASTER_ROUTE_CLIENT_API = "/database"
-STATIC_PYRAMID_PACKAGE_PATH = "camcops_server.static:"
+STATIC_CAMCOPS_PACKAGE_PATH = "camcops_server.static:"
 # ... the "static" package (directory with __init__.py) within the
 # "camcops_server" owning package
 

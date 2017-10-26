@@ -25,6 +25,7 @@
 import logging
 from typing import Optional, TYPE_CHECKING
 
+from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Pendulum
 from sqlalchemy.orm import relationship
@@ -34,7 +35,6 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text
 import wand.image
 
-from .cc_constants import MIMETYPE_PNG
 from .cc_db import GenericTabletRecordMixin
 from .cc_html import get_data_url, get_embedded_img_tag
 from .cc_sqla_coltypes import (
@@ -175,7 +175,7 @@ class Blob(GenericTabletRecordMixin, Base):
         image_bits = self.get_rotated_image()
         if not image_bits:
             return ""
-        return get_embedded_img_tag(self.mimetype or MIMETYPE_PNG, image_bits)
+        return get_embedded_img_tag(self.mimetype or MimeType.PNG, image_bits)
         # Historically, CamCOPS supported only PNG, so add this as a default
 
     def get_xml_element(self, req: "CamcopsRequest") -> XmlElement:
@@ -205,7 +205,7 @@ class Blob(GenericTabletRecordMixin, Base):
         """Returns a data URL encapsulating the BLOB, or ''."""
         if not self.theblob:
             return ""
-        return get_data_url(self.mimetype or MIMETYPE_PNG, self.theblob)
+        return get_data_url(self.mimetype or MimeType.PNG, self.theblob)
 
 
 # =============================================================================

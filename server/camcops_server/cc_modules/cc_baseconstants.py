@@ -47,18 +47,7 @@ ENVVAR_CONFIG_FILE = "CAMCOPS_CONFIG_FILE"
 _this_directory = dirname(abspath(__file__))  # cc_modules
 CAMCOPS_SERVER_DIRECTORY = abspath(join(_this_directory, pardir))  # camcops_server  # noqa
 
-if hasattr(sys, 'real_prefix'):
-    # We're running in a virtual environment.
-    # https://stackoverflow.com/questions/1871549/python-determine-if-running-inside-virtualenv
-    _venv = sys.prefix
-    _venv_bin = join(_venv, 'bin')
-    CAMCOPS_EXECUTABLE = join(_venv_bin, "camcops")
-else:
-    CAMCOPS_EXECUTABLE = "camcops"  # fallback; may not work
-
 ALEMBIC_BASE_DIR = CAMCOPS_SERVER_DIRECTORY
-ALEMBIC_CONFIG_FILENAME = join(ALEMBIC_BASE_DIR, 'alembic.ini')
-ALEMBIC_VERSION_TABLE = "_alembic_version"
 
 DEFAULT_EXTRA_STRINGS_DIR = join(CAMCOPS_SERVER_DIRECTORY, "extra_strings")
 
@@ -71,14 +60,37 @@ LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR = "/var/cache/camcops/matplotlib"
 # ... Lintian dislikes using /var/local
 
 DOCS_DIR = join(CAMCOPS_SERVER_DIRECTORY, "docs")
-MANUAL_FILENAME_ODT = join(DOCS_DIR, "CAMCOPS_MANUAL.odt")
-MANUAL_FILENAME_PDF = join(DOCS_DIR, "CAMCOPS_MANUAL.pdf")
 
 STATIC_ROOT_DIR = join(CAMCOPS_SERVER_DIRECTORY, 'static')
-# ... mostly but not entirely superseded by STATIC_PYRAMID_PACKAGE_PATH
+# ... mostly but not entirely superseded by STATIC_CAMCOPS_PACKAGE_PATH
 TEMPLATE_DIR = join(CAMCOPS_SERVER_DIRECTORY, 'templates')
 TABLET_SOURCE_COPY_DIR = join(CAMCOPS_SERVER_DIRECTORY, "tablet_source_copy")
 # ... used by setup.py to copy tablet source files into package
+
+# =============================================================================
+# Filenames
+# =============================================================================
+
+if hasattr(sys, 'real_prefix'):
+    # We're running in a virtual environment.
+    # https://stackoverflow.com/questions/1871549/python-determine-if-running-inside-virtualenv
+    _venv = sys.prefix
+    _venv_bin = join(_venv, 'bin')
+    CAMCOPS_EXECUTABLE = join(_venv_bin, "camcops")
+else:
+    CAMCOPS_EXECUTABLE = "camcops"  # fallback; may not work
+
+ALEMBIC_CONFIG_FILENAME = join(ALEMBIC_BASE_DIR, 'alembic.ini')
+
+MANUAL_FILENAME_ODT = join(DOCS_DIR, "CAMCOPS_MANUAL.odt")
+MANUAL_FILENAME_PDF_STEM = "CAMCOPS_MANUAL.pdf"
+MANUAL_FILENAME_PDF = join(STATIC_ROOT_DIR, MANUAL_FILENAME_PDF_STEM)
+
+# =============================================================================
+# Significant table names
+# =============================================================================
+
+ALEMBIC_VERSION_TABLE = "_alembic_version"
 
 # =============================================================================
 # Introspectable extensions

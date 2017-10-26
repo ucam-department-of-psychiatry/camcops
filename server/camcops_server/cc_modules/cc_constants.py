@@ -26,13 +26,18 @@
 
 import os
 
-from .cc_baseconstants import CAMCOPS_SERVER_DIRECTORY
+from .cc_baseconstants import (
+    CAMCOPS_SERVER_DIRECTORY,
+    STATIC_ROOT_DIR,
+)
 
 # =============================================================================
 # Number of ID numbers. Don't alter this lightly; influences database fields.
 # =============================================================================
 
-NUMBER_OF_IDNUMS_DEFUNCT = 8  # Determines number of ID number fields
+NUMBER_OF_IDNUMS_DEFUNCT = 8  # DEFUNCT BUT DO NOT REMOVE OR ALTER. EIGHT.
+# ... In older versions: determined number of ID number fields.
+# (Now this is arbitrary.) Still used to support old clients.
 
 # =============================================================================
 # Configuration
@@ -54,30 +59,11 @@ DEFAULT_PLOT_FONTSIZE = 8
 MINIMUM_PASSWORD_LENGTH = 8
 
 # =============================================================================
-# URLs, filenames, etc. for interaction with the hosting web server
-# =============================================================================
-
-# As sent to the client, using relative URLS:
-STATIC_URL_PREFIX = "static/"
-CAMCOPS_LOGO_FILE_WEBREF = STATIC_URL_PREFIX + "logo_camcops.png"
-LOCAL_LOGO_FILE_WEBREF = STATIC_URL_PREFIX + "logo_local.png"
-CAMCOPS_FAVICON_FILE = STATIC_URL_PREFIX + "favicon_camcops.png"
-
-URL_RELATIVE_WEBVIEW = "webview"
-
-# As seen in the WSGI PATH_INFO variable:
-URL_ROOT_WEBVIEW = "/" + URL_RELATIVE_WEBVIEW
-URL_ROOT_DATABASE = "/database"
-URL_ROOT_STATIC = "/static"  # only for development environments
-
-# =============================================================================
 # More filenames
 # =============================================================================
 
-DEFAULT_CAMCOPS_LOGO_FILE = os.path.join(CAMCOPS_SERVER_DIRECTORY,
-                                         CAMCOPS_LOGO_FILE_WEBREF)
-DEFAULT_LOCAL_LOGO_FILE = os.path.join(CAMCOPS_SERVER_DIRECTORY,
-                                       LOCAL_LOGO_FILE_WEBREF)
+DEFAULT_CAMCOPS_LOGO_FILE = os.path.join(STATIC_ROOT_DIR, "logo_camcops.png")
+DEFAULT_LOCAL_LOGO_FILE = os.path.join(STATIC_ROOT_DIR, "logo_local.png")
 
 # =============================================================================
 # Introspection
@@ -126,6 +112,9 @@ class DateFormat(object):
 # =============================================================================
 
 class PV(object):
+    """
+    Collections of permitted values.
+    """
     BIT = [0, 1]
 
 
@@ -141,41 +130,15 @@ TABLET_ID_FIELD = "id"
 MOVE_OFF_TABLET_FIELD = "_move_off_tablet"
 CLIENT_DATE_FIELD = "when_last_modified"
 
-# Field prefixes, for Patient table (here to avoid circular imports)
-FP_ID_NUM_DEFUNCT = "idnum"
-FP_ID_DESC_DEFUNCT = "iddesc"
-FP_ID_SHORT_DESC_DEFUNCT = "idshortdesc"
+# Used for old client support, and TSV field names etc.:
+FP_ID_NUM = "idnum"
+FP_ID_DESC = "iddesc"
+FP_ID_SHORT_DESC = "idshortdesc"
 
 CRIS_CLUSTER_KEY_FIELDSPEC = dict(
     name="_task_main_pk", cctype="INT_UNSIGNED",
     comment="(CRIS) Server primary key for task and linked records"
 )
-
-# DEFUNCT NOTE ABOUT FIELDSPEC LISTS:
-#
-# BEWARE when using these, esp. if you perform modifications. For example:
-#
-#   x = [{"a": 1}]
-#   y = [{"b": 2}]
-#   z = x + y
-#   for i in z:
-#       i["modify"] = 99
-#
-# ... modifies x, y as well. And so does this:
-#
-#   x = [{"a": 1}]
-#   y = [{"b": 2}]
-#   z = list(x) + list(y)
-#   for i in z:
-#       i["modify"] = 99
-#
-# So you'd need a deep copy.
-# http://stackoverflow.com/questions/8913026/list-copy-not-working
-# http://stackoverflow.com/questions/2612802
-# http://stackoverflow.com/questions/6993531/copy-list-in-python
-#
-# However, our problem comes about when we modify comments; it'll be OK if we
-# never modify a comment when there's an existing comment.
 
 
 # =============================================================================
@@ -206,25 +169,11 @@ DEFAULT_PLOT_DPI = 300
 # Debugging option
 USE_SVG_IN_HTML = True  # set to False for PNG debugging
 
-RESTRICTED_WARNING = """
-    <div class="warning">
-        You are restricted to viewing records uploaded by you. Other records
-        may exist for the same patient(s), uploaded by others.
-    </div>"""
-RESTRICTED_WARNING_SINGULAR = """
-    <div class="warning">
-        You are restricted to viewing records uploaded by you. Other records
-        may exist for the same patient, uploaded by others.
-    </div>"""
-
-MIMETYPE_PNG = "image/png"
-
 # =============================================================================
 # CSS/HTML constants
 # =============================================================================
 
 CSS_PAGED_MEDIA = (PDF_ENGINE != "pdfkit")
-
 
 WKHTMLTOPDF_OPTIONS = {  # dict for pdfkit
     "page-size": "A4",
@@ -237,13 +186,6 @@ WKHTMLTOPDF_OPTIONS = {  # dict for pdfkit
     "header-spacing": "3",  # mm, from content up to bottom of header
     "footer-spacing": "3",  # mm, from content down to top of footer
 }
-
-# =============================================================================
-# Other
-# =============================================================================
-
-SEPARATOR_HYPHENS = "-" * 79
-SEPARATOR_EQUALS = "=" * 79
 
 # =============================================================================
 # Table names used by modules that would otherwise have an interdependency, or

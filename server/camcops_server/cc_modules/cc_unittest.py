@@ -27,11 +27,11 @@ import logging
 import unittest
 from typing import Type, TYPE_CHECKING
 
+from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Pendulum
 from sqlalchemy.orm import Session as SqlASession
 
-from .cc_constants import MIMETYPE_PNG
 from .cc_idnumdef import IdNumDefinition
 from .cc_sqlalchemy import Base, make_debug_sqlite_engine
 from .cc_version import CAMCOPS_SERVER_VERSION
@@ -208,7 +208,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
                 b.tablepk = t1.id
                 b.fieldname = 'photo_blobid'
                 b.filename = "some_picture.png"
-                b.mimetype = MIMETYPE_PNG
+                b.mimetype = MimeType.PNG
                 b.image_rotation_deg_cw = 0
                 b.theblob = DEMO_PNG_BYTES
                 self.dbsession.add(b)

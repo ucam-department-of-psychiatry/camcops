@@ -59,14 +59,12 @@ from sqlalchemy.orm import Session as SqlASession
 # Note: everything uder the sun imports this file, so keep the intra-package
 # imports as minimal as possible.
 from .cc_alembic import assert_database_is_at_head
-from .cc_baseconstants import ENVVAR_CONFIG_FILE
+from .cc_baseconstants import ENVVAR_CONFIG_FILE, MANUAL_FILENAME_PDF_STEM
 from .cc_config import CamcopsConfig, get_config, get_config_filename_from_os_env
 from .cc_constants import (
-    CAMCOPS_LOGO_FILE_WEBREF,
     CSS_PAGED_MEDIA,
     DateFormat,
     DEFAULT_PLOT_DPI,
-    LOCAL_LOGO_FILE_WEBREF,
     USE_SVG_IN_HTML,
 )
 from .cc_idnumdef import get_idnum_definitions, IdNumDefinition
@@ -80,7 +78,7 @@ from .cc_pyramid import (
     get_session_factory,
     Permission,
     RouteCollection,
-    STATIC_PYRAMID_PACKAGE_PATH,
+    STATIC_CAMCOPS_PACKAGE_PATH,
 )
 from .cc_serversettings import get_server_settings, ServerSettings
 from .cc_string import all_extra_strings_as_dicts, APPSTRING_TASKNAME
@@ -336,29 +334,6 @@ class CamcopsRequest(Request):
     # Logos, static files, and other institution-specific stuff
     # -------------------------------------------------------------------------
 
-    @reify
-    def web_logo_html(self) -> str:
-        """
-        Returns the time of the request as a UTC datetime.
-        Exposed as the property: request.web_logo_html
-        """
-        # Note: HTML4 uses <img ...>; XHTML uses <img ... />;
-        # HTML5 is happy with <img ... />
-
-        # IE float-right problems: http://stackoverflow.com/questions/1820007
-        # Tables are a nightmare in IE (table max-width not working unless you
-        # also specify it for image size, etc.)
-        cfg = self.config
-        return """
-            <div class="web_logo_header">
-                <a href="{}"><img class="logo_left" src="{}" alt="" /></a>
-                <a href="{}"><img class="logo_right" src="{}" alt="" /></a>
-            </div>
-        """.format(
-            self.script_name, CAMCOPS_LOGO_FILE_WEBREF,
-            cfg.local_institution_url, LOCAL_LOGO_FILE_WEBREF
-        )
-
     @property
     def url_local_institution(self) -> str:
         return self.config.local_institution_url
@@ -367,17 +342,22 @@ class CamcopsRequest(Request):
     def url_camcops_favicon(self) -> str:
         # Cope with reverse proxies, etc.
         # https://docs.pylonsproject.org/projects/pyramid/en/latest/api/request.html#pyramid.request.Request.static_url  # noqa
-        return self.static_url(STATIC_PYRAMID_PACKAGE_PATH +
+        return self.static_url(STATIC_CAMCOPS_PACKAGE_PATH +
                                "favicon_camcops.png")
 
     @property
     def url_camcops_logo(self) -> str:
-        return self.static_url(STATIC_PYRAMID_PACKAGE_PATH +
+        return self.static_url(STATIC_CAMCOPS_PACKAGE_PATH +
                                "logo_camcops.png")
 
     @property
     def url_local_logo(self) -> str:
-        return self.static_url(STATIC_PYRAMID_PACKAGE_PATH + "logo_local.png")
+        return self.static_url(STATIC_CAMCOPS_PACKAGE_PATH + "logo_local.png")
+
+    @property
+    def url_camcops_manual_pdf(self) -> str:
+        return self.static_url(STATIC_CAMCOPS_PACKAGE_PATH +
+                               MANUAL_FILENAME_PDF_STEM)
 
     # -------------------------------------------------------------------------
     # Low-level HTTP information
@@ -839,7 +819,7 @@ def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
         # https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html#serving-static-assets  # noqa
         # Hmm. We cannot fail to set up a static file route, because otherwise
         # we can't provide URLs to them.
-        static_filepath = STATIC_PYRAMID_PACKAGE_PATH
+        static_filepath = STATIC_CAMCOPS_PACKAGE_PATH
         static_name = RouteCollection.STATIC.route
         log.debug("... including static files from {!r} at Pyramid static "
                   "name {!r}", static_filepath, static_name)

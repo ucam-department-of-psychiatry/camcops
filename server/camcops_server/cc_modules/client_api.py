@@ -79,9 +79,9 @@ from .cc_constants import (
     CLIENT_DATE_FIELD,
     DateFormat,
     ERA_NOW,
-    FP_ID_NUM_DEFUNCT,
-    FP_ID_DESC_DEFUNCT,
-    FP_ID_SHORT_DESC_DEFUNCT,
+    FP_ID_NUM,
+    FP_ID_DESC,
+    FP_ID_SHORT_DESC,
     MOVE_OFF_TABLET_FIELD,
     NUMBER_OF_IDNUMS_DEFUNCT,  # allowed; for old tablet versions
     TABLET_ID_FIELD,
@@ -536,8 +536,8 @@ def upload_record_core(req: CamcopsRequest,
                     # remove those here:
                     for n in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
                         nstr = str(n)
-                        fn_desc = FP_ID_DESC_DEFUNCT + nstr
-                        fn_shortdesc = FP_ID_SHORT_DESC_DEFUNCT + nstr
+                        fn_desc = FP_ID_DESC + nstr
+                        fn_shortdesc = FP_ID_SHORT_DESC + nstr
                         valuedict.pop(fn_desc, None)  # remove item, if exists
                         valuedict.pop(fn_shortdesc, None)
                 if ts.cope_with_old_idnums:
@@ -545,7 +545,7 @@ def upload_record_core(req: CamcopsRequest,
                     # patient table:
                     for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
                         nstr = str(which_idnum)
-                        fn_idnum = FP_ID_NUM_DEFUNCT + nstr
+                        fn_idnum = FP_ID_NUM + nstr
                         idnum_value = valuedict.pop(fn_idnum, None)
                         # ... and remove it from our new Patient record
                         patient_id = valuedict.get("id", None)

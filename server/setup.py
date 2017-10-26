@@ -46,6 +46,7 @@ from setuptools import setup, find_packages
 import shutil
 import subprocess
 import sys
+import tempfile
 from typing import List
 
 from camcops_server.cc_modules.cc_baseconstants import (
@@ -53,6 +54,7 @@ from camcops_server.cc_modules.cc_baseconstants import (
     INTROSPECTABLE_EXTENSIONS,
     MANUAL_FILENAME_ODT,
     MANUAL_FILENAME_PDF,
+    MANUAL_FILENAME_PDF_STEM,
     TABLET_SOURCE_COPY_DIR,
 )
 from camcops_server.cc_modules.cc_version_string import (
@@ -206,14 +208,19 @@ if getattr(our_args, EXTRAS_ARG):
         os.remove(MANUAL_FILENAME_PDF)  # don't delete the wrong one (again...)
     except OSError:
         pass
-    libreoffice_args = [
-        "soffice",
-        "--convert-to", "pdf:writer_pdf_Export",
-        "--outdir", DOCS_DIR,
-        MANUAL_FILENAME_ODT
-    ]
-    print("... calling: {!r}".format(libreoffice_args))
-    subprocess.check_call(libreoffice_args)  # this is pretty nippy!
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        libreoffice_args = [
+            "soffice",
+            "--convert-to", "pdf:writer_pdf_Export",
+            "--outdir", tmpdirname,
+            MANUAL_FILENAME_ODT
+        ]
+        print("... calling: {!r}".format(libreoffice_args))
+        subprocess.check_call(libreoffice_args)  # this is pretty nippy!
+        shutil.move(
+            os.path.join(tmpdirname, MANUAL_FILENAME_PDF_STEM),
+            MANUAL_FILENAME_PDF
+        )
     assert os.path.exists(MANUAL_FILENAME_PDF), (
         "If this fails, there are a number of possible reasons, but one is "
         "simply that you're using LibreOffice for something else!"

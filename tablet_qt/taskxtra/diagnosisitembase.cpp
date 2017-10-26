@@ -85,3 +85,9 @@ QString DiagnosisItemBase::comment() const
 {
     return valueString(COMMENT);
 }
+
+
+bool DiagnosisItemBase::isEmpty() const
+{
+    return code().isEmpty();
+}

@@ -316,7 +316,8 @@ class Platform(object):
     def dirpart(self) -> str:
         return "{}_{}".format(self.os, self.cpu)
 
-    def shared_lib_suffix(self) -> str:
+    @staticmethod
+    def shared_lib_suffix() -> str:
         # I think this depends on the host, not the target.
         if HOST_PLATFORM.os in [Os.OSX]:
             return ".dylib"
@@ -388,7 +389,8 @@ class Platform(object):
         elif self.osx:
             require(GOBJDUMP)
         else:
-            raise ValueError("Don't know ELF reader for {}".format(HOST_PLATFORM))
+            raise ValueError("Don't know ELF reader for {}".format(
+                HOST_PLATFORM))
 
     def verify_elf(self, filename: str) -> None:
         """
@@ -451,11 +453,11 @@ def get_host_platform() -> Platform:
     """Find the architecture this script is running on."""
     s = platform.system()
     if s == "Linux":
-        os = Os.LINUX
+        os_ = Os.LINUX
     elif s == "Darwin":
-        os = Os.OSX
+        os_ = Os.OSX
     elif s == "Windows":
-        os = Os.WINDOWS
+        os_ = Os.WINDOWS
     else:
         raise ValueError("Don't know host OS {!r}".format(s))
     m = platform.machine()
@@ -465,7 +467,7 @@ def get_host_platform() -> Platform:
         cpu = Cpu.X86_64
     else:
         raise ValueError("Don't know host CPU {!r}".format(m))
-    return Platform(os, cpu)
+    return Platform(os_, cpu)
 
 
 HOST_PLATFORM = get_host_platform()
@@ -607,52 +609,53 @@ class Config(object):
 
     def set_android_env(self,
                         env: Dict[str, str],
-                        platform: Platform) -> None:
-        android_sysroot = self.android_sysroot(platform)
-        android_toolchain = self.android_toolchain(platform)
+                        platform_: Platform) -> None:
+        android_sysroot = self.android_sysroot(platform_)
+        android_toolchain = self.android_toolchain(platform_)
 
         env["ANDROID_API"] = self.android_api
         env["ANDROID_API_VERSION"] = self.android_api
-        env["ANDROID_ARCH"] = platform.android_arch_full
+        env["ANDROID_ARCH"] = platform_.android_arch_full
         env["ANDROID_DEV"] = join(android_sysroot, "usr")
-        env["ANDROID_EABI"] = self.android_eabi(platform)
+        env["ANDROID_EABI"] = self.android_eabi(platform_)
         env["ANDROID_NDK_ROOT"] = self.android_ndk_root
         env["ANDROID_SDK_ROOT"] = self.android_sdk_root
         env["ANDROID_SYSROOT"] = android_sysroot
         env["ANDROID_TOOLCHAIN"] = android_toolchain
-        env["AR"] = self.android_ar(platform)
-        env["ARCH"] = platform.android_arch_short
-        env["CC"] = self.android_cc(platform)
+        env["AR"] = self.android_ar(platform_)
+        env["ARCH"] = platform_.android_arch_short
+        env["CC"] = self.android_cc(platform_)
         env["PATH"] = "{}{}{}".format(android_toolchain, os.pathsep,
                                       env["PATH"])
         env["SYSROOT"] = android_sysroot
         env["NDK_SYSROOT"] = android_sysroot
 
-    def set_ios_env(self, env: Dict[str, str], platform: Platform) -> None:
+    def set_ios_env(self, env: Dict[str, str], platform_: Platform) -> None:
         # https://gist.github.com/foozmeat/5154962
         encoding = sys.getdefaultencoding()
         developer = (
             subprocess.check_output([XCODE_SELECT, "-print-path"])
-                .decode(encoding).strip()
+            .decode(encoding)
+            .strip()
         )
 
         env["BUILD_TOOLS"] = developer
         env["CC"] = "{cc} -arch {arch}".format(
             cc=os.path.join(developer, 'usr', 'bin', 'gcc'),
-            arch=platform.ios_arch
+            arch=platform_.ios_arch
         )
         env["CROSS_TOP"] = os.path.join(
             developer,
             "Platforms",
-            "{}.platform".format(platform.ios_platform_name),
+            "{}.platform".format(platform_.ios_platform_name),
             "Developer"
         )
         env["CROSS_SDK"] = "{plt}{sdkv}.sdk".format(
-            plt=platform.ios_platform_name,
+            plt=platform_.ios_platform_name,
             sdkv=self.ios_sdk,
             # ... can be blank; e.g. iPhoneOS9.3.sdk symlinks to iPhoneOS.sdk
         )
-        env["PLATFORM"] = platform.ios_platform_name
+        env["PLATFORM"] = platform_.ios_platform_name
 
     def __repr__(self) -> str:
         elements = ["    {}={}".format(k, repr(v))
@@ -662,67 +665,67 @@ class Config(object):
                                      e=",\n".join(elements))
 
     def get_openssl_rootdir_workdir(self,
-                                    platform: Platform) -> Tuple[str, str]:
+                                    platform_: Platform) -> Tuple[str, str]:
         """
         Calculates local OpenSSL directories.
         """
         rootdir = join(self.root_dir,
-                       "openssl_{}_build".format(platform.dirpart))
+                       "openssl_{}_build".format(platform_.dirpart))
         workdir = join(rootdir, "openssl-{}".format(self.openssl_version))
         return rootdir, workdir
 
-    def android_eabi(self, platform: Platform) -> str:
-        if platform.cpu_x86_family:
+    def android_eabi(self, platform_: Platform) -> str:
+        if platform_.cpu_x86_family:
             return "{}-{}".format(
-                platform.android_arch_short,
+                platform_.android_arch_short,
                 self.android_toolchain_version)  # e.g. x86-4.9
             # For toolchain version: ls $ANDROID_NDK_ROOT/toolchains
             # ... "-android-arch" and "-android-toolchain-version" get
             # concatenated, I think; for example, this gives the toolchain
             # "x86_64-4.9"
-        elif platform.cpu_arm_family:
+        elif platform_.cpu_arm_family:
             # but ARM ones look like "arm-linux-androideabi-4.9"
             return "{}-linux-androideabi-{}".format(
-                platform.android_arch_short,
+                platform_.android_arch_short,
                 self.android_toolchain_version)
         else:
             raise ValueError("Unknown CPU family")
 
-    def android_sysroot(self, platform: Platform) -> str:
+    def android_sysroot(self, platform_: Platform) -> str:
         return join(self.android_ndk_root, "platforms",
-                    self.android_api, platform.android_arch_full)
+                    self.android_api, platform_.android_arch_full)
 
-    def android_toolchain(self, platform: Platform) -> str:
+    def android_toolchain(self, platform_: Platform) -> str:
         return join(self.android_ndk_root, "toolchains",
-                    self.android_eabi(platform),
+                    self.android_eabi(platform_),
                     "prebuilt", self.android_ndk_host, "bin")
 
-    def android_ar(self, platform: Platform) -> str:
-        if platform.cpu == Cpu.X86_32:
-            return join(self.android_toolchain(platform),
+    def android_ar(self, platform_: Platform) -> str:
+        if platform_.cpu == Cpu.X86_32:
+            return join(self.android_toolchain(platform_),
                         "i686-linux-android-gcc-ar")
-        elif platform.cpu == Cpu.ARM_V7:
-            return join(self.android_toolchain(platform),
+        elif platform_.cpu == Cpu.ARM_V7:
+            return join(self.android_toolchain(platform_),
                         "arm-linux-androideabi-gcc-ar")
         else:
             raise ValueError("Don't know how to build for Android on " +
-                             platform.cpu)
+                             platform_.cpu)
 
-    def android_cc(self, platform: Platform) -> str:
-        if platform.cpu == Cpu.X86_32:
-            return join(self.android_toolchain(platform),
+    def android_cc(self, platform_: Platform) -> str:
+        if platform_.cpu == Cpu.X86_32:
+            return join(self.android_toolchain(platform_),
                         "i686-linux-android-gcc-{}".format(
                             self.android_toolchain_version))
-        elif platform.cpu == Cpu.ARM_V7:
-            return join(self.android_toolchain(platform),
+        elif platform_.cpu == Cpu.ARM_V7:
+            return join(self.android_toolchain(platform_),
                         "arm-linux-androideabi-gcc-{}".format(
                             self.android_toolchain_version))
         else:
             raise ValueError("Don't know how to build for Android on " +
-                             platform.cpu)
+                             platform_.cpu)
 
     def convert_android_lib_a_to_so(self, lib_a_fullpath: str,
-                                    platform: Platform) -> str:
+                                    platform_: Platform) -> str:
         # https://stackoverflow.com/questions/3919902/method-of-converting-a-static-library-into-a-dynamically-linked-library  # noqa
         libprefix = "lib"
         directory, filename = split(lib_a_fullpath)
@@ -733,7 +736,7 @@ class Config(object):
         libname = basename[len(libprefix):]
         newlibbasename = libprefix + libname + ".so"
         newlibfilename = join(directory, newlibbasename)
-        compiler = self.android_cc(platform)
+        compiler = self.android_cc(platform_)
         run([
             compiler,
             "-o", newlibfilename,
@@ -744,16 +747,16 @@ class Config(object):
             "-Wl,--no-whole-archive",
             # "-L{}".format(directory),
             # "-l{}".format(libname),
-            "--sysroot={}".format(self.android_sysroot(platform)),
+            "--sysroot={}".format(self.android_sysroot(platform_)),
         ])
-        platform.verify_elf(newlibfilename)
+        platform_.verify_elf(newlibfilename)
         return newlibfilename
 
-    def qt_build_dir(self, platform: Platform) -> str:
-        return join(self.root_dir, "qt_{}_build".format(platform.dirpart))
+    def qt_build_dir(self, platform_: Platform) -> str:
+        return join(self.root_dir, "qt_{}_build".format(platform_.dirpart))
 
-    def qt_install_dir(self, platform: Platform) -> str:
-        return join(self.root_dir, "qt_{}_install".format(platform.dirpart))
+    def qt_install_dir(self, platform_: Platform) -> str:
+        return join(self.root_dir, "qt_{}_install".format(platform_.dirpart))
 
 
 # =============================================================================
@@ -972,7 +975,7 @@ def fetch_openssl(cfg: Config) -> None:
                            cfg.openssl_android_script_fullpath)
 
 
-def build_openssl(cfg: Config, platform: Platform) -> None:
+def build_openssl(cfg: Config, platform_: Platform) -> None:
     """
     Builds OpenSSL.
 
@@ -984,8 +987,8 @@ def build_openssl(cfg: Config, platform: Platform) -> None:
     # -------------------------------------------------------------------------
     # Setup
     # -------------------------------------------------------------------------
-    rootdir, workdir = cfg.get_openssl_rootdir_workdir(platform)
-    shared_lib_suffix = platform.shared_lib_suffix()
+    rootdir, workdir = cfg.get_openssl_rootdir_workdir(platform_)
+    shared_lib_suffix = platform_.shared_lib_suffix()
     targets = [join(workdir, "libssl{}".format(shared_lib_suffix)),
                join(workdir, "libcrypto{}".format(shared_lib_suffix))]
     if not cfg.force and all(isfile(x) for x in targets):
@@ -1005,19 +1008,19 @@ def build_openssl(cfg: Config, platform: Platform) -> None:
 
     # http://doc.qt.io/qt-5/opensslsupport.html
     target_os = ""
-    if platform.os == Os.ANDROID:
-        if platform.cpu == Cpu.ARM_V5:
+    if platform_.os == Os.ANDROID:
+        if platform_.cpu == Cpu.ARM_V5:
             target_os = "android"  # ... NB "android" means ARMv5
-        elif platform.cpu == Cpu.ARM_V7:
+        elif platform_.cpu == Cpu.ARM_V7:
             target_os = "android-armv7"
         else:
-            target_os = "android-{}".format(platform.cpu)
-    elif platform.os == Os.LINUX and platform.cpu == Cpu.X86_64:
+            target_os = "android-{}".format(platform_.cpu)
+    elif platform_.os == Os.LINUX and platform_.cpu == Cpu.X86_64:
         target_os = "linux-x86_64"
-    elif platform.os == Os.OSX and platform.cpu == Cpu.X86_64:
+    elif platform_.os == Os.OSX and platform_.cpu == Cpu.X86_64:
         # https://gist.github.com/tmiz/1441111
         target_os = "darwin64-x86_64-cc"
-    elif platform.os == Os.IOS:
+    elif platform_.os == Os.IOS:
 
         # https://gist.github.com/foozmeat/5154962
         # https://gist.github.com/felix-schwarz/c61c0f7d9ab60f53ebb0
@@ -1025,16 +1028,16 @@ def build_openssl(cfg: Config, platform: Platform) -> None:
         # If Bitcode is later required, see the other ones above and
         # https://stackoverflow.com/questions/30722606/what-does-enable-bitcode-do-in-xcode-7  # noqa
 
-        if platform.cpu == Cpu.ARM_V8_64:
+        if platform_.cpu == Cpu.ARM_V8_64:
             target_os = "iphoneos-cross"
-        elif platform.cpu == Cpu.X86_64:
+        elif platform_.cpu == Cpu.X86_64:
             target_os = "darwin64-x86_64-cc"
 
         # iOS specials
         run([
             SED,
             "-ie",
-            "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!",
+            "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!",  # noqa
             join(workdir, "crypto", "ui", "ui_openssl.c")
         ])
 
@@ -1049,10 +1052,10 @@ def build_openssl(cfg: Config, platform: Platform) -> None:
 
     if not target_os:
         raise ValueError("Don't know how to make OpenSSL for " +
-                         platform.description)
+                         platform_.description)
 
     configure_args = [target_os] + OPENSSL_COMMON_OPTIONS
-    if platform.mobile:
+    if platform_.mobile:
         configure_args += [
             "no-hw",  # disable hardware support ("useful on mobile devices")
             "no-engine",  # disable hardware support ("useful on mobile devices")  # noqa
@@ -1066,19 +1069,19 @@ def build_openssl(cfg: Config, platform: Platform) -> None:
         'PATH': os.environ['PATH'],
     }
 
-    if platform.android:
+    if platform_.android:
         # https://wiki.openssl.org/index.php/Android
         # We're not using the Setenv-android.sh script, but replicating its
         # functions.
-        cfg.set_android_env(env, platform)
+        cfg.set_android_env(env, platform_)
         # env["CROSS_COMPILE"] = "i686-linux-android-"
         env["FIPS_SIG"] = ""  # OK to leave blank if not building FIPS
         env["HOSTCC"] = "gcc"
         env["MACHINE"] = "i686"
         env["RELEASE"] = "2.6.37"  # ??
         env["SYSTEM"] = target_os
-    elif platform.ios:
-        cfg.set_ios_env(env, platform)
+    elif platform_.ios:
+        cfg.set_ios_env(env, platform_)
 
     # -------------------------------------------------------------------------
     # Makefile
@@ -1094,7 +1097,7 @@ def build_openssl(cfg: Config, platform: Platform) -> None:
     # -------------------------------------------------------------------------
     chdir(workdir)
     use_configure = True  # Better!
-    if use_configure or not platform.android:
+    if use_configure or not platform_.android:
         # http://doc.qt.io/qt-5/opensslsupport.html
         run(["perl", join(workdir, "Configure")] + configure_args, env)
     else:
@@ -1135,7 +1138,7 @@ def build_openssl(cfg: Config, platform: Platform) -> None:
     # ... looks OK
 
     for t in targets:
-        platform.verify_elf(t)
+        platform_.verify_elf(t)
 
 
 # =============================================================================
@@ -1156,7 +1159,7 @@ def fetch_qt(cfg: Config) -> None:
     run(["perl", "init-repository"])
 
 
-def build_qt(cfg: Config, platform: Platform) -> str:
+def build_qt(cfg: Config, platform_: Platform) -> str:
     """
     Builds Qt.
     Returns the name of the "install" directory, where the installe qmake is.
@@ -1170,7 +1173,7 @@ def build_qt(cfg: Config, platform: Platform) -> str:
     # -------------------------------------------------------------------------
 
     # Linkage method of Qt itself?
-    qt_linkage_static = platform.desktop
+    qt_linkage_static = platform_.desktop
     # NOT Android; dynamic linkage then bundling into single-file APK.
 
     # Means by which Qt links to OpenSSL?
@@ -1178,18 +1181,18 @@ def build_qt(cfg: Config, platform: Platform) -> str:
     # If Qt is linked dynamically, we do not let it link to OpenSSL
     # statically (it won't work).
 
-    if platform.android:
+    if platform_.android:
         require("javac")  # try: sudo apt install openjdk-8-jdk
         # ... will be called by the make process; better to know now, since the
         # relevant messages are easily lost in the torrent
         require("ant")  # will be needed later; try: sudo apt install ant
 
-    opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(platform)
+    opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(platform_)
     openssl_include_root = join(opensslworkdir, "include")
     openssl_lib_root = opensslworkdir
 
-    builddir = cfg.qt_build_dir(platform)
-    installdir = cfg.qt_install_dir(platform)
+    builddir = cfg.qt_build_dir(platform_)
+    installdir = cfg.qt_install_dir(platform_)
 
     targets = [join(installdir, "bin", "qmake")]
     if not cfg.force and all(isfile(x) for x in targets):
@@ -1209,7 +1212,7 @@ def build_qt(cfg: Config, platform: Platform) -> str:
     # -------------------------------------------------------------------------
     # Directories
     # -------------------------------------------------------------------------
-    log.info("Configuring {} build in {}".format(platform.description,
+    log.info("Configuring {} build in {}".format(platform_.description,
                                                  builddir))
     mkdir_p(builddir)
     mkdir_p(installdir)
@@ -1231,15 +1234,15 @@ def build_qt(cfg: Config, platform: Platform) -> str:
         # ... NB ALSO NEEDS "CONFIG += static" in the .pro file
 
     android_arch_short = "?"
-    if platform.android:
+    if platform_.android:
         # We use a dynamic build of Qt (bundled into the APK), not a static
         # version; see android_compilation.txt
-        if platform.cpu == Cpu.X86_32:
+        if platform_.cpu == Cpu.X86_32:
             android_arch_short = "x86"
-        elif platform.cpu == Cpu.ARM_V7:
+        elif platform_.cpu == Cpu.ARM_V7:
             android_arch_short = "armeabi-v7a"
         else:
-            raise ValueError("Unknown CPU: {}".format(platform.cpu))
+            raise ValueError("Unknown CPU: {}".format(platform_.cpu))
         qt_config_args += [
             "-android-sdk", cfg.android_sdk_root,
             "-android-ndk", cfg.android_ndk_root,
@@ -1248,14 +1251,14 @@ def build_qt(cfg: Config, platform: Platform) -> str:
             "-android-toolchain-version", cfg.android_toolchain_version,
             "-xplatform", "android-g++",
         ]
-    elif platform.linux:
+    elif platform_.linux:
         qt_config_args += [
             "-qt-xcb",  # use XCB source bundled with Qt?
             "-gstreamer", "1.0",  # gstreamer version; see notes at top of file
         ]
-    elif platform.osx:
+    elif platform_.osx:
         pass
-    elif platform.ios:
+    elif platform_.ios:
         # http://doc.qt.io/qt-5/building-from-source-ios.html
         # "A default build builds both the simulator and device libraries."
         qt_config_args += [
@@ -1284,11 +1287,11 @@ def build_qt(cfg: Config, platform: Platform) -> str:
     # -------------------------------------------------------------------------
     # make (can take several hours)
     # -------------------------------------------------------------------------
-    log.info("Making Qt {} build into {}".format(platform.description,
+    log.info("Making Qt {} build into {}".format(platform_.description,
                                                  installdir))
     chdir(builddir)
-    if platform.android:
-        cfg.set_android_env(env, platform)
+    if platform_.android:
+        cfg.set_android_env(env, platform_)
         # ... only need ANDROID_API_VERSION, ANDROID_NDK_ROOT, ANDROID_SDK_ROOT
 
     run([MAKE, "-j", str(cfg.nparallel)], env)
@@ -1296,7 +1299,7 @@ def build_qt(cfg: Config, platform: Platform) -> str:
     # -------------------------------------------------------------------------
     # make install
     # -------------------------------------------------------------------------
-    if platform.android and FIX_QT_5_7_0_ANDROID_MAKE_INSTALL_BUG:
+    if platform_.android and FIX_QT_5_7_0_ANDROID_MAKE_INSTALL_BUG:
         # PROBLEM WITH "make install":
         #       mkdir: cannot create directory ‘/libs’: Permission denied
         # ... while processing qttools/src/qtplugininfo/Makefile
@@ -1316,12 +1319,12 @@ def build_qt(cfg: Config, platform: Platform) -> str:
     return installdir
 
 
-def make_missing_libqtforandroid_so(cfg: Config, platform: Platform) -> None:
-    qt_install_dir = cfg.qt_install_dir(platform)
+def make_missing_libqtforandroid_so(cfg: Config, platform_: Platform) -> None:
+    qt_install_dir = cfg.qt_install_dir(platform_)
     parent_dir = join(qt_install_dir, "plugins", "platforms")
     starting_lib_dir = join(parent_dir, "android")
     starting_a_lib = join(starting_lib_dir, "libqtforandroid.a")
-    newlib_path = cfg.convert_android_lib_a_to_so(starting_a_lib, platform)
+    newlib_path = cfg.convert_android_lib_a_to_so(starting_a_lib, platform_)
     _, newlib_basename = split(newlib_path)
     extra_copy_newlib = join(parent_dir, newlib_basename)
     shutil.copyfile(newlib_path, extra_copy_newlib)
@@ -1341,7 +1344,7 @@ def fetch_sqlcipher(cfg: Config) -> None:
               directory=cfg.sqlcipher_src_gitdir)
 
 
-def build_sqlcipher(cfg: Config, platform: Platform) -> None:
+def build_sqlcipher(cfg: Config, platform_: Platform) -> None:
     """
     Builds SQLCipher, an open-source encrypted version of SQLite.
     Our source is the public version; our destination is an "amalgamation"
@@ -1358,7 +1361,7 @@ def build_sqlcipher(cfg: Config, platform: Platform) -> None:
     # Setup
     # -------------------------------------------------------------------------
     destdir = join(cfg.root_dir,
-                   "sqlcipher_" + platform.dirpart,
+                   "sqlcipher_" + platform_.dirpart,
                    "sqlcipher")  # this allows #include <sqlcipher/sqlite3.h>
 
     target_h = join(destdir, "sqlite3.h")
@@ -1366,7 +1369,7 @@ def build_sqlcipher(cfg: Config, platform: Platform) -> None:
     target_o = join(destdir, "sqlite3.o")
     target_exe = join(destdir, "sqlcipher")
 
-    want_exe = not platform.mobile
+    want_exe = not platform_.mobile
 
     all_targets = [target_c, target_h, target_o]
     if want_exe:
@@ -1382,7 +1385,7 @@ def build_sqlcipher(cfg: Config, platform: Platform) -> None:
     # -------------------------------------------------------------------------
     # configure
     # -------------------------------------------------------------------------
-    _, openssl_workdir = cfg.get_openssl_rootdir_workdir(platform)
+    _, openssl_workdir = cfg.get_openssl_rootdir_workdir(platform_)
     openssl_include_dir = join(openssl_workdir, "include")
     # Compiler:
     cflags = [
@@ -1393,7 +1396,7 @@ def build_sqlcipher(cfg: Config, platform: Platform) -> None:
     # Linker:
     ldflags = ["-L{}".format(openssl_workdir)]
 
-    link_openssl_statically = platform.desktop
+    link_openssl_statically = platform_.desktop
     # ... try for dynamic linking on Android
     if link_openssl_statically:
         # Not working:
@@ -1411,8 +1414,8 @@ def build_sqlcipher(cfg: Config, platform: Platform) -> None:
     trace_include = False
     if trace_include:
         cflags.append("-H")
-    if platform.android:
-        cflags.append("--sysroot={}".format(cfg.android_sysroot(platform)))
+    if platform_.android:
+        cflags.append("--sysroot={}".format(cfg.android_sysroot(platform_)))
         # ... or configure will call ld which will say:
         # ld: error: cannot open crtbegin_dynamic.o: No such file or directory
 
@@ -1428,14 +1431,14 @@ def build_sqlcipher(cfg: Config, platform: Platform) -> None:
     # its "configure" script.
 
     # Platform-specific tweaks; cross-compilation
-    if platform.cpu == Cpu.ARM_V7:
+    if platform_.cpu == Cpu.ARM_V7:
         # arm? [1]
         # arm-linux? [2]
         config_args.append("--build=x86_64-unknown-linux")
         config_args.append("--host=arm-linux")
         # config_args.append("--prefix={}".format(cfg.android_sysroot(platform)))
-    if platform.android:
-        config_args.append("CC=" + cfg.android_cc(platform))
+    if platform_.android:
+        config_args.append("CC=" + cfg.android_cc(platform_))
         # ... or we won't be cross-compiling
 
     chdir(destdir)
@@ -1455,7 +1458,7 @@ def build_sqlcipher(cfg: Config, platform: Platform) -> None:
     # -------------------------------------------------------------------------
     # Check and report
     # -------------------------------------------------------------------------
-    platform.verify_elf(target_o)
+    platform_.verify_elf(target_o)
 
     log.info("If successful, you should have the amalgation files:\n"
              "- {}\n"

@@ -37,7 +37,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import column, func, select, table, text
 from camcops_server.cc_modules.cc_audit import AuditEntry
 from camcops_server.cc_modules.cc_constants import (
-    FP_ID_NUM_DEFUNCT,
+    FP_ID_NUM,
     NUMBER_OF_IDNUMS_DEFUNCT,
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
@@ -399,7 +399,7 @@ def translate_fn(trcon: TranslationContext) -> None:
         # database, create them.
         src_tables = trcon.src_table_names
         for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
-            old_fieldname = FP_ID_NUM_DEFUNCT + str(which_idnum)
+            old_fieldname = FP_ID_NUM + str(which_idnum)
             idnum_value = old_patient_dict[old_fieldname]
             if idnum_value is None:
                 # Old Patient record didn't contain this ID number

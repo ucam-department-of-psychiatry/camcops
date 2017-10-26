@@ -39,6 +39,7 @@ public:
     QString code() const;
     QString description() const;
     QString comment() const;
+    bool isEmpty() const;
 public:
     static const QString SEQNUM;
     static const QString CODE;

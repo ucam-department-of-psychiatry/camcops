@@ -74,6 +74,15 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     %endif
     <li><a href="${request.route_url(Routes.SET_OWN_USER_UPLOAD_GROUP)}">Choose group into which to upload data</a></li>
     <li><a href="${request.route_url(Routes.VIEW_OWN_USER_INFO)}">Show your user settings</a></li>
+</ul>
+
+<h3>Help</h3>
+<ul>
+    <li><a href="${request.url_camcops_manual_pdf}">CamCOPS manual</a></li>
+</ul>
+
+<h3>Log out</h3>
+<ul>
     <li><a href="${request.route_url(Routes.LOGOUT)}">Log out</a></li>
 </ul>
 

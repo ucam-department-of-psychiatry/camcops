@@ -59,7 +59,18 @@ DiagnosisTaskBase::DiagnosisTaskBase(CamcopsApp& app, DatabaseManager& db,
 
 bool DiagnosisTaskBase::isComplete() const
 {
-    return m_items.size() > 0;
+    if (valueIsNull(RELATES_TO_DATE)) {
+        return false;
+    }
+    if (m_items.size() == 0) {
+        return false;
+    }
+    for (DiagnosisItemBasePtr item : m_items) {
+        if (item->isEmpty()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 

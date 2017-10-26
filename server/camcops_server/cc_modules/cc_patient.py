@@ -50,9 +50,9 @@ from .cc_audit import audit
 from .cc_constants import (
     DateFormat,
     ERA_NOW,
-    FP_ID_DESC_DEFUNCT,
-    FP_ID_SHORT_DESC_DEFUNCT,
-    FP_ID_NUM_DEFUNCT,
+    FP_ID_DESC,
+    FP_ID_SHORT_DESC,
+    FP_ID_NUM,
     TSV_PATIENT_FIELD_PREFIX,
 )
 from .cc_db import GenericTabletRecordMixin
@@ -290,13 +290,13 @@ class Patient(GenericTabletRecordMixin, Base):
                  if idnum.which_idnum == n and idnum.is_valid()),
                 None)
             page.add_or_set_value(
-                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM_DEFUNCT + nstr,
+                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr,
                 value=idnum_value)
             page.add_or_set_value(
-                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC_DEFUNCT + nstr,
+                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr,
                 value=longdesc)
             page.add_or_set_value(
-                heading=(TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC_DEFUNCT +
+                heading=(TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC +
                          nstr),
                 value=shortdesc)
         return page

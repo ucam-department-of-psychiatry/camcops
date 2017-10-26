@@ -121,6 +121,9 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
     def get_text_for_hl7(self) -> str:
         return self.description or ""
 
+    def is_empty(self) -> bool:
+        return not bool(self.code)
+
 
 class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     __abstract__ = True
@@ -142,7 +145,14 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         return len(self.items)
 
     def is_complete(self) -> bool:
-        return self.get_num_items() > 0
+        if self.relates_to_date is None:
+            return False
+        if self.get_num_items() == 0:
+            return False
+        for item in self.items:  # type: DiagnosisItemBase
+            if item.is_empty():
+                return False
+        return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         html = """
