@@ -50,7 +50,7 @@ GrowingTextEdit::~GrowingTextEdit()
 }
 
 
-void GrowingTextEdit::setAutoResize(bool auto_resize)
+void GrowingTextEdit::setAutoResize(const bool auto_resize)
 {
     m_auto_resize = auto_resize;
 }

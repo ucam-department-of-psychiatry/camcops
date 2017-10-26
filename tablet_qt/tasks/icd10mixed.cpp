@@ -56,7 +56,8 @@ void initializeIcd10Mixed(TaskFactory& factory)
 }
 
 
-Icd10Mixed::Icd10Mixed(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Icd10Mixed::Icd10Mixed(CamcopsApp& app, DatabaseManager& db,
+                       const int load_pk) :
     Task(app, db, ICD10MIXED_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(DATE_PERTAINS_TO, QVariant::Date);
@@ -134,7 +135,7 @@ QStringList Icd10Mixed::detail() const
 }
 
 
-OpenableWidget* Icd10Mixed::editor(bool read_only)
+OpenableWidget* Icd10Mixed::editor(const bool read_only)
 {
     const NameValueOptions true_false_options = CommonOptions::falseTrueBoolean();
     QVector<QuestionWithOneField> qfields{

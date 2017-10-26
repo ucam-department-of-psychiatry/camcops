@@ -26,7 +26,7 @@
 
 
 DebugEventWatcher::DebugEventWatcher(QObject* parent,
-                                     EventCategories categories) :
+                                     const EventCategories categories) :
     QObject(parent),  // owned by parent henceforth
     m_categories(categories)
 {

@@ -32,5 +32,6 @@ public:
             QAbstractVideoBuffer::HandleType handle_type) const override;
     virtual bool present(const QVideoFrame& frame) override;
 signals:
-    void frameAvailable(QImage image);
+    void frameAvailable(QImage image);  // QImage is copy-on-write
+    // ... https://stackoverflow.com/questions/8455887/stack-object-qt-signal-and-parameter-as-reference/18146433
 };

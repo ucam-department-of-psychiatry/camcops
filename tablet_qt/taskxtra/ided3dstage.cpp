@@ -45,7 +45,8 @@ const QString FN_STAGE_PASSED("stage_passed");
 const QString FN_STAGE_FAILED("stage_failed");
 
 
-IDED3DStage::IDED3DStage(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+IDED3DStage::IDED3DStage(CamcopsApp& app, DatabaseManager& db,
+                         const int load_pk) :
     DatabaseObject(app, db, STAGE_TABLENAME),
     m_incorrect_stimulus_can_overlap(false),
     m_n_possible_locations(0)
@@ -76,14 +77,15 @@ IDED3DStage::IDED3DStage(CamcopsApp& app, DatabaseManager& db, int load_pk) :
 }
 
 
-IDED3DStage::IDED3DStage(int task_id, CamcopsApp& app, DatabaseManager& db,
-                         int stage_num_zero_based,
+IDED3DStage::IDED3DStage(const int task_id,
+                         CamcopsApp& app, DatabaseManager& db,
+                         const int stage_num_zero_based,
                          const QString& stage_name,
                          const QString& relevant_dimension,
                          const IDED3DExemplars& correct_exemplars,
                          const IDED3DExemplars& incorrect_exemplars,
-                         int n_possible_locations,
-                         bool incorrect_stimulus_can_overlap) :
+                         const int n_possible_locations,
+                         const bool incorrect_stimulus_can_overlap) :
     IDED3DStage::IDED3DStage(app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
 {
     QVector<int> correct_stimulus_shapes = correct_exemplars.getShapes();
@@ -190,7 +192,7 @@ bool IDED3DStage::incorrectStimulusCanOverlap() const
 }
 
 
-void IDED3DStage::recordResponse(bool correct)
+void IDED3DStage::recordResponse(const bool correct)
 {
     if (correct) {
         addToValueInt(FN_N_CORRECT, 1);
@@ -208,7 +210,7 @@ void IDED3DStage::recordTrialCompleted()
 }
 
 
-void IDED3DStage::recordStageEnded(bool passed)
+void IDED3DStage::recordStageEnded(const bool passed)
 {
     setValue(FN_STAGE_PASSED, passed);
     setValue(FN_STAGE_FAILED, !passed);
@@ -216,7 +218,7 @@ void IDED3DStage::recordStageEnded(bool passed)
 }
 
 
-void IDED3DStage::setFirstTrialIfBlank(int trial_num_zero_based)
+void IDED3DStage::setFirstTrialIfBlank(const int trial_num_zero_based)
 {
     if (valueIsNull(FN_FIRST_TRIAL_NUM)) {
         setValue(FN_FIRST_TRIAL_NUM, trial_num_zero_based + 1);  // 1-based

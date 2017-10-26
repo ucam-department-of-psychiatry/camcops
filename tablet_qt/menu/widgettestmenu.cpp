@@ -85,7 +85,7 @@
 const QString SHORT_TEXT("hello world");
 
 
-const QString& sampleText(bool long_text)
+const QString& sampleText(const bool long_text)
 {
     return long_text ? textconst::LOREM_IPSUM_1 : SHORT_TEXT;
 }
@@ -445,7 +445,7 @@ void WidgetTestMenu::testQuestionnaireElement(QuElement* element)
 // ============================================================================
 
 void WidgetTestMenu::testQLabel(const QSizePolicy& policy,
-                                bool long_text, bool word_wrap)
+                                const bool long_text, const bool word_wrap)
 {
     QLabel* widget = new QLabel(sampleText(long_text));
     widget->setWordWrap(word_wrap);
@@ -469,7 +469,7 @@ void WidgetTestMenu::testQPushButton(const QSizePolicy& policy)
 // Low-level widgets
 // ============================================================================
 
-void WidgetTestMenu::testAdjustablePie(int n, bool rotate_labels)
+void WidgetTestMenu::testAdjustablePie(const int n, const bool rotate_labels)
 {
     AdjustablePie* pie = new AdjustablePie(n);
     const qreal prop = 1.0 / n;
@@ -495,8 +495,9 @@ void WidgetTestMenu::testAspectRatioPixmap()
 }
 
 
-void WidgetTestMenu::testBooleanWidget(BooleanWidget::Appearance appearance,
-                                       bool long_text)
+void WidgetTestMenu::testBooleanWidget(
+        const BooleanWidget::Appearance appearance,
+        const bool long_text)
 {
     BooleanWidget* widget = new BooleanWidget();
     const bool big = true;
@@ -511,7 +512,7 @@ void WidgetTestMenu::testBooleanWidget(BooleanWidget::Appearance appearance,
 }
 
 
-void WidgetTestMenu::testCanvasWidget(bool allow_shrink)
+void WidgetTestMenu::testCanvasWidget(const bool allow_shrink)
 {
     const QSize size(400, 400);
     CanvasWidget* widget = new CanvasWidget(size);
@@ -523,7 +524,7 @@ void WidgetTestMenu::testCanvasWidget(bool allow_shrink)
 }
 
 
-void WidgetTestMenu::testClickableLabelNoWrap(bool long_text)
+void WidgetTestMenu::testClickableLabelNoWrap(const bool long_text)
 {
     ClickableLabelNoWrap* widget = new ClickableLabelNoWrap(sampleText(long_text));
     connect(widget, &QAbstractButton::clicked,
@@ -532,7 +533,7 @@ void WidgetTestMenu::testClickableLabelNoWrap(bool long_text)
 }
 
 
-void WidgetTestMenu::testClickableLabelWordWrapWide(bool long_text)
+void WidgetTestMenu::testClickableLabelWordWrapWide(const bool long_text)
 {
     ClickableLabelWordWrapWide* widget = new ClickableLabelWordWrapWide(sampleText(long_text));
     connect(widget, &QAbstractButton::clicked,
@@ -564,8 +565,9 @@ void WidgetTestMenu::testImageButton()
 }
 
 
-void WidgetTestMenu::testLabelWordWrapWide(bool long_text, bool use_hfw_layout,
-                                           bool with_icons)
+void WidgetTestMenu::testLabelWordWrapWide(
+        const bool long_text, const bool use_hfw_layout,
+        const bool with_icons)
 {
     LabelWordWrapWide* label = new LabelWordWrapWide(sampleText(long_text));
     QWidget* widget;
@@ -605,7 +607,7 @@ void WidgetTestMenu::testVerticalLine()
 }
 
 
-void WidgetTestMenu::testVBoxLayout(bool long_text)
+void WidgetTestMenu::testVBoxLayout(const bool long_text)
 {
     QWidget* widget = new QWidget();
     VBoxLayout* layout = new VBoxLayout();
@@ -616,7 +618,7 @@ void WidgetTestMenu::testVBoxLayout(bool long_text)
 }
 
 
-void WidgetTestMenu::testGridLayoutHfw(int example)
+void WidgetTestMenu::testGridLayoutHfw(const int example)
 {
     QWidget* widget = new QWidget();
     GridLayoutHfw* grid = new GridLayoutHfw();
@@ -694,7 +696,7 @@ void WidgetTestMenu::testVerticalScrollAreaSimple()
 }
 
 
-void WidgetTestMenu::testVerticalScrollAreaComplex(bool long_text)
+void WidgetTestMenu::testVerticalScrollAreaComplex(const bool long_text)
 {
     // VBoxLayout (i.e. likely VBoxLayoutHfw) and two word-wrapping labels
     BaseWidget* contentwidget = new BaseWidget();
@@ -760,8 +762,8 @@ void WidgetTestMenu::testVerticalScrollGridLayout()
 // Layouts and the like
 // ============================================================================
 
-void WidgetTestMenu::testFlowLayout(int n_icons, bool text,
-                                    Qt::Alignment halign)
+void WidgetTestMenu::testFlowLayout(const int n_icons, const bool text,
+                                    const Qt::Alignment halign)
 {
     QWidget* widget = new QWidget();
     FlowLayoutHfw* layout = new FlowLayoutHfw();
@@ -779,7 +781,7 @@ void WidgetTestMenu::testFlowLayout(int n_icons, bool text,
 }
 
 
-void WidgetTestMenu::testBaseWidget(bool long_text)
+void WidgetTestMenu::testBaseWidget(const bool long_text)
 {
     FlowLayoutHfw* layout = new FlowLayoutHfw();
     layout->addWidget(new LabelWordWrapWide("Option Z1"));
@@ -815,8 +817,8 @@ void WidgetTestMenu::testQuestionnaireHeader()
 }
 
 
-void WidgetTestMenu::testQuestionnaire(bool long_title,
-                                       bool as_openable_widget)
+void WidgetTestMenu::testQuestionnaire(const bool long_title,
+                                       const bool as_openable_widget)
 {
     QuPagePtr page(new QuPage());
     page->addElement(new QuText(textconst::LOREM_IPSUM_1));
@@ -854,7 +856,8 @@ void WidgetTestMenu::testQuAudioPlayer()
 }
 
 
-void WidgetTestMenu::testQuBoolean(bool as_text_button, bool long_text)
+void WidgetTestMenu::testQuBoolean(const bool as_text_button,
+                                   const bool long_text)
 {
     QuBoolean element(sampleText(long_text), m_fieldref_1);
     element.setAsTextButton(as_text_button);
@@ -899,7 +902,7 @@ void WidgetTestMenu::testQuDiagnosticCode()
 }
 
 
-void WidgetTestMenu::testQuHeading(bool long_text)
+void WidgetTestMenu::testQuHeading(const bool long_text)
 {
     QuHeading element(sampleText(long_text));
     testQuestionnaireElement(&element);
@@ -955,8 +958,8 @@ void WidgetTestMenu::testQuLineEditULongLong()
 }
 
 
-void WidgetTestMenu::testQuMCQ(bool horizontal, bool long_text,
-                               bool as_text_button)
+void WidgetTestMenu::testQuMCQ(const bool horizontal, const bool long_text,
+                               const bool as_text_button)
 {
     QuMcq element(m_fieldref_1, long_text ? m_options_3 : m_options_1);
     element.setHorizontal(horizontal);
@@ -965,7 +968,7 @@ void WidgetTestMenu::testQuMCQ(bool horizontal, bool long_text,
 }
 
 
-void WidgetTestMenu::testQuMCQGrid(bool expand, int example)
+void WidgetTestMenu::testQuMCQGrid(const bool expand, const int example)
 {
     const QString q2 = example == 1 ? "Question 2" : textconst::LOREM_IPSUM_1;
     QVector<QuestionWithOneField> question_field_pairs{
@@ -987,7 +990,7 @@ void WidgetTestMenu::testQuMCQGrid(bool expand, int example)
 }
 
 
-void WidgetTestMenu::testQuMCQGridDouble(bool expand)
+void WidgetTestMenu::testQuMCQGridDouble(const bool expand)
 {
     QVector<QuestionWithTwoFields> question_field_pairs{
         QuestionWithTwoFields("Question 1", m_fieldref_1, m_fieldref_2),
@@ -1000,7 +1003,7 @@ void WidgetTestMenu::testQuMCQGridDouble(bool expand)
 }
 
 
-void WidgetTestMenu::testQuMCQGridSingleBoolean(bool expand)
+void WidgetTestMenu::testQuMCQGridSingleBoolean(const bool expand)
 {
     QVector<QuestionWithTwoFields> question_field_pairs{
         QuestionWithTwoFields("Question 1", m_fieldref_1, m_fieldref_2),
@@ -1014,7 +1017,8 @@ void WidgetTestMenu::testQuMCQGridSingleBoolean(bool expand)
 }
 
 
-void WidgetTestMenu::testQuMultipleResponse(bool horizontal, bool long_text)
+void WidgetTestMenu::testQuMultipleResponse(const bool horizontal,
+                                            const bool long_text)
 {
     QVector<QuestionWithOneField> question_field_pairs{
         QuestionWithOneField(m_fieldref_1, "Question 1"),
@@ -1048,7 +1052,7 @@ void WidgetTestMenu::testQuPickerPopup()
 }
 
 
-void WidgetTestMenu::testQuSlider(bool horizontal)
+void WidgetTestMenu::testQuSlider(const bool horizontal)
 {
     QuSlider element(m_fieldref_1, 0, 10, 1);
     element.setHorizontal(horizontal);
@@ -1077,7 +1081,7 @@ void WidgetTestMenu::testQuSpinBoxInteger()
 }
 
 
-void WidgetTestMenu::testQuText(bool long_text, bool bold)
+void WidgetTestMenu::testQuText(const bool long_text, const bool bold)
 {
     QuText element(sampleText(long_text));
     if (bold) {

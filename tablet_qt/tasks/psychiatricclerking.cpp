@@ -142,7 +142,8 @@ void initializePsychiatricClerking(TaskFactory& factory)
 }
 
 
-PsychiatricClerking::PsychiatricClerking(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+PsychiatricClerking::PsychiatricClerking(CamcopsApp& app, DatabaseManager& db,
+                                         const int load_pk) :
     Task(app, db, PSYCLERK_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     // In the Javascript version, EXTRAFIELDS_A was the set of clinician fields.
@@ -225,7 +226,7 @@ QStringList PsychiatricClerking::detail() const
 }
 
 
-OpenableWidget* PsychiatricClerking::editor(bool read_only)
+OpenableWidget* PsychiatricClerking::editor(const bool read_only)
 {
     QVector<QuElement*> elements{getClinicianQuestionnaireBlockRawPointer()};
 

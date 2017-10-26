@@ -44,9 +44,9 @@ ImageButton::ImageButton(const QString& normal_filename,
 
 
 ImageButton::ImageButton(const QString& base_filename,
-                         bool filename_is_camcops_stem,
-                         bool alter_unpressed_image,
-                         bool disabled,
+                         const bool filename_is_camcops_stem,
+                         const bool alter_unpressed_image,
+                         const bool disabled,
                          QWidget* parent) :
     QPushButton(parent)
 {
@@ -59,11 +59,11 @@ ImageButton::ImageButton(const QString& base_filename,
 
 
 void ImageButton::setImages(const QString& base_filename,
-                            bool filename_is_camcops_stem,
-                            bool alter_unpressed_image,
-                            bool pressed_marker_behind,
-                            bool disabled,
-                            bool read_only)
+                            const bool filename_is_camcops_stem,
+                            const bool alter_unpressed_image,
+                            const bool pressed_marker_behind,
+                            const bool disabled,
+                            const bool read_only)
 {
     // Old way: use two images
     // setNormalImage(UiFunc::iconPngFilename(stem), size);
@@ -102,13 +102,13 @@ void ImageButton::commonConstructor(const QSize& size)
 
 
 void ImageButton::setNormalImage(const QString& filename, const QSize& size,
-                                 bool cache)
+                                 const bool cache)
 {
     setNormalImage(uifunc::getPixmap(filename, size, cache), false);
 }
 
 
-void ImageButton::setNormalImage(const QPixmap& pixmap, bool scale)
+void ImageButton::setNormalImage(const QPixmap& pixmap, const bool scale)
 {
     m_normal_pixmap = pixmap;
     if (scale) {
@@ -119,13 +119,13 @@ void ImageButton::setNormalImage(const QPixmap& pixmap, bool scale)
 
 
 void ImageButton::setPressedImage(const QString& filename, const QSize& size,
-                                  bool cache)
+                                  const bool cache)
 {
     setPressedImage(uifunc::getPixmap(filename, size, cache), false);
 }
 
 
-void ImageButton::setPressedImage(const QPixmap& pixmap, bool scale)
+void ImageButton::setPressedImage(const QPixmap& pixmap, const bool scale)
 {
     m_pressed_pixmap = pixmap;
     if (scale) {
@@ -150,7 +150,7 @@ void ImageButton::resizeIfNoSize()
 }
 
 
-void ImageButton::resizeImages(double factor)
+void ImageButton::resizeImages(const double factor)
 {
     m_image_size = QSize(
         factor * m_normal_pixmap.size().width(),
@@ -168,7 +168,7 @@ QSize ImageButton::sizeHint() const
 }
 
 
-void ImageButton::setImageSize(const QSize &size, bool scale)
+void ImageButton::setImageSize(const QSize &size, const bool scale)
 {
     m_image_size = size;
     if (scale) {

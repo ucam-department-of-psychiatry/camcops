@@ -156,7 +156,7 @@ void initializeCardinalExpDetThreshold(TaskFactory& factory)
 // ============================================================================
 
 CardinalExpDetThreshold::CardinalExpDetThreshold(
-        CamcopsApp& app, DatabaseManager& db, int load_pk) :
+        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CARDINALEXPDETTHRESHOLD_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config
@@ -238,7 +238,7 @@ QString CardinalExpDetThreshold::menusubtitle() const
 // Ancillary management
 // ============================================================================
 
-void CardinalExpDetThreshold::loadAllAncillary(int pk)
+void CardinalExpDetThreshold::loadAllAncillary(const int pk)
 {
     const OrderBy order_by{{CardinalExpDetThresholdTrial::FN_TRIAL, true}};
     ancillaryfunc::loadAncillary<CardinalExpDetThresholdTrial,
@@ -304,7 +304,7 @@ QStringList CardinalExpDetThreshold::detail() const
 }
 
 
-OpenableWidget* CardinalExpDetThreshold::editor(bool read_only)
+OpenableWidget* CardinalExpDetThreshold::editor(const bool read_only)
 {
     // ------------------------------------------------------------------------
     // OK to edit?
@@ -524,7 +524,7 @@ QString CardinalExpDetThreshold::getTargetName() const
 }
 
 
-QVariant CardinalExpDetThreshold::x(qreal p) const
+QVariant CardinalExpDetThreshold::x(const qreal p) const
 {
     if (valueIsNull(FN_INTERCEPT) || valueIsNull(FN_SLOPE)) {
         return QVariant();
@@ -571,7 +571,8 @@ bool CardinalExpDetThreshold::lastTrialWasFirstNo() const
 }
 
 
-int CardinalExpDetThreshold::getNBackNonCatchTrialIndex(int n, int start_index) const
+int CardinalExpDetThreshold::getNBackNonCatchTrialIndex(
+        const int n, const int start_index) const
 {
     Q_ASSERT(start_index >= 0 && start_index < m_trials.size());
     const int target = m_trials.at(start_index)->trialNumIgnoringCatchTrials() - n;
@@ -619,7 +620,7 @@ qreal CardinalExpDetThreshold::getIntensity() const
 }
 
 
-bool CardinalExpDetThreshold::wantCatchTrial(int trial_num) const
+bool CardinalExpDetThreshold::wantCatchTrial(const int trial_num) const
 {
     Q_ASSERT(trial_num - 1 < m_trials.size());
     if (trial_num <= 0) {
@@ -663,7 +664,7 @@ void CardinalExpDetThreshold::clearScene()
 }
 
 
-void CardinalExpDetThreshold::setTimeout(int time_ms, FuncPtr callback)
+void CardinalExpDetThreshold::setTimeout(const int time_ms, FuncPtr callback)
 {
     m_timer->stop();
     m_timer->disconnect();
@@ -675,7 +676,7 @@ void CardinalExpDetThreshold::setTimeout(int time_ms, FuncPtr callback)
 
 
 void CardinalExpDetThreshold::showVisualStimulus(const QString& filename_stem,
-                                                 qreal intensity)
+                                                 const qreal intensity)
 {
     QString filename = cardinalexpdetcommon::filenameFromStem(filename_stem);
     makeImage(m_scene, VISUAL_STIM_RECT, filename, intensity);
@@ -931,7 +932,7 @@ void CardinalExpDetThreshold::offerChoice()
 }
 
 
-void CardinalExpDetThreshold::recordChoice(bool yes)
+void CardinalExpDetThreshold::recordChoice(const bool yes)
 {
     Q_ASSERT(m_current_trial >= 0 && m_current_trial < m_trials.size());
     CardinalExpDetThresholdTrial& t = *m_trials.at(m_current_trial);

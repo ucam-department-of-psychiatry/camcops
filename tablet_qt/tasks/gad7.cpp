@@ -48,7 +48,7 @@ void initializeGad7(TaskFactory& factory)
 }
 
 
-Gad7::Gad7(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Gad7::Gad7(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GAD7_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -114,7 +114,7 @@ QStringList Gad7::detail() const
 }
 
 
-OpenableWidget* Gad7::editor(bool read_only)
+OpenableWidget* Gad7::editor(const bool read_only)
 {
     const NameValueOptions options{
         {xstring("a0"), 0},

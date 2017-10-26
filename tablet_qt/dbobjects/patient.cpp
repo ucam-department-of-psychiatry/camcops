@@ -85,7 +85,7 @@ const QString DELETE_ID_NUM(QObject::tr("Delete ID#"));
 // Creation
 // ============================================================================
 
-Patient::Patient(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Patient::Patient(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     DatabaseObject(app, db, TABLENAME, dbconst::PK_FIELDNAME, true, false),
     m_page(nullptr),
     m_questionnaire(nullptr)
@@ -123,7 +123,7 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, int load_pk) :
 // Ancillary management
 // ============================================================================
 
-void Patient::loadAllAncillary(int pk)
+void Patient::loadAllAncillary(const int pk)
 {
 #ifdef LIMIT_TO_8_IDNUMS_AND_USE_PATIENT_TABLE
     Q_UNUSED(pk);
@@ -259,7 +259,7 @@ QVector<int> Patient::whichIdnumsHaveEntries() const
 }
 
 
-QVariant Patient::idnumVariant(int which_idnum) const
+QVariant Patient::idnumVariant(const int which_idnum) const
 {
     if (!dbconst::isValidWhichIdnum(which_idnum)) {
         return QVariant();
@@ -277,7 +277,7 @@ QVariant Patient::idnumVariant(int which_idnum) const
 }
 
 
-qlonglong Patient::idnumInteger(int which_idnum) const
+qlonglong Patient::idnumInteger(const int which_idnum) const
 {
     return idnumVariant(which_idnum).toULongLong();  // 0 in case of failure
 }
@@ -435,7 +435,7 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
 }
 
 
-bool Patient::othersClashOnIdnum(int which_idnum) const
+bool Patient::othersClashOnIdnum(const int which_idnum) const
 {
     // Answers the question: do any other patients share the ID number whose
     // *index* (e.g. 1-8) is which_idnum?
@@ -656,7 +656,7 @@ QString Patient::oneLineHtmlDetailString() const
 // Editing and other manipulations
 // ============================================================================
 
-OpenableWidget* Patient::editor(bool read_only)
+OpenableWidget* Patient::editor(const bool read_only)
 {
     buildPage();
     m_questionnaire = new Questionnaire(m_app, {m_page});
@@ -923,7 +923,7 @@ void Patient::addIdNum()
 }
 
 
-void Patient::deleteIdNum(int which_idnum)
+void Patient::deleteIdNum(const int which_idnum)
 {
     const QString strnum = QString::number(which_idnum);
     const QString text(tr("Really delete ID number") + " " + strnum + " (" +

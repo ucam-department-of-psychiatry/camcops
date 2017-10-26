@@ -130,7 +130,7 @@ QuGridContainer::QuGridContainer(std::initializer_list<QuGridCell> cells) :
     }
 
 
-QuGridContainer::QuGridContainer(int n_columns,
+QuGridContainer::QuGridContainer(const int n_columns,
                                  const QVector<QuElementPtr>& elements)
 {
     CONSTRUCT_FROM_ELEMENTLIST(elements);
@@ -138,7 +138,7 @@ QuGridContainer::QuGridContainer(int n_columns,
 }
 
 
-QuGridContainer::QuGridContainer(int n_columns,
+QuGridContainer::QuGridContainer(const int n_columns,
                                  const QVector<QuElement*>& elements)
 {
     CONSTRUCT_FROM_ELEMENTLIST(elements);
@@ -146,7 +146,7 @@ QuGridContainer::QuGridContainer(int n_columns,
 }
 
 
-QuGridContainer::QuGridContainer(int n_columns,
+QuGridContainer::QuGridContainer(const int n_columns,
                                  std::initializer_list<QuElementPtr> elements)
 {
     CONSTRUCT_FROM_ELEMENTLIST(elements);
@@ -154,7 +154,7 @@ QuGridContainer::QuGridContainer(int n_columns,
 }
 
 
-QuGridContainer::QuGridContainer(int n_columns,
+QuGridContainer::QuGridContainer(const int n_columns,
                                  std::initializer_list<QuElement*> elements)
 {
     CONSTRUCT_FROM_ELEMENTLIST(elements);
@@ -176,21 +176,22 @@ QuGridContainer* QuGridContainer::addCell(const QuGridCell& cell)
 }
 
 
-QuGridContainer* QuGridContainer::setColumnStretch(int column, int stretch)
+QuGridContainer* QuGridContainer::setColumnStretch(
+        const int column, const int stretch)
 {
     m_column_stretch[column] = stretch;
     return this;
 }
 
 
-QuGridContainer* QuGridContainer::setFixedGrid(bool fixed_grid)
+QuGridContainer* QuGridContainer::setFixedGrid(const bool fixed_grid)
 {
     m_fixed_grid = fixed_grid;
     return this;
 }
 
 
-QuGridContainer* QuGridContainer::setExpandHorizontally(bool expand)
+QuGridContainer* QuGridContainer::setExpandHorizontally(const bool expand)
 {
     m_expand = expand;
     return this;

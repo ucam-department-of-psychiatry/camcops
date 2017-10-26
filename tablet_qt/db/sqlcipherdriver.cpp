@@ -161,7 +161,7 @@ bool SQLCipherDriver::hasFeature(DriverFeature f) const
 // just file names.
 bool SQLCipherDriver::open(const QString& db, const QString& user,
                            const QString& password, const QString &host,
-                           int port, const QString& conn_opts)
+                           const int port, const QString& conn_opts)
 {
     Q_UNUSED(user);
     Q_UNUSED(password);
@@ -305,7 +305,7 @@ bool SQLCipherDriver::rollbackTransaction()
 }
 
 
-QStringList SQLCipherDriver::tables(QSql::TableType type) const
+QStringList SQLCipherDriver::tables(const QSql::TableType type) const
 {
     QStringList res;
     if (!isOpen()) {
@@ -383,7 +383,7 @@ QVariant SQLCipherDriver::handle() const
 
 
 QString SQLCipherDriver::escapeIdentifier(const QString& identifier,
-                                          IdentifierType type) const
+                                          const IdentifierType type) const
 {
     Q_UNUSED(type);
     return _q_escapeIdentifier(identifier);

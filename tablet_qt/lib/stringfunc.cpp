@@ -27,7 +27,7 @@ namespace stringfunc {
 // Basic string formatting
 // ============================================================================
 
-QString strnum(const QString& prefix, int num, const QString& suffix)
+QString strnum(const QString& prefix, const int num, const QString& suffix)
 {
     return prefix + QString::number(num) + suffix;
 }
@@ -48,7 +48,7 @@ QStringList strnumlist(const QString& prefix, const QVector<int>& numbers,
 // Make sequences of strings
 // ============================================================================
 
-QStringList strseq(const QString& prefix, int first, int last)
+QStringList strseq(const QString& prefix, const int first, const int last)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
@@ -59,7 +59,7 @@ QStringList strseq(const QString& prefix, int first, int last)
 }
 
 
-QStringList strseq(const QString& prefix, int first, int last,
+QStringList strseq(const QString& prefix, const int first, const int last,
                    const QStringList& suffixes)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
@@ -85,7 +85,8 @@ QStringList strseq(const QString& prefix, int first, int last,
 }
 
 
-QStringList strseq(const QStringList& prefixes, int first, int last)
+QStringList strseq(const QStringList& prefixes,
+                   const int first, const int last)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
@@ -98,7 +99,8 @@ QStringList strseq(const QStringList& prefixes, int first, int last)
 }
 
 
-QStringList strseq(const QStringList& prefixes, int first, int last,
+QStringList strseq(const QStringList& prefixes,
+                   const int first, const int last,
                    const QStringList& suffixes)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
@@ -124,7 +126,7 @@ QString bold(const QString& str)
 }
 
 
-QString bold(int x)
+QString bold(const int x)
 {
     return QString("<b>%1</b>").arg(x);
 }
@@ -148,7 +150,7 @@ QString joinHtmlLines(const QStringList& lines)
 }
 
 
-QString& toHtmlLinebreaks(QString& str, bool convert_embedded_literals)
+QString& toHtmlLinebreaks(QString& str, const bool convert_embedded_literals)
 {
     str.replace("\n", "<br>");
     if (convert_embedded_literals) {
@@ -181,7 +183,7 @@ QString& replaceFirst(QString& str, const QString& from, const QString& to)
 const QString STYLIZED_NEWLINE("↵");  // ⏎
 
 
-QString stylizeNewlines(const QString& str, bool stylize)
+QString stylizeNewlines(const QString& str, const bool stylize)
 {
     if (!stylize) {
         return str;
@@ -192,7 +194,8 @@ QString stylizeNewlines(const QString& str, bool stylize)
 }
 
 
-QString abbreviate(const QString& str, int max_len, bool stylize_newlines,
+QString abbreviate(const QString& str,
+                   const int max_len, const bool stylize_newlines,
                    const QString& suffix)
 {
     if (str.length() <= max_len) {

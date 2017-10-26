@@ -28,7 +28,8 @@
 #include "widgets/basewidget.h"
 
 
-const Qt::Alignment QuFlowContainer::DefaultWidgetAlignment = Qt::AlignLeft | Qt::AlignVCenter;
+const Qt::Alignment QuFlowContainer::DefaultWidgetAlignment =
+        Qt::AlignLeft | Qt::AlignVCenter;
 
 
 QuFlowContainer::QuFlowContainer()
@@ -38,7 +39,7 @@ QuFlowContainer::QuFlowContainer()
 
 QuFlowContainer::QuFlowContainer(
         const QVector<QuElementPtr>& elements,
-        Qt::Alignment alignment) :
+        const Qt::Alignment alignment) :
     m_elements(elements)
 {
     createAlignments(alignment);
@@ -47,7 +48,7 @@ QuFlowContainer::QuFlowContainer(
 
 QuFlowContainer::QuFlowContainer(
         std::initializer_list<QuElementPtr> elements,
-        Qt::Alignment alignment) :
+        const Qt::Alignment alignment) :
     m_elements(elements)
 {
     createAlignments(alignment);
@@ -56,7 +57,7 @@ QuFlowContainer::QuFlowContainer(
 
 QuFlowContainer::QuFlowContainer(
         std::initializer_list<QuElement*> elements,
-        Qt::Alignment alignment)
+        const Qt::Alignment alignment)
 {
     for (auto e : elements) {
         addElement(e, alignment);
@@ -64,7 +65,7 @@ QuFlowContainer::QuFlowContainer(
 }
 
 
-void QuFlowContainer::createAlignments(Qt::Alignment alignment)
+void QuFlowContainer::createAlignments(const Qt::Alignment alignment)
 {
     m_widget_alignments.clear();
     for (int i = 0; i < m_elements.size(); ++i) {
@@ -74,7 +75,7 @@ void QuFlowContainer::createAlignments(Qt::Alignment alignment)
 
 
 QuFlowContainer* QuFlowContainer::addElement(
-        const QuElementPtr& element, Qt::Alignment alignment)
+        const QuElementPtr& element, const Qt::Alignment alignment)
 {
     m_elements.append(element);
     m_widget_alignments.append(alignment);
@@ -83,7 +84,7 @@ QuFlowContainer* QuFlowContainer::addElement(
 
 
 QuFlowContainer* QuFlowContainer::addElement(
-        QuElement* element, Qt::Alignment alignment)  // takes ownership
+        QuElement* element, const Qt::Alignment alignment)  // takes ownership
 {
     // If you add a nullptr, it will be ignored.
     if (element) {
@@ -95,7 +96,7 @@ QuFlowContainer* QuFlowContainer::addElement(
 
 
 QuFlowContainer* QuFlowContainer::setWidgetAlignment(
-        Qt::Alignment alignment)
+        const Qt::Alignment alignment)
 {
     createAlignments(alignment);
     return this;

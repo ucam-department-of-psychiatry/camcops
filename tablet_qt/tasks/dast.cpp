@@ -48,7 +48,7 @@ void initializeDast(TaskFactory& factory)
 }
 
 
-Dast::Dast(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Dast::Dast(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DAST_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);
@@ -126,7 +126,7 @@ QStringList Dast::detail() const
 }
 
 
-OpenableWidget* Dast::editor(bool read_only)
+OpenableWidget* Dast::editor(const bool read_only)
 {
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
@@ -167,7 +167,7 @@ int Dast::totalScore() const
 }
 
 
-int Dast::score(const QVariant& value, int question) const
+int Dast::score(const QVariant& value, const int question) const
 {
     if (value.isNull()) {
         return 0;

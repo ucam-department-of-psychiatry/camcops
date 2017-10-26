@@ -63,16 +63,16 @@ bool OpenableWidget::wantsFullscreen() const
 }
 
 
-void OpenableWidget::setWantsFullscreen(bool fullscreen)
+void OpenableWidget::setWantsFullscreen(const bool fullscreen)
 {
     m_wants_fullscreen = fullscreen;
 }
 
 
 void OpenableWidget::setWidgetAsOnlyContents(QWidget* widget,
-                                             int margin,
-                                             bool fullscreen,
-                                             bool esc_can_abort)
+                                             const int margin,
+                                             const bool fullscreen,
+                                             const bool esc_can_abort)
 {
     // Remove any existing layout
     m_subwidget = nullptr;
@@ -106,8 +106,8 @@ bool OpenableWidget::escapeKeyCanAbort() const
 }
 
 
-void OpenableWidget::setEscapeKeyCanAbort(bool esc_can_abort,
-                                          bool without_confirmation)
+void OpenableWidget::setEscapeKeyCanAbort(const bool esc_can_abort,
+                                          const bool without_confirmation)
 {
     m_escape_key_can_abort = esc_can_abort;
     m_escape_aborts_without_confirmation = without_confirmation;

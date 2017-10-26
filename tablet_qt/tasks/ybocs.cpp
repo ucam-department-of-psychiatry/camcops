@@ -91,7 +91,7 @@ void initializeYbocs(TaskFactory& factory)
 }
 
 
-Ybocs::Ybocs(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Ybocs::Ybocs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, YBOCS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(Q1B, QVariant::Int);
@@ -162,7 +162,7 @@ QStringList Ybocs::detail() const
 }
 
 
-OpenableWidget* Ybocs::editor(bool read_only)
+OpenableWidget* Ybocs::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
 

@@ -24,8 +24,9 @@
 
 DiagnosticCode::DiagnosticCode(const QString& code, const QString& description,
                                DiagnosticCode* parent,
-                               int depth, bool selectable,
-                               bool show_code_in_full_name) :
+                               const int depth,
+                               const bool selectable,
+                               const bool show_code_in_full_name) :
     m_parent(parent),
     m_code(code),
     m_description(description),
@@ -47,7 +48,7 @@ void DiagnosticCode::appendChild(DiagnosticCode* child)
 }
 
 
-DiagnosticCode* DiagnosticCode::child(int row) const
+DiagnosticCode* DiagnosticCode::child(const int row) const
 {
     return m_children.value(row);  // will give nullptr if row out of bounds
 }
@@ -91,7 +92,7 @@ int DiagnosticCode::row() const
 }
 
 
-QVariant DiagnosticCode::data(int column) const
+QVariant DiagnosticCode::data(const int column) const
 {
     // qDebug() << Q_FUNC_INFO << "column" << column;
     switch (column) {

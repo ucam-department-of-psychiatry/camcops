@@ -46,7 +46,8 @@ LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& coefficients)
 }
 
 
-LogisticDescriptives::LogisticDescriptives(double intercept, double slope)
+LogisticDescriptives::LogisticDescriptives(const double intercept,
+                                           const double slope)
 {
     commonConstructor();
     setFromGlmCoefficients(intercept, slope);
@@ -55,7 +56,7 @@ LogisticDescriptives::LogisticDescriptives(double intercept, double slope)
 
 LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& x,
                                            const QVector<int>& y,
-                                           bool verbose)
+                                           const bool verbose)
 {
     using namespace eigenfunc;
     commonConstructor();
@@ -87,7 +88,8 @@ void LogisticDescriptives::commonConstructor()
 }
 
 
-void LogisticDescriptives::setFromGlmCoefficients(double b0, double b1)
+void LogisticDescriptives::setFromGlmCoefficients(const double b0,
+                                                  const double b1)
 {
     m_b0 = b0;
     m_b1 = b1;
@@ -139,13 +141,13 @@ double LogisticDescriptives::theta() const
 // Prediction
 // ============================================================================
 
-double LogisticDescriptives::p(double x) const
+double LogisticDescriptives::p(const double x) const
 {
     return statsfunc::logistic(m_b0 + m_b1 * x);
 }
 
 
-double LogisticDescriptives::x(double p) const
+double LogisticDescriptives::x(const double p) const
 {
     return (statsfunc::logit(p) - m_b0) / m_b1;
 }

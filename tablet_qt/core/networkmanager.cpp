@@ -176,7 +176,7 @@ void NetworkManager::deleteLogBox()
 }
 
 
-void NetworkManager::setSilent(bool silent)
+void NetworkManager::setSilent(const bool silent)
 {
     m_silent = silent;
 }
@@ -243,9 +243,9 @@ void NetworkManager::disconnectManager()
 
 
 QNetworkRequest NetworkManager::createRequest(const QUrl& url,
-                                              bool offer_cancel,
-                                              bool ssl,
-                                              bool ignore_ssl_errors,
+                                              const bool offer_cancel,
+                                              const bool ssl,
+                                              const bool ignore_ssl_errors,
                                               QSsl::SslProtocol ssl_protocol)
 {
     // Clear any previous callbacks
@@ -332,7 +332,7 @@ QNetworkRequest NetworkManager::createServerRequest(bool& success)
 
 
 void NetworkManager::serverPost(Dict dict, ReplyFuncPtr reply_func,
-                                bool include_user)
+                                const bool include_user)
 {
     // Request (URL, SSL, etc.).
     bool success = true;
@@ -429,7 +429,7 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
 }
 
 
-QString NetworkManager::sizeBytes(qint64 size)
+QString NetworkManager::sizeBytes(const qint64 size)
 {
     return convert::prettySize(size, true, false, true, "bytes");
 }
@@ -588,7 +588,7 @@ void NetworkManager::succeed()
 }
 
 
-void NetworkManager::finish(bool success)
+void NetworkManager::finish(const bool success)
 {
 #ifdef DEBUG_ACTIVITY
     qDebug() << Q_FUNC_INFO;
@@ -611,7 +611,7 @@ void NetworkManager::finish(bool success)
 // Testing
 // ============================================================================
 
-void NetworkManager::testHttpGet(const QString& url, bool offer_cancel)
+void NetworkManager::testHttpGet(const QString& url, const bool offer_cancel)
 {
     QNetworkRequest request = createRequest(QUrl(url), offer_cancel,
                                             false, false);
@@ -626,8 +626,8 @@ void NetworkManager::testHttpGet(const QString& url, bool offer_cancel)
 }
 
 
-void NetworkManager::testHttpsGet(const QString& url, bool offer_cancel,
-                                  bool ignore_ssl_errors)
+void NetworkManager::testHttpsGet(const QString& url, const bool offer_cancel,
+                                  const bool ignore_ssl_errors)
 {
     QNetworkRequest request = createRequest(QUrl(url), offer_cancel,
                                             true, ignore_ssl_errors,
@@ -783,7 +783,7 @@ void NetworkManager::storeExtraStrings()
 // Upload
 // ============================================================================
 
-void NetworkManager::upload(UploadMethod method)
+void NetworkManager::upload(const UploadMethod method)
 {
     statusMessage(tr("Preparing to upload to: ") + serverUrlDisplayString());
     // ... in part so uploadNext() status message looks OK

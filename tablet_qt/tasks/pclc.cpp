@@ -29,7 +29,7 @@ void initializePclC(TaskFactory& factory)
 }
 
 
-PclC::PclC(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+PclC::PclC(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     PclCommon(app, db, PCLC_TABLENAME, "c", false, load_pk)
 {
 }

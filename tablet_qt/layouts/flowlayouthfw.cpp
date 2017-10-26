@@ -57,8 +57,8 @@
 #include "lib/margins.h"
 
 
-FlowLayoutHfw::FlowLayoutHfw(QWidget* parent, int margin,
-                       int h_spacing, int v_spacing) :
+FlowLayoutHfw::FlowLayoutHfw(QWidget* parent, const int margin,
+                             const int h_spacing, const int v_spacing) :
     QLayout(parent),
     m_h_space(h_spacing),
     m_v_space(v_spacing)
@@ -67,7 +67,9 @@ FlowLayoutHfw::FlowLayoutHfw(QWidget* parent, int margin,
 }
 
 
-FlowLayoutHfw::FlowLayoutHfw(int margin, int h_spacing, int v_spacing) :
+FlowLayoutHfw::FlowLayoutHfw(const int margin,
+                             const int h_spacing,
+                             const int v_spacing) :
     m_h_space(h_spacing),
     m_v_space(v_spacing)
 {
@@ -75,7 +77,7 @@ FlowLayoutHfw::FlowLayoutHfw(int margin, int h_spacing, int v_spacing) :
 }
 
 
-void FlowLayoutHfw::commonConstructor(int margin)
+void FlowLayoutHfw::commonConstructor(const int margin)
 {
     setContentsMargins(margin, margin, margin, margin);
     m_halign = Qt::AlignLeft;
@@ -117,7 +119,7 @@ void FlowLayoutHfw::addWidget(QWidget* w)
 }
 
 
-void FlowLayoutHfw::addWidget(QWidget* w, Qt::Alignment alignment)
+void FlowLayoutHfw::addWidget(QWidget* w, const Qt::Alignment alignment)
 {
     addWidget(w);  // uses QLayout::addWidget; no alignment option
     setAlignment(w, alignment);  // this is QLayout::setAlignment
@@ -131,7 +133,8 @@ void FlowLayoutHfw::addItem(QLayoutItem* item)
 }
 
 
-void FlowLayoutHfw::setHorizontalAlignmentOfContents(Qt::Alignment halign)
+void FlowLayoutHfw::setHorizontalAlignmentOfContents(
+        const Qt::Alignment halign)
 {
     m_halign = halign;
     invalidate();
@@ -164,13 +167,13 @@ int FlowLayoutHfw::count() const
 }
 
 
-QLayoutItem* FlowLayoutHfw::itemAt(int index) const
+QLayoutItem* FlowLayoutHfw::itemAt(const int index) const
 {
     return m_item_list.value(index);
 }
 
 
-QLayoutItem* FlowLayoutHfw::takeAt(int index)
+QLayoutItem* FlowLayoutHfw::takeAt(const int index)
 {
     if (index >= 0 && index < m_item_list.size()) {
         return m_item_list.takeAt(index);
@@ -194,7 +197,7 @@ bool FlowLayoutHfw::hasHeightForWidth() const
 }
 
 
-int FlowLayoutHfw::heightForWidth(int width) const
+int FlowLayoutHfw::heightForWidth(const int width) const
 {
     if (!m_width_to_height.contains(width)) {
 #ifdef DEBUG_LAYOUT
@@ -281,7 +284,7 @@ QSize FlowLayoutHfw::minimumSize() const
 }
 
 
-QSize FlowLayoutHfw::doLayout(const QRect& rect, bool test_only) const
+QSize FlowLayoutHfw::doLayout(const QRect& rect, const bool test_only) const
 {
     // RNC: substantial modifications including vertical alignment
 
@@ -432,7 +435,7 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, bool test_only) const
 }
 
 
-int FlowLayoutHfw::smartSpacing(QStyle::PixelMetric pm) const
+int FlowLayoutHfw::smartSpacing(const QStyle::PixelMetric pm) const
 {
     QObject* parent = this->parent();
     if (!parent) {
@@ -446,8 +449,10 @@ int FlowLayoutHfw::smartSpacing(QStyle::PixelMetric pm) const
 }
 
 
-int FlowLayoutHfw::itemTop(int row_top, int item_height, int row_height,
-                        Qt::Alignment valignment) const
+int FlowLayoutHfw::itemTop(const int row_top,
+                           const int item_height,
+                           const int row_height,
+                           const Qt::Alignment valignment) const
 {
     if (valignment & Qt::AlignVCenter) {
         return row_top + (row_height - item_height) / 2;
@@ -459,8 +464,8 @@ int FlowLayoutHfw::itemTop(int row_top, int item_height, int row_height,
 }
 
 
-int FlowLayoutHfw::rowShiftToRight(int layout_width,
-                                   int width_of_all_items) const
+int FlowLayoutHfw::rowShiftToRight(const int layout_width,
+                                   const int width_of_all_items) const
 {
     if (m_halign & Qt::AlignCenter) {
         return (layout_width - width_of_all_items) / 2;

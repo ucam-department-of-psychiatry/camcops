@@ -46,7 +46,7 @@ void initializeCgiSch(TaskFactory& factory)
 }
 
 
-CgiSch::CgiSch(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+CgiSch::CgiSch(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CGISCH_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(FP_SEVERITY, 1, NQ_PER_SECTION), QVariant::Int);
@@ -122,7 +122,7 @@ QStringList CgiSch::detail() const
 }
 
 
-OpenableWidget* CgiSch::editor(bool read_only)
+OpenableWidget* CgiSch::editor(const bool read_only)
 {
     NameValueOptions severity_options;
     NameValueOptions change_options;

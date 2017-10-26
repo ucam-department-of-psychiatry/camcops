@@ -122,7 +122,7 @@ void initializeDad(TaskFactory& factory)
 }
 
 
-Dad::Dad(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Dad::Dad(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DAD_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
     for (auto item : ITEMS) {
@@ -201,7 +201,7 @@ QStringList Dad::detail() const
 }
 
 
-OpenableWidget* Dad::editor(bool read_only)
+OpenableWidget* Dad::editor(const bool read_only)
 {
     const NameValueOptions y_n_na_options{
         {CommonOptions::yes(), YES},

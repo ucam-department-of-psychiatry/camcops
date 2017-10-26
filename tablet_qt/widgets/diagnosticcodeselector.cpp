@@ -84,7 +84,7 @@
 DiagnosticCodeSelector::DiagnosticCodeSelector(
         const QString& stylesheet,
         DiagnosticCodeSetPtr codeset,
-        QModelIndex selected,
+        const QModelIndex& selected,
         QWidget* parent) :
     OpenableWidget(parent),
     m_codeset(codeset),

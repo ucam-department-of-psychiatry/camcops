@@ -116,7 +116,7 @@ void QuMultipleResponse::minOrMaxChanged()
 }
 
 
-QuMultipleResponse* QuMultipleResponse::setRandomize(bool randomize)
+QuMultipleResponse* QuMultipleResponse::setRandomize(const bool randomize)
 {
     m_randomize = randomize;
     return this;
@@ -139,21 +139,22 @@ QuMultipleResponse* QuMultipleResponse::setInstruction(
 }
 
 
-QuMultipleResponse* QuMultipleResponse::setHorizontal(bool horizontal)
+QuMultipleResponse* QuMultipleResponse::setHorizontal(const bool horizontal)
 {
     m_horizontal = horizontal;
     return this;
 }
 
 
-QuMultipleResponse* QuMultipleResponse::setAsTextButton(bool as_text_button)
+QuMultipleResponse* QuMultipleResponse::setAsTextButton(
+        const bool as_text_button)
 {
     m_as_text_button = as_text_button;
     return this;
 }
 
 
-QuMultipleResponse* QuMultipleResponse::setBold(bool bold)
+QuMultipleResponse* QuMultipleResponse::setBold(const bool bold)
 {
     m_bold = bold;
     return this;
@@ -276,7 +277,7 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
 }
 
 
-void QuMultipleResponse::clicked(int index)
+void QuMultipleResponse::clicked(const int index)
 {
     if (!validIndex(index)) {
         qWarning() << Q_FUNC_INFO << "- out of range";
@@ -385,7 +386,7 @@ QString QuMultipleResponse::defaultInstruction() const
 }
 
 
-bool QuMultipleResponse::validIndex(int index)
+bool QuMultipleResponse::validIndex(const int index)
 {
     return index >= 0 && index < m_items.size();
 }

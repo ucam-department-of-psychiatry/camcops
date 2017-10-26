@@ -90,7 +90,7 @@ void initializeIfs(TaskFactory& factory)
 }
 
 
-Ifs::Ifs(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Ifs::Ifs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IFS_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
@@ -191,7 +191,7 @@ QStringList Ifs::detail() const
 }
 
 
-OpenableWidget* Ifs::editor(bool read_only)
+OpenableWidget* Ifs::editor(const bool read_only)
 {
     auto text = [this](const QString& xstringname) -> QuElement* {
         return new QuText(xstring(xstringname));
@@ -379,13 +379,13 @@ Ifs::IfsScore Ifs::getScore() const
 }
 
 
-QVariant Ifs::q4FirstVal(int seqlen) const
+QVariant Ifs::q4FirstVal(const int seqlen) const
 {
     return value(QString("q4_len%1_1").arg(seqlen));
 }
 
 
-QVariant Ifs::q4SecondVal(int seqlen) const
+QVariant Ifs::q4SecondVal(const int seqlen) const
 {
     return value(QString("q4_len%1_2").arg(seqlen));
 }

@@ -118,7 +118,8 @@ void initializeIcd10Manic(TaskFactory& factory)
 }
 
 
-Icd10Manic::Icd10Manic(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Icd10Manic::Icd10Manic(CamcopsApp& app, DatabaseManager& db,
+                       const int load_pk) :
     Task(app, db, ICD10MANIC_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(CORE_NAMES, QVariant::Bool);
@@ -223,7 +224,7 @@ QStringList Icd10Manic::detail() const
 }
 
 
-OpenableWidget* Icd10Manic::editor(bool read_only)
+OpenableWidget* Icd10Manic::editor(const bool read_only)
 {
     const NameValueOptions true_false_options = CommonOptions::falseTrueBoolean();
 

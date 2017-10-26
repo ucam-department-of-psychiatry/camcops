@@ -49,7 +49,7 @@ void initializeWsas(TaskFactory& factory)
 }
 
 
-Wsas::Wsas(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Wsas::Wsas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, WSAS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(RETIRED_ETC, QVariant::Bool);
@@ -105,7 +105,7 @@ QStringList Wsas::detail() const
 }
 
 
-OpenableWidget* Wsas::editor(bool read_only)
+OpenableWidget* Wsas::editor(const bool read_only)
 {
     const NameValueOptions options{
         {appstring("wsas_a0"), 0},

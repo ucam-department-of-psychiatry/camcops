@@ -22,7 +22,8 @@
 #include "lib/numericfunc.h"
 
 
-StrictInt64Validator::StrictInt64Validator(bool allow_empty, QObject* parent) :
+StrictInt64Validator::StrictInt64Validator(const bool allow_empty,
+                                           QObject* parent) :
     QValidator(parent),
     m_allow_empty(allow_empty)
 {
@@ -31,8 +32,9 @@ StrictInt64Validator::StrictInt64Validator(bool allow_empty, QObject* parent) :
 }
 
 
-StrictInt64Validator::StrictInt64Validator(qint64 bottom, qint64 top,
-                                           bool allow_empty, QObject* parent) :
+StrictInt64Validator::StrictInt64Validator(
+        qint64 bottom, qint64 top,
+        const bool allow_empty, QObject* parent) :
     QValidator(parent),
     m_allow_empty(allow_empty)
 {
@@ -57,19 +59,19 @@ QValidator::State StrictInt64Validator::validate(QString& s, int& pos) const
 }
 
 
-void StrictInt64Validator::setBottom(qint64 bottom)
+void StrictInt64Validator::setBottom(const qint64 bottom)
 {
     setRange(bottom, top());
 }
 
 
-void StrictInt64Validator::setTop(qint64 top)
+void StrictInt64Validator::setTop(const qint64 top)
 {
     setRange(bottom(), top);
 }
 
 
-void StrictInt64Validator::setRange(qint64 bottom, qint64 top)
+void StrictInt64Validator::setRange(const qint64 bottom, const qint64 top)
 {
     bool rangeChanged = false;
     if (m_b != bottom) {

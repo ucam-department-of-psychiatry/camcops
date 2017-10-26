@@ -53,7 +53,8 @@ void initializeDemqolProxy(TaskFactory& factory)
 }
 
 
-DemqolProxy::DemqolProxy(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+DemqolProxy::DemqolProxy(
+        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DEMQOLPROXY_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -126,7 +127,7 @@ QStringList DemqolProxy::detail() const
 }
 
 
-OpenableWidget* DemqolProxy::editor(bool read_only)
+OpenableWidget* DemqolProxy::editor(const bool read_only)
 {
     const NameValueOptions main_options{
         {xstring("a1"), 1},

@@ -72,15 +72,16 @@ QuDateTime::QuDateTime(FieldRefPtr fieldref) :
 }
 
 
-QuDateTime* QuDateTime::setMode(QuDateTime::Mode mode)
+QuDateTime* QuDateTime::setMode(const QuDateTime::Mode mode)
 {
     m_mode = mode;
     return this;
 }
 
 
-QuDateTime* QuDateTime::setCustomFormat(const QString& format,
-                                        Qt::InputMethodHints input_method_hint)
+QuDateTime* QuDateTime::setCustomFormat(
+        const QString& format,
+        const Qt::InputMethodHints input_method_hint)
 {
     m_custom_format = format;
     m_custom_input_method_hint = input_method_hint;
@@ -88,14 +89,14 @@ QuDateTime* QuDateTime::setCustomFormat(const QString& format,
 }
 
 
-QuDateTime* QuDateTime::setOfferNowButton(bool offer_now_button)
+QuDateTime* QuDateTime::setOfferNowButton(const bool offer_now_button)
 {
     m_offer_now_button = offer_now_button;
     return this;
 }
 
 
-QuDateTime* QuDateTime::setOfferNullButton(bool offer_null_button)
+QuDateTime* QuDateTime::setOfferNullButton(const bool offer_null_button)
 {
     m_offer_null_button = offer_null_button;
     return this;
@@ -316,7 +317,8 @@ void QuDateTime::widgetValueChanged(const QDateTime& datetime)
 }
 
 
-void QuDateTime::setField(const QDateTime& datetime, bool reset_this_widget)
+void QuDateTime::setField(const QDateTime& datetime,
+                          const bool reset_this_widget)
 {
     QVariant newvalue = datetime;
     switch (m_mode) {

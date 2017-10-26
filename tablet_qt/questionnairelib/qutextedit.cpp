@@ -30,7 +30,7 @@
 const int WRITE_DELAY_MS = 400;
 
 
-QuTextEdit::QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text) :
+QuTextEdit::QuTextEdit(FieldRefPtr fieldref, const bool accept_rich_text) :
     m_fieldref(fieldref),
     m_accept_rich_text(accept_rich_text),
     m_allow_tabs_in_content(false),
@@ -53,7 +53,7 @@ QuTextEdit::QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text) :
 }
 
 
-QuTextEdit* QuTextEdit::setAllowTabsInContent(bool allow_tabs_in_content)
+QuTextEdit* QuTextEdit::setAllowTabsInContent(const bool allow_tabs_in_content)
 {
     m_allow_tabs_in_content = allow_tabs_in_content;
     return this;
@@ -212,7 +212,7 @@ void QuTextEdit::fieldValueChanged(const FieldRef* fieldref,
 }
 
 
-void QuTextEdit::widgetFocusChanged(bool in)
+void QuTextEdit::widgetFocusChanged(const bool in)
 {
     // If focus is leaving the widget, save the field value.
 #ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR

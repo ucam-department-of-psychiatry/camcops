@@ -22,7 +22,7 @@
 
 
 SlowNonGuiFunctionCaller::SlowNonGuiFunctionCaller(
-        ThreadWorker::PlainWorkerFunction func,
+        const ThreadWorker::PlainWorkerFunction& func,
         QWidget* parent,
         const QString& text,
         const QString& title) :

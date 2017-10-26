@@ -69,37 +69,37 @@ void TickSlider::setTickColor(const QColor& colour)
 }
 
 
-void TickSlider::setTickThickness(int thickness)
+void TickSlider::setTickThickness(const int thickness)
 {
     m_tick_thickness = thickness;
 }
 
 
-void TickSlider::setTickLength(int length)
+void TickSlider::setTickLength(const int length)
 {
     m_tick_length = length;
 }
 
 
-void TickSlider::setTickLabelGap(int gap)
+void TickSlider::setTickLabelGap(const int gap)
 {
     m_tick_label_gap = gap;
 }
 
 
-void TickSlider::setInterlabelGap(int gap)
+void TickSlider::setInterlabelGap(const int gap)
 {
     m_min_interlabel_gap = gap;
 }
 
 
-void TickSlider::setGapToSlider(int gap)
+void TickSlider::setGapToSlider(const int gap)
 {
     m_gap_to_slider = gap;
 }
 
 
-void TickSlider::setTickLabelPosition(QSlider::TickPosition position)
+void TickSlider::setTickLabelPosition(const QSlider::TickPosition position)
 {
     m_label_position = position;
 }
@@ -111,7 +111,7 @@ QSlider::TickPosition TickSlider::tickLabelPosition() const
 }
 
 
-void TickSlider::addTickLabel(int position, const QString& text)
+void TickSlider::addTickLabel(const int position, const QString& text)
 {
     m_tick_labels[position] = text;
 }
@@ -135,19 +135,19 @@ void TickSlider::addDefaultTickLabels()
 }
 
 
-void TickSlider::setReverseHorizontalLabels(bool reverse)
+void TickSlider::setReverseHorizontalLabels(const bool reverse)
 {
     m_reverse_horizontal_labels = reverse;
 }
 
 
-void TickSlider::setReverseVerticalLabels(bool reverse)
+void TickSlider::setReverseVerticalLabels(const bool reverse)
 {
     m_reverse_vertical_labels = reverse;
 }
 
 
-void TickSlider::setEdgeInExtremeLabels(bool edge_in_extreme_labels)
+void TickSlider::setEdgeInExtremeLabels(const bool edge_in_extreme_labels)
 {
     m_edge_in_extreme_labels = edge_in_extreme_labels;
 }

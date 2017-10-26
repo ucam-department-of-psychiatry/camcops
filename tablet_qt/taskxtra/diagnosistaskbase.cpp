@@ -41,8 +41,9 @@ using stringfunc::bold;
 const QString DiagnosisTaskBase::RELATES_TO_DATE("relates_to_date");  // new in v2.0.0
 
 
-DiagnosisTaskBase::DiagnosisTaskBase(CamcopsApp& app, DatabaseManager& db,
-                                     const QString& tablename, int load_pk) :
+DiagnosisTaskBase::DiagnosisTaskBase(
+        CamcopsApp& app, DatabaseManager& db,
+        const QString& tablename, const int load_pk) :
     Task(app, db, tablename, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr),
     m_codeset(nullptr)
@@ -94,7 +95,7 @@ QStringList DiagnosisTaskBase::detail() const
 }
 
 
-OpenableWidget* DiagnosisTaskBase::editor(bool read_only)
+OpenableWidget* DiagnosisTaskBase::editor(const bool read_only)
 {
     m_codeset = makeCodeset();
 
@@ -164,7 +165,7 @@ void DiagnosisTaskBase::addItem()
 }
 
 
-void DiagnosisTaskBase::deleteItem(int index)
+void DiagnosisTaskBase::deleteItem(const int index)
 {
     if (index < 0 || index >= m_items.size()) {
         return;
@@ -177,7 +178,7 @@ void DiagnosisTaskBase::deleteItem(int index)
 }
 
 
-void DiagnosisTaskBase::moveUp(int index)
+void DiagnosisTaskBase::moveUp(const int index)
 {
     if (index < 1 || index >= m_items.size()) {
         return;
@@ -188,7 +189,7 @@ void DiagnosisTaskBase::moveUp(int index)
 }
 
 
-void DiagnosisTaskBase::moveDown(int index)
+void DiagnosisTaskBase::moveDown(const int index)
 {
     if (index < 0 || index >= m_items.size() - 1) {
         return;
@@ -199,7 +200,7 @@ void DiagnosisTaskBase::moveDown(int index)
 }
 
 
-QVariant DiagnosisTaskBase::getCode(int index) const
+QVariant DiagnosisTaskBase::getCode(const int index) const
 {
     if (index < 0 || index >= m_items.size()) {
         return QVariant();
@@ -209,7 +210,7 @@ QVariant DiagnosisTaskBase::getCode(int index) const
 }
 
 
-bool DiagnosisTaskBase::setCode(int index, const QVariant& value)
+bool DiagnosisTaskBase::setCode(const int index, const QVariant& value)
 {
     if (index < 0 || index >= m_items.size()) {
         return false;
@@ -223,7 +224,7 @@ bool DiagnosisTaskBase::setCode(int index, const QVariant& value)
 }
 
 
-QVariant DiagnosisTaskBase::getDescription(int index) const
+QVariant DiagnosisTaskBase::getDescription(const int index) const
 {
     if (index < 0 || index >= m_items.size()) {
         return QVariant();
@@ -233,7 +234,7 @@ QVariant DiagnosisTaskBase::getDescription(int index) const
 }
 
 
-bool DiagnosisTaskBase::setDescription(int index, const QVariant& value)
+bool DiagnosisTaskBase::setDescription(const int index, const QVariant& value)
 {
     if (index < 0 || index >= m_items.size()) {
         return false;
@@ -247,7 +248,7 @@ bool DiagnosisTaskBase::setDescription(int index, const QVariant& value)
 }
 
 
-QVariant DiagnosisTaskBase::getComment(int index) const
+QVariant DiagnosisTaskBase::getComment(const int index) const
 {
     if (index < 0 || index >= m_items.size()) {
         return QVariant();
@@ -257,7 +258,7 @@ QVariant DiagnosisTaskBase::getComment(int index) const
 }
 
 
-bool DiagnosisTaskBase::setComment(int index, const QVariant& value)
+bool DiagnosisTaskBase::setComment(const int index, const QVariant& value)
 {
     if (index < 0 || index >= m_items.size()) {
         return false;

@@ -21,7 +21,8 @@
 #include "lib/numericfunc.h"
 
 
-StrictIntValidator::StrictIntValidator(int bottom, int top, bool allow_empty,
+StrictIntValidator::StrictIntValidator(const int bottom, const int top,
+                                       const bool allow_empty,
                                        QObject* parent) :
     QIntValidator(bottom, top, parent),
     m_allow_empty(allow_empty)

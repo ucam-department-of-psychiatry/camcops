@@ -45,7 +45,7 @@ const int BAD_INDEX = -1;
 
 
 MenuWindow::MenuWindow(CamcopsApp& app, const QString& title,
-                       const QString& icon, bool top) :
+                       const QString& icon, const bool top) :
     OpenableWidget(),
     m_app(app),
     m_title(title),

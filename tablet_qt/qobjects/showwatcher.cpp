@@ -22,7 +22,7 @@
 #include "lib/layoutdumper.h"
 
 
-ShowWatcher::ShowWatcher(QObject* parent, bool debug_layout) :
+ShowWatcher::ShowWatcher(QObject* parent, const bool debug_layout) :
     QObject(parent),  // owned by parent henceforth
     m_debug_layout(debug_layout)
 {

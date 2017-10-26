@@ -55,7 +55,7 @@ void initializeHads(TaskFactory& factory)
 }
 
 
-Hads::Hads(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Hads::Hads(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, HADS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Main HADS constructor. No respondent.
@@ -64,8 +64,8 @@ Hads::Hads(CamcopsApp& app, DatabaseManager& db, int load_pk) :
 
 
 Hads::Hads(CamcopsApp& app, DatabaseManager& db,
-           const QString& tablename, bool has_respondent,
-           int load_pk) :
+           const QString& tablename, const bool has_respondent,
+           const int load_pk) :
     Task(app, db, tablename, false, false, has_respondent)  // ... anon, clin, resp
 {
     // Constructor used by HadsRespondent.
@@ -73,7 +73,7 @@ Hads::Hads(CamcopsApp& app, DatabaseManager& db,
 }
 
 
-void Hads::commonConstructor(int load_pk)
+void Hads::commonConstructor(const int load_pk)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
@@ -131,7 +131,7 @@ QStringList Hads::detail() const
 }
 
 
-OpenableWidget* Hads::editor(bool read_only)
+OpenableWidget* Hads::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
 

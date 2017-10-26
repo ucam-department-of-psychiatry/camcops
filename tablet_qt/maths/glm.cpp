@@ -111,11 +111,11 @@ const double INF = std::numeric_limits<double>::infinity();
 // Constructor
 // ============================================================================
 
-Glm::Glm(LinkFunctionFamily link_fn_family,
-         SolveMethod solve_method,
-         int max_iterations,
-         double tolerance,
-         RankDeficiencyMethod rank_deficiency_method) :
+Glm::Glm(const LinkFunctionFamily& link_fn_family,
+         const SolveMethod solve_method,
+         const int max_iterations,
+         const double tolerance,
+         const RankDeficiencyMethod rank_deficiency_method) :
     m_link_fn_family(link_fn_family),
     m_solve_method(solve_method),
     m_max_iterations(max_iterations),

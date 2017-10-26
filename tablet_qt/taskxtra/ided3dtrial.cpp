@@ -53,7 +53,8 @@ const QString FN_CORRECT("correct");
 const QString FN_INCORRECT("incorrect");
 
 
-IDED3DTrial::IDED3DTrial(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+IDED3DTrial::IDED3DTrial(CamcopsApp& app, DatabaseManager& db,
+                         const int load_pk) :
     DatabaseObject(app, db, TRIAL_TABLENAME),
     m_trial_num_zero_based(-1)
 {
@@ -84,7 +85,8 @@ IDED3DTrial::IDED3DTrial(CamcopsApp& app, DatabaseManager& db, int load_pk) :
 }
 
 
-IDED3DTrial::IDED3DTrial(const IDED3DStage& stage, int trial_num_zero_based,
+IDED3DTrial::IDED3DTrial(const IDED3DStage& stage,
+                         const int trial_num_zero_based,
                          CamcopsApp& app, DatabaseManager& db) :
     IDED3DTrial::IDED3DTrial(app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
 {
@@ -150,7 +152,7 @@ void IDED3DTrial::recordTrialStart()
 }
 
 
-void IDED3DTrial::recordResponse(bool correct)
+void IDED3DTrial::recordResponse(const bool correct)
 {
     const QDateTime now = datetime::now();
     setValue(FN_RESPONDED, true);

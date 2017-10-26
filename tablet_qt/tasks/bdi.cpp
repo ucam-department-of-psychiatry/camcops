@@ -53,7 +53,7 @@ void initializeBdi(TaskFactory& factory)
 }
 
 
-Bdi::Bdi(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Bdi::Bdi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, BDI_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(FN_BDI_SCALE, QVariant::String);
@@ -108,7 +108,7 @@ QStringList Bdi::detail() const
 }
 
 
-OpenableWidget* Bdi::editor(bool read_only)
+OpenableWidget* Bdi::editor(const bool read_only)
 {
     const NameValueOptions options{
         {"0", 0},

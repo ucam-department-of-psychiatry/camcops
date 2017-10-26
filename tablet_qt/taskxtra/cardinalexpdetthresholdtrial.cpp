@@ -41,7 +41,7 @@ const QString FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE("trial_num_in_calculation_seq
 
 
 CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
-        CamcopsApp& app, DatabaseManager& db, int load_pk) :
+        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     DatabaseObject(app, db, TRIAL_TABLENAME)
 {
     // Keys
@@ -143,7 +143,7 @@ void CardinalExpDetThresholdTrial::recordChoiceTime()
 }
 
 
-void CardinalExpDetThresholdTrial::recordResponse(bool yes)
+void CardinalExpDetThresholdTrial::recordResponse(const bool yes)
 {
     const QDateTime now = datetime::now();
     setValue(FN_RESPONDED, true);

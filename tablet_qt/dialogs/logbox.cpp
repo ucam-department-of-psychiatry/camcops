@@ -28,10 +28,13 @@
 
 const QSize MIN_SIZE(600, 600);
 
-
-LogBox::LogBox(QWidget* parent, const QString& title, bool offer_cancel,
-               bool offer_ok_at_end, int maximum_block_count,
-               bool scroll_to_end_on_insert, bool word_wrap) :
+LogBox::LogBox(QWidget* parent,
+               const QString& title,
+               const bool offer_cancel,
+               const bool offer_ok_at_end,
+               const int maximum_block_count,
+               const bool scroll_to_end_on_insert,
+               const bool word_wrap) :
     QDialog(parent),
     m_editor(nullptr),
     m_ok(nullptr),
@@ -107,7 +110,7 @@ void LogBox::open()
 }
 
 
-void LogBox::statusMessage(const QString& msg, bool as_html)
+void LogBox::statusMessage(const QString& msg, const bool as_html)
 {
     if (!m_editor) {
         return;
@@ -123,7 +126,7 @@ void LogBox::statusMessage(const QString& msg, bool as_html)
 }
 
 
-void LogBox::finish(bool success)
+void LogBox::finish(const bool success)
 {
     // qDebug() << Q_FUNC_INFO;
     // If we're waiting for the user to press OK (so they can look at the log,

@@ -58,7 +58,7 @@ public:
     };
 
     // Constructor:
-    Glm(LinkFunctionFamily link_fn_family,
+    Glm(const LinkFunctionFamily& link_fn_family,
         SolveMethod solve_method =
 #ifdef GLM_OFFER_R_GLM_FIT
             SolveMethod::IRLS_R_glmfit,

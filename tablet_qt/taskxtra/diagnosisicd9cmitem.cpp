@@ -23,15 +23,15 @@ const QString DiagnosisIcd9CMItem::DIAGNOSIS_ICD9CM_ITEM_TABLENAME("diagnosis_ic
 const QString DiagnosisIcd9CMItem::FK_NAME("diagnosis_icd9cm_id");  // FK to diagnosis_icd9cm.id
 
 
-DiagnosisIcd9CMItem::DiagnosisIcd9CMItem(CamcopsApp& app,
-                                         DatabaseManager& db, int load_pk) :
+DiagnosisIcd9CMItem::DiagnosisIcd9CMItem(
+        CamcopsApp& app, DatabaseManager& db, int load_pk) :
     DiagnosisItemBase(app, db,
                       DIAGNOSIS_ICD9CM_ITEM_TABLENAME, FK_NAME, load_pk)
 {
 }
 
 
-DiagnosisIcd9CMItem::DiagnosisIcd9CMItem(int owner_fk, CamcopsApp& app,
+DiagnosisIcd9CMItem::DiagnosisIcd9CMItem(const int owner_fk, CamcopsApp& app,
                                          DatabaseManager& db) :
     DiagnosisItemBase(owner_fk, app, db,
                       DIAGNOSIS_ICD9CM_ITEM_TABLENAME, FK_NAME)  // delegating constructor

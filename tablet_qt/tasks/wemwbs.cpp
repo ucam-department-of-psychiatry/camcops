@@ -48,7 +48,7 @@ void initializeWemwbs(TaskFactory& factory)
 }
 
 
-Wemwbs::Wemwbs(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Wemwbs::Wemwbs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, WEMWBS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -113,7 +113,7 @@ QStringList Wemwbs::detail() const
 }
 
 
-OpenableWidget* Wemwbs::editor(bool read_only)
+OpenableWidget* Wemwbs::editor(const bool read_only)
 {
     const NameValueOptions options{
         {xstring("wemwbs_a1"), 1},

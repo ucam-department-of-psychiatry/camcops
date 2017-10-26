@@ -54,14 +54,14 @@ void DynamicQuestionnaire::addPage(const QuPagePtr& page)
 }
 
 
-void DynamicQuestionnaire::deletePage(int index)
+void DynamicQuestionnaire::deletePage(const int index)
 {
     Q_UNUSED(index);
     uifunc::stopApp("Don't call deletePage() on a DynamicQuestionnaire!");
 }
 
 
-void DynamicQuestionnaire::goToPage(int index, bool allow_refresh)
+void DynamicQuestionnaire::goToPage(const int index, const bool allow_refresh)
 {
     if (index < 0 || index >= nPages()) {
         qWarning() << Q_FUNC_INFO << "Invalid index:" << index;

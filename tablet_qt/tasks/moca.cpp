@@ -82,7 +82,7 @@ void initializeMoca(TaskFactory& factory)
 }
 
 
-Moca::Moca(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Moca::Moca(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, MOCA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -204,7 +204,7 @@ QStringList Moca::detail() const
 }
 
 
-OpenableWidget* Moca::editor(bool read_only)
+OpenableWidget* Moca::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
     const NameValueOptions education_options{
@@ -444,7 +444,7 @@ OpenableWidget* Moca::editor(bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-int Moca::subScore(int first, int last) const
+int Moca::subScore(const int first, const int last) const
 {
     return sumInt(values(strseq(QPREFIX, first, last)));
 }

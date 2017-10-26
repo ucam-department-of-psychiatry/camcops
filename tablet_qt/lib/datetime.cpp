@@ -42,7 +42,7 @@ QString dateToIso(const QDate& d)
 
 // http://stackoverflow.com/questions/21976264/qt-isodate-formatted-date-time-including-timezone
 
-QString datetimeToIsoMs(const QDateTime& dt, bool use_z_timezone)
+QString datetimeToIsoMs(const QDateTime& dt, const bool use_z_timezone)
 {
     // An ISO-8601 format preserving millisecond accuracy and timezone.
     // Equivalent in moment.js: thing.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
@@ -77,7 +77,7 @@ QString datetimeToIsoMs(const QDateTime& dt, bool use_z_timezone)
 }
 
 
-QString datetimeToIsoMsUtc(const QDateTime& dt, bool use_z_timezone)
+QString datetimeToIsoMsUtc(const QDateTime& dt, const bool use_z_timezone)
 {
     const QDateTime utc_dt = dt.toTimeSpec(Qt::UTC);
     return datetimeToIsoMs(utc_dt, use_z_timezone);
@@ -210,7 +210,7 @@ int ageYearsFrom(const QDate& from, const QDate& to)
 }
 
 
-int ageYears(const QVariant& dob, int default_years)
+int ageYears(const QVariant& dob, const int default_years)
 {
     if (dob.isNull()) {
         return default_years;
@@ -225,19 +225,19 @@ double doubleSecondsFrom(const QDateTime& from, const QDateTime& to)
 }
 
 
-double msToSec(double ms)
+double msToSec(const double ms)
 {
     return ms / 1000.0;
 }
 
 
-double secToMin(double sec)
+double secToMin(const double sec)
 {
     return sec / 60.0;
 }
 
 
-int secToIntMs(double sec)
+int secToIntMs(const double sec)
 {
     return qRound(sec * 1000);
 }

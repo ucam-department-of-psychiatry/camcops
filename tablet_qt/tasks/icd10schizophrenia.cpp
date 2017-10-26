@@ -131,7 +131,8 @@ void initializeIcd10Schizophrenia(TaskFactory& factory)
 }
 
 
-Icd10Schizophrenia::Icd10Schizophrenia(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Icd10Schizophrenia::Icd10Schizophrenia(
+        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ICD10SZ_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(A_NAMES, QVariant::Bool);
@@ -223,7 +224,7 @@ QStringList Icd10Schizophrenia::detail() const
 }
 
 
-OpenableWidget* Icd10Schizophrenia::editor(bool read_only)
+OpenableWidget* Icd10Schizophrenia::editor(const bool read_only)
 {
     const NameValueOptions true_false_options = CommonOptions::falseTrueBoolean();
     const NameValueOptions present_absent_options = CommonOptions::absentPresentBoolean();

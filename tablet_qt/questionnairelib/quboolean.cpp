@@ -70,65 +70,65 @@ void QuBoolean::commonConstructor()
 }
 
 
-QuBoolean* QuBoolean::setContentClickable(bool clickable)
+QuBoolean* QuBoolean::setContentClickable(const bool clickable)
 {
     m_content_clickable = clickable;
     return this;
 }
 
 
-QuBoolean* QuBoolean::setIndicatorOnLeft(bool indicator_on_left)
+QuBoolean* QuBoolean::setIndicatorOnLeft(const bool indicator_on_left)
 {
     m_indicator_on_left = indicator_on_left;
     return this;
 }
 
 
-QuBoolean* QuBoolean::setBigIndicator(bool big)
+QuBoolean* QuBoolean::setBigIndicator(const bool big)
 {
     m_big_indicator = big;
     return this;
 }
 
 
-QuBoolean* QuBoolean::setBigText(bool big)
+QuBoolean* QuBoolean::setBigText(const bool big)
 {
     m_big_text = big;
     return this;
 }
 
 
-QuBoolean* QuBoolean::setBold(bool bold)
+QuBoolean* QuBoolean::setBold(const bool bold)
 {
     m_bold = bold;
     return this;
 }
 
 
-QuBoolean* QuBoolean::setItalic(bool italic)
+QuBoolean* QuBoolean::setItalic(const bool italic)
 {
     m_italic = italic;
     return this;
 }
 
 
-QuBoolean* QuBoolean::setAllowUnset(bool allow_unset)
+QuBoolean* QuBoolean::setAllowUnset(const bool allow_unset)
 {
     m_allow_unset = allow_unset;
     return this;
 }
 
 
-QuBoolean* QuBoolean::setAsTextButton(bool as_text_button)
+QuBoolean* QuBoolean::setAsTextButton(const bool as_text_button)
 {
     m_as_text_button = as_text_button;
     return this;
 }
 
 
-QuBoolean* QuBoolean::setAdjustImageForDpi(bool adjust_image_for_dpi)
+QuBoolean* QuBoolean::setAdjustImageForDpi(const bool adjust_image_for_dpi)
 {
-    adjust_image_for_dpi = adjust_image_for_dpi;
+    m_adjust_image_for_dpi = adjust_image_for_dpi;
     return this;
 }
 

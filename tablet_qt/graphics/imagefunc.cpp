@@ -42,7 +42,7 @@ QImage imageFromVideoFrame(const QVideoFrame& buffer)
                      imageFormat);
     } else {
         // e.g. JPEG
-        int nbytes = frame.mappedBytes();
+        const int nbytes = frame.mappedBytes();
         img = QImage::fromData(frame.bits(), nbytes);
     }
     frame.unmap();

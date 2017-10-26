@@ -21,8 +21,8 @@
 #include "common/uiconst.h"
 
 
-PagePickerItem::PagePickerItem(const QString& text, int page_number,
-                               PagePickerItemType type):
+PagePickerItem::PagePickerItem(const QString& text, const int page_number,
+                               const PagePickerItemType type):
     m_text(text),
     m_page_number(page_number),
     m_type(type)

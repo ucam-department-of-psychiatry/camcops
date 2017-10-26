@@ -30,7 +30,7 @@ void initializePatientSatisfaction(TaskFactory& factory)
 }
 
 
-PatientSatisfaction::PatientSatisfaction(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+PatientSatisfaction::PatientSatisfaction(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     SatisfactionCommon(app, db, PT_SATIS_TABLENAME, false, load_pk)
 {
 }
@@ -62,7 +62,7 @@ QString PatientSatisfaction::menusubtitle() const
 // Instance info
 // ============================================================================
 
-OpenableWidget* PatientSatisfaction::editor(bool read_only)
+OpenableWidget* PatientSatisfaction::editor(const bool read_only)
 {
     return satisfactionEditor(appstring(appstrings::SATIS_PT_RATING_Q),
                               read_only);

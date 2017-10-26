@@ -21,7 +21,9 @@
 #include <QStringList>
 
 
-Version::Version(unsigned int major, unsigned int minor, unsigned int patch)
+Version::Version(const unsigned int major,
+                 const unsigned int minor,
+                 const unsigned int patch)
 {
     setFromNumbers(major, minor, patch);
 }
@@ -54,8 +56,9 @@ Version::Version(const QString& version_string)
 }
 
 
-void Version::setFromNumbers(unsigned int major, unsigned int minor,
-                             unsigned int patch)
+void Version::setFromNumbers(const unsigned int major,
+                             const unsigned int minor,
+                             const unsigned int patch)
 {
     if (minor >= 100 || patch >= 100 ||
             (major == 0 && minor == 0 && patch == 0)) {

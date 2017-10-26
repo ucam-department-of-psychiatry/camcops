@@ -71,7 +71,7 @@ void initializeCape42(TaskFactory& factory)
 }
 
 
-Cape42::Cape42(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Cape42::Cape42(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CAPE42_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
@@ -172,7 +172,7 @@ QStringList Cape42::detail() const
 }
 
 
-OpenableWidget* Cape42::editor(bool read_only)
+OpenableWidget* Cape42::editor(const bool read_only)
 {
     const NameValueOptions options_distress{
         {xstring("distress_option1"), 1},
@@ -191,7 +191,7 @@ OpenableWidget* Cape42::editor(bool read_only)
     m_distress_fieldrefs.clear();
 
     auto addpage = [this, &pages, &options_distress, &options_frequency,
-                    &distress_stem](int q) -> void {
+                    &distress_stem](const int q) -> void {
         const QString pagetag = QString::number(q);
         const QString pagetitle = QString("CAPE-42 (%1 / %2)").arg(q).arg(N_QUESTIONS);
         const QString question = xstring(strnum("q", q));
@@ -263,7 +263,7 @@ int Cape42::frequencyScore(const QVector<int>& questions) const
 }
 
 
-bool Cape42::questionComplete(int q) const
+bool Cape42::questionComplete(const int q) const
 {
     const QVariant freq = value(strnum(FN_FREQ_PREFIX, q));
     if (freq.isNull()) {
@@ -291,7 +291,7 @@ void Cape42::frequencyChanged(const FieldRef* fieldref)
 }
 
 
-bool Cape42::needDistress(int q)
+bool Cape42::needDistress(const int q)
 {
     Q_ASSERT(q >= FIRST_Q && q <= N_QUESTIONS);
     return valueInt(strnum(FN_FREQ_PREFIX, q)) > MIN_SCORE_PER_Q;
@@ -299,7 +299,7 @@ bool Cape42::needDistress(int q)
 }
 
 
-void Cape42::setDistressItems(int q)
+void Cape42::setDistressItems(const int q)
 {
     if (!m_questionnaire) {
         return;

@@ -56,7 +56,8 @@ void initializeIcd10Schizotypal(TaskFactory& factory)
 }
 
 
-Icd10Schizotypal::Icd10Schizotypal(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Icd10Schizotypal::Icd10Schizotypal(CamcopsApp& app, DatabaseManager& db,
+                                   const int load_pk) :
     Task(app, db, ICD10SZTYPAL_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(A_PREFIX, 1, N_A), QVariant::Bool);
@@ -133,7 +134,7 @@ QStringList Icd10Schizotypal::detail() const
 }
 
 
-OpenableWidget* Icd10Schizotypal::editor(bool read_only)
+OpenableWidget* Icd10Schizotypal::editor(const bool read_only)
 {
     const NameValueOptions options = CommonOptions::falseTrueBoolean();
 

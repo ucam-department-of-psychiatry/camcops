@@ -27,7 +27,7 @@
 
 PasswordChangeDialog::PasswordChangeDialog(const QString& text,
                                            const QString& title,
-                                           bool require_old_password,
+                                           const bool require_old_password,
                                            QWidget* parent) :
     QDialog(parent),
     m_editor_old(nullptr),

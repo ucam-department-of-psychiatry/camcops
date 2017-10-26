@@ -53,7 +53,7 @@ void initializeDemqol(TaskFactory& factory)
 }
 
 
-Demqol::Demqol(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Demqol::Demqol(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DEMQOL_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -114,7 +114,7 @@ QStringList Demqol::detail() const
 }
 
 
-OpenableWidget* Demqol::editor(bool read_only)
+OpenableWidget* Demqol::editor(const bool read_only)
 {
     const NameValueOptions main_options{
         {xstring("a1"), 1},

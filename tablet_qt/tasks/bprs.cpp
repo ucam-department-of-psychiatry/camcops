@@ -49,7 +49,7 @@ void initializeBprs(TaskFactory& factory)
 }
 
 
-Bprs::Bprs(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Bprs::Bprs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, BPRS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -108,7 +108,7 @@ QStringList Bprs::detail() const
 }
 
 
-OpenableWidget* Bprs::editor(bool read_only)
+OpenableWidget* Bprs::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
 

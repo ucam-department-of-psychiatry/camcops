@@ -54,7 +54,7 @@ QuLineEdit* QuLineEdit::setHint(const QString& hint)
 }
 
 
-QuLineEdit* QuLineEdit::setEchoMode(QLineEdit::EchoMode echo_mode)
+QuLineEdit* QuLineEdit::setEchoMode(const QLineEdit::EchoMode echo_mode)
 {
     m_echo_mode = echo_mode;
     return this;
@@ -173,7 +173,7 @@ void QuLineEdit::fieldValueChanged(const FieldRef* fieldref,
 }
 
 
-void QuLineEdit::widgetFocusChanged(bool in)
+void QuLineEdit::widgetFocusChanged(const bool in)
 {
     // If focus is leaving the widget, and its state is duff, restore from the
     // field value.

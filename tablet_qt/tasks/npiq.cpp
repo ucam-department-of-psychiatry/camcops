@@ -54,7 +54,7 @@ void initializeNpiQ(TaskFactory& factory)
 }
 
 
-NpiQ::NpiQ(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+NpiQ::NpiQ(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, NPIQ_TABLENAME, false, false, true),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
@@ -136,7 +136,7 @@ QStringList NpiQ::detail() const
 }
 
 
-OpenableWidget* NpiQ::editor(bool read_only)
+OpenableWidget* NpiQ::editor(const bool read_only)
 {
     const NameValueOptions options_yesno = CommonOptions::noYesBoolean();
     const NameValueOptions options_severity{
@@ -251,7 +251,7 @@ int NpiQ::severityScore() const
 }
 
 
-bool NpiQ::questionComplete(int q) const
+bool NpiQ::questionComplete(const int q) const
 {
     const QVariant endorsed = value(strnum(ENDORSED_PREFIX, q));
     if (endorsed.isNull()) {
@@ -271,7 +271,7 @@ bool NpiQ::questionComplete(int q) const
 // Signal handlers
 // ============================================================================
 
-void NpiQ::updateMandatory(int q)
+void NpiQ::updateMandatory(const int q)
 {
     const bool endorsed = valueBool(strnum(ENDORSED_PREFIX, q));
     fieldRef(strnum(SEVERITY_PREFIX, q))->setMandatory(endorsed);

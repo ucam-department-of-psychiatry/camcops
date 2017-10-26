@@ -48,7 +48,7 @@ void initializeSmast(TaskFactory& factory)
 }
 
 
-Smast::Smast(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Smast::Smast(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, SMAST_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);
@@ -125,7 +125,7 @@ QStringList Smast::detail() const
 }
 
 
-OpenableWidget* Smast::editor(bool read_only)
+OpenableWidget* Smast::editor(const bool read_only)
 {
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
@@ -154,7 +154,7 @@ OpenableWidget* Smast::editor(bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-int Smast::score(int question) const
+int Smast::score(const int question) const
 {
     const QVariant v = value(strnum(QPREFIX, question));
     if (v.isNull()) {

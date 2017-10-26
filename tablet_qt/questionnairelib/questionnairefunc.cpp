@@ -35,11 +35,11 @@ namespace questionnairefunc {
 // ============================================================================
 
 QuElement* defaultGridRawPointer(const QVector<GridRowDefinition>& deflist,
-                                 int left_column_span,
-                                 int right_column_span,
-                                 Qt::Alignment label_alignment,
-                                 Qt::Alignment left_column_alignment,
-                                 Qt::Alignment right_column_alignment)
+                                 const int left_column_span,
+                                 const int right_column_span,
+                                 const Qt::Alignment label_alignment,
+                                 const Qt::Alignment left_column_alignment,
+                                 const Qt::Alignment right_column_alignment)
 {
     QVector<QuGridCell> cells;
     int row = 0;
@@ -70,11 +70,11 @@ QuElement* defaultGridRawPointer(const QVector<GridRowDefinition>& deflist,
 
 
 QuElementPtr defaultGrid(const QVector<GridRowDefinition>& deflist,
-                         int left_column_span,
-                         int right_column_span,
-                         Qt::Alignment label_alignment,
-                         Qt::Alignment left_column_alignment,
-                         Qt::Alignment right_column_alignment)
+                         const int left_column_span,
+                         const int right_column_span,
+                         const Qt::Alignment label_alignment,
+                         const Qt::Alignment left_column_alignment,
+                         const Qt::Alignment right_column_alignment)
 {
     return QuElementPtr(defaultGridRawPointer(
                             deflist, left_column_span, right_column_span,
@@ -84,11 +84,11 @@ QuElementPtr defaultGrid(const QVector<GridRowDefinition>& deflist,
 
 
 QuElementPtr defaultGrid(std::initializer_list<GridRowDefinition> defs,
-                         int left_column_span,
-                         int right_column_span,
-                         Qt::Alignment label_alignment,
-                         Qt::Alignment left_column_alignment,
-                         Qt::Alignment right_column_alignment)
+                         const int left_column_span,
+                         const int right_column_span,
+                         const Qt::Alignment label_alignment,
+                         const Qt::Alignment left_column_alignment,
+                         const Qt::Alignment right_column_alignment)
 {
     const QVector<GridRowDefinition> deflist(defs);
     return defaultGrid(deflist, left_column_span, right_column_span,
@@ -99,11 +99,11 @@ QuElementPtr defaultGrid(std::initializer_list<GridRowDefinition> defs,
 
 QuElement* defaultGridRawPointer(
         std::initializer_list<GridRowDefinitionRawPtr> defs,
-        int left_column_span,
-        int right_column_span,
-        Qt::Alignment label_alignment,
-        Qt::Alignment left_column_alignment,
-        Qt::Alignment right_column_alignment)
+        const int left_column_span,
+        const int right_column_span,
+        const Qt::Alignment label_alignment,
+        const Qt::Alignment left_column_alignment,
+        const Qt::Alignment right_column_alignment)
 {
     QVector<GridRowDefinition> deflist;
     for (auto rawptrdef : defs) {

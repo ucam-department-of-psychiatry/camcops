@@ -128,7 +128,7 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
 // ============================================================================
 
 void ScrollMessageBox::addButton(QAbstractButton* button,
-                                 QDialogButtonBox::ButtonRole role)
+                                 const QDialogButtonBox::ButtonRole role)
 {
     m_button_box->addButton(button, role);
     // The button box TAKES OWNERSHIP:
@@ -138,14 +138,15 @@ void ScrollMessageBox::addButton(QAbstractButton* button,
 
 
 void ScrollMessageBox::addButton(QAbstractButton* button,
-                                 QMessageBox::ButtonRole role)
+                                 const QMessageBox::ButtonRole role)
 {
     addButton(button, forceEnumMD(role));
 }
 
 
-QPushButton* ScrollMessageBox::addButton(const QString& text,
-                                         QDialogButtonBox::ButtonRole role)
+QPushButton* ScrollMessageBox::addButton(
+        const QString& text,
+        const QDialogButtonBox::ButtonRole role)
 {
     QPushButton* pushbutton = new QPushButton(text);
     addButton(pushbutton, role);
@@ -154,7 +155,7 @@ QPushButton* ScrollMessageBox::addButton(const QString& text,
 
 
 QPushButton* ScrollMessageBox::addButton(const QString& text,
-                                         QMessageBox::ButtonRole role)
+                                         const QMessageBox::ButtonRole role)
 {
     return addButton(text, forceEnumMD(role));
 }
@@ -181,7 +182,7 @@ QAbstractButton* ScrollMessageBox::clickedButton() const
 // Internals
 // ============================================================================
 
-void ScrollMessageBox::setIcon(QMessageBox::Icon icon)
+void ScrollMessageBox::setIcon(const QMessageBox::Icon icon)
 {
     const QPixmap px = standardIcon(icon);
     m_icon_label->setPixmap(px);
@@ -190,7 +191,7 @@ void ScrollMessageBox::setIcon(QMessageBox::Icon icon)
 }
 
 
-QPixmap ScrollMessageBox::standardIcon(QMessageBox::Icon icon)
+QPixmap ScrollMessageBox::standardIcon(const QMessageBox::Icon icon)
 {
     QStyle* style = this->style();
     const int icon_size = style->pixelMetric(QStyle::PM_MessageBoxIconSize, 0, this);
@@ -227,7 +228,7 @@ void ScrollMessageBox::handleButtonClicked(QAbstractButton* button)
 
 
 QDialogButtonBox::ButtonRole ScrollMessageBox::forceEnumMD(
-        QMessageBox::ButtonRole role)
+        const QMessageBox::ButtonRole role)
 {
     // They are numerically identical:
     // - http://doc.qt.io/qt-4.8/qdialogbuttonbox.html#ButtonRole-enum
@@ -237,7 +238,7 @@ QDialogButtonBox::ButtonRole ScrollMessageBox::forceEnumMD(
 
 
 QMessageBox::ButtonRole ScrollMessageBox::forceEnumDM(
-        QDialogButtonBox::ButtonRole role)
+        const QDialogButtonBox::ButtonRole role)
 {
     return static_cast<QMessageBox::ButtonRole>(role);
 }

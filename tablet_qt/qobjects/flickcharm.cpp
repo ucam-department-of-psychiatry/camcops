@@ -89,7 +89,7 @@ struct FlickData {
         speed = QPoint();
         lastPosValid = false;
     }
-    void updateSpeed(const QPoint &newPosition)
+    void updateSpeed(const QPoint& newPosition)
     {
         if (lastPosValid) {
             const int timeElapsed = speedTimer.elapsed();
@@ -171,7 +171,7 @@ struct FlickData {
         return false;
     }
 
-    bool scrollTo(const QPoint &newPosition)
+    bool scrollTo(const QPoint& newPosition)
     {
         const QPoint delta = newPosition - lastPos;
         updateSpeed(newPosition);
@@ -282,7 +282,7 @@ void FlickCharm::deactivateFrom(QWidget* widget)
 }
 
 
-static QPoint deaccelerate(const QPoint &speed, const int deltatime)
+static QPoint deaccelerate(const QPoint& speed, const int deltatime)
 {
     const int deltaSpeed = deltatime;
 

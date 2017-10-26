@@ -33,7 +33,7 @@ QuVerticalContainer::QuVerticalContainer()
 
 
 QuVerticalContainer::QuVerticalContainer(const QVector<QuElementPtr>& elements,
-                                         Qt::Alignment alignment) :
+                                         const Qt::Alignment alignment) :
     m_elements(elements)
 {
     createAlignments(alignment);
@@ -41,7 +41,8 @@ QuVerticalContainer::QuVerticalContainer(const QVector<QuElementPtr>& elements,
 
 
 QuVerticalContainer::QuVerticalContainer(
-        std::initializer_list<QuElementPtr> elements, Qt::Alignment alignment) :
+        std::initializer_list<QuElementPtr> elements,
+        const Qt::Alignment alignment) :
     m_elements(elements)
 {
     createAlignments(alignment);
@@ -49,7 +50,8 @@ QuVerticalContainer::QuVerticalContainer(
 
 
 QuVerticalContainer::QuVerticalContainer(
-        std::initializer_list<QuElement*> elements, Qt::Alignment alignment)  // takes ownership
+        std::initializer_list<QuElement*> elements,
+        const Qt::Alignment alignment)  // takes ownership
 {
     for (auto e : elements) {
         addElement(e, alignment);
@@ -58,7 +60,8 @@ QuVerticalContainer::QuVerticalContainer(
 
 
 QuVerticalContainer* QuVerticalContainer::addElement(
-        const QuElementPtr& element, Qt::Alignment alignment)
+        const QuElementPtr& element,
+        const Qt::Alignment alignment)
 {
     m_elements.append(element);
     m_widget_alignments.append(alignment);
@@ -67,7 +70,8 @@ QuVerticalContainer* QuVerticalContainer::addElement(
 
 
 QuVerticalContainer* QuVerticalContainer::addElement(
-        QuElement* element, Qt::Alignment alignment)  // takes ownership
+        QuElement* element,   // takes ownership
+        const Qt::Alignment alignment)
 {
     // If you add a nullptr, it will be ignored.
     if (element) {
@@ -78,14 +82,15 @@ QuVerticalContainer* QuVerticalContainer::addElement(
 }
 
 
-QuVerticalContainer* QuVerticalContainer::setWidgetAlignment(Qt::Alignment alignment)
+QuVerticalContainer* QuVerticalContainer::setWidgetAlignment(
+        const Qt::Alignment alignment)
 {
     createAlignments(alignment);
     return this;
 }
 
 
-void QuVerticalContainer::createAlignments(Qt::Alignment alignment)
+void QuVerticalContainer::createAlignments(const Qt::Alignment alignment)
 {
     m_widget_alignments.clear();
     for (int i = 0; i < m_elements.size(); ++i) {

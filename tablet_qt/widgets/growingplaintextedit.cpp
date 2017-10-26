@@ -57,7 +57,7 @@ GrowingPlainTextEdit::~GrowingPlainTextEdit()
 }
 
 
-void GrowingPlainTextEdit::setAutoResize(bool auto_resize)
+void GrowingPlainTextEdit::setAutoResize(const bool auto_resize)
 {
     m_auto_resize = auto_resize;
 }

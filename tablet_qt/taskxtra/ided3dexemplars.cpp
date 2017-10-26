@@ -200,21 +200,21 @@ int IDED3DExemplars::nShapes()
 }
 
 
-QString IDED3DExemplars::shapeSvg(int shape_num)
+QString IDED3DExemplars::shapeSvg(const int shape_num)
 {
     return SHAPE_DEFINITIONS.at(shape_num);
 }
 
 
 /*
-QString IDED3DExemplars::colourName(int colour_number)
+QString IDED3DExemplars::colourName(const int colour_number)
 {
     return POSSIBLE_COLOURS.at(colour_number).name();
 }
 */
 
 
-QColor IDED3DExemplars::colour(int colour_number)
+QColor IDED3DExemplars::colour(const int colour_number)
 {
     return POSSIBLE_COLOURS.at(colour_number);
 }
@@ -242,8 +242,8 @@ QStringList IDED3DExemplars::possibleDimensions()
 }
 
 
-QVector<QVector<int>> IDED3DExemplars::possibilities(int number_min,
-                                                     int number_max)
+QVector<QVector<int>> IDED3DExemplars::possibilities(const int number_min,
+                                                     const int number_max)
 {
     // Order of dimensions in vector must match possibleDimensions()
     const QVector<int> possible_shapes = possibleShapeIndices();

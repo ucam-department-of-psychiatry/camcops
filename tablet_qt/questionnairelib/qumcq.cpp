@@ -50,35 +50,35 @@ QuMcq::QuMcq(FieldRefPtr fieldref, const NameValueOptions& options) :
 }
 
 
-QuMcq* QuMcq::setRandomize(bool randomize)
+QuMcq* QuMcq::setRandomize(const bool randomize)
 {
     m_randomize = randomize;
     return this;
 }
 
 
-QuMcq* QuMcq::setShowInstruction(bool show_instruction)
+QuMcq* QuMcq::setShowInstruction(const bool show_instruction)
 {
     m_show_instruction = show_instruction;
     return this;
 }
 
 
-QuMcq* QuMcq::setHorizontal(bool horizontal)
+QuMcq* QuMcq::setHorizontal(const bool horizontal)
 {
     m_horizontal = horizontal;
     return this;
 }
 
 
-QuMcq* QuMcq::setAsTextButton(bool as_text_button)
+QuMcq* QuMcq::setAsTextButton(const bool as_text_button)
 {
     m_as_text_button = as_text_button;
     return this;
 }
 
 
-QuMcq* QuMcq::setBold(bool bold)
+QuMcq* QuMcq::setBold(const bool bold)
 {
     m_bold = bold;
     return this;
@@ -189,7 +189,7 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
 }
 
 
-void QuMcq::clicked(int index)
+void QuMcq::clicked(const int index)
 {
     if (!m_options.validIndex(index)) {
         qWarning() << Q_FUNC_INFO << "- out of range";

@@ -56,8 +56,9 @@ void QuThermometer::commonConstructor()
 }
 
 
-QuThermometer* QuThermometer::setRescale(bool rescale, double rescale_factor,
-                                         bool adjust_for_dpi)
+QuThermometer* QuThermometer::setRescale(const bool rescale,
+                                         const double rescale_factor,
+                                         const bool adjust_for_dpi)
 {
     m_rescale = rescale;
     m_rescale_factor = rescale_factor;
@@ -121,7 +122,7 @@ void QuThermometer::setFromField()
 }
 
 
-void QuThermometer::clicked(int index)
+void QuThermometer::clicked(const int index)
 {
     if (index < 0 || index >= m_items.size()) {
         qWarning() << Q_FUNC_INFO << "- out of range";
@@ -149,7 +150,7 @@ int QuThermometer::indexFromValue(const QVariant &value) const
 }
 
 
-QVariant QuThermometer::valueFromIndex(int index) const
+QVariant QuThermometer::valueFromIndex(const int index) const
 {
     if (index < 0 || index >= m_items.size()) {
         return QVariant();

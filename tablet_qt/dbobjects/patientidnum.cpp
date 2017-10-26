@@ -26,7 +26,7 @@ const QString PatientIdNum::FN_IDNUM_VALUE("idnum_value");
 
 
 PatientIdNum::PatientIdNum(CamcopsApp& app, DatabaseManager& db,
-                           int load_pk) :
+                           const int load_pk) :
     DatabaseObject(app, db, PATIENT_IDNUM_TABLENAME,
                    dbconst::PK_FIELDNAME,  // pk_fieldname
                    true,  // has_modification_timestamp
@@ -42,7 +42,7 @@ PatientIdNum::PatientIdNum(CamcopsApp& app, DatabaseManager& db,
 }
 
 
-PatientIdNum::PatientIdNum(int patient_fk, int which_idnum,
+PatientIdNum::PatientIdNum(const int patient_fk, const int which_idnum,
                            CamcopsApp& app, DatabaseManager& db) :
     PatientIdNum(app, db)  // delegating constructor
 {
@@ -87,7 +87,8 @@ bool PatientIdNum::idnumIsPresent() const
 }
 
 
-bool PatientIdNum::setIdnumValue(qlonglong idnum_value, bool save_to_db)
+bool PatientIdNum::setIdnumValue(const qlonglong idnum_value,
+                                 const bool save_to_db)
 {
     bool success = setValue(FN_IDNUM_VALUE, idnum_value);
     if (save_to_db) {

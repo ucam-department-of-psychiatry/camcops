@@ -78,7 +78,7 @@ static const uint initial_cache_size = 128;
 // Helper functions
 // ============================================================================
 
-static bool qIsAlnum(QChar ch)
+static bool qIsAlnum(const QChar ch)
 {
     const uint u = uint(ch.unicode());
     // matches [a-zA-Z0-9_]
@@ -111,7 +111,7 @@ void SqlCachedResult::clear()
 }
 
 
-QString SqlCachedResult::holderAt(int index) const
+QString SqlCachedResult::holderAt(const int index) const
 {
     return m_holders.size() > index ? m_holders.at(index).holder_name
                                     : fieldSerial(index);
@@ -284,7 +284,7 @@ void SqlCachedResult::cleanup()
 // From QSqlCachedResultPrivate
 // ============================================================================
 
-void SqlCachedResult::init(int count, bool fo)
+void SqlCachedResult::init(const int count, const bool fo)
 {
     Q_ASSERT(count);
     cleanup();
@@ -314,7 +314,7 @@ int SqlCachedResult::nextIndex()
 }
 
 
-bool SqlCachedResult::canSeek(int i) const
+bool SqlCachedResult::canSeek(const int i) const
 {
     if (m_forward_only || i < 0) {
         return false;
@@ -345,13 +345,13 @@ inline int SqlCachedResult::cacheCount() const
 // From QSqlCachedResult
 // ============================================================================
 
-void SqlCachedResult::init(int colCount)
+void SqlCachedResult::init(const int colCount)
 {
     init(colCount, isForwardOnly());
 }
 
 
-bool SqlCachedResult::fetch(int i)
+bool SqlCachedResult::fetch(const int i)
 {
     if ((!isActive()) || (i < 0)) {
         return false;
@@ -449,7 +449,7 @@ bool SqlCachedResult::fetchLast()
 }
 
 
-QVariant SqlCachedResult::data(int i)
+QVariant SqlCachedResult::data(const int i)
 {
     const int idx = m_forward_only ? i : at() * m_col_count + i;
     if (i >= m_col_count || i < 0 || at() < 0 || idx >= m_row_cache_end) {
@@ -460,7 +460,7 @@ QVariant SqlCachedResult::data(int i)
 }
 
 
-bool SqlCachedResult::isNull(int i)
+bool SqlCachedResult::isNull(const int i)
 {
     const int idx = m_forward_only ? i : at() * m_col_count + i;
     if (i >= m_col_count || i < 0 || at() < 0 || idx >= m_row_cache_end) {
@@ -503,7 +503,7 @@ SqlCachedResult::ValueCache& SqlCachedResult::cache()
 }
 
 
-void SqlCachedResult::virtual_hook(int id, void* data)
+void SqlCachedResult::virtual_hook(const int id, void* data)
 {
     QSqlResult::virtual_hook(id, data);
 }

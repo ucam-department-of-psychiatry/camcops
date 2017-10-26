@@ -80,7 +80,7 @@ void SvgWidgetClickable::setPressedBackgroundColour(const QColor& colour)
 }
 
 
-void SvgWidgetClickable::setTransparentForMouseEvents(bool transparent)
+void SvgWidgetClickable::setTransparentForMouseEvents(const bool transparent)
 {
     setAttribute(Qt::WA_TransparentForMouseEvents, transparent);
     // only applies in QWidget mode, not when it's a QGraphicsItem

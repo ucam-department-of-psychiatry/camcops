@@ -83,7 +83,7 @@ void initializeDemoQuestionnaire(TaskFactory& factory)
 
 
 DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
-                                     DatabaseManager& db, int load_pk) :
+                                     DatabaseManager& db, const int load_pk) :
     Task(app, db, DEMOQUESTIONNAIRE_TABLENAME, true, false, false)
 {
     using stringfunc::strseq;
@@ -158,7 +158,7 @@ QStringList DemoQuestionnaire::summary() const
 }
 
 
-OpenableWidget* DemoQuestionnaire::editor(bool read_only)
+OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
 {
     const QString& longtext = textconst::LOREM_IPSUM_1;
     const QString& lipsum2 = textconst::LOREM_IPSUM_2;

@@ -21,8 +21,10 @@
 #include "dbobjects/blob.h"
 
 
-BlobFieldRef::BlobFieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
-                           bool mandatory, CamcopsApp* p_app) :
+BlobFieldRef::BlobFieldRef(DatabaseObject* p_dbobject,
+                           const QString& fieldname,
+                           const bool mandatory,
+                           CamcopsApp* p_app) :
     FieldRef(p_dbobject, fieldname, mandatory,
              true,  // autosave
              true,  // blob
@@ -32,8 +34,9 @@ BlobFieldRef::BlobFieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
 }
 
 
-BlobFieldRef::BlobFieldRef(QSharedPointer<Blob> blob, bool mandatory,
-                           bool disable_creation_warning) :
+BlobFieldRef::BlobFieldRef(QSharedPointer<Blob> blob,
+                           const bool mandatory,
+                           const bool disable_creation_warning) :
     FieldRef(blob, mandatory, disable_creation_warning)
 {
     Q_ASSERT(m_blob);
@@ -52,8 +55,8 @@ QPixmap BlobFieldRef::pixmap(bool* p_loaded) const
 }
 
 
-void BlobFieldRef::rotateImage(int angle_degrees_clockwise,
-                                   const QObject* originator)
+void BlobFieldRef::rotateImage(const int angle_degrees_clockwise,
+                               const QObject* originator)
 {
     m_blob->rotateImage(angle_degrees_clockwise, true);
     setFkToBlob();  // see discussion in FieldRef::setValue

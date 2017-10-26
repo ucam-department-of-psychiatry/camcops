@@ -23,20 +23,22 @@
 
 
 QuMcqGridSingleBooleanSignaller::QuMcqGridSingleBooleanSignaller(
-        QuMcqGridSingleBoolean* recipient, int question_index) :
+        QuMcqGridSingleBoolean* recipient, const int question_index) :
     m_recipient(recipient),
     m_question_index(question_index)
 {
 }
 
 
-void QuMcqGridSingleBooleanSignaller::mcqFieldValueOrMandatoryChanged(const FieldRef* fieldref)
+void QuMcqGridSingleBooleanSignaller::mcqFieldValueOrMandatoryChanged(
+        const FieldRef* fieldref)
 {
     m_recipient->mcqFieldValueOrMandatoryChanged(m_question_index, fieldref);
 }
 
 
-void QuMcqGridSingleBooleanSignaller::booleanFieldValueOrMandatoryChanged(const FieldRef* fieldref)
+void QuMcqGridSingleBooleanSignaller::booleanFieldValueOrMandatoryChanged(
+        const FieldRef* fieldref)
 {
     m_recipient->booleanFieldValueOrMandatoryChanged(m_question_index, fieldref);
 }

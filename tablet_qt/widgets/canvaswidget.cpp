@@ -40,7 +40,7 @@ const QColor DEFAULT_BORDER_COLOR(uiconst::GREY_200);
 const QColor DEFAULT_UNUSED_SPACE_COLOR(uiconst::GREY_200);
 
 
-CanvasWidget::CanvasWidget(QImage::Format format, QWidget* parent) :
+CanvasWidget::CanvasWidget(const QImage::Format format, QWidget* parent) :
     QFrame(parent)
 {
     commonConstructor(QSize(0, 0), format);
@@ -48,7 +48,7 @@ CanvasWidget::CanvasWidget(QImage::Format format, QWidget* parent) :
 
 
 CanvasWidget::CanvasWidget(const QSize& size,
-                           QImage::Format format,
+                           const QImage::Format format,
                            QWidget* parent) :
     QFrame(parent)
 {
@@ -56,7 +56,8 @@ CanvasWidget::CanvasWidget(const QSize& size,
 }
 
 
-void CanvasWidget::commonConstructor(const QSize& size, QImage::Format format)
+void CanvasWidget::commonConstructor(const QSize& size,
+                                     const QImage::Format format)
 {
     m_format = format;
     setAllowShrink(false);
@@ -91,7 +92,7 @@ void CanvasWidget::setImageSizeAndClearImage(const QSize& size)
 }
 
 
-void CanvasWidget::setAllowShrink(bool allow_shrink)
+void CanvasWidget::setAllowShrink(const bool allow_shrink)
 {
     m_allow_shrink = allow_shrink;
     if (m_allow_shrink) {
@@ -110,13 +111,13 @@ void CanvasWidget::setAllowShrink(bool allow_shrink)
 }
 
 
-void CanvasWidget::setMinimumShrinkHeight(int height)
+void CanvasWidget::setMinimumShrinkHeight(const int height)
 {
     m_minimum_shrink_height = height;
 }
 
 
-void CanvasWidget::setBorderWidth(int width)
+void CanvasWidget::setBorderWidth(const int width)
 {
     m_border_width_px = width;
     setBorderCss();
@@ -130,7 +131,7 @@ void CanvasWidget::setBorderColour(const QColor& colour)
 }
 
 
-void CanvasWidget::setBorder(int width, const QColor& colour)
+void CanvasWidget::setBorder(const int width, const QColor& colour)
 {
     m_border_width_px = width;
     m_border_colour = colour;
@@ -198,7 +199,7 @@ void CanvasWidget::setImage(const QImage& image)
 }
 
 
-void CanvasWidget::setAdjustDisplayForDpi(bool adjust_display_for_dpi)
+void CanvasWidget::setAdjustDisplayForDpi(const bool adjust_display_for_dpi)
 {
     m_adjust_display_for_dpi = adjust_display_for_dpi;
     update();

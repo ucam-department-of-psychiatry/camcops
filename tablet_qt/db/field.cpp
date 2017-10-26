@@ -28,8 +28,11 @@ const QString SQLITE_TYPE_REAL("REAL");
 const QString SQLITE_TYPE_TEXT("TEXT");
 
 
-Field::Field(const QString& name, QVariant::Type type,
-             bool mandatory, bool unique, bool pk,
+Field::Field(const QString& name,
+             const QVariant::Type type,
+             const bool mandatory,
+             const bool unique,
+             const bool pk,
              const QVariant& default_value) :
     m_name(name),
     m_type(type),
@@ -48,8 +51,11 @@ Field::Field(const QString& name, QVariant::Type type,
 }
 
 
-Field::Field(const QString& name, const QString& type_name,
-             bool mandatory, bool unique, bool pk,
+Field::Field(const QString& name,
+             const QString& type_name,
+             const bool mandatory,
+             const bool unique,
+             const bool pk,
              const QVariant& default_value) :
     m_name(name),
     m_type(QVariant::UserType),
@@ -71,28 +77,28 @@ Field::Field() :  // needed by QMap
 }
 
 
-Field& Field::setPk(bool pk)
+Field& Field::setPk(const bool pk)
 {
     m_pk = pk;
     return *this;
 }
 
 
-Field& Field::setUnique(bool unique)
+Field& Field::setUnique(const bool unique)
 {
     m_unique = unique;
     return *this;
 }
 
 
-Field& Field::setMandatory(bool mandatory)
+Field& Field::setMandatory(const bool mandatory)
 {
     m_mandatory = mandatory;
     return *this;
 }
 
 
-Field& Field::setDefaultValue(QVariant value)
+Field& Field::setDefaultValue(const QVariant& value)
 {
     m_default_value = value;
     m_default_value.convert(m_type);
@@ -165,7 +171,7 @@ QVariant Field::value() const
 }
 
 
-QString Field::prettyValue(int dp) const
+QString Field::prettyValue(const int dp) const
 {
     return convert::prettyValue(m_value, dp, m_type);
 }

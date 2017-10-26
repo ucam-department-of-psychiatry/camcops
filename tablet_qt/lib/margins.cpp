@@ -32,13 +32,15 @@ Margins::Margins()
 }
 
 
-Margins::Margins(int left, int top, int right, int bottom)
+Margins::Margins(const int left, const int top,
+                 const int right, const int bottom)
 {
     set(left, top, right, bottom);
 }
 
 
-void Margins::set(int left, int top, int right, int bottom)
+void Margins::set(const int left, const int top,
+                  const int right, const int bottom)
 {
     m_left = left;
     m_top = top;
@@ -73,28 +75,28 @@ void Margins::rationalize()
 // Modification
 // ============================================================================
 
-void Margins::addLeft(int width)
+void Margins::addLeft(const int width)
 {
     m_left += width;
     rationalize();
 }
 
 
-void Margins::addRight(int width)
+void Margins::addRight(const int width)
 {
     m_right += width;
     rationalize();
 }
 
 
-void Margins::addTop(int height)
+void Margins::addTop(const int height)
 {
     m_top += height;
     rationalize();
 }
 
 
-void Margins::addBottom(int height)
+void Margins::addBottom(const int height)
 {
     m_bottom += height;
     rationalize();
@@ -123,25 +125,25 @@ int Margins::totalWidth() const
 }
 
 
-int Margins::removeLeftRightMarginsFrom(int width) const
+int Margins::removeLeftRightMarginsFrom(const int width) const
 {
     return width - (m_left + m_right);
 }
 
 
-int Margins::addLeftRightMarginsTo(int width) const
+int Margins::addLeftRightMarginsTo(const int width) const
 {
     return width + (m_left + m_right);
 }
 
 
-int Margins::removeTopBottomMarginsFrom(int height) const
+int Margins::removeTopBottomMarginsFrom(const int height) const
 {
     return height - (m_top + m_bottom);
 }
 
 
-int Margins::addTopBottomMarginsTo(int height) const
+int Margins::addTopBottomMarginsTo(const int height) const
 {
     return height + (m_top + m_bottom);
 }

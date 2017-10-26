@@ -30,8 +30,8 @@ void FlatProxyModel::setSourceModel(QAbstractItemModel* src_model)
 
 
 int FlatProxyModel::buildMap(QAbstractItemModel* src_model,
-                                  const QModelIndex& src_parent,
-                                  int proxy_row)
+                             const QModelIndex& src_parent,
+                             int proxy_row)
 {
     if (proxy_row == 0) {
         m_row_from_src_index.clear();
@@ -96,8 +96,8 @@ int FlatProxyModel::rowCount(const QModelIndex& proxy_parent) const
 }
 
 
-QModelIndex FlatProxyModel::index(int proxy_row, int proxy_column,
-                                       const QModelIndex& proxy_parent) const
+QModelIndex FlatProxyModel::index(const int proxy_row, const int proxy_column,
+                                  const QModelIndex& proxy_parent) const
 {
     return proxy_parent.isValid()
             ? QModelIndex()

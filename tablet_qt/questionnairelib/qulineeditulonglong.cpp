@@ -23,7 +23,7 @@
 
 
 QuLineEditULongLong::QuLineEditULongLong(FieldRefPtr fieldref,
-                                         bool allow_empty) :
+                                         const bool allow_empty) :
     QuLineEdit(fieldref),
     m_minimum(std::numeric_limits<qulonglong>::min()),
     m_maximum(std::numeric_limits<qulonglong>::max()),
@@ -34,9 +34,9 @@ QuLineEditULongLong::QuLineEditULongLong(FieldRefPtr fieldref,
 
 
 QuLineEditULongLong::QuLineEditULongLong(FieldRefPtr fieldref,
-                                         qulonglong minimum,
-                                         qulonglong maximum,
-                                         bool allow_empty) :
+                                         const qulonglong minimum,
+                                         const qulonglong maximum,
+                                         const bool allow_empty) :
     QuLineEdit(fieldref),
     m_minimum(minimum),
     m_maximum(maximum),

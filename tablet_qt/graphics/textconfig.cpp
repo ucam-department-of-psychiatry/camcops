@@ -21,8 +21,8 @@
 
 TextConfig::TextConfig(int font_size_px,
                        const QColor& colour,
-                       qreal width,
-                       Qt::Alignment alignment) :
+                       const qreal width,
+                       const Qt::Alignment alignment) :
     font_size_px(font_size_px),
     colour(colour),
     width(width),
@@ -32,7 +32,7 @@ TextConfig::TextConfig(int font_size_px,
 
 // https://stackoverflow.com/questions/228783/what-are-the-rules-about-using-an-underscore-in-a-c-identifier
 
-TextConfig& TextConfig::setFontSize(int font_size_px_)
+TextConfig& TextConfig::setFontSize(const int font_size_px_)
 {
     font_size_px = font_size_px_;
     return *this;
@@ -46,14 +46,14 @@ TextConfig& TextConfig::setColour(const QColor& colour_)
 }
 
 
-TextConfig& TextConfig::setWidth(qreal width_)
+TextConfig& TextConfig::setWidth(const qreal width_)
 {
     width = width_;
     return *this;
 }
 
 
-TextConfig& TextConfig::setAlignment(Qt::Alignment alignment_)
+TextConfig& TextConfig::setAlignment(const Qt::Alignment alignment_)
 {
     alignment = alignment_;
     return *this;

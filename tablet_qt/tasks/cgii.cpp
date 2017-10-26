@@ -43,7 +43,7 @@ void initializeCgiI(TaskFactory& factory)
 }
 
 
-CgiI::CgiI(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+CgiI::CgiI(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CGI_I_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(Q, QVariant::Int);
@@ -109,7 +109,7 @@ QStringList CgiI::detail() const
 }
 
 
-OpenableWidget* CgiI::editor(bool read_only)
+OpenableWidget* CgiI::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
     pages.append(getClinicianDetailsPage());

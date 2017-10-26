@@ -49,7 +49,7 @@ void initializePhq9(TaskFactory& factory)
 }
 
 
-Phq9::Phq9(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Phq9::Phq9(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PHQ9_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -134,7 +134,7 @@ QStringList Phq9::detail() const
 }
 
 
-OpenableWidget* Phq9::editor(bool read_only)
+OpenableWidget* Phq9::editor(const bool read_only)
 {
     const NameValueOptions options_q1_9{
         {xstring("a0"), 0},
@@ -213,7 +213,7 @@ int Phq9::nOtherSymptoms() const
 }
 
 
-QString Phq9::severity(int score)
+QString Phq9::severity(const int score)
 {
     if (score >= 20) return textconst::SEVERE;
     if (score >= 15) return textconst::MODERATELY_SEVERE;

@@ -48,7 +48,7 @@ int NameValueOptions::size() const
 }
 
 
-const NameValuePair& NameValueOptions::at(int index) const
+const NameValuePair& NameValueOptions::at(const int index) const
 {
     return m_options.at(index);
 }
@@ -97,7 +97,7 @@ void NameValueOptions::validateOrDie()
 }
 
 
-bool NameValueOptions::validIndex(int index) const
+bool NameValueOptions::validIndex(const int index) const
 {
     return index >= 0 && index < m_options.size();
 }
@@ -115,7 +115,7 @@ void NameValueOptions::reverse()
 }
 
 
-QString NameValueOptions::name(int index) const
+QString NameValueOptions::name(const int index) const
 {
     if (!validIndex(index)) {
         return "";
@@ -124,7 +124,7 @@ QString NameValueOptions::name(int index) const
 }
 
 
-QVariant NameValueOptions::value(int index) const
+QVariant NameValueOptions::value(const int index) const
 {
     if (!validIndex(index)) {
         return QVariant();
@@ -133,7 +133,9 @@ QVariant NameValueOptions::value(int index) const
 }
 
 
-NameValueOptions NameValueOptions::makeNumbers(int first, int last, int step)
+NameValueOptions NameValueOptions::makeNumbers(const int first,
+                                               const int last,
+                                               const int step)
 {
     NameValueOptions nvo;
     if (first < last && step > 0) {

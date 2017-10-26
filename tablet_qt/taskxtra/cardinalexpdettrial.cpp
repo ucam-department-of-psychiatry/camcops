@@ -57,7 +57,7 @@ const QString FN_CUMULATIVE_POINTS("cumulative_points");
 
 
 CardinalExpDetTrial::CardinalExpDetTrial(
-        CamcopsApp& app, DatabaseManager& db, int load_pk) :
+        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     DatabaseObject(app, db, TRIAL_TABLENAME)
 {
     // Keys
@@ -97,10 +97,10 @@ CardinalExpDetTrial::CardinalExpDetTrial(
 
 
 CardinalExpDetTrial::CardinalExpDetTrial(
-        int task_pk,
-        int block, int group, int cue, int raw_cue,
-        int target_modality, int target_number, bool target_present,
-        double iti_s,
+        const int task_pk,
+        const int block, const int group, const int cue, const int raw_cue,
+        const int target_modality, const int target_number, const bool target_present,
+        const double iti_s,
         CamcopsApp& app, DatabaseManager& db) :
     CardinalExpDetTrial(app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
 {
@@ -117,7 +117,7 @@ CardinalExpDetTrial::CardinalExpDetTrial(
 }
 
 
-void CardinalExpDetTrial::setTrialNum(int trial_num)
+void CardinalExpDetTrial::setTrialNum(const int trial_num)
 {
     setValue(FN_TRIAL, trial_num);
     save();
@@ -186,7 +186,7 @@ bool CardinalExpDetTrial::responded() const
 // Recording
 // ============================================================================
 
-void CardinalExpDetTrial::startPauseBeforeTrial(bool pause)
+void CardinalExpDetTrial::startPauseBeforeTrial(const bool pause)
 {
     setValue(FN_PAUSE_GIVEN_BEFORE_TRIAL, pause);
     if (pause) {
@@ -223,7 +223,7 @@ void CardinalExpDetTrial::startDetection()
 
 
 void CardinalExpDetTrial::recordResponse(const CardinalExpDetRating& rating,
-                                         int previous_points)
+                                         const int previous_points)
 {
     const QDateTime now = datetime::now();
     const bool correct = rating.means_dont_know

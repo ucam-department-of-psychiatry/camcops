@@ -28,7 +28,7 @@ const QString DiagnosisItemBase::COMMENT("comment");  // new in v2.0.0
 DiagnosisItemBase::DiagnosisItemBase(CamcopsApp& app, DatabaseManager& db,
                                      const QString& tablename,
                                      const QString& fkname,
-                                     int load_pk) :
+                                     const int load_pk) :
     DatabaseObject(app, db, tablename,
                    dbconst::PK_FIELDNAME,  // pk_fieldname
                    true,  // has_modification_timestamp
@@ -47,7 +47,7 @@ DiagnosisItemBase::DiagnosisItemBase(CamcopsApp& app, DatabaseManager& db,
 }
 
 
-DiagnosisItemBase::DiagnosisItemBase(int owner_fk,
+DiagnosisItemBase::DiagnosisItemBase(const int owner_fk,
                                      CamcopsApp& app, DatabaseManager& db,
                                      const QString& tablename,
                                      const QString& fkname) :
@@ -57,7 +57,7 @@ DiagnosisItemBase::DiagnosisItemBase(int owner_fk,
 }
 
 
-void DiagnosisItemBase::setSeqnum(int seqnum)
+void DiagnosisItemBase::setSeqnum(const int seqnum)
 {
     setValue(SEQNUM, seqnum);
 }

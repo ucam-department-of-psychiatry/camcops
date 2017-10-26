@@ -35,20 +35,20 @@ const qreal DEG_180 = 180.0;
 const qreal DEG_360 = 360.0;
 
 
-int sixteenthsOfADegree(qreal degrees)
+int sixteenthsOfADegree(const qreal degrees)
 {
     // http://doc.qt.io/qt-5/qpainter.html#drawPie
     return qRound(degrees * 16.0);
 }
 
 
-qreal normalizeHeading(qreal heading_deg)
+qreal normalizeHeading(const qreal heading_deg)
 {
     return mod(heading_deg, DEG_360);
 }
 
 
-bool headingNearlyEq(qreal heading_deg, qreal value_deg)
+bool headingNearlyEq(const qreal heading_deg, const qreal value_deg)
 {
     return qFuzzyIsNull(normalizeHeading(heading_deg - value_deg));
 }
@@ -57,7 +57,7 @@ bool headingNearlyEq(qreal heading_deg, qreal value_deg)
 bool headingInRange(qreal first_bound_deg,
                     qreal heading_deg,
                     qreal second_bound_deg,
-                    bool inclusive)
+                    const bool inclusive)
 {
     // The values in degrees are taken as a COMPASS HEADING, i.e. increasing
     // is clockwise. The valid sector is defined CLOCKWISE from the first bound
@@ -92,9 +92,9 @@ bool headingInRange(qreal first_bound_deg,
 }
 
 
-qreal convertHeadingFromTrueNorth(qreal true_north_heading_deg,
-                                  qreal pseudo_north_deg,
-                                  bool normalize)
+qreal convertHeadingFromTrueNorth(const qreal true_north_heading_deg,
+                                  const qreal pseudo_north_deg,
+                                  const bool normalize)
 {
     // Example: pseudo_north_deg is 30;
     // then 0 in true North is -30 in pseudo-North.
@@ -103,9 +103,9 @@ qreal convertHeadingFromTrueNorth(qreal true_north_heading_deg,
 }
 
 
-qreal convertHeadingToTrueNorth(qreal pseudo_north_heading_deg,
-                                qreal pseudo_north_deg,
-                                bool normalize)
+qreal convertHeadingToTrueNorth(const qreal pseudo_north_heading_deg,
+                                const qreal pseudo_north_deg,
+                                const bool normalize)
 {
     // Inverts convertHeadingFromTrueNorth().
     const qreal h = pseudo_north_heading_deg + pseudo_north_deg;
@@ -113,7 +113,7 @@ qreal convertHeadingToTrueNorth(qreal pseudo_north_heading_deg,
 }
 
 
-QPointF polarToCartesian(qreal r, qreal theta_deg)
+QPointF polarToCartesian(const qreal r, const qreal theta_deg)
 {
     // theta == 0 implies along the x axis in a positive direction (right).
     const qreal theta_rad = qDegreesToRadians(theta_deg);
@@ -130,7 +130,7 @@ qreal distanceBetween(const QPointF& from, const QPointF& to)
 }
 
 
-qreal polarThetaToHeading(qreal theta_deg, qreal north_deg)
+qreal polarThetaToHeading(const qreal theta_deg, const qreal north_deg)
 {
     // Polar coordinates have theta 0 == East, and theta positive is
     // clockwise (in Qt coordinates with y down).
@@ -143,7 +143,9 @@ qreal polarThetaToHeading(qreal theta_deg, qreal north_deg)
 }
 
 
-qreal headingToPolarTheta(qreal heading_deg, qreal north_deg, bool normalize)
+qreal headingToPolarTheta(const qreal heading_deg,
+                          const qreal north_deg,
+                          const bool normalize)
 {
     // Polar coordinates have theta 0 == East, and theta positive is
     // anticlockwise. Compass headings have 0 == North, unless adjusted by
@@ -200,9 +202,9 @@ bool pointOnLineSegment(const QPointF& point,
 
 
 LineSegment lineFromPointInHeadingWithRadius(const QPointF& point,
-                                             qreal heading_deg,
-                                             qreal north_deg,
-                                             qreal radius)
+                                             const qreal heading_deg,
+                                             const qreal north_deg,
+                                             const qreal radius)
 {
     const qreal theta = headingToPolarTheta(heading_deg, north_deg);
     const QPointF distant_point = point + polarToCartesian(radius, theta);
@@ -210,9 +212,10 @@ LineSegment lineFromPointInHeadingWithRadius(const QPointF& point,
 }
 
 
-bool lineCrossesHeadingWithinRadius(const QPointF& from, const QPointF& to,
-                                    const QPointF& point, qreal heading_deg,
-                                    qreal north_deg, qreal radius)
+bool lineCrossesHeadingWithinRadius(
+        const QPointF& from, const QPointF& to,
+        const QPointF& point, const qreal heading_deg,
+        const qreal north_deg, const qreal radius)
 {
     // (1) Draw a line from "from" to "to".
     // (2) Draw a line from "point" in direction "heading", where increasing

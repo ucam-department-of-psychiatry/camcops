@@ -42,7 +42,7 @@ void initializeGaf(TaskFactory& factory)
 }
 
 
-Gaf::Gaf(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Gaf::Gaf(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GAF_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(SCORE, QVariant::String);
@@ -96,7 +96,7 @@ QStringList Gaf::detail() const
 }
 
 
-OpenableWidget* Gaf::editor(bool read_only)
+OpenableWidget* Gaf::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{
         getClinicianQuestionnaireBlockRawPointer(),

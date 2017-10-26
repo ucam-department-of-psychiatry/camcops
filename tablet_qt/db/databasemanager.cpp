@@ -51,7 +51,7 @@ using dbfunc::delimit;
 DatabaseManager::DatabaseManager(const QString& filename,
                                  const QString& connection_name,
                                  const QString& database_type,
-                                 bool threaded) :
+                                 const bool threaded) :
     m_filename(filename),
     m_connection_name(connection_name),
     m_database_type(database_type),
@@ -81,7 +81,7 @@ DatabaseManager::~DatabaseManager()
 // Settings
 // ============================================================================
 
-void DatabaseManager::setVacuumOnClose(bool vacuum_on_close)
+void DatabaseManager::setVacuumOnClose(const bool vacuum_on_close)
 {
 #ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO;
@@ -212,7 +212,8 @@ void DatabaseManager::closeDatabaseActual()
 // Public API
 // ============================================================================
 
-void DatabaseManager::execNoAnswer(const SqlArgs& sqlargs, bool suppress_errors)
+void DatabaseManager::execNoAnswer(const SqlArgs& sqlargs,
+                                   const bool suppress_errors)
 {
     // GUI thread
 #ifdef DEBUG_VERBOSE
@@ -231,8 +232,8 @@ void DatabaseManager::execNoAnswer(const SqlArgs& sqlargs, bool suppress_errors)
 
 QueryResult DatabaseManager::query(const SqlArgs& sqlargs,
                                    QueryResult::FetchMode fetch_mode,
-                                   bool store_column_names,
-                                   bool suppress_errors)
+                                   const bool store_column_names,
+                                   const bool suppress_errors)
 {
     // GUI thread
 #ifdef DEBUG_VERBOSE
@@ -261,7 +262,7 @@ QueryResult DatabaseManager::query(const SqlArgs& sqlargs,
 }
 
 
-bool DatabaseManager::exec(const SqlArgs& sqlargs, bool suppress_errors)
+bool DatabaseManager::exec(const SqlArgs& sqlargs, const bool suppress_errors)
 {
 #ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO;
@@ -464,9 +465,9 @@ bool DatabaseManager::exec(const QString& sql, const ArgList& args)
 
 QueryResult DatabaseManager::query(const QString& sql,
                                    const ArgList& args,
-                                   QueryResult::FetchMode fetch_mode,
-                                   bool store_column_names,
-                                   bool suppress_errors)
+                                   const QueryResult::FetchMode fetch_mode,
+                                   const bool store_column_names,
+                                   const bool suppress_errors)
 {
 #ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO;
@@ -477,9 +478,9 @@ QueryResult DatabaseManager::query(const QString& sql,
 
 
 QueryResult DatabaseManager::query(const QString& sql,
-                                   QueryResult::FetchMode fetch_mode,
-                                   bool store_column_names,
-                                   bool suppress_errors)
+                                   const QueryResult::FetchMode fetch_mode,
+                                   const bool store_column_names,
+                                   const bool suppress_errors)
 {
 #ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO;
@@ -522,7 +523,8 @@ QVariant DatabaseManager::fetchFirstValue(const QString& sql)
 }
 
 
-int DatabaseManager::fetchInt(const SqlArgs& sqlargs, int failure_default)
+int DatabaseManager::fetchInt(const SqlArgs& sqlargs,
+                              const int failure_default)
 {
     QueryResult result = query(sqlargs, QueryResult::FetchMode::FetchFirst);
     if (!result.succeeded()) {
@@ -563,7 +565,8 @@ QVector<int> DatabaseManager::getPKs(const QString& tablename,
 
 
 bool DatabaseManager::existsByPk(const QString& tablename,
-                                 const QString& pkname, int pkvalue)
+                                 const QString& pkname,
+                                 const int pkvalue)
 {
     const SqlArgs sqlargs(
         QString("SELECT EXISTS(SELECT * FROM %1 WHERE %2 = ?)")

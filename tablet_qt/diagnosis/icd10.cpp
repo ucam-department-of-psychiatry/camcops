@@ -92,7 +92,7 @@ void Icd10::addIcd10Codes(const QStringList& codes)
 
 
 void Icd10::addIndividualIcd10Code(const QString& code, const QString& desc,
-                                   bool show_code_in_full_name)
+                                   const bool show_code_in_full_name)
 {
     if (code.isEmpty()) {
         qCritical() << Q_FUNC_INFO << "zero-length code! Ignoring";

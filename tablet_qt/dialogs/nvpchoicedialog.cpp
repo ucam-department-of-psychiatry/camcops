@@ -81,7 +81,7 @@ int NvpChoiceDialog::choose(QVariant* new_value)
 }
 
 
-void NvpChoiceDialog::itemClicked(int index)
+void NvpChoiceDialog::itemClicked(const int index)
 {
     if (!m_new_value) {
         return;

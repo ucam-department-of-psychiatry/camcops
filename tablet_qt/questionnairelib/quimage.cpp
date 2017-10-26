@@ -55,7 +55,7 @@ void QuImage::commonConstructor()
 }
 
 
-QuImage* QuImage::setAdjustForDpi(bool adjust_for_dpi)
+QuImage* QuImage::setAdjustForDpi(const bool adjust_for_dpi)
 {
     m_adjust_for_dpi = adjust_for_dpi;
     return this;
@@ -69,7 +69,7 @@ QuImage* QuImage::setSize(const QSize& size)
 }
 
 
-QuImage* QuImage::setAllowShrink(bool allow_shrink)
+QuImage* QuImage::setAllowShrink(const bool allow_shrink)
 {
     m_allow_shrink = allow_shrink;
     return this;

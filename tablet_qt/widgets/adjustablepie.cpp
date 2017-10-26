@@ -98,7 +98,7 @@ QColor DEFAULT_LABEL_COLOUR("darkblue");
 // Construction and configuration
 // ============================================================================
 
-AdjustablePie::AdjustablePie(int n_sectors, QWidget* parent) :
+AdjustablePie::AdjustablePie(const int n_sectors, QWidget* parent) :
     QWidget(parent),
     m_background_brush(QBrush(uiconst::TRANSPARENT)),
     m_centre_label_colour(uiconst::BLACK),
@@ -141,7 +141,7 @@ void AdjustablePie::setBackgroundBrush(const QBrush& brush)
 }
 
 
-void AdjustablePie::setSectorPenBrush(int sector_index,
+void AdjustablePie::setSectorPenBrush(const int sector_index,
                                       const PenBrush& penbrush)
 {
     ENSURE_SECTOR_INDEX_OK_OR_RETURN(sector_index);
@@ -158,7 +158,7 @@ void AdjustablePie::setSectorPenBrushes(const QVector<PenBrush>& penbrushes)
 }
 
 
-void AdjustablePie::setLabel(int sector_index, const QString& label)
+void AdjustablePie::setLabel(const int sector_index, const QString& label)
 {
     ENSURE_SECTOR_INDEX_OK_OR_RETURN(sector_index);
     m_labels[sector_index] = label;
@@ -174,7 +174,7 @@ void AdjustablePie::setLabels(const QVector<QString>& labels)
 }
 
 
-void AdjustablePie::setLabelColour(int sector_index, const QColor& colour)
+void AdjustablePie::setLabelColour(const int sector_index, const QColor& colour)
 {
     ENSURE_SECTOR_INDEX_OK_OR_RETURN(sector_index);
     m_label_colours[sector_index] = colour;
@@ -196,7 +196,7 @@ void AdjustablePie::setLabelRotation(bool rotate)
 }
 
 
-void AdjustablePie::setCursorPenBrush(int cursor_index,
+void AdjustablePie::setCursorPenBrush(const int cursor_index,
                                       const PenBrush& penbrush)
 {
     ENSURE_CURSOR_INDEX_OK_OR_RETURN(cursor_index);
@@ -213,7 +213,7 @@ void AdjustablePie::setCursorPenBrushes(const QVector<PenBrush>& penbrushes)
 }
 
 
-void AdjustablePie::setCursorActivePenBrush(int cursor_index,
+void AdjustablePie::setCursorActivePenBrush(const int cursor_index,
                                             const PenBrush& penbrush)
 {
     ENSURE_CURSOR_INDEX_OK_OR_RETURN(cursor_index);
@@ -237,7 +237,7 @@ void AdjustablePie::setOuterLabelFont(const QFont& font)
 }
 
 
-void AdjustablePie::setSectorRadius(int radius)
+void AdjustablePie::setSectorRadius(const int radius)
 {
     m_sector_radius = radius;
     updateGeometry();
@@ -255,14 +255,14 @@ void AdjustablePie::setCursorRadius(int inner_radius, int outer_radius)
 }
 
 
-void AdjustablePie::setCursorAngle(qreal degrees)
+void AdjustablePie::setCursorAngle(const qreal degrees)
 {
     m_cursor_angle_degrees = degrees;
     update();
 }
 
 
-void AdjustablePie::setLabelStartRadius(int radius)
+void AdjustablePie::setLabelStartRadius(const int radius)
 {
     m_label_start_radius = radius;
 }
@@ -289,25 +289,26 @@ void AdjustablePie::setCentreLabelColour(const QColor& colour)
 }
 
 
-void AdjustablePie::setOverallRadius(int radius)
+void AdjustablePie::setOverallRadius(const int radius)
 {
     m_overall_radius = radius;
 }
 
 
-void AdjustablePie::setBaseCompassHeading(int degrees)
+void AdjustablePie::setBaseCompassHeading(const int degrees)
 {
     m_base_compass_heading_deg = degrees;
 }
 
 
-void AdjustablePie::setReportingDelay(int delay_ms)
+void AdjustablePie::setReportingDelay(const int delay_ms)
 {
     m_reporting_delay_ms = delay_ms;
 }
 
 
-void AdjustablePie::setProportionCumulative(int cursor_index, qreal proportion)
+void AdjustablePie::setProportionCumulative(const int cursor_index,
+                                            const qreal proportion)
 {
     ENSURE_CURSOR_INDEX_OK_OR_RETURN(cursor_index);
     if (proportion < 0.0 || proportion > 1.0) {
@@ -387,7 +388,7 @@ void AdjustablePie::setProportionsCumulative(const QVector<qreal>& proportions)
 }
 
 
-qreal AdjustablePie::sectorProportionCumulative(int sector_index) const
+qreal AdjustablePie::sectorProportionCumulative(const int sector_index) const
 {
     if (sector_index < m_n_sectors - 1) {
         return m_cursor_props_cum.at(sector_index);
@@ -734,7 +735,7 @@ QVector<qreal> AdjustablePie::allProportions() const
 // Internals
 // ============================================================================
 
-qreal AdjustablePie::convertAngleToQt(qreal degrees) const
+qreal AdjustablePie::convertAngleToQt(const qreal degrees) const
 {
     // Qt uses geometric angles that start at 3 o'clock and go anticlockwise.
     // ... http://doc.qt.io/qt-5/qpainter.html#drawPie
@@ -744,13 +745,14 @@ qreal AdjustablePie::convertAngleToQt(qreal degrees) const
 }
 
 
-qreal AdjustablePie::convertAngleToInternal(qreal degrees) const
+qreal AdjustablePie::convertAngleToInternal(const qreal degrees) const
 {
     return polarThetaToHeading(degrees, m_base_compass_heading_deg);
 }
 
 
-bool AdjustablePie::posInCursor(const QPoint& pos, int cursor_index) const
+bool AdjustablePie::posInCursor(const QPoint& pos,
+                                const int cursor_index) const
 {
     const qreal angle = angleOfPos(pos);
     const qreal cursor_angle_centre = cursorAngle(cursor_index);
@@ -770,7 +772,7 @@ bool AdjustablePie::posInCursor(const QPoint& pos, int cursor_index) const
 }
 
 
-qreal AdjustablePie::angleToProportion(qreal angle_degrees) const
+qreal AdjustablePie::angleToProportion(const qreal angle_degrees) const
 {
     // BEWARE that this will never produce 1.0, so some post-processing
     // magic is required for that; see mouseMoveEvent().
@@ -778,7 +780,7 @@ qreal AdjustablePie::angleToProportion(qreal angle_degrees) const
 }
 
 
-qreal AdjustablePie::proportionToAngle(qreal proportion) const
+qreal AdjustablePie::proportionToAngle(const qreal proportion) const
 {
     return DEG_360 * proportion;
 }
@@ -797,7 +799,7 @@ qreal AdjustablePie::radiusOfPos(const QPoint& pos) const
 }
 
 
-qreal AdjustablePie::cursorAngle(int cursor_index) const
+qreal AdjustablePie::cursorAngle(const int cursor_index) const
 {
     const qreal prop = m_cursor_props_cum.at(cursor_index);
     return proportionToAngle(prop);

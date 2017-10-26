@@ -69,7 +69,7 @@ BooleanWidget::BooleanWidget(QWidget* parent) :
 }
 
 
-void BooleanWidget::setReadOnly(bool read_only)
+void BooleanWidget::setReadOnly(const bool read_only)
 {
     if (read_only != m_read_only) {
         m_read_only = read_only;
@@ -78,7 +78,7 @@ void BooleanWidget::setReadOnly(bool read_only)
 }
 
 
-void BooleanWidget::setSize(bool big)
+void BooleanWidget::setSize(const bool big)
 {
     if (big != m_big) {
         m_big = big;
@@ -87,7 +87,7 @@ void BooleanWidget::setSize(bool big)
 }
 
 
-void BooleanWidget::setBold(bool bold)
+void BooleanWidget::setBold(const bool bold)
 {
     if (bold != m_bold) {
         m_bold = bold;
@@ -96,7 +96,7 @@ void BooleanWidget::setBold(bool bold)
 }
 
 
-void BooleanWidget::setAppearance(BooleanWidget::Appearance appearance)
+void BooleanWidget::setAppearance(const BooleanWidget::Appearance appearance)
 {
     if (appearance != m_appearance) {
         m_appearance = appearance;
@@ -106,8 +106,8 @@ void BooleanWidget::setAppearance(BooleanWidget::Appearance appearance)
 }
 
 
-void BooleanWidget::setValue(const QVariant& value, bool mandatory,
-                             bool disabled)
+void BooleanWidget::setValue(const QVariant& value, const bool mandatory,
+                             const bool disabled)
 {
     if (disabled) {
         setState(State::Disabled);
@@ -121,7 +121,7 @@ void BooleanWidget::setValue(const QVariant& value, bool mandatory,
 }
 
 
-void BooleanWidget::setState(BooleanWidget::State state)
+void BooleanWidget::setState(const BooleanWidget::State state)
 {
     if (state != m_state) {
         m_state = state;
@@ -130,7 +130,7 @@ void BooleanWidget::setState(BooleanWidget::State state)
 }
 
 
-void BooleanWidget::updateWidget(bool full_refresh)
+void BooleanWidget::updateWidget(const bool full_refresh)
 {
     QString img;
     switch (m_appearance) {

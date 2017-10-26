@@ -53,7 +53,7 @@ void initializeHonosca(TaskFactory& factory)
 }
 
 
-Honosca::Honosca(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Honosca::Honosca(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, HONOSCA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -124,7 +124,7 @@ QStringList Honosca::detail() const
 }
 
 
-OpenableWidget* Honosca::editor(bool read_only)
+OpenableWidget* Honosca::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
 
@@ -191,7 +191,7 @@ int Honosca::totalScore() const
 }
 
 
-int Honosca::scoreSum(int first, int last) const
+int Honosca::scoreSum(const int first, const int last) const
 {
     int total = 0;
     for (int i = first; i <= last; ++i) {

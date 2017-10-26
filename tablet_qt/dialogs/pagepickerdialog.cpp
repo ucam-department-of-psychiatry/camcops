@@ -93,7 +93,7 @@ int PagePickerDialog::choose(int* new_page_number)
 }
 
 
-void PagePickerDialog::itemClicked(int item_index)
+void PagePickerDialog::itemClicked(const int item_index)
 {
     if (!m_new_page_number) {
         return;

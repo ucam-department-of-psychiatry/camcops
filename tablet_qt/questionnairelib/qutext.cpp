@@ -57,49 +57,49 @@ void QuText::commonConstructor()
 }
 
 
-QuText* QuText::setBig(bool big)
+QuText* QuText::setBig(const bool big)
 {
     m_fontsize = big ? uiconst::FontSize::Big : uiconst::FontSize::Normal;
     return this;
 }
 
 
-QuText* QuText::setBold(bool bold)
+QuText* QuText::setBold(const bool bold)
 {
     m_bold = bold;
     return this;
 }
 
 
-QuText* QuText::setItalic(bool italic)
+QuText* QuText::setItalic(const bool italic)
 {
     m_italic = italic;
     return this;
 }
 
 
-QuText* QuText::setWarning(bool warning)
+QuText* QuText::setWarning(const bool warning)
 {
     m_warning = warning;
     return this;
 }
 
 
-QuText* QuText::setFormat(Qt::TextFormat format)
+QuText* QuText::setFormat(const Qt::TextFormat format)
 {
     m_text_format = format;
     return this;
 }
 
 
-QuText* QuText::setOpenLinks(bool open_links)
+QuText* QuText::setOpenLinks(const bool open_links)
 {
     m_open_links = open_links;
     return this;
 }
 
 
-QuText* QuText::setAlignment(Qt::Alignment alignment)
+QuText* QuText::setAlignment(const Qt::Alignment alignment)
 {
     m_alignment = alignment;
     return this;
@@ -135,14 +135,14 @@ void QuText::fieldValueChanged(const FieldRef* fieldref)
 }
 
 
-void QuText::forceFontSize(int fontsize_pt, bool repolish)
+void QuText::forceFontSize(const int fontsize_pt, const bool repolish)
 {
     m_forced_fontsize_pt = fontsize_pt;
     setWidgetFontSize(m_forced_fontsize_pt, repolish);
 }
 
 
-void QuText::setText(const QString &text, bool repolish)
+void QuText::setText(const QString &text, const bool repolish)
 {
     m_text = text;
     if (!m_label) {
@@ -155,7 +155,7 @@ void QuText::setText(const QString &text, bool repolish)
 }
 
 
-void QuText::setWidgetFontSize(int fontsize_pt, bool repolish)
+void QuText::setWidgetFontSize(const int fontsize_pt, const bool repolish)
 {
     if (!m_label) {
         return;

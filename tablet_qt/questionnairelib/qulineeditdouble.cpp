@@ -25,7 +25,8 @@
 #include "questionnairelib/qulineeditinteger.h"
 
 
-QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref, bool allow_empty) :
+QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref,
+                                   const bool allow_empty) :
     QuLineEdit(fieldref),
     m_minimum(std::numeric_limits<double>::min()),
     m_maximum(std::numeric_limits<double>::max()),
@@ -37,9 +38,11 @@ QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref, bool allow_empty) :
 }
 
 
-QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref, double minimum,
-                                   double maximum, int decimals,
-                                   bool allow_empty) :
+QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref,
+                                   const double minimum,
+                                   const double maximum,
+                                   const int decimals,
+                                   const bool allow_empty) :
     QuLineEdit(fieldref),
     m_minimum(minimum),
     m_maximum(maximum),
@@ -54,7 +57,7 @@ QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref, double minimum,
 }
 
 
-QuLineEditDouble* QuLineEditDouble::setStrictValidator(bool strict)
+QuLineEditDouble* QuLineEditDouble::setStrictValidator(const bool strict)
 {
     m_strict_validator = strict;
     return this;

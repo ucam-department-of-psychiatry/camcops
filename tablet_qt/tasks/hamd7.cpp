@@ -46,7 +46,7 @@ void initializeHamD7(TaskFactory& factory)
 }
 
 
-HamD7::HamD7(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+HamD7::HamD7(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, HAMD7_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -116,7 +116,7 @@ QStringList HamD7::detail() const
 }
 
 
-OpenableWidget* HamD7::editor(bool read_only)
+OpenableWidget* HamD7::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
 
@@ -159,7 +159,7 @@ int HamD7::totalScore() const
 }
 
 
-int HamD7::nOptions(int question) const
+int HamD7::nOptions(const int question) const
 {
     return question == 6 ? 3 : 5;
 }

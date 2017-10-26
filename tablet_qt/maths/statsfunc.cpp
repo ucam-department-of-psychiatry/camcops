@@ -37,21 +37,21 @@ static const double INVEPS = 1/DOUBLE_EPS;
 
 
 static inline
-double x_d_opx(double x)
+double x_d_opx(const double x)
 {
     return x / (1 + x);
 }
 
 
 static inline
-double x_d_omx(double x)
+double x_d_omx(const double x)
 {
     return x / (1 - x);
 }
 
 
 static inline
-double y_log_y(double y, double mu)
+double y_log_y(const double y, const double mu)
 {
     return (y != 0.) ? (y * std::log(y / mu)) : 0;
 }
@@ -64,7 +64,7 @@ namespace statsfunc {
 // Elementary functions
 // ============================================================================
 
-double identity(double x)
+double identity(const double x)
 {
     return x;
 }
@@ -76,7 +76,7 @@ ArrayXXd identityArray(const ArrayXXd& x)
 }
 
 
-double one(double x)
+double one(const double x)
 {
     // Derivative of the identity function:
     //      y = x
@@ -94,7 +94,7 @@ ArrayXXd oneArray(const ArrayXXd& x)
 }
 
 
-double logistic(double x)
+double logistic(const double x)
 {
     // = 1 / (1 + exp(-x))
     // = exp(x) / (1 + exp(x))
@@ -116,13 +116,14 @@ ArrayXXd logisticArray(const ArrayXXd& x)
 }
 
 
-double logisticInterceptSlope(double x, double intercept, double slope)
+double logisticInterceptSlope(const double x,
+                              const double intercept, const double slope)
 {
     return logistic(intercept + slope * x);
 }
 
 
-double logisticX0K(double x, double x0, double k)
+double logisticX0K(const double x, const double x0, const double k)
 {
     // Generalized logistic function with k steepness, x0 midpoint
     // https://en.wikipedia.org/wiki/Logistic_function
@@ -133,7 +134,7 @@ double logisticX0K(double x, double x0, double k)
 }
 
 
-double derivativeOfLogistic(double x)
+double derivativeOfLogistic(const double x)
 {
     // = exp(x) / (1 + exp(x))^2
     // = f(x)(1 - f(x))      where f(x) = logistic(x) = 1 / (1 + exp(-x))
@@ -155,7 +156,7 @@ ArrayXXd derivativeOfLogisticArray(const ArrayXXd& x)
 }
 
 
-double logit(double p)
+double logit(const double p)
 {
     // = log(p / (1 - p))
     // - Transforms probability -> logit; inverse of logistic()
@@ -214,7 +215,7 @@ double gaussianAIC(const ArrayXd& y,
                    const ArrayXd& n,
                    const ArrayXd& mu,
                    const ArrayXd& wt,
-                   double dev)
+                   const double dev)
 {
     // R: gaussian()$aic
     Q_UNUSED(n);
@@ -225,13 +226,15 @@ double gaussianAIC(const ArrayXd& y,
 
 
 #ifdef STATSFUNC_OFFER_AIC
-double dbinom(double x, int n, double p, bool log)
+double dbinom(const double x,
+              const int n, const double p, const bool log)
 {
     // As per R's dbinom.c
 }
 
 
-ArrayXd dbinom(const ArrayXd& x, const ArrayXi& n, const ArrayXd& p, bool log)
+ArrayXd dbinom(const ArrayXd& x, const ArrayXi& n, const ArrayXd& p,
+               const bool log)
 {
     // R recycles arguments, I think; we'll ignore that for now.
     Q_ASSERT(n.size() == x.size());
@@ -248,7 +251,7 @@ double binomialAIC(const ArrayXd& y,
                    const ArrayXd& n,
                    const ArrayXd& mu,
                    const ArrayXd& wt,
-                   double dev)
+                   const double dev)
 {
     // R: binomial()$aic
     const int nobs = y.size();

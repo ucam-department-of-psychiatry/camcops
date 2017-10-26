@@ -62,7 +62,7 @@ LABEL_B1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ===============================================================================
-IMPLEMENTATION
+IMPLEMENTATION: EARLY THOUGHTS
 ===============================================================================
 
 We could in principle do this with a Questionnaire interface, but to be honest
@@ -108,6 +108,10 @@ bool answered(int answer)
     }
 }
 
+
+===============================================================================
+IMPLEMENTATION: FURTHER THOUGHTS
+===============================================================================
 
 FURTHER THOUGHTS: we'll implement a DynamicQuestionnaire class; q.v.
 
@@ -235,7 +239,7 @@ void initializeCisr(TaskFactory& factory)
 }
 
 
-Cisr::Cisr(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Cisr::Cisr(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CISR_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // ***
@@ -292,7 +296,7 @@ QStringList Cisr::detail() const
 }
 
 
-OpenableWidget* Cisr::editor(bool read_only)
+OpenableWidget* Cisr::editor(const bool read_only)
 {
     m_questionnaire = new DynamicQuestionnaire(
                 m_app,
@@ -313,7 +317,7 @@ OpenableWidget* Cisr::editor(bool read_only)
 // DynamicQuestionnaire callbacks
 // ============================================================================
 
-QuPagePtr Cisr::makePage(int current_qnum)
+QuPagePtr Cisr::makePage(const int current_qnum)
 {
     // *** this is currently junk; fix
 
@@ -346,7 +350,7 @@ QuPagePtr Cisr::makePage(int current_qnum)
 }
 
 
-bool Cisr::morePagesToGo(int current_qnum)
+bool Cisr::morePagesToGo(const int current_qnum)
 {
     // The lazy option, for now:
     return makePage(current_qnum + 1) != nullptr;

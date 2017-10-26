@@ -61,7 +61,7 @@ void initializeCopeBrief(TaskFactory& factory)
 }
 
 
-CopeBrief::CopeBrief(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+CopeBrief::CopeBrief(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, COPEBRIEF_TABLENAME, false, false, false),  // ... anon, clin, resp
     // There is a respondent, optionally, but the task handles this manually with more detail
     m_questionnaire(nullptr)
@@ -133,7 +133,7 @@ QStringList CopeBrief::detail() const
 }
 
 
-OpenableWidget* CopeBrief::editor(bool read_only)
+OpenableWidget* CopeBrief::editor(const bool read_only)
 {
     const NameValueOptions main_options{
         {xstring("a0"), 0},

@@ -115,7 +115,8 @@ void initializeIcd10Depressive(TaskFactory& factory)
 }
 
 
-Icd10Depressive::Icd10Depressive(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Icd10Depressive::Icd10Depressive(CamcopsApp& app, DatabaseManager& db,
+                                 const int load_pk) :
     Task(app, db, ICD10DEP_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(CORE_NAMES, QVariant::Bool);
@@ -231,7 +232,7 @@ QStringList Icd10Depressive::detail() const
 }
 
 
-OpenableWidget* Icd10Depressive::editor(bool read_only)
+OpenableWidget* Icd10Depressive::editor(const bool read_only)
 {
     const NameValueOptions true_false_options = CommonOptions::falseTrueBoolean();
     const NameValueOptions present_absent_options = CommonOptions::absentPresentBoolean();

@@ -49,7 +49,7 @@ void initializePdss(TaskFactory& factory)
 }
 
 
-Pdss::Pdss(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Pdss::Pdss(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PDSS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -107,7 +107,7 @@ QStringList Pdss::detail() const
 }
 
 
-OpenableWidget* Pdss::editor(bool read_only)
+OpenableWidget* Pdss::editor(const bool read_only)
 {
     QVector<QuElement*> elements;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {

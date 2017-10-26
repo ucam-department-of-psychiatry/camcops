@@ -25,8 +25,8 @@
 #include "questionnairelib/questionnaire.h"
 
 
-QuSpinBoxInteger::QuSpinBoxInteger(FieldRefPtr fieldref, int minimum,
-                                   int maximum) :
+QuSpinBoxInteger::QuSpinBoxInteger(FieldRefPtr fieldref, const int minimum,
+                                   const int maximum) :
     m_fieldref(fieldref),
     m_minimum(minimum),
     m_maximum(maximum)
@@ -84,7 +84,7 @@ FieldRefPtrList QuSpinBoxInteger::fieldrefs() const
 }
 
 
-void QuSpinBoxInteger::widgetValueChanged(int value)
+void QuSpinBoxInteger::widgetValueChanged(const int value)
 {
 #ifdef DEBUG_SIGNALS
     qDebug() << Q_FUNC_INFO << value;

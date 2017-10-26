@@ -55,7 +55,7 @@ void initializeBmi(TaskFactory& factory)
 }
 
 
-Bmi::Bmi(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Bmi::Bmi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, BMI_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr),
     m_height_units(METRIC),
@@ -132,7 +132,7 @@ QStringList Bmi::detail() const
 }
 
 
-OpenableWidget* Bmi::editor(bool read_only)
+OpenableWidget* Bmi::editor(const bool read_only)
 {
     auto heading = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setBold(true);
@@ -292,7 +292,7 @@ QVariant Bmi::bmiVariant() const
 }
 
 
-QString Bmi::bmiString(int dp) const
+QString Bmi::bmiString(const int dp) const
 {
     const QVariant bmi = bmiVariant();
     if (bmi.isNull()) {

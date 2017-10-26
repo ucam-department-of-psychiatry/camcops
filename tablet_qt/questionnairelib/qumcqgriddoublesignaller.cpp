@@ -23,8 +23,8 @@
 
 
 QuMcqGridDoubleSignaller::QuMcqGridDoubleSignaller(QuMcqGridDouble* recipient,
-                                                   int question_index,
-                                                   bool first_field) :
+                                                   const int question_index,
+                                                   const bool first_field) :
     m_recipient(recipient),
     m_question_index(question_index),
     m_first_field(first_field)

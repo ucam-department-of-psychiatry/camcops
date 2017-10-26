@@ -72,7 +72,7 @@ const int SALT_LENGTH_TEXT = cryptofunc::base64Length(SALT_LENGTH_BYTES);
 // Simple calculations
 // ============================================================================
 
-int cryptofunc::base64Length(int nbytes)
+int cryptofunc::base64Length(const int nbytes)
 {
     // http://stackoverflow.com/questions/13378815/base64-length-calculation
     double d = nbytes;
@@ -304,7 +304,7 @@ bool cryptofunc::isValidAesIV(const QString& iv_b64)
 // Front end
 // ============================================================================
 
-SecureQByteArray cryptofunc::randomBytes(int n)
+SecureQByteArray cryptofunc::randomBytes(const int n)
 {
     SecureQByteArray array(n, 0);
     auto ptr = reinterpret_cast<unsigned char*>(array.data());

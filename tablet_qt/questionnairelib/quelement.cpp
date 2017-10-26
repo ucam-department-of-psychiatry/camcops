@@ -137,7 +137,7 @@ bool QuElement::visible() const
 }
 
 
-QuElement* QuElement::setVisible(bool visible)
+QuElement* QuElement::setVisible(const bool visible)
 {
     // qDebug() << Q_FUNC_INFO << visible;
     if (visible == m_visible) {

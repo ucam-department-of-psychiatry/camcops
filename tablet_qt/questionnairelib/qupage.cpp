@@ -76,7 +76,7 @@ QuPage::~QuPage()
 }
 
 
-QuPage* QuPage::setType(PageType type)
+QuPage* QuPage::setType(const PageType type)
 {
     m_type = type;
     return this;
@@ -90,7 +90,7 @@ QuPage* QuPage::setTitle(const QString& title)
 }
 
 
-QuPage* QuPage::setSkip(bool skip)
+QuPage* QuPage::setSkip(const bool skip)
 {
     m_skip = skip;
     return this;
@@ -138,7 +138,7 @@ void QuPage::clearElements()
 }
 
 
-QuPage* QuPage::allowScroll(bool allow_scroll)
+QuPage* QuPage::allowScroll(const bool allow_scroll)
 {
     m_allow_scroll = allow_scroll;
     return this;
@@ -259,7 +259,7 @@ bool QuPage::missingInput() const
 }
 
 
-void QuPage::blockProgress(bool block)
+void QuPage::blockProgress(const bool block)
 {
     m_progress_blocked = block;
 }

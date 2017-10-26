@@ -37,7 +37,7 @@ void initializeDiagnosisIcd10(TaskFactory& factory)
 
 
 DiagnosisIcd10::DiagnosisIcd10(CamcopsApp& app, DatabaseManager& db,
-                               int load_pk) :
+                               const int load_pk) :
     DiagnosisTaskBase(app, db, DIAGNOSIS_ICD10_TABLENAME, load_pk)
 {
 }
@@ -93,7 +93,7 @@ QString DiagnosisIcd10::ancillaryTableFKToTaskFieldname() const
 }
 
 
-void DiagnosisIcd10::loadAllAncillary(int pk)
+void DiagnosisIcd10::loadAllAncillary(const int pk)
 {
     const OrderBy order_by{{DiagnosisIcd10Item::SEQNUM, true}};
     ancillaryfunc::loadAncillary<DiagnosisIcd10Item, DiagnosisItemBasePtr>(

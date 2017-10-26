@@ -22,7 +22,7 @@
 #include "lib/soundfunc.h"
 
 
-SoundTestDialog::SoundTestDialog(const QUrl& url, int volume_percent,
+SoundTestDialog::SoundTestDialog(const QUrl& url, const int volume_percent,
                                  QWidget* parent) :
     LogBox(parent, tr("Sound test"))
 {
@@ -46,7 +46,7 @@ SoundTestDialog::~SoundTestDialog()
 }
 
 
-void SoundTestDialog::mediaStatusChanged(QMediaPlayer::MediaStatus status)
+void SoundTestDialog::mediaStatusChanged(const QMediaPlayer::MediaStatus status)
 {
     if (status == QMediaPlayer::EndOfMedia) {
         statusMessage("Finished");

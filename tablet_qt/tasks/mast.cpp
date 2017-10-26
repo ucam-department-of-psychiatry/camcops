@@ -51,7 +51,7 @@ void initializeMast(TaskFactory& factory)
 }
 
 
-Mast::Mast(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Mast::Mast(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, MAST_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);
@@ -110,7 +110,7 @@ QStringList Mast::detail() const
 }
 
 
-OpenableWidget* Mast::editor(bool read_only)
+OpenableWidget* Mast::editor(const bool read_only)
 {
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
@@ -149,7 +149,7 @@ int Mast::totalScore() const
 }
 
 
-int Mast::score(int question) const
+int Mast::score(const int question) const
 {
     const QVariant v = value(strnum(QPREFIX, question));
     if (v.isNull()) {

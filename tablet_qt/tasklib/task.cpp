@@ -60,9 +60,9 @@ const QString Task::RESPONDENT_RELATIONSHIP("respondent_relationship");
 Task::Task(CamcopsApp& app,
            DatabaseManager& db,
            const QString& tablename,
-           bool is_anonymous,
-           bool has_clinician,
-           bool has_respondent) :
+           const bool is_anonymous,
+           const bool has_clinician,
+           const bool has_respondent) :
     DatabaseObject(app, db, tablename, dbconst::PK_FIELDNAME, true, true),
     m_patient(nullptr),
     m_editing(false),
@@ -251,7 +251,7 @@ int Task::count(const WhereConditions& where) const
 }
 
 
-int Task::countForPatient(int patient_id) const
+int Task::countForPatient(const int patient_id) const
 {
     if (isAnonymous()) {
         return 0;
@@ -273,7 +273,7 @@ void Task::upgradeDatabase(const Version& old_version,
 // Database object functions
 // ============================================================================
 
-bool Task::load(int pk)
+bool Task::load(const int pk)
 {
     if (pk == dbconst::NONEXISTENT_PK) {
         return false;
@@ -312,7 +312,7 @@ QStringList Task::detail() const
 }
 
 
-OpenableWidget* Task::editor(bool read_only)
+OpenableWidget* Task::editor(const bool read_only)
 {
     Q_UNUSED(read_only);
     qWarning() << "Base class Task::edit called - not a good thing!";
@@ -359,8 +359,8 @@ QStringList Task::fieldSummaries(const QString& xstringprefix,
                                  const QString& xstringsuffix,
                                  const QString& spacer,
                                  const QString& fieldprefix,
-                                 int first,
-                                 int last,
+                                 const int first,
+                                 const int last,
                                  const QString& suffix) const
 {
     using stringfunc::strseq;
@@ -382,8 +382,8 @@ QStringList Task::fieldSummariesYesNo(const QString& xstringprefix,
                                       const QString& xstringsuffix,
                                       const QString& spacer,
                                       const QString& fieldprefix,
-                                      int first,
-                                      int last,
+                                      const int first,
+                                      const int last,
                                       const QString& suffix) const
 {
     using stringfunc::strseq;
@@ -462,8 +462,8 @@ void Task::setDefaultClinicianVariablesAtFirstUse()
 OpenableWidget* Task::makeGraphicsWidget(
         QGraphicsScene* scene,
         const QColor& background_colour,
-        bool fullscreen,
-        bool esc_can_abort)
+        const bool fullscreen,
+        const bool esc_can_abort)
 {
     ScreenLikeGraphicsView* view = new ScreenLikeGraphicsView(scene);
     view->setBackgroundColour(background_colour);
@@ -476,8 +476,8 @@ OpenableWidget* Task::makeGraphicsWidget(
 OpenableWidget* Task::makeGraphicsWidgetForImmediateEditing(
         QGraphicsScene* scene,
         const QColor& background_colour,
-        bool fullscreen,
-        bool esc_can_abort)
+        const bool fullscreen,
+        const bool esc_can_abort)
 {
     OpenableWidget* widget = makeGraphicsWidget(scene, background_colour,
                                                 fullscreen, esc_can_abort);
@@ -551,7 +551,8 @@ QVariant Task::respondentRelationship() const
 }
 
 
-QuElement* Task::getRespondentQuestionnaireBlockRawPointer(bool second_person)
+QuElement* Task::getRespondentQuestionnaireBlockRawPointer(
+        const bool second_person)
 {
     const QString name = second_person
             ? textconst::RESPONDENT_NAME_2P
@@ -566,13 +567,14 @@ QuElement* Task::getRespondentQuestionnaireBlockRawPointer(bool second_person)
 }
 
 
-QuElementPtr Task::getRespondentQuestionnaireBlockElementPtr(bool second_person)
+QuElementPtr Task::getRespondentQuestionnaireBlockElementPtr(
+        const bool second_person)
 {
     return QuElementPtr(getRespondentQuestionnaireBlockRawPointer(second_person));
 }
 
 
-QuPagePtr Task::getRespondentDetailsPage(bool second_person)
+QuPagePtr Task::getRespondentDetailsPage(const bool second_person)
 {
     return QuPagePtr(
         (new QuPage{getRespondentQuestionnaireBlockRawPointer(second_person)})
@@ -583,7 +585,7 @@ QuPagePtr Task::getRespondentDetailsPage(bool second_person)
 }
 
 
-QuPagePtr Task::getClinicianAndRespondentDetailsPage(bool second_person)
+QuPagePtr Task::getClinicianAndRespondentDetailsPage(const bool second_person)
 {
     return QuPagePtr(
         (new QuPage{
@@ -607,7 +609,7 @@ void Task::editStarted()
 }
 
 
-void Task::editFinished(bool aborted)
+void Task::editFinished(const bool aborted)
 {
     if (!m_editing) {
         qDebug() << Q_FUNC_INFO << "wasn't editing";
@@ -647,7 +649,7 @@ void Task::editFinishedAbort()
 // Patient functions (for non-anonymous tasks)
 // ============================================================================
 
-void Task::setPatient(int patient_id)
+void Task::setPatient(const int patient_id)
 {
     // It's a really dangerous thing to set a patient ID invalidly, so this
     // function will just stop the app if something stupid is attempted.
@@ -662,7 +664,7 @@ void Task::setPatient(int patient_id)
 }
 
 
-void Task::moveToPatient(int patient_id)
+void Task::moveToPatient(const int patient_id)
 {
     // This is used for patient merges.
     // It is therefore more liberal than setPatient().

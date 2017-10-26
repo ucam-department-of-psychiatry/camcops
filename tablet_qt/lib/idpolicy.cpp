@@ -114,7 +114,7 @@ int IdPolicy::nameToToken(const QString& name) const
 }
 
 
-QString IdPolicy::tokenToName(int token) const
+QString IdPolicy::tokenToName(const int token) const
 {
     if (token > 0) {
         return IDNUM_FIELD_FORMAT.arg(token);
@@ -358,7 +358,7 @@ IdPolicy::OperatorValue IdPolicy::idPolicyOp(const QVector<int>& tokens,
 
 
 IdPolicy::ChunkValue IdPolicy::idPolicyElement(const AttributesType& attributes,
-                                               int token) const
+                                               const int token) const
 {
     // Returns a boolean indicator corresponding to whether the token's
     // information is present in the patient attributes (or a failure

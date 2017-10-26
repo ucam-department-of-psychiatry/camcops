@@ -103,7 +103,7 @@ void initializeFrs(TaskFactory& factory)
 }
 
 
-Frs::Frs(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Frs::Frs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, FRS_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -172,7 +172,7 @@ QStringList Frs::detail() const
 }
 
 
-OpenableWidget* Frs::editor(bool read_only)
+OpenableWidget* Frs::editor(const bool read_only)
 {
     auto makeoptions = [this](int q) -> NameValueOptions {
         const QString prefix = strnum("q", q, "_a_");
@@ -286,7 +286,7 @@ Frs::ScoreInfo Frs::getScore() const
 }
 
 
-QVariant Frs::getTabularLogit(double score) const
+QVariant Frs::getTabularLogit(const double score) const
 {
     const double pct_score = 100 * score;
     for (auto a_b_result : TABULAR_LOGIT_RANGES) {

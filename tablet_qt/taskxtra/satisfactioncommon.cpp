@@ -42,8 +42,8 @@ const QString BAD("bad");
 SatisfactionCommon::SatisfactionCommon(CamcopsApp& app,
                                        DatabaseManager& db,
                                        const QString& tablename,
-                                       bool anonymous,
-                                       int load_pk) :
+                                       const bool anonymous,
+                                       const int load_pk) :
     Task(app, db, tablename, anonymous, false, false)  // ... anon, clin, resp
 {
     addField(SERVICE, QVariant::String);
@@ -99,7 +99,7 @@ void SatisfactionCommon::setDefaultsAtFirstUse()
 
 
 OpenableWidget* SatisfactionCommon::satisfactionEditor(const QString& rating_q,
-                                                       bool read_only)
+                                                       const bool read_only)
 {
     NameValueOptions options;
     for (int i = 4; i >= 0; --i) {

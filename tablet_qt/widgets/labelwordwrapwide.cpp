@@ -140,7 +140,7 @@ bool LabelWordWrapWide::hasHeightForWidth() const
 }
 
 
-int LabelWordWrapWide::heightForWidth(int width) const
+int LabelWordWrapWide::heightForWidth(const int width) const
 {
 #ifdef ADD_EXTRA_FOR_LAYOUT_OR_CSS
     const QSize extra = extraSizeForCssOrLayout();
@@ -169,7 +169,7 @@ int LabelWordWrapWide::heightForWidth(int width) const
 }
 
 
-int LabelWordWrapWide::qlabelHeightForWidth(int width) const
+int LabelWordWrapWide::qlabelHeightForWidth(const int width) const
 {
 #ifdef LWWW_USE_QLABEL_CACHE
     if (m_cached_qlabel_height_for_width.contains(width)) {

@@ -110,7 +110,7 @@ void initializeNart(TaskFactory& factory)
 }
 
 
-Nart::Nart(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Nart::Nart(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, NART_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(WORDLIST, QVariant::Bool);
@@ -194,7 +194,7 @@ QStringList Nart::detail() const
 }
 
 
-OpenableWidget* Nart::editor(bool read_only)
+OpenableWidget* Nart::editor(const bool read_only)
 {
     const NameValueOptions options = CommonOptions::incorrectCorrectBoolean();
 
@@ -247,7 +247,8 @@ const QString BRIGHT_2016("Bright 2016, PMID 27624393");
 #define IF_COMPLETE(complete, x) (complete ? (x) : QVariant())
 
 
-Nart::NartIQ Nart::nelsonFullScaleIQ(bool complete, int errors) const
+Nart::NartIQ Nart::nelsonFullScaleIQ(const bool complete,
+                                     const int errors) const
 {
     // Figures from partial PDF of Nelson 1982
     return NartIQ("Predicted WAIS full-scale IQ",
@@ -257,7 +258,8 @@ Nart::NartIQ Nart::nelsonFullScaleIQ(bool complete, int errors) const
 }
 
 
-Nart::NartIQ Nart::nelsonVerbalIQ(bool complete, int errors) const
+Nart::NartIQ Nart::nelsonVerbalIQ(const bool complete,
+                                  const int errors) const
 {
     // Figures from partial PDF of Nelson 1982
     return NartIQ("Predicted WAIS verbal IQ",
@@ -267,7 +269,8 @@ Nart::NartIQ Nart::nelsonVerbalIQ(bool complete, int errors) const
 }
 
 
-Nart::NartIQ Nart::nelsonPerformanceIQ(bool complete, int errors) const
+Nart::NartIQ Nart::nelsonPerformanceIQ(const bool complete,
+                                       const int errors) const
 {
     // Figures from partial PDF of Nelson 1982
     return NartIQ("Predicted WAIS performance IQ",
@@ -277,7 +280,8 @@ Nart::NartIQ Nart::nelsonPerformanceIQ(bool complete, int errors) const
 }
 
 
-Nart::NartIQ Nart::nelsonWillisonFullScaleIQ(bool complete, int errors) const
+Nart::NartIQ Nart::nelsonWillisonFullScaleIQ(const bool complete,
+                                             const int errors) const
 {
     // Figures from Bright 2016
     return NartIQ("Predicted WAIS-R full-scale IQ",
@@ -287,7 +291,8 @@ Nart::NartIQ Nart::nelsonWillisonFullScaleIQ(bool complete, int errors) const
 }
 
 
-Nart::NartIQ Nart::brightFullScaleIQ(bool complete, int errors) const
+Nart::NartIQ Nart::brightFullScaleIQ(const bool complete,
+                                     const int errors) const
 {
     return NartIQ("Predicted WAIS-IV full-scale IQ",
                   BRIGHT_2016,
@@ -296,7 +301,8 @@ Nart::NartIQ Nart::brightFullScaleIQ(bool complete, int errors) const
 }
 
 
-Nart::NartIQ Nart::brightGeneralAbility(bool complete, int errors) const
+Nart::NartIQ Nart::brightGeneralAbility(const bool complete,
+                                        const int errors) const
 {
     return NartIQ("Predicted WAIS-IV General Ability Index",
                   BRIGHT_2016,
@@ -305,7 +311,8 @@ Nart::NartIQ Nart::brightGeneralAbility(bool complete, int errors) const
 }
 
 
-Nart::NartIQ Nart::brightVerbalComprehension(bool complete, int errors) const
+Nart::NartIQ Nart::brightVerbalComprehension(const bool complete,
+                                             const int errors) const
 {
     return NartIQ("Predicted WAIS-IV Verbal Comprehension Index",
                   BRIGHT_2016,
@@ -314,7 +321,8 @@ Nart::NartIQ Nart::brightVerbalComprehension(bool complete, int errors) const
 }
 
 
-Nart::NartIQ Nart::brightPerceptualReasoning(bool complete, int errors) const
+Nart::NartIQ Nart::brightPerceptualReasoning(const bool complete,
+                                             const int errors) const
 {
     return NartIQ("Predicted WAIS-IV Perceptual Reasoning Index",
                   BRIGHT_2016,
@@ -323,7 +331,8 @@ Nart::NartIQ Nart::brightPerceptualReasoning(bool complete, int errors) const
 }
 
 
-Nart::NartIQ Nart::brightWorkingMemory(bool complete, int errors) const
+Nart::NartIQ Nart::brightWorkingMemory(const bool complete,
+                                       const int errors) const
 {
     return NartIQ("Predicted WAIS-IV Working Memory Index",
                   BRIGHT_2016,
@@ -332,7 +341,8 @@ Nart::NartIQ Nart::brightWorkingMemory(bool complete, int errors) const
 }
 
 
-Nart::NartIQ Nart::brightPerceptualSpeed(bool complete, int errors) const
+Nart::NartIQ Nart::brightPerceptualSpeed(const bool complete,
+                                         const int errors) const
 {
     return NartIQ("Predicted WAIS-IV Perceptual Speed Index",
                   BRIGHT_2016,
@@ -341,7 +351,7 @@ Nart::NartIQ Nart::brightPerceptualSpeed(bool complete, int errors) const
 }
 
 
-QString Nart::result(const NartIQ& iq, bool full) const
+QString Nart::result(const NartIQ& iq, const bool full) const
 {
     const QString name = full
             ? QString("%1 (%2; %3)").arg(iq.quantity, iq.reference, iq.formula)

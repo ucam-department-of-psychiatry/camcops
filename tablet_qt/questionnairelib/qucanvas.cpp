@@ -37,7 +37,7 @@ const int WRITE_DELAY_MS = 200;
 
 
 QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QSize& size,
-                   bool allow_shrink, QImage::Format format,
+                   const bool allow_shrink, const QImage::Format format,
                    const QColor& background_colour) :
     m_fieldref(fieldref),
     m_size(size),
@@ -51,7 +51,7 @@ QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QSize& size,
 
 
 QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QString& template_filename,
-                   const QSize& size, bool allow_shrink) :
+                   const QSize& size, const bool allow_shrink) :
     m_fieldref(fieldref),
     m_size(size),
     m_allow_shrink(allow_shrink),
@@ -86,7 +86,7 @@ void QuCanvas::commonConstructor()
 }
 
 
-QuCanvas* QuCanvas::setAdjustForDpi(bool adjust_for_dpi)
+QuCanvas* QuCanvas::setAdjustForDpi(const bool adjust_for_dpi)
 {
     m_adjust_display_for_dpi = adjust_for_dpi;
     return this;
@@ -100,7 +100,7 @@ QuCanvas* QuCanvas::setBackgroundColour(const QColor& colour)
 }
 
 
-QuCanvas* QuCanvas::setBorderWidth(int width)
+QuCanvas* QuCanvas::setBorderWidth(const int width)
 {
     m_border_width_px = width;
     return this;
@@ -128,14 +128,14 @@ QuCanvas* QuCanvas::setPenColour(const QColor& colour)
 }
 
 
-QuCanvas* QuCanvas::setPenWidth(int width)
+QuCanvas* QuCanvas::setPenWidth(const int width)
 {
     m_pen_width = width;
     return this;
 }
 
 
-QuCanvas* QuCanvas::setAllowShrink(bool allow_shrink)
+QuCanvas* QuCanvas::setAllowShrink(const bool allow_shrink)
 {
     m_allow_shrink = allow_shrink;
     return this;

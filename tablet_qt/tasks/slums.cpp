@@ -113,7 +113,7 @@ void initializeSlums(TaskFactory& factory)
 }
 
 
-Slums::Slums(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Slums::Slums(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, SLUMS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(ALERT, QVariant::Int);
@@ -197,7 +197,7 @@ QStringList Slums::detail() const
 }
 
 
-OpenableWidget* Slums::editor(bool read_only)
+OpenableWidget* Slums::editor(const bool read_only)
 {
     auto qfields = [this]
             (const QVector<QPair<QString, QString>>& fieldnames_xstringnames,

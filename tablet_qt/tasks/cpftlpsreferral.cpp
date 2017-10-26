@@ -84,7 +84,8 @@ void initializeCPFTLPSReferral(TaskFactory& factory)
 }
 
 
-CPFTLPSReferral::CPFTLPSReferral(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+CPFTLPSReferral::CPFTLPSReferral(CamcopsApp& app, DatabaseManager& db,
+                                 const int load_pk) :
     Task(app, db, CPFTLPSREFERRAL_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(REFERRAL_DATE_TIME, QVariant::DateTime);
@@ -194,7 +195,7 @@ QStringList CPFTLPSReferral::detail() const
 }
 
 
-OpenableWidget* CPFTLPSReferral::editor(bool read_only)
+OpenableWidget* CPFTLPSReferral::editor(const bool read_only)
 {
     const NameValueOptions referral_pickup_options = CommonOptions::optionsCopyingDescriptions({
         "Direct",

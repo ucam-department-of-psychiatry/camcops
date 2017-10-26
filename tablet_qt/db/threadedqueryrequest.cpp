@@ -19,11 +19,12 @@
 
 #include "threadedqueryrequest.h"
 
-ThreadedQueryRequest::ThreadedQueryRequest(const SqlArgs& sqlargs,
-                                           QueryResult::FetchMode fetch_mode,
-                                           bool store_column_names,
-                                           bool suppress_errors,
-                                           bool thread_abort_request_not_query) :
+ThreadedQueryRequest::ThreadedQueryRequest(
+        const SqlArgs& sqlargs,
+        QueryResult::FetchMode fetch_mode,
+        const bool store_column_names,
+        const bool suppress_errors,
+        const bool thread_abort_request_not_query) :
     sqlargs(sqlargs),
     fetch_mode(fetch_mode),
     store_column_names(store_column_names),

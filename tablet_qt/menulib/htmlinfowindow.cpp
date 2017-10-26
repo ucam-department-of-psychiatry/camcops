@@ -33,7 +33,7 @@
 
 HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
                                const QString& filename, const QString& icon,
-                               bool fullscreen) :
+                               const bool fullscreen) :
     m_app(app)
 {
     setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_MENU));

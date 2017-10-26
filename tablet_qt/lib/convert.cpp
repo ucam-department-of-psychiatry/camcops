@@ -586,7 +586,9 @@ QImage byteArrayToImage(const QByteArray& array, bool* successful,
 }
 
 
-int convertLengthByDpi(int old_length, qreal to_dpi, qreal from_dpi)
+int convertLengthByDpi(const int old_length,
+                       const qreal to_dpi,
+                       const qreal from_dpi)
 {
     // For example: 48 pixels (old_length) on a 96 dpi monitor (from_dpi)
     // should become 96 pixels on a 192-dpi screen
@@ -597,13 +599,15 @@ int convertLengthByDpi(int old_length, qreal to_dpi, qreal from_dpi)
 }
 
 
-int convertLengthByDpi(int old_length)
+int convertLengthByDpi(const int old_length)
 {
     return convertLengthByDpi(old_length, uiconst::DPI, uiconst::DEFAULT_DPI);
 }
 
 
-QSize convertSizeByDpi(const QSize& old_size,  qreal to_dpi, qreal from_dpi)
+QSize convertSizeByDpi(const QSize& old_size,
+                       const qreal to_dpi,
+                       const qreal from_dpi)
 {
     if (!old_size.isValid()) {
         return old_size;
@@ -645,7 +649,8 @@ QString toDp(double x, int dp)
 }
 
 
-QString prettyValue(const QVariant& variant, int dp, QVariant::Type type)
+QString prettyValue(const QVariant& variant,
+                    const int dp, const QVariant::Type type)
 {
     if (variant.isNull()) {
         return NULL_STR;
@@ -691,7 +696,7 @@ QString prettyValue(const QVariant& variant, int dp, QVariant::Type type)
 }
 
 
-QString prettyValue(const QVariant& variant, int dp)
+QString prettyValue(const QVariant& variant, const int dp)
 {
     return prettyValue(variant, dp, variant.type());
 }
@@ -703,8 +708,8 @@ const QStringList PREFIXES_SHORT_DECIMAL{"", "k", "M", "G", "T", "P", "E", "Z", 
 const QStringList PREFIXES_LONG_DECIMAL{"", "kilo", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta"};
 
 
-QString prettySize(double num, bool space, bool binary, bool longform,
-                   const QString& suffix)
+QString prettySize(const double num, const bool space, const bool binary,
+                   const bool longform, const QString& suffix)
 {
     // http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
     const QStringList& prefixes = binary
@@ -796,7 +801,7 @@ const QString SSLPROTODESC_TLSV1_2_OR_LATER = "TlsV1_2OrLater";
 const QString SSLPROTODESC_UNKNOWN_PROTOCOL = "UnknownProtocol";
 
 
-QString describeSslProtocol(QSsl::SslProtocol protocol)
+QString describeSslProtocol(const QSsl::SslProtocol protocol)
 {
     using namespace QSsl;
     switch (protocol) {
@@ -975,7 +980,7 @@ QVector<int> qVariantToIntVector(const QVariant& v)
 // JSON
 // ============================================================================
 
-QString stringListToJson(const QStringList& list, bool compact)
+QString stringListToJson(const QStringList& list, const bool compact)
 {
     const QJsonArray ja(QJsonArray::fromStringList(list));
     const QJsonDocument jd(ja);
@@ -1010,7 +1015,7 @@ const double KG_PER_OUNCE = GRAMS_PER_OUNCE / GRAMS_PER_KG;
 const double POUNDS_PER_KG = GRAMS_PER_KG / GRAMS_PER_POUND;
 
 
-double metresFromFeetInches(double feet, double inches)
+double metresFromFeetInches(const double feet, const double inches)
 {
     const double metres = (feet * INCHES_PER_FOOT + inches) * CM_PER_INCH / CM_PER_M;
 #ifdef DEBUG_UNIT_CONVERSION
@@ -1021,7 +1026,7 @@ double metresFromFeetInches(double feet, double inches)
 }
 
 
-void feetInchesFromMetres(double metres, int& feet, double& inches)
+void feetInchesFromMetres(const double metres, int& feet, double& inches)
 {
     const double total_inches = metres * CM_PER_M / CM_PER_INCH;
     feet = mathfunc::trunc(total_inches / INCHES_PER_FOOT);
@@ -1051,7 +1056,7 @@ double kilogramsFromStonesPoundsOunces(double stones, double pounds,
 }
 
 
-void stonesPoundsFromKilograms(double kilograms,
+void stonesPoundsFromKilograms(const double kilograms,
                                int& stones, double& pounds)
 {
     const double total_pounds = kilograms * POUNDS_PER_KG;
@@ -1064,7 +1069,7 @@ void stonesPoundsFromKilograms(double kilograms,
 }
 
 
-void stonesPoundsOuncesFromKilograms(double kilograms,
+void stonesPoundsOuncesFromKilograms(const double kilograms,
                                      int& stones, int& pounds, double& ounces)
 {
     const double total_pounds = kilograms * POUNDS_PER_KG;
@@ -1079,7 +1084,7 @@ void stonesPoundsOuncesFromKilograms(double kilograms,
 }
 
 
-int msFromSec(qreal seconds)
+int msFromSec(const qreal seconds)
 {
     return qRound(seconds * 1000);
 }

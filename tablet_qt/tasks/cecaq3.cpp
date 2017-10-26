@@ -300,7 +300,7 @@ void initializeCecaQ3(TaskFactory& factory)
 }
 
 
-CecaQ3::CecaQ3(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+CecaQ3::CecaQ3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CECAQ3_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
@@ -593,7 +593,7 @@ QStringList CecaQ3::detail() const
 }
 
 
-OpenableWidget* CecaQ3::editor(bool read_only)
+OpenableWidget* CecaQ3::editor(const bool read_only)
 {
     using CallbackFn = void (CecaQ3::*)();
     const NameValueOptions options_yesno = CommonOptions::noYesBoolean();
@@ -1812,7 +1812,8 @@ void CecaQ3::dataChangedDummy()
 }
 
 
-void CecaQ3::setMandatory(bool mandatory, const QStringList& fieldnames)
+void CecaQ3::setMandatory(const bool mandatory,
+                          const QStringList& fieldnames)
 {
     for (auto fieldname : fieldnames) {
         fieldRef(fieldname)->setMandatory(mandatory);
@@ -1820,7 +1821,8 @@ void CecaQ3::setMandatory(bool mandatory, const QStringList& fieldnames)
 }
 
 
-void CecaQ3::setMultipleResponseMinAnswers(const QString& tag, int min_answers)
+void CecaQ3::setMultipleResponseMinAnswers(const QString& tag,
+                                           const int min_answers)
 {
     if (!m_questionnaire) {
         return;

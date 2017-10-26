@@ -41,7 +41,7 @@ void initializePhoto(TaskFactory& factory)
 }
 
 
-Photo::Photo(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Photo::Photo(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PHOTO_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(DESCRIPTION, QVariant::String);
@@ -104,7 +104,7 @@ QStringList Photo::detail() const
 }
 
 
-OpenableWidget* Photo::editor(bool read_only)
+OpenableWidget* Photo::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{
         new QuText(textconst::PHOTO_Q),

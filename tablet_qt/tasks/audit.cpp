@@ -49,7 +49,7 @@ void initializeAudit(TaskFactory& factory)
 }
 
 
-Audit::Audit(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Audit::Audit(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, AUDIT_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
@@ -129,7 +129,7 @@ QStringList Audit::detail() const
 }
 
 
-OpenableWidget* Audit::editor(bool read_only)
+OpenableWidget* Audit::editor(const bool read_only)
 {
     const NameValueOptions options1{
         {xstring("q1_option0"), 0},

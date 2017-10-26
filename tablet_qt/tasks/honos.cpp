@@ -56,7 +56,7 @@ void initializeHonos(TaskFactory& factory)
 }
 
 
-Honos::Honos(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Honos::Honos(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, HONOS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -130,7 +130,7 @@ QStringList Honos::detail() const
 }
 
 
-OpenableWidget* Honos::editor(bool read_only)
+OpenableWidget* Honos::editor(const bool read_only)
 {
     const NameValueOptions q8_problemtype_options{
         {xstring("q8problemtype_option_a"), "A"},

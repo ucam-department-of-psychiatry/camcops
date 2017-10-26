@@ -43,7 +43,7 @@ void initializePhotoSequence(TaskFactory& factory)
 }
 
 
-PhotoSequence::PhotoSequence(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+PhotoSequence::PhotoSequence(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PHOTOSEQUENCE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(SEQUENCE_DESCRIPTION, QVariant::String);
@@ -97,7 +97,7 @@ QString PhotoSequence::ancillaryTableFKToTaskFieldname() const
 }
 
 
-void PhotoSequence::loadAllAncillary(int pk)
+void PhotoSequence::loadAllAncillary(const int pk)
 {
     const OrderBy order_by{{PhotoSequencePhoto::SEQNUM, true}};
     ancillaryfunc::loadAncillary<PhotoSequencePhoto, PhotoSequencePhotoPtr>(
@@ -161,7 +161,7 @@ QStringList PhotoSequence::detail() const
 }
 
 
-OpenableWidget* PhotoSequence::editor(bool read_only)
+OpenableWidget* PhotoSequence::editor(const bool read_only)
 {
     // One page per photo.
     // The first page also has the sequence description and clinician details.
@@ -208,7 +208,7 @@ void PhotoSequence::refreshQuestionnaire()
 }
 
 
-void PhotoSequence::addPage(int page_index)
+void PhotoSequence::addPage(const int page_index)
 {
     QuPage* page = new QuPage();
     rebuildPage(page, page_index);
@@ -216,7 +216,7 @@ void PhotoSequence::addPage(int page_index)
 }
 
 
-void PhotoSequence::rebuildPage(QuPage* page, int page_index)
+void PhotoSequence::rebuildPage(QuPage* page, const int page_index)
 {
     QVector<QuElement*> elements;
     QuButton::CallbackFunction callback_add =
@@ -309,7 +309,7 @@ void PhotoSequence::addPhoto()
 }
 
 
-void PhotoSequence::deletePhoto(int index)
+void PhotoSequence::deletePhoto(const int index)
 {
     if (index < 0 || index >= m_photos.size()) {
         return;
@@ -323,7 +323,7 @@ void PhotoSequence::deletePhoto(int index)
 }
 
 
-void PhotoSequence::movePhotoForwards(int index)
+void PhotoSequence::movePhotoForwards(const int index)
 {
     qDebug() << Q_FUNC_INFO << index;
     if (index < 0 || index >= m_photos.size() - 1) {
@@ -340,7 +340,7 @@ void PhotoSequence::movePhotoForwards(int index)
 }
 
 
-void PhotoSequence::movePhotoBackwards(int index)
+void PhotoSequence::movePhotoBackwards(const int index)
 {
     qDebug() << Q_FUNC_INFO << index;
     if (index < 1 || index >= m_photos.size()) {

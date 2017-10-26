@@ -65,7 +65,7 @@ void initializeRand36(TaskFactory& factory)
 }
 
 
-Rand36::Rand36(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Rand36::Rand36(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, RAND36_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -137,7 +137,7 @@ QStringList Rand36::detail() const
 }
 
 
-OpenableWidget* Rand36::editor(bool read_only)
+OpenableWidget* Rand36::editor(const bool read_only)
 {
     const NameValueOptions q1options{
         {xstring("q1_option1"), 1},
@@ -308,7 +308,7 @@ OpenableWidget* Rand36::editor(bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-QVariant Rand36::recoded(int question) const
+QVariant Rand36::recoded(const int question) const
 {
     const QVariant v = value(strnum(QPREFIX, question));
     if (v.isNull()) {

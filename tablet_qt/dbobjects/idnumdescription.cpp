@@ -27,7 +27,7 @@ const QString FN_IDSHORTDESC("idshortdesc");
 
 
 IdNumDescription::IdNumDescription(CamcopsApp& app, DatabaseManager& db,
-                                   int which_idnum) :
+                                   const int which_idnum) :
     DatabaseObject(app, db, IDNUMDESC_TABLENAME,
                    FN_IDNUM,  // pk
                    false, false, false, false)  // internal tables only

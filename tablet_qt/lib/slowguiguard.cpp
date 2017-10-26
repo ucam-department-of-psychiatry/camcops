@@ -35,7 +35,7 @@ SlowGuiGuard::SlowGuiGuard(QApplication& app,
                            QWidget* parent,
                            const QString& text,
                            const QString& title,
-                           int minimum_duration_ms) :
+                           const int minimum_duration_ms) :
     m_wait_box(nullptr)
 
 {

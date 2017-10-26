@@ -38,7 +38,7 @@ QuHorizontalContainer::QuHorizontalContainer()
 
 QuHorizontalContainer::QuHorizontalContainer(
         const QVector<QuElementPtr>& elements,
-        Qt::Alignment alignment) :
+        const Qt::Alignment alignment) :
     m_elements(elements)
 {
     createAlignments(alignment);
@@ -48,7 +48,7 @@ QuHorizontalContainer::QuHorizontalContainer(
 
 QuHorizontalContainer::QuHorizontalContainer(
         std::initializer_list<QuElementPtr> elements,
-        Qt::Alignment alignment) :
+        const Qt::Alignment alignment) :
     m_elements(elements)
 {
     createAlignments(alignment);
@@ -58,7 +58,7 @@ QuHorizontalContainer::QuHorizontalContainer(
 
 QuHorizontalContainer::QuHorizontalContainer(
         std::initializer_list<QuElement*> elements,
-        Qt::Alignment alignment)
+        const Qt::Alignment alignment)
 {
     for (auto e : elements) {
         addElement(e, alignment);
@@ -73,7 +73,7 @@ void QuHorizontalContainer::commonConstructor()
 }
 
 
-void QuHorizontalContainer::createAlignments(Qt::Alignment alignment)
+void QuHorizontalContainer::createAlignments(const Qt::Alignment alignment)
 {
     m_widget_alignments.clear();
     for (int i = 0; i < m_elements.size(); ++i) {
@@ -83,7 +83,7 @@ void QuHorizontalContainer::createAlignments(Qt::Alignment alignment)
 
 
 QuHorizontalContainer* QuHorizontalContainer::addElement(
-        const QuElementPtr& element, Qt::Alignment alignment)
+        const QuElementPtr& element, const Qt::Alignment alignment)
 {
     m_elements.append(element);
     m_widget_alignments.append(alignment);
@@ -92,7 +92,8 @@ QuHorizontalContainer* QuHorizontalContainer::addElement(
 
 
 QuHorizontalContainer* QuHorizontalContainer::addElement(
-        QuElement* element, Qt::Alignment alignment)  // takes ownership
+        QuElement* element,   // takes ownership
+        const Qt::Alignment alignment)
 {
     // If you add a nullptr, it will be ignored.
     if (element) {
@@ -104,7 +105,7 @@ QuHorizontalContainer* QuHorizontalContainer::addElement(
 
 
 QuHorizontalContainer* QuHorizontalContainer::setWidgetAlignment(
-        Qt::Alignment alignment)
+        const Qt::Alignment alignment)
 {
     createAlignments(alignment);
     return this;
@@ -112,7 +113,7 @@ QuHorizontalContainer* QuHorizontalContainer::setWidgetAlignment(
 
 
 QuHorizontalContainer* QuHorizontalContainer::setAddStretchRight(
-        bool add_stretch_right)
+        const bool add_stretch_right)
 {
     m_add_stretch_right = add_stretch_right;
     return this;

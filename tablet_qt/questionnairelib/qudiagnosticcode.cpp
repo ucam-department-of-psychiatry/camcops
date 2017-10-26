@@ -64,7 +64,8 @@ QuDiagnosticCode::QuDiagnosticCode(DiagnosticCodeSetPtr codeset,
 }
 
 
-QuDiagnosticCode* QuDiagnosticCode::setOfferNullButton(bool offer_null_button)
+QuDiagnosticCode* QuDiagnosticCode::setOfferNullButton(
+        const bool offer_null_button)
 {
     m_offer_null_button = offer_null_button;
     return this;

@@ -45,7 +45,7 @@ QuPickerInline::QuPickerInline(FieldRefPtr fieldref,
 }
 
 
-QuPickerInline* QuPickerInline::setRandomize(bool randomize)
+QuPickerInline* QuPickerInline::setRandomize(const bool randomize)
 {
     m_randomize = randomize;
     return this;
@@ -84,7 +84,7 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
 }
 
 
-void QuPickerInline::currentIndexChanged(int index)
+void QuPickerInline::currentIndexChanged(const int index)
 {
     // qDebug().nospace() << "QuPickerInline::currentIndexChanged(" << index << ")";
     if (!m_options.validIndex(index)) {

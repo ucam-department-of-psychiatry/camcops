@@ -25,12 +25,12 @@
 #include "lib/sizehelpers.h"
 
 
-FixedAreaHfwTestWidget::FixedAreaHfwTestWidget(int area,
-                                               int preferred_width,
-                                               QColor background_colour,
-                                               int border_thickness,
-                                               QColor border_colour,
-                                               QColor text_colour,
+FixedAreaHfwTestWidget::FixedAreaHfwTestWidget(const int area,
+                                               const int preferred_width,
+                                               const QColor& background_colour,
+                                               const int border_thickness,
+                                               const QColor& border_colour,
+                                               const QColor& text_colour,
                                                QWidget* parent) :
     QWidget(parent),
     m_area(area),
@@ -58,7 +58,7 @@ bool FixedAreaHfwTestWidget::hasHeightForWidth() const
 }
 
 
-int FixedAreaHfwTestWidget::heightForWidth(int width) const
+int FixedAreaHfwTestWidget::heightForWidth(const int width) const
 {
     return qRound((double)m_area / (double)width);
     // http://stackoverflow.com/questions/13663545/does-one-double-promote-every-int-in-the-equation-to-double

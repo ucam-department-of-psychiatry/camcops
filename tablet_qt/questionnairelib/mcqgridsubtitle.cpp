@@ -19,8 +19,8 @@
 
 #include "mcqgridsubtitle.h"
 
-McqGridSubtitle::McqGridSubtitle(int pos, const QString& string,
-                                 bool repeat_options) :
+McqGridSubtitle::McqGridSubtitle(const int pos, const QString& string,
+                                 const bool repeat_options) :
     m_pos(pos),
     m_string(string),
     m_repeat_options(repeat_options)

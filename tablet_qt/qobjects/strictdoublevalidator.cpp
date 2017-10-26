@@ -26,9 +26,10 @@
 #include "lib/numericfunc.h"
 
 
-StrictDoubleValidator::StrictDoubleValidator(double bottom, double top,
-                                             int decimals, bool allow_empty,
-                                             QObject* parent) :
+StrictDoubleValidator::StrictDoubleValidator(
+        const double bottom, const double top,
+        const int decimals, const bool allow_empty,
+        QObject* parent) :
     QDoubleValidator(bottom, top, decimals, parent),
     m_allow_empty(allow_empty)
 {

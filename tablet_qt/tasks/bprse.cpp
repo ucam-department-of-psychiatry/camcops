@@ -46,7 +46,7 @@ void initializeBprsE(TaskFactory& factory)
 }
 
 
-BprsE::BprsE(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+BprsE::BprsE(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, BPRSE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -104,7 +104,7 @@ QStringList BprsE::detail() const
 }
 
 
-OpenableWidget* BprsE::editor(bool read_only)
+OpenableWidget* BprsE::editor(const bool read_only)
 {
     NameValuePair option0(xstring("option0"), 0);
     NameValuePair option1(xstring("option1"), 1);

@@ -49,7 +49,7 @@ QuAudioPlayer::~QuAudioPlayer()
 }
 
 
-QuAudioPlayer* QuAudioPlayer::setVolume(int volume)
+QuAudioPlayer* QuAudioPlayer::setVolume(const int volume)
 {
     // qDebug().nospace() << "QuAudioPlayer::setVolume(" << volume << ")";
     m_volume = qBound(uiconst::MIN_VOLUME_QT, volume, uiconst::MAX_VOLUME_QT);
@@ -60,7 +60,8 @@ QuAudioPlayer* QuAudioPlayer::setVolume(int volume)
 }
 
 
-QuAudioPlayer* QuAudioPlayer::setOfferVolumeControl(bool offer_volume_control)
+QuAudioPlayer* QuAudioPlayer::setOfferVolumeControl(
+        const bool offer_volume_control)
 {
     m_offer_volume_control = offer_volume_control;
     return this;
@@ -141,7 +142,7 @@ void QuAudioPlayer::stop()
 }
 
 
-void QuAudioPlayer::mediaStatusChanged(QMediaPlayer::MediaStatus status)
+void QuAudioPlayer::mediaStatusChanged(const QMediaPlayer::MediaStatus status)
 {
     if (status == QMediaPlayer::EndOfMedia) {
         qDebug() << "Playback finished for:" << m_url;
@@ -150,7 +151,7 @@ void QuAudioPlayer::mediaStatusChanged(QMediaPlayer::MediaStatus status)
 }
 
 
-void QuAudioPlayer::setVolumeNoReturn(int volume)
+void QuAudioPlayer::setVolumeNoReturn(const int volume)
 {
     if (!m_player) {
         return;

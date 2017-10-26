@@ -20,7 +20,7 @@
 #include "threadworker.h"
 
 
-ThreadWorker::ThreadWorker(PlainWorkerFunction func) :
+ThreadWorker::ThreadWorker(const PlainWorkerFunction& func) :
     m_plainfunc(func)
 {
 }

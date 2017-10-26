@@ -56,7 +56,7 @@ void initializeCbiR(TaskFactory& factory)
 }
 
 
-CbiR::CbiR(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+CbiR::CbiR(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CBIR_TABLENAME, false, false, true),  // ... anon, clin, resp
     m_confirmation_fr(nullptr)
 {
@@ -114,7 +114,7 @@ QStringList CbiR::detail() const
 }
 
 
-OpenableWidget* CbiR::editor(bool read_only)
+OpenableWidget* CbiR::editor(const bool read_only)
 {
     const NameValueOptions freq_options{
         {xstring("f0"), 0},

@@ -32,14 +32,14 @@ std::random_device rd;
 std::mt19937 rng(rd());
 
 
-bool coin(qreal p)
+bool coin(const qreal p)
 {
     std::bernoulli_distribution dist(p);
     return dist(rng);
 }
 
 
-int randomInt(int minimum, int maximum)
+int randomInt(const int minimum, const int maximum)
 {
     // [minimum, maximum] -- i.e. inclusive
     std::uniform_int_distribution<int> dist(minimum, maximum);
@@ -47,7 +47,7 @@ int randomInt(int minimum, int maximum)
 }
 
 
-double randomRealExcUpper(double minimum, double maximum)
+double randomRealExcUpper(const double minimum, const double maximum)
 {
     // [minimum, maximum) -- i.e. includes lower but not upper bound
     // - http://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
@@ -73,7 +73,7 @@ double randomRealExcUpper(double minimum, double maximum)
 }
 
 
-float nextFloatAbove(float x)
+float nextFloatAbove(const float x)
 {
     // https://stackoverflow.com/questions/16335992/alternative-to-c11s-stdnextafter-and-stdnexttoward-for-c03
     // https://randomascii.wordpress.com/2012/01/23/stupid-float-tricks-2/
@@ -91,7 +91,7 @@ float nextFloatAbove(float x)
 }
 
 
-double nextDoubleAboveManual(double x)
+double nextDoubleAboveManual(const double x)
 {
     if (std::numeric_limits<double>::is_iec559) {
         BitRepresentationDouble brd(x);
@@ -106,7 +106,7 @@ double nextDoubleAboveManual(double x)
 }
 
 
-double nextDoubleAbove(double x)
+double nextDoubleAbove(const double x)
 {
     // Detecting the build type:
     // https://stackoverflow.com/questions/6374523/how-to-detect-compilation-by-android-ndk-in-a-c-c-file
@@ -118,7 +118,7 @@ double nextDoubleAbove(double x)
 }
 
 
-double randomRealIncUpper(double minimum, double maximum)
+double randomRealIncUpper(const double minimum, const double maximum)
 {
     // [minimum, maximum] -- i.e. inclusive
     // http://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution

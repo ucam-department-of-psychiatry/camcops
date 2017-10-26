@@ -42,7 +42,7 @@ void initializeFft(TaskFactory& factory)
 }
 
 
-Fft::Fft(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Fft::Fft(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, FFT_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(SERVICE, QVariant::String);
@@ -112,7 +112,7 @@ QStringList Fft::detail() const
 }
 
 
-OpenableWidget* Fft::editor(bool read_only)
+OpenableWidget* Fft::editor(const bool read_only)
 {
     NameValueOptions options;
     for (int i = 1; i <= 6; ++i) {

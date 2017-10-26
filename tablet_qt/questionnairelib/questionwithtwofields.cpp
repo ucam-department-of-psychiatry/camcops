@@ -58,7 +58,7 @@ FieldRefPtr QuestionWithTwoFields::secondFieldRef() const
 }
 
 
-FieldRefPtr QuestionWithTwoFields::fieldref(bool first_field) const
+FieldRefPtr QuestionWithTwoFields::fieldref(const bool first_field) const
 {
     return first_field ? m_first_field : m_second_field;
 }

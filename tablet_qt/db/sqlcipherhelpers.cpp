@@ -127,7 +127,7 @@ QSqlError qMakeError(sqlite3* access, const QString& descr,
 
 
 QSqlIndex qGetTableInfo(QSqlQuery& q, const QString& table_name,
-                        bool only_p_index)
+                        const bool only_p_index)
 {
     QString schema;
     QString table(table_name);

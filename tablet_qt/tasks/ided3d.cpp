@@ -233,7 +233,7 @@ void initializeIDED3D(TaskFactory& factory)
 // IDED3D
 // ============================================================================
 
-IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IDED3D_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config
@@ -412,7 +412,7 @@ QStringList IDED3D::detail() const
 }
 
 
-OpenableWidget* IDED3D::editor(bool read_only)
+OpenableWidget* IDED3D::editor(const bool read_only)
 {
     // ------------------------------------------------------------------------
     // OK to edit?
@@ -773,9 +773,9 @@ void IDED3D::debugDisplayStimuli()
 
 
 SvgWidgetAndProxy IDED3D::showIndividualStimulus(
-        int stimulus_num, const QColor& colour,
-        const QPointF& centre, qreal scale,
-        bool debug)
+        const int stimulus_num, const QColor& colour,
+        const QPointF& centre, const qreal scale,
+        const bool debug)
 {
     Q_ASSERT(stimulus_num >= 0 && stimulus_num < IDED3DExemplars::nShapes());
     const QString& path_contents = IDED3DExemplars::shapeSvg(stimulus_num);
@@ -794,7 +794,7 @@ SvgWidgetAndProxy IDED3D::showIndividualStimulus(
 }
 
 
-QVector<QPointF> IDED3D::stimCentres(int n) const
+QVector<QPointF> IDED3D::stimCentres(const int n) const
 {
     // Centre-of-stimulus positions within box.
     // Distribute stimuli about (0, 0) in an imaginary box that's 1 x 1,
@@ -856,7 +856,7 @@ QVector<QPointF> IDED3D::stimCentres(int n) const
 }
 
 
-QRectF IDED3D::locationRect(int location) const
+QRectF IDED3D::locationRect(const int location) const
 {
     Q_ASSERT(location >= 0 && location < LOCATIONS.size());
     const QPointF centre = LOCATIONS.at(location);
@@ -867,7 +867,9 @@ QRectF IDED3D::locationRect(int location) const
 }
 
 
-void IDED3D::showEmptyBox(int location, bool touchable, bool correct)
+void IDED3D::showEmptyBox(const int location,
+                          const bool touchable,
+                          const bool correct)
 {
     const QRectF rect = locationRect(location);
     ButtonAndProxy box = makeTextButton(
@@ -881,8 +883,11 @@ void IDED3D::showEmptyBox(int location, bool touchable, bool correct)
 }
 
 
-void IDED3D::showCompositeStimulus(int shape, int colour_number, int number,
-                                   int location, bool correct)
+void IDED3D::showCompositeStimulus(const int shape,
+                                   const int colour_number,
+                                   const int number,
+                                   const int location,
+                                   bool correct)
 {
     Q_ASSERT(location >= 0 && location < LOCATIONS.size());
     const QPointF overall_centre = LOCATIONS.at(location);
@@ -1112,7 +1117,7 @@ void IDED3D::startTrial()
 }
 
 
-void IDED3D::recordResponse(bool correct)
+void IDED3D::recordResponse(const bool correct)
 {
     qDebug() << Q_FUNC_INFO << "correct" << correct;
     Q_ASSERT(0 <= m_current_stage && m_current_stage < m_stages.size());
@@ -1145,7 +1150,7 @@ void IDED3D::showAnswer(bool correct)
 }
 
 
-void IDED3D::mediaStatusChanged(QMediaPlayer::MediaStatus status)
+void IDED3D::mediaStatusChanged(const QMediaPlayer::MediaStatus status)
 {
     if (status == QMediaPlayer::EndOfMedia) {
 #ifdef DEBUG_STEP_DETAIL

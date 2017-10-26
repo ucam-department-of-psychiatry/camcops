@@ -52,7 +52,7 @@ void initializeContactLog(TaskFactory& factory)
 }
 
 
-ContactLog::ContactLog(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+ContactLog::ContactLog(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CONTACTLOG_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(LOCATION, QVariant::String);
@@ -142,7 +142,7 @@ QStringList ContactLog::detail() const
 }
 
 
-OpenableWidget* ContactLog::editor(bool read_only)
+OpenableWidget* ContactLog::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{
         getClinicianQuestionnaireBlockRawPointer(),

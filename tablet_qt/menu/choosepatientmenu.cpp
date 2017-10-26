@@ -109,7 +109,7 @@ void ChoosePatientMenu::addPatient()
 }
 
 
-void ChoosePatientMenu::editPatient(bool read_only)
+void ChoosePatientMenu::editPatient(const bool read_only)
 {
 #ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO;

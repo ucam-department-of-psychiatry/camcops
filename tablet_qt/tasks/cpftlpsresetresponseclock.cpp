@@ -55,7 +55,8 @@ void initializeCPFTLPSResetResponseClock(TaskFactory& factory)
 }
 
 
-CPFTLPSResetResponseClock::CPFTLPSResetResponseClock(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+CPFTLPSResetResponseClock::CPFTLPSResetResponseClock(
+        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CPFTLPSRESETCLOCK_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(RESET_START_TIME_TO, QVariant::DateTime);
@@ -128,7 +129,7 @@ QStringList CPFTLPSResetResponseClock::detail() const
 }
 
 
-OpenableWidget* CPFTLPSResetResponseClock::editor(bool read_only)
+OpenableWidget* CPFTLPSResetResponseClock::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{
         getClinicianQuestionnaireBlockRawPointer(),

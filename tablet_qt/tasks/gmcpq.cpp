@@ -72,7 +72,7 @@ void initializeGmcPq(TaskFactory& factory)
 }
 
 
-GmcPq::GmcPq(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+GmcPq::GmcPq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GMCPQ_TABLENAME, true, false, false)  // ... anon, clin, resp
 {
     addField(DOCTOR, QVariant::String);
@@ -197,7 +197,7 @@ QStringList GmcPq::detail() const
 }
 
 
-OpenableWidget* GmcPq::editor(bool read_only)
+OpenableWidget* GmcPq::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
     const NameValueOptions yn_options = CommonOptions::yesNoBoolean();

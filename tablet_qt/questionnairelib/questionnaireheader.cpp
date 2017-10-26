@@ -33,11 +33,11 @@
 
 QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
                                          const QString& title,
-                                         bool read_only,
-                                         bool jump_allowed,
-                                         bool within_chain,
+                                         const bool read_only,
+                                         const bool jump_allowed,
+                                         const bool within_chain,
                                          const QString& css_name,
-                                         bool debug_allowed) :
+                                         const bool debug_allowed) :
     BaseWidget(parent),
     m_title(title),
     m_button_debug(nullptr),
@@ -151,7 +151,9 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
 }
 
 
-void QuestionnaireHeader::setButtons(bool previous, bool next, bool finish)
+void QuestionnaireHeader::setButtons(const bool previous,
+                                     const bool next,
+                                     const bool finish)
 {
     m_button_previous->setVisible(previous);
     m_button_next->setVisible(next);

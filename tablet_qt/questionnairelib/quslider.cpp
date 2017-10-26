@@ -32,7 +32,8 @@
 const int WRITE_DELAY_MS = 50;  // 10 is a bit low (sliders look slow)
 
 
-QuSlider::QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step) :
+QuSlider::QuSlider(FieldRefPtr fieldref,
+                   const int minimum, const int maximum, const int step) :
     // Core
     m_fieldref(fieldref),
     m_minimum(minimum),
@@ -67,38 +68,38 @@ QuSlider::QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step) :
 }
 
 
-QuSlider* QuSlider::setBigStep(int big_step)
+QuSlider* QuSlider::setBigStep(const int big_step)
 {
     m_big_step = qMin(m_step, big_step);
     return this;
 }
 
 
-QuSlider* QuSlider::setTickInterval(int tick_interval)
+QuSlider* QuSlider::setTickInterval(const int tick_interval)
 {
     m_tick_interval = tick_interval;
     return this;
 }
 
 
-QuSlider* QuSlider::setTickPosition(QSlider::TickPosition position)
+QuSlider* QuSlider::setTickPosition(const QSlider::TickPosition position)
 {
     m_tick_position = position;
     return this;
 }
 
 
-QuSlider* QuSlider::setNullApparentValue(int null_apparent_value)
+QuSlider* QuSlider::setNullApparentValue(const int null_apparent_value)
 {
     m_null_apparent_value = null_apparent_value;
     return this;
 }
 
 
-QuSlider* QuSlider::setConvertForRealField(bool convert_for_real_field,
-                                           double field_minimum,
-                                           double field_maximum,
-                                           int display_dp)
+QuSlider* QuSlider::setConvertForRealField(const bool convert_for_real_field,
+                                           const double field_minimum,
+                                           const double field_maximum,
+                                           const int display_dp)
 {
     m_convert_for_real_field = convert_for_real_field;
     m_field_minimum = field_minimum;
@@ -108,14 +109,14 @@ QuSlider* QuSlider::setConvertForRealField(bool convert_for_real_field,
 }
 
 
-QuSlider* QuSlider::setHorizontal(bool horizontal)
+QuSlider* QuSlider::setHorizontal(const bool horizontal)
 {
     m_horizontal = horizontal;
     return this;
 }
 
 
-QuSlider* QuSlider::setShowValue(bool show_value)
+QuSlider* QuSlider::setShowValue(const bool show_value)
 {
     m_show_value = show_value;
     return this;
@@ -130,21 +131,21 @@ QuSlider* QuSlider::setTickLabels(const QMap<int, QString>& labels)
 }
 
 
-QuSlider* QuSlider::setTickLabelPosition(QSlider::TickPosition position)
+QuSlider* QuSlider::setTickLabelPosition(const QSlider::TickPosition position)
 {
     m_tick_label_position = position;
     return this;
 }
 
 
-QuSlider* QuSlider::setUseDefaultTickLabels(bool use_default)
+QuSlider* QuSlider::setUseDefaultTickLabels(const bool use_default)
 {
     m_use_default_labels = use_default;
     return this;
 }
 
 
-QuSlider* QuSlider::setEdgeInExtremeLabels(bool edge_in_extreme_labels)
+QuSlider* QuSlider::setEdgeInExtremeLabels(const bool edge_in_extreme_labels)
 {
     m_edge_in_extreme_labels = edge_in_extreme_labels;
     return this;
@@ -176,7 +177,7 @@ int QuSlider::sliderValueFromField(const QVariant& field_value) const
 }
 
 
-QVariant QuSlider::fieldValueFromSlider(int slider_value) const
+QVariant QuSlider::fieldValueFromSlider(const int slider_value) const
 {
     if (!m_convert_for_real_field) {
         return slider_value;
@@ -271,7 +272,7 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
 }
 
 
-void QuSlider::sliderValueChanged(int slider_value)
+void QuSlider::sliderValueChanged(const int slider_value)
 {
     // Now, watch out. This can really screw up the UI performance.
     // QSlider objects can trigger lots of valueChanged signals very quickly.

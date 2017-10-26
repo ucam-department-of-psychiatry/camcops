@@ -38,7 +38,8 @@ void initializeProgressNote(TaskFactory& factory)
 }
 
 
-ProgressNote::ProgressNote(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+ProgressNote::ProgressNote(CamcopsApp& app, DatabaseManager& db,
+                           const int load_pk) :
     Task(app, db, PROGNOTE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(LOCATION, QVariant::String);
@@ -101,7 +102,7 @@ QStringList ProgressNote::detail() const
 }
 
 
-OpenableWidget* ProgressNote::editor(bool read_only)
+OpenableWidget* ProgressNote::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{
         getClinicianQuestionnaireBlockRawPointer(),

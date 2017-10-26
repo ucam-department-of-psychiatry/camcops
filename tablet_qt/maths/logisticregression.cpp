@@ -152,10 +152,10 @@ Implement a GLM in Eigen, and subspecialize it for logistic regression.
 
 
 LogisticRegression::LogisticRegression(
-        SolveMethod solve_method,
-        int max_iterations,
-        double tolerance,
-        RankDeficiencyMethod rank_deficiency_method) :
+        const SolveMethod solve_method,
+        const int max_iterations,
+        const double tolerance,
+        const RankDeficiencyMethod rank_deficiency_method) :
     Glm(LINK_FN_FAMILY_LOGIT, solve_method, max_iterations, tolerance,
         rank_deficiency_method)
 {
@@ -195,7 +195,7 @@ VectorXd LogisticRegression::predictProb(const MatrixXd& X) const
 
 
 VectorXi LogisticRegression::binaryFromP(const VectorXd& p,
-                                         double threshold) const
+                                         const double threshold) const
 {
     const ArrayXXd a = p.array();
     const Array<bool, Dynamic, Dynamic> b = a >= threshold;
@@ -205,14 +205,14 @@ VectorXi LogisticRegression::binaryFromP(const VectorXd& p,
 }
 
 
-VectorXi LogisticRegression::predictBinary(double threshold) const
+VectorXi LogisticRegression::predictBinary(const double threshold) const
 {
     return binaryFromP(predict(), threshold);
 }
 
 
 VectorXi LogisticRegression::predictBinary(const MatrixXd& X,
-                                           double threshold) const
+                                           const double threshold) const
 {
     return binaryFromP(predictProb(X), threshold);
 }

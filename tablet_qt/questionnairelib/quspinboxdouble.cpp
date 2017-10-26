@@ -25,8 +25,8 @@
 #include "questionnaire.h"
 
 
-QuSpinBoxDouble::QuSpinBoxDouble(FieldRefPtr fieldref, double minimum,
-                                 double maximum, int decimals) :
+QuSpinBoxDouble::QuSpinBoxDouble(FieldRefPtr fieldref, const double minimum,
+                                 const double maximum, const int decimals) :
     m_fieldref(fieldref),
     m_minimum(minimum),
     m_maximum(maximum),
@@ -86,7 +86,7 @@ FieldRefPtrList QuSpinBoxDouble::fieldrefs() const
 }
 
 
-void QuSpinBoxDouble::widgetValueChanged(double value)
+void QuSpinBoxDouble::widgetValueChanged(const double value)
 {
 #ifdef DEBUG_SIGNALS
     qDebug() << Q_FUNC_INFO << value;

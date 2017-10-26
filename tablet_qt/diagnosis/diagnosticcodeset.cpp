@@ -42,7 +42,7 @@ DiagnosticCodeSet::~DiagnosticCodeSet()
 }
 
 
-QModelIndex DiagnosticCodeSet::index(int row, int column,
+QModelIndex DiagnosticCodeSet::index(const int row, const int column,
                                      const QModelIndex& parent_index) const
 {
     if (!hasIndex(row, column, parent_index)) {
@@ -113,7 +113,8 @@ int DiagnosticCodeSet::columnCount(const QModelIndex& parent_index) const
 }
 
 
-QVariant DiagnosticCodeSet::data(const QModelIndex &index, int role) const
+QVariant DiagnosticCodeSet::data(const QModelIndex &index,
+                                 const int role) const
 {
     if (!index.isValid()) {
         return QVariant();
@@ -146,9 +147,9 @@ Qt::ItemFlags DiagnosticCodeSet::flags(const QModelIndex& index) const
 }
 
 
-QVariant DiagnosticCodeSet::headerData(int section,
-                                       Qt::Orientation orientation,
-                                       int role) const
+QVariant DiagnosticCodeSet::headerData(const int section,
+                                       const Qt::Orientation orientation,
+                                       const int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         return m_root_item->data(section);
@@ -221,8 +222,8 @@ int DiagnosticCodeSet::size() const
 
 DiagnosticCode* DiagnosticCodeSet::addCode(
         DiagnosticCode* parent, const QString& code,
-        const QString& description, bool selectable,
-        bool show_code_in_full_name)
+        const QString& description, const bool selectable,
+        const bool show_code_in_full_name)
 {
     if (parent == nullptr) {
         parent = m_root_item;

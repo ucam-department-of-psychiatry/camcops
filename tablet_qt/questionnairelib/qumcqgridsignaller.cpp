@@ -23,7 +23,7 @@
 
 
 QuMcqGridSignaller::QuMcqGridSignaller(QuMcqGrid* recipient,
-                                       int question_index) :
+                                       const int question_index) :
     m_recipient(recipient),
     m_question_index(question_index)
 {

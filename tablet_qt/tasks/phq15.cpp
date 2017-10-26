@@ -48,7 +48,7 @@ void initializePhq15(TaskFactory& factory)
 }
 
 
-Phq15::Phq15(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Phq15::Phq15(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PHQ15_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -126,7 +126,7 @@ QStringList Phq15::detail() const
 }
 
 
-OpenableWidget* Phq15::editor(bool read_only)
+OpenableWidget* Phq15::editor(const bool read_only)
 {
     const NameValueOptions options{
         {xstring("a0"), 0},

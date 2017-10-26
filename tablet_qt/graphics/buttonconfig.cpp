@@ -20,14 +20,14 @@
 #include "buttonconfig.h"
 
 
-ButtonConfig::ButtonConfig(int padding_px,
-                           int font_size_px,
+ButtonConfig::ButtonConfig(const int padding_px,
+                           const int font_size_px,
                            const QColor& text_colour,
-                           Qt::Alignment text_alignment,
+                           const Qt::Alignment text_alignment,
                            const QColor& background_colour,
                            const QColor& pressed_background_colour,
                            const QPen& border_pen,
-                           int corner_radius_px) :
+                           const int corner_radius_px) :
     padding_px(padding_px),
     font_size_px(font_size_px),
     text_colour(text_colour),
@@ -46,14 +46,14 @@ ButtonConfig ButtonConfig::clone() const
 }
 
 
-ButtonConfig& ButtonConfig::setPadding(int font_size_px_)
+ButtonConfig& ButtonConfig::setPadding(const int font_size_px_)
 {
     font_size_px = font_size_px_;
     return *this;
 }
 
 
-ButtonConfig& ButtonConfig::setFontSize(int font_size_px_)
+ButtonConfig& ButtonConfig::setFontSize(const int font_size_px_)
 {
     font_size_px = font_size_px_;
     return *this;
@@ -67,21 +67,24 @@ ButtonConfig& ButtonConfig::setTextColour(const QColor& text_colour_)
 }
 
 
-ButtonConfig& ButtonConfig::setTextAlignment(Qt::Alignment text_alignment_)
+ButtonConfig& ButtonConfig::setTextAlignment(
+        const Qt::Alignment text_alignment_)
 {
     text_alignment = text_alignment_;
     return *this;
 }
 
 
-ButtonConfig& ButtonConfig::setBackgroundColour(const QColor& background_colour_)
+ButtonConfig& ButtonConfig::setBackgroundColour(
+        const QColor& background_colour_)
 {
     background_colour = background_colour_;
     return *this;
 }
 
 
-ButtonConfig& ButtonConfig::setPressedBackgroundColour(const QColor& pressed_background_colour_)
+ButtonConfig& ButtonConfig::setPressedBackgroundColour(
+        const QColor& pressed_background_colour_)
 {
     pressed_background_colour = pressed_background_colour_;
     return *this;
@@ -95,7 +98,7 @@ ButtonConfig& ButtonConfig::setBorderPen(const QPen& border_pen_)
 }
 
 
-ButtonConfig& ButtonConfig::setCornerRadius(int corner_radius_px_)
+ButtonConfig& ButtonConfig::setCornerRadius(const int corner_radius_px_)
 {
     corner_radius_px = corner_radius_px_;
     return *this;

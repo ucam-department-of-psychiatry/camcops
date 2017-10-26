@@ -60,7 +60,7 @@ ArrayXb makeBoolArray(std::initializer_list<bool> vlist)
 // Miscellaneous helpers
 // ============================================================================
 
-IndexArray indexSeq(Index first, Index last, Index step)
+IndexArray indexSeq(const Index first, const Index last, const Index step)
 {
     const int n = (1 + last - first) / step;
     IndexArray indices(n);
@@ -78,7 +78,7 @@ IndexArray indexSeq(Index first, Index last, Index step)
 }
 
 
-ArrayXb selectBoolFromIndices(const IndexArray& indices, Index size)
+ArrayXb selectBoolFromIndices(const IndexArray& indices, const Index size)
 {
     ArrayXb select_bool(size);
     select_bool.setConstant(false);
@@ -91,8 +91,9 @@ ArrayXb selectBoolFromIndices(const IndexArray& indices, Index size)
 }
 
 
-ArrayXXb selectBoolFromIndices(const IndexArray& indices, Index n_rows,
-                               Index n_cols)
+ArrayXXb selectBoolFromIndices(const IndexArray& indices,
+                               const Index n_rows,
+                               const Index n_cols)
 {
     ArrayXXb select_bool(n_rows, n_cols);
     select_bool.setConstant(false);
@@ -120,8 +121,8 @@ MatrixXd addOnesAsFirstColumn(const MatrixXd& m)
 // ============================================================================
 
 MatrixXd scale(const MatrixXd& x,
-               bool centre_on_column_mean,
-               bool scale_divide_by_column_rms,
+               const bool centre_on_column_mean,
+               const bool scale_divide_by_column_rms,
                const ArrayXd& centre_values,
                const ArrayXd& scale_values)
 {
@@ -177,7 +178,7 @@ MatrixXd scale(const MatrixXd& x,
 }
 
 
-Eigen::MatrixXd chol(const Eigen::MatrixXd& x, bool pivot)
+Eigen::MatrixXd chol(const Eigen::MatrixXd& x, const bool pivot)
 {
     if (x.rows() != x.cols()) {
         qFatal("Cholesky decomposition requires a SQUARE matrix");
@@ -199,9 +200,9 @@ Eigen::MatrixXd chol(const Eigen::MatrixXd& x, bool pivot)
 
 Eigen::MatrixXd backsolve(const Eigen::MatrixXd& r,
                           const Eigen::MatrixXd& x,
-                          Eigen::Index k,
-                          bool transpose,
-                          bool upper_tri)
+                          const Eigen::Index k,
+                          const bool transpose,
+                          const bool upper_tri)
 {
     return forwardOrBackSolve(r, x, k, transpose, upper_tri);
 }
@@ -209,9 +210,9 @@ Eigen::MatrixXd backsolve(const Eigen::MatrixXd& r,
 
 Eigen::MatrixXd forwardsolve(const Eigen::MatrixXd& l,
                              const Eigen::MatrixXd& x,
-                             Eigen::Index k,
-                             bool transpose,
-                             bool upper_tri)
+                             const Eigen::Index k,
+                             const bool transpose,
+                             const bool upper_tri)
 {
     return forwardOrBackSolve(l, x, k, transpose, upper_tri);
 }
@@ -220,7 +221,7 @@ Eigen::MatrixXd forwardsolve(const Eigen::MatrixXd& l,
 Eigen::MatrixXd forwardOrBackSolve(Eigen::MatrixXd lr,
                                    Eigen::MatrixXd x,
                                    Eigen::Index k,
-                                   bool transpose,
+                                   const bool transpose,
                                    bool upper_tri)
 {
     // - http://lists.r-forge.r-project.org/pipermail/rcpp-devel/2014-June/007781.html

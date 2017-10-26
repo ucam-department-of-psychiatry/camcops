@@ -142,7 +142,7 @@ void CameraQml::finish()
 // Internals
 // ============================================================================
 
-void CameraQml::qmlStatusChanged(QQuickWidget::Status status)
+void CameraQml::qmlStatusChanged(const QQuickWidget::Status status)
 {
 #ifdef DEBUG_CAMERA
     qDebug() << Q_FUNC_INFO;

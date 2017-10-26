@@ -155,8 +155,8 @@ QSize spacingAsSize(const QLayout* layout)
 QSize widgetExtraSizeForCssOrLayout(const QWidget* widget,
                                     const QStyleOption* opt,
                                     const QSize& child_size,
-                                    bool add_style_element,
-                                    QStyle::ContentsType contents_type)
+                                    const bool add_style_element,
+                                    const QStyle::ContentsType contents_type)
 {
     // See QPushButton::sizeHint()
     Q_ASSERT(widget);
@@ -273,7 +273,7 @@ QSize labelExtraSizeRequired(const QLabel* label,
 }
 
 
-bool fixedHeightEquals(QWidget* widget, int height)
+bool fixedHeightEquals(QWidget* widget, const int height)
 {
     return height == widget->minimumHeight() &&
             height == widget->maximumHeight();

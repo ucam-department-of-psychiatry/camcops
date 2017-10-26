@@ -53,8 +53,8 @@ void initializeDistressThermometer(TaskFactory& factory)
 }
 
 
-DistressThermometer::DistressThermometer(CamcopsApp& app,
-                                         DatabaseManager& db, int load_pk) :
+DistressThermometer::DistressThermometer(
+        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DT_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -120,7 +120,7 @@ QStringList DistressThermometer::detail() const
 }
 
 
-OpenableWidget* DistressThermometer::editor(bool read_only)
+OpenableWidget* DistressThermometer::editor(const bool read_only)
 {
     QVector<QuThermometerItem> thermometer_items;
     for (int i = 0; i <= 10; ++i) {

@@ -54,7 +54,7 @@ void initializeCiwa(TaskFactory& factory)
 }
 
 
-Ciwa::Ciwa(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Ciwa::Ciwa(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CIWA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_SCORED_QUESTIONS), QVariant::Int);
@@ -130,7 +130,7 @@ QStringList Ciwa::detail() const
 }
 
 
-OpenableWidget* Ciwa::editor(bool read_only)
+OpenableWidget* Ciwa::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
 
@@ -185,7 +185,7 @@ int Ciwa::totalScore() const
 }
 
 
-QString Ciwa::severityDescription(int total_score) const
+QString Ciwa::severityDescription(const int total_score) const
 {
     if (total_score > 15) {
         return xstring("category_severe");

@@ -80,7 +80,7 @@ void initializeHamD(TaskFactory& factory)
 }
 
 
-HamD::HamD(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+HamD::HamD(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, HAMD_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
@@ -170,7 +170,7 @@ QStringList HamD::detail() const
 }
 
 
-OpenableWidget* HamD::editor(bool read_only)
+OpenableWidget* HamD::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
 
@@ -209,7 +209,7 @@ OpenableWidget* HamD::editor(bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-QString HamD::whichWeightVar(bool other) const
+QString HamD::whichWeightVar(const bool other) const
 {
     if (other) {
         // backwards

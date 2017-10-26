@@ -78,8 +78,8 @@ SvgTransform::SvgTransform()
 }
 
 
-SvgTransform& SvgTransform::matrix(qreal a, qreal b, qreal c,
-                                   qreal d, qreal e, qreal f)
+SvgTransform& SvgTransform::matrix(const qreal a, const qreal b, const qreal c,
+                                   const qreal d, const qreal e, const qreal f)
 {
     transformations.append(QString("matrix(%1 %2 %3 %4 %5 %6")
                            .arg(a)
@@ -92,7 +92,7 @@ SvgTransform& SvgTransform::matrix(qreal a, qreal b, qreal c,
 }
 
 
-SvgTransform& SvgTransform::translate(qreal x, qreal y)
+SvgTransform& SvgTransform::translate(const qreal x, const qreal y)
 {
     transformations.append(QString("translate(%1 %2)")
                            .arg(x)
@@ -101,14 +101,14 @@ SvgTransform& SvgTransform::translate(qreal x, qreal y)
 }
 
 
-SvgTransform& SvgTransform::scale(qreal xy)
+SvgTransform& SvgTransform::scale(const qreal xy)
 {
     transformations.append(QString("scale(%1)").arg(xy));
     return *this;
 }
 
 
-SvgTransform& SvgTransform::scale(qreal x, qreal y)
+SvgTransform& SvgTransform::scale(const qreal x, const qreal y)
 {
     transformations.append(QString("scale(%1 %2)")
                            .arg(x)
@@ -117,14 +117,14 @@ SvgTransform& SvgTransform::scale(qreal x, qreal y)
 }
 
 
-SvgTransform& SvgTransform::rotate(qreal a)
+SvgTransform& SvgTransform::rotate(const qreal a)
 {
     transformations.append(QString("rotate(%1)").arg(a));
     return *this;
 }
 
 
-SvgTransform& SvgTransform::rotate(qreal a, qreal x, qreal y)
+SvgTransform& SvgTransform::rotate(const qreal a, const qreal x, const qreal y)
 {
     transformations.append(QString("rotate(%1 %2 %e)")
                            .arg(a)
@@ -134,14 +134,14 @@ SvgTransform& SvgTransform::rotate(qreal a, qreal x, qreal y)
 }
 
 
-SvgTransform& SvgTransform::skewX(qreal a)
+SvgTransform& SvgTransform::skewX(const qreal a)
 {
     transformations.append(QString("skewX(%1)").arg(a));
     return *this;
 }
 
 
-SvgTransform& SvgTransform::skewY(qreal a)
+SvgTransform& SvgTransform::skewY(const qreal a)
 {
     transformations.append(QString("skewY(%1)").arg(a));
     return *this;
@@ -200,7 +200,7 @@ QString svg(const QStringList& elements)
 
 
 QString svgPath(const QString& contents,
-                const QColor& stroke, int stroke_width,
+                const QColor& stroke, const int stroke_width,
                 const QColor& fill,
                 const SvgTransform& transform,
                 const QString& element_id)
@@ -264,7 +264,7 @@ int alpha(qreal opacity)
 // Graphics calculations and painting
 // ============================================================================
 
-void alignRect(QRectF& rect, Qt::Alignment alignment)
+void alignRect(QRectF& rect, const Qt::Alignment alignment)
 {
     // The assumed starting point is that the user wishes to have a rectangle
     // aligned at point (x,y), and that (x,y) is currently the top left point
@@ -301,7 +301,7 @@ void alignRect(QRectF& rect, Qt::Alignment alignment)
 }
 
 
-QRectF centredRect(const QPointF& centre, qreal w, qreal h)
+QRectF centredRect(const QPointF& centre, const qreal w, const qreal h)
 {
     return QRectF(centre.x() - w / 2.0, centre.y() - h / 2.0, w, h);
 }
@@ -309,10 +309,10 @@ QRectF centredRect(const QPointF& centre, qreal w, qreal h)
 
 void drawSector(QPainter& painter,
                 const QPointF& tip,
-                qreal radius,
+                const qreal radius,
                 qreal start_angle_deg,
                 qreal end_angle_deg,
-                bool move_clockwise_from_start_to_end,
+                const bool move_clockwise_from_start_to_end,
                 const QPen& pen,
                 const QBrush& brush)
 {
@@ -356,7 +356,7 @@ QRectF textRectF(const QString& text, const QFont& font)
 
 
 void drawText(QPainter& painter, const QPointF& point, const QString& text,
-              const QFont& font, Qt::Alignment align)
+              const QFont& font, const Qt::Alignment align)
 {
     const QRectF textrect = textRectF(text, font);
 
@@ -379,7 +379,8 @@ void drawText(QPainter& painter, const QPointF& point, const QString& text,
 }
 
 
-void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
+void drawText(QPainter& painter,
+              const qreal x, const qreal y, Qt::Alignment flags,
               const QString& text, QRectF* boundingRect)
 {
     // http://stackoverflow.com/questions/24831484
@@ -595,8 +596,8 @@ LabelAndProxy makeText(QGraphicsScene* scene,  // text is added to scene
 
 AdjustablePieAndProxy makeAdjustablePie(QGraphicsScene* scene,
                                         const QPointF& centre,
-                                        int n_sectors,
-                                        qreal diameter,
+                                        const int n_sectors,
+                                        const qreal diameter,
                                         QWidget* parent)
 {
     const qreal radius = diameter / 2.0;
@@ -617,7 +618,7 @@ SvgWidgetAndProxy makeSvg(
         const QString& svg,
         const QColor& pressed_background_colour,
         const QColor& background_colour,
-        bool transparent_for_mouse,
+        const bool transparent_for_mouse,
         QWidget* parent)
 {
     SvgWidgetAndProxy result;
@@ -645,7 +646,7 @@ SvgWidgetAndProxy makeSvg(
 
 
 QGraphicsRectItem* makeObscuringRect(QGraphicsScene* scene,
-                                     const QRectF& rect, qreal opacity,
+                                     const QRectF& rect, const qreal opacity,
                                      const QColor& colour_ignoring_opacity)
 {
     const QPen pen(Qt::NoPen);
@@ -660,10 +661,10 @@ QGraphicsPixmapItem* makeImage(
         QGraphicsScene* scene,
         const QRectF& rect,
         const QString& filename,
-        qreal opacity,
-        Qt::AspectRatioMode aspect_ratio_mode,
-        Qt::TransformationMode transformation_mode_1,
-        Qt::TransformationMode transformation_mode_2)
+        const qreal opacity,
+        const Qt::AspectRatioMode aspect_ratio_mode,
+        const Qt::TransformationMode transformation_mode_1,
+        const Qt::TransformationMode transformation_mode_2)
 {
     // https://stackoverflow.com/questions/5960074/qimage-in-a-qgraphics-scene
     const QPointF top_left = rect.topLeft();

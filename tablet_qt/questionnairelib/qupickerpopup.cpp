@@ -47,14 +47,14 @@ QuPickerPopup::QuPickerPopup(FieldRefPtr fieldref,
 }
 
 
-QuPickerPopup* QuPickerPopup::setRandomize(bool randomize)
+QuPickerPopup* QuPickerPopup::setRandomize(const bool randomize)
 {
     m_randomize = randomize;
     return this;
 }
 
 
-QuPickerPopup* QuPickerPopup::setPopupTitle(const QString &popup_title)
+QuPickerPopup* QuPickerPopup::setPopupTitle(const QString& popup_title)
 {
     m_popup_title = popup_title;
     return this;

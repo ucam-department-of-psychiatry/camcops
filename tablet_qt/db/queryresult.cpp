@@ -25,9 +25,9 @@
 
 
 QueryResult::QueryResult(QSqlQuery& query,
-                         bool success,
-                         FetchMode fetch_mode,
-                         bool store_column_names) :
+                         const bool success,
+                         const FetchMode fetch_mode,
+                         const bool store_column_names) :
     m_success(success)
 {
     int ncols = 0;
@@ -101,14 +101,14 @@ bool QueryResult::isEmpty() const
 }
 
 
-QVector<QVariant> QueryResult::row(int row) const
+QVector<QVariant> QueryResult::row(const int row) const
 {
     Q_ASSERT(row >= 0 && row <= m_n_rows);
     return m_data.at(row);
 }
 
 
-QVector<QVariant> QueryResult::col(int col) const
+QVector<QVariant> QueryResult::col(const int col) const
 {
     Q_ASSERT(col >= 0 && col <= m_n_cols);
     QVector<QVariant> values;
@@ -119,7 +119,7 @@ QVector<QVariant> QueryResult::col(int col) const
 }
 
 
-QVariant QueryResult::at(int row, int col) const
+QVariant QueryResult::at(const int row, const int col) const
 {
     Q_ASSERT(row >= 0 && row <= m_n_rows);
     Q_ASSERT(col >= 0 && col <= m_n_cols);
@@ -127,7 +127,7 @@ QVariant QueryResult::at(int row, int col) const
 }
 
 
-QVariant QueryResult::at(int row, const QString& colname) const
+QVariant QueryResult::at(const int row, const QString& colname) const
 {
     const int col = m_column_names.indexOf(colname);
     return at(row, col);
@@ -143,7 +143,7 @@ QVariant QueryResult::firstValue() const
 }
 
 
-QVector<int> QueryResult::columnAsIntList(int col) const
+QVector<int> QueryResult::columnAsIntList(const int col) const
 {
     Q_ASSERT(col >= 0 && col <= m_n_cols);
     QVector<int> values;
@@ -160,7 +160,7 @@ QVector<int> QueryResult::firstColumnAsIntList() const
 }
 
 
-QStringList QueryResult::columnAsStringList(int col) const
+QStringList QueryResult::columnAsStringList(const int col) const
 {
     QStringList values;
     for (int row = 0; row < m_n_rows; ++row) {
@@ -192,7 +192,7 @@ QString QueryResult::csvHeader(const char sep) const
 }
 
 
-QString QueryResult::csvRow(int row, const char sep) const
+QString QueryResult::csvRow(const int row, const char sep) const
 {
     const int ncols = nCols();
     QStringList values;
@@ -215,7 +215,7 @@ QString QueryResult::csv(const char sep, const char linesep) const
 }
 
 
-QString QueryResult::fetchModeDescription(FetchMode fetch_mode)
+QString QueryResult::fetchModeDescription(const FetchMode fetch_mode)
 {
     switch (fetch_mode) {
     case FetchMode::NoAnswer:

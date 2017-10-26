@@ -63,7 +63,7 @@ void initializeIesr(TaskFactory& factory)
 }
 
 
-Iesr::Iesr(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Iesr::Iesr(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IESR_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -127,7 +127,7 @@ QStringList Iesr::detail() const
 }
 
 
-OpenableWidget* Iesr::editor(bool read_only)
+OpenableWidget* Iesr::editor(const bool read_only)
 {
     const NameValueOptions options{
         {A0, 0},

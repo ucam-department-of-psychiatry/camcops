@@ -85,7 +85,7 @@ const Qt::Alignment stem_widget_align = Qt::AlignHCenter | Qt::AlignBottom;
 
 */
 
-void addVerticalLine(GridLayout* grid, int col, int n_rows)
+void addVerticalLine(GridLayout* grid, const int col, const int n_rows)
 {
     VerticalLine* vline = new VerticalLine(uiconst::MCQGRID_VLINE_WIDTH);
     vline->setObjectName(cssconst::VLINE);
@@ -93,7 +93,7 @@ void addVerticalLine(GridLayout* grid, int col, int n_rows)
 }
 
 
-void addQuestion(GridLayout* grid, int row, const QString& question)
+void addQuestion(GridLayout* grid, const int row, const QString& question)
 {
     LabelWordWrapWide* q = new LabelWordWrapWide(question);
     q->setAlignment(question_text_align);
@@ -102,7 +102,7 @@ void addQuestion(GridLayout* grid, int row, const QString& question)
 }
 
 
-void addTitle(GridLayout* grid, int row, const QString& title)
+void addTitle(GridLayout* grid, const int row, const QString& title)
 {
     if (!title.isEmpty()) {
         LabelWordWrapWide* w = new LabelWordWrapWide(title);
@@ -113,7 +113,7 @@ void addTitle(GridLayout* grid, int row, const QString& title)
 }
 
 
-void addSubtitle(GridLayout* grid, int row, const QString& subtitle)
+void addSubtitle(GridLayout* grid, const int row, const QString& subtitle)
 {
     if (!subtitle.isEmpty()) {
         LabelWordWrapWide* w = new LabelWordWrapWide(subtitle);
@@ -124,8 +124,8 @@ void addSubtitle(GridLayout* grid, int row, const QString& subtitle)
 }
 
 
-void addStem(GridLayout* grid, int row, int firstcol, int colspan,
-             const QString& stem)
+void addStem(GridLayout* grid, const int row, const int firstcol,
+             const int colspan, const QString& stem)
 {
     if (!stem.isEmpty()) {
         LabelWordWrapWide* w = new LabelWordWrapWide(stem);
@@ -136,7 +136,8 @@ void addStem(GridLayout* grid, int row, int firstcol, int colspan,
 }
 
 
-void addOption(GridLayout* grid, int row, int col, const QString& option)
+void addOption(GridLayout* grid, const int row, const int col,
+               const QString& option)
 {
     LabelWordWrapWide* w = new LabelWordWrapWide(option);
     w->setAlignment(option_text_align);
@@ -145,8 +146,8 @@ void addOption(GridLayout* grid, int row, int col, const QString& option)
 }
 
 
-void addOptionBackground(GridLayout* grid, int row, int firstcol, int ncols,
-                         int nrows)
+void addOptionBackground(GridLayout* grid, const int row, const int firstcol,
+                         const int ncols, const int nrows)
 {
     QWidget* bg = new QWidget();
     bg->setObjectName(cssconst::OPTION_BACKGROUND);
@@ -190,7 +191,7 @@ void setResponseWidgets(const NameValueOptions& options,
 }
 
 
-void toggleBooleanField(FieldRef* fieldref, bool allow_unset)
+void toggleBooleanField(FieldRef* fieldref, const bool allow_unset)
 {
     // Used by "clicked" receivers.
     if (!fieldref) {

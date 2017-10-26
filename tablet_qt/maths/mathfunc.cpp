@@ -53,7 +53,7 @@ bool rangesOverlap(qreal a0, qreal a1, qreal b0, qreal b1)
 }
 
 
-bool nearlyEqual(qreal x, qreal y)
+bool nearlyEqual(const qreal x, const qreal y)
 {
     // LESS GOOD: return qFuzzyIsNull(x - y);
     // BETTER:
@@ -63,7 +63,7 @@ bool nearlyEqual(qreal x, qreal y)
 }
 
 
-QVariant mean(const QVector<QVariant>& values, bool ignore_null)
+QVariant mean(const QVector<QVariant>& values, const bool ignore_null)
 {
     // ignore_null true: return the mean of the values, ignoring any NULLs.
     // ignore_null false: return the mean, or NULL if any are NULL.
@@ -89,13 +89,13 @@ QVariant mean(const QVector<QVariant>& values, bool ignore_null)
 }
 
 
-qreal mean(qreal a, qreal b)
+qreal mean(const qreal a, const qreal b)
 {
     return (a + b) / 2;
 }
 
 
-int centile(qreal x, qreal minimum, qreal maximum)
+int centile(const qreal x, const qreal minimum, const qreal maximum)
 {
     const qreal fraction = (x - minimum) / (maximum - minimum);
     const qreal centile = 100 * fraction;
@@ -311,26 +311,26 @@ int countNotNull(const QVector<QVariant>& values)
 }
 
 
-bool eq(const QVariant& x, int test)
+bool eq(const QVariant& x, const int test)
 {
     // SQL principle: NULL is not equal to anything
     return !x.isNull() && x.toInt() == test;
 }
 
 
-bool eq(const QVariant& x, bool test)
+bool eq(const QVariant& x, const bool test)
 {
     return !x.isNull() && x.toBool() == test;
 }
 
 
-bool eqOrNull(const QVariant& x, int test)
+bool eqOrNull(const QVariant& x, const int test)
 {
     return x.isNull() || x.toInt() != test;
 }
 
 
-bool eqOrNull(const QVariant& x, bool test)
+bool eqOrNull(const QVariant& x, const bool test)
 {
     return x.isNull() || x.toBool() != test;
 }
@@ -371,14 +371,19 @@ int countWhereNot(const QVector<QVariant>& test_values,
 // Functions for scoring
 // ============================================================================
 
-QString percent(double numerator, double denominator, int dp)
+QString percent(const double numerator,
+                const double denominator,
+                const int dp)
 {
     const double pct = 100 * numerator / denominator;
     return convert::toDp(pct, dp) + "%";
 }
 
 
-QString scoreString(int numerator, int denominator, bool show_percent, int dp)
+QString scoreString(const int numerator,
+                    const int denominator,
+                    const bool show_percent,
+                    const int dp)
 {
     QString result = QString("<b>%1</b>/%2").arg(numerator).arg(denominator);
     if (show_percent) {
@@ -388,7 +393,10 @@ QString scoreString(int numerator, int denominator, bool show_percent, int dp)
 }
 
 
-QString scoreString(double numerator, int denominator, bool show_percent, int dp)
+QString scoreString(const double numerator,
+                    const int denominator,
+                    const bool show_percent,
+                    const int dp)
 {
     QString result = QString("<b>%1</b>/%2")
             .arg(convert::toDp(numerator, dp))
@@ -400,8 +408,8 @@ QString scoreString(double numerator, int denominator, bool show_percent, int dp
 }
 
 
-QString scoreStringVariant(const QVariant& numerator, int denominator,
-                           bool show_percent, int dp)
+QString scoreStringVariant(const QVariant& numerator, const int denominator,
+                           const bool show_percent, const int dp)
 {
     QString result = QString("<b>%1</b>/%2")
             .arg(convert::prettyValue(numerator, dp))
@@ -413,13 +421,16 @@ QString scoreStringVariant(const QVariant& numerator, int denominator,
 }
 
 
-QString scoreStringWithPercent(int numerator, int denominator, int dp)
+QString scoreStringWithPercent(const int numerator,
+                               const int denominator,
+                               const int dp)
 {
     return scoreString(numerator, denominator, true, dp);
 }
 
 
-QString scorePhrase(const QString& description, int numerator, int denominator,
+QString scorePhrase(const QString& description,
+                    const int numerator, const int denominator,
                     const QString& separator, const QString& suffix)
 {
     return QString("%1%2%3%4")
@@ -430,8 +441,10 @@ QString scorePhrase(const QString& description, int numerator, int denominator,
 }
 
 
-QString scorePhrase(const QString& description, double numerator, int denominator,
-                    const QString& separator, const QString& suffix, int dp)
+QString scorePhrase(const QString& description,
+                    const double numerator, const int denominator,
+                    const QString& separator, const QString& suffix,
+                    const int dp)
 {
     return QString("%1%2%3%4")
             .arg(description,
@@ -442,9 +455,9 @@ QString scorePhrase(const QString& description, double numerator, int denominato
 
 
 QString scorePhraseVariant(const QString& description,
-                           const QVariant& numerator, int denominator,
+                           const QVariant& numerator, const int denominator,
                            const QString& separator, const QString& suffix,
-                           int dp)
+                           const int dp)
 {
     return QString("%1%2%3%4")
             .arg(description,
@@ -454,7 +467,7 @@ QString scorePhraseVariant(const QString& description,
 }
 
 
-QString totalScorePhrase(int numerator, int denominator,
+QString totalScorePhrase(const int numerator, const int denominator,
                          const QString& separator, const QString& suffix)
 {
     return scorePhrase(textconst::TOTAL_SCORE, numerator, denominator,
@@ -462,9 +475,9 @@ QString totalScorePhrase(int numerator, int denominator,
 }
 
 
-QString totalScorePhrase(double numerator, int denominator,
+QString totalScorePhrase(const double numerator, const int denominator,
                          const QString& separator, const QString& suffix,
-                         int dp)
+                         const int dp)
 {
     return scorePhrase(textconst::TOTAL_SCORE, numerator, denominator,
                        separator, suffix, dp);
@@ -475,13 +488,13 @@ QString totalScorePhrase(double numerator, int denominator,
 // Sequence and range generation
 // ============================================================================
 
-QVector<int> range(int start, int end)
+QVector<int> range(const int start, const int end)
 {
     return seq(start, end - 1, 1);
 }
 
 
-QVector<int> range(int n)
+QVector<int> range(const int n)
 {
     // returns 0 to n-1 inclusive
     return range(0, n);
@@ -492,7 +505,7 @@ QVector<int> range(int n)
 // Spacing things out
 // ============================================================================
 
-QVector<qreal> distribute(int n, qreal minimum, qreal maximum)
+QVector<qreal> distribute(const int n, qreal minimum, qreal maximum)
 {
     // Fence/fence-post problem; return centre of fence segments.
     QVector<qreal> posts;
@@ -514,7 +527,7 @@ QVector<qreal> distribute(int n, qreal minimum, qreal maximum)
 }
 
 
-QPair<int, int> gridDimensions(int n, qreal aspect)
+QPair<int, int> gridDimensions(const int n, const qreal aspect)
 {
     // Solve the equations:
     //      x * y >= n
@@ -532,7 +545,7 @@ QPair<int, int> gridDimensions(int n, qreal aspect)
 // Numerical conversions
 // ============================================================================
 
-int proportionToByte(qreal proportion)
+int proportionToByte(const qreal proportion)
 {
     // convert 0.0-1.0 to 0-255
     const int a = qRound(qBound(0.0, proportion, 1.0) * 255);
@@ -540,14 +553,14 @@ int proportionToByte(qreal proportion)
 }
 
 
-qreal byteToProportion(int byte)
+qreal byteToProportion(const int byte)
 {
     // convert 0-255 to 0.0-1.0
     return qBound(0, byte, 255) / 255.0;
 }
 
 
-int proportionToIntPercent(qreal proportion)
+int proportionToIntPercent(const qreal proportion)
 {
     // convert 0.0-1.0 to 0-100
     const int a = qRound(qBound(0.0, proportion, 1.0) * 100);
@@ -555,7 +568,7 @@ int proportionToIntPercent(qreal proportion)
 }
 
 
-qreal intPercentToProportion(int percent)
+qreal intPercentToProportion(const int percent)
 {
     // convert 0-100 to 0.0-1.0
     return qBound(0, percent, 100) / 100.0;

@@ -25,8 +25,8 @@ namespace dqrls {
 
 DqrlsResult Cdqrls(const MatrixXd& x,  // n,p
                    const MatrixXd& y,  // n,ny
-                   double tol,
-                   bool check)
+                   const double tol,
+                   const bool check)
 {
     // Solves XB = Y, for B (B will have dimensions p,ny)
     DqrlsResult result;

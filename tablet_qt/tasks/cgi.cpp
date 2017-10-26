@@ -52,7 +52,7 @@ void initializeCgi(TaskFactory& factory)
 }
 
 
-Cgi::Cgi(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Cgi::Cgi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CGI_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(Q1, QVariant::Int);
@@ -124,7 +124,7 @@ QStringList Cgi::detail() const
 }
 
 
-OpenableWidget* Cgi::editor(bool read_only)
+OpenableWidget* Cgi::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
 

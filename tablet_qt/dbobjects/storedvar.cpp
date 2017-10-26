@@ -60,8 +60,8 @@ const QMap<QVariant::Type, QString> TYPEMAP{
 
 
 StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
-                     const QString& name, QVariant::Type type,
-                     QVariant default_value) :
+                     const QString& name, const QVariant::Type type,
+                     const QVariant& default_value) :
     DatabaseObject(app, db, STOREDVAR_TABLENAME, dbconst::PK_FIELDNAME,
                    true, false, false, false),
     m_name(name),
@@ -128,7 +128,7 @@ StoredVar::~StoredVar()
 }
 
 
-bool StoredVar::setValue(const QVariant &value, bool save_to_db)
+bool StoredVar::setValue(const QVariant& value, const bool save_to_db)
 {
 #ifdef DEBUG_SET_VALUE
     qDebug() << Q_FUNC_INFO << "Setting" << m_name << "to" << value;

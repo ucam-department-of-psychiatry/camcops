@@ -39,7 +39,7 @@ Horizontal/vertical lines
 
 */
 
-HorizontalLine::HorizontalLine(int width, QWidget* parent) :
+HorizontalLine::HorizontalLine(const int width, QWidget* parent) :
     QWidget(parent)
 {
     setFixedHeight(width);

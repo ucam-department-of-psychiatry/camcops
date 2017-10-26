@@ -45,7 +45,7 @@ void initializeZbi12(TaskFactory& factory)
 }
 
 
-Zbi12::Zbi12(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Zbi12::Zbi12(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ZBI12_TABLENAME, false, false, true)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -106,7 +106,7 @@ QStringList Zbi12::detail() const
 }
 
 
-OpenableWidget* Zbi12::editor(bool read_only)
+OpenableWidget* Zbi12::editor(const bool read_only)
 {
     const NameValueOptions options{
         {appstring("zbi_a0"), 0},

@@ -49,7 +49,7 @@ void initializeGds15(TaskFactory& factory)
 }
 
 
-Gds15::Gds15(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Gds15::Gds15(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GDS15_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);  // Y,N
@@ -112,7 +112,7 @@ QStringList Gds15::detail() const
 }
 
 
-OpenableWidget* Gds15::editor(bool read_only)
+OpenableWidget* Gds15::editor(const bool read_only)
 {
     const NameValueOptions options = CommonOptions::yesNoChar();
     QVector<QuestionWithOneField> qfields;

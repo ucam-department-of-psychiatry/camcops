@@ -46,7 +46,7 @@ void initializeQolBasic(TaskFactory& factory)
 }
 
 
-QolBasic::QolBasic(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+QolBasic::QolBasic(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, QOLBASIC_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(TTO, QVariant::Double);
@@ -113,7 +113,7 @@ QStringList QolBasic::detail() const
 }
 
 
-OpenableWidget* QolBasic::editor(bool read_only)
+OpenableWidget* QolBasic::editor(const bool read_only)
 {
     // The TTO slider goes from 0-10 in steps of 0.1
     // QuSlider uses integers internally but can scale.

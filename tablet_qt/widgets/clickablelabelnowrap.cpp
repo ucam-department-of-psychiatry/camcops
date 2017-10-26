@@ -28,7 +28,8 @@
 #include "lib/sizehelpers.h"
 
 
-ClickableLabelNoWrap::ClickableLabelNoWrap(const QString& text, QWidget* parent) :
+ClickableLabelNoWrap::ClickableLabelNoWrap(const QString& text,
+                                           QWidget* parent) :
     QPushButton(parent),
     m_label(new QLabel(text, this))
 {
@@ -63,14 +64,14 @@ void ClickableLabelNoWrap::commonConstructor()
 }
 
 
-void ClickableLabelNoWrap::setTextFormat(Qt::TextFormat format)
+void ClickableLabelNoWrap::setTextFormat(const Qt::TextFormat format)
 {
     Q_ASSERT(m_label);
     m_label->setTextFormat(format);
 }
 
 
-void ClickableLabelNoWrap::setWordWrap(bool on)
+void ClickableLabelNoWrap::setWordWrap(const bool on)
 {
     Q_ASSERT(m_label);
     m_label->setWordWrap(on);
@@ -78,7 +79,7 @@ void ClickableLabelNoWrap::setWordWrap(bool on)
 }
 
 
-void ClickableLabelNoWrap::setAlignment(Qt::Alignment alignment)
+void ClickableLabelNoWrap::setAlignment(const Qt::Alignment alignment)
 {
     Q_ASSERT(m_label);
     Q_ASSERT(m_layout);
@@ -87,7 +88,7 @@ void ClickableLabelNoWrap::setAlignment(Qt::Alignment alignment)
 }
 
 
-void ClickableLabelNoWrap::setOpenExternalLinks(bool open)
+void ClickableLabelNoWrap::setOpenExternalLinks(const bool open)
 {
     Q_ASSERT(m_label);
     m_label->setOpenExternalLinks(open);

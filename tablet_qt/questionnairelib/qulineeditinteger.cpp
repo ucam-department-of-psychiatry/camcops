@@ -24,7 +24,8 @@
 #include "qobjects/strictintvalidator.h"
 
 
-QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref, bool allow_empty) :
+QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref,
+                                     const bool allow_empty) :
     QuLineEdit(fieldref),
     m_minimum(std::numeric_limits<int>::min()),
     m_maximum(std::numeric_limits<int>::max()),
@@ -35,8 +36,10 @@ QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref, bool allow_empty) :
 }
 
 
-QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref, int minimum,
-                                     int maximum, bool allow_empty) :
+QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref,
+                                     const int minimum,
+                                     const int maximum,
+                                     const bool allow_empty) :
     QuLineEdit(fieldref),
     m_minimum(minimum),
     m_maximum(maximum),
@@ -53,7 +56,7 @@ void QuLineEditInteger::setDefaultHint()
 }
 
 
-QuLineEditInteger* QuLineEditInteger::setStrictValidator(bool strict)
+QuLineEditInteger* QuLineEditInteger::setStrictValidator(const bool strict)
 {
     m_strict_validator = strict;
     return this;

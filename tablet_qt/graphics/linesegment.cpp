@@ -58,7 +58,7 @@ LineSegment::LineSegment(const QPointF& from, const QPointF& to) :
 }
 
 
-qreal LineSegment::c(qreal x, qreal y) const
+qreal LineSegment::c(const qreal x, const qreal y) const
 {
     // The line has equation a * (x - xm) + b * (y - ym) = c = 0
     return a * (x - xm) + b * (y - ym);
@@ -151,7 +151,7 @@ QRectF LineSegment::rect() const
 bool LineSegment::pointInPerpendicularArea(const QPointF& point) const
 {
     /*
-    Is the point in the area swept out by the line, perpendicular to it?
+    Is the point in the area swept out by the line (swept perpendicular to it)?
 
     Example 1:
 

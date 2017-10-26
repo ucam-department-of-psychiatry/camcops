@@ -28,7 +28,7 @@ namespace numeric {
 // Overloaded functions to convert to an integer type
 // ============================================================================
 
-int strToNumber(const QString& str, int type_dummy)
+int strToNumber(const QString& str, const int type_dummy)
 {
     Q_UNUSED(type_dummy);
     return str.toInt();
@@ -36,14 +36,14 @@ int strToNumber(const QString& str, int type_dummy)
 
 
 int localeStrToNumber(const QString& str, bool& ok,
-                      const QLocale& locale, int type_dummy)
+                      const QLocale& locale, const int type_dummy)
 {
     Q_UNUSED(type_dummy);
     return locale.toInt(str, &ok);
 }
 
 
-qlonglong strToNumber(const QString& str, qlonglong type_dummy)
+qlonglong strToNumber(const QString& str, const qlonglong type_dummy)
 {
     Q_UNUSED(type_dummy);
     return str.toLongLong();
@@ -51,14 +51,14 @@ qlonglong strToNumber(const QString& str, qlonglong type_dummy)
 
 
 qlonglong localeStrToNumber(const QString& str, bool& ok,
-                            const QLocale& locale, qlonglong type_dummy)
+                            const QLocale& locale, const qlonglong type_dummy)
 {
     Q_UNUSED(type_dummy);
     return locale.toLongLong(str, &ok);
 }
 
 
-qulonglong strToNumber(const QString& str, qulonglong type_dummy)
+qulonglong strToNumber(const QString& str, const qulonglong type_dummy)
 {
     Q_UNUSED(type_dummy);
     return str.toULongLong();
@@ -66,7 +66,8 @@ qulonglong strToNumber(const QString& str, qulonglong type_dummy)
 
 
 qulonglong localeStrToNumber(const QString& str, bool& ok,
-                             const QLocale& locale, qulonglong type_dummy)
+                             const QLocale& locale,
+                             const qulonglong type_dummy)
 {
     Q_UNUSED(type_dummy);
     return locale.toULongLong(str, &ok);
@@ -77,7 +78,7 @@ qulonglong localeStrToNumber(const QString& str, bool& ok,
 // For double validation
 // ============================================================================
 
-int numDigitsDouble(double number, int max_dp)
+int numDigitsDouble(const double number, const int max_dp)
 {
     // Counts the number of digits in a floating-point number.
     // - ignores sign
@@ -97,7 +98,9 @@ int numDigitsDouble(double number, int max_dp)
 }
 
 
-double firstDigitsDouble(double number, int n_digits, int max_dp)
+double firstDigitsDouble(const double number,
+                         const int n_digits,
+                         const int max_dp)
 {
     // Returns the first n_digits of a floating point number, as a double.
     // - sign is ignored (can't compare numbers without dropping it)
@@ -116,7 +119,9 @@ double firstDigitsDouble(double number, int n_digits, int max_dp)
 }
 
 
-bool isValidStartToDouble(double number, double bottom, double top)
+bool isValidStartToDouble(const double number,
+                          const double bottom,
+                          const double top)
 {
     if (extendedDoubleMustBeLessThan(number, bottom, top)) {
 #ifdef DEBUG_VALIDATOR
@@ -142,7 +147,9 @@ bool isValidStartToDouble(double number, double bottom, double top)
 }
 
 
-bool extendedDoubleMustExceed(double number, double bottom, double top)
+bool extendedDoubleMustExceed(const double number,
+                              const double bottom,
+                              const double top)
 {
     if (number < 0 && top > 0) {
         return false;
@@ -176,7 +183,9 @@ bool extendedDoubleMustExceed(double number, double bottom, double top)
 }
 
 
-bool extendedDoubleMustBeLessThan(double number, double bottom, double top)
+bool extendedDoubleMustBeLessThan(const double number,
+                                  const double bottom,
+                                  const double top)
 {
     if (number < 0 && bottom > 0) {
         return true;

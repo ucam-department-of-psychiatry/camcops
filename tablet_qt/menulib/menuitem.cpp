@@ -158,8 +158,8 @@ MenuItem::MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
 }
 
 
-MenuItem::MenuItem(TaskPtr p_task, bool task_shows_taskname,
-                   bool task_shows_patient) :
+MenuItem::MenuItem(TaskPtr p_task, const bool task_shows_taskname,
+                   const bool task_shows_patient) :
     m_title("?")
 {
     setDefaults();
@@ -569,21 +569,21 @@ bool MenuItem::isImplemented() const
 }
 
 
-MenuItem& MenuItem::setImplemented(bool implemented)
+MenuItem& MenuItem::setImplemented(const bool implemented)
 {
     m_implemented = implemented;
     return *this;
 }
 
 
-MenuItem& MenuItem::setLabelOnly(bool label_only)
+MenuItem& MenuItem::setLabelOnly(const bool label_only)
 {
     m_label_only = label_only;
     return *this;
 }
 
 
-MenuItem& MenuItem::setNeedsPrivilege(bool needs_privilege)
+MenuItem& MenuItem::setNeedsPrivilege(const bool needs_privilege)
 {
     m_needs_privilege = needs_privilege;
     if (needs_privilege) {
@@ -593,14 +593,14 @@ MenuItem& MenuItem::setNeedsPrivilege(bool needs_privilege)
 }
 
 
-MenuItem& MenuItem::setNotIfLocked(bool not_if_locked)
+MenuItem& MenuItem::setNotIfLocked(const bool not_if_locked)
 {
     m_not_if_locked = not_if_locked;
     return *this;
 }
 
 
-MenuItem& MenuItem::setUnsupported(bool unsupported)
+MenuItem& MenuItem::setUnsupported(const bool unsupported)
 {
     m_unsupported = unsupported;
     return *this;

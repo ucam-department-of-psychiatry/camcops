@@ -587,7 +587,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
 
 
 QString SettingsMenu::demoText(const QString& text,
-                               uiconst::FontSize fontsize_type) const
+                               const uiconst::FontSize fontsize_type) const
 {
     if (!m_fontsize_fr) {
         return "?";
@@ -739,7 +739,7 @@ void SettingsMenu::changePrivPassword()
 
 QString SettingsMenu::makeTitle(const QString& part1,
                                 const QString& part2,
-                                bool colon) const
+                                const bool colon) const
 {
     QString result;
     if (part2.isEmpty()) {

@@ -196,13 +196,13 @@ QSize qtlayouthelpers::WidgetItemHfw::minimumSize() const
 typedef qint64 Fixed64;
 
 
-static inline Fixed64 toFixed(int i)
+static inline Fixed64 toFixed(const int i)
 {
     return (Fixed64)i * 256;
 }
 
 
-static inline int fRound(Fixed64 i)
+static inline int fRound(const Fixed64 i)
 {
     return (i % 256 < 128) ? (i / 256) : (1 + i / 256);
 }
@@ -234,8 +234,12 @@ static inline int fRound(Fixed64 i)
   - pos: starting position
   - space: available space
 */
-void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain, int start,
-                                 int count, int pos, int space, int spacer)
+void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
+                                const int start,
+                                const int count,
+                                const int pos,
+                                const int space,
+                                int spacer)
 {
     int c_hint = 0;
     int c_min = 0;
@@ -568,7 +572,7 @@ QSize qtlayouthelpers::qSmartMinSize(const QWidget* w)
 
 QSize qtlayouthelpers::qSmartMaxSize(
         const QSize& sizeHint, const QSize& minSize, const QSize& maxSize,
-        const QSizePolicy& sizePolicy, Qt::Alignment align)
+        const QSizePolicy& sizePolicy, const Qt::Alignment align)
 {
     if (align & Qt::AlignHorizontal_Mask && align & Qt::AlignVertical_Mask) {
         return QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX);
@@ -597,7 +601,8 @@ QSize qtlayouthelpers::qSmartMaxSize(
 }
 
 
-QSize qtlayouthelpers::qSmartMaxSize(const QWidgetItem* i, Qt::Alignment align)
+QSize qtlayouthelpers::qSmartMaxSize(const QWidgetItem* i,
+                                     const Qt::Alignment align)
 {
     QWidget* w = const_cast<QWidgetItem*>(i)->widget();  // RNC: nasty!
     return qSmartMaxSize(w->sizeHint().expandedTo(w->minimumSizeHint()),
@@ -608,7 +613,8 @@ QSize qtlayouthelpers::qSmartMaxSize(const QWidgetItem* i, Qt::Alignment align)
 }
 
 
-QSize qtlayouthelpers::qSmartMaxSize(const QWidget* w, Qt::Alignment align)
+QSize qtlayouthelpers::qSmartMaxSize(const QWidget* w, const
+                                     Qt::Alignment align)
 {
     return qSmartMaxSize(w->sizeHint().expandedTo(w->minimumSizeHint()),
                          w->minimumSize(),
@@ -619,7 +625,7 @@ QSize qtlayouthelpers::qSmartMaxSize(const QWidget* w, Qt::Alignment align)
 
 
 int qtlayouthelpers::qSmartSpacing(const QLayout* layout,
-                                    QStyle::PixelMetric pm)
+                                   const QStyle::PixelMetric pm)
 {
     QObject* parent = layout->parent();
     if (!parent) {
@@ -643,8 +649,12 @@ int qtlayouthelpers::qSmartSpacing(const QLayout* layout,
   Expansive boxes win over non-expansive boxes.
   Non-empty boxes win over empty boxes.
 */
-void qtlayouthelpers::qMaxExpCalc(int& max, bool& exp, bool &empty,
-                                   int boxmax, bool boxexp, bool boxempty)
+void qtlayouthelpers::qMaxExpCalc(int& max,
+                                  bool& exp,
+                                  bool &empty,
+                                  const int boxmax,
+                                  const bool boxexp,
+                                  const bool boxempty)
 {
     if (exp) {
         if (boxexp) {
@@ -677,7 +687,7 @@ QLayoutPrivate::QSpacerItemFactoryMethod QLayoutPrivate::spacerItemFactoryMethod
 // was QLayoutPrivate::createWidgetItem
 QWidgetItem* qtlayouthelpers::createWidgetItem(const QLayout* layout,
                                                QWidget* widget,
-                                               bool use_hfw_capable_item)
+                                               const bool use_hfw_capable_item)
 {
     Q_UNUSED(layout);  // RNC
     /*  // RNC: removed
@@ -694,10 +704,11 @@ QWidgetItem* qtlayouthelpers::createWidgetItem(const QLayout* layout,
 
 
 // was QLayoutPrivate::createSpacerItem
-QSpacerItem* qtlayouthelpers::createSpacerItem(const QLayout* layout,
-                                               int w, int h,
-                                               QSizePolicy::Policy h_policy,
-                                               QSizePolicy::Policy v_policy)
+QSpacerItem* qtlayouthelpers::createSpacerItem(
+        const QLayout* layout,
+        const int w, const int h,
+        const QSizePolicy::Policy h_policy,
+        const QSizePolicy::Policy v_policy)
 {
     Q_UNUSED(layout);  // RNC
     /*  // RNC: removed
@@ -765,7 +776,7 @@ bool qtlayouthelpers::checkLayout(QLayout* other_layout, QLayout* from)
 // RNC extras
 // ============================================================================
 
-QRect qtlayouthelpers::defaultRectOfWidth(int width)
+QRect qtlayouthelpers::defaultRectOfWidth(const int width)
 {
     return QRect(QPoint(0, 0), QSize(width, QLAYOUTSIZE_MAX));
 }

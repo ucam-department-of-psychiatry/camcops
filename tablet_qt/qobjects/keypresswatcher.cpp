@@ -48,7 +48,8 @@ bool KeyPressWatcher::eventFilter(QObject* obj, QEvent* event)
 }
 
 
-void KeyPressWatcher::addKeyEvent(int key, const CallbackFunction& callback)
+void KeyPressWatcher::addKeyEvent(const int key,
+                                  const CallbackFunction& callback)
 {
     m_map[key] = callback;
 }

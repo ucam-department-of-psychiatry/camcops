@@ -22,11 +22,11 @@
 
 
 QuGridCell::QuGridCell(const QuElementPtr element,
-                       int row,
-                       int column,
-                       int row_span,
-                       int column_span,
-                       Qt::Alignment alignment) :
+                       const int row,
+                       const int column,
+                       const int row_span,
+                       const int column_span,
+                       const Qt::Alignment alignment) :
     element(element),
     row(row),
     column(column),
@@ -38,11 +38,11 @@ QuGridCell::QuGridCell(const QuElementPtr element,
 
 
 QuGridCell::QuGridCell(QuElement* element,  // takes ownership...
-                       int row,
-                       int column,
-                       int row_span,
-                       int column_span,
-                       Qt::Alignment alignment) :
+                       const int row,
+                       const int column,
+                       const int row_span,
+                       const int column_span,
+                       const Qt::Alignment alignment) :
     element(QuElementPtr(element)),  // ... here
     row(row),
     column(column),

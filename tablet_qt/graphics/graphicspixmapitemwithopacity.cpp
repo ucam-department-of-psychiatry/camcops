@@ -37,7 +37,7 @@ GraphicsPixmapItemWithOpacity::GraphicsPixmapItemWithOpacity(
 }
 
 
-void GraphicsPixmapItemWithOpacity::setOpacity(qreal opacity)
+void GraphicsPixmapItemWithOpacity::setOpacity(const qreal opacity)
 {
     m_opacity = opacity;
     update();

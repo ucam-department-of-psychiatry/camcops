@@ -35,7 +35,7 @@ public:
     Field& setPk(bool pk);
     Field& setUnique(bool unique);
     Field& setMandatory(bool pk);
-    Field& setDefaultValue(QVariant value);
+    Field& setDefaultValue(const QVariant& value);
     QString name() const;
     QVariant::Type type() const;
     bool isPk() const;

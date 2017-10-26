@@ -33,7 +33,7 @@ class ThreadWorker : public QObject
 public:
     using PlainWorkerFunction = std::function<void()>;
 
-    ThreadWorker(PlainWorkerFunction func);
+    ThreadWorker(const PlainWorkerFunction& func);
 
 public slots:
     void work();

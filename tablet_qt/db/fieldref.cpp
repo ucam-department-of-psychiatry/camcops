@@ -41,7 +41,7 @@ FieldRef::FieldRef()
 }
 
 
-FieldRef::FieldRef(Field* p_field, bool mandatory)
+FieldRef::FieldRef(Field* p_field, const bool mandatory)
 {
     commonConstructor();
     m_method = FieldRefMethod::Field;
@@ -50,8 +50,11 @@ FieldRef::FieldRef(Field* p_field, bool mandatory)
 }
 
 
-FieldRef::FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
-                   bool mandatory, bool autosave, bool blob,
+FieldRef::FieldRef(DatabaseObject* p_dbobject,
+                   const QString& fieldname,
+                   const bool mandatory,
+                   const bool autosave,
+                   const bool blob,
                    CamcopsApp* p_app)
 {
     commonConstructor();
@@ -81,8 +84,9 @@ FieldRef::FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
 }
 
 
-FieldRef::FieldRef(QSharedPointer<Blob> blob, bool mandatory,
-                   bool disable_creation_warning)
+FieldRef::FieldRef(QSharedPointer<Blob> blob,
+                   const bool mandatory,
+                   const bool disable_creation_warning)
 {
     // for widget testing only; specimen BLOB
     commonConstructor();
@@ -98,7 +102,7 @@ FieldRef::FieldRef(QSharedPointer<Blob> blob, bool mandatory,
 
 FieldRef::FieldRef(const GetterFunction& getterfunc,
                    const SetterFunction& setterfunc,
-                   bool mandatory)
+                   const bool mandatory)
 {
     commonConstructor();
     m_method = FieldRefMethod::Functions;
@@ -110,7 +114,7 @@ FieldRef::FieldRef(const GetterFunction& getterfunc,
 
 
 FieldRef::FieldRef(CamcopsApp* app, const QString& storedvar_name,
-                   bool mandatory, bool cached)
+                   const bool mandatory, const bool cached)
 {
     commonConstructor();
     m_method = cached ? FieldRefMethod::CachedStoredVar
@@ -271,7 +275,7 @@ void FieldRef::setFkToBlob()
 }
 
 
-bool FieldRef::signalSetValue(bool changed, const QObject* originator)
+bool FieldRef::signalSetValue(const bool changed, const QObject* originator)
 {
     // Signal
     if (changed) {
@@ -532,7 +536,7 @@ bool FieldRef::missingInput() const
 }
 
 
-void FieldRef::setMandatory(bool mandatory, const QObject* originator)
+void FieldRef::setMandatory(const bool mandatory, const QObject* originator)
 {
     if (mandatory == m_mandatory) {
         return;

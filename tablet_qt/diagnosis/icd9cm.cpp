@@ -91,7 +91,7 @@ void Icd9cm::addIcd9cmCodes(const QStringList& codes)
 
 
 void Icd9cm::addIndividualIcd9cmCode(const QString& code, const QString& desc,
-                                     bool show_code_in_full_name)
+                                     const bool show_code_in_full_name)
 {
     if (code.isEmpty()) {
         qCritical() << Q_FUNC_INFO << "zero-length code! Ignoring";
@@ -125,8 +125,8 @@ void Icd9cm::addIndividualIcd9cmCode(const QString& code, const QString& desc,
 
 
 void Icd9cm::addSubcodes(const QString& basecode,
-                        const QString& basedesc,
-                        const QVector<CodeDescriptionPair>& level1)
+                         const QString& basedesc,
+                         const QVector<CodeDescriptionPair>& level1)
 {
     for (auto extra1 : level1) {
         const QString code = QString("%1%2").arg(basecode).arg(extra1.first);

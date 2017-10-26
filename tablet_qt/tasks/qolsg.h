@@ -88,7 +88,7 @@ protected slots:
     void giveChoice(const QString& category_chosen);
     void recordChoice();
     void finished();
-    void pieAdjusted(QVector<qreal> proportions);
+    void pieAdjusted(const QVector<qreal>& proportions);
 protected:
     QPointer<QGraphicsScene> m_scene;
     QPointer<OpenableWidget> m_widget;

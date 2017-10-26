@@ -25,7 +25,7 @@
 namespace css {
 
 
-QString pixelCss(int px)
+QString pixelCss(const int px)
 {
     if (px <= 0) {
         return "0";  // no units for 0 in CSS
@@ -34,7 +34,7 @@ QString pixelCss(int px)
 }
 
 
-QString ptCss(qreal pt)
+QString ptCss(const qreal pt)
 {
     if (pt <= 0) {
         return "0";  // no units for 0 in CSS

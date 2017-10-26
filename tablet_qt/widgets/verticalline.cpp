@@ -22,7 +22,7 @@
 #include <QStyleOption>
 
 
-VerticalLine::VerticalLine(int width, QWidget* parent) :
+VerticalLine::VerticalLine(const int width, QWidget* parent) :
     QWidget(parent)
 {
     setFixedWidth(width);

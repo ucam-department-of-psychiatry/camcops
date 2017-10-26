@@ -823,7 +823,7 @@ TaskFactory* CamcopsApp::taskFactory()
 
 SlowGuiGuard CamcopsApp::getSlowGuiGuard(const QString& text,
                                          const QString& title,
-                                         int minimum_duration_ms)
+                                         const int minimum_duration_ms)
 {
     return SlowGuiGuard(*this, m_p_main_window, title, text,
                         minimum_duration_ms);
@@ -831,7 +831,7 @@ SlowGuiGuard CamcopsApp::getSlowGuiGuard(const QString& text,
 
 
 void CamcopsApp::open(OpenableWidget* widget, TaskPtr task,
-                      bool may_alter_task, PatientPtr patient)
+                      const bool may_alter_task, PatientPtr patient)
 {
     if (!widget) {
         qCritical() << Q_FUNC_INFO << "- attempt to open nullptr";
@@ -1034,7 +1034,7 @@ CamcopsApp::LockState CamcopsApp::lockstate() const
 }
 
 
-void CamcopsApp::setLockState(LockState lockstate)
+void CamcopsApp::setLockState(const LockState lockstate)
 {
     const bool changed = lockstate != m_lockstate;
     m_lockstate = lockstate;
@@ -1260,7 +1260,7 @@ bool CamcopsApp::needsUpload() const
 }
 
 
-void CamcopsApp::setNeedsUpload(bool needs_upload)
+void CamcopsApp::setNeedsUpload(const bool needs_upload)
 {
     const bool changed = setVar(varconst::NEEDS_UPLOAD, needs_upload);
     if (changed) {
@@ -1282,7 +1282,7 @@ bool CamcopsApp::whiskerConnected() const
 }
 
 
-void CamcopsApp::setWhiskerConnected(bool connected)
+void CamcopsApp::setWhiskerConnected(const bool connected)
 {
     const bool changed = connected != m_whisker_connected;
     m_whisker_connected = connected;
@@ -1305,7 +1305,7 @@ bool CamcopsApp::isPatientSelected() const
 }
 
 
-void CamcopsApp::setSelectedPatient(int patient_id)
+void CamcopsApp::setSelectedPatient(const int patient_id)
 {
     // We do this by ID so there's no confusion about who owns it; we own
     // our own private copy here.
@@ -1327,7 +1327,7 @@ void CamcopsApp::deselectPatient()
 }
 
 
-void CamcopsApp::reloadPatient(int patient_id)
+void CamcopsApp::reloadPatient(const int patient_id)
 {
     if (patient_id == dbconst::NONEXISTENT_PK) {
         m_patient.clear();
@@ -1337,7 +1337,7 @@ void CamcopsApp::reloadPatient(int patient_id)
 }
 
 
-void CamcopsApp::patientHasBeenEdited(int patient_id)
+void CamcopsApp::patientHasBeenEdited(const int patient_id)
 {
     const int current_patient_id = selectedPatientId();
     if (patient_id == current_patient_id) {
@@ -1363,7 +1363,7 @@ int CamcopsApp::selectedPatientId() const
 }
 
 
-PatientPtrList CamcopsApp::getAllPatients(bool sorted)
+PatientPtrList CamcopsApp::getAllPatients(const bool sorted)
 {
     PatientPtrList patients;
     Patient specimen(*this, *m_datadb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
@@ -1436,7 +1436,7 @@ QString CamcopsApp::getSubstitutedCss(const QString& filename) const
 
 
 int CamcopsApp::fontSizePt(uiconst::FontSize fontsize,
-                           double factor_pct) const
+                           const double factor_pct) const
 {
     double factor;
     if (factor_pct <= 0) {
@@ -1466,7 +1466,7 @@ int CamcopsApp::fontSizePt(uiconst::FontSize fontsize,
 // ID descriptions (downloaded from server)
 // ============================================================================
 
-QPair<QString, QString> CamcopsApp::idDescriptionDirect(int which_idnum)  // desc, shortdesc
+QPair<QString, QString> CamcopsApp::idDescriptionDirect(const int which_idnum)  // desc, shortdesc
 {
     IdNumDescription idnumdesc(*this, *m_sysdb, which_idnum);
     if (!idnumdesc.exists()) {
@@ -1478,7 +1478,7 @@ QPair<QString, QString> CamcopsApp::idDescriptionDirect(int which_idnum)  // des
 }
 
 
-QPair<QString, QString> CamcopsApp::idDescShortDesc(int which_idnum)
+QPair<QString, QString> CamcopsApp::idDescShortDesc(const int which_idnum)
 {
     if (!m_iddescription_cache.contains(which_idnum)) {
         m_iddescription_cache[which_idnum] = idDescriptionDirect(which_idnum);
@@ -1487,14 +1487,14 @@ QPair<QString, QString> CamcopsApp::idDescShortDesc(int which_idnum)
 }
 
 
-QString CamcopsApp::idDescription(int which_idnum)
+QString CamcopsApp::idDescription(const int which_idnum)
 {
     const QPair<QString, QString> desc_shortdesc = idDescShortDesc(which_idnum);
     return desc_shortdesc.first;
 }
 
 
-QString CamcopsApp::idShortDescription(int which_idnum)
+QString CamcopsApp::idShortDescription(const int which_idnum)
 {
     const QPair<QString, QString> desc_shortdesc = idDescShortDesc(which_idnum);
     return desc_shortdesc.second;
@@ -1515,7 +1515,7 @@ void CamcopsApp::deleteAllIdDescriptions()
 }
 
 
-bool CamcopsApp::setIdDescription(int which_idnum, const QString& desc,
+bool CamcopsApp::setIdDescription(const int which_idnum, const QString& desc,
                                   const QString& shortdesc)
 {
 //    qDebug().nospace()
@@ -1651,7 +1651,7 @@ QString CamcopsApp::appstring(const QString& stringname,
 // ============================================================================
 
 void CamcopsApp::createVar(const QString &name, QVariant::Type type,
-                                 const QVariant& default_value)
+                           const QVariant& default_value)
 {
     if (name.isEmpty()) {
         uifunc::stopApp("Empty name to createVar");
@@ -1665,7 +1665,7 @@ void CamcopsApp::createVar(const QString &name, QVariant::Type type,
 
 
 bool CamcopsApp::setVar(const QString& name, const QVariant& value,
-                        bool save_to_db)
+                        const bool save_to_db)
 {
     // returns: changed?
     if (!m_storedvars.contains(name)) {
@@ -1710,8 +1710,9 @@ bool CamcopsApp::hasVar(const QString &name) const
 }
 
 
-FieldRefPtr CamcopsApp::storedVarFieldRef(const QString& name, bool mandatory,
-                                          bool cached)
+FieldRefPtr CamcopsApp::storedVarFieldRef(const QString& name,
+                                          const bool mandatory,
+                                          const bool cached)
 {
     return FieldRefPtr(new FieldRef(this, name, mandatory, cached));
 }

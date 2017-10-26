@@ -36,8 +36,9 @@ const QStringList TX_OPTIONS{
 const int CardinalExpDetRating::N_RATINGS = TX_OPTIONS.size();
 
 
-CardinalExpDetRating::CardinalExpDetRating(int rating,
-                                           bool detection_response_on_right) :
+CardinalExpDetRating::CardinalExpDetRating(
+        const int rating,
+        const bool detection_response_on_right) :
     rating(rating)
 {
     Q_ASSERT(rating >= 0 && rating < N_RATINGS);
@@ -66,7 +67,8 @@ CardinalExpDetRating::CardinalExpDetRating()
 }
 
 
-QRectF CardinalExpDetRating::getRatingButtonRect(int pos, int n) const
+QRectF CardinalExpDetRating::getRatingButtonRect(const int pos,
+                                                 const int n) const
 {
     const qreal ratingbutton_width = 0.8 * (SCENE_WIDTH / N_RATINGS);
     const qreal centre = (SCENE_WIDTH * (2 * pos + 1)) / (2 * n);

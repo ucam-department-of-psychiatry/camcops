@@ -51,8 +51,8 @@ PclCommon::PclCommon(CamcopsApp& app,
                      DatabaseManager& db,
                      const QString& tablename,
                      const QString& xstring_prefix,
-                     bool specific_event,
-                     int load_pk) :
+                     const bool specific_event,
+                     const int load_pk) :
     Task(app, db, tablename, false, false, false),  // ... anon, clin, resp
     m_xstring_prefix(xstring_prefix),
     m_specific_event(specific_event)
@@ -126,7 +126,7 @@ QStringList PclCommon::detail() const
 }
 
 
-OpenableWidget* PclCommon::editor(bool read_only)
+OpenableWidget* PclCommon::editor(const bool read_only)
 {
     const NameValueOptions options{
         {xstring("option1"), 1},
@@ -192,7 +192,7 @@ int PclCommon::totalScore() const
 }
 
 
-int PclCommon::numSymptomatic(int first, int last) const
+int PclCommon::numSymptomatic(const int first, const int last) const
 {
     int total = 0;
     for (int i = first; i <= last; ++i) {
@@ -206,7 +206,7 @@ int PclCommon::numSymptomatic(int first, int last) const
 }
 
 
-int PclCommon::numNull(int first, int last) const
+int PclCommon::numNull(const int first, const int last) const
 {
     return countNull(values(strseq(QPREFIX, first, last)));
 }

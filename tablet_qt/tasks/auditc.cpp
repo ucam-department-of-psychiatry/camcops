@@ -46,7 +46,7 @@ void initializeAuditC(TaskFactory& factory)
 }
 
 
-AuditC::AuditC(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+AuditC::AuditC(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, AUDITC_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -110,7 +110,7 @@ QStringList AuditC::detail() const
 }
 
 
-OpenableWidget* AuditC::editor(bool read_only)
+OpenableWidget* AuditC::editor(const bool read_only)
 {
     const NameValueOptions options1{
         {xstring("q1_option0"), 0},

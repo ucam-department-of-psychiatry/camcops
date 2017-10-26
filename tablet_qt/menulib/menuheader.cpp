@@ -36,10 +36,10 @@
 
 MenuHeader::MenuHeader(QWidget* parent,
                        CamcopsApp& app,
-                       bool top,
+                       const bool top,
                        const QString& title,
                        const QString& icon_filename,
-                       bool debug_allowed)
+                       const bool debug_allowed)
     : QWidget(parent),
       m_app(app),
       m_icon_whisker_connected(nullptr),
@@ -213,7 +213,7 @@ void MenuHeader::setTitle(const QString& title)
 }
 
 
-void MenuHeader::setCrippled(bool crippled)
+void MenuHeader::setCrippled(const bool crippled)
 {
     if (m_top_bar) {
         m_top_bar->setObjectName(crippled ? cssconst::MENU_HEADER_CRIPPLED
@@ -222,7 +222,7 @@ void MenuHeader::setCrippled(bool crippled)
 }
 
 
-void MenuHeader::lockStateChanged(CamcopsApp::LockState lockstate)
+void MenuHeader::lockStateChanged(const CamcopsApp::LockState lockstate)
 {
     m_button_locked->setVisible(lockstate == CamcopsApp::LockState::Locked);
     m_button_unlocked->setVisible(lockstate == CamcopsApp::LockState::Unlocked);
@@ -230,13 +230,13 @@ void MenuHeader::lockStateChanged(CamcopsApp::LockState lockstate)
 }
 
 
-void MenuHeader::whiskerConnectionStateChanged(bool connected)
+void MenuHeader::whiskerConnectionStateChanged(const bool connected)
 {
     m_icon_whisker_connected->setVisible(connected);
 }
 
 
-void MenuHeader::needsUploadChanged(bool needs_upload)
+void MenuHeader::needsUploadChanged(const bool needs_upload)
 {
     m_button_needs_upload->setVisible(needs_upload);
 }
@@ -277,26 +277,27 @@ void MenuHeader::setPatientDetails(const Patient* patient)
 }
 
 
-void MenuHeader::offerView(bool offer_view)
+void MenuHeader::offerView(const bool offer_view)
 {
     m_button_view->setVisible(offer_view);
 }
 
 
-void MenuHeader::offerEditDelete(bool offer_edit, bool offer_delete)
+void MenuHeader::offerEditDelete(const bool offer_edit,
+                                 const bool offer_delete)
 {
     m_button_edit->setVisible(offer_edit);
     m_button_delete->setVisible(offer_delete);
 }
 
 
-void MenuHeader::offerAdd(bool offer_add)
+void MenuHeader::offerAdd(const bool offer_add)
 {
     m_button_add->setVisible(offer_add);
 }
 
 
-void MenuHeader::offerFinishFlag(bool offer_finish_flag)
+void MenuHeader::offerFinishFlag(const bool offer_finish_flag)
 {
     m_button_finish_flag->setVisible(offer_finish_flag);
 }

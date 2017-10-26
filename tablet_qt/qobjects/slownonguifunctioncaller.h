@@ -36,7 +36,7 @@ class SlowNonGuiFunctionCaller : public QObject
 
     Q_OBJECT
 public:
-    SlowNonGuiFunctionCaller(ThreadWorker::PlainWorkerFunction func,
+    SlowNonGuiFunctionCaller(const ThreadWorker::PlainWorkerFunction& func,
                              QWidget* parent,
                              const QString& text = "Operation in progress...",
                              const QString& title = textconst::PLEASE_WAIT);

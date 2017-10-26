@@ -70,7 +70,7 @@
 
 
 WaitBox::WaitBox(QWidget* parent, const QString& text, const QString& title,
-                 int minimum_duration_ms) :
+                 const int minimum_duration_ms) :
     QProgressDialog(text, "", 0, 0, parent)
 {
     // if min = max = 0, you get an infinite wait bar.

@@ -60,7 +60,7 @@ void initializeCaps(TaskFactory& factory)
 }
 
 
-Caps::Caps(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Caps::Caps(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CAPS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
@@ -145,7 +145,7 @@ QStringList Caps::detail() const
 }
 
 
-OpenableWidget* Caps::editor(bool read_only)
+OpenableWidget* Caps::editor(const bool read_only)
 {
     const NameValueOptions options_endorse = CommonOptions::noYesInteger();
     const NameValueOptions options_distress{
@@ -283,7 +283,7 @@ int Caps::frequencyScore() const
 }
 
 
-bool Caps::questionComplete(int q) const
+bool Caps::questionComplete(const int q) const
 {
     const QVariant e = endorse(q);
     if (e.isNull()) {
@@ -297,25 +297,25 @@ bool Caps::questionComplete(int q) const
 }
 
 
-QVariant Caps::endorse(int q) const
+QVariant Caps::endorse(const int q) const
 {
     return value(strnum(FN_ENDORSE_PREFIX, q));
 }
 
 
-QVariant Caps::distress(int q) const
+QVariant Caps::distress(const int q) const
 {
     return value(strnum(FN_DISTRESS_PREFIX, q));
 }
 
 
-QVariant Caps::intrusiveness(int q) const
+QVariant Caps::intrusiveness(const int q) const
 {
     return value(strnum(FN_INTRUSIVE_PREFIX, q));
 }
 
 
-QVariant Caps::frequency(int q) const
+QVariant Caps::frequency(const int q) const
 {
     return value(strnum(FN_FREQ_PREFIX, q));
 }
@@ -354,7 +354,7 @@ void Caps::endorseChanged(const FieldRef* fieldref)
 }
 
 
-bool Caps::needsDetail(int q)
+bool Caps::needsDetail(const int q)
 {
     Q_ASSERT(q >= FIRST_Q && q <= N_QUESTIONS);
     return endorse(q).toBool();

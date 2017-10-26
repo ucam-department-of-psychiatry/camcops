@@ -72,7 +72,7 @@ QuMcqGridSingleBoolean::~QuMcqGridSingleBoolean()
 
 
 QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setBooleanLeft(
-        bool boolean_left)
+        const bool boolean_left)
 {
     m_boolean_left = boolean_left;
     return this;
@@ -80,9 +80,9 @@ QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setBooleanLeft(
 
 
 QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setWidth(
-        int question_width,
+        const int question_width,
         const QVector<int>& mcq_option_widths,
-        int boolean_width)
+        const int boolean_width)
 {
     if (mcq_option_widths.size() != m_mcq_options.size()) {
         qWarning() << Q_FUNC_INFO << "Bad mcq_option_widths; command ignored";
@@ -110,7 +110,7 @@ QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setSubtitles(
 }
 
 
-QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setExpand(bool expand)
+QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setExpand(const bool expand)
 {
     m_expand = expand;
     return this;
@@ -128,7 +128,7 @@ void QuMcqGridSingleBoolean::setFromFields()
 }
 
 
-int QuMcqGridSingleBoolean::mcqColnum(int value_index) const
+int QuMcqGridSingleBoolean::mcqColnum(const int value_index) const
 {
     return (m_boolean_left ? 4 : 2) + value_index;
 }
@@ -140,13 +140,13 @@ int QuMcqGridSingleBoolean::booleanColnum() const
 }
 
 
-int QuMcqGridSingleBoolean::spacercol(bool first) const
+int QuMcqGridSingleBoolean::spacercol(const bool first) const
 {
     return first ? 1 : ((m_boolean_left ? mcqColnum(0) : booleanColnum()) - 1);
 }
 
 
-void QuMcqGridSingleBoolean::addOptions(GridLayout* grid, int row)
+void QuMcqGridSingleBoolean::addOptions(GridLayout* grid, const int row)
 {
     for (int i = 0; i < m_mcq_options.size(); ++i) {
         mcqfunc::addOption(grid, row, mcqColnum(i), m_mcq_options.at(i).name());
@@ -272,7 +272,8 @@ FieldRefPtrList QuMcqGridSingleBoolean::fieldrefs() const
 }
 
 
-void QuMcqGridSingleBoolean::mcqClicked(int question_index, int value_index)
+void QuMcqGridSingleBoolean::mcqClicked(const int question_index,
+                                        const int value_index)
 {
     if (question_index < 0 ||
             question_index >= m_questions_with_fields.size()) {
@@ -293,7 +294,7 @@ void QuMcqGridSingleBoolean::mcqClicked(int question_index, int value_index)
 }
 
 
-void QuMcqGridSingleBoolean::booleanClicked(int question_index)
+void QuMcqGridSingleBoolean::booleanClicked(const int question_index)
 {
     if (question_index < 0 ||
             question_index >= m_questions_with_fields.size()) {
@@ -308,7 +309,7 @@ void QuMcqGridSingleBoolean::booleanClicked(int question_index)
 
 
 void QuMcqGridSingleBoolean::mcqFieldValueOrMandatoryChanged(
-        int question_index, const FieldRef* fieldref)
+        const int question_index, const FieldRef* fieldref)
 {
     if (question_index < 0 ||
             question_index >= m_questions_with_fields.size()) {
@@ -326,7 +327,7 @@ void QuMcqGridSingleBoolean::mcqFieldValueOrMandatoryChanged(
 
 
 void QuMcqGridSingleBoolean::booleanFieldValueOrMandatoryChanged(
-        int question_index, const FieldRef* fieldref)
+        const int question_index, const FieldRef* fieldref)
 {
     if (question_index < 0 ||
             question_index >= m_questions_with_fields.size()) {

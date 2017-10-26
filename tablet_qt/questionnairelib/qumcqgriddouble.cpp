@@ -65,7 +65,7 @@ QuMcqGridDouble::~QuMcqGridDouble()
 }
 
 
-QuMcqGridDouble* QuMcqGridDouble::setWidth(int question_width,
+QuMcqGridDouble* QuMcqGridDouble::setWidth(const int question_width,
                                            const QVector<int>& option1_widths,
                                            const QVector<int>& option2_widths)
 {
@@ -127,7 +127,8 @@ void QuMcqGridDouble::setFromFields()
 }
 
 
-int QuMcqGridDouble::colnum(bool first_field, int value_index) const
+int QuMcqGridDouble::colnum(const bool first_field,
+                            const int value_index) const
 {
     // See below
     const int base = first_field ? 2 : (3 + m_options1.size());
@@ -135,13 +136,13 @@ int QuMcqGridDouble::colnum(bool first_field, int value_index) const
 }
 
 
-int QuMcqGridDouble::spacercol(bool first_field) const
+int QuMcqGridDouble::spacercol(const bool first_field) const
 {
     return first_field ? 1 : (2 + m_options1.size());
 }
 
 
-void QuMcqGridDouble::addOptions(GridLayout* grid, int row)
+void QuMcqGridDouble::addOptions(GridLayout* grid, const int row)
 {
     for (bool first_field : {true, false}) {
         const NameValueOptions& opts = first_field ? m_options1 : m_options2;
@@ -296,8 +297,8 @@ FieldRefPtrList QuMcqGridDouble::fieldrefs() const
 }
 
 
-void QuMcqGridDouble::clicked(int question_index, bool first_field,
-                              int value_index)
+void QuMcqGridDouble::clicked(const int question_index, const bool first_field,
+                              const int value_index)
 {
     const NameValueOptions& opts = first_field ? m_options1 : m_options2;
     if (question_index < 0 ||
@@ -319,8 +320,8 @@ void QuMcqGridDouble::clicked(int question_index, bool first_field,
 }
 
 
-void QuMcqGridDouble::fieldValueOrMandatoryChanged(int question_index,
-                                                   bool first_field,
+void QuMcqGridDouble::fieldValueOrMandatoryChanged(const int question_index,
+                                                   const bool first_field,
                                                    const FieldRef* fieldref)
 {
     const NameValueOptions& opts = first_field ? m_options1 : m_options2;

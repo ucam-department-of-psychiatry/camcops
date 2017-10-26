@@ -276,7 +276,8 @@ void GridLayoutHfw::deleteAll()
 }
 
 
-QSize GridLayoutHfw::findSize(const GeomInfo& gi, int QLayoutStruct::* size) const
+QSize GridLayoutHfw::findSize(const GeomInfo& gi,
+                              int QLayoutStruct::* size) const
 {
     // "size" is a pointer to an integer non-static member of QLayoutStruct;
     // http://en.cppreference.com/w/cpp/language/pointer#Pointers_to_data_members
@@ -301,7 +302,7 @@ QSize GridLayoutHfw::findSize(const GeomInfo& gi, int QLayoutStruct::* size) con
 }
 
 
-void GridLayoutHfw::setSize(int r, int c)
+void GridLayoutHfw::setSize(const int r, const int c)
 {
     if ((int)m_r_stretches.size() < r) {
         int new_r = qMax(r, m_nrow * 2);
@@ -327,7 +328,7 @@ void GridLayoutHfw::setSize(int r, int c)
 }
 
 
-void GridLayoutHfw::setNextPosAfter(int row, int col)
+void GridLayoutHfw::setNextPosAfter(const int row, const int col)
 {
     if (m_add_vertical) {
         if (col > m_next_c || (col == m_next_c && row >= m_next_r)) {
@@ -351,7 +352,7 @@ void GridLayoutHfw::setNextPosAfter(int row, int col)
 }
 
 
-void GridLayoutHfw::add(QQGridBox* box, int row, int col)
+void GridLayoutHfw::add(QQGridBox* box, const int row, const int col)
 {
     expand(row + 1, col + 1);
     box->row = box->torow = row;
@@ -362,7 +363,9 @@ void GridLayoutHfw::add(QQGridBox* box, int row, int col)
 }
 
 
-void GridLayoutHfw::add(QQGridBox* box, int row1, int row2, int col1, int col2)
+void GridLayoutHfw::add(QQGridBox* box,
+                        const int row1, const int row2,
+                        const int col1, int col2)
 {
     if (Q_UNLIKELY(row2 >= 0 && row2 < row1)) {
         qWarning("QGridLayout: Multi-cell from-row greater than to-row");
@@ -393,7 +396,7 @@ void GridLayoutHfw::add(QQGridBox* box, int row1, int row2, int col1, int col2)
 
 void GridLayoutHfw::addData(GeomInfo& gi, QQGridBox* box,
                             const QQGridLayoutSizeTriple& sizes,
-                            bool r, bool c) const
+                            const bool r, const bool c) const
 {
     const QWidget* widget = box->item()->widget();
 
@@ -430,8 +433,8 @@ void GridLayoutHfw::addData(GeomInfo& gi, QQGridBox* box,
 }
 
 
-static void initEmptyMultiBox(QVector<QQLayoutStruct>& chain, int start,
-                              int end)
+static void initEmptyMultiBox(QVector<QQLayoutStruct>& chain,
+                              const int start, const int end)
 {
     for (int i = start; i <= end; i++) {
         QQLayoutStruct* data = &chain[i];
@@ -443,9 +446,11 @@ static void initEmptyMultiBox(QVector<QQLayoutStruct>& chain, int start,
 }
 
 
-static void distributeMultiBox(QVector<QQLayoutStruct>& chain, int start,
-                               int end, int min_size, int size_hint,
-                               QVector<int>& stretch_array, int stretch)
+static void distributeMultiBox(QVector<QQLayoutStruct>& chain,
+                               const int start, const int end,
+                               const int min_size, const int size_hint,
+                               const QVector<int>& stretch_array,
+                               const int stretch)
 {
     // This function distributes objects along a single dimension.
 #ifdef DEBUG_LAYOUT_DETAILED
@@ -535,8 +540,9 @@ static void distributeMultiBox(QVector<QQLayoutStruct>& chain, int start,
 }
 
 
-static QQGridBox* &gridAt(QQGridBox* grid[], int r, int c, int ncols,
-                         Qt::Orientation orientation = Qt::Vertical)
+static QQGridBox* &gridAt(QQGridBox* grid[],
+                          int r, int c, const int ncols,
+                          const Qt::Orientation orientation = Qt::Vertical)
 {
     if (orientation == Qt::Horizontal) {
         qSwap(r, c);

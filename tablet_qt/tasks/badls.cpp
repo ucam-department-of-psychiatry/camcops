@@ -52,7 +52,7 @@ void initializeBadls(TaskFactory& factory)
 }
 
 
-Badls::Badls(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Badls::Badls(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, BADLS_TABLENAME, false, false, true)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);
@@ -110,7 +110,7 @@ QStringList Badls::detail() const
 }
 
 
-OpenableWidget* Badls::editor(bool read_only)
+OpenableWidget* Badls::editor(const bool read_only)
 {
     QVector<QuElementPtr> elements;
     const bool second_person = true;
@@ -147,7 +147,7 @@ OpenableWidget* Badls::editor(bool read_only)
 // Task-specific calculations
 // ============================================================================
 
-int Badls::score(int qnum) const
+int Badls::score(const int qnum) const
 {
     const QVariant v = value(QPREFIX + QString::number(qnum));
     return BADLS_SCORING[v.toString()];

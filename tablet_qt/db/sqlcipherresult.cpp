@@ -119,7 +119,7 @@ void SQLCipherResult::finalize()
 }
 
 
-void SQLCipherResult::initColumns(bool emptyResultset)
+void SQLCipherResult::initColumns(const bool emptyResultset)
 {
     const int n_cols = sqlite3_column_count(m_stmt);
     if (n_cols <= 0) {
@@ -173,7 +173,7 @@ void SQLCipherResult::initColumns(bool emptyResultset)
 
 
 bool SQLCipherResult::fetchNext(SqlCachedResult::ValueCache& values,
-                                int idx, bool initial_fetch)
+                                const int idx, const bool initial_fetch)
 {
     int res;
     int i;
@@ -494,7 +494,7 @@ bool SQLCipherResult::exec()
 }
 
 
-bool SQLCipherResult::gotoNext(SqlCachedResult::ValueCache& row, int idx)
+bool SQLCipherResult::gotoNext(SqlCachedResult::ValueCache& row, const int idx)
 {
     return fetchNext(row, idx, false);
 }

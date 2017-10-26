@@ -138,8 +138,9 @@ CameraQCamera::CameraQCamera(const QString& stylesheet, QWidget* parent) :
 }
 
 
-CameraQCamera::CameraQCamera(const QCameraInfo& camera_info, const QString& stylesheet,
-               QWidget* parent) :
+CameraQCamera::CameraQCamera(const QCameraInfo& camera_info,
+                             const QString& stylesheet,
+                             QWidget* parent) :
     OpenableWidget(parent)
 {
     commonConstructor(stylesheet);
@@ -458,8 +459,8 @@ void CameraQCamera::searchAndLockCamera()
 }
 
 
-void CameraQCamera::updateLockStatus(QCamera::LockStatus status,
-                              QCamera::LockChangeReason reason)
+void CameraQCamera::updateLockStatus(const QCamera::LockStatus status,
+                                     const QCamera::LockChangeReason reason)
 {
     QColor indicationColor = Qt::black;
 
@@ -503,8 +504,9 @@ void CameraQCamera::takeImage()
 }
 
 
-void CameraQCamera::displayCaptureError(int id, QCameraImageCapture::Error error,
-                                 const QString& error_string)
+void CameraQCamera::displayCaptureError(const int id,
+                                        const QCameraImageCapture::Error error,
+                                        const QString& error_string)
 {
     qWarning() << "Capture error:" << id << error << error_string;
     ScrollMessageBox::warning(this, tr("Image capture error"), error_string);
@@ -513,7 +515,7 @@ void CameraQCamera::displayCaptureError(int id, QCameraImageCapture::Error error
 }
 
 
-void CameraQCamera::displayCameraError(QCamera::Error value)
+void CameraQCamera::displayCameraError(const QCamera::Error value)
 {
     QString err = m_camera->errorString();
     qWarning() << "Camera error:" << value << err;
@@ -521,7 +523,7 @@ void CameraQCamera::displayCameraError(QCamera::Error value)
 }
 
 
-void CameraQCamera::updateCameraState(QCamera::State state)
+void CameraQCamera::updateCameraState(const QCamera::State state)
 {
     // !!! CameraQCamera::updateCameraState -- not implemented, but superseded by CameraQml
     // Update the UI to reflect the camera's state
@@ -562,7 +564,7 @@ void CameraQCamera::updateButtons()
 }
 
 
-void CameraQCamera::setExposureCompensation(int index)
+void CameraQCamera::setExposureCompensation(const int index)
 {
 #ifdef DEBUG_CAMERA
     qDebug() << Q_FUNC_INFO;
@@ -571,7 +573,7 @@ void CameraQCamera::setExposureCompensation(int index)
 }
 
 
-void CameraQCamera::readyForCapture(bool ready)
+void CameraQCamera::readyForCapture(const bool ready)
 {
     m_ready = ready;
     updateButtons();
@@ -585,7 +587,7 @@ void CameraQCamera::readyForCapture(bool ready)
 #endif
 }
 
-void CameraQCamera::imageSaved(int id, const QString& filename)
+void CameraQCamera::imageSaved(const int id, const QString& filename)
 {
     // Image has arrived via a disk file.
     Q_UNUSED(id);
@@ -611,7 +613,7 @@ void CameraQCamera::imageSaved(int id, const QString& filename)
 }
 
 
-void CameraQCamera::imageAvailable(int id, const QVideoFrame& buffer)
+void CameraQCamera::imageAvailable(const int id, const QVideoFrame& buffer)
 {
     // Image has arrived via a buffer.
 
@@ -687,7 +689,7 @@ void CameraQCamera::keyReleaseEvent(QKeyEvent* event)
 
 
 #ifdef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
-void CameraQCamera::handleFrame(QImage image)
+void CameraQCamera::handleFrame(const QImage image)
 {
 #ifdef DEBUG_CAMERA
     qDebug() << Q_FUNC_INFO;

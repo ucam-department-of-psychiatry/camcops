@@ -100,7 +100,7 @@ void Questionnaire::commonConstructor()
 }
 
 
-void Questionnaire::setType(QuPage::PageType type)
+void Questionnaire::setType(const QuPage::PageType type)
 {
     if (type == QuPage::PageType::Inherit) {
         qWarning() << Q_FUNC_INFO << "Can only set PageType::Inherit on Page, "
@@ -117,19 +117,19 @@ void Questionnaire::addPage(const QuPagePtr& page)
 }
 
 
-void Questionnaire::setReadOnly(bool read_only)
+void Questionnaire::setReadOnly(const bool read_only)
 {
     m_read_only = read_only;
 }
 
 
-void Questionnaire::setJumpAllowed(bool jump_allowed)
+void Questionnaire::setJumpAllowed(const bool jump_allowed)
 {
     m_jump_allowed = jump_allowed;
 }
 
 
-void Questionnaire::setWithinChain(bool within_chain)
+void Questionnaire::setWithinChain(const bool within_chain)
 {
     m_within_chain = within_chain;
 }
@@ -361,7 +361,7 @@ QuPage* Questionnaire::currentPagePtr() const
 }
 
 
-QuPage* Questionnaire::pagePtr(int index) const
+QuPage* Questionnaire::pagePtr(const int index) const
 {
     if (index < 0 || index >= m_pages.size()) {
         return nullptr;
@@ -376,7 +376,7 @@ bool Questionnaire::readOnly() const
 }
 
 
-int Questionnaire::fontSizePt(uiconst::FontSize fontsize) const
+int Questionnaire::fontSizePt(const uiconst::FontSize fontsize) const
 {
     return m_app.fontSizePt(fontsize);
 }
@@ -496,7 +496,7 @@ void Questionnaire::refreshCurrentPage()
 }
 
 
-void Questionnaire::deletePage(int index)
+void Questionnaire::deletePage(const int index)
 {
     if (nPages() <= 1) {
         qWarning() << Q_FUNC_INFO << "Can't delete the only remaining page!";
@@ -526,7 +526,7 @@ void Questionnaire::deletePage(int index)
 }
 
 
-void Questionnaire::movePageBackwards(int index)
+void Questionnaire::movePageBackwards(const int index)
 {
     if (index < 1 || index >= m_pages.size()) {
         return;
@@ -536,7 +536,7 @@ void Questionnaire::movePageBackwards(int index)
 }
 
 
-void Questionnaire::movePageForwards(int index)
+void Questionnaire::movePageForwards(const int index)
 {
     if (index < 0 || index >= m_pages.size() - 1) {
         return;
@@ -546,7 +546,7 @@ void Questionnaire::movePageForwards(int index)
 }
 
 
-void Questionnaire::goToPage(int index, bool allow_refresh)
+void Questionnaire::goToPage(const int index, const bool allow_refresh)
 {
     if (index < 0 || index >= nPages()) {
         qWarning() << Q_FUNC_INFO << "Invalid index:" << index;
@@ -642,8 +642,8 @@ void Questionnaire::debugLayout()
 }
 
 
-void Questionnaire::setVisibleByTag(const QString& tag, bool visible,
-                                    bool current_page_only,
+void Questionnaire::setVisibleByTag(const QString& tag, const bool visible,
+                                    const bool current_page_only,
                                     const QString& page_tag)
 {
     QVector<QuElement*> elements = getElementsByTag(tag, current_page_only,
@@ -654,7 +654,7 @@ void Questionnaire::setVisibleByTag(const QString& tag, bool visible,
 }
 
 
-QVector<QuPage*> Questionnaire::getPages(bool current_page_only,
+QVector<QuPage*> Questionnaire::getPages(const bool current_page_only,
                                          const QString& page_tag)
 {
     QVector<QuPage*> pages;
@@ -674,7 +674,8 @@ QVector<QuPage*> Questionnaire::getPages(bool current_page_only,
 }
 
 
-void Questionnaire::setPageSkip(int page, bool skip, bool reset_buttons)
+void Questionnaire::setPageSkip(const int page, const bool skip,
+                                const bool reset_buttons)
 {
     if (page < 0 || page >= m_pages.size()) {
         return;
@@ -686,8 +687,8 @@ void Questionnaire::setPageSkip(int page, bool skip, bool reset_buttons)
 }
 
 
-void Questionnaire::setPageSkip(const QString& page_tag, bool skip,
-                                bool reset_buttons)
+void Questionnaire::setPageSkip(const QString& page_tag, const bool skip,
+                                const bool reset_buttons)
 {
     QVector<QuPage*> pages = getPages(false, page_tag);
     for (auto page : pages) {
@@ -699,9 +700,9 @@ void Questionnaire::setPageSkip(const QString& page_tag, bool skip,
 }
 
 
-QVector<QuElement*> Questionnaire::getElementsByTag(const QString& tag,
-                                                    bool current_page_only,
-                                                    const QString& page_tag)
+QVector<QuElement*> Questionnaire::getElementsByTag(
+        const QString& tag, const bool current_page_only,
+        const QString& page_tag)
 {
     const QVector<QuPage*> pages = getPages(current_page_only, page_tag);
     QVector<QuElement*> elements;
@@ -712,9 +713,9 @@ QVector<QuElement*> Questionnaire::getElementsByTag(const QString& tag,
 }
 
 
-QuElement* Questionnaire::getFirstElementByTag(const QString& tag,
-                                               bool current_page_only,
-                                               const QString& page_tag)
+QuElement* Questionnaire::getFirstElementByTag(
+        const QString& tag, const bool current_page_only,
+        const QString& page_tag)
 {
     const QVector<QuElement*> elements = getElementsByTag(
                 tag, current_page_only, page_tag);

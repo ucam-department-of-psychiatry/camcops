@@ -34,8 +34,9 @@ QuButton::QuButton(const QString& label,
 }
 
 
-QuButton::QuButton(const QString& icon_filename, bool filename_is_camcops_stem,
-                   bool alter_unpressed_image,
+QuButton::QuButton(const QString& icon_filename,
+                   const bool filename_is_camcops_stem,
+                   const bool alter_unpressed_image,
                    const CallbackFunction& callback) :
     m_icon_filename(icon_filename),
     m_filename_is_camcops_stem(filename_is_camcops_stem),
@@ -46,7 +47,7 @@ QuButton::QuButton(const QString& icon_filename, bool filename_is_camcops_stem,
 }
 
 
-QuButton* QuButton::setActive(bool active)
+QuButton* QuButton::setActive(const bool active)
 {
     m_active = active;
     return this;

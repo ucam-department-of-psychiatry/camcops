@@ -47,7 +47,7 @@ void initializeAims(TaskFactory& factory)
 }
 
 
-Aims::Aims(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Aims::Aims(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, AIMS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -107,7 +107,7 @@ QStringList Aims::detail() const
 }
 
 
-OpenableWidget* Aims::editor(bool read_only)
+OpenableWidget* Aims::editor(const bool read_only)
 {
     const NameValueOptions options_q1_8{
         {xstring("main_option0"), 0},

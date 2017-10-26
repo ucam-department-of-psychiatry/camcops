@@ -51,7 +51,7 @@ void initializeCage(TaskFactory& factory)
 }
 
 
-Cage::Cage(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Cage::Cage(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CAGE_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::String);
@@ -112,7 +112,7 @@ QStringList Cage::detail() const
 }
 
 
-OpenableWidget* Cage::editor(bool read_only)
+OpenableWidget* Cage::editor(const bool read_only)
 {
     NameValueOptions options = CommonOptions::yesNoChar();
     QVector<QuestionWithOneField> qfields;

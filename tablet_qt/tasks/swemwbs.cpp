@@ -48,7 +48,7 @@ void initializeSwemwbs(TaskFactory& factory)
 }
 
 
-Swemwbs::Swemwbs(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Swemwbs::Swemwbs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, SWEMWBS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -124,7 +124,7 @@ QStringList Swemwbs::detail() const
 }
 
 
-OpenableWidget* Swemwbs::editor(bool read_only)
+OpenableWidget* Swemwbs::editor(const bool read_only)
 {
     const NameValueOptions options{
         {xstring("wemwbs_a1"), 1},

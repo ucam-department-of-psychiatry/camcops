@@ -71,7 +71,8 @@ QString tr(const char* text)
 // QPixmap loader
 // ============================================================================
 
-QPixmap getPixmap(const QString& filename, const QSize& size, bool cache)
+QPixmap getPixmap(const QString& filename, const QSize& size,
+                  const bool cache)
 {
     QPixmap pm;
     bool success = true;
@@ -102,7 +103,8 @@ QPixmap getPixmap(const QString& filename, const QSize& size, bool cache)
 // Icons
 // ============================================================================
 
-QLabel* iconWidget(const QString& filename, QWidget* parent, bool scale)
+QLabel* iconWidget(const QString& filename, QWidget* parent,
+                   const bool scale)
 {
 #ifdef DEBUG_ICON_LOAD
     qDebug() << "iconWidget:" << filename;
@@ -120,7 +122,7 @@ QLabel* iconWidget(const QString& filename, QWidget* parent, bool scale)
 
 
 QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,
-                            bool behind, qreal pixmap_opacity)
+                            const bool behind, const qreal pixmap_opacity)
 {
     // Assumes it is of size ICONSIZE
     const QSize size(image.size());
@@ -147,13 +149,13 @@ QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,
 }
 
 
-QPixmap addPressedBackground(const QPixmap& image, bool behind)
+QPixmap addPressedBackground(const QPixmap& image, const bool behind)
 {
     return addCircleBackground(image, uiconst::BUTTON_PRESSED_COLOUR, behind);
 }
 
 
-QPixmap addUnpressedBackground(const QPixmap& image, bool behind)
+QPixmap addUnpressedBackground(const QPixmap& image, const bool behind)
 {
     return addCircleBackground(image, uiconst::BUTTON_UNPRESSED_COLOUR, behind);
 }
@@ -311,7 +313,8 @@ const Qt::Alignment VALIGN_MASK = (Qt::AlignTop | Qt::AlignBottom |
                                    Qt::AlignVCenter | Qt::AlignBaseline);
 
 
-Qt::Alignment combineAlignment(Qt::Alignment halign, Qt::Alignment valign)
+Qt::Alignment combineAlignment(const Qt::Alignment halign,
+                               const Qt::Alignment valign)
 {
     return (halign & HALIGN_MASK) | (valign & VALIGN_MASK);
 }
@@ -329,7 +332,7 @@ void repolish(QWidget* widget)
 
 
 void setProperty(QWidget* widget, const QString& property,
-                 const QVariant& value, bool repolish_afterwards)
+                 const QVariant& value, const bool repolish_afterwards)
 {
     if (!widget) {
         qWarning() << Q_FUNC_INFO << "- ignored for null widget";
@@ -344,20 +347,21 @@ void setProperty(QWidget* widget, const QString& property,
 }
 
 
-QString cssBoolean(bool value)
+QString cssBoolean(const bool value)
 {
     return value ? cssconst::VALUE_TRUE : cssconst::VALUE_FALSE;
 }
 
 
-void setPropertyItalic(QWidget* widget, bool italic, bool repolish)
+void setPropertyItalic(QWidget* widget, const bool italic, const bool repolish)
 {
     setProperty(widget, cssconst::PROPERTY_ITALIC, cssBoolean(italic),
                 repolish);
 }
 
 
-void setPropertyMissing(QWidget* widget, bool missing, bool repolish)
+void setPropertyMissing(QWidget* widget,
+                        const bool missing, const bool repolish)
 {
     setProperty(widget, cssconst::PROPERTY_MISSING, cssBoolean(missing),
                 repolish);
@@ -477,7 +481,7 @@ void alert(const QStringList& lines, const QString& title)
 
 
 void alertLogMessageBox(const QString& text, const QString& title,
-                        bool as_html)
+                        const bool as_html)
 {
     LogMessageBox box(nullptr, title, text, as_html);
     box.exec();
@@ -485,7 +489,7 @@ void alertLogMessageBox(const QString& text, const QString& title,
 
 
 void alertLogMessageBox(const QStringList& lines, const QString& title,
-                        bool as_html)
+                        const bool as_html)
 {
     const QString text = lines.join(as_html ? "<br>" : "\n");
     alertLogMessageBox(text, title, as_html);
@@ -532,7 +536,7 @@ bool getPassword(const QString& text, const QString& title,
 
 
 bool getOldNewPasswords(const QString& text, const QString& title,
-                        bool require_old_password,
+                        const bool require_old_password,
                         QString& old_password, QString& new_password,
                         QWidget* parent)
 {
@@ -552,7 +556,10 @@ bool getOldNewPasswords(const QString& text, const QString& title,
 // CSS
 // ============================================================================
 
-QString textCSS(int fontsize_pt, bool bold, bool italic, const QString& colour)
+QString textCSS(const int fontsize_pt,
+                const bool bold,
+                const bool italic,
+                const QString& colour)
 {
     QString css;
     if (fontsize_pt > 0) {
@@ -617,7 +624,7 @@ QString escapeString(const QString& string)
 }
 
 
-QString yesNo(bool yes)
+QString yesNo(const bool yes)
 {
     return yes ? textconst::YES : textconst::NO;
 }
@@ -635,7 +642,7 @@ QString yesNoUnknown(const QVariant& value)
 }
 
 
-QString trueFalse(bool yes)
+QString trueFalse(const bool yes)
 {
     return yes ? textconst::TRUE : textconst::FALSE;
 }

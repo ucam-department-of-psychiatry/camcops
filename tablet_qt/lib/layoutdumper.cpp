@@ -61,7 +61,7 @@ QString toString(const QSizePolicy& policy)
 }
 
 
-QString toString(QLayout::SizeConstraint constraint)
+QString toString(const QLayout::SizeConstraint constraint)
 {
     switch (constraint) {
     case QLayout::SetDefaultConstraint: return "SetDefaultConstraint";
@@ -124,7 +124,7 @@ QString toString(const void* pointer)
 }
 
 
-QString toString(bool boolean)
+QString toString(const bool boolean)
 {
     return boolean ? "true" : "false";
 }
@@ -273,7 +273,7 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
 #define ADD_WIDGET_ATTR(x) add(Qt::x, #x)
 
 
-QString getWidgetAttributeInfo(const QWidget* w, bool all)
+QString getWidgetAttributeInfo(const QWidget* w, const bool all)
 {
     // http://doc.qt.io/qt-5/qt.html#WidgetAttribute-enum
     if (!w) {
@@ -496,7 +496,7 @@ QString getSpacerInfo(QSpacerItem* si)
 }
 
 
-QString paddingSpaces(int level, int spaces_per_level)
+QString paddingSpaces(const int level, const int spaces_per_level)
 {
     return QString(level * spaces_per_level, ' ');
 }
@@ -504,7 +504,7 @@ QString paddingSpaces(int level, int spaces_per_level)
 
 QVector<const QWidget*> dumpLayoutAndChildren(QDebug& os,
                                               const QLayout* layout,
-                                              int level,
+                                              const int level,
                                               const DumperConfig& config)
 {
     const QString padding = paddingSpaces(level, config.spaces_per_level);
@@ -551,7 +551,7 @@ QVector<const QWidget*> dumpLayoutAndChildren(QDebug& os,
 
 QVector<const QWidget*> dumpWidgetAndChildren(QDebug& os,
                                               const QWidget* w,
-                                              int level,
+                                              const int level,
                                               const QString& alignment,
                                               const DumperConfig& config)
 {

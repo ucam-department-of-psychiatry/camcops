@@ -49,10 +49,10 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
                                DatabaseManager& db,
                                const QString& tablename,
                                const QString& pk_fieldname,
-                               bool has_modification_timestamp,
-                               bool has_creation_timestamp,
-                               bool has_move_off_tablet_field,
-                               bool triggers_need_upload) :
+                               const bool has_modification_timestamp,
+                               const bool has_creation_timestamp,
+                               const bool has_move_off_tablet_field,
+                               const bool triggers_need_upload) :
     m_app(app),
     m_db(db),
     m_tablename(tablename),
@@ -95,8 +95,11 @@ DatabaseObject::~DatabaseObject()
 // Adding fields
 // ============================================================================
 
-void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
-                              bool mandatory, bool unique, bool pk,
+void DatabaseObject::addField(const QString& fieldname,
+                              const QVariant::Type type,
+                              const bool mandatory,
+                              const bool unique,
+                              const bool pk,
                               const QVariant& default_value)
 {
     if (type == QVariant::ULongLong) {
@@ -114,7 +117,9 @@ void DatabaseObject::addField(const QString& fieldname, QVariant::Type type,
 
 void DatabaseObject::addField(const QString& fieldname,
                               const QString& type_name,
-                              bool mandatory, bool unique, bool pk,
+                              const bool mandatory,
+                              const bool unique,
+                              const bool pk,
                               const QVariant& default_value)
 {
     if (m_record.contains(fieldname)) {
@@ -127,7 +132,8 @@ void DatabaseObject::addField(const QString& fieldname,
 
 
 void DatabaseObject::addFields(const QStringList& fieldnames,
-                               QVariant::Type type, bool mandatory)
+                               const QVariant::Type type,
+                               const bool mandatory)
 {
     for (auto fieldname : fieldnames) {
         addField(fieldname, type, mandatory);
@@ -159,7 +165,7 @@ QStringList DatabaseObject::fieldnames() const
 // ============================================================================
 
 bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value,
-                              bool touch_record)
+                              const bool touch_record)
 {
     // In general, extra "default" initialization done in a constructor should
     // probably set touch_record = false, as otherwise creating a prototype
@@ -178,7 +184,7 @@ bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value,
 
 bool DatabaseObject::setValue(const QString& fieldname,
                               const QVector<int>& value,
-                              bool touch_record)
+                              const bool touch_record)
 {
     return setValue(fieldname, QVariant::fromValue(value), touch_record);
 }
@@ -186,13 +192,14 @@ bool DatabaseObject::setValue(const QString& fieldname,
 
 bool DatabaseObject::setValue(const QString& fieldname,
                               const QStringList& value,
-                              bool touch_record)
+                              const bool touch_record)
 {
     return setValue(fieldname, QVariant::fromValue(value), touch_record);
 }
 
 
-void DatabaseObject::addToValueInt(const QString& fieldname, int increment)
+void DatabaseObject::addToValueInt(const QString& fieldname,
+                                   const int increment)
 {
     setValue(fieldname, valueInt(fieldname) + increment);
 }
@@ -205,7 +212,8 @@ QVariant DatabaseObject::value(const QString& fieldname) const
 }
 
 
-QString DatabaseObject::prettyValue(const QString &fieldname, int dp) const
+QString DatabaseObject::prettyValue(const QString &fieldname,
+                                    const int dp) const
 {
     requireField(fieldname);
     return m_record[fieldname].prettyValue(dp);
@@ -335,8 +343,10 @@ QVector<QVariant> DatabaseObject::values(const QStringList& fieldnames) const
 }
 
 
-FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool mandatory,
-                                     bool autosave, bool blob)
+FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname,
+                                     const bool mandatory,
+                                     const bool autosave,
+                                     const bool blob)
 {
     // If we ask for two fieldrefs to the same field, they need to be linked
     // (in terms of signals), and therefore the same underlying FieldRef
@@ -354,7 +364,7 @@ FieldRefPtr DatabaseObject::fieldRef(const QString& fieldname, bool mandatory,
 
 
 BlobFieldRefPtr DatabaseObject::blobFieldRef(const QString& fieldname,
-                                             bool mandatory)
+                                             const bool mandatory)
 {
     requireField(fieldname);
     if (!m_fieldrefs.contains(fieldname)) {
@@ -488,7 +498,7 @@ QString DatabaseObject::recordSummaryCSVString(
 // Loading, saving
 // ============================================================================
 
-bool DatabaseObject::load(int pk)
+bool DatabaseObject::load(const int pk)
 {
     if (pk == dbconst::NONEXISTENT_PK) {
 #ifdef DEBUG_SPECIMEN_CREATION
@@ -556,8 +566,8 @@ SqlArgs DatabaseObject::fetchQuerySql(const WhereConditions& where,
 
 
 void DatabaseObject::setFromQuery(const QueryResult& query_result,
-                                  int row,
-                                  bool order_matches_fetchquery)
+                                  const int row,
+                                  const bool order_matches_fetchquery)
 {
     MutableMapIteratorType it(m_record);
     // Note: QMap iteration is ordered; http://doc.qt.io/qt-5/qmap.html
@@ -639,7 +649,7 @@ bool DatabaseObject::isPkNull() const
 }
 
 
-void DatabaseObject::touch(bool only_if_unset)
+void DatabaseObject::touch(const bool only_if_unset)
 {
     if (!m_has_modification_timestamp) {
         return;
@@ -786,7 +796,7 @@ bool DatabaseObject::shouldMoveOffTablet() const
 }
 
 
-void DatabaseObject::setMoveOffTablet(bool move_off)
+void DatabaseObject::setMoveOffTablet(const bool move_off)
 {
     if (!m_has_move_off_tablet_field) {
         qWarning() << Q_FUNC_INFO << "m_has_move_off_tablet_field is false";
@@ -868,7 +878,7 @@ void DatabaseObject::loadAllAncillary()
 }
 
 
-void DatabaseObject::loadAllAncillary(int pk)
+void DatabaseObject::loadAllAncillary(const int pk)
 {
     Q_UNUSED(pk);
 }
@@ -890,7 +900,7 @@ QVector<DatabaseObjectPtr> DatabaseObject::getAncillarySpecimens() const
 // Additional protected
 // ========================================================================
 
-bool DatabaseObject::saveInsert(bool read_pk_from_database)
+bool DatabaseObject::saveInsert(const bool read_pk_from_database)
 {
     ArgList args;
     QStringList fieldnames;

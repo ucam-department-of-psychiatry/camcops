@@ -56,7 +56,7 @@ void initializeHonos65(TaskFactory& factory)
 }
 
 
-Honos65::Honos65(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Honos65::Honos65(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, HONOS65_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -136,7 +136,7 @@ QStringList Honos65::detail() const
 }
 
 
-OpenableWidget* Honos65::editor(bool read_only)
+OpenableWidget* Honos65::editor(const bool read_only)
 {
     const NameValueOptions q8_problemtype_options{
         {xstring("q8problemtype_option_a"), "A"},

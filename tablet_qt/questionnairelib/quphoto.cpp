@@ -358,7 +358,7 @@ void QuPhoto::rawImageCaptured(const QByteArray& data,
 }
 
 
-void QuPhoto::rotate(int angle_degrees_clockwise)
+void QuPhoto::rotate(const int angle_degrees_clockwise)
 {
     if (m_fieldref->isNull()) {
         return;
@@ -377,7 +377,7 @@ void QuPhoto::rotate(int angle_degrees_clockwise)
 }
 
 
-void QuPhoto::rotateWorker(int angle_degrees_clockwise)
+void QuPhoto::rotateWorker(const int angle_degrees_clockwise)
 {
     m_fieldref->rotateImage(angle_degrees_clockwise);
 }

@@ -82,10 +82,11 @@ void dumpQObject(QObject* obj)
 }
 
 
-void debugWidget(QWidget* widget, bool set_background_by_name,
-                 bool set_background_by_stylesheet,
+void debugWidget(QWidget* widget,
+                 const bool set_background_by_name,
+                 const bool set_background_by_stylesheet,
                  const layoutdumper::DumperConfig& config,
-                 bool use_hfw_layout,
+                 const bool use_hfw_layout,
                  const QString* dialog_stylesheet)
 {
     QDialog dlg;

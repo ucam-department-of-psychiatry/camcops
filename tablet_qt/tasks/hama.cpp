@@ -48,7 +48,7 @@ void initializeHamA(TaskFactory& factory)
 }
 
 
-HamA::HamA(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+HamA::HamA(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, HAMA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -114,7 +114,7 @@ QStringList HamA::detail() const
 }
 
 
-OpenableWidget* HamA::editor(bool read_only)
+OpenableWidget* HamA::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
 

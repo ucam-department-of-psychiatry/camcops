@@ -41,7 +41,7 @@ const QString ROTATION_FIELDNAME("image_rotation_deg_cw");
 Blob::Blob(CamcopsApp& app,
            DatabaseManager& db,
            const QString& src_table,
-           int src_pk,
+           const int src_pk,
            const QString& src_field) :
     DatabaseObject(app,
                    db,
@@ -105,7 +105,7 @@ Blob::~Blob()
 
 
 bool Blob::setBlob(const QVariant& value,
-                   bool save_to_db,
+                   const bool save_to_db,
                    const QString& extension_without_dot,
                    const QString& mimetype)
 {
@@ -182,7 +182,8 @@ QImage Blob::image(bool* p_loaded) const
 }
 
 
-void Blob::rotateImage(int angle_degrees_clockwise, bool save_to_db)
+void Blob::rotateImage(const int angle_degrees_clockwise,
+                       const bool save_to_db)
 {
     int rotation = valueInt(ROTATION_FIELDNAME);
     rotation = (rotation + angle_degrees_clockwise) % 360;
@@ -195,7 +196,7 @@ void Blob::rotateImage(int angle_degrees_clockwise, bool save_to_db)
 }
 
 
-bool Blob::setImage(const QImage& image, bool save_to_db)
+bool Blob::setImage(const QImage& image, const bool save_to_db)
 {
     m_image = image;
     m_image_loaded_from_data = true;
@@ -206,7 +207,7 @@ bool Blob::setImage(const QImage& image, bool save_to_db)
 
 
 bool Blob::setRawImage(const QByteArray& data,
-                       bool save_to_db,
+                       const bool save_to_db,
                        const QString& extension_without_dot,
                        const QString& mimetype)
 {

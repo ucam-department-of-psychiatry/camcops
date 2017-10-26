@@ -118,7 +118,7 @@ protected slots:
     void displayCaptureError(int id, QCameraImageCapture::Error error,
                              const QString& error_string);
 #ifdef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
-    void handleFrame(QImage image);
+    void handleFrame(QImage image);  // QImage is copy-on-write
 #endif
 
 protected:

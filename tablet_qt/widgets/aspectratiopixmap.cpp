@@ -56,7 +56,7 @@ bool AspectRatioPixmap::hasHeightForWidth() const
 }
 
 
-int AspectRatioPixmap::heightForWidth(int width) const
+int AspectRatioPixmap::heightForWidth(const int width) const
 {
 #ifdef DEBUG_CLICK_TIMING
     qDebug() << Q_FUNC_INFO;

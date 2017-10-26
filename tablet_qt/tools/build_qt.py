@@ -270,22 +270,32 @@ LOG_DATEFMT = '%Y-%m-%d %H:%M:%S'
 # =============================================================================
 
 class Os(object):
-    ANDROID = "android"
-    LINUX = "linux"
-    WINDOWS = "windows"
-    OSX = "osx"
-    IOS = "ios"
+    """
+    Operating system constants.
+    These strings are cosmetic and should NOT be relied on for passing to
+    external tools.
+    """
+    ANDROID = "Android"
+    LINUX = "Linux"
+    WINDOWS = "Windows"
+    OSX = "OS/X"
+    IOS = "iOS"
 
 
 ALL_OSS = [getattr(Os, _) for _ in dir(Os) if not _.startswith("_")]
 
 
 class Cpu(object):
-    X86_32 = "x86"
-    X86_64 = "x86_64"
-    ARM_V5 = "armv5"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture
-    ARM_V7 = "armv7"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture
-    ARM_V8_64 = "armv8_64"
+    """
+    CPU constants.
+    These strings are cosmetic and should NOT be relied on for passing to
+    external tools.
+    """
+    X86_32 = "Intel x86 (32-bit)"  # usually: "x86", "i386"
+    X86_64 = "Intel x86 (64-bit)"
+    ARM_V5 = "ARM v5 (32-bit)"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture  # noqa
+    ARM_V7 = "ARM v7 (32-bit)"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture  # noqa
+    ARM_V8_64 = "ARM v8 (64-bit)"
 
 
 ALL_CPUS = [getattr(Cpu, _) for _ in dir(Cpu) if not _.startswith("_")]
@@ -293,17 +303,17 @@ ALL_CPUS = [getattr(Cpu, _) for _ in dir(Cpu) if not _.startswith("_")]
 
 class Platform(object):
     # noinspection PyShadowingNames
-    def __init__(self, os: str, cpu: str) -> None:
-        self.os = os
+    def __init__(self, os_: str, cpu: str) -> None:
+        self.os = os_
         self.cpu = cpu
-        if os not in ALL_OSS:
-            raise ValueError("Unknown target OS: {!r}".format(os))
+        if os_ not in ALL_OSS:
+            raise ValueError("Unknown target OS: {!r}".format(os_))
         if cpu not in ALL_CPUS:
             raise ValueError("Unknown target CPU: {!r}".format(cpu))
 
-        if os in [Os.LINUX, Os.OSX, Os.WINDOWS] and cpu != Cpu.X86_64:
+        if os_ in [Os.LINUX, Os.OSX, Os.WINDOWS] and cpu != Cpu.X86_64:
             raise ValueError("Don't know how to build for CPU " + cpu +
-                             " on system " + os)
+                             " on system " + os_)
 
     def __str__(self) -> str:
         return self.description
@@ -313,8 +323,38 @@ class Platform(object):
         return "{}/{}".format(self.os, self.cpu)
 
     @property
+    def os_shortname(self) -> str:
+        if self.os == Os.ANDROID:
+            return "android"
+        elif self.os == Os.LINUX:
+            return "linux"
+        elif self.os == Os.WINDOWS:
+            return "windows"
+        elif self.os == Os.OSX:
+            return "osx"
+        elif self.os == Os.IOS:
+            return "ios"
+        else:
+            raise ValueError("Unknown OS: {!r}".format(self.os))
+
+    @property
+    def cpu_shortname(self) -> str:
+        if self.cpu == Cpu.X86_32:
+            return "x86_32"
+        elif self.cpu == Cpu.X86_64:
+            return "x86_64"
+        elif self.cpu == Cpu.ARM_V5:
+            return "armv5"
+        elif self.cpu == Cpu.ARM_V7:
+            return "armv7"
+        elif self.cpu == Cpu.ARM_V8_64:
+            return "armv8_64"
+        else:
+            raise ValueError("Unknown CPU: {!r}".format(self.cpu))
+
+    @property
     def dirpart(self) -> str:
-        return "{}_{}".format(self.os, self.cpu)
+        return "{}_{}".format(self.os_shortname, self.cpu_shortname)
 
     @staticmethod
     def shared_lib_suffix() -> str:
@@ -1014,7 +1054,8 @@ def build_openssl(cfg: Config, platform_: Platform) -> None:
         elif platform_.cpu == Cpu.ARM_V7:
             target_os = "android-armv7"
         else:
-            target_os = "android-{}".format(platform_.cpu)
+            # target_os = "android-{}".format(platform_.cpu)  # don't guess!
+            pass  # will raise error below
     elif platform_.os == Os.LINUX and platform_.cpu == Cpu.X86_64:
         target_os = "linux-x86_64"
     elif platform_.os == Os.OSX and platform_.cpu == Cpu.X86_64:
@@ -1162,11 +1203,21 @@ def fetch_qt(cfg: Config) -> None:
 def build_qt(cfg: Config, platform_: Platform) -> str:
     """
     Builds Qt.
-    Returns the name of the "install" directory, where the installe qmake is.
+    Returns the name of the "install" directory, where the installed qmake is.
     """
-    # Android example at http://wiki.qt.io/Qt5ForAndroidBuilding
     # http://doc.qt.io/qt-5/opensslsupport.html
-    # Windows: ?also http://simpleit.us/2010/05/30/enabling-openssl-for-qt-c-on-windows/  # noqa
+    # Android:
+    #       example at http://wiki.qt.io/Qt5ForAndroidBuilding
+    # Windows:
+    #       https://stackoverflow.com/questions/14932315/how-to-compile-qt-5-under-windows-or-linux-32-or-64-bit-static-or-dynamic-on-v  # noqa
+    #       ?also http://simpleit.us/2010/05/30/enabling-openssl-for-qt-c-on-windows/  # noqa
+    #       http://doc.qt.io/qt-5/windows-building.html
+    #       http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
+    # iOS:
+    #       http://doc.qt.io/qt-5/building-from-source-ios.html
+    #       http://doc.qt.io/qt-5/ios-support.html
+    # OS/X:
+    #       http://doc.qt.io/qt-5/osx.html
 
     # -------------------------------------------------------------------------
     # Setup
@@ -1242,7 +1293,8 @@ def build_qt(cfg: Config, platform_: Platform) -> str:
         elif platform_.cpu == Cpu.ARM_V7:
             android_arch_short = "armeabi-v7a"
         else:
-            raise ValueError("Unknown CPU: {}".format(platform_.cpu))
+            raise ValueError("Don't know how to use CPU {!r} for "
+                             "Android".format(platform_.cpu))
         qt_config_args += [
             "-android-sdk", cfg.android_sdk_root,
             "-android-ndk", cfg.android_ndk_root,
@@ -1890,52 +1942,38 @@ def main() -> None:
 
     # noinspection PyShadowingNames
     def build_for(os: str, cpu: str) -> None:
-        platform = Platform(os, cpu)
-        build_openssl(cfg, platform)
-        installdirs.append(build_qt(cfg, platform))
-        if platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
-            make_missing_libqtforandroid_so(cfg, platform)
-        build_sqlcipher(cfg, platform)
+        platform_ = Platform(os, cpu)
+        log.info("Building Qt [+SQLite/SQLCipher +OpenSSL] for {}".format(
+            platform_))
+        build_openssl(cfg, platform_)
+        installdirs.append(
+            build_qt(cfg, platform_)
+        )
+        if platform_.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
+            make_missing_libqtforandroid_so(cfg, platform_)
+        build_sqlcipher(cfg, platform_)
         
-    extras = " +SQLite/SQLCipher +OpenSSL"
-
     if cfg.android_x86:  # for x86 Android emulator
-        log.info("Qt build: Android x86" + extras)
         build_for(Os.ANDROID, Cpu.X86_32)
 
     if cfg.android_arm:  # for native Android
-        log.info("Qt build: Android ARM" + extras)
         build_for(Os.ANDROID, Cpu.ARM_V7)
 
     if cfg.linux_x86_64:  # for 64-bit Linux
-        log.info("Qt build: Linux x86 64-bit" + extras)
         build_for(Os.LINUX, Cpu.X86_64)
 
     if cfg.osx_x86_64:  # for 64-bit Intel Mac OS/X
-        # http://doc.qt.io/qt-5/osx.html
-        log.info("Qt build: Mac OS/X x86 64-bit" + extras)
         build_for(Os.OSX, Cpu.X86_64)
         
     if cfg.windows_x86_64:
         # *** NOT IMPLEMENTED PROPERLY YET
-        log.info("Qt build: Windows, Intel 64-bit" + extras)
         build_for(Os.WINDOWS, Cpu.X86_64)
-        # *** cfg.windows*  # build_qt for Windows
-        #   http://doc.qt.io/qt-5/windows-building.html
-        #     http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
 
     if cfg.ios:
-        # *** NOT IMPLEMENTED PROPERLY YET
-        log.info("Qt build: iOS, 64-bit ARM" + extras)
         build_for(Os.IOS, Cpu.ARM_V8_64)
 
     if cfg.ios_simulator:
-        # *** NOT IMPLEMENTED PROPERLY YET
-        log.info("Qt build: iOS simulator, x64 64-bit" + extras)
         build_for(Os.IOS, Cpu.X86_64)
-        # *** cfg.ios*  # build_qt for iOS (iPad, etc.)
-        #     http://doc.qt.io/qt-5/building-from-source-ios.html
-        #     http://doc.qt.io/qt-5/ios-support.html
 
     if not installdirs and not done_extra:
         log.warning("Nothing more to do. Run with --help argument for help.")

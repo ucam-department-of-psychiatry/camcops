@@ -213,7 +213,8 @@ void initializeDeakin1HealthReview(TaskFactory& factory)
 }
 
 
-Deakin1HealthReview::Deakin1HealthReview(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Deakin1HealthReview::Deakin1HealthReview(
+        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DEAKIN1HEALTHREVIEW_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(ETHNICITY, QVariant::Int);
@@ -397,7 +398,7 @@ QStringList Deakin1HealthReview::detail() const
 }
 
 
-OpenableWidget* Deakin1HealthReview::editor(bool read_only)
+OpenableWidget* Deakin1HealthReview::editor(const bool read_only)
 {
     const NameValueOptions yn_options = CommonOptions::yesNoBoolean();
     const NameValueOptions handedness_options = NameValueOptions{

@@ -29,7 +29,7 @@ const QString PhotoSequencePhoto::PHOTO_BLOBID("photo_blobid");
 
 
 PhotoSequencePhoto::PhotoSequencePhoto(CamcopsApp& app, DatabaseManager& db,
-                                       int load_pk) :
+                                       const int load_pk) :
     DatabaseObject(app, db, PHOTOSEQUENCEPHOTO_TABLENAME,
                    dbconst::PK_FIELDNAME,  // pk_fieldname
                    true,  // has_modification_timestamp
@@ -46,7 +46,7 @@ PhotoSequencePhoto::PhotoSequencePhoto(CamcopsApp& app, DatabaseManager& db,
 }
 
 
-PhotoSequencePhoto::PhotoSequencePhoto(int owner_fk, CamcopsApp& app,
+PhotoSequencePhoto::PhotoSequencePhoto(const int owner_fk, CamcopsApp& app,
                                        DatabaseManager& db) :
     PhotoSequencePhoto(app, db)  // delegating constructor
 {
@@ -54,7 +54,7 @@ PhotoSequencePhoto::PhotoSequencePhoto(int owner_fk, CamcopsApp& app,
 }
 
 
-void PhotoSequencePhoto::setSeqnum(int seqnum)
+void PhotoSequencePhoto::setSeqnum(const int seqnum)
 {
     setValue(SEQNUM, seqnum);
 }

@@ -28,10 +28,10 @@ class FixedAreaHfwTestWidget : public QWidget
 public:
     FixedAreaHfwTestWidget(int area = 50000,
                            int preferred_width = 1000,
-                           QColor background_colour = QColor(0, 0, 255),
+                           const QColor& background_colour = QColor(0, 0, 255),
                            int border_thickness = 0,
-                           QColor border_colour = QColor(255, 0, 0),
-                           QColor text_colour = QColor(255, 0, 255),
+                           const QColor& border_colour = QColor(255, 0, 0),
+                           const QColor& text_colour = QColor(255, 0, 255),
                            QWidget* parent = nullptr);
     virtual QSize sizeHint() const override;
     virtual bool hasHeightForWidth() const override;

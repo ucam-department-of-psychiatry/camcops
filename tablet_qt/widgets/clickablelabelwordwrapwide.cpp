@@ -29,7 +29,7 @@
 
 
 ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(const QString& text,
-                                                       bool stretch,
+                                                       const bool stretch,
                                                        QWidget* parent) :
     QPushButton(parent),
     m_label(new LabelWordWrapWide(text, this))
@@ -38,7 +38,7 @@ ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(const QString& text,
 }
 
 
-ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(bool stretch,
+ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(const bool stretch,
                                                        QWidget* parent) :
     QPushButton(parent),
     m_label(new LabelWordWrapWide(this))
@@ -47,7 +47,7 @@ ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(bool stretch,
 }
 
 
-void ClickableLabelWordWrapWide::commonConstructor(bool stretch)
+void ClickableLabelWordWrapWide::commonConstructor(const bool stretch)
 {
     m_label->setMouseTracking(false);
     m_label->setTextInteractionFlags(Qt::NoTextInteraction);
@@ -73,7 +73,7 @@ void ClickableLabelWordWrapWide::commonConstructor(bool stretch)
 }
 
 
-void ClickableLabelWordWrapWide::setTextFormat(Qt::TextFormat format)
+void ClickableLabelWordWrapWide::setTextFormat(const Qt::TextFormat format)
 {
     Q_ASSERT(m_label);
     m_label->setTextFormat(format);
@@ -81,7 +81,7 @@ void ClickableLabelWordWrapWide::setTextFormat(Qt::TextFormat format)
 }
 
 
-void ClickableLabelWordWrapWide::setWordWrap(bool on)
+void ClickableLabelWordWrapWide::setWordWrap(const bool on)
 {
     Q_ASSERT(m_label);
     m_label->setWordWrap(on);
@@ -89,7 +89,7 @@ void ClickableLabelWordWrapWide::setWordWrap(bool on)
 }
 
 
-void ClickableLabelWordWrapWide::setAlignment(Qt::Alignment alignment)
+void ClickableLabelWordWrapWide::setAlignment(const Qt::Alignment alignment)
 {
     Q_ASSERT(m_label);
     m_label->setAlignment(alignment);
@@ -97,7 +97,7 @@ void ClickableLabelWordWrapWide::setAlignment(Qt::Alignment alignment)
 }
 
 
-void ClickableLabelWordWrapWide::setOpenExternalLinks(bool open)
+void ClickableLabelWordWrapWide::setOpenExternalLinks(const bool open)
 {
     Q_ASSERT(m_label);
     m_label->setOpenExternalLinks(open);

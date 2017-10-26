@@ -63,16 +63,16 @@ public:
 
     LinkFunctionFamily(
             const QString& family_name,
-            LinkFnType link_fn,
-            InvLinkFnType inv_link_fn,
-            DerivativeInvLinkFnType derivative_inv_link_fn,
-            VarianceFnType variance_fn,
-            DevResidsFnType dev_resids_fn,
-            ValidEtaFnType valid_eta_fn,
-            ValidMuFnType valid_mu_fn,
-            InitializeFnType initialize_fn
+            const LinkFnType& link_fn,
+            const InvLinkFnType& inv_link_fn,
+            const DerivativeInvLinkFnType& derivative_inv_link_fn,
+            const VarianceFnType& variance_fn,
+            const DevResidsFnType& dev_resids_fn,
+            const ValidEtaFnType& valid_eta_fn,
+            const ValidMuFnType& valid_mu_fn,
+            const InitializeFnType& initialize_fn
 #ifdef LINK_FUNCTION_FAMILY_USE_AIC
-            , AICFnType aic_fn
+            , const AICFnType& aic_fn
 #endif
             );
 public:

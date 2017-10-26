@@ -220,7 +220,7 @@ void initializeMdsUpdrs(TaskFactory& factory)
 }
 
 
-MdsUpdrs::MdsUpdrs(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+MdsUpdrs::MdsUpdrs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, MDS_UPDRS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     // Part I
@@ -362,7 +362,7 @@ QStringList MdsUpdrs::detail() const
 }
 
 
-OpenableWidget* MdsUpdrs::editor(bool read_only)
+OpenableWidget* MdsUpdrs::editor(const bool read_only)
 {
     const NameValueOptions main_options{
         {A0, 0},

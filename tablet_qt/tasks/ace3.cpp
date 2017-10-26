@@ -173,7 +173,7 @@ void initializeAce3(TaskFactory& factory)
 }
 
 
-Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ACE3_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
@@ -297,7 +297,7 @@ QStringList Ace3::summary() const
 }
 
 
-OpenableWidget* Ace3::editor(bool read_only)
+OpenableWidget* Ace3::editor(const bool read_only)
 {
     int pagenum = 1;
     auto makeTitle = [this, &pagenum](const char* title) -> QString {

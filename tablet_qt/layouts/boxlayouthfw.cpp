@@ -174,7 +174,7 @@ struct BoxLayoutHfwItem
 // Helper functions
 // ============================================================================
 
-static inline bool horz(BoxLayoutHfw::Direction dir)
+static inline bool horz(const BoxLayoutHfw::Direction dir)
 {
     return dir == BoxLayoutHfw::RightToLeft || dir == BoxLayoutHfw::LeftToRight;
 }
@@ -184,7 +184,7 @@ static inline bool horz(BoxLayoutHfw::Direction dir)
 // BoxLayoutHfw
 // ============================================================================
 
-BoxLayoutHfw::BoxLayoutHfw(Direction dir, QWidget* parent) :
+BoxLayoutHfw::BoxLayoutHfw(const Direction dir, QWidget* parent) :
     QLayout(parent),
     m_dir(dir),
     m_spacing(-1),
@@ -243,7 +243,7 @@ BoxLayoutHfw::~BoxLayoutHfw()
 // Add/modify/remove components
 // ----------------------------------------------------------------------------
 
-QLayoutItem* BoxLayoutHfw::replaceAt(int index, QLayoutItem* item)
+QLayoutItem* BoxLayoutHfw::replaceAt(const int index, QLayoutItem* item)
 {
     if (!item) {
         return nullptr;
@@ -269,7 +269,7 @@ void BoxLayoutHfw::deleteAll()
 }
 
 
-void BoxLayoutHfw::setSpacing(int spacing)
+void BoxLayoutHfw::setSpacing(const int spacing)
 {
     m_spacing = spacing;
     invalidate();
@@ -296,7 +296,7 @@ void BoxLayoutHfw::insertItem(int index, QLayoutItem* item)
 }
 
 
-void BoxLayoutHfw::insertSpacing(int index, int size)
+void BoxLayoutHfw::insertSpacing(int index, const int size)
 {
     if (index < 0) {  // append
         index = m_list.count();
@@ -324,7 +324,7 @@ void BoxLayoutHfw::insertSpacing(int index, int size)
 }
 
 
-void BoxLayoutHfw::insertStretch(int index, int stretch)
+void BoxLayoutHfw::insertStretch(int index, const int stretch)
 {
     if (index < 0) {  // append
         index = m_list.count();
@@ -359,7 +359,8 @@ void BoxLayoutHfw::insertSpacerItem(int index, QSpacerItem* spacerItem)
 }
 
 
-void BoxLayoutHfw::insertLayout(int index, QLayout* layout, int stretch)
+void BoxLayoutHfw::insertLayout(int index, QLayout* layout,
+                                const int stretch)
 {
     if (!checkLayout(layout, this)) {
         return;
@@ -376,8 +377,9 @@ void BoxLayoutHfw::insertLayout(int index, QLayout* layout, int stretch)
 }
 
 
-void BoxLayoutHfw::insertWidget(int index, QWidget* widget, int stretch,
-                                Qt::Alignment alignment)
+void BoxLayoutHfw::insertWidget(int index, QWidget* widget,
+                                const int stretch,
+                                const Qt::Alignment alignment)
 {
     if (!checkWidget(widget, this)) {
         return;
@@ -412,13 +414,13 @@ void BoxLayoutHfw::insertWidget(int index, QWidget* widget, int stretch,
 }
 
 
-void BoxLayoutHfw::addSpacing(int size)
+void BoxLayoutHfw::addSpacing(const int size)
 {
     insertSpacing(-1, size);
 }
 
 
-void BoxLayoutHfw::addStretch(int stretch)
+void BoxLayoutHfw::addStretch(const int stretch)
 {
     insertStretch(-1, stretch);
 }
@@ -430,20 +432,20 @@ void BoxLayoutHfw::addSpacerItem(QSpacerItem* spacer_item)
 }
 
 
-void BoxLayoutHfw::addWidget(QWidget* widget, int stretch,
-                             Qt::Alignment alignment)
+void BoxLayoutHfw::addWidget(QWidget* widget, const int stretch,
+                             const Qt::Alignment alignment)
 {
     insertWidget(-1, widget, stretch, alignment);
 }
 
 
-void BoxLayoutHfw::addLayout(QLayout* layout, int stretch)
+void BoxLayoutHfw::addLayout(QLayout* layout, const int stretch)
 {
     insertLayout(-1, layout, stretch);
 }
 
 
-void BoxLayoutHfw::addStrut(int size)
+void BoxLayoutHfw::addStrut(const int size)
 {
     QLayoutItem* b;
     if (horz(m_dir)) {
@@ -461,7 +463,7 @@ void BoxLayoutHfw::addStrut(int size)
 }
 
 
-bool BoxLayoutHfw::setStretchFactor(QWidget* widget, int stretch)
+bool BoxLayoutHfw::setStretchFactor(QWidget* widget, const int stretch)
 {
     if (!widget) {
         return false;
@@ -478,7 +480,7 @@ bool BoxLayoutHfw::setStretchFactor(QWidget* widget, int stretch)
 }
 
 
-bool BoxLayoutHfw::setStretchFactor(QLayout* layout, int stretch)
+bool BoxLayoutHfw::setStretchFactor(QLayout* layout, const int stretch)
 {
     for (int i = 0; i < m_list.size(); ++i) {
         BoxLayoutHfwItem* box = m_list.at(i);
@@ -494,7 +496,7 @@ bool BoxLayoutHfw::setStretchFactor(QLayout* layout, int stretch)
 }
 
 
-void BoxLayoutHfw::setStretch(int index, int stretch)
+void BoxLayoutHfw::setStretch(const int index, const int stretch)
 {
     if (index >= 0 && index < m_list.size()) {
         BoxLayoutHfwItem* box = m_list.at(index);
@@ -506,7 +508,7 @@ void BoxLayoutHfw::setStretch(int index, int stretch)
 }
 
 
-QLayoutItem* BoxLayoutHfw::takeAt(int index)
+QLayoutItem* BoxLayoutHfw::takeAt(const int index)
 {
     if (index < 0 || index >= m_list.count()) {
         return nullptr;
@@ -528,7 +530,7 @@ QLayoutItem* BoxLayoutHfw::takeAt(int index)
 }
 
 
-void BoxLayoutHfw::setDirection(Direction direction)
+void BoxLayoutHfw::setDirection(const Direction direction)
 {
     if (m_dir == direction) {
         return;
@@ -592,7 +594,7 @@ int BoxLayoutHfw::count() const
 }
 
 
-QLayoutItem* BoxLayoutHfw::itemAt(int index) const
+QLayoutItem* BoxLayoutHfw::itemAt(const int index) const
 {
     return index >= 0 && index < m_list.count()
             ? m_list.at(index)->item
@@ -606,7 +608,7 @@ BoxLayoutHfw::Direction BoxLayoutHfw::direction() const
 }
 
 
-int BoxLayoutHfw::stretch(int index) const
+int BoxLayoutHfw::stretch(const int index) const
 {
     if (index >= 0 && index < m_list.size()) {
         return m_list.at(index)->stretch;
@@ -722,7 +724,7 @@ bool BoxLayoutHfw::hasHeightForWidth() const
 }
 
 
-int BoxLayoutHfw::heightForWidth(int w) const
+int BoxLayoutHfw::heightForWidth(const int w) const
 {
     if (!hasHeightForWidth()) {
         return -1;
@@ -736,7 +738,7 @@ int BoxLayoutHfw::heightForWidth(int w) const
 }
 
 
-int BoxLayoutHfw::minimumHeightForWidth(int w) const
+int BoxLayoutHfw::minimumHeightForWidth(const int w) const
 {
     if (!hasHeightForWidth()) {
         return -1;
@@ -1361,7 +1363,7 @@ BoxLayoutHfw::GeomInfo BoxLayoutHfw::getGeomInfo() const
 }
 
 
-BoxLayoutHfw::HfwInfo BoxLayoutHfw::getHfwInfo(int layout_width) const
+BoxLayoutHfw::HfwInfo BoxLayoutHfw::getHfwInfo(const int layout_width) const
 {
     int w = layout_width;  // name used in original
     // ... but original did the HFW calculations on the INNER width,

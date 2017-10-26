@@ -41,7 +41,7 @@ void initializeIrac(TaskFactory& factory)
 }
 
 
-Irac::Irac(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+Irac::Irac(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IRAC_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(AIM, QVariant::String);
@@ -104,7 +104,7 @@ QStringList Irac::detail() const
 }
 
 
-OpenableWidget* Irac::editor(bool read_only)
+OpenableWidget* Irac::editor(const bool read_only)
 {
     NameValueOptions options_aim;
     for (int i = 1; i <= 10; ++i) {

@@ -130,14 +130,14 @@ void addArgs(QSqlQuery& query, const ArgList& args)
 
 
 bool execQuery(QSqlQuery& query, const SqlArgs& sqlargs,
-               bool suppress_errors)
+               const bool suppress_errors)
 {
     return execQuery(query, sqlargs.sql, sqlargs.args, suppress_errors);
 }
 
 
 bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
-               bool suppress_errors)
+               const bool suppress_errors)
 {
     // Executes an existing query (in place) with the supplied SQL/args.
     // THIS IS THE MAIN POINT THROUGH WHICH ALL QUERIES SHOULD BE EXECUTED.
@@ -203,7 +203,7 @@ bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
 }
 
 
-QString sqlParamHolders(int n)
+QString sqlParamHolders(const int n)
 {
     // String like "?,?,?" for n parameter holders
     QString paramholders;
@@ -233,7 +233,7 @@ ArgList argListFromIntList(const QVector<int>& intlist)
 
 QStringList fieldNamesFromPragmaInfo(
         const QVector<SqlitePragmaInfoField>& infolist,
-        bool delimited)
+        const bool delimited)
 {
     QStringList fieldnames;
     const int size = infolist.size();
@@ -280,7 +280,8 @@ QString makeCreationSqlFromPragmaInfo(
 // Altering structure
 // ============================================================================
 
-QString sqlCreateTable(const QString& tablename, const QVector<Field>& fieldlist)
+QString sqlCreateTable(const QString& tablename,
+                       const QVector<Field>& fieldlist)
 {
     QStringList coldefs;
     for (int i = 0; i < fieldlist.size(); ++i) {

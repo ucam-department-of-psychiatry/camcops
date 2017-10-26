@@ -29,8 +29,11 @@ const int MIN_WIDTH = 600;
 const int MIN_HEIGHT = 600;
 
 
-LogMessageBox::LogMessageBox(QWidget* parent, const QString& title,
-                             const QString& text, bool as_html, bool word_wrap) :
+LogMessageBox::LogMessageBox(QWidget* parent,
+                             const QString& title,
+                             const QString& text,
+                             const bool as_html,
+                             const bool word_wrap) :
     QDialog(parent)
 {
     setWindowTitle(title);

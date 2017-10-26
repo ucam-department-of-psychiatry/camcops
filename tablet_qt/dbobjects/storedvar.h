@@ -29,7 +29,7 @@ public:
               DatabaseManager& db,
               const QString& name = "",  // empty for a specimen
               QVariant::Type type = QVariant::Int,
-              QVariant default_value = QVariant());
+              const QVariant& default_value = QVariant());
     virtual ~StoredVar();
     bool setValue(const QVariant& value, bool save_to_db = true);
     QVariant value() const;

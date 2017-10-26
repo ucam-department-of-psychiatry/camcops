@@ -30,7 +30,8 @@ void initializeReferrerSatisfactionSpec(TaskFactory& factory)
 }
 
 
-ReferrerSatisfactionSpec::ReferrerSatisfactionSpec(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+ReferrerSatisfactionSpec::ReferrerSatisfactionSpec(
+        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     SatisfactionCommon(app, db, REF_SATIS_SPEC_TABLENAME, false, load_pk)
 {
 }
@@ -62,7 +63,7 @@ QString ReferrerSatisfactionSpec::menusubtitle() const
 // Instance info
 // ============================================================================
 
-OpenableWidget* ReferrerSatisfactionSpec::editor(bool read_only)
+OpenableWidget* ReferrerSatisfactionSpec::editor(const bool read_only)
 {
     return satisfactionEditor(appstring(appstrings::SATIS_REF_SPEC_RATING_Q),
                               read_only);

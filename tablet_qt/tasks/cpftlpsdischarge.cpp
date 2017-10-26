@@ -131,7 +131,8 @@ void initializeCPFTLPSDischarge(TaskFactory& factory)
 }
 
 
-CPFTLPSDischarge::CPFTLPSDischarge(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+CPFTLPSDischarge::CPFTLPSDischarge(CamcopsApp& app, DatabaseManager& db,
+                                   const int load_pk) :
     Task(app, db, CPFTLPSDISCHARGE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addField(DISCHARGE_DATE, QVariant::Date);
@@ -280,7 +281,7 @@ QStringList CPFTLPSDischarge::detail() const
 }
 
 
-OpenableWidget* CPFTLPSDischarge::editor(bool read_only)
+OpenableWidget* CPFTLPSDischarge::editor(const bool read_only)
 {
     const NameValueOptions discharge_reason_code_options{
         {xstring("reason_code_F"), "F"},

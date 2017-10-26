@@ -20,7 +20,7 @@
 #include "progressbox.h"
 
 
-ProgressBox::ProgressBox(const QString& label, int n_steps,
+ProgressBox::ProgressBox(const QString& label, const int n_steps,
                          QWidget* parent) :
     QProgressDialog(label,
                     "",  // cancelButtonText

@@ -189,7 +189,7 @@ void initializeCardinalExpectationDetection(TaskFactory& factory)
 // ============================================================================
 
 CardinalExpectationDetection::CardinalExpectationDetection(
-        CamcopsApp& app, DatabaseManager& db, int load_pk) :
+        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CARDINALEXPDET_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config
@@ -292,7 +292,7 @@ QString CardinalExpectationDetection::ancillaryTableFKToTaskFieldname() const
 }
 
 
-void CardinalExpectationDetection::loadAllAncillary(int pk)
+void CardinalExpectationDetection::loadAllAncillary(const int pk)
 {
     const OrderBy group_order_by{{CardinalExpDetTrialGroupSpec::FN_GROUP_NUM, true}};
     ancillaryfunc::loadAncillary<CardinalExpDetTrialGroupSpec, CardinalExpDetTrialGroupSpecPtr>(
@@ -369,7 +369,7 @@ QStringList CardinalExpectationDetection::detail() const
 }
 
 
-OpenableWidget* CardinalExpectationDetection::editor(bool read_only)
+OpenableWidget* CardinalExpectationDetection::editor(const bool read_only)
 {
     // ------------------------------------------------------------------------
     // OK to edit?
@@ -556,27 +556,28 @@ void CardinalExpectationDetection::doCounterbalancing()
 }
 
 
-int CardinalExpectationDetection::getRawCueIndex(int cue) const
+int CardinalExpectationDetection::getRawCueIndex(const int cue) const
 {
     Q_ASSERT(cue >= 0 && cue < m_raw_cue_indices.size());
     return m_raw_cue_indices.at(cue);
 }
 
 
-QUrl CardinalExpectationDetection::getAuditoryCueUrl(int cue) const
+QUrl CardinalExpectationDetection::getAuditoryCueUrl(const int cue) const
 {
     return urlFromStem(AUDITORY_CUES.at(getRawCueIndex(cue)));
 }
 
 
-QString CardinalExpectationDetection::getVisualCueFilenameStem(int cue) const
+QString CardinalExpectationDetection::getVisualCueFilenameStem(
+        const int cue) const
 {
     return VISUAL_CUES.at(getRawCueIndex(cue));
 }
 
 
 QUrl CardinalExpectationDetection::getAuditoryTargetUrl(
-        int target_number) const
+        const int target_number) const
 {
     Q_ASSERT(target_number >= 0 && target_number < AUDITORY_TARGETS.size());
     return urlFromStem(AUDITORY_TARGETS.at(target_number));
@@ -584,7 +585,7 @@ QUrl CardinalExpectationDetection::getAuditoryTargetUrl(
 
 
 QString CardinalExpectationDetection::getVisualTargetFilenameStem(
-        int target_number) const
+        const int target_number) const
 {
     Q_ASSERT(target_number >= 0 && target_number < VISUAL_TARGETS.size());
     return VISUAL_TARGETS.at(target_number);
@@ -603,8 +604,9 @@ QString CardinalExpectationDetection::getVisualBackgroundFilename() const
 }
 
 
-QString CardinalExpectationDetection::getPromptText(int modality,
-                                                    int target_number) const
+QString CardinalExpectationDetection::getPromptText(
+        const int modality,
+        const int target_number) const
 {
     const bool auditory = modality == MODALITY_AUDITORY;
     const bool first = target_number == 0;
@@ -630,7 +632,7 @@ void CardinalExpectationDetection::reportCounterbalancing() const
 
 
 QVector<CardinalExpDetTrialPtr> CardinalExpectationDetection::makeTrialGroup(
-        int block, int groupnum,
+        const int block, const int groupnum,
         CardinalExpDetTrialGroupSpecPtr groupspec) const
 {
     QVector<CardinalExpDetTrialPtr> trials;
@@ -710,7 +712,8 @@ void CardinalExpectationDetection::clearScene()
 }
 
 
-void CardinalExpectationDetection::setTimeout(int time_ms, FuncPtr callback)
+void CardinalExpectationDetection::setTimeout(const int time_ms,
+                                              FuncPtr callback)
 {
     m_timer->stop();
     m_timer->disconnect();
@@ -911,7 +914,7 @@ void CardinalExpectationDetection::target()
 
 
 void CardinalExpectationDetection::mediaStatusChangedBackground(
-        QMediaPlayer::MediaStatus status)
+        const QMediaPlayer::MediaStatus status)
 {
     if (status == QMediaPlayer::EndOfMedia) {
 #ifdef DEBUG_STEP_DETAIL
@@ -943,7 +946,7 @@ void CardinalExpectationDetection::detection()
 }
 
 
-void CardinalExpectationDetection::processResponse(int rating)
+void CardinalExpectationDetection::processResponse(const int rating)
 {
 #ifdef DEBUG_STEP_DETAIL
     qDebug() << Q_FUNC_INFO;

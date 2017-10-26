@@ -161,7 +161,7 @@ void initializeYbocsSc(TaskFactory& factory)
 }
 
 
-YbocsSc::YbocsSc(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+YbocsSc::YbocsSc(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, YBOCSSC_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     for (const QString& item : ITEMS) {
@@ -234,7 +234,7 @@ QStringList YbocsSc::detail() const
 }
 
 
-OpenableWidget* YbocsSc::editor(bool read_only)
+OpenableWidget* YbocsSc::editor(const bool read_only)
 {
     auto text = [this](const QString& xstringname) -> QuElement* {
         return new QuText(xstring(xstringname));

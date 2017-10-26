@@ -58,7 +58,7 @@ QuMcqGrid::~QuMcqGrid()
 }
 
 
-QuMcqGrid* QuMcqGrid::setWidth(int question_width,
+QuMcqGrid* QuMcqGrid::setWidth(const int question_width,
                                const QVector<int>& option_widths)
 {
     if (option_widths.size() != m_options.size()) {
@@ -85,7 +85,7 @@ QuMcqGrid* QuMcqGrid::setSubtitles(const QVector<McqGridSubtitle>& subtitles)
 }
 
 
-QuMcqGrid* QuMcqGrid::setExpand(bool expand)
+QuMcqGrid* QuMcqGrid::setExpand(const bool expand)
 {
     m_expand = expand;
     return this;
@@ -100,13 +100,13 @@ void QuMcqGrid::setFromFields()
 }
 
 
-int QuMcqGrid::colnum(int value_index) const
+int QuMcqGrid::colnum(const int value_index) const
 {
     return 2 + value_index;
 }
 
 
-void QuMcqGrid::addOptions(GridLayout* grid, int row)
+void QuMcqGrid::addOptions(GridLayout* grid, const int row)
 {
     for (int i = 0; i < m_options.size(); ++i) {
         mcqfunc::addOption(grid, row, colnum(i),
@@ -229,7 +229,8 @@ FieldRefPtrList QuMcqGrid::fieldrefs() const
 }
 
 
-void QuMcqGrid::clicked(int question_index, int value_index)
+void QuMcqGrid::clicked(const int question_index,
+                        const int value_index)
 {
     if (question_index < 0 || question_index >= m_question_field_pairs.size()) {
         qWarning() << Q_FUNC_INFO << "Bad question_index:" << question_index;
@@ -246,7 +247,7 @@ void QuMcqGrid::clicked(int question_index, int value_index)
 }
 
 
-void QuMcqGrid::fieldValueOrMandatoryChanged(int question_index,
+void QuMcqGrid::fieldValueOrMandatoryChanged(const int question_index,
                                              const FieldRef* fieldref)
 {
     if (question_index < 0 ||

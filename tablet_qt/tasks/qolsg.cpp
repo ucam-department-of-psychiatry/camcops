@@ -222,7 +222,7 @@ void initializeQolSG(TaskFactory& factory)
 }
 
 
-QolSG::QolSG(CamcopsApp& app, DatabaseManager& db, int load_pk) :
+QolSG::QolSG(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, QOLSG_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(FN_CATEGORY_START_TIME, QVariant::DateTime);
@@ -295,7 +295,7 @@ QStringList QolSG::detail() const
 }
 
 
-OpenableWidget* QolSG::editor(bool read_only)
+OpenableWidget* QolSG::editor(const bool read_only)
 {
     if (read_only) {
         qWarning() << "Task not editable! Shouldn't have got here.";
@@ -496,7 +496,8 @@ void QolSG::giveChoice(const QString& category_chosen)
 }
 
 
-AdjustablePieAndProxy QolSG::makePie(const QPointF& centre, int n_sectors)
+AdjustablePieAndProxy QolSG::makePie(const QPointF& centre,
+                                     const int n_sectors)
 {
     const qreal diameter = STIMDIAMETER;
     const qreal radius = diameter / 2;
@@ -527,7 +528,7 @@ AdjustablePieAndProxy QolSG::makePie(const QPointF& centre, int n_sectors)
 }
 
 
-void QolSG::showFixed(bool left, const LotteryOption& option)
+void QolSG::showFixed(const bool left, const LotteryOption& option)
 {
     const QPointF lottery_centre(left ? LEFT_STIM_CENTRE : RIGHT_STIM_CENTRE,
                                  STIM_VCENTRE);
@@ -539,8 +540,8 @@ void QolSG::showFixed(bool left, const LotteryOption& option)
 }
 
 
-void QolSG::showLottery(bool left, const LotteryOption& option1,
-                        const LotteryOption& option2, qreal starting_p)
+void QolSG::showLottery(const bool left, const LotteryOption& option1,
+                        const LotteryOption& option2, const qreal starting_p)
 {
     const QPointF lottery_centre(left ? LEFT_STIM_CENTRE : RIGHT_STIM_CENTRE,
                                  STIM_VCENTRE);
@@ -557,7 +558,7 @@ void QolSG::showLottery(bool left, const LotteryOption& option1,
 }
 
 
-void QolSG::showGambleInstruction(bool lottery_on_left,
+void QolSG::showGambleInstruction(const bool lottery_on_left,
                                   const QString& category_chosen)
 {
     qDebug() << Q_FUNC_INFO << lottery_on_left << category_chosen;
@@ -598,13 +599,13 @@ void QolSG::showGambleInstruction(bool lottery_on_left,
 }
 
 
-void QolSG::pieAdjusted(QVector<qreal> proportions)
+void QolSG::pieAdjusted(const QVector<qreal>& proportions)
 {
     lotteryTouched(proportions.at(0));
 }
 
 
-void QolSG::lotteryTouched(qreal p)
+void QolSG::lotteryTouched(const qreal p)
 {
     if (!m_pie_touched_at_least_once) {
         // Make the "indifference" button appear only after the twirler has been set.

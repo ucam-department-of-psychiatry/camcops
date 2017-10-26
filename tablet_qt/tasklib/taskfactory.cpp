@@ -74,7 +74,7 @@ void TaskFactory::finishRegistration()
 }
 
 
-QStringList TaskFactory::tablenames(TaskClassSortMethod sort_method) const
+QStringList TaskFactory::tablenames(const TaskClassSortMethod sort_method) const
 {
     if (sort_method == TaskClassSortMethod::Tablename) {
         // Already sorted by this
@@ -103,7 +103,7 @@ QStringList TaskFactory::allTablenames() const
 }
 
 
-TaskPtr TaskFactory::create(const QString& key, int load_pk) const
+TaskPtr TaskFactory::create(const QString& key, const int load_pk) const
 {
     if (!m_map.contains(key)) {
         qWarning().nospace() << "TaskFactory::create(" << key << ", "
@@ -161,7 +161,7 @@ void TaskFactory::makeTables(const QString& key) const
 }
 
 
-TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
+TaskPtrList TaskFactory::fetch(const QString& tablename, const bool sort) const
 {
     // KEY SECURITY DECISIONS IMPLEMENTED HERE: which tasks users can see.
     const int patient_id = m_app.selectedPatientId();
@@ -218,7 +218,7 @@ TaskPtrList TaskFactory::fetch(const QString& tablename, bool sort) const
 }
 
 
-TaskPtrList TaskFactory::fetchAllForPatient(int patient_id) const
+TaskPtrList TaskFactory::fetchAllForPatient(const int patient_id) const
 {
     TaskPtrList tasklist;
     MapIteratorType it(m_map);
