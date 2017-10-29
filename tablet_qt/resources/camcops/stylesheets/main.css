@@ -25,8 +25,10 @@ LogBox QPlainTextEdit {
     border: 1px solid black;
     font-family: 'Dejavu Sans Mono', 'Courier';
     font-size: 10pt;
-    background-color: black;
-    color: white;
+    /* OLD SCHEME: background-color: black; */
+    /* OLD SCHEME: color: white; */
+    background-color: rgb(211, 211, 211);  /* lightgray */
+    color: black;
 }
 
 LogMessageBox QPlainTextEdit {

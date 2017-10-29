@@ -33,7 +33,8 @@ BaseWidget {
     margin: 0;
 }
 #menu_window_background {
-    background-color: black;
+    /* OLD SCHEME: background-color: black; */
+    background-color: rgb(211, 211, 211);  /* lightgray */
     border: 0;
     padding: 0;
     margin: 0;
@@ -44,23 +45,27 @@ BaseWidget {
    ========================================================================= */
 
 #menu_window_title {
-    color: white;
+    /* OLD SCHEME: color: white; */
+    color: black;
     font-weight: bold;
     border: 0;
     margin: 0;
     padding: 0;
 }
 #header_horizontal_line {
-    background-color: white;
+    /* OLD SCHEME: background-color: white; */
+    background-color: black;
 }
 #menu_header_patient_info {
-    color: yellow;
+    /* OLD SCHEME: color: yellow; */
+    color: blue;
     border: 0;
     margin: 0;
     padding: 0;
 }
 #menu_header_no_patient {
-    color: magenta;
+    /* OLD SCHEME: color: magenta; */
+    color: red;
     font-weight: bold;
     border: 0;
     margin: 0;
@@ -68,7 +73,8 @@ BaseWidget {
 }
 
 #menu_header_crippled {
-    background-color: rgb(60, 0, 60);  /* very dark magenta */
+    /* OLD SCHEME: background-color: rgb(60, 0, 60); */  /* very dark magenta */
+    background-color: rgb(255, 150, 255);  /* magenta */
 }
 
 /* =========================================================================
@@ -76,7 +82,8 @@ BaseWidget {
    ========================================================================= */
 
 QListWidget {
-    background-color: black;
+    /* OLD SCHEME: background-color: black; */
+    background-color: lightgray;
     /* ... vertically below all menu items; seen if menu shorter than screen */
     border: 0;
     padding: 0;
@@ -90,12 +97,13 @@ HeightForWidthListWidget::item {
 */
 QListWidget::item:selected {
     /* excellent diagnostic to see if this stylesheet is in use */
-    background-color: blue;
+    background-color: rgb(150, 150, 255);
 }
 
 /* Menu items */
 #menu_item_title {
-    color: white;
+    /* OLD SCHEME: color: white; */
+    color: black;
     font-weight: bold;
     border: 0;
     margin: 0;
@@ -103,48 +111,61 @@ QListWidget::item:selected {
 }
 #menu_item_subtitle {
     /* background-color: red; */
-    color: rgb(200, 200, 200);
+    /* OLD SCHEME: color: rgb(200, 200, 200); */
+    color: rgb(50, 50, 50);
     border: 0;
     margin: 0;
     padding: 0;
 }
 #task_item_taskname_complete {
-    color: white;
+    /* OLD SCHEME: color: white; */
+    color: black;
 }
 #task_item_timestamp_complete {
-    color: white;
+    /* OLD SCHEME: color: white; */
+    color: black;
 }
 #task_item_summary_complete {
-    color: white;
+    /* OLD SCHEME: color: white; */
+    color: black;
 }
 #task_item_taskname_incomplete {
-    color: rgb(200, 200, 200);
+    /* OLD SCHEME: color: rgb(200, 200, 200); */
+    color: rgb(50, 50, 50);
 }
 #task_item_timestamp_incomplete {
-    color: rgb(200, 200, 200);
+    /* OLD SCHEME: color: rgb(200, 200, 200); */
+    color: rgb(50, 50, 50);
 }
 #task_item_summary_incomplete {
-    color: rgb(200, 200, 200);
+    /* OLD SCHEME: color: rgb(200, 200, 200); */
+    color: rgb(50, 50, 50);
 }
 
 /* Background colour modifications */
 #not_implemented {
+    /* OLD SCHEME: background-color: rgba(0, 0, 255, 100); */
     background-color: rgba(0, 0, 255, 100);
 }
 #label_only {
+    /* OLD SCHEME: background-color: rgba(150, 150, 150, 100); */
     background-color: rgba(150, 150, 150, 100);
 }
 #locked {
+    /* OLD SCHEME: background-color: rgba(255, 0, 0, 100); */
     background-color: rgba(255, 0, 0, 100);
 }
 #needs_privilege {
+    /* OLD SCHEME: background-color: rgba(255, 255, 0, 100); */
     background-color: rgba(255, 255, 0, 100);
 }
 #unsupported {
+    /* OLD SCHEME: background-color: rgba(50, 50, 200, 100); */
     background-color: rgba(50, 50, 200, 100);
 }
 
 #warning {
-    color: yellow;
+    /* OLD SCHEME: color: yellow; */
+    color: red;
     font-weight: bold;
 }

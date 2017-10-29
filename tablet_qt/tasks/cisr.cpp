@@ -62,7 +62,7 @@ LABEL_B1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ===============================================================================
-IMPLEMENTATION: EARLY THOUGHTS
+IMPLEMENTATION: EARLY THOUGHTS -- NOT USED
 ===============================================================================
 
 We could in principle do this with a Questionnaire interface, but to be honest
@@ -317,8 +317,193 @@ OpenableWidget* Cisr::editor(const bool read_only)
 // DynamicQuestionnaire callbacks
 // ============================================================================
 
+enum questionenum {
+    ETHNIC,
+    MARRIED,
+    EMPSTAT,
+    HOME,
+
+    APPETITE1,
+    WEIGHT1,
+    WEIGHT2,
+    WEIGHT3,
+    APPETITE2,
+    WEIGHT4,
+    WEIGHT4A,
+    WEIGHT5,
+    GP_YEAR,
+    DISABLE,
+    ILLNESS,
+
+    SOMATIC_MAND1,
+    SOMATIC_PAIN1,
+    SOMATIC_PAIN2,
+    SOMATIC_PAIN3,
+    SOMATIC_PAIN4,
+    SOMATIC_PAIN5,
+    SOMATIC_MAND2,
+    SOMATIC_DIS1,
+    SOMATIC_DIS2,
+    SOMATIC_DIS3,
+    SOMATIC_DIS4,
+    SOMATIC_DIS5,
+    SOMATIC_DUR,
+
+    FATIGUE_MAND1,
+    FATIGUE_CAUSE1,
+    FATIGUE_TIRED1,
+    FATIGUE_TIRED2,
+    FATIGUE_TIRED3,
+    FATIGUE_TIRED4,
+    FATIGUE_MAND2,
+    FATIGUE_CAUSE2,
+    FATIGUE_ENERGY1,
+    FATIGUE_ENERGY2,
+    FATIGUE_ENERGY3,
+    FATIGUE_ENERGY4,
+    FATIGUE_DUR,
+
+    CONC_MAND1,
+    CONC_MAND2,
+    CONC1,
+    CONC2,
+    CONC3,
+    CONC_DUR,
+    CONC4,
+    FORGET_DUR,
+
+    SLEEP_MAND1,
+    SLEEP_LOSE1,
+    SLEEP_LOSE2,
+    SLEEP_LOSE3,
+    SLEEP_EMW,
+    SLEEP_CAUSE,
+    SLEEP_MAND2,
+    SLEEP_GAIN1,
+    SLEEP_GAIN2,
+    SLEEP_DUR,
+
+    IRRIT_MAND1,
+    IRRIT_MAND2,
+    IRRIT1,
+    IRRIT2,
+    IRRIT3,
+    IRRIT4,
+    IRRIT_DUR,
+
+    HYPO_MAND1,
+    HYPO_MAND2,
+    HYPO1,
+    HYPO2,
+    HYPO3,
+    HYPO4,
+    HYPO_DUR,
+
+    DEPR_MAND1,
+    DEPR1,
+    DEPR_MAND2,
+    DEPR2,
+    DEPR3,
+    DEPR4,
+    DEPR_CONTENT,
+    DEPR5,
+    DEPR_DUR,
+    DEPTH1,
+    DEPTH2,
+    DEPTH3,
+    DEPTH4,
+    DEPTH5,
+    DEPTH6,
+    DEPTH7,
+    DEPTH8,
+    DEPTH9,
+    DEPTH10,
+    DOCTOR,
+    DOCTOR2,
+    DEPR_OUTRO,
+
+    WORRY_MAND1,
+    WORRY_MAND2,
+    WORRY_CONT1,
+    WORRY1,
+    WORRY2,
+    WORRY3,
+    WORRY4,
+    WORRY5,
+    WORRY_DUR,
+
+    ANX_MAND1,
+    ANX_MAND2,
+    ANX_PHOBIA1,
+    ANX_PHOBIA2,
+    ANX1,
+    ANX2,
+    ANX3,
+    ANX4,
+    ANX5,
+    ANX_DUR,
+
+    PHOBIAS_MAND,
+    PHOBIAS_TYPE1,
+    PHOBIAS1,
+    PHOBIAS2,
+    PHOBIAS3,
+    PHOBIAS4,
+    PHOBIAS_DUR,
+
+    PANIC_MAND1,
+    PANIC1,
+    PANIC2,
+    PANIC3,
+    PANIC4,
+    PANSYM,
+    PANIC5,
+    PANIC_DUR,
+
+    ANX_OUTRO,
+
+    COMP_MAND1,
+    COMP1,
+    COMP2,
+    COMP3,
+    COMP4,
+    COMP_DUR,
+
+    OBSESS_MAND1,
+    OBSESS_MAND2,
+    OBSESS1,
+    OBSESS2,
+    OBSESS3,
+    OBSESS4,
+    OBSESS_DUR,
+
+    OVERALL1,
+    OVERALL2,
+    END
+};
+
 QuPagePtr Cisr::makePage(const int current_qnum)
 {
+    // Return nullptr to finish.
+
+    // This is slightly tricky algorithmically, since the user can go backwards
+    // and forwards. The answers so far define a sequence of questions, and
+    // we offer the nth from that sequence.
+    //
+    // Since the CISR sequence is linear with answer-dependent skipping,
+    // it's a little bit easier than it might be.
+
+    int external_qnum;
+    int internal_qnum;
+    for (external_qnum = 0, internal_qnum = 0;
+            internal_qnum < current_qnum;
+            ++external_qnum, ++internal_qnum) {
+        if (int some_skip_condition = 1) {
+            some_skip_condition += 1;  // *** dummy
+            internal_qnum += 3;
+        }
+    }
+
     // *** this is currently junk; fix
 
     auto title = [this](int pretty_qnum) -> QString {

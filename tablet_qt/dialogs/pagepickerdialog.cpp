@@ -101,7 +101,7 @@ void PagePickerDialog::itemClicked(const int item_index)
     const PagePickerItem& page = m_pages.at(item_index);
     if (!page.selectable()) {
         uifunc::alert("You can’t select this page yet because preceding pages "
-                      "(marked in yellow) are incomplete.",
+                      "(marked with a warning symbol) are incomplete.",
                       "Complete preceding pages first");
         return;
     }
