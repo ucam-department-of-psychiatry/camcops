@@ -1,6 +1,10 @@
 #!/usr/bin/env python3.5
 
 """
+===============================================================================
+Overview
+===============================================================================
+
 This script is design to download and build the prerequisites for building
 the CamCOPS client, including:
 
@@ -12,6 +16,10 @@ the CamCOPS client, including:
 This script is intended to run on PYTHON 2 as well as Python 3, and to have
 dependencies except the system libraries.
 
+===============================================================================
+Why?
+===============================================================================
+
 When is it NECESSARY to compile OpenSSL from source?
     - OpenSSL for Android
       http://doc.qt.io/qt-5/opensslsupport.html
@@ -22,12 +30,58 @@ When is it NECESSARY to compile Qt from source?
     - SQLite support (critical)
       http://doc.qt.io/qt-5/sql-driver.html
       ... so: necessary.
+      
+===============================================================================
+Windows
+===============================================================================
+
+We'll try with Cygwin.
+
+1.  INSTALL CYGWIN
+
+    From https://www.cygwin.com/, download the installer (e.g.
+    setup-x86_64.exe) and run it. If you want to add more packages later, run
+    it again. The screens you'll see, in order (at least for a standard
+    installation from the Internet), are:
+    
+        - saying hello
+        - choose a download source
+        - select root install directory / install for whom?
+        - select local package directory
+        - select your internet connection
+        - choose a download site
+        - ... progress...
+        - SELECT PACKAGES -- the interesting bit.
+        - ... progress...
+        - done; create icons on desktop?
+    
+2.  If you accept its default, it'll install to C:\cygwin64 (on 64-bit
+    systems).
+    
+3.  At the package selector, make sure you include:
+
+        binutils                GNU assembler, linker, and similar utilities
+        mingw64-x86_64-gcc-g++  GCC for Win64 toolchain (C++)
+        
+    If you can't see a package at the Cygwin installer's "Select Packages"
+    screen, make sure "View" shows "Full" or "Category". You can type package
+    names into the "Search" box to restrict the list. To install a package,
+    click on "skip" and it'll change to the version number. When you've chosen
+    everything, click "next".
+
+===============================================================================
+Notes
+===============================================================================
 
 OTHER NOTES:
 # configure: http://doc.qt.io/qt-5/configure-options.html
 # sqlite: http://doc.qt.io/qt-5/sql-driver.html
 # build for Android: http://wiki.qt.io/Qt5ForAndroidBuilding
 # multi-core builds: http://stackoverflow.com/questions/9420825/how-to-compile-on-multiple-cores-using-mingw-inside-qtcreator  # noqa
+
+===============================================================================
+Troubleshooting
+===============================================================================
 
 UPON QT CONFIGURE FAILURE:
 
@@ -305,6 +359,7 @@ class Cpu(object):
     """
     X86_32 = "Intel x86 (32-bit)"  # usually: "x86", "i386"
     X86_64 = "Intel x86 (64-bit)"
+    AMD_64 = "AMD (64-bit)"
     ARM_V5 = "ARM v5 (32-bit)"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture  # noqa
     ARM_V7 = "ARM v7 (32-bit)"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture  # noqa
     ARM_V8_64 = "ARM v8 (64-bit)"
@@ -323,7 +378,8 @@ class Platform(object):
         if cpu not in ALL_CPUS:
             raise ValueError("Unknown target CPU: {!r}".format(cpu))
 
-        if os_ in [Os.LINUX, Os.OSX, Os.WINDOWS] and cpu != Cpu.X86_64:
+        if (os_ in [Os.LINUX, Os.OSX, Os.WINDOWS] and
+                not self.cpu_x86_64bit_family):
             raise ValueError("Don't know how to build for CPU " + cpu +
                              " on system " + os_)
 
@@ -353,7 +409,7 @@ class Platform(object):
     def cpu_shortname(self) -> str:
         if self.cpu == Cpu.X86_32:
             return "x86_32"
-        elif self.cpu == Cpu.X86_64:
+        elif self.cpu_x86_64bit_family:
             return "x86_64"
         elif self.cpu == Cpu.ARM_V5:
             return "armv5"
@@ -406,7 +462,15 @@ class Platform(object):
 
     @property
     def cpu_x86_family(self) -> bool:
-        return self.cpu in [Cpu.X86_32, Cpu.X86_64]
+        return self.cpu in [Cpu.X86_32, Cpu.X86_64, Cpu.AMD_64]
+    
+    @property
+    def cpu_64bit(self) -> bool:
+        return self.cpu in [Cpu.X86_64, Cpu.AMD_64, Cpu.ARM_V8_64]
+    
+    @property
+    def cpu_x86_64bit_family(self) -> bool:
+        return self.cpu_x86_family and self.cpu_64bit
 
     @property
     def cpu_arm_family(self) -> bool:
@@ -419,7 +483,7 @@ class Platform(object):
         """
         if not self.android:
             raise ValueError("Platform is not Android")
-        if self.cpu == Cpu.X86_64:
+        if self.cpu_x86_64bit_family:
             return "x86_64"
         elif self.cpu == Cpu.ARM_V7:
             return "arm"
@@ -440,7 +504,7 @@ class Platform(object):
 
     def ensure_elf_reader(self) -> None:
         """Only to be called for the host platform."""
-        if self.linux:
+        if self.linux or self.windows:
             require(READELF)
         elif self.osx:
             require(GOBJDUMP)
@@ -493,7 +557,7 @@ class Platform(object):
 
     @property
     def ios_arch(self) -> str:
-        if self.cpu == Cpu.X86_64:
+        if self.cpu_x86_64bit_family:
             return "x86_64"
         elif self.cpu == Cpu.X86_32:
             return "i386"
@@ -521,6 +585,8 @@ def get_host_platform() -> Platform:
         cpu = Cpu.X86_32
     elif m == "x86_64":
         cpu = Cpu.X86_64
+    elif m == "AMD64":
+        cpu = Cpu.AMD_64
     else:
         raise ValueError("Don't know host CPU {!r}".format(m))
     return Platform(os_, cpu)
@@ -897,8 +963,17 @@ If core commands are missing:
 
 OS/X
 -------------------------------------------------------------------------------
-cmake             brew update && brew install cmake
-gobjdump          brew update && brew install binutils
+cmake       brew update && brew install cmake
+gobjdump    brew update && brew install binutils
+
+Windows
+-------------------------------------------------------------------------------
+make        Install the Cygwin (*) package "make"
+readelf     Install the Cygwin (*) package "binutils"
+            
+    (*) Install Cygwin; install the necessary package(s); make sure your
+        Windows PATH points to e.g. C:\Cygwin64\bin
+
         """)
         raise ValueError("Missing OS command: {}".format(command))
 
@@ -1068,7 +1143,7 @@ def build_openssl(cfg: Config, platform_: Platform) -> None:
 
     # http://doc.qt.io/qt-5/opensslsupport.html
     target_os = ""
-    if platform_.os == Os.ANDROID:
+    if platform_.android:
         if platform_.cpu == Cpu.ARM_V5:
             target_os = "android"  # ... NB "android" means ARMv5
         elif platform_.cpu == Cpu.ARM_V7:
@@ -1076,12 +1151,12 @@ def build_openssl(cfg: Config, platform_: Platform) -> None:
         else:
             # target_os = "android-{}".format(platform_.cpu)  # don't guess!
             pass  # will raise error below
-    elif platform_.os == Os.LINUX and platform_.cpu == Cpu.X86_64:
+    elif platform_.linux and platform_.cpu_x86_64bit_family:
         target_os = "linux-x86_64"
-    elif platform_.os == Os.OSX and platform_.cpu == Cpu.X86_64:
+    elif platform_.osx and platform_.cpu_x86_64bit_family:
         # https://gist.github.com/tmiz/1441111
         target_os = "darwin64-x86_64-cc"
-    elif platform_.os == Os.IOS:
+    elif platform_.ios:
 
         # https://gist.github.com/foozmeat/5154962
         # https://gist.github.com/felix-schwarz/c61c0f7d9ab60f53ebb0
@@ -1091,7 +1166,7 @@ def build_openssl(cfg: Config, platform_: Platform) -> None:
 
         if platform_.cpu == Cpu.ARM_V8_64:
             target_os = "iphoneos-cross"
-        elif platform_.cpu == Cpu.X86_64:
+        elif platform_.cpu_x86_64bit_family:
             target_os = "darwin64-x86_64-cc"
 
         # iOS specials
@@ -1338,6 +1413,9 @@ def build_qt(cfg: Config, platform_: Platform) -> str:
         qt_config_args += [
             "-xplatform", "macx-ios-clang"
         ]
+    else:
+        raise NotImplementedError("Don't know how to compile Qt for " +
+                                  str(platform_))
 
     qt_config_args.extend(QT_CONFIG_COMMON_ARGS)
 
@@ -1787,8 +1865,8 @@ def main() -> None:
         help="An architecture target (Android under a ARM processor tablet)")
     archgroup.add_argument(
         "--linux_x86_64", action="store_true",
-        help="An architecture target (native Linux with a 64-bit Intel CPU; "
-             "check with 'lscpu' and 'uname -a'")
+        help="An architecture target (native Linux with a 64-bit Intel/AMD "
+             "CPU; check with 'lscpu' and 'uname -a'")
     archgroup.add_argument(
         "--osx_x86_64", action="store_true",
         help="An architecture target (Mac OS/X under an Intel 64-bit CPU; "
@@ -1796,7 +1874,7 @@ def main() -> None:
              "https://support.apple.com/en-gb/HT201948 )")
     archgroup.add_argument(
         "--windows_x86_64", action="store_true",
-        help="An architecture target (Windows with an Intel 64-bit CPU)"
+        help="An architecture target (Windows with an Intel/AMD 64-bit CPU)"
     )
     archgroup.add_argument(
         "--ios", action="store_true",
