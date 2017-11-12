@@ -1,6 +1,17 @@
 #!/usr/bin/env python3.5
 
 """
+This script is design to download and build the prerequisites for building
+the CamCOPS client, including:
+
+    Qt          C++ cross-platform library
+    OpenSSL     Encryption
+    Eigen       Matrix algebra
+    SQLCipher   Encrypted SQLite
+
+This script is intended to run on PYTHON 2 as well as Python 3, and to have
+dependencies except the system libraries.
+
 When is it NECESSARY to compile OpenSSL from source?
     - OpenSSL for Android
       http://doc.qt.io/qt-5/opensslsupport.html
@@ -11,9 +22,6 @@ When is it NECESSARY to compile Qt from source?
     - SQLite support (critical)
       http://doc.qt.io/qt-5/sql-driver.html
       ... so: necessary.
-
-COMPILING OPENSSL:
-    ...
 
 OTHER NOTES:
 # configure: http://doc.qt.io/qt-5/configure-options.html
@@ -141,6 +149,10 @@ DEFAULT_MLPACK_GIT_COMMIT = HEAD
 
 # Eigen
 DEFAULT_EIGEN_VERSION = "3.3.3"
+
+# jom
+DEFAULT_JOM_GIT_URL = "git://code.qt.io/qt-labs/jom.git"
+
 
 # -----------------------------------------------------------------------------
 # Constants: building Qt
@@ -379,6 +391,10 @@ class Platform(object):
     @property
     def ios(self) -> bool:
         return self.os == Os.IOS
+
+    @property
+    def windows(self) -> bool:
+        return self.os == Os.WINDOWS
 
     @property
     def mobile(self) -> bool:
@@ -646,6 +662,10 @@ class Config(object):
                 self.eigen_src_dir,
                 "eigen-{}.tar.gz".format(self.eigen_version))
             self.eigen_unpacked_dir = join(self.root_dir, "eigen")
+
+        # jom
+        self.jom_git_url = args.jom_git_url  # type: str
+        self.jom_src_gitdir = join(self.src_rootdir, "jom")  # type: str
 
     def set_android_env(self,
                         env: Dict[str, str],
@@ -1202,16 +1222,18 @@ def fetch_qt(cfg: Config) -> None:
 
 def build_qt(cfg: Config, platform_: Platform) -> str:
     """
-    Builds Qt.
-    Returns the name of the "install" directory, where the installed qmake is.
+    1. Builds Qt.
+    2. Returns the name of the "install" directory, where the installed qmake
+       is.
     """
     # http://doc.qt.io/qt-5/opensslsupport.html
     # Android:
     #       example at http://wiki.qt.io/Qt5ForAndroidBuilding
-    # Windows:
+    # *** Windows:
     #       https://stackoverflow.com/questions/14932315/how-to-compile-qt-5-under-windows-or-linux-32-or-64-bit-static-or-dynamic-on-v  # noqa
     #       ?also http://simpleit.us/2010/05/30/enabling-openssl-for-qt-c-on-windows/  # noqa
     #       http://doc.qt.io/qt-5/windows-building.html
+    #       http://wiki.qt.io/Jom
     #       http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
     # iOS:
     #       http://doc.qt.io/qt-5/building-from-source-ios.html
@@ -1689,6 +1711,29 @@ def build_eigen(cfg: Config) -> None:
 
 
 # =============================================================================
+# jom: parallel make tool for Windows
+# =============================================================================
+
+def fetch_jom(cfg: Config) -> None:
+    """
+    Downloads jom
+    http://wiki.qt.io/Jom
+    """
+    git_clone(prettyname="jom",
+              url=cfg.jom_git_url,
+              directory=cfg.jom_src_gitdir)
+
+
+def build_jom(cfg: Config) -> None:
+    """
+    Builds jom, the parallel make tool for Windows.
+    See http://code.qt.io/cgit/qt-labs/jom.git/tree/README
+    """
+    log.critical("don't know how to build jom yet (NB it's a Qt program")
+    raise NotImplementedError()
+
+
+# =============================================================================
 # Main
 # =============================================================================
 
@@ -1891,6 +1936,16 @@ def main() -> None:
             "--eigen_version", default=DEFAULT_EIGEN_VERSION,
             help="Eigen version")
 
+    # jom
+    jom = parser.add_argument_group(
+        "jom",
+        "'jom' parallel make tool for Windows"
+    )
+    jom.add_argument(
+        "--jom_git_url", default=DEFAULT_JOM_GIT_URL,
+        help="jom Git URL"
+    )
+
     args = parser.parse_args()  # type: argparse.Namespace
 
     # Calculated args
@@ -1923,6 +1978,8 @@ def main() -> None:
         fetch_mlpack(cfg)
     if USE_EIGEN:
         fetch_eigen(cfg)
+    if HOST_PLATFORM.windows:
+        fetch_jom(cfg)
 
     # =========================================================================
     # Build
@@ -1936,6 +1993,8 @@ def main() -> None:
         build_mlpack(cfg)
     if USE_EIGEN:
         build_eigen(cfg)
+    if HOST_PLATFORM.windows:
+        build_jom(cfg)
 
     installdirs = []
     done_extra = False
@@ -1966,7 +2025,8 @@ def main() -> None:
         build_for(Os.OSX, Cpu.X86_64)
         
     if cfg.windows_x86_64:
-        # *** NOT IMPLEMENTED PROPERLY YET
+        log.critical("*** NOT IMPLEMENTED PROPERLY YET")
+        raise NotImplementedError()
         build_for(Os.WINDOWS, Cpu.X86_64)
 
     if cfg.ios:

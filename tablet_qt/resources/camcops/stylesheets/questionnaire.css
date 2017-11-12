@@ -66,6 +66,10 @@
 
         https://www.w3.org/TR/SVG/types.html#ColorKeywords
 
+    Test colours at:
+
+        http://jscolor.com/
+
 */
 
 /* =========================================================================
@@ -250,6 +254,17 @@ QTextEdit {
     /* https://www.w3schools.com/colors/colors_picker.asp */
     /* background-color: lightgray; */  /* not the same as e.g. MCQ grid headings */
     background-color: rgb(210, 240, 170);  /* greenish */
+}
+
+GrowingPlainTextEdit:focus,
+GrowingTextEdit:focus,
+QDateTimeEdit:focus,
+QDoubleSpinBox:focus,
+QLineEdit:focus,
+QPlainTextEdit:focus,
+QSpinBox:focus,
+QTextEdit:focus {
+    background-color: rgb(255, 215, 128);  /* light orange */
 }
 
 /* =========================================================================

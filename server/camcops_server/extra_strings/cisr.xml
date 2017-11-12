@@ -158,31 +158,31 @@
 
     <string name="empstat_q">What is your current employment status?</string>
     <string name="empstat_s">Employment status:</string>
-    <string name="empstat_a1">Working full time (1)</string>
-    <string name="empstat_a2">Working part time (2)</string>
-    <string name="empstat_a3">Student (3)</string>
-    <string name="empstat_a4">Retired (4)</string>
-    <string name="empstat_a5">Houseperson (5)</string>
-    <string name="empstat_a6">Unemployed Job Seeker (6)</string>
-    <string name="empstat_a7">Unemployed due to ill health (7)</string>  <!-- Fixes typo in original -->
+    <string name="empstat_a1">Working full time</string>  <!-- codes removed from text -->
+    <string name="empstat_a2">Working part time</string>
+    <string name="empstat_a3">Student</string>
+    <string name="empstat_a4">Retired</string>
+    <string name="empstat_a5">Houseperson</string>
+    <string name="empstat_a6">Unemployed Job Seeker</string>
+    <string name="empstat_a7">Unemployed due to ill health</string>  <!-- Fixes typo in original -->
 
     <string name="emptype_q">In your current or last PAID employment, are/were you?</string>
     <string name="emptype_s">Employment group:</string>
-    <string name="emptype_a1">Self-employed with paid employees (1)</string>
-    <string name="emptype_a2">Self-employed no paid employees (2)</string>
-    <string name="emptype_a3">Employee (3)</string>
-    <string name="emptype_a4">Foreman/Supervisor (4)</string>
-    <string name="emptype_a5">Manager (5)</string>
+    <string name="emptype_a1">Self-employed with paid employees</string>  <!-- codes removed from text -->
+    <string name="emptype_a2">Self-employed no paid employees</string>
+    <string name="emptype_a3">Employee</string>
+    <string name="emptype_a4">Foreman/Supervisor</string>
+    <string name="emptype_a5">Manager</string>
     <!-- *** check: what if never employed? -->
 
     <string name="home_q">What is your housing situation?</string>
     <string name="home_s">Housing type:</string>
-    <string name="home_a1">Home owner (1)</string>
-    <string name="home_a2">Tenant (2)</string>
-    <string name="home_a3">Living with relative/friend (3)</string>
-    <string name="home_a4">Hostel/Care home (4)</string>
-    <string name="home_a5">Homeless (5)</string>
-    <string name="home_a6">Other (6)</string>
+    <string name="home_a1">Home owner</string>  <!-- codes removed from text -->
+    <string name="home_a2">Tenant</string>
+    <string name="home_a3">Living with relative/friend</string>
+    <string name="home_a4">Hostel/Care home</string>
+    <string name="home_a5">Homeless</string>
+    <string name="home_a6">Other</string>
 
     <!--
     ===========================================================================
@@ -200,7 +200,7 @@
     HEALTH/WELLBEING
     ===========================================================================
     -->
-    <string name="health_wellbeing_heading">I would now like to ask you about your health and well-being</string>
+    <string name="health_wellbeing_statement">I would now like to ask you about your health and well-being</string>
 
     <string name="appetite1_q">Have you noticed a marked loss in your appetite in the PAST MONTH?</string>
     <string name="appetite1_a1">No</string>
@@ -784,7 +784,7 @@
     <string name="panic5_a1">No</string>
     <string name="panic5_a2">Yes</string>
 
-    <string name="panic_dur">How long have you been having these feelings of panic as you have described?</string>
+    <string name="panic_dur_q">How long have you been having these feelings of panic as you have described?</string>
 
     <string name="anx_outro">Thank you for answering those questions on anxiety and worry.</string>
 
@@ -839,7 +839,7 @@
     <string name="obsess4_a1">Less than fifteen minutes</string>
     <string name="obsess4_a2">Fifteen minutes or more</string>
 
-    <string name="obsess_dur">How long have you been having these thoughts in the way which you have described?</string>
+    <string name="obsess_dur_q">How long have you been having these thoughts in the way which you have described?</string>
 
     <string name="overall1">Thank you for answering those questions.</string>  <!-- full stop added -->
 

@@ -953,4 +953,5 @@ DISTFILES += \
     notes/QT_PROJECT_SETTINGS.txt \
     notes/blob_handling.txt \
     notes/hardware.txt \
-    notes/known_problems.txt
+    notes/known_problems.txt \
+    taskinfo/cisr.html

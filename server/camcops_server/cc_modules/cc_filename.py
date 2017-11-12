@@ -26,7 +26,10 @@ import logging
 import os
 from typing import List, TYPE_CHECKING
 
-from cardinal_pythonlib.datetimefunc import format_datetime, get_now_localtz
+from cardinal_pythonlib.datetimefunc import (
+    format_datetime,
+    get_now_localtz_pendulum,
+)
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 from pendulum import Date, Pendulum
@@ -181,7 +184,8 @@ def get_export_filename(req: "CamcopsRequest",
         fse.PATIENT: patient,
         fse.CREATED: format_datetime(creation_datetime,
                                      DateFormat.FILENAME, ""),
-        fse.NOW: format_datetime(get_now_localtz(), DateFormat.FILENAME),
+        fse.NOW: format_datetime(get_now_localtz_pendulum(),
+                                 DateFormat.FILENAME),
         fse.TASKTYPE: str(basetable or ""),
         fse.SERVERPK: str(serverpk or ""),
         fse.FILETYPE: task_format.lower(),

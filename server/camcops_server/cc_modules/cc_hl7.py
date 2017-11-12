@@ -33,7 +33,10 @@ import subprocess
 import sys
 from typing import List, Optional, TextIO, Tuple, TYPE_CHECKING, Union
 
-from cardinal_pythonlib.datetimefunc import format_datetime, get_now_utc
+from cardinal_pythonlib.datetimefunc import (
+    format_datetime,
+    get_now_utc_datetime,
+)
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.network import ping
 from sqlalchemy.orm import reconstructor, relationship
@@ -311,7 +314,7 @@ class HL7Run(Base):
             self.script_after_file_export = recipdef.script_after_file_export
 
         # New things:
-        self.start_at_utc = get_now_utc()
+        self.start_at_utc = get_now_utc_datetime()
         self.finish_at_utc = None
 
     def call_script(self, files_exported: Optional[List[str]]) -> None:
@@ -336,7 +339,7 @@ class HL7Run(Base):
             self.script_stderr = str(e)
 
     def finish(self) -> None:
-        self.finish_at_utc = get_now_utc()
+        self.finish_at_utc = get_now_utc_datetime()
 
 
 # =============================================================================
@@ -667,7 +670,7 @@ class HL7Message(Base):
         if not server_replied:
             self.failure_reason = "No response from server"
             return
-        self.reply_at_utc = get_now_utc()
+        self.reply_at_utc = get_now_utc_datetime()
         if self._recipient_def.keep_reply:
             self.reply = reply
         try:
