@@ -61,13 +61,27 @@ We'll try with Cygwin.
 3.  At the package selector, make sure you include:
 
         binutils                GNU assembler, linker, and similar utilities
+        colorgcc                Colorizer for GCC warning/error messages (*)
+        gcc-core                GNU Compiler Collection (C, OpenMP)
+        gcc-g++                 GNU Compiler Collection (C++)
+        gccmakedep              X Makefile dependency tool for GCC
         mingw64-x86_64-gcc-g++  GCC for Win64 toolchain (C++)
+        
+            (*) Not necessary, but nice.
         
     If you can't see a package at the Cygwin installer's "Select Packages"
     screen, make sure "View" shows "Full" or "Category". You can type package
     names into the "Search" box to restrict the list. To install a package,
     click on "skip" and it'll change to the version number. When you've chosen
     everything, click "next".
+
+
+    # Under Windows: Cygwin or MinGW? Need MinGW, for direct Windows API code
+    # (rather than a compatibility layer via Cygwin). We want to build a
+    # maximally portable executable.
+
+*** possibly a fair bit of the Windows stuff is wrong and should use MinGW
+
 
 ===============================================================================
 Notes
@@ -109,6 +123,7 @@ UPON QT CONFIGURE FAILURE:
 
 """
 
+*** possibly a fair bit of the Windows stuff is wrong and should use MinGW
 
 import argparse
 from contextlib import contextmanager
@@ -312,8 +327,11 @@ OPENSSL_COMMON_OPTIONS = [
 # -----------------------------------------------------------------------------
 
 CMAKE = "cmake"
+GIT = "git"
 GOBJDUMP = "gobjdump"  # OS/X equivalent of readelf
 MAKE = "make"
+MAKEDEPEND = "makedepend"  # used by OpenSSL via "make"
+PERL = "perl"
 READELF = "readelf"  # read ELF-format library files
 SED = "sed"  # stream editor
 TAR = "tar"  # manipulate tar files
@@ -427,8 +445,10 @@ class Platform(object):
     @staticmethod
     def shared_lib_suffix() -> str:
         # I think this depends on the host, not the target.
-        if HOST_PLATFORM.os in [Os.OSX]:
+        if HOST_PLATFORM.osx:
             return ".dylib"
+        elif HOST_PLATFORM.windows:
+            return ".dll.a"
         else:
             return ".so"
 
@@ -522,11 +542,13 @@ class Platform(object):
             elfcmd = [READELF, "-A", filename]
             log.info("Checking ELF information for " + repr(filename))
             elfresult, _ = run(elfcmd, get_output=True)
-            if self.cpu_arm_family:
-                if elf_arm_tag not in elfresult:
-                    log.critical(elfresult)
-                    raise ValueError(
-                        "File {} was not build for ARM".format(filename))
+            arm_tag_present = elf_arm_tag in elfresult
+            if self.cpu_arm_family and not arm_tag_present:
+                raise ValueError(
+                        "File {} was not built for ARM".format(filename))
+            elif not self.cpu_arm_family and arm_tag_present:
+                raise ValueError(
+                        "File {} was built for ARM".format(filename))
         elif HOST_PLATFORM.osx:
             # https://lowlevelbits.org/parsing-mach-o-files/
             # https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
@@ -534,11 +556,16 @@ class Platform(object):
             dumpcmd = [GOBJDUMP, "-f", filename]
             dumpresult, _ = run(dumpcmd, get_output=True)
             arm64tag = "file format mach-o-arm64"
-            if self.cpu == Cpu.ARM_V8_64:
-                if arm64tag not in dumpresult:
-                    log.critical(dumpresult)
-                    raise ValueError(
-                        "File {} was not build for ARM64".format(filename))
+            arm64tag_present = arm64tag in dumpresult
+            if self.cpu == Cpu.ARM_V8_64 and not arm64tag:
+                raise ValueError(
+                    "File {} was not built for ARM64".format(filename))
+            elif self.cpu != Cpu.ARM_V8_64 and arm64tag:
+                raise ValueError(
+                    "File {} was built for ARM64".format(filename))
+        elif HOST_PLATFORM.windows:
+            log.debug("Windows does not use ELF files; skipping")
+            return
         else:
             raise ValueError("Don't know how to verify ELF for {}".format(
                 HOST_PLATFORM))
@@ -567,6 +594,12 @@ class Platform(object):
             return "arm64"
         else:
             raise ValueError("Unknown architecture for iOS")
+        
+    @property
+    def gcc(self) -> str:
+        if self.windows:
+            return "x86_64-w64-mingw32-gcc"
+        return "gcc"
 
 
 def get_host_platform() -> Platform:
@@ -782,6 +815,14 @@ class Config(object):
             # ... can be blank; e.g. iPhoneOS9.3.sdk symlinks to iPhoneOS.sdk
         )
         env["PLATFORM"] = platform_.ios_platform_name
+        
+    def set_windows_env(self, env: Dict[str, str],
+                        platform_: Platform) -> None:
+        pass
+        # if platform_.cpu_64bit:
+        #     env["CC"] = "x86_64-w64-mingw32-gcc"
+        # else:
+        #     raise NotImplementedError("needs 32-bit Windows support!")
 
     def __repr__(self) -> str:
         elements = ["    {}={}".format(k, repr(v))
@@ -918,8 +959,8 @@ def run(args: List[str],
     """
     Runs an external process.
     """
-    log.info("From directory {}, running external command: {}".format(
-        repr(os.getcwd()), args))
+    log.info("From directory {!r}, running external command: {}".format(
+        os.getcwd(), args))
     copy_paste_cmd = make_copy_paste_cmd(args)
     csep = "=" * 79
     esep = "-" * 79
@@ -969,6 +1010,7 @@ gobjdump    brew update && brew install binutils
 Windows
 -------------------------------------------------------------------------------
 make        Install the Cygwin (*) package "make"
+makedepend  Install the Cygwin (*) package "makedepend"
 readelf     Install the Cygwin (*) package "binutils"
             
     (*) Install Cygwin; install the necessary package(s); make sure your
@@ -1035,7 +1077,7 @@ def git_clone(prettyname: str, url: str, directory: str,
         return False
     log.info("Fetching {} source from {} into {}".format(
         prettyname, url, directory))
-    gitargs = ["git", "clone"]
+    gitargs = [GIT, "clone"]
     if branch:
         gitargs += ["--branch", branch]
     gitargs += [url, directory]
@@ -1043,12 +1085,26 @@ def git_clone(prettyname: str, url: str, directory: str,
     if commit:
         log.info("Resetting {} local Git repository to commit {}".format(
             prettyname, commit))
-        run(["git",
+        run([GIT,
              "-C", directory,
              "reset", "--hard", commit])
         # Using a Git repository that's not in the working directory:
         # https://stackoverflow.com/questions/1386291/git-git-dir-not-working-as-expected  # noqa
     return True
+
+
+def fix_git_repo_for_windows(directory: str):
+    # https://github.com/openssl/openssl/issues/174
+    log.info("Fixing repository {!r} for Windows line endings".format(
+        directory))
+    cwd = os.getcwd()
+    os.chdir(directory)
+    run([GIT, "config", "--local", "core.autocrlf", "false"])
+    run([GIT, "config", "--local", "core.eol", "lf"])
+    run([GIT, "rm", "--cached", "-r", "."])
+    run([GIT, "reset", "--hard"])
+    os.chdir(cwd)
+
 
 
 def untar_to_directory(tarfile: str, directory: str,
@@ -1061,15 +1117,15 @@ def untar_to_directory(tarfile: str, directory: str,
         return
     log.info("Extracting {} to {}".format(repr(tarfile), repr(directory)))
     mkdir_p(directory)
-    flags = "-x"  # extract
+    args = [TAR, "-x"]  # -x: extract
     if verbose:
-        flags += "v"  # verbose
+        args.append("-v")  # -v: verbose
     if gzipped:
-        flags += "z"  # decompress using gzip
-    flags += "f"  # filename follows
-    flags = "-xvf" if verbose else "-xf"
-    run([TAR, flags, tarfile, "-C", directory])
-    # C change to directory DIR
+        args.append("-z")  # -z: decompress using gzip
+    args.append("--force-local")  # allows filenames with colons in (Windows!)
+    args.extend(["-f", tarfile])  # -f: filename follows
+    args.extend(["-C", directory])  # -C: change to directory
+    run(args)
 
 
 def delete_cmake_cache(directory: str) -> None:
@@ -1095,6 +1151,32 @@ def copytree(srcdir: str, destdir: str, destroy: bool = False) -> None:
 def chdir(directory: str) -> None:
     log.debug("Entering directory {}".format(repr(directory)))
     os.chdir(directory)
+    
+    
+def convert_line_endings(filename: str, to_unix: bool = False,
+                         to_windows: bool = False) -> None:
+    assert to_unix != to_windows
+    with open(filename, "rb") as f:
+        contents = f.read()
+    windows_eol = b"\r\n"  # CR LF
+    unix_eol = b"\n"  # LF
+    if to_unix:
+        log.info("Converting from Windows to UNIX line endings: {!r}".format(
+            filename))
+        src = windows_eol
+        dst = unix_eol
+    else:  # to_windows
+        log.info("Converting from UNIX to Windows line endings: {!r}".format(
+            filename))
+        src = unix_eol
+        dst = windows_eol
+        if windows_eol in contents:
+            log.info("... already contains at least one Windows line ending; "
+                     "probably converted before; skipping")
+            return
+    contents = contents.replace(src, dst)
+    with open(filename, "wb") as f:
+        f.write(contents)
 
 
 # =============================================================================
@@ -1185,6 +1267,56 @@ def build_openssl(cfg: Config, platform_: Platform) -> None:
         #         large (archive member extends past the end of the file)
         #     ar: internal ranlib command failed
         # ... not sure why.
+    
+    elif platform_.windows:
+        target_os = "Cygwin-x86_64"
+        
+    # For new platforms: if you're not sure, use target_os = "crashme" and
+    # you'll get the list of permitted values, which as of 2017-11-12 is:
+    
+    _ = """
+BC-32 BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
+BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-x86_64 DJGPP MPE/iX-gcc OS2-EMX
+OS390-Unix QNX6 QNX6-i386 ReliantUNIX SINIX SINIX-N UWIN VC-CE VC-WIN32
+VC-WIN64A VC-WIN64I aix-cc aix-gcc aix3-cc aix64-cc aix64-gcc android
+android-armv7 android-mips android-x86 aux3-gcc beos-x86-bone beos-x86-r5
+bsdi-elf-gcc cc cray-j90 cray-t3e darwin-i386-cc darwin-ppc-cc darwin64-ppc-cc
+darwin64-x86_64-cc dgux-R3-gcc dgux-R4-gcc dgux-R4-x86-gcc dist gcc hpux-cc
+hpux-gcc hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc hpux-parisc-cc-o4
+hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux-parisc2-cc
+hpux-parisc2-gcc hpux64-ia64-cc hpux64-ia64-gcc hpux64-parisc2-cc
+hpux64-parisc2-gcc hurd-x86 iphoneos-cross irix-cc irix-gcc irix-mips3-cc
+irix-mips3-gcc irix64-mips4-cc irix64-mips4-gcc linux-aarch64
+linux-alpha+bwx-ccc linux-alpha+bwx-gcc linux-alpha-ccc linux-alpha-gcc
+linux-aout linux-armv4 linux-elf linux-generic32 linux-generic64
+linux-ia32-icc linux-ia64 linux-ia64-icc linux-mips32 linux-mips64 linux-ppc
+linux-ppc64 linux-ppc64le linux-sparcv8 linux-sparcv9 linux-x32 linux-x86_64
+linux-x86_64-clang linux-x86_64-icc linux32-s390x linux64-mips64 linux64-s390x
+linux64-sparcv9 mingw mingw64 ncr-scde netware-clib netware-clib-bsdsock
+netware-clib-bsdsock-gcc netware-clib-gcc netware-libc netware-libc-bsdsock
+netware-libc-bsdsock-gcc netware-libc-gcc newsos4-gcc nextstep nextstep3.3
+osf1-alpha-cc osf1-alpha-gcc purify qnx4 rhapsody-ppc-cc sco5-cc sco5-gcc
+solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc
+solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-cc solaris-x86-gcc
+solaris64-sparcv9-cc solaris64-sparcv9-gcc solaris64-x86_64-cc
+solaris64-x86_64-gcc sunos-gcc tandem-c89 tru64-alpha-cc uClinux-dist
+uClinux-dist64 ultrix-cc ultrix-gcc unixware-2.0 unixware-2.1 unixware-7
+unixware-7-gcc vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x
+vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen
+vxworks-simlinux debug debug-BSD-x86-elf debug-VC-WIN32 debug-VC-WIN64A
+debug-VC-WIN64I debug-ben debug-ben-darwin64 debug-ben-debug
+debug-ben-debug-64 debug-ben-debug-64-clang debug-ben-macos
+debug-ben-macos-gcc46 debug-ben-no-opt debug-ben-openbsd
+debug-ben-openbsd-debug debug-ben-strict debug-bodo debug-darwin-i386-cc
+debug-darwin-ppc-cc debug-darwin64-x86_64-cc debug-geoff32 debug-geoff64
+debug-levitte-linux-elf debug-levitte-linux-elf-extreme
+debug-levitte-linux-noasm debug-levitte-linux-noasm-extreme debug-linux-elf
+debug-linux-elf-noefence debug-linux-generic32 debug-linux-generic64
+debug-linux-ia32-aes debug-linux-pentium debug-linux-ppro debug-linux-x86_64
+debug-linux-x86_64-clang debug-rse debug-solaris-sparcv8-cc
+debug-solaris-sparcv8-gcc debug-solaris-sparcv9-cc debug-solaris-sparcv9-gcc
+debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
+    """
 
     if not target_os:
         raise ValueError("Don't know how to make OpenSSL for " +
@@ -1196,6 +1328,8 @@ def build_openssl(cfg: Config, platform_: Platform) -> None:
             "no-hw",  # disable hardware support ("useful on mobile devices")
             "no-engine",  # disable hardware support ("useful on mobile devices")  # noqa
         ]
+    elif platform_.windows:
+        configure_args += ["no-md2"]
     # OpenSSL's Configure script applies optimizations by default.
 
     # -------------------------------------------------------------------------
@@ -1218,6 +1352,8 @@ def build_openssl(cfg: Config, platform_: Platform) -> None:
         env["SYSTEM"] = target_os
     elif platform_.ios:
         cfg.set_ios_env(env, platform_)
+    elif platform_.windows:
+        cfg.set_windows_env(env, platform_)
 
     # -------------------------------------------------------------------------
     # Makefile
@@ -1227,6 +1363,16 @@ def build_openssl(cfg: Config, platform_: Platform) -> None:
     replace(makefile_org,
             "install: all install_docs install_sw",
             "install: install_docs install_sw")
+    if HOST_PLATFORM.windows:
+        # https://github.com/openssl/openssl/issues/174
+        convert_line_endings(join(workdir, "Makefile.org"), to_unix=True)
+        # Without this, the Perl "Configure" script goes wrong and fails to
+        # remove "md2" whilst copying Makefile.org to Makefile. This results in
+        # the error "#error MD2 is disabled".
+        # Here, we guarantee the error regardless of the distribution, because
+        # we run a textfile replace on Makefile.org, thus ensuring Windows line
+        # endings (which are what the Perl script chokes on).
+        # So we have to manually convert it back.
 
     # -------------------------------------------------------------------------
     # Configure (or config)
@@ -1235,7 +1381,7 @@ def build_openssl(cfg: Config, platform_: Platform) -> None:
     use_configure = True  # Better!
     if use_configure or not platform_.android:
         # http://doc.qt.io/qt-5/opensslsupport.html
-        run(["perl", join(workdir, "Configure")] + configure_args, env)
+        run([PERL, join(workdir, "Configure")] + configure_args, env)
     else:
         # The "config" script guesses the OS then runs "Configure".
         # https://wiki.openssl.org/index.php/Android
@@ -1254,8 +1400,11 @@ def build_openssl(cfg: Config, platform_: Platform) -> None:
             'LIBNAME=$$i'),
         ('LIBCOMPATVERSIONS=";$(SHLIB_VERSION_HISTORY)"', ''),
     ])
-    run([MAKE, "depend", "-j", str(cfg.nparallel)], env)
-    run([MAKE, "build_libs", "-j", str(cfg.nparallel)], env)
+    makeargs = [
+        "-j", str(cfg.nparallel),
+    ]
+    run([MAKE, "depend"] + makeargs, env)
+    run([MAKE, "build_libs"] + makeargs, env)
 
     # Testing:
     # - "Have I built for the right architecture?"
@@ -1292,7 +1441,7 @@ def fetch_qt(cfg: Config) -> None:
                      directory=cfg.qt_src_gitdir):
         return
     chdir(cfg.qt_src_gitdir)
-    run(["perl", "init-repository"])
+    run([PERL, "init-repository"])
 
 
 def build_qt(cfg: Config, platform_: Platform) -> str:
@@ -1368,8 +1517,12 @@ def build_qt(cfg: Config, platform_: Platform) -> str:
     # -------------------------------------------------------------------------
     # configure
     # -------------------------------------------------------------------------
+    if HOST_PLATFORM.windows:
+        configure_prog_name = "configure.bat"
+    else:
+        configure_prog_name = "configure"
     qt_config_args = [
-        join(cfg.qt_src_gitdir, "configure"),
+        join(cfg.qt_src_gitdir, configure_prog_name),
 
         # General options:
         "-I", openssl_include_root,  # OpenSSL
@@ -1413,6 +1566,8 @@ def build_qt(cfg: Config, platform_: Platform) -> str:
         qt_config_args += [
             "-xplatform", "macx-ios-clang"
         ]
+    elif platform_.windows:
+        pass
     else:
         raise NotImplementedError("Don't know how to compile Qt for " +
                                   str(platform_))
@@ -2039,7 +2194,10 @@ def main() -> None:
     # Common requirements
     # =========================================================================
     require(CMAKE)
+    require(GIT)
     require(MAKE)
+    require(MAKEDEPEND)
+    require(PERL)
     require(TAR)
 
     # =========================================================================
@@ -2072,7 +2230,8 @@ def main() -> None:
     if USE_EIGEN:
         build_eigen(cfg)
     if HOST_PLATFORM.windows:
-        build_jom(cfg)
+        pass
+        # build_jom(cfg)
 
     installdirs = []
     done_extra = False
@@ -2103,8 +2262,6 @@ def main() -> None:
         build_for(Os.OSX, Cpu.X86_64)
         
     if cfg.windows_x86_64:
-        log.critical("*** NOT IMPLEMENTED PROPERLY YET")
-        raise NotImplementedError()
         build_for(Os.WINDOWS, Cpu.X86_64)
 
     if cfg.ios:
