@@ -35,6 +35,39 @@ When is it NECESSARY to compile Qt from source?
 Windows
 ===============================================================================
 
+Several compilers are possible, in principle.
+
+-   Cygwin
+    Very nice installation and cross-operation with native Windows.
+    May be useful for toolchains.
+    However, software that its compilers produce run under POSIX, so require an
+    intermediate Cygwin DLL layer to run; we don't want that.
+    
+-   Microsoft Visual Studio (free or paid)
+    An obvious potential candidate, but not open-source.
+    
+-   MinGW
+    Runs under Windows and produces native code.
+    Qt supports it.
+    Provides the MSYS bash environment to assist for compilation.
+    Can also run under Linux and cross-compile to Windows.
+
+-------------------------------------------------------------------------------
+IGNORE FOR NOW - moving towards MinGW under Windows
+-------------------------------------------------------------------------------
+
+FROM SCRATCH:
+    - install Git
+      ... allow it to add to the PATH
+    - install Python 3.5 or higher (e.g. Python 3.6, 64-bit, for a 64-bit OS)
+      ... allow it to add to the PATH
+    - clone the CamCOPS repository: git clone https://.../camcops
+    - python camcops/tablet_qt/tools/build_qt.py
+
+-------------------------------------------------------------------------------
+IGNORE - deprecated - Cygwin
+-------------------------------------------------------------------------------
+
 We'll try with Cygwin.
 
 1.  INSTALL CYGWIN
@@ -75,12 +108,9 @@ We'll try with Cygwin.
     click on "skip" and it'll change to the version number. When you've chosen
     everything, click "next".
 
-
     # Under Windows: Cygwin or MinGW? Need MinGW, for direct Windows API code
     # (rather than a compatibility layer via Cygwin). We want to build a
     # maximally portable executable.
-
-*** possibly a fair bit of the Windows stuff is wrong and should use MinGW
 
 
 ===============================================================================
@@ -123,8 +153,6 @@ UPON QT CONFIGURE FAILURE:
 
 """
 
-*** possibly a fair bit of the Windows stuff is wrong and should use MinGW
-
 import argparse
 from contextlib import contextmanager
 import logging
@@ -152,6 +180,9 @@ USE_ARMADILLO = USE_MLPACK
 USE_BOOST = USE_MLPACK
 
 USE_EIGEN = True
+
+USE_CYGWIN = False
+USE_MINGW = True
 
 USER_DIR = expanduser("~")
 HEAD = "HEAD"  # git commit meaning "the most recent"
@@ -524,10 +555,12 @@ class Platform(object):
 
     def ensure_elf_reader(self) -> None:
         """Only to be called for the host platform."""
-        if self.linux or self.windows:
+        if self.linux:
             require(READELF)
         elif self.osx:
             require(GOBJDUMP)
+        elif self.windows:
+            pass
         else:
             raise ValueError("Don't know ELF reader for {}".format(
                 HOST_PLATFORM))
@@ -819,10 +852,6 @@ class Config(object):
     def set_windows_env(self, env: Dict[str, str],
                         platform_: Platform) -> None:
         pass
-        # if platform_.cpu_64bit:
-        #     env["CC"] = "x86_64-w64-mingw32-gcc"
-        # else:
-        #     raise NotImplementedError("needs 32-bit Windows support!")
 
     def __repr__(self) -> str:
         elements = ["    {}={}".format(k, repr(v))
@@ -1009,12 +1038,13 @@ gobjdump    brew update && brew install binutils
 
 Windows
 -------------------------------------------------------------------------------
+***
 make        Install the Cygwin (*) package "make"
 makedepend  Install the Cygwin (*) package "makedepend"
 readelf     Install the Cygwin (*) package "binutils"
             
     (*) Install Cygwin; install the necessary package(s); make sure your
-        Windows PATH points to e.g. C:\Cygwin64\bin
+        Windows PATH points to e.g. C:\\Cygwin64\\bin
 
         """)
         raise ValueError("Missing OS command: {}".format(command))
@@ -1269,7 +1299,15 @@ def build_openssl(cfg: Config, platform_: Platform) -> None:
         # ... not sure why.
     
     elif platform_.windows:
-        target_os = "Cygwin-x86_64"
+        if USE_CYGWIN:
+            target_os = "Cygwin-x86_64"
+        elif USE_MINGW:
+            if platform_.cpu_64bit:
+                target_os = "mingw64"
+            else:
+                target_os = "mingw"
+        else:
+            raise ValueError("Don't know which Windows compiler to use")
         
     # For new platforms: if you're not sure, use target_os = "crashme" and
     # you'll get the list of permitted values, which as of 2017-11-12 is:
@@ -1328,8 +1366,6 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
             "no-hw",  # disable hardware support ("useful on mobile devices")
             "no-engine",  # disable hardware support ("useful on mobile devices")  # noqa
         ]
-    elif platform_.windows:
-        configure_args += ["no-md2"]
     # OpenSSL's Configure script applies optimizations by default.
 
     # -------------------------------------------------------------------------
@@ -2193,6 +2229,9 @@ def main() -> None:
     # =========================================================================
     # Common requirements
     # =========================================================================
+    if HOST_PLATFORM.windows:
+        raise NotImplementedError(
+            "For now, please build Windows apps under Linux.")
     require(CMAKE)
     require(GIT)
     require(MAKE)
