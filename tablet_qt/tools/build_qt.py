@@ -221,8 +221,9 @@ USE_EIGEN = True  # Better matrix system than mlpack in that Eigen is headers-on
 
 CAN_CROSS_COMPILE_LINUX_TO_WINDOWS = False  # see above
 USE_CYGWIN = False  # Cygwin compiles to binaries requiring a POSIX layer
-USE_MINGW = True  # MinGW compiles to pure native Windows code and cross-compiles  # noqa
-USE_MXE = True  # A cross-compilation environment
+USE_MINGW = False  # MinGW compiles to pure native Windows code and cross-compiles  # noqa
+USE_MXE = False  # A cross-compilation environment
+USE_VS = True  # Microsoft Visual Studio / Visual C++
 
 # -----------------------------------------------------------------------------
 # Internal constants
@@ -1009,6 +1010,8 @@ class Config(object):
         # jom
         self.jom_git_url = args.jom_git_url  # type: str
         self.jom_src_gitdir = join(self.src_rootdir, "jom")  # type: str
+        self.jom_qmake = args.jom_qmake  # type: str
+        self.jom_nmake = args.jom_nmake  # type: str
 
         if USE_MXE:
             self.mxe_git_url = args.mxe_git_url  # type: str
@@ -2705,8 +2708,15 @@ def build_jom(cfg: Config) -> None:
     Builds jom, the parallel make tool for Windows.
     See http://code.qt.io/cgit/qt-labs/jom.git/tree/README
     """
-    log.critical("don't know how to build jom yet (NB it's a Qt program")
-    raise NotImplementedError()
+    if not BUILD_PLATFORM.windows:
+        log.critical("don't know how to build jom yet (NB it's a Qt program")
+        raise NotImplementedError()
+    # *** check for existence and return if already build
+    with pushd(cfg.jom_src_gitdir):
+        require(cfg.jom_qmake)
+        require(cfg.jom_nmake)
+        run([cfg.jom_qmake, "-r"])
+        run([cfg.jom_nmake])
 
 
 # =============================================================================
@@ -3016,6 +3026,14 @@ def main() -> None:
         "--jom_git_url", default=DEFAULT_JOM_GIT_URL,
         help="jom Git URL"
     )
+    jom.add_argument(
+        "--jom_qmake", default="qmake",
+        help="Pre-built Qt 'qmake' tool with which to build jom"
+    )
+    jom.add_argument(
+        "--jom_nmake", default="nmake",
+        help="Pre-built Qt 'nmake' tool with which to build jom"
+    )
 
     # MXE
     mxe = parser.add_argument_group(
@@ -3092,8 +3110,7 @@ def main() -> None:
     if USE_EIGEN:
         build_eigen(cfg)
     if BUILD_PLATFORM.windows:
-        pass
-        # build_jom(cfg)
+        build_jom(cfg)
 
     installdirs = []
     done_extra = False
