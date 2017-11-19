@@ -198,9 +198,10 @@ except ImportError:
 try:
     import distro  # http://distro.readthedocs.io/en/latest/
 except ImportError:
-    print("Please install 'distro' first, using:\n\npip install distro")
     distro = None
-    raise
+    if platform.system() in ["Linux"]:
+        print("Please install 'distro' first, using:\n\npip install distro")
+        raise
 
 log = logging.getLogger(__name__)
 
@@ -843,7 +844,7 @@ def get_build_platform() -> Platform:
         cpu = Cpu.AMD_64
     else:
         raise ValueError("Don't know host (build) CPU {!r}".format(m))
-    distro_id = distro.id()
+    distro_id = distro.id() if distro else ""
     return Platform(os_, cpu, distro_id)
 
 
