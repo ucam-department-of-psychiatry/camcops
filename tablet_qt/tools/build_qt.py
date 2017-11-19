@@ -177,18 +177,19 @@ OTHER NOTES:
 import argparse
 from collections import OrderedDict
 from contextlib import contextmanager
+import itertools
 import logging
 import multiprocessing
 import os
 from os.path import abspath, expanduser, isdir, isfile, join, split
 import platform
-# from pprint import pformat
+from pprint import pformat
 import shlex
 import shutil
 import subprocess
 import sys
 import traceback
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 import urllib.request
 
 try:
@@ -307,7 +308,7 @@ DEFAULT_MLPACK_GIT_COMMIT = HEAD
 DEFAULT_EIGEN_VERSION = "3.3.3"
 
 # jom
-DEFAULT_JOM_GIT_URL = "git://code.qt.io/qt-labs/jom.git"
+# DEFAULT_JOM_GIT_URL = "git://code.qt.io/qt-labs/jom.git"
 
 # MXE
 DEFAULT_MXE_GIT_URL = "https://github.com/mxe/mxe.git"
@@ -803,6 +804,24 @@ class Platform(object):
         if self.windows and shutil.which(cfg.jom_executable):
             return cfg.jom_executable
         return MAKE
+    
+    def prebuilt_qmake(self, cfg: "Config") -> str:
+        assert self.windows and self.cpu_x86_family, (
+            "Prebuilt qmake only used in Windows x86 environment "
+            "(to build jom)"
+        )
+        return join(
+            cfg.windows_prebuilt_qt_root,
+            "msvc2015_64" if self.cpu_64bit else "msvc2015",
+            "bin",
+            "qmake.exe"
+        )
+        
+    def nmake(self, cfg: "Config") -> str:
+        assert self.windows, (
+            "nmake only used in Windows environment (to build jom)")
+        return join(cfg.windows_msvc_root, "bin", "nmake.exe")
+    
 
     # -------------------------------------------------------------------------
     # SQLCipher
@@ -810,7 +829,8 @@ class Platform(object):
 
     @property
     def sqlcipher_platform(self) -> str:
-        # See config.guess in SQLCipher source
+        # See config.guess in SQLCipher source.
+        # (You can run or source it to see its answer.)
         if self.linux:
             if self.cpu_x86_64bit_family:
                 return "x86_64-unknown-linux"
@@ -823,6 +843,11 @@ class Platform(object):
                 return "arm-linux"
             elif self.cpu_x86_32bit_family:
                 return "i686-unknown-linux"  # ?
+        elif self.osx:
+            # e.g. empirically: "i386-apple-darwin15.6.0"
+            # "uname -m" tells you whether you're 32 or 64 bit
+            # "uname -r" gives you the release
+            return "i386-apple-darwin"
         elif self.windows:
             if self.cpu_x86_64bit_family:
                 return "x86_64-unknown-windows"  # untested ***
@@ -1014,12 +1039,17 @@ class Config(object):
                 "eigen-{}.tar.gz".format(self.eigen_version))
             self.eigen_unpacked_dir = join(self.root_dir, "eigen")
 
-        # jom
-        self.jom_git_url = args.jom_git_url  # type: str
-        self.jom_src_gitdir = join(self.src_rootdir, "jom")  # type: str
-        self.jom_qmake = args.jom_qmake  # type: str
-        self.jom_nmake = args.jom_nmake  # type: str
-        self.jom_executable = join(self.jom_src_gitdir, "bin", "jom") # *** a guess! fix!
+        # jom: comes with QtCreator
+        # self.jom_git_url = args.jom_git_url  # type: str
+        # self.jom_src_gitdir = join(self.src_rootdir, "jom")  # type: str
+        # self.jom_executable = join(self.jom_src_gitdir, "bin", "jom.exe") # type: str  # noqa
+        self.jom_executable = args.jom_executable  # type: str
+
+        # Windows
+        self.windows_msvc_root = args.windows_msvc_root  # type: str
+        self.windows_prebuilt_qt_root = args.windows_prebuilt_qt_root  # type: str  # noqa
+        self.windows_visual_studio_version = args.windows_visual_studio_version  # type: str  # noqa
+        self.windows_sdk_version = args.windows_sdk_version  # type: str
 
         if USE_MXE:
             self.mxe_git_url = args.mxe_git_url  # type: str
@@ -1206,12 +1236,26 @@ class Config(object):
             ])
             # We can't CALL a batch file and have it change our environment,
             # so we must implement the functionality of VCVARSALL.BAT <arch>
-            # ***
-            crashme
+            if target_platform.cpu_x86_32bit_family:
+                # "x86" in VC\vcvarsall.bat
+                arch = "x86"
+            elif target_platform.cpu_x86_64bit_family:
+                # "amd64" in VC\vcvarsall.bat
+                arch = "amd64"
+            else:
+                raise ValueError("Don't know how to compile for Windows for "
+                                 "target platform {}".format(target_platform))
+            # Now read the result from vcvarsall.bat directly
+            vcvarsall = join(self.windows_msvc_root, "vcvarsall.bat")
+            args = [vcvarsall, arch]
+            fetched_env = windows_get_environment_from_batch_command(
+                env_cmd=args, initial_env=env
+            )
+            env.update(**fetched_env)
 
         else:
             raise ValueError("Don't know how to compile for Windows on "
-                             "{}".format(BUILD_PLATFORM))
+                             "build platform {}".format(BUILD_PLATFORM))
 
     def android_eabi(self, target_platform: Platform) -> str:
         if target_platform.cpu_x86_family:
@@ -1718,6 +1762,72 @@ def add_line_if_absent(filename: str, line: str) -> None:
         log.info("Appending line {!r} to file {!r}".format(line, filename))
         with open(filename, "a") as file:
             file.writelines([line])
+            
+            
+def validate_pair(ob: Any) -> bool:
+    try:
+        if len(ob) != 2:
+            log.warning("Unexpected result: {!r}".format(ob))
+            raise ValueError()
+    except ValueError:
+        return False
+    return True
+
+def consume(iterator) -> None:
+    try:
+        while True:
+            next(iterator)
+    except StopIteration:
+        pass
+
+def windows_get_environment_from_batch_command(
+        env_cmd: Union[str, List[str]],
+        initial_env: Dict[str, str] = None) -> Dict[str, str]:
+    # https://stackoverflow.com/questions/1214496/how-to-get-environment-from-a-subprocess-in-python  # noqa
+    # ... with decoding bug fixed for Python 3
+    """
+    Take a command (either a single command or list of arguments)
+    and return the environment created after running that command.
+    Note that if the command must be a batch file or .cmd file, or the
+    changes to the environment will not be captured.
+
+    If initial_env is supplied, it is used as the initial environment passed
+    to the child process.
+    """
+    if not isinstance(env_cmd, (list, tuple)):
+        env_cmd = [env_cmd]
+    # construct the command that will alter the environment
+    env_cmd = subprocess.list2cmdline(env_cmd)
+    # create a tag so we can tell in the output when the proc is done
+    # ... must NOT have an '=' sign in
+    tag = '+/!+/!+/! Done running command +/!+/!+/!'
+    # construct a cmd.exe command to do accomplish this
+    cmd = 'cmd.exe /s /c "{env_cmd} && echo "{tag}" && set"'.format(
+        env_cmd=env_cmd, tag=tag)
+    # launch the process
+    log.info("Fetching environment using command: {!r}".format(cmd))
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=initial_env)
+    # parse the output sent to stdout
+    encoding = sys.getdefaultencoding()
+    def gen_lines():
+        for line in proc.stdout:
+            yield line.decode(encoding)
+    
+    lines = gen_lines()
+    # consume whatever output occurs until the tag is reached
+    consume(itertools.takewhile(lambda l: tag not in l, lines))
+    # define a way to handle each KEY=VALUE line
+    handle_line = lambda l: l.rstrip().split('=', 1)
+    # parse key/values into pairs
+    pairs = map(handle_line, lines)
+    # make sure the pairs are valid (this also eliminates the tag)
+    valid_pairs = filter(validate_pair, pairs)
+    # construct a dictionary of the pairs
+    result = dict(valid_pairs)  # consumes generator
+    # let the process finish
+    proc.communicate()
+    log.debug("Fetched environment:\n" + pformat(result))
+    return result
 
 
 # =============================================================================
@@ -1922,16 +2032,17 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
     replace_in_file(makefile_org,
                     "install: all install_docs install_sw",
                     "install: install_docs install_sw")
-    if BUILD_PLATFORM.windows:
-        # https://github.com/openssl/openssl/issues/174
-        convert_line_endings(join(workdir, "Makefile.org"), to_unix=True)
-        # Without this, the Perl "Configure" script goes wrong and fails to
-        # remove "md2" whilst copying Makefile.org to Makefile. This results in
-        # the error "#error MD2 is disabled".
-        # Here, we guarantee the error regardless of the distribution, because
-        # we run a textfile replace on Makefile.org, thus ensuring Windows line
-        # endings (which are what the Perl script chokes on).
-        # So we have to manually convert it back.
+    
+    # if BUILD_PLATFORM.windows:
+    #     # https://github.com/openssl/openssl/issues/174
+    #     convert_line_endings(join(workdir, "Makefile.org"), to_unix=True)
+    #     # Without this, the Perl "Configure" script goes wrong and fails to
+    #     # remove "md2" whilst copying Makefile.org to Makefile. This results in
+    #     # the error "#error MD2 is disabled".
+    #     # Here, we guarantee the error regardless of the distribution, because
+    #     # we run a textfile replace on Makefile.org, thus ensuring Windows line
+    #     # endings (which are what the Perl script chokes on).
+    #     # So we have to manually convert it back.
 
     with pushd(workdir):
         # ---------------------------------------------------------------------
@@ -2710,31 +2821,38 @@ def build_eigen(cfg: Config) -> None:
 # jom: parallel make tool for Windows
 # =============================================================================
 
-def fetch_jom(cfg: Config) -> None:
-    """
-    Downloads jom
-    http://wiki.qt.io/Jom
-    """
-    git_clone(prettyname="jom",
-              url=cfg.jom_git_url,
-              directory=cfg.jom_src_gitdir)
+# def fetch_jom(cfg: Config) -> None:
+#     """
+#     Downloads jom
+#     http://wiki.qt.io/Jom
+#     """
+#     git_clone(prettyname="jom",
+#               url=cfg.jom_git_url,
+#               directory=cfg.jom_src_gitdir)
 
 
-# noinspection PyUnusedLocal
-def build_jom(cfg: Config) -> None:
-    """
-    Builds jom, the parallel make tool for Windows.
-    See http://code.qt.io/cgit/qt-labs/jom.git/tree/README
-    """
-    if not BUILD_PLATFORM.windows:
-        log.critical("don't know how to build jom yet (NB it's a Qt program")
-        raise NotImplementedError()
-    # *** check for existence and return if already build
-    with pushd(cfg.jom_src_gitdir):
-        require(cfg.jom_qmake)
-        require(cfg.jom_nmake)
-        run([cfg.jom_qmake, "-r"])
-        run([cfg.jom_nmake])
+# # noinspection PyUnusedLocal
+# def build_jom(cfg: Config) -> None:
+#     """
+#     Builds jom, the parallel make tool for Windows.
+#     See http://code.qt.io/cgit/qt-labs/jom.git/tree/README
+#     """
+#     if not BUILD_PLATFORM.windows:
+#         log.critical("don't know how to build jom yet (NB it's a Qt program")
+#         raise NotImplementedError()
+#     if isfile(cfg.jom_executable):
+#         log.info("Already have {!r}; no need to build jom".format(
+#             cfg.jom_executable))
+#         return
+#     env = os.environ.copy()
+#     cfg.set_compile_env(env, BUILD_PLATFORM)
+#     with pushd(cfg.jom_src_gitdir):
+#         qmake = BUILD_PLATFORM.prebuilt_qmake(cfg)
+#         nmake = BUILD_PLATFORM.nmake(cfg)
+#         require(qmake)
+#         require(nmake)
+#         run([qmake, "-r"], env)
+#         run([nmake], env)
 
 
 # =============================================================================
@@ -3041,16 +3159,35 @@ def main() -> None:
         "'jom' parallel make tool for Windows"
     )
     jom.add_argument(
-        "--jom_git_url", default=DEFAULT_JOM_GIT_URL,
-        help="jom Git URL"
+        "--jom_executable", default=r"C:\Qt\Tools\QtCreator\bin\jom.exe",
+        help="jom executable (typically installed with QtCreator)"
+        
     )
-    jom.add_argument(
-        "--jom_qmake", default="qmake",
-        help="Pre-built Qt 'qmake' tool with which to build jom"
+    # jom.add_argument(
+    #     "--jom_git_url", default=DEFAULT_JOM_GIT_URL,
+    #     help="jom Git URL"
+    # )
+    
+    windows = parser.add_argument_group(
+        "Windows",
+        "Options for Windows"
     )
-    jom.add_argument(
-        "--jom_nmake", default="nmake",
-        help="Pre-built Qt 'nmake' tool with which to build jom"
+    windows.add_argument(
+        "--windows_msvc_root",
+        default=r"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC",
+        help="Root directory of Microsoft Visual C++"
+    )
+    windows.add_argument(
+        "--windows_prebuilt_qt_root", default=r"C:\Qt\5.6",
+        help="Root directory of pre-built Qt installation"
+    )
+    windows.add_argument(
+        "--windows_visual_studio_version", default="14.0",
+        help="Visual Studio version"
+    )
+    windows.add_argument(
+        "--windows_sdk_version", default="8.1",
+        help="Windows SDK version (e.g. '8.1', '10.0.10240.0')"
     )
 
     # MXE
@@ -3106,8 +3243,8 @@ def main() -> None:
         fetch_mlpack(cfg)
     if USE_EIGEN:
         fetch_eigen(cfg)
-    if BUILD_PLATFORM.windows:
-        fetch_jom(cfg)
+    # if BUILD_PLATFORM.windows:
+    #     fetch_jom(cfg)
     if USE_MXE and BUILD_PLATFORM.linux:
         fetch_mxe(cfg)
 
@@ -3123,8 +3260,8 @@ def main() -> None:
         build_mlpack(cfg)
     if USE_EIGEN:
         build_eigen(cfg)
-    if BUILD_PLATFORM.windows:
-        build_jom(cfg)
+    # if BUILD_PLATFORM.windows:
+    #     build_jom(cfg)
 
     installdirs = []
     done_extra = False
@@ -3230,3 +3367,11 @@ if __name__ == '__main__':
         log.critical("External process failed:")
         traceback.print_exc()
         sys.exit(1)
+
+
+CURRENTLY_WORKING_ON = """
+
+- OS/X: check SQLCipher now builds
+- Windows: 'make' for OpenSSL
+
+"""
