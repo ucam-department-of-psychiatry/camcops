@@ -1602,7 +1602,8 @@ def untar_to_directory(tarfile: str, directory: str,
         args.append("-v")  # -v: verbose
     if gzipped:
         args.append("-z")  # -z: decompress using gzip
-    args.append("--force-local")  # allows filenames with colons in (Windows!)
+    if not BUILD_PLATFORM.osx:  # OS/X tar doesn't support --force-local
+        args.append("--force-local")  # allows filenames with colons in (Windows!)  # noqa
     args.extend(["-f", tarfile])  # -f: filename follows
     args.extend(["-C", directory])  # -C: change to directory
     run(args)
