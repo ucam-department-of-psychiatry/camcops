@@ -799,6 +799,11 @@ class Platform(object):
                     return "i686-w64-mingw32.static-"
         raise ValueError("Don't know CROSS_COMPILE prefix for " + str(self))
 
+    def make(self, cfg: "Config") -> str:
+        if self.windows and shutil.which(cfg.jom_executable):
+            return cfg.jom_executable
+        return MAKE
+
     # -------------------------------------------------------------------------
     # SQLCipher
     # -------------------------------------------------------------------------
@@ -816,6 +821,8 @@ class Platform(object):
                 # arm? [1]
                 # arm-linux? [2]
                 return "arm-linux"
+            elif self.cpu_x86_32bit_family:
+                return "i686-unknown-linux"  # ?
         elif self.windows:
             if self.cpu_x86_64bit_family:
                 return "x86_64-unknown-windows"  # untested ***
@@ -1012,6 +1019,7 @@ class Config(object):
         self.jom_src_gitdir = join(self.src_rootdir, "jom")  # type: str
         self.jom_qmake = args.jom_qmake  # type: str
         self.jom_nmake = args.jom_nmake  # type: str
+        self.jom_executable = join(self.jom_src_gitdir, "bin", "jom") # *** a guess! fix!
 
         if USE_MXE:
             self.mxe_git_url = args.mxe_git_url  # type: str
@@ -1948,8 +1956,9 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
         makeargs = [
             "-j", str(cfg.nparallel),
         ]
-        run([MAKE, "depend"] + makeargs, env)
-        run([MAKE, "build_libs"] + makeargs, env)
+        make = BUILD_PLATFORM.make(cfg)
+        run([make, "depend"] + makeargs, env)
+        run([make, "build_libs"] + makeargs, env)
 
     # Testing:
     # - "Have I built for the right architecture?"
@@ -2320,8 +2329,9 @@ Troubleshooting Qt 'configure' failures
     log.info("Making Qt {} build into {}".format(target_platform.description,
                                                  installdir))
     with pushd(builddir):
+        make = BUILD_PLATFORM.make(cfg)
         try:
-            run([MAKE, "-j", str(cfg.nparallel)], env)
+            run([make, "-j", str(cfg.nparallel)], env)
         except subprocess.CalledProcessError:
             log.critical("""
 ===============================================================================
@@ -2361,7 +2371,8 @@ A.  RE-RUN THE SCRIPT; sometimes Qt builds fail then pick themselves up the
     # http://stackoverflow.com/questions/8360609
 
     with pushd(builddir):
-        run([MAKE, "install"], env)
+        make = BUILD_PLATFORM.make(cfg)
+        run([make, "install"], env)
     # ... installs to installdir because of -prefix earlier
     return installdir
 
@@ -2500,12 +2511,13 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     # make
     # -------------------------------------------------------------------------
     with pushd(destdir):
+        make = BUILD_PLATFORM.make(cfg)
         if not isfile(target_c) or not isfile(target_h):
-            run([MAKE, "sqlite3.c"], env)  # the amalgamation target
+            run([make, "sqlite3.c"], env)  # the amalgamation target
         if not isfile(target_exe) or not isfile(target_o):
-            run([MAKE, "sqlite3.o"], env)  # for static linking
+            run([make, "sqlite3.o"], env)  # for static linking
         if want_exe and not isfile(target_exe):
-            run([MAKE, "sqlcipher"], env)  # the command-line executable
+            run([make, "sqlcipher"], env)  # the command-line executable
 
     # -------------------------------------------------------------------------
     # Check and report
@@ -3156,7 +3168,7 @@ Compiler bug is:
     ... due to: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71864
     
 ... needs MXE to support a more recent version of mingw-w64 and in turn a more 
-recent version of gcc
+    recent version of gcc
 """)  # noqa
         build_for(Os.WINDOWS, Cpu.X86_32)
 
