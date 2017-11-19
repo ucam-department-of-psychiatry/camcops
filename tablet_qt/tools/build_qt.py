@@ -1078,6 +1078,8 @@ class Config(object):
         elif target_platform.windows:
             self._set_windows_env(env, target_platform=target_platform,
                                   use_cross_compile_var=use_cross_compile_var)
+        elif target_platform.osx:
+            self._set_osx_env(env)
         else:
             raise ValueError("Don't know how to set compilation environment "
                              "for {}".format(target_platform))
@@ -1089,6 +1091,9 @@ class Config(object):
                                       cfg=self)
         env["CC"] = BUILD_PLATFORM.gcc(fullpath=not use_cross_compile_var,
                                        cfg=self)
+
+    def _set_osx_env(self, env: Dict[str, str]) -> None:
+        pass
 
     def _set_android_env(self,
                          env: Dict[str, str],
