@@ -511,6 +511,13 @@ class Task(GenericTabletRecordMixin, Base):
         classes.sort(key=lambda c: c.shortname)
         return classes
 
+    @classmethod
+    @cache_region_static.cache_on_arguments(function_key_generator=fkg)
+    def all_subclasses_by_longname(cls) -> List[Type[TASK_FWD_REF]]:
+        classes = list(cls.gen_all_subclasses())
+        classes.sort(key=lambda c: c.longname)
+        return classes
+
     # -------------------------------------------------------------------------
     # Methods that may be overridden by mixins
     # -------------------------------------------------------------------------

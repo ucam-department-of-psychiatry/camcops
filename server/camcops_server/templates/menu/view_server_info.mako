@@ -29,4 +29,11 @@ ${ sf | h }
     %endfor
 </pre>
 
+<h2>All known tasks</h2>
+<pre>
+    %for tc in all_task_classes:
+${ tc.longname | h } (${ tc.shortname | h }; ${ tc.tablename | h })
+    %endfor
+</pre>
+
 <%include file="to_main_menu.mako"/>

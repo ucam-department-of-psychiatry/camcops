@@ -1775,6 +1775,7 @@ def view_server_info(req: CamcopsRequest) -> Dict[str, Any]:
     return dict(
         idnum_definitions=req.idnum_definitions,
         string_families=req.extrastring_families(),
+        all_task_classes=Task.all_subclasses_by_longname(),
     )
 
 
