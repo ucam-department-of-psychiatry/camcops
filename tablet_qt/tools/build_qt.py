@@ -3076,13 +3076,9 @@ def main() -> None:
     # run(["/usr/local/bin/shared/print_params_and_env_then_abort", "hello",
     #      "world"], env={"SOMEVAR": "someval"})  # only what Bash added
 
-    # *** are important things getting stripped out of the environment?
-
     # =========================================================================
     # Common requirements
     # =========================================================================
-    if BUILD_PLATFORM.windows:
-        raise NotImplementedError(ERROR_COMPILE_FOR_WINDOWS_ON_LINUX)
     require(CMAKE)
     require(GIT)
     require(MAKE)
