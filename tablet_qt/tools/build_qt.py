@@ -2219,11 +2219,10 @@ define $(PKG)_BUILD
         qt_config_args.append("-v")  # more verbose
 
     # Fix other problems:
-    if target_platform.windows and BUILD_PLATFORM.linux:
 
-        if FIX_QT_5_9_2_CROSS_COMPILE_TOP_LEVEL_BUILD_BUG:
-            # "You cannot configure qt separately within a top-level build."
-            bad_super_cache = os.path.expanduser("~/.qmake.super")
+    if FIX_QT_5_9_2_CROSS_COMPILE_TOP_LEVEL_BUILD_BUG:
+        # "You cannot configure qt separately within a top-level build."
+        def check_bad_super_cache(bad_super_cache: str) -> None:
             if os.path.exists(bad_super_cache):
                 fail(
                     "You must delete {!r} first, or Qt's 'configure' will "
@@ -2234,6 +2233,11 @@ define $(PKG)_BUILD
                         bad_super_cache
                     )
                 )
+
+        check_bad_super_cache(os.path.expanduser("~/.qmake.super"))
+        check_bad_super_cache(join(cfg.root_dir, ".qmake.super"))
+
+    if target_platform.windows and BUILD_PLATFORM.linux:
 
         if FIX_QT_5_9_2_CROSS_COMPILE_EXECVP_MISSING_COMPILER_BUG:
             # "execvp: .obj/release/pcre2_auto_possess.o: Permission denied"
