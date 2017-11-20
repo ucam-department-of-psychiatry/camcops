@@ -2129,7 +2129,7 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
         if BUILD_PLATFORM.windows:
             # https://wiki.openssl.org/index.php/Compilation_and_Installation#Windows  # noqa
             if target_platform.windows and target_platform.cpu_x86_64bit_family:  # noqa
-                run([join(workdir, "ms", "do_win64a")])
+                run([join(workdir, "ms", "do_win64a.bat")])
                 makefile = join(workdir, "ms", "nt.mak")
                 # ... nt.mak for static build; ntdll.mak for DLL
                 run(cfg.make_args(makefile=makefile, command="clean"))
