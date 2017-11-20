@@ -1437,8 +1437,8 @@ def make_copy_paste_env(env: Dict[str, str]) -> str:
     return (
         "\n".join("{cmd} {k}={v}".format(
             cmd=cmd,
-            k=shlex.quote(k),
-            v=shlex.quote(env[k])
+            k=k,
+            v=shlex.quote(env[k]) if BUILD_PLATFORM.windows else env[k]
         ) for k in sorted(env.keys())))
 
 
