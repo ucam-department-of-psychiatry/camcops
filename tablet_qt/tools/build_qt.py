@@ -189,7 +189,7 @@ import shutil
 import subprocess
 import sys
 import traceback
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, Generator, List, Tuple, Union
 import urllib.request
 
 try:
@@ -417,12 +417,15 @@ OPENSSL_COMMON_OPTIONS = [
 # External tools
 # -----------------------------------------------------------------------------
 
+ANT = "ant"  # for Android builds
 CMAKE = "cmake"
 DPKG_QUERY = "dpkg-query"
 GIT = "git"
 GOBJDUMP = "gobjdump"  # OS/X equivalent of readelf
+JAVAC = "javac"  # for Android builds
 MAKE = "make"
 MAKEDEPEND = "makedepend"  # used by OpenSSL via "make"
+NMAKE = "nmake.exe"  # Visual Studio make tool
 OBJDUMP = "objdump"
 PERL = "perl"
 READELF = "readelf"  # read ELF-format library files
@@ -489,14 +492,14 @@ class Platform(object):
         self.cpu = cpu
         self.distro_id = distro_id
         if os_ not in ALL_OSS:
-            raise ValueError("Unknown target OS: {!r}".format(os_))
+            raise NotImplementedError("Unknown target OS: {!r}".format(os_))
         if cpu not in ALL_CPUS:
-            raise ValueError("Unknown target CPU: {!r}".format(cpu))
+            raise NotImplementedError("Unknown target CPU: {!r}".format(cpu))
 
         # 64-bit support only (thus far)?
         if os_ in [Os.LINUX, Os.OSX] and not self.cpu_x86_64bit_family:
-            raise ValueError("Don't know how to build for CPU " + cpu +
-                             " on system " + os_)
+            raise NotImplementedError("Don't know how to build for CPU " +
+                                      cpu + " on system " + os_)
 
     # -------------------------------------------------------------------------
     # Descriptives
@@ -635,7 +638,7 @@ class Platform(object):
         elif self.windows:
             pass
         else:
-            raise ValueError("Don't know ELF reader for {}".format(
+            raise NotImplementedError("Don't know ELF reader for {}".format(
                 BUILD_PLATFORM))
 
     def verify_lib(self, filename: str) -> None:
@@ -681,8 +684,8 @@ class Platform(object):
                 raise ValueError(
                     "File {} was built for ARM64".format(filename))
         else:
-            raise ValueError("Don't know how to verify library for {}".format(
-                BUILD_PLATFORM))
+            raise NotImplementedError("Don't know how to verify library for "
+                                      "{}".format(BUILD_PLATFORM))
         log.info("Library file is good: {!r}".format(filename))
 
     # -------------------------------------------------------------------------
@@ -705,8 +708,8 @@ class Platform(object):
         elif self.cpu == Cpu.ARM_V5:
             return "armv5"
         else:
-            raise ValueError("Don't know how to build Android for CPU " +
-                             self.cpu)
+            raise NotImplementedError("Don't know how to build Android for "
+                                      "CPU " + self.cpu)
 
     @property
     def android_arch_short(self) -> str:
@@ -773,7 +776,7 @@ class Platform(object):
                 return join(cfg.android_toolchain(self),
                             "arm-linux-androideabi-gcc")
             else:
-                raise ValueError("Don't know gcc name")
+                raise NotImplementedError("Don't know gcc name")
         return shutil.which("gcc")
 
     def ar(self, fullpath: bool, cfg: "Config") -> str:
@@ -798,30 +801,59 @@ class Platform(object):
                     return "x86_64-w64-mingw32.static-"
                 else:
                     return "i686-w64-mingw32.static-"
-        raise ValueError("Don't know CROSS_COMPILE prefix for " + str(self))
+        raise NotImplementedError("Don't know CROSS_COMPILE prefix for " +
+                                  str(self))
 
-    def make(self, cfg: "Config") -> str:
-        if self.windows and shutil.which(cfg.jom_executable):
-            return cfg.jom_executable
-        return MAKE
-    
-    def prebuilt_qmake(self, cfg: "Config") -> str:
-        assert self.windows and self.cpu_x86_family, (
-            "Prebuilt qmake only used in Windows x86 environment "
-            "(to build jom)"
-        )
-        return join(
-            cfg.windows_prebuilt_qt_root,
-            "msvc2015_64" if self.cpu_64bit else "msvc2015",
-            "bin",
-            "qmake.exe"
-        )
+    def make_args(self, cfg: "Config", extra_args: List[str] = None,
+                  command: str = "", makefile: str = "") -> List[str]:
+        extra_args = extra_args or []  # type: List[str]
+        if self.windows:
+            if shutil.which(cfg.jom_executable):
+                make = cfg.jom_executable
+                supports_parallel = True
+            else:
+                make = NMAKE
+                supports_parallel = False
+            makefile_switch = "/F"
+        else:
+            make = MAKE
+            supports_parallel = True
+            makefile_switch = "-f"  # Unix standard
+        require(make)
+        args = [make]
+        if supports_parallel:
+            args += ["-j", str(cfg.nparallel)]
+        if extra_args:
+            args += extra_args
+        if makefile:
+            args += [makefile_switch, makefile]
+        if command:
+            args.append(command)
+        return args
+
+    @property
+    def qmake_executable(self) -> str:
+        if self.windows:
+            return "qmake.exe"
+        else:
+            return "qmake"
+
+    # def prebuilt_qmake(self, cfg: "Config") -> str:
+    #     assert self.windows and self.cpu_x86_family, (
+    #         "Prebuilt qmake only used in Windows x86 environment "
+    #         "(to build jom)"
+    #     )
+    #     return join(
+    #         cfg.windows_prebuilt_qt_root,
+    #         "msvc2015_64" if self.cpu_64bit else "msvc2015",
+    #         "bin",
+    #         "qmake.exe"
+    #     )
         
-    def nmake(self, cfg: "Config") -> str:
-        assert self.windows, (
-            "nmake only used in Windows environment (to build jom)")
-        return join(cfg.windows_msvc_root, "bin", "nmake.exe")
-    
+    # def nmake(self, cfg: "Config") -> str:
+    #     assert self.windows, (
+    #         "nmake only used in Windows environment (to build jom)")
+    #     return join(cfg.windows_msvc_root, "bin", "nmake.exe")
 
     # -------------------------------------------------------------------------
     # SQLCipher
@@ -850,11 +882,11 @@ class Platform(object):
             return "i386-apple-darwin"
         elif self.windows:
             if self.cpu_x86_64bit_family:
-                return "x86_64-unknown-windows"  # untested ***
+                return "x86_64-unknown-windows"  # untested *** try running config.guess
             elif self.cpu_x86_32bit_family:
-                return "i686-unknown-windows"  # untested ***
-        raise ValueError("Don't know how to support SQLCipher for "
-                         "{}".format(self))
+                return "i686-unknown-windows"  # untested *** try running config.guess
+        raise NotImplementedError("Don't know how to support SQLCipher for "
+                                  "{}".format(self))
 
 
 def get_build_platform() -> Platform:
@@ -867,7 +899,7 @@ def get_build_platform() -> Platform:
     elif s == "Windows":
         os_ = Os.WINDOWS
     else:
-        raise ValueError("Don't know host (build) OS {!r}".format(s))
+        raise NotImplementedError("Don't know host (build) OS {!r}".format(s))
     m = platform.machine()
     if m == "i386":
         cpu = Cpu.X86_32
@@ -876,7 +908,7 @@ def get_build_platform() -> Platform:
     elif m == "AMD64":
         cpu = Cpu.AMD_64
     else:
-        raise ValueError("Don't know host (build) CPU {!r}".format(m))
+        raise NotImplementedError("Don't know host (build) CPU {!r}".format(m))
     distro_id = distro.id() if distro else ""
     return Platform(os_, cpu, distro_id)
 
@@ -906,7 +938,7 @@ class Config(object):
         if self.build_all:
             if BUILD_PLATFORM.linux:
                 self.build_android_arm_v7_32 = True
-                self.build_android_x86_32 = True
+                # rarely used, emulator only # self.build_android_x86_32 = True
                 self.build_linux_x86_64 = True
                 if CAN_CROSS_COMPILE_LINUX_TO_WINDOWS:
                     if not MXE_HAS_GCC_WITH_I386_BUG:
@@ -918,7 +950,7 @@ class Config(object):
                 self.build_ios_simulator = True
             elif BUILD_PLATFORM.windows:
                 self.build_windows_x86_32 = True
-            self.build_windows_x86_64 = True
+                self.build_windows_x86_64 = True
 
         # General
         self.show_config_only = args.show_config_only  # type: bool
@@ -1087,6 +1119,17 @@ class Config(object):
         return rootdir, workdir
 
     # -------------------------------------------------------------------------
+    # Compile/make tools
+    # -------------------------------------------------------------------------
+
+    def make_args(self, extra_args: List[str] = None, command: str = "",
+                  makefile: str = "") -> List[str]:
+        return BUILD_PLATFORM.make_args(cfg=self,
+                                        extra_args=extra_args,
+                                        command=command,
+                                        makefile=makefile)
+
+    # -------------------------------------------------------------------------
     # Environment variables
     # -------------------------------------------------------------------------
 
@@ -1111,8 +1154,9 @@ class Config(object):
         elif target_platform.osx:
             self._set_osx_env(env)
         else:
-            raise ValueError("Don't know how to set compilation environment "
-                             "for {}".format(target_platform))
+            raise NotImplementedError(
+                "Don't know how to set compilation environment for "
+                "{}".format(target_platform))
 
     def _set_linux_env(self,
                        env: Dict[str, str],
@@ -1190,7 +1234,8 @@ class Config(object):
         if BUILD_PLATFORM.linux:
             if CAN_CROSS_COMPILE_LINUX_TO_WINDOWS:
                 if not USE_MINGW or not USE_MXE:
-                    raise ValueError("Only know how to use MinGW + MXE")
+                    raise NotImplementedError(
+                        "Only know how to use MinGW + MXE")
                 crosscomp = target_platform.cross_compile_prefix
                 mxe_target_root = join(self.mxe_usr_dir,
                                        target_platform.mxe_target)
@@ -1224,7 +1269,7 @@ class Config(object):
 
                 # Now...
             else:
-                raise ValueError(CANNOT_CROSS_COMPILE_QT)
+                raise NotImplementedError(CANNOT_CROSS_COMPILE_QT)
 
         elif BUILD_PLATFORM.windows:
             # http://doc.qt.io/qt-5/windows-building.html
@@ -1243,8 +1288,9 @@ class Config(object):
                 # "amd64" in VC\vcvarsall.bat
                 arch = "amd64"
             else:
-                raise ValueError("Don't know how to compile for Windows for "
-                                 "target platform {}".format(target_platform))
+                raise NotImplementedError(
+                    "Don't know how to compile for Windows for target "
+                    "platform {}".format(target_platform))
             # Now read the result from vcvarsall.bat directly
             vcvarsall = join(self.windows_msvc_root, "vcvarsall.bat")
             args = [vcvarsall, arch]
@@ -1254,8 +1300,9 @@ class Config(object):
             env.update(**fetched_env)
 
         else:
-            raise ValueError("Don't know how to compile for Windows on "
-                             "build platform {}".format(BUILD_PLATFORM))
+            raise NotImplementedError(
+                "Don't know how to compile for Windows on build platform "
+                "{}".format(BUILD_PLATFORM))
 
     def android_eabi(self, target_platform: Platform) -> str:
         if target_platform.cpu_x86_family:
@@ -1272,7 +1319,7 @@ class Config(object):
                 target_platform.android_arch_short,
                 self.android_toolchain_version)
         else:
-            raise ValueError("Unknown CPU family")
+            raise NotImplementedError("Unknown CPU family for Android")
 
     def android_sysroot(self, target_platform: Platform) -> str:
         return join(self.android_ndk_root, "platforms",
@@ -1299,8 +1346,8 @@ class Config(object):
                 return "i686-linux-android-"
             elif target_platform.cpu == Cpu.ARM_V7:
                 return "arm-linux-androideabi-"
-        raise ValueError("Don't know CROSS_COMPILE prefix for " +
-                         str(target_platform))
+        raise NotImplementedError("Don't know CROSS_COMPILE prefix for " +
+                                  str(target_platform))
 
     def android_cc(self, target_platform: Platform,
                    fullpath: bool) -> str:
@@ -1773,12 +1820,14 @@ def validate_pair(ob: Any) -> bool:
         return False
     return True
 
+
 def consume(iterator) -> None:
     try:
         while True:
             next(iterator)
     except StopIteration:
         pass
+
 
 def windows_get_environment_from_batch_command(
         env_cmd: Union[str, List[str]],
@@ -1788,36 +1837,43 @@ def windows_get_environment_from_batch_command(
     """
     Take a command (either a single command or list of arguments)
     and return the environment created after running that command.
-    Note that if the command must be a batch file or .cmd file, or the
+    Note that the command must be a batch file or .cmd file, or the
     changes to the environment will not be captured.
 
     If initial_env is supplied, it is used as the initial environment passed
-    to the child process.
+    to the child process. (Otherwise, this process's os.environ() will be
+    used by default.)
     """
     if not isinstance(env_cmd, (list, tuple)):
         env_cmd = [env_cmd]
     # construct the command that will alter the environment
     env_cmd = subprocess.list2cmdline(env_cmd)
     # create a tag so we can tell in the output when the proc is done
-    # ... must NOT have an '=' sign in
-    tag = '+/!+/!+/! Done running command +/!+/!+/!'
+    tag = '+/!+/!+/! Finished command to set/print env +/!+/!+/!'  # RNC
     # construct a cmd.exe command to do accomplish this
     cmd = 'cmd.exe /s /c "{env_cmd} && echo "{tag}" && set"'.format(
         env_cmd=env_cmd, tag=tag)
     # launch the process
-    log.info("Fetching environment using command: {!r}".format(cmd))
+    log.info("Fetching environment using command: {}".format(env_cmd))
+    log.debug("Full command: {}".format(cmd))
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=initial_env)
     # parse the output sent to stdout
     encoding = sys.getdefaultencoding()
-    def gen_lines():
+
+    def gen_lines() -> Generator[str, None, None]:  # RNC: fix decode problem
         for line in proc.stdout:
             yield line.decode(encoding)
+
+    # define a way to handle each KEY=VALUE line
+    def handle_line(line: str) -> List[str]:  # RNC: as function
+        return line.rstrip().split('=', 1)
     
-    lines = gen_lines()
+    lines = gen_lines()  # RNC
     # consume whatever output occurs until the tag is reached
     consume(itertools.takewhile(lambda l: tag not in l, lines))
-    # define a way to handle each KEY=VALUE line
-    handle_line = lambda l: l.rstrip().split('=', 1)
+    # RNC: consume the tag too
+    _tag_found = next(lines)  # RNC  # *** check, then delete
+    log.critical("Ignoring tag: " + _tag_found)  # *** check, then delete
     # parse key/values into pairs
     pairs = map(handle_line, lines)
     # make sure the pairs are valid (this also eliminates the tag)
@@ -1941,8 +1997,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             elif target_platform.cpu_x86_32bit_family:
                 target_os = "VC-WIN32"
             else:
-                raise ValueError("Don't know how to compile OpenSSL for "
-                                 "this processor: {}".format(target_platform))
+                raise NotImplementedError(
+                    "Don't know how to compile OpenSSL for "
+                    "this processor: {}".format(target_platform))
         elif BUILD_PLATFORM.linux:
             if USE_MINGW:
                 if target_platform.cpu_64bit:
@@ -1998,8 +2055,8 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
     """
 
     if not target_os:
-        raise ValueError("Don't know how to make OpenSSL for " +
-                         target_platform.description)
+        raise NotImplementedError("Don't know how to make OpenSSL for " +
+                                  target_platform.description)
 
     configure_args = [target_os] + OPENSSL_COMMON_OPTIONS
     if target_platform.mobile:
@@ -2037,11 +2094,11 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
     #     # https://github.com/openssl/openssl/issues/174
     #     convert_line_endings(join(workdir, "Makefile.org"), to_unix=True)
     #     # Without this, the Perl "Configure" script goes wrong and fails to
-    #     # remove "md2" whilst copying Makefile.org to Makefile. This results in
-    #     # the error "#error MD2 is disabled".
-    #     # Here, we guarantee the error regardless of the distribution, because
-    #     # we run a textfile replace on Makefile.org, thus ensuring Windows line
-    #     # endings (which are what the Perl script chokes on).
+    #     # remove "md2" whilst copying Makefile.org to Makefile. This results
+    #     # in the error "#error MD2 is disabled".
+    #     # Here, we guarantee the error regardless of the distribution,
+    #     # because we run a textfile replace on Makefile.org, thus ensuring
+    #     # Windows line endings (which are what the Perl script chokes on).
     #     # So we have to manually convert it back.
 
     with pushd(workdir):
@@ -2070,12 +2127,8 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
                 'LIBNAME=$$i'),
             ('LIBCOMPATVERSIONS=";$(SHLIB_VERSION_HISTORY)"', ''),
         ])
-        makeargs = [
-            "-j", str(cfg.nparallel),
-        ]
-        make = BUILD_PLATFORM.make(cfg)
-        run([make, "depend"] + makeargs, env)
-        run([make, "build_libs"] + makeargs, env)
+        run(cfg.make_args(command="depend"), env)
+        run(cfg.make_args(command="build_libs"), env)
 
     # Testing:
     # - "Have I built for the right architecture?"
@@ -2150,10 +2203,10 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # statically (it won't work).
 
     if target_platform.android:
-        require("javac")
+        require(JAVAC)
         # ... will be called by the make process; better to know now, since the
         # relevant messages are easily lost in the torrent
-        require("ant")
+        require(ANT)
 
     opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(target_platform)  # noqa
     openssl_include_root = join(opensslworkdir, "include")
@@ -2162,7 +2215,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     builddir = cfg.qt_build_dir(target_platform)
     installdir = cfg.qt_install_dir(target_platform)
 
-    targets = [join(installdir, "bin", "qmake")]
+    targets = [join(installdir, "bin", target_platform.qmake_executable)]
     if not cfg.force and all(isfile(x) for x in targets):
         log.info("Qt: All targets exist already: {}".format(targets))
         return installdir
@@ -2212,8 +2265,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         elif target_platform.cpu == Cpu.ARM_V7:
             android_arch_short = "armeabi-v7a"
         else:
-            raise ValueError("Don't know how to use CPU {!r} for "
-                             "Android".format(target_platform.cpu))
+            raise NotImplementedError("Don't know how to use CPU {!r} for "
+                                      "Android".format(target_platform.cpu))
         qt_config_args += [
             "-android-sdk", cfg.android_sdk_root,
             "-android-ndk", cfg.android_ndk_root,
@@ -2327,6 +2380,13 @@ define $(PKG)_BUILD
             #     qt_config_args += ["-I", join(winsdk_basedir, d)]
             # Still not enough! Now needs vcruntime.h, etc...
             # raise NotImplementedError(CANNOT_CROSS_COMPILE_QT)
+
+        elif BUILD_PLATFORM.windows:
+            qt_config_args += []  # *** check
+
+        else:
+            raise NotImplementedError("Don't know how to compile Qt for "
+                                      "Windows on {}".format(target_platform))
 
     else:
         raise NotImplementedError("Don't know how to compile Qt for " +
@@ -2446,9 +2506,8 @@ Troubleshooting Qt 'configure' failures
     log.info("Making Qt {} build into {}".format(target_platform.description,
                                                  installdir))
     with pushd(builddir):
-        make = BUILD_PLATFORM.make(cfg)
         try:
-            run([make, "-j", str(cfg.nparallel)], env)
+            run(cfg.make_args(), env)
         except subprocess.CalledProcessError:
             log.critical("""
 ===============================================================================
@@ -2488,8 +2547,7 @@ A.  RE-RUN THE SCRIPT; sometimes Qt builds fail then pick themselves up the
     # http://stackoverflow.com/questions/8360609
 
     with pushd(builddir):
-        make = BUILD_PLATFORM.make(cfg)
-        run([make, "install"], env)
+        run(cfg.make_args(command="install"), env)
     # ... installs to installdir because of -prefix earlier
     return installdir
 
@@ -2628,13 +2686,12 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     # make
     # -------------------------------------------------------------------------
     with pushd(destdir):
-        make = BUILD_PLATFORM.make(cfg)
         if not isfile(target_c) or not isfile(target_h):
-            run([make, "sqlite3.c"], env)  # the amalgamation target
+            run(cfg.make_args(command="sqlite3.c"), env)  # the amalgamation target  # noqa
         if not isfile(target_exe) or not isfile(target_o):
-            run([make, "sqlite3.o"], env)  # for static linking
+            run(cfg.make_args(command="sqlite3.o"), env)  # for static linking
         if want_exe and not isfile(target_exe):
-            run([make, "sqlcipher"], env)  # the command-line executable
+            run(cfg.make_args(command="sqlcipher"), env)  # the command-line executable  # noqa
 
     # -------------------------------------------------------------------------
     # Check and report
