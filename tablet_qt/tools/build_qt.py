@@ -2089,7 +2089,7 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
         env["SYSTEM"] = target_os  # e.g. "android", "android-armv7"
 
     # -------------------------------------------------------------------------
-    # Makefile
+    # Makefile tweaking
     # -------------------------------------------------------------------------
     # https://wiki.openssl.org/index.php/Android
     makefile_org = join(workdir, "Makefile.org")
@@ -2126,16 +2126,33 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
         # ---------------------------------------------------------------------
         # Make
         # ---------------------------------------------------------------------
-        # Have to remove version numbers from final library filenames:
-        # http://doc.qt.io/qt-5/opensslsupport.html
-        makefile = join(workdir, "Makefile")
-        replace_multiple_in_file(makefile, [
-            ('LIBNAME=$$i LIBVERSION=$(SHLIB_MAJOR).$(SHLIB_MINOR)',
-                'LIBNAME=$$i'),
-            ('LIBCOMPATVERSIONS=";$(SHLIB_VERSION_HISTORY)"', ''),
-        ])
-        run(cfg.make_args(command="depend"), env)
-        run(cfg.make_args(command="build_libs"), env)
+        if BUILD_PLATFORM.windows:
+            # https://wiki.openssl.org/index.php/Compilation_and_Installation#Windows  # noqa
+            if target_platform.windows and target_platform.cpu_x86_64bit_family:  # noqa
+                run([join(workdir, "ms", "do_win64a")])
+                makefile = join(workdir, "ms", "nt.mak")
+                # ... nt.mak for static build; ntdll.mak for DLL
+                run(cfg.make_args(makefile=makefile, command="clean"))
+                run(cfg.make_args(makefile=makefile))
+                # *** check destination names
+
+            else:
+                raise NotImplementedError(
+                    "Unsupported platform combination, build={}, "
+                    "target={}".format(BUILD_PLATFORM, target_platform))
+        else:
+            # Have to remove version numbers from final library filenames,
+            # AFTER configure has run:
+            # http://doc.qt.io/qt-5/opensslsupport.html
+
+            makefile = join(workdir, "Makefile")
+            replace_multiple_in_file(makefile, [
+                ('LIBNAME=$$i LIBVERSION=$(SHLIB_MAJOR).$(SHLIB_MINOR)',
+                    'LIBNAME=$$i'),
+                ('LIBCOMPATVERSIONS=";$(SHLIB_VERSION_HISTORY)"', ''),
+            ])
+            run(cfg.make_args(command="depend"), env)
+            run(cfg.make_args(command="build_libs"), env)
 
     # Testing:
     # - "Have I built for the right architecture?"
