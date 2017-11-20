@@ -1429,11 +1429,11 @@ def make_copy_paste_cmd(args: List[str]) -> str:
     return " ".join(shlex.quote(x) for x in args).replace("\n", r"\n")
 
 
-def make_copy_paste_env(env: Dict[str, str], windows: bool = False) -> str:
+def make_copy_paste_env(env: Dict[str, str]) -> str:
     """
     Convert an environment into a set of commands to recreate that environment.
     """
-    cmd = "set" if windows else "export"
+    cmd = "set" if BUILD_PLATFORM.windows else "export"
     return (
         "\n".join("{cmd} {k}={v}".format(
             cmd=cmd,
@@ -2679,15 +2679,14 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     # "target").
     env = get_starting_env(plain=True)
     cfg.set_compile_env(env, target_platform, use_cross_compile_var=False)
-    if target_platform != BUILD_PLATFORM:
-        config_args.append("--build={}".format(
-            BUILD_PLATFORM.sqlcipher_platform))
-        config_args.append("--host={}".format(
-            target_platform.sqlcipher_platform))
-        # config_args.append("--prefix={}".format(cfg.android_sysroot(platform)))
-        # if target_platform.android:
-        #     config_args.append("CC=" + cfg.android_cc(target_platform))
-        #     # ... or we won't be cross-compiling
+    config_args.append("--build={}".format(
+        BUILD_PLATFORM.sqlcipher_platform))
+    config_args.append("--host={}".format(
+        target_platform.sqlcipher_platform))
+    # config_args.append("--prefix={}".format(cfg.android_sysroot(platform)))
+    # if target_platform.android:
+    #     config_args.append("CC=" + cfg.android_cc(target_platform))
+    #     # ... or we won't be cross-compiling
 
     with pushd(destdir):
         run(config_args, env)
