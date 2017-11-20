@@ -508,6 +508,13 @@ class Platform(object):
     def __str__(self) -> str:
         return self.description
 
+    def __eq__(self, other: "Platform") -> bool:
+        return (
+            self.os == other.os and
+            self.cpu == other.cpu and
+            self.distro_id == other.distro_id
+        )
+
     @property
     def description(self) -> str:
         return "{}/{}".format(self.os, self.cpu)
@@ -2672,12 +2679,15 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     # "target").
     env = get_starting_env(plain=True)
     cfg.set_compile_env(env, target_platform, use_cross_compile_var=False)
-    config_args.append("--build={}".format(BUILD_PLATFORM.sqlcipher_platform))
-    config_args.append("--host={}".format(target_platform.sqlcipher_platform))
-    # config_args.append("--prefix={}".format(cfg.android_sysroot(platform)))
-    # if target_platform.android:
-    #     config_args.append("CC=" + cfg.android_cc(target_platform))
-    #     # ... or we won't be cross-compiling
+    if target_platform != BUILD_PLATFORM:
+        config_args.append("--build={}".format(
+            BUILD_PLATFORM.sqlcipher_platform))
+        config_args.append("--host={}".format(
+            target_platform.sqlcipher_platform))
+        # config_args.append("--prefix={}".format(cfg.android_sysroot(platform)))
+        # if target_platform.android:
+        #     config_args.append("CC=" + cfg.android_cc(target_platform))
+        #     # ... or we won't be cross-compiling
 
     with pushd(destdir):
         run(config_args, env)
