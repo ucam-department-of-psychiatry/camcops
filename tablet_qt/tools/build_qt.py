@@ -186,10 +186,11 @@ import platform
 from pprint import pformat
 import shlex
 import shutil
+import stat
 import subprocess
 import sys
 import traceback
-from typing import Any, Dict, Generator, List, Tuple, Union
+from typing import Any, Callable, Dict, Generator, List, Tuple, Union
 import urllib.request
 
 try:
@@ -423,11 +424,13 @@ OPENSSL_COMMON_OPTIONS = [
 # -----------------------------------------------------------------------------
 
 ANT = "ant"  # for Android builds
+BASH = "bash"
 CMAKE = "cmake"
 DPKG_QUERY = "dpkg-query"
 GIT = "git"
 GOBJDUMP = "gobjdump"  # OS/X equivalent of readelf
 JAVAC = "javac"  # for Android builds
+LD = "ld"
 MAKE = "make"
 MAKEDEPEND = "makedepend"  # used by OpenSSL via "make"
 NASM = "nasm.exe"  # Assembler for Windows (for OpenSSL); http://www.nasm.us/
@@ -437,6 +440,7 @@ PERL = "perl"
 READELF = "readelf"  # read ELF-format library files
 SED = "sed"  # stream editor
 TAR = "tar"  # manipulate tar files
+TCLSH = "tclsh"
 XCODE_SELECT = "xcode-select"  # OS/X tool to find paths for XCode
 
 # -----------------------------------------------------------------------------
@@ -1508,6 +1512,9 @@ def contains_unquoted_target(x: str,
     it will (1) print "a" and then (2) print a directory listing as it RUNS
     "dir"! That's pretty dreadful.
     
+    See also
+        https://www.thesecurityfactory.be/command-injection-windows.html
+    
     Anyway, this is a sanity check for that sort of thing.
     """
     in_quote = False
@@ -1522,6 +1529,44 @@ def contains_unquoted_target(x: str,
 
 def contains_unquoted_ampersand_dangerous_to_windows(x: str) -> bool:
     return contains_unquoted_target(x, quote='"', target='&')
+
+
+# def chmod_recursive(root: str, permission: int) -> None:
+#     # Untested
+#     # Permission: e.g. stat.S_IWUSR
+#     os.chmod(root, permission)
+#     for dirpath, dirnames, filenames in os.walk(root):
+#         for d in dirnames:
+#             os.chmod(join(dirpath, d), permission)
+#         for f in filenames:
+#             os.chmod(join(dirpath, f), permission)
+
+
+def shutil_rmtree_onerror(func: Callable[[str], None],
+                          path: str,
+                          exc_info: Tuple) -> None:
+    # https://stackoverflow.com/questions/2656322/shutil-rmtree-fails-on-windows-with-access-is-denied  # noqa
+    """
+    Error handler for ``shutil.rmtree``.
+
+    If the error is due to an access error (read only file)
+    it attempts to add write permission and then retries.
+
+    If the error is for another reason it re-raises the error.
+
+    Usage : ``shutil.rmtree(path, onerror=onerror)``
+    """
+    if not os.access(path, os.W_OK):
+        # Is the error an access error ?
+        os.chmod(path, stat.S_IWUSR)
+        func(path)
+    else:
+        raise
+
+
+def rmtree(directory: str) -> None:
+    log.debug("Deleting directory {}".format(directory))
+    shutil.rmtree(directory, onerror=shutil_rmtree_onerror)
     
 
 def run(args: List[str],
@@ -1638,10 +1683,17 @@ gobjdump    brew update && brew install binutils
         helpmsg += r"""
 Windows
 -------------------------------------------------------------------------------
+bash        Install Cygwin (*); part of the default installation
+ld          Install the Cygwin (*) package "gcc-g++"
+make        Install the Cygwin (*) package "make"
 nasm        Install from http://www.nasm.us/
 perl        Install from https://www.activestate.com/activeperl
             OR as part of a default Cygwin (*) installation
 tar         Install Cygwin (*); part of the default installation
+tclsh       Install the Cygwin (*) package "tcl" AND ALSO:
+                C:\> bash
+                $ cp /bin/tclsh8.6.exe /bin/tclsh.exe
+            ... because the built-in "tclsh" (no .exe) isn't found by Windows.
 
     (*) Install Cygwin; install the necessary package(s); make sure your
         Windows PATH points to e.g. C:\Cygwin64\bin
@@ -1651,7 +1703,6 @@ Don't forget to add the tools to your PATH.
     _ = r"""
 Windows (DEFUNCT)
 -------------------------------------------------------------------------------
-make        Install the Cygwin (*) package "make"
 makedepend  Install the Cygwin (*) package "makedepend"
 readelf     Install the Cygwin (*) package "binutils"
             
@@ -1755,18 +1806,20 @@ def root_path() -> str:
 
 def git_clone(prettyname: str, url: str, directory: str,
               branch: str = None,
-              commit: str = None) -> bool:
+              commit: str = None,
+              clone_options: List[str] = None) -> bool:
     """
     Fetches a Git repository, unless we have it already.
     Returns: did we need to do anything?
     """
+    clone_options = clone_options or []  # type: List[str]
     if isdir(directory):
         log.info("Not re-cloning {} Git repository: using existing source "
                  "in {}".format(prettyname, directory))
         return False
     log.info("Fetching {} source from {} into {}".format(
         prettyname, url, directory))
-    gitargs = [GIT, "clone"]
+    gitargs = [GIT, "clone"] + clone_options
     if branch:
         gitargs += ["--branch", branch]
     gitargs += [url, directory]
@@ -1858,9 +1911,9 @@ def copytree(srcdir: str, destdir: str, destroy: bool = False) -> None:
             raise ValueError("Destination exists!")
         if not os.path.isdir(destdir):
             raise ValueError("Destination exists but isn't a directory!")
-        log.info("... removing old contents")
-        shutil.rmtree(destdir)
-        log.info("... now copying")
+        log.debug("... removing old contents")
+        rmtree(destdir)
+        log.debug("... now copying")
     shutil.copytree(srcdir, destdir)
 
 
@@ -2020,6 +2073,14 @@ def windows_get_environment_from_batch_command(
     return result
 
 
+# def ensure_first_perl_is_not_cygwin() -> None:
+#     require(PERL)
+#     if shutil.which(PERL).startswith("/cygdrive"):
+#         fail("The first instance of Perl on your path is from Cygwin. "
+#              "This will fail when building OpenSSL. Please re-order your PATH "
+#              "so that a Windows version, e.g. ActiveState Perl, comes first.")
+
+
 # =============================================================================
 # Building OpenSSL
 # =============================================================================
@@ -2050,21 +2111,38 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     static_lib_suffix = target_platform.static_lib_suffix
     if BUILD_PLATFORM.windows:
         openssl_verparts = cfg.openssl_version.split(".")
-        openssl_major = "{}_{}".format(openssl_verparts[0],
-                                       openssl_verparts[1])
+        openssl_major = "-{}_{}".format(openssl_verparts[0],
+                                        openssl_verparts[1])
         if target_platform.cpu_x86_64bit_family:
-            fname_arch = "x64"
+            fname_arch = "-x64"
         else:
-            fname_arch = "x86" # *** guess; needs checking
-        fname_extra = "-{}-{}".format(openssl_major, fname_arch)  # e.g. "-1_1-x64"  # noqa
+            fname_arch = ""
+        fname_extra = openssl_major + fname_arch  # e.g. "-1_1-x64"
     else:
         fname_extra = ""
-    targets = [
+    main_targets = [
         join(workdir, "libssl{}{}".format(fname_extra, dynamic_lib_suffix)),
         join(workdir, "libssl{}".format(static_lib_suffix)),
         join(workdir, "libcrypto{}{}".format(fname_extra, dynamic_lib_suffix)),
         join(workdir, "libcrypto{}".format(static_lib_suffix)),
     ]
+    
+    # Now, also: Linux likes to use "-lcrypto" and have that mean "look at
+    # libcrypto.so", whereas under Windows we seem to have to use
+    # "-llibcrypto" instead. However, some things, like SQLCipher,
+    # hard-code the "-lcrypto" (in that example, in its test suite as it
+    # compiles conftest.c). So we're best off using the Linux notation but
+    # making additional copies of the libraries:
+    shadow_targets = []  # type: List[str]
+    libprefix = "lib"
+    if BUILD_PLATFORM.windows:
+        for t in main_targets:
+            dirname, basename = os.path.split(t)
+            assert basename.startswith(libprefix)
+            shortbasename = basename[len(libprefix):]
+            shadow_targets.append(join(dirname, shortbasename))
+
+    targets = main_targets + shadow_targets
     if not cfg.force and all(isfile(x) for x in targets):
         log.info("OpenSSL: All targets exist already: {}".format(targets))
         return
@@ -2359,8 +2437,11 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
     #
     # ... looks OK
 
-    for t in targets:
+    for i, t in enumerate(main_targets):
         target_platform.verify_lib(t)
+        if BUILD_PLATFORM.windows:
+            assert len(shadow_targets) == len(main_targets)
+            shutil.copyfile(t, shadow_targets[i])
 
 
 # =============================================================================
@@ -2434,11 +2515,28 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         return installdir
 
     # -------------------------------------------------------------------------
+    # clean from old configure
+    # -------------------------------------------------------------------------
+    # No need to clean anything in the source directory, as long as you don't
+    # build there.
+    # https://stackoverflow.com/questions/24261974 (comments)
+    
+    # rmtree(builddir)
+    # rmtree(installdir)
+    # ... do this if something goes wrong, but it is slow; maybe not routinely
+    # (unless you're developing this script)?
+
+    # -------------------------------------------------------------------------
     # Environment
     # -------------------------------------------------------------------------
     env = get_starting_env()
-    env['OPENSSL_LIBS'] = "-L{} -lssl -lcrypto".format(openssl_lib_root)
-    # ... unnecessary? But suggested by Qt; http://doc.qt.io/qt-4.8/ssl.html
+    openssl_libs = "-L{} -lssl -lcrypto".format(openssl_lib_root)
+    # See also https://bugreports.qt.io/browse/QTBUG-62016
+    env['OPENSSL_LIBS'] = openssl_libs
+    # Setting OPENSSL_LIBS as an *environment variable* may be unnecessary,
+    # but is suggested by Qt; http://doc.qt.io/qt-4.8/ssl.html
+    # However, it seems necessary to set it as an *option* to configure; see
+    # below.
     cfg.set_compile_env(env, target_platform)
 
     # -------------------------------------------------------------------------
@@ -2463,11 +2561,21 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         "-I", openssl_include_root,  # OpenSSL
         "-L", openssl_lib_root,  # OpenSSL
         "-prefix", installdir,
+        "-recheck-all",  # don't cache from previous configure runs
+        "OPENSSL_LIBS=" + openssl_libs,
     ]
     if qt_linkage_static:
         qt_config_args.append("-static")
         # makes a static Qt library (cf. default of "-shared")
         # ... NB ALSO NEEDS "CONFIG += static" in the .pro file
+        
+    # In Qt 5.10 (as of 2017-11-21), "configure --list-features" does not
+    # show "printing-and-pdf", unlike e.g. https://blog.basyskom.com/2017/qt-lite,  # noqa
+    # but something in "configure" knows about it because it crashes when
+    # creating qmake with "Project ERROR: Unknown feature object
+    # printing-and-pdf in expression 'config.unix && features.printing-and-pdf'."  # noqa
+    #
+    # no, doesn't work: # qt_config_args += ["-no-feature-printing-and-pdf"]
 
     android_arch_short = "?"
     if target_platform.android:
@@ -2719,6 +2827,7 @@ Troubleshooting Qt 'configure' failures
     log.info("Making Qt {} build into {}".format(target_platform.description,
                                                  installdir))
     with pushd(builddir):
+        # run(cfg.make_args(command="qmake_all"), env)
         try:
             run(cfg.make_args(), env)
         except subprocess.CalledProcessError:
@@ -2790,7 +2899,10 @@ def fetch_sqlcipher(cfg: Config) -> None:
     git_clone(prettyname="SQLCipher",
               url=cfg.sqlcipher_git_url,
               commit=cfg.sqlcipher_git_commit,
-              directory=cfg.sqlcipher_src_gitdir)
+              directory=cfg.sqlcipher_src_gitdir,
+              clone_options=["--config", "core.autocrlf=false"])
+    # We must have LF endings, not CR+LF, because we're going to use Unix tools
+    # even under Windows.
 
 
 def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
@@ -2818,7 +2930,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     target_o = join(destdir, "sqlite3.o")
     target_exe = join(destdir, "sqlcipher")
 
-    want_exe = not target_platform.mobile
+    want_exe = not target_platform.mobile and not BUILD_PLATFORM.windows
 
     all_targets = [target_c, target_h, target_o]
     if want_exe:
@@ -2869,11 +2981,17 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         # ... or configure will call ld which will say:
         # ld: error: cannot open crtbegin_dynamic.o: No such file or directory
 
-    config_args = [
-        # no quotes (they're fine on the command line but not here)
+    if BUILD_PLATFORM.windows:
+        require(BASH)
+        require(LD)
+        config_args = [BASH]
+    else:
+        config_args = []  # type: List[str]
+    config_args += [
         join(destdir, "configure"),
         "--enable-tempstore=yes",
         # ... see README.md; equivalent to SQLITE_TEMP_STORE=2
+        # no quotes (they're fine on the command line but not here):
         'CFLAGS={}'.format(" ".join(cflags)),
         'LDFLAGS={}'.format(" ".join(ldflags)),
     ]
@@ -2905,12 +3023,19 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     # make
     # -------------------------------------------------------------------------
     with pushd(destdir):
+        # Don't use cfg.make_args(); we want "make" even under Windows (via
+        # Cygwin).
+        require(MAKE)
+        require(TCLSH)
         if not isfile(target_c) or not isfile(target_h):
-            run(cfg.make_args(command="sqlite3.c"), env)  # the amalgamation target  # noqa
+            run([MAKE, "sqlite3.c"], env)  # the amalgamation target  # noqa
         if not isfile(target_exe) or not isfile(target_o):
-            run(cfg.make_args(command="sqlite3.o"), env)  # for static linking
+            if not BUILD_PLATFORM.windows:
+                log.warning("NEED TO BUILD sqlite3.o ON WINDOWS BUT DON'T KNOW HOW")  # ***
+            else:
+                run([MAKE, "sqlite3.o"], env)  # for static linking
         if want_exe and not isfile(target_exe):
-            run(cfg.make_args(command="sqlcipher"), env)  # the command-line executable  # noqa
+            run([MAKE, "sqlcipher"], env)  # the command-line executable
 
     # -------------------------------------------------------------------------
     # Check and report
@@ -3569,7 +3694,7 @@ def main() -> None:
         build_for(Os.WINDOWS, Cpu.X86_64)
 
     if cfg.build_windows_x86_32:
-        if MXE_HAS_GCC_WITH_I386_BUG:
+        if BUILD_PLATFORM.linux and MXE_HAS_GCC_WITH_I386_BUG:
             fail("""
 Can't build for Win32. Error will be:
     internal compiler error: in ix86_compute_frame_layout, at config/i386/i386.c:10145
