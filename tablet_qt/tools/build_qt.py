@@ -271,6 +271,8 @@ OPENSSL_AT_LEAST_1_1 = True
 # ... but Qt 5.9.3 doesn't support OpenSSL 1.1.0g; errors relating to
 #     "undefined type 'x509_st'"
 # ... requires Qt 5.10.0 alpha: https://bugreports.qt.io/browse/QTBUG-52905
+OPENSSL_FAILS_OWN_TESTS = True
+# https://bugs.launchpad.net/ubuntu/+source/openssl/+bug/1581084
 DEFAULT_OPENSSL_SRC_URL = (
     "https://www.openssl.org/source/openssl-{}.tar.gz".format(
         DEFAULT_OPENSSL_VERSION))
@@ -2321,10 +2323,11 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
         if OPENSSL_AT_LEAST_1_1:
             # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
             run(cfg.make_args(), env)
-            if target_platform.os == BUILD_PLATFORM.os:
-                run(cfg.make_args(command="test"), env)
-                # can't really test e.g. Android code directly under Linux
-            # run(cfg.make_args(command="install"), env)
+            if not OPENSSL_FAILS_OWN_TESTS:
+                if target_platform.os == BUILD_PLATFORM.os:
+                    run(cfg.make_args(command="test"), env)
+                    # can't really test e.g. Android code directly under Linux
+                # run(cfg.make_args(command="install"), env)
 
         else:
             # Have to remove version numbers from final library filenames,
