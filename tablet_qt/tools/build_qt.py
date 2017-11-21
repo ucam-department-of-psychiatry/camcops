@@ -265,6 +265,7 @@ ADD_SO_VERSION_OF_LIBQTFORANDROID = False
 
 # OpenSSL
 DEFAULT_OPENSSL_VERSION = "1.1.0g"
+OPENSSL_AT_LEAST_1_1 = True
 # ... formerly "1.0.2h", but Windows 64 builds break
 # ... as of 2017-11-21, stable series is 1.1 and LTS series is 1.0.2
 # ... but Qt 5.9.3 doesn't support OpenSSL 1.1.0g; errors relating to
@@ -2040,7 +2041,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         https://wiki.openssl.org/index.php/Compilation_and_Installation
     """
     # -------------------------------------------------------------------------
-    # Setup
+    # Set up filenames
     # -------------------------------------------------------------------------
     rootdir, workdir = cfg.get_openssl_rootdir_workdir(target_platform)
     dynamic_lib_suffix = target_platform.dynamic_lib_suffix
@@ -2066,6 +2067,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         log.info("OpenSSL: All targets exist already: {}".format(targets))
         return
 
+    # -------------------------------------------------------------------------
+    # Unpack source
+    # -------------------------------------------------------------------------
     untar_to_directory(cfg.openssl_src_fullpath, rootdir)
 
     # -------------------------------------------------------------------------
@@ -2084,7 +2088,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         if target_platform.cpu == Cpu.ARM_V5:
             target_os = "android"  # ... NB "android" means ARMv5
         elif target_platform.cpu == Cpu.ARM_V7:
-            target_os = "android-armv7"
+            if OPENSSL_AT_LEAST_1_1:
+                target_os = "android-armeabi"
+            else:
+                target_os = "android-armv7"
         elif target_platform.cpu_x86_family:
             target_os = "android-x86"
         else:
@@ -2160,7 +2167,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # For new platforms: if you're not sure, use target_os = "crashme" and
     # you'll get the list of permitted values, which as of 2017-11-12 is:
     
-    _ = """
+    _OPENSSL_1_0_2H_TARGETS = """
 BC-32 BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
 BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-x86_64 DJGPP MPE/iX-gcc OS2-EMX
 OS390-Unix QNX6 QNX6-i386 ReliantUNIX SINIX SINIX-N UWIN VC-CE VC-WIN32
@@ -2203,6 +2210,39 @@ debug-linux-x86_64-clang debug-rse debug-solaris-sparcv8-cc
 debug-solaris-sparcv8-gcc debug-solaris-sparcv9-cc debug-solaris-sparcv9-gcc
 debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
     """
+    _OPENSSL_1_1_0G_TARGET = """
+Usage: Configure [no-<cipher> ...] [enable-<cipher> ...] [-Dxxx] [-lxxx] [-Lxxx] [-fxxx] [-Kxxx] [no-hw-xxx|no-hw] [[no-]threads] [[no-]shared] [[no-]zlib|zlib-dynamic] [no-asm] [no-dso] [no-egd] [sctp] [386] [--prefix=DIR] [--openssldir=OPENSSLDIR] [--with-xxx[=vvv]] [--config=FILE] os/compiler[:flags]
+
+pick os/compiler from:
+BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8 
+BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-i386 Cygwin-i486 Cygwin-i586 
+Cygwin-i686 Cygwin-x86 Cygwin-x86_64 DJGPP MPE/iX-gcc OS390-Unix QNX6 
+QNX6-i386 UEFI UWIN VC-CE VC-WIN32 VC-WIN64A VC-WIN64A-masm VC-WIN64I aix-cc 
+aix-gcc aix64-cc aix64-gcc android android-armeabi android-mips android-x86 
+android64 android64-aarch64 bsdi-elf-gcc cc darwin-i386-cc darwin-ppc-cc 
+darwin64-debug-test-64-clang darwin64-ppc-cc darwin64-x86_64-cc dist gcc 
+haiku-x86 haiku-x86_64 hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc 
+hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux64-ia64-cc 
+hpux64-ia64-gcc hpux64-parisc2-cc hpux64-parisc2-gcc hurd-x86 ios-cross 
+ios64-cross iphoneos-cross irix-mips3-cc irix-mips3-gcc irix64-mips4-cc 
+irix64-mips4-gcc linux-aarch64 linux-alpha-gcc linux-aout linux-arm64ilp32 
+linux-armv4 linux-c64xplus linux-elf linux-generic32 linux-generic64 
+linux-ia64 linux-mips32 linux-mips64 linux-ppc linux-ppc64 linux-ppc64le 
+linux-sparcv8 linux-sparcv9 linux-x32 linux-x86 linux-x86-clang linux-x86_64 
+linux-x86_64-clang linux32-s390x linux64-mips64 linux64-s390x linux64-sparcv9 
+mingw mingw64 nextstep nextstep3.3 purify qnx4 sco5-cc sco5-gcc 
+solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc 
+solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-gcc solaris64-sparcv9-cc 
+solaris64-sparcv9-gcc solaris64-x86_64-cc solaris64-x86_64-gcc tru64-alpha-cc 
+tru64-alpha-gcc uClinux-dist uClinux-dist64 unixware-2.0 unixware-2.1 
+unixware-7 unixware-7-gcc vms-alpha vms-alpha-p32 vms-alpha-p64 vms-ia64 
+vms-ia64-p32 vms-ia64-p64 vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x 
+vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen 
+vxworks-simlinux debug debug-erbridge debug-linux-ia32-aes debug-linux-pentium 
+debug-linux-ppro debug-test-64-clang 
+
+NOTE: If in doubt, on Unix-ish systems use './config'.
+    """
 
     if not target_os:
         raise NotImplementedError("Don't know how to make OpenSSL for " +
@@ -2230,13 +2270,16 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
         env["MACHINE"] = "i686"
         env["RELEASE"] = "2.6.37"  # ??
         env["SYSTEM"] = target_os  # e.g. "android", "android-armv7"
+        if OPENSSL_AT_LEAST_1_1:
+            # https://github.com/openssl/openssl/issues/1681
+            # or: "error: invalid 'asm': invalid operand for code 'w'"
+            env["CROSS_SYSROOT"] = env["ANDROID_SYSROOT"]
 
     # -------------------------------------------------------------------------
     # Makefile tweaking
     # -------------------------------------------------------------------------
     # https://wiki.openssl.org/index.php/Android
-    if not BUILD_PLATFORM.windows:
-        # *** recheck for Linux; OpenSSL has changed
+    if not OPENSSL_AT_LEAST_1_1:
         makefile_org = join(workdir, "Makefile.org")
         replace_in_file(makefile_org,
                         "install: all install_docs install_sw",
@@ -2275,17 +2318,14 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
         # ---------------------------------------------------------------------
         # Make
         # ---------------------------------------------------------------------
-        if BUILD_PLATFORM.windows:
-            # See INSTALL and INSTALL.WIN from the OpenSSL distribution
-            if target_platform.windows:
-                run(cfg.make_args(), env)
+        if OPENSSL_AT_LEAST_1_1:
+            # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
+            run(cfg.make_args(), env)
+            if target_platform.os == BUILD_PLATFORM.os:
                 run(cfg.make_args(command="test"), env)
-                # run(cfg.make_args(command="install"), env)
+                # can't really test e.g. Android code directly under Linux
+            # run(cfg.make_args(command="install"), env)
 
-            else:
-                raise NotImplementedError(
-                    "Unsupported platform combination, build={}, "
-                    "target={}".format(BUILD_PLATFORM, target_platform))
         else:
             # Have to remove version numbers from final library filenames,
             # AFTER configure has run:
