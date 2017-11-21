@@ -201,7 +201,8 @@ try:
 except ImportError:
     distro = None
     if platform.system() in ["Linux"]:
-        print("Please install 'distro' first, using:\n\npip install distro")
+        print("Please install 'distro' first, using:\n\n"
+              "pip install distro")
         raise
 
 log = logging.getLogger(__name__)
@@ -235,11 +236,6 @@ HEAD = "HEAD"  # git commit meaning "the most recent"
 
 ENVVAR_QT_BASE = "CAMCOPS_QT_BASE_DIR"
 
-# Take your pick:
-CANNOT_CROSS_COMPILE_QT = (
-    "Cannot, at present, cross-compile Qt from Linux to Windows.")
-ERROR_COMPILE_FOR_WINDOWS_ON_LINUX = "Please use Linux to build for Windows."
-
 # -----------------------------------------------------------------------------
 # Downloading and versions
 # -----------------------------------------------------------------------------
@@ -255,7 +251,7 @@ DEFAULT_TOOLCHAIN_VERSION = "4.9"
 # Qt
 DEFAULT_QT_SRC_DIRNAME = "qt5"
 DEFAULT_QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
-DEFAULT_QT_GIT_BRANCH = "5.9"
+DEFAULT_QT_GIT_BRANCH = "5.10"
 # previously "5.7.0", "5.9", "5.10"
 # ... to find out which are available: go into the local git directory and run
 # "git remote show origin"
@@ -268,7 +264,12 @@ FIX_QT_5_9_2_W64_HOST_TOOL_WANTS_WINDOWS_H = True
 ADD_SO_VERSION_OF_LIBQTFORANDROID = False
 
 # OpenSSL
-DEFAULT_OPENSSL_VERSION = "1.0.2h"
+DEFAULT_OPENSSL_VERSION = "1.1.0g"
+# ... formerly "1.0.2h", but Windows 64 builds break
+# ... as of 2017-11-21, stable series is 1.1 and LTS series is 1.0.2
+# ... but Qt 5.9.3 doesn't support OpenSSL 1.1.0g; errors relating to
+#     "undefined type 'x509_st'"
+# ... requires Qt 5.10.0 alpha: https://bugreports.qt.io/browse/QTBUG-52905
 DEFAULT_OPENSSL_SRC_URL = (
     "https://www.openssl.org/source/openssl-{}.tar.gz".format(
         DEFAULT_OPENSSL_VERSION))
@@ -278,7 +279,8 @@ DEFAULT_OPENSSL_ANDROID_SCRIPT_URL = \
 # SQLCipher; https://www.zetetic.net/sqlcipher/open-source/
 DEFAULT_SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
 DEFAULT_SQLCIPHER_GIT_COMMIT = HEAD
-# note that there's another URL for the Android binary packages
+# ... note that there's another URL for the Android binary packages
+# ... SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
 
 # Boost
 DEFAULT_BOOST_VERSION = "1.64.0"
@@ -408,7 +410,7 @@ QT_CONFIG_COMMON_ARGS = [
 
 OPENSSL_COMMON_OPTIONS = [
     "shared",  # make .so files (needed by Qt sometimes) as well as .a
-    "no-ssl2",  # SSL-2 is broken
+    # deprecated option as of 1.1.0g # "no-ssl2",  # SSL-2 is broken
     "no-ssl3",  # SSL-3 is broken. Is an SSL-3 build required for TLS 1.2?
     # "no-comp",  # disable compression independent of zlib
 ]
@@ -425,6 +427,7 @@ GOBJDUMP = "gobjdump"  # OS/X equivalent of readelf
 JAVAC = "javac"  # for Android builds
 MAKE = "make"
 MAKEDEPEND = "makedepend"  # used by OpenSSL via "make"
+NASM = "nasm.exe"  # Assembler for Windows (for OpenSSL); http://www.nasm.us/
 NMAKE = "nmake.exe"  # Visual Studio make tool
 OBJDUMP = "objdump"
 PERL = "perl"
@@ -439,6 +442,24 @@ XCODE_SELECT = "xcode-select"  # OS/X tool to find paths for XCode
 
 LOG_FORMAT = '%(asctime)s.%(msecs)03d:%(levelname)s:%(message)s'
 LOG_DATEFMT = '%Y-%m-%d %H:%M:%S'
+
+# -----------------------------------------------------------------------------
+# Errors
+# -----------------------------------------------------------------------------
+
+BAD_WINDOWS_PATH_MSG = (
+    "Something has put a unquoted ampersand (&) in the PATH environment "
+    "variable. Whilst not technically illegal, this breaks quite a lot of "
+    "software. (The usual culprit is MySQL; see "
+    "https://stackoverflow.com/questions/34124636.) Please fix this (enclose "
+    "that part in quotes), e.g. in your system or user environment variables "
+    "via the Control Panel, and try again. The path is:\n\n"
+)
+
+# Take your pick:
+CANNOT_CROSS_COMPILE_QT = (
+    "Cannot, at present, cross-compile Qt from Linux to Windows.")
+ERROR_COMPILE_FOR_WINDOWS_ON_LINUX = "Please use Linux to build for Windows."
 
 
 # -----------------------------------------------------------------------------
@@ -622,18 +643,31 @@ class Platform(object):
     # -------------------------------------------------------------------------
 
     @property
-    def shared_lib_suffix(self) -> str:
+    def dynamic_lib_suffix(self) -> str:
         """
-        What library format is in use?
+        What DYNAMIC/SHARED library format is in use?
         """
         # I think this depends on the build system, not the target.
         # ... no; on the target.
         if self.osx or self.ios:
             return ".dylib"
+            # ... sometimes also ".so" or ".bundle"
         elif self.windows:
-            return ".dll.a"
+            return ".dll"
         else:
             return ".so"
+
+    @property
+    def static_lib_suffix(self) -> str:
+        """
+        What STATIC library format is in use?
+        """
+        if self.osx or self.ios:
+            return ".a"
+        elif self.windows:
+            return ".lib"
+        else:
+            return ".a"
 
     def ensure_elf_reader(self) -> None:
         """Only to be called for the build platform."""
@@ -691,8 +725,9 @@ class Platform(object):
                 raise ValueError(
                     "File {} was built for ARM64".format(filename))
         else:
-            raise NotImplementedError("Don't know how to verify library for "
-                                      "{}".format(BUILD_PLATFORM))
+            log.warning("Don't know how to verify library under build "
+                        "platform {}".format(BUILD_PLATFORM))
+            return
         log.info("Library file is good: {!r}".format(filename))
 
     # -------------------------------------------------------------------------
@@ -822,14 +857,16 @@ class Platform(object):
                 make = NMAKE
                 supports_parallel = False
             makefile_switch = "/F"
+            parallel_switch = "/J"
         else:
             make = MAKE
             supports_parallel = True
             makefile_switch = "-f"  # Unix standard
+            parallel_switch = "-j"
         require(make)
         args = [make]
         if supports_parallel:
-            args += ["-j", str(cfg.nparallel)]
+            args += [parallel_switch, str(cfg.nparallel)]
         if extra_args:
             args += extra_args
         if makefile:
@@ -840,27 +877,14 @@ class Platform(object):
 
     @property
     def qmake_executable(self) -> str:
+        """
+        Used to calculate the name of the qmake file we'll be building (so we
+        can check if it's been compiled).
+        """
         if self.windows:
             return "qmake.exe"
         else:
             return "qmake"
-
-    # def prebuilt_qmake(self, cfg: "Config") -> str:
-    #     assert self.windows and self.cpu_x86_family, (
-    #         "Prebuilt qmake only used in Windows x86 environment "
-    #         "(to build jom)"
-    #     )
-    #     return join(
-    #         cfg.windows_prebuilt_qt_root,
-    #         "msvc2015_64" if self.cpu_64bit else "msvc2015",
-    #         "bin",
-    #         "qmake.exe"
-    #     )
-        
-    # def nmake(self, cfg: "Config") -> str:
-    #     assert self.windows, (
-    #         "nmake only used in Windows environment (to build jom)")
-    #     return join(cfg.windows_msvc_root, "bin", "nmake.exe")
 
     # -------------------------------------------------------------------------
     # SQLCipher
@@ -1280,6 +1304,8 @@ class Config(object):
 
         elif BUILD_PLATFORM.windows:
             # http://doc.qt.io/qt-5/windows-building.html
+            if contains_unquoted_ampersand_dangerous_to_windows(env["PATH"]):
+                fail(BAD_WINDOWS_PATH_MSG + env["PATH"])
             env["PATH"] = os.pathsep.join([
                 join(self.qt_src_gitdir, "qtrepotools", "bin"),
                 join(self.qt_src_gitdir, "qtbase", "bin"),
@@ -1305,6 +1331,8 @@ class Config(object):
                 env_cmd=args, initial_env=env
             )
             env.update(**fetched_env)
+            if contains_unquoted_ampersand_dangerous_to_windows(env["PATH"]):
+                fail(BAD_WINDOWS_PATH_MSG + env["PATH"])
 
         else:
             raise NotImplementedError(
@@ -1419,6 +1447,13 @@ def pushd(directory: str) -> None:
     chdir(directory)
     yield
     chdir(previous_dir)
+    
+    
+def quote_for_command_line(x: str) -> str:
+    if BUILD_PLATFORM.windows:
+        return x  # suboptimal but better than shlex.quote()!
+    else:
+        return shlex.quote(x)
 
 
 def make_copy_paste_cmd(args: List[str]) -> str:
@@ -1426,7 +1461,10 @@ def make_copy_paste_cmd(args: List[str]) -> str:
     Convert a series of arguments to a command string that can be copied/
     pasted.
     """
-    return " ".join(shlex.quote(x) for x in args).replace("\n", r"\n")
+    return subprocess.list2cmdline(args)
+    # return " ".join(
+    #     quote_for_command_line(x) for x in args
+    # ).replace("\n", r"\n")
 
 
 def make_copy_paste_env(env: Dict[str, str]) -> str:
@@ -1438,9 +1476,50 @@ def make_copy_paste_env(env: Dict[str, str]) -> str:
         "\n".join("{cmd} {k}={v}".format(
             cmd=cmd,
             k=k,
-            v=shlex.quote(env[k]) if not BUILD_PLATFORM.windows else env[k]
+            v=(env[k] if BUILD_PLATFORM.windows else
+               subprocess.list2cmdline([env[k]]))
         ) for k in sorted(env.keys())))
+    # Note that even subprocess.list2cmdline() will put needless quotes in
+    # here, whereas SET is happy with e.g. SET x=C:\Program Files\somewhere;
+    # subprocess.list2cmdline() will also mess up trailing backslashes (e.g.
+    # for the VS140COMNTOOLS environment variable).
+    
+    
+def contains_unquoted_target(x: str,
+                             quote: str = '"', target: str = '&') -> bool:
+    """
+    See https://stackoverflow.com/questions/34124636.
+    Under Windows, if an ampersand is in a path and is not quoted, it'll break
+    lots of things.
+    Simple example:
+        set RUBBISH=a & b           # 'b' is not recognizable as a... command
+        set RUBBISH='a & b'         # 'b'' is not recognizable as a... command
+        set RUBBISH="a & b"         # OK
+    
+    ... and you get similar knock-on effects, e.g. if you set RUBBISH using the
+    Control Panel to the literal
+        a & dir
+    
+    and then do
+        echo %RUBBISH%
+    it will (1) print "a" and then (2) print a directory listing as it RUNS
+    "dir"! That's pretty dreadful.
+    
+    Anyway, this is a sanity check for that sort of thing.
+    """
+    in_quote = False
+    for c in x:
+        if c == quote:
+            in_quote = not in_quote
+        elif c == target:
+            if not in_quote:
+                return True
+    return False
 
+
+def contains_unquoted_ampersand_dangerous_to_windows(x: str) -> bool:
+    return contains_unquoted_target(x, quote='"', target='&')
+    
 
 def run(args: List[str],
         env: Dict[str, str] = None,
@@ -1468,8 +1547,7 @@ def run(args: List[str],
         "Launching external command:\n"
         "{csep}\n"
         "WORKING DIRECTORY: {cwd}\n"
-        "COMMAND:\n"
-        "{cmd}\n"
+        "COMMAND: {cmd}\n"
         "{csep}".format(csep=csep, cwd=cwd, cmd=copy_paste_cmd)
     )
     try:
@@ -1486,8 +1564,18 @@ def run(args: List[str],
             cmd=copy_paste_cmd, csep=csep))
         return stdout, stderr
     except subprocess.CalledProcessError:
-        log.critical("Command that failed (from directory {!r}) "
-                     "was:\n{}".format(cwd, copy_paste_cmd))
+        log.critical(
+            "Command that failed:\n"
+            "[ENVIRONMENT]\n"
+            "{env}\n"
+            "\n"
+            "[DIRECTORY] {cwd}\n"
+            "[COMMAND] {cmd}".format(
+                cwd=cwd,
+                env=make_copy_paste_env(effective_env),
+                cmd=copy_paste_cmd
+            )
+        )
         raise
 
 
@@ -1527,9 +1615,13 @@ readelf     }
 ant         sudo apt install ant
 javac       sudo apt install openjdk-8-jdk
 
+"""  # noqa
+    _ = """
+Linux (Ubuntu) (DEFUNCT)
+-------------------------------------------------------------------------------
 *mingw*     } sudo apt install mingw-w64
 *windres    }
-"""  # noqa
+    """
 
     if BUILD_PLATFORM.osx:
         helpmsg += """
@@ -1540,16 +1632,27 @@ gobjdump    brew update && brew install binutils
 """
 
     if BUILD_PLATFORM.windows:
-        helpmsg += """
+        helpmsg += r"""
 Windows
+-------------------------------------------------------------------------------
+nasm        Install from http://www.nasm.us/
+perl        Install from https://www.activestate.com/activeperl
+            OR as part of a default Cygwin (*) installation
+tar         Install Cygwin (*); part of the default installation
+
+    (*) Install Cygwin; install the necessary package(s); make sure your
+        Windows PATH points to e.g. C:\Cygwin64\bin
+
+Don't forget to add the tools to your PATH.
+"""
+    _ = r"""
+Windows (DEFUNCT)
 -------------------------------------------------------------------------------
 make        Install the Cygwin (*) package "make"
 makedepend  Install the Cygwin (*) package "makedepend"
 readelf     Install the Cygwin (*) package "binutils"
             
-    (*) Install Cygwin; install the necessary package(s); make sure your
-        Windows PATH points to e.g. C:\\Cygwin64\\bin
-"""
+    """
 
     log.critical(missing_msg)
     log.info(helpmsg)
@@ -1787,11 +1890,22 @@ def convert_line_endings(filename: str, to_unix: bool = False,
         f.write(contents)
 
 
-def get_starting_env(plain: bool = True) -> Dict[str, str]:
+def get_starting_env(plain: bool = None) -> Dict[str, str]:
+    if plain is None:
+        plain = not BUILD_PLATFORM.windows
     if plain:
-        return {
-            "PATH": os.environ["PATH"],
-        }
+        # Beware under Windows. Some other parent environment variables needed
+        # for Visual C++ compiler, or you get "cannot create temporary il file"
+        # errors. Not sure which, though; APPDATA, TEMP and TMP are not
+        # sufficient.
+        env = {}  # type: Dict[str, str]
+        keys = ["PATH"]
+        # if BUILD_PLATFORM.windows:
+        #     keys += ["APPDATA", "TEMP", "TMP"]
+        for k in keys:
+            if k in os.environ:
+                env[k] = os.environ[k]
+        return env
     else:
         return os.environ.copy()
 
@@ -1878,9 +1992,19 @@ def windows_get_environment_from_batch_command(
     lines = gen_lines()  # RNC
     # consume whatever output occurs until the tag is reached
     consume(itertools.takewhile(lambda l: tag not in l, lines))
-    # RNC: consume the tag too
-    _tag_found = next(lines)  # RNC  # *** check, then delete
-    log.critical("Ignoring tag: " + _tag_found)  # *** check, then delete
+    # ... RNC: note that itertools.takewhile() generates values not matching
+    #     the condition, but then consumes the condition value itself. So the
+    #     tag's already gone. Example:
+    #
+    #   def gen():
+    #       mylist = [1, 2, 3, 4, 5]
+    #       for x in mylist:
+    #           yield x
+    #
+    #   g = gen()
+    #   list(itertools.takewhile(lambda x: x != 3, g))  # [1, 2]
+    #   next(g)  # 4, not 3
+    #
     # parse key/values into pairs
     pairs = map(handle_line, lines)
     # make sure the pairs are valid (this also eliminates the tag)
@@ -1919,9 +2043,25 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # Setup
     # -------------------------------------------------------------------------
     rootdir, workdir = cfg.get_openssl_rootdir_workdir(target_platform)
-    shared_lib_suffix = target_platform.shared_lib_suffix
-    targets = [join(workdir, "libssl{}".format(shared_lib_suffix)),
-               join(workdir, "libcrypto{}".format(shared_lib_suffix))]
+    dynamic_lib_suffix = target_platform.dynamic_lib_suffix
+    static_lib_suffix = target_platform.static_lib_suffix
+    if BUILD_PLATFORM.windows:
+        openssl_verparts = cfg.openssl_version.split(".")
+        openssl_major = "{}_{}".format(openssl_verparts[0],
+                                       openssl_verparts[1])
+        if target_platform.cpu_x86_64bit_family:
+            fname_arch = "x64"
+        else:
+            fname_arch = "x86" # *** guess; needs checking
+        fname_extra = "-{}-{}".format(openssl_major, fname_arch)  # e.g. "-1_1-x64"  # noqa
+    else:
+        fname_extra = ""
+    targets = [
+        join(workdir, "libssl{}{}".format(fname_extra, dynamic_lib_suffix)),
+        join(workdir, "libssl{}".format(static_lib_suffix)),
+        join(workdir, "libcrypto{}{}".format(fname_extra, dynamic_lib_suffix)),
+        join(workdir, "libcrypto{}".format(static_lib_suffix)),
+    ]
     if not cfg.force and all(isfile(x) for x in targets):
         log.info("OpenSSL: All targets exist already: {}".format(targets))
         return
@@ -2013,6 +2153,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
                     target_os = "mingw64"
                 else:
                     target_os = "mingw"
+                    
+    if BUILD_PLATFORM.windows:
+        require(NASM)
 
     # For new platforms: if you're not sure, use target_os = "crashme" and
     # you'll get the list of permitted values, which as of 2017-11-12 is:
@@ -2076,7 +2219,7 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
     # -------------------------------------------------------------------------
     # Environment
     # -------------------------------------------------------------------------
-    env = get_starting_env(plain=True)
+    env = get_starting_env()
     cfg.set_compile_env(env, target_platform)
     if target_platform.android:
         # https://wiki.openssl.org/index.php/Android
@@ -2092,10 +2235,12 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
     # Makefile tweaking
     # -------------------------------------------------------------------------
     # https://wiki.openssl.org/index.php/Android
-    makefile_org = join(workdir, "Makefile.org")
-    replace_in_file(makefile_org,
-                    "install: all install_docs install_sw",
-                    "install: install_docs install_sw")
+    if not BUILD_PLATFORM.windows:
+        # *** recheck for Linux; OpenSSL has changed
+        makefile_org = join(workdir, "Makefile.org")
+        replace_in_file(makefile_org,
+                        "install: all install_docs install_sw",
+                        "install: install_docs install_sw")
     
     # if BUILD_PLATFORM.windows:
     #     # https://github.com/openssl/openssl/issues/174
@@ -2115,6 +2260,10 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
         use_configure = True  # Better!
         if use_configure or not target_platform.android:
             # http://doc.qt.io/qt-5/opensslsupport.html
+            if BUILD_PLATFORM.windows:
+                log.warning(
+                    "The OpenSSL Configure script may warn about nmake.exe "
+                    "being missing when it isn't. (Or when it is...)")
             run([PERL, join(workdir, "Configure")] + configure_args, env)
         else:
             # The "config" script guesses the OS then runs "Configure".
@@ -2127,14 +2276,11 @@ debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
         # Make
         # ---------------------------------------------------------------------
         if BUILD_PLATFORM.windows:
-            # https://wiki.openssl.org/index.php/Compilation_and_Installation#Windows  # noqa
-            if target_platform.windows and target_platform.cpu_x86_64bit_family:  # noqa
-                run([join(workdir, "ms", "do_win64a.bat")])
-                makefile = join(workdir, "ms", "nt.mak")
-                # ... nt.mak for static build; ntdll.mak for DLL
-                run(cfg.make_args(makefile=makefile, command="clean"))
-                run(cfg.make_args(makefile=makefile))
-                # *** check destination names
+            # See INSTALL and INSTALL.WIN from the OpenSSL distribution
+            if target_platform.windows:
+                run(cfg.make_args(), env)
+                run(cfg.make_args(command="test"), env)
+                # run(cfg.make_args(command="install"), env)
 
             else:
                 raise NotImplementedError(
@@ -2201,7 +2347,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # http://doc.qt.io/qt-5/opensslsupport.html
     # Android:
     #       example at http://wiki.qt.io/Qt5ForAndroidBuilding
-    # *** Windows:
+    # Windows:
     #       https://stackoverflow.com/questions/14932315/how-to-compile-qt-5-under-windows-or-linux-32-or-64-bit-static-or-dynamic-on-v  # noqa
     #       ?also http://simpleit.us/2010/05/30/enabling-openssl-for-qt-c-on-windows/  # noqa
     #       http://doc.qt.io/qt-5/windows-building.html
@@ -2247,7 +2393,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # -------------------------------------------------------------------------
     # Environment
     # -------------------------------------------------------------------------
-    env = get_starting_env(plain=True)
+    env = get_starting_env()
     env['OPENSSL_LIBS'] = "-L{} -lssl -lcrypto".format(openssl_lib_root)
     # ... unnecessary? But suggested by Qt; http://doc.qt.io/qt-4.8/ssl.html
     cfg.set_compile_env(env, target_platform)
@@ -2538,18 +2684,19 @@ Troubleshooting Qt 'configure' failures
 Troubleshooting Qt 'make' failures
 ===============================================================================
 
+Q.  If this is the first time you've had this error...
+A.  RE-RUN THE SCRIPT; sometimes Qt builds fail then pick themselves up the 
+    next time.
+""")  # noqa
+            _ = """
 Q.  fatal error: uiviewsettingsinterop.h: No such file or directory
 A.  Looks tricky:
     https://forum.qt.io/topic/76092/unable-to-compile-qt5-8-with-mingw-64-bit-compiler/4
 
 Q.  fatal error: vcruntime.h: No such file or directory
-A.  *** does MXE build, and if so, can we copy it?
-    *** https://stackoverflow.com/questions/14170590/building-qt-5-on-linux-for-windows
-
-Q.  If this is the first time you've had this error...
-A.  RE-RUN THE SCRIPT; sometimes Qt builds fail then pick themselves up the 
-    next time.
-""")  # noqa
+A.  !!! does MXE build, and if so, can we copy it?
+    !!! https://stackoverflow.com/questions/14170590/building-qt-5-on-linux-for-windows
+            """
             raise
 
     # -------------------------------------------------------------------------
@@ -2642,7 +2789,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     copytree(cfg.sqlcipher_src_gitdir, destdir, destroy=True)
 
     # -------------------------------------------------------------------------
-    # configure
+    # configure args
     # -------------------------------------------------------------------------
     _, openssl_workdir = cfg.get_openssl_rootdir_workdir(target_platform)
     openssl_include_dir = join(openssl_workdir, "include")
@@ -2694,7 +2841,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     # The CROSS_COMPILE prefix doesn't appear in any files, so is presumably
     # not supported, but "--build" and "--host" are used (where "host" means
     # "target").
-    env = get_starting_env(plain=True)
+    env = get_starting_env()
     cfg.set_compile_env(env, target_platform, use_cross_compile_var=False)
     config_args.append("--build={}".format(
         BUILD_PLATFORM.sqlcipher_platform))
@@ -2705,6 +2852,9 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     #     config_args.append("CC=" + cfg.android_cc(target_platform))
     #     # ... or we won't be cross-compiling
 
+    # -------------------------------------------------------------------------
+    # configure
+    # -------------------------------------------------------------------------
     with pushd(destdir):
         run(config_args, env)
 
@@ -3025,14 +3175,6 @@ def main() -> None:
     """
     Main entry point.
     """
-    if main_only_quicksetup_rootlogger:
-        main_only_quicksetup_rootlogger(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT,
-                            datefmt=LOG_DATEFMT)
-    log.info("Running on {}".format(BUILD_PLATFORM))
-    BUILD_PLATFORM.ensure_elf_reader()
-
     # -------------------------------------------------------------------------
     # Command-line arguments
     # -------------------------------------------------------------------------
@@ -3059,7 +3201,7 @@ def main() -> None:
         help="Number of parallel processes to run")
     general.add_argument("--force", action="store_true", help="Force build")
     general.add_argument(
-        "--verbose", "-v", type=int, default=1,
+        "--verbose", "-v", type=int, default=0, choices=[0, 1, 2],
         help="Verbosity level")
 
     # Architectures
@@ -3246,10 +3388,6 @@ def main() -> None:
         help="jom executable (typically installed with QtCreator)"
         
     )
-    # jom.add_argument(
-    #     "--jom_git_url", default=DEFAULT_JOM_GIT_URL,
-    #     help="jom Git URL"
-    # )
     
     windows = parser.add_argument_group(
         "Windows",
@@ -3285,11 +3423,20 @@ def main() -> None:
 
     args = parser.parse_args()  # type: argparse.Namespace
 
+    # Logging
+    loglevel = logging.DEBUG if args.verbose >= 1 else logging.INFO
+    if main_only_quicksetup_rootlogger:
+        main_only_quicksetup_rootlogger(level=loglevel)
+    else:
+        logging.basicConfig(level=loglevel, format=LOG_FORMAT,
+                            datefmt=LOG_DATEFMT)
+
     # Calculated args
 
     cfg = Config(args)
     log.debug("Args: {}".format(args))
-    log.info("Config: {}".format(cfg))
+    log.debug("Config: {}".format(cfg))
+    log.info("Running on {}".format(BUILD_PLATFORM))
 
     if cfg.show_config_only:
         sys.exit(0)
@@ -3307,10 +3454,9 @@ def main() -> None:
     # =========================================================================
     require(CMAKE)
     require(GIT)
-    require(MAKE)
-    require(MAKEDEPEND)
     require(PERL)
     require(TAR)
+    BUILD_PLATFORM.ensure_elf_reader()
 
     # =========================================================================
     # Fetch

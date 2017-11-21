@@ -127,20 +127,31 @@ INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-eigen-67e894c6cd8f"  # from which: <
 # =============================================================================
 # https://wiki.qt.io/Technical_FAQ#How_can_I_detect_in_the_.pro_file_if_I_am_compiling_for_a_32_bit_or_a_64_bit_platform.3F
 
-OPENSSL_VERSION = 1.0.2h
+OPENSSL_VERSION = 1.1.0g
+# ... previously 1.0.2h
 OPENSSL_SUBDIR = openssl-$${OPENSSL_VERSION}
 message("Using OpenSSL version $$OPENSSL_VERSION")
 
 # Set OS-specific variables
 linux : !android {
+    # -------------------------------------------------------------------------
     message("Building for Linux")  # and not Android Linux!
-    message("Assuming x86_64")
+    # -------------------------------------------------------------------------
+    STATIC_LIB_SUFFIX = ".a"
+    DYNAMIC_LIB_SUFFIX = ".so"
+
+    message("Assuming x86_64")  # for now ***
     CAMCOPS_ARCH_TAG = "linux_x86_64"
 
     CONFIG += static  # use a statically linked version of Qt
 }
 android {
+    # -------------------------------------------------------------------------
     message("Building for Android")
+    # -------------------------------------------------------------------------
+    STATIC_LIB_SUFFIX = ".a"
+    DYNAMIC_LIB_SUFFIX = ".so"
+
     contains(ANDROID_TARGET_ARCH, x86) {
         message("Building for Android/x86 (e.g. Android emulator)")
         CAMCOPS_ARCH_TAG = "android_x86"
@@ -155,6 +166,17 @@ android {
     message("ANDROID_PACKAGE_SOURCE_DIR: $${ANDROID_PACKAGE_SOURCE_DIR}")
     # ... contains things like AndroidManifest.xml
 }
+windows {
+    # -------------------------------------------------------------------------
+    message("Building for Windows")
+    # -------------------------------------------------------------------------
+    STATIC_LIB_SUFFIX = ".lib"
+    DYNAMIC_LIB_SUFFIX = ".dll"
+
+    message("Assuming x86_64)  # for now ***
+    CAMCOPS_ARCH_TAG = "windows_x86_64"
+}
+
 isEmpty(CAMCOPS_ARCH_TAG) {
     error("Unknown architecture; don't know how to build CamCOPS")
 }
@@ -163,10 +185,10 @@ isEmpty(CAMCOPS_ARCH_TAG) {
 # -----------------------------------------------------------------------------
 OPENSSL_DIR = "$${QT_BASE_DIR}/openssl_$${CAMCOPS_ARCH_TAG}_build/$${OPENSSL_SUBDIR}"
 INCLUDEPATH += "$${OPENSSL_DIR}/include"
-LIBS += "$${OPENSSL_DIR}/libcrypto.so"
-LIBS += "$${OPENSSL_DIR}/libssl.so"
-ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto.so"  # needed for Qt
-ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl.so"
+LIBS += "$${OPENSSL_DIR}/libcrypto.$${DYNAMIC_LIB_SUFFIX}"
+LIBS += "$${OPENSSL_DIR}/libssl.$${DYNAMIC_LIB_SUFFIX}"
+ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto.$${DYNAMIC_LIB_SUFFIX}"  # needed for Qt
+ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl.$${DYNAMIC_LIB_SUFFIX}"
 
 # SQLCipher
 # -----------------------------------------------------------------------------
