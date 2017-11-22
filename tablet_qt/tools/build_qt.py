@@ -3002,12 +3002,19 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     # The CROSS_COMPILE prefix doesn't appear in any files, so is presumably
     # not supported, but "--build" and "--host" are used (where "host" means
     # "target").
+
     env = get_starting_env()
     cfg.set_compile_env(env, target_platform, use_cross_compile_var=False)
+
+    # env["LD_LIBRARY_PATH"] = openssl_workdir  # Linux
+    # env["DYLD_LIBRARY_PATH"] = openssl_workdir  # OS/X
+    # env["DYLD_FALLBACK_LIBRARY_PATH"] = openssl_workdir  # OS/X
+
     config_args.append("--build={}".format(
         BUILD_PLATFORM.sqlcipher_platform))
     config_args.append("--host={}".format(
         target_platform.sqlcipher_platform))
+
     # config_args.append("--prefix={}".format(cfg.android_sysroot(platform)))
     # if target_platform.android:
     #     config_args.append("CC=" + cfg.android_cc(target_platform))
