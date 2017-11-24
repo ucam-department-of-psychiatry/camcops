@@ -194,7 +194,7 @@ ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl.$${DYNAMIC_LIB_SUFFIX}"
 # -----------------------------------------------------------------------------
 SQLCIPHER_DIR = "$${QT_BASE_DIR}/sqlcipher_$${CAMCOPS_ARCH_TAG}"
 INCLUDEPATH += "$${SQLCIPHER_DIR}"  # from which: <sqlcipher/sqlite3.h>
-LIBS += "$${SQLCIPHER_DIR}/sqlcipher/sqlite3.o"
+LIBS += "$${SQLCIPHER_DIR}/sqlcipher/sqlite3.o"  # *** for Windows: .obj
 
 
 # =============================================================================

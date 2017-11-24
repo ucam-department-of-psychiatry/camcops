@@ -426,6 +426,7 @@ OPENSSL_COMMON_OPTIONS = [
 
 ANT = "ant"  # for Android builds
 BASH = "bash"
+CL = "cl"  # Visual C++ compiler
 CMAKE = "cmake"
 DPKG_QUERY = "dpkg-query"
 GIT = "git"
@@ -677,6 +678,16 @@ class Platform(object):
             return ".lib"
         else:
             return ".a"
+        
+    @property
+    def obj_ext(self):
+        """
+        What OBJECT file extension is in use?
+        """
+        if self.windows:
+            return ".obj"
+        else:
+            return ".o"
 
     def ensure_elf_reader(self) -> None:
         """Only to be called for the build platform."""
@@ -1314,12 +1325,14 @@ class Config(object):
             # http://doc.qt.io/qt-5/windows-building.html
             if contains_unquoted_ampersand_dangerous_to_windows(env["PATH"]):
                 fail(BAD_WINDOWS_PATH_MSG + env["PATH"])
+            # PATH
             env["PATH"] = os.pathsep.join([
                 join(self.qt_src_gitdir, "qtrepotools", "bin"),
                 join(self.qt_src_gitdir, "qtbase", "bin"),
                 join(self.qt_src_gitdir, "gnuwin32", "bin"),
                 env["PATH"],
             ])
+            # VCVARSALL.BAT
             # We can't CALL a batch file and have it change our environment,
             # so we must implement the functionality of VCVARSALL.BAT <arch>
             if target_platform.cpu_x86_32bit_family:
@@ -1338,6 +1351,14 @@ class Config(object):
                 env_cmd=args, initial_env=env
             )
             env.update(**fetched_env)
+            # Other
+            env["CC"] = CL  # Visual C++
+            # ... for SQLCipher "configure": if we try gcc, it will fail to
+            # match the object format of OpenSSL that we previously created
+            # using cl, so the configuration step will fail. We have to use cl
+            # throughout.
+            
+            # Sanity checks
             if contains_unquoted_ampersand_dangerous_to_windows(env["PATH"]):
                 fail(BAD_WINDOWS_PATH_MSG + env["PATH"])
 
@@ -1411,8 +1432,8 @@ class Config(object):
         directory, filename = split(lib_a_fullpath)
         basename, ext = os.path.splitext(filename)
         if not basename.startswith(libprefix):
-            raise ValueError("Don't know how to convert library " +
-                             repr(lib_a_fullpath))
+            raise ValueError("Don't know how to convert library: " +
+                             lib_a_fullpath)
         libname = basename[len(libprefix):]
         newlibbasename = libprefix + libname + ".so"
         newlibfilename = join(directory, newlibbasename)
@@ -1441,7 +1462,7 @@ def chdir(directory: str) -> None:
     """
     Change directory and say so.
     """
-    log.debug("Entering directory {}".format(repr(directory)))
+    log.debug("Entering directory: {}".format(directory))
     os.chdir(directory)
 
 
@@ -1454,6 +1475,20 @@ def pushd(directory: str) -> None:
     chdir(directory)
     yield
     chdir(previous_dir)
+    
+    
+def which_with_envpath(executable: str, env: Dict[str, str]) -> None:
+    """
+    Reason: when you use run([executable, ...], env) and therefore
+    subprocess.run([executable, ...], env=env), the PATH that's searched for
+    "executable" is the parent's, not the new one -- so you have to find the
+    executable manually.
+    """
+    oldpath = os.environ.get("PATH", "")
+    os.environ["PATH"] = env.get("PATH")
+    which = shutil.which(executable)
+    os.environ["PATH"] = oldpath
+    return which
     
     
 def quote_for_command_line(x: str) -> str:
@@ -1633,7 +1668,7 @@ def replace_in_file(filename: str, text_from: str, text_to: str) -> None:
     """
     Replaces text in a file.
     """
-    log.info("Amending {} from {} to {}".format(
+    log.info("Amending {}: {} -> {}".format(
         filename, repr(text_from), repr(text_to)))
     with open(filename) as infile:
         contents = infile.read()
@@ -1708,11 +1743,15 @@ Don't forget to add the tools to your PATH, such as:
     C:\cygwin64\bin
     C:\Program Files\NASM
     C:\Program Files\Git\cmd
+    
+and for vcvarsall.bat, something like one of:
+    C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
     C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
+... depending on your version of Visual Studio.
 
 If you install Cygwin Perl (package "perl"), make sure the native Windows
-version of Perl is FIRST in the PATH; you don't want the Cygwin one to be the
-default.
+version of Perl PRECEDES IT in the PATH; you don't want the Cygwin one to be
+the default.
 
 """
     _ = r"""
@@ -1783,7 +1822,7 @@ def replace_multiple_in_file(filename: str,
     with open(filename) as infile:
         contents = infile.read()
     for text_from, text_to in replacements:
-        log.info("Amending {} from {} to {}".format(
+        log.info("Amending {}: {} -> {}".format(
             filename, repr(text_from), repr(text_to)))
         contents = contents.replace(text_from, text_to)
     with open(filename, 'w') as outfile:
@@ -1887,9 +1926,9 @@ def untar_to_directory(tarfile: str, directory: str,
     """
     if skip_if_dir_exists and isdir(directory):
         log.info("Skipping extraction of {} as directory {} exists".format(
-            repr(tarfile), repr(directory)))
+            tarfile, directory))
         return
-    log.info("Extracting {} to {}".format(repr(tarfile), repr(directory)))
+    log.info("Extracting {} -> {}".format(tarfile, directory))
     mkdir_p(directory)
     args = [TAR, "-x"]  # -x: extract
     if verbose:
@@ -1937,7 +1976,7 @@ def copytree(srcdir: str, destdir: str, destroy: bool = False) -> None:
     """
     Recursive copy.
     """
-    log.info("Copying directory {} -> {}".format(repr(srcdir), repr(destdir)))
+    log.info("Copying directory {} -> {}".format(srcdir, destdir))
     if os.path.exists(destdir):
         if not destroy:
             raise ValueError("Destination exists!")
@@ -2198,7 +2237,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         require(NASM)
 
     # -------------------------------------------------------------------------
-    # Set up filenames
+    # Set up filenames we expect to be generated
     # -------------------------------------------------------------------------
     rootdir, workdir = cfg.get_openssl_rootdir_workdir(target_platform)
     dynamic_lib_ext = target_platform.dynamic_lib_ext
@@ -2238,7 +2277,8 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
 
     targets = main_targets + shadow_targets
     if not cfg.force and all(isfile(x) for x in targets):
-        log.info("OpenSSL: All targets exist already: {}".format(targets))
+        log.info("OpenSSL: All targets exist already:\n{}".format(
+            "\n".join("    " + str(x) for x in targets)))
         return
 
     # -------------------------------------------------------------------------
@@ -2602,7 +2642,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
 
     targets = [join(installdir, "bin", target_platform.qmake_executable)]
     if not cfg.force and all(isfile(x) for x in targets):
-        log.info("Qt: All targets exist already: {}".format(targets))
+        log.info("Qt: All targets exist already:\n{}".format(
+            "\n".join("    " + str(x) for x in targets)))
         return installdir
 
     # -------------------------------------------------------------------------
@@ -2986,7 +3027,7 @@ def make_missing_libqtforandroid_so(cfg: Config,
 
 def fetch_sqlcipher(cfg: Config) -> None:
     """
-    Downloads OpenSSL source code.
+    Downloads SQLCipher source code.
     """
     git_clone(prettyname="SQLCipher",
               url=cfg.sqlcipher_git_url,
@@ -3019,7 +3060,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
 
     target_h = join(destdir, "sqlite3.h")
     target_c = join(destdir, "sqlite3.c")
-    target_o = join(destdir, "sqlite3.o")
+    target_o = join(destdir, "sqlite3" + target_platform.obj_ext)
     target_exe = join(destdir, "sqlcipher")
 
     want_exe = not target_platform.mobile and not BUILD_PLATFORM.windows
@@ -3040,12 +3081,24 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     # -------------------------------------------------------------------------
     _, openssl_workdir = cfg.get_openssl_rootdir_workdir(target_platform)
     openssl_include_dir = join(openssl_workdir, "include")
+    
     # Compiler:
     cflags = [
         "-DSQLITE_HAS_CODEC",
         "-I{}".format(openssl_include_dir),
         # ... sqlite.c does e.g. "#include <openssl/rand.h>"
     ]
+    if BUILD_PLATFORM.windows:
+        # We have set our environment so CC points to cl, not gcc.
+        gccflags = []  # type: List[str]
+    else:
+        gccflags = [
+            "-Wfatal-errors",  # all errors are fatal
+        ]
+    clflags = []  # type: List[str]
+    # if cfg.verbose >= 2:
+    #     clflags.append("/showIncludes")
+    
     # Linker:
     ldflags = ["-L{}".format(openssl_workdir)]
 
@@ -3083,6 +3136,9 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         require(BASH)
         require(LD)
         config_args = [BASH]
+        # if cfg.verbose >= 2:
+        #     config_args.append("-x")  # echo each command
+        # ... instead, check config.log; it's much clearer
     else:
         config_args = []  # type: List[str]
     config_args += [
@@ -3090,7 +3146,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         "--enable-tempstore=yes",
         # ... see README.md; equivalent to SQLITE_TEMP_STORE=2
         # no quotes (they're fine on the command line but not here):
-        'CFLAGS={}'.format(" ".join(cflags)),
+        'CFLAGS={}'.format(" ".join(cflags + gccflags)),
         'LDFLAGS={}'.format(" ".join(ldflags)),
     ]
     # By default, SQLCipher compiles with "-O2" optimizations under gcc; see
@@ -3133,10 +3189,21 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         require(MAKE)
         require(TCLSH)
         if not isfile(target_c) or not isfile(target_h):
+            # Under Windows, if we were to use cl rather than gcc, e.g. by
+            # setting env["CC"], it fails because the make environment uses
+            # Unix-style paths. So we let it use gcc.
             run([MAKE, "sqlite3.c"], env)  # the amalgamation target  # noqa
         if not isfile(target_exe) or not isfile(target_o):
-            if not BUILD_PLATFORM.windows:
-                log.warning("NEED TO BUILD sqlite3.o ON WINDOWS BUT DON'T KNOW HOW")  # ***
+            if BUILD_PLATFORM.windows:
+                # If we run make, it'll now call gcc but all sorts of Windows-
+                # specific stuff will be missing; see
+                # https://github.com/sqlcipher/sqlcipher/issues/206
+                cl_executable = which_with_envpath(CL, env)
+                run([
+                    cl_executable,
+                    "/c",  # compile without linking
+                    "sqlite3.c"
+                ] + cflags + clflags, env)
             else:
                 run([MAKE, "sqlite3.o"], env)  # for static linking
         if want_exe and not isfile(target_exe):
@@ -3868,5 +3935,9 @@ CURRENTLY_WORKING_ON = """
 
 - OS/X: check SQLCipher now builds
 - Windows: 'make' for OpenSSL
+
+... Google "compile sqlcipher visual studio"
+... stackoverflow.com/questions/4353037
+... might need MinGW/MSYS
 
 """
