@@ -186,6 +186,7 @@ import platform
 from pprint import pformat
 import shlex
 import shutil
+import ssl
 import stat
 import subprocess
 import sys
@@ -441,6 +442,7 @@ READELF = "readelf"  # read ELF-format library files
 SED = "sed"  # stream editor
 TAR = "tar"  # manipulate tar files
 TCLSH = "tclsh"
+VCVARSALL = "vcvarsall.bat"  # sets environment variables for VC++
 XCODE_SELECT = "xcode-select"  # OS/X tool to find paths for XCode
 
 # -----------------------------------------------------------------------------
@@ -650,9 +652,9 @@ class Platform(object):
     # -------------------------------------------------------------------------
 
     @property
-    def dynamic_lib_suffix(self) -> str:
+    def dynamic_lib_ext(self) -> str:
         """
-        What DYNAMIC/SHARED library format is in use?
+        What DYNAMIC/SHARED library filename extension is in use?
         """
         # I think this depends on the build system, not the target.
         # ... no; on the target.
@@ -665,9 +667,9 @@ class Platform(object):
             return ".so"
 
     @property
-    def static_lib_suffix(self) -> str:
+    def static_lib_ext(self) -> str:
         """
-        What STATIC library format is in use?
+        What STATIC library filename extension is in use?
         """
         if self.osx or self.ios:
             return ".a"
@@ -870,7 +872,8 @@ class Platform(object):
             supports_parallel = True
             makefile_switch = "-f"  # Unix standard
             parallel_switch = "-j"
-        require(make)
+        # require(make)
+        # ... not necessarily visible now; may be on a PATH yet to be set
         args = [make]
         if supports_parallel:
             args += [parallel_switch, str(cfg.nparallel)]
@@ -1116,9 +1119,7 @@ class Config(object):
         self.jom_executable = args.jom_executable  # type: str
 
         # Windows
-        self.windows_msvc_root = args.windows_msvc_root  # type: str
         self.windows_prebuilt_qt_root = args.windows_prebuilt_qt_root  # type: str  # noqa
-        self.windows_visual_studio_version = args.windows_visual_studio_version  # type: str  # noqa
         self.windows_sdk_version = args.windows_sdk_version  # type: str
 
         if USE_MXE:
@@ -1332,8 +1333,7 @@ class Config(object):
                     "Don't know how to compile for Windows for target "
                     "platform {}".format(target_platform))
             # Now read the result from vcvarsall.bat directly
-            vcvarsall = join(self.windows_msvc_root, "vcvarsall.bat")
-            args = [vcvarsall, arch]
+            args = [VCVARSALL, arch]
             fetched_env = windows_get_environment_from_batch_command(
                 env_cmd=args, initial_env=env
             )
@@ -1611,17 +1611,19 @@ def run(args: List[str],
         log.debug("\n{csep}\nFINISHED SUCCESSFULLY: {cmd}\n{csep}".format(
             cmd=copy_paste_cmd, csep=csep))
         return stdout, stderr
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         log.critical(
             "Command that failed:\n"
             "[ENVIRONMENT]\n"
             "{env}\n"
             "\n"
             "[DIRECTORY] {cwd}\n"
+            "[PYTHON ARGS] {args}\n"
             "[COMMAND] {cmd}".format(
                 cwd=cwd,
                 env=make_copy_paste_env(effective_env),
-                cmd=copy_paste_cmd
+                cmd=copy_paste_cmd,
+                args=args
             )
         )
         raise
@@ -1681,24 +1683,37 @@ gobjdump    brew update && brew install binutils
 
     if BUILD_PLATFORM.windows:
         helpmsg += r"""
-Windows
+Windows                                                                 Cygwin
+                                                                        package
 -------------------------------------------------------------------------------
-bash        Install Cygwin (*); part of the default installation
-ld          Install the Cygwin (*) package "gcc-g++"
-make        Install the Cygwin (*) package "make"
-nasm        Install from http://www.nasm.us/
-perl        Install from https://www.activestate.com/activeperl
-            OR as part of a default Cygwin (*) installation
-tar         Install Cygwin (*); part of the default installation
-tclsh       Install the Cygwin (*) package "tcl" AND ALSO:
+bash        Install Cygwin; part of the default installation            -
+cmake       Install the Cygwin package "cmake"                          cmake
+ld          Install the Cygwin package "gcc-g++"                        gcc-g++
+make        Install the Cygwin package "make"                           make
+tar         Install Cygwin; part of the default installation            -
+tclsh       Install the Cygwin package "tcl" AND ALSO:                  tcl
                 C:\> bash
                 $ cp /bin/tclsh8.6.exe /bin/tclsh.exe
             ... because the built-in "tclsh" (no .exe) isn't found by Windows.
 
-    (*) Install Cygwin; install the necessary package(s); make sure your
-        Windows PATH points to e.g. C:\Cygwin64\bin
+git         Install from https://git-scm.com/
+nasm        Install from http://www.nasm.us/
+vcvarsall.bat    Install Microsoft Visual Studio/VC++, e.g. the free Community
+            edition from https://www.visualstudio.com/; download and run the
+            installer; tick at least "Desktop development with C++"
+perl        Install from https://www.activestate.com/activeperl
 
-Don't forget to add the tools to your PATH.
+Don't forget to add the tools to your PATH, such as:
+    C:\Perl64\bin
+    C:\cygwin64\bin
+    C:\Program Files\NASM
+    C:\Program Files\Git\cmd
+    C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
+
+If you install Cygwin Perl (package "perl"), make sure the native Windows
+version of Perl is FIRST in the PATH; you don't want the Cygwin one to be the
+default.
+
 """
     _ = r"""
 Windows (DEFUNCT)
@@ -1783,7 +1798,8 @@ def mkdir_p(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
-def download_if_not_exists(url: str, filename: str) -> None:
+def download_if_not_exists(url: str, filename: str,
+                           skip_cert_verify: bool = True) -> None:
     """
     Downloads a URL to a file, unless the file already exists.
     """
@@ -1793,7 +1809,23 @@ def download_if_not_exists(url: str, filename: str) -> None:
     directory, basename = split(abspath(filename))
     mkdir_p(directory)
     log.info("Downloading from {} to {}".format(url, filename))
-    urllib.request.urlretrieve(url, filename)
+        
+    # urllib.request.urlretrieve(url, filename)
+    # ... sometimes fails (e.g. downloading
+    # https://www.openssl.org/source/openssl-1.1.0g.tar.gz under Windows) with:
+    # ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:777)  # noqa
+    # ... due to this certificate root problem (probably because OpenSSL
+    #     [used by Python] doesn't play entirely by the same rules as others?):
+    # https://stackoverflow.com/questions/27804710
+    # So:
+
+    ctx = ssl.create_default_context()  # type: ssl.SSLContext
+    if skip_cert_verify:
+        log.debug("Skipping SSL certificate check for " + url)
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+    with urllib.request.urlopen(url, context=ctx) as u, open(filename, 'wb') as f:  # noqa
+        f.write(u.read())
 
 
 def root_path() -> str:
@@ -2073,12 +2105,67 @@ def windows_get_environment_from_batch_command(
     return result
 
 
-# def ensure_first_perl_is_not_cygwin() -> None:
-#     require(PERL)
-#     if shutil.which(PERL).startswith("/cygdrive"):
-#         fail("The first instance of Perl on your path is from Cygwin. "
-#              "This will fail when building OpenSSL. Please re-order your PATH "
-#              "so that a Windows version, e.g. ActiveState Perl, comes first.")
+def ensure_first_perl_is_not_cygwin() -> None:
+    require(PERL)
+    which = shutil.which(PERL)
+    if "cygwin" in which.lower():
+        fail("The first instance of Perl on your path ({}) is from Cygwin. "
+             "This will fail when building OpenSSL. Please re-order your PATH "
+             "so that a Windows version, e.g. ActiveState Perl, comes "
+             "first.".format(which))
+
+_WHY_ENSURE_FIRST_PERL_IS_NOT_CYGWIN = r"""
+===============================================================================
+WORKING DIRECTORY: C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g
+COMMAND: perl C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure VC-WIN64A shared no-ssl3
+===============================================================================
+File::Glob::glob() will disappear in perl 5.30. Use File::Glob::bsd_glob() instead. at C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure line 270.
+Configuring OpenSSL version 1.1.0g (0x1010007fL)
+    no-asan         [default]  OPENSSL_NO_ASAN
+    no-crypto-mdebug [default]  OPENSSL_NO_CRYPTO_MDEBUG
+    no-crypto-mdebug-backtrace [default]  OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
+    no-ec_nistp_64_gcc_128 [default]  OPENSSL_NO_EC_NISTP_64_GCC_128
+    no-egd          [default]  OPENSSL_NO_EGD
+    no-fuzz-afl     [default]  OPENSSL_NO_FUZZ_AFL
+    no-fuzz-libfuzzer [default]  OPENSSL_NO_FUZZ_LIBFUZZER
+    no-heartbeats   [default]  OPENSSL_NO_HEARTBEATS
+    no-md2          [default]  OPENSSL_NO_MD2 (skip dir)
+    no-msan         [default]  OPENSSL_NO_MSAN
+    no-rc5          [default]  OPENSSL_NO_RC5 (skip dir)
+    no-sctp         [default]  OPENSSL_NO_SCTP
+    no-ssl-trace    [default]  OPENSSL_NO_SSL_TRACE
+    no-ssl3         [option]   OPENSSL_NO_SSL3
+    no-ssl3-method  [default]  OPENSSL_NO_SSL3_METHOD
+    no-ubsan        [default]  OPENSSL_NO_UBSAN
+    no-unit-test    [default]  OPENSSL_NO_UNIT_TEST
+    no-weak-ssl-ciphers [default]  OPENSSL_NO_WEAK_SSL_CIPHERS
+    no-zlib         [default]
+    no-zlib-dynamic [default]
+Configuring for VC-WIN64A
+
+******************************************************************************
+This perl implementation doesn't produce Windows like paths (with backward
+slash directory separators).  Please use an implementation that matches your
+building platform.
+
+This Perl version: 5.26.1 for x86_64-cygwin-threads-multi
+******************************************************************************
+
+$ which perl
+/usr/bin/perl
+
+>>> shutil.which("perl")
+'C:\\cygwin64\\bin\\perl.EXE'
+
+# Then after installing ActiveState Perl:
+
+$ which perl
+/cygdrive/c/Perl64/bin/perl
+
+>>> shutil.which("perl")
+'C:\\Perl64\\bin\\perl.EXE'
+
+"""
 
 
 # =============================================================================
@@ -2104,11 +2191,18 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         https://wiki.openssl.org/index.php/Compilation_and_Installation
     """
     # -------------------------------------------------------------------------
+    # Prerequisites
+    # -------------------------------------------------------------------------
+    if BUILD_PLATFORM.windows:
+        ensure_first_perl_is_not_cygwin()
+        require(NASM)
+
+    # -------------------------------------------------------------------------
     # Set up filenames
     # -------------------------------------------------------------------------
     rootdir, workdir = cfg.get_openssl_rootdir_workdir(target_platform)
-    dynamic_lib_suffix = target_platform.dynamic_lib_suffix
-    static_lib_suffix = target_platform.static_lib_suffix
+    dynamic_lib_ext = target_platform.dynamic_lib_ext
+    static_lib_ext = target_platform.static_lib_ext
     if BUILD_PLATFORM.windows:
         openssl_verparts = cfg.openssl_version.split(".")
         openssl_major = "-{}_{}".format(openssl_verparts[0],
@@ -2121,10 +2215,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     else:
         fname_extra = ""
     main_targets = [
-        join(workdir, "libssl{}{}".format(fname_extra, dynamic_lib_suffix)),
-        join(workdir, "libssl{}".format(static_lib_suffix)),
-        join(workdir, "libcrypto{}{}".format(fname_extra, dynamic_lib_suffix)),
-        join(workdir, "libcrypto{}".format(static_lib_suffix)),
+        join(workdir, "libssl{}{}".format(fname_extra, dynamic_lib_ext)),
+        join(workdir, "libssl{}".format(static_lib_ext)),
+        join(workdir, "libcrypto{}{}".format(fname_extra, dynamic_lib_ext)),
+        join(workdir, "libcrypto{}".format(static_lib_ext)),
     ]
     
     # Now, also: Linux likes to use "-lcrypto" and have that mean "look at
@@ -2241,9 +2335,6 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
                 else:
                     target_os = "mingw"
                     
-    if BUILD_PLATFORM.windows:
-        require(NASM)
-
     # For new platforms: if you're not sure, use target_os = "crashme" and
     # you'll get the list of permitted values, which as of 2017-11-12 is:
     
@@ -2880,7 +2971,8 @@ def make_missing_libqtforandroid_so(cfg: Config,
     qt_install_dir = cfg.qt_install_dir(target_platform)
     parent_dir = join(qt_install_dir, "plugins", "platforms")
     starting_lib_dir = join(parent_dir, "android")
-    starting_a_lib = join(starting_lib_dir, "libqtforandroid.a")
+    static_ext = target_platform.static_lib_ext
+    starting_a_lib = join(starting_lib_dir, "libqtforandroid" + static_ext)
     newlib_path = cfg.convert_android_lib_a_to_so(starting_a_lib,
                                                   target_platform)
     _, newlib_basename = split(newlib_path)
@@ -2960,13 +3052,19 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     link_openssl_statically = target_platform.desktop
     # ... try for dynamic linking on Android
     if link_openssl_statically:
+        log.info("Linking OpenSSL into SQLCipher STATICALLY")
+        static_ext = target_platform.static_lib_ext
+        static_openssl_lib = join(openssl_workdir, "libcrypto" + static_ext)
         # Not working:
-        # static_openssl_lib = join(openssl_workdir, "libcrypto.a")
         # ldflags.append("-static")
         # ldflags.append("-l:libcrypto.a")
         # ... Note the colon! Search for ":filename" in "man ld"
-        ldflags.append('-lcrypto')
+        #
+        # Try this:
+        ldflags.append(static_openssl_lib)
+        # ... https://github.com/sqlcipher/sqlcipher
     else:
+        log.info("Linking OpenSSL into SQLCipher DYNAMICALLY")
         # make the executable load OpenSSL dynamically
         ldflags.append('-lcrypto')
     # Note that "--with-crypto-lib" isn't helpful here:
@@ -3569,17 +3667,8 @@ def main() -> None:
         "Options for Windows"
     )
     windows.add_argument(
-        "--windows_msvc_root",
-        default=r"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC",
-        help="Root directory of Microsoft Visual C++"
-    )
-    windows.add_argument(
         "--windows_prebuilt_qt_root", default=r"C:\Qt\5.6",
         help="Root directory of pre-built Qt installation"
-    )
-    windows.add_argument(
-        "--windows_visual_studio_version", default="14.0",
-        help="Visual Studio version"
     )
     windows.add_argument(
         "--windows_sdk_version", default="8.1",
@@ -3631,6 +3720,8 @@ def main() -> None:
     require(GIT)
     require(PERL)
     require(TAR)
+    if BUILD_PLATFORM.windows:
+        require(VCVARSALL)
     BUILD_PLATFORM.ensure_elf_reader()
 
     # =========================================================================
