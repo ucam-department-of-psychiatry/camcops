@@ -3194,6 +3194,13 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             # Unix-style paths. So we let it use gcc.
             run([MAKE, "sqlite3.c"], env)  # the amalgamation target  # noqa
         if not isfile(target_exe) or not isfile(target_o):
+            # Even though we use cl throughout via the CC environment variable,
+            # we still need an explicit call to cl here, because the makefile
+            # is using Unix filenames and cl (when called via make) will choke
+            # on them, like this:
+            # cl : Command line warning D9035 : option 'o' has been deprecated and will be removed in a future release  # noqa
+            # cl : Command line warning D9002 : ignoring unknown option '/cygdrive/c/Users/Rudolf/dev/qt_local_build/sqlcipher_windows_x86_64/sqlcipher/tool/mkkeywordhash.c'  # noqa
+            # cl : Command line error D8003 : missing source filename
             if BUILD_PLATFORM.windows:
                 # If we run make, it'll now call gcc but all sorts of Windows-
                 # specific stuff will be missing; see
@@ -3205,7 +3212,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
                     "sqlite3.c"
                 ] + cflags + clflags, env)
             else:
-                run([MAKE, "sqlite3.o"], env)  # for static linking
+                run([MAKE, "sqlite3" + target_platform.obj_ext], env)  # for static linking  # noqa
         if want_exe and not isfile(target_exe):
             run([MAKE, "sqlcipher"], env)  # the command-line executable
 

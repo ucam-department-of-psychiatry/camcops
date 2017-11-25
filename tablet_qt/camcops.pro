@@ -132,16 +132,30 @@ OPENSSL_VERSION = 1.1.0g
 OPENSSL_SUBDIR = openssl-$${OPENSSL_VERSION}
 message("Using OpenSSL version $$OPENSSL_VERSION")
 
+# -----------------------------------------------------------------------------
+# Architecture
+# -----------------------------------------------------------------------------
+
+OBJ_EXT = ".o"
+
 # Set OS-specific variables
 linux : !android {
     # -------------------------------------------------------------------------
     message("Building for Linux")  # and not Android Linux!
     # -------------------------------------------------------------------------
-    STATIC_LIB_SUFFIX = ".a"
-    DYNAMIC_LIB_SUFFIX = ".so"
+    STATIC_LIB_EXT = ".a"
+    DYNAMIC_LIB_EXT = ".so"
+    
+    # https://stackoverflow.com/questions/33117822
+    # https://stackoverflow.com/questions/356666
+    contains(QT_ARCH, x86_64) {
+        message("Building for Linux/x86_64")
+        CAMCOPS_ARCH_TAG = "linux_x86_64"
+    } else {  # will be "i386"
+        message("Building for Linux/x86_32")
+        CAMCOPS_ARCH_TAG = "linux_x86_32"
+    }
 
-    message("Assuming x86_64")  # for now ***
-    CAMCOPS_ARCH_TAG = "linux_x86_64"
 
     CONFIG += static  # use a statically linked version of Qt
 }
@@ -149,8 +163,8 @@ android {
     # -------------------------------------------------------------------------
     message("Building for Android")
     # -------------------------------------------------------------------------
-    STATIC_LIB_SUFFIX = ".a"
-    DYNAMIC_LIB_SUFFIX = ".so"
+    STATIC_LIB_EXT = ".a"
+    DYNAMIC_LIB_EXT = ".so"
 
     contains(ANDROID_TARGET_ARCH, x86) {
         message("Building for Android/x86 (e.g. Android emulator)")
@@ -170,31 +184,42 @@ windows {
     # -------------------------------------------------------------------------
     message("Building for Windows")
     # -------------------------------------------------------------------------
-    STATIC_LIB_SUFFIX = ".lib"
-    DYNAMIC_LIB_SUFFIX = ".dll"
+    STATIC_LIB_EXT = ".lib"
+    DYNAMIC_LIB_EXT = ".dll"
+    OBJ_EXT = ".obj"
 
-    message("Assuming x86_64)  # for now ***
-    CAMCOPS_ARCH_TAG = "windows_x86_64"
+    # https://stackoverflow.com/questions/26373143
+    # https://stackoverflow.com/questions/33117822
+    # https://stackoverflow.com/questions/356666
+    contains(QT_ARCH, x86_64) {
+        message("Building for Windows/x86_64 architecture")
+        CAMCOPS_ARCH_TAG = "windows_x86_64"
+    } else {
+        message("Building for Windows/x86_32 architecture")
+        CAMCOPS_ARCH_TAG = "windows_x86_32"
+    }
 }
 
 isEmpty(CAMCOPS_ARCH_TAG) {
     error("Unknown architecture; don't know how to build CamCOPS")
 }
 
+# -----------------------------------------------------------------------------
 # OpenSSL
 # -----------------------------------------------------------------------------
 OPENSSL_DIR = "$${QT_BASE_DIR}/openssl_$${CAMCOPS_ARCH_TAG}_build/$${OPENSSL_SUBDIR}"
 INCLUDEPATH += "$${OPENSSL_DIR}/include"
-LIBS += "$${OPENSSL_DIR}/libcrypto.$${DYNAMIC_LIB_SUFFIX}"
-LIBS += "$${OPENSSL_DIR}/libssl.$${DYNAMIC_LIB_SUFFIX}"
-ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto.$${DYNAMIC_LIB_SUFFIX}"  # needed for Qt
-ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl.$${DYNAMIC_LIB_SUFFIX}"
+LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"
+LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
+ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"  # needed for Qt
+ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
 
+# -----------------------------------------------------------------------------
 # SQLCipher
 # -----------------------------------------------------------------------------
 SQLCIPHER_DIR = "$${QT_BASE_DIR}/sqlcipher_$${CAMCOPS_ARCH_TAG}"
 INCLUDEPATH += "$${SQLCIPHER_DIR}"  # from which: <sqlcipher/sqlite3.h>
-LIBS += "$${SQLCIPHER_DIR}/sqlcipher/sqlite3.o"  # *** for Windows: .obj
+LIBS += "$${SQLCIPHER_DIR}/sqlcipher/sqlite3$${OBJ_EXT}"
 
 
 # =============================================================================
