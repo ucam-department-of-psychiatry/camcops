@@ -2017,14 +2017,14 @@ def convert_line_endings(filename: str, to_unix: bool = False,
         f.write(contents)
 
 
-def get_starting_env(plain: bool = None) -> Dict[str, str]:
-    if plain is None:
-        plain = not BUILD_PLATFORM.windows
+def get_starting_env(plain: bool = False) -> Dict[str, str]:
+    # 1. Beware "plain" under Windows. Some other parent environment
+    # variables needed for Visual C++ compiler, or you get "cannot 
+    # create temporary il file" errors. Not sure which, though; 
+    # APPDATA, TEMP and TMP are not sufficient.
+    # 2. Beware "plain" under OS/X; complains about missing "HOME"
+    # variable.
     if plain:
-        # Beware under Windows. Some other parent environment variables needed
-        # for Visual C++ compiler, or you get "cannot create temporary il file"
-        # errors. Not sure which, though; APPDATA, TEMP and TMP are not
-        # sufficient.
         env = {}  # type: Dict[str, str]
         keys = ["PATH"]
         # if BUILD_PLATFORM.windows:
