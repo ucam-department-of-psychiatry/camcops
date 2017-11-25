@@ -445,6 +445,7 @@ TAR = "tar"  # manipulate tar files
 TCLSH = "tclsh"
 VCVARSALL = "vcvarsall.bat"  # sets environment variables for VC++
 XCODE_SELECT = "xcode-select"  # OS/X tool to find paths for XCode
+XCRUN = "xcrun"  # OS/X XCode tool
 
 # -----------------------------------------------------------------------------
 # Logging
@@ -710,7 +711,7 @@ class Platform(object):
         if BUILD_PLATFORM.linux:
             if self.windows:
                 dumpcmd = [OBJDUMP, "-f", filename]
-                dumpresult, _ = run(dumpcmd, get_output=True)
+                dumpresult, _ = run(dumpcmd, get_stdout=True)
                 pe32_tag = "file format pe-i386"
                 pe64_tag = "file format pe-x86-64"
                 if self.cpu_64bit and pe64_tag not in dumpresult:
@@ -722,7 +723,7 @@ class Platform(object):
             else:
                 elf_arm_tag = "Tag_ARM_ISA_use: Yes"
                 elfcmd = [READELF, "-A", filename]
-                elfresult, _ = run(elfcmd, get_output=True)
+                elfresult, _ = run(elfcmd, get_stdout=True)
                 arm_tag_present = elf_arm_tag in elfresult
                 if self.cpu_arm_family and not arm_tag_present:
                     raise ValueError(
@@ -735,7 +736,7 @@ class Platform(object):
             # https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
             # gobjdump --help
             dumpcmd = [GOBJDUMP, "-f", filename]
-            dumpresult, _ = run(dumpcmd, get_output=True)
+            dumpresult, _ = run(dumpcmd, get_stdout=True)
             arm64tag = "file format mach-o-arm64"
             arm64tag_present = arm64tag in dumpresult
             if self.cpu == Cpu.ARM_V8_64 and not arm64tag_present:
@@ -934,9 +935,12 @@ class Platform(object):
             return "i386-apple-darwin"
         elif self.windows:
             if self.cpu_x86_64bit_family:
-                return "x86_64-unknown-windows"  # untested *** try running config.guess
+                return "x86_64-unknown-windows"  # untested ***
             elif self.cpu_x86_32bit_family:
-                return "i686-unknown-windows"  # untested *** try running config.guess
+                return "i686-unknown-windows"  # untested ***
+        elif self.ios:
+            if self.cpu == Cpu.ARM_V8_64:
+                return "arm-apple-darwin"  # complete guess ***
         raise NotImplementedError("Don't know how to support SQLCipher for "
                                   "{}".format(self))
 
@@ -1253,30 +1257,84 @@ class Config(object):
     def _set_ios_env(self, env: Dict[str, str],
                      target_platform: Platform) -> None:
         # https://gist.github.com/foozmeat/5154962
+        # https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
         encoding = sys.getdefaultencoding()
-        developer = (
-            subprocess.check_output([XCODE_SELECT, "-print-path"])
-            .decode(encoding)
-            .strip()
-        )
+        platform = target_platform.ios_platform_name
+        arch = target_platform.ios_arch
+        sdk_version = self.get_ios_sdk_version(platform=platform)
+        sdk_name = self.xcode_sdk_name(platform=platform, sdk_version=sdk_version)
+        sysroot = self.xcode_sdk_path(platform=platform, sdk_version=sdk_version)
 
-        env["BUILD_TOOLS"] = developer
-        env["CC"] = "{cc} -arch {arch}".format(
-            cc=os.path.join(developer, 'usr', 'bin', 'gcc'),
-            arch=target_platform.ios_arch
+        env["AR"] = fetch([XCRUN, "-sdk", sdk_name, "-find", "ar"]).strip()
+        env["BUILD_TOOLS"] = self.xcode_developer_path
+        env["CC"] = fetch([XCRUN, "-sdk", sdk_name, "-find", "clang"]).strip()
+        #"{cc} -arch {arch}".format(
+        #    cc=os.path.join(developer, 'usr', 'bin', 'gcc'),
+        #    arch=target_platform.ios_arch
+        #)
+        env["CFLAGS"] = "-arch {arch} -isysroot {sysroot} -m{platform}-version-min={sdk_version}".format(
+            arch=arch,
+            sysroot=sysroot,
+            platform=platform.lower(),
+            sdk_version=sdk_version,
         )
-        env["CROSS_TOP"] = os.path.join(
-            developer,
-            "Platforms",
-            "{}.platform".format(target_platform.ios_platform_name),
-            "Developer"
+        env["CPP"] = env["CC"] + " -E"
+        env["CPPFLAGS"] = env["CFLAGS"]
+        env["CROSS_TOP"] = self.xcode_platform_dev_path(platform=platform)
+        env["CROSS_SDK"] = sdk_name
+        env["LDFLAGS"] = "-arch {arch} -isysroot {sysroot}".format(
+            arch=arch,
+            sysroot=sysroot,
         )
-        env["CROSS_SDK"] = "{plt}{sdkv}.sdk".format(
-            plt=target_platform.ios_platform_name,
-            sdkv=self.ios_sdk,
-            # ... can be blank; e.g. iPhoneOS9.3.sdk symlinks to iPhoneOS.sdk
-        )
-        env["PLATFORM"] = target_platform.ios_platform_name
+        env["PLATFORM"] = platform
+        env["RANLIB"] = fetch([XCRUN, "-sdk", sdk_name, "-find", "ranlib"]).strip()
+
+    @property
+    def xcode_developer_path(self) -> str:
+        return fetch([XCODE_SELECT, "-print-path"]).strip()
+        # e.g. "/Applications/Xcode.app/Contents/Developer"
+
+    @property
+    def xcode_platforms_path(self) -> str:
+        return join(self.xcode_developer_path, "Platforms")
+
+    @property
+    def xcode_tools_path(self) -> str:
+        return join(self.xcode_developer_path, "Toolchains", "XcodeDefault.xctoolchain", "usr", "bin")
+
+    def xcode_platform_dev_path(self, platform: str) -> str:
+        return join(self.xcode_platforms_path, "{}.platform".format(platform), "Developer")
+
+    def xcode_all_sdks_path(self, platform: str) -> str:
+        return join(self.xcode_platform_dev_path(platform), "SDKs")
+
+    def xcode_sdk_name(self, platform: str, sdk_version: str) -> str:
+        return "{p}{s}".format(p=platform, s=sdk_version).lower()
+        # Must be lower-case. Try:
+        # xcodebuild -showsdks
+        # xcrun -sdk <sdkname> -find clang
+
+    def xcode_sdk_path(self, platform: str, sdk_version: str) -> str:
+        return join(self.xcode_all_sdks_path(platform), self.xcode_sdk_name(platform=platform, sdk_version=sdk_version) + ".sdk")
+
+    def get_latest_ios_sdk_version(self, platform: str = "", default: str = "8.0") -> str:
+        # https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
+        platform = platform or self.ios_platform_name
+        stdout = fetch(["ls", self.xcode_all_sdks_path(platform)])
+        sdks = [x for x in stdout.splitlines() if x]
+        # log.critical(sdks)
+        if not sdks:
+            log.warning("No iOS SDKs found in {}".format(sdkpath))
+            return default
+        latest_sdk = sdks[-1]  # Last item will be the current SDK, since they are alphanumerically ordered  # noqa
+        suffix = ".sdk"
+        sdk_name = latest_sdk[:-len(suffix)]  # remove the trailing ".sdk"
+        sdk_version = sdk_name[len(platform):]  # remove the leading prefix, e.g. "iPhoneOS"
+        # log.critical("iOS SDK version: {!r}".format(sdk_version))
+        return sdk_version
+
+    def get_ios_sdk_version(self, platform: str = "") -> str:
+        return self.ios_sdk or self.get_latest_ios_sdk_version(platform)
 
     def _set_windows_env(self, env: Dict[str, str],
                          target_platform: Platform,
@@ -1420,6 +1478,13 @@ class Config(object):
             target_platform.gcc(fullpath, cfg=self) + "-" +
             self.android_toolchain_version
         )
+
+    def sysroot(self, target_platform: Platform) -> str:
+        if target_platform.android:
+            return self.android_sysroot(target_platform)
+        elif target_platform.ios:
+            return self.XXX(platform=target_platform, sdk_version=self.get_ios_sdk_version(platform=XXX))
+        raise NotImplementedError("Don't know sysroot for target: {}".format(target_platform))
 
     # -------------------------------------------------------------------------
     # Conversion functions
@@ -1606,7 +1671,8 @@ def rmtree(directory: str) -> None:
 
 def run(args: List[str],
         env: Dict[str, str] = None,
-        get_output: bool = False,
+        get_stdout: bool = False,
+        get_stderr: bool = False,
         debug_show_env: bool = True,
         encoding: str = sys.getdefaultencoding(),
         allow_failure: bool = False) -> Tuple[str, str]:
@@ -1634,12 +1700,11 @@ def run(args: List[str],
         "{csep}".format(csep=csep, cwd=cwd, cmd=copy_paste_cmd)
     )
     try:
-        if get_output:
-            p = subprocess.run(args, env=env, stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE, check=not allow_failure)
-            stdout, stderr = (
-                p.stdout.decode(encoding), p.stderr.decode(encoding)
-            )
+        if get_stdout or get_stderr:
+            p = subprocess.run(args, env=env, stdout=subprocess.PIPE if get_stdout else None,
+                               stderr=subprocess.PIPE if get_stderr else None, check=not allow_failure)
+            stdout = p.stdout.decode(encoding) if p.stdout else ""
+            stderr = p.stderr.decode(encoding) if p.stderr else ""
         else:
             subprocess.check_call(args, env=env)
             stdout, stderr = "", ""
@@ -1662,6 +1727,14 @@ def run(args: List[str],
             )
         )
         raise
+
+
+def fetch(args: List[str], env: Dict[str, str] = None, encoding: str = sys.getdefaultencoding()) -> str:
+    """
+    Run a command and fetch its stdout.
+    """
+    stdout, _ = run(args, env=env, get_stdout=True, encoding=encoding)
+    return stdout
 
 
 def replace_in_file(filename: str, text_from: str, text_to: str) -> None:
@@ -1776,7 +1849,7 @@ def are_debian_packages_installed(packages: List[str]) -> Dict[str, bool]:
         # "-f='${Package} ${Status} ${Version}\n'",
         "-f=${Package} ${Status}\n",  # --showformat
     ] + packages
-    stdout, stderr = run(args, get_output=True, allow_failure=True)
+    stdout, stderr = run(args, get_stdout=True, get_stderr=True, allow_failure=True)
     present = OrderedDict()
     for line in stdout.split("\n"):
         if line:  # e.g. "autoconf install ok installed"
@@ -2481,10 +2554,10 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
         env["MACHINE"] = "i686"
         env["RELEASE"] = "2.6.37"  # ??
         env["SYSTEM"] = target_os  # e.g. "android", "android-armv7"
-        if OPENSSL_AT_LEAST_1_1:
-            # https://github.com/openssl/openssl/issues/1681
-            # or: "error: invalid 'asm': invalid operand for code 'w'"
-            env["CROSS_SYSROOT"] = env["ANDROID_SYSROOT"]
+    if OPENSSL_AT_LEAST_1_1:
+        # https://github.com/openssl/openssl/issues/1681
+        # or: "error: invalid 'asm': invalid operand for code 'w'"
+        env["CROSS_SYSROOT"] = cfg.sysroot(target_platform)
 
     # -------------------------------------------------------------------------
     # Makefile tweaking
@@ -3126,11 +3199,10 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     trace_include = False
     if trace_include:
         cflags.append("-H")
-    if target_platform.android:
-        cflags.append("--sysroot={}".format(
-            cfg.android_sysroot(target_platform)))
-        # ... or configure will call ld which will say:
-        # ld: error: cannot open crtbegin_dynamic.o: No such file or directory
+
+    cflags.append("--sysroot={}".format(cfg.sysroot(target_platform)))
+    # ... or, for Android, configure will call ld which will say:
+    # ld: error: cannot open crtbegin_dynamic.o: No such file or directory
 
     if BUILD_PLATFORM.windows:
         require(BASH)
@@ -3143,8 +3215,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         config_args = []  # type: List[str]
     config_args += [
         join(destdir, "configure"),
-        "--enable-tempstore=yes",
-        # ... see README.md; equivalent to SQLITE_TEMP_STORE=2
+        "--enable-tempstore=yes",  # see README.md; equivalent to SQLITE_TEMP_STORE=2  # noqa
         # no quotes (they're fine on the command line but not here):
         'CFLAGS={}'.format(" ".join(cflags + gccflags)),
         'LDFLAGS={}'.format(" ".join(ldflags)),
@@ -3160,19 +3231,12 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     env = get_starting_env()
     cfg.set_compile_env(env, target_platform, use_cross_compile_var=False)
 
-    # env["LD_LIBRARY_PATH"] = openssl_workdir  # Linux
-    # env["DYLD_LIBRARY_PATH"] = openssl_workdir  # OS/X
-    # env["DYLD_FALLBACK_LIBRARY_PATH"] = openssl_workdir  # OS/X
-
     config_args.append("--build={}".format(
         BUILD_PLATFORM.sqlcipher_platform))
     config_args.append("--host={}".format(
         target_platform.sqlcipher_platform))
 
-    # config_args.append("--prefix={}".format(cfg.android_sysroot(platform)))
-    # if target_platform.android:
-    #     config_args.append("CC=" + cfg.android_cc(target_platform))
-    #     # ... or we won't be cross-compiling
+    config_args.append("--prefix={}".format(cfg.sysroot(platform)))
 
     # -------------------------------------------------------------------------
     # configure
