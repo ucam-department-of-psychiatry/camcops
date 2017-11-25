@@ -191,7 +191,9 @@ import stat
 import subprocess
 import sys
 import traceback
-from typing import Any, Callable, Dict, Generator, List, Tuple, Union
+from types import TracebackType
+from typing import (Any, Callable, Dict, Generator, List, Optional, Tuple,
+                    Type, Union)
 import urllib.request
 
 try:
@@ -1143,6 +1145,8 @@ class Config(object):
             self.mxe_usr_dir = join(self.mxe_src_gitdir, "usr")  # type: str
             self.mxe_bin_dir = join(self.mxe_usr_dir, "bin")  # type: str  # noqa
 
+        self._cached_xcode_developer_path = ""
+
     def __repr__(self) -> str:
         elements = ["    {}={}".format(k, repr(v))
                     for k, v in self.__dict__.items()]
@@ -1234,7 +1238,7 @@ class Config(object):
         env["ANDROID_API_VERSION"] = self.android_api
         env["ANDROID_ARCH"] = target_platform.android_arch_full
         env["ANDROID_DEV"] = join(android_sysroot, "usr")
-        env["ANDROID_EABI"] = self.android_eabi(target_platform)
+        env["ANDROID_EABI"] = self._android_eabi(target_platform)
         env["ANDROID_NDK_ROOT"] = self.android_ndk_root
         env["ANDROID_SDK_ROOT"] = self.android_sdk_root
         env["ANDROID_SYSROOT"] = android_sysroot
@@ -1242,8 +1246,8 @@ class Config(object):
         env["AR"] = target_platform.ar(fullpath=not use_cross_compile_var,
                                        cfg=self)
         env["ARCH"] = target_platform.android_arch_short
-        env["CC"] = self.android_cc(target_platform,
-                                    fullpath=not use_cross_compile_var)
+        env["CC"] = self._android_cc(target_platform,
+                                     fullpath=not use_cross_compile_var)
         if use_cross_compile_var:
             env["CROSS_COMPILE"] = target_platform.cross_compile_prefix
             # ... unnecessary as we are specifying AR, CC directly
@@ -1258,69 +1262,87 @@ class Config(object):
                      target_platform: Platform) -> None:
         # https://gist.github.com/foozmeat/5154962
         # https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
-        encoding = sys.getdefaultencoding()
-        platform = target_platform.ios_platform_name
+        xcode_platform = target_platform.ios_platform_name
         arch = target_platform.ios_arch
-        sdk_version = self.get_ios_sdk_version(platform=platform)
-        sdk_name = self.xcode_sdk_name(platform=platform, sdk_version=sdk_version)
-        sysroot = self.xcode_sdk_path(platform=platform, sdk_version=sdk_version)
+        sdk_version = self._get_ios_sdk_version(target_platform=target_platform)
+        sdk_name = self._xcode_sdk_name(xcode_platform=xcode_platform,
+                                        sdk_version=sdk_version)
+        sysroot = self._xcode_sdk_path(xcode_platform=xcode_platform,
+                                       sdk_version=sdk_version)
 
         env["AR"] = fetch([XCRUN, "-sdk", sdk_name, "-find", "ar"]).strip()
-        env["BUILD_TOOLS"] = self.xcode_developer_path
+        env["BUILD_TOOLS"] = self._xcode_developer_path
         env["CC"] = fetch([XCRUN, "-sdk", sdk_name, "-find", "clang"]).strip()
-        #"{cc} -arch {arch}".format(
-        #    cc=os.path.join(developer, 'usr', 'bin', 'gcc'),
-        #    arch=target_platform.ios_arch
-        #)
-        env["CFLAGS"] = "-arch {arch} -isysroot {sysroot} -m{platform}-version-min={sdk_version}".format(
-            arch=arch,
-            sysroot=sysroot,
-            platform=platform.lower(),
-            sdk_version=sdk_version,
+        # "{cc} -arch {arch}".format(
+        #     cc=os.path.join(developer, 'usr', 'bin', 'gcc'),
+        #     arch=target_platform.ios_arch
+        # )
+        env["CFLAGS"] = (
+            "-arch {arch} -isysroot {sysroot} "
+            "-m{platform}-version-min={sdk_version}".format(
+                arch=arch,
+                sysroot=sysroot,
+                platform=xcode_platform.lower(),
+                sdk_version=sdk_version,
+            )
         )
         env["CPP"] = env["CC"] + " -E"
         env["CPPFLAGS"] = env["CFLAGS"]
-        env["CROSS_TOP"] = self.xcode_platform_dev_path(platform=platform)
+        env["CROSS_TOP"] = self._xcode_platform_dev_path(
+            xcode_platform=xcode_platform)
         env["CROSS_SDK"] = sdk_name
         env["LDFLAGS"] = "-arch {arch} -isysroot {sysroot}".format(
             arch=arch,
             sysroot=sysroot,
         )
-        env["PLATFORM"] = platform
-        env["RANLIB"] = fetch([XCRUN, "-sdk", sdk_name, "-find", "ranlib"]).strip()
+        env["PLATFORM"] = xcode_platform
+        env["RANLIB"] = fetch([XCRUN, "-sdk", sdk_name, "-find",
+                               "ranlib"]).strip()
 
     @property
-    def xcode_developer_path(self) -> str:
-        return fetch([XCODE_SELECT, "-print-path"]).strip()
+    def _xcode_developer_path(self) -> str:
+        if not self._cached_xcode_developer_path:
+            self._cached_xcode_developer_path = fetch(
+                [XCODE_SELECT, "-print-path"]).strip()
+        return self._cached_xcode_developer_path
         # e.g. "/Applications/Xcode.app/Contents/Developer"
 
     @property
-    def xcode_platforms_path(self) -> str:
-        return join(self.xcode_developer_path, "Platforms")
+    def _xcode_platforms_path(self) -> str:
+        return join(self._xcode_developer_path, "Platforms")
 
     @property
-    def xcode_tools_path(self) -> str:
-        return join(self.xcode_developer_path, "Toolchains", "XcodeDefault.xctoolchain", "usr", "bin")
+    def _xcode_tools_path(self) -> str:
+        return join(self._xcode_developer_path,
+                    "Toolchains", "XcodeDefault.xctoolchain", "usr", "bin")
 
-    def xcode_platform_dev_path(self, platform: str) -> str:
-        return join(self.xcode_platforms_path, "{}.platform".format(platform), "Developer")
+    def _xcode_platform_dev_path(self, xcode_platform: str) -> str:
+        return join(self._xcode_platforms_path,
+                    "{}.platform".format(xcode_platform),
+                    "Developer")
 
-    def xcode_all_sdks_path(self, platform: str) -> str:
-        return join(self.xcode_platform_dev_path(platform), "SDKs")
+    def _xcode_all_sdks_path(self, xcode_platform: str) -> str:
+        return join(self._xcode_platform_dev_path(xcode_platform), "SDKs")
 
-    def xcode_sdk_name(self, platform: str, sdk_version: str) -> str:
-        return "{p}{s}".format(p=platform, s=sdk_version).lower()
+    @staticmethod
+    def _xcode_sdk_name(xcode_platform: str, sdk_version: str) -> str:
+        return "{p}{s}".format(p=xcode_platform, s=sdk_version).lower()
         # Must be lower-case. Try:
         # xcodebuild -showsdks
         # xcrun -sdk <sdkname> -find clang
 
-    def xcode_sdk_path(self, platform: str, sdk_version: str) -> str:
-        return join(self.xcode_all_sdks_path(platform), self.xcode_sdk_name(platform=platform, sdk_version=sdk_version) + ".sdk")
+    def _xcode_sdk_path(self, xcode_platform: str, sdk_version: str) -> str:
+        return join(self._xcode_all_sdks_path(xcode_platform),
+                    self._xcode_sdk_name(xcode_platform=xcode_platform,
+                                         sdk_version=sdk_version) + ".sdk")
 
-    def get_latest_ios_sdk_version(self, platform: str = "", default: str = "8.0") -> str:
+    def _get_latest_ios_sdk_version(self, target_platform: Platform,
+                                    xcode_platform: str = "",
+                                    default: str = "8.0") -> str:
         # https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
-        platform = platform or self.ios_platform_name
-        stdout = fetch(["ls", self.xcode_all_sdks_path(platform)])
+        xcode_platform = xcode_platform or target_platform.ios_platform_name
+        sdkpath = self._xcode_all_sdks_path(xcode_platform)
+        stdout = fetch(["ls", sdkpath])
         sdks = [x for x in stdout.splitlines() if x]
         # log.critical(sdks)
         if not sdks:
@@ -1329,12 +1351,13 @@ class Config(object):
         latest_sdk = sdks[-1]  # Last item will be the current SDK, since they are alphanumerically ordered  # noqa
         suffix = ".sdk"
         sdk_name = latest_sdk[:-len(suffix)]  # remove the trailing ".sdk"
-        sdk_version = sdk_name[len(platform):]  # remove the leading prefix, e.g. "iPhoneOS"
+        sdk_version = sdk_name[len(xcode_platform):]  # remove the leading prefix, e.g. "iPhoneOS"  # noqa
         # log.critical("iOS SDK version: {!r}".format(sdk_version))
         return sdk_version
 
-    def get_ios_sdk_version(self, platform: str = "") -> str:
-        return self.ios_sdk or self.get_latest_ios_sdk_version(platform)
+    def _get_ios_sdk_version(self, target_platform: Platform) -> str:
+        return self.ios_sdk or self._get_latest_ios_sdk_version(
+            target_platform=target_platform)
 
     def _set_windows_env(self, env: Dict[str, str],
                          target_platform: Platform,
@@ -1425,7 +1448,7 @@ class Config(object):
                 "Don't know how to compile for Windows on build platform "
                 "{}".format(BUILD_PLATFORM))
 
-    def android_eabi(self, target_platform: Platform) -> str:
+    def _android_eabi(self, target_platform: Platform) -> str:
         if target_platform.cpu_x86_family:
             return "{}-{}".format(
                 target_platform.android_arch_short,
@@ -1446,18 +1469,10 @@ class Config(object):
         return join(self.android_ndk_root, "platforms",
                     self.android_api, target_platform.android_arch_full)
 
-    def target_toolchain(self, target_platform) -> str:
-        """Directory of the target toolchain, or '' to assume the PATH."""
-        if target_platform.android:
-            return self.android_toolchain(target_platform)
-        else:
-            # Assumed to be on the PATH
-            return ""
-
     def android_toolchain(self, target_platform: Platform) -> str:
         """Directory of the Android toolchain."""
         return join(self.android_ndk_root, "toolchains",
-                    self.android_eabi(target_platform),
+                    self._android_eabi(target_platform),
                     "prebuilt", self.android_ndk_host, "bin")
 
     @staticmethod
@@ -1470,8 +1485,8 @@ class Config(object):
         raise NotImplementedError("Don't know CROSS_COMPILE prefix for " +
                                   str(target_platform))
 
-    def android_cc(self, target_platform: Platform,
-                   fullpath: bool) -> str:
+    def _android_cc(self, target_platform: Platform,
+                    fullpath: bool) -> str:
         # Don't apply the CROSS_COMPILE prefix; that'll be prefixed
         # automatically.
         return (
@@ -1479,12 +1494,20 @@ class Config(object):
             self.android_toolchain_version
         )
 
-    def sysroot(self, target_platform: Platform) -> str:
+    def sysroot(self, target_platform: Platform, env: Dict[str, str]) -> str:
         if target_platform.android:
             return self.android_sysroot(target_platform)
         elif target_platform.ios:
-            return self.XXX(platform=target_platform, sdk_version=self.get_ios_sdk_version(platform=XXX))
-        raise NotImplementedError("Don't know sysroot for target: {}".format(target_platform))
+            return self._xcode_sdk_path(
+                xcode_platform=target_platform.ios_platform_name,
+                sdk_version=self._get_ios_sdk_version(
+                    target_platform=target_platform))
+        elif target_platform.linux:
+            return "/"  # default sysroot
+        elif target_platform.windows:
+            return env["WindowsSdkDir"]
+        raise NotImplementedError("Don't know sysroot for target: {}".format(
+            target_platform))
 
     # -------------------------------------------------------------------------
     # Conversion functions
@@ -1502,7 +1525,7 @@ class Config(object):
         libname = basename[len(libprefix):]
         newlibbasename = libprefix + libname + ".so"
         newlibfilename = join(directory, newlibbasename)
-        compiler = self.android_cc(target_platform, fullpath=True)
+        compiler = self._android_cc(target_platform, fullpath=True)
         run([
             compiler,
             "-o", newlibfilename,
@@ -1542,7 +1565,7 @@ def pushd(directory: str) -> None:
     chdir(previous_dir)
     
     
-def which_with_envpath(executable: str, env: Dict[str, str]) -> None:
+def which_with_envpath(executable: str, env: Dict[str, str]) -> str:
     """
     Reason: when you use run([executable, ...], env) and therefore
     subprocess.run([executable, ...], env=env), the PATH that's searched for
@@ -1642,9 +1665,17 @@ def contains_unquoted_ampersand_dangerous_to_windows(x: str) -> bool:
 #             os.chmod(join(dirpath, f), permission)
 
 
+EXC_INFO_TYPE = Tuple[
+    Optional[Type[BaseException]],
+    Optional[BaseException],
+    Optional[TracebackType],  # it's a traceback object
+]
+# https://docs.python.org/3/library/sys.html#sys.exc_info
+
+
 def shutil_rmtree_onerror(func: Callable[[str], None],
                           path: str,
-                          exc_info: Tuple) -> None:
+                          exc_info: EXC_INFO_TYPE) -> None:
     # https://stackoverflow.com/questions/2656322/shutil-rmtree-fails-on-windows-with-access-is-denied  # noqa
     """
     Error handler for ``shutil.rmtree``.
@@ -1661,7 +1692,8 @@ def shutil_rmtree_onerror(func: Callable[[str], None],
         os.chmod(path, stat.S_IWUSR)
         func(path)
     else:
-        raise
+        exc = exc_info[1]
+        raise exc
 
 
 def rmtree(directory: str) -> None:
@@ -1684,8 +1716,8 @@ def run(args: List[str],
     copy_paste_cmd = make_copy_paste_cmd(args)
     csep = "=" * 79
     esep = "-" * 79
+    effective_env = env or os.environ
     if debug_show_env:
-        effective_env = env or os.environ
         log.debug(
             "Environment for the command that follows:\n"
             "{esep}\n"
@@ -1701,8 +1733,11 @@ def run(args: List[str],
     )
     try:
         if get_stdout or get_stderr:
-            p = subprocess.run(args, env=env, stdout=subprocess.PIPE if get_stdout else None,
-                               stderr=subprocess.PIPE if get_stderr else None, check=not allow_failure)
+            p = subprocess.run(args,
+                               env=env,
+                               stdout=subprocess.PIPE if get_stdout else None,
+                               stderr=subprocess.PIPE if get_stderr else None,
+                               check=not allow_failure)
             stdout = p.stdout.decode(encoding) if p.stdout else ""
             stderr = p.stderr.decode(encoding) if p.stderr else ""
         else:
@@ -1729,7 +1764,8 @@ def run(args: List[str],
         raise
 
 
-def fetch(args: List[str], env: Dict[str, str] = None, encoding: str = sys.getdefaultencoding()) -> str:
+def fetch(args: List[str], env: Dict[str, str] = None,
+          encoding: str = sys.getdefaultencoding()) -> str:
     """
     Run a command and fetch its stdout.
     """
@@ -1826,7 +1862,7 @@ If you install Cygwin Perl (package "perl"), make sure the native Windows
 version of Perl PRECEDES IT in the PATH; you don't want the Cygwin one to be
 the default.
 
-"""
+"""  # noqa
     _ = r"""
 Windows (DEFUNCT)
 -------------------------------------------------------------------------------
@@ -1849,7 +1885,8 @@ def are_debian_packages_installed(packages: List[str]) -> Dict[str, bool]:
         # "-f='${Package} ${Status} ${Version}\n'",
         "-f=${Package} ${Status}\n",  # --showformat
     ] + packages
-    stdout, stderr = run(args, get_stdout=True, get_stderr=True, allow_failure=True)
+    stdout, stderr = run(args, get_stdout=True, get_stderr=True,
+                         allow_failure=True)
     present = OrderedDict()
     for line in stdout.split("\n"):
         if line:  # e.g. "autoconf install ok installed"
@@ -2226,6 +2263,7 @@ def ensure_first_perl_is_not_cygwin() -> None:
              "so that a Windows version, e.g. ActiveState Perl, comes "
              "first.".format(which))
 
+
 _WHY_ENSURE_FIRST_PERL_IS_NOT_CYGWIN = r"""
 ===============================================================================
 WORKING DIRECTORY: C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g
@@ -2277,7 +2315,7 @@ $ which perl
 >>> shutil.which("perl")
 'C:\\Perl64\\bin\\perl.EXE'
 
-"""
+"""  # noqa
 
 
 # =============================================================================
@@ -2451,7 +2489,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # For new platforms: if you're not sure, use target_os = "crashme" and
     # you'll get the list of permitted values, which as of 2017-11-12 is:
     
-    _OPENSSL_1_0_2H_TARGETS = """
+    _ = """
+OpenSSL 1.0.2h targets:
+    
 BC-32 BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
 BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-x86_64 DJGPP MPE/iX-gcc OS2-EMX
 OS390-Unix QNX6 QNX6-i386 ReliantUNIX SINIX SINIX-N UWIN VC-CE VC-WIN32
@@ -2494,7 +2534,9 @@ debug-linux-x86_64-clang debug-rse debug-solaris-sparcv8-cc
 debug-solaris-sparcv8-gcc debug-solaris-sparcv9-cc debug-solaris-sparcv9-gcc
 debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
     """
-    _OPENSSL_1_1_0G_TARGET = """
+    _ = r"""
+OpenSSL 1.1.0g targets:
+    
 Usage: Configure [no-<cipher> ...] [enable-<cipher> ...] [-Dxxx] [-lxxx] [-Lxxx] [-fxxx] [-Kxxx] [no-hw-xxx|no-hw] [[no-]threads] [[no-]shared] [[no-]zlib|zlib-dynamic] [no-asm] [no-dso] [no-egd] [sctp] [386] [--prefix=DIR] [--openssldir=OPENSSLDIR] [--with-xxx[=vvv]] [--config=FILE] os/compiler[:flags]
 
 pick os/compiler from:
@@ -2526,7 +2568,7 @@ vxworks-simlinux debug debug-erbridge debug-linux-ia32-aes debug-linux-pentium
 debug-linux-ppro debug-test-64-clang 
 
 NOTE: If in doubt, on Unix-ish systems use './config'.
-    """
+    """  # noqa
 
     if not target_os:
         raise NotImplementedError("Don't know how to make OpenSSL for " +
@@ -2557,7 +2599,7 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
     if OPENSSL_AT_LEAST_1_1:
         # https://github.com/openssl/openssl/issues/1681
         # or: "error: invalid 'asm': invalid operand for code 'w'"
-        env["CROSS_SYSROOT"] = cfg.sysroot(target_platform)
+        env["CROSS_SYSROOT"] = cfg.sysroot(target_platform, env)
 
     # -------------------------------------------------------------------------
     # Makefile tweaking
@@ -3053,7 +3095,7 @@ A.  Looks tricky:
 Q.  fatal error: vcruntime.h: No such file or directory
 A.  !!! does MXE build, and if so, can we copy it?
     !!! https://stackoverflow.com/questions/14170590/building-qt-5-on-linux-for-windows
-            """
+            """  # noqa
             raise
 
     # -------------------------------------------------------------------------
@@ -3200,7 +3242,10 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     if trace_include:
         cflags.append("-H")
 
-    cflags.append("--sysroot={}".format(cfg.sysroot(target_platform)))
+    env = get_starting_env()
+    cfg.set_compile_env(env, target_platform, use_cross_compile_var=False)
+
+    cflags.append("--sysroot={}".format(cfg.sysroot(target_platform, env)))
     # ... or, for Android, configure will call ld which will say:
     # ld: error: cannot open crtbegin_dynamic.o: No such file or directory
 
@@ -3228,15 +3273,12 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     # not supported, but "--build" and "--host" are used (where "host" means
     # "target").
 
-    env = get_starting_env()
-    cfg.set_compile_env(env, target_platform, use_cross_compile_var=False)
-
     config_args.append("--build={}".format(
         BUILD_PLATFORM.sqlcipher_platform))
     config_args.append("--host={}".format(
         target_platform.sqlcipher_platform))
 
-    config_args.append("--prefix={}".format(cfg.sysroot(platform)))
+    config_args.append("--prefix={}".format(cfg.sysroot(target_platform, env)))
 
     # -------------------------------------------------------------------------
     # configure
@@ -3826,6 +3868,7 @@ def main() -> None:
     args = parser.parse_args()  # type: argparse.Namespace
 
     # Logging
+    # noinspection PyUnresolvedReferences
     loglevel = logging.DEBUG if args.verbose >= 1 else logging.INFO
     if main_only_quicksetup_rootlogger:
         main_only_quicksetup_rootlogger(level=loglevel)
