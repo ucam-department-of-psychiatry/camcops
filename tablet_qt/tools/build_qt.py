@@ -522,19 +522,19 @@ class Platform(object):
     Represents the build or target platform, defined by OS+CPU.
     """
     # noinspection PyShadowingNames
-    def __init__(self, os_: str, cpu: str, distro_id: str = "") -> None:
-        self.os = os_
+    def __init__(self, os: str, cpu: str, distro_id: str = "") -> None:
+        self.os = os
         self.cpu = cpu
         self.distro_id = distro_id
-        if os_ not in ALL_OSS:
-            raise NotImplementedError("Unknown target OS: {!r}".format(os_))
+        if os not in ALL_OSS:
+            raise NotImplementedError("Unknown target OS: {!r}".format(os))
         if cpu not in ALL_CPUS:
             raise NotImplementedError("Unknown target CPU: {!r}".format(cpu))
 
         # 64-bit support only (thus far)?
-        if os_ in [Os.LINUX, Os.OSX] and not self.cpu_x86_64bit_family:
+        if os in [Os.LINUX, Os.OSX] and not self.cpu_x86_64bit_family:
             raise NotImplementedError("Don't know how to build for CPU " +
-                                      cpu + " on system " + os_)
+                                      cpu + " on system " + os)
 
     # -------------------------------------------------------------------------
     # Descriptives
@@ -1291,6 +1291,7 @@ class Config(object):
         #     xcrun -sdk <sdkname> -find clang
         sysroot = self._xcode_sdk_path(xcode_platform=xcode_platform,
                                        sdk_version=sdk_version)
+        escaped_sysroot = escape_literal_for_shell(sysroot)
 
         env["AR"] = fetch([XCRUN, "-sdk", sdk_name_lower,
                            "-find", "ar"]).strip()
@@ -1305,7 +1306,7 @@ class Config(object):
             "-arch {arch} -isysroot {sysroot} "
             "-m{platform}-version-min={sdk_version}".format(
                 arch=arch,
-                sysroot=sysroot,
+                sysroot=escaped_sysroot,
                 platform=xcode_platform.lower(),
                 sdk_version=sdk_version,
             )
@@ -1317,7 +1318,7 @@ class Config(object):
         env["CROSS_SDK"] = sdk_name + ".sdk"
         env["LDFLAGS"] = "-arch {arch} -isysroot {sysroot}".format(
             arch=arch,
-            sysroot=sysroot,
+            sysroot=escaped_sysroot,
         )
         env["PLATFORM"] = xcode_platform
         env["RANLIB"] = fetch([XCRUN, "-sdk", sdk_name_lower, "-find",
@@ -1601,11 +1602,38 @@ def which_with_envpath(executable: str, env: Dict[str, str]) -> str:
     return which
     
     
-def quote_for_command_line(x: str) -> str:
-    if BUILD_PLATFORM.windows:
-        return x  # suboptimal but better than shlex.quote()!
-    else:
-        return shlex.quote(x)
+def escape_literal_for_shell(x: str) -> str:
+    """
+    Double-quote a path if it has spaces or quotes in, for use particularly
+    with:
+    
+        somecommand --cflags="--someflag --sysroot=SOMETHING"
+        
+    ... where that will eventually be passed (via configure) to ANOTHER command
+    as
+    
+        compiler --someflag --sysroot=SOMETHING
+    
+    and we might have spaces in SOMETHING.
+    """
+    assert not BUILD_PLATFORM.windows, (
+        "Windows has terrible shell escaping and we use other methods")
+    space = ' '
+    dquote = '"'
+    backslash = '\\'
+    must_quote = [space, dquote]
+    something_needs_quoting = any(c in x for c in must_quote)
+    if not something_needs_quoting:
+        return x
+    x = x.replace(dquote, backslash + dquote)
+    # if BUILD_PLATFORM.windows:
+    #     # https://stackoverflow.com/questions/41607045
+    #     if x.endswith(backslash):
+    #         x += backslash
+    # else:
+    x = x.replace(backslash, backslash + backslash)
+    x = '"{}"'.format(x)
+    return x
 
 
 def make_copy_paste_cmd(args: List[str]) -> str:
@@ -1614,9 +1642,6 @@ def make_copy_paste_cmd(args: List[str]) -> str:
     pasted.
     """
     return subprocess.list2cmdline(args)
-    # return " ".join(
-    #     quote_for_command_line(x) for x in args
-    # ).replace("\n", r"\n")
 
 
 def make_copy_paste_env(env: Dict[str, str]) -> str:
@@ -1750,8 +1775,10 @@ def run(args: List[str],
         "Launching external command:\n"
         "{csep}\n"
         "WORKING DIRECTORY: {cwd}\n"
+        "PYTHON ARGS: {args!r}\n"
         "COMMAND: {cmd}\n"
-        "{csep}".format(csep=csep, cwd=cwd, cmd=copy_paste_cmd)
+        "{csep}".format(csep=csep, cwd=cwd, cmd=copy_paste_cmd,
+                        args=args)
     )
     try:
         if get_stdout or get_stderr:
@@ -1858,13 +1885,10 @@ cmake       Install the Cygwin package "cmake"                          cmake
 ld          Install the Cygwin package "gcc-g++"                        gcc-g++
 make        Install the Cygwin package "make"                           make
 tar         Install Cygwin; part of the default installation            -
-tclsh       Install the Cygwin package "tcl" AND ALSO:                  tcl
-                C:\> bash
-                $ cp /bin/tclsh8.6.exe /bin/tclsh.exe
-            ... because the built-in "tclsh" (no .exe) isn't found by Windows.
 
 git         Install from https://git-scm.com/
 nasm        Install from http://www.nasm.us/
+tclsh       Install TCL from https://www.activestate.com/activetcl
 vcvarsall.bat    Install Microsoft Visual Studio/VC++, e.g. the free Community
             edition from https://www.visualstudio.com/; download and run the
             installer; tick at least "Desktop development with C++"
@@ -1891,7 +1915,11 @@ Windows (DEFUNCT)
 -------------------------------------------------------------------------------
 makedepend  Install the Cygwin (*) package "makedepend"
 readelf     Install the Cygwin (*) package "binutils"
-            
+tclsh       Install the Cygwin package "tcl" AND ALSO:                  tcl
+                C:\> bash
+                $ cp /bin/tclsh8.6.exe /bin/tclsh.exe
+            ... because the built-in "tclsh" (no .exe) isn't found by Windows.
+
     """
 
     log.critical(missing_msg)
@@ -3235,140 +3263,166 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     log.info("Building SQLCipher...")
     copytree(cfg.sqlcipher_src_gitdir, destdir, destroy=True)
 
-    # -------------------------------------------------------------------------
-    # SQLCipher: configure args
-    # -------------------------------------------------------------------------
-    _, openssl_workdir = cfg.get_openssl_rootdir_workdir(target_platform)
-    openssl_include_dir = join(openssl_workdir, "include")
-    
-    # Compiler:
-    cflags = [
-        "-DSQLITE_HAS_CODEC",
-        "-I{}".format(openssl_include_dir),
-        # ... sqlite.c does e.g. "#include <openssl/rand.h>"
-    ]
-    if BUILD_PLATFORM.windows:
-        # We have set our environment so CC points to cl, not gcc.
-        gccflags = []  # type: List[str]
-    else:
-        gccflags = [
-            "-Wfatal-errors",  # all errors are fatal
-        ]
-    clflags = []  # type: List[str]
-    # if cfg.verbose >= 2:
-    #     clflags.append("/showIncludes")
-    
-    # Linker:
-    ldflags = ["-L{}".format(openssl_workdir)]
-
-    link_openssl_statically = target_platform.desktop
-    # ... try for dynamic linking on Android
-    if link_openssl_statically:
-        log.info("Linking OpenSSL into SQLCipher STATICALLY")
-        static_ext = target_platform.static_lib_ext
-        static_openssl_lib = join(openssl_workdir, "libcrypto" + static_ext)
-        # Not working:
-        # ldflags.append("-static")
-        # ldflags.append("-l:libcrypto.a")
-        # ... Note the colon! Search for ":filename" in "man ld"
-        #
-        # Try this:
-        ldflags.append(static_openssl_lib)
-        # ... https://github.com/sqlcipher/sqlcipher
-    else:
-        log.info("Linking OpenSSL into SQLCipher DYNAMICALLY")
-        # make the executable load OpenSSL dynamically
-        ldflags.append('-lcrypto')
-    # Note that "--with-crypto-lib" isn't helpful here:
-    # https://www.zetetic.net/blog/2013/6/27/sqlcipher-220-release.html
-
-    trace_include = False
-    if trace_include:
-        cflags.append("-H")
-
     env = get_starting_env()
     cfg.set_compile_env(env, target_platform, use_cross_compile_var=False)
 
-    cflags.append("--sysroot={}".format(cfg.sysroot(target_platform, env)))
-    # ... or, for Android, configure will call ld which will say:
-    # ld: error: cannot open crtbegin_dynamic.o: No such file or directory
-
+    _, openssl_workdir = cfg.get_openssl_rootdir_workdir(target_platform)
+    openssl_include_dir = join(openssl_workdir, "include")
+    
     if BUILD_PLATFORM.windows:
-        require(BASH)
-        require(LD)
-        config_args = [BASH]
-        # if cfg.verbose >= 2:
-        #     config_args.append("-x")  # echo each command
-        # ... instead, check config.log; it's much clearer
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # SQLCipher/Windows
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # https://github.com/sqlitebrowser/sqlitebrowser/wiki/Win64-setup-%E2%80%94-Compiling-SQLCipher
+        # We use a Windows native method, because:
+        #   1. Can't get gcc to do everything
+        #   2. Cygwin can't call cl.exe cleanly; paths look like "/cygdrive..."
+        #      and Windows thinks that's a switch.
+        #   3. When using "nmake /f Makefile.msc", the Cygwin tclsh fails,
+        #      whereas the ActiveState one works.
+        with pushd(destdir):
+            makefile = "Makefile.msc"
+            extra_tcc_rcc = "-DSQLITE_HAS_CODEC -I" + openssl_include_dir
+            replace_multiple_in_file(
+                filename=makefile,
+                replacements=[
+                    # ("SQLITE3DLL = winsqlite3.dll", "SQLITE3DLL = sqlcipher.dll"),  # noqa
+                    # ("SQLITE3DLL = sqlite3.dll", "SQLITE3DLL = sqlcipher.dll"),
+
+                    # ("SQLITE3LIB = winsqlite3.lib", "SQLITE3LIB = sqlite3.lib"),  # noqa
+                    # ("SQLITE3LIB = winsqlite3.lib", "SQLITE3LIB = sqlcipher.lib"),  # noqa
+                    # ("SQLITE3LIB = sqlite3.lib", "SQLITE3LIB = sqlcipher.lib"),
+
+                    # ("SQLITE3EXE = winsqlite3shell.exe", "SQLITE3EXE = sqlcipher.exe"),  # noqa
+                    # ("SQLITE3EXE = sqlite3.exe", "SQLITE3EXE = sqlcipher.exe"),
+
+                    # ("SQLITE3EXEPDB = \n", "SQLITE3EXEPDB = /pdb:sqlciphersh.pdb\n"),  # noqa
+                    # ("SQLITE3EXEPDB = /pdb:sqlite3sh.pdb", "SQLITE3EXEPDB = /pdb:sqlciphersh.pdb"),  # noqa
+                    
+                    ("TCC = $(TCC) -DSQLITE_TEMP_STORE=1",
+                     "TCC = $(TCC) -DSQLITE_TEMP_STORE=2 " + extra_tcc_rcc),
+                    
+                    ("RCC = $(RCC) -DSQLITE_TEMP_STORE=1",
+                     "RCC = $(RCC) -DSQLITE_TEMP_STORE=2 " + extra_tcc_rcc),
+                    
+                    # ("sqlite3.def", "sqlcipher.def"),
+                ]
+            )
+            nmake = which_with_envpath(NMAKE, env)
+            run([
+                nmake,
+                "/f", makefile,
+                "sqlite3.h",
+                "sqlite3.c",
+                "libsqlite3.lib",
+            ], env)
+            log.critical("*** not yet making correct final filename, sqlite3.o, and haven't checked it ***")
+        
     else:
-        config_args = []  # type: List[str]
-    config_args += [
-        join(destdir, "configure"),
-        "--enable-tempstore=yes",  # see README.md; equivalent to SQLITE_TEMP_STORE=2  # noqa
-        # no quotes (they're fine on the command line but not here):
-        'CFLAGS={}'.format(" ".join(cflags + gccflags)),
-        'LDFLAGS={}'.format(" ".join(ldflags)),
-    ]
-    # By default, SQLCipher compiles with "-O2" optimizations under gcc; see
-    # its "configure" script.
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # SQLCipher/Unix: something other than Windows
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    # Platform-specific tweaks; cross-compilation.
-    # The CROSS_COMPILE prefix doesn't appear in any files, so is presumably
-    # not supported, but "--build" and "--host" are used (where "host" means
-    # "target").
-
-    config_args.append("--build={}".format(
-        BUILD_PLATFORM.sqlcipher_platform))
-    config_args.append("--host={}".format(
-        target_platform.sqlcipher_platform))
-    config_args.append("--prefix={}".format(cfg.sysroot(target_platform, env)))
-
-    # -------------------------------------------------------------------------
-    # SQLCipher: configure
-    # -------------------------------------------------------------------------
-    with pushd(destdir):
-        run(config_args, env)
-
-    # -------------------------------------------------------------------------
-    # SQLCipher: make
-    # -------------------------------------------------------------------------
-    with pushd(destdir):
-        # Don't use cfg.make_args(); we want "make" even under Windows (via
-        # Cygwin).
-        require(MAKE)
-        require(TCLSH)
-        if not isfile(target_c) or not isfile(target_h):
-            # Under Windows, if we were to use cl rather than gcc, e.g. by
-            # setting env["CC"], it fails because the make environment uses
-            # Unix-style paths. So we let it use gcc.
-            run([MAKE, "sqlite3.c"], env)  # the amalgamation target  # noqa
-        if not isfile(target_exe) or not isfile(target_o):
-            # Even though we use cl throughout via the CC environment variable,
-            # we still need an explicit call to cl here, because the makefile
-            # is using Unix filenames and cl (when called via make) will choke
-            # on them, like this:
-            # cl : Command line warning D9035 : option 'o' has been deprecated and will be removed in a future release  # noqa
-            # cl : Command line warning D9002 : ignoring unknown option '/cygdrive/c/Users/Rudolf/dev/qt_local_build/sqlcipher_windows_x86_64/sqlcipher/tool/mkkeywordhash.c'  # noqa
-            # cl : Command line error D8003 : missing source filename
-            if BUILD_PLATFORM.windows:
-                # If we run make, it'll now call gcc but all sorts of Windows-
-                # specific stuff will be missing; see
-                # https://github.com/sqlcipher/sqlcipher/issues/206
-                cl_executable = which_with_envpath(CL, env)
-                run([
-                    cl_executable,
-                    "/c",  # compile without linking
-                    "sqlite3.c"
-                ] + cflags + clflags, env)
-            else:
+        # ---------------------------------------------------------------------
+        # SQLCipher/Unix: configure args
+        # ---------------------------------------------------------------------
+       
+        # Compiler:
+        cflags = [
+            "-DSQLITE_HAS_CODEC",
+            "-I{}".format(openssl_include_dir),
+            # ... sqlite.c does e.g. "#include <openssl/rand.h>"
+        ]
+        gccflags = [
+            "-Wfatal-errors",  # all errors are fatal
+        ]
+        clflags = []  # type: List[str]
+        
+        # Linker:
+        ldflags = ["-L{}".format(openssl_workdir)]
+    
+        link_openssl_statically = target_platform.desktop
+        # ... try for dynamic linking on Android
+        if link_openssl_statically:
+            log.info("Linking OpenSSL into SQLCipher STATICALLY")
+            static_ext = target_platform.static_lib_ext
+            static_openssl_lib = join(openssl_workdir,
+                                      "libcrypto" + static_ext)
+            # Not working:
+            # ldflags.append("-static")
+            # ldflags.append("-l:libcrypto.a")
+            # ... Note the colon! Search for ":filename" in "man ld"
+            #
+            # Try this:
+            ldflags.append(static_openssl_lib)
+            # ... https://github.com/sqlcipher/sqlcipher
+        else:
+            log.info("Linking OpenSSL into SQLCipher DYNAMICALLY")
+            # make the executable load OpenSSL dynamically
+            ldflags.append('-lcrypto')
+        # Note that "--with-crypto-lib" isn't helpful here:
+        # https://www.zetetic.net/blog/2013/6/27/sqlcipher-220-release.html
+    
+        trace_include = False
+        if trace_include:
+            cflags.append("-H")
+    
+        cflags.append("--sysroot={}".format(
+            escape_literal_for_shell(cfg.sysroot(target_platform, env))))
+        # ... or, for Android, configure will call ld which will say:
+        #     ld: error: cannot open crtbegin_dynamic.o: No such file or directory  # noqa
+        # ... escape_literal_for_shell() needed for paths with spaces in
+    
+        config_args = [
+            join(destdir, "configure"),
+            "--enable-tempstore=yes",  # see README.md; equivalent to SQLITE_TEMP_STORE=2  # noqa
+            # no quotes (they're fine on the command line but not here):
+            'CFLAGS={}'.format(" ".join(cflags + gccflags)),
+            'LDFLAGS={}'.format(" ".join(ldflags)),
+        ]
+        # By default, SQLCipher compiles with "-O2" optimizations under gcc;
+        # see its "configure" script.
+    
+        # Platform-specific tweaks; cross-compilation.
+        # The CROSS_COMPILE prefix doesn't appear in any files, so is
+        # presumably not supported, but "--build" and "--host" are used (where
+        # "host" means "target").
+    
+        config_args.append("--build={}".format(
+            BUILD_PLATFORM.sqlcipher_platform))
+        config_args.append("--host={}".format(
+            target_platform.sqlcipher_platform))
+        config_args.append("--prefix={}".format(
+            cfg.sysroot(target_platform, env)))
+    
+        # ---------------------------------------------------------------------
+        # SQLCipher/Unix: configure
+        # ---------------------------------------------------------------------
+        with pushd(destdir):
+            run(config_args, env)
+    
+        # ---------------------------------------------------------------------
+        # SQLCipher/Unix: make
+        # ---------------------------------------------------------------------
+        with pushd(destdir):
+            # Don't use cfg.make_args(); we want "make" even under Windows (via
+            # Cygwin).
+            require(MAKE)
+            require(TCLSH)
+            if not isfile(target_c) or not isfile(target_h):
+                # Under Windows, if we were to use cl rather than gcc, e.g. by
+                # setting env["CC"], it fails because the make environment uses
+                # Unix-style paths. So we let it use gcc.
+                run([MAKE, "sqlite3.c"], env)  # the amalgamation target
+            if not isfile(target_exe) or not isfile(target_o):
                 run([MAKE, "sqlite3" + target_platform.obj_ext], env)  # for static linking  # noqa
-        if want_exe and not isfile(target_exe):
-            run([MAKE, "sqlcipher"], env)  # the command-line executable
-
-    # -------------------------------------------------------------------------
-    # SQLCipher: Check and report
-    # -------------------------------------------------------------------------
-    target_platform.verify_lib(target_o)
+            if want_exe and not isfile(target_exe):
+                run([MAKE, "sqlcipher"], env)  # the command-line executable
+    
+        # -------------------------------------------------------------------------
+        # SQLCipher/Unix: Check and report
+        # -------------------------------------------------------------------------
+        target_platform.verify_lib(target_o)
 
     log.info("If successful, you should have the amalgation files:\n"
              "- {}\n"
