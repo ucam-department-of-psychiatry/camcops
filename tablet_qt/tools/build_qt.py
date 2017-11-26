@@ -265,6 +265,7 @@ FIX_QT_5_7_0_ANDROID_MAKE_INSTALL_BUG = False  # was necessary for v5.7.0
 FIX_QT_5_9_2_CROSS_COMPILE_TOP_LEVEL_BUILD_BUG = True
 FIX_QT_5_9_2_CROSS_COMPILE_EXECVP_MISSING_COMPILER_BUG = True
 FIX_QT_5_9_2_W64_HOST_TOOL_WANTS_WINDOWS_H = True
+FIX_QT_5_10_0_CONFIGURE_PRINTING_AND_PDF_BUG = True
 ADD_SO_VERSION_OF_LIBQTFORANDROID = False
 
 # OpenSSL
@@ -1291,9 +1292,11 @@ class Config(object):
         sysroot = self._xcode_sdk_path(xcode_platform=xcode_platform,
                                        sdk_version=sdk_version)
 
-        env["AR"] = fetch([XCRUN, "-sdk", sdk_name_lower, "-find", "ar"]).strip()
+        env["AR"] = fetch([XCRUN, "-sdk", sdk_name_lower,
+                           "-find", "ar"]).strip()
         env["BUILD_TOOLS"] = self._xcode_developer_path
-        env["CC"] = fetch([XCRUN, "-sdk", sdk_name_lower, "-find", "clang"]).strip()
+        env["CC"] = fetch([XCRUN, "-sdk", sdk_name_lower,
+                           "-find", "clang"]).strip()
         # "{cc} -arch {arch}".format(
         #     cc=os.path.join(developer, 'usr', 'bin', 'gcc'),
         #     arch=target_platform.ios_arch
@@ -1309,7 +1312,8 @@ class Config(object):
         )
         env["CPP"] = env["CC"] + " -E"
         env["CPPFLAGS"] = env["CFLAGS"]
-        env["CROSS_TOP"] = self._xcode_platform_dev_path(xcode_platform=xcode_platform)
+        env["CROSS_TOP"] = self._xcode_platform_dev_path(
+            xcode_platform=xcode_platform)
         env["CROSS_SDK"] = sdk_name + ".sdk"
         env["LDFLAGS"] = "-arch {arch} -isysroot {sysroot}".format(
             arch=arch,
@@ -2417,19 +2421,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     untar_to_directory(cfg.openssl_src_fullpath, rootdir)
 
     # -------------------------------------------------------------------------
-    # OpenSSL: Environment
+    # OpenSSL: Environment 1/2
     # -------------------------------------------------------------------------
     env = get_starting_env()
     cfg.set_compile_env(env, target_platform)
-    if target_platform.android:
-        # https://wiki.openssl.org/index.php/Android
-        # We're not using the Setenv-android.sh script, but replicating its
-        # functions; cfg.set_compile_env() does much of that.
-        # Also:
-        env["FIPS_SIG"] = ""  # OK to leave blank if not building FIPS
-        env["MACHINE"] = "i686"
-        env["RELEASE"] = "2.6.37"  # ??
-        env["SYSTEM"] = target_os  # e.g. "android", "android-armv7"
     if OPENSSL_AT_LEAST_1_1:
         # https://github.com/openssl/openssl/issues/1681
         # or: "error: invalid 'asm': invalid operand for code 'w'"
@@ -2627,6 +2622,19 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
             "no-engine",  # disable hardware support ("useful on mobile devices")  # noqa
         ]
     # OpenSSL's Configure script applies optimizations by default.
+
+    # -------------------------------------------------------------------------
+    # OpenSSL: Environment 2/2
+    # -------------------------------------------------------------------------
+    if target_platform.android:
+        # https://wiki.openssl.org/index.php/Android
+        # We're not using the Setenv-android.sh script, but replicating its
+        # functions; cfg.set_compile_env() does much of that.
+        # Also:
+        env["FIPS_SIG"] = ""  # OK to leave blank if not building FIPS
+        env["MACHINE"] = "i686"
+        env["RELEASE"] = "2.6.37"  # ??
+        env["SYSTEM"] = target_os  # e.g. "android", "android-armv7"
 
     # -------------------------------------------------------------------------
     # OpenSSL: Makefile tweaking prior to running Configure
@@ -3021,6 +3029,15 @@ define $(PKG)_BUILD
 
         check_bad_super_cache(os.path.expanduser("~/.qmake.super"))
         check_bad_super_cache(join(cfg.root_dir, ".qmake.super"))
+
+    if FIX_QT_5_10_0_CONFIGURE_PRINTING_AND_PDF_BUG:
+        # https://bugreports.qt.io/browse/QTBUG-64770
+        replace_in_file(
+            filename=join(cfg.qt_src_gitdir, "qtwebengine", "configure.json"),
+            text_from='"condition": "config.unix && features.printing-and-pdf",',  # noqa
+            text_to='"condition": "config.unix && features.webengine-printing-and-pdf",'  # noqa
+            # missing "webengine-"
+        )
 
     if target_platform.windows and BUILD_PLATFORM.linux:
 
