@@ -193,7 +193,7 @@ import sys
 import traceback
 from types import TracebackType
 from typing import (Any, Callable, Dict, Generator, List, Optional, Tuple,
-                    Type, Union)
+                    Union)  # "Type" not in Python 3.5.1
 import urllib.request
 
 try:
@@ -802,14 +802,27 @@ class Platform(object):
 
     @property
     def ios_arch(self) -> str:
+        """
+        Architecture name to pass to Xcode's clang etc.
+        Architecture conversions:
+        - https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
+        Which architectures does Xcode's clang support?
+        - https://stackoverflow.com/questions/15036909/clang-how-to-list-supported-target-architectures  # noqa
+        If in doubt, running "clang -arch SOMETHING" will produce an error
+        if it's unsupported. With clang-703.0.29, "x86_64" and "arm6" are
+        OK.
+        """
+
         if self.cpu_x86_64bit_family:
             return "x86_64"
+            # return "i386"
         elif self.cpu == Cpu.X86_32:
             return "i386"
         elif self.cpu == Cpu.ARM_V7:
             return "armv7"
         elif self.cpu == Cpu.ARM_V8_64:
             return "arm64"
+            # return "arm"
         else:
             raise ValueError("Unknown architecture for iOS")
 
@@ -854,6 +867,9 @@ class Platform(object):
 
     @property
     def cross_compile_prefix(self) -> str:
+        if BUILD_PLATFORM == self:
+            # Compiling for the platform we're running on.
+            return ""
         if BUILD_PLATFORM.unix:
             if self.android:
                 if self.cpu == Cpu.X86_32:
@@ -867,7 +883,8 @@ class Platform(object):
                 else:
                     return "i686-w64-mingw32.static-"
         raise NotImplementedError("Don't know CROSS_COMPILE prefix for " +
-                                  str(self))
+                                  str(self) + " when running on " +
+                                  str(BUILD_PLATFORM))
 
     def make_args(self, cfg: "Config", extra_args: List[str] = None,
                   command: str = "", makefile: str = "") -> List[str]:
@@ -1267,12 +1284,16 @@ class Config(object):
         sdk_version = self._get_ios_sdk_version(target_platform=target_platform)
         sdk_name = self._xcode_sdk_name(xcode_platform=xcode_platform,
                                         sdk_version=sdk_version)
+        sdk_name_lower = sdk_name.lower()
+        # ... must be lower-case for some functions. Try:
+        #     xcodebuild -showsdks
+        #     xcrun -sdk <sdkname> -find clang
         sysroot = self._xcode_sdk_path(xcode_platform=xcode_platform,
                                        sdk_version=sdk_version)
 
-        env["AR"] = fetch([XCRUN, "-sdk", sdk_name, "-find", "ar"]).strip()
+        env["AR"] = fetch([XCRUN, "-sdk", sdk_name_lower, "-find", "ar"]).strip()
         env["BUILD_TOOLS"] = self._xcode_developer_path
-        env["CC"] = fetch([XCRUN, "-sdk", sdk_name, "-find", "clang"]).strip()
+        env["CC"] = fetch([XCRUN, "-sdk", sdk_name_lower, "-find", "clang"]).strip()
         # "{cc} -arch {arch}".format(
         #     cc=os.path.join(developer, 'usr', 'bin', 'gcc'),
         #     arch=target_platform.ios_arch
@@ -1288,15 +1309,14 @@ class Config(object):
         )
         env["CPP"] = env["CC"] + " -E"
         env["CPPFLAGS"] = env["CFLAGS"]
-        env["CROSS_TOP"] = self._xcode_platform_dev_path(
-            xcode_platform=xcode_platform)
-        env["CROSS_SDK"] = sdk_name
+        env["CROSS_TOP"] = self._xcode_platform_dev_path(xcode_platform=xcode_platform)
+        env["CROSS_SDK"] = sdk_name + ".sdk"
         env["LDFLAGS"] = "-arch {arch} -isysroot {sysroot}".format(
             arch=arch,
             sysroot=sysroot,
         )
         env["PLATFORM"] = xcode_platform
-        env["RANLIB"] = fetch([XCRUN, "-sdk", sdk_name, "-find",
+        env["RANLIB"] = fetch([XCRUN, "-sdk", sdk_name_lower, "-find",
                                "ranlib"]).strip()
 
     @property
@@ -1326,10 +1346,7 @@ class Config(object):
 
     @staticmethod
     def _xcode_sdk_name(xcode_platform: str, sdk_version: str) -> str:
-        return "{p}{s}".format(p=xcode_platform, s=sdk_version).lower()
-        # Must be lower-case. Try:
-        # xcodebuild -showsdks
-        # xcrun -sdk <sdkname> -find clang
+        return "{p}{s}".format(p=xcode_platform, s=sdk_version)
 
     def _xcode_sdk_path(self, xcode_platform: str, sdk_version: str) -> str:
         return join(self._xcode_all_sdks_path(xcode_platform),
@@ -1414,6 +1431,7 @@ class Config(object):
                 env["PATH"],
             ])
             # VCVARSALL.BAT
+
             # We can't CALL a batch file and have it change our environment,
             # so we must implement the functionality of VCVARSALL.BAT <arch>
             if target_platform.cpu_x86_32bit_family:
@@ -1502,7 +1520,7 @@ class Config(object):
                 xcode_platform=target_platform.ios_platform_name,
                 sdk_version=self._get_ios_sdk_version(
                     target_platform=target_platform))
-        elif target_platform.linux:
+        elif target_platform.linux or target_platform.osx:
             return "/"  # default sysroot
         elif target_platform.windows:
             return env["WindowsSdkDir"]
@@ -1666,7 +1684,7 @@ def contains_unquoted_ampersand_dangerous_to_windows(x: str) -> bool:
 
 
 EXC_INFO_TYPE = Tuple[
-    Optional[Type[BaseException]],
+    Optional[Any],  # Type[BaseException]], but that's not in Python 3.5
     Optional[BaseException],
     Optional[TracebackType],  # it's a traceback object
 ]
@@ -1770,6 +1788,7 @@ def fetch(args: List[str], env: Dict[str, str] = None,
     Run a command and fetch its stdout.
     """
     stdout, _ = run(args, env=env, get_stdout=True, encoding=encoding)
+    log.debug(stdout)
     return stdout
 
 
@@ -2341,14 +2360,14 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         https://wiki.openssl.org/index.php/Compilation_and_Installation
     """
     # -------------------------------------------------------------------------
-    # Prerequisites
+    # OpenSSL: Prerequisites
     # -------------------------------------------------------------------------
     if BUILD_PLATFORM.windows:
         ensure_first_perl_is_not_cygwin()
         require(NASM)
 
     # -------------------------------------------------------------------------
-    # Set up filenames we expect to be generated
+    # OpenSSL: Set up filenames we expect to be generated
     # -------------------------------------------------------------------------
     rootdir, workdir = cfg.get_openssl_rootdir_workdir(target_platform)
     dynamic_lib_ext = target_platform.dynamic_lib_ext
@@ -2393,12 +2412,31 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         return
 
     # -------------------------------------------------------------------------
-    # Unpack source
+    # OpenSSL: Unpack source
     # -------------------------------------------------------------------------
     untar_to_directory(cfg.openssl_src_fullpath, rootdir)
 
     # -------------------------------------------------------------------------
-    # Configure options
+    # OpenSSL: Environment
+    # -------------------------------------------------------------------------
+    env = get_starting_env()
+    cfg.set_compile_env(env, target_platform)
+    if target_platform.android:
+        # https://wiki.openssl.org/index.php/Android
+        # We're not using the Setenv-android.sh script, but replicating its
+        # functions; cfg.set_compile_env() does much of that.
+        # Also:
+        env["FIPS_SIG"] = ""  # OK to leave blank if not building FIPS
+        env["MACHINE"] = "i686"
+        env["RELEASE"] = "2.6.37"  # ??
+        env["SYSTEM"] = target_os  # e.g. "android", "android-armv7"
+    if OPENSSL_AT_LEAST_1_1:
+        # https://github.com/openssl/openssl/issues/1681
+        # or: "error: invalid 'asm': invalid operand for code 'w'"
+        env["CROSS_SYSROOT"] = cfg.sysroot(target_platform, env)
+
+    # -------------------------------------------------------------------------
+    # OpenSSL: Configure options
     # -------------------------------------------------------------------------
     # The OpenSSL "config" sh script guesses the OS, then passes details
     # to its "Configure" Perl script.
@@ -2439,6 +2477,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             target_os = "iphoneos-cross"
         elif target_platform.cpu_x86_64bit_family:
             target_os = "darwin64-x86_64-cc"
+        else:
+            raise NotImplementedError("Don't known OpenSSL target name for "
+                                      "{}".format(target_platform))
         # iOS specials
         run([
             SED,
@@ -2574,7 +2615,12 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
         raise NotImplementedError("Don't know how to make OpenSSL for " +
                                   target_platform.description)
 
-    configure_args = [target_os] + OPENSSL_COMMON_OPTIONS
+    configure_args = [
+        target_os,
+        "--prefix=" + cfg.sysroot(target_platform, env),
+        # "--cross-compile-prefix={}".format(
+        #     target_platform.cross_compile_prefix),
+    ] + OPENSSL_COMMON_OPTIONS
     if target_platform.mobile:
         configure_args += [
             "no-hw",  # disable hardware support ("useful on mobile devices")
@@ -2583,26 +2629,7 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
     # OpenSSL's Configure script applies optimizations by default.
 
     # -------------------------------------------------------------------------
-    # Environment
-    # -------------------------------------------------------------------------
-    env = get_starting_env()
-    cfg.set_compile_env(env, target_platform)
-    if target_platform.android:
-        # https://wiki.openssl.org/index.php/Android
-        # We're not using the Setenv-android.sh script, but replicating its
-        # functions; cfg.set_compile_env() does much of that.
-        # Also:
-        env["FIPS_SIG"] = ""  # OK to leave blank if not building FIPS
-        env["MACHINE"] = "i686"
-        env["RELEASE"] = "2.6.37"  # ??
-        env["SYSTEM"] = target_os  # e.g. "android", "android-armv7"
-    if OPENSSL_AT_LEAST_1_1:
-        # https://github.com/openssl/openssl/issues/1681
-        # or: "error: invalid 'asm': invalid operand for code 'w'"
-        env["CROSS_SYSROOT"] = cfg.sysroot(target_platform, env)
-
-    # -------------------------------------------------------------------------
-    # Makefile tweaking
+    # OpenSSL: Makefile tweaking prior to running Configure
     # -------------------------------------------------------------------------
     # https://wiki.openssl.org/index.php/Android
     if not OPENSSL_AT_LEAST_1_1:
@@ -2624,7 +2651,7 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
 
     with pushd(workdir):
         # ---------------------------------------------------------------------
-        # Configure (or config)
+        # OpenSSL: Configure (or config)
         # ---------------------------------------------------------------------
         use_configure = True  # Better!
         if use_configure or not target_platform.android:
@@ -2642,7 +2669,7 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
             run([join(workdir, "config")] + configure_args, env)
 
         # ---------------------------------------------------------------------
-        # Make
+        # OpenSSL: Make
         # ---------------------------------------------------------------------
         if OPENSSL_AT_LEAST_1_1:
             # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
@@ -2730,7 +2757,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     #       http://doc.qt.io/qt-5/osx.html
 
     # -------------------------------------------------------------------------
-    # Setup
+    # Qt: Setup
     # -------------------------------------------------------------------------
 
     # Linkage method of Qt itself?
@@ -2762,7 +2789,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         return installdir
 
     # -------------------------------------------------------------------------
-    # clean from old configure
+    # Qt: clean from old configure
     # -------------------------------------------------------------------------
     # No need to clean anything in the source directory, as long as you don't
     # build there.
@@ -2774,7 +2801,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # (unless you're developing this script)?
 
     # -------------------------------------------------------------------------
-    # Environment
+    # Qt: Environment
     # -------------------------------------------------------------------------
     env = get_starting_env()
     openssl_libs = "-L{} -lssl -lcrypto".format(openssl_lib_root)
@@ -2787,7 +2814,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     cfg.set_compile_env(env, target_platform)
 
     # -------------------------------------------------------------------------
-    # Directories
+    # Qt: Directories
     # -------------------------------------------------------------------------
     log.info("Configuring {} build in {}".format(target_platform.description,
                                                  builddir))
@@ -2795,7 +2822,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     mkdir_p(installdir)
 
     # -------------------------------------------------------------------------
-    # Work out options to configure
+    # Qt: Work out options to configure
     # -------------------------------------------------------------------------
     # -xplatform options are in src/qt5/qtbase/mkspecs/
     if BUILD_PLATFORM.windows:
@@ -3031,7 +3058,7 @@ In file included from /home/rudolf/dev/qt_local_build/qt_windows_x86_64_build/qt
             qt_config_args += ["-skip", "qtactiveqt"]
 
     # -------------------------------------------------------------------------
-    # configure
+    # Qt: configure
     # -------------------------------------------------------------------------
     with pushd(builddir):
         try:
@@ -3069,7 +3096,7 @@ Troubleshooting Qt 'configure' failures
             raise
 
     # -------------------------------------------------------------------------
-    # make (can take several hours)
+    # Qt: make (can take several hours)
     # -------------------------------------------------------------------------
     log.info("Making Qt {} build into {}".format(target_platform.description,
                                                  installdir))
@@ -3099,7 +3126,7 @@ A.  !!! does MXE build, and if so, can we copy it?
             raise
 
     # -------------------------------------------------------------------------
-    # make install
+    # Qt: make install
     # -------------------------------------------------------------------------
     if target_platform.android and FIX_QT_5_7_0_ANDROID_MAKE_INSTALL_BUG:
         # PROBLEM WITH "make install":
@@ -3167,7 +3194,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     """
 
     # -------------------------------------------------------------------------
-    # Setup
+    # SQLCipher: setup
     # -------------------------------------------------------------------------
     destdir = join(cfg.root_dir,
                    "sqlcipher_" + target_platform.dirpart,
@@ -3192,7 +3219,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     copytree(cfg.sqlcipher_src_gitdir, destdir, destroy=True)
 
     # -------------------------------------------------------------------------
-    # configure args
+    # SQLCipher: configure args
     # -------------------------------------------------------------------------
     _, openssl_workdir = cfg.get_openssl_rootdir_workdir(target_platform)
     openssl_include_dir = join(openssl_workdir, "include")
@@ -3277,17 +3304,16 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         BUILD_PLATFORM.sqlcipher_platform))
     config_args.append("--host={}".format(
         target_platform.sqlcipher_platform))
-
     config_args.append("--prefix={}".format(cfg.sysroot(target_platform, env)))
 
     # -------------------------------------------------------------------------
-    # configure
+    # SQLCipher: configure
     # -------------------------------------------------------------------------
     with pushd(destdir):
         run(config_args, env)
 
     # -------------------------------------------------------------------------
-    # make
+    # SQLCipher: make
     # -------------------------------------------------------------------------
     with pushd(destdir):
         # Don't use cfg.make_args(); we want "make" even under Windows (via
@@ -3323,7 +3349,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             run([MAKE, "sqlcipher"], env)  # the command-line executable
 
     # -------------------------------------------------------------------------
-    # Check and report
+    # SQLCipher: Check and report
     # -------------------------------------------------------------------------
     target_platform.verify_lib(target_o)
 
