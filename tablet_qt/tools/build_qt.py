@@ -2496,8 +2496,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
         # If Bitcode is later required, see the other ones above and
         # https://stackoverflow.com/questions/30722606/what-does-enable-bitcode-do-in-xcode-7  # noqa
+        if target_platform.cpu == Cpu.ARM_V7:
+            target_os = "ios-cross"  # "iphoneos-cross"
         if target_platform.cpu == Cpu.ARM_V8_64:
-            target_os = "iphoneos-cross"
+            target_os = "ios64-cross"  # "iphoneos-cross"
         elif target_platform.cpu_x86_64bit_family:
             target_os = "darwin64-x86_64-cc"
         else:
