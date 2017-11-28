@@ -505,9 +505,9 @@ class Cpu(object):
     X86_32 = "Intel x86 (32-bit)"  # usually: "x86", "i386"
     X86_64 = "Intel x86 (64-bit)"
     AMD_64 = "AMD (64-bit)"
-    ARM_V5 = "ARM v5 (32-bit)"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture  # noqa
-    ARM_V7 = "ARM v7 (32-bit)"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture  # noqa
-    ARM_V8_64 = "ARM v8 (64-bit)"
+    ARM_V5_32 = "ARM v5 (32-bit)"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture  # noqa
+    ARM_V7_32 = "ARM v7 (32-bit)"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture  # noqa
+    ARM_V8_64 = "ARM v8 (64/32-bit)"  # ARMv8*A processors are 64/32-bit; https://en.wikipedia.org/wiki/ARM_architecture  # noqa
 
 
 ALL_CPUS = [getattr(Cpu, _) for _ in dir(Cpu) if not _.startswith("_")]
@@ -552,10 +552,16 @@ class Platform(object):
 
     @property
     def description(self) -> str:
+        """
+        Short description, for user information.
+        """
         return "{}/{}".format(self.os, self.cpu)
 
     @property
     def os_shortname(self) -> str:
+        """
+        Short OS name, used to make directory names for compilation.
+        """
         if self.os == Os.ANDROID:
             return "android"
         elif self.os == Os.LINUX:
@@ -571,13 +577,16 @@ class Platform(object):
 
     @property
     def cpu_shortname(self) -> str:
+        """
+        Short CPU name, used to make directory names for compilation.
+        """
         if self.cpu == Cpu.X86_32:
             return "x86_32"
         elif self.cpu_x86_64bit_family:
             return "x86_64"
-        elif self.cpu == Cpu.ARM_V5:
+        elif self.cpu == Cpu.ARM_V5_32:
             return "armv5"
-        elif self.cpu == Cpu.ARM_V7:
+        elif self.cpu == Cpu.ARM_V7_32:
             return "armv7"
         elif self.cpu == Cpu.ARM_V8_64:
             return "armv8_64"
@@ -650,7 +659,7 @@ class Platform(object):
 
     @property
     def cpu_arm_family(self) -> bool:
-        return self.cpu in [Cpu.ARM_V5, Cpu.ARM_V7, Cpu.ARM_V8_64]
+        return self.cpu in [Cpu.ARM_V5_32, Cpu.ARM_V7_32, Cpu.ARM_V8_64]
 
     # -------------------------------------------------------------------------
     # Library (e.g. .so, DLL) verification
@@ -694,7 +703,10 @@ class Platform(object):
             return ".o"
 
     def ensure_elf_reader(self) -> None:
-        """Only to be called for the build platform."""
+        """
+        Checks we have an ELF (Executable and Linkable Format) file reader.
+        Only to be called for the build platform.
+        """
         if self.linux:
             require(READELF)
             require(OBJDUMP)  # for Windows DLL files
@@ -710,6 +722,22 @@ class Platform(object):
         """
         Check an ELF or DLL file matches our architecture.
         """
+        # Testing:
+        # - "Have I built for the right architecture?"
+        #   http://stackoverflow.com/questions/267941
+        #   http://stackoverflow.com/questions/1085137
+        #
+        #   file libssl.so
+        #   objdump -a libssl.so  # or -x, or...
+        #   readelf -h libssl.so
+        #
+        # - Compare to files on the Android emulator:
+        #
+        #   adb pull /system/lib/libz.so  # system
+        #   adb pull /data/data/org.camcops.camcops/lib/  # ours
+        #
+        # ... looks OK
+
         log.info("Verifying type of library file: {!r}".format(filename))
         if BUILD_PLATFORM.linux:
             if self.windows:
@@ -762,6 +790,8 @@ class Platform(object):
     def android_cpu(self) -> str:
         """
         CPU name for Android builds.
+        Used by android_arch_short and in turn for various variables that get
+        passed to compilers using the Android SDK. Don't alter them.
         """
         if not self.android:
             raise ValueError("Platform is not Android")
@@ -769,9 +799,9 @@ class Platform(object):
             return "x86_64"
         elif self.cpu_x86_32bit_family:
             return "x86"
-        elif self.cpu == Cpu.ARM_V7:
+        elif self.cpu == Cpu.ARM_V7_32:
             return "arm"
-        elif self.cpu == Cpu.ARM_V5:
+        elif self.cpu == Cpu.ARM_V5_32:
             return "armv5"
         else:
             raise NotImplementedError("Don't know how to build Android for "
@@ -779,10 +809,16 @@ class Platform(object):
 
     @property
     def android_arch_short(self) -> str:
+        """
+        Needs to match Android SDK naming. Don't alter.
+        """
         return self.android_cpu
 
     @property
     def android_arch_full(self) -> str:
+        """
+        Needs to match Android SDK naming. Don't alter.
+        """
         # e.g. arch-x86
         return "arch-{}".format(self.android_arch_short)
 
@@ -792,6 +828,9 @@ class Platform(object):
 
     @property
     def ios_platform_name(self) -> str:
+        """
+        Needs to match iOS SDK naming. Don't alter.
+        """
         if not self.ios:
             raise ValueError("ios_platform_name requested but not using iOS")
         if self.cpu_x86_family:
@@ -804,7 +843,7 @@ class Platform(object):
     @property
     def ios_arch(self) -> str:
         """
-        Architecture name to pass to Xcode's clang etc.
+        Architecture name to pass to Xcode's clang etc. Don't alter.
         Architecture conversions:
         - https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
         Which architectures does Xcode's clang support?
@@ -819,11 +858,10 @@ class Platform(object):
             # return "i386"
         elif self.cpu == Cpu.X86_32:
             return "i386"
-        elif self.cpu == Cpu.ARM_V7:
+        elif self.cpu == Cpu.ARM_V7_32:
             return "armv7"
         elif self.cpu == Cpu.ARM_V8_64:
             return "arm64"
-            # return "arm"
         else:
             raise ValueError("Unknown architecture for iOS")
 
@@ -833,6 +871,9 @@ class Platform(object):
 
     @property
     def mxe_target(self) -> str:
+        """
+        For cross-compilation Linux -> Windows, using MXE.
+        """
         assert self.windows, "mxe_target is for cross-compilation to Windows"
         assert BUILD_PLATFORM.linux, "mxe_target is for cross-compilation from Linux"  # noqa
         if self.cpu_64bit:
@@ -845,6 +886,9 @@ class Platform(object):
     # -------------------------------------------------------------------------
 
     def gcc(self, fullpath: bool, cfg: "Config") -> str:
+        """
+        Work out the name of an appropriate gcc compiler.
+        """
         if not fullpath:
             return "gcc"
         if self.android:
@@ -859,6 +903,9 @@ class Platform(object):
         return shutil.which("gcc")
 
     def ar(self, fullpath: bool, cfg: "Config") -> str:
+        """
+        Work out the name of an appropriate ar assembler.
+        """
         if not fullpath:
             return "gcc-ar"
         if self.android:
@@ -868,6 +915,9 @@ class Platform(object):
 
     @property
     def cross_compile_prefix(self) -> str:
+        """
+        Work out the CROSS_COMPILE environment variable/prefix.
+        """
         if BUILD_PLATFORM == self:
             # Compiling for the platform we're running on.
             return ""
@@ -875,7 +925,7 @@ class Platform(object):
             if self.android:
                 if self.cpu == Cpu.X86_32:
                     return "i686-linux-android-"
-                elif self.cpu == Cpu.ARM_V7:
+                elif self.cpu == Cpu.ARM_V7_32:
                     return "arm-linux-androideabi-"
             elif self.windows:
                 # https://superuser.com/questions/238112/what-is-the-difference-between-i686-and-x86-64  # noqa
@@ -888,14 +938,19 @@ class Platform(object):
                                   str(BUILD_PLATFORM))
 
     def make_args(self, cfg: "Config", extra_args: List[str] = None,
-                  command: str = "", makefile: str = "") -> List[str]:
+                  command: str = "", makefile: str = "",
+                  env: Dict[str, str] = None) -> List[str]:
+        """
+        Generates command arguments for "make" or a platform equivalent.
+        """
         extra_args = extra_args or []  # type: List[str]
+        env = env or os.environ
         if self.windows:
-            if shutil.which(cfg.jom_executable):
+            if which_with_envpath(cfg.jom_executable, env):
                 make = cfg.jom_executable
                 supports_parallel = True
             else:
-                make = NMAKE
+                make = which_with_envpath(NMAKE, env)
                 supports_parallel = False
             makefile_switch = "/F"
             parallel_switch = "/J"
@@ -934,6 +989,10 @@ class Platform(object):
 
     @property
     def sqlcipher_platform(self) -> str:
+        """
+        Generates the name of a platform to be passed to SQLCipher's configure
+        tool (either build or target).
+        """
         # See config.guess in SQLCipher source.
         # (You can run or source it to see its answer.)
         if self.linux:
@@ -942,7 +1001,7 @@ class Platform(object):
             elif self.cpu_x86_32bit_family:
                 return "i686-unknown-linux"
         elif self.android:
-            if self.cpu == Cpu.ARM_V7:
+            if self.cpu == Cpu.ARM_V7_32:
                 # arm? [1]
                 # arm-linux? [2]
                 return "arm-linux"
@@ -966,7 +1025,9 @@ class Platform(object):
 
 
 def get_build_platform() -> Platform:
-    """Find the architecture this script is running on."""
+    """
+    Find the architecture this script is running on.
+    """
     s = platform.system()
     if s == "Linux":
         os_ = Os.LINUX
@@ -1177,17 +1238,26 @@ class Config(object):
     # -------------------------------------------------------------------------
 
     def qt_build_dir(self, target_platform: Platform) -> str:
+        """
+        The directory in which we will compile and build Qt.
+        """
         return join(self.root_dir, "qt_{}_build".format(
             target_platform.dirpart))
 
     def qt_install_dir(self, target_platform: Platform) -> str:
+        """
+        The directory to which we'll install Qt, culminating in the "qmake"
+        tool.
+        """
         return join(self.root_dir, "qt_{}_install".format(
             target_platform.dirpart))
 
     def get_openssl_rootdir_workdir(
             self, target_platform: Platform) -> Tuple[str, str]:
         """
-        Calculates local OpenSSL directories.
+        Calculates local OpenSSL directories: the rootdir (where we unpack
+        OpenSSL) and the workdir (a subdirectory of the rootdir, where the
+        interesting stuff lives).
         """
         rootdir = join(self.root_dir,
                        "openssl_{}_build".format(target_platform.dirpart))
@@ -1199,11 +1269,15 @@ class Config(object):
     # -------------------------------------------------------------------------
 
     def make_args(self, extra_args: List[str] = None, command: str = "",
-                  makefile: str = "") -> List[str]:
+                  makefile: str = "", env: Dict[str, str] = None) -> List[str]:
+        """
+        Returns command arguments for "make" or a platform equivalent.
+        """
         return BUILD_PLATFORM.make_args(cfg=self,
                                         extra_args=extra_args,
                                         command=command,
-                                        makefile=makefile)
+                                        makefile=makefile,
+                                        env=env)
 
     # -------------------------------------------------------------------------
     # Environment variables
@@ -1237,18 +1311,27 @@ class Config(object):
     def _set_linux_env(self,
                        env: Dict[str, str],
                        use_cross_compile_var: bool) -> None:
+        """
+        Implementation of set_compile_env() for Linux targets.
+        """
         env["AR"] = BUILD_PLATFORM.ar(fullpath=not use_cross_compile_var,
                                       cfg=self)
         env["CC"] = BUILD_PLATFORM.gcc(fullpath=not use_cross_compile_var,
                                        cfg=self)
 
     def _set_osx_env(self, env: Dict[str, str]) -> None:
+        """
+        Implementation of set_compile_env() for OS/X targets.
+        """
         pass
 
     def _set_android_env(self,
                          env: Dict[str, str],
                          target_platform: Platform,
                          use_cross_compile_var: bool) -> None:
+        """
+        Implementation of set_compile_env() for Android targets.
+        """
         android_sysroot = self.android_sysroot(target_platform)
         android_toolchain = self.android_toolchain(target_platform)
 
@@ -1278,6 +1361,9 @@ class Config(object):
 
     def _set_ios_env(self, env: Dict[str, str],
                      target_platform: Platform) -> None:
+        """
+        Implementation of set_compile_env() for iOS targets.
+        """
         # https://gist.github.com/foozmeat/5154962
         # https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
         xcode_platform = target_platform.ios_platform_name
@@ -1326,6 +1412,9 @@ class Config(object):
 
     @property
     def _xcode_developer_path(self) -> str:
+        """
+        Find XCode (the compiler suite under OS/X).
+        """
         if not self._cached_xcode_developer_path:
             self._cached_xcode_developer_path = fetch(
                 [XCODE_SELECT, "-print-path"]).strip()
@@ -1334,26 +1423,45 @@ class Config(object):
 
     @property
     def _xcode_platforms_path(self) -> str:
+        """
+        Find the directory in which XCode stores its target platforms.
+        """
         return join(self._xcode_developer_path, "Platforms")
 
     @property
     def _xcode_tools_path(self) -> str:
+        """
+        Find the XCode default toolchain.
+        """
         return join(self._xcode_developer_path,
                     "Toolchains", "XcodeDefault.xctoolchain", "usr", "bin")
 
     def _xcode_platform_dev_path(self, xcode_platform: str) -> str:
+        """
+        Find the XCode Developer path for a specific target platform.
+        """
         return join(self._xcode_platforms_path,
                     "{}.platform".format(xcode_platform),
                     "Developer")
 
     def _xcode_all_sdks_path(self, xcode_platform: str) -> str:
+        """
+        Find the directory in which all SDK versions for the specified platform
+        live.
+        """
         return join(self._xcode_platform_dev_path(xcode_platform), "SDKs")
 
     @staticmethod
     def _xcode_sdk_name(xcode_platform: str, sdk_version: str) -> str:
+        """
+        Find the short name of a specific SDK version for a platform.
+        """
         return "{p}{s}".format(p=xcode_platform, s=sdk_version)
 
     def _xcode_sdk_path(self, xcode_platform: str, sdk_version: str) -> str:
+        """
+        Find the path to a specific platform SDK.
+        """
         return join(self._xcode_all_sdks_path(xcode_platform),
                     self._xcode_sdk_name(xcode_platform=xcode_platform,
                                          sdk_version=sdk_version) + ".sdk")
@@ -1361,6 +1469,10 @@ class Config(object):
     def _get_latest_ios_sdk_version(self, target_platform: Platform,
                                     xcode_platform: str = "",
                                     default: str = "8.0") -> str:
+        """
+        Get the version as a string, e.g. "9.3", of the latest SDK available
+        for iOS for the specified platform.
+        """
         # https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
         xcode_platform = xcode_platform or target_platform.ios_platform_name
         sdkpath = self._xcode_all_sdks_path(xcode_platform)
@@ -1378,12 +1490,19 @@ class Config(object):
         return sdk_version
 
     def _get_ios_sdk_version(self, target_platform: Platform) -> str:
+        """
+        Get the iOS SDK version to use: either the one the user said, or the
+        latest we can find.
+        """
         return self.ios_sdk or self._get_latest_ios_sdk_version(
             target_platform=target_platform)
 
     def _set_windows_env(self, env: Dict[str, str],
                          target_platform: Platform,
                          use_cross_compile_var: bool) -> None:
+        """
+        Implementation of set_compile_env() for Windows targets.
+        """
         if BUILD_PLATFORM.linux:
             if CAN_CROSS_COMPILE_LINUX_TO_WINDOWS:
                 if not USE_MINGW or not USE_MXE:
@@ -1472,6 +1591,16 @@ class Config(object):
                 "{}".format(BUILD_PLATFORM))
 
     def _android_eabi(self, target_platform: Platform) -> str:
+        """
+        Get the name of the Android Embedded Application Binary Interface
+        for ARM processors, used for the Android SDK.
+        ABIs:
+            - https://developer.android.com/ndk/guides/abis.html
+        ARM supports two ABI types, one of which is the Embedded ABI:
+            - http://kanj.githib.io/elfs/book/armMusl/cross-tools/abi.html
+            - https://www.eecs.umich.edu/courses/eeecs373/readings/ARM-AAPCS-EABI-v2.08.pdf  # noqa
+                = Procedure Call Standard for the ARM Architecture
+        """
         if target_platform.cpu_x86_family:
             return "{}-{}".format(
                 target_platform.android_arch_short,
@@ -1489,27 +1618,26 @@ class Config(object):
             raise NotImplementedError("Unknown CPU family for Android")
 
     def android_sysroot(self, target_platform: Platform) -> str:
+        """
+        Get the Android sysroot (e.g. where system #include files live) for a
+        specific target platform.
+        """
         return join(self.android_ndk_root, "platforms",
                     self.android_api, target_platform.android_arch_full)
 
     def android_toolchain(self, target_platform: Platform) -> str:
-        """Directory of the Android toolchain."""
+        """
+        Directory of the Android toolchain.
+        """
         return join(self.android_ndk_root, "toolchains",
                     self._android_eabi(target_platform),
                     "prebuilt", self.android_ndk_host, "bin")
 
-    @staticmethod
-    def cross_compile_prefix(target_platform: Platform) -> str:
-        if target_platform.android:
-            if target_platform.cpu == Cpu.X86_32:
-                return "i686-linux-android-"
-            elif target_platform.cpu == Cpu.ARM_V7:
-                return "arm-linux-androideabi-"
-        raise NotImplementedError("Don't know CROSS_COMPILE prefix for " +
-                                  str(target_platform))
-
     def _android_cc(self, target_platform: Platform,
                     fullpath: bool) -> str:
+        """
+        Gets the name of a compiler for Android.
+        """
         # Don't apply the CROSS_COMPILE prefix; that'll be prefixed
         # automatically.
         return (
@@ -1518,6 +1646,12 @@ class Config(object):
         )
 
     def sysroot(self, target_platform: Platform, env: Dict[str, str]) -> str:
+        """
+        Gets the sysroot (e.g. where system #include files live) for a specific
+        target platform.
+        Under Windows, we look at the environment, which will have been set
+        by VCVARSALL.BAT.
+        """
         if target_platform.android:
             return self.android_sysroot(target_platform)
         elif target_platform.ios:
@@ -1538,6 +1672,9 @@ class Config(object):
 
     def convert_android_lib_a_to_so(self, lib_a_fullpath: str,
                                     target_platform: Platform) -> str:
+        """
+        Converts an Android library from static (.a) to dynamic (.so) format.
+        """
         # https://stackoverflow.com/questions/3919902/method-of-converting-a-static-library-into-a-dynamically-linked-library  # noqa
         libprefix = "lib"
         directory, filename = split(lib_a_fullpath)
@@ -1566,7 +1703,16 @@ class Config(object):
 
 
 # =============================================================================
-# Ancillary
+# Ancillary: crash out informatively
+# =============================================================================
+
+def fail(msg: str) -> None:
+    log.critical(msg)
+    raise ValueError(msg)
+
+
+# =============================================================================
+# Ancillary: file and directory management
 # =============================================================================
 
 def chdir(directory: str) -> None:
@@ -1580,7 +1726,7 @@ def chdir(directory: str) -> None:
 @contextmanager
 def pushd(directory: str) -> None:
     """
-    Context manager to change directory and preserve original on exit.
+    Context manager: changes directory and preserves the original on exit.
     """
     previous_dir = os.getcwd()
     chdir(directory)
@@ -1588,20 +1734,101 @@ def pushd(directory: str) -> None:
     chdir(previous_dir)
     
     
-def which_with_envpath(executable: str, env: Dict[str, str]) -> str:
+def mkdir_p(path: str) -> None:
     """
-    Reason: when you use run([executable, ...], env) and therefore
-    subprocess.run([executable, ...], env=env), the PATH that's searched for
-    "executable" is the parent's, not the new one -- so you have to find the
-    executable manually.
+    Makes a directory, and any other necessary directories (mkdir -p).
     """
-    oldpath = os.environ.get("PATH", "")
-    os.environ["PATH"] = env.get("PATH")
-    which = shutil.which(executable)
-    os.environ["PATH"] = oldpath
-    return which
+    log.info("mkdir -p {}".format(path))
+    os.makedirs(path, exist_ok=True)
+
+
+EXC_INFO_TYPE = Tuple[
+    Optional[Any],  # Type[BaseException]], but that's not in Python 3.5
+    Optional[BaseException],
+    Optional[TracebackType],  # it's a traceback object
+]
+# https://docs.python.org/3/library/sys.html#sys.exc_info
+
+
+def shutil_rmtree_onerror(func: Callable[[str], None],
+                          path: str,
+                          exc_info: EXC_INFO_TYPE) -> None:
+    # https://stackoverflow.com/questions/2656322/shutil-rmtree-fails-on-windows-with-access-is-denied  # noqa
+    """
+    Error handler for ``shutil.rmtree``.
+
+    If the error is due to an access error (read only file)
+    it attempts to add write permission and then retries.
+
+    If the error is for another reason it re-raises the error.
+
+    Usage : ``shutil.rmtree(path, onerror=onerror)``
+    """
+    if not os.access(path, os.W_OK):
+        # Is the error an access error ?
+        os.chmod(path, stat.S_IWUSR)
+        func(path)
+    else:
+        exc = exc_info[1]
+        raise exc
+
+
+def rmtree(directory: str) -> None:
+    """
+    Deletes a directory tree.
+    """
+    log.debug("Deleting directory {}".format(directory))
+    shutil.rmtree(directory, onerror=shutil_rmtree_onerror)
     
-    
+
+def delete_files_within_dir(filename: str, directory: str) -> None:
+    for dirpath, dirnames, filenames in os.walk(directory):
+        for f in filenames:
+            if f == filename:
+                fullpath = join(dirpath, f)
+                log.debug("Deleting {!r}".format(fullpath))
+                os.remove(fullpath)
+
+
+# def chmod_recursive(root: str, permission: int) -> None:
+#     # Untested
+#     # Permission: e.g. stat.S_IWUSR
+#     os.chmod(root, permission)
+#     for dirpath, dirnames, filenames in os.walk(root):
+#         for d in dirnames:
+#             os.chmod(join(dirpath, d), permission)
+#         for f in filenames:
+#             os.chmod(join(dirpath, f), permission)
+
+
+def root_path() -> str:
+    """
+    Returns the system root directory.
+    """
+    # http://stackoverflow.com/questions/12041525
+    return abspath(os.sep)
+
+
+def copytree(srcdir: str, destdir: str, destroy: bool = False) -> None:
+    """
+    Recursive copy.
+    """
+    log.info("Copying directory {} -> {}".format(srcdir, destdir))
+    if os.path.exists(destdir):
+        if not destroy:
+            raise ValueError("Destination exists!")
+        if not os.path.isdir(destdir):
+            raise ValueError("Destination exists but isn't a directory!")
+        log.debug("... removing old contents")
+        rmtree(destdir)
+        log.debug("... now copying")
+    shutil.copytree(srcdir, destdir)
+
+
+# =============================================================================
+# Ancillary: environment and shell handling
+# =============================================================================
+
 def escape_literal_for_shell(x: str) -> str:
     """
     Double-quote a path if it has spaces or quotes in, for use particularly
@@ -1646,7 +1873,8 @@ def make_copy_paste_cmd(args: List[str]) -> str:
 
 def make_copy_paste_env(env: Dict[str, str]) -> str:
     """
-    Convert an environment into a set of commands to recreate that environment.
+    Convert an environment into a set of commands that can be copied/pasted, on
+    the build platform, to recreate that environment.
     """
     cmd = "set" if BUILD_PLATFORM.windows else "export"
     return (
@@ -1665,9 +1893,24 @@ def make_copy_paste_env(env: Dict[str, str]) -> str:
 def contains_unquoted_target(x: str,
                              quote: str = '"', target: str = '&') -> bool:
     """
-    See https://stackoverflow.com/questions/34124636.
+    Checks if 'target' exists in 'x' outside quotes (as defined by 'quote').
+    Principal use: contains_unquoted_ampersand_dangerous_to_windows()
+    """
+    in_quote = False
+    for c in x:
+        if c == quote:
+            in_quote = not in_quote
+        elif c == target:
+            if not in_quote:
+                return True
+    return False
+
+
+def contains_unquoted_ampersand_dangerous_to_windows(x: str) -> bool:
+    """
     Under Windows, if an ampersand is in a path and is not quoted, it'll break
     lots of things.
+    See https://stackoverflow.com/questions/34124636.
     Simple example:
         set RUBBISH=a & b           # 'b' is not recognizable as a... command
         set RUBBISH='a & b'         # 'b'' is not recognizable as a... command
@@ -1687,155 +1930,144 @@ def contains_unquoted_target(x: str,
     
     Anyway, this is a sanity check for that sort of thing.
     """
-    in_quote = False
-    for c in x:
-        if c == quote:
-            in_quote = not in_quote
-        elif c == target:
-            if not in_quote:
-                return True
-    return False
-
-
-def contains_unquoted_ampersand_dangerous_to_windows(x: str) -> bool:
     return contains_unquoted_target(x, quote='"', target='&')
 
 
-# def chmod_recursive(root: str, permission: int) -> None:
-#     # Untested
-#     # Permission: e.g. stat.S_IWUSR
-#     os.chmod(root, permission)
-#     for dirpath, dirnames, filenames in os.walk(root):
-#         for d in dirnames:
-#             os.chmod(join(dirpath, d), permission)
-#         for f in filenames:
-#             os.chmod(join(dirpath, f), permission)
-
-
-EXC_INFO_TYPE = Tuple[
-    Optional[Any],  # Type[BaseException]], but that's not in Python 3.5
-    Optional[BaseException],
-    Optional[TracebackType],  # it's a traceback object
-]
-# https://docs.python.org/3/library/sys.html#sys.exc_info
-
-
-def shutil_rmtree_onerror(func: Callable[[str], None],
-                          path: str,
-                          exc_info: EXC_INFO_TYPE) -> None:
-    # https://stackoverflow.com/questions/2656322/shutil-rmtree-fails-on-windows-with-access-is-denied  # noqa
+def get_starting_env(plain: bool = False) -> Dict[str, str]:
     """
-    Error handler for ``shutil.rmtree``.
-
-    If the error is due to an access error (read only file)
-    it attempts to add write permission and then retries.
-
-    If the error is for another reason it re-raises the error.
-
-    Usage : ``shutil.rmtree(path, onerror=onerror)``
+    Returns an operating system environment to begin manipulating. This is
+    usually a copy of os.environ() but could be a heavily cut-down version of
+    that.
     """
-    if not os.access(path, os.W_OK):
-        # Is the error an access error ?
-        os.chmod(path, stat.S_IWUSR)
-        func(path)
+    # 1. Beware "plain" under Windows. Some other parent environment
+    # variables needed for Visual C++ compiler, or you get "cannot 
+    # create temporary il file" errors. Not sure which, though; 
+    # APPDATA, TEMP and TMP are not sufficient.
+    # 2. Beware "plain" under OS/X; complains about missing "HOME"
+    # variable.
+    if plain:
+        env = {}  # type: Dict[str, str]
+        keys = ["PATH"]
+        # if BUILD_PLATFORM.windows:
+        #     keys += ["APPDATA", "TEMP", "TMP"]
+        for k in keys:
+            if k in os.environ:
+                env[k] = os.environ[k]
+        return env
     else:
-        exc = exc_info[1]
-        raise exc
+        return os.environ.copy()
 
 
-def rmtree(directory: str) -> None:
-    log.debug("Deleting directory {}".format(directory))
-    shutil.rmtree(directory, onerror=shutil_rmtree_onerror)
-    
-
-def run(args: List[str],
-        env: Dict[str, str] = None,
-        get_stdout: bool = False,
-        get_stderr: bool = False,
-        debug_show_env: bool = True,
-        encoding: str = sys.getdefaultencoding(),
-        allow_failure: bool = False) -> Tuple[str, str]:
-    """
-    Runs an external process, announcing it.
-    """
-    cwd = os.getcwd()
-    # log.debug("External command Python form: {}".format(args))
-    copy_paste_cmd = make_copy_paste_cmd(args)
-    csep = "=" * 79
-    esep = "-" * 79
-    effective_env = env or os.environ
-    if debug_show_env:
-        log.debug(
-            "Environment for the command that follows:\n"
-            "{esep}\n"
-            "{env}\n"
-            "{esep}".format(esep=esep, env=make_copy_paste_env(effective_env))
-        )
-    log.info(
-        "Launching external command:\n"
-        "{csep}\n"
-        "WORKING DIRECTORY: {cwd}\n"
-        "PYTHON ARGS: {args!r}\n"
-        "COMMAND: {cmd}\n"
-        "{csep}".format(csep=csep, cwd=cwd, cmd=copy_paste_cmd,
-                        args=args)
-    )
+def validate_pair(ob: Any) -> bool:
     try:
-        if get_stdout or get_stderr:
-            p = subprocess.run(args,
-                               env=env,
-                               stdout=subprocess.PIPE if get_stdout else None,
-                               stderr=subprocess.PIPE if get_stderr else None,
-                               check=not allow_failure)
-            stdout = p.stdout.decode(encoding) if p.stdout else ""
-            stderr = p.stderr.decode(encoding) if p.stderr else ""
-        else:
-            subprocess.check_call(args, env=env)
-            stdout, stderr = "", ""
-        log.debug("\n{csep}\nFINISHED SUCCESSFULLY: {cmd}\n{csep}".format(
-            cmd=copy_paste_cmd, csep=csep))
-        return stdout, stderr
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        log.critical(
-            "Command that failed:\n"
-            "[ENVIRONMENT]\n"
-            "{env}\n"
-            "\n"
-            "[DIRECTORY] {cwd}\n"
-            "[PYTHON ARGS] {args}\n"
-            "[COMMAND] {cmd}".format(
-                cwd=cwd,
-                env=make_copy_paste_env(effective_env),
-                cmd=copy_paste_cmd,
-                args=args
-            )
-        )
-        raise
+        if len(ob) != 2:
+            log.warning("Unexpected result: {!r}".format(ob))
+            raise ValueError()
+    except ValueError:
+        return False
+    return True
 
 
-def fetch(args: List[str], env: Dict[str, str] = None,
-          encoding: str = sys.getdefaultencoding()) -> str:
+def consume(iterator) -> None:
+    try:
+        while True:
+            next(iterator)
+    except StopIteration:
+        pass
+
+
+def windows_get_environment_from_batch_command(
+        env_cmd: Union[str, List[str]],
+        initial_env: Dict[str, str] = None) -> Dict[str, str]:
     """
-    Run a command and fetch its stdout.
+    Take a command (either a single command or list of arguments)
+    and return the environment created after running that command.
+    Note that the command must be a batch file or .cmd file, or the
+    changes to the environment will not be captured.
+
+    If initial_env is supplied, it is used as the initial environment passed
+    to the child process. (Otherwise, this process's os.environ() will be
+    used by default.)
+
+    From https://stackoverflow.com/questions/1214496/how-to-get-environment-from-a-subprocess-in-python  # noqa
+    ... with decoding bug fixed for Python 3
+    
+    PURPOSE: under Windows, VCVARSALL.BAT sets up a lot of environment
+    variables to compile for a specific target architecture. We want to be able
+    to read them, not to replicate its work.
     """
-    stdout, _ = run(args, env=env, get_stdout=True, encoding=encoding)
-    log.debug(stdout)
-    return stdout
+    if not isinstance(env_cmd, (list, tuple)):
+        env_cmd = [env_cmd]
+    # construct the command that will alter the environment
+    env_cmd = subprocess.list2cmdline(env_cmd)
+    # create a tag so we can tell in the output when the proc is done
+    tag = '+/!+/!+/! Finished command to set/print env +/!+/!+/!'  # RNC
+    # construct a cmd.exe command to do accomplish this
+    cmd = 'cmd.exe /s /c "{env_cmd} && echo "{tag}" && set"'.format(
+        env_cmd=env_cmd, tag=tag)
+    # launch the process
+    log.info("Fetching environment using command: {}".format(env_cmd))
+    log.debug("Full command: {}".format(cmd))
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=initial_env)
+    # parse the output sent to stdout
+    encoding = sys.getdefaultencoding()
+
+    def gen_lines() -> Generator[str, None, None]:  # RNC: fix decode problem
+        for line in proc.stdout:
+            yield line.decode(encoding)
+
+    # define a way to handle each KEY=VALUE line
+    def handle_line(line: str) -> List[str]:  # RNC: as function
+        return line.rstrip().split('=', 1)
+    
+    lines = gen_lines()  # RNC
+    # consume whatever output occurs until the tag is reached
+    consume(itertools.takewhile(lambda l: tag not in l, lines))
+    # ... RNC: note that itertools.takewhile() generates values not matching
+    #     the condition, but then consumes the condition value itself. So the
+    #     tag's already gone. Example:
+    #
+    #   def gen():
+    #       mylist = [1, 2, 3, 4, 5]
+    #       for x in mylist:
+    #           yield x
+    #
+    #   g = gen()
+    #   list(itertools.takewhile(lambda x: x != 3, g))  # [1, 2]
+    #   next(g)  # 4, not 3
+    #
+    # parse key/values into pairs
+    pairs = map(handle_line, lines)
+    # make sure the pairs are valid (this also eliminates the tag)
+    valid_pairs = filter(validate_pair, pairs)
+    # construct a dictionary of the pairs
+    result = dict(valid_pairs)  # consumes generator
+    # let the process finish
+    proc.communicate()
+    log.debug("Fetched environment:\n" + pformat(result))
+    return result
 
 
-def replace_in_file(filename: str, text_from: str, text_to: str) -> None:
+# =============================================================================
+# Ancillary: run subprocesses
+# =============================================================================
+
+def which_with_envpath(executable: str, env: Dict[str, str]) -> str:
     """
-    Replaces text in a file.
+    Performs a "which" command using the PATH from the specified environment.
+    
+    Reason: when you use run([executable, ...], env) and therefore
+    subprocess.run([executable, ...], env=env), the PATH that's searched for
+    "executable" is the parent's, not the new child's -- so you have to find
+    the executable manually.
     """
-    log.info("Amending {}: {} -> {}".format(
-        filename, repr(text_from), repr(text_to)))
-    with open(filename) as infile:
-        contents = infile.read()
-    contents = contents.replace(text_from, text_to)
-    with open(filename, 'w') as outfile:
-        outfile.write(contents)
-
-
+    oldpath = os.environ.get("PATH", "")
+    os.environ["PATH"] = env.get("PATH")
+    which = shutil.which(executable)
+    os.environ["PATH"] = oldpath
+    return which
+    
+    
 def require(command: str) -> None:
     """
     Checks that an external command is available, or raises an exception.
@@ -1900,7 +2132,8 @@ Don't forget to add the tools to your PATH, such as:
     C:\Program Files\NASM
     C:\Program Files\Git\cmd
     
-and for vcvarsall.bat, something like one of:
+and for vcvarsall.bat (and via it, cl.exe, nmake.exe, etc.), something like one
+of:
     C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
     C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
 ... depending on your version of Visual Studio.
@@ -1923,9 +2156,173 @@ tclsh       Install the Cygwin package "tcl" AND ALSO:                  tcl
     """
 
     log.critical(missing_msg)
-    log.info(helpmsg)
+    log.warning(helpmsg)
     raise ValueError(missing_msg)
 
+
+def run(args: List[str],
+        env: Dict[str, str] = None,
+        get_stdout: bool = False,
+        get_stderr: bool = False,
+        debug_show_env: bool = True,
+        encoding: str = sys.getdefaultencoding(),
+        allow_failure: bool = False) -> Tuple[str, str]:
+    """
+    Runs an external process, announcing it.
+    Optionally, retrieves its stdout and/or stderr output (if not retrieved,
+    the output will be visible to the user).
+    Returns a tuple: (stdout, stderr). If the output wasn't captured, an empty
+    string will take its place in this tuple.
+    """
+    cwd = os.getcwd()
+    # log.debug("External command Python form: {}".format(args))
+    copy_paste_cmd = make_copy_paste_cmd(args)
+    csep = "=" * 79
+    esep = "-" * 79
+    effective_env = env or os.environ
+    if debug_show_env:
+        log.debug(
+            "Environment for the command that follows:\n"
+            "{esep}\n"
+            "{env}\n"
+            "{esep}".format(esep=esep, env=make_copy_paste_env(effective_env))
+        )
+    log.info(
+        "Launching external command:\n"
+        "{csep}\n"
+        "WORKING DIRECTORY: {cwd}\n"
+        "PYTHON ARGS: {args!r}\n"
+        "COMMAND: {cmd}\n"
+        "{csep}".format(csep=csep, cwd=cwd, cmd=copy_paste_cmd,
+                        args=args)
+    )
+    try:
+        if get_stdout or get_stderr:
+            p = subprocess.run(args,
+                               env=env,
+                               stdout=subprocess.PIPE if get_stdout else None,
+                               stderr=subprocess.PIPE if get_stderr else None,
+                               check=not allow_failure)
+            stdout = p.stdout.decode(encoding) if p.stdout else ""
+            stderr = p.stderr.decode(encoding) if p.stderr else ""
+        else:
+            subprocess.check_call(args, env=env)
+            stdout, stderr = "", ""
+        log.debug("\n{csep}\nFINISHED SUCCESSFULLY: {cmd}\n{csep}".format(
+            cmd=copy_paste_cmd, csep=csep))
+        return stdout, stderr
+    except FileNotFoundError:
+        require(args[0])  # which was missing, so we'll see some help
+        raise
+    except FileNotFoundError:
+        log.critical(
+            "Command that failed:\n"
+            "[ENVIRONMENT]\n"
+            "{env}\n"
+            "\n"
+            "[DIRECTORY] {cwd}\n"
+            "[PYTHON ARGS] {args}\n"
+            "[COMMAND] {cmd}".format(
+                cwd=cwd,
+                env=make_copy_paste_env(effective_env),
+                cmd=copy_paste_cmd,
+                args=args
+            )
+        )
+        raise
+
+
+def fetch(args: List[str], env: Dict[str, str] = None,
+          encoding: str = sys.getdefaultencoding()) -> str:
+    """
+    Run a command and returns its stdout.
+    """
+    stdout, _ = run(args, env=env, get_stdout=True, encoding=encoding)
+    log.debug(stdout)
+    return stdout
+
+
+# =============================================================================
+# Ancillary: modify files
+# =============================================================================
+
+def replace_in_file(filename: str, text_from: str, text_to: str) -> None:
+    """
+    Replaces text in a file.
+    """
+    log.info("Amending {}: {} -> {}".format(
+        filename, repr(text_from), repr(text_to)))
+    with open(filename) as infile:
+        contents = infile.read()
+    contents = contents.replace(text_from, text_to)
+    with open(filename, 'w') as outfile:
+        outfile.write(contents)
+
+
+def replace_multiple_in_file(filename: str,
+                             replacements: List[Tuple[str, str]]) -> None:
+    """
+    Replaces multiple from/to string pairs within a single file.
+    """
+    with open(filename) as infile:
+        contents = infile.read()
+    for text_from, text_to in replacements:
+        log.info("Amending {}: {} -> {}".format(
+            filename, repr(text_from), repr(text_to)))
+        contents = contents.replace(text_from, text_to)
+    with open(filename, 'w') as outfile:
+        outfile.write(contents)
+
+
+def convert_line_endings(filename: str, to_unix: bool = False,
+                         to_windows: bool = False) -> None:
+    """
+    Converts a file from UNIX -> Windows line endings, or the reverse.
+    """
+    assert to_unix != to_windows
+    with open(filename, "rb") as f:
+        contents = f.read()
+    windows_eol = b"\r\n"  # CR LF
+    unix_eol = b"\n"  # LF
+    if to_unix:
+        log.info("Converting from Windows to UNIX line endings: {!r}".format(
+            filename))
+        src = windows_eol
+        dst = unix_eol
+    else:  # to_windows
+        log.info("Converting from UNIX to Windows line endings: {!r}".format(
+            filename))
+        src = unix_eol
+        dst = windows_eol
+        if windows_eol in contents:
+            log.info("... already contains at least one Windows line ending; "
+                     "probably converted before; skipping")
+            return
+    contents = contents.replace(src, dst)
+    with open(filename, "wb") as f:
+        f.write(contents)
+
+
+def is_line_in_file(filename: str, line: str) -> bool:
+    assert "\n" not in line
+    with open(filename, "r") as file:
+        for fileline in file:
+            if fileline == line:
+                return True
+        return False
+
+
+def add_line_if_absent(filename: str, line: str) -> None:
+    assert "\n" not in line
+    if not is_line_in_file(filename, line):
+        log.info("Appending line {!r} to file {!r}".format(line, filename))
+        with open(filename, "a") as file:
+            file.writelines([line])
+            
+            
+# =============================================================================
+# Ancillary: check for operating system features/packages
+# =============================================================================
 
 def are_debian_packages_installed(packages: List[str]) -> Dict[str, bool]:
     assert len(packages) >= 1
@@ -1975,28 +2372,79 @@ def require_debian_packages(packages: List[str]) -> None:
         fail(msg)
 
 
-def replace_multiple_in_file(filename: str,
-                             replacements: List[Tuple[str, str]]) -> None:
+def ensure_first_perl_is_not_cygwin() -> None:
     """
-    Replaces multiple from/to string pairs within a single file.
+    For Windows: ensure that the Perl we get when we call "perl" isn't a Cygwin
+    version.
     """
-    with open(filename) as infile:
-        contents = infile.read()
-    for text_from, text_to in replacements:
-        log.info("Amending {}: {} -> {}".format(
-            filename, repr(text_from), repr(text_to)))
-        contents = contents.replace(text_from, text_to)
-    with open(filename, 'w') as outfile:
-        outfile.write(contents)
+    require(PERL)
+    which = shutil.which(PERL)
+    if "cygwin" in which.lower():  # imperfect check based on default Cygwin installation path  # noqa
+        fail("The first instance of Perl on your path ({}) is from Cygwin. "
+             "This will fail when building OpenSSL. Please re-order your PATH "
+             "so that a Windows version, e.g. ActiveState Perl, comes "
+             "first.".format(which))
 
 
-def mkdir_p(path: str) -> None:
-    """
-    Makes a directory, and any other necessary directories (mkdir -p).
-    """
-    log.info("mkdir -p {}".format(path))
-    os.makedirs(path, exist_ok=True)
+_WHY_ENSURE_FIRST_PERL_IS_NOT_CYGWIN = r"""
+===============================================================================
+WORKING DIRECTORY: C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g
+COMMAND: perl C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure VC-WIN64A shared no-ssl3
+===============================================================================
+File::Glob::glob() will disappear in perl 5.30. Use File::Glob::bsd_glob() instead. at C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure line 270.
+Configuring OpenSSL version 1.1.0g (0x1010007fL)
+    no-asan         [default]  OPENSSL_NO_ASAN
+    no-crypto-mdebug [default]  OPENSSL_NO_CRYPTO_MDEBUG
+    no-crypto-mdebug-backtrace [default]  OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
+    no-ec_nistp_64_gcc_128 [default]  OPENSSL_NO_EC_NISTP_64_GCC_128
+    no-egd          [default]  OPENSSL_NO_EGD
+    no-fuzz-afl     [default]  OPENSSL_NO_FUZZ_AFL
+    no-fuzz-libfuzzer [default]  OPENSSL_NO_FUZZ_LIBFUZZER
+    no-heartbeats   [default]  OPENSSL_NO_HEARTBEATS
+    no-md2          [default]  OPENSSL_NO_MD2 (skip dir)
+    no-msan         [default]  OPENSSL_NO_MSAN
+    no-rc5          [default]  OPENSSL_NO_RC5 (skip dir)
+    no-sctp         [default]  OPENSSL_NO_SCTP
+    no-ssl-trace    [default]  OPENSSL_NO_SSL_TRACE
+    no-ssl3         [option]   OPENSSL_NO_SSL3
+    no-ssl3-method  [default]  OPENSSL_NO_SSL3_METHOD
+    no-ubsan        [default]  OPENSSL_NO_UBSAN
+    no-unit-test    [default]  OPENSSL_NO_UNIT_TEST
+    no-weak-ssl-ciphers [default]  OPENSSL_NO_WEAK_SSL_CIPHERS
+    no-zlib         [default]
+    no-zlib-dynamic [default]
+Configuring for VC-WIN64A
 
+******************************************************************************
+This perl implementation doesn't produce Windows like paths (with backward
+slash directory separators).  Please use an implementation that matches your
+building platform.
+
+This Perl version: 5.26.1 for x86_64-cygwin-threads-multi
+******************************************************************************
+
+$ which perl
+/usr/bin/perl
+
+>>> shutil.which("perl")
+'C:\\cygwin64\\bin\\perl.EXE'
+
+# Then after installing ActiveState Perl:
+
+$ which perl
+/cygdrive/c/Perl64/bin/perl
+
+>>> shutil.which("perl")
+'C:\\Perl64\\bin\\perl.EXE'
+
+# ... and then it works.
+
+"""  # noqa
+
+
+# =============================================================================
+# Ancillary: manipulate web, Git, and tar
+# =============================================================================
 
 def download_if_not_exists(url: str, filename: str,
                            skip_cert_verify: bool = True) -> None:
@@ -2026,14 +2474,6 @@ def download_if_not_exists(url: str, filename: str,
         ctx.verify_mode = ssl.CERT_NONE
     with urllib.request.urlopen(url, context=ctx) as u, open(filename, 'wb') as f:  # noqa
         f.write(u.read())
-
-
-def root_path() -> str:
-    """
-    Returns the system root directory.
-    """
-    # http://stackoverflow.com/questions/12041525
-    return abspath(os.sep)
 
 
 def git_clone(prettyname: str, url: str, directory: str,
@@ -2103,14 +2543,9 @@ def untar_to_directory(tarfile: str, directory: str,
     run(args)
 
 
-def delete_files_within_dir(filename: str, directory: str) -> None:
-    for dirpath, dirnames, filenames in os.walk(directory):
-        for f in filenames:
-            if f == filename:
-                fullpath = join(dirpath, f)
-                log.debug("Deleting {!r}".format(fullpath))
-                os.remove(fullpath)
-
+# =============================================================================
+# Ancillary: other functions to clean up build environments
+# =============================================================================
 
 def delete_cmake_cache(directory: str) -> None:
     """
@@ -2131,242 +2566,6 @@ def delete_cmake_cache(directory: str) -> None:
 # def delete_qmake_conf(directory: str) -> None:
 #     log.info("Deleting qmake config files within: {!r}".format(directory))
 #     delete_files_within_dir(".qmake.conf", directory)
-
-
-def copytree(srcdir: str, destdir: str, destroy: bool = False) -> None:
-    """
-    Recursive copy.
-    """
-    log.info("Copying directory {} -> {}".format(srcdir, destdir))
-    if os.path.exists(destdir):
-        if not destroy:
-            raise ValueError("Destination exists!")
-        if not os.path.isdir(destdir):
-            raise ValueError("Destination exists but isn't a directory!")
-        log.debug("... removing old contents")
-        rmtree(destdir)
-        log.debug("... now copying")
-    shutil.copytree(srcdir, destdir)
-
-
-def convert_line_endings(filename: str, to_unix: bool = False,
-                         to_windows: bool = False) -> None:
-    """
-    Converts a file from UNIX -> Windows line endings, or the reverse.
-    """
-    assert to_unix != to_windows
-    with open(filename, "rb") as f:
-        contents = f.read()
-    windows_eol = b"\r\n"  # CR LF
-    unix_eol = b"\n"  # LF
-    if to_unix:
-        log.info("Converting from Windows to UNIX line endings: {!r}".format(
-            filename))
-        src = windows_eol
-        dst = unix_eol
-    else:  # to_windows
-        log.info("Converting from UNIX to Windows line endings: {!r}".format(
-            filename))
-        src = unix_eol
-        dst = windows_eol
-        if windows_eol in contents:
-            log.info("... already contains at least one Windows line ending; "
-                     "probably converted before; skipping")
-            return
-    contents = contents.replace(src, dst)
-    with open(filename, "wb") as f:
-        f.write(contents)
-
-
-def get_starting_env(plain: bool = False) -> Dict[str, str]:
-    # 1. Beware "plain" under Windows. Some other parent environment
-    # variables needed for Visual C++ compiler, or you get "cannot 
-    # create temporary il file" errors. Not sure which, though; 
-    # APPDATA, TEMP and TMP are not sufficient.
-    # 2. Beware "plain" under OS/X; complains about missing "HOME"
-    # variable.
-    if plain:
-        env = {}  # type: Dict[str, str]
-        keys = ["PATH"]
-        # if BUILD_PLATFORM.windows:
-        #     keys += ["APPDATA", "TEMP", "TMP"]
-        for k in keys:
-            if k in os.environ:
-                env[k] = os.environ[k]
-        return env
-    else:
-        return os.environ.copy()
-
-
-def fail(msg: str) -> None:
-    log.critical(msg)
-    raise ValueError(msg)
-
-
-def is_line_in_file(filename: str, line: str) -> bool:
-    assert "\n" not in line
-    with open(filename, "r") as file:
-        for fileline in file:
-            if fileline == line:
-                return True
-        return False
-
-
-def add_line_if_absent(filename: str, line: str) -> None:
-    assert "\n" not in line
-    if not is_line_in_file(filename, line):
-        log.info("Appending line {!r} to file {!r}".format(line, filename))
-        with open(filename, "a") as file:
-            file.writelines([line])
-            
-            
-def validate_pair(ob: Any) -> bool:
-    try:
-        if len(ob) != 2:
-            log.warning("Unexpected result: {!r}".format(ob))
-            raise ValueError()
-    except ValueError:
-        return False
-    return True
-
-
-def consume(iterator) -> None:
-    try:
-        while True:
-            next(iterator)
-    except StopIteration:
-        pass
-
-
-def windows_get_environment_from_batch_command(
-        env_cmd: Union[str, List[str]],
-        initial_env: Dict[str, str] = None) -> Dict[str, str]:
-    # https://stackoverflow.com/questions/1214496/how-to-get-environment-from-a-subprocess-in-python  # noqa
-    # ... with decoding bug fixed for Python 3
-    """
-    Take a command (either a single command or list of arguments)
-    and return the environment created after running that command.
-    Note that the command must be a batch file or .cmd file, or the
-    changes to the environment will not be captured.
-
-    If initial_env is supplied, it is used as the initial environment passed
-    to the child process. (Otherwise, this process's os.environ() will be
-    used by default.)
-    """
-    if not isinstance(env_cmd, (list, tuple)):
-        env_cmd = [env_cmd]
-    # construct the command that will alter the environment
-    env_cmd = subprocess.list2cmdline(env_cmd)
-    # create a tag so we can tell in the output when the proc is done
-    tag = '+/!+/!+/! Finished command to set/print env +/!+/!+/!'  # RNC
-    # construct a cmd.exe command to do accomplish this
-    cmd = 'cmd.exe /s /c "{env_cmd} && echo "{tag}" && set"'.format(
-        env_cmd=env_cmd, tag=tag)
-    # launch the process
-    log.info("Fetching environment using command: {}".format(env_cmd))
-    log.debug("Full command: {}".format(cmd))
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=initial_env)
-    # parse the output sent to stdout
-    encoding = sys.getdefaultencoding()
-
-    def gen_lines() -> Generator[str, None, None]:  # RNC: fix decode problem
-        for line in proc.stdout:
-            yield line.decode(encoding)
-
-    # define a way to handle each KEY=VALUE line
-    def handle_line(line: str) -> List[str]:  # RNC: as function
-        return line.rstrip().split('=', 1)
-    
-    lines = gen_lines()  # RNC
-    # consume whatever output occurs until the tag is reached
-    consume(itertools.takewhile(lambda l: tag not in l, lines))
-    # ... RNC: note that itertools.takewhile() generates values not matching
-    #     the condition, but then consumes the condition value itself. So the
-    #     tag's already gone. Example:
-    #
-    #   def gen():
-    #       mylist = [1, 2, 3, 4, 5]
-    #       for x in mylist:
-    #           yield x
-    #
-    #   g = gen()
-    #   list(itertools.takewhile(lambda x: x != 3, g))  # [1, 2]
-    #   next(g)  # 4, not 3
-    #
-    # parse key/values into pairs
-    pairs = map(handle_line, lines)
-    # make sure the pairs are valid (this also eliminates the tag)
-    valid_pairs = filter(validate_pair, pairs)
-    # construct a dictionary of the pairs
-    result = dict(valid_pairs)  # consumes generator
-    # let the process finish
-    proc.communicate()
-    log.debug("Fetched environment:\n" + pformat(result))
-    return result
-
-
-def ensure_first_perl_is_not_cygwin() -> None:
-    require(PERL)
-    which = shutil.which(PERL)
-    if "cygwin" in which.lower():
-        fail("The first instance of Perl on your path ({}) is from Cygwin. "
-             "This will fail when building OpenSSL. Please re-order your PATH "
-             "so that a Windows version, e.g. ActiveState Perl, comes "
-             "first.".format(which))
-
-
-_WHY_ENSURE_FIRST_PERL_IS_NOT_CYGWIN = r"""
-===============================================================================
-WORKING DIRECTORY: C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g
-COMMAND: perl C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure VC-WIN64A shared no-ssl3
-===============================================================================
-File::Glob::glob() will disappear in perl 5.30. Use File::Glob::bsd_glob() instead. at C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure line 270.
-Configuring OpenSSL version 1.1.0g (0x1010007fL)
-    no-asan         [default]  OPENSSL_NO_ASAN
-    no-crypto-mdebug [default]  OPENSSL_NO_CRYPTO_MDEBUG
-    no-crypto-mdebug-backtrace [default]  OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
-    no-ec_nistp_64_gcc_128 [default]  OPENSSL_NO_EC_NISTP_64_GCC_128
-    no-egd          [default]  OPENSSL_NO_EGD
-    no-fuzz-afl     [default]  OPENSSL_NO_FUZZ_AFL
-    no-fuzz-libfuzzer [default]  OPENSSL_NO_FUZZ_LIBFUZZER
-    no-heartbeats   [default]  OPENSSL_NO_HEARTBEATS
-    no-md2          [default]  OPENSSL_NO_MD2 (skip dir)
-    no-msan         [default]  OPENSSL_NO_MSAN
-    no-rc5          [default]  OPENSSL_NO_RC5 (skip dir)
-    no-sctp         [default]  OPENSSL_NO_SCTP
-    no-ssl-trace    [default]  OPENSSL_NO_SSL_TRACE
-    no-ssl3         [option]   OPENSSL_NO_SSL3
-    no-ssl3-method  [default]  OPENSSL_NO_SSL3_METHOD
-    no-ubsan        [default]  OPENSSL_NO_UBSAN
-    no-unit-test    [default]  OPENSSL_NO_UNIT_TEST
-    no-weak-ssl-ciphers [default]  OPENSSL_NO_WEAK_SSL_CIPHERS
-    no-zlib         [default]
-    no-zlib-dynamic [default]
-Configuring for VC-WIN64A
-
-******************************************************************************
-This perl implementation doesn't produce Windows like paths (with backward
-slash directory separators).  Please use an implementation that matches your
-building platform.
-
-This Perl version: 5.26.1 for x86_64-cygwin-threads-multi
-******************************************************************************
-
-$ which perl
-/usr/bin/perl
-
->>> shutil.which("perl")
-'C:\\cygwin64\\bin\\perl.EXE'
-
-# Then after installing ActiveState Perl:
-
-$ which perl
-/cygdrive/c/Perl64/bin/perl
-
->>> shutil.which("perl")
-'C:\\Perl64\\bin\\perl.EXE'
-
-"""  # noqa
 
 
 # =============================================================================
@@ -2471,9 +2670,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     target_os = ""
 
     if target_platform.android:
-        if target_platform.cpu == Cpu.ARM_V5:
+        if target_platform.cpu == Cpu.ARM_V5_32:
             target_os = "android"  # ... NB "android" means ARMv5
-        elif target_platform.cpu == Cpu.ARM_V7:
+        elif target_platform.cpu == Cpu.ARM_V7_32:
             if OPENSSL_AT_LEAST_1_1:
                 target_os = "android-armeabi"
             else:
@@ -2496,7 +2695,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
         # If Bitcode is later required, see the other ones above and
         # https://stackoverflow.com/questions/30722606/what-does-enable-bitcode-do-in-xcode-7  # noqa
-        if target_platform.cpu == Cpu.ARM_V7:
+        if target_platform.cpu == Cpu.ARM_V7_32:
             target_os = "ios-cross"  # "iphoneos-cross"
         if target_platform.cpu == Cpu.ARM_V8_64:
             target_os = "ios64-cross"  # "iphoneos-cross"
@@ -2711,12 +2910,12 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
         # ---------------------------------------------------------------------
         if OPENSSL_AT_LEAST_1_1:
             # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
-            run(cfg.make_args(), env)
+            run(cfg.make_args(env=env), env)
             if not OPENSSL_FAILS_OWN_TESTS:
                 if target_platform.os == BUILD_PLATFORM.os:
-                    run(cfg.make_args(command="test"), env)
+                    run(cfg.make_args(command="test", env=env), env)
                     # can't really test e.g. Android code directly under Linux
-                # run(cfg.make_args(command="install"), env)
+                # run(cfg.make_args(command="install", env=env), env)
 
         else:
             # Have to remove version numbers from final library filenames,
@@ -2729,25 +2928,12 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
                     'LIBNAME=$$i'),
                 ('LIBCOMPATVERSIONS=";$(SHLIB_VERSION_HISTORY)"', ''),
             ])
-            run(cfg.make_args(command="depend"), env)
-            run(cfg.make_args(command="build_libs"), env)
+            run(cfg.make_args(command="depend", env=env), env)
+            run(cfg.make_args(command="build_libs", env=env), env)
 
-    # Testing:
-    # - "Have I built for the right architecture?"
-    #   http://stackoverflow.com/questions/267941
-    #   http://stackoverflow.com/questions/1085137
-    #
-    #   file libssl.so
-    #   objdump -a libssl.so  # or -x, or...
-    #   readelf -h libssl.so
-    #
-    # - Compare to files on the Android emulator:
-    #
-    #   adb pull /system/lib/libz.so  # system
-    #   adb pull /data/data/org.camcops.camcops/lib/  # ours
-    #
-    # ... looks OK
-
+    # -------------------------------------------------------------------------
+    # OpenSSL: check libraries and/or copy libraries to their standard names.
+    # -------------------------------------------------------------------------
     for i, t in enumerate(main_targets):
         target_platform.verify_lib(t)
         if BUILD_PLATFORM.windows:
@@ -2895,7 +3081,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # version; see android_compilation.txt
         if target_platform.cpu == Cpu.X86_32:
             android_arch_short = "x86"
-        elif target_platform.cpu == Cpu.ARM_V7:
+        elif target_platform.cpu == Cpu.ARM_V7_32:
             android_arch_short = "armeabi-v7a"
         else:
             raise NotImplementedError("Don't know how to use CPU {!r} for "
@@ -3148,9 +3334,9 @@ Troubleshooting Qt 'configure' failures
     log.info("Making Qt {} build into {}".format(target_platform.description,
                                                  installdir))
     with pushd(builddir):
-        # run(cfg.make_args(command="qmake_all"), env)
+        # run(cfg.make_args(command="qmake_all", env=env), env)
         try:
-            run(cfg.make_args(), env)
+            run(cfg.make_args(env=env), env)
         except subprocess.CalledProcessError:
             log.critical("""
 ===============================================================================
@@ -3191,7 +3377,7 @@ A.  !!! does MXE build, and if so, can we copy it?
     # http://stackoverflow.com/questions/8360609
 
     with pushd(builddir):
-        run(cfg.make_args(command="install"), env)
+        run(cfg.make_args(command="install", env=env), env)
     # ... installs to installdir because of -prefix earlier
     return installdir
 
@@ -4018,8 +4204,6 @@ def main() -> None:
         fetch_mlpack(cfg)
     if USE_EIGEN:
         fetch_eigen(cfg)
-    # if BUILD_PLATFORM.windows:
-    #     fetch_jom(cfg)
     if USE_MXE and BUILD_PLATFORM.linux:
         fetch_mxe(cfg)
 
@@ -4035,8 +4219,6 @@ def main() -> None:
         build_mlpack(cfg)
     if USE_EIGEN:
         build_eigen(cfg)
-    # if BUILD_PLATFORM.windows:
-    #     build_jom(cfg)
 
     installdirs = []
     done_extra = False
@@ -4060,7 +4242,7 @@ def main() -> None:
         build_for(Os.ANDROID, Cpu.X86_32)
 
     if cfg.build_android_arm_v7_32:  # for native Android
-        build_for(Os.ANDROID, Cpu.ARM_V7)
+        build_for(Os.ANDROID, Cpu.ARM_V7_32)
 
     if cfg.build_linux_x86_64:  # for 64-bit Linux
         build_for(Os.LINUX, Cpu.X86_64)
@@ -4068,10 +4250,10 @@ def main() -> None:
     if cfg.build_osx_x86_64:  # for 64-bit Intel Mac OS/X
         build_for(Os.OSX, Cpu.X86_64)
         
-    if cfg.build_windows_x86_64:
+    if cfg.build_windows_x86_64:  # for 64-bit Windows
         build_for(Os.WINDOWS, Cpu.X86_64)
 
-    if cfg.build_windows_x86_32:
+    if cfg.build_windows_x86_32:  # for 32-bit Windows
         if BUILD_PLATFORM.linux and MXE_HAS_GCC_WITH_I386_BUG:
             fail("""
 Can't build for Win32. Error will be:
@@ -4086,10 +4268,11 @@ Compiler bug is:
 """)  # noqa
         build_for(Os.WINDOWS, Cpu.X86_32)
 
-    if cfg.build_ios:
+    if cfg.build_ios:  # for iOS (e.g. iPad)
         build_for(Os.IOS, Cpu.ARM_V8_64)
+        # *** also needs 32-bit build and "fat binary" with 32- and 64-bit versions?  # noqa
 
-    if cfg.build_ios_simulator:
+    if cfg.build_ios_simulator:  # iOS simulator under 64-bit Intel Mac OS/X
         build_for(Os.IOS, Cpu.X86_64)
 
     if not installdirs and not done_extra:
@@ -4098,36 +4281,10 @@ Compiler bug is:
 
     log.info("""
 ===============================================================================
-Now, in Qt Creator:
+Now, to compile CamCOPS using Qt Creator:
 ===============================================================================
-1. Add Qt build
-      Tools > Options > Build & Run > Qt Versions > Add
-      ... browse to one of: {bindirs}
-      ... and select "qmake".
-2. Create kit
-      Tools > Options > Build & Run > Kits > Add (manual)
-      ... Qt version = the one you added in the preceding step
-      ... compiler =
-            for Android: Android GCC (i686-4.9)
-      ... debugger =
-            for Android: Android Debugger for GCC (i686-4.9)
-Then for your project,
-      - click on the "Projects" tab
-      - Add Kit > choose the kit you created.
-      - For Android:
-        - Build Settings > Android APK > Details > Additional Libraries > Add
 
-BUILD / RUNTIME REQUIREMENTS
-
-- For Ubuntu, see compilation_linux.txt
-
-- To build Android programs under Linux, also need:
-
-    sudo apt install openjdk-8-jdk
-
-- For debugging, consider:
-
-    sudo apt install valgrind
+See tablet_qt/notes/QT_PROJECT_SETTINGS.txt
 
     """.format(  # noqa
         bindirs=", ".join(join(x, "bin") for x in installdirs)
@@ -4142,15 +4299,3 @@ if __name__ == '__main__':
         log.critical("External process failed:")
         traceback.print_exc()
         sys.exit(1)
-
-
-CURRENTLY_WORKING_ON = """
-
-- OS/X: check SQLCipher now builds
-- Windows: 'make' for OpenSSL
-
-... Google "compile sqlcipher visual studio"
-... stackoverflow.com/questions/4353037
-... might need MinGW/MSYS
-
-"""
