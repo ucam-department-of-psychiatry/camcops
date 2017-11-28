@@ -3,11 +3,18 @@
 1. Qt versions
 ===============================================================================
 
-Assuming you set your qt_local_build directory to ~/dev/qt_local_build :
+Assuming you set your qt_local_build directory to ~/dev/qt_local_build, the
+build_qt.py script should generate a series of "qmake" (or, under Windows,
+"qmake.exe") files within that directory:
 
-    LINUX: ~/dev/qt_local_build/qt_linux_x86_64_install/bin/qmake
-    ANDROID: ~/dev/qt_local_build/qt_android_armv7_install/bin/qmake
-    ANDROID EMULATOR: ...
+    LINUX 64-bit:       qt_linux_x86_64_install/bin/qmake
+    ANDROID:            qt_android_armv7_install/bin/qmake
+    ANDROID EMULATOR:   qt_android_x86_32_install/bin/qmake
+    MAC OS/X 64-bit:    qt_osx_x86_64_install/bin/qmake
+    IOS:                qt_ios_armv8_64_install/bin/qmake
+    IOS SIMULATOR:      qt_ios_x86_64_install/bin/qmake
+    WINDOWS 32-BIT:     qt_windows_x86_32_install/bin/qmake
+    WINDOWS 64-BIT:     qt_windows_x86_64_install/bin/qmake
 
 ===============================================================================
 2. Qt kits
@@ -153,17 +160,17 @@ Google Play Store settings
 NOTE ALSO
 ===============================================================================
 
+ANDROID
+
+- To build Android programs under Linux, also need:
+        sudo apt install openjdk-8-jdk
+
 - Configure your Android SDK/NDK and Java JDK at:
         Tools / Options / Android
 
+DEBUGGING
+
 - DON'T FORGET to set up both Debug and Release (+/- Profile) builds.
-
-- Sometimes you have to restart Qt creator after creating new build settings;
-  it loses its .pro file and won't show the project, or complains of a missing
-  .pro file when you try to build.
-
-- The first build can be very slow as it compiles all the resources; this
-  usually looks like a process stuck compiling qrc_camcops.cpp to qrc_camcops.o
 
 - Phone USB debugging negotiation sometimes takes a while. On the Samsung
   Galaxy phone, the alert light goes red when in Debug mode.
@@ -177,3 +184,15 @@ NOTE ALSO
   means that you need to re-run qmake manually. It usually occurs if you delete
   your build* directories.
 
+- For debugging, consider
+
+        sudo apt install valgrind
+
+ODDITIES
+
+- Sometimes you have to restart Qt creator after creating new build settings;
+  it loses its .pro file and won't show the project, or complains of a missing
+  .pro file when you try to build.
+
+- The first build can be very slow as it compiles all the resources; this
+  usually looks like a process stuck compiling qrc_camcops.cpp to qrc_camcops.o

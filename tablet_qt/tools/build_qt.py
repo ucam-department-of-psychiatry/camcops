@@ -175,31 +175,26 @@ OTHER NOTES:
 """
 
 import argparse
-from collections import OrderedDict
-from contextlib import contextmanager
-import itertools
 import logging
 import multiprocessing
 import os
-from os.path import abspath, expanduser, isdir, isfile, join, split
+from os import chdir
+from os.path import expanduser, isfile, join, split
 import platform
-from pprint import pformat
-import shlex
 import shutil
-import ssl
-import stat
 import subprocess
 import sys
 import traceback
-from types import TracebackType
-from typing import (Any, Callable, Dict, Generator, List, Optional, Tuple,
-                    Union)  # "Type" not in Python 3.5.1
-import urllib.request
+from typing import Dict, List, TextIO, Tuple  # "Type" not in Python 3.5.1
 
 try:
-    from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+    import cardinal_pythonlib
 except ImportError:
-    main_only_quicksetup_rootlogger = None
+    cardinal_pythonlib = None
+    print("Please install 'cardinal_pythonlib' first, using:\n\n"
+          "pip install cardinal_pythonlib")
+    raise
+
 try:
     import distro  # http://distro.readthedocs.io/en/latest/
 except ImportError:
@@ -208,6 +203,42 @@ except ImportError:
         print("Please install 'distro' first, using:\n\n"
               "pip install distro")
         raise
+
+from cardinal_pythonlib.buildfunc import (
+    download_if_not_exists,
+    fetch,
+    git_clone,
+    run,
+    untar_to_directory,
+)
+from cardinal_pythonlib.file_io import (
+    add_line_if_absent,
+    # convert_line_endings,
+    replace_in_file,
+    replace_multiple_in_file,
+)
+from cardinal_pythonlib.fileops import (
+    copy_tree_contents,
+    delete_files_within_dir,
+    mkdir_p,
+    pushd,
+    # rmtree,
+    which_with_envpath,
+)
+from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.platformfunc import (
+    contains_unquoted_ampersand_dangerous_to_windows,
+    require_debian_packages,
+    windows_get_environment_from_batch_command,
+)
+from cardinal_pythonlib.tee import tee_log
+import cardinal_pythonlib.version
+from semantic_version import Version
+
+MINIMUM_CARDINAL_PYTHONLIB = "1.0.7"
+if Version(cardinal_pythonlib.version.VERSION) < Version(MINIMUM_CARDINAL_PYTHONLIB):  # noqa
+    raise ImportError("Need cardinal_pythonlib >= {}".format(MINIMUM_CARDINAL_PYTHONLIB))  # noqa
+
 
 log = logging.getLogger(__name__)
 
@@ -431,7 +462,6 @@ ANT = "ant"  # for Android builds
 BASH = "bash"
 CL = "cl"  # Visual C++ compiler
 CMAKE = "cmake"
-DPKG_QUERY = "dpkg-query"
 GIT = "git"
 GOBJDUMP = "gobjdump"  # OS/X equivalent of readelf
 JAVAC = "javac"  # for Android builds
@@ -742,7 +772,7 @@ class Platform(object):
         if BUILD_PLATFORM.linux:
             if self.windows:
                 dumpcmd = [OBJDUMP, "-f", filename]
-                dumpresult, _ = run(dumpcmd, get_stdout=True)
+                dumpresult = fetch(dumpcmd)
                 pe32_tag = "file format pe-i386"
                 pe64_tag = "file format pe-x86-64"
                 if self.cpu_64bit and pe64_tag not in dumpresult:
@@ -754,7 +784,7 @@ class Platform(object):
             else:
                 elf_arm_tag = "Tag_ARM_ISA_use: Yes"
                 elfcmd = [READELF, "-A", filename]
-                elfresult, _ = run(elfcmd, get_stdout=True)
+                elfresult = fetch(elfcmd)
                 arm_tag_present = elf_arm_tag in elfresult
                 if self.cpu_arm_family and not arm_tag_present:
                     raise ValueError(
@@ -767,7 +797,7 @@ class Platform(object):
             # https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
             # gobjdump --help
             dumpcmd = [GOBJDUMP, "-f", filename]
-            dumpresult, _ = run(dumpcmd, get_stdout=True)
+            dumpresult = fetch(dumpcmd)
             arm64tag = "file format mach-o-arm64"
             arm64tag_present = arm64tag in dumpresult
             if self.cpu == Cpu.ARM_V8_64 and not arm64tag_present:
@@ -852,7 +882,6 @@ class Platform(object):
         if it's unsupported. With clang-703.0.29, "x86_64" and "arm6" are
         OK.
         """
-
         if self.cpu_x86_64bit_family:
             return "x86_64"
             # return "i386"
@@ -1014,12 +1043,12 @@ class Platform(object):
             return "i386-apple-darwin"
         elif self.windows:
             if self.cpu_x86_64bit_family:
-                return "x86_64-unknown-windows"  # untested ***
+                return "x86_64-unknown-windows"  # guess, but it compiles
             elif self.cpu_x86_32bit_family:
-                return "i686-unknown-windows"  # untested ***
+                return "i686-unknown-windows"  # guess, but it compiles
         elif self.ios:
             if self.cpu == Cpu.ARM_V8_64:
-                return "arm-apple-darwin"  # complete guess ***
+                return "arm-apple-darwin"  # guess, but it compiles
         raise NotImplementedError("Don't know how to support SQLCipher for "
                                   "{}".format(self))
 
@@ -1096,6 +1125,7 @@ class Config(object):
         self.force = args.force  # type: bool
         self.verbose = args.verbose  # type: int
         self.src_rootdir = join(self.root_dir, "src")  # type: str
+        self.tee_filename = args.tee  # type: str
 
         # Qt
         # - git repository in src/qt5
@@ -1712,120 +1742,6 @@ def fail(msg: str) -> None:
 
 
 # =============================================================================
-# Ancillary: file and directory management
-# =============================================================================
-
-def chdir(directory: str) -> None:
-    """
-    Change directory and say so.
-    """
-    log.debug("Entering directory: {}".format(directory))
-    os.chdir(directory)
-
-
-@contextmanager
-def pushd(directory: str) -> None:
-    """
-    Context manager: changes directory and preserves the original on exit.
-    """
-    previous_dir = os.getcwd()
-    chdir(directory)
-    yield
-    chdir(previous_dir)
-    
-    
-def mkdir_p(path: str) -> None:
-    """
-    Makes a directory, and any other necessary directories (mkdir -p).
-    """
-    log.info("mkdir -p {}".format(path))
-    os.makedirs(path, exist_ok=True)
-
-
-EXC_INFO_TYPE = Tuple[
-    Optional[Any],  # Type[BaseException]], but that's not in Python 3.5
-    Optional[BaseException],
-    Optional[TracebackType],  # it's a traceback object
-]
-# https://docs.python.org/3/library/sys.html#sys.exc_info
-
-
-def shutil_rmtree_onerror(func: Callable[[str], None],
-                          path: str,
-                          exc_info: EXC_INFO_TYPE) -> None:
-    # https://stackoverflow.com/questions/2656322/shutil-rmtree-fails-on-windows-with-access-is-denied  # noqa
-    """
-    Error handler for ``shutil.rmtree``.
-
-    If the error is due to an access error (read only file)
-    it attempts to add write permission and then retries.
-
-    If the error is for another reason it re-raises the error.
-
-    Usage : ``shutil.rmtree(path, onerror=onerror)``
-    """
-    if not os.access(path, os.W_OK):
-        # Is the error an access error ?
-        os.chmod(path, stat.S_IWUSR)
-        func(path)
-    else:
-        exc = exc_info[1]
-        raise exc
-
-
-def rmtree(directory: str) -> None:
-    """
-    Deletes a directory tree.
-    """
-    log.debug("Deleting directory {}".format(directory))
-    shutil.rmtree(directory, onerror=shutil_rmtree_onerror)
-    
-
-def delete_files_within_dir(filename: str, directory: str) -> None:
-    for dirpath, dirnames, filenames in os.walk(directory):
-        for f in filenames:
-            if f == filename:
-                fullpath = join(dirpath, f)
-                log.debug("Deleting {!r}".format(fullpath))
-                os.remove(fullpath)
-
-
-# def chmod_recursive(root: str, permission: int) -> None:
-#     # Untested
-#     # Permission: e.g. stat.S_IWUSR
-#     os.chmod(root, permission)
-#     for dirpath, dirnames, filenames in os.walk(root):
-#         for d in dirnames:
-#             os.chmod(join(dirpath, d), permission)
-#         for f in filenames:
-#             os.chmod(join(dirpath, f), permission)
-
-
-def root_path() -> str:
-    """
-    Returns the system root directory.
-    """
-    # http://stackoverflow.com/questions/12041525
-    return abspath(os.sep)
-
-
-def copytree(srcdir: str, destdir: str, destroy: bool = False) -> None:
-    """
-    Recursive copy.
-    """
-    log.info("Copying directory {} -> {}".format(srcdir, destdir))
-    if os.path.exists(destdir):
-        if not destroy:
-            raise ValueError("Destination exists!")
-        if not os.path.isdir(destdir):
-            raise ValueError("Destination exists but isn't a directory!")
-        log.debug("... removing old contents")
-        rmtree(destdir)
-        log.debug("... now copying")
-    shutil.copytree(srcdir, destdir)
-
-
-# =============================================================================
 # Ancillary: environment and shell handling
 # =============================================================================
 
@@ -1842,6 +1758,9 @@ def escape_literal_for_shell(x: str) -> str:
         compiler --someflag --sysroot=SOMETHING
     
     and we might have spaces in SOMETHING.
+
+    I'm not certain this is particularly generic, so haven't moved it to
+    cardinal_pythonlib.
     """
     assert not BUILD_PLATFORM.windows, (
         "Windows has terrible shell escaping and we use other methods")
@@ -1861,76 +1780,6 @@ def escape_literal_for_shell(x: str) -> str:
     x = x.replace(backslash, backslash + backslash)
     x = '"{}"'.format(x)
     return x
-
-
-def make_copy_paste_cmd(args: List[str]) -> str:
-    """
-    Convert a series of arguments to a command string that can be copied/
-    pasted.
-    """
-    return subprocess.list2cmdline(args)
-
-
-def make_copy_paste_env(env: Dict[str, str]) -> str:
-    """
-    Convert an environment into a set of commands that can be copied/pasted, on
-    the build platform, to recreate that environment.
-    """
-    cmd = "set" if BUILD_PLATFORM.windows else "export"
-    return (
-        "\n".join("{cmd} {k}={v}".format(
-            cmd=cmd,
-            k=k,
-            v=(env[k] if BUILD_PLATFORM.windows else
-               subprocess.list2cmdline([env[k]]))
-        ) for k in sorted(env.keys())))
-    # Note that even subprocess.list2cmdline() will put needless quotes in
-    # here, whereas SET is happy with e.g. SET x=C:\Program Files\somewhere;
-    # subprocess.list2cmdline() will also mess up trailing backslashes (e.g.
-    # for the VS140COMNTOOLS environment variable).
-    
-    
-def contains_unquoted_target(x: str,
-                             quote: str = '"', target: str = '&') -> bool:
-    """
-    Checks if 'target' exists in 'x' outside quotes (as defined by 'quote').
-    Principal use: contains_unquoted_ampersand_dangerous_to_windows()
-    """
-    in_quote = False
-    for c in x:
-        if c == quote:
-            in_quote = not in_quote
-        elif c == target:
-            if not in_quote:
-                return True
-    return False
-
-
-def contains_unquoted_ampersand_dangerous_to_windows(x: str) -> bool:
-    """
-    Under Windows, if an ampersand is in a path and is not quoted, it'll break
-    lots of things.
-    See https://stackoverflow.com/questions/34124636.
-    Simple example:
-        set RUBBISH=a & b           # 'b' is not recognizable as a... command
-        set RUBBISH='a & b'         # 'b'' is not recognizable as a... command
-        set RUBBISH="a & b"         # OK
-    
-    ... and you get similar knock-on effects, e.g. if you set RUBBISH using the
-    Control Panel to the literal
-        a & dir
-    
-    and then do
-        echo %RUBBISH%
-    it will (1) print "a" and then (2) print a directory listing as it RUNS
-    "dir"! That's pretty dreadful.
-    
-    See also
-        https://www.thesecurityfactory.be/command-injection-windows.html
-    
-    Anyway, this is a sanity check for that sort of thing.
-    """
-    return contains_unquoted_target(x, quote='"', target='&')
 
 
 def get_starting_env(plain: bool = False) -> Dict[str, str]:
@@ -1958,116 +1807,10 @@ def get_starting_env(plain: bool = False) -> Dict[str, str]:
         return os.environ.copy()
 
 
-def validate_pair(ob: Any) -> bool:
-    try:
-        if len(ob) != 2:
-            log.warning("Unexpected result: {!r}".format(ob))
-            raise ValueError()
-    except ValueError:
-        return False
-    return True
-
-
-def consume(iterator) -> None:
-    try:
-        while True:
-            next(iterator)
-    except StopIteration:
-        pass
-
-
-def windows_get_environment_from_batch_command(
-        env_cmd: Union[str, List[str]],
-        initial_env: Dict[str, str] = None) -> Dict[str, str]:
-    """
-    Take a command (either a single command or list of arguments)
-    and return the environment created after running that command.
-    Note that the command must be a batch file or .cmd file, or the
-    changes to the environment will not be captured.
-
-    If initial_env is supplied, it is used as the initial environment passed
-    to the child process. (Otherwise, this process's os.environ() will be
-    used by default.)
-
-    From https://stackoverflow.com/questions/1214496/how-to-get-environment-from-a-subprocess-in-python  # noqa
-    ... with decoding bug fixed for Python 3
-    
-    PURPOSE: under Windows, VCVARSALL.BAT sets up a lot of environment
-    variables to compile for a specific target architecture. We want to be able
-    to read them, not to replicate its work.
-    """
-    if not isinstance(env_cmd, (list, tuple)):
-        env_cmd = [env_cmd]
-    # construct the command that will alter the environment
-    env_cmd = subprocess.list2cmdline(env_cmd)
-    # create a tag so we can tell in the output when the proc is done
-    tag = '+/!+/!+/! Finished command to set/print env +/!+/!+/!'  # RNC
-    # construct a cmd.exe command to do accomplish this
-    cmd = 'cmd.exe /s /c "{env_cmd} && echo "{tag}" && set"'.format(
-        env_cmd=env_cmd, tag=tag)
-    # launch the process
-    log.info("Fetching environment using command: {}".format(env_cmd))
-    log.debug("Full command: {}".format(cmd))
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=initial_env)
-    # parse the output sent to stdout
-    encoding = sys.getdefaultencoding()
-
-    def gen_lines() -> Generator[str, None, None]:  # RNC: fix decode problem
-        for line in proc.stdout:
-            yield line.decode(encoding)
-
-    # define a way to handle each KEY=VALUE line
-    def handle_line(line: str) -> List[str]:  # RNC: as function
-        return line.rstrip().split('=', 1)
-    
-    lines = gen_lines()  # RNC
-    # consume whatever output occurs until the tag is reached
-    consume(itertools.takewhile(lambda l: tag not in l, lines))
-    # ... RNC: note that itertools.takewhile() generates values not matching
-    #     the condition, but then consumes the condition value itself. So the
-    #     tag's already gone. Example:
-    #
-    #   def gen():
-    #       mylist = [1, 2, 3, 4, 5]
-    #       for x in mylist:
-    #           yield x
-    #
-    #   g = gen()
-    #   list(itertools.takewhile(lambda x: x != 3, g))  # [1, 2]
-    #   next(g)  # 4, not 3
-    #
-    # parse key/values into pairs
-    pairs = map(handle_line, lines)
-    # make sure the pairs are valid (this also eliminates the tag)
-    valid_pairs = filter(validate_pair, pairs)
-    # construct a dictionary of the pairs
-    result = dict(valid_pairs)  # consumes generator
-    # let the process finish
-    proc.communicate()
-    log.debug("Fetched environment:\n" + pformat(result))
-    return result
-
-
 # =============================================================================
-# Ancillary: run subprocesses
+# Ancillary: check for operating system commands
 # =============================================================================
 
-def which_with_envpath(executable: str, env: Dict[str, str]) -> str:
-    """
-    Performs a "which" command using the PATH from the specified environment.
-    
-    Reason: when you use run([executable, ...], env) and therefore
-    subprocess.run([executable, ...], env=env), the PATH that's searched for
-    "executable" is the parent's, not the new child's -- so you have to find
-    the executable manually.
-    """
-    oldpath = os.environ.get("PATH", "")
-    os.environ["PATH"] = env.get("PATH")
-    which = shutil.which(executable)
-    os.environ["PATH"] = oldpath
-    return which
-    
-    
 def require(command: str) -> None:
     """
     Checks that an external command is available, or raises an exception.
@@ -2160,218 +1903,6 @@ tclsh       Install the Cygwin package "tcl" AND ALSO:                  tcl
     raise ValueError(missing_msg)
 
 
-def run(args: List[str],
-        env: Dict[str, str] = None,
-        get_stdout: bool = False,
-        get_stderr: bool = False,
-        debug_show_env: bool = True,
-        encoding: str = sys.getdefaultencoding(),
-        allow_failure: bool = False) -> Tuple[str, str]:
-    """
-    Runs an external process, announcing it.
-    Optionally, retrieves its stdout and/or stderr output (if not retrieved,
-    the output will be visible to the user).
-    Returns a tuple: (stdout, stderr). If the output wasn't captured, an empty
-    string will take its place in this tuple.
-    """
-    cwd = os.getcwd()
-    # log.debug("External command Python form: {}".format(args))
-    copy_paste_cmd = make_copy_paste_cmd(args)
-    csep = "=" * 79
-    esep = "-" * 79
-    effective_env = env or os.environ
-    if debug_show_env:
-        log.debug(
-            "Environment for the command that follows:\n"
-            "{esep}\n"
-            "{env}\n"
-            "{esep}".format(esep=esep, env=make_copy_paste_env(effective_env))
-        )
-    log.info(
-        "Launching external command:\n"
-        "{csep}\n"
-        "WORKING DIRECTORY: {cwd}\n"
-        "PYTHON ARGS: {args!r}\n"
-        "COMMAND: {cmd}\n"
-        "{csep}".format(csep=csep, cwd=cwd, cmd=copy_paste_cmd,
-                        args=args)
-    )
-    try:
-        if get_stdout or get_stderr:
-            p = subprocess.run(args,
-                               env=env,
-                               stdout=subprocess.PIPE if get_stdout else None,
-                               stderr=subprocess.PIPE if get_stderr else None,
-                               check=not allow_failure)
-            stdout = p.stdout.decode(encoding) if p.stdout else ""
-            stderr = p.stderr.decode(encoding) if p.stderr else ""
-        else:
-            subprocess.check_call(args, env=env)
-            stdout, stderr = "", ""
-        log.debug("\n{csep}\nFINISHED SUCCESSFULLY: {cmd}\n{csep}".format(
-            cmd=copy_paste_cmd, csep=csep))
-        return stdout, stderr
-    except FileNotFoundError:
-        require(args[0])  # which was missing, so we'll see some help
-        raise
-    except FileNotFoundError:
-        log.critical(
-            "Command that failed:\n"
-            "[ENVIRONMENT]\n"
-            "{env}\n"
-            "\n"
-            "[DIRECTORY] {cwd}\n"
-            "[PYTHON ARGS] {args}\n"
-            "[COMMAND] {cmd}".format(
-                cwd=cwd,
-                env=make_copy_paste_env(effective_env),
-                cmd=copy_paste_cmd,
-                args=args
-            )
-        )
-        raise
-
-
-def fetch(args: List[str], env: Dict[str, str] = None,
-          encoding: str = sys.getdefaultencoding()) -> str:
-    """
-    Run a command and returns its stdout.
-    """
-    stdout, _ = run(args, env=env, get_stdout=True, encoding=encoding)
-    log.debug(stdout)
-    return stdout
-
-
-# =============================================================================
-# Ancillary: modify files
-# =============================================================================
-
-def replace_in_file(filename: str, text_from: str, text_to: str) -> None:
-    """
-    Replaces text in a file.
-    """
-    log.info("Amending {}: {} -> {}".format(
-        filename, repr(text_from), repr(text_to)))
-    with open(filename) as infile:
-        contents = infile.read()
-    contents = contents.replace(text_from, text_to)
-    with open(filename, 'w') as outfile:
-        outfile.write(contents)
-
-
-def replace_multiple_in_file(filename: str,
-                             replacements: List[Tuple[str, str]]) -> None:
-    """
-    Replaces multiple from/to string pairs within a single file.
-    """
-    with open(filename) as infile:
-        contents = infile.read()
-    for text_from, text_to in replacements:
-        log.info("Amending {}: {} -> {}".format(
-            filename, repr(text_from), repr(text_to)))
-        contents = contents.replace(text_from, text_to)
-    with open(filename, 'w') as outfile:
-        outfile.write(contents)
-
-
-def convert_line_endings(filename: str, to_unix: bool = False,
-                         to_windows: bool = False) -> None:
-    """
-    Converts a file from UNIX -> Windows line endings, or the reverse.
-    """
-    assert to_unix != to_windows
-    with open(filename, "rb") as f:
-        contents = f.read()
-    windows_eol = b"\r\n"  # CR LF
-    unix_eol = b"\n"  # LF
-    if to_unix:
-        log.info("Converting from Windows to UNIX line endings: {!r}".format(
-            filename))
-        src = windows_eol
-        dst = unix_eol
-    else:  # to_windows
-        log.info("Converting from UNIX to Windows line endings: {!r}".format(
-            filename))
-        src = unix_eol
-        dst = windows_eol
-        if windows_eol in contents:
-            log.info("... already contains at least one Windows line ending; "
-                     "probably converted before; skipping")
-            return
-    contents = contents.replace(src, dst)
-    with open(filename, "wb") as f:
-        f.write(contents)
-
-
-def is_line_in_file(filename: str, line: str) -> bool:
-    assert "\n" not in line
-    with open(filename, "r") as file:
-        for fileline in file:
-            if fileline == line:
-                return True
-        return False
-
-
-def add_line_if_absent(filename: str, line: str) -> None:
-    assert "\n" not in line
-    if not is_line_in_file(filename, line):
-        log.info("Appending line {!r} to file {!r}".format(line, filename))
-        with open(filename, "a") as file:
-            file.writelines([line])
-            
-            
-# =============================================================================
-# Ancillary: check for operating system features/packages
-# =============================================================================
-
-def are_debian_packages_installed(packages: List[str]) -> Dict[str, bool]:
-    assert len(packages) >= 1
-    require(DPKG_QUERY)
-    args = [
-        DPKG_QUERY,
-        "-W",  # --show
-        # "-f='${Package} ${Status} ${Version}\n'",
-        "-f=${Package} ${Status}\n",  # --showformat
-    ] + packages
-    stdout, stderr = run(args, get_stdout=True, get_stderr=True,
-                         allow_failure=True)
-    present = OrderedDict()
-    for line in stdout.split("\n"):
-        if line:  # e.g. "autoconf install ok installed"
-            words = line.split()
-            assert len(words) >= 2
-            package = words[0]
-            present[package] = "installed" in words[1:]
-    for line in stderr.split("\n"):
-        if line:  # e.g. "dpkg-query: no packages found matching XXX"
-            words = line.split()
-            assert len(words) >= 2
-            package = words[-1]
-            present[package] = False
-    log.debug("Debian package presence: {}".format(present))
-    return present
-
-
-def require_debian_packages(packages: List[str]) -> None:
-    """
-    Ensure specific packages are installed under Debian.
-    Args:
-        packages:
-
-    Returns:
-
-    """
-    present = are_debian_packages_installed(packages)
-    missing_packages = [k for k, v in present.items() if not v]
-    if missing_packages:
-        missing_packages.sort()
-        msg = (
-            "Debian packages are missing, as follows. Suggest:\n\n"
-            "sudo apt install {}".format(" ".join(missing_packages))
-        )
-        fail(msg)
-
-
 def ensure_first_perl_is_not_cygwin() -> None:
     """
     For Windows: ensure that the Perl we get when we call "perl" isn't a Cygwin
@@ -2415,13 +1946,13 @@ Configuring OpenSSL version 1.1.0g (0x1010007fL)
     no-zlib-dynamic [default]
 Configuring for VC-WIN64A
 
-******************************************************************************
+------------------------------------------------------------------------------
 This perl implementation doesn't produce Windows like paths (with backward
 slash directory separators).  Please use an implementation that matches your
 building platform.
 
 This Perl version: 5.26.1 for x86_64-cygwin-threads-multi
-******************************************************************************
+------------------------------------------------------------------------------
 
 $ which perl
 /usr/bin/perl
@@ -2443,107 +1974,6 @@ $ which perl
 
 
 # =============================================================================
-# Ancillary: manipulate web, Git, and tar
-# =============================================================================
-
-def download_if_not_exists(url: str, filename: str,
-                           skip_cert_verify: bool = True) -> None:
-    """
-    Downloads a URL to a file, unless the file already exists.
-    """
-    if isfile(filename):
-        log.info("No need to download, already have: {}".format(filename))
-        return
-    directory, basename = split(abspath(filename))
-    mkdir_p(directory)
-    log.info("Downloading from {} to {}".format(url, filename))
-        
-    # urllib.request.urlretrieve(url, filename)
-    # ... sometimes fails (e.g. downloading
-    # https://www.openssl.org/source/openssl-1.1.0g.tar.gz under Windows) with:
-    # ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:777)  # noqa
-    # ... due to this certificate root problem (probably because OpenSSL
-    #     [used by Python] doesn't play entirely by the same rules as others?):
-    # https://stackoverflow.com/questions/27804710
-    # So:
-
-    ctx = ssl.create_default_context()  # type: ssl.SSLContext
-    if skip_cert_verify:
-        log.debug("Skipping SSL certificate check for " + url)
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-    with urllib.request.urlopen(url, context=ctx) as u, open(filename, 'wb') as f:  # noqa
-        f.write(u.read())
-
-
-def git_clone(prettyname: str, url: str, directory: str,
-              branch: str = None,
-              commit: str = None,
-              clone_options: List[str] = None) -> bool:
-    """
-    Fetches a Git repository, unless we have it already.
-    Returns: did we need to do anything?
-    """
-    clone_options = clone_options or []  # type: List[str]
-    if isdir(directory):
-        log.info("Not re-cloning {} Git repository: using existing source "
-                 "in {}".format(prettyname, directory))
-        return False
-    log.info("Fetching {} source from {} into {}".format(
-        prettyname, url, directory))
-    gitargs = [GIT, "clone"] + clone_options
-    if branch:
-        gitargs += ["--branch", branch]
-    gitargs += [url, directory]
-    run(gitargs)
-    if commit:
-        log.info("Resetting {} local Git repository to commit {}".format(
-            prettyname, commit))
-        run([GIT,
-             "-C", directory,
-             "reset", "--hard", commit])
-        # Using a Git repository that's not in the working directory:
-        # https://stackoverflow.com/questions/1386291/git-git-dir-not-working-as-expected  # noqa
-    return True
-
-
-# def fix_git_repo_for_windows(directory: str):
-#     # https://github.com/openssl/openssl/issues/174
-#     log.info("Fixing repository {!r} for Windows line endings".format(
-#         directory))
-#     with pushd(directory):
-#         run([GIT, "config", "--local", "core.autocrlf", "false"])
-#         run([GIT, "config", "--local", "core.eol", "lf"])
-#         run([GIT, "rm", "--cached", "-r", "."])
-#         run([GIT, "reset", "--hard"])
-
-
-def untar_to_directory(tarfile: str, directory: str,
-                       verbose: bool = False,
-                       gzipped: bool = False,
-                       skip_if_dir_exists: bool = True) -> None:
-    """
-    Unpacks a TAR file into a specified directory.
-    """
-    if skip_if_dir_exists and isdir(directory):
-        log.info("Skipping extraction of {} as directory {} exists".format(
-            tarfile, directory))
-        return
-    log.info("Extracting {} -> {}".format(tarfile, directory))
-    mkdir_p(directory)
-    args = [TAR, "-x"]  # -x: extract
-    if verbose:
-        args.append("-v")  # -v: verbose
-    if gzipped:
-        args.append("-z")  # -z: decompress using gzip
-    if not BUILD_PLATFORM.osx:  # OS/X tar doesn't support --force-local
-        args.append("--force-local")  # allows filenames with colons in (Windows!)  # noqa
-    args.extend(["-f", tarfile])  # -f: filename follows
-    args.extend(["-C", directory])  # -C: change to directory
-    run(args)
-
-
-# =============================================================================
 # Ancillary: other functions to clean up build environments
 # =============================================================================
 
@@ -2552,20 +1982,20 @@ def delete_cmake_cache(directory: str) -> None:
     Removes the CMake cache file from a directory.
     """
     log.info("Deleting CMake cache files within: {!r}".format(directory))
-    delete_files_within_dir("CMakeCache.txt", directory)
+    delete_files_within_dir(directory, ["CMakeCache.txt"])
 
 
 # def delete_qmake_cache(directory: str) -> None:
 #     log.info("Deleting qmake cache files within: {!r}".format(directory))
-#     delete_files_within_dir(".qmake.cache", directory)
-#     delete_files_within_dir(".qmake.stash", directory)
-#     delete_files_within_dir(".qmake.super", directory)
+#     delete_files_within_dir(directory, [".qmake.cache"])
+#     delete_files_within_dir(directory, [".qmake.stash"])
+#     delete_files_within_dir(directory, [".qmake.super"])
 
 
 # Nope! These are important.
 # def delete_qmake_conf(directory: str) -> None:
 #     log.info("Deleting qmake config files within: {!r}".format(directory))
-#     delete_files_within_dir(".qmake.conf", directory)
+#     delete_files_within_dir(directory, [".qmake.conf"])
 
 
 # =============================================================================
@@ -2645,7 +2075,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # -------------------------------------------------------------------------
     # OpenSSL: Unpack source
     # -------------------------------------------------------------------------
-    untar_to_directory(cfg.openssl_src_fullpath, rootdir)
+    untar_to_directory(cfg.openssl_src_fullpath, rootdir, run_func=run)
 
     # -------------------------------------------------------------------------
     # OpenSSL: Environment 1/2
@@ -2697,7 +2127,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # https://stackoverflow.com/questions/30722606/what-does-enable-bitcode-do-in-xcode-7  # noqa
         if target_platform.cpu == Cpu.ARM_V7_32:
             target_os = "ios-cross"  # "iphoneos-cross"
-        if target_platform.cpu == Cpu.ARM_V8_64:
+        elif target_platform.cpu == Cpu.ARM_V8_64:
             target_os = "ios64-cross"  # "iphoneos-cross"
         elif target_platform.cpu_x86_64bit_family:
             target_os = "darwin64-x86_64-cc"
@@ -2953,7 +2383,8 @@ def fetch_qt(cfg: Config) -> None:
                      url=cfg.qt_git_url,
                      branch=cfg.qt_git_branch,
                      commit=cfg.qt_git_commit,
-                     directory=cfg.qt_src_gitdir):
+                     directory=cfg.qt_src_gitdir,
+                     run_func=run):
         return
     chdir(cfg.qt_src_gitdir)
     run([PERL, "init-repository"])
@@ -3201,7 +2632,7 @@ define $(PKG)_BUILD
             # raise NotImplementedError(CANNOT_CROSS_COMPILE_QT)
 
         elif BUILD_PLATFORM.windows:
-            qt_config_args += []  # *** check
+            qt_config_args += []
 
         else:
             raise NotImplementedError("Don't know how to compile Qt for "
@@ -3408,7 +2839,8 @@ def fetch_sqlcipher(cfg: Config) -> None:
               url=cfg.sqlcipher_git_url,
               commit=cfg.sqlcipher_git_commit,
               directory=cfg.sqlcipher_src_gitdir,
-              clone_options=["--config", "core.autocrlf=false"])
+              clone_options=["--config", "core.autocrlf=false"],
+              run_func=run)
     # We must have LF endings, not CR+LF, because we're going to use Unix tools
     # even under Windows.
 
@@ -3449,14 +2881,15 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         return
 
     log.info("Building SQLCipher...")
-    copytree(cfg.sqlcipher_src_gitdir, destdir, destroy=True)
+    copy_tree_contents(cfg.sqlcipher_src_gitdir, destdir, destroy=True)
 
     env = get_starting_env()
     cfg.set_compile_env(env, target_platform, use_cross_compile_var=False)
 
     _, openssl_workdir = cfg.get_openssl_rootdir_workdir(target_platform)
     openssl_include_dir = join(openssl_workdir, "include")
-    
+
+    # noinspection PyListCreation
     if BUILD_PLATFORM.windows:
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # SQLCipher/Windows
@@ -3475,14 +2908,14 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
                 filename=makefile,
                 replacements=[
                     # ("SQLITE3DLL = winsqlite3.dll", "SQLITE3DLL = sqlcipher.dll"),  # noqa
-                    # ("SQLITE3DLL = sqlite3.dll", "SQLITE3DLL = sqlcipher.dll"),
+                    # ("SQLITE3DLL = sqlite3.dll", "SQLITE3DLL = sqlcipher.dll"),  # noqa
 
                     # ("SQLITE3LIB = winsqlite3.lib", "SQLITE3LIB = sqlite3.lib"),  # noqa
                     # ("SQLITE3LIB = winsqlite3.lib", "SQLITE3LIB = sqlcipher.lib"),  # noqa
-                    # ("SQLITE3LIB = sqlite3.lib", "SQLITE3LIB = sqlcipher.lib"),
+                    # ("SQLITE3LIB = sqlite3.lib", "SQLITE3LIB = sqlcipher.lib"),  # noqa
 
                     # ("SQLITE3EXE = winsqlite3shell.exe", "SQLITE3EXE = sqlcipher.exe"),  # noqa
-                    # ("SQLITE3EXE = sqlite3.exe", "SQLITE3EXE = sqlcipher.exe"),
+                    # ("SQLITE3EXE = sqlite3.exe", "SQLITE3EXE = sqlcipher.exe"),  # noqa
 
                     # ("SQLITE3EXEPDB = \n", "SQLITE3EXEPDB = /pdb:sqlciphersh.pdb\n"),  # noqa
                     # ("SQLITE3EXEPDB = /pdb:sqlite3sh.pdb", "SQLITE3EXEPDB = /pdb:sqlciphersh.pdb"),  # noqa
@@ -3524,8 +2957,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         gccflags = [
             "-Wfatal-errors",  # all errors are fatal
         ]
-        clflags = []  # type: List[str]
-        
+
         # Linker:
         ldflags = ["-L{}".format(openssl_workdir)]
     
@@ -3560,8 +2992,10 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         # ... or, for Android, configure will call ld which will say:
         #     ld: error: cannot open crtbegin_dynamic.o: No such file or directory  # noqa
         # ... escape_literal_for_shell() needed for paths with spaces in
-    
-        config_args = [
+
+        # bug in PyCharm list creation detector, I think, so:
+        config_args = []  # type: List[str]
+        config_args += [
             join(destdir, "configure"),
             "--enable-tempstore=yes",  # see README.md; equivalent to SQLITE_TEMP_STORE=2  # noqa
             # no quotes (they're fine on the command line but not here):
@@ -3575,14 +3009,14 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         # The CROSS_COMPILE prefix doesn't appear in any files, so is
         # presumably not supported, but "--build" and "--host" are used (where
         # "host" means "target").
-    
+
         config_args.append("--build={}".format(
             BUILD_PLATFORM.sqlcipher_platform))
         config_args.append("--host={}".format(
             target_platform.sqlcipher_platform))
         config_args.append("--prefix={}".format(
             cfg.sysroot(target_platform, env)))
-    
+
         # ---------------------------------------------------------------------
         # SQLCipher/Unix: configure
         # ---------------------------------------------------------------------
@@ -3638,7 +3072,8 @@ def build_boost(cfg: Config) -> None:
     Try to avoid anything needing compilation; if we can keep this to
     "headers-only" Boost, it will be cross-platform without further effort.
     """
-    untar_to_directory(cfg.boost_src_fullpath, cfg.boost_dest_dir)
+    untar_to_directory(cfg.boost_src_fullpath, cfg.boost_dest_dir,
+                       run_func=run)
 
 
 # =============================================================================
@@ -3656,7 +3091,8 @@ def fetch_armadillo(cfg: Config) -> None:
 
 
 def build_armadillo(cfg: Config) -> None:
-    untar_to_directory(cfg.arma_src_fullpath, cfg.arma_dest_dir)
+    untar_to_directory(cfg.arma_src_fullpath, cfg.arma_dest_dir,
+                       run_func=run)
     # run([CMAKE,
     #      # "-D", "ARMADILLO_LIBRARY={}".format(cfg.arma_lib),
     #      "-D", "ARMADILLO_INCLUDE_DIR={}".format(cfg.arma_include_dir),
@@ -3675,7 +3111,8 @@ def fetch_mlpack(cfg: Config) -> None:
     git_clone(prettyname="MLPACK",
               url=cfg.mlpack_git_url,
               commit=cfg.mlpack_git_commit,
-              directory=cfg.mlpack_src_gitdir)
+              directory=cfg.mlpack_src_gitdir,
+              run_func=run)
 
 
 def build_mlpack(cfg: Config) -> None:
@@ -3785,45 +3222,8 @@ def build_eigen(cfg: Config) -> None:
     """
     untar_to_directory(tarfile=cfg.eigen_src_fullpath,
                        directory=cfg.eigen_unpacked_dir,
-                       gzipped=True)
-
-
-# =============================================================================
-# jom: parallel make tool for Windows
-# =============================================================================
-
-# def fetch_jom(cfg: Config) -> None:
-#     """
-#     Downloads jom
-#     http://wiki.qt.io/Jom
-#     """
-#     git_clone(prettyname="jom",
-#               url=cfg.jom_git_url,
-#               directory=cfg.jom_src_gitdir)
-
-
-# # noinspection PyUnusedLocal
-# def build_jom(cfg: Config) -> None:
-#     """
-#     Builds jom, the parallel make tool for Windows.
-#     See http://code.qt.io/cgit/qt-labs/jom.git/tree/README
-#     """
-#     if not BUILD_PLATFORM.windows:
-#         log.critical("don't know how to build jom yet (NB it's a Qt program")
-#         raise NotImplementedError()
-#     if isfile(cfg.jom_executable):
-#         log.info("Already have {!r}; no need to build jom".format(
-#             cfg.jom_executable))
-#         return
-#     env = os.environ.copy()
-#     cfg.set_compile_env(env, BUILD_PLATFORM)
-#     with pushd(cfg.jom_src_gitdir):
-#         qmake = BUILD_PLATFORM.prebuilt_qmake(cfg)
-#         nmake = BUILD_PLATFORM.nmake(cfg)
-#         require(qmake)
-#         require(nmake)
-#         run([qmake, "-r"], env)
-#         run([nmake], env)
+                       gzipped=True,
+                       run_func=run)
 
 
 # =============================================================================
@@ -3837,7 +3237,8 @@ def fetch_mxe(cfg: Config) -> None:
     """
     git_clone(prettyname="MXE",
               url=cfg.mxe_git_url,
-              directory=cfg.mxe_src_gitdir)
+              directory=cfg.mxe_src_gitdir,
+              run_func=run)
 
 
 def build_mxe(cfg: Config, target_platform: Platform,
@@ -3906,6 +3307,147 @@ A.  Debian:
 
 
 # =============================================================================
+# Master build function
+# =============================================================================
+
+def master_builder(args) -> None:
+    """
+    Do the work!
+    """
+    # =========================================================================
+    # Calculated args
+    # =========================================================================
+    cfg = Config(args)
+    log.debug("Args: {}".format(args))
+    log.debug("Config: {}".format(cfg))
+    log.info("Running on {}".format(BUILD_PLATFORM))
+
+    if cfg.show_config_only:
+        sys.exit(0)
+
+    # =========================================================================
+    # Test the environment passing
+    # =========================================================================
+    # run(["/usr/local/bin/shared/print_params_and_env_then_abort", "hello",
+    #      "world"])  # full environment passed through
+    # run(["/usr/local/bin/shared/print_params_and_env_then_abort", "hello",
+    #      "world"], env={"SOMEVAR": "someval"})  # only what Bash added
+
+    # =========================================================================
+    # Common requirements
+    # =========================================================================
+    require(CMAKE)
+    require(GIT)
+    require(PERL)
+    require(TAR)
+    if BUILD_PLATFORM.windows:
+        require(VCVARSALL)
+    BUILD_PLATFORM.ensure_elf_reader()
+
+    # =========================================================================
+    # Fetch
+    # =========================================================================
+    fetch_qt(cfg)
+    fetch_openssl(cfg)
+    fetch_sqlcipher(cfg)
+    if USE_BOOST:
+        fetch_boost(cfg)
+    if USE_ARMADILLO:
+        fetch_armadillo(cfg)
+    if USE_MLPACK:
+        fetch_mlpack(cfg)
+    if USE_EIGEN:
+        fetch_eigen(cfg)
+    if USE_MXE and BUILD_PLATFORM.linux:
+        fetch_mxe(cfg)
+
+    # =========================================================================
+    # Build
+    # =========================================================================
+
+    if USE_BOOST:
+        build_boost(cfg)
+    if USE_ARMADILLO:
+        build_armadillo(cfg)
+    if USE_MLPACK:
+        build_mlpack(cfg)
+    if USE_EIGEN:
+        build_eigen(cfg)
+
+    installdirs = []
+    done_extra = False
+
+    # noinspection PyShadowingNames
+    def build_for(os: str, cpu: str) -> None:
+        target_platform = Platform(os, cpu)
+        if USE_MXE and BUILD_PLATFORM.linux and target_platform.windows:
+            log.info("Building MXE for cross-compilation (Linux -> Windows)")
+            build_mxe(cfg, target_platform)
+        log.info("Building (1) OpenSSL, (2) SQLite/SQLCipher, (3) Qt for "
+                 "{}".format(target_platform))
+        build_openssl(cfg, target_platform)
+        build_sqlcipher(cfg, target_platform)
+        installdirs.append(
+            build_qt(cfg, target_platform)
+        )
+        if target_platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
+            make_missing_libqtforandroid_so(cfg, target_platform)
+
+    if cfg.build_android_x86_32:  # for x86 Android emulator
+        build_for(Os.ANDROID, Cpu.X86_32)
+
+    if cfg.build_android_arm_v7_32:  # for native Android
+        build_for(Os.ANDROID, Cpu.ARM_V7_32)
+
+    if cfg.build_linux_x86_64:  # for 64-bit Linux
+        build_for(Os.LINUX, Cpu.X86_64)
+
+    if cfg.build_osx_x86_64:  # for 64-bit Intel Mac OS/X
+        build_for(Os.OSX, Cpu.X86_64)
+
+    if cfg.build_windows_x86_64:  # for 64-bit Windows
+        build_for(Os.WINDOWS, Cpu.X86_64)
+
+    if cfg.build_windows_x86_32:  # for 32-bit Windows
+        if BUILD_PLATFORM.linux and MXE_HAS_GCC_WITH_I386_BUG:
+            fail("""
+Can't build for Win32. Error will be:
+    internal compiler error: in ix86_compute_frame_layout, at config/i386/i386.c:10145
+
+Compiler bug is:
+    https://sourceforge.net/p/mingw-w64/bugs/544/
+    ... due to: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71864
+
+... needs MXE to support a more recent version of mingw-w64 and in turn a more 
+    recent version of gcc
+""")  # noqa
+        build_for(Os.WINDOWS, Cpu.X86_32)
+
+    if cfg.build_ios:  # for iOS (e.g. iPad)
+        build_for(Os.IOS, Cpu.ARM_V8_64)
+        # *** also needs 32-bit build and "fat binary" with 32- and 64-bit versions?  # noqa
+
+    if cfg.build_ios_simulator:  # iOS simulator under 64-bit Intel Mac OS/X
+        build_for(Os.IOS, Cpu.X86_64)
+
+    if not installdirs and not done_extra:
+        log.warning("Nothing more to do. Run with --help argument for help.")
+        sys.exit(1)
+
+    log.info("""
+===============================================================================
+Now, to compile CamCOPS using Qt Creator:
+===============================================================================
+
+See tablet_qt/notes/QT_PROJECT_SETTINGS.txt
+
+    """.format(  # noqa
+        bindirs=", ".join(join(x, "bin") for x in installdirs)
+    ))
+    sys.exit(0)
+
+
+# =============================================================================
 # Main
 # =============================================================================
 
@@ -3937,7 +3479,11 @@ def main() -> None:
     general.add_argument(
         "--nparallel", type=int, default=multiprocessing.cpu_count(),
         help="Number of parallel processes to run")
-    general.add_argument("--force", action="store_true", help="Force build")
+    general.add_argument(
+        "--force", action="store_true", help="Force build")
+    general.add_argument(
+        "--tee", type=str, default=None,
+        help="Copy stdout/stderr to this named file")
     general.add_argument(
         "--verbose", "-v", type=int, default=0, choices=[0, 1, 2],
         help="Verbosity level")
@@ -4124,7 +3670,6 @@ def main() -> None:
     jom.add_argument(
         "--jom_executable", default=r"C:\Qt\Tools\QtCreator\bin\jom.exe",
         help="jom executable (typically installed with QtCreator)"
-        
     )
     
     windows = parser.add_argument_group(
@@ -4150,9 +3695,11 @@ def main() -> None:
         help="MXE Git URL"
     )
 
-    args = parser.parse_args()  # type: argparse.Namespace
+    args = parser.parse_args()
 
-    # Logging
+    # =========================================================================
+    # Logging, including a tee facility
+    # =========================================================================
     # noinspection PyUnresolvedReferences
     loglevel = logging.DEBUG if args.verbose >= 1 else logging.INFO
     if main_only_quicksetup_rootlogger:
@@ -4160,136 +3707,12 @@ def main() -> None:
     else:
         logging.basicConfig(level=loglevel, format=LOG_FORMAT,
                             datefmt=LOG_DATEFMT)
-
-    # Calculated args
-
-    cfg = Config(args)
-    log.debug("Args: {}".format(args))
-    log.debug("Config: {}".format(cfg))
-    log.info("Running on {}".format(BUILD_PLATFORM))
-
-    if cfg.show_config_only:
-        sys.exit(0)
-
-    # =========================================================================
-    # Test the environment passing
-    # =========================================================================
-    # run(["/usr/local/bin/shared/print_params_and_env_then_abort", "hello",
-    #      "world"])  # full environment passed through
-    # run(["/usr/local/bin/shared/print_params_and_env_then_abort", "hello",
-    #      "world"], env={"SOMEVAR": "someval"})  # only what Bash added
-
-    # =========================================================================
-    # Common requirements
-    # =========================================================================
-    require(CMAKE)
-    require(GIT)
-    require(PERL)
-    require(TAR)
-    if BUILD_PLATFORM.windows:
-        require(VCVARSALL)
-    BUILD_PLATFORM.ensure_elf_reader()
-
-    # =========================================================================
-    # Fetch
-    # =========================================================================
-    fetch_qt(cfg)
-    fetch_openssl(cfg)
-    fetch_sqlcipher(cfg)
-    if USE_BOOST:
-        fetch_boost(cfg)
-    if USE_ARMADILLO:
-        fetch_armadillo(cfg)
-    if USE_MLPACK:
-        fetch_mlpack(cfg)
-    if USE_EIGEN:
-        fetch_eigen(cfg)
-    if USE_MXE and BUILD_PLATFORM.linux:
-        fetch_mxe(cfg)
-
-    # =========================================================================
-    # Build
-    # =========================================================================
-
-    if USE_BOOST:
-        build_boost(cfg)
-    if USE_ARMADILLO:
-        build_armadillo(cfg)
-    if USE_MLPACK:
-        build_mlpack(cfg)
-    if USE_EIGEN:
-        build_eigen(cfg)
-
-    installdirs = []
-    done_extra = False
-
-    # noinspection PyShadowingNames
-    def build_for(os: str, cpu: str) -> None:
-        target_platform = Platform(os, cpu)
-        if USE_MXE and BUILD_PLATFORM.linux and target_platform.windows:
-            build_mxe(cfg, target_platform)
-        log.info("Building Qt [+SQLite/SQLCipher +OpenSSL] for {}".format(
-            target_platform))
-        build_openssl(cfg, target_platform)
-        installdirs.append(
-            build_qt(cfg, target_platform)
-        )
-        if target_platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
-            make_missing_libqtforandroid_so(cfg, target_platform)
-        build_sqlcipher(cfg, target_platform)
-        
-    if cfg.build_android_x86_32:  # for x86 Android emulator
-        build_for(Os.ANDROID, Cpu.X86_32)
-
-    if cfg.build_android_arm_v7_32:  # for native Android
-        build_for(Os.ANDROID, Cpu.ARM_V7_32)
-
-    if cfg.build_linux_x86_64:  # for 64-bit Linux
-        build_for(Os.LINUX, Cpu.X86_64)
-
-    if cfg.build_osx_x86_64:  # for 64-bit Intel Mac OS/X
-        build_for(Os.OSX, Cpu.X86_64)
-        
-    if cfg.build_windows_x86_64:  # for 64-bit Windows
-        build_for(Os.WINDOWS, Cpu.X86_64)
-
-    if cfg.build_windows_x86_32:  # for 32-bit Windows
-        if BUILD_PLATFORM.linux and MXE_HAS_GCC_WITH_I386_BUG:
-            fail("""
-Can't build for Win32. Error will be:
-    internal compiler error: in ix86_compute_frame_layout, at config/i386/i386.c:10145
-
-Compiler bug is:
-    https://sourceforge.net/p/mingw-w64/bugs/544/
-    ... due to: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71864
-    
-... needs MXE to support a more recent version of mingw-w64 and in turn a more 
-    recent version of gcc
-""")  # noqa
-        build_for(Os.WINDOWS, Cpu.X86_32)
-
-    if cfg.build_ios:  # for iOS (e.g. iPad)
-        build_for(Os.IOS, Cpu.ARM_V8_64)
-        # *** also needs 32-bit build and "fat binary" with 32- and 64-bit versions?  # noqa
-
-    if cfg.build_ios_simulator:  # iOS simulator under 64-bit Intel Mac OS/X
-        build_for(Os.IOS, Cpu.X86_64)
-
-    if not installdirs and not done_extra:
-        log.warning("Nothing more to do. Run with --help argument for help.")
-        sys.exit(1)
-
-    log.info("""
-===============================================================================
-Now, to compile CamCOPS using Qt Creator:
-===============================================================================
-
-See tablet_qt/notes/QT_PROJECT_SETTINGS.txt
-
-    """.format(  # noqa
-        bindirs=", ".join(join(x, "bin") for x in installdirs)
-    ))
-    sys.exit(0)
+    if args.tee:
+        with open(args.tee, "wt") as tee_file:  # type: TextIO
+            with tee_log(tee_file, loglevel=loglevel):
+                master_builder(args)
+    else:
+        master_builder(args)
 
 
 if __name__ == '__main__':
