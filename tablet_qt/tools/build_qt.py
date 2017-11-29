@@ -2937,7 +2937,11 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
                 "sqlite3.c",
                 "libsqlite3.lib",
             ], env)
-            log.critical("*** not yet making correct final filename, sqlite3.o, and haven't checked it ***")
+            # The Makefile.msc deletes all .obj files but compiles to .lo
+            # files, which I think are identical (see LTCOMPILE, which calls
+            # the compiler with the -Fo switch);
+            # https://docs.microsoft.com/en-gb/cpp/build/reference/fo-object-file-name  # noqa
+            shutil.copyfile("sqlite3.lo", target_o)
         
     else:
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
