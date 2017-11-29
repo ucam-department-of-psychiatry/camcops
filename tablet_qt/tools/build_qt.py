@@ -355,6 +355,10 @@ DEFAULT_EIGEN_VERSION = "3.3.3"
 DEFAULT_MXE_GIT_URL = "https://github.com/mxe/mxe.git"
 MXE_HAS_GCC_WITH_I386_BUG = True  # True as of 2017-11-19
 
+# Mac things; https://gist.github.com/armadsen/b30f352a8d6f6c87a146
+DEFAULT_MIN_IOS_VERSION = "7.0"
+DEFAULT_MIN_OSX_VERSION = "10.7"
+
 # -----------------------------------------------------------------------------
 # Building Qt
 # -----------------------------------------------------------------------------
@@ -881,11 +885,13 @@ class Platform(object):
         If in doubt, running "clang -arch SOMETHING" will produce an error
         if it's unsupported. With clang-703.0.29, "x86_64" and "arm6" are
         OK.
+
+        iOS device processor compatibility: see
+        https://developer.apple.com/library/content/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/DeviceCompatibilityMatrix/DeviceCompatibilityMatrix.html  # noqa
         """
         if self.cpu_x86_64bit_family:
             return "x86_64"
-            # return "i386"
-        elif self.cpu == Cpu.X86_32:
+        elif self.cpu_x86_32bit_family:
             return "i386"
         elif self.cpu == Cpu.ARM_V7_32:
             return "armv7"
@@ -1098,8 +1104,10 @@ class Config(object):
         self.build_osx_x86_64 = args.build_osx_x86_64  # type: bool
         self.build_windows_x86_64 = args.build_windows_x86_64  # type: bool
         self.build_windows_x86_32 = args.build_windows_x86_32  # type: bool
-        self.build_ios = args.build_ios  # type: bool
-        self.build_ios_simulator = args.build_ios_simulator  # type: bool
+        self.build_ios_arm_v7_32 = args.build_ios_arm_v7_32  # type: bool
+        self.build_ios_arm_v8_64 = args.build_ios_arm_v8_64  # type: bool
+        self.build_ios_simulator_x86_32 = args.build_ios_simulator_x86_32  # type: bool  # noqa
+        self.build_ios_simulator_x86_64 = args.build_ios_simulator_x86_64  # type: bool  # noqa
 
         if self.build_all:
             if BUILD_PLATFORM.linux:
@@ -1111,9 +1119,10 @@ class Config(object):
                         self.build_windows_x86_32 = True
                     self.build_windows_x86_64 = True
             elif BUILD_PLATFORM.osx:
+                self.build_ios_arm_v7_32 = True
                 self.build_osx_x86_64 = True
-                self.build_ios = True
-                self.build_ios_simulator = True
+                self.build_ios_arm_v8_64 = True
+                self.build_ios_simulator_x86_64 = True
             elif BUILD_PLATFORM.windows:
                 self.build_windows_x86_32 = True
                 self.build_windows_x86_64 = True
@@ -1154,6 +1163,10 @@ class Config(object):
 
         # iOS
         self.ios_sdk = args.ios_sdk  # type: str
+        self.ios_min_version = args.ios_min_version  # type: str
+
+        # OS/X
+        self.osx_min_version = args.osx_min_version  # type: str
 
         # OpenSSL
         # - download tar file to src/openssl
@@ -1313,7 +1326,8 @@ class Config(object):
     # Environment variables
     # -------------------------------------------------------------------------
 
-    def set_compile_env(self, env: Dict[str, str],
+    def set_compile_env(self,
+                        env: Dict[str, str],
                         target_platform: Platform,
                         use_cross_compile_var: bool = True) -> None:
         """
@@ -1349,12 +1363,6 @@ class Config(object):
         env["CC"] = BUILD_PLATFORM.gcc(fullpath=not use_cross_compile_var,
                                        cfg=self)
 
-    def _set_osx_env(self, env: Dict[str, str]) -> None:
-        """
-        Implementation of set_compile_env() for OS/X targets.
-        """
-        pass
-
     def _set_android_env(self,
                          env: Dict[str, str],
                          target_platform: Platform,
@@ -1389,6 +1397,19 @@ class Config(object):
         env["SYSROOT"] = android_sysroot
         env["NDK_SYSROOT"] = android_sysroot
 
+    def _set_osx_env(self, env: Dict[str, str]) -> None:
+        """
+        Implementation of set_compile_env() for OS/X targets.
+        """
+        # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
+        env["BUILD_TOOLS"] = env.get("BUILD_TOOLS", self._xcode_developer_path)
+        env["CC"] = (
+            "{clang} -mmacosx-version-min={min_osx_version}".format(
+                clang=join(env["BUILD_TOOLS"], "usr", "bin", "clang"),
+                min_osx_version=self.osx_min_version,
+            )
+        )
+
     def _set_ios_env(self, env: Dict[str, str],
                      target_platform: Platform) -> None:
         """
@@ -1396,8 +1417,13 @@ class Config(object):
         """
         # https://gist.github.com/foozmeat/5154962
         # https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
+        # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
+
+        use_gcc = True  # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
+
         xcode_platform = target_platform.ios_platform_name
         arch = target_platform.ios_arch
+        developer = self._xcode_developer_path
         sdk_version = self._get_ios_sdk_version(target_platform=target_platform)
         sdk_name = self._xcode_sdk_name(xcode_platform=xcode_platform,
                                         sdk_version=sdk_version)
@@ -1411,13 +1437,21 @@ class Config(object):
 
         env["AR"] = fetch([XCRUN, "-sdk", sdk_name_lower,
                            "-find", "ar"]).strip()
-        env["BUILD_TOOLS"] = self._xcode_developer_path
-        env["CC"] = fetch([XCRUN, "-sdk", sdk_name_lower,
-                           "-find", "clang"]).strip()
-        # "{cc} -arch {arch}".format(
-        #     cc=os.path.join(developer, 'usr', 'bin', 'gcc'),
-        #     arch=target_platform.ios_arch
-        # )
+        env["BUILD_TOOLS"] = developer
+        if use_gcc:
+            env["CC"] = (
+                "{gcc}"
+                " -fembed-bitcode"
+                " -mios-version-min={min_ios_version}"
+                " -arch {arch}".format(
+                    gcc=os.path.join(developer, 'usr', 'bin', 'gcc'),
+                    min_ios_version=self.ios_min_version,
+                    arch=arch,
+                )
+            )
+        else:
+            env["CC"] = fetch([XCRUN, "-sdk", sdk_name_lower,
+                               "-find", "clang"]).strip()
         env["CFLAGS"] = (
             "-arch {arch} -isysroot {sysroot} "
             "-m{platform}-version-min={sdk_version}".format(
@@ -2011,6 +2045,167 @@ def fetch_openssl(cfg: Config) -> None:
                            cfg.openssl_android_script_fullpath)
 
 
+def openssl_target_os_args(target_platform: Platform) -> List[str]:
+    """
+    Returns the target OS for OpenSSL's "Configure" Perl script, +/- any other
+    required target-specific parameters, as a list.
+    """
+
+    # http://doc.qt.io/qt-5/opensslsupport.html
+
+    if target_platform.android:
+        if target_platform.cpu == Cpu.ARM_V5_32:
+            return ["android"]  # ... NB "android" means ARMv5
+        elif target_platform.cpu == Cpu.ARM_V7_32:
+            if OPENSSL_AT_LEAST_1_1:
+                return ["android-armeabi"]
+            else:
+                return ["android-armv7"]
+        elif target_platform.cpu_x86_family:
+            return ["android-x86"]
+        # if we get here: will raise error below
+
+    elif target_platform.linux:
+        if target_platform.cpu_x86_64bit_family:
+            return ["linux-x86_64"]
+
+    elif target_platform.osx:
+        if target_platform.cpu_x86_64bit_family:
+            # https://gist.github.com/tmiz/1441111
+            return ["darwin64-x86_64-cc"]
+
+    elif target_platform.ios:
+        # https://gist.github.com/foozmeat/5154962
+        # https://gist.github.com/felix-schwarz/c61c0f7d9ab60f53ebb0
+        # https://gist.github.com/armadsen/b30f352a8d6f6c87a146 <<< ESP. THIS
+        # If Bitcode is later required, see the other ones above and
+        # https://stackoverflow.com/questions/30722606/what-does-enable-bitcode-do-in-xcode-7  # noqa
+        if target_platform.cpu == Cpu.ARM_V7_32:  # iOS on 32-bit devices
+            return ["ios-cross"]  # "iphoneos-cross"
+        elif target_platform.cpu == Cpu.ARM_V8_64:  # iOS on 64-bit devices
+            return ["ios64-cross"]  # "iphoneos-cross"
+        elif target_platform.cpu_x86_64bit_family:  # iOS on 64-bit simulator
+            return ["darwin64-x86_64-cc", "no-asm"]  # unsure if "no-asm" required  # noqa
+        elif target_platform.cpu_x86_32bit_family:  # iOS on 32-bit simulator
+            return ["darwin-i386-cc"]
+
+    elif target_platform.windows:
+        if BUILD_PLATFORM.windows:
+            # if USE_CYGWIN:
+            #     target_os = "Cygwin-x86_64"
+            # elif USE_MINGW:
+            #     if target_platform.cpu_64bit:
+            #         target_os = "mingw64"
+            #     else:
+            #         target_os = "mingw"
+
+            # http://p-nand-q.com/programming/windows/building_openssl_with_visual_studio_2013.html  # noqa
+            if target_platform.cpu_x86_64bit_family:
+                return ["VC-WIN64A"]
+                # I'm not sure what "VC-WIN64I" is. Intel vs AMD? Ah, no:
+                # https://stackoverflow.com/questions/38151387/build-openssl-for-both-x64-and-x86-side-by-side-installation  # noqa
+                # ... "WIN64I denotes IA-64 and WIN64A - AMD64"
+                # ... where IA-64 means Intel Itanium: https://en.wikipedia.org/wiki/IA-64  # noqa
+                # ... so we want "-A" for x86-64.
+            elif target_platform.cpu_x86_32bit_family:
+                return ["VC-WIN32"]
+
+        elif BUILD_PLATFORM.linux:
+            if USE_MINGW:
+                if target_platform.cpu_64bit:
+                    return ["mingw64"]
+                else:
+                    return ["mingw"]
+
+    raise NotImplementedError("Don't known OpenSSL target name for "
+                              "{}".format(target_platform))
+
+    # For new platforms: if you're not sure, use target_os = "crashme" and
+    # you'll get the list of permitted values, which as of 2017-11-12 is:
+
+    # noinspection PyUnreachableCode
+    _ = """
+OpenSSL 1.0.2h targets:
+
+BC-32 BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
+BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-x86_64 DJGPP MPE/iX-gcc OS2-EMX
+OS390-Unix QNX6 QNX6-i386 ReliantUNIX SINIX SINIX-N UWIN VC-CE VC-WIN32
+VC-WIN64A VC-WIN64I aix-cc aix-gcc aix3-cc aix64-cc aix64-gcc android
+android-armv7 android-mips android-x86 aux3-gcc beos-x86-bone beos-x86-r5
+bsdi-elf-gcc cc cray-j90 cray-t3e darwin-i386-cc darwin-ppc-cc darwin64-ppc-cc
+darwin64-x86_64-cc dgux-R3-gcc dgux-R4-gcc dgux-R4-x86-gcc dist gcc hpux-cc
+hpux-gcc hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc hpux-parisc-cc-o4
+hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux-parisc2-cc
+hpux-parisc2-gcc hpux64-ia64-cc hpux64-ia64-gcc hpux64-parisc2-cc
+hpux64-parisc2-gcc hurd-x86 iphoneos-cross irix-cc irix-gcc irix-mips3-cc
+irix-mips3-gcc irix64-mips4-cc irix64-mips4-gcc linux-aarch64
+linux-alpha+bwx-ccc linux-alpha+bwx-gcc linux-alpha-ccc linux-alpha-gcc
+linux-aout linux-armv4 linux-elf linux-generic32 linux-generic64
+linux-ia32-icc linux-ia64 linux-ia64-icc linux-mips32 linux-mips64 linux-ppc
+linux-ppc64 linux-ppc64le linux-sparcv8 linux-sparcv9 linux-x32 linux-x86_64
+linux-x86_64-clang linux-x86_64-icc linux32-s390x linux64-mips64 linux64-s390x
+linux64-sparcv9 mingw mingw64 ncr-scde netware-clib netware-clib-bsdsock
+netware-clib-bsdsock-gcc netware-clib-gcc netware-libc netware-libc-bsdsock
+netware-libc-bsdsock-gcc netware-libc-gcc newsos4-gcc nextstep nextstep3.3
+osf1-alpha-cc osf1-alpha-gcc purify qnx4 rhapsody-ppc-cc sco5-cc sco5-gcc
+solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc
+solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-cc solaris-x86-gcc
+solaris64-sparcv9-cc solaris64-sparcv9-gcc solaris64-x86_64-cc
+solaris64-x86_64-gcc sunos-gcc tandem-c89 tru64-alpha-cc uClinux-dist
+uClinux-dist64 ultrix-cc ultrix-gcc unixware-2.0 unixware-2.1 unixware-7
+unixware-7-gcc vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x
+vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen
+vxworks-simlinux debug debug-BSD-x86-elf debug-VC-WIN32 debug-VC-WIN64A
+debug-VC-WIN64I debug-ben debug-ben-darwin64 debug-ben-debug
+debug-ben-debug-64 debug-ben-debug-64-clang debug-ben-macos
+debug-ben-macos-gcc46 debug-ben-no-opt debug-ben-openbsd
+debug-ben-openbsd-debug debug-ben-strict debug-bodo debug-darwin-i386-cc
+debug-darwin-ppc-cc debug-darwin64-x86_64-cc debug-geoff32 debug-geoff64
+debug-levitte-linux-elf debug-levitte-linux-elf-extreme
+debug-levitte-linux-noasm debug-levitte-linux-noasm-extreme debug-linux-elf
+debug-linux-elf-noefence debug-linux-generic32 debug-linux-generic64
+debug-linux-ia32-aes debug-linux-pentium debug-linux-ppro debug-linux-x86_64
+debug-linux-x86_64-clang debug-rse debug-solaris-sparcv8-cc
+debug-solaris-sparcv8-gcc debug-solaris-sparcv9-cc debug-solaris-sparcv9-gcc
+debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
+    """
+    _ = r"""
+OpenSSL 1.1.0g targets:
+
+Usage: Configure [no-<cipher> ...] [enable-<cipher> ...] [-Dxxx] [-lxxx] [-Lxxx] [-fxxx] [-Kxxx] [no-hw-xxx|no-hw] [[no-]threads] [[no-]shared] [[no-]zlib|zlib-dynamic] [no-asm] [no-dso] [no-egd] [sctp] [386] [--prefix=DIR] [--openssldir=OPENSSLDIR] [--with-xxx[=vvv]] [--config=FILE] os/compiler[:flags]
+
+pick os/compiler from:
+BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8 
+BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-i386 Cygwin-i486 Cygwin-i586 
+Cygwin-i686 Cygwin-x86 Cygwin-x86_64 DJGPP MPE/iX-gcc OS390-Unix QNX6 
+QNX6-i386 UEFI UWIN VC-CE VC-WIN32 VC-WIN64A VC-WIN64A-masm VC-WIN64I aix-cc 
+aix-gcc aix64-cc aix64-gcc android android-armeabi android-mips android-x86 
+android64 android64-aarch64 bsdi-elf-gcc cc darwin-i386-cc darwin-ppc-cc 
+darwin64-debug-test-64-clang darwin64-ppc-cc darwin64-x86_64-cc dist gcc 
+haiku-x86 haiku-x86_64 hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc 
+hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux64-ia64-cc 
+hpux64-ia64-gcc hpux64-parisc2-cc hpux64-parisc2-gcc hurd-x86 ios-cross 
+ios64-cross iphoneos-cross irix-mips3-cc irix-mips3-gcc irix64-mips4-cc 
+irix64-mips4-gcc linux-aarch64 linux-alpha-gcc linux-aout linux-arm64ilp32 
+linux-armv4 linux-c64xplus linux-elf linux-generic32 linux-generic64 
+linux-ia64 linux-mips32 linux-mips64 linux-ppc linux-ppc64 linux-ppc64le 
+linux-sparcv8 linux-sparcv9 linux-x32 linux-x86 linux-x86-clang linux-x86_64 
+linux-x86_64-clang linux32-s390x linux64-mips64 linux64-s390x linux64-sparcv9 
+mingw mingw64 nextstep nextstep3.3 purify qnx4 sco5-cc sco5-gcc 
+solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc 
+solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-gcc solaris64-sparcv9-cc 
+solaris64-sparcv9-gcc solaris64-x86_64-cc solaris64-x86_64-gcc tru64-alpha-cc 
+tru64-alpha-gcc uClinux-dist uClinux-dist64 unixware-2.0 unixware-2.1 
+unixware-7 unixware-7-gcc vms-alpha vms-alpha-p32 vms-alpha-p64 vms-ia64 
+vms-ia64-p32 vms-ia64-p64 vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x 
+vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen 
+vxworks-simlinux debug debug-erbridge debug-linux-ia32-aes debug-linux-pentium 
+debug-linux-ppro debug-test-64-clang 
+
+NOTE: If in doubt, on Unix-ish systems use './config'.
+    """  # noqa
+
+
 def build_openssl(cfg: Config, target_platform: Platform) -> None:
     """
     Builds OpenSSL.
@@ -2088,6 +2283,29 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         env["CROSS_SYSROOT"] = cfg.sysroot(target_platform, env)
 
     # -------------------------------------------------------------------------
+    # OpenSSL: Special mucking around
+    # -------------------------------------------------------------------------
+
+    if target_platform.ios:
+        # iOS specials
+        # e.g. https://gist.github.com/armadsen/b30f352a8d6f6c87a146
+        run([
+            SED,
+            "-ie",
+            "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!",  # noqa
+            join(workdir, "crypto", "ui", "ui_openssl.c")
+        ])
+
+    # At some point (transiently!) we also got something like:
+    #    ar  r ../../libcrypto.a o_names.o obj_dat.o obj_lib.o
+    #        obj_err.o obj_xref.
+    # failing with:
+    #     /usr/bin/ranlib: archive member: libcrypto.a(....o) size too
+    #         large (archive member extends past the end of the file)
+    #     ar: internal ranlib command failed
+    # ... not sure why.
+
+    # -------------------------------------------------------------------------
     # OpenSSL: Configure options
     # -------------------------------------------------------------------------
     # The OpenSSL "config" sh script guesses the OS, then passes details
@@ -2096,182 +2314,8 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # running "config".
     # However, it does seem to be screwing up. Let's try Configure instead.
 
-    # http://doc.qt.io/qt-5/opensslsupport.html
-    target_os = ""
-
-    if target_platform.android:
-        if target_platform.cpu == Cpu.ARM_V5_32:
-            target_os = "android"  # ... NB "android" means ARMv5
-        elif target_platform.cpu == Cpu.ARM_V7_32:
-            if OPENSSL_AT_LEAST_1_1:
-                target_os = "android-armeabi"
-            else:
-                target_os = "android-armv7"
-        elif target_platform.cpu_x86_family:
-            target_os = "android-x86"
-        else:
-            pass  # will raise error below
-
-    elif target_platform.linux and target_platform.cpu_x86_64bit_family:
-        target_os = "linux-x86_64"
-
-    elif target_platform.osx and target_platform.cpu_x86_64bit_family:
-        # https://gist.github.com/tmiz/1441111
-        target_os = "darwin64-x86_64-cc"
-
-    elif target_platform.ios:
-        # https://gist.github.com/foozmeat/5154962
-        # https://gist.github.com/felix-schwarz/c61c0f7d9ab60f53ebb0
-        # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
-        # If Bitcode is later required, see the other ones above and
-        # https://stackoverflow.com/questions/30722606/what-does-enable-bitcode-do-in-xcode-7  # noqa
-        if target_platform.cpu == Cpu.ARM_V7_32:
-            target_os = "ios-cross"  # "iphoneos-cross"
-        elif target_platform.cpu == Cpu.ARM_V8_64:
-            target_os = "ios64-cross"  # "iphoneos-cross"
-        elif target_platform.cpu_x86_64bit_family:
-            target_os = "darwin64-x86_64-cc"
-        else:
-            raise NotImplementedError("Don't known OpenSSL target name for "
-                                      "{}".format(target_platform))
-        # iOS specials
-        run([
-            SED,
-            "-ie",
-            "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!",  # noqa
-            join(workdir, "crypto", "ui", "ui_openssl.c")
-        ])
-        # At some point (transiently!) we also got something like:
-        #    ar  r ../../libcrypto.a o_names.o obj_dat.o obj_lib.o 
-        #        obj_err.o obj_xref.
-        # failing with:
-        #     /usr/bin/ranlib: archive member: libcrypto.a(....o) size too 
-        #         large (archive member extends past the end of the file)
-        #     ar: internal ranlib command failed
-        # ... not sure why.
-    
-    elif target_platform.windows:
-        if BUILD_PLATFORM.windows:
-            # if USE_CYGWIN:
-            #     target_os = "Cygwin-x86_64"
-            # elif USE_MINGW:
-            #     if target_platform.cpu_64bit:
-            #         target_os = "mingw64"
-            #     else:
-            #         target_os = "mingw"
-
-            # http://p-nand-q.com/programming/windows/building_openssl_with_visual_studio_2013.html  # noqa
-            if target_platform.cpu_x86_64bit_family:
-                target_os = "VC-WIN64A"
-                # I'm not sure what "VC-WIN64I" is. Intel vs AMD? Ah, no:
-                # https://stackoverflow.com/questions/38151387/build-openssl-for-both-x64-and-x86-side-by-side-installation  # noqa
-                # ... "WIN64I denotes IA-64 and WIN64A - AMD64"
-                # ... where IA-64 means Intel Itanium: https://en.wikipedia.org/wiki/IA-64  # noqa
-                # ... so we want "-A" for x86-64.
-            elif target_platform.cpu_x86_32bit_family:
-                target_os = "VC-WIN32"
-            else:
-                raise NotImplementedError(
-                    "Don't know how to compile OpenSSL for "
-                    "this processor: {}".format(target_platform))
-        elif BUILD_PLATFORM.linux:
-            if USE_MINGW:
-                if target_platform.cpu_64bit:
-                    target_os = "mingw64"
-                else:
-                    target_os = "mingw"
-                    
-    # For new platforms: if you're not sure, use target_os = "crashme" and
-    # you'll get the list of permitted values, which as of 2017-11-12 is:
-    
-    _ = """
-OpenSSL 1.0.2h targets:
-    
-BC-32 BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
-BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-x86_64 DJGPP MPE/iX-gcc OS2-EMX
-OS390-Unix QNX6 QNX6-i386 ReliantUNIX SINIX SINIX-N UWIN VC-CE VC-WIN32
-VC-WIN64A VC-WIN64I aix-cc aix-gcc aix3-cc aix64-cc aix64-gcc android
-android-armv7 android-mips android-x86 aux3-gcc beos-x86-bone beos-x86-r5
-bsdi-elf-gcc cc cray-j90 cray-t3e darwin-i386-cc darwin-ppc-cc darwin64-ppc-cc
-darwin64-x86_64-cc dgux-R3-gcc dgux-R4-gcc dgux-R4-x86-gcc dist gcc hpux-cc
-hpux-gcc hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc hpux-parisc-cc-o4
-hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux-parisc2-cc
-hpux-parisc2-gcc hpux64-ia64-cc hpux64-ia64-gcc hpux64-parisc2-cc
-hpux64-parisc2-gcc hurd-x86 iphoneos-cross irix-cc irix-gcc irix-mips3-cc
-irix-mips3-gcc irix64-mips4-cc irix64-mips4-gcc linux-aarch64
-linux-alpha+bwx-ccc linux-alpha+bwx-gcc linux-alpha-ccc linux-alpha-gcc
-linux-aout linux-armv4 linux-elf linux-generic32 linux-generic64
-linux-ia32-icc linux-ia64 linux-ia64-icc linux-mips32 linux-mips64 linux-ppc
-linux-ppc64 linux-ppc64le linux-sparcv8 linux-sparcv9 linux-x32 linux-x86_64
-linux-x86_64-clang linux-x86_64-icc linux32-s390x linux64-mips64 linux64-s390x
-linux64-sparcv9 mingw mingw64 ncr-scde netware-clib netware-clib-bsdsock
-netware-clib-bsdsock-gcc netware-clib-gcc netware-libc netware-libc-bsdsock
-netware-libc-bsdsock-gcc netware-libc-gcc newsos4-gcc nextstep nextstep3.3
-osf1-alpha-cc osf1-alpha-gcc purify qnx4 rhapsody-ppc-cc sco5-cc sco5-gcc
-solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc
-solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-cc solaris-x86-gcc
-solaris64-sparcv9-cc solaris64-sparcv9-gcc solaris64-x86_64-cc
-solaris64-x86_64-gcc sunos-gcc tandem-c89 tru64-alpha-cc uClinux-dist
-uClinux-dist64 ultrix-cc ultrix-gcc unixware-2.0 unixware-2.1 unixware-7
-unixware-7-gcc vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x
-vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen
-vxworks-simlinux debug debug-BSD-x86-elf debug-VC-WIN32 debug-VC-WIN64A
-debug-VC-WIN64I debug-ben debug-ben-darwin64 debug-ben-debug
-debug-ben-debug-64 debug-ben-debug-64-clang debug-ben-macos
-debug-ben-macos-gcc46 debug-ben-no-opt debug-ben-openbsd
-debug-ben-openbsd-debug debug-ben-strict debug-bodo debug-darwin-i386-cc
-debug-darwin-ppc-cc debug-darwin64-x86_64-cc debug-geoff32 debug-geoff64
-debug-levitte-linux-elf debug-levitte-linux-elf-extreme
-debug-levitte-linux-noasm debug-levitte-linux-noasm-extreme debug-linux-elf
-debug-linux-elf-noefence debug-linux-generic32 debug-linux-generic64
-debug-linux-ia32-aes debug-linux-pentium debug-linux-ppro debug-linux-x86_64
-debug-linux-x86_64-clang debug-rse debug-solaris-sparcv8-cc
-debug-solaris-sparcv8-gcc debug-solaris-sparcv9-cc debug-solaris-sparcv9-gcc
-debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
-    """
-    _ = r"""
-OpenSSL 1.1.0g targets:
-    
-Usage: Configure [no-<cipher> ...] [enable-<cipher> ...] [-Dxxx] [-lxxx] [-Lxxx] [-fxxx] [-Kxxx] [no-hw-xxx|no-hw] [[no-]threads] [[no-]shared] [[no-]zlib|zlib-dynamic] [no-asm] [no-dso] [no-egd] [sctp] [386] [--prefix=DIR] [--openssldir=OPENSSLDIR] [--with-xxx[=vvv]] [--config=FILE] os/compiler[:flags]
-
-pick os/compiler from:
-BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8 
-BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-i386 Cygwin-i486 Cygwin-i586 
-Cygwin-i686 Cygwin-x86 Cygwin-x86_64 DJGPP MPE/iX-gcc OS390-Unix QNX6 
-QNX6-i386 UEFI UWIN VC-CE VC-WIN32 VC-WIN64A VC-WIN64A-masm VC-WIN64I aix-cc 
-aix-gcc aix64-cc aix64-gcc android android-armeabi android-mips android-x86 
-android64 android64-aarch64 bsdi-elf-gcc cc darwin-i386-cc darwin-ppc-cc 
-darwin64-debug-test-64-clang darwin64-ppc-cc darwin64-x86_64-cc dist gcc 
-haiku-x86 haiku-x86_64 hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc 
-hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux64-ia64-cc 
-hpux64-ia64-gcc hpux64-parisc2-cc hpux64-parisc2-gcc hurd-x86 ios-cross 
-ios64-cross iphoneos-cross irix-mips3-cc irix-mips3-gcc irix64-mips4-cc 
-irix64-mips4-gcc linux-aarch64 linux-alpha-gcc linux-aout linux-arm64ilp32 
-linux-armv4 linux-c64xplus linux-elf linux-generic32 linux-generic64 
-linux-ia64 linux-mips32 linux-mips64 linux-ppc linux-ppc64 linux-ppc64le 
-linux-sparcv8 linux-sparcv9 linux-x32 linux-x86 linux-x86-clang linux-x86_64 
-linux-x86_64-clang linux32-s390x linux64-mips64 linux64-s390x linux64-sparcv9 
-mingw mingw64 nextstep nextstep3.3 purify qnx4 sco5-cc sco5-gcc 
-solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc 
-solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-gcc solaris64-sparcv9-cc 
-solaris64-sparcv9-gcc solaris64-x86_64-cc solaris64-x86_64-gcc tru64-alpha-cc 
-tru64-alpha-gcc uClinux-dist uClinux-dist64 unixware-2.0 unixware-2.1 
-unixware-7 unixware-7-gcc vms-alpha vms-alpha-p32 vms-alpha-p64 vms-ia64 
-vms-ia64-p32 vms-ia64-p64 vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x 
-vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen 
-vxworks-simlinux debug debug-erbridge debug-linux-ia32-aes debug-linux-pentium 
-debug-linux-ppro debug-test-64-clang 
-
-NOTE: If in doubt, on Unix-ish systems use './config'.
-    """  # noqa
-
-    if not target_os:
-        raise NotImplementedError("Don't know how to make OpenSSL for " +
-                                  target_platform.description)
-
-    configure_args = [target_os]
-    if target_platform.ios and target_platform.cpu_x86_64bit_family:
-        configure_args.append("no-asm")
+    configure_args = openssl_target_os_args(target_platform)
+    target_os = configure_args[0]  # may be used below
     configure_args += [
         "--prefix=" + cfg.sysroot(target_platform, env),
         # "--cross-compile-prefix={}".format(
@@ -2306,7 +2350,29 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
         replace_in_file(makefile_org,
                         "install: all install_docs install_sw",
                         "install: install_docs install_sw")
-    
+
+    if target_platform.ios:
+        # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
+        # add -isysroot to CC=
+        run([
+            SED,
+            "-ie",
+            (
+                "s"
+                "!"
+                "^CFLAG="
+                "!"
+                "CFLAG=-isysroot {cross_top}/SDKs/{cross_sdk}"
+                " -mios-version-min={min_ios_version} "
+                "!".format(
+                    cross_top=env["CROSS_TOP"],
+                    cross_sdk=env["CROSS_SDK"],
+                    min_ios_version=cfg.ios_min_version,
+                )
+            ),
+            join(workdir, "Makefile")
+        ])
+
     # if BUILD_PLATFORM.windows:
     #     # https://github.com/openssl/openssl/issues/174
     #     convert_line_endings(join(workdir, "Makefile.org"), to_unix=True)
@@ -2320,7 +2386,7 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
 
     with pushd(workdir):
         # ---------------------------------------------------------------------
-        # OpenSSL: Configure (or config)
+        # OpenSSL: Configure (or config, though we're avoiding that)
         # ---------------------------------------------------------------------
         use_configure = True  # Better!
         if use_configure or not target_platform.android:
@@ -3429,11 +3495,18 @@ Compiler bug is:
 """)  # noqa
         build_for(Os.WINDOWS, Cpu.X86_32)
 
-    if cfg.build_ios:  # for iOS (e.g. iPad)
-        build_for(Os.IOS, Cpu.ARM_V8_64)
-        # *** also needs 32-bit build and "fat binary" with 32- and 64-bit versions?  # noqa
+    if cfg.build_ios_arm_v7_32:  # for iOS (e.g. iPad) with 32-bit ARM processor  # noqa
+        build_for(Os.IOS, Cpu.ARM_V7_32)
 
-    if cfg.build_ios_simulator:  # iOS simulator under 64-bit Intel Mac OS/X
+    if cfg.build_ios_arm_v8_64:  # for iOS (e.g. iPad) with 64-bit ARM processor  # noqa
+        build_for(Os.IOS, Cpu.ARM_V8_64)
+
+    # *** also needs 32-bit build and "fat binary" with 32- and 64-bit versions?  # noqa
+
+    if cfg.build_ios_simulator_x86_32:  # 32-bit iOS simulator under Intel Mac OS/X  # noqa
+        build_for(Os.IOS, Cpu.X86_32)
+
+    if cfg.build_ios_simulator_x86_64:  # 64-bit iOS simulator under Intel Mac OS/X  # noqa
         build_for(Os.IOS, Cpu.X86_64)
 
     if not installdirs and not done_extra:
@@ -3528,11 +3601,20 @@ def main() -> None:
         help="An architecture target (Windows with an Intel/AMD 32-bit CPU)"
     )
     archgroup.add_argument(
-        "--build_ios", action="store_true",
+        "--build_ios_arm_v7_32", action="store_true",
+        help="An architecture target (iOS with a 32-bit ARM processor)"
+    )
+    archgroup.add_argument(
+        "--build_ios_arm_v8_64", action="store_true",
         help="An architecture target (iOS with a 64-bit ARM processor)"
     )
     archgroup.add_argument(
-        "--build_ios_simulator", action="store_true",
+        "--build_ios_simulator_x86_32", action="store_true",
+        help="An architecture target (iOS with an Intel 32-bit CPU, for the "
+             "iOS simulator)"
+    )
+    archgroup.add_argument(
+        "--build_ios_simulator_x86_64", action="store_true",
         help="An architecture target (iOS with an Intel 64-bit CPU, for the "
              "iOS simulator)"
     )
@@ -3590,6 +3672,16 @@ def main() -> None:
     ios.add_argument(
         "--ios_sdk", default="",
         help="iOS SDK to use (leave blank for system default)"
+    )
+    ios.add_argument(
+        "--ios_min_version", default=DEFAULT_MIN_IOS_VERSION,
+        help="Minimum target iOS version"
+    )
+
+    osx = parser.add_argument_group("OS/X", "OS/X options")
+    osx.add_argument(
+        "--osx_min_version", default=DEFAULT_MIN_OSX_VERSION,
+        help="Minimum target OS/X version"
     )
 
     # OpenSSL
