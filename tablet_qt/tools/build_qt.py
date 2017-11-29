@@ -2269,8 +2269,10 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
         raise NotImplementedError("Don't know how to make OpenSSL for " +
                                   target_platform.description)
 
-    configure_args = [
-        target_os,
+    configure_args = [target_os]
+    if target_platform.ios and target_platform.cpu_x86_64bit_family:
+        configure_args.append("no-asm")
+    configure_args += [
         "--prefix=" + cfg.sysroot(target_platform, env),
         # "--cross-compile-prefix={}".format(
         #     target_platform.cross_compile_prefix),
