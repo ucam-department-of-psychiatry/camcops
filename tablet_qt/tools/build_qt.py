@@ -465,7 +465,9 @@ OPENSSL_COMMON_OPTIONS = [
 ANT = "ant"  # for Android builds
 BASH = "bash"
 CL = "cl"  # Visual C++ compiler
+CLANG = "clang"  # OS/X XCode compiler
 CMAKE = "cmake"
+GCC = "gcc"
 GIT = "git"
 GOBJDUMP = "gobjdump"  # OS/X equivalent of readelf
 JAVAC = "javac"  # for Android builds
@@ -925,7 +927,7 @@ class Platform(object):
         Work out the name of an appropriate gcc compiler.
         """
         if not fullpath:
-            return "gcc"
+            return GCC
         if self.android:
             if self.cpu_x86_32bit_family:
                 return join(cfg.android_toolchain(self),
@@ -935,7 +937,7 @@ class Platform(object):
                             "arm-linux-androideabi-gcc")
             else:
                 raise NotImplementedError("Don't know gcc name")
-        return shutil.which("gcc")
+        return shutil.which(GCC)
 
     def ar(self, fullpath: bool, cfg: "Config") -> str:
         """
@@ -1046,7 +1048,10 @@ class Platform(object):
             # e.g. empirically: "i386-apple-darwin15.6.0"
             # "uname -m" tells you whether you're 32 or 64 bit
             # "uname -r" gives you the release
-            return "i386-apple-darwin"
+            if self.cpu_x86_64bit_family:
+                return "x86_64-apple-darwin"
+            elif self.cpu_x86_32bit_family:
+                return "i386-apple-darwin"
         elif self.windows:
             if self.cpu_x86_64bit_family:
                 return "x86_64-unknown-windows"  # guess, but it compiles
@@ -1054,6 +1059,8 @@ class Platform(object):
                 return "i686-unknown-windows"  # guess, but it compiles
         elif self.ios:
             if self.cpu == Cpu.ARM_V8_64:
+                return "arm64-apple-darwin"  # guess, but it compiles
+            elif self.cpu == Cpu.ARM_V7_32:
                 return "arm-apple-darwin"  # guess, but it compiles
         raise NotImplementedError("Don't know how to support SQLCipher for "
                                   "{}".format(self))
@@ -1346,7 +1353,7 @@ class Config(object):
             self._set_windows_env(env, target_platform=target_platform,
                                   use_cross_compile_var=use_cross_compile_var)
         elif target_platform.osx:
-            self._set_osx_env(env)
+            self._set_osx_env(env, target_platform=target_platform)
         else:
             raise NotImplementedError(
                 "Don't know how to set compilation environment for "
@@ -1397,18 +1404,22 @@ class Config(object):
         env["SYSROOT"] = android_sysroot
         env["NDK_SYSROOT"] = android_sysroot
 
-    def _set_osx_env(self, env: Dict[str, str]) -> None:
+    def _set_osx_env(self, env: Dict[str, str],
+                     target_platform: Platform) -> None:
         """
         Implementation of set_compile_env() for OS/X targets.
         """
         # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
+        require(CLANG)
         env["BUILD_TOOLS"] = env.get("BUILD_TOOLS", self._xcode_developer_path)
-        env["CC"] = (
-            "{clang} -mmacosx-version-min={min_osx_version}".format(
-                clang=join(env["BUILD_TOOLS"], "usr", "bin", "clang"),
-                min_osx_version=self.osx_min_version,
-            )
-        )
+        # This bit breaks SQLCipher compilation for OS/X, which wants to
+        # autodiscover gcc:
+        #env["CC"] = (
+        #    "{clang} -mmacosx-version-min={min_osx_version}".format(
+        #        clang=shutil.which(CLANG),
+        #        min_osx_version=self.osx_min_version,
+        #    )
+        #)
 
     def _set_ios_env(self, env: Dict[str, str],
                      target_platform: Platform) -> None:
@@ -1444,14 +1455,14 @@ class Config(object):
                 " -fembed-bitcode"
                 " -mios-version-min={min_ios_version}"
                 " -arch {arch}".format(
-                    gcc=os.path.join(developer, 'usr', 'bin', 'gcc'),
+                    gcc=os.path.join(developer, 'usr', 'bin', GCC),
                     min_ios_version=self.ios_min_version,
                     arch=arch,
                 )
             )
         else:
             env["CC"] = fetch([XCRUN, "-sdk", sdk_name_lower,
-                               "-find", "clang"]).strip()
+                               "-find", CLANG]).strip()
         env["CFLAGS"] = (
             "-arch {arch} -isysroot {sysroot} "
             "-m{platform}-version-min={sdk_version}".format(
@@ -1880,6 +1891,7 @@ Linux (Ubuntu) (DEFUNCT)
         helpmsg += """
 OS/X
 -------------------------------------------------------------------------------
+clang       Install XCode
 cmake       brew update && brew install cmake
 gobjdump    brew update && brew install binutils
 """
