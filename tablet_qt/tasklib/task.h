@@ -190,4 +190,6 @@ public:
 
     static const QString RESPONDENT_NAME;
     static const QString RESPONDENT_RELATIONSHIP;
+
+    static const QString INCOMPLETE_MARKER;
 };

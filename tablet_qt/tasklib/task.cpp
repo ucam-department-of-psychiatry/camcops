@@ -56,6 +56,8 @@ const QString Task::CLINICIAN_CONTACT_DETAILS("clinician_contact_details");
 const QString Task::RESPONDENT_NAME("respondent_name");
 const QString Task::RESPONDENT_RELATIONSHIP("respondent_relationship");
 
+const QString Task::INCOMPLETE_MARKER(QObject::tr("<b>(INCOMPLETE)</b>"));
+
 
 Task::Task(CamcopsApp& app,
            DatabaseManager& db,
@@ -335,7 +337,7 @@ QStringList Task::completenessInfo() const
 {
     QStringList result;
     if (!isComplete()) {
-        result.append(tr("<b>(INCOMPLETE)</b>"));
+        result.append(INCOMPLETE_MARKER);
     }
     return result;
 }

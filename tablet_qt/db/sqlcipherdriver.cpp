@@ -103,6 +103,23 @@ using sqlcipherhelpers::qGetTableInfo;
 
 
 // ============================================================================
+// Ensure SQLCipher is installed (compiled with and linked in)
+// ============================================================================
+
+void ensureSqlCipherLinkedIfRequired()
+{
+#ifdef USE_SQLCIPHER
+    // The <sqlcipher/sqlite3.h> and <sqlite3.h> headers are very similar,
+    // and it's possible to compile with the SQLCipher header but then
+    // accidentally link to the original sqlite3.o, so let's make sure...
+    // This will only compile/link if we genuinely are using SQLCipher.
+    sqlite3_key(nullptr, nullptr, 0);
+    // https://www.zetetic.net/sqlcipher/sqlcipher-api/#sqlite3_key
+#endif
+}
+
+
+// ============================================================================
 // SQLCipherDriver + private
 // ============================================================================
 

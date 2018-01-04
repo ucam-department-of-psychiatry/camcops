@@ -153,7 +153,7 @@ void InitTasks(TaskFactory& factory)
     initializeCgi(factory);
     initializeCgiI(factory);
     initializeCgiSch(factory);
-    // initializeCisr(factory); // *** IMPLEMENT!
+    initializeCisr(factory);
     initializeCiwa(factory);
     initializeContactLog(factory);
     initializeCopeBrief(factory);
@@ -240,7 +240,6 @@ void InitTasks(TaskFactory& factory)
 
     initializeZbi12(factory);
 
-    // *** new: CIS-R (see software + PDF, need permissions)
     // *** new: mini-ACE
     // *** new: Andy Foster / eating disorders; e-mail of 24/5/16
     // *** AQ10 autistic spectrum screening

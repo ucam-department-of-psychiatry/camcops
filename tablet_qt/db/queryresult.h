@@ -18,6 +18,7 @@
 */
 
 #pragma once
+#include <QDebug>
 #include <QString>
 #include <QVector>
 #include <QVariant>
@@ -62,4 +63,7 @@ protected:
     QStringList m_column_names;
     QVector<QVector<QVariant>> m_data;
     QVariant m_last_insert_id;
+
+public:
+    friend QDebug operator<<(QDebug debug, const QueryResult& qr);
 };

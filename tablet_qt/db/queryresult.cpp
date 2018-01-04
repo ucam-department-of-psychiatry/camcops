@@ -206,10 +206,12 @@ QString QueryResult::csvRow(const int row, const char sep) const
 QString QueryResult::csv(const char sep, const char linesep) const
 {
     QStringList rows;
-    rows.append(csvHeader(sep));
+    if (!m_column_names.isEmpty()) {
+        rows.append(csvHeader(sep));
+    }
     const int nrows = nRows();
     for (int row = 0; row < nrows; ++row) {
-        rows.append(csvRow(sep));
+        rows.append(csvRow(row));
     }
     return rows.join(linesep);
 }
@@ -229,4 +231,19 @@ QString QueryResult::fetchModeDescription(const FetchMode fetch_mode)
     default:
         return "?";
     }
+}
+
+
+// ========================================================================
+// For friends
+// ========================================================================
+
+QDebug operator<<(QDebug debug, const QueryResult& qr)
+{
+    debug.nospace().noquote()
+            << "succeeded=" << qr.succeeded()
+            << ", columns=" << qr.nCols()
+            << ", rows=" << qr.nRows() << "\n"
+            << qr.csv();
+    return debug;
 }

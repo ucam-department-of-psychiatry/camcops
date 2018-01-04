@@ -30,7 +30,7 @@ When is it NECESSARY to compile Qt from source?
     - SQLite support (critical)
       http://doc.qt.io/qt-5/sql-driver.html
       ... so: necessary.
-      
+
 ===============================================================================
 Windows
 ===============================================================================
@@ -42,10 +42,10 @@ Several compilers are possible, in principle.
     May be useful for toolchains.
     However, software that its compilers produce run under POSIX, so require an
     intermediate Cygwin DLL layer to run; we don't want that.
-    
+
 -   Microsoft Visual Studio (free or paid)
     An obvious potential candidate, but not open-source.
-    
+
 -   MinGW
     Runs under Windows and produces native code.
     Qt supports it.
@@ -125,7 +125,7 @@ We'll try with Cygwin.
     setup-x86_64.exe) and run it. If you want to add more packages later, run
     it again. The screens you'll see, in order (at least for a standard
     installation from the Internet), are:
-    
+
         - saying hello
         - choose a download source
         - select root install directory / install for whom?
@@ -136,10 +136,10 @@ We'll try with Cygwin.
         - SELECT PACKAGES -- the interesting bit.
         - ... progress...
         - done; create icons on desktop?
-    
+
 2.  If you accept its default, it'll install to C:\cygwin64 (on 64-bit
     systems).
-    
+
 3.  At the package selector, make sure you include:
 
         binutils                GNU assembler, linker, and similar utilities
@@ -148,9 +148,9 @@ We'll try with Cygwin.
         gcc-g++                 GNU Compiler Collection (C++)
         gccmakedep              X Makefile dependency tool for GCC
         mingw64-x86_64-gcc-g++  GCC for Win64 toolchain (C++)
-        
+
             (*) Not necessary, but nice.
-        
+
     If you can't see a package at the Cygwin installer's "Select Packages"
     screen, make sure "View" shows "Full" or "Category". You can type package
     names into the "Search" box to restrict the list. To install a package,
@@ -235,7 +235,7 @@ from cardinal_pythonlib.tee import tee_log
 import cardinal_pythonlib.version
 from semantic_version import Version
 
-MINIMUM_CARDINAL_PYTHONLIB = "1.0.7"
+MINIMUM_CARDINAL_PYTHONLIB = "1.0.8"
 if Version(cardinal_pythonlib.version.VERSION) < Version(MINIMUM_CARDINAL_PYTHONLIB):  # noqa
     raise ImportError("Need cardinal_pythonlib >= {}".format(MINIMUM_CARDINAL_PYTHONLIB))  # noqa
 
@@ -286,17 +286,27 @@ DEFAULT_TOOLCHAIN_VERSION = "4.9"
 # Qt
 DEFAULT_QT_SRC_DIRNAME = "qt5"
 DEFAULT_QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
-DEFAULT_QT_GIT_BRANCH = "5.10"
-# previously "5.7.0", "5.9", "5.10"
+DEFAULT_QT_GIT_BRANCH = "5.10.0"
+# previously "5.7.0", "5.9", "5.10" [= development branch]
+# I think in general one should use x.y.z not x.y versions, because the former
+# are the development chain and the latter get frozen.
+USING_QT_5_7 = False
+USING_QT_5_9 = True
+USING_QT_5_10 = False
 # ... to find out which are available: go into the local git directory and run
 # "git remote show origin"
+# 2017-12-01: 5.10 still too buggy (e.g. at CamcopsApp creation as QApplication
+# is initialized, crash in QXcbConnection::internAtom -- even with
+# ultraminimalist Qt app).
+# ... https://bugreports.qt.io/browse/QTBUG-64928
 DEFAULT_QT_GIT_COMMIT = HEAD
 DEFAULT_QT_USE_OPENSSL_STATICALLY = True
-FIX_QT_5_7_0_ANDROID_MAKE_INSTALL_BUG = False  # was necessary for v5.7.0
-FIX_QT_5_9_2_CROSS_COMPILE_TOP_LEVEL_BUILD_BUG = True
-FIX_QT_5_9_2_CROSS_COMPILE_EXECVP_MISSING_COMPILER_BUG = True
-FIX_QT_5_9_2_W64_HOST_TOOL_WANTS_WINDOWS_H = True
-FIX_QT_5_10_0_CONFIGURE_PRINTING_AND_PDF_BUG = True
+FIX_QT_5_7_0_ANDROID_MAKE_INSTALL_BUG = USING_QT_5_7
+FIX_QT_5_9_2_CROSS_COMPILE_TOP_LEVEL_BUILD_BUG = USING_QT_5_9
+FIX_QT_5_9_2_CROSS_COMPILE_EXECVP_MISSING_COMPILER_BUG = USING_QT_5_9
+FIX_QT_5_9_2_W64_HOST_TOOL_WANTS_WINDOWS_H = USING_QT_5_9
+FIX_QT_5_10_0_CONFIGURE_PRINTING_AND_PDF_BUG = USING_QT_5_10
+QT_XCB_SUPPORT_OK = True  # see 2017-12-01 above, fixed 2017-12-08
 ADD_SO_VERSION_OF_LIBQTFORANDROID = False
 
 # OpenSSL
@@ -304,9 +314,8 @@ DEFAULT_OPENSSL_VERSION = "1.1.0g"
 OPENSSL_AT_LEAST_1_1 = True
 # ... formerly "1.0.2h", but Windows 64 builds break
 # ... as of 2017-11-21, stable series is 1.1 and LTS series is 1.0.2
-# ... but Qt 5.9.3 doesn't support OpenSSL 1.1.0g; errors relating to
-#     "undefined type 'x509_st'"
-# ... requires Qt 5.10.0 alpha: https://bugreports.qt.io/browse/QTBUG-52905
+# ... but Qt 5.9.3 doesn't support OpenSSL 1.1.0g; errors relating to "undefined type 'x509_st'"  # noqa
+# ... OpenSSL 1.1 requires Qt 5.10.0 alpha: https://bugreports.qt.io/browse/QTBUG-52905  # noqa
 OPENSSL_FAILS_OWN_TESTS = True
 # https://bugs.launchpad.net/ubuntu/+source/openssl/+bug/1581084
 DEFAULT_OPENSSL_SRC_URL = (
@@ -372,18 +381,15 @@ QT_CONFIG_COMMON_ARGS = [
     # http://doc.qt.io/qt-5.9/configure-options.html
 
     # -------------------------------------------------------------------------
-    # Qt license, debug v. release,
+    # Qt license
     # -------------------------------------------------------------------------
 
     "-opensource", "-confirm-license",  # Choose our Qt edition.
 
-    "-release",  # Make a release-mode library. (Default is release.)
-
-    # "-debug-and-release",  # make a release library as well: MAC ONLY
-    # ... debug was the default in 4.8, but not in 5.7
-    # ... release is default in 5.7 (as per "configure -h")
-    # ... check with "readelf --debug-dump=decodedline <LIBRARY.so>"
-    # ... http://stackoverflow.com/questions/1999654
+    # -------------------------------------------------------------------------
+    # debug v. release
+    # -------------------------------------------------------------------------
+    # Now decided manually (2017-12-04); occasionally we need a debug build.
 
     # -------------------------------------------------------------------------
     # static v. shared
@@ -395,8 +401,12 @@ QT_CONFIG_COMMON_ARGS = [
     # -------------------------------------------------------------------------
 
     # v5.7.0 # "-qt-sql-sqlite",  # SQLite (v3) support built in to Qt
-    "-sql-sqlite",  # v5.9: explicitly add SQLite support
-    "-qt-sqlite",  # v5.9: "qt", rather than "system"
+    # v5.9.0:
+    # "-sql-sqlite",  # v5.9: explicitly add SQLite support
+    # "-qt-sqlite",  # v5.9: "qt", rather than "system"
+    # 2017-12-01: conflict between SQLite and SQLCipher (symbols duplicated on
+    # linking); try disabling it
+    "-no-sql-sqlite",
 
     "-no-sql-db2",  # disable other SQL drivers
     "-no-sql-ibase",
@@ -510,6 +520,13 @@ BAD_WINDOWS_PATH_MSG = (
 CANNOT_CROSS_COMPILE_QT = (
     "Cannot, at present, cross-compile Qt from Linux to Windows.")
 ERROR_COMPILE_FOR_WINDOWS_ON_LINUX = "Please use Linux to build for Windows."
+
+QT_BUILD_DEBUG = "debug"
+QT_BUILD_RELEASE = "release"
+QT_BUILD_RELEASE_WITH_SYMBOLS = "release_w_symbols"
+QT_POSSIBLE_BUILD_TYPES = [QT_BUILD_DEBUG,
+                           QT_BUILD_RELEASE,
+                           QT_BUILD_RELEASE_WITH_SYMBOLS]
 
 
 # -----------------------------------------------------------------------------
@@ -1150,6 +1167,8 @@ class Config(object):
         #   (via "make install") to the "*_install" directory.
         # - One points Qt Creator to "*_install/bin/qmake" to give it a Qt
         #   architecture "kit".
+        self.qt_build_type = args.qt_build_type  # type: str
+        assert self.qt_build_type in QT_POSSIBLE_BUILD_TYPES
         self.qt_git_url = args.qt_git_url  # type: str
         self.qt_git_branch = args.qt_git_branch  # type: str
         self.qt_git_commit = args.qt_git_commit  # type: str
@@ -1291,16 +1310,26 @@ class Config(object):
         """
         The directory in which we will compile and build Qt.
         """
-        return join(self.root_dir, "qt_{}_build".format(
-            target_platform.dirpart))
+        return join(self.root_dir, "qt_{}_build{}".format(
+            target_platform.dirpart, self._qt_dir_suffix()))
 
     def qt_install_dir(self, target_platform: Platform) -> str:
         """
         The directory to which we'll install Qt, culminating in the "qmake"
         tool.
         """
-        return join(self.root_dir, "qt_{}_install".format(
-            target_platform.dirpart))
+        return join(self.root_dir, "qt_{}_install{}".format(
+            target_platform.dirpart, self._qt_dir_suffix()))
+
+    def _qt_dir_suffix(self) -> str:
+        if self.qt_build_type == QT_BUILD_RELEASE:
+            return ""
+        elif self.qt_build_type == QT_BUILD_DEBUG:
+            return "_debug"
+        elif self.qt_build_type == QT_BUILD_RELEASE_WITH_SYMBOLS:
+            return "_release_symbols"
+        else:
+            raise ValueError("Bad qt_build_type")
 
     def get_openssl_rootdir_workdir(
             self, target_platform: Platform) -> Tuple[str, str]:
@@ -1404,6 +1433,7 @@ class Config(object):
         env["SYSROOT"] = android_sysroot
         env["NDK_SYSROOT"] = android_sysroot
 
+    # noinspection PyUnusedLocal
     def _set_osx_env(self, env: Dict[str, str],
                      target_platform: Platform) -> None:
         """
@@ -1414,12 +1444,12 @@ class Config(object):
         env["BUILD_TOOLS"] = env.get("BUILD_TOOLS", self._xcode_developer_path)
         # This bit breaks SQLCipher compilation for OS/X, which wants to
         # autodiscover gcc:
-        #env["CC"] = (
-        #    "{clang} -mmacosx-version-min={min_osx_version}".format(
-        #        clang=shutil.which(CLANG),
-        #        min_osx_version=self.osx_min_version,
-        #    )
-        #)
+        # env["CC"] = (
+        #     "{clang} -mmacosx-version-min={min_osx_version}".format(
+        #         clang=shutil.which(CLANG),
+        #         min_osx_version=self.osx_min_version,
+        #     )
+        # )
 
     def _set_ios_env(self, env: Dict[str, str],
                      target_platform: Platform) -> None:
@@ -2606,10 +2636,12 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
             "-xplatform", "android-g++",
         ]
     elif target_platform.linux:
-        qt_config_args += [
-            "-qt-xcb",  # use XCB source bundled with Qt?
-            "-gstreamer", "1.0",  # gstreamer version; see troubleshooting below  # noqa
-        ]
+        if QT_XCB_SUPPORT_OK:
+            qt_config_args.append("-qt-xcb")  # use XCB source bundled with Qt
+        else:
+            qt_config_args.append("-system-xcb")  # use system XCB libraries
+            # http://doc.qt.io/qt-5/linux-requirements.html
+        qt_config_args += ["-gstreamer", "1.0"]  # gstreamer version; see troubleshooting below  # noqa
     elif target_platform.osx:
         pass
     elif target_platform.ios:
@@ -2643,7 +2675,7 @@ define $(PKG)_BUILD
             -pkg-config \                                       # added
             -force-pkg-config \                                 # added
             -no-use-gold-linker \                               # added
-            -release \                                          # QT_CONFIG_COMMON_ARGS
+            -release \                                          # see debug_build
             -static \                                           # see qt_linkage_static
             -prefix '$(PREFIX)/$(TARGET)/qt5' \
             -no-icu \                                           # added
@@ -2724,6 +2756,25 @@ define $(PKG)_BUILD
 
     qt_config_args.extend(QT_CONFIG_COMMON_ARGS)
 
+    # Debug or release build of Qt?
+    if cfg.qt_build_type == QT_BUILD_DEBUG:
+        qt_config_args.append("-debug")
+    elif cfg.qt_build_type == QT_BUILD_RELEASE:
+        # Make a release-mode library. (Default is release.)
+        qt_config_args.append("-release")
+    elif cfg.qt_build_type == QT_BUILD_RELEASE_WITH_SYMBOLS:
+        qt_config_args.append("-force-debug-info")
+        # Not free, though: e.g. transforms your program's executable from
+        # 210 Mb to 830 Mb!
+    else:
+        raise ValueError("Unknown Qt build type")
+        # "-debug-and-release",  # make a release library as well: MAC ONLY
+        # ... debug was the default in 4.8, but not in 5.7
+        # ... release is default in 5.7 (as per "configure -h")
+        # ... check with "readelf --debug-dump=decodedline <LIBRARY.so>"
+        # ... http://stackoverflow.com/questions/1999654
+
+    # OpenSSL linkage?
     # For testing a new OpenSSL build, have cfg.qt_openssl_static=False, or you
     # have to rebuild Qt every time... extremely slow.
     if qt_openssl_linkage_static:
@@ -3637,6 +3688,10 @@ def main() -> None:
         "Qt options [Qt must be built from source for SQLite support, and "
         "also if static OpenSSL linkage is desired; note that static OpenSSL "
         "linkage requires a Qt rebuild (slow!) if you rebuild OpenSSL]")
+    qt.add_argument(
+        "--qt_build_type", type=str, default=QT_BUILD_RELEASE,
+        choices=QT_POSSIBLE_BUILD_TYPES,
+        help="Qt build type (release = small and quick)")
     qt.add_argument(
         "--qt_src_dirname", default=DEFAULT_QT_SRC_DIRNAME,
         help="Qt source directory")

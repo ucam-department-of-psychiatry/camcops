@@ -64,7 +64,7 @@ except ImportError:
 from pyramid.router import Router  # nopep8
 from wsgiref.simple_server import make_server  # nopep8
 
-from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction  # nopep8
+# from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction  # nopep8
 from cardinal_pythonlib.classes import gen_all_subclasses  # nopep8
 from cardinal_pythonlib.debugging import pdb_run  # nopep8
 from cardinal_pythonlib.process import launch_external_file  # nopep8
@@ -331,7 +331,9 @@ def serve_gunicorn(application: Router,
                    num_workers: int,
                    ssl_certificate: Optional[str],
                    ssl_private_key: Optional[str],
-                   reload: bool = False) -> None:
+                   reload: bool = False,
+                   timeout_s: int = 30,
+                   debug_show_gunicorn_options: bool = False) -> None:
     """
     Start Gunicorn server
     - Multiprocessing; this is a Good Thing particularly in Python; see e.g.
@@ -393,12 +395,16 @@ def serve_gunicorn(application: Router,
 
     opts = {
         'bind': bind,
-        'workers': num_workers,
-        'reload': reload,
-        'keyfile': ssl_private_key,
         'certfile': ssl_certificate,
+        'keyfile': ssl_private_key,
+        'reload': reload,
+        'timeout': timeout_s,
+        'workers': num_workers,
     }
-    StandaloneApplication(application, opts).run()
+    app = StandaloneApplication(
+        application, opts,
+        debug_show_known_settings=debug_show_gunicorn_options)
+    app.run()
 
 
 # =============================================================================
@@ -811,7 +817,8 @@ def camcops_main() -> None:
         formatter_class=RawDescriptionHelpFormatter,
         add_help=False)
     parser.add_argument(
-        '-h', '--help', action=ShowAllSubparserHelpAction,
+        '-h', '--help',
+        # action=ShowAllSubparserHelpAction,  # makes the output too long!
         help='show this help message and exit')
     parser.add_argument(
         "--version", action="version",
@@ -1174,6 +1181,14 @@ def camcops_main() -> None:
         "--ssl_private_key", type=str,
         help="SSL private key file "
              "(e.g. /etc/ssl/private/ssl-cert-snakeoil.key)")
+    serve_gu_parser.add_argument(
+        "--timeout", type=int, default=30,
+        help="Gunicorn worker timeout (s)"
+    )
+    serve_gu_parser.add_argument(
+        "--debug_show_gunicorn_options", action="store_true",
+        help="Debugging option: show possible Gunicorn settings"
+    )
     serve_gu_parser.set_defaults(log_screen=True)
     add_wsgi_options(serve_gu_parser)
     serve_gu_parser.set_defaults(func=lambda args: serve_gunicorn(
@@ -1185,6 +1200,8 @@ def camcops_main() -> None:
         ssl_certificate=args.ssl_certificate,
         ssl_private_key=args.ssl_private_key,
         reload=args.debug_reload,
+        timeout_s=args.timeout,
+        debug_show_gunicorn_options=args.debug_show_gunicorn_options,
     ))
 
     # -------------------------------------------------------------------------

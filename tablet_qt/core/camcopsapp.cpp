@@ -29,6 +29,8 @@
 
 #include "camcopsapp.h"
 #include <QApplication>
+#include <QCommandLineOption>
+#include <QCommandLineParser>
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
@@ -85,9 +87,9 @@
 #endif
 
 const QString APPSTRING_TASKNAME("camcops");  // task name used for generic but downloaded tablet strings
+const QString APP_NAME("camcops");  // e.g. subdirectory of ~/.local/share; DO NOT ALTER
+const QString APP_PRETTY_NAME("CamCOPS");
 const QString ARG_DB_DIR("--dbdir");
-const QString ARG_HELP("--help");
-const QString ARG_VERSION("--version");
 const QString CONNECTION_DATA("data");
 const QString CONNECTION_SYS("sys");
 const QString ENVVAR_DB_DIR("CAMCOPS_DATABASE_DIRECTORY");
@@ -105,6 +107,9 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_netmgr(nullptr),
     m_dpi(uiconst::DEFAULT_DPI)
 {
+    setApplicationName(APP_NAME);
+    setApplicationDisplayName(APP_PRETTY_NAME);
+    setApplicationVersion(camcopsversion::CAMCOPS_VERSION.toString());
 #ifdef DEBUG_ALL_APPLICATION_EVENTS
     new DebugEventWatcher(this, DebugEventWatcher::All);
 #endif
@@ -126,8 +131,9 @@ int CamcopsApp::run()
     // This makes the GUI startup more responsive.
 
     // Command-line arguments
-    if (!processCommandLineArguments(arguments())) {
-        return 1;  // exit with failure
+    int retcode = 0;
+    if (!processCommandLineArguments(retcode)) {  // may exit directly if syntax error
+        return retcode;  // exit with failure/success
     }
 
     // Say hello to the console
@@ -229,84 +235,59 @@ void CamcopsApp::backgroundStartup()
 QString CamcopsApp::defaultDatabaseDir() const
 {
     return QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first();
-    // Under Linux: ~/.local/share/camcops/
+    // Under Linux: ~/.local/share/camcops/; the last part of this path is
+    // determined by the call to QCoreApplication::setApplicationName(), or if
+    // that hasn't been set, the executable name.
 }
 
 
-bool CamcopsApp::processCommandLineArguments(const QStringList& args)
-{
-    QTextStream out(stdout);
-    QTextStream err(stderr);
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-
-    // Defaults
-    m_database_path = env.value(ENVVAR_DB_DIR, defaultDatabaseDir());
-
-    // Arguments
-    auto argfailInsufficient = [&err](const QString& arg) -> bool {
-        err << "Insufficient arguments while processing " << arg << "\n"
-            << QString("Use %1 for help\n").arg(ARG_HELP);
-        return false;
-    };
-    const int nargs = args.length();
-    for (int i = 1; i < nargs; ++i) {  // skip argument 0 (the program name)
-        const int nleft = nargs - 1 - i;
-        const QString& arg = args.at(i);
-
-        if (arg == ARG_DB_DIR) {
-
-            if (nleft < 1) return argfailInsufficient(arg);
-            m_database_path = args[++i];
-
-        } else if (arg == ARG_HELP) {
-
-            commandLineHelp();
-            return false;  // exit
-
-        } else if (arg == ARG_VERSION) {
-
-            out << camcopsversion::CAMCOPS_VERSION.toString() << "\n";
-            return false;
-
-        } else {
-
-            err << "Unknown argument: " << arg << "\n"
-                << QString("Use %1 for help\n").arg(ARG_HELP);
-            return false;
-
-        }
-    }
-    return true;  // happy
-}
-
-
-void CamcopsApp::commandLineHelp()
+bool CamcopsApp::processCommandLineArguments(int& retcode)
 {
     // https://stackoverflow.com/questions/3886105/how-to-print-to-console-when-using-qt
-    QTextStream out(stdout);
-    out << "CamCOPS, version " << camcopsversion::CAMCOPS_VERSION.toString()
-        << "\n\n"
-        << "Syntax:\n"
-        << QString("    camcops [%1 DATABASE_DIR] [%2] [%3]\n\n").arg(
-               ARG_DB_DIR,
-               ARG_HELP,
-               ARG_VERSION)
-        << QString(
-               "%1\n"
-               "    Specify the database directory, in which the databases\n"
-               "    %2 and %3\n"
-               "    are used or created. Order of precedence (highest to lowest)\n"
-               "    is (1) this argument, (2) the %4 environment\n"
-               "    variable, and (3) the default of %5.\n\n").arg(
-               ARG_DB_DIR,
-               convert::stringToCppLiteral(dbfunc::DATA_DATABASE_FILENAME),
-               convert::stringToCppLiteral(dbfunc::SYSTEM_DATABASE_FILENAME),
-               ENVVAR_DB_DIR,
-               convert::stringToCppLiteral(defaultDatabaseDir()))
-        << QString("%1\n"
-                   "    Print this help message and exit\n\n").arg(ARG_HELP)
-        << QString("%1\n"
-                   "    Print version number and exit\n\n").arg(ARG_VERSION);
+    // QTextStream out(stdout);
+    // QTextStream err(stderr);
+
+    // const int retcode_fail = 1;
+    const int retcode_success = 0;
+
+    retcode = retcode_success;  // default failure code
+
+    // Build parser
+    QCommandLineParser parser;
+    parser.addHelpOption();
+    parser.addVersionOption();
+    QCommandLineOption dbDirOption(
+        "dbdir",
+        QString(
+            "Specify the database directory, in which the databases %1 and %2 "
+            "are used or created. Order of precedence (highest to lowest) "
+            "is (1) this argument, (2) the %3 environment variable, and (3) "
+            "the default of %4."
+        ).arg(
+            convert::stringToCppLiteral(dbfunc::DATA_DATABASE_FILENAME),
+            convert::stringToCppLiteral(dbfunc::SYSTEM_DATABASE_FILENAME),
+            ENVVAR_DB_DIR,
+            convert::stringToCppLiteral(defaultDatabaseDir())
+        )
+    );
+    dbDirOption.setValueName("DBDIR");
+    parser.addOption(dbDirOption);
+
+    // Process the arguments
+    parser.process(*this);  // will exit directly upon failure
+    // ... could also use parser.process(arguments()), or parser.parse(...)
+
+    // Defaults
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    m_database_path = env.value(ENVVAR_DB_DIR, defaultDatabaseDir());
+
+    // Apply parsed arguments
+    QString db_dir = parser.value(dbDirOption);
+    if (!db_dir.isEmpty()) {
+        m_database_path = db_dir;
+    }
+
+    return true;  // happy
 }
 
 

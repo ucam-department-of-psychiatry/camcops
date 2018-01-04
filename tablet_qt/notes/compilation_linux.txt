@@ -7,10 +7,12 @@ Basic prerequisites for building Qt (and building CamCOPS) in full?
 -------------------------------------------------------------------------------
 - http://wiki.qt.io/Qt5_platform_configurations
 
-sudo apt-get install build-essential libgl1-mesa-dev  # [1]
-sudo apt-get install libwayland-dev libwayland-egl1-mesa libwayland-server0 libgles2-mesa-dev libxkbcommon-dev  # [2]
-sudo apt-get install libwebp-dev libwebpdemux1  # [3]
-sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev  # [4]
+sudo apt install \
+    build-essential libgl1-mesa-dev \
+    libwayland-dev libwayland-egl1-mesa libwayland-server0 libgles2-mesa-dev libxkbcommon-dev \
+    libwebp-dev libwebpdemux1  \
+    libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+    # [1, 2, 3, 4]
 
 SEE ALSO THE END OF build_qt.py
 
@@ -127,6 +129,17 @@ A.  These functions are part of Wayland, at
     Does anything #include it?
 
 
+Q.  /home/rudolf/dev/qt_local_build/qt_linux_x86_64_build/qtbase/bin/qmake -o
+        Makefile.xcb_qpa_lib
+        /home/rudolf/dev/qt_local_build/src/qt5/qtbase/src/plugins/platforms/xcb/xcb_qpa_lib.pro
+    Project ERROR: Library 'atspi' is not defined.
+
+A.
+    Do not work:
+        sudo apt install libatk1.0-dev
+        sudo apt install libatspi2.0-dev
+
+
 -------------------------------------------------------------------------------
 CamCOPS not linking?
 -------------------------------------------------------------------------------
@@ -207,12 +220,49 @@ A.  Try rebuilding Qt without skipping anything (specifically, not skipping
     qtwebkit, but all -skip options removed).
     ... no, just get Wayland problems then.
 
+Q.  cannot find -lxcb-render-util
+    cannot find -lxcb-xinerama
+    cannot find -lxcb-image
+    cannot find -lxcb-keysyms
+    cannot find -lxcb-icccm
+
+A.  You are building with an edition of Qt configured with "-system-xcb" rather
+    than "-qt-xcb". (Possibly because "-qt-xcb" seems to be buggy under Qt
+    5.1.0; see https://bugreports.qt.io/browse/QTBUG-64928 .)
+
+    See http://doc.qt.io/qt-5/linux-requirements.html and run
+
+    sudo apt install \
+        libfontconfig1-dev \
+        libfreetype6-dev \
+        libx11-dev \
+        libxext-dev \
+        libxfixes-dev \
+        libxi-dev \
+        libxrender-dev \
+        libxcb1-dev \
+        libx11-xcb-dev \
+        libxcb-glx0-dev
+    sudo apt install \
+        libxcb-keysyms1-dev \
+        libxcb-image0-dev \
+        libxcb-shm0-dev \
+        libxcb-icccm4-dev \
+        libxcb-sync0-dev \
+        libxcb-xfixes0-dev \
+        libxcb-shape0-dev \
+        libxcb-randr0-dev \
+        libxcb-render-util0-dev
+    sudo apt install \
+        libxcb-xinerama0-dev
+
 -------------------------------------------------------------------------------
 Prerequisites for BUILDING CamCOPS?
 -------------------------------------------------------------------------------
 
 sudo apt install \
-    libwebp-dev
+    libwebp-dev \
+    libudev1 libudev-dev
 
 -------------------------------------------------------------------------------
 Prerequisites for RUNNING CamCOPS?
@@ -220,7 +270,8 @@ Prerequisites for RUNNING CamCOPS?
 
 Try to keep these to the absolute minimum, via static linkage!
 
-sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+sudo apt install \
+    libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
     mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev \
     libasound-dev \
     libharfbuzz-dev \

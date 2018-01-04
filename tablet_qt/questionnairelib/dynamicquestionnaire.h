@@ -91,7 +91,11 @@ class DynamicQuestionnaire : public Questionnaire
 {
     Q_OBJECT
     using MakePageFn = std::function<QuPagePtr(int)>;
+    // ... function taking one int parameter (the zero-based page number to
+    //     make) and returning a QuPagePtr
     using MorePagesToGoFn = std::function<bool(int)>;
+    // ... function taking one int parameter (the zero-based page number we're
+    //     on now) and returning a bool
 
 public:
     DynamicQuestionnaire(CamcopsApp& app,
@@ -109,6 +113,11 @@ public:
 protected:
     // Behave differently:
     virtual bool morePagesToGo() const override;
+
+    // New:
+    void trimFromCurrentPositionOnwards();
+    void addAllAccessibleDynamicPages() override;
+    bool mayProgress(QuPage* page) const;
 
 protected:
     MakePageFn m_make_page_fn;

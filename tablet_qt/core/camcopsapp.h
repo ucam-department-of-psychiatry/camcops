@@ -96,8 +96,7 @@ public:
     QString dbFullPath(const QString& filename);
 protected:
     QString defaultDatabaseDir() const;
-    bool processCommandLineArguments(const QStringList& args);
-    void commandLineHelp();
+    bool processCommandLineArguments(int& retcode);  // returns: happy to continue?
     void announceStartup();
     void registerDatabaseDrivers();
     void openOrCreateDatabases();

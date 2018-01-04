@@ -173,7 +173,7 @@
     <string name="emptype_a3">Employee</string>
     <string name="emptype_a4">Foreman/Supervisor</string>
     <string name="emptype_a5">Manager</string>
-    <!-- *** check: what if never employed? -->
+    <string name="emptype_a6">Not applicable</string>  <!-- Added by RNC, in case patient never employed. See also .cpp code. -->
 
     <string name="home_q">What is your housing situation?</string>
     <string name="home_s">Housing type:</string>
@@ -195,6 +195,46 @@
     <string name="duration_a4">Between 1 and 2 years</string>
     <string name="duration_a5">Two years or more</string>
 
+    <string name="dpw_a1">None</string>
+    <string name="dpw_a2">Between one and three days</string>
+    <string name="dpw_a3">Four days or more</string>
+    <!-- ... exact match for all such questions EXCEPT:
+        - phobias1 had "Four or more days" rather than "Four days or more"; I've standardized.
+        - hypo1 had "Between one and three" [missing "days"]; I've standardized.
+    -->
+
+    <string name="npw_a1">None</string>
+    <string name="npw_a2">Between one and three nights</string>
+    <string name="npw_a3">Four nights or more</string>
+
+    <string name="how_unpleasant_a1">Not at all</string>
+    <string name="how_unpleasant_a2">A little unpleasant</string>
+    <string name="how_unpleasant_a3">Unpleasant</string>
+    <string name="how_unpleasant_a4">Very unpleasant</string>
+
+    <string name="fatigue_causes_a1">Problems with sleep</string>
+    <string name="fatigue_causes_a2">Tablets or medication</string>
+    <string name="fatigue_causes_a3">Physical illness</string>
+    <string name="fatigue_causes_a4">Working too hard, including looking after children</string>
+    <string name="fatigue_causes_a5">Stress, worry or other psychological reason</string>
+    <string name="fatigue_causes_a6">Physical exercise</string>
+    <string name="fatigue_causes_a7">Other cause</string>
+    <string name="fatigue_causes_a8">Don’t know</string>
+
+    <string name="stressors_a1">Family members, including spouse or partner</string>
+    <string name="stressors_a2">Relationships with friends or with people at work</string>
+    <string name="stressors_a3">Housing</string>
+    <string name="stressors_a4">Money or bills</string>
+    <string name="stressors_a5">Your own physical health, including pregnancy</string>
+    <string name="stressors_a6">Your own mental health</string>
+    <string name="stressors_a7">Work or lack of work (including studying)</string>
+    <string name="stressors_a8">Legal difficulties</string>
+    <string name="stressors_a9">Political issues or the news</string>
+
+    <string name="nso_a1">No</string>
+    <string name="nso_a2">Sometimes</string>
+    <string name="nso_a3">Often</string>
+
     <!--
     ===========================================================================
     HEALTH/WELLBEING
@@ -203,12 +243,8 @@
     <string name="health_wellbeing_statement">I would now like to ask you about your health and well-being</string>
 
     <string name="appetite1_q">Have you noticed a marked loss in your appetite in the PAST MONTH?</string>
-    <string name="appetite1_a1">No</string>
-    <string name="appetite1_a2">Yes</string>
 
     <string name="weight1_q">Have you lost any weight in the PAST MONTH?</string>
-    <string name="weight1_a1">No</string>
-    <string name="weight1_a2">Yes</string>
 
     <string name="weight2_q">Were you trying to lose weight or on a diet?</string>
     <string name="weight2_a1">No, I was not trying to lose weight</string>
@@ -219,17 +255,11 @@
     <string name="weight3_a2">I lost less than half a stone</string>
 
     <string name="appetite2_q">Have you noticed a marked INCREASE in your appetite in the PAST MONTH?</string>
-    <string name="appetite2_a1">No</string>
-    <string name="appetite2_a2">Yes</string>
 
     <string name="weight4_q">Have you gained any weight in the PAST MONTH?</string>
     <string name="weight4_a1">No</string>
     <string name="weight4_a2">Yes</string>
-
-    <string name="weight4a_q">Have you gained any weight in the PAST MONTH?</string>
-    <string name="weight4a_a1">No</string>
-    <string name="weight4a_a2">Yes</string>
-    <string name="weight4a_a3">Yes, but I am pregnant</string>
+    <string name="weight4_a3">Yes, but I am pregnant</string>
 
     <string name="weight5_q">Did you gain half a stone or more, or did you gain less than this (in the PAST MONTH)?\n\n(NOTE: Half a stone = 7 pounds or 3 kg)</string>
     <string name="weight5_a1">I gained half a stone or more</string>
@@ -243,8 +273,6 @@
     <string name="gp_year_a4">More than 10 times</string>
 
     <string name="disable_q">Do you have any long-standing illness, disability or infirmity?\n\nLong-standing means anything that has troubled you over a period of time or that is likely to affect you over a period of time</string>
-    <string name="disable_a1">Yes</string>
-    <string name="disable_a2">No</string>
 
     <string name="illness_q">Do you have any of the following conditions?</string>
     <string name="illness_a1">Diabetes</string>
@@ -258,8 +286,6 @@
 
     <!-- "mand" for mandatory: -->
     <string name="somatic_mand1_q">Have you had ANY sort of aches or pains in the PAST MONTH, including headaches or indigestion?</string>
-    <string name="somatic_mand1_a1">No</string>
-    <string name="somatic_mand1_a2">Yes</string>
 
     <string name="somatic_pain1_q">Was this pain or ache BROUGHT ON or MADE WORSE because you were feeling low, anxious or stressed?</string>
     <string name="somatic_pain1_a1">Never</string>
@@ -267,19 +293,12 @@
     <string name="somatic_pain1_a3">Always</string>
 
     <string name="somatic_pain2_q">On how many days have you noticed this pain during the PAST SEVEN DAYS?</string>
-    <string name="somatic_pain2_a1">None</string>
-    <string name="somatic_pain2_a2">Between one and three days</string>
-    <string name="somatic_pain2_a3">Four days or more</string>
 
     <string name="somatic_pain3_q">In total, did the pain or ache last for more than 3 hours on ANY day during the PAST WEEK?</string>
     <string name="somatic_pain3_a1">No, less than 3 hours</string>
     <string name="somatic_pain3_a2">Yes, it has lasted for more than 3 hours on at least one day</string>
 
     <string name="somatic_pain4_q">Has the pain been unpleasant in the PAST WEEK?</string>
-    <string name="somatic_pain4_a1">Not at all</string>
-    <string name="somatic_pain4_a2">A little unpleasant</string>
-    <string name="somatic_pain4_a3">Unpleasant</string>
-    <string name="somatic_pain4_a4">Very unpleasant</string>
 
     <string name="somatic_pain5_q">Has the pain bothered you when you were doing something interesting in the PAST WEEK?</string>
     <string name="somatic_pain5_a1">No, pain has not bothered me</string>
@@ -287,8 +306,6 @@
     <string name="somatic_pain5_a3">I haven’t done anything interesting in the past week</string>
 
     <string name="somatic_mand2_q">Have you been troubled by any sort of bodily discomfort in THE PAST MONTH?</string>
-    <string name="somatic_mand2_a1">No</string>
-    <string name="somatic_mand2_a2">Yes</string>
 
     <string name="somatic_dis1_q">Was this discomfort BROUGHT ON or MADE WORSE because you were feeling low, anxious or stressed?</string>
     <string name="somatic_dis1_a1">Never</string>
@@ -296,19 +313,12 @@
     <string name="somatic_dis1_a3">Always</string>
 
     <string name="somatic_dis2_q">On how many days have you noticed this discomfort during the PAST SEVEN DAYS?</string>
-    <string name="somatic_dis2_a1">None</string>
-    <string name="somatic_dis2_a2">Between one and three days</string>
-    <string name="somatic_dis2_a3">Four days or more</string>
 
     <string name="somatic_dis3_q">Did the discomfort last for more than 3 hours on any day during the PAST WEEK?</string>
     <string name="somatic_dis3_a1">No, less than 3 hours</string>
     <string name="somatic_dis3_a2">Yes, it has lasted more than 3 hours on at least one occasion</string>
 
     <string name="somatic_dis4_q">Has the discomfort been unpleasant in the PAST WEEK?</string>
-    <string name="somatic_dis4_a1">Not at all</string>
-    <string name="somatic_dis4_a2">A little unpleasant</string>
-    <string name="somatic_dis4_a3">Unpleasant</string>
-    <string name="somatic_dis4_a4">Very unpleasant</string>
 
     <string name="somatic_dis5_q">Has the discomfort bothered you when you were doing something interesting in the PAST SEVEN DAYS?</string>
     <string name="somatic_dis5_a1">No, discomfort has not bothered me</string>
@@ -318,23 +328,10 @@
     <string name="somatic_dur_q">How long have you been feeling this ache, pain or discomfort as you have just described?</string>
 
     <string name="fatigue_mand1_q">Have you noticed that you’ve been getting tired in the PAST MONTH?</string>
-    <string name="fatigue_mand1_a1">No</string>
-    <string name="fatigue_mand1_a2">Yes</string>
 
     <string name="fatigue_cause1_q">What do you think is the main reason for feeling tired?</string>
-    <string name="fatigue_cause1_a1">Problems with sleep</string>
-    <string name="fatigue_cause1_a2">Tablets or medication</string>
-    <string name="fatigue_cause1_a3">Physical illness</string>
-    <string name="fatigue_cause1_a4">Working too hard, including looking after children</string>
-    <string name="fatigue_cause1_a5">Stress, worry or other psychological reason</string>
-    <string name="fatigue_cause1_a6">Physical exercise</string>
-    <string name="fatigue_cause1_a7">Other cause</string>
-    <string name="fatigue_cause1_a8">Don’t know</string>
 
     <string name="fatigue_tired1_q">On how many days have you felt tired during the PAST SEVEN DAYS?</string>
-    <string name="fatigue_tired1_a1">None</string>
-    <string name="fatigue_tired1_a2">Between one and three days</string>
-    <string name="fatigue_tired1_a3">Four days or more</string>
 
     <string name="fatigue_tired2_q">Have you felt tired for more than 3 hours in total on ANY day in the PAST WEEK?</string>
     <string name="fatigue_tired2_a1">No, less than 3 hours</string>
@@ -350,23 +347,10 @@
     <string name="fatigue_tired4_a3">I haven’t done anything enjoyable in the past week</string>
 
     <string name="fatigue_mand2_q">During the PAST MONTH, have you felt you’ve been lacking in energy?</string>
-    <string name="fatigue_mand2_a1">No</string>
-    <string name="fatigue_mand2_a2">Yes</string>
 
     <string name="fatigue_cause2_q">What do you think is the main reason for lacking in energy?</string>
-    <string name="fatigue_cause2_a1">Problems with sleep</string>
-    <string name="fatigue_cause2_a2">Tablets or medication</string>
-    <string name="fatigue_cause2_a3">Physical illness</string>
-    <string name="fatigue_cause2_a4">Working too hard, including looking after children</string>
-    <string name="fatigue_cause2_a5">Stress, worry or other psychological reason</string>
-    <string name="fatigue_cause2_a6">Physical exercise</string>
-    <string name="fatigue_cause2_a7">Other cause</string>
-    <string name="fatigue_cause2_a8">Don’t know</string>
 
     <string name="fatigue_energy1_q">On how many days have you felt lacking in energy during the PAST SEVEN DAYS?</string>
-    <string name="fatigue_energy1_q1">None</string>
-    <string name="fatigue_energy1_q2">Between one and three days</string>
-    <string name="fatigue_energy1_q3">Four days or more</string>
 
     <string name="fatigue_energy2_q">Have you felt lacking in energy for more than 3 hours in total on ANY day in the PAST WEEK?</string>
     <string name="fatigue_energy2_a1">No, less than 3 hours</string>
@@ -388,21 +372,14 @@
     <string name="conc_mand1_a2">Yes, problems concentrating on what I am doing</string>
 
     <string name="conc_mand2_q">Have you noticed any problems with forgetting things in the PAST MONTH?</string>
-    <string name="conc_mand2_a1">No</string>
-    <string name="conc_mand2_a2">Yes</string>
 
     <string name="conc1_q">On how many days have you noticed problems with your concentration OR your memory during the PAST SEVEN DAYS?</string>
-    <string name="conc1_a1">None</string>
-    <string name="conc1_a2">Between one and three days</string>
-    <string name="conc1_a3">Four days or more</string>
 
     <string name="conc2_q">In the PAST WEEK could you concentrate on all of the following without your mind wandering?:\n\n• a whole TV programme\n\n• a newspaper article\n\n• talking to someone?</string>
     <string name="conc2_a1">Yes, I could concentrate on all of them</string>
     <string name="conc2_a2">No, I couldn’t concentrate on at least one of these things</string>
 
     <string name="conc3_q">In the PAST WEEK, have these problems with your concentration actually STOPPED you from getting on with things you used to do or would like to do?</string>
-    <string name="conc3_a1">No</string>
-    <string name="conc3_a2">Yes</string>
 
     <string name="conc_dur_q">How long have you been having problems with your CONCENTRATION as you have described?</string>
 
@@ -413,13 +390,8 @@
     <string name="forget_dur_q">How long have you been having the problems with your MEMORY as you have described?</string>
 
     <string name="sleep_mand1_q">In the PAST MONTH, have you been having problems with trying to get to sleep or with getting back to sleep if you woke up or were woken up?</string>
-    <string name="sleep_mand1_a1">No</string>
-    <string name="sleep_mand1_a2">Yes</string>
 
     <string name="sleep_lose1_q">On how many nights in the SEVEN NIGHTS did you have problems with your sleep?</string>
-    <string name="sleep_lose1_a1">None</string>
-    <string name="sleep_lose1_a2">Between one and three nights</string>
-    <string name="sleep_lose1_a3">Four nights or more</string>
 
     <string name="sleep_lose2_q">Thinking about the night you had the LEAST sleep in the PAST WEEK, how long did you spend trying to get to sleep?\n\nOnly include time spent lying awake in bed TRYING to return to sleep.</string>
     <string name="sleep_lose2_a1">Less than 15 minutes</string>
@@ -428,9 +400,6 @@
     <string name="sleep_lose2_a4">Three hours or more</string>
 
     <string name="sleep_lose3_q">In the PAST WEEK, how many nights did you spend 3 or more hours trying to get to sleep?</string>
-    <string name="sleep_lose3_a1">None</string>
-    <string name="sleep_lose3_a2">Between one and three nights</string>
-    <string name="sleep_lose3_a3">Four nights or more</string>
 
     <string name="sleep_emw_q">In the PAST WEEK, have you woken more than two hours earlier than you needed to and found that you couldn't get back to sleep?</string>
     <string name="sleep_emw_a1">No</string>
@@ -450,9 +419,6 @@
     <string name="sleep_mand2_a3">Yes</string>
 
     <string name="sleep_gain1_q">On how many nights in the PAST SEVEN NIGHTS did you have problems with your sleep?</string>
-    <string name="sleep_gain1_a1">None</string>
-    <string name="sleep_gain1_a2">Between one and three days</string>
-    <string name="sleep_gain1_a3">Four days or more</string>
 
     <string name="sleep_gain2_q">Thinking about the night you slept the longest in the PAST WEEK, how much longer did you sleep compared with how long you normally sleep for?</string>
     <string name="sleep_gain2_a1">Less than 15 minutes</string>
@@ -472,9 +438,6 @@
     <string name="irrit_mand2_a3">Yes</string>
 
     <string name="irrit1_q">On how many days have you felt irritable, short tempered or angry in the PAST WEEK?</string>
-    <string name="irrit1_a1">None</string>
-    <string name="irrit1_a2">Between one and three days</string>
-    <string name="irrit1_a3">Four days or more</string>
 
     <string name="irrit2_q">In total, have you felt irritable, short tempered or angry for more than one hour on any day in the PAST WEEK?</string>
     <string name="irrit2_a1">No</string>
@@ -493,27 +456,16 @@
     <string name="irrit_dur_q">How long have you been feeling irritable, short-tempered or angry as you have described?</string>
 
     <string name="hypo_mand1_q">Many people get concerned about their physical health. In the PAST MONTH have you been at all worried about your physical health?</string>
-    <string name="hypo_mand1_a1">No</string>
-    <string name="hypo_mand1_a2">Yes</string>
 
     <string name="hypo_mand2_q">Do you find yourself worrying that you might have a serious illness like cancer, heart disease or AIDS?</string>
-    <string name="hypo_mand2_a1">No</string>
-    <string name="hypo_mand2_a2">Yes</string>
 
     <string name="hypo1_q">Thinking about the PAST SEVEN DAYS, on how many days have you found yourself worrying about your physical health, or worrying that you might have a serious physical illness?</string>
-    <string name="hypo1_a1">None</string>
-    <string name="hypo1_a2">Between one and three</string>
-    <string name="hypo1_a3">Four days or more</string>
 
     <string name="hypo2_q">In your opinion, have you been worrying too much in view of your actual physical health?</string>
     <string name="hypo2_a1">No</string>
     <string name="hypo2_a2">Yes, I worry too much</string>
 
     <string name="hypo3_q">How unpleasant has this worrying been in the PAST WEEK?</string>
-    <string name="hypo3_a1">Not at all</string>
-    <string name="hypo3_a2">A little unpleasant</string>
-    <string name="hypo3_a3">Unpleasant</string>
-    <string name="hypo3_a4">Very unpleasant</string>
 
     <string name="hypo4_q">In the PAST WEEK, have you been able to take your mind off your health worries at least once, by doing something else?</string>
     <string name="hypo4_a1">Yes</string>
@@ -522,8 +474,6 @@
     <string name="hypo_dur_q">How long have you been worrying about your physical health in the way you have described?</string>
 
     <string name="depr_mand1_q">Almost everyone becomes low in mood or depressed at times.\n\nHave you had a spell of feeling sad, miserable or depressed in the PAST MONTH?</string>
-    <string name="depr_mand1_a1">No</string>
-    <string name="depr_mand1_a2">Yes</string>
 
     <string name="depr1_q">In the PAST WEEK, have you had a spell of feeling sad, miserable or depressed?</string>
     <string name="depr1_a1">No, not in the past week</string>
@@ -540,24 +490,12 @@
     <string name="depr2_a3">No, I don't enjoy anything</string>
 
     <string name="depr3_q">In the PAST WEEK, on how many days have you felt sad, miserable or depressed OR unable to enjoy or take an interest in things?</string>
-    <string name="depr3_a1">None</string>
-    <string name="depr3_a2">Between one and three days</string>
-    <string name="depr3_a3">Four days or more</string>
 
     <string name="depr4_q">Have you felt sad, miserable or depressed OR unable to enjoy or take an interest in things for more than 3 hours in total on any day in the PAST WEEK?</string>
     <string name="depr4_a1">No, less than 3 hours</string>
     <string name="depr4_a2">Yes, for 3 hours or more on at least one day</string>
 
     <string name="depr_content_q">What is the MAIN thing that made you feel sad, miserable or depressed OR unable to enjoy or take an interest in things in the PAST WEEK?</string>
-    <string name="depr_content_a1">Family members, including spouse or partner</string>
-    <string name="depr_content_a2">Relationships with friends or people at work</string>
-    <string name="depr_content_a3">Housing</string>
-    <string name="depr_content_a4">Money or bills</string>
-    <string name="depr_content_a5">Your own physical health, including pregnancy</string>
-    <string name="depr_content_a6">Your own mental health</string>
-    <string name="depr_content_a7">Work or lack of work (including studying)</string>
-    <string name="depr_content_a8">Legal difficulties</string>
-    <string name="depr_content_a9">Political issues or the news</string>
 
     <string name="depr5_q">In the PAST WEEK when you felt sad, miserable or depressed OR unable to enjoy or take an interest in things, did you ever become happier when something nice happened, or when you were in company?</string>
     <string name="depr5_a1">Yes, always</string>
@@ -579,12 +517,8 @@
     <string name="depth2_a4">Decreased</string>
 
     <string name="depth3_q">In the PAST SEVEN DAYS, when you have felt sad, miserable or  depressed OR unable to enjoy or take an interest in things, have you been so restless that you couldn't sit still?</string>  <!-- inserted comma between "things" and "have" -->
-    <string name="depth3_a1">No</string>
-    <string name="depth3_a2">Yes</string>
 
     <string name="depth4_q">In the PAST SEVEN DAYS, when you have felt sad, miserable or depressed OR unable to enjoy or take an interest in things have you been doing things more slowly than usual, for example walking more slowly?</string>
-    <string name="depth4_a1">No</string>
-    <string name="depth4_a2">Yes</string>
 
     <string name="depth5_q">In the PAST SEVEN DAYS have you on at least one occasion felt guilty or blamed yourself when things went wrong, even when it hasn't been your fault?</string>
     <string name="depth5_a1">Never</string>
@@ -611,8 +545,6 @@
     <string name="depth9_a3">Yes, I have had thoughts about it in the past week</string>
 
     <string name="depth10_q">In the PAST WEEK, have you thought about a way in which you might kill yourself?</string>
-    <string name="depth10_a1">No</string>
-    <string name="depth10_a2">Yes</string>
 
     <string name="doctor_q">Have you talked to your doctor about these thoughts of killing yourself?</string>
     <string name="doctor_a1">Yes</string>
@@ -624,41 +556,20 @@
     <string name="depr_outro">Thank you for answering those questions on feeling unhappy or depressed.\n\nThe next section is about worrying and anxiety.</string>
 
     <string name="worry_mand1_q">In the PAST MONTH, did you find yourself worrying more than you needed to about things?</string>
-    <string name="worry_mand1_a1">No</string>
-    <string name="worry_mand1_a2">Sometimes</string>
-    <string name="worry_mand1_a3">Often</string>
 
     <string name="worry_mand2_q">Have you had any worries at all in the PAST MONTH?</string>
-    <string name="worry_mand2_a1">No</string>
-    <string name="worry_mand2_a2">Yes</string>
 
     <string name="worry_cont1_q">What is the MAIN thing you have been worried about in the PAST WEEK?</string>
-    <string name="worry_cont1_a1">Family members, including spouse or partner</string>
-    <string name="worry_cont1_a2">Relationships with friends or with people at work</string>
-    <string name="worry_cont1_a3">Housing</string>
-    <string name="worry_cont1_a4">Money or bills</string>
-    <string name="worry_cont1_a5">Your own physical health, including pregnancy</string>
-    <string name="worry_cont1_a6">Your own mental health</string>
-    <string name="worry_cont1_a7">Work or lack of work (including studying)</string>
-    <string name="worry_cont1_a8">Legal difficulties</string>
-    <string name="worry_cont1_a9">Political issues or the news</string>
 
     <string name="worry1">The next few questions are about the worries you have had OTHER than those about your physical health.</string>
 
     <string name="worry2_q">On how many of the PAST SEVEN DAYS have you been worrying about things OTHER than your physical health?</string>
-    <string name="worry2_a1">None</string>
-    <string name="worry2_a2">Between one and three days</string>
-    <string name="worry2_a3">Four days or more</string>
 
     <string name="worry3_q">In your opinion, have you been worrying too much in view of your circumstances?</string>
     <string name="worry3_a2">No</string>
     <string name="worry3_a2">Yes, worrying too much</string>
 
     <string name="worry4_q">How unpleasant has your worrying been about things OTHER than your physical health in the PAST WEEK?</string>
-    <string name="worry4_a1">Not at all</string>
-    <string name="worry4_a2">A little unpleasant</string>
-    <string name="worry4_a3">Unpleasant</string>
-    <string name="worry4_a4">Very unpleasant</string>
 
     <string name="worry5_q">Have you worried about something OTHER than your physical health for more than three hours in total on any day in the PAST WEEK?</string>
     <string name="worry5_a1">No, Less than 3 hours</string>
@@ -667,17 +578,10 @@
     <string name="worry_dur_q">How long have you been worrying about things OTHER than your physical health in the way that you have described?</string>
 
     <string name="anx_mand1_q">Have you been feeling anxious or nervous in the PAST MONTH?</string>
-    <string name="anx_mand1_a1">No</string>
-    <string name="anx_mand1_a2">Yes</string>
 
     <string name="anx_mand2_q">In the PAST MONTH, did you ever find your muscles felt tense or that you couldn't relax?</string>
-    <string name="anx_mand2_a1">No</string>
-    <string name="anx_mand2_a2">Sometimes</string>
-    <string name="anx_mand2_a3">Often</string>
 
     <string name="anx_phobia1_q">Some people have phobias; they get nervous or uncomfortable about specific things or situations when there is no real danger. For example, they may get nervous when speaking or eating in front of strangers, when they are far fom home or in crowded rooms, or they may have a fear of heights. Others get nervous at the sight of things like blood or spiders.\n\nIn the PAST MONTH, have you felt anxious, nervous or tense about any specific things or situations when there was no real danger?</string>  <!-- comma inserted after "For example" -->
-    <string name="anx_phobia1_a1">No</string>
-    <string name="anx_phobia1_a2">Yes</string>
 
     <string name="anx_phobia2_q">In the PAST MONTH, when you have felt anxious, nervous or tense was this ALWAYS brought on by the phobia about some SPECIFIC thing or did you sometimes feel GENERALLY anxious, nervous or tense?</string>
     <string name="anx_phobia2_a1">These feelings were ALWAYS brought on by specific phobia</string>
@@ -686,15 +590,8 @@
     <string name="anx1">The next questions are concerned with GENERAL anxiety, nervousness or tension ONLY. Questions about the anxiety which is brought on by the phobia(s) about specific things or situations will be asked later.</string>
 
     <string name="anx2_q">On how many of the PAST SEVEN DAYS have you felt GENERALLY anxious, nervous or tense?</string>
-    <string name="anx2_a1">None</string>
-    <string name="anx2_a2">Between one and three days</string>
-    <string name="anx2_a3">Four days or more</string>
 
     <string name="anx3_q">How unpleasant has your anxiety, nervousness or tension been in the PAST WEEK?</string>
-    <string name="anx3_a1">Not at all</string>
-    <string name="anx3_a2">A little unpleasant</string>
-    <string name="anx3_a3">Unpleasant</string>
-    <string name="anx3_a4">Very unpleasant</string>
 
     <string name="anx4_q">In the PAST WEEK, when you've been anxious, nervous or tense, have you had ANY of the following symptoms?\n\n• heart racing or pounding\n• hands sweating or shaking\n• feeling dizzy\n• difficulty getting breath\n• butterflies in your stomach\n• dry mouth</string>
     <string name="anx4_a1">No</string>
@@ -707,8 +604,6 @@
     <string name="anx_dur_q">How long have you had these feelings of general anxiety, nervousness or tension, as you have described?</string>
 
     <string name="phobias_mand_q">Sometimes people AVOID a specific situation or thing because they have a phobia about it. For instance, some people avoid eating in public or avoid going to busy places because it would make them feel nervous or anxious.\n\nIn the PAST MONTH, have you AVOIDED any situation or thing because it would have made you feel nervous or anxious, even though there was no real danger?</string>
-    <string name="phobias_mand_a1">No</string>
-    <string name="phobias_mand_a2">Yes</string>
 
     <string name="phobias_type1_q">Here is a list of things that some people feel nervous about.\n\nWhich one of these are you MOST afraid of?</string>
     <string name="phobias_type1_a1">Travelling alone by bus or train</string>
@@ -722,9 +617,6 @@
     <string name="phobias_type1_a9">I am not frightened of anything on this list but I am frightened of something else</string>
 
     <string name="phobias1_q">On how many days in the PAST SEVEN DAYS have you felt nervous or anxious about the situation or thing you are most frightened of?</string>
-    <string name="phobias1_a1">None</string>
-    <string name="phobias1_a2">Between one and three days</string>
-    <string name="phobias1_a3">Four or more days</string>
 
     <string name="phobias2_q">In the PAST WEEK, on those occasions when you felt anxious, nervous or tense about this, did you have ANY of the following symptoms?\n\n• heart racing or pounding\n• hands sweating or shaking\n• feeling dizzy\n• difficulty in getting breath\n• butterflies in the stomach\n• dry mouth</string>
     <string name="phobias2_a1">No</string>
@@ -761,10 +653,8 @@
     <string name="panic3_a2">10 minutes or more</string>
 
     <string name="panic4_q">Do these panics start suddenly so you are at maximum anxiety within a few minutes?</string>
-    <string name="panic4_a1">No</string>
-    <string name="panic4_a2">Yes</string>
 
-    <!-- *** 1 no, 2 yes *** -->
+    <!-- For all of the panic symptoms: 1 no, 2 yes -->
     <string name="pansym_q_prefix">In the PAST SEVEN DAYS when you had these panics:\n\n</string>
     <string name="pansym_a_q">Did your heart beat harder or speed up?</string>
     <string name="pansym_b_q">Did you have sweaty or clammy hands?</string>
@@ -781,22 +671,14 @@
     <string name="pansym_m_q">Did you have hot flushes or chills?</string>
 
     <string name="panic5_q">Is this panic ALWAYS brought on by specific situations or things?</string>
-    <string name="panic5_a1">No</string>
-    <string name="panic5_a2">Yes</string>
 
     <string name="panic_dur_q">How long have you been having these feelings of panic as you have described?</string>
 
     <string name="anx_outro">Thank you for answering those questions on anxiety and worry.</string>
 
     <string name="comp_mand1_q">In the PAST MONTH, did you find that you kept on doing things over and over again when you knew you had already done them, for instance checking things like taps, or washing yourself when you had already done so?</string>
-    <string name="comp_mand1_a1">No</string>
-    <string name="comp_mand1_a2">Sometimes</string>
-    <string name="comp_mand1_a3">Often</string>
 
     <string name="comp1_q">On how many days in the PAST WEEK did you find yourself doing things over again that you had already done?</string>
-    <string name="comp1_a1">None</string>
-    <string name="comp1_a2">Between one and three days</string>
-    <string name="comp1_a3">Four days or more</string>
 
     <string name="comp2_q">During the PAST WEEK, have you tried to stop yourself repeating things over again?</string>
     <string name="comp2_a1">No, not in the past week</string>
@@ -814,18 +696,12 @@
     <string name="comp_dur_q">How long have you been repeating things that you have already done in the way you have described?</string>
 
     <string name="obsess_mand1_q">In the PAST MONTH, did you have any thoughts or ideas over and over again that you found unpleasant and would prefer not to think about, that still kept coming into your mind?</string>
-    <string name="obsess_mand1_a1">No</string>
-    <string name="obsess_mand1_a2">Sometimes</string>
-    <string name="obsess_mand1_a3">Often</string>
 
     <string name="obsess_mand2_q">Are these the SAME thoughts or ideas over and over again, or are you worrying about something in GENERAL?</string>
     <string name="obsess_mand2_a1">The same thoughts or ideas over and over again</string>
     <string name="obsess_mand2_a2">Worrying about something in general</string>
 
     <string name="obsess1_q">On how many days in the PAST WEEK have you had these unpleasant thoughts?</string>
-    <string name="obsess1_a1">None</string>
-    <string name="obsess1_a2">Between one and three days</string>
-    <string name="obsess1_a3">Four days or more</string>
 
     <string name="obsess2_q">During the PAST WEEK, have you tried to stop yourself thinking any of these thoughts</string>
     <string name="obsess2_a1">No, not in the past week</string>

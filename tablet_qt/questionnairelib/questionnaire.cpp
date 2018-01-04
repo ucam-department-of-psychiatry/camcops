@@ -414,12 +414,20 @@ void Questionnaire::cancelClicked()
 }
 
 
+void Questionnaire::addAllAccessibleDynamicPages()
+{
+    // only here to be overridden in DynamicQuestionnaire
+    // ... but here so it can be called by jumpClicked().
+}
+
+
 void Questionnaire::jumpClicked()
 {
     // - In read-only mode, we can jump to any page.
     // - In editing mode, we can jump as far as the last page that isn't
     //   incomplete.
     // - We skip skipped pages in either mode.
+    addAllAccessibleDynamicPages();
     QVector<PagePickerItem> pageitems;
     bool blocked = false;
     for (int i = 0; i < m_pages.size(); ++i) {
@@ -553,8 +561,8 @@ void Questionnaire::goToPage(const int index, const bool allow_refresh)
         return;
     }
     if (index == m_current_page_index && !allow_refresh) {
-        qDebug() << "Page" << index <<
-                    "(zero-based index) already selected";
+        qDebug() << "Page" << index
+                 << "(zero-based index) already selected";
         return;
     }
     pageClosing();

@@ -20,7 +20,8 @@
 #define USE_MULTITHREADED_DATABASES
 #define ONE_SELECT_AT_A_TIME
 // #define DEBUG_BACKGROUND_QUERY
-// #define DEBUG_VERBOSE
+// #define DEBUG_VERBOSE_PROCESS
+// #define DEBUG_VERBOSE_RESULTS
 // #define DEBUG_REPORT_TABLE_STRUCTURE_OK
 
 #include "databasemanager.h"
@@ -61,7 +62,7 @@ DatabaseManager::DatabaseManager(const QString& filename,
     m_opened_database(false)
 {
     // GUI thread
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     openDatabaseOrDie();
@@ -70,7 +71,7 @@ DatabaseManager::DatabaseManager(const QString& filename,
 
 DatabaseManager::~DatabaseManager()
 {
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     closeDatabase();
@@ -83,7 +84,7 @@ DatabaseManager::~DatabaseManager()
 
 void DatabaseManager::setVacuumOnClose(const bool vacuum_on_close)
 {
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     m_vacuum_on_close = vacuum_on_close;
@@ -97,7 +98,7 @@ void DatabaseManager::setVacuumOnClose(const bool vacuum_on_close)
 void DatabaseManager::openDatabaseOrDie()
 {
     // GUI thread
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     if (openDatabase()) {
@@ -111,7 +112,7 @@ void DatabaseManager::openDatabaseOrDie()
 bool DatabaseManager::openDatabase()
 {
     // GUI thread
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     if (m_threaded) {
@@ -121,11 +122,11 @@ bool DatabaseManager::openDatabase()
             // We need a (semi-)random mutex to lock:
             m_mutex_requests.lock();
             m_thread->start();  // will call openDatabaseActual()
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO << "... waiting for m_open_db_complete";
 #endif
             m_open_db_complete.wait(&m_mutex_requests);  // woken by: work()
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO << "... woken by m_open_db_complete";
 #endif
             m_mutex_requests.unlock();
@@ -140,7 +141,7 @@ bool DatabaseManager::openDatabase()
 bool DatabaseManager::openDatabaseActual()
 {
     // GUI OR WORKER THREAD
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     if (m_db.isOpen()) {
@@ -166,7 +167,7 @@ bool DatabaseManager::openDatabaseActual()
 void DatabaseManager::closeDatabase()
 {
     // GUI thread
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     if (m_threaded) {
@@ -188,7 +189,7 @@ void DatabaseManager::closeDatabase()
 void DatabaseManager::closeDatabaseActual()
 {
     // GUI OR WORKER THREAD
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     if (m_db.isOpen()) {
@@ -216,7 +217,7 @@ void DatabaseManager::execNoAnswer(const SqlArgs& sqlargs,
                                    const bool suppress_errors)
 {
     // GUI thread
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     if (m_threaded) {
@@ -236,7 +237,7 @@ QueryResult DatabaseManager::query(const SqlArgs& sqlargs,
                                    const bool suppress_errors)
 {
     // GUI thread
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     Q_ASSERT(fetch_mode != QueryResult::FetchMode::NoAnswer);
@@ -264,7 +265,7 @@ QueryResult DatabaseManager::query(const SqlArgs& sqlargs,
 
 bool DatabaseManager::exec(const SqlArgs& sqlargs, const bool suppress_errors)
 {
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     const QueryResult result = query(sqlargs, QueryResult::FetchMode::NoFetch,
@@ -280,7 +281,7 @@ bool DatabaseManager::exec(const SqlArgs& sqlargs, const bool suppress_errors)
 void DatabaseManager::pushRequest(const ThreadedQueryRequest& request)
 {
     // GUI thread
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO
              << "... pushing request:" << request;
 #endif
@@ -295,11 +296,14 @@ void DatabaseManager::pushRequest(const ThreadedQueryRequest& request)
 
 QueryResult DatabaseManager::popResult()
 {
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     m_mutex_results.lock();
     QueryResult result = m_results.front();
+#ifdef DEBUG_VERBOSE_RESULTS
+    qDebug().nospace() << "Result:\n" << result;
+#endif
     m_results.pop_front();
 #ifdef ONE_SELECT_AT_A_TIME
     Q_ASSERT(m_results.isEmpty());
@@ -313,23 +317,23 @@ QueryResult DatabaseManager::popResult()
 void DatabaseManager::waitForQueriesToComplete()
 {
     // GUI thread
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
 
     m_mutex_requests.lock();
     if (!m_requests.isEmpty()) {  // must hold mutex to read this
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
         qDebug() << Q_FUNC_INFO << "... requests exist; waiting for m_queries_are_complete";
 #endif
         m_queries_are_complete.wait(&m_mutex_requests);  // woken by: work()
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
         qDebug() << Q_FUNC_INFO << "... woken by m_queries_are_complete";
 #endif
         // ... this mutex is UNLOCKED as we go to sleep, and LOCKED
         //     as we wake: http://doc.qt.io/qt-5/qwaitcondition.html#wait
     }
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     else {
         qDebug() << "... no pending query requests; proceed";
     }
@@ -346,7 +350,7 @@ void DatabaseManager::work()
 {
     // Main worker thread function.
     // When we leave this function, the thread will terminate.
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
 
@@ -365,7 +369,7 @@ void DatabaseManager::work()
         // waiting"
         m_mutex_requests.unlock();
 
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
         qDebug() << Q_FUNC_INFO << "... processing request:" << request;
 #endif
 
@@ -396,7 +400,7 @@ void DatabaseManager::work()
 void DatabaseManager::execute(const ThreadedQueryRequest& request)
 {
     // Worker thread
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
 
@@ -427,7 +431,7 @@ void DatabaseManager::execute(const ThreadedQueryRequest& request)
 void DatabaseManager::pushResult(const QueryResult& result)
 {
     // Worker thread
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     m_mutex_results.lock();
@@ -445,7 +449,7 @@ void DatabaseManager::pushResult(const QueryResult& result)
 
 void DatabaseManager::execNoAnswer(const QString& sql, const ArgList& args)
 {
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     const SqlArgs sqlargs(sql, args);
@@ -455,7 +459,7 @@ void DatabaseManager::execNoAnswer(const QString& sql, const ArgList& args)
 
 bool DatabaseManager::exec(const QString& sql, const ArgList& args)
 {
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     const SqlArgs sqlargs(sql, args);
@@ -469,7 +473,7 @@ QueryResult DatabaseManager::query(const QString& sql,
                                    const bool store_column_names,
                                    const bool suppress_errors)
 {
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     const SqlArgs sqlargs(sql, args);
@@ -482,7 +486,7 @@ QueryResult DatabaseManager::query(const QString& sql,
                                    const bool store_column_names,
                                    const bool suppress_errors)
 {
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     const SqlArgs sqlargs(sql);
@@ -496,7 +500,7 @@ QueryResult DatabaseManager::query(const QString& sql,
 
 QSqlDriver* DatabaseManager::driver() const
 {
-#ifdef DEBUG_VERBOSE
+#ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO;
 #endif
     return m_db.driver();

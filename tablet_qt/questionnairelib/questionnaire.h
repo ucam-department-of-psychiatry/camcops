@@ -120,6 +120,7 @@ signals:
 protected:
     void commonConstructor();
     virtual bool morePagesToGo() const;
+    virtual void addAllAccessibleDynamicPages();
     void doFinish();
     void doCancel();
     void pageClosing();

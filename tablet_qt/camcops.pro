@@ -7,6 +7,8 @@
 # http://doc.qt.io/qt-5.7/qmake-project-files.html
 # http://doc.qt.io/qt-5.7/qmake-variable-reference.html
 
+message("+++ CamCOPS qmake starting.")
+
 # =============================================================================
 # Prerequisites: environment variables
 # =============================================================================
@@ -29,6 +31,18 @@ isEmpty(QT_BASE_DIR) {
     error("Environment variable CAMCOPS_QT_BASE_DIR is undefined")
 }
 message("Using custom Qt/library base directory: $${QT_BASE_DIR}")
+message("... Qt version: $$[QT_VERSION]")
+message("... Qt is installed in $$[QT_INSTALL_PREFIX]")
+message("... Qt resources can be found in the following locations:")
+message("... Documentation: $$[QT_INSTALL_DOCS]")
+message("... Header files: $$[QT_INSTALL_HEADERS]")
+message("... Libraries: $$[QT_INSTALL_LIBS]")
+message("... Binary files (executables): $$[QT_INSTALL_BINS]")
+message("... Plugins: $$[QT_INSTALL_PLUGINS]")
+message("... Data files: $$[QT_INSTALL_DATA]")
+message("... Translation files: $$[QT_INSTALL_TRANSLATIONS]")
+message("... Settings: $$[QT_INSTALL_CONFIGURATION]")
+message("... Examples: $$[QT_INSTALL_EXAMPLES]")
 
 # AVOID # CAMCOPS_SOURCE_ROOT = ${PWD}  # at time of make
 CAMCOPS_SOURCE_ROOT = $${PWD}  # at time of qmake ("now")
@@ -54,7 +68,7 @@ QT += core  # included by default; QtCore module
 QT += gui  # included by default; QtGui module
 QT += multimedia  # or: undefined reference to QMedia*::*
 QT += multimediawidgets
-QT += network  # required to #include <QtNetwork/...>
+# QT += network  # required to #include <QtNetwork/...>
 QT += quick  # for QML, e.g. for camera
 QT += quickwidgets  # for QQuickWidget
 QT += sql  # required to #include <QSqlDatabase>
@@ -72,7 +86,9 @@ QT += widgets  # required to #include <QApplication>
 # Overall configuration
 # =============================================================================
 
-# CONFIG += debug  # no, use the QtCreator debug/release settings
+# CONFIG += debug
+    # ... no, use the QtCreator debug/release settings, which adds
+    # e.g. "CONFIG+=debug CONFIG+=qml_debug" to the call to qmake
 CONFIG += mobility
 CONFIG += c++11
 
@@ -86,9 +102,10 @@ MOBILITY =
 # PKGCONFIG += openssl
 # ... http://stackoverflow.com/questions/14681012/how-to-include-openssl-in-a-qt-project
 # ... but no effect? Not mentioned in variable reference (above).
-LIBS += -lssl
+# ... ah, here's the reference:
+#     http://doc.qt.io/qt-5/qmake-project-files.html
+# LIBS += -lssl
 # ... not working either? Doesn't complain, but ldd still shows that system libssl.so is in use
-# message("LIBS: $${LIBS}")
 
 # =============================================================================
 # Compiler and linker flags
@@ -129,8 +146,6 @@ INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-eigen-67e894c6cd8f"  # from which: <
 
 OPENSSL_VERSION = 1.1.0g
 # ... previously 1.0.2h
-OPENSSL_SUBDIR = openssl-$${OPENSSL_VERSION}
-message("Using OpenSSL version $$OPENSSL_VERSION")
 
 # -----------------------------------------------------------------------------
 # Architecture
@@ -141,11 +156,13 @@ OBJ_EXT = ".o"
 # Set OS-specific variables
 linux : !android {
     # -------------------------------------------------------------------------
-    message("Building for Linux")  # and not Android Linux!
+    # LINUX -- and not Android Linux!
     # -------------------------------------------------------------------------
     STATIC_LIB_EXT = ".a"
     DYNAMIC_LIB_EXT = ".so"
-    
+    CAMCOPS_LINKAGE = "static"
+    # CAMCOPS_LINKAGE = "dynamic"
+
     # https://stackoverflow.com/questions/33117822
     # https://stackoverflow.com/questions/356666
     contains(QT_ARCH, x86_64) {
@@ -155,16 +172,14 @@ linux : !android {
         message("Building for Linux/x86_32")
         CAMCOPS_ARCH_TAG = "linux_x86_32"
     }
-
-
-    CONFIG += static  # use a statically linked version of Qt
 }
 android {
     # -------------------------------------------------------------------------
-    message("Building for Android")
+    # ANDROID
     # -------------------------------------------------------------------------
     STATIC_LIB_EXT = ".a"
     DYNAMIC_LIB_EXT = ".so"
+    CAMCOPS_LINKAGE = "dynamic"
 
     contains(ANDROID_TARGET_ARCH, x86) {
         message("Building for Android/x86 (e.g. Android emulator)")
@@ -182,11 +197,12 @@ android {
 }
 windows {
     # -------------------------------------------------------------------------
-    message("Building for Windows")
+    # WINDOWS
     # -------------------------------------------------------------------------
     STATIC_LIB_EXT = ".lib"
     DYNAMIC_LIB_EXT = ".dll"
     OBJ_EXT = ".obj"
+    CAMCOPS_LINKAGE = "static"
 
     # https://stackoverflow.com/questions/26373143
     # https://stackoverflow.com/questions/33117822
@@ -205,22 +221,140 @@ isEmpty(CAMCOPS_ARCH_TAG) {
 }
 
 # -----------------------------------------------------------------------------
+# Linkage method
+# -----------------------------------------------------------------------------
+
+# To have the linker show its working:
+# LIBS += "-Wl,--verbose"
+
+equals(CAMCOPS_LINKAGE, "static") {  # http://doc.qt.io/qt-5/qmake-test-function-reference.html
+    message("Using static linkage")
+    CONFIG += static
+} else:equals(CAMCOPS_LINKAGE, "dynamic") {
+    message("Using dynamic linkage")
+} else {
+    error("Linkage method not specified")
+}
+
+# Quick tutorial on linking, since I seem to need it:
+#
+# FILE TYPES
+#
+# - Standard Linux file types [5, 6]:
+#       .o      object file
+#       .a      archive (= collection of one or more object files)
+#       .so     shared object (approx. equiv. to Windows DLL)
+#
+# COMPILER AND LINKER
+#
+# - g++ is the C++ compiler from the Gnu Compiler Collection but also calls the
+#   linker [1]. Use "g++ --version" to find the version; currently I have
+#   5.4.0.
+#
+# - qmake will call g++, which will call GNU's ld (the linker).
+#
+# - ld parameters include
+#       -L<path> (as per "man g++") or -L <path> (as per "man ld")
+#       -l<library>
+#
+# - When you specify "-lxyz", the linker looks for "libxyz.a", in standard
+#   system directories plus any you specify with -L [2].
+#   "Normally the files found this way are library files—archive files whose
+#   members are object files. The linker handles an archive file by scanning
+#   through it for members which define symbols that have so far been
+#   referenced but not defined. But if the file that is found is an ordinary
+#   object file, it is linked in the usual fashion. The only difference
+#   between using an -l option and specifying a file name is that -l surrounds
+#   library with ‘lib’ and ‘.a’ and searches several directories."
+#
+# - There is also the "-l:filename" object, which skips the "lib" and ".a"
+#   parts [3].
+#
+# INFORMATION ON OBJECT/LIBRARY/EXECUTABLES
+#
+# - ldd prints the shared objects (shared libraries) required by a program or
+#   shared object (so use it for executables and .so files).
+#
+# - An alternative is
+#       objdump -p TARGET | grep NEEDED  # or omit the grep for more info
+#   ... objdump works for .so, .a, and executables.
+#
+# - You can also use
+#       objdump -t TARGET
+#   to view its symbols.
+#   For example, you might find that a linked version of camcops not only
+#   requires libcrypto.so.1.1, but that it contains symbols present in
+#   libcrypto, such as EVP_aes_256_cfb, if we add a specific libcrypto.a to the
+#   linker... so something is requiring the dynamic library even as we're
+#   trying to link statically (despite configuring Qt with -openssl-linked).
+#
+# - Show files in an archive (.a) [4]:
+#       ar -t libxyz.a
+#
+# APPLIED TO CAMCOPS
+#
+# - If you have the linker show its working with
+#       -Wl,--verbose
+#   then you can also see it finding libcrypto.so during the link process, but
+#   then the executable not finding it when it runs, e.g.:
+#
+#   link:
+#       $ make
+#       attempt to open /home/rudolf/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.1.0g/libcrypto.so succeeded
+#       -lcrypto (/home/rudolf/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.1.0g/libcrypto.so)
+#   run:
+#       $ ./camcops
+#       ./camcops: error while loading shared libraries: libssl.so.1.1: cannot open shared object file: No such file or directory
+#   run with manual library path:
+#       $ LD_LIBRARY_PATH=/home/rudolf/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.1.0g ./camcops
+#       ... runs.
+#
+# REFERENCES
+#
+# [1] https://stackoverflow.com/questions/172587/what-is-the-difference-between-g-and-gcc
+# [2] https://gcc.gnu.org/onlinedocs/gcc-5.5.0/gcc/Link-Options.html#Link-Options
+# [3] https://stackoverflow.com/questions/6578484/telling-gcc-directly-to-link-a-library-statically
+# [4] http://www.yolinux.com/TUTORIALS/LibraryArchives-StaticAndDynamic.html
+# [5] https://stackoverflow.com/questions/9688200/difference-between-shared-objects-so-static-libraries-a-and-dlls-so
+# [6] https://en.wikipedia.org/wiki/Ar_(Unix)
+
+# -----------------------------------------------------------------------------
 # OpenSSL
 # -----------------------------------------------------------------------------
+OPENSSL_SUBDIR = openssl-$${OPENSSL_VERSION}
 OPENSSL_DIR = "$${QT_BASE_DIR}/openssl_$${CAMCOPS_ARCH_TAG}_build/$${OPENSSL_SUBDIR}"
+message("Using OpenSSL version $$OPENSSL_VERSION from $${OPENSSL_DIR}")
 INCLUDEPATH += "$${OPENSSL_DIR}/include"
-LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"
-LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
-ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"  # needed for Qt
-ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
+equals(CAMCOPS_LINKAGE, "static") {
+    LIBS += "-L$${OPENSSL_DIR}"  # path; shouldn't be necessary for static linkage! Residual problem.
+    LIBS += "$${OPENSSL_DIR}/libcrypto$${STATIC_LIB_EXT}"  # raw filename, not -l
+    LIBS += "$${OPENSSL_DIR}/libssl$${STATIC_LIB_EXT}"  # raw filename, not -l
+} else {
+    LIBS += "-L$${OPENSSL_DIR}"  # path
+    LIBS += "-lcrypto"
+    LIBS += "-lssl"
+    ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"  # needed for Qt
+    ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
+}
 
 # -----------------------------------------------------------------------------
 # SQLCipher
 # -----------------------------------------------------------------------------
 SQLCIPHER_DIR = "$${QT_BASE_DIR}/sqlcipher_$${CAMCOPS_ARCH_TAG}"
+message("Using SQLCipher from $${SQLCIPHER_DIR}")
 INCLUDEPATH += "$${SQLCIPHER_DIR}"  # from which: <sqlcipher/sqlite3.h>
 LIBS += "$${SQLCIPHER_DIR}/sqlcipher/sqlite3$${OBJ_EXT}"
+# ... if that causes the error "multiple definition of 'sqlite3_free'", etc.,
+#     then Qt is inappropriately linking in SQLite as well.
 
+# -----------------------------------------------------------------------------
+# All set up
+# -----------------------------------------------------------------------------
+message("INCLUDEPATH is now $${INCLUDEPATH}")
+message("LIBS is now $${LIBS}")
+message("... qmake will add more to INCLUDEPATH and LIBS; see Makefile")
+# ... view the Makefile at the end; qmake will have added others
+# ... and run "ldd camcops" to view dynamic library dependencies
 
 # =============================================================================
 # Resources and source files
@@ -1002,3 +1136,5 @@ DISTFILES += \
     notes/hardware.txt \
     notes/known_problems.txt \
     taskinfo/cisr.html
+
+message("--- CamCOPS qmake finishing.")

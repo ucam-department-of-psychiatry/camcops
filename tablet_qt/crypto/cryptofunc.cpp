@@ -24,10 +24,36 @@
 #include <memory>  // for std::unique_ptr
 #include <openssl/evp.h>
 #include <openssl/rand.h>
+#include <openssl/opensslv.h>  // version numbers
 #include <QDebug>
 #include <QByteArray>
 #include "lib/convert.h"
 #include "lib/uifunc.h"
+
+// OPENSSL_VERSION_NUMBER format: MNNFFPPS: major minor fix patch status
+#define OPENSSL_VERSION_MAJOR  ((OPENSSL_VERSION_NUMBER & 0xf0000000L) >> 28)
+#define OPENSSL_VERSION_MINOR  ((OPENSSL_VERSION_NUMBER & 0x0ff00000L) >> 20)
+#define OPENSSL_VERSION_FIX    ((OPENSSL_VERSION_NUMBER & 0x000ff000L) >> 12)
+#define OPENSSL_VERSION_PATCH  ((OPENSSL_VERSION_NUMBER & 0x00000ff0L) >>  4)
+#define OPENSSL_VERSION_STATUS ((OPENSSL_VERSION_NUMBER & 0x0000000fL) >>  0)
+#if OPENSSL_VERSION_MAJOR == 1
+    #if OPENSSL_VERSION_MINOR == 0  // e.g. tested with OpenSSL 1.0.2h
+        #define OPENSSL_V_1_0
+        #define EVP_MD_CTX_new EVP_MD_CTX_create  // new alias -> old name
+        #define EVP_MD_CTX_free EVP_MD_CTX_destroy  // new alias -> old name
+    #elif OPENSSL_VERSION_MINOR == 1
+        #define OPENSSL_V_1_1
+        /*
+            In OpenSSL 1.1,
+            - EVP_MD_CTX_create (1.0.x) is renamed EVP_MD_CTX_new (1.1.x)
+            - EVP_MD_CTX_destroy (1.0.x) is renamed EVP_MD_CTX_free (1.1.x)
+            See "HISTORY" in
+            https://www.openssl.org/docs/man1.1.0/crypto/EVP_DigestInit.html
+        */
+#endif
+#else
+    #error Only know how to support OpenSSL 1.x.x
+#endif
 
 // ============================================================================
 // Notes
@@ -51,7 +77,7 @@
 // ============================================================================
 
 using EVP_CIPHER_CTX_ptr = std::unique_ptr<EVP_CIPHER_CTX, decltype(&::EVP_CIPHER_CTX_free)>;
-using EVP_MD_CTX_ptr = std::unique_ptr<EVP_MD_CTX, decltype(&::EVP_MD_CTX_destroy)>;
+using EVP_MD_CTX_ptr = std::unique_ptr<EVP_MD_CTX, decltype(&::EVP_MD_CTX_free)>;
 
 // ============================================================================
 // Constants
@@ -197,10 +223,7 @@ void cryptofunc::aesDecrypt(const QByteArray& key_bytes,
 
 SecureQByteArray cryptofunc::hashBytes(const QByteArray& plaintext_bytes)
 {
-    EVP_MD_CTX_ptr context(EVP_MD_CTX_create(), ::EVP_MD_CTX_destroy);
-    // This is for OpenSSL 1.0.2h. In OpenSSL 1.1,
-    // - EVP_MD_CTX_create is renamed EVP_MD_CTX_new
-    // - EVP_MD_CTX_destroy is renamed EVP_MD_CTX_free
+    EVP_MD_CTX_ptr context(EVP_MD_CTX_new(), ::EVP_MD_CTX_free);
     int retcode = EVP_DigestInit_ex(context.get(), EVP_sha512(), NULL);
     if (retcode != 1) {
         throw std::runtime_error("EVP_DigestInit_ex failed");

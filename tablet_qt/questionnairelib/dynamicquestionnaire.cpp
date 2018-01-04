@@ -40,6 +40,38 @@ DynamicQuestionnaire::DynamicQuestionnaire(
 }
 
 
+void DynamicQuestionnaire::addAllAccessibleDynamicPages()
+{
+    // Now, it may be that there are more to come. For example, if we're
+    // editing a task that has previously been completed, there may be lots
+    // of pages we can traverse to. Unless we collect them now, we won't be
+    // able to jump past pages (we'd just be permitted to click "Next" a lot).
+    // Since what we can access depends on the read-only status, we call this
+    // AFTER the client has had a chance to set the read-only status.
+
+    trimFromCurrentPositionOnwards();
+    // ... or potential for inconsistency, e.g. if we're jumping, and we've
+    // made a different decision on this page.
+
+    int page_index = nPages() - 1;  // current last page
+    QuPagePtr page;
+    do {
+        page = m_pages[page_index];
+        bool may_progress = mayProgress(page.data());
+        may_progress = may_progress && m_more_pages_to_go_fn(page_index);
+        if (may_progress) {
+            ++page_index;
+            page = m_make_page_fn(page_index);
+            if (page) {
+                m_pages.append(page);
+            }
+        } else {
+            page = nullptr;
+        }
+    } while (page);
+}
+
+
 bool DynamicQuestionnaire::morePagesToGo() const
 {
     const int current_qnum = currentPageIndex();
@@ -76,12 +108,19 @@ void DynamicQuestionnaire::goToPage(const int index, const bool allow_refresh)
     m_current_page_index = index;
 
     // Now the bit that's different for DynamicQuestionnaire:
-    while (m_pages.length() > index + 1) {
-        m_pages.removeLast();
-    }
+    trimFromCurrentPositionOnwards();
 
     // Back to Questionnaire behaviour:
     build();
+}
+
+
+void DynamicQuestionnaire::trimFromCurrentPositionOnwards()
+{
+    // Chop off all pages beyond the current one
+    while (m_pages.length() > m_current_page_index + 1) {
+        m_pages.removeLast();
+    }
 }
 
 
@@ -89,14 +128,13 @@ void DynamicQuestionnaire::processNextClicked()
 {
     // As per Questionnaire:
     QuPage* page = currentPagePtr();
-    if (!page || (!readOnly() && (page->progressBlocked() ||
-                                  page->missingInput()))) {
-        // Can't progress
+    if (!mayProgress(page)) {
         return;
     }
 
     // Different:
-    Q_ASSERT(m_current_page_index == m_pages.length() - 1);
+    // not now: allowing jump-ahead // Q_ASSERT(m_current_page_index == m_pages.length() - 1);
+    trimFromCurrentPositionOnwards();
     const int next_qnum = m_current_page_index + 1;
     QuPagePtr new_dynamic_page = m_make_page_fn(next_qnum);
     if (!new_dynamic_page) {
@@ -111,4 +149,17 @@ void DynamicQuestionnaire::processNextClicked()
     }
     m_pages.append(new_dynamic_page);
     goToPage(next_qnum);
+}
+
+
+bool DynamicQuestionnaire::mayProgress(QuPage* page) const
+{
+    // Not quite the same as a standard questionnaire (see processNextClicked).
+    // We don't allow progress for blocked/missing-input pages in the
+    // read-only situation (or, for example, you get a ridiculous list of
+    // inaccessible pages; try the CIS-R).
+    if (!page || page->progressBlocked() || page->missingInput()) {
+        return false;
+    }
+    return true;
 }
