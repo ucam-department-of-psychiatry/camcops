@@ -2923,6 +2923,66 @@ def fetch_sqlcipher(cfg: Config) -> None:
               run_func=run)
     # We must have LF endings, not CR+LF, because we're going to use Unix tools
     # even under Windows.
+    
+    
+def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
+    """
+    If you use a Unix version of TCL to build SQLCipher under Windows, it will
+    fail because it misinterprets paths. We need to be certain that the TCL
+    shell is of the correct kind, i.e. built for Windows.
+    
+    First note that TCL needs backslashes escaped as \\ in literal strings.
+    
+    If you have a Windows file \tmp\test.tcl and run it from a DIFFERENT
+    directory using "tclsh \tmp\test.tcl", you will get this output from a Unix
+    tclsh (e.g. Ubuntu, Cygwin):
+    
+        puts [info patchlevel]      ;# may help to discriminate two versions! 8.6.8 for Cygwin for me today
+        puts [file dirname "/some/path/filename.txt"]       ;# /some/path
+        puts [file dirname "\\some\\path\\filename.txt"]    ;# .        -- DISCRIMINATORY
+        puts [file nativename "/some/path/filename.txt"]    ;# /some/path/filename.txt
+        puts [file nativename "\\some\\path\\filename.txt"] ;# \some\path\filename.txt
+        puts [info script]                                  ;# \tmp\test.tcl
+        puts [file dirname [info script]]                   ;# .        -- DISCRIMINATORY
+        puts [file nativename [info script]]                ;# \tmp\test.tcl
+
+    A Windows tclsh (e.g. ActiveState) will give you this:
+
+        puts [info patchlevel]      ;# may help to discriminate two versions! 8.6.7 for ActiveTCL for me today
+        puts [file dirname "/some/path/filename.txt"]       ;# /some/path
+        puts [file dirname "\\some\\path\\filename.txt"]    ;# /some/path
+        puts [file nativename "/some/path/filename.txt"]    ;# \some\path\filename.txt  -- DISCRIMINATORY
+        puts [file nativename "\\some\\path\\filename.txt"] ;# \some\path\filename.txt
+        puts [info script]                                  ;# \tmp\test.tcl
+        puts [file dirname [info script]]                   ;# /tmp     -- DISCRIMINATORY
+        puts [file nativename [info script]]                ;# \tmp\test.tcl
+    
+    Since "info script" requires an actual script to be created (not just
+    stdin), the simplest discriminatory command is
+    
+        puts [file dirname "\\some\\path\\filename.txt"]
+    
+    """  # noqa
+    tcl_cmd = r'puts -nonewline [file dirname "\\some\\path\\filename.txt"]'
+    correct = r'/some/path'
+    incorrect = '.'
+    cmdargs = [tclsh]
+    encoding = sys.getdefaultencoding()
+    completed_proc = subprocess.run(cmdargs, input=tcl_cmd, encoding=encoding,
+                                    stdout=subprocess.PIPE, check=True)
+    result = completed_proc.stdout  # type: str
+    if result == correct:
+        return True
+    elif result == incorrect:
+        log.warning(
+            "The TCL shell, {!r}, is a UNIX version (e.g. Cygwin) "
+            "incompatible with Windows backslash-delimited filenames; switch "
+            "to a Windows version (e.g. ActiveState ActiveTCL).".format(tclsh))
+        return False
+    else:
+        raise RuntimeError(
+            "Don't understand output from TCL shell {!r} with input {!r}; "
+            "output was {!r}".format(tclsh, tcl_cmd, result))
 
 
 def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
@@ -3009,6 +3069,8 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
                     # ("sqlite3.def", "sqlcipher.def"),
                 ]
             )
+            if not is_tclsh_windows_compatible():
+                raise RuntimeError("Incompatible TCL interpreter; stopping")
             nmake = which_with_envpath(NMAKE, env)
             run([
                 nmake,
