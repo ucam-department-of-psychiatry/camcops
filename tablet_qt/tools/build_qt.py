@@ -2045,6 +2045,19 @@ def delete_cmake_cache(directory: str) -> None:
 
 
 # =============================================================================
+# Ancillary: information messages
+# =============================================================================
+
+def report_all_targets_exist(package: str, targets: List[str]) -> None:
+    log.info(
+        "{}: All targets exist already:\n{}".format(
+            package,
+            "\n".join("    " + str(x) for x in targets)
+        )
+    )
+
+
+# =============================================================================
 # Building OpenSSL
 # =============================================================================
 
@@ -2052,6 +2065,7 @@ def fetch_openssl(cfg: Config) -> None:
     """
     Downloads OpenSSL source code.
     """
+    log.info("Fetching OpenSSL source...")
     download_if_not_exists(cfg.openssl_src_url, cfg.openssl_src_fullpath)
     download_if_not_exists(cfg.openssl_android_script_url,
                            cfg.openssl_android_script_fullpath)
@@ -2227,6 +2241,8 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
 
         https://wiki.openssl.org/index.php/Compilation_and_Installation
     """
+    log.info("Building OpenSSL for {}...".format(target_platform))
+
     # -------------------------------------------------------------------------
     # OpenSSL: Prerequisites
     # -------------------------------------------------------------------------
@@ -2275,10 +2291,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
 
     targets = main_targets + shadow_targets
     if not cfg.force and all(isfile(x) for x in targets):
-        log.info("OpenSSL: All targets exist already:\n{}".format(
-            "\n".join("    " + str(x) for x in targets)))
+        report_all_targets_exist("OpenSSL", targets)
         return
-
+    
     # -------------------------------------------------------------------------
     # OpenSSL: Unpack source
     # -------------------------------------------------------------------------
@@ -2459,6 +2474,7 @@ def fetch_qt(cfg: Config) -> None:
     """
     Downloads Qt source code.
     """
+    log.info("Fetching Qt source...")
     if not git_clone(prettyname="Qt",
                      url=cfg.qt_git_url,
                      branch=cfg.qt_git_branch,
@@ -2491,6 +2507,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # OS/X:
     #       http://doc.qt.io/qt-5/osx.html
 
+    log.info("Building Qt for {}...".format(target_platform))
+
     # -------------------------------------------------------------------------
     # Qt: Setup
     # -------------------------------------------------------------------------
@@ -2519,8 +2537,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
 
     targets = [join(installdir, "bin", target_platform.qmake_executable)]
     if not cfg.force and all(isfile(x) for x in targets):
-        log.info("Qt: All targets exist already:\n{}".format(
-            "\n".join("    " + str(x) for x in targets)))
+        report_all_targets_exist("Qt", targets)
         return installdir
 
     # -------------------------------------------------------------------------
@@ -2895,6 +2912,8 @@ A.  !!! does MXE build, and if so, can we copy it?
 
 def make_missing_libqtforandroid_so(cfg: Config,
                                     target_platform: Platform) -> None:
+    log.info("Making Android Qt dynamic library (from static version) for "
+             "{}".format(target_platform))
     qt_install_dir = cfg.qt_install_dir(target_platform)
     parent_dir = join(qt_install_dir, "plugins", "platforms")
     starting_lib_dir = join(parent_dir, "android")
@@ -2915,6 +2934,7 @@ def fetch_sqlcipher(cfg: Config) -> None:
     """
     Downloads SQLCipher source code.
     """
+    log.info("Fetching SQLCipher source...")
     git_clone(prettyname="SQLCipher",
               url=cfg.sqlcipher_git_url,
               commit=cfg.sqlcipher_git_commit,
@@ -2998,6 +3018,8 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     [3] https://github.com/sqlcipher/sqlcipher/issues/176
     """
 
+    log.info("Building SQLCipher for {}...".format(target_platform))
+
     # -------------------------------------------------------------------------
     # SQLCipher: setup
     # -------------------------------------------------------------------------
@@ -3008,19 +3030,17 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     target_h = join(destdir, "sqlite3.h")
     target_c = join(destdir, "sqlite3.c")
     target_o = join(destdir, "sqlite3" + target_platform.obj_ext)
-    target_exe = join(destdir, "sqlcipher")
+    target_exe = join(destdir, "sqlcipher")  # not always wanted
 
     want_exe = not target_platform.mobile and not BUILD_PLATFORM.windows
 
-    all_targets = [target_c, target_h, target_o]
+    targets = [target_c, target_h, target_o]
     if want_exe:
-        all_targets.append(target_exe)
-    if all(isfile(x) for x in all_targets):
-        log.info("SQLCipher: all targets present; skipping ({})".format(
-            all_targets))
+        targets.append(target_exe)
+    if all(isfile(x) for x in targets):
+        report_all_targets_exist("SQLCipher", targets)
         return
 
-    log.info("Building SQLCipher...")
     copy_tree_contents(cfg.sqlcipher_src_gitdir, destdir, destroy=True)
 
     env = get_starting_env()
@@ -3209,6 +3229,7 @@ def fetch_boost(cfg: Config) -> None:
     """
     Downloads Boost source code.
     """
+    log.info("Fetching Boost source...")
     download_if_not_exists(cfg.boost_src_url, cfg.boost_src_fullpath)
 
 
@@ -3218,6 +3239,7 @@ def build_boost(cfg: Config) -> None:
     Try to avoid anything needing compilation; if we can keep this to
     "headers-only" Boost, it will be cross-platform without further effort.
     """
+    log.info("Building (unpacking) Boost...")
     untar_to_directory(cfg.boost_src_fullpath, cfg.boost_dest_dir,
                        run_func=run)
 
@@ -3233,10 +3255,12 @@ def fetch_armadillo(cfg: Config) -> None:
         https://github.com/conradsnicta/armadillo-code
     but the download is the verified static snapshot.
     """
+    log.info("Fetching Armadillo source...")
     download_if_not_exists(cfg.arma_src_url, cfg.arma_src_fullpath)
 
 
 def build_armadillo(cfg: Config) -> None:
+    log.info("Building (unpacking) Armadillo...")
     untar_to_directory(cfg.arma_src_fullpath, cfg.arma_dest_dir,
                        run_func=run)
     # run([CMAKE,
@@ -3254,6 +3278,7 @@ def fetch_mlpack(cfg: Config) -> None:
     """
     Downloads MLPACK source code.
     """
+    log.info("Fetching MLPACK source...")
     git_clone(prettyname="MLPACK",
               url=cfg.mlpack_git_url,
               commit=cfg.mlpack_git_commit,
@@ -3299,6 +3324,7 @@ def build_mlpack(cfg: Config) -> None:
     ... aha! Define FORCE_CXX11=1
 
     """  # noqa
+    log.info("Building MLPACK...")
     delete_cmake_cache(cfg.mlpack_src_gitdir)
     cmakelists = join(cfg.mlpack_src_gitdir, "CMakeLists.txt")
     replacements = [
@@ -3359,6 +3385,7 @@ def fetch_eigen(cfg: Config) -> None:
     Downloads Eigen.
     http://eigen.tuxfamily.org
     """
+    log.info("Fetching Eigen source...")
     download_if_not_exists(cfg.eigen_src_url, cfg.eigen_src_fullpath)
 
 
@@ -3366,6 +3393,7 @@ def build_eigen(cfg: Config) -> None:
     """
     'Build' simply means 'unpack' -- header-only template library.
     """
+    log.info("Building (unpacking) Eigen...")
     untar_to_directory(tarfile=cfg.eigen_src_fullpath,
                        directory=cfg.eigen_unpacked_dir,
                        gzipped=True,
@@ -3381,6 +3409,7 @@ def fetch_mxe(cfg: Config) -> None:
     Downloads MXE
     http://mxe.cc/
     """
+    log.info("Fetching MXE source...")
     git_clone(prettyname="MXE",
               url=cfg.mxe_git_url,
               directory=cfg.mxe_src_gitdir,
@@ -3393,6 +3422,7 @@ def build_mxe(cfg: Config, target_platform: Platform,
     """
     Builds MXE. (This is a prerequisite to using MXE to build something else!)
     """
+    log.info("Building MXE for {}...".format(target_platform))
     if BUILD_PLATFORM.debian:
         require_debian_packages(
             "autoconf automake autopoint bash bison bzip2 flex gettext "
