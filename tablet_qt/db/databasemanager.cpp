@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -710,7 +710,7 @@ bool DatabaseManager::createIndex(const QString& indexname,
         fieldnames[i] = delimit(fieldnames.at(i));
     }
     const QString sql = QString("CREATE INDEX IF NOT EXISTS %1 ON %2 (%3)").arg(
-        delimit(indexname), delimit(tablename), fieldnames.join(""));
+        delimit(indexname), delimit(tablename), fieldnames.join(", "));
     return exec(sql);
 }
 

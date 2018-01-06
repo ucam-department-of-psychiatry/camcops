@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -74,6 +74,14 @@ class ExtraStringFieldNames(object):
     TASK = "task"
     NAME = "name"
     VALUE = "value"
+
+
+class AllowedTablesFieldNames(object):
+    """
+    To match allowedservertable.cpp on the tablet
+    """
+    TABLENAME = "tablename"
+    MIN_CLIENT_VERSION = "min_client_version"
 
 
 # =============================================================================

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -22,15 +22,15 @@
 #include "db/databasemanager.h"
 
 const QString EXTRASTRINGS_TABLENAME("extrastrings");
-const QString ExtraString::EXTRASTRINGS_TASK_FIELD("task");
-const QString ExtraString::EXTRASTRINGS_NAME_FIELD("name");
-const QString ExtraString::EXTRASTRINGS_VALUE_FIELD("value");
+const QString ExtraString::TASK_FIELD("task");
+const QString ExtraString::NAME_FIELD("name");
+const QString ExtraString::VALUE_FIELD("value");
 
 
 // Specimen constructor:
 ExtraString::ExtraString(CamcopsApp& app, DatabaseManager& db) :
     DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, dbconst::PK_FIELDNAME,
-                   true, false, false)
+                   true, false, false, false)
 {
     commonConstructor();
 }
@@ -48,8 +48,8 @@ ExtraString::ExtraString(CamcopsApp& app,
     if (!task.isEmpty() && !name.isEmpty()) {
         // Not a specimen; load, or set defaults and save
         WhereConditions where;
-        where.add(EXTRASTRINGS_TASK_FIELD, task);
-        where.add(EXTRASTRINGS_NAME_FIELD, name);
+        where.add(TASK_FIELD, task);
+        where.add(NAME_FIELD, name);
         m_exists = load(where);
     }
 }
@@ -62,7 +62,7 @@ ExtraString::ExtraString(CamcopsApp& app,
                          const QString& name,
                          const QString& value) :
     DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, dbconst::PK_FIELDNAME,
-                   true, false, false)
+                   true, false, false, false)
 {
     commonConstructor();
     if (task.isEmpty() || name.isEmpty()) {
@@ -70,9 +70,9 @@ ExtraString::ExtraString(CamcopsApp& app,
                                      "without a name or task!";
         return;
     }
-    setValue(EXTRASTRINGS_TASK_FIELD, task);
-    setValue(EXTRASTRINGS_NAME_FIELD, name);
-    setValue(EXTRASTRINGS_VALUE_FIELD, value);
+    setValue(TASK_FIELD, task);
+    setValue(NAME_FIELD, name);
+    setValue(VALUE_FIELD, value);
     save();
     m_exists = true;
 }
@@ -81,9 +81,9 @@ ExtraString::ExtraString(CamcopsApp& app,
 void ExtraString::commonConstructor()
 {
     // Define fields
-    addField(EXTRASTRINGS_TASK_FIELD, QVariant::String, true, false, false);
-    addField(EXTRASTRINGS_NAME_FIELD, QVariant::String, true, false, false);
-    addField(EXTRASTRINGS_VALUE_FIELD, QVariant::String, false, false, false);
+    addField(TASK_FIELD, QVariant::String, true, false, false);
+    addField(NAME_FIELD, QVariant::String, true, false, false);
+    addField(VALUE_FIELD, QVariant::String, false, false, false);
 
     m_exists = false;
 }
@@ -96,7 +96,7 @@ ExtraString::~ExtraString()
 
 QString ExtraString::value() const
 {
-    return valueString(EXTRASTRINGS_VALUE_FIELD);
+    return valueString(VALUE_FIELD);
 }
 
 
@@ -109,7 +109,7 @@ bool ExtraString::exists() const
 bool ExtraString::anyExist(const QString& task) const
 {
     WhereConditions where;
-    where.add(EXTRASTRINGS_TASK_FIELD, task);
+    where.add(TASK_FIELD, task);
     return m_db.count(EXTRASTRINGS_TABLENAME, where) > 0;
 }
 
@@ -122,8 +122,8 @@ void ExtraString::deleteAllExtraStrings()
 
 void ExtraString::makeIndexes()
 {
-    m_db.createIndex("_idx_table_name",
+    m_db.createIndex("_idx_extrastrings_task_name",
                      EXTRASTRINGS_TABLENAME,
-                     {ExtraString::EXTRASTRINGS_TASK_FIELD,
-                      ExtraString::EXTRASTRINGS_NAME_FIELD});
+                     {ExtraString::TASK_FIELD,
+                      ExtraString::NAME_FIELD});
 }

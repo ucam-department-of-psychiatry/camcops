@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -951,17 +951,23 @@ QStringList csvStringToQStringList(const QString& str)
 // ============================================================================
 
 const char* TYPENAME_QVECTOR_INT("QVector<int>");
+const char* TYPENAME_VERSION("Version");
 
 
-void registerQVectorTypesForQVariant()
+void registerTypesForQVariant()
 {
     // http://stackoverflow.com/questions/6177906/is-there-a-reason-why-qvariant-accepts-only-qlist-and-not-qvector-nor-qlinkedlis
     qRegisterMetaType<QVector<int>>(TYPENAME_QVECTOR_INT);
+    qRegisterMetaType<Version>(TYPENAME_VERSION);
+
+    // See also the calls to Q_DECLARE_METATYPE().
+    // http://doc.qt.io/qt-5/qtcore-tools-customtype-example.html
 }
 
 
 bool isQVariantOfUserType(const QVariant& v, const QString& type_name)
 {
+    // "Is this QVariant one of the user-defined QVariant types?"
     return v.userType() >= QMetaType::User && v.typeName() == type_name;
 }
 

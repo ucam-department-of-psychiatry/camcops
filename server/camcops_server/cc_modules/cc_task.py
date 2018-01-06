@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -57,6 +57,7 @@ from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 import hl7
 from pendulum import Date, Pendulum
 from pyramid.renderers import render
+from semantic_version import Version
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
@@ -113,6 +114,7 @@ from .cc_sqlalchemy import Base
 from .cc_summaryelement import ExtraSummaryTable, SummaryElement
 from .cc_trackerhelpers import TrackerInfo
 from .cc_tsv import TsvPage
+from .cc_version import MINIMUM_TABLET_VERSION
 from .cc_unittest import DemoDatabaseTestCase
 from .cc_xml import (
     get_xml_document,
@@ -562,6 +564,20 @@ class Task(GenericTabletRecordMixin, Base):
     @classproperty
     def tablename(cls) -> str:
         return cls.__tablename__
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def minimum_client_version(cls) -> Version:
+        return MINIMUM_TABLET_VERSION
+
+    # noinspection PyMethodParameters
+    @classmethod
+    def all_tables_with_min_client_version(cls) -> Dict[str, Version]:
+        v = cls.minimum_client_version
+        d = {cls.__tablename__: v}  # type: Dict[str, Version]
+        for _, _, rel_cls in gen_ancillary_relationships(cls):
+            d[rel_cls.__tablename__] = v
+        return d
 
     # -------------------------------------------------------------------------
     # More on fields
@@ -1612,6 +1628,14 @@ def text_filter_exempt_fields(task: Type[Task]) -> List[str]:
     return exempt
 
 
+def all_task_tables_with_min_client_version() -> Dict[str, Version]:
+    d = {}  # type: Dict[str, Version]
+    classes = list(Task.gen_all_subclasses())
+    for cls in classes:
+        d.update(cls.all_tables_with_min_client_version())
+    return d
+
+
 # =============================================================================
 # Support functions
 # =============================================================================
@@ -1643,7 +1667,8 @@ class TaskCountReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_rows_colnames(self, req: CamcopsRequest) -> PlainReportType:
+    def get_rows_colnames(self, req: CamcopsRequest,
+                          appstruct: Dict[str, Any]) -> PlainReportType:
         final_rows = []
         colnames = []
         dbsession = req.dbsession

@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -1070,9 +1070,14 @@ def reports_menu(req: CamcopsRequest) -> Dict[str, Any]:
     return {}
 
 
-@view_config(route_name=Routes.OFFER_REPORT, renderer="report_offer.mako")
-def offer_report(req: CamcopsRequest) -> Dict[str, Any]:
-    """Offer configuration options for a single report."""
+@view_config(route_name=Routes.REPORT)
+def serve_report(req: CamcopsRequest) -> Response:
+    """
+    Offer configuration options for a single report, or (following submission)
+    serve that report
+    """
+    if not req.user.authorized_for_reports:
+        raise HTTPBadRequest(CANNOT_REPORT)
     report_id = req.get_str_param(ViewParam.REPORT_ID)
     report = get_report_instance(report_id)
     if not report:
@@ -1084,31 +1089,21 @@ def offer_report(req: CamcopsRequest) -> Dict[str, Any]:
     if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            querydict = {k: v for k, v in appstruct.items()
-                         if k != ViewParam.CSRF_TOKEN}
-            raise HTTPFound(req.route_url(Routes.REPORT, _query=querydict))
+            appstruct = form.validate(controls)  # may raise
+            return report.get_response(req, appstruct)
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
         rendered_form = form.render({ViewParam.REPORT_ID: report_id})
-    return dict(
-        report=report,
-        form=rendered_form,
-        head_form_html=get_head_form_html(req, [form])
+    return render_to_response(
+        "report_offer.mako",
+        dict(
+            report=report,
+            form=rendered_form,
+            head_form_html=get_head_form_html(req, [form])
+        ),
+        request=req
     )
-
-
-@view_config(route_name=Routes.REPORT)
-def provide_report(req: CamcopsRequest) -> Response:
-    """Serve up a configured report."""
-    if not req.user.authorized_for_reports:
-        raise HTTPBadRequest(CANNOT_REPORT)
-    report_id = req.get_str_param(ViewParam.REPORT_ID)
-    report = get_report_instance(report_id)
-    if not report:
-        raise HTTPBadRequest("No such report ID: {}".format(repr(report_id)))
-    return report.get_response(req)
 
 
 # =============================================================================

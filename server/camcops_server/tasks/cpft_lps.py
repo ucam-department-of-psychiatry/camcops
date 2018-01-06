@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -23,7 +23,7 @@
 """
 
 import logging
-from typing import Any, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
@@ -39,7 +39,7 @@ from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
 from camcops_server.cc_modules.cc_constants import DateFormat, INVALID_VALUE
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_forms import (
-    MandatoryWhichIdNumSelector,
+    LinkingIdNumSelector,
     ReportParamSchema,
 )
 from camcops_server.cc_modules.cc_html import (
@@ -724,9 +724,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 # =============================================================================
 
 class LPSReportSchema(ReportParamSchema):
-    which_idnum = MandatoryWhichIdNumSelector(  # must match ViewParam.WHICH_IDNUM  # noqa
-        description="ID number to link on?",
-    )
+    which_idnum = LinkingIdNumSelector()  # must match ViewParam.WHICH_IDNUM
 
 
 class LPSReportReferredNotDischarged(Report):
@@ -750,8 +748,9 @@ class LPSReportReferredNotDischarged(Report):
         return LPSReportSchema
 
     # noinspection PyProtectedMember
-    def get_query(self, req: CamcopsRequest) -> SelectBase:
-        which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
+    def get_query(self, req: CamcopsRequest,
+                  appstruct: Dict[str, Any]) -> SelectBase:
+        which_idnum = appstruct.get(ViewParam.WHICH_IDNUM)  # type: int
         if which_idnum is None:
             raise exc.HTTPBadRequest("{} not specified".format(
                 ViewParam.WHICH_IDNUM))
@@ -861,8 +860,9 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         return LPSReportSchema
 
     # noinspection PyProtectedMember
-    def get_query(self, req: CamcopsRequest) -> SelectBase:
-        which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
+    def get_query(self, req: CamcopsRequest,
+                  appstruct: Dict[str, Any]) -> SelectBase:
+        which_idnum = appstruct.get(ViewParam.WHICH_IDNUM)  # type: int
         if which_idnum is None:
             raise exc.HTTPBadRequest("{} not specified".format(
                 ViewParam.WHICH_IDNUM))

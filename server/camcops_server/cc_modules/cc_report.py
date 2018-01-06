@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -23,7 +23,7 @@
 """
 
 import logging
-from typing import Any, List, Optional, Type, TYPE_CHECKING, Union
+from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import all_subclasses, classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
@@ -106,16 +106,20 @@ class Report(object):
     def superuser_only(cls) -> bool:
         return True  # must explicitly override to permit others!
 
-    def get_query(self, req: "CamcopsRequest") -> Union[None, SelectBase,
-                                                        Query]:
+    def get_query(
+            self,
+            req: "CamcopsRequest",
+            appstruct: Dict[str, Any]) -> Union[None, SelectBase, Query]:
         """
         Return the Select statement to execute the report. Must override.
         Parameters are passed in via the Request.
         """
         return None
 
-    def get_rows_colnames(self, req: "CamcopsRequest") \
-            -> Optional[PlainReportType]:
+    def get_rows_colnames(
+            self,
+            req: "CamcopsRequest",
+            appstruct: Dict[str, Any]) -> Optional[PlainReportType]:
         return None
 
     @staticmethod
@@ -144,7 +148,8 @@ class Report(object):
     # Common functionality: default Response
     # -------------------------------------------------------------------------
 
-    def get_response(self, req: "CamcopsRequest") -> Response:
+    def get_response(self, req: "CamcopsRequest",
+                     appstruct: Dict[str, Any]) -> Response:
         # Check the basic parameters
         report_id = req.get_str_param(ViewParam.REPORT_ID)
         rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
@@ -160,13 +165,13 @@ class Report(object):
 
         # Run the report (which may take additional parameters from the
         # request)
-        statement = self.get_query(req)
+        statement = self.get_query(req, appstruct)
         if statement is not None:
             rp = req.dbsession.execute(statement)  # type: ResultProxy
             column_names = rp.keys()
             rows = rp.fetchall()
         else:
-            plain_report = self.get_rows_colnames(req)
+            plain_report = self.get_rows_colnames(req, appstruct)
             if plain_report is None:
                 raise NotImplementedError(
                     "Report did not implement either of get_select_statement()"
@@ -184,7 +189,8 @@ class Report(object):
                 "report.mako",
                 dict(title=self.title,
                      page=page,
-                     column_names=column_names),
+                     column_names=column_names,
+                     report_id=report_id),
                 request=req
             )
         else:  # TSV

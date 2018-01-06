@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -148,7 +148,9 @@ if DEBUG_CSRF_CHECK:
 # Constants
 # =============================================================================
 
-OR_JOIN = "If you specify more than one, they will be joined with OR."
+OR_JOIN_DESCRIPTION = (
+    "If you specify more than one, they will be joined with OR."
+)
 
 
 class Binding:
@@ -357,7 +359,8 @@ class MultiTaskSelector(SchemaNode):
     missing = ""
     title = "Task type(s)"
     description = (
-        "If none are selected, all task types will be offered. " + OR_JOIN
+        "If none are selected, all task types will be offered. " +
+        OR_JOIN_DESCRIPTION
     )
 
     def __init__(self, *args, tracker_tasks_only: bool = False,
@@ -415,6 +418,12 @@ class MandatoryWhichIdNumSelector(SchemaNode):
     @staticmethod
     def schema_type() -> SchemaType:
         return Integer()
+
+
+class LinkingIdNumSelector(MandatoryWhichIdNumSelector):
+    # Convenience class
+    title = "Linking ID number"
+    description = "Which ID number to link on?"
 
 
 class OptionalWhichIdNumSelector(MandatoryWhichIdNumSelector):
@@ -899,7 +908,7 @@ class AllOtherGroupsSequence(GroupsSequenceBase):
 
 class AllowedGroupsSequence(GroupsSequenceBase):
     group_id_sequence = MandatoryGroupIdSelectorAllowedGroups()
-    description = OR_JOIN
+    description = OR_JOIN_DESCRIPTION
 
 
 class TextContentsSequence(SequenceSchema):
@@ -909,7 +918,7 @@ class TextContentsSequence(SequenceSchema):
         validator=Length(0, FILTER_TEXT_MAX_LEN)
     )
     title = "Text contents"
-    description = OR_JOIN
+    description = OR_JOIN_DESCRIPTION
 
     # noinspection PyMethodMayBeStatic
     def validator(self, node: SchemaNode, value: List[str]) -> None:
@@ -921,7 +930,7 @@ class TextContentsSequence(SequenceSchema):
 class UploadingUserSequence(SequenceSchema):
     user_id_sequence = MandatoryUserIdSelectorUsersAllowedToSee()
     title = "Uploading users"
-    description = OR_JOIN
+    description = OR_JOIN_DESCRIPTION
 
     # noinspection PyMethodMayBeStatic
     def validator(self, node: SchemaNode, value: List[int]) -> None:
@@ -933,7 +942,7 @@ class UploadingUserSequence(SequenceSchema):
 class DevicesSequence(SequenceSchema):
     device_id_sequence = MandatoryDeviceIdSelector()
     title = "Uploading devices"
-    description = OR_JOIN
+    description = OR_JOIN_DESCRIPTION
 
     # noinspection PyMethodMayBeStatic
     def validator(self, node: SchemaNode, value: List[int]) -> None:
@@ -1259,7 +1268,8 @@ class EditTaskFilterWhoSchema(Schema):
         title="Date of birth",
     )
     sex = OptionalSexSelector()  # must match ViewParam.SEX
-    id_references = IdNumSequenceAnyCombination(description=OR_JOIN)  # must match ViewParam.ID_REFERENCES  # noqa
+    id_references = IdNumSequenceAnyCombination(
+        description=OR_JOIN_DESCRIPTION)  # must match ViewParam.ID_REFERENCES  # noqa
 
 
 class EditTaskFilterWhenSchema(Schema):

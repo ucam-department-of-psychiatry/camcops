@@ -835,7 +835,7 @@ write_text(join(WRKDOCDIR, 'copyright'), """{PACKAGE}
 
 CAMCOPS
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     Department of Psychiatry, University of Cambridge.
     Funded by the Wellcome Trust.
 

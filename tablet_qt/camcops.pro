@@ -714,7 +714,8 @@ SOURCES += main.cpp \
     dbobjects/patientidnumsorter.cpp \
     widgets/treeviewcontroldelegate.cpp \
     widgets/treeviewproxystyle.cpp \
-    widgets/growingplaintextedit.cpp
+    widgets/growingplaintextedit.cpp \
+    dbobjects/allowedservertable.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1078,7 +1079,8 @@ HEADERS += \
     dbobjects/patientidnumsorter.h \
     widgets/treeviewcontroldelegate.h \
     widgets/treeviewproxystyle.h \
-    widgets/growingplaintextedit.h
+    widgets/growingplaintextedit.h \
+    dbobjects/allowedservertable.h
 
 DISTFILES += \
     android/AndroidManifest.xml \

@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -29,6 +29,6 @@
 # Version constants and configuration variables read by shell scripts
 # =============================================================================
 
-CAMCOPS_SERVER_VERSION_STRING = "2.1.1"
-CAMCOPS_CHANGEDATE = "2017-10-23"
+CAMCOPS_SERVER_VERSION_STRING = "2.2.0"
+CAMCOPS_CHANGEDATE = "2018-01-04"
 MINIMUM_TABLET_VERSION_STRING = "1.14.0"

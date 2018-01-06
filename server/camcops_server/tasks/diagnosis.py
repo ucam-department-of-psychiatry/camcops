@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -23,14 +23,28 @@
 """
 
 import logging
-from typing import List, Type
+from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
+from cardinal_pythonlib.colander_utils import OptionalIntNode
+from cardinal_pythonlib.datetimefunc import pendulum_date_to_datetime_date
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
+# from cardinal_pythonlib.sqlalchemy.dump import get_literal_query
+from colander import (
+    Date,
+    Integer,
+    Invalid,
+    SchemaNode,
+    SequenceSchema,
+    String,
+)
 import hl7
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.sql.expression import and_, literal, select, SelectBase, union
+from sqlalchemy.sql.expression import (
+    and_, exists, literal, not_, or_, select,
+    SelectBase, union,
+)
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
 
@@ -39,11 +53,17 @@ from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
     GenericTabletRecordMixin,
 )
+from camcops_server.cc_modules.cc_forms import (
+    LinkingIdNumSelector,
+    OR_JOIN_DESCRIPTION,
+    ReportParamSchema,
+)
 from camcops_server.cc_modules.cc_hl7core import make_dg1_segment
 from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_nlp import guess_name_components
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,
@@ -54,6 +74,9 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import DiagnosticCodeColType
+
+if TYPE_CHECKING:
+    from sqlalchemy.sql.elements import ColumnElement
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -275,6 +298,10 @@ class DiagnosisIcd9CM(DiagnosisBase):
 # Reports
 # =============================================================================
 
+# -----------------------------------------------------------------------------
+# Helpers
+# -----------------------------------------------------------------------------
+
 ORDER_BY = ["surname", "forename", "dob", "sex",
             "when_created", "system", "code"]
 
@@ -285,29 +312,37 @@ def get_diagnosis_report_query(req: CamcopsRequest,
                                item_class: Type[DiagnosisItemBase],
                                item_fk_fieldname: str,
                                system: str) -> SelectBase:
+    # SELECT surname, forename, dob, sex, ...
     select_fields = [
         Patient.surname.label("surname"),
         Patient.forename.label("forename"),
         Patient.dob.label("dob"),
         Patient.sex.label("sex"),
     ]
-    select_from = Patient.__table__
-    select_from = select_from.join(diagnosis_class.__table__, and_(
-        diagnosis_class.patient_id == Patient.id,
-        diagnosis_class._device_id == Patient._device_id,
-        diagnosis_class._era == Patient._era
-    ))  # nopep8
-    select_from = select_from.join(item_class.__table__, and_(
-        getattr(item_class, item_fk_fieldname) == diagnosis_class.id,
-        item_class._device_id == diagnosis_class._device_id,
-        item_class._era == diagnosis_class._era
-    ))  # nopep8
+    from_clause = (
+        # FROM patient
+        Patient.__table__
+        # INNER JOIN dxset ON (dxtable.patient_id == patient.id AND ...)
+        .join(diagnosis_class.__table__, and_(
+            diagnosis_class.patient_id == Patient.id,
+            diagnosis_class._device_id == Patient._device_id,
+            diagnosis_class._era == Patient._era
+        ))
+        # INNER JOIN dxrow ON (dxrow.fk_dxset = dxset.pk AND ...)
+        .join(item_class.__table__, and_(
+            getattr(item_class, item_fk_fieldname) == diagnosis_class.id,
+            item_class._device_id == diagnosis_class._device_id,
+            item_class._era == diagnosis_class._era
+        ))
+    )
     for iddef in req.idnum_definitions:
         n = iddef.which_idnum
         desc = iddef.short_description
         aliased_table = PatientIdNum.__table__.alias("i{}".format(n))
+        # ... [also] SELECT i1.idnum_value AS 'NHS' (etc.)
         select_fields.append(aliased_table.c.idnum_value.label(desc))
-        select_from = select_from.outerjoin(aliased_table, and_(
+        # ... [from] OUTER JOIN patientidnum AS i1 ON (...)
+        from_clause = from_clause.outerjoin(aliased_table, and_(
             aliased_table.c.patient_id == Patient.id,
             aliased_table.c._device_id == Patient._device_id,
             aliased_table.c._era == Patient._era,
@@ -323,6 +358,7 @@ def get_diagnosis_report_query(req: CamcopsRequest,
         item_class.code.label("code"),
         item_class.description.label("description"),
     ]
+    # WHERE...
     wheres = [
         Patient._current == True,
         diagnosis_class._current == True,
@@ -334,7 +370,7 @@ def get_diagnosis_report_query(req: CamcopsRequest,
         wheres.append(diagnosis_class._group_id.in_(group_ids))
         # Helpfully, SQLAlchemy will render this as "... AND 1 != 1" if we
         # pass an empty list to in_().
-    query = select(select_fields).select_from(select_from).where(and_(*wheres))
+    query = select(select_fields).select_from(from_clause).where(and_(*wheres))
     return query
 
 
@@ -348,6 +384,10 @@ def get_diagnosis_report(req: CamcopsRequest,
     query = query.order_by(*ORDER_BY)
     return query
 
+
+# -----------------------------------------------------------------------------
+# Plain "all diagnoses" reports
+# -----------------------------------------------------------------------------
 
 class DiagnosisICD9CMReport(Report):
     """Report to show ICD-9-CM (DSM-IV-TR) diagnoses."""
@@ -368,7 +408,8 @@ class DiagnosisICD9CMReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest) -> SelectBase:
+    def get_query(self, req: CamcopsRequest,
+                  appstruct: Dict[str, Any]) -> SelectBase:
         return get_diagnosis_report(
             req,
             diagnosis_class=DiagnosisIcd9CM,
@@ -396,7 +437,8 @@ class DiagnosisICD10Report(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest) -> SelectBase:
+    def get_query(self, req: CamcopsRequest,
+                  appstruct: Dict[str, Any]) -> SelectBase:
         return get_diagnosis_report(
             req,
             diagnosis_class=DiagnosisIcd10,
@@ -424,7 +466,8 @@ class DiagnosisAllReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest) -> SelectBase:
+    def get_query(self, req: CamcopsRequest,
+                  appstruct: Dict[str, Any]) -> SelectBase:
         sql_icd9cm = get_diagnosis_report_query(
             req,
             diagnosis_class=DiagnosisIcd9CM,
@@ -442,3 +485,255 @@ class DiagnosisAllReport(Report):
         query = union(sql_icd9cm, sql_icd10)
         query = query.order_by(*ORDER_BY)
         return query
+
+
+# -----------------------------------------------------------------------------
+# "Find me patients matching certain diagnostic criteria"
+# -----------------------------------------------------------------------------
+
+class DiagnosisNode(SchemaNode):
+    schema_type = String
+    title = "Diagnostic code"
+    description = (
+        "Type in a diagnostic code; you may use SQL 'LIKE' syntax for "
+        "wildcards, i.e. _ for one character and % for zero/one/lots"
+    )
+
+
+class DiagnosesSequence(SequenceSchema):
+    diagnoses = DiagnosisNode()
+    title = "Diagnostic codes"
+    description = OR_JOIN_DESCRIPTION
+
+    def __init__(self, *args, minimum_number: int = 0, **kwargs) -> None:
+        self.minimum_number = minimum_number
+        super().__init__(*args, **kwargs)
+
+    def validator(self, node: SchemaNode, value: List[str]) -> None:
+        assert isinstance(value, list)
+        if len(value) < self.minimum_number:
+            raise Invalid(node, "You must specify at least {}".format(
+                self.minimum_number))
+        if len(value) != len(set(value)):
+            raise Invalid(node, "You have specified duplicate diagnoses")
+
+
+class DiagnosisICD10FinderReportSchema(ReportParamSchema):
+    which_idnum = LinkingIdNumSelector()  # must match ViewParam.WHICH_IDNUM
+    diagnoses_inclusion = DiagnosesSequence(  # must match ViewParam.DIAGNOSES_INCLUSION  # noqa
+        title="Inclusion diagnoses (lifetime)",
+        minimum_number=1,
+    )
+    diagnoses_exclusion = DiagnosesSequence(  # must match ViewParam.DIAGNOSES_EXCLUSION  # noqa
+        title="Exclusion diagnoses (lifetime)",
+    )
+    age_minimum = OptionalIntNode(  # must match ViewParam.AGE_MINIMUM
+        title="Minimum age (years) (optional)",
+    )
+    age_maximum = OptionalIntNode(  # must match ViewParam.AGE_MAXIMUM
+        title="Maximum age (years) (optional)",
+    )
+
+
+# noinspection PyProtectedMember
+def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
+                                       diagnosis_class: Type[DiagnosisBase],
+                                       item_class: Type[DiagnosisItemBase],
+                                       item_fk_fieldname: str,
+                                       system: str,
+                                       which_idnum: int,
+                                       inclusion_dx: List[str],
+                                       exclusion_dx: List[str],
+                                       age_minimum_y: int,
+                                       age_maximum_y: int) -> SelectBase:
+    """
+    As for get_diagnosis_report_query, but this makes some modifications to
+    do inclusion and exclusion criteria.
+
+    - We need a linking number to perform exclusion criteria.
+    - Therefore, we use a single ID number, which must not be NULL.
+    """
+
+    # The basics:
+    desc = req.get_id_desc(which_idnum) or "BAD_IDNUM"
+    select_fields = [
+        Patient.surname.label("surname"),
+        Patient.forename.label("forename"),
+        Patient.dob.label("dob"),
+        Patient.sex.label("sex"),
+        PatientIdNum.idnum_value.label(desc),
+        diagnosis_class.when_created.label("when_created"),
+        literal(system).label("system"),
+        item_class.code.label("code"),
+        item_class.description.label("description"),
+    ]
+    select_from = (
+        Patient.__table__
+        .join(diagnosis_class.__table__, and_(
+            diagnosis_class.patient_id == Patient.id,
+            diagnosis_class._device_id == Patient._device_id,
+            diagnosis_class._era == Patient._era,
+            diagnosis_class._current == True,
+        ))
+        .join(item_class.__table__, and_(
+            getattr(item_class, item_fk_fieldname) == diagnosis_class.id,
+            item_class._device_id == diagnosis_class._device_id,
+            item_class._era == diagnosis_class._era,
+            item_class._current == True,
+        ))
+        .join(PatientIdNum.__table__, and_(
+            PatientIdNum.patient_id == Patient.id,
+            PatientIdNum._device_id == Patient._device_id,
+            PatientIdNum._era == Patient._era,
+            PatientIdNum._current == True,
+            PatientIdNum.which_idnum == which_idnum,
+            PatientIdNum.idnum_value.isnot(None),  # NOT NULL
+        ))
+    )  # nopep8
+    wheres = [
+        Patient._current == True,
+    ]  # nopep8
+    if not req.user.superuser:
+        # Restrict to accessible groups
+        group_ids = req.user.ids_of_groups_user_may_report_on
+        wheres.append(diagnosis_class._group_id.in_(group_ids))
+    else:
+        group_ids = []  # type: List[int]  # to stop type-checker moaning below
+
+    # Age limits are simple, as the same patient has the same age for
+    # all diagnosis rows.
+    today = req.today
+    if age_maximum_y is not None:
+        # Example: max age is 40; earliest (oldest) DOB is therefore 41
+        # years ago plus one day (e.g. if it's 15 June 2010, then earliest
+        # DOB is 16 June 1969; a person born then will be 41 tomorrow).
+        earliest_dob = pendulum_date_to_datetime_date(
+            today.subtract(years=age_maximum_y + 1).add(days=1)
+        )
+        wheres.append(Patient.dob >= earliest_dob)
+    if age_minimum_y is not None:
+        # Example: min age is 20; latest (youngest) DOB is therefore 20
+        # years ago (e.g. if it's 15 June 2010, latest DOB is 15 June 1990;
+        # if you're born after that, you're not 20 yet).
+        latest_dob = pendulum_date_to_datetime_date(
+            today.subtract(years=age_minimum_y)
+        )
+        wheres.append(Patient.dob <= latest_dob)
+
+    # Diagnosis criteria are a little bit more complex.
+    #
+    # We can reasonably do inclusion criteria as "show the diagnoses
+    # matching the inclusion criteria" (not the more complex "show all
+    # diagnoses for patients having at least one inclusion diagnosis",
+    # which is likely to be too verbose for patient finding).
+    inclusion_criteria = []  # type: List[ColumnElement]
+    for idx in inclusion_dx:
+        inclusion_criteria.append(item_class.code.like(idx))
+    wheres.append(or_(*inclusion_criteria))
+
+    # Exclusion criteria are the trickier: we need to be able to link
+    # multiple diagnoses for the same patient, so we need to use a linking
+    # ID number.
+    if exclusion_dx:
+        edx_items = item_class.__table__.alias("edx_items")
+        edx_sets = diagnosis_class.__table__.alias("edx_sets")
+        edx_patient = Patient.__table__.alias("edx_patient")
+        edx_idnum = PatientIdNum.__table__.alias("edx_idnum")
+        edx_joined = (
+            edx_items
+            .join(edx_sets, and_(
+                getattr(edx_items.c, item_fk_fieldname) == edx_sets.c.id,  # noqa
+                edx_items.c._device_id == edx_sets.c._device_id,
+                edx_items.c._era == edx_sets.c._era,
+                edx_items.c._current == True,
+            ))
+            .join(edx_patient, and_(
+                edx_sets.c.patient_id == edx_patient.c.id,
+                edx_sets.c._device_id == edx_patient.c._device_id,
+                edx_sets.c._era == edx_patient.c._era,
+                edx_sets.c._current == True,
+            ))
+            .join(edx_idnum, and_(
+                edx_idnum.c.patient_id == edx_patient.c.id,
+                edx_idnum.c._device_id == edx_patient.c._device_id,
+                edx_idnum.c._era == edx_patient.c._era,
+                edx_idnum.c._current == True,
+                edx_idnum.c.which_idnum == which_idnum,
+            ))
+        )
+        exclusion_criteria = []  # type: List[ColumnElement]
+        for edx in exclusion_dx:
+            exclusion_criteria.append(edx_items.c.code.like(edx))
+        edx_wheres = [
+            edx_items.c._current == True,
+            edx_idnum.c.idnum_value == PatientIdNum.idnum_value,
+            or_(*exclusion_criteria)
+        ]  # nopep8
+        # Note the join above between the main and the EXISTS clauses.
+        # We don't use an alias for the main copy of the PatientIdNum table,
+        # and we do for the EXISTS version. This is fine; e.g.
+        # https://msdn.microsoft.com/en-us/library/ethytz2x.aspx example:
+        #   SELECT boss.name, employee.name
+        #   FROM employee
+        #   INNER JOIN employee boss ON employee.manager_id = boss.emp_id;
+        if not req.user.superuser:
+            # Restrict to accessible groups
+            # group_ids already defined from above
+            wheres.append(edx_sets.c._group_id.in_(group_ids))
+        exclusion_select = (
+            select(["*"])
+            .select_from(edx_joined)
+            .where(and_(*edx_wheres))
+        )
+        wheres.append(not_(exists(exclusion_select)))
+
+    query = select(select_fields).select_from(select_from).where(and_(*wheres))
+    return query
+
+
+class DiagnosisICD10FinderReport(Report):
+    """Report to show all diagnoses."""
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "diagnoses_finder"
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def title(cls) -> str:
+        return "Diagnosis – Find patients by ICD-10 diagnosis ± age"
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
+
+    @staticmethod
+    def get_paramform_schema_class() -> Type["ReportParamSchema"]:
+        return DiagnosisICD10FinderReportSchema
+
+    def get_query(self, req: CamcopsRequest,
+                  appstruct: Dict[str, Any]) -> SelectBase:
+        which_idnum = appstruct.get(ViewParam.WHICH_IDNUM)  # type: int
+        inclusion_dx = appstruct.get(ViewParam.DIAGNOSES_INCLUSION)  # type: List[str]  # noqa
+        exclusion_dx = appstruct.get(ViewParam.DIAGNOSES_EXCLUSION)  # type: List[str]  # noqa
+        age_minimum = appstruct.get(ViewParam.AGE_MINIMUM)  # type: Optional[int]  # noqa
+        age_maximum = appstruct.get(ViewParam.AGE_MAXIMUM)  # type: Optional[int]  # noqa
+
+        q = get_diagnosis_inc_exc_report_query(
+            req,
+            diagnosis_class=DiagnosisIcd10,
+            item_class=DiagnosisIcd10Item,
+            item_fk_fieldname='diagnosis_icd10_id',
+            system='ICD-10',
+            which_idnum=which_idnum,
+            inclusion_dx=inclusion_dx,
+            exclusion_dx=exclusion_dx,
+            age_minimum_y=age_minimum,
+            age_maximum_y=age_maximum,
+        )
+        q = q.order_by(*ORDER_BY)
+        # log.critical("Final query:\n{}".format(get_literal_query(
+        #     q, bind=req.engine)))
+        return q

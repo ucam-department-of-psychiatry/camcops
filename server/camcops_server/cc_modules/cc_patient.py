@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -23,7 +23,8 @@
 """
 
 import logging
-from typing import Generator, List, Optional, Set, TYPE_CHECKING, Union
+from typing import (Any, Dict, Generator, List, Optional, Set, TYPE_CHECKING,
+                    Union)
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -599,7 +600,8 @@ class DistinctPatientReport(Report):
         return False
 
     # noinspection PyProtectedMember
-    def get_query(self, req: CamcopsRequest) -> SelectBase:
+    def get_query(self, req: CamcopsRequest,
+                  appstruct: Dict[str, Any]) -> SelectBase:
         select_fields = [
             Patient.surname.label("surname"),
             Patient.forename.label("forename"),

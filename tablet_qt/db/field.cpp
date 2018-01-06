@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -19,8 +19,9 @@
 
 #include "field.h"
 #include "lib/convert.h"
-#include "lib/uifunc.h"
 #include "lib/datetime.h"
+#include "lib/uifunc.h"
+#include "lib/version.h"
 
 const QString SQLITE_TYPE_BLOB("BLOB");
 const QString SQLITE_TYPE_INTEGER("INTEGER");
@@ -293,6 +294,9 @@ QString Field::sqlColumnType() const
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             return SQLITE_TYPE_TEXT;
         }
+        if (m_type_name == convert::TYPENAME_VERSION) {
+            return SQLITE_TYPE_TEXT;
+        }
         break;
     default:
         break;
@@ -324,6 +328,8 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             m_value.setValue(convert::csvStringToIntVector(
                                  db_value.toString()));
+        } else if (m_type_name == convert::TYPENAME_VERSION) {
+            m_value.setValue(Version::fromString(db_value.toString()));
         } else {
             m_value = db_value;
         }
@@ -358,6 +364,9 @@ QVariant Field::databaseValue() const
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             return convert::intVectorToCsvString(
                         convert::qVariantToIntVector(m_value));
+        }
+        if (m_type_name == convert::TYPENAME_VERSION) {
+            return Version::fromVariant(m_value).toString();
         }
         break;
     case QVariant::Uuid:

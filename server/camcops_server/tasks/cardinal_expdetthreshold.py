@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -251,7 +251,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
     )
     theta = Column(
         "theta", Float,
-        comment=EQUATION_COMMENT + "; theta = -intercept/k = -intercept/slope "
+        comment=EQUATION_COMMENT + "; theta = -intercept/k = -intercept/slope"
     )
 
     # Relationships

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -89,6 +89,7 @@ const QString OP_DELETE_WHERE_KEY_NOT("delete_where_key_not");
 const QString OP_END_UPLOAD("end_upload");
 const QString OP_GET_EXTRA_STRINGS("get_extra_strings");
 const QString OP_GET_ID_INFO("get_id_info");
+const QString OP_GET_ALLOWED_TABLES("get_allowed_tables");  // v2.2.0
 const QString OP_REGISTER("register");
 const QString OP_START_PRESERVATION("start_preservation");
 const QString OP_START_UPLOAD("start_upload");
@@ -679,14 +680,29 @@ void NetworkManager::registerSub1(QNetworkReply* reply)
     statusMessage("... registered and received identification information");
     storeServerIdentificationInfo();
 
-    statusMessage("Requesting extra strings");
+    statusMessage("Requesting allowed tables");
     Dict dict;
-    dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
+    dict[KEY_OPERATION] = OP_GET_ALLOWED_TABLES;
     serverPost(dict, &NetworkManager::registerSub2);
 }
 
 
 void NetworkManager::registerSub2(QNetworkReply* reply)
+{
+    if (!processServerReply(reply)) {
+        return;
+    }
+    statusMessage("... received allowed tables");
+    storeAllowedTables();
+
+    statusMessage("Requesting extra strings");
+    Dict dict;
+    dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
+    serverPost(dict, &NetworkManager::registerSub3);
+}
+
+
+void NetworkManager::registerSub3(QNetworkReply* reply)
 {
     if (!processServerReply(reply)) {
         return;
@@ -763,9 +779,21 @@ void NetworkManager::storeServerIdentificationInfo()
     }
 
     m_app.setVar(varconst::LAST_SERVER_REGISTRATION, datetime::now());
+    m_app.setVar(varconst::LAST_SUCCESSFUL_UPLOAD, QVariant());
+    // ... because we might have registered with a different server, we set
+    // this to NULL, so it doesn't give the impression that we have uploaded
+    // our data to the new server.
 
     // Deselect patient, or its description text may be out of date
     m_app.deselectPatient();
+}
+
+
+void NetworkManager::storeAllowedTables()
+{
+    RecordList recordlist = getRecordList();
+    m_app.setAllowedServerTables(recordlist);
+    statusMessage(QString("Saved %1 allowed tables").arg(recordlist.length()));
 }
 
 
@@ -828,7 +856,10 @@ void NetworkManager::upload(const UploadMethod method)
 #endif
     m_app.processEvents();
 
-    catalogueTablesForUpload();
+    if (!catalogueTablesForUpload()) {
+        fail();
+        return;
+    }
     m_app.processEvents();
 
     // Begin comms with the server by checking device is registered.
@@ -1207,17 +1238,65 @@ bool NetworkManager::writeIdDescriptionsToPatientTable()
 #endif
 
 
-void NetworkManager::catalogueTablesForUpload()
+bool NetworkManager::catalogueTablesForUpload()
 {
     statusMessage("Cataloguing tables for upload");
     const QStringList recordwise_tables{Blob::TABLENAME};
     const QStringList patient_tables{Patient::TABLENAME,
                                      PatientIdNum::PATIENT_IDNUM_TABLENAME};
     const QStringList all_tables = m_db.getAllTables();
+    bool may_upload;
+    bool server_has_table;
+    Version min_client_version;
     for (const QString& table : all_tables) {
+        const int n_records = m_db.count(table);
+        may_upload = m_app.mayUploadTable(table, server_has_table,
+                                          min_client_version);
+        if (!may_upload) {
+            if (server_has_table) {
+                // This table requires a newer client than we are.
+                // If the table is empty, proceed. Otherwise, fail.
+                if (n_records != 0) {
+                    statusMessage(QString(
+                        "ERROR: Table '%1' contains data; it is present on the "
+                        "server but the server requires client version >=%2; "
+                        "you are using version %3'"
+                    ).arg(table, min_client_version.toString(),
+                          camcopsversion::CAMCOPS_VERSION.toString()));
+                    return false;
+                } else {
+                    statusMessage(QString(
+                        "WARNING: Table '%1' is present on the server but the "
+                        "server requires client version >=%2; you are using "
+                        "version %3; proceeding ONLY BECAUSE THIS TABLE IS "
+                        "EMPTY."
+                    ).arg(table, min_client_version.toString(),
+                          camcopsversion::CAMCOPS_VERSION.toString()));
+                }
+            } else {
+                // The table isn't on the server.
+                if (n_records != 0) {
+                    statusMessage(QString(
+                        "ERROR: Table '%1' contains data but is absent on the "
+                        "server. You probably need a newer server version. "
+                        "(Once you have upgraded the server, re-register with "
+                        "it.)").arg(table));
+                    return false;
+                } else {
+                    statusMessage(QString(
+                        "WARNING: Table '%1' is absent on the server. You "
+                        "probably need a newer server version. (Once you have "
+                        "upgraded the server, re-register with it.) "
+                        "Proceeding ONLY BECAUSE THIS TABLE IS EMPTY."
+                    ).arg(table));
+                }
+            }
+        }
         // How to upload?
-        if (m_db.count(table) == 0) {
-            m_upload_empty_tables.append(table);
+        if (n_records == 0) {
+            if (may_upload) {
+                m_upload_empty_tables.append(table);
+            }
         } else if (recordwise_tables.contains(table)) {
             m_upload_tables_to_send_recordwise.append(table);
         } else {
@@ -1225,6 +1304,9 @@ void NetworkManager::catalogueTablesForUpload()
         }
 
         // Whether to clear afterwards?
+        // (Note that if we get here and may_upload is false, it must be the
+        // case that the table is empty, in which case it doesn't matter
+        // whether we clear it or not.)
         switch (m_upload_method) {
         case UploadMethod::Copy:
         default:
@@ -1239,6 +1321,7 @@ void NetworkManager::catalogueTablesForUpload()
             break;
         }
     }
+    return true;
 }
 
 
@@ -1352,6 +1435,7 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
         // All done successfully
         wipeTables();
         statusMessage("Finished");
+        m_app.setVar(varconst::LAST_SUCCESSFUL_UPLOAD, datetime::now());
         m_app.setNeedsUpload(false);
         if (m_upload_method != UploadMethod::Copy) {
             m_app.deselectPatient();

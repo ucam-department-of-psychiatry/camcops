@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -122,9 +122,11 @@ public:
 protected:
     void registerSub1(QNetworkReply* reply);
     void registerSub2(QNetworkReply* reply);
+    void registerSub3(QNetworkReply* reply);
     void fetchIdDescriptionsSub1(QNetworkReply* reply);
     void fetchExtraStringsSub1(QNetworkReply* reply);
     void storeServerIdentificationInfo();
+    void storeAllowedTables();
     void storeExtraStrings();
 
     // ------------------------------------------------------------------------
@@ -138,7 +140,7 @@ protected:
 #ifdef DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
     bool writeIdDescriptionsToPatientTable();
 #endif
-    void catalogueTablesForUpload();
+    bool catalogueTablesForUpload();
     void checkDeviceRegistered();
     void uploadNext(QNetworkReply* reply);
     void checkUploadUser();

@@ -11,7 +11,7 @@ Creation date: 2017-10-22 02:13:14.498367
 DATABASE REVISION SCRIPT
 
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 

@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -329,6 +329,10 @@ class CamcopsRequest(Request):
     @reify
     def now_iso8601_era_format(self) -> str:
         return format_datetime(self.now, DateFormat.ISO8601)
+
+    @property
+    def today(self) -> Date:
+        return self.now.date()
 
     # -------------------------------------------------------------------------
     # Logos, static files, and other institution-specific stuff

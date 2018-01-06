@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -22,7 +22,7 @@
 ===============================================================================
 """
 
-from typing import Optional, TYPE_CHECKING
+from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
 from pendulum import Pendulum
@@ -177,7 +177,8 @@ class DeviceReport(Report):
     def title(cls) -> str:
         return "(Server) Devices registered with the server"
 
-    def get_query(self, req: "CamcopsRequest") -> Query:
+    def get_query(self, req: "CamcopsRequest",
+                  appstruct: Dict[str, Any]) -> Query:
         dbsession = req.dbsession
         query = (
             dbsession.query(Device.id,

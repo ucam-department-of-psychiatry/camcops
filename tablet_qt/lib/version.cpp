@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -19,6 +19,13 @@
 
 #include "version.h"
 #include <QStringList>
+#include "lib/convert.h"
+
+
+Version::Version()
+{
+    setFromNumbers(0, 0, 0);
+}
 
 
 Version::Version(const unsigned int major,
@@ -60,12 +67,12 @@ void Version::setFromNumbers(const unsigned int major,
                              const unsigned int minor,
                              const unsigned int patch)
 {
-    if (minor >= 100 || patch >= 100 ||
-            (major == 0 && minor == 0 && patch == 0)) {
+    if (minor >= 100 || patch >= 100) {
         qWarning() << Q_FUNC_INFO << "Refusing to create invalid version with:"
                    << "major" << major
                    << "minor" << minor
-                   << "patch" << patch;
+                   << "patch" << patch
+                   << "(creating 0.0.0=invalid instead)";
         setInvalid();
         return;
     }
@@ -116,6 +123,14 @@ QString Version::toFloatString() const
 }
 
 
+QVariant Version::toVariant() const
+{
+    QVariant v;
+    v.setValue(*this);
+    return v;
+}
+
+
 bool operator<(const Version& v1, const Version& v2)
 {
     return v1.toFloat() < v2.toFloat();
@@ -145,6 +160,35 @@ bool operator>=(const Version& v1, const Version& v2)
 bool operator>(const Version& v1, const Version& v2)
 {
     return v1.toFloat() > v2.toFloat();
+}
+
+
+Version Version::fromVariant(const QVariant& variant)
+{
+    return variant.value<Version>();
+}
+
+
+Version Version::fromString(const QString& s)
+{
+    QStringList stringparts = s.split(".");
+    const int nparts = stringparts.length();
+    if (nparts == 0 || nparts > 3) {
+        return makeInvalidVersion();
+    }
+    QVector<int> numbers(3, 0);
+    bool ok = true;
+    for (int i = 0; i < nparts; ++i) {
+        numbers[i] = stringparts.at(i).toInt(&ok);
+        if (!ok) {  // Not numeric
+            return makeInvalidVersion();
+        }
+    }
+    Version version;
+    version.setFromNumbers(numbers.at(0),
+                           numbers.at(1),
+                           numbers.at(2));
+    return version;
 }
 
 

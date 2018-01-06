@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -26,6 +26,7 @@
 #include <QVariant>
 #include "crypto/secureqbytearray.h"
 #include "crypto/secureqstring.h"
+#include "lib/version.h"
 #include "maths/mathfunc.h"
 
 class QByteArray;
@@ -145,7 +146,8 @@ QStringList csvStringToQStringList(const QString& str);
 // ============================================================================
 
 extern const char* TYPENAME_QVECTOR_INT;
-void registerQVectorTypesForQVariant();
+extern const char* TYPENAME_VERSION;
+void registerTypesForQVariant();
 bool isQVariantOfUserType(const QVariant& v, const QString& type_name);
 QVector<int> qVariantToIntVector(const QVariant& v);
 
@@ -204,8 +206,6 @@ void testConversions();
 
 
 }  // namespace convert
-
-
 
 
 // ============================================================================

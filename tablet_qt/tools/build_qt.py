@@ -1886,18 +1886,7 @@ def get_starting_env(plain: bool = False) -> Dict[str, str]:
 # Ancillary: check for operating system commands
 # =============================================================================
 
-def require(command: str) -> None:
-    """
-    Checks that an external command is available, or raises an exception.
-    """
-    if shutil.which(command):
-        return
-    # Failure, so offer some help
-    missing_msg = "Missing OS command: {}".format(command)
-    helpmsg = "If core commands are missing:\n"
-
-    if BUILD_PLATFORM.linux:
-        helpmsg += """
+UBUNTU_PACKAGE_HELP = """
 Linux (Ubuntu)
 -------------------------------------------------------------------------------
 ar          } Should be pre-installed!
@@ -1909,16 +1898,16 @@ readelf     }
 ant         sudo apt install ant
 javac       sudo apt install openjdk-8-jdk
 
-"""  # noqa
-    _ = """
+"""
+
+UBUNTU_PACKAGE_HELP_DEFUNCT = """
 Linux (Ubuntu) (DEFUNCT)
 -------------------------------------------------------------------------------
 *mingw*     } sudo apt install mingw-w64
 *windres    }
-    """
+"""
 
-    if BUILD_PLATFORM.osx:
-        helpmsg += """
+OS_X_PACKAGE_HELP = """
 OS/X
 -------------------------------------------------------------------------------
 clang       Install XCode
@@ -1926,8 +1915,7 @@ cmake       brew update && brew install cmake
 gobjdump    brew update && brew install binutils
 """
 
-    if BUILD_PLATFORM.windows:
-        helpmsg += r"""
+WINDOWS_PACKAGE_HELP = r"""
 Windows                                                                 Cygwin
                                                                         package
 -------------------------------------------------------------------------------
@@ -1962,7 +1950,8 @@ version of Perl PRECEDES IT in the PATH; you don't want the Cygwin one to be
 the default.
 
 """  # noqa
-    _ = r"""
+
+WINDOWS_PACKAGE_HELP_DEFUNCT = r"""
 Windows (DEFUNCT)
 -------------------------------------------------------------------------------
 makedepend  Install the Cygwin (*) package "makedepend"
@@ -1972,18 +1961,89 @@ tclsh       Install the Cygwin package "tcl" AND ALSO:                  tcl
                 $ cp /bin/tclsh8.6.exe /bin/tclsh.exe
             ... because the built-in "tclsh" (no .exe) isn't found by Windows.
 
-    """
+"""
 
+
+def require(command: str) -> None:
+    """
+    Checks that an external command is available, or raises an exception.
+    """
+    if shutil.which(command):
+        return
+    # Failure, so offer some help
+    missing_msg = "Missing OS command: {}".format(command)
+    helpmsg = "If core commands are missing:\n"
+    if BUILD_PLATFORM.linux:
+        helpmsg += UBUNTU_PACKAGE_HELP
+    if BUILD_PLATFORM.osx:
+        helpmsg += OS_X_PACKAGE_HELP
+    if BUILD_PLATFORM.windows:
+        helpmsg += WINDOWS_PACKAGE_HELP
     log.critical(missing_msg)
     log.warning(helpmsg)
     raise ValueError(missing_msg)
 
 
 def ensure_first_perl_is_not_cygwin() -> None:
-    """
+    r"""
     For Windows: ensure that the Perl we get when we call "perl" isn't a Cygwin
     version.
-    """
+    
+    Why?
+    
+    ===============================================================================
+    WORKING DIRECTORY: C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g
+    COMMAND: perl C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure VC-WIN64A shared no-ssl3
+    ===============================================================================
+    File::Glob::glob() will disappear in perl 5.30. Use File::Glob::bsd_glob() instead. at C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure line 270.
+    Configuring OpenSSL version 1.1.0g (0x1010007fL)
+        no-asan         [default]  OPENSSL_NO_ASAN
+        no-crypto-mdebug [default]  OPENSSL_NO_CRYPTO_MDEBUG
+        no-crypto-mdebug-backtrace [default]  OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
+        no-ec_nistp_64_gcc_128 [default]  OPENSSL_NO_EC_NISTP_64_GCC_128
+        no-egd          [default]  OPENSSL_NO_EGD
+        no-fuzz-afl     [default]  OPENSSL_NO_FUZZ_AFL
+        no-fuzz-libfuzzer [default]  OPENSSL_NO_FUZZ_LIBFUZZER
+        no-heartbeats   [default]  OPENSSL_NO_HEARTBEATS
+        no-md2          [default]  OPENSSL_NO_MD2 (skip dir)
+        no-msan         [default]  OPENSSL_NO_MSAN
+        no-rc5          [default]  OPENSSL_NO_RC5 (skip dir)
+        no-sctp         [default]  OPENSSL_NO_SCTP
+        no-ssl-trace    [default]  OPENSSL_NO_SSL_TRACE
+        no-ssl3         [option]   OPENSSL_NO_SSL3
+        no-ssl3-method  [default]  OPENSSL_NO_SSL3_METHOD
+        no-ubsan        [default]  OPENSSL_NO_UBSAN
+        no-unit-test    [default]  OPENSSL_NO_UNIT_TEST
+        no-weak-ssl-ciphers [default]  OPENSSL_NO_WEAK_SSL_CIPHERS
+        no-zlib         [default]
+        no-zlib-dynamic [default]
+    Configuring for VC-WIN64A
+    
+    ------------------------------------------------------------------------------
+    This perl implementation doesn't produce Windows like paths (with backward
+    slash directory separators).  Please use an implementation that matches your
+    building platform.
+    
+    This Perl version: 5.26.1 for x86_64-cygwin-threads-multi
+    ------------------------------------------------------------------------------
+    
+    $ which perl
+    /usr/bin/perl
+    
+    >>> shutil.which("perl")
+    'C:\\cygwin64\\bin\\perl.EXE'
+    
+    # Then after installing ActiveState Perl:
+    
+    $ which perl
+    /cygdrive/c/Perl64/bin/perl
+    
+    >>> shutil.which("perl")
+    'C:\\Perl64\\bin\\perl.EXE'
+    
+    # ... and then it works.
+    
+    """  # noqa
     require(PERL)
     which = shutil.which(PERL)
     if "cygwin" in which.lower():  # imperfect check based on default Cygwin installation path  # noqa
@@ -1993,60 +2053,64 @@ def ensure_first_perl_is_not_cygwin() -> None:
              "first.".format(which))
 
 
-_WHY_ENSURE_FIRST_PERL_IS_NOT_CYGWIN = r"""
-===============================================================================
-WORKING DIRECTORY: C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g
-COMMAND: perl C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure VC-WIN64A shared no-ssl3
-===============================================================================
-File::Glob::glob() will disappear in perl 5.30. Use File::Glob::bsd_glob() instead. at C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure line 270.
-Configuring OpenSSL version 1.1.0g (0x1010007fL)
-    no-asan         [default]  OPENSSL_NO_ASAN
-    no-crypto-mdebug [default]  OPENSSL_NO_CRYPTO_MDEBUG
-    no-crypto-mdebug-backtrace [default]  OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
-    no-ec_nistp_64_gcc_128 [default]  OPENSSL_NO_EC_NISTP_64_GCC_128
-    no-egd          [default]  OPENSSL_NO_EGD
-    no-fuzz-afl     [default]  OPENSSL_NO_FUZZ_AFL
-    no-fuzz-libfuzzer [default]  OPENSSL_NO_FUZZ_LIBFUZZER
-    no-heartbeats   [default]  OPENSSL_NO_HEARTBEATS
-    no-md2          [default]  OPENSSL_NO_MD2 (skip dir)
-    no-msan         [default]  OPENSSL_NO_MSAN
-    no-rc5          [default]  OPENSSL_NO_RC5 (skip dir)
-    no-sctp         [default]  OPENSSL_NO_SCTP
-    no-ssl-trace    [default]  OPENSSL_NO_SSL_TRACE
-    no-ssl3         [option]   OPENSSL_NO_SSL3
-    no-ssl3-method  [default]  OPENSSL_NO_SSL3_METHOD
-    no-ubsan        [default]  OPENSSL_NO_UBSAN
-    no-unit-test    [default]  OPENSSL_NO_UNIT_TEST
-    no-weak-ssl-ciphers [default]  OPENSSL_NO_WEAK_SSL_CIPHERS
-    no-zlib         [default]
-    no-zlib-dynamic [default]
-Configuring for VC-WIN64A
+def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
+    r"""
+    If you use a Unix version of TCL to build SQLCipher under Windows, it will
+    fail because it misinterprets paths. We need to be certain that the TCL
+    shell is of the correct kind, i.e. built for Windows.
+    
+    First note that TCL needs backslashes escaped as \\ in literal strings.
+    
+    If you have a Windows file \tmp\test.tcl and run it from a DIFFERENT
+    directory using "tclsh \tmp\test.tcl", you will get this output from a Unix
+    tclsh (e.g. Ubuntu, Cygwin):
+    
+        puts [info patchlevel]      ;# may help to discriminate two versions! 8.6.8 for Cygwin for me today
+        puts [file dirname "/some/path/filename.txt"]       ;# /some/path
+        puts [file dirname "\\some\\path\\filename.txt"]    ;# .        -- DISCRIMINATIVE
+        puts [file nativename "/some/path/filename.txt"]    ;# /some/path/filename.txt
+        puts [file nativename "\\some\\path\\filename.txt"] ;# \some\path\filename.txt
+        puts [info script]                                  ;# \tmp\test.tcl
+        puts [file dirname [info script]]                   ;# .        -- DISCRIMINATIVE
+        puts [file nativename [info script]]                ;# \tmp\test.tcl
 
-------------------------------------------------------------------------------
-This perl implementation doesn't produce Windows like paths (with backward
-slash directory separators).  Please use an implementation that matches your
-building platform.
+    A Windows tclsh (e.g. ActiveState) will give you this:
 
-This Perl version: 5.26.1 for x86_64-cygwin-threads-multi
-------------------------------------------------------------------------------
-
-$ which perl
-/usr/bin/perl
-
->>> shutil.which("perl")
-'C:\\cygwin64\\bin\\perl.EXE'
-
-# Then after installing ActiveState Perl:
-
-$ which perl
-/cygdrive/c/Perl64/bin/perl
-
->>> shutil.which("perl")
-'C:\\Perl64\\bin\\perl.EXE'
-
-# ... and then it works.
-
-"""  # noqa
+        puts [info patchlevel]      ;# may help to discriminate two versions! 8.6.7 for ActiveTCL for me today
+        puts [file dirname "/some/path/filename.txt"]       ;# /some/path
+        puts [file dirname "\\some\\path\\filename.txt"]    ;# /some/path
+        puts [file nativename "/some/path/filename.txt"]    ;# \some\path\filename.txt  -- DISCRIMINATIVE
+        puts [file nativename "\\some\\path\\filename.txt"] ;# \some\path\filename.txt
+        puts [info script]                                  ;# \tmp\test.tcl
+        puts [file dirname [info script]]                   ;# /tmp     -- DISCRIMINATIVE
+        puts [file nativename [info script]]                ;# \tmp\test.tcl
+    
+    Since "info script" requires an actual script to be created (not just
+    stdin), the simplest discriminatory command is
+    
+        puts [file dirname "\\some\\path\\filename.txt"]
+    
+    """  # noqa
+    tcl_cmd = r'puts -nonewline [file dirname "\\some\\path\\filename.txt"]'
+    correct = r'/some/path'
+    incorrect = '.'
+    cmdargs = [tclsh]
+    encoding = sys.getdefaultencoding()
+    completed_proc = subprocess.run(cmdargs, input=tcl_cmd, encoding=encoding,
+                                    stdout=subprocess.PIPE, check=True)
+    result = completed_proc.stdout  # type: str
+    if result == correct:
+        return True
+    elif result == incorrect:
+        log.warning(
+            "The TCL shell, {!r}, is a UNIX version (e.g. Cygwin) "
+            "incompatible with Windows backslash-delimited filenames; switch "
+            "to a Windows version (e.g. ActiveState ActiveTCL).".format(tclsh))
+        return False
+    else:
+        raise RuntimeError(
+            "Don't understand output from TCL shell {!r} with input {!r}; "
+            "output was {!r}".format(tclsh, tcl_cmd, result))
 
 
 # =============================================================================
@@ -2105,6 +2169,93 @@ def openssl_target_os_args(target_platform: Platform) -> List[str]:
     """
     Returns the target OS for OpenSSL's "Configure" Perl script, +/- any other
     required target-specific parameters, as a list.
+
+-------------------------------------------------------------------------------
+OpenSSL 1.0.2h targets:
+-------------------------------------------------------------------------------
+
+BC-32 BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
+BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-x86_64 DJGPP MPE/iX-gcc OS2-EMX
+OS390-Unix QNX6 QNX6-i386 ReliantUNIX SINIX SINIX-N UWIN VC-CE VC-WIN32
+VC-WIN64A VC-WIN64I aix-cc aix-gcc aix3-cc aix64-cc aix64-gcc android
+android-armv7 android-mips android-x86 aux3-gcc beos-x86-bone beos-x86-r5
+bsdi-elf-gcc cc cray-j90 cray-t3e darwin-i386-cc darwin-ppc-cc darwin64-ppc-cc
+darwin64-x86_64-cc dgux-R3-gcc dgux-R4-gcc dgux-R4-x86-gcc dist gcc hpux-cc
+hpux-gcc hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc hpux-parisc-cc-o4
+hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux-parisc2-cc
+hpux-parisc2-gcc hpux64-ia64-cc hpux64-ia64-gcc hpux64-parisc2-cc
+hpux64-parisc2-gcc hurd-x86 iphoneos-cross irix-cc irix-gcc irix-mips3-cc
+irix-mips3-gcc irix64-mips4-cc irix64-mips4-gcc linux-aarch64
+linux-alpha+bwx-ccc linux-alpha+bwx-gcc linux-alpha-ccc linux-alpha-gcc
+linux-aout linux-armv4 linux-elf linux-generic32 linux-generic64
+linux-ia32-icc linux-ia64 linux-ia64-icc linux-mips32 linux-mips64 linux-ppc
+linux-ppc64 linux-ppc64le linux-sparcv8 linux-sparcv9 linux-x32 linux-x86_64
+linux-x86_64-clang linux-x86_64-icc linux32-s390x linux64-mips64 linux64-s390x
+linux64-sparcv9 mingw mingw64 ncr-scde netware-clib netware-clib-bsdsock
+netware-clib-bsdsock-gcc netware-clib-gcc netware-libc netware-libc-bsdsock
+netware-libc-bsdsock-gcc netware-libc-gcc newsos4-gcc nextstep nextstep3.3
+osf1-alpha-cc osf1-alpha-gcc purify qnx4 rhapsody-ppc-cc sco5-cc sco5-gcc
+solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc
+solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-cc solaris-x86-gcc
+solaris64-sparcv9-cc solaris64-sparcv9-gcc solaris64-x86_64-cc
+solaris64-x86_64-gcc sunos-gcc tandem-c89 tru64-alpha-cc uClinux-dist
+uClinux-dist64 ultrix-cc ultrix-gcc unixware-2.0 unixware-2.1 unixware-7
+unixware-7-gcc vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x
+vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen
+vxworks-simlinux debug debug-BSD-x86-elf debug-VC-WIN32 debug-VC-WIN64A
+debug-VC-WIN64I debug-ben debug-ben-darwin64 debug-ben-debug
+debug-ben-debug-64 debug-ben-debug-64-clang debug-ben-macos
+debug-ben-macos-gcc46 debug-ben-no-opt debug-ben-openbsd
+debug-ben-openbsd-debug debug-ben-strict debug-bodo debug-darwin-i386-cc
+debug-darwin-ppc-cc debug-darwin64-x86_64-cc debug-geoff32 debug-geoff64
+debug-levitte-linux-elf debug-levitte-linux-elf-extreme
+debug-levitte-linux-noasm debug-levitte-linux-noasm-extreme debug-linux-elf
+debug-linux-elf-noefence debug-linux-generic32 debug-linux-generic64
+debug-linux-ia32-aes debug-linux-pentium debug-linux-ppro debug-linux-x86_64
+debug-linux-x86_64-clang debug-rse debug-solaris-sparcv8-cc
+debug-solaris-sparcv8-gcc debug-solaris-sparcv9-cc debug-solaris-sparcv9-gcc
+debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
+
+-------------------------------------------------------------------------------
+OpenSSL 1.1.0g targets:
+-------------------------------------------------------------------------------
+
+Usage: Configure [no-<cipher> ...] [enable-<cipher> ...] [-Dxxx] [-lxxx]
+    [-Lxxx] [-fxxx] [-Kxxx] [no-hw-xxx|no-hw] [[no-]threads] [[no-]shared]
+    [[no-]zlib|zlib-dynamic] [no-asm] [no-dso] [no-egd] [sctp] [386]
+    [--prefix=DIR] [--openssldir=OPENSSLDIR] [--with-xxx[=vvv]] [--config=FILE]
+    os/compiler[:flags]
+
+pick os/compiler from:
+BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
+BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-i386 Cygwin-i486 Cygwin-i586
+Cygwin-i686 Cygwin-x86 Cygwin-x86_64 DJGPP MPE/iX-gcc OS390-Unix QNX6
+QNX6-i386 UEFI UWIN VC-CE VC-WIN32 VC-WIN64A VC-WIN64A-masm VC-WIN64I aix-cc
+aix-gcc aix64-cc aix64-gcc android android-armeabi android-mips android-x86
+android64 android64-aarch64 bsdi-elf-gcc cc darwin-i386-cc darwin-ppc-cc
+darwin64-debug-test-64-clang darwin64-ppc-cc darwin64-x86_64-cc dist gcc
+haiku-x86 haiku-x86_64 hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc
+hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux64-ia64-cc
+hpux64-ia64-gcc hpux64-parisc2-cc hpux64-parisc2-gcc hurd-x86 ios-cross
+ios64-cross iphoneos-cross irix-mips3-cc irix-mips3-gcc irix64-mips4-cc
+irix64-mips4-gcc linux-aarch64 linux-alpha-gcc linux-aout linux-arm64ilp32
+linux-armv4 linux-c64xplus linux-elf linux-generic32 linux-generic64
+linux-ia64 linux-mips32 linux-mips64 linux-ppc linux-ppc64 linux-ppc64le
+linux-sparcv8 linux-sparcv9 linux-x32 linux-x86 linux-x86-clang linux-x86_64
+linux-x86_64-clang linux32-s390x linux64-mips64 linux64-s390x linux64-sparcv9
+mingw mingw64 nextstep nextstep3.3 purify qnx4 sco5-cc sco5-gcc
+solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc
+solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-gcc solaris64-sparcv9-cc
+solaris64-sparcv9-gcc solaris64-x86_64-cc solaris64-x86_64-gcc tru64-alpha-cc
+tru64-alpha-gcc uClinux-dist uClinux-dist64 unixware-2.0 unixware-2.1
+unixware-7 unixware-7-gcc vms-alpha vms-alpha-p32 vms-alpha-p64 vms-ia64
+vms-ia64-p32 vms-ia64-p64 vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x
+vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen
+vxworks-simlinux debug debug-erbridge debug-linux-ia32-aes debug-linux-pentium
+debug-linux-ppro debug-test-64-clang
+
+NOTE: If in doubt, on Unix-ish systems use './config'.
+
     """
 
     # http://doc.qt.io/qt-5/opensslsupport.html
@@ -2178,88 +2329,6 @@ def openssl_target_os_args(target_platform: Platform) -> List[str]:
 
     # For new platforms: if you're not sure, use target_os = "crashme" and
     # you'll get the list of permitted values, which as of 2017-11-12 is:
-
-    # noinspection PyUnreachableCode
-    _ = """
-OpenSSL 1.0.2h targets:
-
-BC-32 BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
-BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-x86_64 DJGPP MPE/iX-gcc OS2-EMX
-OS390-Unix QNX6 QNX6-i386 ReliantUNIX SINIX SINIX-N UWIN VC-CE VC-WIN32
-VC-WIN64A VC-WIN64I aix-cc aix-gcc aix3-cc aix64-cc aix64-gcc android
-android-armv7 android-mips android-x86 aux3-gcc beos-x86-bone beos-x86-r5
-bsdi-elf-gcc cc cray-j90 cray-t3e darwin-i386-cc darwin-ppc-cc darwin64-ppc-cc
-darwin64-x86_64-cc dgux-R3-gcc dgux-R4-gcc dgux-R4-x86-gcc dist gcc hpux-cc
-hpux-gcc hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc hpux-parisc-cc-o4
-hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux-parisc2-cc
-hpux-parisc2-gcc hpux64-ia64-cc hpux64-ia64-gcc hpux64-parisc2-cc
-hpux64-parisc2-gcc hurd-x86 iphoneos-cross irix-cc irix-gcc irix-mips3-cc
-irix-mips3-gcc irix64-mips4-cc irix64-mips4-gcc linux-aarch64
-linux-alpha+bwx-ccc linux-alpha+bwx-gcc linux-alpha-ccc linux-alpha-gcc
-linux-aout linux-armv4 linux-elf linux-generic32 linux-generic64
-linux-ia32-icc linux-ia64 linux-ia64-icc linux-mips32 linux-mips64 linux-ppc
-linux-ppc64 linux-ppc64le linux-sparcv8 linux-sparcv9 linux-x32 linux-x86_64
-linux-x86_64-clang linux-x86_64-icc linux32-s390x linux64-mips64 linux64-s390x
-linux64-sparcv9 mingw mingw64 ncr-scde netware-clib netware-clib-bsdsock
-netware-clib-bsdsock-gcc netware-clib-gcc netware-libc netware-libc-bsdsock
-netware-libc-bsdsock-gcc netware-libc-gcc newsos4-gcc nextstep nextstep3.3
-osf1-alpha-cc osf1-alpha-gcc purify qnx4 rhapsody-ppc-cc sco5-cc sco5-gcc
-solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc
-solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-cc solaris-x86-gcc
-solaris64-sparcv9-cc solaris64-sparcv9-gcc solaris64-x86_64-cc
-solaris64-x86_64-gcc sunos-gcc tandem-c89 tru64-alpha-cc uClinux-dist
-uClinux-dist64 ultrix-cc ultrix-gcc unixware-2.0 unixware-2.1 unixware-7
-unixware-7-gcc vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x
-vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen
-vxworks-simlinux debug debug-BSD-x86-elf debug-VC-WIN32 debug-VC-WIN64A
-debug-VC-WIN64I debug-ben debug-ben-darwin64 debug-ben-debug
-debug-ben-debug-64 debug-ben-debug-64-clang debug-ben-macos
-debug-ben-macos-gcc46 debug-ben-no-opt debug-ben-openbsd
-debug-ben-openbsd-debug debug-ben-strict debug-bodo debug-darwin-i386-cc
-debug-darwin-ppc-cc debug-darwin64-x86_64-cc debug-geoff32 debug-geoff64
-debug-levitte-linux-elf debug-levitte-linux-elf-extreme
-debug-levitte-linux-noasm debug-levitte-linux-noasm-extreme debug-linux-elf
-debug-linux-elf-noefence debug-linux-generic32 debug-linux-generic64
-debug-linux-ia32-aes debug-linux-pentium debug-linux-ppro debug-linux-x86_64
-debug-linux-x86_64-clang debug-rse debug-solaris-sparcv8-cc
-debug-solaris-sparcv8-gcc debug-solaris-sparcv9-cc debug-solaris-sparcv9-gcc
-debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
-    """
-    _ = r"""
-OpenSSL 1.1.0g targets:
-
-Usage: Configure [no-<cipher> ...] [enable-<cipher> ...] [-Dxxx] [-lxxx] [-Lxxx] [-fxxx] [-Kxxx] [no-hw-xxx|no-hw] [[no-]threads] [[no-]shared] [[no-]zlib|zlib-dynamic] [no-asm] [no-dso] [no-egd] [sctp] [386] [--prefix=DIR] [--openssldir=OPENSSLDIR] [--with-xxx[=vvv]] [--config=FILE] os/compiler[:flags]
-
-pick os/compiler from:
-BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8 
-BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-i386 Cygwin-i486 Cygwin-i586 
-Cygwin-i686 Cygwin-x86 Cygwin-x86_64 DJGPP MPE/iX-gcc OS390-Unix QNX6 
-QNX6-i386 UEFI UWIN VC-CE VC-WIN32 VC-WIN64A VC-WIN64A-masm VC-WIN64I aix-cc 
-aix-gcc aix64-cc aix64-gcc android android-armeabi android-mips android-x86 
-android64 android64-aarch64 bsdi-elf-gcc cc darwin-i386-cc darwin-ppc-cc 
-darwin64-debug-test-64-clang darwin64-ppc-cc darwin64-x86_64-cc dist gcc 
-haiku-x86 haiku-x86_64 hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc 
-hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux64-ia64-cc 
-hpux64-ia64-gcc hpux64-parisc2-cc hpux64-parisc2-gcc hurd-x86 ios-cross 
-ios64-cross iphoneos-cross irix-mips3-cc irix-mips3-gcc irix64-mips4-cc 
-irix64-mips4-gcc linux-aarch64 linux-alpha-gcc linux-aout linux-arm64ilp32 
-linux-armv4 linux-c64xplus linux-elf linux-generic32 linux-generic64 
-linux-ia64 linux-mips32 linux-mips64 linux-ppc linux-ppc64 linux-ppc64le 
-linux-sparcv8 linux-sparcv9 linux-x32 linux-x86 linux-x86-clang linux-x86_64 
-linux-x86_64-clang linux32-s390x linux64-mips64 linux64-s390x linux64-sparcv9 
-mingw mingw64 nextstep nextstep3.3 purify qnx4 sco5-cc sco5-gcc 
-solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc 
-solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-gcc solaris64-sparcv9-cc 
-solaris64-sparcv9-gcc solaris64-x86_64-cc solaris64-x86_64-gcc tru64-alpha-cc 
-tru64-alpha-gcc uClinux-dist uClinux-dist64 unixware-2.0 unixware-2.1 
-unixware-7 unixware-7-gcc vms-alpha vms-alpha-p32 vms-alpha-p64 vms-ia64 
-vms-ia64-p32 vms-ia64-p64 vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x 
-vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen 
-vxworks-simlinux debug debug-erbridge debug-linux-ia32-aes debug-linux-pentium 
-debug-linux-ppro debug-test-64-clang 
-
-NOTE: If in doubt, on Unix-ish systems use './config'.
-    """  # noqa
 
 
 def build_openssl(cfg: Config, target_platform: Platform) -> None:
@@ -2996,66 +3065,6 @@ def fetch_sqlcipher(cfg: Config) -> None:
     # even under Windows.
     
     
-def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
-    """
-    If you use a Unix version of TCL to build SQLCipher under Windows, it will
-    fail because it misinterprets paths. We need to be certain that the TCL
-    shell is of the correct kind, i.e. built for Windows.
-    
-    First note that TCL needs backslashes escaped as \\ in literal strings.
-    
-    If you have a Windows file \tmp\test.tcl and run it from a DIFFERENT
-    directory using "tclsh \tmp\test.tcl", you will get this output from a Unix
-    tclsh (e.g. Ubuntu, Cygwin):
-    
-        puts [info patchlevel]      ;# may help to discriminate two versions! 8.6.8 for Cygwin for me today
-        puts [file dirname "/some/path/filename.txt"]       ;# /some/path
-        puts [file dirname "\\some\\path\\filename.txt"]    ;# .        -- DISCRIMINATORY
-        puts [file nativename "/some/path/filename.txt"]    ;# /some/path/filename.txt
-        puts [file nativename "\\some\\path\\filename.txt"] ;# \some\path\filename.txt
-        puts [info script]                                  ;# \tmp\test.tcl
-        puts [file dirname [info script]]                   ;# .        -- DISCRIMINATORY
-        puts [file nativename [info script]]                ;# \tmp\test.tcl
-
-    A Windows tclsh (e.g. ActiveState) will give you this:
-
-        puts [info patchlevel]      ;# may help to discriminate two versions! 8.6.7 for ActiveTCL for me today
-        puts [file dirname "/some/path/filename.txt"]       ;# /some/path
-        puts [file dirname "\\some\\path\\filename.txt"]    ;# /some/path
-        puts [file nativename "/some/path/filename.txt"]    ;# \some\path\filename.txt  -- DISCRIMINATORY
-        puts [file nativename "\\some\\path\\filename.txt"] ;# \some\path\filename.txt
-        puts [info script]                                  ;# \tmp\test.tcl
-        puts [file dirname [info script]]                   ;# /tmp     -- DISCRIMINATORY
-        puts [file nativename [info script]]                ;# \tmp\test.tcl
-    
-    Since "info script" requires an actual script to be created (not just
-    stdin), the simplest discriminatory command is
-    
-        puts [file dirname "\\some\\path\\filename.txt"]
-    
-    """  # noqa
-    tcl_cmd = r'puts -nonewline [file dirname "\\some\\path\\filename.txt"]'
-    correct = r'/some/path'
-    incorrect = '.'
-    cmdargs = [tclsh]
-    encoding = sys.getdefaultencoding()
-    completed_proc = subprocess.run(cmdargs, input=tcl_cmd, encoding=encoding,
-                                    stdout=subprocess.PIPE, check=True)
-    result = completed_proc.stdout  # type: str
-    if result == correct:
-        return True
-    elif result == incorrect:
-        log.warning(
-            "The TCL shell, {!r}, is a UNIX version (e.g. Cygwin) "
-            "incompatible with Windows backslash-delimited filenames; switch "
-            "to a Windows version (e.g. ActiveState ActiveTCL).".format(tclsh))
-        return False
-    else:
-        raise RuntimeError(
-            "Don't understand output from TCL shell {!r} with input {!r}; "
-            "output was {!r}".format(tclsh, tcl_cmd, result))
-
-
 def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     """
     Builds SQLCipher, an open-source encrypted version of SQLite.

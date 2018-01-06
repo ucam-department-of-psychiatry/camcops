@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -157,5 +157,6 @@ QString StoredVar::name() const
 
 void StoredVar::makeIndexes()
 {
-    m_db.createIndex("_idx_name", STOREDVAR_TABLENAME, {NAME_FIELDNAME});
+    m_db.createIndex("_idx_storedvar_name",
+                     STOREDVAR_TABLENAME, {NAME_FIELDNAME});
 }

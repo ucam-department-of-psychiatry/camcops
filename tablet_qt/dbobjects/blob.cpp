@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -138,7 +138,7 @@ QByteArray Blob::blobByteArray() const
 
 void Blob::makeIndexes()
 {
-    m_db.createIndex("_idx_src_table_pk_field",
+    m_db.createIndex("_idx_blob_srctable_srcpk_srcfield",
                      TABLENAME,
                      {SRC_TABLE_FIELDNAME,
                       SRC_PK_FIELDNAME,

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -84,7 +84,7 @@ void IdNumDescription::deleteAllDescriptions()
 
 void IdNumDescription::makeIndexes()
 {
-    m_db.createIndex("_idx_idnum",
+    m_db.createIndex("_idx_idnumdesc_idnum",
                      IDNUMDESC_TABLENAME,
                      {FN_IDNUM});
 }

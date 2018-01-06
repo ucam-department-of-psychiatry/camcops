@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -104,6 +104,16 @@ void ChoosePatientMenu::addPatient()
 
     PatientPtr patient = PatientPtr(new Patient(m_app, m_app.db()));
     patient->save();
+    // v2.2.0 fix:
+    // MUST call m_app.setSelectedPatient before
+    // CamcopsApp::open(..., patient), because when the editor closes,
+    // CamcopsApp::close() will be called, and that will call
+    // selectedPatientDetailsChanged() on the patient in question; this gives
+    // the *impression* of the selected patient changing (e.g. name display
+    // changes) but the underlying selection won't have, which is Bad; a
+    // previously selected patient's tasks continue to show up but with the
+    // newly-created patient's name.
+    m_app.setSelectedPatient(patient->id());
     OpenableWidget* widget = patient->editor(false);
     m_app.open(widget, TaskPtr(nullptr), false, patient);
 }

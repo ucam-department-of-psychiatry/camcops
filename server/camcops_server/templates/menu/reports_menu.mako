@@ -15,7 +15,7 @@ from camcops_server.cc_modules.cc_report import get_all_report_classes
 <ul>
     %for cls in get_all_report_classes():
         %if request.user.superuser or not cls.superuser_only:
-            <li><a href="${ request.route_url(Routes.OFFER_REPORT, _query={ViewParam.REPORT_ID: cls.report_id}) }">${ cls.title | h }</a></li>
+            <li><a href="${ request.route_url(Routes.REPORT, _query={ViewParam.REPORT_ID: cls.report_id}) }">${ cls.title | h }</a></li>
         %endif
     %endfor
 </ul>

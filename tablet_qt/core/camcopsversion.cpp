@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -21,8 +21,8 @@
 
 namespace camcopsversion {  // http://semver.org/
 
-const Version CAMCOPS_VERSION(2, 0, 5);
-const Version MINIMUM_SERVER_VERSION(2, 0, 0);
+const Version CAMCOPS_VERSION(2, 2, 0);
+const Version MINIMUM_SERVER_VERSION(2, 2, 0);
 
 }  // namespace camcopsversion
 

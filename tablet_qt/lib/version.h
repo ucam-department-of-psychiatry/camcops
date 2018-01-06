@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -27,14 +27,17 @@ class Version {
     // ... with the additional constraint of minor/patch versions being
     // limited to integers in the range 0-99.
 public:
+    Version();  // public default constructor required for QVariant use
     Version(unsigned int major, unsigned int minor, unsigned int patch);
     Version(const QString& version_string);
+    // public copy constructor required for QVariant use; default is OK
     unsigned int major() const;
     unsigned int minor() const;
     unsigned int patch() const;
     QString toString() const;
     double toFloat() const;
     QString toFloatString() const;
+    QVariant toVariant() const;
     bool isValid() const;
     friend bool operator<(const Version& v1, const Version& v2);
     friend bool operator<=(const Version& v1, const Version& v2);
@@ -43,6 +46,7 @@ public:
     friend bool operator>(const Version& v1, const Version& v2);
     friend bool operator!=(const Version& v1, const Version& v2);
     friend QDebug operator<<(QDebug debug, const Version& v);
+    static Version fromVariant(const QVariant& variant);
     static Version fromString(const QString& version_string);
     static Version makeInvalidVersion();
 protected:
@@ -55,3 +59,5 @@ protected:
     unsigned int m_minor;
     unsigned int m_patch;
 };
+
+Q_DECLARE_METATYPE(Version)

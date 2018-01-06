@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -56,6 +56,7 @@ from pendulum import Pendulum
 from pyramid.view import view_config
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
+from semantic_version import Version
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.expression import exists, select, text, update
@@ -63,7 +64,10 @@ from sqlalchemy.sql.schema import Table
 
 from camcops_server.cc_modules import cc_audit  # avoids "audit" name clash
 from .cc_all_models import CLIENT_TABLE_MAP, RESERVED_FIELDS
+from .cc_blob import Blob
+from .cc_cache import cache_region_static, fkg
 from .cc_client_api_core import (
+    AllowedTablesFieldNames,
     exception_description,
     ExtraStringFieldNames,
     fail_server_error,
@@ -95,6 +99,7 @@ from .cc_patientidnum import fake_tablet_id_for_patientidnum, PatientIdNum
 from .cc_pyramid import RequestMethod, Routes
 from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
+from .cc_task import all_task_tables_with_min_client_version
 from .cc_unittest import DemoDatabaseTestCase
 from .cc_version import CAMCOPS_SERVER_VERSION_STRING, MINIMUM_TABLET_VERSION
 
@@ -135,6 +140,19 @@ IGNORING_ANTIQUE_TABLE_MESSAGE = (
 
 SUCCESS_CODE = "1"
 FAILURE_CODE = "0"
+
+
+# =============================================================================
+# Cached information
+# =============================================================================
+
+@cache_region_static.cache_on_arguments(function_key_generator=fkg)
+def all_tables_with_min_client_version() -> Dict[str, Version]:
+    d = all_task_tables_with_min_client_version()
+    d[Blob.__tablename__] = MINIMUM_TABLET_VERSION
+    d[Patient.__tablename__] = MINIMUM_TABLET_VERSION
+    d[PatientIdNum.__tablename__] = MINIMUM_TABLET_VERSION
+    return d
 
 
 # =============================================================================
@@ -339,7 +357,7 @@ def get_server_id_info(req: CamcopsRequest) -> Dict[str, str]:
 
 
 def get_select_reply(fields: Sequence[str],
-                     rows: Sequence[Sequence[Any]]) -> Dict:
+                     rows: Sequence[Sequence[Any]]) -> Dict[str, str]:
     """
     Return format:
         nfields:X
@@ -1138,7 +1156,7 @@ def register(req: CamcopsRequest) -> Dict[str, Any]:
     return get_server_id_info(req)
 
 
-def get_extra_strings(req: CamcopsRequest) -> Dict:
+def get_extra_strings(req: CamcopsRequest) -> Dict[str, str]:
     """
     Fetch all local extra strings from the server.
     """
@@ -1148,6 +1166,24 @@ def get_extra_strings(req: CamcopsRequest) -> Dict:
     rows = req.get_all_extra_strings()
     reply = get_select_reply(fields, rows)
     audit(req, "get_extra_strings")
+    return reply
+
+
+# noinspection PyUnusedLocal
+def get_allowed_tables(req: CamcopsRequest) -> Dict[str, str]:
+    """
+    Returns the names of all possible tables on the server, each paired with
+    the minimum client (tablet) version that will be accepted for each table.
+    (Typically these are all the same as the minimum global tablet version.)
+
+    Uses the SELECT-like syntax.
+    """
+    tables_versions = all_tables_with_min_client_version()
+    fields = [AllowedTablesFieldNames.TABLENAME,
+              AllowedTablesFieldNames.MIN_CLIENT_VERSION]
+    rows = [[k, str(v)] for k, v in tables_versions.items()]
+    reply = get_select_reply(fields, rows)
+    audit(req, "get_allowed_tables")
     return reply
 
 
@@ -1472,6 +1508,7 @@ class Operations:
     END_UPLOAD = "end_upload"
     GET_EXTRA_STRINGS = "get_extra_strings"
     GET_ID_INFO = "get_id_info"
+    GET_ALLOWED_TABLES = "get_allowed_tables"  # v2.2.0
     REGISTER = "register"
     START_PRESERVATION = "start_preservation"
     START_UPLOAD = "start_upload"
@@ -1487,6 +1524,7 @@ OPERATIONS_ANYONE = {
 OPERATIONS_REGISTRATION = {
     Operations.REGISTER: register,
     Operations.GET_EXTRA_STRINGS: get_extra_strings,
+    Operations.GET_ALLOWED_TABLES: get_allowed_tables,  # v2.2.0  # noqa
 }
 OPERATIONS_UPLOAD = {
     Operations.CHECK_UPLOAD_USER_DEVICE: check_upload_user_and_device,

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -60,6 +60,7 @@
 #include "db/dbnestabletransaction.h"
 #include "db/whereconditions.h"
 #include "db/whichdb.h"
+#include "dbobjects/allowedservertable.h"
 #include "dbobjects/blob.h"
 #include "dbobjects/extrastring.h"
 #include "dbobjects/idnumdescription.h"
@@ -141,7 +142,7 @@ int CamcopsApp::run()
 
     // Baseline C++ things
     seedRng();
-    convert::registerQVectorTypesForQVariant();
+    convert::registerTypesForQVariant();
 
     // Set window icon
     initGuiOne();
@@ -660,15 +661,21 @@ void CamcopsApp::makeOtherSystemTables()
     // ------------------------------------------------------------------------
 
     // Make special tables: system database
+
     ExtraString extrastring_specimen(*this, *m_sysdb);
     extrastring_specimen.makeTable();
     extrastring_specimen.makeIndexes();
+
+    AllowedServerTable allowedtable_specimen(*this, *m_sysdb);
+    allowedtable_specimen.makeTable();
+    allowedtable_specimen.makeIndexes();
 
     IdNumDescription idnumdesc_specimen(*this, *m_sysdb);
     idnumdesc_specimen.makeTable();
     idnumdesc_specimen.makeIndexes();
 
     // Make special tables: main database
+
     Blob blob_specimen(*this, *m_datadb);
     blob_specimen.makeTable();
     blob_specimen.makeIndexes();
@@ -1596,16 +1603,16 @@ void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
     DbNestableTransaction trans(*m_sysdb);
     deleteAllExtraStrings();
     for (auto record : recordlist) {
-        if (!record.contains(ExtraString::EXTRASTRINGS_TASK_FIELD) ||
-                !record.contains(ExtraString::EXTRASTRINGS_NAME_FIELD) ||
-                !record.contains(ExtraString::EXTRASTRINGS_VALUE_FIELD)) {
+        if (!record.contains(ExtraString::TASK_FIELD) ||
+                !record.contains(ExtraString::NAME_FIELD) ||
+                !record.contains(ExtraString::VALUE_FIELD)) {
             qWarning() << Q_FUNC_INFO << "Failing: recordlist has bad format";
             trans.fail();
             return;
         }
-        const QString task = record[ExtraString::EXTRASTRINGS_TASK_FIELD].toString();
-        const QString name = record[ExtraString::EXTRASTRINGS_NAME_FIELD].toString();
-        const QString value = record[ExtraString::EXTRASTRINGS_VALUE_FIELD].toString();
+        const QString task = record[ExtraString::TASK_FIELD].toString();
+        const QString name = record[ExtraString::NAME_FIELD].toString();
+        const QString value = record[ExtraString::VALUE_FIELD].toString();
         if (task.isEmpty() || name.isEmpty()) {
             qWarning() << Q_FUNC_INFO
                        << "Failing: extra string has blank task or name";
@@ -1626,6 +1633,61 @@ QString CamcopsApp::appstring(const QString& stringname,
 {
     return xstring(APPSTRING_TASKNAME, stringname, default_str);
 }
+
+
+// ============================================================================
+// Allowed tables on the server
+// ============================================================================
+
+void CamcopsApp::deleteAllowedServerTables()
+{
+    AllowedServerTable allowedtable_specimen(*this, *m_sysdb);
+    allowedtable_specimen.deleteAllAllowedServerTables();
+}
+
+
+void CamcopsApp::setAllowedServerTables(const RecordList& recordlist)
+{
+    DbNestableTransaction trans(*m_sysdb);
+    deleteAllowedServerTables();
+    for (auto record : recordlist) {
+        if (!record.contains(AllowedServerTable::TABLENAME_FIELD) ||
+                !record.contains(AllowedServerTable::VERSION_FIELD)) {
+            qWarning() << Q_FUNC_INFO << "Failing: recordlist has bad format";
+            trans.fail();
+            return;
+        }
+        const QString tablename = record[AllowedServerTable::TABLENAME_FIELD].toString();
+        const Version min_client_version = Version::fromString(
+                    record[AllowedServerTable::VERSION_FIELD].toString());
+        if (tablename.isEmpty()) {
+            qWarning() << Q_FUNC_INFO
+                       << "Failing: allowed table has blank tablename";
+            trans.fail();
+            return;
+        }
+        AllowedServerTable allowedtable(*this, *m_sysdb,
+                                        tablename, min_client_version);
+        // ... special constructor that doesn't attempt to load
+        allowedtable.saveWithoutKeepingPk();
+    }
+}
+
+
+bool CamcopsApp::mayUploadTable(const QString& tablename,
+                                bool& server_has_table,
+                                Version& min_client_version)
+{
+    AllowedServerTable allowedtable(*this, *m_sysdb, tablename);
+    server_has_table = allowedtable.exists();
+    if (!server_has_table) {
+        min_client_version = Version::makeInvalidVersion();
+        return false;
+    }
+    min_client_version = allowedtable.minClientVersion();
+    return camcopsversion::CAMCOPS_VERSION >= min_client_version;
+}
+
 
 // ============================================================================
 // Stored variables: generic

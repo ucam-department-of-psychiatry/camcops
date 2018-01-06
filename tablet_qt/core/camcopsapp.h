@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -248,6 +248,17 @@ protected:
     QString xstringDirect(const QString& taskname, const QString& stringname,
                           const QString& default_str = "");
     mutable QMap<QPair<QString, QString>, QString> m_extrastring_cache;
+
+    // ------------------------------------------------------------------------
+    // Allowed tables on the server
+    // ------------------------------------------------------------------------
+public:
+    void setAllowedServerTables(const RecordList& recordlist);
+    bool mayUploadTable(const QString& tablename,
+                        bool& server_has_table,
+                        Version& min_client_version);
+protected:
+    void deleteAllowedServerTables();
 
     // ------------------------------------------------------------------------
     // Stored variables: generic

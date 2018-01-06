@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2017 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -44,9 +44,9 @@ public:
     void makeIndexes();  // sort-of static function
 
 public:
-    static const QString EXTRASTRINGS_TASK_FIELD;
-    static const QString EXTRASTRINGS_NAME_FIELD;
-    static const QString EXTRASTRINGS_VALUE_FIELD;
+    static const QString TASK_FIELD;
+    static const QString NAME_FIELD;
+    static const QString VALUE_FIELD;
 protected:
     void commonConstructor();
     bool m_exists;
