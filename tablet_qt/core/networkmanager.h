@@ -135,29 +135,33 @@ protected:
 public:
     void upload(UploadMethod method);
 protected:
-    bool isPatientInfoComplete();
-    bool applyPatientMoveOffTabletFlagsToTasks();
-#ifdef DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
-    bool writeIdDescriptionsToPatientTable();
-#endif
-    bool catalogueTablesForUpload();
-    void checkDeviceRegistered();
+    // core
     void uploadNext(QNetworkReply* reply);
+    // comms
+    void checkDeviceRegistered();
     void checkUploadUser();
     void uploadFetchServerIdInfo();
-    bool isServerVersionOK();
-    bool arePoliciesOK();
-    bool areDescriptionsOK();
-    QVector<int> whichIdnumsUsedOnTablet();
+    void uploadFetchAllowedTables();
     void startUpload();
     void startPreservation();
     void sendEmptyTables(const QStringList& tablenames);
     void sendTableWhole(const QString& tablename);
     void sendTableRecordwise(const QString& tablename);
     void requestRecordwisePkPrune();
-    bool pruneRecordwisePks();
     void sendNextRecord();
     void endUpload();
+    // internal functions
+    bool isPatientInfoComplete();
+    bool applyPatientMoveOffTabletFlagsToTasks();
+#ifdef DUPLICATE_ID_DESCRIPTIONS_INTO_PATIENT_TABLE
+    bool writeIdDescriptionsToPatientTable();
+#endif
+    bool catalogueTablesForUpload();
+    bool isServerVersionOK();
+    bool arePoliciesOK();
+    bool areDescriptionsOK();
+    QVector<int> whichIdnumsUsedOnTablet();
+    bool pruneRecordwisePks();
     void wipeTables();
     void queryFail(const QString& sql);
     void queryFailClearingMoveOffFlag(const QString& tablename);
@@ -204,7 +208,8 @@ protected:
     enum class NextUploadStage {
         Invalid,
         CheckUser,
-        FetchPolicies,
+        FetchServerIdInfo,
+        FetchAllowedTables,
         CheckPoliciesThenStartUpload,
         StartPreservation,
         Uploading,

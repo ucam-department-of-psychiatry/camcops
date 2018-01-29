@@ -426,6 +426,9 @@
     <string name="sleep_gain2_a3">Between 1 and 3 hours</string>
     <string name="sleep_gain2_a4">Three hours or more</string>
 
+    <string name="sleep_gain3_q">In the PAST WEEK, on how many nights did you sleep for more than
+3 hours longer usual?</string>
+
     <string name="sleep_dur_q">How long have you had these problems with your sleep as you have described?</string>
 
     <string name="irrit_mand1_q">Many people become irritable or short tempered at times, though they may not show it.\n\nHave you felt irritable or short tempered with those around you in the PAST MONTH?</string>
@@ -566,13 +569,13 @@
     <string name="worry2_q">On how many of the PAST SEVEN DAYS have you been worrying about things OTHER than your physical health?</string>
 
     <string name="worry3_q">In your opinion, have you been worrying too much in view of your circumstances?</string>
-    <string name="worry3_a2">No</string>
+    <string name="worry3_a1">No</string>
     <string name="worry3_a2">Yes, worrying too much</string>
 
     <string name="worry4_q">How unpleasant has your worrying been about things OTHER than your physical health in the PAST WEEK?</string>
 
     <string name="worry5_q">Have you worried about something OTHER than your physical health for more than three hours in total on any day in the PAST WEEK?</string>
-    <string name="worry5_a1">No, Less than 3 hours</string>
+    <string name="worry5_a1">No, less than 3 hours</string>
     <string name="worry5_a2">Yes, 3 hours or more on at least one day this week</string>
 
     <string name="worry_dur_q">How long have you been worrying about things OTHER than your physical health in the way that you have described?</string>
@@ -655,7 +658,7 @@
     <string name="panic4_q">Do these panics start suddenly so you are at maximum anxiety within a few minutes?</string>
 
     <!-- For all of the panic symptoms: 1 no, 2 yes -->
-    <string name="pansym_q_prefix">In the PAST SEVEN DAYS when you had these panics:\n\n</string>
+    <string name="pansym_q_prefix">In the PAST SEVEN DAYS when you had these panics:</string>
     <string name="pansym_a_q">Did your heart beat harder or speed up?</string>
     <string name="pansym_b_q">Did you have sweaty or clammy hands?</string>
     <string name="pansym_c_q">Were you trembling or shaking?</string>
@@ -725,7 +728,7 @@
     <string name="overall2_a3">They have stopped one activity</string>
     <string name="overall2_a4">They have stopped more than one activity</string>
 
-    <string name="end">This is the end of the computerised interview.\n\nPlease tell the researcher you have finished.</string>
+    <string name="end">This is the end of the computerised interview. Please tell the researcher you have finished.</string>
 
   </task>
 </resources>

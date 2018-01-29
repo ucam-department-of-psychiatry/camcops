@@ -28,7 +28,7 @@ from typing import (Any, Dict, Generator, List, Optional, Set, TYPE_CHECKING,
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
-    coerce_to_date,
+    coerce_to_pendulum_date,
     format_datetime,
     get_age,
     PotentialDatetimeType,
@@ -369,7 +369,7 @@ class Patient(GenericTabletRecordMixin, Base):
         dob = self.dob
         if not dob:
             return None
-        return coerce_to_date(dob)
+        return coerce_to_pendulum_date(dob)
 
     def get_dob_str(self) -> Optional[str]:
         dob_dt = self.get_dob()

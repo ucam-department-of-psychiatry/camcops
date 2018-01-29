@@ -382,8 +382,8 @@ protected:
         bool panic_disorder = false;  // PANICD in original
 
         // Final diagnoses
-        int diagnosis_1 = 0;  // DIAG1 in original
-        int diagnosis_2 = 0;  // DIAG2 in original
+        int diagnosis_1 = cisrconst::DIAG_0_NO_DIAGNOSIS;  // DIAG1 in original
+        int diagnosis_2 = cisrconst::DIAG_0_NO_DIAGNOSIS;  // DIAG2 in original
     };
 protected:
     QStringList summaryForResult(const CisrResult& result) const;
@@ -397,7 +397,7 @@ protected:
     int intValueForQuestion(CisrQuestion q) const;
     bool answerIsNo(CisrQuestion q, int value = cisrconst::V_UNKNOWN) const;
     bool answerIsYes(CisrQuestion q, int value = cisrconst::V_UNKNOWN) const;
-    bool answered(CisrQuestion q, int value) const;
+    bool answered(CisrQuestion q, int value = cisrconst::V_UNKNOWN) const;
     QVector<QString> panicSymptomFieldnames() const;
     CisrQuestion nextQ(CisrQuestion q, CisrResult& getResult) const;
     CisrResult getResult() const;

@@ -22,6 +22,7 @@
 #include "taskfactory.h"
 #include <algorithm>
 #include "core/camcopsapp.h"
+#include "core/camcopsversion.h"
 #include "lib/comparers.h"
 #include "lib/version.h"
 #include "tasklib/task.h"
@@ -279,4 +280,32 @@ void TaskFactory::upgradeDatabase(const Version& old_version,
     for (auto t : specimens) {
         t->upgradeDatabase(old_version, new_version);
     }
+}
+
+
+Version TaskFactory::minimumServerVersion(const QString& tablename) const
+{
+    // For speed order:
+    if (m_map.contains(tablename)) {
+        // It's a main tablename.
+        TaskPtr specimen = create(tablename);
+        return specimen->minimumServerVersion();
+    }
+    if (!m_all_tablenames.contains(tablename)) {
+        // It's duff.
+        qWarning() << "TaskFactory::minimumServerVersion: don't know table"
+                   << tablename;
+        return camcopsversion::MINIMUM_SERVER_VERSION;
+    }
+    // Otherwise, it's an ancillary.
+    TaskPtrList specimens = allSpecimens();
+    for (TaskPtr specimen : specimens) {
+        const QStringList task_tables = specimen->allTables();
+        if (task_tables.contains(tablename)) {
+            return specimen->minimumServerVersion();
+        }
+    }
+    qCritical() << "Bug in TaskFactory::minimumServerVersion! Tablename was"
+                << tablename;
+    return camcopsversion::MINIMUM_SERVER_VERSION;
 }

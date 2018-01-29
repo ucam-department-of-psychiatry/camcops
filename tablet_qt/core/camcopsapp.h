@@ -196,8 +196,6 @@ public:
     Patient* selectedPatient() const;
     int selectedPatientId() const;
     PatientPtrList getAllPatients(bool sorted = true);
-    IdPolicy uploadPolicy() const;
-    IdPolicy finalizePolicy() const;
 protected:
     void reloadPatient(int patient_id);
 signals:
@@ -215,19 +213,22 @@ signals:
     void fontSizeChanged();
 
     // ------------------------------------------------------------------------
-    // ID descriptions (downloaded from server)
+    // Server info: version, ID numbers, policies
     // ------------------------------------------------------------------------
 public:
+    Version serverVersion() const;
+    IdPolicy uploadPolicy() const;
+    IdPolicy finalizePolicy() const;
     bool idDescriptionExists(int which_idnum);
     QString idDescription(int which_idnum);
     QString idShortDescription(int which_idnum);
-    void clearIdDescriptionCache();
     void deleteAllIdDescriptions();
     bool setIdDescription(int which_idnum, const QString& desc,
                           const QString& shortdesc);
     QVector<IdNumDescriptionPtr> getAllIdDescriptions();
     QVector<int> whichIdNumsAvailable();
 protected:
+    void clearIdDescriptionCache();
     QPair<QString, QString> idDescriptionDirect(int which_idnum);  // desc, shortdesc
     QPair<QString, QString> idDescShortDesc(int which_idnum);
     mutable QMap<int, QPair<QString, QString>> m_iddescription_cache;
@@ -255,9 +256,13 @@ protected:
 public:
     void setAllowedServerTables(const RecordList& recordlist);
     bool mayUploadTable(const QString& tablename,
+                        const Version& server_version,
                         bool& server_has_table,
-                        Version& min_client_version);
+                        Version& min_client_version,
+                        Version& min_server_version);
 protected:
+    QStringList nonTaskTables() const;
+    Version minServerVersionForTable(const QString& tablename);
     void deleteAllowedServerTables();
 
     // ------------------------------------------------------------------------

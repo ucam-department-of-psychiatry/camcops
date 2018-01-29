@@ -28,8 +28,8 @@ import os
 from typing import Any, Dict, Generator, List, Optional, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import (
-    coerce_to_date,
     coerce_to_pendulum,
+    coerce_to_pendulum_date,
     convert_datetime_to_utc,
     format_datetime,
 )
@@ -445,7 +445,7 @@ class CamcopsRequest(Request):
 
     def get_date_param(self, key: str) -> Optional[Date]:
         try:
-            return coerce_to_date(self.params[key])
+            return coerce_to_pendulum_date(self.params[key])
         except (KeyError, ParserError, TypeError, ValueError):
             return None
 

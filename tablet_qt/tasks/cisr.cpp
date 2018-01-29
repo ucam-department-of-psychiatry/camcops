@@ -473,7 +473,7 @@ const QMap<CQ, QPair<int, int>> QUESTIONS_MULTIWAY{
     {CQ::DEPTH8_LNWL, {1, 3}},
     {CQ::DEPTH9_SUICIDE_THOUGHTS, {1, 3}},
     {CQ::DOCTOR, {1, 3}},
-    {CQ::ANX_PHOBIA2_SPECIFIC_OR_GENERAL, {1, 3}},
+    {CQ::ANX_PHOBIA2_SPECIFIC_OR_GENERAL, {1, 2}},
     {CQ::PHOBIAS_TYPE1, {1, 9}},
     {CQ::PHOBIAS4_AVOIDANCE_DAYS_PAST_WEEK, {1, 3}},
     {CQ::PANIC_MAND_PAST_MONTH, {1, 3}},
@@ -1385,6 +1385,8 @@ bool Cisr::answered(CisrQuestion q, int value) const
 
 Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
 {
+    // ANY CHANGES HERE MUST BE REFLECTED IN THE PYTHON CODE AND VICE VERSA.
+
     // 1. Returns the next question to be offered.
     // 2. Scores as it goes, also flagging up if the data are incomplete.
     // Rationale: we have to apply a sequential logic to test for completeness
@@ -1483,7 +1485,7 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
         break;
 
     case CQ::WEIGHT3_LOST_LOTS:
-        if (answerIsYes(q, v)) {
+        if (v == V_WEIGHT3_WTLOSS_GE_HALF_STONE) {
             r.decide("Weight loss >=0.5st in past month. "
                      "Incrementing depr_crit_3_somatic_synd");
             r.weight_change = WTCHANGE_WTLOSS_GT_HALF_STONE;
@@ -2655,7 +2657,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
             r.panic += n_panic_symptoms;
         }
         // The next bit was coded in PANIC5, but lives more naturally here:
-        if (intValueForQuestion(CQ::ANX_PHOBIA1_SPECIFIC_PAST_MONTH))
+        if (answerIsNo(CQ::ANX_PHOBIA1_SPECIFIC_PAST_MONTH)) {
+            jumpTo(CQ::PANIC_DUR);
+        }
         break;
 
     case CQ::PANIC5_ALWAYS_SPECIFIC_TRIGGER:
@@ -3211,11 +3215,11 @@ void Cisr::CisrResult::finalize()
     }
     if (obsessions + compulsions >= 6 &&
             compulsions_tried_to_stop &&
-            obsessions_at_least_2_weeks &&
+            compulsions_at_least_2_weeks &&
             at_least_1_activity_impaired) {
         decide("obsessions + compulsions >= 6 AND "
-               "tried to stop obsessions AND "
-               "obsessions for at least 2 weeks AND "
+               "tried to stop compulsions AND "
+               "compulsions for at least 2 weeks AND "
                "at least 1 activity impaired. "
                "Setting obsessive_compulsive_disorder.");
         obsessive_compulsive_disorder = true;
@@ -3249,8 +3253,8 @@ void Cisr::CisrResult::finalize()
     if (depression_at_least_2_weeks &&
             depr_crit_1_mood_anhedonia_energy > 1 &&
             depr_crit_1_mood_anhedonia_energy + depr_crit_2_app_cnc_slp_mtr_glt_wth > 3) {
-        decide("Depressive symptoms >=2 weeks AND"
-               "depr_crit_1_mood_anhedonia_energy > 1 AND"
+        decide("Depressive symptoms >=2 weeks AND "
+               "depr_crit_1_mood_anhedonia_energy > 1 AND "
                "depr_crit_1_mood_anhedonia_energy + "
                "depr_crit_2_app_cnc_slp_mtr_glt_wth > 3. "
                "Setting depression_mild.");
@@ -3259,8 +3263,8 @@ void Cisr::CisrResult::finalize()
     if (depression_at_least_2_weeks &&
             depr_crit_1_mood_anhedonia_energy > 1 &&
             (depr_crit_1_mood_anhedonia_energy + depr_crit_2_app_cnc_slp_mtr_glt_wth) > 5) {
-        decide("Depressive symptoms >=2 weeks AND"
-               "depr_crit_1_mood_anhedonia_energy > 1 AND"
+        decide("Depressive symptoms >=2 weeks AND "
+               "depr_crit_1_mood_anhedonia_energy > 1 AND "
                "depr_crit_1_mood_anhedonia_energy + "
                "depr_crit_2_app_cnc_slp_mtr_glt_wth > 5. "
                "Setting depression_moderate.");
@@ -3269,8 +3273,8 @@ void Cisr::CisrResult::finalize()
     if (depression_at_least_2_weeks &&
             depr_crit_1_mood_anhedonia_energy == 3 &&
             depr_crit_2_app_cnc_slp_mtr_glt_wth > 4) {
-        decide("Depressive symptoms >=2 weeks AND"
-               "depr_crit_1_mood_anhedonia_energy == 3 AND"
+        decide("Depressive symptoms >=2 weeks AND "
+               "depr_crit_1_mood_anhedonia_energy == 3 AND "
                "depr_crit_2_app_cnc_slp_mtr_glt_wth > 4. "
                "Setting depression_severe.");
         depression_severe = true;

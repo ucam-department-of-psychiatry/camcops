@@ -153,15 +153,15 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         infolist = [self.get_ctv_heading(
-            req, "psychiatricclerking_heading_current_contact")]
+            req, "heading_current_contact")]
         for x in self.FIELDS_B:
             infolist.append(self.get_ctv_description_content(req, x))
         infolist.append(self.get_ctv_heading(
-            req, "psychiatricclerking_heading_background"))
+            req, "heading_background"))
         for x in self.FIELDS_C:
             infolist.append(self.get_ctv_description_content(req, x))
         infolist.append(self.get_ctv_heading(
-            req, "psychiatricclerking_heading_examination_investigations"))
+            req, "heading_examination_investigations"))
         infolist.append(self.get_ctv_subheading(
             req, "mental_state_examination"))
         for x in self.FIELDS_MSE:
@@ -174,11 +174,11 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         for x in self.FIELDS_D:
             infolist.append(self.get_ctv_description_content(req, x))
         infolist.append(self.get_ctv_heading(
-            req, "psychiatricclerking_heading_risk_legal"))
+            req, "heading_risk_legal"))
         for x in self.FIELDS_E:
             infolist.append(self.get_ctv_description_content(req, x))
         infolist.append(self.get_ctv_heading(
-            req, "psychiatricclerking_heading_summary_plan"))
+            req, "heading_summary_plan"))
         for x in self.FIELDS_F:
             infolist.append(self.get_ctv_description_content(req, x))
         return infolist
@@ -215,14 +215,14 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         # Avoid tables - PDF generator crashes if text is too long.
         html = ""
         html += self.heading(
-            req, "psychiatricclerking_heading_current_contact")
+            req, "heading_current_contact")
         for x in self.FIELDS_B:
             html += self.subhead_text(req, x)
-        html += self.heading(req, "psychiatricclerking_heading_background")
+        html += self.heading(req, "heading_background")
         for x in self.FIELDS_C:
             html += self.subhead_text(req, x)
         html += self.heading(
-            req, "psychiatricclerking_heading_examination_investigations")
+            req, "heading_examination_investigations")
         html += self.subheading(req, "mental_state_examination")
         for x in self.FIELDS_MSE:
             html += self.subsubhead_text(req, x)
@@ -231,10 +231,10 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             html += self.subsubhead_text(req, x)
         for x in self.FIELDS_D:
             html += self.subhead_text(req, x)
-        html += self.heading(req, "psychiatricclerking_heading_risk_legal")
+        html += self.heading(req, "heading_risk_legal")
         for x in self.FIELDS_E:
             html += self.subhead_text(req, x)
-        html += self.heading(req, "psychiatricclerking_heading_summary_plan")
+        html += self.heading(req, "heading_summary_plan")
         for x in self.FIELDS_F:
             html += self.subhead_text(req, x)
         return html

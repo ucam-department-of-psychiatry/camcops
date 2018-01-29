@@ -106,6 +106,9 @@ const QString PLEASE_REREGISTER(QObject::tr("Please re-register with the server.
 // NetworkManager
 // ============================================================================
 
+// - MAIN COMMUNICATION METHOD:
+//   serverPost(dict, &callbackfunction);
+
 // CALLBACK LIFETIME SAFETY in this class:
 // - There is only one NetworkManager in the whole app, owned by the
 //   CamcopsApp.
@@ -709,6 +712,7 @@ void NetworkManager::registerSub3(QNetworkReply* reply)
     }
     statusMessage("... received extra strings");
     storeExtraStrings();
+    statusMessage("Successfully registered.");
     succeed();
 }
 
@@ -811,6 +815,10 @@ void NetworkManager::storeExtraStrings()
 // Upload
 // ============================================================================
 
+// ----------------------------------------------------------------------------
+// Upload: CORE
+// ----------------------------------------------------------------------------
+
 void NetworkManager::upload(const UploadMethod method)
 {
     statusMessage(tr("Preparing to upload to: ") + serverUrlDisplayString());
@@ -821,6 +829,10 @@ void NetworkManager::upload(const UploadMethod method)
     // SlowGuiGuard guard();  // not helpful
 
     m_app.processEvents();  // these, scattered around, are very helpful.
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // 1. Internal database checks/flag-setting
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     cleanup();
     m_upload_method = method;
@@ -856,17 +868,366 @@ void NetworkManager::upload(const UploadMethod method)
 #endif
     m_app.processEvents();
 
-    if (!catalogueTablesForUpload()) {
-        fail();
-        return;
-    }
-    m_app.processEvents();
-
-    // Begin comms with the server by checking device is registered.
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // 2. Begin comms with the server by checking device is registered.
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     checkDeviceRegistered();
     m_upload_next_stage = NextUploadStage::CheckUser;
+    // ... will end up at uploadNext().
 }
 
+
+void NetworkManager::uploadNext(QNetworkReply* reply)
+{
+    // This function imposes an order on the upload sequence, which makes
+    // everything else work.
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Whatever happens next, check the server was happy with our last request.
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    // The option for reply to be nullptr is so we can do a no-op.
+    if (reply && !processServerReply(reply)) {
+        return;
+    }
+    if (m_upload_next_stage == NextUploadStage::Invalid) {
+        // stage might be Invalid if user hit cancel while messages still
+        // inbound
+        return;
+    }
+    statusMessage("... OK");
+
+    switch (m_upload_next_stage) {
+
+    case NextUploadStage::CheckUser:
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // FROM: check device registration. (Checked implicitly.)
+        // TO: check user OK.
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        checkUploadUser();
+        m_upload_next_stage = NextUploadStage::FetchServerIdInfo;
+        break;
+
+    case NextUploadStage::FetchServerIdInfo:
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // FROM: check user OK. (Checked implicitly.)
+        // TO: fetch server ID info (server version, database title,
+        //      which ID numbers, ID policies)
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        uploadFetchServerIdInfo();
+        m_upload_next_stage = NextUploadStage::FetchAllowedTables;
+        break;
+
+    case NextUploadStage::FetchAllowedTables:
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // FROM: fetch server ID info
+        // TO: fetch allowed tables/minimum client versions
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if (!isServerVersionOK() || !arePoliciesOK() || !areDescriptionsOK()) {
+            fail();
+            return;
+        }
+        uploadFetchAllowedTables();
+        m_upload_next_stage = NextUploadStage::CheckPoliciesThenStartUpload;
+        break;
+
+    case NextUploadStage::CheckPoliciesThenStartUpload:
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // FROM: fetch allowed tables/minimum client versions
+        // TO: start upload or preservation
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        statusMessage("... received allowed tables");
+        storeAllowedTables();
+        if (!catalogueTablesForUpload()) {  // checks per-table version requirements
+            fail();
+            return;
+        }
+        startUpload();
+        if (m_upload_method == UploadMethod::Copy) {
+            // If we copy, we proceed to uploading
+            m_upload_next_stage = NextUploadStage::Uploading;
+        } else {
+            // If we're moving, we preserve records.
+            m_upload_next_stage = NextUploadStage::StartPreservation;
+        }
+        break;
+
+    case NextUploadStage::StartPreservation:
+        startPreservation();
+        m_upload_next_stage = NextUploadStage::Uploading;
+        break;
+
+    case NextUploadStage::Uploading:
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // FROM: start upload or preservation
+        // TO: upload, tablewise then recordwise (CYCLES ROUND here until done)
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if (!m_upload_empty_tables.isEmpty()) {
+
+            sendEmptyTables(m_upload_empty_tables);
+            m_upload_empty_tables.clear();
+
+        } else if (!m_upload_tables_to_send_whole.isEmpty()) {
+
+            QString table = m_upload_tables_to_send_whole.front();
+            m_upload_tables_to_send_whole.pop_front();
+            sendTableWhole(table);
+
+        } else if (!m_upload_recordwise_pks_to_send.isEmpty()) {
+
+            if (!m_recordwise_prune_req_sent) {
+                requestRecordwisePkPrune();
+            } else {
+                if (!m_recordwise_pks_pruned) {
+                    if (!pruneRecordwisePks()) {
+                        fail();
+                        return;
+                    }
+                    if (m_upload_recordwise_pks_to_send.isEmpty()) {
+                        // Quasi-recursive way of saying "do whatever you would
+                        // have done otherwise", since the server had said "I'm
+                        // not interested in any records from that table".
+                        statusMessage("... server doesn't want anything from "
+                                      "this table");
+                        uploadNext(nullptr);
+                        return;
+                    }
+                }
+                sendNextRecord();
+            }
+
+        } else if (!m_upload_tables_to_send_recordwise.isEmpty()) {
+
+            QString table = m_upload_tables_to_send_recordwise.front();
+            m_upload_tables_to_send_recordwise.pop_front();
+            sendTableRecordwise(table);
+
+        } else {
+
+            endUpload();
+            m_upload_next_stage = NextUploadStage::Finished;
+
+        }
+        break;
+
+    case NextUploadStage::Finished:
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // FROM: upload
+        // All done successfully!
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        wipeTables();
+        statusMessage("Finished");
+        m_app.setVar(varconst::LAST_SUCCESSFUL_UPLOAD, datetime::now());
+        m_app.setNeedsUpload(false);
+        if (m_upload_method != UploadMethod::Copy) {
+            m_app.deselectPatient();
+        }
+        succeed();
+        break;
+
+    default:
+        uifunc::stopApp("Bug: unknown m_upload_next_stage");
+        break;
+    }
+}
+
+
+// ----------------------------------------------------------------------------
+// Upload: COMMS
+// ----------------------------------------------------------------------------
+
+void NetworkManager::checkDeviceRegistered()
+{
+    statusMessage("Checking device is registered with server");
+    Dict dict;
+    dict[KEY_OPERATION] = OP_CHECK_DEVICE_REGISTERED;
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::checkUploadUser()
+{
+    statusMessage("Checking user/device permitted to upload");
+    Dict dict;
+    dict[KEY_OPERATION] = OP_CHECK_UPLOAD_USER_DEVICE;
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::uploadFetchServerIdInfo()
+{
+    statusMessage("Fetching server's version/ID policies/ID descriptions");
+    Dict dict;
+    dict[KEY_OPERATION] = OP_GET_ID_INFO;
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::uploadFetchAllowedTables()
+{
+    statusMessage("Fetching server's allowed tables/client versions");
+    Dict dict;
+    dict[KEY_OPERATION] = OP_GET_ALLOWED_TABLES;
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::startUpload()
+{
+    statusMessage("Starting upload");
+    Dict dict;
+    dict[KEY_OPERATION] = OP_START_UPLOAD;
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::startPreservation()
+{
+    statusMessage("Starting preservation");
+    Dict dict;
+    dict[KEY_OPERATION] = OP_START_PRESERVATION;
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::sendEmptyTables(const QStringList& tablenames)
+{
+    statusMessage(tr("Uploading empty tables: ") + tablenames.join(", "));
+    Dict dict;
+    dict[KEY_OPERATION] = OP_UPLOAD_EMPTY_TABLES;
+    dict[KEY_TABLES] = tablenames.join(",");
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::sendTableWhole(const QString& tablename)
+{
+    statusMessage(tr("Uploading table: ") + tablename);
+    Dict dict;
+    dict[KEY_OPERATION] = OP_UPLOAD_TABLE;
+    dict[KEY_TABLE] = tablename;
+    const QStringList fieldnames = m_db.getFieldNames(tablename);
+    dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;  // version 2.0.4
+    // There was a BUG here before v2.0.4:
+    // - the old Titanium code gave fieldnames starting with the PK
+    // - the SQLite reporting order isn't necessarily like that
+    // - for the upload_table command, the receiving code relied on the PK
+    //   being first
+    // - So as of tablet v2.0.4, the client explicitly reports PK name (and
+    //   makes no guarantee about field order) and as of server v2.1.0, the
+    //   server takes the PK name if the tablet is >=2.0.4, or "id" otherwise
+    //   (because the client PK name always was "id"!). This allows old tablets
+    //   to work (for which: could use fieldnames[0] or "id") and early buggy
+    //   C++ clients to work (for which: "id" is the only valid option).
+    dict[KEY_FIELDS] = fieldnames.join(",");
+    const QString sql = dbfunc::selectColumns(fieldnames, tablename);
+    const QueryResult result = m_db.query(sql);
+    if (!result.succeeded()) {
+        queryFail(sql);
+        return;
+    }
+    const int nrows = result.nRows();
+    for (int record = 0; record < nrows; ++record) {
+        dict[KEYSPEC_RECORD.arg(record)] = result.csvRow(record);
+    }
+    dict[KEY_NRECORDS] = QString::number(nrows);
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::sendTableRecordwise(const QString& tablename)
+{
+    statusMessage(tr("Preparing to send table (recordwise): ") + tablename);
+
+    m_upload_recordwise_table_in_progress = tablename;
+    m_upload_recordwise_fieldnames = m_db.getFieldNames(tablename);
+    m_recordwise_prune_req_sent = false;
+    m_recordwise_pks_pruned = false;
+    m_upload_recordwise_pks_to_send = m_db.getPKs(tablename,
+                                                  dbconst::PK_FIELDNAME);
+    m_upload_n_records = m_upload_recordwise_pks_to_send.size();
+    m_upload_current_record_index = 0;
+
+    // First, DELETE WHERE pk NOT...
+    const QString pkvalues = convert::intVectorToCsvString(m_upload_recordwise_pks_to_send);
+    Dict dict;
+    dict[KEY_OPERATION] = OP_DELETE_WHERE_KEY_NOT;
+    dict[KEY_TABLE] = tablename;
+    dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;
+    dict[KEY_PKVALUES] = pkvalues;
+    statusMessage("Sending message: " + OP_DELETE_WHERE_KEY_NOT);
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::requestRecordwisePkPrune()
+{
+    const QString sql = QString("SELECT %1, %2 FROM %3")
+            .arg(delimit(dbconst::PK_FIELDNAME),
+                 delimit(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME),
+                 delimit(m_upload_recordwise_table_in_progress));
+    const QueryResult result = m_db.query(sql);
+    const QStringList pkvalues = result.columnAsStringList(0);
+    const QStringList datevalues = result.columnAsStringList(1);
+    Dict dict;
+    dict[KEY_OPERATION] = OP_WHICH_KEYS_TO_SEND;
+    dict[KEY_TABLE] = m_upload_recordwise_table_in_progress;
+    dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;
+    dict[KEY_PKVALUES] = pkvalues.join(",");
+    dict[KEY_DATEVALUES] = datevalues.join(",");
+    m_recordwise_prune_req_sent = true;
+    statusMessage("Sending message: " + OP_WHICH_KEYS_TO_SEND);
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::sendNextRecord()
+{
+    ++m_upload_current_record_index;
+    statusMessage(QString("Uploading table %1, record %2/%3")
+                  .arg(m_upload_recordwise_table_in_progress)
+                  .arg(m_upload_current_record_index)
+                  .arg(m_upload_n_records));
+    // Don't use m_upload_recordwise_pks_to_send.size() as the count, as that
+    // changes during upload.
+    const int pk = m_upload_recordwise_pks_to_send.front();
+    m_upload_recordwise_pks_to_send.pop_front();
+
+    SqlArgs sqlargs(dbfunc::selectColumns(
+                        m_upload_recordwise_fieldnames,
+                        m_upload_recordwise_table_in_progress));
+    WhereConditions where;
+    where.add(dbconst::PK_FIELDNAME, pk);
+    where.appendWhereClauseTo(sqlargs);
+    const QueryResult result = m_db.query(sqlargs, QueryResult::FetchMode::FetchFirst);
+    if (!result.succeeded() || result.nRows() < 1) {
+        queryFail(sqlargs.sql);
+        return;
+    }
+    const QString values = result.csvRow(0);
+
+    Dict dict;
+    dict[KEY_OPERATION] = OP_UPLOAD_RECORD;
+    dict[KEY_TABLE] = m_upload_recordwise_table_in_progress;
+    dict[KEY_FIELDS] = m_upload_recordwise_fieldnames.join(",");
+    dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;
+    dict[KEY_VALUES] = values;
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+void NetworkManager::endUpload()
+{
+    statusMessage("Finishing upload");
+    Dict dict;
+    dict[KEY_OPERATION] = OP_END_UPLOAD;
+    serverPost(dict, &NetworkManager::uploadNext);
+}
+
+
+// ----------------------------------------------------------------------------
+// Upload: INTERNAL FUNCTIONS
+// ----------------------------------------------------------------------------
 
 bool NetworkManager::isPatientInfoComplete()
 {
@@ -1245,33 +1606,57 @@ bool NetworkManager::catalogueTablesForUpload()
     const QStringList patient_tables{Patient::TABLENAME,
                                      PatientIdNum::PATIENT_IDNUM_TABLENAME};
     const QStringList all_tables = m_db.getAllTables();
+    const Version server_version = m_app.serverVersion();
     bool may_upload;
-    bool server_has_table;
-    Version min_client_version;
+    bool server_has_table;  // table present on server
+    Version min_client_version;  // server's requirement for min client version
+    Version min_server_version;  // client's requirement for min server version
     for (const QString& table : all_tables) {
         const int n_records = m_db.count(table);
-        may_upload = m_app.mayUploadTable(table, server_has_table,
-                                          min_client_version);
+        may_upload = m_app.mayUploadTable(
+                    table, server_version,
+                    server_has_table, min_client_version, min_server_version);
         if (!may_upload) {
             if (server_has_table) {
-                // This table requires a newer client than we are.
+                // This table requires a newer client than we are, OR we
+                // require a newer server than it is.
                 // If the table is empty, proceed. Otherwise, fail.
-                if (n_records != 0) {
-                    statusMessage(QString(
-                        "ERROR: Table '%1' contains data; it is present on the "
-                        "server but the server requires client version >=%2; "
-                        "you are using version %3'"
-                    ).arg(table, min_client_version.toString(),
-                          camcopsversion::CAMCOPS_VERSION.toString()));
-                    return false;
+                if (server_version < min_server_version) {
+                    if (n_records != 0) {
+                        statusMessage(QString(
+                            "ERROR: Table '%1' contains data; it is present "
+                            "on the server but the client requires server "
+                            "version >=%2; the server is version %3'"
+                        ).arg(table, min_server_version.toString(),
+                              server_version.toString()));
+                        return false;
+                    } else {
+                        statusMessage(QString(
+                            "WARNING: Table '%1' is present on the server but "
+                            "the client requires server version >=%2; the "
+                            "server is version %3; proceeding ONLY BECAUSE "
+                            "THIS TABLE IS EMPTY."
+                        ).arg(table, min_server_version.toString(),
+                              server_version.toString()));
+                    }
                 } else {
-                    statusMessage(QString(
-                        "WARNING: Table '%1' is present on the server but the "
-                        "server requires client version >=%2; you are using "
-                        "version %3; proceeding ONLY BECAUSE THIS TABLE IS "
-                        "EMPTY."
-                    ).arg(table, min_client_version.toString(),
-                          camcopsversion::CAMCOPS_VERSION.toString()));
+                    if (n_records != 0) {
+                        statusMessage(QString(
+                            "ERROR: Table '%1' contains data; it is present "
+                            "on the server but the server requires client "
+                            "version >=%2; you are using version %3'"
+                        ).arg(table, min_client_version.toString(),
+                              camcopsversion::CAMCOPS_VERSION.toString()));
+                        return false;
+                    } else {
+                        statusMessage(QString(
+                            "WARNING: Table '%1' is present on the server but "
+                            "the server requires client version >=%2; you are "
+                            "using version %3; proceeding ONLY BECAUSE THIS "
+                            "TABLE IS EMPTY."
+                        ).arg(table, min_client_version.toString(),
+                              camcopsversion::CAMCOPS_VERSION.toString()));
+                    }
                 }
             } else {
                 // The table isn't on the server.
@@ -1325,164 +1710,30 @@ bool NetworkManager::catalogueTablesForUpload()
 }
 
 
-void NetworkManager::checkDeviceRegistered()
-{
-    statusMessage("Checking device is registered with server");
-    Dict dict;
-    dict[KEY_OPERATION] = OP_CHECK_DEVICE_REGISTERED;
-    serverPost(dict, &NetworkManager::uploadNext);
-}
-
-
-void NetworkManager::uploadNext(QNetworkReply* reply)
-{
-    // This function imposes an order on the upload sequence, which makes
-    // everything else work.
-
-    // The option for reply to be nullptr is so we can do a no-op.
-    if (reply && !processServerReply(reply)) {
-        return;
-    }
-    if (m_upload_next_stage == NextUploadStage::Invalid) {
-        // stage might be Invalid if user hit cancel while messages still
-        // inbound
-        return;
-    }
-    statusMessage("... OK");
-
-    switch (m_upload_next_stage) {
-
-    case NextUploadStage::CheckUser:
-        checkUploadUser();
-        m_upload_next_stage = NextUploadStage::FetchPolicies;
-        break;
-
-    case NextUploadStage::FetchPolicies:
-        uploadFetchServerIdInfo();
-        m_upload_next_stage = NextUploadStage::CheckPoliciesThenStartUpload;
-        break;
-
-    case NextUploadStage::CheckPoliciesThenStartUpload:
-        if (!isServerVersionOK() || !arePoliciesOK() || !areDescriptionsOK()) {
-            fail();
-            return;
-        }
-        startUpload();
-        if (m_upload_method == UploadMethod::Copy) {
-            // If we copy, we proceed to uploading
-            m_upload_next_stage = NextUploadStage::Uploading;
-        } else {
-            // If we're moving, we preserve records.
-            m_upload_next_stage = NextUploadStage::StartPreservation;
-        }
-        break;
-
-    case NextUploadStage::StartPreservation:
-        startPreservation();
-        m_upload_next_stage = NextUploadStage::Uploading;
-        break;
-
-    case NextUploadStage::Uploading:
-        if (!m_upload_empty_tables.isEmpty()) {
-
-            sendEmptyTables(m_upload_empty_tables);
-            m_upload_empty_tables.clear();
-
-        } else if (!m_upload_tables_to_send_whole.isEmpty()) {
-
-            QString table = m_upload_tables_to_send_whole.front();
-            m_upload_tables_to_send_whole.pop_front();
-            sendTableWhole(table);
-
-        } else if (!m_upload_recordwise_pks_to_send.isEmpty()) {
-
-            if (!m_recordwise_prune_req_sent) {
-                requestRecordwisePkPrune();
-            } else {
-                if (!m_recordwise_pks_pruned) {
-                    if (!pruneRecordwisePks()) {
-                        fail();
-                        return;
-                    }
-                    if (m_upload_recordwise_pks_to_send.isEmpty()) {
-                        // Quasi-recursive way of saying "do whatever you would
-                        // have done otherwise", since the server had said "I'm
-                        // not interested in any records from that table".
-                        statusMessage("... server doesn't want anything from "
-                                      "this table");
-                        uploadNext(nullptr);
-                        return;
-                    }
-                }
-                sendNextRecord();
-            }
-
-        } else if (!m_upload_tables_to_send_recordwise.isEmpty()) {
-
-            QString table = m_upload_tables_to_send_recordwise.front();
-            m_upload_tables_to_send_recordwise.pop_front();
-            sendTableRecordwise(table);
-
-        } else {
-
-            endUpload();
-            m_upload_next_stage = NextUploadStage::Finished;
-
-        }
-        break;
-
-    case NextUploadStage::Finished:
-        // All done successfully
-        wipeTables();
-        statusMessage("Finished");
-        m_app.setVar(varconst::LAST_SUCCESSFUL_UPLOAD, datetime::now());
-        m_app.setNeedsUpload(false);
-        if (m_upload_method != UploadMethod::Copy) {
-            m_app.deselectPatient();
-        }
-        succeed();
-        break;
-
-    default:
-        uifunc::stopApp("Bug: unknown m_upload_next_stage");
-        break;
-    }
-}
-
-
-void NetworkManager::checkUploadUser()
-{
-    statusMessage("Checking user/device permitted to upload");
-    Dict dict;
-    dict[KEY_OPERATION] = OP_CHECK_UPLOAD_USER_DEVICE;
-    serverPost(dict, &NetworkManager::uploadNext);
-}
-
-
-void NetworkManager::uploadFetchServerIdInfo()
-{
-    statusMessage("Fetching server's version/ID policies/ID descriptions");
-    Dict dict;
-    dict[KEY_OPERATION] = OP_GET_ID_INFO;
-    serverPost(dict, &NetworkManager::uploadNext);
-}
-
-
 bool NetworkManager::isServerVersionOK()
 {
     statusMessage("Checking server CamCOPS version");
     const QString server_version_str = m_reply_dict[KEY_SERVER_CAMCOPS_VERSION];
     const Version server_version(server_version_str);
-    const bool ok = server_version >= camcopsversion::MINIMUM_SERVER_VERSION;
-    if (ok) {
-        statusMessage("... OK");
-    } else {
+    const Version stored_server_version = m_app.serverVersion();
+
+    if (server_version < camcopsversion::MINIMUM_SERVER_VERSION) {
         statusMessage(QString("Server CamCOPS version (%1) is too old; must "
                               "be >= %2")
                       .arg(server_version_str,
                            camcopsversion::MINIMUM_SERVER_VERSION.toString()));
+        return false;
     }
-    return ok;
+    if (server_version != stored_server_version) {
+        statusMessage(QString("Server version (%1) doesn't match stored "
+                              "version (%2). ")
+                      .arg(server_version.toString(),
+                           stored_server_version.toString()) +
+                      PLEASE_REREGISTER);
+        return false;
+    }
+    statusMessage("... OK");
+    return true;
 }
 
 
@@ -1584,115 +1835,6 @@ QVector<int> NetworkManager::whichIdnumsUsedOnTablet()
 }
 
 
-void NetworkManager::startUpload()
-{
-    statusMessage("Starting upload");
-    Dict dict;
-    dict[KEY_OPERATION] = OP_START_UPLOAD;
-    serverPost(dict, &NetworkManager::uploadNext);
-}
-
-
-void NetworkManager::startPreservation()
-{
-    statusMessage("Starting preservation");
-    Dict dict;
-    dict[KEY_OPERATION] = OP_START_PRESERVATION;
-    serverPost(dict, &NetworkManager::uploadNext);
-}
-
-
-void NetworkManager::sendEmptyTables(const QStringList& tablenames)
-{
-    statusMessage(tr("Uploading empty tables: ") + tablenames.join(", "));
-    Dict dict;
-    dict[KEY_OPERATION] = OP_UPLOAD_EMPTY_TABLES;
-    dict[KEY_TABLES] = tablenames.join(",");
-    serverPost(dict, &NetworkManager::uploadNext);
-}
-
-
-void NetworkManager::sendTableWhole(const QString& tablename)
-{
-    statusMessage(tr("Uploading table: ") + tablename);
-    Dict dict;
-    dict[KEY_OPERATION] = OP_UPLOAD_TABLE;
-    dict[KEY_TABLE] = tablename;
-    const QStringList fieldnames = m_db.getFieldNames(tablename);
-    dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;  // version 2.0.4
-    // There was a BUG here before v2.0.4:
-    // - the old Titanium code gave fieldnames starting with the PK
-    // - the SQLite reporting order isn't necessarily like that
-    // - for the upload_table command, the receiving code relied on the PK
-    //   being first
-    // - So as of tablet v2.0.4, the client explicitly reports PK name (and
-    //   makes no guarantee about field order) and as of server v2.1.0, the
-    //   server takes the PK name if the tablet is >=2.0.4, or "id" otherwise
-    //   (because the client PK name always was "id"!). This allows old tablets
-    //   to work (for which: could use fieldnames[0] or "id") and early buggy
-    //   C++ clients to work (for which: "id" is the only valid option).
-    dict[KEY_FIELDS] = fieldnames.join(",");
-    const QString sql = dbfunc::selectColumns(fieldnames, tablename);
-    const QueryResult result = m_db.query(sql);
-    if (!result.succeeded()) {
-        queryFail(sql);
-        return;
-    }
-    const int nrows = result.nRows();
-    for (int record = 0; record < nrows; ++record) {
-        dict[KEYSPEC_RECORD.arg(record)] = result.csvRow(record);
-    }
-    dict[KEY_NRECORDS] = QString::number(nrows);
-    serverPost(dict, &NetworkManager::uploadNext);
-}
-
-
-void NetworkManager::sendTableRecordwise(const QString& tablename)
-{
-    statusMessage(tr("Preparing to send table (recordwise): ") + tablename);
-
-    m_upload_recordwise_table_in_progress = tablename;
-    m_upload_recordwise_fieldnames = m_db.getFieldNames(tablename);
-    m_recordwise_prune_req_sent = false;
-    m_recordwise_pks_pruned = false;
-    m_upload_recordwise_pks_to_send = m_db.getPKs(tablename,
-                                                  dbconst::PK_FIELDNAME);
-    m_upload_n_records = m_upload_recordwise_pks_to_send.size();
-    m_upload_current_record_index = 0;
-
-    // First, DELETE WHERE pk NOT...
-    const QString pkvalues = convert::intVectorToCsvString(m_upload_recordwise_pks_to_send);
-    Dict dict;
-    dict[KEY_OPERATION] = OP_DELETE_WHERE_KEY_NOT;
-    dict[KEY_TABLE] = tablename;
-    dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;
-    dict[KEY_PKVALUES] = pkvalues;
-    statusMessage("Sending message: " + OP_DELETE_WHERE_KEY_NOT);
-    serverPost(dict, &NetworkManager::uploadNext);
-}
-
-
-void NetworkManager::requestRecordwisePkPrune()
-{
-    const QString sql = QString("SELECT %1, %2 FROM %3")
-            .arg(delimit(dbconst::PK_FIELDNAME),
-                 delimit(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME),
-                 delimit(m_upload_recordwise_table_in_progress));
-    const QueryResult result = m_db.query(sql);
-    const QStringList pkvalues = result.columnAsStringList(0);
-    const QStringList datevalues = result.columnAsStringList(1);
-    Dict dict;
-    dict[KEY_OPERATION] = OP_WHICH_KEYS_TO_SEND;
-    dict[KEY_TABLE] = m_upload_recordwise_table_in_progress;
-    dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;
-    dict[KEY_PKVALUES] = pkvalues.join(",");
-    dict[KEY_DATEVALUES] = datevalues.join(",");
-    m_recordwise_prune_req_sent = true;
-    statusMessage("Sending message: " + OP_WHICH_KEYS_TO_SEND);
-    serverPost(dict, &NetworkManager::uploadNext);
-}
-
-
 bool NetworkManager::pruneRecordwisePks()
 {
     if (!m_reply_dict.contains(KEY_RESULT)) {
@@ -1705,50 +1847,6 @@ bool NetworkManager::pruneRecordwisePks()
     m_upload_n_records = m_upload_recordwise_pks_to_send.size();
     m_recordwise_pks_pruned = true;
     return true;
-}
-
-
-void NetworkManager::sendNextRecord()
-{
-    ++m_upload_current_record_index;
-    statusMessage(QString("Uploading table %1, record %2/%3")
-                  .arg(m_upload_recordwise_table_in_progress)
-                  .arg(m_upload_current_record_index)
-                  .arg(m_upload_n_records));
-    // Don't use m_upload_recordwise_pks_to_send.size() as the count, as that
-    // changes during upload.
-    const int pk = m_upload_recordwise_pks_to_send.front();
-    m_upload_recordwise_pks_to_send.pop_front();
-
-    SqlArgs sqlargs(dbfunc::selectColumns(
-                        m_upload_recordwise_fieldnames,
-                        m_upload_recordwise_table_in_progress));
-    WhereConditions where;
-    where.add(dbconst::PK_FIELDNAME, pk);
-    where.appendWhereClauseTo(sqlargs);
-    const QueryResult result = m_db.query(sqlargs, QueryResult::FetchMode::FetchFirst);
-    if (!result.succeeded() || result.nRows() < 1) {
-        queryFail(sqlargs.sql);
-        return;
-    }
-    const QString values = result.csvRow(0);
-
-    Dict dict;
-    dict[KEY_OPERATION] = OP_UPLOAD_RECORD;
-    dict[KEY_TABLE] = m_upload_recordwise_table_in_progress;
-    dict[KEY_FIELDS] = m_upload_recordwise_fieldnames.join(",");
-    dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;
-    dict[KEY_VALUES] = values;
-    serverPost(dict, &NetworkManager::uploadNext);
-}
-
-
-void NetworkManager::endUpload()
-{
-    statusMessage("Finishing upload");
-    Dict dict;
-    dict[KEY_OPERATION] = OP_END_UPLOAD;
-    serverPost(dict, &NetworkManager::uploadNext);
 }
 
 

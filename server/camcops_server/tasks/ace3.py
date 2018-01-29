@@ -543,7 +543,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                         <tr>
                             {is_complete}
                             <td class="figure" rowspan="7">{figure}</td>
-                        </td>
+                        </tr>
             """.format(is_complete=self.get_is_complete_td_pair(req),
                        figure=figurehtml) +
             tr("Total ACE-III score <sup>[1]</sup>", answer(t) + " / 100") +

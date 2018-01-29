@@ -64,6 +64,7 @@
 #include "dbobjects/blob.h"
 #include "dbobjects/extrastring.h"
 #include "dbobjects/idnumdescription.h"
+#include "dbobjects/patientidnum.h"
 #include "dbobjects/patientsorter.h"
 #include "dbobjects/storedvar.h"
 #include "dialogs/scrollmessagebox.h"
@@ -675,6 +676,7 @@ void CamcopsApp::makeOtherSystemTables()
     idnumdesc_specimen.makeIndexes();
 
     // Make special tables: main database
+    // - See also QStringList CamcopsApp::nonTaskTables()
 
     Blob blob_specimen(*this, *m_datadb);
     blob_specimen.makeTable();
@@ -682,6 +684,9 @@ void CamcopsApp::makeOtherSystemTables()
 
     Patient patient_specimen(*this, *m_datadb);
     patient_specimen.makeTable();
+
+    PatientIdNum patient_idnum_specimen(*this, *m_datadb);
+    patient_idnum_specimen.makeTable();
 }
 
 
@@ -1371,18 +1376,6 @@ PatientPtrList CamcopsApp::getAllPatients(const bool sorted)
 }
 
 
-IdPolicy CamcopsApp::uploadPolicy() const
-{
-    return IdPolicy(varString(varconst::ID_POLICY_UPLOAD));
-}
-
-
-IdPolicy CamcopsApp::finalizePolicy() const
-{
-    return IdPolicy(varString(varconst::ID_POLICY_FINALIZE));
-}
-
-
 // ============================================================================
 // CSS convenience; fonts etc.
 // ============================================================================
@@ -1451,8 +1444,26 @@ int CamcopsApp::fontSizePt(uiconst::FontSize fontsize,
 
 
 // ============================================================================
-// ID descriptions (downloaded from server)
+// Server info
 // ============================================================================
+
+Version CamcopsApp::serverVersion() const
+{
+    return Version(varString(varconst::SERVER_CAMCOPS_VERSION));
+}
+
+
+IdPolicy CamcopsApp::uploadPolicy() const
+{
+    return IdPolicy(varString(varconst::ID_POLICY_UPLOAD));
+}
+
+
+IdPolicy CamcopsApp::finalizePolicy() const
+{
+    return IdPolicy(varString(varconst::ID_POLICY_FINALIZE));
+}
+
 
 QPair<QString, QString> CamcopsApp::idDescriptionDirect(const int which_idnum)  // desc, shortdesc
 {
@@ -1675,18 +1686,48 @@ void CamcopsApp::setAllowedServerTables(const RecordList& recordlist)
 
 
 bool CamcopsApp::mayUploadTable(const QString& tablename,
+                                const Version& server_version,
                                 bool& server_has_table,
-                                Version& min_client_version)
+                                Version& min_client_version,
+                                Version& min_server_version)
 {
+    // We always write all three return-by-reference values.
+    min_server_version = minServerVersionForTable(tablename);
     AllowedServerTable allowedtable(*this, *m_sysdb, tablename);
     server_has_table = allowedtable.exists();
     if (!server_has_table) {
         min_client_version = Version::makeInvalidVersion();
         return false;
+    } else {
+        min_client_version = allowedtable.minClientVersion();
     }
-    min_client_version = allowedtable.minClientVersion();
-    return camcopsversion::CAMCOPS_VERSION >= min_client_version;
+    return camcopsversion::CAMCOPS_VERSION >= min_client_version &&
+            server_version >= min_server_version;
 }
+
+
+QStringList CamcopsApp::nonTaskTables() const
+{
+    // See also CamcopsApp::makeOtherSystemTables()
+    return QStringList{
+        Blob::TABLENAME,
+        Patient::TABLENAME,
+        PatientIdNum::PATIENT_IDNUM_TABLENAME
+    };
+}
+
+
+Version CamcopsApp::minServerVersionForTable(const QString& tablename)
+{
+    const QStringList non_task_tables = nonTaskTables();
+    if (non_task_tables.contains(tablename)) {
+        return camcopsversion::MINIMUM_SERVER_VERSION;
+        // generic minimum version
+    }
+    TaskFactory* factory = taskFactory();
+    return factory->minimumServerVersion(tablename);
+}
+
 
 
 // ============================================================================

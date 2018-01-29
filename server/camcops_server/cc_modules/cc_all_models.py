@@ -91,6 +91,8 @@ from camcops_server.tasks import *  # see tasks/__init__.py
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
+# log.critical("Loading cc_all_models")
+
 
 # =============================================================================
 # Ensure that anything with an AbstractConcreteBase gets its mappers

@@ -30,6 +30,7 @@ We use primarily SQLAlchemy Core here (in contrast to the ORM used elsewhere).
 # =============================================================================
 
 import logging
+# from pprint import pformat
 import time
 from typing import (Any, Dict, Iterable, List, Optional, Sequence, Tuple,
                     TYPE_CHECKING)
@@ -152,6 +153,7 @@ def all_tables_with_min_client_version() -> Dict[str, Version]:
     d[Blob.__tablename__] = MINIMUM_TABLET_VERSION
     d[Patient.__tablename__] = MINIMUM_TABLET_VERSION
     d[PatientIdNum.__tablename__] = MINIMUM_TABLET_VERSION
+    # log.critical("{}", pformat(d))
     return d
 
 
@@ -159,7 +161,7 @@ def all_tables_with_min_client_version() -> Dict[str, Version]:
 # Validators
 # =============================================================================
 
-def ensure_valid_table_name(tablename: str) -> None:
+def ensure_valid_table_name(req: CamcopsRequest, tablename: str) -> None:
     """
     Ensures a table name doesn't contain bad characters, isn't a reserved
     table that the user is prohibited from accessing, and is a valid table name
@@ -167,9 +169,23 @@ def ensure_valid_table_name(tablename: str) -> None:
 
     ... 2017-10-08: shortcut to all that: it's OK if it's listed as a valid
     client table.
+    ... 2018-01-16 (v2.2.0): check also that client version is OK
     """
     if tablename not in CLIENT_TABLE_MAP:
         fail_user_error("Invalid client table name: {}".format(tablename))
+    tables_versions = all_tables_with_min_client_version()
+    assert tablename in tables_versions
+    client_version = req.tabletsession.tablet_version_ver
+    minimum_client_version = tables_versions[tablename]
+    if client_version < minimum_client_version:
+        fail_user_error(
+            "Client CamCOPS version {cv} is less than the version ({minver}) "
+            "required to handle table {t}".format(
+                cv=client_version,
+                minver=minimum_client_version,
+                t=tablename
+            )
+        )
 
 
 def ensure_valid_field_name(table: Table, fieldname: str) -> None:
@@ -242,7 +258,7 @@ def get_table_from_req(req: CamcopsRequest, var: str) -> Table:
     if tablename in SILENTLY_IGNORE_TABLENAMES:
         raise IgnoringAntiqueTableException(
             "Ignoring table {}".format(tablename))
-    ensure_valid_table_name(tablename)
+    ensure_valid_table_name(req, tablename)
     return CLIENT_TABLE_MAP[tablename]
 
 
@@ -264,7 +280,7 @@ def get_tables_from_post_var(req: CamcopsRequest,
         if tn in SILENTLY_IGNORE_TABLENAMES:
             log.warning(IGNORING_ANTIQUE_TABLE_MESSAGE)
             continue
-        ensure_valid_table_name(tn)
+        ensure_valid_table_name(req, tn)
         tables.append(CLIENT_TABLE_MAP[tn])
     return tables
 

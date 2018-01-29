@@ -39,6 +39,7 @@ from .cbir import CbiR
 from .ceca import CecaQ3
 from .cgi_task import Cgi
 from .cgisch import CgiSch
+from .cisr import Cisr
 from .ciwa import Ciwa
 from .contactlog import ContactLog
 from .cope import CopeBrief

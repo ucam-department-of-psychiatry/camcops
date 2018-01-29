@@ -30,7 +30,7 @@ from cardinal_pythonlib.configfiles import (
     get_config_parameter,
     get_config_parameter_boolean,
 )
-from cardinal_pythonlib.datetimefunc import coerce_to_date
+from cardinal_pythonlib.datetimefunc import coerce_to_pendulum_date
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 from pendulum import Pendulum
@@ -209,10 +209,10 @@ class RecipientDefinition(object):
                 True)
             sd = get_config_parameter(
                 config, section, cpr.START_DATE, str, None)
-            self.start_date = coerce_to_date(sd)
+            self.start_date = coerce_to_pendulum_date(sd)
             ed = get_config_parameter(
                 config, section, cpr.END_DATE, str, None)
-            self.end_date = coerce_to_date(ed)
+            self.end_date = coerce_to_pendulum_date(ed)
             self.finalized_only = get_config_parameter_boolean(
                 config, section, cpr.FINALIZED_ONLY, True)
             self.task_format = get_config_parameter(

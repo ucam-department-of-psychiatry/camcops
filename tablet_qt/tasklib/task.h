@@ -69,6 +69,7 @@ public:
     virtual bool hasExtraStrings() const;
     virtual bool isTaskPermissible() const;
     virtual QString whyNotPermissible() const;
+    virtual Version minimumServerVersion() const;
     // ------------------------------------------------------------------------
     // Tables and other classmethods
     // ------------------------------------------------------------------------

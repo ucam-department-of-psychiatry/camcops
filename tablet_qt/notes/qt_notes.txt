@@ -56,7 +56,7 @@ Licensing
 - License of CamCOPS should therefore be LGPL v3 (+/- others if dual licensing
   required), or GPLv3.
 - The main difference between GPL and LGPL is that anything with GPL licensing
-  must be relased under the GPL.
+  must be released under the GPL.
   See also
     - http://www.gnu.org/licenses/why-not-lgpl.html
     - http://www.gnu.org/licenses/license-recommendations.html

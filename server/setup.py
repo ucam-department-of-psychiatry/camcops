@@ -348,6 +348,7 @@ camcops_server
     include_package_data=True,  # use MANIFEST.in during install?
 
     install_requires=[
+        # 'aenum==2.0.9',  # advanced enums
         'alembic==0.9.6',  # database migrations
         # 'arrow==0.10.0',  # better datetime
         'cardinal_pythonlib==1.0.9',  # RNC libraries

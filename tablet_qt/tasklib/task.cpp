@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QVariant>
 #include "core/camcopsapp.h"
+#include "core/camcopsversion.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
@@ -225,6 +226,12 @@ QString Task::whyNotPermissible() const
         return prohibits_research + (is_unknown(research) ? unknown : yes);
     }
     return tr("Task permissible");
+}
+
+
+Version Task::minimumServerVersion() const
+{
+    return camcopsversion::MINIMUM_SERVER_VERSION;
 }
 
 

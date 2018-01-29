@@ -88,6 +88,7 @@ public:
     TaskPtrList fetchAllForPatient(int patient_id) const;
     TaskPtrList allSpecimens() const;
     TaskPtrList allSpecimensExceptAnonymous() const;
+    Version minimumServerVersion(const QString& tablename) const;  // main or sub-table
 protected:
     CamcopsApp& m_app;
     QStringList m_tablenames;
