@@ -50,7 +50,6 @@ import tempfile
 from typing import List
 
 from camcops_server.cc_modules.cc_baseconstants import (
-    DOCS_DIR,
     INTROSPECTABLE_EXTENSIONS,
     MANUAL_FILENAME_ODT,
     MANUAL_FILENAME_PDF,

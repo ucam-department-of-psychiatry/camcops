@@ -407,7 +407,7 @@ PSYCHOMOTOR_AGITATION = 2
 V_MISSING = 0  # Integer value of a missing answer
 V_UNKNOWN = -1  # Dummy value, never used for answers
 
-SCOREPREFIX = "... "
+SCORE_PREFIX = "... "
 
 # -----------------------------------------------------------------------------
 # Question numbers
@@ -1332,10 +1332,10 @@ class CisrResult(object):
             self.decisions.append(decision)
 
     def _showint(self, name: str, value: int) -> None:
-        self.decide("{}{}: {}".format(SCOREPREFIX, name, value))
+        self.decide("{}{}: {}".format(SCORE_PREFIX, name, value))
 
     def _showbool(self, name: str, value: bool) -> None:
-        self.decide("{}{}: {}".format(SCOREPREFIX, name,
+        self.decide("{}{}: {}".format(SCORE_PREFIX, name,
                                       "true" if value else "false"))
 
     def diagnosis_name(self, diagnosis_code: int) -> str:
@@ -1681,7 +1681,7 @@ class CisrResult(object):
 
 class Cisr(TaskHasPatientMixin, Task):
     __tablename__ = "cisr"
-    shortname = "CIS–R"
+    shortname = "CIS-R"
     longname = "Clinical Interview Schedule, Revised"
     provides_trackers = False
 
@@ -3844,9 +3844,9 @@ class Cisr(TaskHasPatientMixin, Task):
     def get_task_html(self, req: CamcopsRequest) -> str:
         # Iterate only once, for efficiency, so don't use get_result().
 
-        def qa_row(q: CisrQuestion, qtext: str,
-                     a: Optional[str]) -> str:
-            return tr("{}. {}".format(q.value, qtext), answer(a))
+        def qa_row(q_: CisrQuestion, qtext: str,
+                   a_: Optional[str]) -> str:
+            return tr("{}. {}".format(q_.value, qtext), answer(a_))
 
         question_html_list = []  # type: List[str]
         q = CQ.START_MARKER
@@ -3934,7 +3934,7 @@ class Cisr(TaskHasPatientMixin, Task):
                 use.” — Prof. Glyn Lewis, personal communication to Rudolf Cardinal,
                 27 Oct 2017.
             </div>
-        """.format(
+        """.format(  # noqa
             is_complete_html_td=is_complete_html_td,
             diagnosis_1=ws.webify(result.diagnosis_name(result.diagnosis_1)),
             diagnosis_2=ws.webify(result.diagnosis_name(result.diagnosis_2)),

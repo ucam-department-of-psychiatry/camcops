@@ -42,9 +42,9 @@ from colander import (
 import hl7
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import (
-    and_, exists, literal, not_, or_, select,
-    SelectBase, union,
+    and_, exists, literal, not_, or_, select, union,
 )
+from sqlalchemy.sql.selectable import SelectBase
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
 
@@ -553,7 +553,6 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
     - We need a linking number to perform exclusion criteria.
     - Therefore, we use a single ID number, which must not be NULL.
     """
-
     # The basics:
     desc = req.get_id_desc(which_idnum) or "BAD_IDNUM"
     select_fields = [
@@ -737,3 +736,13 @@ class DiagnosisICD10FinderReport(Report):
         # log.critical("Final query:\n{}".format(get_literal_query(
         #     q, bind=req.engine)))
         return q
+
+    @staticmethod
+    def get_test_appstruct() -> Dict[str, Any]:
+        return {
+            ViewParam.WHICH_IDNUM: 1,
+            ViewParam.DIAGNOSES_INCLUSION: ['F32%'],
+            ViewParam.DIAGNOSES_EXCLUSION: [],
+            ViewParam.AGE_MINIMUM: None,
+            ViewParam.AGE_MAXIMUM: None,
+        }

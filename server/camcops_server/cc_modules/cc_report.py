@@ -132,6 +132,14 @@ class Report(object):
         schema_class = self.get_paramform_schema_class()
         return ReportParamForm(request=req, schema_class=schema_class)
 
+    @staticmethod
+    def get_test_appstruct() -> Dict[str, Any]:
+        """
+        What this function returns is used as the specimen appstruct for
+        unit tests.
+        """
+        return {}
+
     # -------------------------------------------------------------------------
     # Common functionality: classmethods
     # -------------------------------------------------------------------------
@@ -249,8 +257,10 @@ class ReportTests(DemoDatabaseTestCase):
             self.assertIsInstance(r.title, str)
             self.assertIsInstance(r.superuser_only, bool)
 
+            appstruct = r.get_test_appstruct()
+
             try:
-                q = r.get_query(req)
+                q = r.get_query(req, appstruct)
                 assert (q is None or
                         isinstance(q, SelectBase) or
                         isinstance(q, Query)), (
@@ -261,8 +271,8 @@ class ReportTests(DemoDatabaseTestCase):
                 pass
 
             try:
-                self.assertIsInstanceOrNone(r.get_rows_colnames(req),
-                                            PlainReportType)
+                self.assertIsInstanceOrNone(
+                    r.get_rows_colnames(req, appstruct), PlainReportType)
             except HTTPBadRequest:
                 pass
 
@@ -272,6 +282,6 @@ class ReportTests(DemoDatabaseTestCase):
             self.assertIsInstance(r.get_form(req), Form)
 
             try:
-                self.assertIsInstance(r.get_response(req), Response)
+                self.assertIsInstance(r.get_response(req, appstruct), Response)
             except HTTPBadRequest:
                 pass
