@@ -59,6 +59,23 @@ const QString Task::RESPONDENT_RELATIONSHIP("respondent_relationship");
 
 const QString Task::INCOMPLETE_MARKER(QObject::tr("<b>(INCOMPLETE)</b>"));
 
+const QString PROHIBITS_COMMERCIAL(QObject::tr(
+    "Task not allowed for commercial use (see Task Information)."));
+const QString PROHIBITS_CLINICAL(QObject::tr(
+    "Task not allowed for research use (see Task Information)."));
+const QString PROHIBITS_EDUCATIONAL(QObject::tr(
+    "Task not allowed for educational use (see Task Information)."));
+const QString PROHIBITS_RESEARCH(QObject::tr(
+    "Task not allowed for research use (see Task Information)."));
+const QString PROHIBITED_YES(QObject::tr(
+    " You have said you ARE using this software in that context "
+    "(see Settings). To use this task, you must seek permission "
+    "from the copyright holder (see Task Information)."));
+const QString PROHIBITED_UNKNOWN(QObject::tr(
+    " You have NOT SAID whether you are using this "
+    "software in that context (see Settings)."));
+const QString PERMISSIBLE(QObject::tr("Task permissible"));
+
 
 Task::Task(CamcopsApp& app,
            DatabaseManager& db,
@@ -162,44 +179,8 @@ bool Task::hasRespondent() const
 }
 
 
-bool Task::isTaskPermissible() const
+bool Task::isTaskPermissible(QString& why_not_permissible) const
 {
-    const QVariant commercial = m_app.var(varconst::IP_USE_COMMERCIAL);
-    const QVariant clinical = m_app.var(varconst::IP_USE_CLINICAL);
-    const QVariant educational = m_app.var(varconst::IP_USE_EDUCATIONAL);
-    const QVariant research = m_app.var(varconst::IP_USE_RESEARCH);
-    if (prohibitsCommercial() && !mathfunc::eq(commercial, false)) {
-        return false;
-    }
-    if (prohibitsClinical() && !mathfunc::eq(clinical, false)) {
-        return false;
-    }
-    if (prohibitsEducational() && !mathfunc::eq(educational, false)) {
-        return false;
-    }
-    if (prohibitsResearch() && !mathfunc::eq(research, false)) {
-        return false;
-    }
-    return true;
-}
-
-
-QString Task::whyNotPermissible() const
-{
-    const QString prohibits_commercial = tr("Task not allowed for commercial"
-                                            " use (see Task Information).");
-    const QString prohibits_clinical = tr("Task not allowed for research"
-                                          " use (see Task Information).");
-    const QString prohibits_educational = tr("Task not allowed for educational"
-                                             " use (see Task Information).");
-    const QString prohibits_research = tr("Task not allowed for research"
-                                          " use (see Task Information).");
-    const QString yes = tr(
-                " You have said you ARE using this software in that context "
-                "(see Settings). To use this task, you must seek permission "
-                "from the copyright holder (see Task Information).");
-    const QString unknown = tr(" You have NOT SAID whether you are using this "
-                               "software in that context (see Settings).");
     const QVariant commercial = m_app.var(varconst::IP_USE_COMMERCIAL);
     const QVariant clinical = m_app.var(varconst::IP_USE_CLINICAL);
     const QVariant educational = m_app.var(varconst::IP_USE_EDUCATIONAL);
@@ -212,26 +193,77 @@ QString Task::whyNotPermissible() const
         return v.isNull() || v.toInt() == CommonOptions::UNKNOWN_INT;
     };
 
-
     if (prohibitsCommercial() && not_definitely_false(commercial)) {
-        return prohibits_commercial + (is_unknown(commercial) ? unknown : yes);
+        why_not_permissible = PROHIBITS_COMMERCIAL +
+                (is_unknown(commercial) ? PROHIBITED_UNKNOWN
+                                        : PROHIBITED_YES);
+        return false;
     }
     if (prohibitsClinical() && not_definitely_false(clinical)) {
-        return prohibits_clinical + (is_unknown(clinical) ? unknown : yes);
+        why_not_permissible = PROHIBITS_CLINICAL +
+                (is_unknown(clinical) ? PROHIBITED_UNKNOWN
+                                      : PROHIBITED_YES);
+        return false;
     }
     if (prohibitsEducational() && not_definitely_false(educational)) {
-        return prohibits_educational + (is_unknown(educational) ? unknown : yes);
+        why_not_permissible = PROHIBITS_EDUCATIONAL +
+                (is_unknown(educational) ? PROHIBITED_UNKNOWN
+                                         : PROHIBITED_YES);
+        return false;
     }
     if (prohibitsResearch() && not_definitely_false(research)) {
-        return prohibits_research + (is_unknown(research) ? unknown : yes);
+        why_not_permissible = PROHIBITS_RESEARCH +
+                (is_unknown(research) ? PROHIBITED_UNKNOWN
+                                      : PROHIBITED_YES);
+        return false;
     }
-    return tr("Task permissible");
+
+    why_not_permissible = PERMISSIBLE;
+    return true;
 }
 
 
 Version Task::minimumServerVersion() const
 {
     return camcopsversion::MINIMUM_SERVER_VERSION;
+}
+
+
+bool Task::isTaskUploadable(QString& why_not_uploadable) const
+{
+    bool server_has_table;
+    Version min_client_version;
+    Version min_server_version;
+    const Version server_version = m_app.serverVersion();
+    const QString table = tablename();
+    bool may_upload = m_app.mayUploadTable(
+                table, server_version,
+                server_has_table, min_client_version, min_server_version);
+    if (may_upload) {
+        why_not_uploadable = "Task uploadable";
+    } else {
+        if (!server_has_table) {
+            why_not_uploadable = QString(
+                    "Table '%1' absent on server.").arg(table);
+        } else if (camcopsversion::CAMCOPS_VERSION < min_client_version) {
+            why_not_uploadable = QString(
+                    "Server requires client version >=%1 for table '%2', "
+                    "but we are only client version %3."
+                    ).arg(min_client_version.toString(),
+                          table,
+                          camcopsversion::CAMCOPS_VERSION.toString());
+        } else if (server_version >= min_server_version) {
+            why_not_uploadable = QString(
+                    "This client requires server version >=%1 for table '%2', "
+                    "but the server is only version %3."
+                    ).arg(min_server_version.toString(),
+                          table,
+                          server_version.toString());
+        } else {
+            why_not_uploadable = "? [bug in Task::isTaskUploadable]";
+        }
+    }
+    return may_upload;
 }
 
 

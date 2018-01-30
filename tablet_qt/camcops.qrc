@@ -242,5 +242,6 @@
         <file>resources/camcops/camera_qml/images/camera_white_balance_sunny.png</file>
         <file>resources/camcops/camera_qml/images/toolbutton.png</file>
         <file>resources/camcops/camera_qml/images/toolbutton.sci</file>
+        <file>taskinfo/cisr.html</file>
     </qresource>
 </RCC>

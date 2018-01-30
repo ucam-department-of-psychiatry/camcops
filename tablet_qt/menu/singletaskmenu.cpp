@@ -18,8 +18,10 @@
 */
 
 #include "singletaskmenu.h"
+#include <QPushButton>
 #include "common/uiconst.h"
 #include "dbobjects/patient.h"
+#include "dialogs/scrollmessagebox.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
 #include "lib/stringfunc.h"
@@ -113,11 +115,15 @@ void SingleTaskMenu::addTask()
     // editing! The simplest way is to use a member object to hold the pointer.
     TaskFactory* factory = m_app.taskFactory();
     TaskPtr task = factory->create(m_tablename);
-    if (!task->isTaskPermissible()) {
+    QString why_not_permissible;
+    QString why_not_uploadable;
+
+    // Reasons we may say no
+    if (!task->isTaskPermissible(why_not_permissible)) {
         QString reason = QString("%1<br><br>%2: %3")
                 .arg(tr("You cannot add this task with your current settings."),
                      tr("Current reason"),
-                     stringfunc::bold(task->whyNotPermissible()));
+                     stringfunc::bold(why_not_permissible));
         uifunc::alert(reason, tr("Not permitted to add task"));
         return;
     }
@@ -129,6 +135,25 @@ void SingleTaskMenu::addTask()
         }
         task->setPatient(m_app.selectedPatientId());
     }
+
+    // Reasons the user may want to pause
+    if (!task->isTaskUploadable(why_not_uploadable)) {
+        ScrollMessageBox msgbox(
+                    QMessageBox::Warning,
+                    tr("Really create?"),
+                    tr("This task is not currently uploadable.") + "\n\n" +
+                        why_not_uploadable + "\n\n" + tr("Create anyway?"),
+                    this);
+        QAbstractButton* yes = msgbox.addButton(tr("Yes, create"),
+                                                QMessageBox::YesRole);
+        msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
+        msgbox.exec();
+        if (msgbox.clickedButton() != yes) {
+            return;
+        }
+    }
+
+    // OK; off we go!
     task->setDefaultClinicianVariablesAtFirstUse();
     task->setDefaultsAtFirstUse();
     task->save();
@@ -154,6 +179,8 @@ void SingleTaskMenu::showTaskStatus() const
     TaskFactory* factory = m_app.taskFactory();
     TaskPtr specimen = factory->create(m_tablename);
     QStringList info;
+    QString why_not_permissible;
+    QString why_not_uploadable;
     auto add = [this, &info](const char* desc, const QString& value) -> void {
         info.append(QString("%1: %2")
                     .arg(tr(desc),
@@ -169,10 +196,15 @@ void SingleTaskMenu::showTaskStatus() const
     add("Prohibits commercial use", uifunc::yesNo(specimen->prohibitsCommercial()));
     add("Prohibits educational use", uifunc::yesNo(specimen->prohibitsEducational()));
     add("Prohibits research use", uifunc::yesNo(specimen->prohibitsResearch()));
-    add("Permissible (creatable) with current settings", uifunc::yesNo(specimen->isTaskPermissible()));
-    add("If not, why not permissible", specimen->whyNotPermissible());
+    add("Permissible (creatable) with current settings", uifunc::yesNo(
+            specimen->isTaskPermissible(why_not_permissible)));
+    add("If not, why not permissible", why_not_permissible);
+    add("Uploadable to current server", uifunc::yesNo(
+            specimen->isTaskUploadable(why_not_uploadable)));
+    add("If not, why not uploadable", why_not_uploadable);
     add("Fully functional", uifunc::yesNo(!specimen->isCrippled()));
-    add("Extra strings present from server", uifunc::yesNo(specimen->hasExtraStrings()));
+    add("Extra strings present from server", uifunc::yesNo(
+            specimen->hasExtraStrings()));
     add("Editable once created", uifunc::yesNo(specimen->isEditable()));
     uifunc::alert(info.join("<br>"), tr("Task status"));
 }

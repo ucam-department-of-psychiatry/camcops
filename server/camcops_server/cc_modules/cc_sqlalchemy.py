@@ -87,6 +87,12 @@ Base.__table_args__ = {
     # -------------------------------------------------------------------------
     # MySQL special options
     # -------------------------------------------------------------------------
+    # SQLAlchemy __table_args__:
+    #   http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/table_config.html  # noqa
+    # SQLAlchemy sends keyword arguments like 'mysql_keyword_name' to be
+    # rendered as KEYWORD_NAME in the CREATE TABLE statement:
+    #   http://docs.sqlalchemy.org/en/latest/dialects/mysql.html
+
     # Engine: InnoDB
     'mysql_engine': 'InnoDB',
 

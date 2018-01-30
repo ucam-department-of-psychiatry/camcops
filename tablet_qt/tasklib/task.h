@@ -67,9 +67,9 @@ public:
     virtual bool isEditable() const { return true; }  // ... once created
     virtual bool isCrippled() const { return !hasExtraStrings(); }
     virtual bool hasExtraStrings() const;
-    virtual bool isTaskPermissible() const;
-    virtual QString whyNotPermissible() const;
+    virtual bool isTaskPermissible(QString& why_not_permissible) const;
     virtual Version minimumServerVersion() const;
+    virtual bool isTaskUploadable(QString& why_not_uploadable) const;
     // ------------------------------------------------------------------------
     // Tables and other classmethods
     // ------------------------------------------------------------------------

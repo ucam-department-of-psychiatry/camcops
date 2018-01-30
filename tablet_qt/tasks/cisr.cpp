@@ -120,8 +120,8 @@ FURTHER THOUGHTS: we'll implement a DynamicQuestionnaire class; q.v.
 
 */
 
-#define DEBUG_SHOW_PAGE_TAGS
-#define DEBUG_SHOW_QUESTIONS_CONSIDERED
+// #define DEBUG_SHOW_PAGE_TAGS
+#define DEBUG_SHOW_QUESTIONS_CONSIDERED  // helpful; leave it on
 
 #include "cisr.h"
 #include "questionnairelib/commonoptions.h"
@@ -720,6 +720,10 @@ const int V_SLEEP_MAND2_NO = 1;
 const int V_SLEEP_MAND2_YES_BUT_NOT_A_PROBLEM = 2;
 const int V_SLEEP_MAND2_YES = 3;
 
+const int V_IRRIT_MAND2_NO = 1;
+const int V_IRRIT_MAND2_SOMETIMES = 2;
+const int V_IRRIT_MAND2_YES = 3;
+
 const int V_IRRIT3_SHOUTING_NO = 1;
 const int V_IRRIT3_SHOUTING_WANTED_TO = 2;
 const int V_IRRIT3_SHOUTING_DID = 3;
@@ -1089,15 +1093,16 @@ QStringList Cisr::summaryForResult(const Cisr::CisrResult& result) const
 
 QuPagePtr Cisr::makePage(const int current_qnum)
 {
+    // current_qnum is zero-based.
     // Return nullptr to finish.
-    CisrQuestion q = nextPageEnum(current_qnum);
+    CisrQuestion q = getPageEnum(current_qnum);
     return makePageFromEnum(q);
 }
 
 
 bool Cisr::morePagesToGo(const int current_qnum) const
 {
-    CisrQuestion q = nextPageEnum(current_qnum + 1);
+    CisrQuestion q = getPageEnum(current_qnum + 1);
     return q != CQ::END_MARKER;
 }
 
@@ -1992,7 +1997,7 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
         break;
 
     case CQ::IRRIT_MAND2_THINGS_PAST_MONTH:
-        if (answerIsNo(q, v)) {
+        if (v == V_IRRIT_MAND2_NO) {
             r.decide("No irritability. Moving on.");
             jumpTo(CQ::HYPO_MAND1_WORRIED_RE_HEALTH_PAST_MONTH);
         } else if (answered(q, v)) {
@@ -2814,7 +2819,7 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
 }
 
 
-Cisr::CisrQuestion Cisr::nextPageEnum(const int current_qnum) const
+Cisr::CisrQuestion Cisr::getPageEnum(const int qnum_zero_based) const
 {
     // This function embodies the logic about the question sequence.
     //
@@ -2835,7 +2840,7 @@ Cisr::CisrQuestion Cisr::nextPageEnum(const int current_qnum) const
     CisrResult result;  // contents will be ignored!
     result.record_decisions = false;  // we don't care here
 
-    for (int external_qnum = 0; external_qnum <= current_qnum; ++external_qnum) {
+    for (int external_qnum = 0; external_qnum < qnum_zero_based; ++external_qnum) {
         internal_q = nextQ(internal_q, result);
     }  // loop until we have the right number of "external" pages
     return internal_q;

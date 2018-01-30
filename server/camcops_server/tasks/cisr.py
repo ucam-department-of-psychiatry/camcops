@@ -264,6 +264,10 @@ V_SLEEP_MAND2_NO = 1
 V_SLEEP_MAND2_YES_BUT_NOT_A_PROBLEM = 2
 V_SLEEP_MAND2_YES = 3
 
+V_IRRIT_MAND2_NO = 1
+V_IRRIT_MAND2_SOMETIMES = 2
+V_IRRIT_MAND2_YES = 3
+
 V_IRRIT3_SHOUTING_NO = 1
 V_IRRIT3_SHOUTING_WANTED_TO = 2
 V_IRRIT3_SHOUTING_DID = 3
@@ -1677,7 +1681,7 @@ class CisrResult(object):
 
 class Cisr(TaskHasPatientMixin, Task):
     __tablename__ = "cisr"
-    shortname = "CISR"
+    shortname = "CIS–R"
     longname = "Clinical Interview Schedule, Revised"
     provides_trackers = False
 
@@ -3113,7 +3117,7 @@ class Cisr(TaskHasPatientMixin, Task):
                 jump_to(CQ.IRRIT1_DAYS_PER_WEEK)
 
         elif q == CQ.IRRIT_MAND2_THINGS_PAST_MONTH:
-            if self.answer_is_no(q, v):
+            if v == V_IRRIT_MAND2_NO:
                 r.decide("No irritability. Moving on.")
                 jump_to(CQ.HYPO_MAND1_WORRIED_RE_HEALTH_PAST_MONTH)
             elif self.answered(q, v):
@@ -3898,6 +3902,9 @@ class Cisr(TaskHasPatientMixin, Task):
                     </tr>
                 </table>
             </div>
+            
+            <h3>Data considered by algorithm (may be a subset of all data if 
+                subject revised answers)</h3>
             <table class="taskdetail">
                 <tr>
                     <th width="75%">Question</th>
@@ -3905,10 +3912,27 @@ class Cisr(TaskHasPatientMixin, Task):
                 </tr>
                 {questions_html}
             </table>
-            <h2>Decisions</h2>
+            
+            <h3>Decisions</h3>
             <pre>{decisions_html}</pre>
+            
             <div class="copyright">
-                XXX
+                • Original papers:
+                ▶ Lewis G, Pelosi AJ, Aray R, Dunn G (1992).
+                Measuring psychiatric disorder in the community: a standardized
+                assessment for use by lay interviewers.
+                Psychological Medicine 22: 465-486.
+                PubMed ID <a href="https://www.ncbi.nlm.nih.gov/pubmed/1615114">1615114</a>.
+                ▶ Lewis G (1994).
+                Assessing psychiatric disorder with a human interviewer or a computer.
+                J Epidemiol Community Health 48: 207-210.</li>
+                PubMed ID <a href="https://www.ncbi.nlm.nih.gov/pubmed/8189180">8189180</a>.
+                • Source/copyright: Glyn Lewis.
+                ▶ The task itself is not in the reference publications, so copyright
+                presumed to rest with the authors (not the journals).
+                ▶ “There are no copyright issues with the CISR so please adapt it for
+                use.” — Prof. Glyn Lewis, personal communication to Rudolf Cardinal,
+                27 Oct 2017.
             </div>
         """.format(
             is_complete_html_td=is_complete_html_td,

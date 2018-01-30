@@ -389,7 +389,7 @@ protected:
     QStringList summaryForResult(const CisrResult& result) const;
     CisrQuestion intToEnum(int qi) const;
     int enumToInt(CisrQuestion qe) const;
-    CisrQuestion nextPageEnum(int current_qnum) const;
+    CisrQuestion getPageEnum(int qnum_zero_based) const;
     QuPagePtr makePageFromEnum(CisrQuestion q);
     QString fieldnameForQuestion(CisrQuestion q) const;
     QString tagForQuestion(CisrQuestion q) const;

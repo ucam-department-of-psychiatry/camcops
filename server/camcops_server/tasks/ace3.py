@@ -511,7 +511,6 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         lang = self.lang_score()
         v = self.vsp_score()
         t = a + m + f + lang + v
-        figurehtml = ""
         if self.is_complete():
             figsize = (FULLWIDTH_PLOT_WIDTH / 3, FULLWIDTH_PLOT_WIDTH / 4)
             width = 0.9
@@ -535,6 +534,8 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             # fig.autofmt_xdate()
             req.set_figure_font_sizes(ax)
             figurehtml = req.get_html_from_pyplot_figure(fig)
+        else:
+            figurehtml = "<i>Incomplete; not plotted</i>"
         return (
             self.get_standard_clinician_comments_block(req, self.comments) +
             """
@@ -542,10 +543,10 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <table class="summary">
                         <tr>
                             {is_complete}
-                            <td class="figure" rowspan="7">{figure}</td>
+                            <td class="figure" rowspan="7">{figurehtml}</td>
                         </tr>
             """.format(is_complete=self.get_is_complete_td_pair(req),
-                       figure=figurehtml) +
+                       figurehtml=figurehtml) +
             tr("Total ACE-III score <sup>[1]</sup>", answer(t) + " / 100") +
             tr("Attention", answer(a) + " / {} ({}%)".format(
                 ATTN_MAX, percent(a, ATTN_MAX))) +
