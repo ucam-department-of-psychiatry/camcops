@@ -163,9 +163,14 @@ void Questionnaire::build()
     //                  W scroll = VerticalScrollArea
     //                      W pagewidget = QWidget
 
+    // For dynamic questionnaires:
+    if (m_pages.size() == 0) {
+        addFirstDynamicPage();
+    }
+
     // Get page
     if (m_current_page_index < 0 ||
-            m_current_page_index > m_pages.size()) {
+            m_current_page_index >= m_pages.size()) {
         // Duff page!
         qWarning() << Q_FUNC_INFO << "Bad page number:"
                    << m_current_page_index;
@@ -411,6 +416,13 @@ void Questionnaire::cancelClicked()
     if (msgbox.clickedButton() == yes) {
         doCancel();
     }
+}
+
+
+void Questionnaire::addFirstDynamicPage()
+{
+    // only here to be overridden in DynamicQuestionnaire
+    // ... but here so it can be called by build().
 }
 
 

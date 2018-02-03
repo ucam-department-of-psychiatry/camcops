@@ -119,6 +119,7 @@ signals:
 
 protected:
     void commonConstructor();
+    virtual void addFirstDynamicPage();
     virtual bool morePagesToGo() const;
     virtual void addAllAccessibleDynamicPages();
     void doFinish();

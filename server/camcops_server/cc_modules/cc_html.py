@@ -105,17 +105,16 @@ def table(content: str, table_class: str = "") -> str:
     )
 
 
-def tr(*args, **kwargs) -> str:
-    """Make simple HTML table data row.
+def tr(*args, tr_class: str = "", literal: bool = False) -> str:
+    """
+    Make simple HTML table data row.
 
     *args: Set of columns data.
-    **kwargs:
-        literal: Treat elements as literals with their own <td> ... </td>,
-            rather than things to be encapsulted.
-        tr_class: table row class
+    literal: Treat elements as literals with their own <td> ... </td>,
+        rather than things to be encapsulted.
+    tr_class: table row class
     """
-    tr_class = kwargs.get("tr_class", "")
-    if kwargs.get("literal"):
+    if literal:
         elements = args
     else:
         elements = [td(x) for x in args]
@@ -125,7 +124,7 @@ def tr(*args, **kwargs) -> str:
     )
 
 
-def td(contents: str, td_class: str = "", td_width: str = "") -> str:
+def td(contents: Any, td_class: str = "", td_width: str = "") -> str:
     """Make simple HTML table data cell."""
     return "<td{td_class}{td_width}>{contents}</td>\n".format(
         td_class=' class="{}"'.format(td_class) if td_class else '',
@@ -134,7 +133,7 @@ def td(contents: str, td_class: str = "", td_width: str = "") -> str:
     )
 
 
-def th(contents: str, th_class: str = "", th_width: str = "") -> str:
+def th(contents: Any, th_class: str = "", th_width: str = "") -> str:
     """Make simple HTML table header cell."""
     return "<th{th_class}{th_width}>{contents}</th>\n".format(
         th_class=' class="{}"'.format(th_class) if th_class else '',
@@ -191,6 +190,16 @@ def identity(x: Any) -> Any:
 def bold_webify(x: str) -> str:
     """Webifies the string, then makes it bold."""
     return bold(ws.webify(x))
+
+
+def sub(x: str) -> str:
+    """Applies HTML subscript."""
+    return "<sub>{}</sub>".format(x)
+
+
+def sup(x: str) -> str:
+    """Applies HTML superscript."""
+    return "<sup>{}</sup>".format(x)
 
 
 def answer(x: Any,

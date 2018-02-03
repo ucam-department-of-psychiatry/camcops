@@ -29,6 +29,7 @@ import xml.etree.cElementTree as ElementTree
 # ... cElementTree is a faster implementation
 # ... http://docs.python.org/2/library/xml.etree.elementtree.html
 # ... http://effbot.org/zone/celementtree.htm
+from xml.etree.ElementTree import Element, tostring
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.text import unescape_newlines
@@ -52,6 +53,41 @@ APPSTRING_TASKNAME = "camcops"
 # - and in principle even two different threads coming here may have different
 #   configs...
 # - ... that string requests need to be attached to a Pyramid Request.
+
+
+def text_contents(e: Element, plain: bool = False, strip: bool = True) -> str:
+    """
+    A normal string looks like
+
+        <string name="stringname">words words words</string>
+
+    and we extract its contents ("words words words") with
+
+        e.text
+
+    However, for this:
+
+        <string name="stringname">words <b>bold words</b> words</string>
+
+    we want to extract "words <b>bold words</b> words" and that's a little
+    trickier.
+    """
+    n_children = len(e)
+    if n_children == 0:
+        result = e.text or ""
+    elif plain:
+        result = "".join(e.itertext())  # e.g. "words bold words words"
+    else:
+        result = (
+            (e.text or "") +
+            "".join(tostring(child, encoding="unicode") for child in e) +
+            (e.tail or "")
+        )
+    if strip:
+        return result.strip()
+    else:
+        return result
+
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def all_extra_strings_as_dicts(
@@ -97,6 +133,8 @@ def all_extra_strings_as_dicts(
                 allstrings[taskname] = {}  # type: Dict[str, str]
             for e in taskroot.findall("./string[@name]"):
                 stringname = e.attrib.get("name")
-                final_string = unescape_newlines(e.text) or ""
+                final_string = text_contents(e)
+                final_string = unescape_newlines(final_string)
                 allstrings[taskname][stringname] = final_string
+
     return allstrings

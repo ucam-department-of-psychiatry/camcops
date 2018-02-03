@@ -31,6 +31,13 @@ DynamicQuestionnaire::DynamicQuestionnaire(
     m_more_pages_to_go_fn(more_pages_to_go_fn)
 {
     Q_ASSERT(m_current_page_index == 0);
+    // Rude to call back into our owner during construction.
+    // See addFirstDynamicPage() instead.
+}
+
+
+void DynamicQuestionnaire::addFirstDynamicPage()
+{
     QuPagePtr first_page = m_make_page_fn(m_current_page_index);
     if (!first_page) {
         uifunc::stopApp("Dynamic questionnaire created but caller refuses to "

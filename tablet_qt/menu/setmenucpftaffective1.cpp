@@ -23,9 +23,11 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/diagnosisicd9cm.h"
+#include "tasks/gad7.h"
 #include "tasks/hamd.h"
 #include "tasks/iesr.h"
 #include "tasks/pdss.h"
+#include "tasks/phq9.h"
 #include "tasks/pswq.h"
 #include "tasks/swemwbs.h"
 #include "tasks/wsas.h"
@@ -43,9 +45,11 @@ SetMenuCpftAffective1::SetMenuCpftAffective1(CamcopsApp& app) :
     m_items = {
         MAKE_CHANGE_PATIENT(app),
         MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, app),  // = DSM-IV
+        MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(HamD::HAMD_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Iesr::IESR_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Pdss::PDSS_TABLENAME, app),
+        MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Pswq::PSWQ_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, app),
         MAKE_TASK_MENU_ITEM(Wsas::WSAS_TABLENAME, app),

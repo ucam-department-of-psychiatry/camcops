@@ -19,11 +19,23 @@
 
 #pragma once
 
-// #define CISR_INCLUDE_DEMOGRAPHICS
-// ... Ask about ethnicity, marital/employment/housing status?
-// Note: demographics do not contribute in any way to the actual
-// symptom-gathering or diagnostic approach. Some (e.g. age, sex) are already
-// collected by CamCOPS.
+/*
+
+Should we ask about ethnicity, marital/employment/housing status?
+
+    Note: demographics do not contribute in any way to the actual
+    symptom-gathering or diagnostic approach. Some (e.g. age, sex) are already
+    collected by CamCOPS.
+
+    REASON TO INCLUDE THEM: the CIS-R is used in national morbidity surveys
+    (e.g. PMID 22429544) and we want to keep compatibility.
+
+    However, age is handled by CamCOPS (with greater precision than the CIS-R)
+    as part of its patient details, and likewise sex.
+
+    It's also helpful to add a "prefer not to say" option, for diagnosis-only
+    contexts.
+*/
 
 #include <QPointer>
 #include <QString>
@@ -46,8 +58,8 @@ namespace cisrconst {
 const int WTCHANGE_NONE_OR_APPETITE_INCREASE = 0;
 const int WTCHANGE_APPETITE_LOSS = 1;
 const int WTCHANGE_NONDELIBERATE_WTLOSS_OR_WTGAIN = 2;
-const int WTCHANGE_WTLOSS_GT_HALF_STONE = 3;
-const int WTCHANGE_WTGAIN_GT_HALF_STONE = 4;
+const int WTCHANGE_WTLOSS_GE_HALF_STONE = 3;
+const int WTCHANGE_WTGAIN_GE_HALF_STONE = 4;
 // ... I'm not entirely sure why this labelling system is used!
 
 const int PHOBIATYPES_OTHER = 0;
@@ -135,18 +147,20 @@ public:
     static const QString CISR_TABLENAME;
 public:  // needs to be public to make non-class vectors of it
     enum class CisrQuestion {  // The sequence of all possible questions.
-        START_MARKER,
-#ifdef CISR_INCLUDE_DEMOGRAPHICS
-        ETHNIC = START_MARKER,
+        START_MARKER = 1,  // start with 1
+
+        INTRO_1 = START_MARKER,
+        INTRO_2,
+
+        INTRO_DEMOGRAPHICS,
+
+        ETHNIC,
         MARRIED,
         EMPSTAT,
         EMPTYPE,
         HOME,
 
         HEALTH_WELLBEING,
-#else
-        HEALTH_WELLBEING = START_MARKER,
-#endif
 
         APPETITE1_LOSS_PAST_MONTH,
         WEIGHT1_LOSS_PAST_MONTH,
@@ -325,7 +339,7 @@ protected:
         // Symptom scoring
         int depression = 0;  // DEPR in original
         int depr_crit_1_mood_anhedonia_energy = 0;  // DEPCRIT1
-        int depr_crit_2_app_cnc_slp_mtr_glt_wth = 0;  // DEPCRIT2
+        int depr_crit_2_app_cnc_slp_mtr_glt_wth_sui = 0;  // DEPCRIT2
         int depr_crit_3_somatic_synd = 0;  // DEPCRIT3
             // ... looks to me like the ICD-10 criteria for somatic syndrome
             // (e.g. F32.01, F32.11, F33.01, F33.11), with the "do you cheer up
@@ -401,6 +415,10 @@ protected:
     QVector<QString> panicSymptomFieldnames() const;
     CisrQuestion nextQ(CisrQuestion q, CisrResult& getResult) const;
     CisrResult getResult() const;
+    QString diagnosisNameLong(int diagnosis_code) const;
+    QString diagnosisReason(int diagnosis_code) const;
+    QString suicideIntent(const Cisr::CisrResult& result,
+                          bool with_warning = true) const;
 
 protected:
     QPointer<DynamicQuestionnaire> m_questionnaire;

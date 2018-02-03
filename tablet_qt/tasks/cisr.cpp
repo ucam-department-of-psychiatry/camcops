@@ -124,6 +124,7 @@ FURTHER THOUGHTS: we'll implement a DynamicQuestionnaire class; q.v.
 #define DEBUG_SHOW_QUESTIONS_CONSIDERED  // helpful; leave it on
 
 #include "cisr.h"
+#include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/dynamicquestionnaire.h"
 #include "questionnairelib/namevalueoptions.h"
@@ -142,13 +143,11 @@ const QString Cisr::CISR_TABLENAME("cisr");
 // FP field prefix; NUM field numbers; FN field name
 // These match the electronic version of the CIS-R, as per "BASIC CIS-R 02-03-2010.pqs".
 
-#ifdef CISR_INCLUDE_DEMOGRAPHICS
 const QString FN_ETHNIC("ethnic");
 const QString FN_MARRIED("married");
 const QString FN_EMPSTAT("empstat");
 const QString FN_EMPTYPE("emptype");
 const QString FN_HOME("home");
-#endif
 
 const QString FN_APPETITE1("appetite1");
 const QString FN_WEIGHT1("weight1");
@@ -413,9 +412,21 @@ const QVector<CQ> QUESTIONS_YN_SPECIFIC_TEXT{
     CQ::OBSESS2_TRIED_TO_STOP,
     CQ::OBSESS3_UPSETTING,
 };
+// Demographics questions (optional for diagnosis)
+const QVector<CQ> QUESTIONS_DEMOGRAPHICS{
+    CQ::ETHNIC,
+    CQ::MARRIED,
+    CQ::EMPSTAT,
+    CQ::EMPTYPE,
+    CQ::HOME,
+};
 // "Questions" that are just a prompt screen
 const QMap<CQ, QString> QUESTIONS_PROMPT_ONLY{
     // Maps questions to their prompt's xstring name
+    {CQ::INTRO_1, "intro_1"},
+    {CQ::INTRO_2, "intro_2"},
+    {CQ::INTRO_DEMOGRAPHICS, "intro_demographics_statement"},
+
     {CQ::HEALTH_WELLBEING, "health_wellbeing_statement"},
     {CQ::DOCTOR2_PLEASE_TALK_TO, "doctor2"},
     {CQ::DEPR_OUTRO, "depr_outro"},
@@ -487,13 +498,11 @@ const QMap<CQ, QPair<int, int>> QUESTIONS_MULTIWAY{
 };
 const QMap<CQ, QPair<int, int>> QUESTIONS_MULTIWAY_WITH_EXTRA_STEM{
     // Maps questions to first and last number of answers.
-#ifdef CISR_INCLUDE_DEMOGRAPHICS
-    {CQ::ETHNIC, {1, 6}},
-    {CQ::MARRIED, {1, 5}},
-    {CQ::EMPSTAT, {1, 7}},
-    {CQ::EMPTYPE, {1, 6}},  // 6 includes our additional "not applicable"
-    {CQ::HOME, {1, 6}},
-#endif
+    {CQ::ETHNIC, {1, 7}},  // 7 includes our additional "prefer not to say"
+    {CQ::MARRIED, {1, 6}},  // 6 includes our additional "prefer not to say"
+    {CQ::EMPSTAT, {1, 8}},  // 8 includes our additional "prefer not to say"
+    {CQ::EMPTYPE, {1, 7}},  // 7 includes our additional "not applicable" + "prefer not to say"
+    {CQ::HOME, {1, 7}},  // 7 includes our additional "prefer not to say"
 };
 const QVector<CQ> QUESTIONS_DAYS_PER_WEEK{
     CQ::SOMATIC_PAIN2_DAYS_PAST_WEEK,
@@ -553,11 +562,8 @@ const QVector<CQ> QUESTIONS_NO_SOMETIMES_OFTEN{
 // greater than or equal to.
 
 // Number of response values (numbered from 1 to N)
-#ifdef CISR_INCLUDE_DEMOGRAPHICS
-const int N_ETHNIC = 6;
-const int N_MARRIED = 5;
-#endif
-const int N_ILLNESS = 8;
+const int N_ETHNIC = 7;  // RNC: 6 in original; added "prefer not to say"
+const int N_MARRIED = 6;  // RNC: 5 in original; added "prefer not to say"
 const int N_DURATIONS = 5;
 const int N_OPTIONS_DAYS_PER_WEEK = 3;
 const int N_OPTIONS_NIGHTS_PER_WEEK = 3;
@@ -624,7 +630,6 @@ const int V_ANHEDONIA_NOT_ENJOYING = 3;
 
 // Specific other question values:
 
-#ifdef CISR_INCLUDE_DEMOGRAPHICS
 const int V_EMPSTAT_FT = 1;
 const int V_EMPSTAT_PT = 2;
 const int V_EMPSTAT_STUDENT = 3;
@@ -649,7 +654,6 @@ const int V_HOME_RELATIVEFRIEND = 3;
 const int V_HOME_HOSTELCAREHOME = 4;
 const int V_HOME_HOMELESS = 5;
 const int V_HOME_OTHER = 6;
-#endif
 
 const int V_WEIGHT2_WTLOSS_NOTTRYING = 1;
 const int V_WEIGHT2_WTLOSS_TRYING = 2;
@@ -817,13 +821,11 @@ Cisr::Cisr(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CISR_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     const QStringList fieldnames{
-#ifdef CISR_INCLUDE_DEMOGRAPHICS
         FN_ETHNIC,
         FN_MARRIED,
         FN_EMPSTAT,
         FN_EMPTYPE,
         FN_HOME,
-#endif
 
         FN_APPETITE1,
         FN_WEIGHT1,
@@ -1075,14 +1077,14 @@ QStringList Cisr::summaryForResult(const Cisr::CisrResult& result) const
 {
     // Used so that we don't recalculate results again and again!
     QStringList lines;
-    if (result.incomplete) {
-        lines.append("INCOMPLETE");
-    } else {
-        lines.append(QString("Primary diagnosis: %1.").arg(
+    if (!result.incomplete) {
+        lines.append(QString("Probable primary diagnosis: %1.").arg(
                          result.diagnosisName(result.diagnosis_1)));
-        lines.append(QString("Secondary diagnosis: %2.").arg(
+        lines.append(QString("Probable secondary diagnosis: %2.").arg(
                          result.diagnosisName(result.diagnosis_2)));
     }
+    lines.append(QString("CIS-R suicide intent: %1.").arg(
+                     suicideIntent(result)));
     return lines;
 }
 
@@ -1132,13 +1134,15 @@ int Cisr::enumToInt(CisrQuestion qe) const
 QString Cisr::fieldnameForQuestion(CisrQuestion q) const
 {
     switch (q) {
-#ifdef CISR_INCLUDE_DEMOGRAPHICS
+    // case CQ::INTRO_1:  // information only
+    // case CQ::INTRO_2:  // information only
+    // case CQ::INTRO_DEMOGRAPHICS:  // information only
+
     case CQ::ETHNIC:    return FN_ETHNIC;
     case CQ::MARRIED:   return FN_MARRIED;
     case CQ::EMPSTAT:   return FN_EMPSTAT;
     case CQ::EMPTYPE:   return FN_EMPTYPE;
     case CQ::HOME:      return FN_HOME;
-#endif
 
     // case CQ::HEALTH_WELLBEING:  // information only
 
@@ -1316,6 +1320,9 @@ QString Cisr::tagForQuestion(CisrQuestion q) const
     // Aim to be relatively cryptic; use the original CIS-R tags, not our
     // expanded explanatory versions (in case anyone uses the debug version for
     // patient testing!).
+    case CQ::INTRO_1:                   return "INTRO_1";
+    case CQ::INTRO_2:                   return "INTRO_2";
+    case CQ::INTRO_DEMOGRAPHICS:        return "INTRO_DEMOGRAPHICS";
     case CQ::HEALTH_WELLBEING:          return "HEALTH_WELLBEING";
     case CQ::DOCTOR2_PLEASE_TALK_TO:    return "DOCTOR2";
     case CQ::DEPR_OUTRO:                return "DEPR_OUTRO";
@@ -1412,19 +1419,24 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
     };
 
     QVariant var_q;
-    int v = 0;
+    int v = V_MISSING;
 #ifdef DEBUG_SHOW_QUESTIONS_CONSIDERED
     r.decide(QString("Considering question %1: %2").arg(
                  QString::number(enumToInt(q)), tagForQuestion(q)));
 #endif
     const QString fieldname = fieldnameForQuestion(q);
-    if (!fieldname.isEmpty()) {
+    if (!fieldname.isEmpty()) {  // eliminates prompt-only questions
         var_q = value(fieldname);
         if (var_q.isNull()) {
-            r.decide("INCOMPLETE INFORMATION. STOPPING.");
-            r.incomplete = true;
+            if (!QUESTIONS_DEMOGRAPHICS.contains(q)) {
+                // From a diagnostic point of view, OK to have missing
+                // demographic information. Otherwise:
+                r.decide("INCOMPLETE INFORMATION. STOPPING.");
+                r.incomplete = true;
+            }
+        } else {
+            v = var_q.toInt();
         }
-        v = var_q.toInt();
     }
 
     int next_q = -1;
@@ -1442,16 +1454,17 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
     // in sequence). Clarity is key.
 
     // --------------------------------------------------------------------
-    // Preamble
+    // Demographics/preamble
     // --------------------------------------------------------------------
 
-#ifdef CISR_INCLUDE_DEMOGRAPHICS
+    case CQ::INTRO_1:
+    case CQ::INTRO_2:
+    case CQ::INTRO_DEMOGRAPHICS:
     case CQ::ETHNIC:
     case CQ::MARRIED:
     case CQ::EMPSTAT:
     case CQ::EMPTYPE:
     case CQ::HOME:
-#endif
     case CQ::HEALTH_WELLBEING:
         // Nothing special
         break;
@@ -1492,8 +1505,8 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
     case CQ::WEIGHT3_LOST_LOTS:
         if (v == V_WEIGHT3_WTLOSS_GE_HALF_STONE) {
             r.decide("Weight loss >=0.5st in past month. "
-                     "Incrementing depr_crit_3_somatic_synd");
-            r.weight_change = WTCHANGE_WTLOSS_GT_HALF_STONE;
+                     "Incrementing depr_crit_3_somatic_synd.");
+            r.weight_change = WTCHANGE_WTLOSS_GE_HALF_STONE;
             r.depr_crit_3_somatic_synd += 1;
         }
         r.decide("Loss of weight, so skipping appetite/weight gain questions.");
@@ -1522,7 +1535,7 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
                 r.weight_change == WTCHANGE_NONDELIBERATE_WTLOSS_OR_WTGAIN) {
             // ... redundant check on weight_change, I think!
             r.decide("Weight gain >=0.5 st in past month.");
-            r.weight_change = WTCHANGE_WTGAIN_GT_HALF_STONE;
+            r.weight_change = WTCHANGE_WTGAIN_GE_HALF_STONE;
         }
         break;
 
@@ -1532,17 +1545,17 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
 
     case CQ::GP_YEAR:
         // Score the preceding block:
-        if (r.weight_change == WTCHANGE_WTLOSS_GT_HALF_STONE &&
+        if (r.weight_change == WTCHANGE_WTLOSS_GE_HALF_STONE &&
                 answerIsYes(CQ::APPETITE1_LOSS_PAST_MONTH)) {
             r.decide("Appetite loss and weight loss >=0.5st in past month. "
-                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth.");
-            r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1;
+                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.");
+            r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1;
         }
-        if (r.weight_change == WTCHANGE_WTGAIN_GT_HALF_STONE &&
+        if (r.weight_change == WTCHANGE_WTGAIN_GE_HALF_STONE &&
                 answerIsYes(CQ::APPETITE2_INCREASE_PAST_MONTH)) {
             r.decide("Appetite gain and weight gain >=0.5st in past month. "
-                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth.");
-            r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1;
+                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.");
+            r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1;
         }
         break;
 
@@ -1846,8 +1859,8 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
         // Score previous block:
         if (r.concentration_poor >= 2) {
             r.decide("concentration >= 2. "
-                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth");
-            r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1;
+                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.");
+            r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1;
         }
         // This question:
         if (answerIsNo(q, v)) {
@@ -1979,8 +1992,8 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
         // Score previous block:
         if (r.sleep_problems >= 2) {
             r.decide("sleep_problems >= 2. "
-                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth.");
-            r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1;
+                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.");
+            r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1;
         }
         // This bit erroneously lived under IRRIT_DUR in the original; see
         // discussion there:
@@ -2034,7 +2047,7 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
     case CQ::IRRIT4_ARGUMENTS:
         if (v == V_IRRIT4_ARGUMENTS_YES_UNJUSTIFIED) {
             r.decide("Arguments without justification. "
-                     "Incrementing irritability");
+                     "Incrementing irritability.");
             r.irritability += 1;
         }
         break;
@@ -2241,14 +2254,14 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
 
     case CQ::DEPTH4_SLOWED:
         if (answerIsYes(q)) {
-            r.decide("Psychomotor retardation");
+            r.decide("Psychomotor retardation.");
             r.psychomotor_changes = PSYCHOMOTOR_RETARDATION;
         }
         if (r.psychomotor_changes > PSYCHOMOTOR_NONE) {
             r.decide("Psychomotor agitation or retardation. "
-                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth. "
+                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui. "
                      "Incrementing depr_crit_3_somatic_synd.");
-            r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1;
+            r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1;
             r.depr_crit_3_somatic_synd += 1;
         }
         break;
@@ -2257,9 +2270,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
         if (v >= V_DEPTH5_GUILT_SOMETIMES) {
             r.decide("Feel guilty when not at fault sometimes or often. "
                      "Incrementing depressive_thoughts. "
-                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth.");
+                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.");
             r.depressive_thoughts += 1;
-            r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1;
+            r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1;
         }
         break;
 
@@ -2267,9 +2280,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
         if (answerIsYes(q, v)) {
             r.decide("Feeling not as good as other people. "
                      "Incrementing depressive_thoughts. "
-                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth.");
+                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.");
             r.depressive_thoughts += 1;
-            r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1;
+            r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1;
         }
         break;
 
@@ -2312,6 +2325,14 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
             r.decide("Suicidal thoughts present but denies would ever act. "
                      "Skipping to talk-to-doctor section.");
             jumpTo(CQ::DOCTOR);
+        }
+        if (v == V_DEPTH9_SUICIDAL_THOUGHTS_YES) {
+            r.decide(
+                "Thoughts of suicide in past week. "
+                "Incrementing depressive_thoughts. "
+                "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.");
+            r.depressive_thoughts += 1;
+            r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1;
         }
         break;
 
@@ -2656,10 +2677,8 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
                     n_panic_symptoms += 1;
                 }
             }
-            r.decide(QString("%1 out of %2 specific panic symptoms endorsed. "
-                             "Adding %1 to panic.").arg(n_panic_symptoms,
-                                                        NUM_PANIC_SYMPTOMS));
-            r.panic += n_panic_symptoms;
+            r.decide(QString("%1 out of %2 specific panic symptoms endorsed.")
+                     .arg(n_panic_symptoms, NUM_PANIC_SYMPTOMS));
         }
         // The next bit was coded in PANIC5, but lives more naturally here:
         if (answerIsNo(CQ::ANX_PHOBIA1_SPECIFIC_PAST_MONTH)) {
@@ -2747,7 +2766,7 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
             jumpTo(chooseFinalPage());
         } else if (v == V_DAYS_IN_PAST_WEEK_4_OR_MORE) {
             r.decide("Obsessions on >=4 days in past week. "
-                     "Incrementin obsessions.");
+                     "Incrementing obsessions.");
             r.obsessions += 1;
         }
         break;
@@ -2880,10 +2899,16 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
     // Element makers
     auto title = [this, &q]() -> QString {
 #ifdef DEBUG_SHOW_PAGE_TAGS
-        return QString("CISR question %1 (%2)").arg(
+        return QString("CISR page %1 (%2)").arg(
                     QString::number(enumToInt(q)), tagForQuestion(q));
 #else
-        return QString("CISR question %1").arg(enumToInt(q));
+        if (m_questionnaire && m_questionnaire->readOnly()) {
+            // Show title tags on facsimile (read-only) version
+            return QString("CISR page %1 (%2)").arg(
+                        QString::number(enumToInt(q)), tagForQuestion(q));
+        } else {
+            return QString("CISR page %1").arg(enumToInt(q));
+        }
 #endif
     };
     auto prompttext = [this](const QString& xstringname) -> QuElement* {
@@ -3009,13 +3034,14 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
     };
     auto multiwayQuestion = [this, &q, &intq, &qPage, &notImplemented,
                              &prompttext, &mcq, &makeOptions]
-            (bool extra_stem) -> QuPagePtr {
-        if (!QUESTIONS_MULTIWAY.contains(q)) {
+            (bool extra_stem, const QMap<CQ, QPair<int, int>>& first_last_map)
+            -> QuPagePtr {
+        if (!first_last_map.contains(q)) {
             qCritical() << "Bad question to multiwayQuestion():"
                         << intq << tagForQuestion(q);
             return notImplemented();
         }
-        const QPair<int, int>& first_last = QUESTIONS_MULTIWAY[q];
+        const QPair<int, int>& first_last = first_last_map[q];
         const int& first = first_last.first;
         int last = first_last.second;
         // Nasty hack...
@@ -3053,11 +3079,11 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
     }
     if (QUESTIONS_MULTIWAY.contains(q)) {
         // this test must PRECEDE Y/N tests since WEIGHT4 is both multiway and Y/N
-        return multiwayQuestion(false);
+        return multiwayQuestion(false, QUESTIONS_MULTIWAY);
     }
     if (QUESTIONS_MULTIWAY_WITH_EXTRA_STEM.contains(q)) {
         // this test must PRECEDE Y/N tests since WEIGHT4 is both multiway and Y/N
-        return multiwayQuestion(true);
+        return multiwayQuestion(true, QUESTIONS_MULTIWAY_WITH_EXTRA_STEM);
     }
     if (QUESTIONS_PROMPT_ONLY.contains(q)) {
         return promptPage(QUESTIONS_PROMPT_ONLY[q]);
@@ -3257,30 +3283,30 @@ void Cisr::CisrResult::finalize()
     // Depression
     if (depression_at_least_2_weeks &&
             depr_crit_1_mood_anhedonia_energy > 1 &&
-            depr_crit_1_mood_anhedonia_energy + depr_crit_2_app_cnc_slp_mtr_glt_wth > 3) {
+            depr_crit_1_mood_anhedonia_energy + depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 3) {
         decide("Depressive symptoms >=2 weeks AND "
                "depr_crit_1_mood_anhedonia_energy > 1 AND "
                "depr_crit_1_mood_anhedonia_energy + "
-               "depr_crit_2_app_cnc_slp_mtr_glt_wth > 3. "
+               "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 3. "
                "Setting depression_mild.");
         depression_mild = true;
     }
     if (depression_at_least_2_weeks &&
             depr_crit_1_mood_anhedonia_energy > 1 &&
-            (depr_crit_1_mood_anhedonia_energy + depr_crit_2_app_cnc_slp_mtr_glt_wth) > 5) {
+            (depr_crit_1_mood_anhedonia_energy + depr_crit_2_app_cnc_slp_mtr_glt_wth_sui) > 5) {
         decide("Depressive symptoms >=2 weeks AND "
                "depr_crit_1_mood_anhedonia_energy > 1 AND "
                "depr_crit_1_mood_anhedonia_energy + "
-               "depr_crit_2_app_cnc_slp_mtr_glt_wth > 5. "
+               "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 5. "
                "Setting depression_moderate.");
         depression_moderate = true;
     }
     if (depression_at_least_2_weeks &&
             depr_crit_1_mood_anhedonia_energy == 3 &&
-            depr_crit_2_app_cnc_slp_mtr_glt_wth > 4) {
+            depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 4) {
         decide("Depressive symptoms >=2 weeks AND "
                "depr_crit_1_mood_anhedonia_energy == 3 AND "
-               "depr_crit_2_app_cnc_slp_mtr_glt_wth > 4. "
+               "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 4. "
                "Setting depression_severe.");
         depression_severe = true;
     }
@@ -3298,114 +3324,114 @@ void Cisr::CisrResult::finalize()
     // ... primary diagnosis
     if (score >= 12) {
         decide("Total score >= 12. Setting diagnosis_1 to "
-               "DIAG_1_MIXED_ANX_DEPR_DIS_MILD");
+               "DIAG_1_MIXED_ANX_DEPR_DIS_MILD.");
         diagnosis_1 = DIAG_1_MIXED_ANX_DEPR_DIS_MILD;
     }
     if (generalized_anxiety_disorder) {
         decide("generalized_anxiety_disorder is true. Setting diagnosis_1 to "
-               "DIAG_2_GENERALIZED_ANX_DIS_MILD");
+               "DIAG_2_GENERALIZED_ANX_DIS_MILD.");
         diagnosis_1 = DIAG_2_GENERALIZED_ANX_DIS_MILD;
     }
     if (obsessive_compulsive_disorder) {
         decide("obsessive_compulsive_disorder is true. Setting diagnosis_1 to "
-               "DIAG_3_OBSESSIVE_COMPULSIVE_DIS");
+               "DIAG_3_OBSESSIVE_COMPULSIVE_DIS.");
         diagnosis_1 = DIAG_3_OBSESSIVE_COMPULSIVE_DIS;
     }
     if (score >= 20) {
         decide("Total score >= 20. Setting diagnosis_1 to "
-               "DIAG_4_MIXED_ANX_DEPR_DIS");
+               "DIAG_4_MIXED_ANX_DEPR_DIS.");
         diagnosis_1 = DIAG_4_MIXED_ANX_DEPR_DIS;
     }
     if (phobia_specific) {
         decide("phobia_specific is true. Setting diagnosis_1 to "
-               "DIAG_5_SPECIFIC_PHOBIA");
+               "DIAG_5_SPECIFIC_PHOBIA.");
         diagnosis_1 = DIAG_5_SPECIFIC_PHOBIA;
     }
     if (phobia_social) {
         decide("phobia_social is true. Setting diagnosis_1 to "
-               "DIAG_6_SOCIAL_PHOBIA");
+               "DIAG_6_SOCIAL_PHOBIA.");
         diagnosis_1 = DIAG_6_SOCIAL_PHOBIA;
     }
     if (phobia_agoraphobia) {
         decide("phobia_agoraphobia is true. Setting diagnosis_1 to "
-               "DIAG_7_AGORAPHOBIA");
+               "DIAG_7_AGORAPHOBIA.");
         diagnosis_1 = DIAG_7_AGORAPHOBIA;
     }
     if (generalized_anxiety_disorder && score >= 20) {
         decide("generalized_anxiety_disorder is true AND "
                "score >= 20. Setting diagnosis_1 to "
-               "DIAG_8_GENERALIZED_ANX_DIS");
+               "DIAG_8_GENERALIZED_ANX_DIS.");
         diagnosis_1 = DIAG_8_GENERALIZED_ANX_DIS;
     }
     if (panic_disorder) {
         decide("panic_disorder is true. Setting diagnosis_1 to "
-               "DIAG_9_PANIC_DIS");
+               "DIAG_9_PANIC_DIS.");
         diagnosis_1 = DIAG_9_PANIC_DIS;
     }
     if (depression_mild) {
         decide("depression_mild is true. Setting diagnosis_1 to "
-               "DIAG_10_MILD_DEPR_EPISODE");
+               "DIAG_10_MILD_DEPR_EPISODE.");
         diagnosis_1 = DIAG_10_MILD_DEPR_EPISODE;
     }
     if (depression_moderate) {
         decide("depression_moderate is true. Setting diagnosis_1 to "
-               "DIAG_11_MOD_DEPR_EPISODE");
+               "DIAG_11_MOD_DEPR_EPISODE.");
         diagnosis_1 = DIAG_11_MOD_DEPR_EPISODE;
     }
     if (depression_severe) {
         decide("depression_severe is true. Setting diagnosis_1 to "
-               "DIAG_12_SEVERE_DEPR_EPISODE");
+               "DIAG_12_SEVERE_DEPR_EPISODE.");
         diagnosis_1 = DIAG_12_SEVERE_DEPR_EPISODE;
     }
 
     // ... secondary diagnosis
     if (score >= 12 && diagnosis_1 >= 2) {
         decide("score >= 12 AND diagnosis_1 >= 2. "
-               "Setting diagnosis_2 to DIAG_1_MIXED_ANX_DEPR_DIS_MILD");
+               "Setting diagnosis_2 to DIAG_1_MIXED_ANX_DEPR_DIS_MILD.");
         diagnosis_2 = DIAG_1_MIXED_ANX_DEPR_DIS_MILD;
     }
     if (generalized_anxiety_disorder && diagnosis_1 >= 3) {
         decide("generalized_anxiety_disorder is true AND "
                "diagnosis_1 >= 3. "
-               "Setting diagnosis_2 to DIAG_2_GENERALIZED_ANX_DIS_MILD");
+               "Setting diagnosis_2 to DIAG_2_GENERALIZED_ANX_DIS_MILD.");
         diagnosis_2 = DIAG_2_GENERALIZED_ANX_DIS_MILD;
     }
     if (obsessive_compulsive_disorder && diagnosis_1 >= 4) {
         decide("obsessive_compulsive_disorder is true AND "
                "diagnosis_1 >= 4. "
-               "Setting diagnosis_2 to DIAG_3_OBSESSIVE_COMPULSIVE_DIS");
+               "Setting diagnosis_2 to DIAG_3_OBSESSIVE_COMPULSIVE_DIS.");
         diagnosis_2 = DIAG_3_OBSESSIVE_COMPULSIVE_DIS;
     }
     if (score >= 20 && diagnosis_1 >= 5) {
         decide("score >= 20 AND diagnosis_1 >= 5. "
-               "Setting diagnosis_2 to DIAG_4_MIXED_ANX_DEPR_DIS");
+               "Setting diagnosis_2 to DIAG_4_MIXED_ANX_DEPR_DIS.");
         diagnosis_2 = DIAG_4_MIXED_ANX_DEPR_DIS;
     }
     if (phobia_specific && diagnosis_1 >= 6) {
         decide("phobia_specific is true AND diagnosis_1 >= 6. "
-               "Setting diagnosis_2 to DIAG_5_SPECIFIC_PHOBIA");
+               "Setting diagnosis_2 to DIAG_5_SPECIFIC_PHOBIA.");
         diagnosis_2 = DIAG_5_SPECIFIC_PHOBIA;
     }
     if (phobia_social && diagnosis_1 >= 7) {
         decide("phobia_social is true AND diagnosis_1 >= 7. "
-               "Setting diagnosis_2 to DIAG_6_SOCIAL_PHOBIA");
+               "Setting diagnosis_2 to DIAG_6_SOCIAL_PHOBIA.");
         diagnosis_2 = DIAG_6_SOCIAL_PHOBIA;
     }
     if (phobia_agoraphobia && diagnosis_1 >= 8) {
         decide("phobia_agoraphobia is true AND diagnosis_1 >= 8. "
-               "Setting diagnosis_2 to DIAG_7_AGORAPHOBIA");
+               "Setting diagnosis_2 to DIAG_7_AGORAPHOBIA.");
         diagnosis_2 = DIAG_7_AGORAPHOBIA;
     }
     if (generalized_anxiety_disorder && score >= 20 && diagnosis_1 >= 9) {
         decide("generalized_anxiety_disorder is true AND "
                "score >= 20 AND "
                "diagnosis_1 >= 9. "
-               "Setting diagnosis_2 to DIAG_8_GENERALIZED_ANX_DIS");
+               "Setting diagnosis_2 to DIAG_8_GENERALIZED_ANX_DIS.");
         diagnosis_2 = DIAG_8_GENERALIZED_ANX_DIS;
     }
     if (panic_disorder && diagnosis_1 >= 9) {
         decide("panic_disorder is true AND diagnosis_1 >= 9. "
-               "Setting diagnosis_2 to DIAG_9_PANIC_DIS");
+               "Setting diagnosis_2 to DIAG_9_PANIC_DIS.");
         diagnosis_2 = DIAG_9_PANIC_DIS;
     }
 
@@ -3425,7 +3451,7 @@ void Cisr::CisrResult::finalize()
     decide("--- Final scores:");
     SHOWINT(depression);
     SHOWINT(depr_crit_1_mood_anhedonia_energy);
-    SHOWINT(depr_crit_2_app_cnc_slp_mtr_glt_wth);
+    SHOWINT(depr_crit_2_app_cnc_slp_mtr_glt_wth_sui);
     SHOWINT(depr_crit_3_somatic_synd);
     SHOWINT(weight_change);
     SHOWINT(somatic_symptoms);
@@ -3476,11 +3502,11 @@ void Cisr::CisrResult::finalize()
     SHOWBOOL(phobia_specific);
     SHOWBOOL(panic_disorder);
 
-    // *** more detailed/explanatory output; see original again
-
     decide("--- Final diagnoses:");
-    decide(QString("Primary diagnosis: %1").arg(diagnosisName(diagnosis_1)));
-    decide(QString("Secondary diagnosis: %1").arg(diagnosisName(diagnosis_2)));
+    decide(QString("Probable primary diagnosis: %1").arg(
+               diagnosisName(diagnosis_1)));
+    decide(QString("Probable secondary diagnosis: %1").arg(
+               diagnosisName(diagnosis_2)));
 }
 
 
@@ -3522,4 +3548,36 @@ QString Cisr::CisrResult::diagnosisName(int diagnosis_code) const
     default:
         return "[INTERNAL ERROR: BAD DIAGNOSIS CODE]";
     }
+}
+
+
+QString Cisr::diagnosisNameLong(int diagnosis_code) const
+{
+    QString xstring_name = QString("diag_%1_desc").arg(diagnosis_code);
+    return xstring(xstring_name);
+}
+
+
+QString Cisr::diagnosisReason(int diagnosis_code) const
+{
+    QString xstring_name = QString("diag_%1_explan").arg(diagnosis_code);
+    return xstring(xstring_name);
+}
+
+
+QString Cisr::suicideIntent(const Cisr::CisrResult& result,
+                            bool with_warning) const
+{
+    QString intent;
+    if (result.incomplete) {
+        intent = "TASK INCOMPLETE. SO FAR: ";
+    }
+    intent += xstring(QString("suicid_%1").arg(result.suicidality));
+    if (with_warning && result.suicidality >= SUICIDE_INTENT_LIFE_NOT_WORTH_LIVING) {
+        intent += QString(" <i>%1</i>").arg(xstring("suicid_instruction"));
+    }
+    if (result.suicidality != SUICIDE_INTENT_NONE) {
+        intent = stringfunc::bold(intent);
+    }
+    return intent;
 }

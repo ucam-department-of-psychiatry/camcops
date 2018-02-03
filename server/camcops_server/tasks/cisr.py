@@ -23,16 +23,22 @@
 """
 
 from enum import Enum
+import logging
 from typing import List, Optional
 
+from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import (
     answer,
+    bold,
     get_yes_no,
     get_yes_no_none,
+    italic,
+    subheading_spanning_two_columns,
+    td,
     tr,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -44,6 +50,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     ONE_TO_FOUR_CHECKER,
     ONE_TO_FIVE_CHECKER,
     ONE_TO_SIX_CHECKER,
+    ONE_TO_SEVEN_CHECKER,
     ONE_TO_EIGHT_CHECKER,
     ONE_TO_NINE_CHECKER,
 )
@@ -52,6 +59,8 @@ from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasPatientMixin,
 )
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -66,6 +75,7 @@ NOT_APPLICABLE_TEXT = "—"
 # Comments for fields
 # -----------------------------------------------------------------------------
 
+CMT_DEMOGRAPHICS = "(Demographics) "
 CMT_1_NO_2_YES = " (1 no, 2 yes)"
 CMT_1_YES_2_NO = " (1 yes, 2 no)"
 CMT_DURATION = (" (1: <2 weeks; 2: 2 weeks–6 months; 3: 6 months–1 year; "
@@ -94,14 +104,34 @@ CMT_ANHEDONIA = (" (1 yes; 2 no, less enjoyment than usual; "
                  "3 no, don't enjoy anything)")
 CMT_PANIC_SYMPTOM = "Panic symptom in past week: "
 
+# ... and results:
+DESC_DEPCRIT1 = "Depressive criterion 1 (mood, anhedonia, energy; max. 3)"
+DESC_DEPCRIT2 = ("Depressive criterion 2 (appetite/weight, concentration, "
+                 "sleep, motor, guilt, self-worth, suicidality; max. 7)")
+DESC_DEPCRIT3 = (
+    "Depressive criterion 3: somatic syndrome (anhedonia, lack of emotional "
+    "reactivity, early-morning waking, depression worse in the morning, "
+    "psychomotor retardation/agitation, loss of appetite, weight loss, loss "
+    "of libido; max. 8)"
+)
+DESC_DEPCRIT3_MET = "Somatic syndrome criterion met (≥4)?"
+DESC_NEURASTHENIA_SCORE = "Neurasthenia score (max. 3)"
+
+DISORDER_OCD = "Obsessive–compulsive disorder"
+DISORDER_DEPR_MILD = "Depressive episode: at least mild"
+DISORDER_DEPR_MOD = "Depressive episode: at least moderate"
+DISORDER_DEPR_SEV = "Depressive episode: severe"
+DISORDER_CFS = "Chronic fatigue syndrome"
+DISORDER_GAD = "Generalized anxiety disorder"
+DISORDER_AGORAPHOBIA = "Agoraphobia"
+DISORDER_SOCIAL_PHOBIA = "Social phobia"
+DISORDER_SPECIFIC_PHOBIA = "Specific phobia"
+DISORDER_PANIC = "Panic disorder"
+
 # -----------------------------------------------------------------------------
 # Number of response values (numbered from 1 to N)
 # -----------------------------------------------------------------------------
 
-N_ETHNIC = 6  # unused
-N_MARRIED = 5  # unused
-
-N_ILLNESS = 8
 N_DURATIONS = 5
 N_OPTIONS_DAYS_PER_WEEK = 3
 N_OPTIONS_NIGHTS_PER_WEEK = 3
@@ -351,9 +381,23 @@ V_OVERALL_IMPAIRMENT_STOP_GT_1_ACTIVITY = 4
 WTCHANGE_NONE_OR_APPETITE_INCREASE = 0
 WTCHANGE_APPETITE_LOSS = 1
 WTCHANGE_NONDELIBERATE_WTLOSS_OR_WTGAIN = 2
-WTCHANGE_WTLOSS_GT_HALF_STONE = 3
-WTCHANGE_WTGAIN_GT_HALF_STONE = 4
+WTCHANGE_WTLOSS_GE_HALF_STONE = 3
+WTCHANGE_WTGAIN_GE_HALF_STONE = 4
 # ... I'm not entirely sure why this labelling system is used!
+
+DESC_WEIGHT_CHANGE = (
+    "Weight change ({a}: none or appetite increase; "
+    "{b}: appetite loss without weight loss; "
+    "{c}: non-deliberate weight loss or gain <0.5 st; "
+    "{d}: weight loss ≥0.5 st; "
+    "{e}: weight gain ≥0.5 st)".format(
+        a=WTCHANGE_NONE_OR_APPETITE_INCREASE,
+        b=WTCHANGE_APPETITE_LOSS,
+        c=WTCHANGE_NONDELIBERATE_WTLOSS_OR_WTGAIN,
+        d=WTCHANGE_WTLOSS_GE_HALF_STONE,
+        e=WTCHANGE_WTGAIN_GE_HALF_STONE,
+    )
+)
 
 PHOBIATYPES_OTHER = 0
 PHOBIATYPES_AGORAPHOBIA = 1
@@ -390,9 +434,20 @@ SUICIDE_INTENT_LIFE_NOT_WORTH_LIVING = 2
 SUICIDE_INTENT_SUICIDAL_THOUGHTS = 3
 SUICIDE_INTENT_SUICIDAL_PLANS = 4
 
+SLEEPCHANGE_NONE = 0  # added
 SLEEPCHANGE_EMW = 1
 SLEEPCHANGE_INSOMNIA_NOT_EMW = 2
 SLEEPCHANGE_INCREASE = 3
+
+DESC_SLEEP_CHANGE = (
+    "Sleep change ({a}: none; {b}: early-morning waking; "
+    "{c}: insomnia without early-morning waking; {d}: sleep increase)".format(
+        a=SLEEPCHANGE_NONE,
+        b=SLEEPCHANGE_EMW,
+        c=SLEEPCHANGE_INSOMNIA_NOT_EMW,
+        d=SLEEPCHANGE_INCREASE,
+    )
+)
 
 DIURNAL_MOOD_VAR_NONE = 0
 DIURNAL_MOOD_VAR_WORSE_MORNING = 1
@@ -416,7 +471,7 @@ SCORE_PREFIX = "... "
 # Not quite sure to do an autonumbering enum that also can have synonyms, like
 # C++. The AutoNumberEnum (q.v.) is close, but won't do the synonyms. So:
 
-_nasty_hack_next_enum = 0
+_nasty_hack_next_enum = 1  # start with 1
 
 
 def next_enum() -> int:
@@ -429,13 +484,16 @@ def next_enum() -> int:
 class CisrQuestion(Enum):
     START_MARKER = next_enum()
 
-    # unused # ETHNIC = START_MARKER
-    # unused # MARRIED = next_enum()
-    # unused # EMPSTAT = next_enum()
-    # unused # EMPTYPE = next_enum()
-    # unused # HOME = next_enum()
-    # unused # HEALTH_WELLBEING = next_enum()
-    HEALTH_WELLBEING = START_MARKER
+    INTRO_1 = START_MARKER
+    INTRO_2 = next_enum()
+    INTRO_DEMOGRAPHICS = next_enum()
+
+    ETHNIC = next_enum()
+    MARRIED = next_enum()
+    EMPSTAT = next_enum()
+    EMPTYPE = next_enum()
+    HOME = next_enum()
+    HEALTH_WELLBEING = next_enum()
 
     APPETITE1_LOSS_PAST_MONTH = next_enum()
 
@@ -601,12 +659,12 @@ class CisrQuestion(Enum):
     
 CQ = CisrQuestion  # shorthand
 
-
-# FN_ETHNIC = "ethnic"  # unused
-# FN_MARRIED = "married"  # unused
-# FN_EMPSTAT = "empstat"  # unused
-# FN_EMPTYPE = "emptype"  # unused
-# FN_HOME = "home"  # unused
+# Demographics section
+FN_ETHNIC = "ethnic"
+FN_MARRIED = "married"
+FN_EMPSTAT = "empstat"
+FN_EMPTYPE = "emptype"
+FN_HOME = "home"
 
 FN_APPETITE1 = "appetite1"
 FN_WEIGHT1 = "weight1"
@@ -771,7 +829,6 @@ FN_OBSESS_DUR = "obsess_dur"
 
 FN_OVERALL2 = "overall2"
 
-
 PANIC_SYMPTOM_FIELDNAMES = [
     FN_PANSYM_A,
     FN_PANSYM_B,
@@ -788,13 +845,16 @@ PANIC_SYMPTOM_FIELDNAMES = [
     FN_PANSYM_M,
 ]
 
-
 FIELDNAME_FOR_QUESTION = {
-    # CQ.ETHNIC: FN_ETHNIC,  # unused
-    # CQ.MARRIED: FN_MARRIED,  # unused
-    # CQ.EMPSTAT: FN_EMPSTAT,  # unused
-    # CQ.EMPTYPE: FN_EMPTYPE,  # unused
-    # CQ.HOME: FN_HOME,  # unused
+    # CQ.INTRO_1:  # information only
+    # CQ.INTRO_2:  # information only
+    # CQ.INTRO_DEMOGRAPHICS:  # information only
+
+    CQ.ETHNIC: FN_ETHNIC,
+    CQ.MARRIED: FN_MARRIED,
+    CQ.EMPSTAT: FN_EMPSTAT,
+    CQ.EMPTYPE: FN_EMPTYPE,
+    CQ.HOME: FN_HOME,
 
     # CQ.HEALTH_WELLBEING: # information only
 
@@ -957,7 +1017,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.OVERALL2_IMPACT_PAST_WEEK: FN_OVERALL2,
 }
 
-
 # Questions for which 1 = no, 2 = yes (+/- other options)
 QUESTIONS_1_NO_2_YES = [
     CQ.APPETITE1_LOSS_PAST_MONTH,
@@ -1053,9 +1112,21 @@ QUESTIONS_YN_SPECIFIC_TEXT = [
     CQ.OBSESS2_TRIED_TO_STOP,
     CQ.OBSESS3_UPSETTING,
 ]
+# Demographics questions (optional for diagnosis)
+QUESTIONS_DEMOGRAPHICS = [
+    CQ.ETHNIC,
+    CQ.MARRIED,
+    CQ.EMPSTAT,
+    CQ.EMPTYPE,
+    CQ.HOME,
+]
 # "Questions" that are just a prompt screen
 QUESTIONS_PROMPT_ONLY = {
     # Maps questions to their prompt's xstring name
+    CQ.INTRO_1: "intro_1",
+    CQ.INTRO_2: "intro_2",
+    CQ.INTRO_DEMOGRAPHICS: "intro_demographics_statement",
+
     CQ.HEALTH_WELLBEING: "health_wellbeing_statement",
     CQ.DOCTOR2_PLEASE_TALK_TO: "doctor2",
     CQ.DEPR_OUTRO: "depr_outro",
@@ -1125,16 +1196,14 @@ QUESTIONS_MULTIWAY = {
     CQ.OBSESS4_MAX_DURATION: (1, 2),
     CQ.OVERALL2_IMPACT_PAST_WEEK: (1, 4),
 }
-# const QMap<CQ, QPair<int, int>> QUESTIONS_MULTIWAY_WITH_EXTRA_STEM{
-#     # Maps questions to first and last number of answers.
-# #ifdef CISR_INCLUDE_DEMOGRAPHICS
-#     {CQ.ETHNIC, {1, 6}},
-#     {CQ.MARRIED, {1, 5}},
-#     {CQ.EMPSTAT, {1, 7}},
-#     {CQ.EMPTYPE, {1, 6}},  # 6 includes our additional "not applicable"
-#     {CQ.HOME, {1, 6}},
-# #endif
-# ]
+QUESTIONS_MULTIWAY_WITH_EXTRA_STEM = {
+    # Maps questions to first and last number of answers.
+    CQ.ETHNIC: (1, 7),  # 7 includes our additional "prefer not to say"
+    CQ.MARRIED: (1, 6),  # 6 includes our additional "prefer not to say"
+    CQ.EMPSTAT: (1, 8),  # 8 includes our additional "prefer not to say"
+    CQ.EMPTYPE: (1, 7),  # 7 includes our additional "not applicable" + "prefer not to say"  # noqa
+    CQ.HOME: (1, 7),  # 7 includes our additional "prefer not to say"
+}
 QUESTIONS_DAYS_PER_WEEK = [
     CQ.SOMATIC_PAIN2_DAYS_PAST_WEEK,
     CQ.SOMATIC_DIS2_DAYS_PAST_WEEK,
@@ -1218,7 +1287,7 @@ class CisrResult(object):
         # Symptom scoring
         self.depression = 0  # DEPR in original
         self.depr_crit_1_mood_anhedonia_energy = 0  # DEPCRIT1
-        self.depr_crit_2_app_cnc_slp_mtr_glt_wth = 0  # DEPCRIT2
+        self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui = 0  # DEPCRIT2
         self.depr_crit_3_somatic_synd = 0  # DEPCRIT3
         # ... looks to me like the ICD-10 criteria for somatic syndrome
         # (e.g. F32.01, F32.11, F33.01, F33.11), with the "do you cheer up
@@ -1231,13 +1300,13 @@ class CisrResult(object):
         self.neurasthenia = 0  # NEURAS in original
         self.concentration_poor = 0  # CONC in original
         self.sleep_problems = 0  # SLEEP in original
-        self.sleep_change = 0  # SLEEPCH in original
+        self.sleep_change = SLEEPCHANGE_NONE  # SLEEPCH in original
         self.depressive_thoughts = 0  # DEPTHTS in original
         self.irritability = 0  # IRRIT in original
         self.diurnal_mood_variation = DIURNAL_MOOD_VAR_NONE  # DVM in original
         self.libido_decreased = False  # LIBID in original
         self.psychomotor_changes = PSYCHOMOTOR_NONE  # PSYCHMOT in original
-        self.suicidality = 0  # SUICID in original
+        self.suicidality = SUICIDE_INTENT_NONE  # type: int  # SUICID in original  # noqa
         self.depression_at_least_2_weeks = False  # DEPR_DUR >= 2 in original
 
         self.hypochondria = 0  # HYPO in original
@@ -1320,6 +1389,9 @@ class CisrResult(object):
             self.obsessions >= threshold
         )
 
+    def has_somatic_syndrome(self) -> bool:
+        return self.depr_crit_3_somatic_synd >= 4
+
     def get_final_page(self) -> CisrQuestion:
         # see chooseFinalPage() in the C++ version
         return (
@@ -1373,6 +1445,66 @@ class CisrResult(object):
             return "Severe depressive episode"
         else:
             return "[INTERNAL ERROR: BAD DIAGNOSIS CODE]"
+
+    def diagnosis_icd10_code(self, diagnosis_code: int) -> str:
+        if self.incomplete:
+            return ""
+
+        if diagnosis_code == DIAG_0_NO_DIAGNOSIS:
+            return ""
+        elif diagnosis_code == DIAG_1_MIXED_ANX_DEPR_DIS_MILD:
+            return "F41.2"  # no sub-code for "mild"
+        elif diagnosis_code == DIAG_2_GENERALIZED_ANX_DIS_MILD:
+            return "F41.1"  # no sub-code for "mild"
+        elif diagnosis_code == DIAG_3_OBSESSIVE_COMPULSIVE_DIS:
+            return "Obsessive–compulsive disorder"
+        elif diagnosis_code == DIAG_4_MIXED_ANX_DEPR_DIS:
+            return "F41.2"
+        elif diagnosis_code == DIAG_5_SPECIFIC_PHOBIA:
+            return "F40.2"
+        elif diagnosis_code == DIAG_6_SOCIAL_PHOBIA:
+            return "F40.1"
+        elif diagnosis_code == DIAG_7_AGORAPHOBIA:
+            return "F40.0"  # not clear whether F40.00/F40.01 are distinguished
+        elif diagnosis_code == DIAG_8_GENERALIZED_ANX_DIS:
+            return "F41.1"
+        elif diagnosis_code == DIAG_9_PANIC_DIS:
+            return "F41.0"
+        elif diagnosis_code == DIAG_10_MILD_DEPR_EPISODE:
+            if self.has_somatic_syndrome():
+                return "F32.01"
+            else:
+                return "F32.00"
+        elif diagnosis_code == DIAG_11_MOD_DEPR_EPISODE:
+            if self.has_somatic_syndrome():
+                return "F32.11"
+            else:
+                return "F32.10"
+        elif diagnosis_code == DIAG_12_SEVERE_DEPR_EPISODE:
+            return "F32.2 or F32.3"
+        else:
+            return "[INTERNAL ERROR: BAD DIAGNOSIS CODE]"
+
+    def has_diagnosis(self, diagnosis_code: int) -> bool:
+        return not self.incomplete and diagnosis_code != DIAG_0_NO_DIAGNOSIS
+
+    def has_diagnosis_1(self) -> bool:
+        return self.has_diagnosis(self.diagnosis_1)
+
+    def has_diagnosis_2(self) -> bool:
+        return self.has_diagnosis(self.diagnosis_1)
+
+    def diagnosis_1_name(self) -> str:
+        return self.diagnosis_name(self.diagnosis_1)
+
+    def diagnosis_1_icd10_code(self) -> str:
+        return self.diagnosis_icd10_code(self.diagnosis_1)
+
+    def diagnosis_2_name(self) -> str:
+        return self.diagnosis_name(self.diagnosis_2)
+
+    def diagnosis_2_icd10_code(self) -> str:
+        return self.diagnosis_icd10_code(self.diagnosis_2)
 
     def finalize(self) -> None:
         at_least_1_activity_impaired = (self.functional_impairment >= 
@@ -1465,29 +1597,29 @@ class CisrResult(object):
         if (self.depression_at_least_2_weeks and
                 self.depr_crit_1_mood_anhedonia_energy > 1 and
                 self.depr_crit_1_mood_anhedonia_energy + 
-                self.depr_crit_2_app_cnc_slp_mtr_glt_wth > 3):
+                self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 3):
             self.decide("Depressive symptoms >=2 weeks AND "
                         "depr_crit_1_mood_anhedonia_energy > 1 AND "
                         "depr_crit_1_mood_anhedonia_energy + "
-                        "depr_crit_2_app_cnc_slp_mtr_glt_wth > 3. "
+                        "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 3. "
                         "Setting depression_mild.")
             self.depression_mild = True
         if (self.depression_at_least_2_weeks and
                 self.depr_crit_1_mood_anhedonia_energy > 1 and
                 (self.depr_crit_1_mood_anhedonia_energy + 
-                 self.depr_crit_2_app_cnc_slp_mtr_glt_wth) > 5):
+                 self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui) > 5):
             self.decide("Depressive symptoms >=2 weeks AND "
                         "depr_crit_1_mood_anhedonia_energy > 1 AND "
                         "depr_crit_1_mood_anhedonia_energy + "
-                        "depr_crit_2_app_cnc_slp_mtr_glt_wth > 5. "
+                        "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 5. "
                         "Setting depression_moderate.")
             self.depression_moderate = True
         if (self.depression_at_least_2_weeks and
                 self.depr_crit_1_mood_anhedonia_energy == 3 and
-                self.depr_crit_2_app_cnc_slp_mtr_glt_wth > 4):
+                self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 4):
             self.decide("Depressive symptoms >=2 weeks AND "
                         "depr_crit_1_mood_anhedonia_energy == 3 AND "
-                        "depr_crit_2_app_cnc_slp_mtr_glt_wth > 4. "
+                        "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 4. "
                         "Setting depression_severe.")
             self.depression_severe = True
     
@@ -1503,98 +1635,98 @@ class CisrResult(object):
         # ... primary diagnosis
         if score >= 12:
             self.decide("Total score >= 12. Setting diagnosis_1 to "
-                        "DIAG_1_MIXED_ANX_DEPR_DIS_MILD")
+                        "DIAG_1_MIXED_ANX_DEPR_DIS_MILD.")
             self.diagnosis_1 = DIAG_1_MIXED_ANX_DEPR_DIS_MILD
         if self.generalized_anxiety_disorder:
             self.decide("generalized_anxiety_disorder is true. Setting "
-                        "diagnosis_1 to DIAG_2_GENERALIZED_ANX_DIS_MILD")
+                        "diagnosis_1 to DIAG_2_GENERALIZED_ANX_DIS_MILD.")
             self.diagnosis_1 = DIAG_2_GENERALIZED_ANX_DIS_MILD
         if self.obsessive_compulsive_disorder:
             self.decide("obsessive_compulsive_disorder is true. Setting "
-                        "diagnosis_1 to DIAG_3_OBSESSIVE_COMPULSIVE_DIS")
+                        "diagnosis_1 to DIAG_3_OBSESSIVE_COMPULSIVE_DIS.")
             self.diagnosis_1 = DIAG_3_OBSESSIVE_COMPULSIVE_DIS
         if score >= 20:
             self.decide("Total score >= 20. Setting diagnosis_1 to "
-                        "DIAG_4_MIXED_ANX_DEPR_DIS")
+                        "DIAG_4_MIXED_ANX_DEPR_DIS.")
             self.diagnosis_1 = DIAG_4_MIXED_ANX_DEPR_DIS
         if self.phobia_specific:
             self.decide("phobia_specific is true. Setting diagnosis_1 to "
-                        "DIAG_5_SPECIFIC_PHOBIA")
+                        "DIAG_5_SPECIFIC_PHOBIA.")
             self.diagnosis_1 = DIAG_5_SPECIFIC_PHOBIA
         if self.phobia_social:
             self.decide("phobia_social is true. Setting diagnosis_1 to "
-                        "DIAG_6_SOCIAL_PHOBIA")
+                        "DIAG_6_SOCIAL_PHOBIA.")
             self.diagnosis_1 = DIAG_6_SOCIAL_PHOBIA
         if self.phobia_agoraphobia:
             self.decide("phobia_agoraphobia is true. Setting diagnosis_1 to "
-                        "DIAG_7_AGORAPHOBIA")
+                        "DIAG_7_AGORAPHOBIA.")
             self.diagnosis_1 = DIAG_7_AGORAPHOBIA
         if self.generalized_anxiety_disorder and score >= 20:
             self.decide("generalized_anxiety_disorder is true AND "
                         "score >= 20. Setting diagnosis_1 to "
-                        "DIAG_8_GENERALIZED_ANX_DIS")
+                        "DIAG_8_GENERALIZED_ANX_DIS.")
             self.diagnosis_1 = DIAG_8_GENERALIZED_ANX_DIS
         if self.panic_disorder:
             self.decide("panic_disorder is true. Setting diagnosis_1 to "
-                        "DIAG_9_PANIC_DIS")
+                        "DIAG_9_PANIC_DIS.")
             self.diagnosis_1 = DIAG_9_PANIC_DIS
         if self.depression_mild:
             self.decide("depression_mild is true. Setting diagnosis_1 to "
-                        "DIAG_10_MILD_DEPR_EPISODE")
+                        "DIAG_10_MILD_DEPR_EPISODE.")
             self.diagnosis_1 = DIAG_10_MILD_DEPR_EPISODE
         if self.depression_moderate:
             self.decide("depression_moderate is true. Setting diagnosis_1 to "
-                        "DIAG_11_MOD_DEPR_EPISODE")
+                        "DIAG_11_MOD_DEPR_EPISODE.")
             self.diagnosis_1 = DIAG_11_MOD_DEPR_EPISODE
         if self.depression_severe:
             self.decide("depression_severe is true. Setting diagnosis_1 to "
-                        "DIAG_12_SEVERE_DEPR_EPISODE")
+                        "DIAG_12_SEVERE_DEPR_EPISODE.")
             self.diagnosis_1 = DIAG_12_SEVERE_DEPR_EPISODE
 
         # ... secondary diagnosis
         if score >= 12 and self.diagnosis_1 >= 2:
             self.decide(
                 "score >= 12 AND diagnosis_1 >= 2. "
-                "Setting diagnosis_2 to DIAG_1_MIXED_ANX_DEPR_DIS_MILD")
+                "Setting diagnosis_2 to DIAG_1_MIXED_ANX_DEPR_DIS_MILD.")
             self.diagnosis_2 = DIAG_1_MIXED_ANX_DEPR_DIS_MILD
         if self.generalized_anxiety_disorder and self.diagnosis_1 >= 3:
             self.decide(
                 "generalized_anxiety_disorder is true AND "
                 "diagnosis_1 >= 3. "
-                "Setting diagnosis_2 to DIAG_2_GENERALIZED_ANX_DIS_MILD")
+                "Setting diagnosis_2 to DIAG_2_GENERALIZED_ANX_DIS_MILD.")
             self.diagnosis_2 = DIAG_2_GENERALIZED_ANX_DIS_MILD
         if self.obsessive_compulsive_disorder and self.diagnosis_1 >= 4:
             self.decide(
                 "obsessive_compulsive_disorder is true AND "
                 "diagnosis_1 >= 4. "
-                "Setting diagnosis_2 to DIAG_3_OBSESSIVE_COMPULSIVE_DIS")
+                "Setting diagnosis_2 to DIAG_3_OBSESSIVE_COMPULSIVE_DIS.")
             self.diagnosis_2 = DIAG_3_OBSESSIVE_COMPULSIVE_DIS
         if score >= 20 and self.diagnosis_1 >= 5:
             self.decide("score >= 20 AND diagnosis_1 >= 5. "
-                        "Setting diagnosis_2 to DIAG_4_MIXED_ANX_DEPR_DIS")
+                        "Setting diagnosis_2 to DIAG_4_MIXED_ANX_DEPR_DIS.")
             self.diagnosis_2 = DIAG_4_MIXED_ANX_DEPR_DIS
         if self.phobia_specific and self.diagnosis_1 >= 6:
             self.decide("phobia_specific is true AND diagnosis_1 >= 6. "
-                        "Setting diagnosis_2 to DIAG_5_SPECIFIC_PHOBIA")
+                        "Setting diagnosis_2 to DIAG_5_SPECIFIC_PHOBIA.")
             self.diagnosis_2 = DIAG_5_SPECIFIC_PHOBIA
         if self.phobia_social and self.diagnosis_1 >= 7:
             self.decide("phobia_social is true AND diagnosis_1 >= 7. "
-                        "Setting diagnosis_2 to DIAG_6_SOCIAL_PHOBIA")
+                        "Setting diagnosis_2 to DIAG_6_SOCIAL_PHOBIA.")
             self.diagnosis_2 = DIAG_6_SOCIAL_PHOBIA
         if self.phobia_agoraphobia and self.diagnosis_1 >= 8:
             self.decide("phobia_agoraphobia is true AND diagnosis_1 >= 8. "
-                        "Setting diagnosis_2 to DIAG_7_AGORAPHOBIA")
+                        "Setting diagnosis_2 to DIAG_7_AGORAPHOBIA.")
             self.diagnosis_2 = DIAG_7_AGORAPHOBIA
         if (self.generalized_anxiety_disorder and score >= 20 and
                 self.diagnosis_1 >= 9):
             self.decide("generalized_anxiety_disorder is true AND "
                         "score >= 20 AND "
                         "diagnosis_1 >= 9. "
-                        "Setting diagnosis_2 to DIAG_8_GENERALIZED_ANX_DIS")
+                        "Setting diagnosis_2 to DIAG_8_GENERALIZED_ANX_DIS.")
             self.diagnosis_2 = DIAG_8_GENERALIZED_ANX_DIS
         if self.panic_disorder and self.diagnosis_1 >= 9:
             self.decide("panic_disorder is true AND diagnosis_1 >= 9. "
-                        "Setting diagnosis_2 to DIAG_9_PANIC_DIS")
+                        "Setting diagnosis_2 to DIAG_9_PANIC_DIS.")
             self.diagnosis_2 = DIAG_9_PANIC_DIS
 
         # In summary:
@@ -1603,8 +1735,8 @@ class CisrResult(object):
         self._showint("depression", self.depression)
         self._showint("depr_crit_1_mood_anhedonia_energy",
                       self.depr_crit_1_mood_anhedonia_energy)
-        self._showint("depr_crit_2_app_cnc_slp_mtr_glt_wth",
-                      self.depr_crit_2_app_cnc_slp_mtr_glt_wth)
+        self._showint("depr_crit_2_app_cnc_slp_mtr_glt_wth_sui",
+                      self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui)
         self._showint("depr_crit_3_somatic_synd",
                       self.depr_crit_3_somatic_synd)
         self._showint("weight_change", self.weight_change)
@@ -1666,12 +1798,10 @@ class CisrResult(object):
         self._showbool("phobia_specific", self.phobia_specific)
         self._showbool("panic_disorder", self.panic_disorder)
     
-        # *** more detailed/explanatory output; see original again
-
         self.decide("--- Final diagnoses:")
-        self.decide("Primary diagnosis: " + 
+        self.decide("Probable primary diagnosis: " +
                     self.diagnosis_name(self.diagnosis_1))
-        self.decide("Secondary diagnosis: " + 
+        self.decide("Probable secondary diagnosis: " +
                     self.diagnosis_name(self.diagnosis_2))
 
 
@@ -1685,13 +1815,59 @@ class Cisr(TaskHasPatientMixin, Task):
     longname = "Clinical Interview Schedule, Revised"
     provides_trackers = False
 
-    _IGNORE_DEMOGRAPHICS = """
-    ethnic
-    married
-    empstat
-    emptype
-    home
-    """
+    # Demographics
+
+    ethnic = CamcopsColumn(
+        FN_ETHNIC, Integer,
+        comment=(
+            CMT_DEMOGRAPHICS +
+            "Ethnicity (1 white, 2 mixed, 3 Asian/British Asian, "
+            "4 Black/Black British, 5 Chinese, 6 other, 7 prefer not to say)"
+        ),
+        permitted_value_checker=ONE_TO_SEVEN_CHECKER,
+    )
+    married = CamcopsColumn(
+        FN_MARRIED, Integer,
+        comment=(
+            CMT_DEMOGRAPHICS +
+            "Marital status (1 married/living as married, 2 single, "
+            "3 separated, 4 divorced, 5 widowed, 6 prefer not to say)"
+        ),
+        permitted_value_checker=ONE_TO_SIX_CHECKER,
+    )
+    empstat = CamcopsColumn(
+        FN_EMPSTAT, Integer,
+        comment=(
+            CMT_DEMOGRAPHICS +
+            "Current employment status (1 working full time, "
+            "2 working part time, 3 student, 4 retired, 5 houseperson, "
+            "6 unemployed job seeker, 7 unemployed due to ill health,"
+            "8 prefer not to say)"
+        ),
+        permitted_value_checker=ONE_TO_EIGHT_CHECKER,
+    )
+    emptype = CamcopsColumn(
+        FN_EMPTYPE, Integer,
+        comment=(
+            CMT_DEMOGRAPHICS +
+            "Current/last paid employment "
+            "(1 self-employed with paid employees, "
+            "2 self-employed with no paid employees, 3 employee, "
+            "4 foreman/supervisor, 5 manager, 6 not applicable,"
+            "7 prefer not to say)"
+        ),
+        permitted_value_checker=ONE_TO_SEVEN_CHECKER,
+    )
+    home = CamcopsColumn(
+        FN_HOME, Integer,
+        comment=(
+            CMT_DEMOGRAPHICS +
+            "Housing situation (1 home owner, 2 tenant, 3 living with "
+            "relative/friend, 4 hostel/care home, 5 homeless, 6 other,"
+            "7 prefer not to say)"
+        ),
+        permitted_value_checker=ONE_TO_SEVEN_CHECKER,
+    )
 
     # Appetite/weight
 
@@ -1712,7 +1888,7 @@ class Cisr(TaskHasPatientMixin, Task):
     )
     weight3 = CamcopsColumn(
         FN_WEIGHT3, Integer,
-        comment="Weight loss amount (1: >=0.5 stones; 2: <0.5 stones)",
+        comment="Weight loss amount (1: ≥0.5 stones; 2: <0.5 stones)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     appetite2 = CamcopsColumn(
@@ -1728,7 +1904,7 @@ class Cisr(TaskHasPatientMixin, Task):
     )
     weight5 = CamcopsColumn(
         FN_WEIGHT5, Integer,
-        comment="Weight gain amount (1: >=0.5 stones; 2: <0.5 stones)",
+        comment="Weight gain amount (1: ≥0.5 stones; 2: <0.5 stones)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
 
@@ -2610,7 +2786,9 @@ class Cisr(TaskHasPatientMixin, Task):
         elif q in QUESTIONS_PROMPT_ONLY:
             return NOT_APPLICABLE_TEXT
         fieldname = fieldname_for_q(q)
-        if q in QUESTIONS_YN_SPECIFIC_TEXT or q in QUESTIONS_MULTIWAY:
+        if (q in QUESTIONS_YN_SPECIFIC_TEXT or
+                q in QUESTIONS_MULTIWAY or
+                q in QUESTIONS_MULTIWAY_WITH_EXTRA_STEM):
             return self.wxstring(req, fieldname + "_a{}".format(value))
         elif q in QUESTIONS_OVERALL_DURATION:
             return self.wxstring(req, "duration_a{}".format(value))
@@ -2632,15 +2810,18 @@ class Cisr(TaskHasPatientMixin, Task):
         # See equivalent in the C++ code.
         # ANY CHANGES HERE MUST BE REFLECTED IN THE C++ CODE AND VICE VERSA.
 
-        v = 0  # integer value
+        v = V_MISSING  # integer value
         if DEBUG_SHOW_QUESTIONS_CONSIDERED:
             r.decide("Considering question {}: {}".format(q.value, q.name))
         fieldname = fieldname_for_q(q)
-        if fieldname:
+        if fieldname:  # eliminates prompt-only questions
             var_q = getattr(self, fieldname)  # integer-or-NULL value
             if var_q is None:
-                r.decide("INCOMPLETE INFORMATION. STOPPING.")
-                r.incomplete = True
+                if q not in QUESTIONS_DEMOGRAPHICS:
+                    # From a diagnostic point of view, OK to have missing
+                    # demographic information. Otherwise:
+                    r.decide("INCOMPLETE INFORMATION. STOPPING.")
+                    r.incomplete = True
             else:
                 v = int(var_q)
 
@@ -2659,18 +2840,15 @@ class Cisr(TaskHasPatientMixin, Task):
         # in sequence). Clarity is key.
 
         # ---------------------------------------------------------------------
-        # Preamble
+        # Demographics/preamble
         # ---------------------------------------------------------------------
 
-        # case CQ::ETHNIC:
-        # case CQ::MARRIED:
-        # case CQ::EMPSTAT:
-        # case CQ::EMPTYPE:
-        # case CQ::HOME:
-
-        if q == CQ.HEALTH_WELLBEING:
+        if q in QUESTIONS_DEMOGRAPHICS or q in QUESTIONS_PROMPT_ONLY:
             # Nothing special
             pass
+            # Note that this makes some of the other prompt-only checks
+            # below redundant! Still, it's quicker. The C++ version uses
+            # switch() instead.
 
         # --------------------------------------------------------------------
         # Appetite/weight
@@ -2701,9 +2879,9 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.WEIGHT3_LOST_LOTS:
             if v == V_WEIGHT3_WTLOSS_GE_HALF_STONE:
-                r.decide("Weight loss >=0.5st in past month. "
-                         "Incrementing depr_crit_3_somatic_synd")
-                r.weight_change = WTCHANGE_WTLOSS_GT_HALF_STONE
+                r.decide("Weight loss ≥0.5st in past month. "
+                         "Incrementing depr_crit_3_somatic_synd.")
+                r.weight_change = WTCHANGE_WTLOSS_GE_HALF_STONE
                 r.depr_crit_3_somatic_synd += 1
             r.decide("Loss of weight, so skipping appetite/weight gain "
                      "questions.")
@@ -2726,8 +2904,8 @@ class Cisr(TaskHasPatientMixin, Task):
             if (v == V_WEIGHT5_WTGAIN_GE_HALF_STONE and
                     r.weight_change == WTCHANGE_NONDELIBERATE_WTLOSS_OR_WTGAIN):  # noqa
                 # ... redundant check on weight_change, I think!
-                r.decide("Weight gain >=0.5 st in past month.")
-                r.weight_change = WTCHANGE_WTGAIN_GT_HALF_STONE
+                r.decide("Weight gain ≥0.5 st in past month.")
+                r.weight_change = WTCHANGE_WTGAIN_GE_HALF_STONE
 
         # --------------------------------------------------------------------
         # Somatic symptoms
@@ -2735,16 +2913,18 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.GP_YEAR:
             # Score the preceding block:
-            if (r.weight_change == WTCHANGE_WTLOSS_GT_HALF_STONE and
+            if (r.weight_change == WTCHANGE_WTLOSS_GE_HALF_STONE and
                     self.answer_is_yes(CQ.APPETITE1_LOSS_PAST_MONTH)):
-                r.decide("Appetite loss and weight loss >=0.5st in past month. "  # noqa
-                         "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth.")
-                r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1
-            if (r.weight_change == WTCHANGE_WTGAIN_GT_HALF_STONE and
+                r.decide(
+                    "Appetite loss and weight loss ≥0.5st in past month. "
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
+                r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
+            if (r.weight_change == WTCHANGE_WTGAIN_GE_HALF_STONE and
                     self.answer_is_yes(CQ.APPETITE2_INCREASE_PAST_MONTH)):
-                r.decide("Appetite gain and weight gain >=0.5st in past month. "  # noqa
-                         "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth.")
-                r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1
+                r.decide(
+                    "Appetite gain and weight gain ≥0.5st in past month. "
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
+                r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
 
         elif q == CQ.DISABLE:
             if self.answer_is_no(q):
@@ -2986,9 +3166,10 @@ class Cisr(TaskHasPatientMixin, Task):
         elif q == CQ.SLEEP_MAND1_LOSS_PAST_MONTH:
             # Score previous block:
             if r.concentration_poor >= 2:
-                r.decide("concentration >= 2. "
-                         "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth")
-                r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1
+                r.decide(
+                    "concentration >= 2. "
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
+                r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
             # This question:
             if self.answer_is_no(q, v):
                 r.decide("No problems with sleep loss in past month. "
@@ -3101,9 +3282,10 @@ class Cisr(TaskHasPatientMixin, Task):
         elif q == CQ.IRRIT_MAND1_PEOPLE_PAST_MONTH:
             # Score previous block:
             if r.sleep_problems >= 2:
-                r.decide("sleep_problems >= 2. "
-                         "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth.")
-                r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1
+                r.decide(
+                    "sleep_problems >= 2. "
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
+                r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
             # This bit erroneously lived under IRRIT_DUR in the original; see
             # discussion there:
             if r.sleep_problems >= 2 and r.fatigue >= 2:
@@ -3147,7 +3329,7 @@ class Cisr(TaskHasPatientMixin, Task):
         elif q == CQ.IRRIT4_ARGUMENTS:
             if v == V_IRRIT4_ARGUMENTS_YES_UNJUSTIFIED:
                 r.decide("Arguments without justification. "
-                         "Incrementing irritability")
+                         "Incrementing irritability.")
                 r.irritability += 1
 
         elif q == CQ.IRRIT_DUR:
@@ -3321,30 +3503,33 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.DEPTH4_SLOWED:
             if self.answer_is_yes(q):
-                r.decide("Psychomotor retardation")
+                r.decide("Psychomotor retardation.")
                 r.psychomotor_changes = PSYCHOMOTOR_RETARDATION
             if r.psychomotor_changes > PSYCHOMOTOR_NONE:
-                r.decide("Psychomotor agitation or retardation. "
-                         "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth. "
-                         "Incrementing depr_crit_3_somatic_synd.")
-                r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1
+                r.decide(
+                    "Psychomotor agitation or retardation. "
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui. "
+                    "Incrementing depr_crit_3_somatic_synd.")
+                r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
                 r.depr_crit_3_somatic_synd += 1
 
         elif q == CQ.DEPTH5_GUILT:
             if v >= V_DEPTH5_GUILT_SOMETIMES:
-                r.decide("Feel guilty when not at fault sometimes or often. "
-                         "Incrementing depressive_thoughts. "
-                         "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth.")
+                r.decide(
+                    "Feel guilty when not at fault sometimes or often. "
+                    "Incrementing depressive_thoughts. "
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
                 r.depressive_thoughts += 1
-                r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1
+                r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
 
         elif q == CQ.DEPTH6_WORSE_THAN_OTHERS:
             if self.answer_is_yes(q, v):
-                r.decide("Feeling not as good as other people. "
-                         "Incrementing depressive_thoughts. "
-                         "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth.")
+                r.decide(
+                    "Feeling not as good as other people. "
+                    "Incrementing depressive_thoughts. "
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
                 r.depressive_thoughts += 1
-                r.depr_crit_2_app_cnc_slp_mtr_glt_wth += 1
+                r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
 
         elif q == CQ.DEPTH7_HOPELESS:
             if self.answer_is_yes(q, v):
@@ -3382,6 +3567,13 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("Suicidal thoughts present but denies would ever act. "
                          "Skipping to talk-to-doctor section.")
                 jump_to(CQ.DOCTOR)
+            if v == V_DEPTH9_SUICIDAL_THOUGHTS_YES:
+                r.decide(
+                    "Thoughts of suicide in past week. "
+                    "Incrementing depressive_thoughts. "
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
+                r.depressive_thoughts += 1
+                r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
 
         elif q == CQ.DEPTH10_SUICIDE_METHOD:
             if self.answer_is_yes(q, v):
@@ -3662,10 +3854,8 @@ class Cisr(TaskHasPatientMixin, Task):
                 yes_present = panic_symptom == 2
                 if yes_present:
                     n_panic_symptoms += 1
-            r.decide("{n} out of {t} specific panic symptoms endorsed. "
-                     "Adding {n} to panic.".format(n=n_panic_symptoms,
-                                                   t=NUM_PANIC_SYMPTOMS))
-            r.panic += n_panic_symptoms
+            r.decide("{n} out of {t} specific panic symptoms endorsed.".format(
+                n=n_panic_symptoms, t=NUM_PANIC_SYMPTOMS))
             # The next bit was coded in PANIC5, but lives more naturally here:
             if self.answer_is_no(CQ.ANX_PHOBIA1_SPECIFIC_PAST_MONTH):
                 jump_to(CQ.PANIC_DUR)
@@ -3739,7 +3929,7 @@ class Cisr(TaskHasPatientMixin, Task):
                 jump_to(r.get_final_page())
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
                 r.decide("Obsessions on >=4 days in past week. "
-                         "Incrementin obsessions.")
+                         "Incrementing obsessions.")
                 r.obsessions += 1
 
         elif q == CQ.OBSESS2_TRIED_TO_STOP:
@@ -3798,7 +3988,8 @@ class Cisr(TaskHasPatientMixin, Task):
         return int_to_enum(next_q)
 
     def get_result(self, record_decisions: bool = False) -> CisrResult:
-        internal_q = CQ.START_MARKER
+        # internal_q = CQ.START_MARKER
+        internal_q = CQ.APPETITE1_LOSS_PAST_MONTH  # skip the preamble etc.
         result = CisrResult(record_decisions)
         while (not result.incomplete) and internal_q != CQ.END_MARKER:
             internal_q = self.next_q(internal_q, result)
@@ -3810,36 +4001,282 @@ class Cisr(TaskHasPatientMixin, Task):
         result = self.get_result()
         if result.incomplete:
             return CTV_INCOMPLETE
-        text = "Primary diagnosis: {d1}. Secondary diagnosis: {d2}.".format(
-            d1=result.diagnosis_name(result.diagnosis_1),
-            d2=result.diagnosis_name(result.diagnosis_2),
-        )
-        return [CtvInfo(content=text)]
+        return [
+            CtvInfo(content="Probable primary diagnosis: {d} ({i})".format(
+                d=bold(result.diagnosis_1_name()),
+                i=result.diagnosis_1_icd10_code(),
+            )),
+            CtvInfo(content="Probable secondary diagnosis: {d} ({i})".format(
+                d=bold(result.diagnosis_2_name()),
+                i=result.diagnosis_2_icd10_code(),
+            )),
+            CtvInfo(content="CIS-R suicide intent: {s}".format(
+                s=self.get_suicide_intent(req, result, with_warning=False)
+            )),
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         result = self.get_result()
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="diagnosis_1_code",
-                           coltype=Integer(),
-                           value=result.diagnosis_1,
-                           comment="Primary diagnosis (CISR code)"),
-            SummaryElement(name="diagnosis_1_text",
-                           coltype=UnicodeText(),
-                           value=result.diagnosis_name(result.diagnosis_1),
-                           comment="Primary diagnosis (text)"),
-            SummaryElement(name="diagnosis_2_code",
-                           coltype=Integer(),
-                           value=result.diagnosis_2,
-                           comment="Secondary diagnosis (CISR code)"),
-            SummaryElement(name="diagnosis_2_text",
-                           coltype=UnicodeText(),
-                           value=result.diagnosis_name(result.diagnosis_2),
-                           comment="Secondary diagnosis (text)"),
+
+            # Diagnoses
+
+            SummaryElement(
+                name="diagnosis_1_code",
+                coltype=Integer(),
+                value=result.diagnosis_1,
+                comment="Probable primary diagnosis (CIS-R code)"),
+            SummaryElement(
+                name="diagnosis_1_text",
+                coltype=UnicodeText(),
+                value=result.diagnosis_1_name(),
+                comment="Probable primary diagnosis (text)"),
+            SummaryElement(
+                name="diagnosis_1_icd10",
+                coltype=UnicodeText(),
+                value=result.diagnosis_1_icd10_code(),
+                comment="Probable primary diagnosis (ICD-10 code/codes)"),
+            SummaryElement(
+                name="diagnosis_2_code",
+                coltype=Integer(),
+                value=result.diagnosis_2,
+                comment="Probable secondary diagnosis (CIS-R code)"),
+            SummaryElement(
+                name="diagnosis_2_text",
+                coltype=UnicodeText(),
+                value=result.diagnosis_2_icd10_code(),
+                comment="Probable secondary diagnosis (text)"),
+            SummaryElement(
+                name="diagnosis_2_icd10",
+                coltype=UnicodeText(),
+                value=result.diagnosis_2_icd10_code(),
+                comment="Probable secondary diagnosis (ICD-10 code/codes)"),
+
+            # Suicidality/doctell: directly encoded in data
+
+            # Total score
+
+            SummaryElement(
+                name="score_total",
+                coltype=Integer(),
+                value=result.get_score(),
+                comment="CIS-R total score (max. 57)"),
+            # Functional impairment: directly encoded in data
+
+            # Subscores
+
+            SummaryElement(
+                name="score_somatic_symptoms",
+                coltype=Integer(),
+                value=result.somatic_symptoms,
+                comment="Score: somatic symptoms (max. 4)"),
+            SummaryElement(
+                name="score_hypochondria",
+                coltype=Integer(),
+                value=result.hypochondria,
+                comment="Score: worry over physical health (max. 4)"),
+            SummaryElement(
+                name="score_irritability",
+                coltype=Integer(),
+                value=result.irritability,
+                comment="Score: irritability (max. 4)"),
+            SummaryElement(
+                name="score_concentration_poor",
+                coltype=Integer(),
+                value=result.concentration_poor,
+                comment="Score: poor concentration (max. 4)"),
+            SummaryElement(
+                name="score_fatigue",
+                coltype=Integer(),
+                value=result.fatigue,
+                comment="Score: fatigue (max. 4)"),
+            SummaryElement(
+                name="score_sleep_problems",
+                coltype=Integer(),
+                value=result.sleep_problems,
+                comment="Score: sleep problems (max. 4)"),
+            SummaryElement(
+                name="score_depression",
+                coltype=Integer(),
+                value=result.depression,
+                comment="Score: depression (max. 4)"),
+            SummaryElement(
+                name="score_depressive_thoughts",
+                coltype=Integer(),
+                value=result.depressive_thoughts,
+                comment="Score: depressive ideas (max. 5)"),
+            SummaryElement(
+                name="score_phobias",
+                coltype=Integer(),
+                value=result.phobias_score,
+                comment="Score: phobias (max. 4)"),
+            SummaryElement(
+                name="score_worry",
+                coltype=Integer(),
+                value=result.worry,
+                comment="Score: worry (max. 4)"),
+            SummaryElement(
+                name="score_anxiety",
+                coltype=Integer(),
+                value=result.anxiety,
+                comment="Score: anxiety (max. 4)"),
+            SummaryElement(
+                name="score_panic",
+                coltype=Integer(),
+                value=result.panic,
+                comment="Score: panic (max. 4)"),
+            SummaryElement(
+                name="score_compulsions",
+                coltype=Integer(),
+                value=result.compulsions,
+                comment="Score: compulsions (max. 4)"),
+            SummaryElement(
+                name="score_obsessions",
+                coltype=Integer(),
+                value=result.obsessions,
+                comment="Score: obsessions (max. 4)"),
+
+            # Other
+
+            SummaryElement(
+                name="sleep_change",
+                coltype=Integer(),
+                value=result.sleep_change,
+                comment=DESC_SLEEP_CHANGE),
+            SummaryElement(
+                name="weight_change",
+                coltype=Integer(),
+                value=result.weight_change,
+                comment=DESC_WEIGHT_CHANGE),
+            SummaryElement(
+                name="depcrit1_score",
+                coltype=Integer(),
+                value=result.depr_crit_1_mood_anhedonia_energy,
+                comment=DESC_DEPCRIT1),
+            SummaryElement(
+                name="depcrit2_score",
+                coltype=Integer(),
+                value=result.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui,
+                comment=DESC_DEPCRIT2),
+            SummaryElement(
+                name="depcrit3_score",
+                coltype=Integer(),
+                value=result.depr_crit_3_somatic_synd,
+                comment=DESC_DEPCRIT3),
+            SummaryElement(
+                name="depcrit3_met_somatic_syndrome",
+                coltype=Boolean(),
+                value=result.has_somatic_syndrome(),
+                comment=DESC_DEPCRIT3_MET),
+            SummaryElement(
+                name="neurasthenia_score",
+                coltype=Integer(),
+                value=result.neurasthenia,
+                comment=DESC_NEURASTHENIA_SCORE),
+
+            # Disorder flags
+
+            SummaryElement(
+                name="disorder_ocd",
+                coltype=Boolean(),
+                value=result.obsessive_compulsive_disorder,
+                comment=DISORDER_OCD),
+            SummaryElement(
+                name="disorder_depression_mild",
+                coltype=Boolean(),
+                value=result.depression_mild,
+                comment=DISORDER_DEPR_MILD),
+            SummaryElement(
+                name="disorder_depression_moderate",
+                coltype=Boolean(),
+                value=result.depression_moderate,
+                comment=DISORDER_DEPR_MOD),
+            SummaryElement(
+                name="disorder_depression_severe",
+                coltype=Boolean(),
+                value=result.depression_severe,
+                comment=DISORDER_DEPR_SEV),
+            SummaryElement(
+                name="disorder_cfs",
+                coltype=Boolean(),
+                value=result.chronic_fatigue_syndrome,
+                comment=DISORDER_CFS),
+            SummaryElement(
+                name="disorder_gad",
+                coltype=Boolean(),
+                value=result.generalized_anxiety_disorder,
+                comment=DISORDER_GAD),
+            SummaryElement(
+                name="disorder_agoraphobia",
+                coltype=Boolean(),
+                value=result.phobia_agoraphobia,
+                comment=DISORDER_AGORAPHOBIA),
+            SummaryElement(
+                name="disorder_social_phobia",
+                coltype=Boolean(),
+                value=result.phobia_social,
+                comment=DISORDER_SOCIAL_PHOBIA),
+            SummaryElement(
+                name="disorder_specific_phobia",
+                coltype=Boolean(),
+                value=result.phobia_specific,
+                comment=DISORDER_SPECIFIC_PHOBIA),
+            SummaryElement(
+                name="disorder_panic_disorder",
+                coltype=Boolean(),
+                value=result.panic_disorder,
+                comment=DISORDER_PANIC),
         ]
 
     def is_complete(self) -> bool:
         result = self.get_result()
         return not result.incomplete
+
+    def diagnosis_name(self, req: CamcopsRequest, diagnosis_code: int) -> str:
+        xstring_name = "diag_{}_desc".format(diagnosis_code)
+        return self.wxstring(req, xstring_name)
+
+    def diagnosis_reason(self, req: CamcopsRequest,
+                         diagnosis_code: int) -> str:
+        xstring_name = "diag_{}_explan".format(diagnosis_code)
+        return self.wxstring(req, xstring_name)
+
+    def get_suicide_intent(self, req: CamcopsRequest,
+                           result: CisrResult,
+                           with_warning: bool = True) -> str:
+        if result.incomplete:
+            html = "TASK INCOMPLETE. SO FAR: "
+        else:
+            html = ""
+        html += self.wxstring(req, "suicid_{}".format(result.suicidality))
+        if (with_warning and
+                result.suicidality >= SUICIDE_INTENT_LIFE_NOT_WORTH_LIVING):
+            html += " <i>{}</i>".format(
+                self.wxstring(req, "suicid_instruction"))
+        if result.suicidality != SUICIDE_INTENT_NONE:
+            html = bold(html)
+        return html
+
+    def get_doctell(self, req: CamcopsRequest) -> str:
+        if self.doctor is None:
+            return ""
+        return self.xstring(req, "doctell_{}".format(self.doctor))
+        # ... xstring() as may use HTML
+
+    def get_sleep_change(self, req: CamcopsRequest, result: CisrResult) -> str:
+        if result.sleep_change == SLEEPCHANGE_NONE:
+            return ""
+        return self.wxstring(req, "sleepch_{}".format(result.sleep_change))
+
+    def get_weight_change(self, req: CamcopsRequest, result: CisrResult) -> str:
+        if result.weight_change in [WTCHANGE_NONE_OR_APPETITE_INCREASE,
+                                    WTCHANGE_APPETITE_LOSS]:
+            return ""
+        return self.wxstring(req, "wtchange_{}".format(result.weight_change))
+
+    def get_impairment(self, req: CamcopsRequest, result: CisrResult) -> str:
+        return self.wxstring(
+            req, "impair_{}".format(result.functional_impairment))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         # Iterate only once, for efficiency, so don't use get_result().
@@ -3848,17 +4285,21 @@ class Cisr(TaskHasPatientMixin, Task):
                    a_: Optional[str]) -> str:
             return tr("{}. {}".format(q_.value, qtext), answer(a_))
 
+        demographics_html_list = []  # type: List[str]
         question_html_list = []  # type: List[str]
-        q = CQ.START_MARKER
+        q = CQ.ETHNIC
         result = CisrResult(record_decisions=True)
         while (not result.incomplete) and q != CQ.END_MARKER:
+            # noinspection PyTypeChecker
+            target_list = (
+                demographics_html_list if q.value < CQ.HEALTH_WELLBEING.value
+                else question_html_list)
             if q in QUESTIONS_PROMPT_ONLY:
-                question = ws.webify(self.wxstring(
-                    req, QUESTIONS_PROMPT_ONLY[q]))
-                question_html_list.append(
+                question = self.wxstring(req, QUESTIONS_PROMPT_ONLY[q])
+                target_list.append(
                     qa_row(q, question, NOT_APPLICABLE_TEXT))
             elif q == CQ.PANSYM:  # special!
-                question_html_list.append(qa_row(
+                target_list.append(qa_row(
                     q,
                     self.wxstring(req, "pansym_q_prefix"),
                     NOT_APPLICABLE_TEXT))
@@ -3867,13 +4308,13 @@ class Cisr(TaskHasPatientMixin, Task):
                     value = getattr(self, fieldname)
                     a = get_yes_no_none(
                         req, value == 2 if value is not None else None)
-                    question_html_list.append(qa_row(q, question, a))
+                    target_list.append(qa_row(q, question, a))
             else:
                 fieldname = fieldname_for_q(q)
                 assert fieldname, "No fieldname for question {}".format(q)
                 question = self.wxstring(req, fieldname + "_q")
                 a = self.get_textual_answer(req, q)
-                question_html_list.append(qa_row(q, question, a))
+                target_list.append(qa_row(q, question, a))
 
             q = self.next_q(q, result)
             # loop until we reach the end or have incomplete data
@@ -3885,35 +4326,144 @@ class Cisr(TaskHasPatientMixin, Task):
             get_yes_no(req, is_complete)
         )
 
+        summary_rows = [
+
+            subheading_spanning_two_columns("Diagnoses"),
+
+            tr(
+                "Probable primary diagnosis",
+                (
+                    bold(self.diagnosis_name(req, result.diagnosis_1)) +
+                    (" ({})".format(result.diagnosis_1_icd10_code())
+                     if result.has_diagnosis_1() else "")
+                )
+            ),
+            tr(italic("... summary of reasons/description"),
+               italic(self.diagnosis_reason(req, result.diagnosis_1))),
+            tr(
+                "Probable secondary diagnosis",
+                (
+                    bold(self.diagnosis_name(req, result.diagnosis_2)) +
+                    (" ({})".format(result.diagnosis_2_icd10_code())
+                     if result.has_diagnosis_2() else "")
+                )
+            ),
+            tr(italic("... summary of reasons/description"),
+               italic(self.diagnosis_reason(req, result.diagnosis_2))),
+
+            subheading_spanning_two_columns("Suicidality"),
+
+            tr(td(self.wxstring(req, "suicid_heading")),
+               td(self.get_suicide_intent(req, result)),
+               literal=True),
+            tr("... spoken to doctor?",
+               self.get_doctell(req)),
+
+            subheading_spanning_two_columns("Total score/overall impairment"),
+
+            tr("CIS-R total score (max. 57) <sup>[1]</sup>",
+               result.get_score()),
+            tr(self.wxstring(req, "impair_label"),
+               self.get_impairment(req, result)),
+
+            subheading_spanning_two_columns("Subscores contributing to total "
+                                            "<sup>[2]</sup>"),
+
+            tr(self.wxstring(req, "somatic_label") + " (max. 4)",
+               result.somatic_symptoms),
+            tr(self.wxstring(req, "hypo_label") + " (max. 4)",
+               result.hypochondria),
+            tr(self.wxstring(req, "irrit_label") + " (max. 4)",
+               result.irritability),
+            tr(self.wxstring(req, "conc_label") + " (max. 4)",
+               result.concentration_poor),
+            tr(self.wxstring(req, "fatigue_label") + " (max. 4)",
+               result.fatigue),
+            tr(self.wxstring(req, "sleep_label") + " (max. 4)",
+               result.sleep_problems),
+            tr(self.wxstring(req, "depr_label") + " (max. 4)",
+               result.depression),
+            tr(self.wxstring(req, "depthts_label") + " (max. 5)",
+               result.depressive_thoughts),
+            tr(self.wxstring(req, "phobias_label") + " (max. 4)",
+               result.phobias_score),
+            tr(self.wxstring(req, "worry_label") + " (max. 4)",
+               result.worry),
+            tr(self.wxstring(req, "anx_label") + " (max. 4)",
+               result.anxiety),
+            tr(self.wxstring(req, "panic_label") + " (max. 4)",
+               result.panic),
+            tr(self.wxstring(req, "comp_label") + " (max. 4)",
+               result.compulsions),
+            tr(self.wxstring(req, "obsess_label") + " (max. 4)",
+               result.obsessions),
+
+            subheading_spanning_two_columns("Other"),
+
+            tr("Sleep change", self.get_sleep_change(req, result)),
+            tr("Weight change", self.get_weight_change(req, result)),
+            tr(DESC_DEPCRIT1, result.depr_crit_1_mood_anhedonia_energy),
+            tr(DESC_DEPCRIT2, result.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui),
+            tr(DESC_DEPCRIT3, result.depr_crit_3_somatic_synd),
+            tr(DESC_DEPCRIT3_MET, result.has_somatic_syndrome()),  # RNC
+            tr(DESC_NEURASTHENIA_SCORE, result.neurasthenia),
+
+            subheading_spanning_two_columns("Disorder flags"),
+
+            tr(DISORDER_OCD, result.obsessive_compulsive_disorder),
+            tr(DISORDER_DEPR_MILD, result.depression_mild),
+            tr(DISORDER_DEPR_MOD, result.depression_moderate),
+            tr(DISORDER_DEPR_SEV, result.depression_severe),
+            tr(DISORDER_CFS, result.chronic_fatigue_syndrome),
+            tr(DISORDER_GAD, result.generalized_anxiety_disorder),
+            tr(DISORDER_AGORAPHOBIA, result.phobia_agoraphobia),
+            tr(DISORDER_SOCIAL_PHOBIA, result.phobia_social),
+            tr(DISORDER_SPECIFIC_PHOBIA, result.phobia_specific),
+            tr(DISORDER_PANIC, result.panic_disorder),
+        ]
+
         html = """
+            <div class="heading">{results_heading}</div>
+            <div>{results_caveat}</div>
             <div class="summary">
                 <table class="summary">
                     <tr>
-                        <td>Completed?</td>
+                        <td width="50%">Completed?</td>
                         {is_complete_html_td}
                     </tr>
-                    <tr>
-                        <td>Primary diagnosis</td>
-                        <td>{diagnosis_1}</td>
-                    </tr>
-                    <tr>
-                        <td>Secondary diagnosis</td>
-                        <td>{diagnosis_2}</td>
-                    </tr>
+                    {summary_rows_html}
                 </table>
             </div>
             
-            <h3>Data considered by algorithm (may be a subset of all data if 
-                subject revised answers)</h3>
+            <div class="footnotes">
+                [1] {total_score_footnote}
+                [2] {symptom_score_note}
+            </div>
+            
+            <div class="heading">
+                Preamble/demographics (not contributing to diagnosis)
+            </div>
             <table class="taskdetail">
                 <tr>
-                    <th width="75%">Question</th>
+                    <th width="75%">Page</th>
+                    <th width="25%">Answer</td>
+                </tr>
+                {demographics_html}
+            </table>
+            
+            <div class="heading">
+                Data considered by algorithm (may be a subset of all data if
+                subject revised answers)
+            </div>
+            <table class="taskdetail">
+                <tr>
+                    <th width="75%">Page</th>
                     <th width="25%">Answer</td>
                 </tr>
                 {questions_html}
             </table>
             
-            <h3>Decisions</h3>
+            <div class="heading">Decisions</div>
             <pre>{decisions_html}</pre>
             
             <div class="copyright">
@@ -3936,9 +4486,14 @@ class Cisr(TaskHasPatientMixin, Task):
             </div>
         """.format(  # noqa
             is_complete_html_td=is_complete_html_td,
-            diagnosis_1=ws.webify(result.diagnosis_name(result.diagnosis_1)),
-            diagnosis_2=ws.webify(result.diagnosis_name(result.diagnosis_2)),
+            summary_rows_html="".join(summary_rows),
+            results_heading=self.wxstring(req, "results_1"),
+            results_caveat=self.wxstring(req, "results_2"),
+            demographics_html="".join(demographics_html_list),
             questions_html="".join(question_html_list),
-            decisions_html="<br>".join(ws.webify(x) for x in result.decisions),
+            decisions_html="<br>".join(ws.webify("‣ " + x)
+                                       for x in result.decisions),
+            total_score_footnote=self.wxstring(req, "score_note"),
+            symptom_score_note=self.wxstring(req, "symptom_score_note"),
         )
         return html

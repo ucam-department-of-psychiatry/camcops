@@ -77,6 +77,12 @@ h2 {
 h3 {
     font-size: ${va.NORMALFONTSIZE};
     line-height: ${va.MAINLINEHEIGHT};
+    font-weight: bold;
+    margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.ZERO} ${va.ZERO};
+}
+h4 {
+    font-size: ${va.NORMALFONTSIZE};
+    line-height: ${va.MAINLINEHEIGHT};
     font-weight: normal;
     font-style: italic;
     margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.ZERO} ${va.ZERO};

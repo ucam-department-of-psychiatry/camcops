@@ -1614,6 +1614,20 @@ class Task(GenericTabletRecordMixin, Base):
             defaultvalue,
             provide_default_if_none=provide_default_if_none)
 
+    def xstring(self,
+                req: CamcopsRequest,
+                name: str,
+                defaultvalue: str = None,
+                provide_default_if_none: bool = True) -> str:
+        if defaultvalue is None and provide_default_if_none:
+            defaultvalue = "[{}: {}]".format(self.get_extrastring_taskname(),
+                                             name)
+        return req.xstring(
+            self.get_extrastring_taskname(),
+            name,
+            defaultvalue,
+            provide_default_if_none=provide_default_if_none)
+
 
 # =============================================================================
 # Fieldnames to auto-exempt from text filtering

@@ -30,33 +30,45 @@
     <string name="diag_secondary_heading">PROBABLE SECONDARY DIAGNOSIS IS:</string>
     <string name="diag_confirmed_by">Diagnosis confirmed by:</string>
     <string name="diag_0_desc">Code 0: No diagnosis identified</string>
+    <string name="diag_0_explan">N/A</string>
     <string name="diag_1_desc">Code 1: Mixed anxiety and depressive disorder (mild)</string>
-    <string name="diag_1_explan">mixture of neurotic symptoms not meeting other diagnostic criteria</string>
+    <string name="diag_1_explan">Diagnosis confirmed by: mixture of neurotic symptoms not meeting other diagnostic criteria</string>
     <string name="diag_2_desc">Code 2: Generalised anxiety disorder (mild)</string>
-    <string name="diag_2_explan">mental or physical tension usually with autonomic symptoms (e.g. dizziness, sweating, pounding heart). The symptoms are not restricted to particular environmental circumstances unlike phobic anxiety</string>
+    <string name="diag_2_explan">Diagnosis confirmed by: mental or physical tension usually with autonomic symptoms (e.g. dizziness, sweating, pounding heart). The symptoms are not restricted to particular environmental circumstances unlike phobic anxiety</string>
     <string name="diag_3_desc">Code 3: Obsessive–compulsive disorder</string>
-    <string name="diag_3_explan">compulsions are repetitive behaviours that are regarded as senseless by the patient, are upsetting and if stopped lead to anxiety. Obsessions are repetitive, intrusive and upsetting thoughts</string>
+    <string name="diag_3_explan">Diagnosis confirmed by: compulsions are repetitive behaviours that are regarded as senseless by the patient, are upsetting and if stopped lead to anxiety. Obsessions are repetitive, intrusive and upsetting thoughts</string>
     <string name="diag_4_desc">Code 4: Mixed anxiety and depressive disorder</string>
-    <string name="diag_4_explan">mixture of anxiety and depressive symptoms not meeting other diagnostic criteria</string>
+    <string name="diag_4_explan">Diagnosis confirmed by: mixture of anxiety and depressive symptoms not meeting other diagnostic criteria</string>
     <string name="diag_5_desc">Code 5: Specific (isolated) phobia</string>
-    <string name="diag_5_explan">an unreasonably strong fear or avoidance of specific things e.g. spiders, heights</string>
+    <string name="diag_5_explan">Diagnosis confirmed by: an unreasonably strong fear or avoidance of specific things e.g. spiders, heights</string>
     <string name="diag_6_desc">Code 6: Social phobia</string>
-    <string name="diag_6_explan">an unreasonably strong fear or avoidance of social situations: meeting and speaking to people, speaking in public, eating out. Often associated with low self-esteem.</string>
+    <string name="diag_6_explan">Diagnosis confirmed by: an unreasonably strong fear or avoidance of social situations: meeting and speaking to people, speaking in public, eating out. Often associated with low self-esteem.</string>
     <string name="diag_7_desc">Code 7: Agoraphobia</string>
-    <string name="diag_7_explan">an unreasonably strong fear or avoidance of leaving home, crowded shops, and public transport. Usually worse when unaccompanied.</string>
+    <string name="diag_7_explan">Diagnosis confirmed by: an unreasonably strong fear or avoidance of leaving home, crowded shops, and public transport. Usually worse when unaccompanied.</string>
     <string name="diag_8_desc">Code 8: Generalised anxiety disorder</string>
-    <string name="diag_8_explan">mental or physical tension usually with autonomic symptoms (e.g. dizziness, sweating, pounding heart)occurring most days for several weeks.  The symptoms are not restricted to particular environmental circumstances unlike phobic anxiety</string>
+    <string name="diag_8_explan">Diagnosis confirmed by: mental or physical tension usually with autonomic symptoms (e.g. dizziness, sweating, pounding heart) occurring most days for several weeks. The symptoms are not restricted to particular environmental circumstances unlike phobic anxiety</string>
     <string name="diag_9_desc">Code 9: Panic disorder</string>
-    <string name="diag_9_explan">unexplained attacks of anxiety or fear that begin suddenly, develop rapidly and may only last a few minutes. Attacks usually associated with autonomic symptoms: palpitations, chest pain, sensation of choking, churning stomach, dizziness, feeling of unreality and feeling of impending doom. Often associated with phobic anxiety and avoidance.</string>
+    <string name="diag_9_explan">Diagnosis confirmed by: unexplained attacks of anxiety or fear that begin suddenly, develop rapidly and may only last a few minutes. Attacks usually associated with autonomic symptoms: palpitations, chest pain, sensation of choking, churning stomach, dizziness, feeling of unreality and feeling of impending doom. Often associated with phobic anxiety and avoidance.</string>
     <string name="diag_10_desc">Code 10: Mild depressive episode</string>
-    <string name="diag_10_explan">low mood, loss of interest or pleasure for at least 2 weeks and 2 of the following: Disturbed sleep, poor appetite, Guilt or low self worth, Suicidal thoughts or acts, Fatigue/loss of energy, Decreased libido, Poor concentration, Agitation or slowing of movement/speech, anxiety, Loss of self confidence</string>
+    <!-- ORIGINAL, but not correct: -->
+    <!--
+    <string name="diag_10_explan">Diagnosis confirmed by: low mood, loss of interest or pleasure for at least 2 weeks and 2 of the following: Disturbed sleep, poor appetite, Guilt or low self worth, Suicidal thoughts or acts, Fatigue/loss of energy, Decreased libido, Poor concentration, Agitation or slowing of movement/speech, anxiety, Loss of self confidence</string>
+    -->
+    <string name="diag_10_explan">Diagnosis confirmed by: at least 2 core depressive symptoms and at least 4 total diagnostic depressive symptoms (CORE = low mood for at least 2 weeks, loss of interest or pleasure, fatigue/loss of energy; OTHER = disturbed sleep, low self worth, appetite/weight change, guilt, poor concentration, agitation or slowing of movement/speech, suicidal thoughts or acts) [text modified from original CIS-R]</string>  <!-- RNC revised -->
     <string name="diag_11_desc">Code 11: Moderate depressive episode</string>
-    <string name="diag_11_explan">low mood, loss of interest or pleasure for at least 2 weeks and 4 of the following: Disturbed sleep, poor appetite, Guilt or low self worth, Suicidal thoughts or acts, Fatigue/loss of energy, Decreased libido, Poor concentration, Agitation or slowing of movement/speech, anxiety, Loss of self confidence</string>
-    <!-- ... diag_10_explan, diag_11_explan, diag_11_explan are all the same -->
+    <!-- ORIGINAL, but not correct: -->
+    <!--
+    <string name="diag_11_explan">Diagnosis confirmed by: low mood, loss of interest or pleasure for at least 2 weeks and 4 of the following: Disturbed sleep, poor appetite, Guilt or low self worth, Suicidal thoughts or acts, Fatigue/loss of energy, Decreased libido, Poor concentration, Agitation or slowing of movement/speech, anxiety, Loss of self confidence</string>
+    -->
+    <string name="diag_11_explan">Diagnosis confirmed by: at least 2 core depressive symptoms and at least 6 total diagnostic depressive symptoms (CORE = low mood for at least 2 weeks, loss of interest or pleasure, fatigue/loss of energy; OTHER = disturbed sleep, low self worth, appetite/weight change, guilt, poor concentration, agitation or slowing of movement/speech, suicidal thoughts or acts) [text modified from original CIS-R]</string>  <!-- RNC revised -->
     <string name="diag_12_desc">Code 12: Severe depressive episode</string>
-    <string name="diag_12_explan">low mood, loss of interest or pleasure for at least 2 weeks and 4 of the following: Disturbed sleep, poor appetite, Guilt or low self worth, Suicidal thoughts or acts, Fatigue/loss of energy, Decreased libido, Poor concentration, Agitation or slowing of movement/speech, anxiety, Loss of self confidence</string>
+    <!-- ORIGINAL, but not correct: -->
+    <!--
+    <string name="diag_12_explan">Diagnosis confirmed by: low mood, loss of interest or pleasure for at least 2 weeks and 4 of the following: Disturbed sleep, poor appetite, Guilt or low self worth, Suicidal thoughts or acts, Fatigue/loss of energy, Decreased libido, Poor concentration, Agitation or slowing of movement/speech, anxiety, Loss of self confidence</string>
+    -->
+    <string name="diag_12_explan">Diagnosis confirmed by: all 3 core depressive symptoms and at least 8 total diagnostic depressive symptoms (CORE = low mood for at least 2 weeks, loss of interest or pleasure, fatigue/loss of energy; OTHER = disturbed sleep, low self worth, appetite/weight change, guilt, poor concentration, agitation or slowing of movement/speech, suicidal thoughts or acts) [text modified from original CIS-R]</string>  <!-- RNC revised -->
 
-    <string name="suicid_heading">CIS-R SUICIDE INTENT:</string>
+    <string name="suicid_heading">CIS-R suicide intent</string>
     <string name="suicid_0">No hopelessness or suicidal thoughts</string>
     <string name="suicid_1">Patient feels hopeless but no suicidal thoughts</string>
     <string name="suicid_2">Patient feels life isn’t worth living</string>
@@ -67,43 +79,43 @@
     <string name="doctell_2">Has talked to others but <b>NOT</b> talked to doctor about suicidal thoughts/plans</string>
     <string name="doctell_3">Has <b>NOT</b> talked to doctor about suicidal thoughts/plans</string>
 
-    <string name="results_1">CIS-R RESULTS</string>
+    <string name="results_1">CIS-R results</string>
     <string name="results_2">The results should be used in conjunction with a clinical assessment</string>
-    <string name="somatic_label">Somatic Symptoms</string>
-    <string name="hypo_label">Worry over Physical Health</string>
+    <string name="somatic_label">Somatic symptoms</string>
+    <string name="hypo_label">Worry over physical health</string>
     <string name="irrit_label">Irritability</string>
-    <string name="conc_label">Poor Concentration</string>
+    <string name="conc_label">Poor concentration</string>
     <string name="fatigue_label">Fatigue</string>
-    <string name="sleep_label">Sleep Problems</string>
-    <string name="sleepch_0">(Patient reports early morning waking)</string>
-    <string name="sleepch_1">(Patient reports insomnia but not early morning waking)</string>
-    <string name="sleepch_2">(Patient reports sleeping more than usual)</string>
+    <string name="sleep_label">Sleep problems</string>
+    <string name="sleepch_1">Patient reports early morning waking</string>
+    <string name="sleepch_2">Patient reports insomnia but not early morning waking</string>
+    <string name="sleepch_3">Patient reports sleeping more than usual</string>
     <string name="depr_label">Depression</string>
-    <string name="wtchange_0">(Patient has lost weight but less than half a stone)</string>
-    <string name="wtchange_1">(Patient has lost more than half a stone in weight)</string>
-    <string name="wtchange_2">(Patient has gained more than half a stone in weight)</string>
-    <string name="depthts_label">Depressive Ideas</string>
+    <string name="wtchange_2">Patient has lost or gained weight but less than half a stone</string>  <!-- RNC: added "or gained", to match actual CIS-R algorithm -->
+    <string name="wtchange_3">Patient has lost more than half a stone in weight</string>
+    <string name="wtchange_4">Patient has gained more than half a stone in weight</string>
+    <string name="depthts_label">Depressive ideas</string>
     <string name="phobias_label">Phobias</string>
     <string name="worry_label">Worry</string>
     <string name="anx_label">Anxiety</string>
     <string name="panic_label">Panic</string>
     <string name="comp_label">Compulsions</string>
     <string name="obsess_label">Obsessions</string>
-    <string name="impair_label">Social Impairment:</string>
+    <string name="impair_label">Social impairment</string>
     <string name="impair_0">None</string>
     <string name="impair_1">More difficult but everything gets done</string>
     <string name="impair_2">One activity stopped</string>
     <string name="impair_3">More than one activity stopped</string>
-    <string name="impair_note">(*) Symptoms with scores of 2 or more are probably significant</string>
-    <string name="score_label">CIS-R Total Score</string>
-    <string name="score_note">A Total Score of 12 or more indicates a clinically significant level of distress</string>
+    <string name="symptom_score_note">Symptoms with scores of 2 or more are probably significant.</string>
+    <string name="score_label">CIS-R total score</string>
+    <string name="score_note">A total score of 12 or more indicates a clinically significant level of distress.</string>
 
     <!--
     ===========================================================================
     INSTRUCTIONS
     ===========================================================================
     -->
-    <string name="intro_1">This computerised questionnaire will ask you a range of questions about yourself, your symptoms, and your health and well-being.\n\nYour answers will be kept confidentially, like any medical notes. The information you give will be treated in strict confidence and will only be used for research purposes.</string>
+    <string name="intro_1">This computerised questionnaire will ask you a range of questions about yourself, your symptoms, and your health and well-being.\n\nYour answers will be kept confidentially, like any medical notes. The information you give will be treated in strict confidence and will only be used for research purposes.\n\nTouch the screen to answer, and touch the green arrow pointing to the right (at the top right corner of the screen) to proceed.\n\nPlease touch the green arrow at the top right now, for further instructions.</string>
     <!--
         You answer questions by pressing then releasing one of the number
         keys on the top row of the keyboard.  You can also answer questions
@@ -111,7 +123,7 @@
 
         Please press or click 1 now for further instructions
     -->
-    <string name="intro_2">Touch the screen to answer, and touch the green arrow pointing to the right, at the top-right corner of the screen to proceed.\n\nPlease touch the green arrow at the top right now, for further instructions.</string>
+    <string name="intro_2">If you want to GO BACK, for instance to change an answer, press the grey arrow pointing left (a little to the left of the green one).\n\nPlease press the green arrow now to begin the questionnaire.</string>
     <!--
         As well as the numbers, you will also need to press the key
         marked C sometimes. This key is on the bottom of the keyboard
@@ -125,15 +137,14 @@
 
         Please press C now to begin the questionnaire
     -->
-    <string name="instruct1">If you want to GO BACK, for instance to change an answer, press the grey arrow pointing left (a little to the left of the green one).\n\nPlease press the green arrow now to begin the questionnaire.</string>
 
     <!--
     ===========================================================================
     DEMOGRAPHICS
     ===========================================================================
     -->
-    <string name="demographic_heading_pt">To begin with, I would like to ask you about yourself and your background</string>
-    <string name="demographic_heading_summary">SOCIODEMOGRAPHIC INFORMATION</string>
+    <string name="intro_demographics_statement">To begin with, I would like to ask you about yourself and your background</string>
+    <!-- <string name="demographic_heading_summary">SOCIODEMOGRAPHIC INFORMATION</string> -->
 
     <!-- skip age (part of CamCOPS); note also the lack of specificity for 90+-year-olds! -->
 
@@ -147,6 +158,7 @@
     <string name="ethnic_a4">Black/Black British</string>
     <string name="ethnic_a5">Chinese</string>
     <string name="ethnic_a6">Other</string>
+    <string name="ethnic_a7">Prefer not to say</string>  <!-- RNC addition -->
 
     <string name="married_q">What is your marital status?</string>
     <string name="married_s">Marital status:</string>
@@ -155,6 +167,7 @@
     <string name="married_a3">Separated</string>
     <string name="married_a4">Divorced</string>
     <string name="married_a5">Widowed</string>
+    <string name="married_a6">Prefer not to say</string>  <!-- RNC addition -->
 
     <string name="empstat_q">What is your current employment status?</string>
     <string name="empstat_s">Employment status:</string>
@@ -165,15 +178,17 @@
     <string name="empstat_a5">Houseperson</string>
     <string name="empstat_a6">Unemployed Job Seeker</string>
     <string name="empstat_a7">Unemployed due to ill health</string>  <!-- Fixes typo in original -->
+    <string name="empstat_a8">Prefer not to say</string>  <!-- RNC addition -->
 
     <string name="emptype_q">In your current or last PAID employment, are/were you?</string>
     <string name="emptype_s">Employment group:</string>
     <string name="emptype_a1">Self-employed with paid employees</string>  <!-- codes removed from text -->
-    <string name="emptype_a2">Self-employed no paid employees</string>
+    <string name="emptype_a2">Self-employed with no paid employees</string>  <!-- "with" added -->
     <string name="emptype_a3">Employee</string>
     <string name="emptype_a4">Foreman/Supervisor</string>
     <string name="emptype_a5">Manager</string>
     <string name="emptype_a6">Not applicable</string>  <!-- Added by RNC, in case patient never employed. See also .cpp code. -->
+    <string name="emptype_a7">Prefer not to say</string>  <!-- RNC addition -->
 
     <string name="home_q">What is your housing situation?</string>
     <string name="home_s">Housing type:</string>
@@ -183,6 +198,7 @@
     <string name="home_a4">Hostel/Care home</string>
     <string name="home_a5">Homeless</string>
     <string name="home_a6">Other</string>
+    <string name="home_a7">Prefer not to say</string>  <!-- RNC addition -->
 
     <!--
     ===========================================================================
@@ -375,7 +391,7 @@
 
     <string name="conc1_q">On how many days have you noticed problems with your concentration OR your memory during the PAST SEVEN DAYS?</string>
 
-    <string name="conc2_q">In the PAST WEEK could you concentrate on all of the following without your mind wandering?:\n\n• a whole TV programme\n\n• a newspaper article\n\n• talking to someone?</string>
+    <string name="conc2_q">In the PAST WEEK could you concentrate on all of the following without your mind wandering?:\n\n• a whole TV programme\n• a newspaper article\n• talking to someone?</string>
     <string name="conc2_a1">Yes, I could concentrate on all of them</string>
     <string name="conc2_a2">No, I couldn’t concentrate on at least one of these things</string>
 
