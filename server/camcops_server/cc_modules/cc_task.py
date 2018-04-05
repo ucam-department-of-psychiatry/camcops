@@ -1836,7 +1836,7 @@ class TaskTests(DemoDatabaseTestCase):
                 self.assertIsInstance(col, Column)
             for page in t.get_tsv_pages(req):
                 self.assertIsInstance(page.get_tsv(), str)
-            # *** get_cris_dd_rows
+            # *** replace test when anonymous export redone: get_cris_dd_rows
             self.assertIsInstance(t.get_xml(req), str)
             self.assertIsInstance(t.get_html(req), str)
             self.assertIsInstance(t.get_pdf(req), bytes)

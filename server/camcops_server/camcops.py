@@ -121,7 +121,11 @@ from camcops_server.cc_modules.cc_unittest import (
     DemoRequestTestCase,
     ExtendedTestCase,
 )  # nopep8
-from camcops_server.cc_modules.cc_user import set_password_directly, User  # nopep8
+from camcops_server.cc_modules.cc_user import (
+    SecurityLoginFailure,
+    set_password_directly,
+    User,
+)  # nopep8
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION  # nopep8
 from camcops_server.cc_modules.merge_db import merge_camcops_db  # nopep8
 
@@ -367,11 +371,11 @@ def serve_gunicorn(application: Router,
 
     class StandaloneApplication(BaseApplication):
         def __init__(self,
-                     app: Router,
+                     app_: Router,
                      options: Dict[str, Any] = None,
                      debug_show_known_settings: bool = False) -> None:
             self.options = options or {}  # type: Dict[str, Any]
-            self.application = app
+            self.application = app_
             super().__init__()
             if debug_show_known_settings:
                 # log.info("Gunicorn settings:\n{}", pformat(self.cfg.settings))
@@ -441,6 +445,7 @@ def print_database_title() -> None:
 
 
 def generate_anonymisation_staging_db() -> None:
+    # generate_anonymisation_staging_db: *** BROKEN; REPLACE
     db = pls.get_anonymisation_database()  # may raise
     ddfilename = pls.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE
     classes = get_all_task_classes()
@@ -461,12 +466,12 @@ def generate_anonymisation_staging_db() -> None:
             for r in rows:
                 f.write(get_tsv_line_from_dict(r) + "\n")
     db.commit()
-    print("Draft data dictionary written to {}".format(ddfilename))
+    log.info("Draft data dictionary written to {}".format(ddfilename))
 
 
 def get_username_from_cli(req: CamcopsRequest,
-                          starting_username: str,
                           prompt: str,
+                          starting_username: str = "",
                           must_exist: bool = False,
                           must_not_exist: bool = False) -> str:
     assert not (must_exist and must_not_exist)
@@ -480,13 +485,13 @@ def get_username_from_cli(req: CamcopsRequest,
         username = username or ask_user(prompt)
         exists = User.user_exists(req, username)
         if must_not_exist and exists:
-            print("... user already exists!")
+            log.error("... user already exists!")
             continue
         if must_exist and not exists:
-            print("... no such user!")
+            log.error("... no such user!")
             continue
         if username == USER_NAME_FOR_SYSTEM:
-            print("... username {!r} is reserved".format(
+            log.error("... username {!r} is reserved".format(
                 USER_NAME_FOR_SYSTEM))
             continue
         return username
@@ -497,18 +502,18 @@ def get_new_password_from_cli(username: str) -> str:
         password1 = ask_user_password("New password for user "
                                       "{}".format(username))
         if not password1 or len(password1) < MINIMUM_PASSWORD_LENGTH:
-            print("... passwords can't be blank or shorter than {} "
-                  "characters".format(MINIMUM_PASSWORD_LENGTH))
+            log.error("... passwords can't be blank or shorter than {} "
+                      "characters".format(MINIMUM_PASSWORD_LENGTH))
             continue
         password2 = ask_user_password("New password for user {} "
                                       "(again)".format(username))
         if password1 != password2:
-            print("... passwords don't match; try again")
+            log.error("... passwords don't match; try again")
             continue
         return password1
 
 
-def make_superuser(username: str = None) -> None:
+def make_superuser(username: str = None) -> bool:
     """
     Make a superuser from the command line.
     """
@@ -520,17 +525,22 @@ def make_superuser(username: str = None) -> None:
         )
         existing_user = User.get_user_by_name(req.dbsession, username)
         if existing_user:
-            print("Giving superuser status to {!r}".format(username))
+            log.info("Giving superuser status to {!r}".format(username))
             existing_user.superuser = True
             success = True
         else:
-            print("Creating superuser {!r}".format(username))
+            log.info("Creating superuser {!r}".format(username))
             password = get_new_password_from_cli(username=username)
             success = User.create_superuser(req, username, password)
-        print("Success: " + str(success))
+        if success:
+            log.info("Success")
+            return True
+        else:
+            log.critical("Failed to create superuser")
+            return False
 
 
-def reset_password(username: str = None) -> None:
+def reset_password(username: str = None) -> bool:
     """
     Reset a password from the command line.
     """
@@ -541,25 +551,34 @@ def reset_password(username: str = None) -> None:
             starting_username=username,
             must_exist=True,
         )
-        print("Resetting password for user {!r}".format(username))
+        log.info("Resetting password for user {!r}".format(username))
         password = get_new_password_from_cli(username)
-        result = set_password_directly(req, username, password)
-        print("Success: " + str(result))
+        success = set_password_directly(req, username, password)
+        if success:
+            log.info("Success")
+        else:
+            log.critical("Failure")
+        return success
 
 
-def enable_user_cli(username: str = None) -> None:
+def enable_user_cli(username: str = None) -> bool:
     """
     Re-enable a locked user account from the command line.
     """
     with command_line_request_context() as req:
-        username = get_username_from_cli(
-            req=req,
-            prompt="Username to unlock",
-            starting_username=username,
-            must_exist=True,
-        )
-        User.enable_user(username)
-        print("Enabled.")
+        if username is None:
+            username = get_username_from_cli(
+                req=req,
+                prompt="Username to unlock",
+                must_exist=True,
+            )
+        else:
+            if not User.user_exists(req, username):
+                log.critical("No such user: {!r}".format(username))
+                return False
+        SecurityLoginFailure.enable_user(req, username)
+        log.info("Enabled.")
+        return True
 
 
 def send_hl7(show_queue_only: bool) -> None:
@@ -651,19 +670,29 @@ _REQNAMED = 'required named arguments'
 # noinspection PyShadowingBuiltins
 def add_sub(sp: "_SubParsersAction", cmd: str,
             config_mandatory: Optional[bool] = False,
+            description: str = None,
             help: str = None) -> ArgumentParser:
     """
+    help:
+        Used for the main help summary, i.e. "camcops --help".
+    description:
+        Used for the description in the detailed help, e.g.
+        "camcops docs --help". Defaults to "help".
     config_mandatory:
         None = don't ask for config
         False = ask for it, but not mandatory
         True = mandatory
     """
+    if description is None:
+        description = help
     subparser = sp.add_parser(
-        cmd, help=help,
+        cmd,
+        help=help,
+        description=description,
         formatter_class=ArgumentDefaultsHelpFormatter
     )  # type: ArgumentParser
     subparser.add_argument(
-        '-v', '--verbose', action='count', default=0,
+        '-v', '--verbose', action='store_true',
         help="Be verbose")
     if config_mandatory:
         cfg_help = "Configuration file"
@@ -803,6 +832,9 @@ def add_wsgi_options(sp: ArgumentParser) -> None:
 def camcops_main() -> None:
     """
     Command-line entry point.
+
+    Note that we can't easily use delayed imports to speed up the help output,
+    because the help system has function calls embedded into it.
     """
     # Fetch command-line options.
 
@@ -812,14 +844,16 @@ def camcops_main() -> None:
 
     parser = ArgumentParser(
         prog="camcops",  # name the user will use to call it
-        description="CamCOPS server version {}, by Rudolf Cardinal.".format(
+        description="""CamCOPS server version {}, by Rudolf Cardinal.
+Use 'camcops <COMMAND> --help' for more detail on each command.""".format(
             CAMCOPS_SERVER_VERSION),
         formatter_class=RawDescriptionHelpFormatter,
-        add_help=False)
-    parser.add_argument(
-        '-h', '--help',
-        # action=ShowAllSubparserHelpAction,  # makes the output too long!
-        help='show this help message and exit')
+        # add_help=False  # only do this if manually overriding the method
+    )
+    # parser.add_argument(
+    #     '-h', '--help',
+    #     action=ShowAllSubparserHelpAction,  # makes the output too long!
+    #     help='show this help message and exit')
     parser.add_argument(
         "--version", action="version",
         version="CamCOPS {}".format(CAMCOPS_SERVER_VERSION))
@@ -828,8 +862,11 @@ def camcops_main() -> None:
     # Subcommand subparser
     # -------------------------------------------------------------------------
 
-    subparsers = parser.add_subparsers(help='Specify one sub-command')  # type: _SubParsersAction  # noqa
-
+    subparsers = parser.add_subparsers(
+        title="commands",
+        description="Valid CamCOPS commands are as follows.",
+        help='Specify one command.',
+    )  # type: _SubParsersAction  # noqa
     # You can't use "add_subparsers" more than once.
     # Subparser groups seem not yet to be supported:
     #   https://bugs.python.org/issue9341
@@ -841,7 +878,8 @@ def camcops_main() -> None:
 
     docs_parser = add_sub(
         subparsers, "docs", config_mandatory=None,
-        help="Launch the main documentation (CamCOPS manual)")
+        help="Launch the main documentation (CamCOPS manual)"
+    )
     docs_parser.set_defaults(
         func=lambda args: launch_manual())
 
@@ -1153,7 +1191,7 @@ def camcops_main() -> None:
 
     serve_gu_parser = add_sub(
         subparsers, "serve_gunicorn",
-        help="Start web server (via Gunicorn) (not available under Windows")
+        help="Start web server (via Gunicorn) (not available under Windows)")
     serve_gu_parser.add_argument(
         "--serve", action="store_true",
         help="")
@@ -1211,7 +1249,7 @@ def camcops_main() -> None:
     progargs = parser.parse_args()
 
     # Initial log level (overridden later by config file but helpful for start)
-    loglevel = logging.DEBUG if progargs.verbose >= 1 else logging.INFO
+    loglevel = logging.DEBUG if progargs.verbose else logging.INFO
     rootlogger = logging.getLogger()
     set_level_for_logger_and_its_handlers(rootlogger, loglevel)
 
@@ -1233,8 +1271,11 @@ def camcops_main() -> None:
 
     if progargs.func is None:
         raise NotImplementedError("Command-line function not implemented!")
-    progargs.func(progargs)
-    sys.exit(0)
+    success = progargs.func(progargs)  # type: Optional[bool]
+    if success is None or success is True:
+        sys.exit(0)
+    else:
+        sys.exit(1)
 
 
 # =============================================================================

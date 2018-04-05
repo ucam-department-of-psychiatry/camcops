@@ -30,8 +30,6 @@ import sys
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 
-from camcops_server.camcops import main as camcops_main
-
 log = logging.getLogger(__name__)
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -67,6 +65,9 @@ def meta_main() -> None:
     main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
                                     else logging.INFO)
     log.debug("Arguments: {}".format(args))
+
+    # Delayed import so --help doesn't take ages
+    from camcops_server.camcops import main as camcops_main  # delayed import
 
     did_something = False
     # old_sys_argv = sys.argv.copy()

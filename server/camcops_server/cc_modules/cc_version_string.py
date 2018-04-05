@@ -30,5 +30,5 @@
 # =============================================================================
 
 CAMCOPS_SERVER_VERSION_STRING = "2.2.0"
-CAMCOPS_CHANGEDATE = "2018-01-04"
+CAMCOPS_CHANGEDATE = "2018-04-05"
 MINIMUM_TABLET_VERSION_STRING = "1.14.0"

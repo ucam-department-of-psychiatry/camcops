@@ -3665,7 +3665,7 @@ Compiler bug is:
     if cfg.build_ios_arm_v8_64:  # for iOS (e.g. iPad) with 64-bit ARM processor  # noqa
         build_for(Os.IOS, Cpu.ARM_V8_64)
 
-    # *** also needs 32-bit build and "fat binary" with 32- and 64-bit versions?  # noqa
+    # *** build_qt: also to build for iOS 32-bit, and "fat binary" with 32- and 64-bit versions?  # noqa
 
     if cfg.build_ios_simulator_x86_32:  # 32-bit iOS simulator under Intel Mac OS/X  # noqa
         build_for(Os.IOS, Cpu.X86_32)

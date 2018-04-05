@@ -31,7 +31,8 @@ from cardinal_pythonlib.sqlalchemy.merge_db import merge_db, TranslationContext
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
 from cardinal_pythonlib.sqlalchemy.table_identity import TableIdentity
-from sqlalchemy.engine import create_engine, Engine
+from sqlalchemy.engine import create_engine
+from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import column, func, select, table, text
@@ -125,6 +126,7 @@ def get_src_iddefs(src_engine: Engine,
         # table.
         log.info("Fetching source ID number definitions from {!r} table",
                  IdNumDefinition.__tablename__)
+        # noinspection PyUnresolvedReferences
         q = select([IdNumDefinition.which_idnum,
                     IdNumDefinition.description,
                     IdNumDefinition.short_description])\
@@ -378,6 +380,7 @@ def translate_fn(trcon: TranslationContext) -> None:
     if trcon.tablename == Patient.__tablename__:
         # (a) Find old patient numbers
         old_patient = trcon.oldobj  # type: Patient
+        # noinspection PyUnresolvedReferences
         src_pt_query = (
             select([text('*')])
             .select_from(table(trcon.tablename))
@@ -406,6 +409,7 @@ def translate_fn(trcon: TranslationContext) -> None:
                 continue
             # Old Patient record *did* contain the ID number...
             if PatientIdNum.__tablename__ in src_tables:
+                # noinspection PyUnresolvedReferences
                 src_idnum_query = select([func.count()])\
                     .select_from(table(PatientIdNum.__tablename__))\
                     .where(column(PatientIdNum.patient_id.name) ==
@@ -598,10 +602,16 @@ def translate_fn(trcon: TranslationContext) -> None:
             # Print the actual instance last; accessing them via pformat can
             # lead to crashes if there are missing source fields, as an
             # on-demand SELECT is executed sometimes (e.g. when a PatientIdNum
-            # is printed, its Patient is selected, including the 'fullname'
-            # attribute that is absent in old databases). *** FIX THIS!
+            # is printed, its Patient is selected, including the [user]
+            # 'fullname' attribute that is absent in old databases).
             # Not a breaking point, since we're going to crash anyway, but
             # inelegant.
+            # Since lazy loading (etc.) is configured at query time, the best
+            # thing (as per Michael Bayer) is to detach the object from the
+            # session:
+            # https://groups.google.com/forum/#!topic/sqlalchemy/X_wA8K97smE
+            trcon.src_session.expunge(old_instance)  # prevent implicit queries
+            # Then all should work:
             log.critical(
                 "Source was:\n\n{}\n\n",
                 pformat(old_instance.__dict__))
