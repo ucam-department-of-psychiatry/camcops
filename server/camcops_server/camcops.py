@@ -64,7 +64,7 @@ except ImportError:
 from pyramid.router import Router  # nopep8
 from wsgiref.simple_server import make_server  # nopep8
 
-# from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction  # nopep8
+from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction  # nopep8
 from cardinal_pythonlib.classes import gen_all_subclasses  # nopep8
 from cardinal_pythonlib.debugging import pdb_run  # nopep8
 from cardinal_pythonlib.process import launch_external_file  # nopep8
@@ -850,10 +850,10 @@ Use 'camcops <COMMAND> --help' for more detail on each command.""".format(
         formatter_class=RawDescriptionHelpFormatter,
         # add_help=False  # only do this if manually overriding the method
     )
-    # parser.add_argument(
-    #     '-h', '--help',
-    #     action=ShowAllSubparserHelpAction,  # makes the output too long!
-    #     help='show this help message and exit')
+    parser.add_argument(
+        '--allhelp',
+        action=ShowAllSubparserHelpAction,
+        help='show help for all commands and exit')
     parser.add_argument(
         "--version", action="version",
         version="CamCOPS {}".format(CAMCOPS_SERVER_VERSION))
