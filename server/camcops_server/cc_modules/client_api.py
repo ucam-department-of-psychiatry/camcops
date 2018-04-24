@@ -35,7 +35,6 @@ import time
 from typing import (Any, Dict, Iterable, List, Optional, Sequence, Tuple,
                     TYPE_CHECKING)
 import unittest
-import urllib.parse
 
 from cardinal_pythonlib.convert import (
     base64_64format_encode,
@@ -97,7 +96,7 @@ from .cc_dirtytables import DirtyTable
 from .cc_group import Group
 from .cc_patient import Patient
 from .cc_patientidnum import fake_tablet_id_for_patientidnum, PatientIdNum
-from .cc_pyramid import RequestMethod, Routes
+from .cc_pyramid import Routes
 from .cc_request import CamcopsRequest
 from .cc_specialnote import SpecialNote
 from .cc_task import all_task_tables_with_min_client_version
@@ -1658,25 +1657,6 @@ def client_api(req: CamcopsRequest) -> Response:
 # Unit tests
 # =============================================================================
 
-def make_post_body_from_dict(d: Dict[str, str],
-                             encoding: str = "utf8") -> bytes:
-    # https://docs.pylonsproject.org/projects/pyramid-cookbook/en/latest/testing/testing_post_curl.html  # noqa
-    txt = urllib.parse.urlencode(query=d)
-    # ... this encoding mimics how the tablet operates
-    body = txt.encode(encoding)
-    return body
-
-
-def fake_request_post_from_dict(req: "Request",
-                                d: Dict[str, str],
-                                encoding: str = "utf8") -> None:
-    req.method = RequestMethod.POST
-    body = make_post_body_from_dict(d, encoding=encoding)
-    log.debug("Applying fake POST body: {!r}", body)
-    req.body = body
-    req.content_length = len(body)
-
-
 def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
     txt = str(response)
     d = {}  # type: Dict[str, str]
@@ -1703,9 +1683,6 @@ def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
 
 
 class ClientApiTests(DemoDatabaseTestCase):
-    def _set_req_post_dict(self, d: Dict[str, str]) -> None:
-        fake_request_post_from_dict(self.req, d)
-
     def test_client_api_basics(self) -> None:
         self.announce("test_client_api_basics")
 
@@ -1763,7 +1740,7 @@ class ClientApiTests(DemoDatabaseTestCase):
 
     def test_client_api_antique_support_1(self):
         self.announce("test_client_api_antique_support_1")
-        self._set_req_post_dict({
+        self.req.fake_request_post_from_dict({
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
             TabletParam.DEVICE: self.other_device.name,
             TabletParam.OPERATION: Operations.WHICH_KEYS_TO_SEND,
@@ -1775,7 +1752,7 @@ class ClientApiTests(DemoDatabaseTestCase):
 
     def test_client_api_antique_support_2(self):
         self.announce("test_client_api_antique_support_2")
-        self._set_req_post_dict({
+        self.req.fake_request_post_from_dict({
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
             TabletParam.DEVICE: self.other_device.name,
             TabletParam.OPERATION: Operations.WHICH_KEYS_TO_SEND,
@@ -1787,7 +1764,7 @@ class ClientApiTests(DemoDatabaseTestCase):
 
     def test_client_api_antique_support_3(self):
         self.announce("test_client_api_antique_support_3")
-        self._set_req_post_dict({
+        self.req.fake_request_post_from_dict({
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
             TabletParam.DEVICE: self.other_device.name,
             TabletParam.OPERATION: Operations.UPLOAD_TABLE,

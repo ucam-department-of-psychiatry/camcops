@@ -1431,8 +1431,8 @@ class ChooseTrackerForm(InformativeForm):
 # =============================================================================
 
 class ReportParamSchema(CSRFSchema):
-    report_id = HiddenStringNode()  # must match ViewParams.REPORT_ID
-    viewtype = ReportOutputTypeSelector()  # must match ViewParams.VIEWTYPE
+    viewtype = ReportOutputTypeSelector()  # must match ViewParam.VIEWTYPE
+    report_id = HiddenStringNode()  # must match ViewParam.REPORT_ID
     # Specific forms may inherit from this.
 
 

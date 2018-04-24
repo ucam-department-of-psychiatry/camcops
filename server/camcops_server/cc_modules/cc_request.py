@@ -26,6 +26,7 @@ from contextlib import contextmanager
 import logging
 import os
 from typing import Any, Dict, Generator, List, Optional, Tuple, TYPE_CHECKING
+import urllib.parse
 
 from cardinal_pythonlib.datetimefunc import (
     coerce_to_pendulum,
@@ -55,12 +56,17 @@ from pyramid.testing import DummyRequest
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session as SqlASession
+from webob.multidict import MultiDict
 
 # Note: everything uder the sun imports this file, so keep the intra-package
 # imports as minimal as possible.
 from .cc_alembic import assert_database_is_at_head
 from .cc_baseconstants import ENVVAR_CONFIG_FILE, MANUAL_FILENAME_PDF_STEM
-from .cc_config import CamcopsConfig, get_config, get_config_filename_from_os_env
+from .cc_config import (
+    CamcopsConfig,
+    get_config,
+    get_config_filename_from_os_env,
+)
 from .cc_constants import (
     CSS_PAGED_MEDIA,
     DateFormat,
@@ -77,6 +83,7 @@ from .cc_pyramid import (
     CookieKey,
     get_session_factory,
     Permission,
+    RequestMethod,
     RouteCollection,
     STATIC_CAMCOPS_PACKAGE_PATH,
 )
@@ -875,21 +882,160 @@ def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
 # Debugging requests
 # =============================================================================
 
+def make_post_body_from_dict(d: Dict[str, str],
+                             encoding: str = "utf8") -> bytes:
+    # https://docs.pylonsproject.org/projects/pyramid-cookbook/en/latest/testing/testing_post_curl.html  # noqa
+    txt = urllib.parse.urlencode(query=d)
+    # ... this encoding mimics how the tablet operates
+    body = txt.encode(encoding)
+    return body
+
 
 class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
-    pass
+    """
+    Request class that allows manual manipulation of GET/POST parameters
+    for debugging.
+
+    Notes:
+    - The important base class is webob.request.BaseRequest.
+    - self.params is a NestedMultiDict (see webob/multidict.py); these are
+      intrinsically read-only.
+    - self.params is also a read-only property. When read, it combines
+      self.GET and self.POST.
+    - What we do here is to manipulate the underlying GET/POST data.
+    """
+    _CACHE_KEY = "webob._parsed_query_vars"
+    _QUERY_STRING_KEY = "QUERY_STRING"
+
+    # def __init__(self, *args, **kwargs) -> None:
+    #     super().__init__(*args, **kwargs)
+    #     # Just a technique worth noting:
+    #     #
+    #     # self._original_params_property = CamcopsRequest.params  # type: property  # noqa
+    #     # self._original_params = self._original_params_property.fget(self)  # type: NestedMultiDict  # noqa
+    #     # self._fake_params = self._original_params.copy()  # type: MultiDict
+    #     # if params:
+    #     #     self._fake_params.update(params)
+    #
+    # @property
+    # def params(self):
+    #     log.critical(repr(self._fake_params))
+    #     return self._fake_params
+    #     # Returning the member object allows clients to call
+    #     #       dummyreq.params.update(...)
+    #
+    # @params.setter
+    # def params(self, value):
+    #     self._fake_params = value
+
+    def set_method_get(self) -> None:
+        self.method = RequestMethod.GET
+
+    def set_method_post(self) -> None:
+        self.method = RequestMethod.POST
+
+    def clear_get_params(self) -> None:
+        env = self.environ
+        if self._CACHE_KEY in env:
+            del env[self._CACHE_KEY]
+        env[self._QUERY_STRING_KEY] = ""
+
+    def add_get_params(self, d: Dict[str, str],
+                       set_method_get: bool = True) -> None:
+        if not d:
+            return
+        # webob.request.BaseRequest.GET reads from self.environ['QUERY_STRING']
+        paramdict = self.GET.copy()  # type: MultiDict
+        paramdict.update(d)
+        env = self.environ
+        # Delete the cached version.
+        if self._CACHE_KEY in env:
+            del env[self._CACHE_KEY]
+        # Write the new version
+        env[self._QUERY_STRING_KEY] = urllib.parse.urlencode(query=paramdict)
+        if set_method_get:
+            self.set_method_get()
+
+    def set_get_params(self, d: Dict[str, str],
+                       set_method_get: bool = True) -> None:
+        self.clear_get_params()
+        self.add_get_params(d, set_method_get=set_method_get)
+
+    def set_post_body(self, body: bytes,
+                      set_method_post: bool = True) -> None:
+        log.debug("Applying fake POST body: {!r}", body)
+        self.body = body
+        self.content_length = len(body)
+        if set_method_post:
+            self.set_method_post()
+
+    def fake_request_post_from_dict(self,
+                                    d: Dict[str, str],
+                                    encoding: str = "utf8",
+                                    set_method_post: bool = True) -> None:
+        # webob.request.BaseRequest.POST reads from 'body' (indirectly).
+        body = make_post_body_from_dict(d, encoding=encoding)
+        self.set_post_body(body, set_method_post=set_method_post)
 
 
-def _get_core_debugging_request() -> CamcopsRequest:
+_ = """
+# A demonstration of the manipulation of superclass properties:
+
+class Test(object):
+    def __init__(self):
+        self.a = 3
+        
+    @property
+    def b(self):
+        return 4
+
+
+class Derived(Test):
+    def __init__(self):
+        super().__init__()
+        self._superclass_b = super().b
+        self._b = 4
+        
+    @property
+    def b(self):
+        print("Superclass b: {}".format(self._superclass_b.fget(self)))
+        print("Self _b: {}".format(self._b))
+        return self._b
+    @b.setter
+    def b(self, value):
+        self._b = value
+
+
+x = Test()
+x.a  # 3
+x.a = 5
+x.a  # 5
+x.b  # 4
+x.b = 6  # can't set attribute
+
+y = Derived()
+y.a  # 3
+y.a = 5
+y.a  # 5
+y.b  # 4
+y.b = 6
+y.b  # 6
+
+"""
+
+
+def _get_core_debugging_request() -> CamcopsDummyRequest:
     with pyramid_configurator_context(debug_toolbar=False) as config:
-        req = CamcopsDummyRequest(environ={
-            ENVVAR_CONFIG_FILE: os.environ[ENVVAR_CONFIG_FILE],
-            WsgiEnvVar.PATH_INFO: '/',
-            WsgiEnvVar.SCRIPT_NAME: '',
-            WsgiEnvVar.SERVER_NAME: '127.0.0.1',
-            WsgiEnvVar.SERVER_PORT: '8000',
-            WsgiEnvVar.WSGI_URL_SCHEME: 'http',
-        })
+        req = CamcopsDummyRequest(
+            environ={
+                ENVVAR_CONFIG_FILE: os.environ[ENVVAR_CONFIG_FILE],
+                WsgiEnvVar.PATH_INFO: '/',
+                WsgiEnvVar.SCRIPT_NAME: '',
+                WsgiEnvVar.SERVER_NAME: '127.0.0.1',
+                WsgiEnvVar.SERVER_PORT: '8000',
+                WsgiEnvVar.WSGI_URL_SCHEME: 'http',
+            }
+        )
         # ... must pass an actual dict to the "environ" parameter; os.environ
         # itself isn't OK ("TypeError: WSGI environ must be a dict; you passed
         # environ({'key1': 'value1', ...})
@@ -930,7 +1076,8 @@ def command_line_request_context() -> Generator[CamcopsRequest, None, None]:
     req._finish_dbsession()
 
 
-def get_unittest_request(dbsession: SqlASession) -> CamcopsRequest:
+def get_unittest_request(dbsession: SqlASession,
+                         params: Dict[str, Any] = None) -> CamcopsDummyRequest:
     """
     Creates a dummy CamcopsRequest for use by unit tests.
     Points to an existing database (e.g. SQLite in-memory database).
@@ -939,6 +1086,7 @@ def get_unittest_request(dbsession: SqlASession) -> CamcopsRequest:
     """
     log.debug("Creating unit testing pseudo-request")
     req = _get_core_debugging_request()
+    req.set_get_params(params)
 
     req._debugging_db_session = dbsession
     user = User()

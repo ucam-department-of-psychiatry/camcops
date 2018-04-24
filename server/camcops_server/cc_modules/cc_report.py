@@ -106,20 +106,29 @@ class Report(object):
     def superuser_only(cls) -> bool:
         return True  # must explicitly override to permit others!
 
-    def get_query(
-            self,
-            req: "CamcopsRequest",
-            appstruct: Dict[str, Any]) -> Union[None, SelectBase, Query]:
+    @classmethod
+    def get_http_query_keys(cls) -> List[str]:
+        return [
+            ViewParam.REPORT_ID,
+            ViewParam.VIEWTYPE,
+            ViewParam.ROWS_PER_PAGE,
+            ViewParam.PAGE,
+        ] + cls.get_specific_http_query_keys()
+
+    @classmethod
+    def get_specific_http_query_keys(cls) -> List[str]:
+        return []
+
+    def get_query(self, req: "CamcopsRequest") \
+            -> Union[None, SelectBase, Query]:
         """
         Return the Select statement to execute the report. Must override.
         Parameters are passed in via the Request.
         """
         return None
 
-    def get_rows_colnames(
-            self,
-            req: "CamcopsRequest",
-            appstruct: Dict[str, Any]) -> Optional[PlainReportType]:
+    def get_rows_colnames(self, req: "CamcopsRequest") \
+            -> Optional[PlainReportType]:
         return None
 
     @staticmethod
@@ -133,7 +142,7 @@ class Report(object):
         return ReportParamForm(request=req, schema_class=schema_class)
 
     @staticmethod
-    def get_test_appstruct() -> Dict[str, Any]:
+    def get_test_querydict() -> Dict[str, Any]:
         """
         What this function returns is used as the specimen appstruct for
         unit tests.
@@ -147,17 +156,29 @@ class Report(object):
     @classmethod
     def all_subclasses(cls,
                        sort_title: bool = False) -> List[Type["Report"]]:
+        """
+        Get all report subclasses, except those not implementing their
+        report_id property.
+        """
         classes = all_subclasses(cls)  # type: List[Type["Report"]]
+        instantiated_report_classes = []  # type: List[Type["Report"]]
+        for reportcls in classes:
+            try:
+                _ = reportcls.report_id
+                instantiated_report_classes.append(reportcls)
+            except NotImplementedError:
+                # This is a subclass of Report, but it's still an abstract
+                # class; skip it.
+                pass
         if sort_title:
-            classes.sort(key=lambda c: c.title)
-        return classes
+            instantiated_report_classes.sort(key=lambda c: c.title)
+        return instantiated_report_classes
 
     # -------------------------------------------------------------------------
     # Common functionality: default Response
     # -------------------------------------------------------------------------
 
-    def get_response(self, req: "CamcopsRequest",
-                     appstruct: Dict[str, Any]) -> Response:
+    def get_response(self, req: "CamcopsRequest") -> Response:
         # Check the basic parameters
         report_id = req.get_str_param(ViewParam.REPORT_ID)
         rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
@@ -166,6 +187,23 @@ class Report(object):
 
         if report_id != self.report_id:
             raise HTTPBadRequest("Error - request directed to wrong report!")
+
+        # viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML,
+        #                              lower=True)
+        # ... NO; for a Deform radio button, the request contains parameters
+        # like
+        #   ('__start__', 'viewtype:rename'),
+        #   ('deformField2', 'tsv'),
+        #   ('__end__', 'viewtype:rename')
+        # ... so we need to ask the appstruct instead.
+        # This is a bit different from how we manage trackers/CTVs, where we
+        # recode the appstruct to a URL.
+        #
+        # viewtype = appstruct.get(ViewParam.VIEWTYPE)  # type: str
+        #
+        # Ah, no... that fails with pagination of reports. Let's redirect
+        # things to the HTTP query, as for trackers/audit!
+
         viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML,
                                      lower=True)
         if viewtype not in [ViewArg.HTML, ViewArg.TSV]:
@@ -173,19 +211,19 @@ class Report(object):
 
         # Run the report (which may take additional parameters from the
         # request)
-        statement = self.get_query(req, appstruct)
+        statement = self.get_query(req)
         if statement is not None:
             rp = req.dbsession.execute(statement)  # type: ResultProxy
             column_names = rp.keys()
             rows = rp.fetchall()
         else:
-            plain_report = self.get_rows_colnames(req, appstruct)
+            plain_report = self.get_rows_colnames(req)
             if plain_report is None:
                 raise NotImplementedError(
                     "Report did not implement either of get_select_statement()"
                     " or get_rows_colnames()")
-            rows = plain_report.rows
             column_names = plain_report.columns
+            rows = plain_report.rows
 
         # Serve the result
         if viewtype == ViewArg.HTML:
@@ -193,14 +231,9 @@ class Report(object):
                                page=page_num,
                                items_per_page=rows_per_page,
                                url_maker=PageUrl(req))
-            return render_to_response(
-                "report.mako",
-                dict(title=self.title,
-                     page=page,
-                     column_names=column_names,
-                     report_id=report_id),
-                request=req
-            )
+            return self.render_html(req=req,
+                                    column_names=column_names,
+                                    page=page)
         else:  # TSV
             filename = (
                 "CamCOPS_" +
@@ -211,6 +244,22 @@ class Report(object):
             )
             content = tsv_from_query(rows, column_names)
             return TsvResponse(body=content, filename=filename)
+
+    def render_html(self,
+                    req: "CamcopsRequest",
+                    column_names: List[str],
+                    page: CamcopsPage) -> Response:
+        """
+        If you wish, you can override this for more report customization.
+        """
+        return render_to_response(
+            "report.mako",
+            dict(title=self.title,
+                 page=page,
+                 column_names=column_names,
+                 report_id=self.report_id),
+            request=req
+        )
 
 
 # =============================================================================
@@ -247,20 +296,30 @@ def get_report_instance(report_id: str) -> Optional[Report]:
 class ReportTests(DemoDatabaseTestCase):
     def test_reports(self) -> None:
         self.announce("test_reports")
-        req = self.req
         for cls in get_all_report_classes():
             log.info("Testing report: {}", cls)
             from camcops_server.cc_modules.cc_forms import ReportParamSchema
-            r = cls()
+            report = cls()
 
-            self.assertIsInstance(r.report_id, str)
-            self.assertIsInstance(r.title, str)
-            self.assertIsInstance(r.superuser_only, bool)
+            self.assertIsInstance(report.report_id, str)
+            self.assertIsInstance(report.title, str)
+            self.assertIsInstance(report.superuser_only, bool)
 
-            appstruct = r.get_test_appstruct()
+            querydict = report.get_test_querydict()
+            # We can't use req.params.update(querydict); we get
+            # "NestedMultiDict objects are read-only". We can't replace
+            # req.params ("can't set attribute"). Making a fresh request is
+            # also a pain, as they are difficult to initialize properly.
+            # However, achievable with some hacking to make "params" writable;
+            # see CamcopsDummyRequest.
+            # Also: we must use self.req as this has the correct database
+            # session.
+            req = self.req
+            req.clear_get_params()  # as we're re-using old requests
+            req.add_get_params(querydict)
 
             try:
-                q = r.get_query(req, appstruct)
+                q = report.get_query(req)
                 assert (q is None or
                         isinstance(q, SelectBase) or
                         isinstance(q, Query)), (
@@ -272,16 +331,16 @@ class ReportTests(DemoDatabaseTestCase):
 
             try:
                 self.assertIsInstanceOrNone(
-                    r.get_rows_colnames(req, appstruct), PlainReportType)
+                    report.get_rows_colnames(req), PlainReportType)
             except HTTPBadRequest:
                 pass
 
-            cls = r.get_paramform_schema_class()
+            cls = report.get_paramform_schema_class()
             assert issubclass(cls, ReportParamSchema)
 
-            self.assertIsInstance(r.get_form(req), Form)
+            self.assertIsInstance(report.get_form(req), Form)
 
             try:
-                self.assertIsInstance(r.get_response(req, appstruct), Response)
+                self.assertIsInstance(report.get_response(req), Response)
             except HTTPBadRequest:
                 pass

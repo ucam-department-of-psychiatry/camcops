@@ -177,8 +177,7 @@ class DeviceReport(Report):
     def title(cls) -> str:
         return "(Server) Devices registered with the server"
 
-    def get_query(self, req: "CamcopsRequest",
-                  appstruct: Dict[str, Any]) -> Query:
+    def get_query(self, req: "CamcopsRequest") -> Query:
         dbsession = req.dbsession
         query = (
             dbsession.query(Device.id,

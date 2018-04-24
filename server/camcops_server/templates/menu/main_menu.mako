@@ -28,15 +28,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     </ul>
 %endif
 
-%if introspection:
-    <h3>Introspection</h3>
-    <ul>
-        <li><a href="${request.route_url(Routes.OFFER_INTROSPECTION)}">Introspect source code</a></li>
-    </ul>
-%endif
-
 %if authorized_for_reports:
-    <h3>Administrative reports</h3>
+    <h3>Reports</h3>
     <ul>
         <li><a href="${request.route_url(Routes.REPORTS_MENU)}">Run reports</a></li>
     </ul>
@@ -75,6 +68,13 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <li><a href="${request.route_url(Routes.SET_OWN_USER_UPLOAD_GROUP)}">Choose group into which to upload data</a></li>
     <li><a href="${request.route_url(Routes.VIEW_OWN_USER_INFO)}">Show your user settings</a></li>
 </ul>
+
+%if introspection:
+    <h3>Introspection</h3>
+    <ul>
+        <li><a href="${request.route_url(Routes.OFFER_INTROSPECTION)}">Introspect source code</a></li>
+    </ul>
+%endif
 
 <h3>Help</h3>
 <ul>

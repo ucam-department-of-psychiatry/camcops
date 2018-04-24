@@ -471,6 +471,7 @@ class Routes(object):
     OFFER_HL7_RUN_LOG = "offer_hl7_run_log"
     OFFER_INTROSPECTION = "offer_introspect"
     OFFER_REGENERATE_SUMMARIES = "offer_regenerate_summary_tables"
+    OFFER_REPORT = "offer_report"
     OFFER_SQL_DUMP = "offer_sql_dump"
     OFFER_TERMS = "offer_terms"
     OFFER_TSV_DUMP = "offer_tsv_dump"
@@ -601,6 +602,7 @@ class RouteCollection(object):
                                   "/offer_hl7_run_log")
     OFFER_INTROSPECTION = RoutePath(Routes.OFFER_INTROSPECTION,
                                     "/offer_introspect")
+    OFFER_REPORT = RoutePath(Routes.OFFER_REPORT, '/offer_report')
     OFFER_SQL_DUMP = RoutePath(Routes.OFFER_SQL_DUMP, "/offer_sql_dump")
     OFFER_TERMS = RoutePath(Routes.OFFER_TERMS, '/offer_terms')
     OFFER_TSV_DUMP = RoutePath(Routes.OFFER_TSV_DUMP, "/offer_tsv_dump")

@@ -1681,8 +1681,7 @@ class TaskCountReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_rows_colnames(self, req: CamcopsRequest,
-                          appstruct: Dict[str, Any]) -> PlainReportType:
+    def get_rows_colnames(self, req: CamcopsRequest) -> PlainReportType:
         final_rows = []
         colnames = []
         dbsession = req.dbsession

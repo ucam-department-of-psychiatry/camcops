@@ -600,8 +600,7 @@ class DistinctPatientReport(Report):
         return False
 
     # noinspection PyProtectedMember
-    def get_query(self, req: CamcopsRequest,
-                  appstruct: Dict[str, Any]) -> SelectBase:
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
         select_fields = [
             Patient.surname.label("surname"),
             Patient.forename.label("forename"),

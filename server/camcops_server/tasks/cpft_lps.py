@@ -748,9 +748,8 @@ class LPSReportReferredNotDischarged(Report):
         return LPSReportSchema
 
     # noinspection PyProtectedMember
-    def get_query(self, req: CamcopsRequest,
-                  appstruct: Dict[str, Any]) -> SelectBase:
-        which_idnum = appstruct.get(ViewParam.WHICH_IDNUM)  # type: int
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
+        which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM, 1)
         if which_idnum is None:
             raise exc.HTTPBadRequest("{} not specified".format(
                 ViewParam.WHICH_IDNUM))
@@ -860,9 +859,8 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         return LPSReportSchema
 
     # noinspection PyProtectedMember
-    def get_query(self, req: CamcopsRequest,
-                  appstruct: Dict[str, Any]) -> SelectBase:
-        which_idnum = appstruct.get(ViewParam.WHICH_IDNUM)  # type: int
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
+        which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM, 1)
         if which_idnum is None:
             raise exc.HTTPBadRequest("{} not specified".format(
                 ViewParam.WHICH_IDNUM))

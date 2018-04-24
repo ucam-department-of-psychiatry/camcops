@@ -1070,11 +1070,11 @@ def reports_menu(req: CamcopsRequest) -> Dict[str, Any]:
     return {}
 
 
-@view_config(route_name=Routes.REPORT)
-def serve_report(req: CamcopsRequest) -> Response:
+@view_config(route_name=Routes.OFFER_REPORT)
+def offer_report(req: CamcopsRequest) -> Response:
     """
     Offer configuration options for a single report, or (following submission)
-    serve that report
+    redirect to serve that report
     """
     if not req.user.authorized_for_reports:
         raise HTTPBadRequest(CANNOT_REPORT)
@@ -1090,7 +1090,13 @@ def serve_report(req: CamcopsRequest) -> Response:
         try:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)  # may raise
-            return report.get_response(req, appstruct)
+            keys = report.get_http_query_keys()
+            querydict = {k: appstruct.get(k) for k in keys}
+            querydict[ViewParam.REPORT_ID] = report_id
+            querydict[ViewParam.PAGE] = 1
+            # Send the user to the actual data using GET: this allows page
+            # navigation whilst maintaining any report-specific parameters.
+            raise HTTPFound(req.route_url(Routes.REPORT, _query=querydict))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -1104,6 +1110,24 @@ def serve_report(req: CamcopsRequest) -> Response:
         ),
         request=req
     )
+
+
+@view_config(route_name=Routes.REPORT)
+def serve_report(req: CamcopsRequest) -> Response:
+    """
+    Serve a configured report.
+    """
+    if not req.user.authorized_for_reports:
+        raise HTTPBadRequest(CANNOT_REPORT)
+    report_id = req.get_str_param(ViewParam.REPORT_ID)
+    report = get_report_instance(report_id)
+    if not report:
+        raise HTTPBadRequest("No such report ID: {!r}".format(report_id))
+    if report.superuser_only and not req.user.superuser:
+        raise HTTPBadRequest("Report {!r} is restricted to the "
+                             "superuser".format(report_id))
+
+    return report.get_response(req)
 
 
 # =============================================================================

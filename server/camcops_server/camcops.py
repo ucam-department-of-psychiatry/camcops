@@ -866,7 +866,10 @@ Use 'camcops <COMMAND> --help' for more detail on each command.""".format(
         title="commands",
         description="Valid CamCOPS commands are as follows.",
         help='Specify one command.',
+        dest='command',  # sorts out the help for the command being mandatory
+        # https://stackoverflow.com/questions/23349349/argparse-with-required-subparser  # noqa
     )  # type: _SubParsersAction  # noqa
+    subparsers.required = True  # requires a command
     # You can't use "add_subparsers" more than once.
     # Subparser groups seem not yet to be supported:
     #   https://bugs.python.org/issue9341

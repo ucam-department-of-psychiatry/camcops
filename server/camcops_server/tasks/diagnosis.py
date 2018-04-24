@@ -30,7 +30,7 @@ from cardinal_pythonlib.colander_utils import OptionalIntNode
 from cardinal_pythonlib.datetimefunc import pendulum_date_to_datetime_date
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
-# from cardinal_pythonlib.sqlalchemy.dump import get_literal_query
+from cardinal_pythonlib.sqlalchemy.dump import get_literal_query
 from colander import (
     Date,
     Integer,
@@ -40,6 +40,8 @@ from colander import (
     String,
 )
 import hl7
+from pyramid.renderers import render_to_response
+from pyramid.response import Response
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import (
     and_, exists, literal, not_, or_, select, union,
@@ -63,7 +65,7 @@ from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_nlp import guess_name_components
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-from camcops_server.cc_modules.cc_pyramid import ViewParam
+from camcops_server.cc_modules.cc_pyramid import CamcopsPage, ViewParam
 from camcops_server.cc_modules.cc_task import (
     Task,
     TaskHasClinicianMixin,
@@ -408,8 +410,7 @@ class DiagnosisICD9CMReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest,
-                  appstruct: Dict[str, Any]) -> SelectBase:
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
         return get_diagnosis_report(
             req,
             diagnosis_class=DiagnosisIcd9CM,
@@ -437,8 +438,7 @@ class DiagnosisICD10Report(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest,
-                  appstruct: Dict[str, Any]) -> SelectBase:
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
         return get_diagnosis_report(
             req,
             diagnosis_class=DiagnosisIcd10,
@@ -466,8 +466,7 @@ class DiagnosisAllReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest,
-                  appstruct: Dict[str, Any]) -> SelectBase:
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
         sql_icd9cm = get_diagnosis_report_query(
             req,
             diagnosis_class=DiagnosisIcd9CM,
@@ -503,7 +502,11 @@ class DiagnosisNode(SchemaNode):
 class DiagnosesSequence(SequenceSchema):
     diagnoses = DiagnosisNode()
     title = "Diagnostic codes"
-    description = OR_JOIN_DESCRIPTION
+    description = (
+        "Use % as a wildcard (e.g. F32 matches only F32, but F32% matches "
+        "F32, F32.1, F32.2...). " +
+        OR_JOIN_DESCRIPTION
+    )
 
     def __init__(self, *args, minimum_number: int = 0, **kwargs) -> None:
         self.minimum_number = minimum_number
@@ -518,7 +521,7 @@ class DiagnosesSequence(SequenceSchema):
             raise Invalid(node, "You have specified duplicate diagnoses")
 
 
-class DiagnosisICD10FinderReportSchema(ReportParamSchema):
+class DiagnosisFinderReportSchema(ReportParamSchema):
     which_idnum = LinkingIdNumSelector()  # must match ViewParam.WHICH_IDNUM
     diagnoses_inclusion = DiagnosesSequence(  # must match ViewParam.DIAGNOSES_INCLUSION  # noqa
         title="Inclusion diagnoses (lifetime)",
@@ -690,18 +693,9 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
     return query
 
 
-class DiagnosisICD10FinderReport(Report):
+# noinspection PyAbstractClass
+class DiagnosisFinderReportBase(Report):
     """Report to show all diagnoses."""
-
-    # noinspection PyMethodParameters
-    @classproperty
-    def report_id(cls) -> str:
-        return "diagnoses_finder"
-
-    # noinspection PyMethodParameters
-    @classproperty
-    def title(cls) -> str:
-        return "Diagnosis – Find patients by ICD-10 diagnosis ± age"
 
     # noinspection PyMethodParameters
     @classproperty
@@ -710,15 +704,64 @@ class DiagnosisICD10FinderReport(Report):
 
     @staticmethod
     def get_paramform_schema_class() -> Type["ReportParamSchema"]:
-        return DiagnosisICD10FinderReportSchema
+        return DiagnosisFinderReportSchema
 
-    def get_query(self, req: CamcopsRequest,
-                  appstruct: Dict[str, Any]) -> SelectBase:
-        which_idnum = appstruct.get(ViewParam.WHICH_IDNUM)  # type: int
-        inclusion_dx = appstruct.get(ViewParam.DIAGNOSES_INCLUSION)  # type: List[str]  # noqa
-        exclusion_dx = appstruct.get(ViewParam.DIAGNOSES_EXCLUSION)  # type: List[str]  # noqa
-        age_minimum = appstruct.get(ViewParam.AGE_MINIMUM)  # type: Optional[int]  # noqa
-        age_maximum = appstruct.get(ViewParam.AGE_MAXIMUM)  # type: Optional[int]  # noqa
+    @classmethod
+    def get_specific_http_query_keys(cls) -> List[str]:
+        return [
+            ViewParam.WHICH_IDNUM,
+            ViewParam.DIAGNOSES_INCLUSION,
+            ViewParam.DIAGNOSES_EXCLUSION,
+            ViewParam.AGE_MINIMUM,
+            ViewParam.AGE_MAXIMUM
+        ]
+
+    def render_html(self,
+                    req: "CamcopsRequest",
+                    column_names: List[str],
+                    page: CamcopsPage) -> Response:
+        which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
+        inclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_INCLUSION)
+        exclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_EXCLUSION)
+        age_minimum = req.get_int_param(ViewParam.AGE_MINIMUM)
+        age_maximum = req.get_int_param(ViewParam.AGE_MAXIMUM)
+        idnum_desc = req.get_id_desc(which_idnum) or "BAD_IDNUM"
+        query = self.get_query(req)
+        sql = get_literal_query(query, bind=req.engine)
+
+        return render_to_response(
+            "diagnosis_finder_report.mako",
+            dict(title=self.title,
+                 page=page,
+                 column_names=column_names,
+                 report_id=self.report_id,
+                 idnum_desc=idnum_desc,
+                 inclusion_dx=inclusion_dx,
+                 exclusion_dx=exclusion_dx,
+                 age_minimum=age_minimum,
+                 age_maximum=age_maximum,
+                 sql=sql),
+            request=req
+        )
+
+
+class DiagnosisICD10FinderReport(DiagnosisFinderReportBase):
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "diagnoses_finder_icd10"
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def title(cls) -> str:
+        return "Diagnosis – Find patients by ICD-10 diagnosis ± age"
+
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
+        which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
+        inclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_INCLUSION)
+        exclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_EXCLUSION)
+        age_minimum = req.get_int_param(ViewParam.AGE_MINIMUM)
+        age_maximum = req.get_int_param(ViewParam.AGE_MAXIMUM)
 
         q = get_diagnosis_inc_exc_report_query(
             req,
@@ -738,10 +781,58 @@ class DiagnosisICD10FinderReport(Report):
         return q
 
     @staticmethod
-    def get_test_appstruct() -> Dict[str, Any]:
+    def get_test_querydict() -> Dict[str, Any]:
         return {
             ViewParam.WHICH_IDNUM: 1,
             ViewParam.DIAGNOSES_INCLUSION: ['F32%'],
+            ViewParam.DIAGNOSES_EXCLUSION: [],
+            ViewParam.AGE_MINIMUM: None,
+            ViewParam.AGE_MAXIMUM: None,
+        }
+
+
+class DiagnosisICD9CMFinderReport(DiagnosisFinderReportBase):
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "diagnoses_finder_icd9cm"
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def title(cls) -> str:
+        return (
+            "Diagnosis – Find patients by ICD-9-CM (DSM-IV-TR) diagnosis ± age"
+        )
+
+    def get_query(self, req: CamcopsRequest) -> SelectBase:
+        which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
+        inclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_INCLUSION)
+        exclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_EXCLUSION)
+        age_minimum = req.get_int_param(ViewParam.AGE_MINIMUM)
+        age_maximum = req.get_int_param(ViewParam.AGE_MAXIMUM)
+
+        q = get_diagnosis_inc_exc_report_query(
+            req,
+            diagnosis_class=DiagnosisIcd9CM,
+            item_class=DiagnosisIcd9CMItem,
+            item_fk_fieldname='diagnosis_icd9cm_id',
+            system='ICD-9-CM',
+            which_idnum=which_idnum,
+            inclusion_dx=inclusion_dx,
+            exclusion_dx=exclusion_dx,
+            age_minimum_y=age_minimum,
+            age_maximum_y=age_maximum,
+        )
+        q = q.order_by(*ORDER_BY)
+        # log.critical("Final query:\n{}".format(get_literal_query(
+        #     q, bind=req.engine)))
+        return q
+
+    @staticmethod
+    def get_test_querydict() -> Dict[str, Any]:
+        return {
+            ViewParam.WHICH_IDNUM: 1,
+            ViewParam.DIAGNOSES_INCLUSION: ['296%'],
             ViewParam.DIAGNOSES_EXCLUSION: [],
             ViewParam.AGE_MINIMUM: None,
             ViewParam.AGE_MAXIMUM: None,

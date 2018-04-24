@@ -10,6 +10,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <h1>${ title | h }</h1>
 
+<%block name="additional_report_above_results"></%block>
+
 <div>${page.pager()}</div>
 
 <table>
@@ -36,10 +38,14 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <div>${page.pager()}</div>
 
+<%block name="additional_report_below_results"></%block>
+
 <div>
-    <a href="${ request.route_url(Routes.REPORT, _query={ViewParam.REPORT_ID: report_id}) }">Re-run report</a>
+    <a href="${ request.route_url(Routes.OFFER_REPORT, _query={ViewParam.REPORT_ID: report_id}) }">Re-configure report</a>
 </div>
 <div>
     <a href="${request.route_url(Routes.REPORTS_MENU)}">Return to reports menu</a>
 </div>
 <%include file="to_main_menu.mako"/>
+
+<%block name="additional_report_below_menu"></%block>
