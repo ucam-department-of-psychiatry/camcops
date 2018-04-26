@@ -17,3 +17,41 @@ Compiling for Windows (under Windows)
 - Qt instructions
     - https://wiki.qt.io/Building_Qt_Desktop_for_Windows_with_MinGW
 - http://silmor.de/qtstuff.qt5mingw.php
+
+===============================================================================
+Once you have successfully run build_qt.py
+===============================================================================
+
+Run Qt Creator
+Open project
+-> [spontaneously] Configure project
+
+    Qt Creator can use the following kits for project camcops:
+    The project camcops is not yet configured.
+    Qt Creator uses the kit Desktop Qt 5.6.0 MSVC2015 32bit to parse the project.
+    
+    ... [ ] Select all kits
+    ... [x] Desktop Qt 5.6.0 MSVC2015 32bit
+    ... [x] Desktop Qt 5.6.0 MSVC2015 64bit
+    ... [ ] Desktop Qt 5.6.0 MinGW 32bit
+    ... [ ] Qt 5.6.0 for Windows Runtime 32bit
+    ... [ ] Qt 5.6.0 for Windows Runtime 64bit
+    ... Import build from...
+    
+        [Configure project] [Cancel]
+        
+Build
+-> Environment variable CAMCOPS_QT_BASE_DIR is undefined
+
+Set that environment variable -- it's where you find directories like
+    openssl_windows_x86_64_build
+    qt_windows_x86_32_build
+    qt_windows_x86_32_install
+    qt_windows_x86_64_build
+    qt_windows_x86_64_install
+    sqlcipher_windows_x86_32
+    sqlcipher_windows_x86_64
+    src
+
+By default (as per build_qt.py) it is "dev\qt_local_build" within the user's
+home directory (e.g. C:\Users\MyUser\dev\qt_local_build).

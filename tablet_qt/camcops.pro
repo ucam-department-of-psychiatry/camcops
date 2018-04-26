@@ -111,7 +111,15 @@ MOBILITY =
 # Compiler and linker flags
 # =============================================================================
 
-QMAKE_CXXFLAGS += -Werror  # warnings become errors
+# Warning become errors
+!windows {
+    # GCC
+    QMAKE_CXXFLAGS += -Werror  # warnings become errors
+}
+windows {
+    QMAKE_CXXFLAGS += /W4  # highest level of warnings bar "/Wall"
+    QMAKE_CXXFLAGS += /WX  # treat warnings as errors
+}
 
 # In release mode, optimize heavily:
 QMAKE_CXXFLAGS_RELEASE -= -O
@@ -120,6 +128,8 @@ QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -O3  # optimize heavily
 
 # QMAKE_LFLAGS += --verbose  # make the linker verbose
+
+message("QMAKE_CXXFLAGS is now $${QMAKE_CXXFLAGS}")
 
 # =============================================================================
 # Build targets
