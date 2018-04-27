@@ -452,7 +452,7 @@ def login_view(req: CamcopsRequest) -> Response:
                 # Successful login.
                 user.login(req)  # will clear login failure record
                 ccsession.login(user)
-                audit(req, "Login")
+                audit(req, "Login", user_id=user.id)
             elif user is not None:
                 # This means a user who can upload from tablet but who cannot
                 # log in via the web front end.
