@@ -4,8 +4,8 @@
 #
 #-------------------------------------------------
 
-# http://doc.qt.io/qt-5.7/qmake-project-files.html
-# http://doc.qt.io/qt-5.7/qmake-variable-reference.html
+# http://doc.qt.io/qt-5/qmake-project-files.html
+# http://doc.qt.io/qt-5/qmake-variable-reference.html
 
 message("+++ CamCOPS qmake starting.")
 
@@ -112,24 +112,40 @@ MOBILITY =
 # =============================================================================
 
 # Warning become errors
-!windows {
+gcc {
     # GCC
     QMAKE_CXXFLAGS += -Werror  # warnings become errors
 }
-windows {
-    QMAKE_CXXFLAGS += /W4  # highest level of warnings bar "/Wall"
+msvc {
+    # Microsoft Visual C++
+    QMAKE_CXXFLAGS += /W3
+        # ... /W4 is the highest level of warnings bar "/Wall"
+        # ... but we get "D9025: overriding '/W4' with '/W3'"
     QMAKE_CXXFLAGS += /WX  # treat warnings as errors
+    # QMAKE_CXXFLAGS += /showIncludes  # if you think the wrong ones are being included!
 }
 
 # In release mode, optimize heavily:
-QMAKE_CXXFLAGS_RELEASE -= -O
-QMAKE_CXXFLAGS_RELEASE -= -O1
-QMAKE_CXXFLAGS_RELEASE -= -O2
-QMAKE_CXXFLAGS_RELEASE += -O3  # optimize heavily
+gcc {
+    QMAKE_CXXFLAGS_RELEASE -= -O
+    QMAKE_CXXFLAGS_RELEASE -= -O1
+    QMAKE_CXXFLAGS_RELEASE -= -O2
+    QMAKE_CXXFLAGS_RELEASE += -O3  # optimize heavily
+}
+msvc {
+    QMAKE_CXXFLAGS_RELEASE -= /O1  # /O1: minimum size
+    QMAKE_CXXFLAGS_RELEASE += /O2  # /O2: maximum speed
+
+    # We also get "LNK4098: defaultlib 'LIBCMT' conflicts with use of other
+    # libs; use /NODEFAULTLIB:library" but this may be because the /MD, /MT,
+    # or /LD setting conflicts.
+    # /MD: multithread-specific and DLL-specific version of the runtime library
+    # /MT: multithread, static version of the runtime library [fails; LIBCMT conflicts...]
+    # /LD: creates a DLL
+    QMAKE_CXXFLAGS_RELEASE += /MD
+}
 
 # QMAKE_LFLAGS += --verbose  # make the linker verbose
-
-message("QMAKE_CXXFLAGS is now $${QMAKE_CXXFLAGS}")
 
 # =============================================================================
 # Build targets
@@ -360,6 +376,8 @@ LIBS += "$${SQLCIPHER_DIR}/sqlcipher/sqlite3$${OBJ_EXT}"
 # -----------------------------------------------------------------------------
 # All set up
 # -----------------------------------------------------------------------------
+message("QMAKE_CFLAGS is now $${QMAKE_CFLAGS}")
+message("QMAKE_CXXFLAGS is now $${QMAKE_CXXFLAGS}")
 message("INCLUDEPATH is now $${INCLUDEPATH}")
 message("LIBS is now $${LIBS}")
 message("... qmake will add more to INCLUDEPATH and LIBS; see Makefile")

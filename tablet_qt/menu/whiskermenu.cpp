@@ -39,8 +39,10 @@ WhiskerMenu::WhiskerMenu(CamcopsApp& app) :
         MenuItem(tr("Test network latency to Whisker server")),  // ***
         MenuItem(
             tr("Configure Whisker"),
-            std::bind(&WhiskerMenu::configureWhisker, this,
-                      std::placeholders::_1)
+            MenuItem::OpenableWidgetMaker(
+                std::bind(&WhiskerMenu::configureWhisker, this,
+                          std::placeholders::_1)
+            )
         ),
     };
 }

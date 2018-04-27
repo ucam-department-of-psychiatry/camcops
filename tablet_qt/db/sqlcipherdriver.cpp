@@ -69,6 +69,7 @@
 #include <QSqlIndex>
 #include <QSqlQuery>
 #include <QStringList>
+#include <QtGlobal>  // for qAsConst
 #include <QVariant>
 #include <QVector>
 #include "db/sqlcipherhelpers.h"

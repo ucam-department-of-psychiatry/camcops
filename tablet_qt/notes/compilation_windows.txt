@@ -22,36 +22,95 @@ Compiling for Windows (under Windows)
 Once you have successfully run build_qt.py
 ===============================================================================
 
-Run Qt Creator
-Open project
--> [spontaneously] Configure project
+ENSURE YOU HAVE QT CREATOR 4.6.0 or higher. Earlier versions can fail to
+compile.
 
-    Qt Creator can use the following kits for project camcops:
-    The project camcops is not yet configured.
-    Qt Creator uses the kit Desktop Qt 5.6.0 MSVC2015 32bit to parse the project.
+-   Set the environment variable CAMCOPS_QT_BASE_DIR.
+    It's where you find directories like
+        openssl_windows_x86_64_build
+        qt_windows_x86_32_build
+        qt_windows_x86_32_install
+        qt_windows_x86_64_build
+        qt_windows_x86_64_install
+        sqlcipher_windows_x86_32
+        sqlcipher_windows_x86_64
+        src
     
-    ... [ ] Select all kits
-    ... [x] Desktop Qt 5.6.0 MSVC2015 32bit
-    ... [x] Desktop Qt 5.6.0 MSVC2015 64bit
-    ... [ ] Desktop Qt 5.6.0 MinGW 32bit
-    ... [ ] Qt 5.6.0 for Windows Runtime 32bit
-    ... [ ] Qt 5.6.0 for Windows Runtime 64bit
-    ... Import build from...
-    
-        [Configure project] [Cancel]
+    By default (as per build_qt.py) it is "dev\qt_local_build" within the
+    user's home directory (e.g. C:\Users\MyUser\dev\qt_local_build).
+
+-   Run Qt Creator
+
+-   Open project
+
+-   Define Qt version
         
-Build
--> Environment variable CAMCOPS_QT_BASE_DIR is undefined
+    Options > Build & Run > Qt Versions
+    
+        Custom_Qt_5_10_0 (qt_windows_x86_64_install) [or similar name]
+            ... qt_windows_x86_64_install\bin\qmake.exe
 
-Set that environment variable -- it's where you find directories like
-    openssl_windows_x86_64_build
-    qt_windows_x86_32_build
-    qt_windows_x86_32_install
-    qt_windows_x86_64_build
-    qt_windows_x86_64_install
-    sqlcipher_windows_x86_32
-    sqlcipher_windows_x86_64
-    src
+-   Define kit
 
-By default (as per build_qt.py) it is "dev\qt_local_build" within the user's
-home directory (e.g. C:\Users\MyUser\dev\qt_local_build).
+    Options > Build & Run > Kits
+    
+        Custom_Qt_5_10_0_x86_64 [or similar name]
+        
+            File system name = [blank]
+            Device type = Desktop
+            Device = Local PC (default for Desktop)
+            Sysroot = ...\qt_local_build\qt_windows_x86_64_install\bin
+            Compiler: C = Microsoft Visual C++ Compiler 14.0 (amd64)
+            Compiler: C++ = Microsoft Visual C++ Compiler 14.0 (amd64)
+            Debugger = Auto-detected CDB at C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe
+            Qt version = Qt 5.10.0 (qt_windows_x86_64_install) [i.e. your custom one]
+            Qt mkspec = [blank]
+            CMake tool = System CMake at C:\Program Files (x86)\CMake\bin\cmake.exe
+            CMake generator = CodeBlocks - MinGW Makefiles, Platform: <none>, Toolset: <none>
+            CMake configuration =
+                CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}
+                CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}
+                CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}
+                QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}
+            Additional Qbs Profile Settings = [blank]
+            
+-   Build
+        
+PROBLEM:
+    Error: dependent 'C:\Users\Rudolf\dev\qt_local_build\qt_windows_x86_64_install\lib\Qt5MultimediaWidgetsd.lib' does not exist.
+        
+    ... in debug mode
+    ... not sure how to say "make a debug program but with the release version
+        of the Qt libraries"
+    ... just switch to release mode for now
+    
+PROBLEM:
+
+    C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\utility(448): error C2338: tuple index out of bounds
+    C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\functional(802): note: see reference to class template instantiation 'std::tuple_element<0,std::tuple<>>' being compiled
+    C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\functional(494): note: see reference to class template instantiation 'std::result_of<_Fx &(void)>' being compiled
+            with
+            [
+                _Fx=std::_Binder<std::_Unforced,OpenableWidget *(__cdecl SettingsMenu::* )(CamcopsApp &),SettingsMenu *const ,const std::_Ph<1> &>
+            ]
+
+    from code like
+    
+        MenuItem(
+            tr("Questionnaire font size"),
+            std::bind(&SettingsMenu::setQuestionnaireFontSize, this,
+                      std::placeholders::_1)
+        )
+        
+    ... this appears to be a VC++ problem; fixable like this:
+    
+        MenuItem(
+            tr("Questionnaire font size"),
+            MenuItem::OpenableWidgetMaker(
+                std::bind(&SettingsMenu::setQuestionnaireFontSize, this,
+                          std::placeholders::_1)
+            )
+        )
+        
+    ... see also https://stackoverflow.com/questions/25841857
+    ... but probably a VC++ bug (works fine in GCC).

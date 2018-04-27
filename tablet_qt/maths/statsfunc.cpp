@@ -284,6 +284,16 @@ bool alwaysTrue(const ArrayXd& x)
 }
 
 
+bool allInteger(const Eigen::ArrayXd& x, double threshold)
+{
+    return ((x - x.round()).abs() <= threshold).all();
+    //       ^^^^^^^^^^^^^
+    //       non-integer part
+    //      ^^^^^^^^^^^^^^^^^^^^^
+    //      absolute non-integer part
+}
+
+
 bool binomialValidMu(const ArrayXd& x)
 {
     // R: binomial()$validmu
@@ -320,12 +330,12 @@ bool binomialInitialize(QStringList& errors,
         }
         mustart = (weights * y + 0.5) / (weights + 1);
         m = weights * y;
-        if ((m - m.round()).abs().any() > 0.001) {
+        if (!allInteger(m)) {
             errors.append("warning: non-integer #successes in a binomial glm!");
             // ... but continue
         }
     } else if (ncol_y == 2) {
-        if ((y - y.round()).abs().any() > 0.001) {
+        if (!allInteger(y)) {
             errors.append("warning: non-integer counts in a binomial glm!");
             // ... but continue
         }

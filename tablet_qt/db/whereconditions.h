@@ -22,7 +22,7 @@
 #include <QString>
 #include <QVariant>
 #include <QVector>
-class SqlArgs;
+struct SqlArgs;
 
 
 class WhereConditions

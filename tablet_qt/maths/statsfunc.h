@@ -92,6 +92,7 @@ double binomialAIC(const Eigen::ArrayXd& y,
                    double dev);
 #endif
 bool alwaysTrue(const Eigen::ArrayXd& x);
+bool allInteger(const Eigen::ArrayXd& x, double threshold = 0.001);
 bool binomialValidMu(const Eigen::ArrayXd& x);
 bool binomialInitialize(QStringList& errors,
                         const LinkFunctionFamily& family,

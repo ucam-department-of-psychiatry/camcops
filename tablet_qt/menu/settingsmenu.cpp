@@ -93,18 +93,24 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
     m_items = {
         MenuItem(
             tr("Questionnaire font size"),
-            std::bind(&SettingsMenu::setQuestionnaireFontSize, this,
-                      std::placeholders::_1)
+            MenuItem::OpenableWidgetMaker(
+                std::bind(&SettingsMenu::setQuestionnaireFontSize, this,
+                          std::placeholders::_1)
+            )
         ).setNotIfLocked(),
         MenuItem(
             tr("User settings"),
-            std::bind(&SettingsMenu::configureUser, this,
-                      std::placeholders::_1)
+            MenuItem::OpenableWidgetMaker(
+                std::bind(&SettingsMenu::configureUser, this,
+                          std::placeholders::_1)
+            )
         ).setNotIfLocked(),
         MenuItem(
             tr("Intellectual property (IP) permissions"),
-            std::bind(&SettingsMenu::configureIntellectualProperty, this,
-                      std::placeholders::_1)
+            MenuItem::OpenableWidgetMaker(
+                std::bind(&SettingsMenu::configureIntellectualProperty, this,
+                          std::placeholders::_1)
+            )
         ).setNotIfLocked(),
         MenuItem(
             tr("Change app password"),
@@ -112,8 +118,10 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
         ).setNotIfLocked(),
         MenuItem(
             tr("Show server information"),
-            std::bind(&SettingsMenu::viewServerInformation, this,
-                      std::placeholders::_1)
+            MenuItem::OpenableWidgetMaker(
+                std::bind(&SettingsMenu::viewServerInformation, this,
+                          std::placeholders::_1)
+            )
         ).setNotIfLocked(),
         MenuItem(
             tr("Re-accept ID descriptions from the server"),
@@ -132,8 +140,10 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
         // PRIVILEGED FUNCTIONS BELOW HERE
         MenuItem(
             tr("(†) Configure server settings"),
-            std::bind(&SettingsMenu::configureServer, this,
-                      std::placeholders::_1)
+            MenuItem::OpenableWidgetMaker(
+                std::bind(&SettingsMenu::configureServer, this,
+                          std::placeholders::_1)
+            )
         ).setNeedsPrivilege(),
         MenuItem(
             tr("(†) Register this device with the server"),
@@ -601,7 +611,7 @@ QString SettingsMenu::demoText(const QString& text,
 }
 
 
-OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp &app)
+OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app)
 {
     const int fs_min = 70;
     const int fs_max = 300;

@@ -1775,7 +1775,7 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
 
     case CQ::FATIGUE_DUR:
         // Score preceding:
-        if (r.somatic_symptoms >= 2 and r.fatigue >= 2) {
+        if (r.somatic_symptoms >= 2 && r.fatigue >= 2) {
             r.decide("somatic >= 2 and fatigue >= 2. "
                      "Incrementing neurasthenia.");
             r.neurasthenia += 1;
