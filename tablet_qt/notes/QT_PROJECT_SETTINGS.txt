@@ -20,8 +20,8 @@ build_qt.py script should generate a series of "qmake" (or, under Windows,
 2. Qt kits
 ===============================================================================
 
-CustomLinux
-    Name:                   CustomLinux
+Custom_Linux_x86_64
+    Name:                   Custom_Linux_x86_64
     File system name:
     Device type:            Desktop
     Device:                 Local PC (default for Desktop)
@@ -35,8 +35,8 @@ CustomLinux
     CMake Generator:        CodeBlocks - Unix Makefiles
     CMake Configuration:    [not editable]
 
-CustomAndroidARM
-    Name:                   CustomAndroidARM
+Custom_Android_ARM
+    Name:                   Custom_Android_ARM
     File system name:
     Device type:            Android Device
     Device:                 Run on Android (default for Android)
@@ -51,8 +51,8 @@ CustomAndroidARM
     CMake Generator:        CodeBlocks - Unix Makefiles
     CMake Configuration:    [not editable]
 
-CustomAndroidx86 -- NOT FULLY TESTED
-    Name:                   CustomAndroidx86
+Custom_Android_x86 -- NOT FULLY TESTED
+    Name:                   Custom_Android_x86
     File system name:
     Device type:            Android Device
     Device:                 Run on Android (default for Android)
@@ -66,6 +66,26 @@ CustomAndroidx86 -- NOT FULLY TESTED
     CMake Tool:             System CMake at /usr/bin/cmake
     CMake Generator:        CodeBlocks - Unix Makefiles
     CMake Configuration:    [not editable]
+
+Custom_Windows_x86_64
+    Name:                   Custom_Windows_x86_64
+    File system name:
+    Device type:            Desktop
+    Device:                 Local PC (default for Desktop)
+    Sysroot:                [...]\qt_local_build\qt_windows_x86_64_install\bin
+    Compiler: C             Microsoft Visual C++ Compiler 14.0 (amd64)
+    Compiler: C++           Microsoft Visual C++ Compiler 14.0 (amd64)
+    Debugger:               Auto-detected CDB at C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe
+    Qt version:             [YOUR CUSTOM ONE e.g.] Qt 5.10.0 (qt_windows_x86_64_install)
+    Qt mkspec:
+    CMake tool:             System CMake at C:\Program Files (x86)\CMake\bin\cmake.exe
+    CMake generator:        CodeBlocks - MinGW Makefiles, Platform: <none>, Toolset: <none>
+    CMake configuration:
+        CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}
+        CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}
+        CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}
+        QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}
+    Additional Qbs Profile Settings:
 
 ===============================================================================
 3. Build settings

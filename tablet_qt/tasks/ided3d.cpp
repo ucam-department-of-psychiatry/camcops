@@ -38,7 +38,7 @@ Comments
 
 */
 
-// #define DEBUG_SVG
+#define DEBUG_SVG
 // #define DEBUG_STEP_DETAIL
 
 #include "ided3d.h"
@@ -153,6 +153,7 @@ const QColor INCORRECT_BG_COLOUR("red");
 const qreal FEEDBACK_OPACITY = 0.75;
 
 // Colours
+const QColor TEST_BACKGROUND("green");
 const QColor TEST_COLOUR("purple");
 
 // Sound
@@ -749,7 +750,7 @@ void IDED3D::makeStages()
 void IDED3D::debugDisplayStimuli()
 {
     const int n_stimuli = IDED3DExemplars::nShapes();
-    m_scene->addRect(SCENE_RECT, QPen(), QBrush(Qt::green));
+    m_scene->addRect(SCENE_RECT, QPen(), QBrush(TEST_BACKGROUND));
     const qreal aspect = SCENE_WIDTH / SCENE_HEIGHT;
     const QPair<int, int> x_y = gridDimensions(n_stimuli, aspect);
     const int nx = x_y.first;

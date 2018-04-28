@@ -318,7 +318,7 @@ Other debugging
 - add to library search path
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:newbit
   e.g.
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/rudolf/dev/qt_local_build/openssl_linux_build/openssl-1.0.2h
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/rudolf/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.1.0g
   ... to run in Qt Creator, can also add these to the Run environment.
 
 - run a program with a throttled CPU:
