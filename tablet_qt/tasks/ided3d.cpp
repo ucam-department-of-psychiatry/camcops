@@ -985,14 +985,6 @@ bool IDED3D::stageFailed() const
 
 void IDED3D::startTask()
 {
-    qDebug() << "TEST_COLOUR:" << TEST_COLOUR;
-    qDebug() << "TEXT_COLOUR:" << TEXT_COLOUR;
-    QColor arse("purple");
-    qDebug() << "arse:" << arse;
-    arse.setNamedColor("red");
-    qDebug() << "arse: " << arse;
-    qDebug() << "FN_LAST_STAGE:" << FN_LAST_STAGE;
-
     qDebug() << Q_FUNC_INFO;
     m_widget->setWidgetAsOnlyContents(m_graphics_widget, 0, false, false);
     if (valueBool(FN_DEBUG_DISPLAY_STIMULI_ONLY)) {
