@@ -21,6 +21,7 @@
 
 #include "cardinalexpdetcommon.h"
 #include <QObject>
+#include "common/colourdefs.h"
 #include "lib/uifunc.h"
 
 #define TR(stringname, text) const QString stringname(QObject::tr(text))
@@ -113,18 +114,18 @@ const QRectF THANKS_BUTTON_RECT(0.3 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
                                 0.4 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT);
 
 // Graphics: other
-const QColor SCENE_BACKGROUND("black");  // try: "salmon"
+const QColor SCENE_BACKGROUND(QCOLOR_BLACK);  // try salmon
 const int BORDER_WIDTH_PX = 3;
-const QColor BUTTON_BACKGROUND(0, 0, 200);
-const QColor TEXT_COLOUR("white");
-const QColor BUTTON_PRESSED_BACKGROUND("olive");
-const QColor ABORT_BUTTON_BACKGROUND(100, 0, 0);
+const QColor BUTTON_BACKGROUND(QCOLOR_MEDIUMBLUE);
+const QColor TEXT_COLOUR(QCOLOR_WHITE);
+const QColor BUTTON_PRESSED_BACKGROUND(QCOLOR_OLIVE);
+const QColor ABORT_BUTTON_BACKGROUND(QCOLOR_DARKRED);
 const qreal TEXT_SIZE_PX = 20;  // will be scaled
 const int BUTTON_RADIUS = 5;
 const int PADDING = 5;
 const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
 const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;
-const QColor EDGE_COLOUR("white");
+const QColor EDGE_COLOUR(QCOLOR_WHITE);
 const QPen BORDER_PEN(QBrush(EDGE_COLOUR), BORDER_WIDTH_PX);
 const ButtonConfig BASE_BUTTON_CONFIG(
         PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
@@ -138,7 +139,7 @@ const ButtonConfig ABORT_BUTTON_CONFIG = BASE_BUTTON_CONFIG.clone()
         .setBackgroundColour(ABORT_BUTTON_BACKGROUND);
 const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
                                   SCENE_WIDTH, TEXT_ALIGN);
-const QColor CONTINUE_BUTTON_BACKGROUND(0, 100, 0);
+const QColor CONTINUE_BUTTON_BACKGROUND(QCOLOR_DARKGREEN);
 const ButtonConfig CONTINUE_BUTTON_CONFIG = BASE_BUTTON_CONFIG.clone()
         .setBackgroundColour(CONTINUE_BUTTON_BACKGROUND);
 

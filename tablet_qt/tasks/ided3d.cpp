@@ -38,7 +38,7 @@ Comments
 
 */
 
-#define DEBUG_SVG
+// #define DEBUG_SVG
 // #define DEBUG_STEP_DETAIL
 
 #include "ided3d.h"
@@ -50,8 +50,8 @@ Comments
 #include <QPushButton>
 #include <QTimer>
 #include <QtMath>
+#include "common/colourdefs.h"
 #include "common/textconst.h"
-#include "common/uiconst.h"
 #include "db/ancillaryfunc.h"
 #include "lib/containers.h"
 #include "lib/datetime.h"
@@ -133,12 +133,12 @@ const QString TAG_WARNING_MIN_MAX("mm");
 // Graphics
 const qreal SCENE_WIDTH = 1000;
 const qreal SCENE_HEIGHT = 750;  // 4:3 aspect ratio
-const QColor SCENE_BACKGROUND("black");  // try: "salmon"
+const QColor SCENE_BACKGROUND(QCOLOR_BLACK);  // try salmon
 const int BORDER_WIDTH_PX = 3;
-const QColor BUTTON_BACKGROUND("blue");
-const QColor TEXT_COLOUR("white");
-const QColor BUTTON_PRESSED_BACKGROUND("olive");
-const QColor ABORT_BUTTON_BACKGROUND("darkred");
+const QColor BUTTON_BACKGROUND(QCOLOR_BLUE);
+const QColor TEXT_COLOUR(QCOLOR_WHITE);
+const QColor BUTTON_PRESSED_BACKGROUND(QCOLOR_OLIVE);
+const QColor ABORT_BUTTON_BACKGROUND(QCOLOR_DARKRED);
 const qreal TEXT_SIZE_PX = 20;  // will be scaled
 const int BUTTON_RADIUS = 5;
 const int PADDING = 5;
@@ -146,15 +146,15 @@ const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
 const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;
 const int STIMSIZE = 120;  // max width/height
 const int STIM_STROKE_WIDTH = 3;
-const QColor STIM_PRESSED_BG_COLOUR("orange");
-const QColor EDGE_COLOUR("white");
-const QColor CORRECT_BG_COLOUR("green");
-const QColor INCORRECT_BG_COLOUR("red");
+const QColor STIM_PRESSED_BG_COLOUR(QCOLOR_ORANGE);
+const QColor EDGE_COLOUR(QCOLOR_WHITE);
+const QColor CORRECT_BG_COLOUR(QCOLOR_GREEN);
+const QColor INCORRECT_BG_COLOUR(QCOLOR_RED);
 const qreal FEEDBACK_OPACITY = 0.75;
 
 // Colours
-const QColor TEST_BACKGROUND("green");
-const QColor TEST_COLOUR("purple");
+const QColor TEST_BACKGROUND(QCOLOR_GREEN);
+const QColor TEST_COLOUR(QCOLOR_PURPLE);
 
 // Sound
 const QString SOUND_COUNTDOWN_FINISHED("qrc:///resources/camcops/sounds/countdown_finished.wav");
@@ -186,11 +186,11 @@ const ButtonConfig BASE_BUTTON_CONFIG(
         BORDER_PEN, BUTTON_RADIUS);
 const ButtonConfig STIM_BUTTON_CONFIG(
         PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
-        uiconst::TRANSPARENT, BUTTON_PRESSED_BACKGROUND,
+        QCOLOR_TRANSPARENT, BUTTON_PRESSED_BACKGROUND,
         BORDER_PEN, BUTTON_RADIUS);
 const ButtonConfig EMPTYBOX_BUTTON_CONFIG(
         PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
-        uiconst::TRANSPARENT, uiconst::TRANSPARENT,
+        QCOLOR_TRANSPARENT, QCOLOR_TRANSPARENT,
         BORDER_PEN, BUTTON_RADIUS);
 const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
                                   SCENE_WIDTH, TEXT_ALIGN);
@@ -789,8 +789,8 @@ SvgWidgetAndProxy IDED3D::showIndividualStimulus(
 #endif
     bool transparent_for_mouse = !debug;
     return makeSvg(m_scene, centre, svg,
-                   debug ? STIM_PRESSED_BG_COLOUR : uiconst::TRANSPARENT,
-                   uiconst::TRANSPARENT,
+                   debug ? STIM_PRESSED_BG_COLOUR : QCOLOR_TRANSPARENT,
+                   QCOLOR_TRANSPARENT,
                    transparent_for_mouse);
 }
 
@@ -985,6 +985,14 @@ bool IDED3D::stageFailed() const
 
 void IDED3D::startTask()
 {
+    qDebug() << "TEST_COLOUR:" << TEST_COLOUR;
+    qDebug() << "TEXT_COLOUR:" << TEXT_COLOUR;
+    QColor arse("purple");
+    qDebug() << "arse:" << arse;
+    arse.setNamedColor("red");
+    qDebug() << "arse: " << arse;
+    qDebug() << "FN_LAST_STAGE:" << FN_LAST_STAGE;
+
     qDebug() << Q_FUNC_INFO;
     m_widget->setWidgetAsOnlyContents(m_graphics_widget, 0, false, false);
     if (valueBool(FN_DEBUG_DISPLAY_STIMULI_ONLY)) {

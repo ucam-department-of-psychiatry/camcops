@@ -22,7 +22,7 @@
 /*
 
 #include <QGraphicsSceneMouseEvent>
-#include "common/uiconst.h"
+#include "common/colourdefs.h"
 
 
 GraphicsRectItemClickable::GraphicsRectItemClickable(QGraphicsItem* parent) :
@@ -49,9 +49,9 @@ GraphicsRectItemClickable::GraphicsRectItemClickable(
 void GraphicsRectItemClickable::commonConstructor()
 {
     m_resting_pen = QPen(Qt::NoPen);
-    m_resting_brush = QBrush(uiconst::TRANSPARENT);
+    m_resting_brush = QBrush(QCOLOR_TRANSPARENT);
     m_clicked_pen = QPen(Qt::NoPen);
-    m_clicked_brush = QBrush(uiconst::TRANSPARENT);
+    m_clicked_brush = QBrush(QCOLOR_TRANSPARENT);
     m_pressed = false;
     m_pressing_inside = false;
 }

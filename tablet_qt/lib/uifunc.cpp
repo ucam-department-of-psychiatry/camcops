@@ -40,6 +40,7 @@
 #include <QThread>
 #include <QToolButton>
 #include <QUrl>
+#include "common/colourdefs.h"
 #include "common/cssconst.h"
 #include "common/platform.h"
 #include "common/textconst.h"
@@ -127,11 +128,11 @@ QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,
     // Assumes it is of size ICONSIZE
     const QSize size(image.size());
     QPixmap pm(size);
-    pm.fill(uiconst::TRANSPARENT);
+    pm.fill(QCOLOR_TRANSPARENT);
     QPainter painter(&pm);
     const QBrush brush(colour);
     painter.setBrush(brush);
-    const QPen pen(uiconst::TRANSPARENT);
+    const QPen pen(QCOLOR_TRANSPARENT);
     painter.setPen(pen);
     if (behind) {
         // Background to indicate "being touched"
@@ -171,7 +172,7 @@ QPixmap makeDisabledIcon(const QPixmap& image)
 QLabel* blankIcon(QWidget* parent)
 {
     QPixmap iconimage(uiconst::ICONSIZE);
-    iconimage.fill(uiconst::TRANSPARENT);
+    iconimage.fill(QCOLOR_TRANSPARENT);
     QLabel* iconlabel = new QLabel(parent);
     iconlabel->setFixedSize(uiconst::ICONSIZE);
     iconlabel->setPixmap(iconimage);

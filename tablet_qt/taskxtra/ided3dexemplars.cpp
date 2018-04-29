@@ -122,7 +122,9 @@ paper.text(c, c, "0").attr(textattr);
 };
 
 const QVector<QColor> POSSIBLE_COLOURS{
-    // HTML colour definitions of CGA colours
+    // HTML colour definitions of CGA colours.
+    // Note that these are fine for static initialiation (they don't depend
+    // on the statically-initialized RGB colour name table in qcolor.cpp).
     QColor("#555"), // CGA: dark grey
     QColor("#55f"), // CGA: light blue
     QColor("#5f5"), // CGA: light green

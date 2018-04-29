@@ -76,20 +76,11 @@ const QString CSS_CAMCOPS_DIAGNOSTIC_CODE(
 // Fonts, colours
 // ============================================================================
 
-const QString WARNING_COLOUR("red");
+const QString WARNING_COLOUR_CSS("red");
 
-const QColor BLACK(0, 0, 0);  // default a=255
-const QColor GREY_200(200, 200, 200);
-const QColor WHITE(255, 255, 255);
-const QColor TRANSPARENT(0, 0, 0, 0);  // a=0 means fully transparent
-
-const QColor RED(255, 0, 0);
-const QColor GREEN(0, 255, 0);
-const QColor BLUE(0, 0, 255);
-
-const QColor BUTTON_UNPRESSED_COLOUR(127, 127, 127, 100);
-const QColor BUTTON_PRESSED_COLOUR(100, 100, 255, 200);
-const QColor BUTTON_DISABLED_COLOUR(127, 127, 127, 200);
+const QColor BUTTON_UNPRESSED_COLOUR(127, 127, 127, 100);  // translucent mid-grey
+const QColor BUTTON_PRESSED_COLOUR(100, 100, 255, 200);  // translucent light blue
+const QColor BUTTON_DISABLED_COLOUR(127, 127, 127, 200);  // very translucent mid-grey
 const qreal DISABLED_ICON_OPACITY = 0.5;
 
 // ============================================================================

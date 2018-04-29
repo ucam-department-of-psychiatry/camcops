@@ -98,7 +98,6 @@ THEREFORE:
     Windows, x86, 64-bit    Windows, x86, 64-bit
                             Windows, x86, 32-bit
 
-
 ... reflected in the build_all option.
 
 -------------------------------------------------------------------------------
@@ -235,12 +234,15 @@ from cardinal_pythonlib.tee import tee_log
 import cardinal_pythonlib.version
 from semantic_version import Version
 
+if sys.version_info < (3, 5):
+    raise AssertionError("Need Python 3.5 or higher")
+
 MINIMUM_CARDINAL_PYTHONLIB = "1.0.8"
 if Version(cardinal_pythonlib.version.VERSION) < Version(MINIMUM_CARDINAL_PYTHONLIB):  # noqa
     raise ImportError("Need cardinal_pythonlib >= {}".format(MINIMUM_CARDINAL_PYTHONLIB))  # noqa
 
-
 log = logging.getLogger(__name__)
+PYTHON_3_6_OR_HIGHER = sys.version_info >= (3, 6)
 
 # =============================================================================
 # Constants
@@ -1284,8 +1286,8 @@ class Config(object):
         self.jom_executable = args.jom_executable  # type: str
 
         # Windows
-        self.windows_prebuilt_qt_root = args.windows_prebuilt_qt_root  # type: str  # noqa
-        self.windows_sdk_version = args.windows_sdk_version  # type: str
+        # self.windows_prebuilt_qt_root = args.windows_prebuilt_qt_root  # type: str  # noqa
+        # self.windows_sdk_version = args.windows_sdk_version  # type: str
 
         if USE_MXE:
             self.mxe_git_url = args.mxe_git_url  # type: str
@@ -2096,9 +2098,22 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
     incorrect = '.'
     cmdargs = [tclsh]
     encoding = sys.getdefaultencoding()
-    completed_proc = subprocess.run(cmdargs, input=tcl_cmd, encoding=encoding,
-                                    stdout=subprocess.PIPE, check=True)
-    result = completed_proc.stdout  # type: str
+    subproc_run_kwargs = {
+        'stdout': subprocess.PIPE,
+        'check': True
+    }
+    # In Python 3.5, we deal with bytes objects and manually encode/decode.
+    # In Python 3.6+, we can specify the encoding and deal with str objects.
+    if PYTHON_3_6_OR_HIGHER:
+        subproc_run_kwargs['encoding'] = encoding
+        subproc_run_kwargs['input'] = tcl_cmd
+    else:
+        subproc_run_kwargs['input'] = tcl_cmd.encode(encoding)
+    completed_proc = subprocess.run(cmdargs, **subproc_run_kwargs)
+    if PYTHON_3_6_OR_HIGHER:
+        result = completed_proc.stdout  # type: str
+    else:
+        result = completed_proc.stdout.decode(encoding)  # type: str
     if result == correct:
         return True
     elif result == incorrect:
@@ -2308,12 +2323,19 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
 
             # http://p-nand-q.com/programming/windows/building_openssl_with_visual_studio_2013.html  # noqa
             if target_platform.cpu_x86_64bit_family:
-                return ["VC-WIN64A"]
+                return ["VC-WIN64A", "-FS"]
                 # I'm not sure what "VC-WIN64I" is. Intel vs AMD? Ah, no:
                 # https://stackoverflow.com/questions/38151387/build-openssl-for-both-x64-and-x86-side-by-side-installation  # noqa
                 # ... "WIN64I denotes IA-64 and WIN64A - AMD64"
                 # ... where IA-64 means Intel Itanium: https://en.wikipedia.org/wiki/IA-64  # noqa
                 # ... so we want "-A" for x86-64.
+                #
+                # "/FS" to allow parallel compilation;
+                # ... what's after "+" or "-" becomes part of CFLAGS; see
+                # https://wiki.openssl.org/index.php/Compilation_and_Installation#Configure_Options  # noqa
+                # ... but note that the "+" or "-" are themselves passed;
+                #     so we rely on the fact that cl.exe will interpret "-FS"
+                #     and "/FS" identically.
             elif target_platform.cpu_x86_32bit_family:
                 return ["VC-WIN32"]
 
@@ -3938,18 +3960,18 @@ def main() -> None:
         help="jom executable (typically installed with QtCreator)"
     )
     
-    windows = parser.add_argument_group(
-        "Windows",
-        "Options for Windows"
-    )
-    windows.add_argument(
-        "--windows_prebuilt_qt_root", default=r"C:\Qt\5.6",
-        help="Root directory of pre-built Qt installation"
-    )
-    windows.add_argument(
-        "--windows_sdk_version", default="8.1",
-        help="Windows SDK version (e.g. '8.1', '10.0.10240.0')"
-    )
+    # windows = parser.add_argument_group(
+    #     "Windows",
+    #     "Options for Windows"
+    # )
+    # windows.add_argument(
+    #     "--windows_prebuilt_qt_root", default=r"C:\Qt\5.6",
+    #     help="Root directory of pre-built Qt installation"
+    # )
+    # windows.add_argument(
+    #     "--windows_sdk_version", default="8.1",
+    #     help="Windows SDK version (e.g. '8.1', '10.0.10240.0')"
+    # )
 
     # MXE
     mxe = parser.add_argument_group(

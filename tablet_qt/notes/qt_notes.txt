@@ -1014,6 +1014,10 @@ Note also this, but that's not the problem here:
 
 Solution in this example:
     - move CONTINUE_BUTTON_CONFIG into cardinalexpdetcommon.cpp
+    
+Note a similar problem with
+    const QColor THE_COLOUR("purple");
+... see colourdefs.h.
 
 ===============================================================================
 NOT IMPLEMENTED

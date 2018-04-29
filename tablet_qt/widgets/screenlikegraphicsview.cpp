@@ -22,7 +22,7 @@
 #include <QFrame>
 #include <QResizeEvent>
 #include <QTransform>
-#include "common/uiconst.h"
+#include "common/colourdefs.h"
 
 
 ScreenLikeGraphicsView::ScreenLikeGraphicsView(QWidget* parent) :
@@ -45,7 +45,7 @@ void ScreenLikeGraphicsView::commonConstructor()
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    setBackgroundBrush(uiconst::BLACK);
+    setBackgroundBrush(QCOLOR_BLACK);
     setFrameShape(QFrame::NoFrame);
 }
 

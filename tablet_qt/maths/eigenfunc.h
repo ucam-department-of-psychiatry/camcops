@@ -292,7 +292,17 @@ DestContainerT eigenVectorFromStdVector(const std::vector<SourceContentsT>& sv)
     // This function is usually called indirectly, e.g. from
     //      eigenColumnVectorFromStdVector()
     //      eigenRowVectorFromStdVector()
-    int n = sv.size();
+    // Note that std::vector::size() returns size_t, but Eigen containers use
+    // int for their dimensions.
+    const size_t n_as_size_t = sv.size();
+    const int n = static_cast<int>(n_as_size_t);
+    if (n != n_as_size_t) {  // implicit promotion to larger type
+        qWarning()
+                << "Unable to represent std::vector of size_t" << n_as_size_t
+                << "in Eigen container of int size" << n
+                << "(likely large container overflowing int dimension). "
+                   "RESULTS WILL BE WRONG.";
+    }
     DestContainerT ev(n);
     for (int i = 0; i < n; ++i) {
         ev(i) = sv.at(i);
@@ -818,7 +828,7 @@ Eigen::Array<typename Derived1::Scalar,
 //     length of x.
 // (*) If we subset, e.g. with
 //          const ArrayXd t_good = subsetByElementBoolean(t, good);
-//     we have lots of short vectors floating aroud and it becomes hard
+//     we have lots of short vectors floating around and it becomes hard
 //     to be sure we're replacing them all correctly.
 // Perhaps the answer is an extended select() function.
 // See DenseBase.h, Select.h for the original.

@@ -23,7 +23,7 @@
 #include <QMap>
 #include <QObject>
 #include <QPen>
-#include "common/uiconst.h"
+#include "common/colourdefs.h"
 #include "graphics/buttonconfig.h"
 #include "graphics/textconfig.h"
 class AdjustablePie;
@@ -193,16 +193,16 @@ SvgWidgetAndProxy makeSvg(
         QGraphicsScene* scene,  // SVG is added to scene
         const QPointF& centre,
         const QString& svg,
-        const QColor& pressed_background_colour = uiconst::TRANSPARENT,
-        const QColor& background_colour = uiconst::TRANSPARENT,
+        const QColor& pressed_background_colour = QCOLOR_TRANSPARENT,
+        const QColor& background_colour = QCOLOR_TRANSPARENT,
         bool transparent_for_mouse = false,
         QWidget* parent = nullptr);
 
 QGraphicsRectItem* makeObscuringRect(
         QGraphicsScene* scene,
         const QRectF& rect,
-        qreal opacity = 0.5,
-        const QColor& colour_ignoring_opacity = QColor(0, 0, 0));  // 0-1
+        qreal opacity = 0.5,  // 0-1
+        const QColor& colour_ignoring_opacity = QCOLOR_BLACK);
 
 QGraphicsPixmapItem* makeImage(
         QGraphicsScene* scene,

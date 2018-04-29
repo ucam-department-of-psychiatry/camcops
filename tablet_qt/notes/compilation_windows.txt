@@ -18,8 +18,19 @@ Compiling for Windows (under Windows)
     - https://wiki.qt.io/Building_Qt_Desktop_for_Windows_with_MinGW
 - http://silmor.de/qtstuff.qt5mingw.php
 
+
 ===============================================================================
-Once you have successfully run build_qt.py
+Thus, a typical build_qt run with Visual Studio 2017 Community:
+===============================================================================
+
+- add to PATH:
+    C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
+
+- at command prompt:
+    \Python35\python.exe \camcops\tablet_qt\tools\build_qt.py --build_windows_x86_64
+
+===============================================================================
+Once you have successfully run build_qt.py --build_windows_x86_64
 ===============================================================================
 
 ENSURE YOU HAVE QT CREATOR 4.6.0 or higher. Earlier versions can fail to
@@ -83,6 +94,9 @@ PROBLEM:
     ... not sure how to say "make a debug program but with the release version
         of the Qt libraries"
     ... just switch to release mode for now
+    ... may simply need to build debug Qt libraries
+
+        python build_qt.py --build_windows_x86_64 --qt_build_type debug
     
 PROBLEM:
 
@@ -114,3 +128,7 @@ PROBLEM:
         
     ... see also https://stackoverflow.com/questions/25841857
     ... but probably a VC++ bug (works fine in GCC).
+
+PROBLEM
+
+    *** won't exit after running QolSG

@@ -27,7 +27,7 @@
 #include "lib/margins.h"
 #include "layouts/qtlayouthelpers.h"
 class QQGridBox;
-class QQGridLayoutSizeTriple;
+struct QQGridLayoutSizeTriple;
 
 
 class GridLayoutHfw : public QLayout

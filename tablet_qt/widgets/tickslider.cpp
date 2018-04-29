@@ -26,7 +26,7 @@
 #include "graphics/graphicsfunc.h"
 
 
-const QColor DEFAULT_TICK_COLOR(0, 0, 0, 255);
+const QColor DEFAULT_TICK_COLOR(0, 0, 0, 255);  // black, opaque
 const int DEFAULT_TICK_WIDTH = 0;
 const int DEFAULT_TICK_LENGTH = 4;
 const int DEFAULT_TICK_LABEL_GAP = 4;

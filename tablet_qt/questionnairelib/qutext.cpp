@@ -160,7 +160,7 @@ void QuText::setWidgetFontSize(const int fontsize_pt, const bool repolish)
     if (!m_label) {
         return;
     }
-    const QString colour = m_warning ? uiconst::WARNING_COLOUR : "";
+    const QString colour = m_warning ? uiconst::WARNING_COLOUR_CSS : "";
     const QString css = uifunc::textCSS(fontsize_pt, m_bold, m_italic, colour);
     m_label->setStyleSheet(css);
     if (repolish) {

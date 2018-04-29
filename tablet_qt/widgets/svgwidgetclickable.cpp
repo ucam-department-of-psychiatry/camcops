@@ -22,7 +22,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPaintEvent>
-#include "common/uiconst.h"
+#include "common/colourdefs.h"
 #include "lib/uifunc.h"
 
 
@@ -57,11 +57,11 @@ void SvgWidgetClickable::commonConstructor()
 {
     m_pressed = false;
     m_pressing_inside = false;
-    m_background_colour = uiconst::TRANSPARENT;
-    m_pressed_background_colour = uiconst::TRANSPARENT;
+    m_background_colour = QCOLOR_TRANSPARENT;
+    m_pressed_background_colour = QCOLOR_TRANSPARENT;
 
     setTransparentForMouseEvents(false);
-    uifunc::setBackgroundColour(this, uiconst::TRANSPARENT);
+    uifunc::setBackgroundColour(this, QCOLOR_TRANSPARENT);
     setContentsMargins(0, 0, 0, 0);
 }
 

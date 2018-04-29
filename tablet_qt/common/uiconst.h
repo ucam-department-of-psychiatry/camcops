@@ -80,16 +80,7 @@ enum class FontSize {
     Normal_x2,
 };
 
-extern const QString WARNING_COLOUR;
-
-extern const QColor BLACK;
-extern const QColor GREY_200;
-extern const QColor WHITE;
-extern const QColor TRANSPARENT;
-
-extern const QColor RED;
-extern const QColor GREEN;
-extern const QColor BLUE;
+extern const QString WARNING_COLOUR_CSS;
 
 extern const QColor BUTTON_UNPRESSED_COLOUR;
 extern const QColor BUTTON_PRESSED_COLOUR;

@@ -25,8 +25,8 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QResizeEvent>
+#include "common/colourdefs.h"
 #include "common/gui_defines.h"
-#include "common/uiconst.h"
 #include "lib/sizehelpers.h"
 
 
@@ -136,7 +136,7 @@ void AspectRatioPixmap::clear()
     // If you set (1) a giant pixmap and then (2) a null pixmap, you can have
     // your size remain at the giant size.
     QPixmap blank(1, 1);
-    blank.fill(uiconst::TRANSPARENT);
+    blank.fill(QCOLOR_TRANSPARENT);
     setPixmap(blank);
 }
 

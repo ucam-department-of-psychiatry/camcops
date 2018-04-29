@@ -28,7 +28,7 @@
 #include <QRegion>
 #include <QStyle>
 #include <QStyleOption>
-#include "common/uiconst.h"
+#include "common/colourdefs.h"
 #include "lib/convert.h"
 #include "lib/margins.h"
 #include "lib/sizehelpers.h"
@@ -36,8 +36,8 @@
 const QPoint INVALID_POINT(-1, -1);
 
 const int DEFAULT_MIN_SHRINK_HEIGHT = 200;
-const QColor DEFAULT_BORDER_COLOR(uiconst::GREY_200);
-const QColor DEFAULT_UNUSED_SPACE_COLOR(uiconst::GREY_200);
+const QColor DEFAULT_BORDER_COLOR(QCOLOR_SILVER);
+const QColor DEFAULT_UNUSED_SPACE_COLOR(QCOLOR_SILVER);
 
 
 CanvasWidget::CanvasWidget(const QImage::Format format, QWidget* parent) :

@@ -18,8 +18,8 @@
 */
 
 #include "slums.h"
+#include "common/colourdefs.h"
 #include "common/textconst.h"
-#include "common/uiconst.h"
 #include "lib/datetime.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
@@ -238,8 +238,8 @@ OpenableWidget* Slums::editor(const bool read_only)
                     blobFieldRef(blob_id_fieldname, true),
                     uifunc::resourceFilename(image_filename));
         c->setBorderWidth(0);
-        c->setBorderColour(uiconst::TRANSPARENT);
-        c->setBackgroundColour(uiconst::TRANSPARENT);
+        c->setBorderColour(QCOLOR_TRANSPARENT);
+        c->setBackgroundColour(QCOLOR_TRANSPARENT);
         c->setAllowShrink(true);
         return c;
     };

@@ -24,6 +24,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QTimer>
+#include "common/colourdefs.h"
 #include "common/uiconst.h"
 #include "lib/convert.h"
 #include "lib/timerfunc.h"
@@ -68,8 +69,8 @@ void QuCanvas::commonConstructor()
     Q_ASSERT(m_fieldref);
     m_adjust_display_for_dpi = true;
     m_border_width_px = 2;
-    m_border_colour = uiconst::GREY_200;
-    m_unused_space_colour = uiconst::TRANSPARENT;
+    m_border_colour = QCOLOR_SILVER;
+    m_unused_space_colour = QCOLOR_TRANSPARENT;
     m_pen_colour = Qt::red;
     m_pen_width = 5;
     m_canvas = nullptr;

@@ -1108,7 +1108,8 @@ HEADERS += \
     widgets/treeviewcontroldelegate.h \
     widgets/treeviewproxystyle.h \
     widgets/growingplaintextedit.h \
-    dbobjects/allowedservertable.h
+    dbobjects/allowedservertable.h \
+    common/colourdefs.h
 
 DISTFILES += \
     android/AndroidManifest.xml \

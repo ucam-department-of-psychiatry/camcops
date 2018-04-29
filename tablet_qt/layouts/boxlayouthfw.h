@@ -67,7 +67,7 @@
 #include "layouts/qtlayouthelpers.h"
 #include "lib/margins.h"
 
-class BoxLayoutHfwItem;
+struct BoxLayoutHfwItem;
 
 
 class BoxLayoutHfw : public QLayout

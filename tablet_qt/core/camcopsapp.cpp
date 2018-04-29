@@ -304,6 +304,17 @@ void CamcopsApp::announceStartup()
     qInfo() << "CamCOPS starting at UTC time:"
             << qUtf8Printable(datetime::datetimeToIsoMsUtc(dt));
     qInfo() << "CamCOPS version:" << camcopsversion::CAMCOPS_VERSION;
+#if defined __GNUC__
+    qDebug().nospace()
+            << "Compiled with GNU C++ compiler version "
+            << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
+#elif defined _MSC_VER
+    qDebug().nospace()
+            << "Compiled with Microsoft Visual C++ version " << _MSC_FULL_VER;
+#else
+    qDebug() << "Compiler type/version unknown";
+#endif
+    qDebug() << "Compiled at" << __DATE__ << __TIME__;
 }
 
 

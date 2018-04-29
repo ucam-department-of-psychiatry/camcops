@@ -29,6 +29,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QTimer>
+#include "common/colourdefs.h"
 #include "graphics/geometry.h"
 #include "graphics/graphicsfunc.h"
 #include "graphics/linesegment.h"
@@ -61,10 +62,10 @@ using graphicsfunc::textRectF;
 // Constants
 // ============================================================================
 
-PenBrush DEFAULT_SECTOR_PENBRUSH(QColor("black"), QColor("green"));
-PenBrush DEFAULT_CURSOR_PENBRUSH(QColor("black"), QColor("red"));
-PenBrush DEFAULT_CURSOR_ACTIVE_PENBRUSH(QColor("blue"), QColor("yellow"));
-QColor DEFAULT_LABEL_COLOUR("darkblue");
+PenBrush DEFAULT_SECTOR_PENBRUSH(QCOLOR_BLACK, QCOLOR_GREEN);
+PenBrush DEFAULT_CURSOR_PENBRUSH(QCOLOR_BLACK, QCOLOR_RED);
+PenBrush DEFAULT_CURSOR_ACTIVE_PENBRUSH(QCOLOR_BLUE, QCOLOR_YELLOW);
+QColor DEFAULT_LABEL_COLOUR(QCOLOR_DARKBLUE);
 
 // ============================================================================
 // #defines
@@ -100,8 +101,8 @@ QColor DEFAULT_LABEL_COLOUR("darkblue");
 
 AdjustablePie::AdjustablePie(const int n_sectors, QWidget* parent) :
     QWidget(parent),
-    m_background_brush(QBrush(uiconst::TRANSPARENT)),
-    m_centre_label_colour(uiconst::BLACK),
+    m_background_brush(QBrush(QCOLOR_TRANSPARENT)),
+    m_centre_label_colour(QCOLOR_BLACK),
     m_sector_radius(75),
     m_cursor_inner_radius(75),
     m_cursor_outer_radius(125),
@@ -114,7 +115,7 @@ AdjustablePie::AdjustablePie(const int n_sectors, QWidget* parent) :
     m_user_dragging_cursor(false),
     m_cursor_num_being_dragged(-1)
 {
-    uifunc::setBackgroundColour(this, uiconst::TRANSPARENT);
+    uifunc::setBackgroundColour(this, QCOLOR_TRANSPARENT);
     setContentsMargins(0, 0, 0, 0);
 
     setNSectors(n_sectors);

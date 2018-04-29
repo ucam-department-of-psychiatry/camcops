@@ -23,6 +23,7 @@
 #include <QGraphicsView>
 #include <QPen>
 #include <QPushButton>
+#include "common/colourdefs.h"
 #include "common/textconst.h"
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
@@ -124,32 +125,17 @@ const QString LOTTERY_OPTION_CURRENT("current");
 const QString LOTTERY_OPTION_HEALTHY("healthy");
 const QString LOTTERY_OPTION_DEAD("dead");
 
-// For the QColor objects below:
-// (1) Do NOT do this:
-//          const QColor EDGE_COLOUR = uiconst::RED;
-//          const QColor EDGE_COLOUR(uiconst::RED);
-//     ... because the object in the other compilation unit may not be initialized
-//     when you need it.
-//     http://stackoverflow.com/questions/211237/static-variables-initialisation-order
-// (2) This is probably OK:
-//          const QColor& EDGE_COLOUR = uiconst::RED;
-// (3) But you might as well do this:
-//          const QColor EDGE_COLOUR("red");
-//     based on the standard names:
-//          http://doc.qt.io/qt-5/qcolor.html#setNamedColor
-//          https://www.w3.org/TR/SVG/types.html#ColorKeywords
-
 // Graphics
 
 const qreal SCENE_WIDTH = 1000;
 const qreal SCENE_HEIGHT = 750;  // 4:3 aspect ratio
 const int BORDER_WIDTH_PX = 3;
-const QColor EDGE_COLOUR("white");
-const QColor SCENE_BACKGROUND("black");  // try: "salmon"
-const QColor BUTTON_BACKGROUND("blue");
-const QColor TEXT_COLOUR("white");
-const QColor BUTTON_PRESSED_BACKGROUND("olive");
-const QColor BACK_BUTTON_BACKGROUND("darkred");
+const QColor EDGE_COLOUR(QCOLOR_WHITE);
+const QColor SCENE_BACKGROUND(QCOLOR_BLACK);  // try also salmon
+const QColor BUTTON_BACKGROUND(QCOLOR_BLUE);
+const QColor TEXT_COLOUR(QCOLOR_WHITE);
+const QColor BUTTON_PRESSED_BACKGROUND(QCOLOR_OLIVE);
+const QColor BACK_BUTTON_BACKGROUND(QCOLOR_DARKRED);
 const qreal TEXT_SIZE_PX = 20;  // will be scaled
 const int BUTTON_RADIUS = 5;
 const int PADDING = 5;
@@ -188,13 +174,13 @@ const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
 //     the makeText() call.
 // For safety, went with (b).
 
-const QColor CURRENT_STATE_TEXT_COLOUR("yellow");
+const QColor CURRENT_STATE_TEXT_COLOUR(QCOLOR_YELLOW);
 const QolSG::LotteryOption TESTSTATE(
-        TX_CURRENT_STATE, QColor("gray"), CURRENT_STATE_TEXT_COLOUR);
+        TX_CURRENT_STATE, QCOLOR_GREY, CURRENT_STATE_TEXT_COLOUR);
 const QolSG::LotteryOption DEAD(
-        TX_DEAD, QColor("black"), QColor("red"));
+        TX_DEAD, QCOLOR_BLACK, QCOLOR_RED);
 const QolSG::LotteryOption HEALTHY(
-        TX_HEALTHY, QColor("blue"), QColor("white"));
+        TX_HEALTHY, QCOLOR_BLUE, QCOLOR_WHITE);
 
 // AdjustablePie settings:
 const qreal PIE_FRAC = 0.5;
@@ -203,10 +189,10 @@ const qreal LABEL_CURSOR_GAP_FRAC = 0.05;
 const int PIE_CURSOR_ANGLE = 60;
 const int PIE_REPORTING_DELAY_MS = 10;
 const int PIE_BASE_HEADING = 180;
-PenBrush CURSOR(QPen(Qt::NoPen), QBrush(QColor("red")));
-PenBrush CURSOR_ACTIVE(QPen(QBrush(QColor("orange")), 3.0),
-                       QBrush(QColor("red")));
-const QPen SECTOR_PEN(QBrush(QColor("white")), 3.0);
+PenBrush CURSOR_PENBRUSH(QPen(Qt::NoPen), QBrush(QCOLOR_RED));
+PenBrush CURSOR_ACTIVE_PENBRUSH(QPen(QBrush(QCOLOR_ORANGE), 3.0),
+                                QBrush(QCOLOR_RED));
+const QPen SECTOR_PEN(QBrush(QCOLOR_WHITE), 3.0);
 
 }  // namespace qolsgconst
 using namespace qolsgconst;
@@ -521,8 +507,10 @@ AdjustablePieAndProxy QolSG::makePie(const QPointF& centre,
     pie->setOuterLabelFont(font);
     pie->setCentreLabelFont(font);
 
-    pie->setCursorPenBrushes({CURSOR});
-    pie->setCursorActivePenBrushes({CURSOR_ACTIVE});
+    if (n_sectors > 1) {
+        pie->setCursorPenBrushes({CURSOR_PENBRUSH});
+        pie->setCursorActivePenBrushes({CURSOR_ACTIVE_PENBRUSH});
+    }
 
     return pp;
 }
@@ -611,7 +599,7 @@ void QolSG::lotteryTouched(const qreal p)
         // Make the "indifference" button appear only after the twirler has been set.
         m_pie_touched_at_least_once = true;
         ButtonConfig indiff_button_cfg = BASE_BUTTON_CONFIG;
-        indiff_button_cfg.background_colour = QColor("darkgreen");
+        indiff_button_cfg.background_colour = QCOLOR_DARKGREEN;
         ButtonAndProxy c = makeTextButton(
                     m_scene,
                     QRectF(0.3 * SCENE_WIDTH, 0.90 * SCENE_HEIGHT,
