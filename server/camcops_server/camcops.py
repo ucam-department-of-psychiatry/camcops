@@ -45,6 +45,7 @@ log.info("CamCOPS starting")
 from argparse import (
     ArgumentParser,
     ArgumentDefaultsHelpFormatter,
+    Namespace,
     RawDescriptionHelpFormatter,
 )  # nopep8
 import codecs  # nopep8
@@ -224,7 +225,7 @@ def make_wsgi_app(debug_toolbar: bool = False,
     return app
 
 
-def make_wsgi_app_from_argparse_args(args) -> Router:
+def make_wsgi_app_from_argparse_args(args: Namespace) -> Router:
     # ... matches add_wsgi_options()
     reverse_proxied_config = ReverseProxiedConfig(
         trusted_proxy_headers=args.trusted_proxy_headers,

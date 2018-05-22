@@ -1159,33 +1159,6 @@ chmod -R ug+rw *
 
 
 # =============================================================================
-# SQLAlchemy engines. One per database URL per Python application, at the
-# module level.
-# =============================================================================
-
-_sqlalchemy_engines = {}  # type: Dict[str, Engine]  # maps URL to Engine
-
-
-def get_global_sqla_engine(db_url: str, echo: bool = False) -> Engine:
-    global _sqlalchemy_engines
-    if db_url in _sqlalchemy_engines:
-        return _sqlalchemy_engines[db_url]
-    else:
-        engine = _sqlalchemy_engines.setdefault(
-            db_url,
-            create_engine(
-                db_url,
-                echo=echo,
-                pool_pre_ping=True,
-                # pool_size=0,  # no limit (for parallel testing, which failed)
-            )
-        )
-        log.debug("Created SQLAlchemy engine for URL {}".format(
-            get_safe_url_from_engine(engine)))
-        return engine
-
-
-# =============================================================================
 # Configuration class. (It gets cached on a per-process basis.)
 # =============================================================================
 
@@ -1370,6 +1343,11 @@ class CamcopsConfig(object):
             raise RuntimeError("Missing/blank CTV_FILENAME_SPEC in "
                                "[server] section of config file")
 
+        # ---------------------------------------------------------------------
+        # Other attributes
+        # ---------------------------------------------------------------------
+        self._sqla_engine = None
+
     def get_sqla_engine(self) -> Engine:
         """
         I was previously misinterpreting the appropriate scope of an Engine.
@@ -1383,8 +1361,23 @@ class CamcopsConfig(object):
 
         https://groups.google.com/forum/#!topic/sqlalchemy/ZtCo2DsHhS4
         https://stackoverflow.com/questions/8645250/how-to-close-sqlalchemy-connection-in-mysql
+
+        Now, our CamcopsConfig instance is cached, so there should be one of
+        them overall. See get_config() below.
+
+        Therefore, making the engine a member of this class should do the
+        trick, whilst avoiding global variables.
         """
-        return get_global_sqla_engine(db_url=self.db_url, echo=self.db_echo)
+        if self._sqla_engine is None:
+            self._sqla_engine = create_engine(
+                self.db_url,
+                echo=self.db_echo,
+                pool_pre_ping=True,
+                # pool_size=0,  # no limit (for parallel testing, which failed)
+            )
+            log.debug("Created SQLAlchemy engine for URL {}".format(
+                get_safe_url_from_engine(self._sqla_engine)))
+        return self._sqla_engine
 
     @property
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
