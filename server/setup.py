@@ -350,7 +350,7 @@ camcops_server
         # 'aenum==2.0.9',  # advanced enums
         'alembic==0.9.6',  # database migrations
         # 'arrow==0.10.0',  # better datetime
-        'cardinal_pythonlib==1.0.9',  # RNC libraries
+        'cardinal_pythonlib==1.0.16',  # RNC libraries
         'colorlog==3.1.0',  # colour in logs
         'CherryPy==11.0.0',  # web server
         'deform==2.0.4',  # web forms

@@ -34,7 +34,7 @@ import logging
 from typing import TYPE_CHECKING
 import os
 
-from alembic import command
+# from alembic import command
 from alembic.config import Config
 from cardinal_pythonlib.fileops import preserve_cwd
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -98,7 +98,7 @@ def create_database_from_scratch(cfg: "CamcopsConfig") -> None:
 
     log.warning("Performing one-step database creation.")
     metadata = Base.metadata  # type: MetaData
-    engine = cfg.create_sqla_engine()
+    engine = cfg.get_sqla_engine()
     metadata.create_all(engine)
 
     alembic_cfg = Config(ALEMBIC_CONFIG_FILENAME)
@@ -107,22 +107,3 @@ def create_database_from_scratch(cfg: "CamcopsConfig") -> None:
     stamp_allowing_unusual_version_table(alembic_cfg, "head",
                                          version_table=ALEMBIC_VERSION_TABLE)
     log.info("One-step database creation complete.")
-
-
-@preserve_cwd
-def assert_database_is_at_head(cfg: "CamcopsConfig") -> None:
-    current, head = get_current_and_head_revision(
-        database_url=cfg.db_url,
-        alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
-        alembic_base_dir=ALEMBIC_BASE_DIR,
-        version_table=ALEMBIC_VERSION_TABLE,
-    )
-    if current == head:
-        log.debug("Database is at correct (head) revision of {}", current)
-    else:
-        msg = (
-            "Database structure is at version {} but should be at version {}. "
-            "CamCOPS will not start. Please use the 'upgrade_db' command to "
-            "fix this.".format(current, head))
-        log.critical(msg)
-        raise RuntimeError(msg)

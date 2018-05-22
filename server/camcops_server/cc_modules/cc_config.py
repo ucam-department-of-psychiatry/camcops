@@ -43,15 +43,28 @@ from cardinal_pythonlib.configfiles import (
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
+from cardinal_pythonlib.sqlalchemy.alembic_func import (
+    get_current_and_head_revision,
+)
+from cardinal_pythonlib.sqlalchemy.engine_func import (
+    is_sqlserver,
+    is_sqlserver_2008_or_later,
+)
 from cardinal_pythonlib.sqlalchemy.logs import pre_disable_sqlalchemy_extra_echo_log  # noqa
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
-from cardinal_pythonlib.sqlalchemy.session import make_mysql_url
+from cardinal_pythonlib.sqlalchemy.session import (
+    get_safe_url_from_engine,
+    make_mysql_url,
+)
 from pendulum import Pendulum
 from sqlalchemy.engine import create_engine, Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import Session as SqlASession
 
 from .cc_baseconstants import (
+    ALEMBIC_BASE_DIR,
+    ALEMBIC_CONFIG_FILENAME,
+    ALEMBIC_VERSION_TABLE,
     CAMCOPS_EXECUTABLE,
     CAMCOPS_SERVER_DIRECTORY,
     DEFAULT_EXTRA_STRINGS_DIR,
@@ -1146,6 +1159,33 @@ chmod -R ug+rw *
 
 
 # =============================================================================
+# SQLAlchemy engines. One per database URL per Python application, at the
+# module level.
+# =============================================================================
+
+_sqlalchemy_engines = {}  # type: Dict[str, Engine]  # maps URL to Engine
+
+
+def get_global_sqla_engine(db_url: str, echo: bool = False) -> Engine:
+    global _sqlalchemy_engines
+    if db_url in _sqlalchemy_engines:
+        return _sqlalchemy_engines[db_url]
+    else:
+        engine = _sqlalchemy_engines.setdefault(
+            db_url,
+            create_engine(
+                db_url,
+                echo=echo,
+                pool_pre_ping=True,
+                # pool_size=0,  # no limit (for parallel testing, which failed)
+            )
+        )
+        log.debug("Created SQLAlchemy engine for URL {}".format(
+            get_safe_url_from_engine(engine)))
+        return engine
+
+
+# =============================================================================
 # Configuration class. (It gets cached on a per-process basis.)
 # =============================================================================
 
@@ -1330,23 +1370,31 @@ class CamcopsConfig(object):
             raise RuntimeError("Missing/blank CTV_FILENAME_SPEC in "
                                "[server] section of config file")
 
-    def create_sqla_engine(self) -> Engine:
-        return create_engine(
-            self.db_url,
-            echo=self.db_echo,
-            pool_pre_ping=True,
-            # pool_size=0,  # no limit (for parallel testing, which failed)
-        )
+    def get_sqla_engine(self) -> Engine:
+        """
+        I was previously misinterpreting the appropriate scope of an Engine.
+        I thought: create one per request.
+        But the Engine represents the connection *pool*.
+        So if you create them all the time, you get e.g. a
+        'Too many connections' error.
+
+        "The appropriate scope is once per [database] URL per application,
+        at the module level."
+
+        https://groups.google.com/forum/#!topic/sqlalchemy/ZtCo2DsHhS4
+        https://stackoverflow.com/questions/8645250/how-to-close-sqlalchemy-connection-in-mysql
+        """
+        return get_global_sqla_engine(db_url=self.db_url, echo=self.db_echo)
 
     @property
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
     def get_all_table_names(self) -> List[str]:
-        engine = self.create_sqla_engine()
+        engine = self.get_sqla_engine()
         return get_table_names(engine=engine)
 
     @contextlib.contextmanager
     def get_dbsession_context(self) -> Generator[SqlASession, None, None]:
-        engine = self.create_sqla_engine()
+        engine = self.get_sqla_engine()
         maker = sessionmaker(bind=engine)
         dbsession = maker()  # type: SqlASession
         # noinspection PyBroadException
@@ -1357,6 +1405,43 @@ class CamcopsConfig(object):
             dbsession.rollback()
         finally:
             dbsession.close()
+
+    def _assert_valid_database_engine(self) -> None:
+        """
+        Excluding invalid backend database types.
+
+        Specifically, SQL Server versions before 2008 don't support timezones
+        and we need that.
+        """
+        engine = self.get_sqla_engine()
+        if not is_sqlserver(engine):
+            return
+        assert is_sqlserver_2008_or_later(engine), (
+            "If you use Microsoft SQL Server as the back-end database for a "
+            "CamCOPS server, it must be at least SQL Server 2008. Older "
+            "versions do not have time zone awareness."
+        )
+
+    def _assert_database_is_at_head(self) -> None:
+        current, head = get_current_and_head_revision(
+            database_url=self.db_url,
+            alembic_config_filename=ALEMBIC_CONFIG_FILENAME,
+            alembic_base_dir=ALEMBIC_BASE_DIR,
+            version_table=ALEMBIC_VERSION_TABLE,
+        )
+        if current == head:
+            log.debug("Database is at correct (head) revision of {}", current)
+        else:
+            msg = (
+                "Database structure is at version {} but should be at "
+                "version {}. CamCOPS will not start. Please use the "
+                "'upgrade_db' command to fix this.".format(current, head))
+            log.critical(msg)
+            raise RuntimeError(msg)
+
+    def assert_database_ok(self) -> None:
+        self._assert_valid_database_engine()
+        self._assert_database_is_at_head()
 
 
 # =============================================================================

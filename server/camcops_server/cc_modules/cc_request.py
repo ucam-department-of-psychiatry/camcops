@@ -60,7 +60,6 @@ from webob.multidict import MultiDict
 
 # Note: everything uder the sun imports this file, so keep the intra-package
 # imports as minimal as possible.
-from .cc_alembic import assert_database_is_at_head
 from .cc_baseconstants import ENVVAR_CONFIG_FILE, MANUAL_FILENAME_PDF_STEM
 from .cc_config import (
     CamcopsConfig,
@@ -225,7 +224,7 @@ class CamcopsRequest(Request):
     @reify
     def engine(self) -> Engine:
         cfg = self.config
-        return cfg.create_sqla_engine()
+        return cfg.get_sqla_engine()
 
     @reify
     def dbsession(self) -> SqlASession:
@@ -1056,7 +1055,7 @@ def get_command_line_request() -> CamcopsRequest:
 
     # If we proceed with an out-of-date database, we will have problems, and
     # those problems may not be immediately apparent, which is bad. So:
-    assert_database_is_at_head(req.config)
+    req.config.assert_database_ok()
 
     return req
 

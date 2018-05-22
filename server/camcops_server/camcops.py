@@ -84,7 +84,6 @@ from cardinal_pythonlib.wsgi.reverse_proxied_mw import (
 import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
 
 from camcops_server.cc_modules.cc_alembic import (
-    assert_database_is_at_head,
     create_database_from_scratch,
     upgrade_database_to_head,
 )  # nopep8
@@ -176,9 +175,9 @@ URL_PATH_ROOT = '/'
 # WSGI entry point
 # =============================================================================
 
-def ensure_database_is_at_head() -> None:
+def ensure_database_is_ok() -> None:
     config = get_default_config_from_os_env()
-    assert_database_is_at_head(config)
+    config.assert_database_ok()
 
 
 def make_wsgi_app(debug_toolbar: bool = False,
@@ -248,7 +247,7 @@ def make_wsgi_app_from_argparse_args(args) -> Router:
 def test_serve_pyramid(application: Router,
                        host: str = DEFAULT_HOST,
                        port: int = DEFAULT_PORT) -> None:
-    ensure_database_is_at_head()
+    ensure_database_is_ok()
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}".format(host, port))
     server.serve_forever()
@@ -276,7 +275,7 @@ def serve_cherrypy(application: Router,
     - Multithreading.
     - Any platform.
     """
-    ensure_database_is_at_head()
+    ensure_database_is_ok()
 
     # Report on options
     if unix_domain_socket_filename:
@@ -351,7 +350,7 @@ def serve_gunicorn(application: Router,
         raise RuntimeError("Gunicorn does not run under Windows. "
                            "(It relies on the UNIX fork() facility.)")
 
-    ensure_database_is_at_head()
+    ensure_database_is_ok()
 
     # Report on options, and calculate Gunicorn versions
     if unix_domain_socket_filename:
