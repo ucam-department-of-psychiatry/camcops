@@ -64,8 +64,10 @@ For the QColor objects below:
 
         const THE_COLOUR(QCOLOR_PURPLE);
 
+(5) Finally, note that it *should* work but this is a compiler bug. See below.
 
-More detail on (4), with working thoughts
+
+More detail on (4)/(5), with working thoughts
 
     The name-based QColor constructor:
         const QColor TEST_COLOUR("purple");
@@ -168,6 +170,20 @@ More detail on (4), with working thoughts
     - I guess the guarantee that we'd hope for, but which is not correct, is
       that (in qcolor.cpp) rgbTbl is initialized before
       get_named_rgb_no_space() can be called.
+    - Reported to Qt.
+
+    FINAL OUTCOME:
+    I was wrong, and it is a Microsoft Visual Studio 2017 C++ compiler bug.
+    The rgbTbl is subject to static initialization, whilst "const QColor x();"
+    is dynamic initialization. Static initialization is meant to be guaranteed
+    to be complete before dynamic initialization starts. The Microsoft Visual
+    Studio 2017 C++ Compiler (VC++ up to and including 15.6, 15.7) is broken;
+    see
+        https://bugreports.qt.io/browse/QTBUG-68012
+
+    Decision for CamCOPS
+    - keep this #define system; it's very legible and it works around the
+      broken compiler.
 
 */
 
@@ -330,6 +346,6 @@ More detail on (4), with working thoughts
 // ============================================================================
 // Other
 // ============================================================================
-// R, G, B, A: a=0 means fully transparent
+// R, G, B, A: a=0 means fully transparent, a=255 means fully opaque
 
 #define QCOLOR_TRANSPARENT QColor(0, 0, 0, 0)

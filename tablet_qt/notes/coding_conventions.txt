@@ -103,6 +103,11 @@ Other popular coding standards:
 // C++
 // ----------------------------------------------------------------------------
 
+- Summary of my preferred style above:
+
+    SomeClass, someFunction, some_varable, m_some_member_variable
+    char* pointer_to_char;
+
 - C++ Super-FAQ: https://isocpp.org/wiki/faq/coding-standards
 
 - Stroustrup, http://www.stroustrup.com/bs_faq2.html#Hungarian

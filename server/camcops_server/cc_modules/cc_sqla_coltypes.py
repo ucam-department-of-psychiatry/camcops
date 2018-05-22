@@ -115,8 +115,8 @@ from sqlalchemy import util
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm.relationships import RelationshipProperty
-from sqlalchemy.sql.expression import FunctionElement, text
-from sqlalchemy.sql.functions import func
+from sqlalchemy.sql.expression import text
+from sqlalchemy.sql.functions import func, FunctionElement
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import (
     Boolean,
@@ -329,8 +329,16 @@ UserNameColType = String(length=USERNAME_MAX_LEN)
 #   12345678901234567890123456789012    }
 #
 # So: rightmost 6 characters are time zone; rest is date/time.
+#     leftmost 23 characters are time up to millisecond precision.
+#     overall length is typically 29 (milliseconds) or 32 (microseconds)
 
+_TZ_LEN = 6  # length of the timezone part of the ISO8601 string
+_UTC_TZ_LITERAL = "'+00:00'"
 _SQLITE_DATETIME_FMT_FOR_PYTHON = "'%Y-%m-%d %H:%M:%f'"
+
+_MYSQL_DATETIME_LEN = 19
+_SQLSERVER_DATETIME_LEN = 19
+_SQLSERVER_DATETIME2_LEN = 27
 
 
 # -----------------------------------------------------------------------------
@@ -339,6 +347,14 @@ _SQLITE_DATETIME_FMT_FOR_PYTHON = "'%Y-%m-%d %H:%M:%f'"
 
 # noinspection PyPep8Naming
 class isotzdatetime_to_utcdatetime(FunctionElement):
+    """
+    Used as an SQL operation by PendulumDateTimeAsIsoTextColType.
+
+    Creates an SQL expression wrapping a field containing our ISO-8601 text,
+    making a DATETIME out of it, in the UTC timezone.
+
+    Implemented for different SQL dialects.
+    """
     type = DateTime()
     name = 'isotzdatetime_to_utcdatetime'
 
@@ -348,6 +364,9 @@ class isotzdatetime_to_utcdatetime(FunctionElement):
 def isotzdatetime_to_utcdatetime_default(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> None:
+    """
+    Default implementation for isotzdatetime_to_utcdatetime: fail.
+    """
     fail_unknown_dialect(compiler, "perform isotzdatetime_to_utcdatetime")
 
 
@@ -357,9 +376,7 @@ def isotzdatetime_to_utcdatetime_mysql(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> str:
     """
-    Creates an SQL expression wrapping a field containing our ISO-8601 text,
-    making a DATETIME out of it, in the UTC timezone.
-
+    Implementation of isotzdatetime_to_utcdatetime for MySQL.
     For format, see
         https://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html#function_date-format  # noqa
     Note the use of "%i" for minutes.
@@ -367,17 +384,26 @@ def isotzdatetime_to_utcdatetime_mysql(
     functions; http://docs.sqlalchemy.org/en/latest/core/tutorial.html
     """
     x = fetch_processed_single_clause(element, compiler)
+
     # Let's do this in a clear way:
-    date_part = "LEFT({x}, LENGTH({x}) - 6)".format(x=x)  # drop the rightmost 6 chars  # noqa
+    date_time_part = "LEFT({x}, LENGTH({x}) - {tzl})".format(x=x, tzl=_TZ_LEN)
+    # ... drop the rightmost 6 chars (the timezone component)
     fmt = compiler.process(text("'%Y-%m-%dT%H:%i:%S.%f'"))
     # ... the text() part deals with the necessary escaping of % for the DBAPI
-    the_date = "STR_TO_DATE({date_part}, {fmt})".format(
-        date_part=date_part, fmt=fmt)
-    old_timezone = "RIGHT({x}, 6)".format(x=x)
-    result = "CONVERT_TZ({the_date}, {old_timezone}, '+00:00')".format(
-        the_date=the_date, old_timezone=old_timezone)
-    # log.critical(result)
-    return result
+    the_date_time = "STR_TO_DATE({date_time_part}, {fmt})".format(
+        date_time_part=date_time_part, fmt=fmt)
+    # ... STR_TO_DATE() returns a DATETIME if the string contains both date and
+    #     time components.
+    old_timezone = "RIGHT({x}, {tzl})".format(x=x, tzl=_TZ_LEN)
+    result_utc = (
+        "CONVERT_TZ({the_date_time}, {old_timezone}, {utc})".format(
+            the_date_time=the_date_time,
+            old_timezone=old_timezone,
+            utc=_UTC_TZ_LITERAL)
+    )
+
+    # log.critical(result_utc)
+    return result_utc
 
 
 # noinspection PyUnusedLocal
@@ -385,29 +411,131 @@ def isotzdatetime_to_utcdatetime_mysql(
 def isotzdatetime_to_utcdatetime_sqlite(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> str:
+    """
+    Implementation of isotzdatetime_to_utcdatetime for SQLite.
+    """
     x = fetch_processed_single_clause(element, compiler)
+
     # https://sqlite.org/lang_corefunc.html#substr
     # https://sqlite.org/lang_datefunc.html
     # http://www.sqlite.org/lang_expr.html
-
+    #
     # Get an SQL expression for the timezone adjustment in hours.
     # Note that if a time is 12:00+01:00, that means e.g. midday BST, which
     # is 11:00+00:00 or 11:00 UTC. So you SUBTRACT the displayed timezone from
     # the time, which I've always thought is a bit odd.
-
+    #
     # Ha! Was busy implementing this, but SQLite is magic; if there's a
     # timezone at the end, STRFTIME() will convert it to UTC automatically!
     # Moreover, the format is the OUTPUT format that a Python datetime will
     # recognize, so no 'T'.
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
     result = "STRFTIME({fmt}, {x})".format(fmt=fmt, x=x)
+
     # log.critical(result)
     return result
 
 
-# TODO: isotzdatetime_to_utcdatetime_sqlserver
-# ... will probably use TODATETIMEOFFSET
-# https://docs.microsoft.com/en-us/sql/t-sql/functions/todatetimeoffset-transact-sql  # noqa
+# noinspection PyUnusedLocal
+@compiles(isotzdatetime_to_utcdatetime, SqlaDialectName.SQLSERVER)
+def isotzdatetime_to_utcdatetime_sqlserver(
+        element: "ClauseElement",
+        compiler: "SQLCompiler", **kw) -> str:
+    """
+    Implementation of isotzdatetime_to_utcdatetime for SQL Server.
+
+    Converting strings to DATETIME values:
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    CAST():     Part of ANSI SQL.
+    CONVERT():  Not part of ANSI SQL; has some extra formatting options.
+
+    Both methods work:
+      SELECT CAST('2001-01-31T21:30:49.123' AS DATETIME) AS via_cast,
+             CONVERT(DATETIME, '2001-01-31T21:30:49.123') AS via_convert;
+    ... fine on SQL Server 2005, with milliseconds in both cases.
+    However, going beyond milliseconds doesn't fail gracefully, it causes an
+    error (e.g. "...21:30.49.123456") both for CAST and CONVERT.
+
+    The DATETIME2 format accepts greater precision, but requires SQL Server
+    2008 or higher. Then this works:
+      SELECT CAST('2001-01-31T21:30:49.123456' AS DATETIME2) AS via_cast,
+             CONVERT(DATETIME2, '2001-01-31T21:30:49.123456') AS via_convert;
+
+    So as not to be too optimistic: CAST(x AS DATETIME2) ignores (silently) any
+    timezone information in the string. So does CONVERT(DATETIME2, x, {0 or 1}).
+
+    Converting between time zones:
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NO TIME ZONE SUPPORT in SQL Server 2005.
+    e.g. https://stackoverflow.com/questions/3200827/how-to-convert-timezones-in-sql-server-2005  # noqa
+
+    TODATETIMEOFFSET(expression, time_zone):
+          expression: something that evaluates to a DATETIME2 value
+          time_zone: integer minutes, or string hours/minutes e.g. "+13.00"
+      -> produces a DATETIMEOFFSET value
+    Available from SQL Server 2008.
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/todatetimeoffset-transact-sql  # noqa
+
+    SWITCHOFFSET
+      -> converts one DATETIMEOFFSET value to another, preserving its UTC
+         time, but changing the displayed (local) time zone.
+
+    ... however, is that unnecessary? We want a plain DATETIME2 in UTC, and
+    conversion to UTC is automatically achieved by
+          CONVERT(DATETIME2, some_datetimeoffset, 1)
+    ... https://stackoverflow.com/questions/4953903/how-can-i-convert-a-sql-server-2008-datetimeoffset-to-a-datetime  # noqa
+    ... but not by CAST(some_datetimeoffset AS DATETIME2), and not by
+        CONVERT(DATETIME2, some_datetimeoffset, 0)
+    ... and styles 0 and 1 are the only ones permissible from SQL Server 2012
+        and up, empirically and (documented for the reverse direction at:
+        https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-2017  # noqa
+    ... this is not properly documented re UTC conversion, as far as I can
+        see. Let's use SWITCHOFFSET -> CAST to be explicit and clear.
+
+    AT TIME ZONE:
+    From SQL Server 2016 only.
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/at-time-zone-transact-sql?view=sql-server-2017
+
+    Therefore:
+    ~~~~~~~~~~
+    - We need to require SQL Server 2008 or higher.
+    - Therefore we can use the DATETIME2 type.
+    - Note that LEN(), not LENGTH(), is ANSI SQL; SQL Server only supports
+      LEN.
+
+    Example (tested on SQL Server 2014)
+    ~~~~~~~
+
+    DECLARE @source AS VARCHAR(100) = '2001-01-31T21:30:49.123456+07:00';
+
+    SELECT CAST(
+        SWITCHOFFSET(
+            TODATETIMEOFFSET(
+                CAST(LEFT(@source, LEN(@source) - 6) AS DATETIME2),
+                RIGHT(@source, 6)
+            ),
+            '+00:00'
+        )
+        AS DATETIME2
+    )  -- 2001-01-31 14:30:49.1234560
+
+
+    """
+    x = fetch_processed_single_clause(element, compiler)
+
+    date_time_part = "LEFT({x}, LEN({x}) - {tzl)".format(x=x, tzl=_TZ_LEN)  # a VARCHAR  # noqa
+    old_timezone = "RIGHT({x}, {tzl})".format(x=x, tzl=_TZ_LEN)  # a VARCHAR
+    date_time_no_tz = "CAST({dtp} AS DATETIME2)".format(dtp=date_time_part)  # a DATETIME2  # noqa
+    date_time_offset_with_old_tz = "TODATETIMEOFFSET({dt}, {tz}".format(
+        dt=date_time_no_tz, tz=old_timezone)  # a DATETIMEOFFSET
+    date_time_offset_with_utc_tz = "SWITCHOFFSET({dto}, {utc})".format(
+        dto=date_time_offset_with_old_tz,
+        utc=_UTC_TZ_LITERAL)  # a DATETIMEOFFSET in UTC
+    result_utc = "CAST({dtu} AS DATETIME2".format(
+        dtu=date_time_offset_with_utc_tz)
+
+    # log.critical(result_utc)
+    return result_utc
 
 
 # -----------------------------------------------------------------------------
@@ -416,6 +544,15 @@ def isotzdatetime_to_utcdatetime_sqlite(
 
 # noinspection PyPep8Naming
 class unknown_field_to_utcdatetime(FunctionElement):
+    """
+    Used as an SQL operation by PendulumDateTimeAsIsoTextColType.
+
+    Creates an SQL expression wrapping a field containing something unknown,
+    which might be a DATETIME or an ISO-formatted field, and
+    making a DATETIME out of it, in the UTC timezone.
+
+    Implemented for different SQL dialects.
+    """
     type = DateTime()
     name = 'unknown_field_to_utcdatetime'
 
@@ -425,6 +562,9 @@ class unknown_field_to_utcdatetime(FunctionElement):
 def unknown_field_to_utcdatetime_default(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> None:
+    """
+    Default implementation for unknown_field_to_utcdatetime: fail.
+    """
     fail_unknown_dialect(compiler, "perform unknown_field_to_utcdatetime")
 
 
@@ -433,15 +573,19 @@ def unknown_field_to_utcdatetime_default(
 def unknown_field_to_utcdatetime_mysql(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> str:
-    """The field might be a DATETIME, or an ISO-formatted field."""
+    """
+    Implementation of unknown_field_to_utcdatetime for MySQL.
+
+    If it's the length of a plain DATETIME e.g. "2013-05-30 00:00:00" (19),
+    leave it as a DATETIME; otherwise convert ISO -> DATETIME
+    log.critical(result)
+    """
     x = fetch_processed_single_clause(element, compiler)
-    result = "IF(LENGTH({x}) = 19, {x}, {converted})".format(
+    result = "IF(LENGTH({x}) = {dtlen}, {x}, {converted})".format(
         x=x,
+        dtlen=_MYSQL_DATETIME_LEN,
         converted=isotzdatetime_to_utcdatetime_mysql(element, compiler, **kw)
     )
-    # If it's the length of a plain DATETIME e.g. "2013-05-30 00:00:00" (19),
-    # leave it as a DATETIME; otherwise convert ISO -> DATETIME
-    # log.critical(result)
     return result
 
 
@@ -450,6 +594,9 @@ def unknown_field_to_utcdatetime_mysql(
 def unknown_field_to_utcdatetime_sqlite(
         element: "ClauseElement",
         compiler: "SQLCompiler", **kw) -> str:
+    """
+    Implementation of unknown_field_to_utcdatetime for SQLite.
+    """
     x = fetch_processed_single_clause(element, compiler)
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
     result = "STRFTIME({fmt}, {x})".format(fmt=fmt, x=x)
@@ -457,9 +604,41 @@ def unknown_field_to_utcdatetime_sqlite(
     return result
 
 
-# TODO: unknown_field_to_utcdatetime_sqlserver
-# ... will probably use TODATETIMEOFFSET
-# https://docs.microsoft.com/en-us/sql/t-sql/functions/todatetimeoffset-transact-sql  # noqa
+# noinspection PyUnusedLocal
+@compiles(unknown_field_to_utcdatetime, SqlaDialectName.SQLSERVER)
+def unknown_field_to_utcdatetime_sqlserver(
+        element: "ClauseElement",
+        compiler: "SQLCompiler", **kw) -> str:
+    """
+    Implementation of unknown_field_to_utcdatetime for SQL Server.
+
+    We should cope also with the possibility of a DATETIME2 field, not just
+    DATETIME. It seems consistent that LEN(DATETIME2) = 27, with precision
+    tenth of a microsecond, e.g.
+        "2001-01-31 21:30:49.1234567" (27)
+
+    So, if it looks like a DATETIME or a DATETIME2, then we leave it alone;
+    otherwise we put it through our ISO-to-datetime function.
+
+    Importantly, note that neither _SQLSERVER_DATETIME_LEN nor
+    _SQLSERVER_DATETIME2_LEN are the length of any of our ISO strings.
+    """
+    x = fetch_processed_single_clause(element, compiler)
+    # https://stackoverflow.com/questions/5487892/sql-server-case-when-or-then-else-end-the-or-is-not-supported  # noqa
+    result = (
+        "CASE "
+        "WHEN LEN({x}) IN ({dtlen}, {dt2len}) THEN {x} "
+        "ELSE {converted} "
+        "END".format(
+            x=x,
+            dtlen=_SQLSERVER_DATETIME_LEN,
+            dt2len=_SQLSERVER_DATETIME2_LEN,
+            converted=isotzdatetime_to_utcdatetime_sqlserver(
+                element, compiler, **kw)
+        )
+    )
+    # log.critical(result)
+    return result
 
 
 # =============================================================================
@@ -782,7 +961,7 @@ class PermittedValueChecker(object):
         return auto_repr(self)
 
 
-# Specific instances, to reduce object duplication:
+# Specific instances, to reduce object duplication and magic numbers:
 
 MIN_ZERO_CHECKER = PermittedValueChecker(minimum=0)
 
@@ -813,7 +992,7 @@ class CamcopsColumn(Column):
     A Column class that supports some CamCOPS-specific flags, such as whether
     a field is a BLOB reference; how it should be treated for anonymisation;
     and which values are permitted in the field (in a soft sense: duff values
-    cause errors to be reported, but they're still stored.
+    cause errors to be reported, but they're still stored).
     """
     def __init__(self,
                  *args,
