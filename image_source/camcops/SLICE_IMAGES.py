@@ -508,6 +508,10 @@ def main() -> None:
 
     server_static_dir = join(args.base_dir, "server", "static")
     web_image_dir = join(args.base_dir, "website", "images")
+    docs_image_dir = join(args.base_dir, "docs_sphinx", "source", "images")
+    docs_appicon_image_dir = join(args.base_dir, "docs_sphinx", "source",
+                                  "client", "app_icons")
+    all_tablet_icon_dirs = [tablet_icon_dir, docs_appicon_image_dir]
 
     # =============================================================================
     # iOS
@@ -614,6 +618,7 @@ def main() -> None:
         make_appicon(join(web_image_dir, "camcops.png"), 96)
         make_appicon(join(web_image_dir, "favicon.png"), 32)
         make_appicon(join(web_image_dir, "camcops_icon_500.png"), 500)
+        make_appicon(join(docs_image_dir, "camcops_icon_500.png"), 500)
         crop_pdf(CAMCOPS_LOGO_PDF, join(server_static_dir, "logo_camcops.png"),
                  dest_width_px=1000, autocrop=True)
         crop_pdf(BLANK_LOGO_PDF, join(server_static_dir, "logo_local.png"),
@@ -631,19 +636,19 @@ def main() -> None:
 
     """
     If transparency is not working, try:
-    
+
         identify -verbose FILE.pdf
             # ... is there an alpha channel at all?
         convert FILE.pdf -alpha extract TEMP.png
             # ... does the alpha channel have something in it?
-    
-    It proves hard to have my version of Illustrator export a bunch of images 
-    with transparency in/between them. Not yet achieved. (The edges of the 
+
+    It proves hard to have my version of Illustrator export a bunch of images
+    with transparency in/between them. Not yet achieved. (The edges of the
     page, if any, are transparent, but that's it.)
-    
+
     Therefore, simpler to get ImageMagick to replace a particular colour with
     transparency. Add a background of an unused colour. Check with:
-    
+
         convert FILE.pdf -transparent "rgb(240,240,200)" -alpha extract TEMP.png
     """  # noqa
 
@@ -713,7 +718,8 @@ def main() -> None:
     if args.tablet:
         logger.info("--- Tablet")
         logger.info("Slicing icons...")
-        mkdirp(tablet_icon_dir)
+        for icondir in all_tablet_icon_dirs:
+            mkdirp(icondir)
         with tempfile.TemporaryDirectory() as tmpdir:
             tile_pdf(TABLET_ICON_PDF, join(tmpdir, "tile-%d.png"),
                      n_wide=ncol, n_high=nrow, tile_width_px=96,
@@ -725,24 +731,27 @@ def main() -> None:
                     tilename = join(tmpdir, "tile-{}.png".format(tilenum))
                     propername = iconmap[r][c]
                     if propername is not None:
-                        fullpath = join(tablet_icon_dir, propername)
-                        logger.info("Creating {}".format(fullpath))
-                        shutil.move(tilename, fullpath)
+                        for destdir in all_tablet_icon_dirs:
+                            fullpath = join(destdir, propername)
+                            logger.info("Creating {}".format(fullpath))
+                            shutil.copy(tilename, fullpath)
+                        os.remove(tilename)
                     tilenum += 1
 
-        # Special: resize hasChild
-        has_child = join(tablet_icon_dir, 'hasChild.png')
-        logger.info("Resizing " + has_child)
-        args = ['convert', has_child, '-resize', '24x24', has_child]
-        logger.debug(args)
-        subprocess.check_call(args)
+        for destdir in all_tablet_icon_dirs:
+            # Special: resize hasChild
+            has_child = join(destdir, 'hasChild.png')
+            logger.info("Resizing " + has_child)
+            args = ['convert', has_child, '-resize', '24x24', has_child]
+            logger.debug(args)
+            subprocess.check_call(args)
 
-        # Special: make hasParent
-        has_parent = join(tablet_icon_dir, 'hasParent.png')
-        logger.info("Making " + has_parent)
-        args = ['convert', has_child, '-flop', has_parent]
-        logger.debug(args)
-        subprocess.check_call(args)
+            # Special: make hasParent
+            has_parent = join(destdir, 'hasParent.png')
+            logger.info("Making " + has_parent)
+            args = ['convert', has_child, '-flop', has_parent]
+            logger.debug(args)
+            subprocess.check_call(args)
 
 
 if __name__ == '__main__':

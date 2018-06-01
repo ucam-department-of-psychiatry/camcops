@@ -1,0 +1,72 @@
+===============================================================================
+Basic Sphinx
+===============================================================================
+
+$ pip install sphinx
+$ sphinx-quickstart docs_sphinx
+# ... and answer its questions
+$ cd docs_sphinx
+
+$ make html
+# ... fine
+
+===============================================================================
+For PDF output
+===============================================================================
+
+# Method 1:
+
+$ sudo apt install latexmk
+$ make latexpdf
+# ... that works fine!
+
+# Method 2: https://stackoverflow.com/questions/21440396/what-do-i-need-to-do-to-register-latexpdf-for-sphinx
+
+
+===============================================================================
+RST formatting and word wrapping
+===============================================================================
+
+In PyCharm,
+- File > Settings > Plugins > Browse repositories
+  Install "Wrap to Column"
+
+  Then you get Edit > Wrap [Line, Paragraph] to Column
+
+===============================================================================
+General RST style points
+===============================================================================
+
+This guide says to use .txt, not .rst
+    http://documentation-style-guide-sphinx.readthedocs.io/en/latest/style-guide.html
+... but PyCharm recognizes .rst, which is more helpful, so let's use .rst
+
+RST styleguide is 2-space indentation.
+... except that RST commands start ".. " so need at least 3-space indentation
+
+    https://developer.lsst.io/restructuredtext/style.html
+
+Use UTF8 directly.
+
+When it breaks, see
+    https://tex.stackexchange.com/questions/20182/how-to-use-unicode-characters-with-sphinx-rst-documents-and-properly-generate-pd
+
+
+===============================================================================
+TOC, index
+===============================================================================
+
+https://stackoverflow.com/questions/18969093/how-to-include-the-toctree-in-the-sidebar-of-each-page
+
+
+===============================================================================
+RST content
+===============================================================================
+
+http://openalea.gforge.inria.fr/doc/openalea/doc/_build/html/source/sphinx/rest_syntax.html
+
+".. todo:" boxes require an extension
+
+Extra Sphinx inline markup, e.g. :menuselection:
+
+    http://www.sphinx-doc.org/en/stable/markup/inline.html

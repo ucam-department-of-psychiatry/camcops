@@ -50,7 +50,9 @@
             See "HISTORY" in
             https://www.openssl.org/docs/man1.1.0/crypto/EVP_DigestInit.html
         */
-#endif
+    #else
+        // OpenSSL 1.x that's higher than 1.1; we will assume it behaves as 1.1
+    #endif
 #else
     #error Only know how to support OpenSSL 1.x.x
 #endif

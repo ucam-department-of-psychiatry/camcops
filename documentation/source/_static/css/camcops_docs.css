@@ -1,0 +1,29 @@
+/* camcops_docs.css */
+
+/* WARNING: Sphinx may not notice changes to this file. You may need to force
+   a rebuild by altering a .RST file. */
+
+/* WARNING: an RST "role" will be mangled, e.g. "_" to "-", before becoming
+   an HTML "class" reference. So don't use underscores etc. */
+
+.tabletcurrentpatient {
+    color: blue;
+    font-weight: bold;
+}
+.tabletnopatientselected {
+    color: red;
+    font-weight: bold;
+}
+.tabletmenu {
+    background-color: lightgrey;
+    color: black;
+    display: inline-block;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    margin: 2px 0;
+    padding: 0 2px;
+}
+.missingtext {
+    background-color: yellow;
+    font-weight: bold;
+}

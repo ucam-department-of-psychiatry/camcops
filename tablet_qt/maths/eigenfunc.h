@@ -292,11 +292,20 @@ DestContainerT eigenVectorFromStdVector(const std::vector<SourceContentsT>& sv)
     // This function is usually called indirectly, e.g. from
     //      eigenColumnVectorFromStdVector()
     //      eigenRowVectorFromStdVector()
+    //
     // Note that std::vector::size() returns size_t, but Eigen containers use
-    // int for their dimensions.
+    // int for their dimensions. We need to make sure that everything is
+    // compatible without any compiler warnings.
+    // Remember: size_t is unsigned (but its size is implementation-specific);
+    // int is of course signed (and at least 16 bits, but it could be larger).
+    // More generally, re integer overflow in C/C++:
+    //      http://www.cs.utah.edu/~regehr/papers/overflow12.pdf
+    // and signed/unsigned comparisons:
+    //      https://peter.bourgon.org/blog/2009/05/01/comparison-between-signed-and-unsigned-integer-expressions.html
     const size_t n_as_size_t = sv.size();
     const int n = static_cast<int>(n_as_size_t);
-    if (n != n_as_size_t) {  // implicit promotion to larger type
+    // ... cannot be negative; if it is, there's overflow
+    if (n < 0 || static_cast<size_t>(n) != n_as_size_t) {
         qWarning()
                 << "Unable to represent std::vector of size_t" << n_as_size_t
                 << "in Eigen container of int size" << n
