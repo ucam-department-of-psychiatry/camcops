@@ -743,7 +743,9 @@ SOURCES += main.cpp \
     widgets/treeviewcontroldelegate.cpp \
     widgets/treeviewproxystyle.cpp \
     widgets/growingplaintextedit.cpp \
-    dbobjects/allowedservertable.cpp
+    dbobjects/allowedservertable.cpp \
+    menulib/urlmenuitem.cpp \
+    common/urlconst.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1109,7 +1111,9 @@ HEADERS += \
     widgets/treeviewproxystyle.h \
     widgets/growingplaintextedit.h \
     dbobjects/allowedservertable.h \
-    common/colourdefs.h
+    common/colourdefs.h \
+    menulib/urlmenuitem.h \
+    common/urlconst.h
 
 DISTFILES += \
     android/AndroidManifest.xml \

@@ -152,7 +152,18 @@ MenuItem::MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
     m_title(title)
 {
     setDefaults();
-    m_html = htmlmenuitem;  // extra
+    m_html_item = htmlmenuitem;  // extra
+    m_icon = icon;
+    m_subtitle = subtitle;
+}
+
+
+MenuItem::MenuItem(const QString& title, const UrlMenuItem& urlmenuitem,
+                   const QString& icon, const QString& subtitle) :
+    m_title(title)
+{
+    setDefaults();
+    m_url_item = urlmenuitem;  // extra
     m_icon = icon;
     m_subtitle = subtitle;
 }
@@ -552,10 +563,15 @@ void MenuItem::act(CamcopsApp& app) const
         app.open(pWindow);
         return;
     }
-    if (!m_html.filename.isEmpty()) {
+    if (!m_html_item.filename.isEmpty()) {
         HtmlInfoWindow* pWindow = new HtmlInfoWindow(
-            app, m_html.title, m_html.filename, m_html.icon, m_html.fullscreen);
+            app, m_html_item.title, m_html_item.filename,
+            m_html_item.icon, m_html_item.fullscreen);
         app.open(pWindow);
+        return;
+    }
+    if (!m_url_item.url.isEmpty()) {
+        uifunc::visitUrl(m_url_item.url);
         return;
     }
     qWarning() << "Menu item selected but no action specified:"

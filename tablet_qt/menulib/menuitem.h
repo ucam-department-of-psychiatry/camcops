@@ -28,6 +28,7 @@
 #include "menulib/menuproxy.h"
 #include "menulib/htmlmenuitem.h"  // many menus will want this
 #include "menulib/taskmenuitem.h"  // many menus will want this
+#include "menulib/urlmenuitem.h"
 
 class CamcopsApp;
 class MenuWindow;
@@ -55,6 +56,8 @@ public:
     MenuItem(const ChoosePatientMenuItem& choose_patient, CamcopsApp& app);
     MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app);
     MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
+             const QString& icon = "", const QString& subtitle = "");
+    MenuItem(const QString& title, const UrlMenuItem& urlmenuitem,
              const QString& icon = "", const QString& subtitle = "");
     MenuItem(TaskPtr p_task, bool task_shows_taskname = true,
              bool task_shows_patient = false);
@@ -103,7 +106,8 @@ protected:
     QString m_task_tablename;
     TaskPtr m_p_task;
     PatientPtr m_p_patient;
-    HtmlMenuItem m_html;
+    HtmlMenuItem m_html_item;
+    UrlMenuItem m_url_item;
 //    SOMETHING m_event; // ***
 //    SOMETHING m_chainList; // ***
 

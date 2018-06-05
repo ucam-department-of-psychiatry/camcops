@@ -21,9 +21,12 @@
 
 #include "catatoniaepsemenu.h"
 #include "common/uiconst.h"
-#include "lib/filefunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+
+#ifdef INCLUDE_CATATONIA_EXAMINATION
+#include "common/urlconst.h"
+#endif
 
 #include "tasks/aims.h"
 #include "tasks/mdsupdrs.h"
@@ -33,8 +36,10 @@ CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Catatonia and extrapyramidal side effects"),
                uifunc::iconFilename(uiconst::ICON_CATATONIA))
 {
+#ifdef INCLUDE_CATATONIA_EXAMINATION
     const QString examtitle = tr("Catatonia examination technique");
     const QString examsubtitle = tr("Standardized technique (for BFCRS, BFCSI)");
+#endif
     m_items = {
         MAKE_CHANGE_PATIENT(app),
         MAKE_TASK_MENU_ITEM(Aims::AIMS_TABLENAME, app),
@@ -43,7 +48,7 @@ CatatoniaEpseMenu::CatatoniaEpseMenu(CamcopsApp& app) :
 #ifdef INCLUDE_CATATONIA_EXAMINATION
         MenuItem(examtitle,
                  HtmlMenuItem(examtitle,
-                              filefunc::taskHtmlFilename("catatoniaexam")),
+                              urlconst::taskDocUrl("catatoniaexam")),
                  "",
                  examsubtitle),
 #endif

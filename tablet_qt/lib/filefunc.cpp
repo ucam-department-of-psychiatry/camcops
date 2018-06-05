@@ -62,11 +62,12 @@ QString textfileContents(const QString& filename)
 }
 
 
+/*
 QString taskHtmlFilename(const QString& stem)
 {
     return QString(":/taskinfo/%1.html").arg(stem);
 }
-
+*/
 
 bool deleteFile(const QString& filename)
 {

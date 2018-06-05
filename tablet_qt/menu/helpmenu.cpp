@@ -24,6 +24,7 @@
 #include <QtSql/QtSqlVersion>
 #include "common/textconst.h"
 #include "common/uiconst.h"
+#include "common/urlconst.h"
 #include "core/camcopsversion.h"
 #include "db/databasemanager.h"
 #include "db/dbfunc.h"
@@ -36,52 +37,43 @@
 #include "menulib/menuitem.h"
 #include "tasks/demoquestionnaire.h"
 
-const QString CAMCOPS_URL("http://camcops.org/");
-const QString CAMCOPS_DOCS_URL("http://camcops.org/documentation/index.html");
-
 
 HelpMenu::HelpMenu(CamcopsApp& app) :
     MenuWindow(app, tr("Help"), uifunc::iconFilename(uiconst::ICON_INFO))
 {
-    QString title_missing(tr("Why isn’t task X here?"));
-    QString title_licences(tr("Software licences and citations"));
+    QString fname_camcopsicon(uifunc::iconFilename(uiconst::ICON_CAMCOPS));
+    QString fname_infoicon(uifunc::iconFilename(uiconst::ICON_INFO));
+    // You can't point a standard web browser at a Qt resource file.
+    // (They are not necessarily actual files on disk.)
+    // Creating an HtmlMenuItem that points to Sphinx documentation just looks
+    // rubbish.
+    // Copying lots of Qt resource files to the filesystem would be possible,
+    // but would require care about when to do it (not too often because that's
+    // inefficient -- currently 1.9Mb and growing; then you need a change
+    // control mechanism). Lots of hassle.
+    // The best thing is probably to use the online docs.
+    // If the user has registered wih a server, we could point them to their
+    // own server, but perhaps a canonical set of docs is simplest. It's
+    // certainly better if we need to update something quickly.
     m_items = {
         MenuItem(tr("Online CamCOPS documentation"),
-                 std::bind(&HelpMenu::visitCamcopsDocumentation, this),
-                 uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
-        MenuItem(tr("Visit") + " " + CAMCOPS_URL,
-                 std::bind(&HelpMenu::visitCamcopsWebsite, this),
-                 uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
+                 UrlMenuItem(urlconst::CAMCOPS_DOCS_URL),
+                 fname_infoicon),
+        MenuItem(tr("Visit") + " " + urlconst::CAMCOPS_URL,
+                 UrlMenuItem(urlconst:: CAMCOPS_URL),
+                 fname_camcopsicon),
         MAKE_TASK_MENU_ITEM(DemoQuestionnaire::DEMOQUESTIONNAIRE_TABLENAME, app),
-        MenuItem(title_missing,
-                 HtmlMenuItem(title_missing,
-                              filefunc::taskHtmlFilename("MISSING_TASKS"),
-                              uifunc::iconFilename(uiconst::ICON_INFO))),
         MenuItem(tr("Show software versions"),
                  std::bind(&HelpMenu::softwareVersions, this)),
-        MenuItem(title_licences,
-                 HtmlMenuItem(title_licences,
-                              uifunc::resourceFilename("camcops/html/licences.html"),
-                              uifunc::iconFilename(uiconst::ICON_INFO))),
         MenuItem(tr("About Qt"),
                  std::bind(&HelpMenu::aboutQt, this)),
         MenuItem(tr("View device (installation) ID and database details"),
                  std::bind(&HelpMenu::showDeviceIdAndDbDetails, this)),
+        MenuItem(tr("Licence details"),
+                 UrlMenuItem(urlconst::CAMCOPS_LICENCES_URL)),
         MenuItem(tr("View terms and conditions of use"),
                  std::bind(&HelpMenu::viewTermsConditions, this)),
     };
-}
-
-
-void HelpMenu::visitCamcopsWebsite() const
-{
-    uifunc::visitUrl(CAMCOPS_URL);
-}
-
-
-void HelpMenu::visitCamcopsDocumentation() const
-{
-    uifunc::visitUrl(CAMCOPS_DOCS_URL);
 }
 
 

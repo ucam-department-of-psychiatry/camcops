@@ -98,7 +98,7 @@ TestMenu::TestMenu(CamcopsApp& app)
         MenuItem(
             tr("Test HTML display, and fullscreen display"),
             HtmlMenuItem("Example HTML: this window should be full-screen",
-                         filefunc::taskHtmlFilename("ace3"),
+                         uifunc::resourceFilename("camcops/html/test.html"),
                          "", true),
             spanner
         ),

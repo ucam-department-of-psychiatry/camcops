@@ -20,9 +20,9 @@
 #include "singletaskmenu.h"
 #include <QPushButton>
 #include "common/uiconst.h"
+#include "common/urlconst.h"
 #include "dbobjects/patient.h"
 #include "dialogs/scrollmessagebox.h"
-#include "lib/filefunc.h"
 #include "lib/uifunc.h"
 #include "lib/stringfunc.h"
 #include "menulib/menuheader.h"
@@ -79,10 +79,9 @@ void SingleTaskMenu::build()
     m_items.append(
         MenuItem(
             tr("Task information"),
-            HtmlMenuItem(
-                m_title,
-                filefunc::taskHtmlFilename(specimen->infoFilenameStem()),
-                info_icon_filename),
+            UrlMenuItem(
+                urlconst::taskDocUrl(specimen->infoFilenameStem())
+            ),
             info_icon_filename
         )
     );

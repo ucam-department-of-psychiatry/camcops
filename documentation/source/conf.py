@@ -1,10 +1,28 @@
-# -*- coding: utf-8 -*-
-#
-# Configuration file for the Sphinx documentation builder.
-#
-# This file does only contain a selection of the most common options. For a
-# full list see the documentation:
-# http://www.sphinx-doc.org/en/master/config
+#!/usr/bin/env python
+# documentation/source/conf.py
+
+"""
+===============================================================================
+    Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+===============================================================================
+
+Sphinx configuration file
+"""
 
 # -- Path setup --------------------------------------------------------------
 
@@ -82,7 +100,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = []
+exclude_patterns = ['**/include*.rst']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -197,6 +215,7 @@ texinfo_documents = [
 
 # -- Extension configuration -------------------------------------------------
 
+# http://www.sphinx-doc.org/en/master/ext/todo.html
 todo_include_todos = True
 
 

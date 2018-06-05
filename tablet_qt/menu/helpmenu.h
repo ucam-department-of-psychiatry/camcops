@@ -27,8 +27,6 @@ class HelpMenu : public MenuWindow
 public:
     HelpMenu(CamcopsApp& app);
 protected:
-    void visitCamcopsDocumentation() const;
-    void visitCamcopsWebsite() const;
     void softwareVersions() const;
     void aboutQt();
     void showDeviceIdAndDbDetails() const;

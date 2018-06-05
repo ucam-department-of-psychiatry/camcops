@@ -107,7 +107,7 @@ QString Cape42::menusubtitle() const
 
 QString Cape42::infoFilenameStem() const
 {
-    return "cape";  // used by filefunc::taskHtmlFilename()
+    return "cape";
 }
 
 
