@@ -1,0 +1,692 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>11. The CamCOPS server configuration file &#8212; CamCOPS 2.2.1 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="12. Web site: admin functions" href="server_front_end_admin.html" />
+    <link rel="prev" title="10. Configuring the server" href="server_configuration.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="server_front_end_admin.html" title="12. Web site: admin functions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="server_configuration.html" title="10. Configuring the server"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="the-camcops-server-configuration-file">
+<span id="server-config-file"></span><h1>11. The CamCOPS server configuration file<a class="headerlink" href="#the-camcops-server-configuration-file" title="Permalink to this headline">¶</a></h1>
+<p>CamCOPS needs a configuration file. Under Linux, this is normally something
+that you create at <cite>/etc/camcops/camcops.conf</cite>, from a template produced by
+CamCOPS. It is the configuration file that points to your database.</p>
+<div class="section" id="databases-and-configuration-files">
+<h2>11.1. Databases and configuration files<a class="headerlink" href="#databases-and-configuration-files" title="Permalink to this headline">¶</a></h2>
+<p>In general, it is best to have a single CamCOPS database and a single CamCOPS
+configuration file. This is simple. You can add <a class="reference internal" href="../introduction/groups.html#groups"><span class="std std-ref">groups</span></a>
+dynamically, and use <a class="reference internal" href="../introduction/groups.html#groups"><span class="std std-ref">group security</span></a> to manage data access.
+Groups can be entirely isolated from each other, which mimics having multiple
+databases, but they can also overlap in useful ways.</p>
+<p>It’s also possible, of course, to have multiple CamCOPS databases, each with
+its own configuration file.</p>
+<p>If you do operate with multiple databases/configuration files, you may want to
+use the <a class="reference internal" href="server_command_line.html#camcops-meta"><span class="std std-ref">camcops_meta</span></a> tool, which allows you to run the
+same <a class="reference internal" href="server_command_line.html#camcops-cli"><span class="std std-ref">camcops</span></a> command over multiple configuration files in
+one go (for example, to upgrade the databases for a new version of CamCOPS).</p>
+</div>
+<div class="section" id="format-of-the-configuration-file">
+<h2>11.2. Format of the configuration file<a class="headerlink" href="#format-of-the-configuration-file" title="Permalink to this headline">¶</a></h2>
+<p>The config file is in standard <a class="reference external" href="https://en.wikipedia.org/wiki/INI_file">INI file format</a>.</p>
+<p>Here’s a specimen configuration file, generated via the command <cite>camcops
+demo_camcops_config &gt; demo_camcops_config.ini</cite>:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># Demonstration CamCOPS configuration file.</span>
+<span class="c1"># Created by CamCOPS version 2.2.1 at 2018-06-08T15:56:44.875146+01:00.</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Format of the CamCOPS configuration file</span>
+<span class="c1"># =============================================================================</span>
+<span class="c1"># COMMENTS. Hashes (#) and semicolons (;) mark out comments.</span>
+<span class="c1"># SECTIONS. Sections are indicated with: [section]</span>
+<span class="c1"># NAME/VALUE (KEY/VALUE) PAIRS.</span>
+<span class="c1"># - The parser used is ConfigParser (Python).</span>
+<span class="c1"># - It allows &quot;name=value&quot; or &quot;name:value&quot;.</span>
+<span class="c1"># - BOOLEAN OPTIONS. For Boolean options, TRUE values are any of: 1, yes, true,</span>
+<span class="c1">#   on (case-insensitive). FALSE values are any of: 0, no, false, off.</span>
+<span class="c1"># - UTF-8 encoding. Use this. For ConfigParser, the file is explicitly opened</span>
+<span class="c1">#   in UTF-8 mode.</span>
+<span class="c1"># - Avoid indentation.</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Main section: [server]</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="k">[server]</span>
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Database connection/tools</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+
+<span class="c1"># DB_URL: SQLAlchemy connection URL.</span>
+<span class="c1"># See http://docs.sqlalchemy.org/en/latest/core/engines.html</span>
+<span class="c1"># Examples:</span>
+<span class="c1"># - MySQL under Linux via mysqlclient</span>
+<span class="c1">#   $$ pip install mysqlclient</span>
+<span class="c1">#   DB_URL = mysql+mysqldb://&lt;username&gt;:&lt;password&gt;@&lt;host&gt;:&lt;port&gt;/&lt;database&gt;?charset=utf8</span>
+<span class="c1">#</span>
+<span class="c1">#   (The default MySQL port is 3306, and &#39;localhost&#39; is often the right host.)</span>
+<span class="c1">#</span>
+<span class="c1"># - SQL Server under Windows via ODBC and username/password authentication</span>
+<span class="c1">#   C:\&gt; pip install pyodbc</span>
+<span class="c1">#   DB_URL = mssql+pyodbc://&lt;username&gt;:&lt;password&gt;@&lt;odbc_dsn_name&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># - ... or via Windows authentication:</span>
+<span class="c1">#   DB_URL = mssql+pyodbc://@&lt;odbc_dsn_name&gt;</span>
+
+<span class="na">DB_URL</span> <span class="o">=</span> <span class="s">mysql+mysqldb://YYY_USERNAME_REPLACE_ME:ZZZ_PASSWORD_REPLACE_ME@localhost:3306/camcops?charset=utf8</span>
+
+<span class="c1"># DB_ECHO: echo all SQL?</span>
+
+<span class="na">DB_ECHO</span> <span class="o">=</span> <span class="s">False</span>
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># URLs and paths</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1">#</span>
+<span class="c1"># A quick note on absolute and relative URLs, and how CamCOPS is mounted.</span>
+<span class="c1">#</span>
+<span class="c1"># Suppose your CamCOPS site is visible at</span>
+<span class="c1">#       https://www.somewhere.ac.uk/camcops_smith_lab/webview</span>
+<span class="c1">#       ^      ^^                 ^^                ^^      ^</span>
+<span class="c1">#       +------++-----------------++----------------++------+</span>
+<span class="c1">#       |       |                  |                 |</span>
+<span class="c1">#       1       2                  3                 4</span>
+<span class="c1">#</span>
+<span class="c1"># Part 1 is the protocol, and part 2 the machine name.</span>
+<span class="c1"># Part 3 is the mount point. The main server (e.g. Apache) knows where the</span>
+<span class="c1"># CamCOPS script is mounted (in this case /camcops_smith_lab). It does NOT</span>
+<span class="c1"># tell the script via the script&#39;s WSGI environment. Therefore, if the script</span>
+<span class="c1"># sends HTML including links, the script can operate only in relative mode.</span>
+<span class="c1"># For it to operate in absolute mode, it would need to know (3).</span>
+<span class="c1"># Part 4 is visible to the CamCOPS script.</span>
+<span class="c1">#</span>
+<span class="c1"># If CamCOPS emitted URLs starting with &#39;/&#39;, it would need to be told at least</span>
+<span class="c1"># part (3). To use absolute URLs, it would need to know all of (1), (2), (3).</span>
+<span class="c1"># We will follow others (e.g. http://stackoverflow.com/questions/2005079) and</span>
+<span class="c1"># use only relative URLs.</span>
+
+<span class="c1"># LOCAL_INSTITUTION_URL: Clicking on your institution&#39;s logo in the CamCOPS</span>
+<span class="c1"># menu will take you to this URL.</span>
+<span class="c1"># Edit the next line to point to your institution:</span>
+
+<span class="na">LOCAL_INSTITUTION_URL</span> <span class="o">=</span> <span class="s">http://www.mydomain/</span>
+
+<span class="c1"># LOCAL_LOGO_FILE_ABSOLUTE: Specify the full path to your institution&#39;s logo</span>
+<span class="c1"># file, e.g. /var/www/logo_local_myinstitution.png . It&#39;s used for PDF</span>
+<span class="c1"># generation; HTML views use the fixed string &quot;static/logo_local.png&quot;, aliased</span>
+<span class="c1"># to your file via the Apache configuration file).</span>
+<span class="c1"># Edit the next line to point to your local institution&#39;s logo file:</span>
+
+<span class="na">LOCAL_LOGO_FILE_ABSOLUTE</span> <span class="o">=</span> <span class="s">/home/rudolf/Documents/code/camcops/server/camcops_server/static/logo_local.png</span>
+
+<span class="c1"># CAMCOPS_LOGO_FILE_ABSOLUTE: similarly, but for the CamCOPS logo.</span>
+<span class="c1"># It&#39;s fine not to specify this.</span>
+
+<span class="c1"># CAMCOPS_LOGO_FILE_ABSOLUTE = /home/rudolf/Documents/code/camcops/server/camcops_server/static/logo_camcops.png</span>
+
+<span class="c1"># EXTRA_STRING_FILES: multiline list of filenames (with absolute paths), read</span>
+<span class="c1"># by the server, and used as EXTRA STRING FILES. Should at the MINIMUM point</span>
+<span class="c1"># to the string file camcops.xml</span>
+<span class="c1"># May use &quot;glob&quot; pattern-matching (see</span>
+<span class="c1"># https://docs.python.org/3.5/library/glob.html).</span>
+
+<span class="na">EXTRA_STRING_FILES</span> <span class="o">=</span> <span class="s">/home/rudolf/Documents/code/camcops/server/camcops_server/extra_strings/*</span>
+
+<span class="c1"># INTROSPECTION: permits the offering of CamCOPS source code files to the user,</span>
+<span class="c1"># allowing inspection of tasks&#39; internal calculating algorithms. Default is</span>
+<span class="c1"># true.</span>
+
+<span class="na">INTROSPECTION</span> <span class="o">=</span> <span class="s">true</span>
+
+<span class="c1"># HL7_LOCKFILE: filename stem used for process locking for HL7 message</span>
+<span class="c1"># transmission. Default is /var/lock/camcops/camcops.hl7</span>
+<span class="c1"># The actual lockfile will, in this case, be called</span>
+<span class="c1">#     /var/lock/camcops/camcops.hl7.lock</span>
+<span class="c1"># and other process-specific files will be created in the same directory (so</span>
+<span class="c1"># the CamCOPS script must have permission from the operating system to do so).</span>
+<span class="c1"># The installation script will create the directory /var/lock/camcops</span>
+
+<span class="na">HL7_LOCKFILE</span> <span class="o">=</span> <span class="s">/var/lock/camcops/camcops.hl7</span>
+
+<span class="c1"># SUMMARY_TABLES_LOCKFILE: file stem used for process locking for summary table</span>
+<span class="c1"># generation. Default is /var/lock/camcops/camcops.summarytables.</span>
+<span class="c1"># The lockfile will, in this case, be called</span>
+<span class="c1">#     /var/lock/camcops/camcops.summarytables.lock</span>
+<span class="c1"># and other process-specific files will be created in the same directory (so</span>
+<span class="c1"># the CamCOPS script must have permission from the operating system to do so).</span>
+<span class="c1"># The installation script will create the directory /var/lock/camcops</span>
+
+<span class="na">SUMMARY_TABLES_LOCKFILE</span> <span class="o">=</span> <span class="s">/var/lock/camcops/camcops.summarytables</span>
+
+<span class="c1"># WKHTMLTOPDF_FILENAME: for the pdfkit PDF engine, specify a filename for</span>
+<span class="c1"># wkhtmltopdf that incorporates any need for an X Server (not the default</span>
+<span class="c1"># /usr/bin/wkhtmltopdf). See http://stackoverflow.com/questions/9604625/ .</span>
+<span class="c1"># A suitable one is bundled with CamCOPS, so you shouldn&#39;t have to alter this</span>
+<span class="c1"># default. Default is None, which usually ends up calling /usr/bin/wkhtmltopdf</span>
+
+<span class="na">WKHTMLTOPDF_FILENAME</span> <span class="o">=</span>
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Login and session configuration</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+
+<span class="c1"># SESSION_COOKIE_SECRET: Secret used for HTTP cookie signing via Pyramid.</span>
+<span class="c1"># Put something random in here and keep it secret.</span>
+<span class="c1"># (When you make a CamCOPS demo config, the value shown is fresh and random.)</span>
+
+<span class="na">SESSION_COOKIE_SECRET</span> <span class="o">=</span> <span class="s">camcops_autogenerated_secret_uld31SfdoTT-IjNQKmAZxOXtIXl0QbWrGGiZQv89hoCvG3_SpDkhxZWSBxDpmIveRzmhH3SSoi4C7KB-3qnZNQ==</span>
+
+<span class="c1"># SESSION_TIMEOUT_MINUTES: Time after which a session will expire (default 30).</span>
+
+<span class="na">SESSION_TIMEOUT_MINUTES</span> <span class="o">=</span> <span class="s">30</span>
+
+<span class="c1"># PASSWORD_CHANGE_FREQUENCY_DAYS: Force password changes (at webview login)</span>
+<span class="c1"># with this frequency (0 for never). Note that password expiry will not prevent</span>
+<span class="c1"># uploads from tablets, but when the user next logs on, a password change will</span>
+<span class="c1"># be forced before they can do anything else.</span>
+
+<span class="na">PASSWORD_CHANGE_FREQUENCY_DAYS</span> <span class="o">=</span> <span class="s">0</span>
+
+<span class="c1"># LOCKOUT_THRESHOLD: Lock user accounts after every n login failures (default</span>
+<span class="c1"># 10).</span>
+
+<span class="na">LOCKOUT_THRESHOLD</span> <span class="o">=</span> <span class="s">10</span>
+
+<span class="c1"># LOCKOUT_DURATION_INCREMENT_MINUTES: Account lockout time increment (default</span>
+<span class="c1"># 10).</span>
+<span class="c1"># Suppose LOCKOUT_THRESHOLD = 10 and LOCKOUT_DURATION_INCREMENT_MINUTES = 20.</span>
+<span class="c1"># After the first 10 failures, the account will be locked for 20 minutes.</span>
+<span class="c1"># After the next 10 failures, the account will be locked for 40 minutes.</span>
+<span class="c1"># After the next 10 failures, the account will be locked for 60 minutes, and so</span>
+<span class="c1"># on. Time and administrators can unlock accounts.</span>
+
+<span class="na">LOCKOUT_DURATION_INCREMENT_MINUTES</span> <span class="o">=</span> <span class="s">10</span>
+
+<span class="c1"># DISABLE_PASSWORD_AUTOCOMPLETE: if true, asks browsers not to autocomplete the</span>
+<span class="c1"># password field on the main login page. The correct setting for maximum</span>
+<span class="c1"># security is debated (don&#39;t cache passwords, versus allow a password manager</span>
+<span class="c1"># so that users can use better/unique passwords). Default: true.</span>
+<span class="c1"># Note that some browsers (e.g. Chrome v34 and up) may ignore this.</span>
+
+<span class="na">DISABLE_PASSWORD_AUTOCOMPLETE</span> <span class="o">=</span> <span class="s">true</span>
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Suggested filenames for saving PDFs from the web view</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Try with Chrome, Firefox. Internet Explorer may be less obliging.</span>
+
+<span class="c1"># PATIENT_SPEC_IF_ANONYMOUS: for anonymous tasks, this fixed string is</span>
+<span class="c1"># used as the patient descriptor (see also PATIENT_SPEC below).</span>
+<span class="c1"># Typically &quot;anonymous&quot;.</span>
+
+<span class="na">PATIENT_SPEC_IF_ANONYMOUS</span> <span class="o">=</span> <span class="s">anonymous</span>
+
+<span class="c1"># PATIENT_SPEC: string, into which substitutions will be made, that defines the</span>
+<span class="c1"># {patient} element available for substitution into the *_FILENAME_SPEC</span>
+<span class="c1"># variables (see below). Possible substitutions:</span>
+<span class="c1">#</span>
+<span class="c1">#   {surname}      : patient&#39;s surname in upper case</span>
+<span class="c1">#   {forename}     : patient&#39;s forename in upper case</span>
+<span class="c1">#   {dob}          : patient&#39;s date of birth (format &quot;%Y-%m-%d&quot;, e.g.</span>
+<span class="c1">#                    2013-07-24)</span>
+<span class="c1">#   {sex}          : patient&#39;s sex (M, F, X)</span>
+<span class="c1">#</span>
+<span class="c1">#   {idshortdesc1} : short description of the relevant ID number, if that ID</span>
+<span class="c1">#   {idshortdesc2}   number is not blank; otherwise blank</span>
+<span class="c1">#   ...</span>
+<span class="c1">#</span>
+<span class="c1">#   {idnum1}       : ID numbers</span>
+<span class="c1">#   {idnum2}</span>
+<span class="c1">#   ...</span>
+<span class="c1">#</span>
+<span class="c1">#   {allidnums}    : all available ID numbers in &quot;shortdesc-value&quot; pairs joined</span>
+<span class="c1">#                    by &quot;_&quot;. For example, if ID numbers 1, 4, and 5 are</span>
+<span class="c1">#                    non-blank, this would have the format</span>
+<span class="c1">#                    idshortdesc1-idnum1_idshortdesc4-idnum4_idshortdesc5-idnum5</span>
+
+<span class="na">PATIENT_SPEC</span> <span class="o">=</span> <span class="s">{surname}_{forename}_{allidnums}</span>
+
+<span class="c1"># TASK_FILENAME_SPEC:</span>
+<span class="c1"># TRACKER_FILENAME_SPEC:</span>
+<span class="c1"># CTV_FILENAME_SPEC:</span>
+<span class="c1"># Strings used for suggested filenames to save from the webview, for tasks,</span>
+<span class="c1"># trackers, and clinical text views. Substitutions will be made to determine</span>
+<span class="c1"># the filename to be used for each file. Possible substitutions:</span>
+<span class="c1">#</span>
+<span class="c1">#   {patient}   : Patient string. If the task is anonymous, this is</span>
+<span class="c1">#                 PATIENT_SPEC_IF_ANONYMOUS; otherwise, it is defined by</span>
+<span class="c1">#                 PATIENT_SPEC above.</span>
+<span class="c1">#   {created}   : Date/time of task creation.  Dates/times are of the format</span>
+<span class="c1">#                 &quot;%Y-%m-%dT%H%M&quot;, e.g. 2013-07-24T2004. They are expressed in</span>
+<span class="c1">#                 the timezone of creation (but without the timezone</span>
+<span class="c1">#                 information for filename brevity).</span>
+<span class="c1">#   {now}       : Time of access/download (i.e. time now), in local timezone.</span>
+<span class="c1">#   {tasktype}  : Base table name of the task (e.g. &quot;phq9&quot;). May contain an</span>
+<span class="c1">#                 underscore. Blank for to trackers/CTVs.</span>
+<span class="c1">#   {serverpk}  : Server&#39;s primary key. (In combination with tasktype, this</span>
+<span class="c1">#                 uniquely identifies not just a task but a version of that</span>
+<span class="c1">#                 task.) Blank for trackers/CTVs.</span>
+<span class="c1">#   {filetype}  : e.g. &quot;pdf&quot;, &quot;html&quot;, &quot;xml&quot; (lower case)</span>
+<span class="c1">#   {anonymous} : evaluates to PATIENT_SPEC_IF_ANONYMOUS if anonymous,</span>
+<span class="c1">#                 otherwise &quot;&quot;</span>
+<span class="c1">#   ... plus all those substitutions applicable to PATIENT_SPEC</span>
+<span class="c1">#</span>
+<span class="c1"># After these substitutions have been made, the entire filename is then</span>
+<span class="c1"># processed to ensure that only characters generally acceptable to filenames</span>
+<span class="c1"># are used (see convert_string_for_filename() in the CamCOPS source code).</span>
+<span class="c1"># Specifically:</span>
+<span class="c1">#</span>
+<span class="c1">#   - Unicode converted to 7-bit ASCII (will mangle, e.g. removing accents)</span>
+<span class="c1">#   - spaces converted to underscores</span>
+<span class="c1">#   - characters are removed unless they are one of the following: all</span>
+<span class="c1">#     alphanumeric characters (0-9, A-Z, a-z); &#39;-&#39;; &#39;_&#39;; &#39;.&#39;; and the</span>
+<span class="c1">#     operating-system-specific directory separator (Python&#39;s os.sep, a forward</span>
+<span class="c1">#     slash &#39;/&#39; on UNIX or a backslash &#39;&#39; under Windows).</span>
+
+<span class="na">TASK_FILENAME_SPEC</span> <span class="o">=</span> <span class="s">CamCOPS_{patient}_{created}_{tasktype}-{serverpk}.{filetype}</span>
+<span class="na">TRACKER_FILENAME_SPEC</span> <span class="o">=</span> <span class="s">CamCOPS_{patient}_{now}_tracker.{filetype}</span>
+<span class="na">CTV_FILENAME_SPEC</span> <span class="o">=</span> <span class="s">CamCOPS_{patient}_{now}_clinicaltextview.{filetype}</span>
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Debugging options</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Possible log levels are (case-insensitive): &quot;debug&quot;, &quot;info&quot;, &quot;warn&quot;</span>
+<span class="c1"># (equivalent: &quot;warning&quot;), &quot;error&quot;, and &quot;critical&quot; (equivalent: &quot;fatal&quot;).</span>
+
+<span class="c1"># WEBVIEW_LOGLEVEL: Set the level of detail provided from the webview to the</span>
+<span class="c1"># Apache server log. (Loglevel option; see above.)</span>
+
+<span class="na">WEBVIEW_LOGLEVEL</span> <span class="o">=</span> <span class="s">info</span>
+
+<span class="c1"># CLIENT_API_LOGLEVEL: Set the log level for the tablet client database access</span>
+<span class="c1"># script. (Loglevel option; see above.)</span>
+
+<span class="na">CLIENT_API_LOGLEVEL</span> <span class="o">=</span> <span class="s">info</span>
+
+<span class="c1"># ALLOW_INSECURE_COOKIES: DANGEROUS option that removes the requirement that</span>
+<span class="c1"># cookies be HTTPS (SSL) only.</span>
+
+<span class="na">ALLOW_INSECURE_COOKIES</span> <span class="o">=</span> <span class="s">false</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># List of HL7/file recipients, and then details for each one</span>
+<span class="c1"># =============================================================================</span>
+<span class="c1"># This section defines a list of recipients to which Health Level Seven (HL7)</span>
+<span class="c1"># messages or raw files will be sent. Typically, you will send them by calling</span>
+<span class="c1"># &quot;camcops -7 CONFIGFILE&quot; regularly from the system&#39;s /etc/crontab or other</span>
+<span class="c1"># scheduling system. For example, a conventional /etc/crontab file has these</span>
+<span class="c1"># fields:</span>
+<span class="c1">#</span>
+<span class="c1">#   minutes, hours, day_of_month, month, day_of_week, user, command</span>
+<span class="c1">#</span>
+<span class="c1"># so you could add a line like this to /etc/crontab:</span>
+<span class="c1">#</span>
+<span class="c1">#   * * * * *  root  camcops -7 /etc/camcops/MYCONFIG.conf</span>
+<span class="c1">#</span>
+<span class="c1"># ... and CamCOPS would run its exports once per minute. See &quot;man 5 crontab&quot;</span>
+<span class="c1"># or http://en.wikipedia.org/wiki/Cron for more options.</span>
+<span class="c1">#</span>
+<span class="c1"># In this section, keys are ignored; values are section headings (one per</span>
+<span class="c1"># recipient).</span>
+
+<span class="k">[recipients]</span>
+
+<span class="c1"># Examples (commented out):</span>
+
+<span class="c1"># recipient=recipient_A</span>
+<span class="c1"># recipient=recipient_B</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Individual HL7/file recipient configurations</span>
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Dates are YYYY-MM-DD, e.g. 2013-12-31, or blank</span>
+
+<span class="c1"># Example (disabled because it&#39;s not in the list above)</span>
+
+<span class="c1"># ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="c1"># First example</span>
+<span class="c1"># ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="k">[recipient_A]</span>
+
+<span class="c1"># TYPE: one of the following methods.</span>
+<span class="c1">#   hl7</span>
+<span class="c1">#       Sends HL7 messages across a TCP/IP network.</span>
+<span class="c1">#   file</span>
+<span class="c1">#       Writes files to a local filesystem.</span>
+
+<span class="na">TYPE</span> <span class="o">=</span> <span class="s">hl7</span>
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Options applicable to HL7 messages and file transfers</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+
+<span class="c1"># GROUP_ID: CamCOPS group to export from.</span>
+<span class="c1"># HL7 messages are sent from one group at a time. Which group will this</span>
+<span class="c1"># recipient definition use? (Note that you can just duplicate a recipient</span>
+<span class="c1"># definition to export a second or subsequent group.)</span>
+<span class="c1"># This is an integer.</span>
+
+<span class="na">GROUP_ID</span> <span class="o">=</span> <span class="s">1</span>
+
+<span class="c1"># PRIMARY_IDNUM: which ID number (1-8) should be considered the &quot;internal&quot;</span>
+<span class="c1"># (primary) ID number? Must be specified for HL7 messages. May be blank for</span>
+<span class="c1"># file transmission.</span>
+
+<span class="na">PRIMARY_IDNUM</span> <span class="o">=</span> <span class="s">1</span>
+
+<span class="c1"># REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY: defines behaviour relating to the</span>
+<span class="c1"># primary ID number (as defined by PRIMARY_IDNUM).</span>
+<span class="c1"># - If true, no message sending will be attempted unless the PRIMARY_IDNUM is a</span>
+<span class="c1">#   mandatory part of the finalizing policy (and if FINALIZED_ONLY is false,</span>
+<span class="c1">#   also of the upload policy).</span>
+<span class="c1"># - If false, messages will be sent, but ONLY FROM TASKS FOR WHICH THE</span>
+<span class="c1">#   PRIMARY_IDNUM IS PRESENT; others will be ignored.</span>
+<span class="c1"># - For file sending only, this will be ignored if PRIMARY_IDNUM is blank.</span>
+<span class="c1"># - For file sending only, this setting does not apply to anonymous tasks,</span>
+<span class="c1">#   whose behaviour is controlled by INCLUDE_ANONYMOUS (see below).</span>
+
+<span class="na">REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY</span> <span class="o">=</span> <span class="s">true</span>
+
+<span class="c1"># START_DATE: earliest date for which tasks will be sent. Assessed against the</span>
+<span class="c1"># task&#39;s &quot;when_created&quot; field, converted to Universal Coordinated Time (UTC) --</span>
+<span class="c1"># that is, this date is in UTC (beware if you are in a very different time</span>
+<span class="c1"># zone). Blank to apply no start date restriction.</span>
+
+<span class="na">START_DATE</span> <span class="o">=</span>
+
+<span class="c1"># END_DATE: latest date for which tasks will be sent. In UTC. Assessed against</span>
+<span class="c1"># the task&#39;s &quot;when_created&quot; field (converted to UTC). Blank to apply no end</span>
+<span class="c1"># date restriction.</span>
+
+<span class="na">END_DATE</span> <span class="o">=</span>
+
+<span class="c1"># FINALIZED_ONLY: if true, only send tasks that are finalized (moved off their</span>
+<span class="c1"># originating tablet and not susceptible to later modification). If false, also</span>
+<span class="c1"># send tasks that are uploaded but not yet finalized (they will then be sent</span>
+<span class="c1"># again if they are modified later).</span>
+
+<span class="na">FINALIZED_ONLY</span> <span class="o">=</span> <span class="s">true</span>
+
+<span class="c1"># TASK_FORMAT: one of: pdf, html, xml</span>
+
+<span class="na">TASK_FORMAT</span> <span class="o">=</span> <span class="s">pdf</span>
+
+<span class="c1"># XML_FIELD_COMMENTS: if TASK_FORMAT is xml, then XML_FIELD_COMMENTS determines</span>
+<span class="c1"># whether field comments are included. These describe the meaning of each field</span>
+<span class="c1"># so add to space requirements but provide more information for human readers.</span>
+<span class="c1"># (Default true.)</span>
+
+<span class="na">XML_FIELD_COMMENTS</span> <span class="o">=</span> <span class="s">true</span>
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Options applicable to HL7 only (TYPE = hl7)</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+
+<span class="c1"># HOST: HL7 hostname or IP address</span>
+
+<span class="na">HOST</span> <span class="o">=</span> <span class="s">myhl7server.mydomain</span>
+
+<span class="c1"># PORT: HL7 port (default 2575)</span>
+
+<span class="na">PORT</span> <span class="o">=</span> <span class="s">2575</span>
+
+<span class="c1"># PING_FIRST: if true, requires a successful ping to the server prior to</span>
+<span class="c1"># sending HL7 messages. (Note: this is a TCP/IP ping, and tests that the</span>
+<span class="c1"># machine is up, not that it is running an HL7 server.) Default: true.</span>
+
+<span class="na">PING_FIRST</span> <span class="o">=</span> <span class="s">true</span>
+
+<span class="c1"># NETWORK_TIMEOUT_MS: network time (in milliseconds). Default: 10000.</span>
+
+<span class="na">NETWORK_TIMEOUT_MS</span> <span class="o">=</span> <span class="s">10000</span>
+
+<span class="c1"># KEEP_MESSAGE: keep a copy of the entire message in the databaase. Default is</span>
+<span class="c1"># false. WARNING: may consume significant space in the database.</span>
+
+<span class="na">KEEP_MESSAGE</span> <span class="o">=</span> <span class="s">false</span>
+
+<span class="c1"># KEEP_REPLY: keep a copy of the reply (e.g. acknowledgement) message received</span>
+<span class="c1"># from the server. Default is false. WARNING: may consume significant space.</span>
+
+<span class="na">KEEP_REPLY</span> <span class="o">=</span> <span class="s">false</span>
+
+<span class="c1"># DIVERT_TO_FILE: Override HOST/PORT options and send HL7 messages to this</span>
+<span class="c1"># (single) file instead. Each messages is appended to the file. Default is</span>
+<span class="c1"># blank (meaning network transmission will be used). This is a debugging</span>
+<span class="c1"># option, allowing you to redirect HL7 messages to a file and inspect them.</span>
+
+<span class="na">DIVERT_TO_FILE</span> <span class="o">=</span>
+
+<span class="c1"># TREAT_DIVERTED_AS_SENT: Any messages that are diverted to a file (using</span>
+<span class="c1"># DIVERT_TO_FILE) are treated as having been sent (thus allowing the file to</span>
+<span class="c1"># mimic an HL7-receiving server that&#39;s accepting messages happily). If set to</span>
+<span class="c1"># false (the default), a diversion will allow you to preview messages for</span>
+<span class="c1"># debugging purposes without &quot;swallowing&quot; them. BEWARE, though: if you have</span>
+<span class="c1"># an automatically scheduled job (for example, to send messages every minute)</span>
+<span class="c1"># and you divert with this flag set to false, you will end up with a great many</span>
+<span class="c1"># message attempts!</span>
+
+<span class="na">TREAT_DIVERTED_AS_SENT</span> <span class="o">=</span> <span class="s">false</span>
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Options applicable to file transfers only (TYPE = file)</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+
+<span class="c1"># INCLUDE_ANONYMOUS: include anonymous tasks.</span>
+<span class="c1"># - Note that anonymous tasks cannot be sent via HL7; the HL7 specification is</span>
+<span class="c1">#   heavily tied to identification.</span>
+<span class="c1"># - Note also that this setting operates independently of the</span>
+<span class="c1">#   REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY setting.</span>
+
+<span class="na">INCLUDE_ANONYMOUS</span> <span class="o">=</span> <span class="s">true</span>
+
+<span class="c1"># PATIENT_SPEC_IF_ANONYMOUS: for anonymous tasks, this string is used as the</span>
+<span class="c1"># patient descriptor (see also PATIENT_SPEC, FILENAME_SPEC below). Typically</span>
+<span class="c1"># &quot;anonymous&quot;.</span>
+
+<span class="na">PATIENT_SPEC_IF_ANONYMOUS</span> <span class="o">=</span> <span class="s">anonymous</span>
+
+<span class="c1"># PATIENT_SPEC: string, into which substitutions will be made, that defines the</span>
+<span class="c1"># {patient} element available for substitution into the FILENAME_SPEC (see</span>
+<span class="c1"># below). Possible substitutions: as for PATIENT_SPEC in the main</span>
+<span class="c1"># &quot;[server]&quot; section of the configuration file (see above).</span>
+
+<span class="na">PATIENT_SPEC</span> <span class="o">=</span> <span class="s">{surname}_{forename}_{idshortdesc1}{idnum1}</span>
+
+<span class="c1"># FILENAME_SPEC: string into which substitutions will be made to determine the</span>
+<span class="c1"># filename to be used for each file. Possible substitutions: as for</span>
+<span class="c1"># PATIENT_SPEC in the main &quot;[server]&quot; section of the configuration</span>
+<span class="c1"># file (see above).</span>
+
+<span class="na">FILENAME_SPEC</span> <span class="o">=</span> <span class="s">/my_nfs_mount/mypath/CamCOPS_{patient}_{created}_{tasktype}-{serverpk}.{filetype}</span>
+
+<span class="c1"># MAKE_DIRECTORY: make the directory if it doesn&#39;t already exist. Default is</span>
+<span class="c1"># false.</span>
+
+<span class="na">MAKE_DIRECTORY</span> <span class="o">=</span> <span class="s">true</span>
+
+<span class="c1"># OVERWRITE_FILES: whether or not to attempt overwriting existing files of the</span>
+<span class="c1"># same name (default false). There is a DANGER of inadvertent data loss if you</span>
+<span class="c1"># set this to true. (Needing to overwrite a file suggests that your filenames</span>
+<span class="c1"># are not task-unique; try ensuring that both the {tasktype} and {serverpk}</span>
+<span class="c1"># attributes are used in the filename.)</span>
+
+<span class="na">OVERWRITE_FILES</span> <span class="o">=</span> <span class="s">false</span>
+
+<span class="c1"># RIO_METADATA: whether or not to export a metadata file for Servelec&#39;s RiO</span>
+<span class="c1"># (default false).</span>
+<span class="c1"># Details of this file format are in cc_task.py / Task.get_rio_metadata().</span>
+<span class="c1"># The metadata filename is that of its associated file, but with the extension</span>
+<span class="c1"># replaced by &quot;.metadata&quot; (e.g. X.pdf is accompanied by X.metadata).</span>
+<span class="c1"># If RIO_METADATA is true, the following options also apply:</span>
+<span class="c1">#   RIO_IDNUM: which of the ID numbers (as above) is the RiO ID?</span>
+<span class="c1">#   RIO_UPLOADING_USER: username for the uploading user (maximum of 10</span>
+<span class="c1">#       characters)</span>
+<span class="c1">#   RIO_DOCUMENT_TYPE: document type as defined in the receiving RiO system.</span>
+<span class="c1">#       This is a code that maps to a human-readable document type; for</span>
+<span class="c1">#       example, the code &quot;APT&quot; might map to &quot;Appointment Letter&quot;. Typically we</span>
+<span class="c1">#       might want a code that maps to &quot;Clinical Correspondence&quot;, but the code</span>
+<span class="c1">#       will be defined within the local RiO system configuration.</span>
+
+<span class="na">RIO_METADATA</span> <span class="o">=</span> <span class="s">false</span>
+<span class="na">RIO_IDNUM</span> <span class="o">=</span> <span class="s">2</span>
+<span class="na">RIO_UPLOADING_USER</span> <span class="o">=</span> <span class="s">CamCOPS</span>
+<span class="na">RIO_DOCUMENT_TYPE</span> <span class="o">=</span> <span class="s">CC</span>
+
+<span class="c1"># SCRIPT_AFTER_FILE_EXPORT: filename of a shell script or other executable to</span>
+<span class="c1"># run after file export is complete. You might use this script, for example, to</span>
+<span class="c1"># move the files to a different location (such as across a network). If the</span>
+<span class="c1"># parameter is blank, no script will be run. If no files are exported, the</span>
+<span class="c1"># script will not be run.</span>
+<span class="c1"># - Parameters passed to the script: a list of all the filenames exported.</span>
+<span class="c1">#   (This includes any RiO metadata filenames.)</span>
+<span class="c1"># - WARNING: the script will execute with the same permissions as the instance</span>
+<span class="c1">#   of CamCOPS that&#39;s doing the export (so, for example, if you run CamCOPS</span>
+<span class="c1">#   from your /etc/crontab as root, then this script will be run as root; that</span>
+<span class="c1">#   can pose a risk!).</span>
+<span class="c1"># - The script executes while the export lock is still held by CamCOPS (i.e.</span>
+<span class="c1">#   further HL7/file transfers won&#39;t be started until the script(s) is/are</span>
+<span class="c1">#   complete).</span>
+<span class="c1"># - If the script fails, an error message is recorded, but the file transfer is</span>
+<span class="c1">#   still considered to have been made (CamCOPS has done all it can and the</span>
+<span class="c1">#   responsibility now lies elsewhere).</span>
+<span class="c1"># - Example test script: suppose this is /usr/local/bin/print_arguments:</span>
+<span class="c1">#       #!/bin/bash</span>
+<span class="c1">#       for f in $$@</span>
+<span class="c1">#       do</span>
+<span class="c1">#           echo &quot;CamCOPS has just exported this file: $$f&quot;</span>
+<span class="c1">#       done</span>
+<span class="c1">#   ... then you could set:</span>
+<span class="c1">#       SCRIPT_AFTER_FILE_EXPORT = /usr/local/bin/print_arguments</span>
+
+<span class="na">SCRIPT_AFTER_FILE_EXPORT</span> <span class="o">=</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">11. The CamCOPS server configuration file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#databases-and-configuration-files">11.1. Databases and configuration files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#format-of-the-configuration-file">11.2. Format of the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_command_line.html">13. CamCOPS server command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">15. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">16. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">19. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="server_configuration.html"
+                        title="previous chapter">10. Configuring the server</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="server_front_end_admin.html"
+                        title="next chapter">12. Web site: admin functions</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/server/server_config_file.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="server_front_end_admin.html" title="12. Web site: admin functions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="server_configuration.html" title="10. Configuring the server"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

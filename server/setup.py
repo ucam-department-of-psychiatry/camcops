@@ -51,9 +51,6 @@ from typing import List
 
 from camcops_server.cc_modules.cc_baseconstants import (
     INTROSPECTABLE_EXTENSIONS,
-    MANUAL_FILENAME_ODT,
-    MANUAL_FILENAME_PDF,
-    MANUAL_FILENAME_PDF_STEM,
     TABLET_SOURCE_COPY_DIR,
 )
 from camcops_server.cc_modules.cc_version_string import (
@@ -148,8 +145,8 @@ def add_all_files(root_dir: str,
 # =============================================================================
 # http://blog.codekills.net/2011/07/15/lies,-more-lies-and-python-packaging-documentation-on--package_data-/  # noqa
 
-here = os.path.abspath(os.path.dirname(__file__))
-EGG_DIR = os.path.join(here, 'camcops_server.egg-info')
+THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+EGG_DIR = os.path.join(THIS_DIR, 'camcops_server.egg-info')
 deltree(EGG_DIR, verbose=True)
 
 # Also...
@@ -158,7 +155,7 @@ deltree(EGG_DIR, verbose=True)
 #    the .gz file, but not into the final distribution after installation.
 # 3. So, we'll auto-write a MANIFEST.in
 
-MANIFEST_FILE = os.path.join(here, 'MANIFEST.in')
+MANIFEST_FILE = os.path.join(THIS_DIR, 'MANIFEST.in')
 
 # 4. Argh! Still not installing
 # - http://stackoverflow.com/questions/13307408/python-packaging-data-files-are-put-properly-in-tar-gz-file-but-are-not-install  # noqa
@@ -190,8 +187,7 @@ sys.argv[1:] = leftover_args
 EXTRA_FILES = []
 
 if getattr(our_args, EXTRAS_ARG):
-    # src_tablet_ti = os.path.join(here, '..', 'tablet')
-    src_tablet_qt = os.path.join(here, '..', 'tablet_qt')
+    src_tablet_qt = os.path.join(THIS_DIR, '..', 'tablet_qt')
     required_dirs = [src_tablet_qt]
 
     for d in required_dirs:
@@ -201,29 +197,38 @@ if getattr(our_args, EXTRAS_ARG):
                   "create a Python package.".format(EXTRAS_ARG, d))
             sys.exit(1)
 
-    print("Converting manual ({!r}) to PDF ({!r})".format(
-        MANUAL_FILENAME_ODT, MANUAL_FILENAME_PDF))
-    try:
-        os.remove(MANUAL_FILENAME_PDF)  # don't delete the wrong one (again...)
-    except OSError:
-        pass
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        libreoffice_args = [
-            "soffice",
-            "--convert-to", "pdf:writer_pdf_Export",
-            "--outdir", tmpdirname,
-            MANUAL_FILENAME_ODT
-        ]
-        print("... calling: {!r}".format(libreoffice_args))
-        subprocess.check_call(libreoffice_args)  # this is pretty nippy!
-        shutil.move(
-            os.path.join(tmpdirname, MANUAL_FILENAME_PDF_STEM),
-            MANUAL_FILENAME_PDF
-        )
-    assert os.path.exists(MANUAL_FILENAME_PDF), (
-        "If this fails, there are a number of possible reasons, but one is "
-        "simply that you're using LibreOffice for something else!"
-    )
+    # Old OpenOffice/PDF manual format
+    #
+    # print("Converting manual ({!r}) to PDF ({!r})".format(
+    #     MANUAL_FILENAME_ODT, MANUAL_FILENAME_PDF))
+    # try:
+    #     os.remove(MANUAL_FILENAME_PDF)  # don't delete the wrong one (again...)
+    # except OSError:
+    #     pass
+    # with tempfile.TemporaryDirectory() as tmpdirname:
+    #     libreoffice_args = [
+    #         "soffice",
+    #         "--convert-to", "pdf:writer_pdf_Export",
+    #         "--outdir", tmpdirname,
+    #         MANUAL_FILENAME_ODT
+    #     ]
+    #     print("... calling: {!r}".format(libreoffice_args))
+    #     subprocess.check_call(libreoffice_args)  # this is pretty nippy!
+    #     shutil.move(
+    #         os.path.join(tmpdirname, MANUAL_FILENAME_PDF_STEM),
+    #         MANUAL_FILENAME_PDF
+    #     )
+    # assert os.path.exists(MANUAL_FILENAME_PDF), (
+    #     "If this fails, there are a number of possible reasons, but one is "
+    #     "simply that you're using LibreOffice for something else!"
+    # )
+
+    # New Sphinx documentation
+    camcops_root_dir = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
+    doc_root_dir = os.path.join(camcops_root_dir, "documentation")
+    docmaker = os.path.join(doc_root_dir, "rebuild_docs_and_distribute.py")
+    print("Building and copying documentation...")
+    subprocess.call([docmaker])
 
     dst_tablet = TABLET_SOURCE_COPY_DIR
     print("Creating copy of tablet source files in {}".format(dst_tablet))
@@ -240,7 +245,7 @@ if getattr(our_args, EXTRAS_ARG):
     add_all_files(dst_tablet, EXTRA_FILES, absolute=False, include_n_parents=1)
     # include_n_parents=1 means they start with "tablet_source_copy/"
 
-    camcops_server_dir = os.path.join(here, 'camcops_server')
+    camcops_server_dir = os.path.join(THIS_DIR, 'camcops_server')
 
     EXTRA_FILES.append('alembic.ini')
     add_all_files(os.path.join(camcops_server_dir, 'alembic'),

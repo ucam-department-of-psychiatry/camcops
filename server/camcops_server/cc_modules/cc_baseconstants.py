@@ -59,7 +59,7 @@ LINUX_DEFAULT_LOCK_DIR = "/var/lock/camcops"
 LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR = "/var/cache/camcops/matplotlib"
 # ... Lintian dislikes using /var/local
 
-DOCS_DIR = join(CAMCOPS_SERVER_DIRECTORY, "docs")
+DOCS_DIR = join(CAMCOPS_SERVER_DIRECTORY, "documentation_copy")
 
 STATIC_ROOT_DIR = join(CAMCOPS_SERVER_DIRECTORY, 'static')
 # ... mostly but not entirely superseded by STATIC_CAMCOPS_PACKAGE_PATH
@@ -82,9 +82,9 @@ else:
 
 ALEMBIC_CONFIG_FILENAME = join(ALEMBIC_BASE_DIR, 'alembic.ini')
 
-MANUAL_FILENAME_ODT = join(DOCS_DIR, "CAMCOPS_MANUAL.odt")
-MANUAL_FILENAME_PDF_STEM = "CAMCOPS_MANUAL.pdf"
-MANUAL_FILENAME_PDF = join(STATIC_ROOT_DIR, MANUAL_FILENAME_PDF_STEM)
+# MANUAL_FILENAME_ODT = join(DOCS_DIR, "CAMCOPS_MANUAL.odt")
+# MANUAL_FILENAME_PDF_STEM = "CAMCOPS_MANUAL.pdf"
+# MANUAL_FILENAME_PDF = join(STATIC_ROOT_DIR, MANUAL_FILENAME_PDF_STEM)
 
 # =============================================================================
 # Significant table names

@@ -1,0 +1,301 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>21. Known problems: client &#8212; CamCOPS 2.2.1 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="23. Things to do" href="to_do.html" />
+    <link rel="prev" title="20. Change log/history" href="../changelog.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="to_do.html" title="23. Things to do"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../changelog.html" title="20. Change log/history"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="known-problems-client">
+<h1>21. Known problems: client<a class="headerlink" href="#known-problems-client" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="problems-directly-relating-to-the-camcops-client">
+<h2>21.1. Problems directly relating to the CamCOPS client<a class="headerlink" href="#problems-directly-relating-to-the-camcops-client" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="problems-relating-to-third-party-software">
+<h2>21.2. Problems relating to third-party software<a class="headerlink" href="#problems-relating-to-third-party-software" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="qt-qlabel-height">
+<h3>21.2.1. Qt: QLabel height<a class="headerlink" href="#qt-qlabel-height" title="Permalink to this headline">¶</a></h3>
+<p>It seems likely that the Qt function <cite>QLabel::heightForWidth()</cite> sometimes gets
+heights wrong for some stylesheets, leading to excessive vertical height. See
+<cite>labelwordwrapwide.cpp</cite> (and to see the problem: try the demo <cite>QuMcqGrid</cite>). I
+think I’ve largely compensated for this, though.</p>
+</div>
+<div class="section" id="spinboxes-are-relatively-poor-for-entering-numbers">
+<h3>21.2.2. Spinboxes are relatively poor for entering numbers<a class="headerlink" href="#spinboxes-are-relatively-poor-for-entering-numbers" title="Permalink to this headline">¶</a></h3>
+<p>The spinbox numerical entry fields are weak in terms of NULL values. This is an
+intrinsic weakness in Qt’s <cite>QSpinBox</cite> and <cite>QDoubleSpinBox</cite> that works like this:</p>
+<ul class="simple">
+<li>if you send a null value to a <cite>QSpinBox</cite>, it’ll typically show its minimum
+value; for example, for the range 5–10, if you send it 0, it’ll show 5.</li>
+<li>If you then delete the “5” and retype “5”, it doesn’t generate any “changed”
+signals, either via its string or its integer signals. Therefore, this change
+isn’t detected by the <cite>QuSpinBoxInteger</cite> or <cite>QuSpinBoxDouble</cite> framework. You
+have to delete it, replace it with something else, and re-enter it, for the
+change to be noticed and the yellow NULL indicator to disappear.</li>
+</ul>
+<p>There’s no clear way round this, except that <cite>QuLineEditInteger</cite> and
+<cite>QuLineEditDouble</cite> do a better job.</p>
+</div>
+<div class="section" id="qupickerinline-is-visually-a-bit-suboptimal">
+<h3>21.2.3. QuPickerInline is visually a bit suboptimal<a class="headerlink" href="#qupickerinline-is-visually-a-bit-suboptimal" title="Permalink to this headline">¶</a></h3>
+<p>The width requirements of <cite>QuPickerInline</cite> are a bit much, but then it’s also a
+bit duff visually compared to <cite>QuPickerPopup</cite>.</p>
+</div>
+<div class="section" id="qt-scrollmessagebox-scrolling-under-android">
+<h3>21.2.4. Qt: ScrollMessageBox scrolling under Android<a class="headerlink" href="#qt-scrollmessagebox-scrolling-under-android" title="Permalink to this headline">¶</a></h3>
+<p>Under Android, <cite>ScrollMessageBox</cite> scrolls with multi-finger gestures but not
+with single-finger swipes, even though the single-finger gestures work fine
+elsewhere. This also varies with device, e.g. Asus Transformer Prime TF201
+requires a two-finger swipe in <cite>ScrollMessageBox</cite>, whereas Samsung Galaxy S5 (?)
+provides a one-finger swipe. See my thoughts in <cite>uifunc::applyScrollGestures()</cite>.
+See also <a class="reference external" href="https://forum.qt.io/topic/62385/one-finger-swipe-gestures">https://forum.qt.io/topic/62385/one-finger-swipe-gestures</a> and
+<a class="reference external" href="https://bugreports.qt.io/browse/QTBUG-40461">https://bugreports.qt.io/browse/QTBUG-40461</a>.</p>
+</div>
+<div class="section" id="qt-cursor-positioning-bug-under-android">
+<h3>21.2.5. Qt: cursor positioning bug under Android<a class="headerlink" href="#qt-cursor-positioning-bug-under-android" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes, copy/paste selection cursors appear on screen far removed from the
+text they relate to. This is a Qt bug; see
+<a class="reference external" href="https://bugreports.qt.io/browse/QTBUG-58503">https://bugreports.qt.io/browse/QTBUG-58503</a>. Related Qt bugs include
+QTBUG-34867, QTBUG-58700.</p>
+<p>Also potentially related to this: when <cite>LogBox</cite> or <cite>LogMessageBox</cite> are used with
+<cite>word_wrap = true</cite> on Android, the touch-to-scroll goes wrong. These classes
+use a <cite>QPlainTextEdit</cite>.</p>
+</div>
+<div class="section" id="qt-expand-collapse-arrows-in-tree-views-are-too-small-on-high-dpi-screens">
+<h3>21.2.6. Qt: expand/collapse arrows in tree views are too small on high-DPI screens<a class="headerlink" href="#qt-expand-collapse-arrows-in-tree-views-are-too-small-on-high-dpi-screens" title="Permalink to this headline">¶</a></h3>
+<p>The arrow markers for the diagnostic trees don’t scale with DPI. See discussion
+in <cite>diagnosticcodeselector.cpp</cite>; the problem is that it’s not obvious how to set
+them programmatically. In fact, this is very hard indeed; see also my attempts
+in <cite>TreeViewProxyStyle</cite> and <cite>TreeViewControlDelegate</cite>, neither of which can
+make the changes where they’re needed. Reported as a bug:
+<a class="reference external" href="https://bugreports.qt.io/browse/QTBUG-62323">https://bugreports.qt.io/browse/QTBUG-62323</a>.</p>
+</div>
+<div class="section" id="potential-qt-performance-bug-not-recently-verified-may-have-gone">
+<h3>21.2.7. Potential Qt performance bug; not recently verified; may have gone<a class="headerlink" href="#potential-qt-performance-bug-not-recently-verified-may-have-gone" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes there is a delay after clicking on a <cite>QuBoolean</cite> with an image, like
+the picture-naming in the ACE-III. The delay occurs whether you click the
+boolean indicator (with its “you are touching me” shading) or the image. It
+seems to occur only if the main window is not maximized. The delay is in calling
+<cite>AspectRatioPixmap::mousePressEvent</cite>, for example. Using <cite>#define
+DEBUG_CLICK_TIMING</cite> shows that the delay is not because the widget’s overridden
+<cite>sizeHint</cite> (etc.) code is being called. I’m not sure that this is a problem in
+my code. Not retested recently; other things have also improved performance
+(e.g. threaded database writes).</p>
+</div>
+<div class="section" id="verticalscrollarea-layout">
+<h3>21.2.8. VerticalScrollArea layout<a class="headerlink" href="#verticalscrollarea-layout" title="Permalink to this headline">¶</a></h3>
+<p><cite>VerticalScrollArea</cite> is nearly perfect. I’m unclear if any residual minor error
+relates to <cite>VerticalScrollArea</cite> itself, or to misreporting of ideal height by
+e.g. <cite>GridLayoutHfw</cite>. (Example: PDSS [with no task strings]?) (Note: it’s
+sometimes worth trying to un-maximize then maximize the window; the error can
+sometimes go away.)</p>
+<p>Update 2017-07-09: I think this is fixed now.</p>
+</div>
+</div>
+</div>
+<div class="section" id="known-problems-server">
+<h1>22. Known problems: server<a class="headerlink" href="#known-problems-server" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="problems-directly-relating-to-the-camcops-server">
+<h2>22.1. Problems directly relating to the CamCOPS server<a class="headerlink" href="#problems-directly-relating-to-the-camcops-server" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="problems-relating-to-the-web-server-framework">
+<h2>22.2. Problems relating to the web server framework<a class="headerlink" href="#problems-relating-to-the-web-server-framework" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="proxy-error-or-website-unavailable-whilst-downloading-big-files-through-apache">
+<h3>22.2.1. “Proxy error” or “Website unavailable” whilst downloading big files through Apache<a class="headerlink" href="#proxy-error-or-website-unavailable-whilst-downloading-big-files-through-apache" title="Permalink to this headline">¶</a></h3>
+<p>If you perform a very slow operation, creating a very large file to download,
+the time it takes CamCOPS to respond might exceed the timeout set by Apache. The
+Apache logs might show an error like “Internal error: proxy: error reading
+status line from remote server”.</p>
+<p>The first thing to check is the gunicorn configuration: to your <cite>camcops
+serve_gunicorn</cite> command, try adding e.g. <cite>–timeout 300</cite> (an increase from the
+default of 30 s).</p>
+<p>This might just change the Apache error to “The timeout specified has expired:
+proxy: error reading…”, in which case you should also edit the Apache
+configuration file to add e.g. <cite>ProxyTimeout 300</cite>.</p>
+<p>Then restart CamCOPS and Apache.</p>
+</div>
+</div>
+<div class="section" id="problems-relating-to-other-third-party-software">
+<h2>22.3. Problems relating to other third-party software<a class="headerlink" href="#problems-relating-to-other-third-party-software" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="warnings-during-camcops-merge-db-relating-to-the-mysqldb-driver-and-utf-8">
+<h3>22.3.1. Warnings during “camcops merge_db” relating to the “mysqldb” driver and UTF-8<a class="headerlink" href="#warnings-during-camcops-merge-db-relating-to-the-mysqldb-driver-and-utf-8" title="Permalink to this headline">¶</a></h3>
+<p>If, during a <cite>camcops merge_db</cite> command using the mysqldb driver (a database URL
+like <cite>mysql+mysqldb://…</cite>), you get errors like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>2017-08-25 22:27:23.234 cardinal_pythonlib.sqlalchemy.merge_db:INFO: Processing table &#39;blobs&#39; via ORM class &lt;class &#39;camcops_server.cc_modules.cc_blob.Blob&#39;&gt;
+/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, &quot;Invalid utf8 character string: &#39;89504E&#39;&quot;)
+    cursor.execute(statement, parameters)
+/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, &quot;Invalid utf8 character string: &#39;FFD8FF&#39;&quot;)
+    cursor.execute(statement, parameters)
+</pre></div>
+</div>
+<p>… or like this, with the charset set to ‘utf8mb4’ for the database and SQLAlchemy URL:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>2017-08-25 22:38:36.628 cardinal_pythonlib.sqlalchemy.merge_db:INFO: Processing table &#39;blobs&#39; via ORM class &lt;class &#39;camcops_server.cc_modules.cc_blob.Blob&#39;&gt;
+/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, &quot;Invalid utf8mb4 character string: &#39;89504E&#39;&quot;)
+    cursor.execute(statement, parameters)
+/home/rudolf/dev/venvs/camcops/lib/python3.5/site-packages/sqlalchemy/engine/default.py:504: Warning: (1300, &quot;Invalid utf8mb4 character string: &#39;FFD8FF&#39;&quot;)
+    cursor.execute(statement, parameters)
+</pre></div>
+</div>
+<p>… then this is likely a mysqldb bug. Potentially related problems:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://bitbucket.org/zzzeek/sqlalchemy/issues/3291/problem-using-binary-type-with-foreign-key">https://bitbucket.org/zzzeek/sqlalchemy/issues/3291/problem-using-binary-type-with-foreign-key</a></li>
+<li><a class="reference external" href="https://bitbucket.org/zzzeek/sqlalchemy/issues/3804/invalid-utf8-character-string-warning-on">https://bitbucket.org/zzzeek/sqlalchemy/issues/3804/invalid-utf8-character-string-warning-on</a></li>
+<li><a class="reference external" href="https://github.com/PyMySQL/mysqlclient-python/issues/81">https://github.com/PyMySQL/mysqlclient-python/issues/81</a></li>
+<li><a class="reference external" href="https://github.com/PyMySQL/mysqlclient-python/pull/106">https://github.com/PyMySQL/mysqlclient-python/pull/106</a></li>
+</ul>
+<p>The problem goes away using “pymysql” rather than “mysqldb”, so try this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>DB_URL = mysql+pymysql://username:password@127.0.0.1:3306/database?charset=utf8mb4
+</pre></div>
+</div>
+</div>
+<div class="section" id="missing-file-in-deform-package">
+<h3>22.3.2. Missing file in Deform package<a class="headerlink" href="#missing-file-in-deform-package" title="Permalink to this headline">¶</a></h3>
+<p>Exceptions/warning occur as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pyramid</span><span class="o">.</span><span class="n">httpexceptions</span><span class="o">.</span><span class="n">HTTPNotFound</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">8000</span><span class="o">/</span><span class="n">deform_static</span><span class="o">/</span><span class="n">fonts</span><span class="o">/</span><span class="n">glyphicons</span><span class="o">-</span><span class="n">halflings</span><span class="o">-</span><span class="n">regular</span><span class="o">.</span><span class="n">woff2</span>
+</pre></div>
+</div>
+<p>Reason: CamCOPS correctly registers a static view at <cite>/deform_static</cite> which
+refers to <cite>deform:static/</cite>; this means “look within the ‘deform’ package for the
+directory <cite>static/</cite>”. This is correct. The file
+<cite>glyphicons-halflings-regular.woff2</cite> is simply missing from the <cite>static/fonts</cite>
+directory in deform==2.0.4. Similar problems elsewhere:
+<a class="reference external" href="https://github.com/aspnet/Home/issues/959">https://github.com/aspnet/Home/issues/959</a>.</p>
+<p>Solution implemented: fetch the file from
+<a class="reference external" href="http://ajax.aspnetcdn.com/ajax/bootstrap/3.3.2/fonts/glyphicons-halflings-regular.woff2">http://ajax.aspnetcdn.com/ajax/bootstrap/3.3.2/fonts/glyphicons-halflings-regular.woff2</a>
+and route from <cite>/deform_static/fonts/glyphicons-halflings-regular.woff2</cite>
+to a manual view providing the file.</p>
+<p>There’s another bootstrap symbol debugging file missing, but I’ve not bothered
+with that one yet (I’m not sure exactly which version is required).</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_command_line.html">13. CamCOPS server command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">15. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">16. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_notes.html">19. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">21. Known problems: client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#problems-directly-relating-to-the-camcops-client">21.1. Problems directly relating to the CamCOPS client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#problems-relating-to-third-party-software">21.2. Problems relating to third-party software</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#known-problems-server">22. Known problems: server</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#problems-directly-relating-to-the-camcops-server">22.1. Problems directly relating to the CamCOPS server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#problems-relating-to-the-web-server-framework">22.2. Problems relating to the web server framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#problems-relating-to-other-third-party-software">22.3. Problems relating to other third-party software</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="local_info.html">25. Local configuration information</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../changelog.html"
+                        title="previous chapter">20. Change log/history</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="to_do.html"
+                        title="next chapter">23. Things to do</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/misc/known_problems.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="to_do.html" title="23. Things to do"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../changelog.html" title="20. Change log/history"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,253 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>1.3. Requirements and costs &#8212; CamCOPS 2.2.1 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="1.4. Patient/subject identification in CamCOPS" href="patient_identification.html" />
+    <link rel="prev" title="1.2. Tour" href="tour.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="patient_identification.html" title="1.4. Patient/subject identification in CamCOPS"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tour.html" title="1.2. Tour"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="introduction.html" accesskey="U">1. Introduction</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="requirements-and-costs">
+<h1>1.3. Requirements and costs<a class="headerlink" href="#requirements-and-costs" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="android-clients-hardware-requirements">
+<h2>1.3.1. Android clients: hardware requirements<a class="headerlink" href="#android-clients-hardware-requirements" title="Permalink to this headline">¶</a></h2>
+<p>The minimum Android SDK version is 11, meaning Android 3.0 (Honeycomb; released
+in 2011). For development, we have used:</p>
+<ul class="simple">
+<li>Asus Transformer Prime TF201 (Android 4.1.1) — nice keyboard with an extra
+battery in it, though WiFi only with no 3G connection.</li>
+<li>Sony Xperia Z2 tablet (available in WiFi and 3G versions), with Bluetooth
+keyboard.</li>
+</ul>
+</div>
+<div class="section" id="ios-clients-hardware-requirements">
+<h2>1.3.2. iOS clients: hardware requirements<a class="headerlink" href="#ios-clients-hardware-requirements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>We suggest an iPad or iPad mini; iPhones are probably just too small. CamCOPS
+has been tested on an iPad 2 and works fine.</li>
+<li>A physical (e.g. Bluetooth) keyboard is useful if you plan on using the
+clinical clerking aspects or other tasks requiring significant typing.</li>
+<li>Not much information is stored on the tablet (it’s shipped periodically to
+the server) so we think any model of iPad will do.</li>
+</ul>
+</div>
+<div class="section" id="server-hardware-and-software-requirements">
+<h2>1.3.3. Server: hardware and software requirements<a class="headerlink" href="#server-hardware-and-software-requirements" title="Permalink to this headline">¶</a></h2>
+<p>There are no specific hardware requirements.</p>
+<p>Operating system:</p>
+<ul class="simple">
+<li>Developed for Linux.</li>
+<li>Windows support is in development.</li>
+</ul>
+<p>Web server:</p>
+<ul class="simple">
+<li>CamCOPS provides a WSGI application and tools to serve it so an internal
+TCP/IP port or (under Linux) UNIX socket; it doesn’t care which web server
+you use as the front end.</li>
+</ul>
+<p>Database:</p>
+<ul class="simple">
+<li>CamCOPS uses <a class="reference external" href="https://www.sqlalchemy.org/">SQLAlchemy</a> so is fairly
+database-agnostic, though it does provide some custom date/time fields,
+currently specialized for MySQL, Microsoft SQL Server, and SQLite (though
+SQLite is for clients, not servers!).</li>
+</ul>
+</div>
+<div class="section" id="representative-costs">
+<h2>1.3.4. Representative costs<a class="headerlink" href="#representative-costs" title="Permalink to this headline">¶</a></h2>
+<p>We have set up CamCOPS in the low-cost environment of a research-active
+university that provides network support, with WiFi tablet access, and the
+high-cost environment of an NHS institution with a secure VPN (including 3G and
+WiFi access) and outsourced IT support. Here are some representative
+costs, in 2013, from those environments.</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Component</th>
+<th class="head">Low-cost university research environment</th>
+<th class="head">High-cost NHS clinical environment</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Server: setup and first year</td>
+<td><strong>£0–£1,500 approx.</strong>
+Existing Linux server with Internet connection. SSL security certificate
+free via central university funding. Or a standard computer: e.g. Intel
+Xeon E3-blahblah 3.1 GHz, 16 Gb RAM, 2 Tb HD £793, plus some sort of
+keyboard/mouse/monitor, and a backup system.</td>
+<td><strong>£5,771.81.</strong>
+Subcontracted virtual Linux server with managed backup. SSL security
+certificate (valid for 5 years). Changes to DNS/firewall to allow access
+to the NHS server from a partner NHS organization (selectively). Total
+£4,809.84 + VAT.</td>
+</tr>
+<tr class="row-odd"><td>Server: maintenance</td>
+<td><strong>£0.</strong>
+Power/network/SSL certificates via central university provision.</td>
+<td><strong>£4,247.81.</strong>
+Ongoing annual server support costs £3,539.84 + VAT. (This excludes SSL
+certificate renewal: £260 + VAT every 5 years.)</td>
+</tr>
+<tr class="row-even"><td>Each tablet: purchase and first year</td>
+<td><strong>£360–£400 approx.</strong>
+<em>One option:</em> Asus EeePad Transformer Prime TF201 (with keyboard): around
+£400.
+<em>Another option:</em> Apple iPad 2 (16 Gb, WiFi only) £329 from Apple.
+Bluetooth keyboard/case: lots to choose from, but some from around
+£30.</td>
+<td><strong>£1,081.</strong>
+Apple iPad 2 (16 Gb, 3G, WiFi) £410 (inc. VAT). Bluetooth keyboard/case
+£50. MDM license £36. VPN token £315. VPN SIM £120. Support costs for
+first two years £300, i.e. £150 for first year.</td>
+</tr>
+<tr class="row-odd"><td>Each tablet: maintenance</td>
+<td><strong>£0.</strong>
+It doesn’t cost much to run a tablet.</td>
+<td><strong>£150.</strong>
+Annual support costs (inc. VAT).</td>
+</tr>
+<tr class="row-even"><td>Software (CamCOPS, LAMP stack)</td>
+<td><strong>£0.</strong></td>
+<td><strong>£0.</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="introduction.html">1. Introduction</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">1.1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tour.html">1.2. Tour</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.3. Requirements and costs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patient_identification.html">1.4. Patient/subject identification in CamCOPS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="groups.html">1.5. Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="registration.html">1.6. About device registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intellectual_property.html">1.7. Intellectual property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="security_design.html">1.8. Security design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_structure_design.html">1.9. Internal data structure in CamCOPS</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_command_line.html">13. CamCOPS server command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">15. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">16. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">19. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tour.html"
+                        title="previous chapter">1.2. Tour</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="patient_identification.html"
+                        title="next chapter">1.4. Patient/subject identification in CamCOPS</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/introduction/requirements.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="patient_identification.html" title="1.4. Patient/subject identification in CamCOPS"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tour.html" title="1.2. Tour"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="introduction.html" >1. Introduction</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

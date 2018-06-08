@@ -1,0 +1,248 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>15. Creating tasks &#8212; CamCOPS 2.2.1 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="16. Licences" href="../licences/licences.html" />
+    <link rel="prev" title="14. Troubleshooting server problems" href="../server/server_troubleshooting.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../licences/licences.html" title="16. Licences"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../server/server_troubleshooting.html" title="14. Troubleshooting server problems"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="creating-tasks">
+<h1>15. Creating tasks<a class="headerlink" href="#creating-tasks" title="Permalink to this headline">¶</a></h1>
+<p>Tasks on the client (tablet, desktop) are written in C++. All client tasks are
+classes that inherit from the <cite>Task</cite> class, define their database structure,
+and implement an <cite>editor()</cite> function that implements the task itself.
+Typically, one of two methods is used:</p>
+<ul class="simple">
+<li>Simple tasks create a <cite>Questionnaire</cite> object and use questionnaire elements
+(described below) to capture user responses. Arbitrary logic is possible,
+both in terms of what constitutes “enough information” and in terms of page
+flow (see e.g. the <a class="reference internal" href="../tasks/cisr.html#cisr"><span class="std std-ref">CIS-R</span></a>).</li>
+<li>Complex tasks create a graphics widget and manipulate Qt graphics objects
+directly, giving arbitrary power. Examples include the <a class="reference internal" href="../tasks/ided3d.html#ided3d"><span class="std std-ref">IDED3D task</span></a></li>
+</ul>
+<p>On the server, a single Python class represents the task. It must define its
+database structure and provide an HTML view on the data (used for the HTML and
+PDF representations). More or less everything else is optional, but tasks may
+provide numerical summary information (for trackers) or customize their
+clinical text views.</p>
+<div class="section" id="questionnaire-elements">
+<h2>15.1. Questionnaire elements<a class="headerlink" href="#questionnaire-elements" title="Permalink to this headline">¶</a></h2>
+<p>Programmers can embed arbitrary logic in a task. Several elements are
+available; all inherit from <cite>QuElement</cite>. Elements are grouped into pages
+(<cite>QuPage</cite>).</p>
+<div class="section" id="display-sound">
+<h3>15.1.1. Display/sound<a class="headerlink" href="#display-sound" title="Permalink to this headline">¶</a></h3>
+<p>These elements are primarily for static display (though, for example, the
+programmer can manipulate the contents of static text dynamically).</p>
+<ul class="simple">
+<li><cite>QuAudioPlayer</cite>. Allows sounds to be played.</li>
+<li><cite>QuHeading</cite>. Subclass of <cite>QuText</cite>; displays headings.</li>
+<li><cite>QuHorizontalLine</cite>. A horizontal rule or line.</li>
+<li><cite>QuImage</cite>. A static image.</li>
+<li><cite>QuSpacer</cite>. A fixed-size spacer.</li>
+<li><cite>QuText</cite>. Static text.</li>
+</ul>
+</div>
+<div class="section" id="user-input">
+<h3>15.1.2. User input<a class="headerlink" href="#user-input" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><cite>QuBoolean</cite>. An element to control a single boolean (0/1/NULL) field. It may
+display text or an image. The text may appear as a button or with an adjacent
+widget. Some possible appearances:<ul>
+<li>Unselected (NULL): <a class="reference internal" href="../_images/check_unselected.png"><img alt="check_unselected" class="align-middle" src="../_images/check_unselected.png" style="width: 24px; height: 24px;" /></a> or <span class="unselectedtext">Option</span></li>
+<li>Unselected (NULL) and required: <a class="reference internal" href="../_images/check_unselected_required.png"><img alt="check_unselected_required" class="align-middle" src="../_images/check_unselected_required.png" style="width: 24px; height: 24px;" /></a> or
+<span class="missingtext">Option</span></li>
+<li>False: <a class="reference internal" href="../_images/check_false_black.png"><img alt="check_false_black" class="align-middle" src="../_images/check_false_black.png" style="width: 24px; height: 24px;" /></a> or <a class="reference internal" href="../_images/check_false_red.png"><img alt="check_false_red" class="align-middle" src="../_images/check_false_red.png" style="width: 24px; height: 24px;" /></a> or <span class="unselectedtext">Option</span></li>
+<li>True: <a class="reference internal" href="../_images/check_true_black.png"><img alt="check_true_black" class="align-middle" src="../_images/check_true_black.png" style="width: 24px; height: 24px;" /></a> or <a class="reference internal" href="../_images/check_true_red.png"><img alt="check_true_red" class="align-middle" src="../_images/check_true_red.png" style="width: 24px; height: 24px;" /></a> or <span class="selectedtext">Option</span></li>
+</ul>
+</li>
+<li><cite>QuButton</cite>. A button, used to execute arbitrary code.</li>
+<li><cite>QuCanvas</cite>. A canvas for sketching, which can take a default or background
+image.</li>
+<li><cite>QuCountdown</cite>. A countdown timer.</li>
+<li><cite>QuDateTime</cite>. Date/time input method.</li>
+<li><cite>QuDiagnosticCode</cite>. Allows searching and selection of diagnostic codes using
+a recognized system (e.g. <a class="reference internal" href="../tasks/icd.html#icd"><span class="std std-ref">ICD-10</span></a>).</li>
+<li><cite>QuLineEdit</cite>. One-line text editor. (For a bigger version, see <cite>QuTextEdit</cite>.)</li>
+<li><cite>QuLineEditDouble</cite>. A one-line editor for a floating-point number, allowing
+constraints.</li>
+<li><cite>QuLineEditInteger</cite>. A one-line editor for an integer (C++ int), allowing
+constraints.</li>
+<li><cite>QuLineEditLongLong</cite>. A one-line editor for a large signed integer, allowing
+constraints.</li>
+<li><cite>QuLineEditULongLong</cite>. A one-line editor for a large unsigned integer,
+allowing constraints.</li>
+<li><cite>QuMcq</cite>. A simple 1-from-many or multiple-choice question (MCQ), with a range
+of layout and visual options.<ul>
+<li>Unselected: <a class="reference internal" href="../_images/radio_unselected.png"><img alt="radio_unselected" class="align-middle" src="../_images/radio_unselected.png" style="width: 24px; height: 24px;" /></a> or <span class="unselectedtext">Option</span></li>
+<li>Unselected and a response is required: <a class="reference internal" href="../_images/radio_unselected_required.png"><img alt="radio_unselected_required" class="align-middle" src="../_images/radio_unselected_required.png" style="width: 24px; height: 24px;" /></a> or
+<span class="missingtext">Option</span></li>
+<li>Selected: <a class="reference internal" href="../_images/radio_selected.png"><img alt="radio_selected" class="align-middle" src="../_images/radio_selected.png" style="width: 24px; height: 24px;" /></a> or <span class="selectedtext">Option</span></li>
+</ul>
+</li>
+<li><cite>QuMcqGrid</cite>. An MCQ specialized to operate in a grid, with lots of questions
+having a common set of possible answers.</li>
+<li><cite>QuMcqGridDouble</cite>. A specialized MCQ with a double grid (lots of questions
+having a common pair of sets of possible answers; e.g. for each question,
+pick one from A/B/C and pick one from X/Y/Z).</li>
+<li><cite>QuMcqGridSingleBoolean</cite>. Another specialized MCQ; as for <cite>QuMcqGrid</cite> but
+with an additional Boolean variable per question (e.g. for each question,
+pick one of absent/mild/moderate/severe, and tick if distressing).</li>
+<li><cite>QuMultipleResponse</cite>. An n-from-many (multiple response) question.<ul>
+<li>Unselected: <a class="reference internal" href="../_images/check_unselected.png"><img alt="check_unselected" class="align-middle" src="../_images/check_unselected.png" style="width: 24px; height: 24px;" /></a> or <span class="unselectedtext">Option</span></li>
+<li>Unselected and more responses required: <a class="reference internal" href="../_images/check_unselected_required.png"><img alt="check_unselected_required" class="align-middle" src="../_images/check_unselected_required.png" style="width: 24px; height: 24px;" /></a> or
+<span class="missingtext">Option</span></li>
+<li>Selected: <a class="reference internal" href="../_images/check_true_red.png"><img alt="check_true_red" class="align-middle" src="../_images/check_true_red.png" style="width: 24px; height: 24px;" /></a> or <span class="selectedtext">Option</span></li>
+</ul>
+</li>
+<li><cite>QuPhoto</cite>. Uses the device camera to take a photo.</li>
+<li><cite>QuPickerInline</cite>. Pick from a list of options using a spinner or similar
+interface.</li>
+<li><cite>QuPickerPopup</cite>. Pick from a list of options using a pop-up selector.</li>
+<li><cite>QuSpinBoxDouble</cite>. Offers a text editing box with spinbox controls, for
+floating-point entry.</li>
+<li><cite>QuSpinBoxInteger</cite>. Offers a text editing box with spinbox controls, for
+integer entry.</li>
+<li><cite>QuSlider</cite>. A slider, for discrete or continuous numerical variables.</li>
+<li><cite>QuTextEdit</cite>. An expanding editor for entering large quantities of text.
+(For a smaller version, see <cite>QuLineEdit</cite>.)</li>
+<li><cite>QuThermometer</cite>. A thermometer-style visual analogue scale.</li>
+</ul>
+</div>
+<div class="section" id="layout">
+<h3>15.1.3. Layout<a class="headerlink" href="#layout" title="Permalink to this headline">¶</a></h3>
+<p>These elements are simply for layout:</p>
+<ul class="simple">
+<li><cite>QuFlowContainer</cite>. A container that flows its contents like a word processor
+flows words.</li>
+<li><cite>QuGridContainer</cite>. A container implementing a grid of cells, like a table.</li>
+<li><cite>QuHorizontalContainer</cite>. Arranges other elements in a horizontal row.</li>
+<li><cite>QuVerticalContainer</cite>. Arranges other elements in a vertical column.</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_command_line.html">13. CamCOPS server command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">15. Creating tasks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#questionnaire-elements">15.1. Questionnaire elements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">16. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">19. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../server/server_troubleshooting.html"
+                        title="previous chapter">14. Troubleshooting server problems</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../licences/licences.html"
+                        title="next chapter">16. Licences</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/client/creating_tasks.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../licences/licences.html" title="16. Licences"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../server/server_troubleshooting.html" title="14. Troubleshooting server problems"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

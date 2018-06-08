@@ -1,0 +1,525 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>14. Troubleshooting server problems &#8212; CamCOPS 2.2.1 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="15. Creating tasks" href="../client/creating_tasks.html" />
+    <link rel="prev" title="13. CamCOPS server command-line tools" href="server_command_line.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../client/creating_tasks.html" title="15. Creating tasks"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="server_command_line.html" title="13. CamCOPS server command-line tools"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="troubleshooting-server-problems">
+<h1>14. Troubleshooting server problems<a class="headerlink" href="#troubleshooting-server-problems" title="Permalink to this headline">¶</a></h1>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last"><strong>check this file for “see above”</strong></p>
+</div>
+<div class="section" id="web-server-errors-from-apache">
+<h2>14.1. Web server errors from Apache<a class="headerlink" href="#web-server-errors-from-apache" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first"><strong>Web server returns “permission denied”-type messages; Apache error log is
+full of file permission errors.</strong> Ownerships, permissions, or SELinux
+security settings on files in the <cite>DocumentRoot</cite> tree are probably wrong. See
+above.</p>
+</li>
+<li><p class="first"><strong>Web server returns nothing informative; Apache error log is full WSGI
+messages relating to its inability to create socket files.</strong> See above
+regarding <cite>WSGISocketPrefix</cite>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This bug relates to old versions of CamCOPS and should no longer be seen.</p>
+</div>
+</li>
+<li><p class="first"><strong>Web server returns nothing informative; Apache error log is full of
+messages saying “import site failed”.</strong> The mod_wsgi configuration is
+probably wrong. Run the ldd check above and reinstall mod_wsgi if necessary.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This bug relates to old versions of CamCOPS and should no longer be seen.</p>
+</div>
+</li>
+<li><p class="first"><strong>Operation (e.g. table upload) fails; Apache error log contains the message
+“client denied by server configuration”.</strong> The Apache configuration file
+might be missing a section saying</p>
+<div class="highlight-apacheconf notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;Directory</span> <span class="s">/usr/share/camcops/server</span><span class="nt">&gt;</span>
+    <span class="c"># ...</span>
+    <span class="nt">&lt;Files</span> <span class="s">&quot;database.py&quot;</span><span class="nt">&gt;</span> <span class="c"># CGI script for tablets to upload data</span>
+        <span class="nb">Allow</span> from <span class="k">all</span>
+    <span class="nt">&lt;/Files&gt;</span>
+    <span class="c"># ...</span>
+<span class="nt">&lt;/Directory&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This bug relates to old versions of CamCOPS and should no longer be seen.</p>
+</div>
+</li>
+<li><p class="first"><strong>SSL not working; Apache log contains “Invalid method in request
+x16x03x01”.</strong> Misconfigured server; it is speaking unencrypted HTTP on
+port 443. Do you have the VirtualHost section configured properly? Do you
+have <cite>LoadModule ssl_module modules/mod_ssl.so</cite>?</p>
+</li>
+<li><p class="first"><strong>Other Apache errors.</strong> See /usr/share/camcops/instructions.txt, which has
+specimen Apache config sections, and lists some other common misconfiguration
+errors.</p>
+</li>
+</ul>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last"><strong>rewrite above</strong></p>
+</div>
+</div>
+<div class="section" id="web-server-errors-in-general">
+<h2>14.2. Web server errors in general<a class="headerlink" href="#web-server-errors-in-general" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><strong>Web server returns content but says &lt;class ‘ConfigParser.NoSectionError’&gt;:
+No section: ‘server’.</strong> Unless the CamCOPS config files are broken, this
+probably means that the <cite>/etc/camcops/*</cite> configuration files have the wrong
+ownerships/permissions/SELinux security settings. See the <cite>chown</cite> and <cite>chcon</cite>
+commands above. It’s also possible that the configuration files have been
+damaged, or that the Apache configuration file is pointing to a non-existing
+configuration file.</li>
+<li><strong>I can log in, but then seem to be logged out again immediately.</strong>
+Is your browser correctly storing session cookies? Especially, are you trying
+to run CamCOPS over a non-encrypted (HTTP) link? The session cookies are set
+to secure and httponly for security reasons, and will not work without HTTPS.</li>
+</ul>
+</div>
+<div class="section" id="tablet-upload-errors">
+<h2>14.3. Tablet upload errors<a class="headerlink" href="#tablet-upload-errors" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="mysql-server-has-gone-away">
+<h3>14.3.1. MySQL server has gone away<a class="headerlink" href="#mysql-server-has-gone-away" title="Permalink to this headline">¶</a></h3>
+<p><strong>Tablet uploads fails with error including “(2006, ‘MySQL server has gone
+away’)”. Apache log contains “OperationalError: (2006, ‘MySQL server has gone
+away’)”.</strong> CamCOPS takes care to ping the database connection, so it’s
+unlikely that a connection has timed out. The probable cause is that the
+relevant <cite>max_allowed_packet</cite> parameter is set too small; MySQL also generates
+this error if the query is too big. You will need to edit the MySQL my.cnf
+configuration file; see above. The most probable time to see this error is
+when uploading the BLOB table (<cite>blobs</cite>).</p>
+</div>
+<div class="section" id="read-timed-out">
+<h3>14.3.2. Read timed out<a class="headerlink" href="#read-timed-out" title="Permalink to this headline">¶</a></h3>
+<p><strong>Tablet BLOB upload fails with error “Read timed out”.</strong> Likely problem: large
+BLOB (big photo), slow network. For example, in one of our tests a BLOB took
+more than 17 s to upload, so the tablet needs to wait at least that long after
+starting to send it. Increase the tablet’s network timeout (e.g. try
+increasing from 5000 to 60000 ms) in <span class="menuselection">Settings ‣ Server
+settings.</span></p>
+</div>
+<div class="section" id="row-size-too-large-8126">
+<h3>14.3.3. Row size too large (&gt;8126)<a class="headerlink" href="#row-size-too-large-8126" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This bug relates to old versions of CamCOPS and should no longer be seen.</p>
+</div>
+<p>In full, the error was:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Uploading error: Operational error (1118). Row size too large (&gt; 8126).
+Changing some columns to TEXT or BLOB may help. In current row format, BLOB
+prefix of 0 bytes is stored inline.
+</pre></div>
+</div>
+<p>This is a problem with some TEXT-heavy tables, e.g. <cite>psychiatricclerking</cite>.</p>
+<p>Best thing: change the table format.</p>
+<ol class="arabic">
+<li><p class="first">Edit the MySQL config file, e.g. <cite>/etc/my.cnf</cite>. In the <cite>[mysqld]</cite> section,
+add the lines:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>innodb_file_per_table
+innodb_file_format = Barracuda
+</pre></div>
+</div>
+</li>
+<li><p class="first">Restart MySQL.</p>
+</li>
+<li><p class="first">At the MySQL command line:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">psychiatricclerking</span>
+    <span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span>
+    <span class="n">ROW_FORMAT</span><span class="o">=</span><span class="n">COMPRESSED</span>
+    <span class="n">KEY_BLOCK_SIZE</span><span class="o">=</span><span class="mi">8</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Another method to consider for MySQL versions before 5.7.5: making the MySQL
+log file bigger, e.g. 512 Mb.</p>
+<ol class="arabic">
+<li><p class="first">At the MySQL console: <cite>SET GLOBAL innodb_fast_shutdown=0;</cite></p>
+</li>
+<li><p class="first">Stop MySQL.</p>
+</li>
+<li><p class="first">Edit the MySQL config file, e.g. <cite>/etc/my.cnf</cite>, and in the <cite>[mysqld]</cite>
+section, add the line:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>innodb_log_file_size = 512M
+</pre></div>
+</div>
+</li>
+<li><p class="first">Delete the old log files, e.g. <cite>/var/lib/mysql/ib_logfile0</cite> and
+<cite>/var/lib/mysql/ib_logfile1</cite>.</p>
+</li>
+<li><p class="first">Restart MySQL</p>
+</li>
+</ol>
+<p>From CamCOPS v1.32, the server autoconverts tables to Barracuda when using the
+make-tables command, to avoid this problem.</p>
+</div>
+</div>
+<div class="section" id="mysql-too-many-connections">
+<h2>14.4. MySQL: “Too many connections”<a class="headerlink" href="#mysql-too-many-connections" title="Permalink to this headline">¶</a></h2>
+<p>This error occurs if programs collectively attempt to open more connections to
+MySQL than the configured limit <a class="footnote-reference" href="#toomanyconnections" id="id1">[1]</a>. The easiest way to make
+it happen in CamCOPS is to launch a web server with a very high maximum number
+of threads, in excess of the MySQL limit, and then work the web server hard.</p>
+<p>Fix the problem by limiting the maximum number of threads/processes used by
+CamCOPS or by increasing the MySQL connection limit.</p>
+</div>
+<div class="section" id="mysql-illegal-mix-of-collations">
+<h2>14.5. MySQL: “Illegal mix of collations…”<a class="headerlink" href="#mysql-illegal-mix-of-collations" title="Permalink to this headline">¶</a></h2>
+<p>In full: MySQL reports: “Illegal mix of collations (utf8mb4_unicode_ci,IMPLICIT)
+and (utf8mb4_general_ci,IMPLICIT) for operation ‘=’”</p>
+<p>In summary, part of your database is out of date, and this is probably because
+you’ve upgraded from an old version of CamCOPS.</p>
+<div class="section" id="background-character-sets-and-collations">
+<h3>14.5.1. Background: character sets and collations<a class="headerlink" href="#background-character-sets-and-collations" title="Permalink to this headline">¶</a></h3>
+<p>MySQL character sets and collations can be confusing.</p>
+<p>A <em>character set</em> is the way in which the computer represents characters. We are
+a long way beyond the basic ASCII 7-bit character set (which could represent 128
+characters) and we should be supporting all Unicode characters (of which there
+are &gt;136,000, including accents like ä and symbols like ≈). There are several
+ways to represent Unicode, but the most popular is UTF-8, which uses a variable
+number of bytes (from 1 to 4) per character. This means that simple text using
+only plain 7-bit ASCII characters still takes one byte per character, and more
+bytes are added for non-ASCII characters. CamCOPS uses UTF-8.</p>
+<p>A <em>collation</em> is a MySQL term for the way that characters are compared. For
+example, if you are sorting in Swedish and you don’t care about case
+sensitivity, you want the ordering A–Z then ÅÄÖ, and you want a to be considered
+equal to A, å to be considered equal to Å, and so on.</p>
+</div>
+<div class="section" id="background-mysqls-support-for-character-sets-and-collations">
+<h3>14.5.2. Background: MySQL’s support for character sets and collations<a class="headerlink" href="#background-mysqls-support-for-character-sets-and-collations" title="Permalink to this headline">¶</a></h3>
+<p>Now, to add to the difficulty, MySQL supports multiple different levels at which
+you can define the character set and collation.</p>
+<p>Character sets are supported for these things: <em>literal</em>, <em>column</em>, <em>table</em>,
+<em>database</em>, <em>server</em> — plus <em>client</em>, <em>connection</em> (though I think that’s the
+same as ‘literal’), <em>filesystem</em>, <em>results</em>, <em>system</em> <a class="footnote-reference" href="#charset" id="id2">[2]</a>. (Some don’t
+change: system, for storing identifiers, always UTF8 <a class="footnote-reference" href="#sysvars" id="id3">[3]</a>. Some we don’t
+need to care about: filesystem, for referring to filenames. The client one is
+for statements arriving from the client. The connection one is used for
+literals, and I have no idea why you might want this to be different from the
+client setting. The results one is the one that the server uses to return
+result sets or error messages. You can inspect some of these settings with
+<cite>SHOW VARIABLES LIKE ‘char%’</cite>, and table-specific settings using <cite>SHOW CREATE
+TABLE tablename</cite>.)</p>
+<p>Collations are supported for the following (from greatest to least precedence):
+<em>query</em>, <em>column</em>, <em>table</em>, <em>database</em>, <em>connection</em>, <em>server</em> <a class="footnote-reference" href="#collations" id="id4">[4]</a>.
+(The connection collation is applicable for the comparison of literal strings.
+You can inspect the database/connection/server collations using <cite>SHOW
+VARIABLES LIKE ‘collation%’</cite>, and table-specific settings using <cite>SHOW CREATE
+TABLE tablename</cite>.)</p>
+</div>
+<div class="section" id="how-camcops-configures-mysql-character-sets-and-collations">
+<h3>14.5.3. How CamCOPS configures MySQL character sets and collations<a class="headerlink" href="#how-camcops-configures-mysql-character-sets-and-collations" title="Permalink to this headline">¶</a></h3>
+<p>CamCOPS (via SQLAlchemy) creates all MySQL tables using the ‘utf8mb4’ character
+set. This is MySQL’s “proper” 4-byte UTF8 character set. (The MySQL ‘utf8’
+character set uses up to 3 bytes per character and can’t store all characters
+<a class="footnote-reference" href="#utf8" id="id5">[5]</a>.)</p>
+<p>CamCOPS uses the ‘utf8mb4_unicode_ci’ collation, which uses the ‘utf8mb4’
+character set and implements the Unicode standard for sorting
+<a class="footnote-reference" href="#utf8mb4unicodeci" id="id6">[6]</a>. The ‘_ci’ suffix means “case insensitive”. CamCOPS sets
+the table collation when it creates tables, and then ignores collations for
+queries/columns.</p>
+<p>You can see what CamCOPS is doing easily from a running CamCOPS server, using
+the “Inspect table definitions” view. You’ll see table definitions like:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">phq9</span> <span class="p">(</span>
+    <span class="n">q1</span> <span class="nb">INTEGER</span> <span class="k">COMMENT</span> <span class="s1">&#39;Q1 (anhedonia) (0 not at all - 3 nearly every day)&#39;</span><span class="p">,</span>
+    <span class="c1">-- lots of other columns here</span>
+    <span class="c1">-- lots of CONSTRAINT statements next</span>
+<span class="p">)</span> <span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span> <span class="k">COLLATE</span> <span class="n">utf8mb4_unicode_ci</span> <span class="n">ROW_FORMAT</span><span class="o">=</span><span class="k">DYNAMIC</span> <span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-problem-that-creates-this-error">
+<h3>14.5.4. The problem that creates this error<a class="headerlink" href="#the-problem-that-creates-this-error" title="Permalink to this headline">¶</a></h3>
+<p>The underlying reason: a string comparison is occurring between columns with
+different collations and MySQL cannot resolve the conflict <a class="footnote-reference" href="#mixofcollations" id="id7">[7]</a>.</p>
+<p>The CamCOPS reason: if you have a very old CamCOPS database, it might not have
+the table collations set properly. Pick some tables and use syntax like <cite>SHOW
+CREATE TABLE phq9 \G</cite>. (The <cite>\G</cite> is a special MySQL console suffix to show the
+results in non-tabular format.) If you don’t see a <cite>COLLATE</cite> command at the end,
+that’s probably the reason for the error.</p>
+</div>
+<div class="section" id="how-to-generate-the-error">
+<h3>14.5.5. How to generate the error<a class="headerlink" href="#how-to-generate-the-error" title="Permalink to this headline">¶</a></h3>
+<p>The error is typically triggered by viewing a clinical text view (CTV) that
+joins across “old” and “new” tables. A textual comparison will happen on the
+_era column. In the following example, <cite>cisr</cite> is a table with the collation set
+correctly (<cite>DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</cite>), and <cite>patient</cite>
+is an old one (<cite>DEFAULT CHARSET=utf8mb4</cite> only, with an implicit collation of
+<cite>utf8mb4_general_ci</cite>). You can then generate an error by hand with the
+following SQL:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span> <span class="n">cisr</span> <span class="k">c</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">patient</span> <span class="n">p</span>
+    <span class="k">ON</span> <span class="k">c</span><span class="p">.</span><span class="n">patient_id</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">id</span>  <span class="c1">-- integer; fine</span>
+    <span class="k">AND</span> <span class="k">c</span><span class="p">.</span><span class="n">_device_id</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">_device_id</span>  <span class="c1">-- integer; fine</span>
+    <span class="k">AND</span> <span class="k">c</span><span class="p">.</span><span class="n">_era</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">_era</span>  <span class="c1">-- string; collation mismatch; not fine</span>
+    <span class="c1">-- COLLATE utf8mb4_unicode_ci  -- uncomment to fix the error for this query only</span>
+<span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="a-quick-solution">
+<h3>14.5.6. A quick solution<a class="headerlink" href="#a-quick-solution" title="Permalink to this headline">¶</a></h3>
+<p>Rather than applying the collation to each table, you’d think we could change
+the database collation (and character set, while we’re at it) like this:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">ALTER</span> <span class="k">DATABASE</span> <span class="o">&lt;</span><span class="n">dbname</span><span class="o">&gt;</span> <span class="nb">CHARACTER</span> <span class="k">SET</span> <span class="n">utf8mb4</span> <span class="k">COLLATE</span> <span class="n">utf8mb4_unicode_ci</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>However, that doesn’t work, because the old tables and columns both still have
+‘hidden’ collation information:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SHOW</span> <span class="k">TABLE</span> <span class="n">STATUS</span><span class="p">;</span>
+<span class="k">SHOW</span> <span class="k">FULL</span> <span class="n">COLUMNS</span> <span class="k">FROM</span> <span class="n">patient</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>So you have to go through all tables. To automate this <a class="footnote-reference" href="#changecollation" id="id8">[8]</a>,
+execute the following command to generate all the necessary SQL:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">CONCAT</span><span class="p">(</span>
+        <span class="s1">&#39;ALTER TABLE &#39;</span><span class="p">,</span> <span class="n">table_schema</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="k">table_name</span><span class="p">,</span>
+        <span class="s1">&#39; CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;&#39;</span>
+    <span class="p">)</span> <span class="k">AS</span> <span class="n">ExecuteTheString</span>
+<span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span>
+<span class="k">WHERE</span> <span class="n">table_schema</span> <span class="o">=</span> <span class="s1">&#39;your_database_name&#39;</span>
+<span class="k">AND</span> <span class="n">table_type</span> <span class="o">=</span> <span class="s1">&#39;BASE TABLE&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Then a quick bit of copying/pasting and you should be there.</p>
+</div>
+</div>
+<div class="section" id="web-browser-reports-devtools-failed-to-parse-sourcemap">
+<h2>14.6. Web browser reports: “DevTools failed to parse SourceMap…”<a class="headerlink" href="#web-browser-reports-devtools-failed-to-parse-sourcemap" title="Permalink to this headline">¶</a></h2>
+<p>In full, the web browser reports:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DevTools</span> <span class="n">failed</span> <span class="n">to</span> <span class="n">parse</span> <span class="n">SourceMap</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">wombat</span><span class="o">/</span><span class="n">camcops</span><span class="o">/</span><span class="n">deform_static</span><span class="o">/</span><span class="n">css</span><span class="o">/</span><span class="n">bootstrap</span><span class="o">.</span><span class="n">min</span><span class="o">.</span><span class="n">css</span><span class="o">.</span><span class="n">map</span>
+</pre></div>
+</div>
+<p>This file (<cite>bootstrap.min.css.map</cite>) should be shipped with Deform, but isn’t.
+For now: don’t worry about it.</p>
+</div>
+<div class="section" id="logo-png-with-transparency-crashes-pdf-generator">
+<h2>14.7. Logo PNG with transparency crashes PDF generator<a class="headerlink" href="#logo-png-with-transparency-crashes-pdf-generator" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This bug relates to old versions of CamCOPS and should no longer be seen.</p>
+</div>
+<p><em>Problem</em></p>
+<p>If your institutional logo PNG file contains a transparency layer, it will
+crash the xhtml2pdf PDF generator (as of 2015-02-05). The error looks like:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> /usr/local/lib/python2.7/dist-packages/xhtml2pdf/xhtml2pdf_reportlab.py in getRGBData...
+    426                     self.mode = &#39;RGB&#39;
+    427                 elif mode not in (&#39;L&#39;, &#39;RGB&#39;, &#39;CMYK&#39;):
+=&gt;  428                     im = im.convert(&#39;RGB&#39;)
+    429                     self.mode = &#39;RGB&#39;
+    430                 self._data = im.tostring()
+im = &lt;PIL.PngImagePlugin.PngImageFile image mode=P size=590x118&gt;, im.convert = &lt;bound method PngImageFile.convert of &lt;PIL.PngImagePlugin.PngImageFile image mode=P size=590x118&gt;&gt;
+
+ /usr/local/lib/python2.7/dist-packages/PIL/Image.py in convert(self=&lt;PIL.PngImagePlugin.PngImageFile image mode=P size=590x118&gt;, mode=&#39;RGB&#39;, matrix=None, dither=3, palette=0, colors=256)
+    808         if delete_trns:
+    809             #crash fail if we leave a bytes transparency in an rgb/l mode.
+=&gt;  810             del(new.info[&#39;transparency&#39;])
+    811         if trns is not None:
+    812             if new_im.mode == &#39;P&#39;:
+global new = &lt;function new&gt;, new.info undefined
+
+&lt;type &#39;exceptions.UnboundLocalError&#39;&gt;: local variable &#39;new&#39; referenced before assignment
+      args = (&quot;local variable &#39;new&#39; referenced before assignment&quot;,)
+      message = &quot;local variable &#39;new&#39; referenced before assignment&quot;
+</pre></div>
+</div>
+<p><em>Solution 1</em></p>
+<p>Remove the transparency layer. For example:</p>
+<ul class="simple">
+<li>Load the file in GIMP;</li>
+<li><span class="menuselection">Layer ‣ Transparency ‣ Remove alpha channel</span></li>
+<li>Resave, e.g. with <span class="menuselection">File ‣ Overwrite…</span></li>
+</ul>
+<p><em>Solution 2</em></p>
+<p>Use a newer version of CamCOPS; from server version 1.40, it uses wkhtmltopdf
+instead, which is also faster.</p>
+<p class="rubric" id="mysql-row-size-too-large">Footnotes</p>
+<table class="docutils footnote" frame="void" id="toomanyconnections" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html">https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="charset" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html">https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="sysvars" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html">https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="collations" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation">https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="utf8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[5]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html">https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="utf8mb4unicodeci" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[6]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci">https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="mixofcollations" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id7">[7]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/3029321/troubleshooting-illegal-mix-of-collations-error-in-mysql">https://stackoverflow.com/questions/3029321/troubleshooting-illegal-mix-of-collations-error-in-mysql</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="changecollation" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id8">[8]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/10859966/how-to-convert-all-tables-in-database-to-one-collation">https://stackoverflow.com/questions/10859966/how-to-convert-all-tables-in-database-to-one-collation</a>;
+<a class="reference external" href="https://stackoverflow.com/questions/1294117/how-to-change-collation-of-database-table-column">https://stackoverflow.com/questions/1294117/how-to-change-collation-of-database-table-column</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_command_line.html">13. CamCOPS server command-line tools</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">14. Troubleshooting server problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#web-server-errors-from-apache">14.1. Web server errors from Apache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#web-server-errors-in-general">14.2. Web server errors in general</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tablet-upload-errors">14.3. Tablet upload errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mysql-too-many-connections">14.4. MySQL: “Too many connections”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mysql-illegal-mix-of-collations">14.5. MySQL: “Illegal mix of collations…”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#web-browser-reports-devtools-failed-to-parse-sourcemap">14.6. Web browser reports: “DevTools failed to parse SourceMap…”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logo-png-with-transparency-crashes-pdf-generator">14.7. Logo PNG with transparency crashes PDF generator</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">15. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">16. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">19. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="server_command_line.html"
+                        title="previous chapter">13. CamCOPS server command-line tools</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../client/creating_tasks.html"
+                        title="next chapter">15. Creating tasks</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/server/server_troubleshooting.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../client/creating_tasks.html" title="15. Creating tasks"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="server_command_line.html" title="13. CamCOPS server command-line tools"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

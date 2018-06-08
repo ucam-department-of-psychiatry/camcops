@@ -1,0 +1,483 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>18. Linux flavours &#8212; CamCOPS 2.2.1 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="19. Design notes" href="design_notes.html" />
+    <link rel="prev" title="17. Common relevant TCP/IP ports" href="tcpip_ports.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="design_notes.html" title="19. Design notes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tcpip_ports.html" title="17. Common relevant TCP/IP ports"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="linux-flavours">
+<span id="id1"></span><h1>18. Linux flavours<a class="headerlink" href="#linux-flavours" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="common-administrative-commands">
+<h2>18.1. Common administrative commands<a class="headerlink" href="#common-administrative-commands" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="20%" />
+<col width="40%" />
+<col width="40%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&#160;</th>
+<th class="head">Ubuntu</th>
+<th class="head">CentOS 6.5</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><strong>System</strong></td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>Heritage</td>
+<td>Debian</td>
+<td>Red Hat Enterprise Linux</td>
+</tr>
+<tr class="row-even"><td>Package management</td>
+<td><cite>apt-get</cite>, <cite>dpkg</cite>, and for convenience <cite>gdebi</cite></td>
+<td><cite>yum</cite></td>
+</tr>
+<tr class="row-odd"><td>General system update</td>
+<td><cite>sudo apt-get update &amp;&amp; sudo apt-get dist-upgrade</cite></td>
+<td><cite>sudo yum update</cite></td>
+</tr>
+<tr class="row-even"><td>Package type</td>
+<td><cite>deb</cite></td>
+<td><cite>rpm</cite></td>
+</tr>
+<tr class="row-odd"><td>Extra security</td>
+<td>Nothing complex by default</td>
+<td>SELinux; file permissions must be set with <cite>chcon</cite></td>
+</tr>
+<tr class="row-even"><td>Autostarting daemons at boot</td>
+<td>Usually happens automatically</td>
+<td>Usually need to configure with <cite>chkconfig</cite></td>
+</tr>
+<tr class="row-odd"><td>Which OS version am I running?</td>
+<td><div class="first last line-block">
+<div class="line"><cite>lsb_release -a</cite></div>
+<div class="line"><cite>uname -a</cite></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><cite>cat /etc/centos-release</cite></div>
+<div class="line"><cite>uname -a</cite></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><strong>Python</strong></td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>Default Python versions (CamCOPS requires 3.4)</td>
+<td>2.7, 3.4</td>
+<td>2.6</td>
+</tr>
+<tr class="row-even"><td><strong>Apache</strong></td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>Apache main configuration file</td>
+<td>Usually <cite>/etc/apache2/apache2.conf</cite></td>
+<td>Usually <cite>/etc/httpd/conf/httpd.conf</cite></td>
+</tr>
+<tr class="row-even"><td>Apache SSL configuration file</td>
+<td>Usually <cite>/etc/apache2/sites-available/default-ssl</cite></td>
+<td>Usually <cite>/etc/httpd/conf.d/ssl.conf</cite></td>
+</tr>
+<tr class="row-odd"><td>Granting access in Apache config file</td>
+<td><div class="first last line-block">
+<div class="line"><strong>Apache 2.4:</strong></div>
+<div class="line"><cite>Require all granted</cite></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>Apache 2.2:</strong></div>
+<div class="line"><cite>Order allow,deny</cite></div>
+<div class="line"><cite>Allow from all</cite></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>Default Apache system user</td>
+<td><cite>www-data</cite></td>
+<td><cite>apache</cite></td>
+</tr>
+<tr class="row-odd"><td>Default SSL certificate location</td>
+<td><cite>/etc/ssl/</cite></td>
+<td><cite>/etc/pki/tls/</cite></td>
+</tr>
+<tr class="row-even"><td>Default Apache log directory</td>
+<td><cite>/var/log/apache2/</cite></td>
+<td><cite>/var/log/httpd/</cite></td>
+</tr>
+<tr class="row-odd"><td>Restarting Apache</td>
+<td><ul class="first last simple">
+<li><cite>sudo service apache2 [start|stop|restart]</cite></li>
+<li><cite>sudo apache2ctl [start|stop|restart]</cite></li>
+<li><cite>sudo apachectl [start|stop|restart]</cite></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li><cite>sudo service httpd [start|stop|restart]</cite></li>
+<li><cite>sudo apachectl [start|stop|restart]</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><strong>supervisord</strong></td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>supervisord configuration file</td>
+<td>Usually <cite>/etc/supervisor/supervisord.conf</cite></td>
+<td>Usually <cite>/etc/supervisord.conf</cite></td>
+</tr>
+<tr class="row-even"><td>Restarting supervisord</td>
+<td><ul class="first last simple">
+<li><cite>sudo service supervisor [start|stop|restart]</cite></li>
+<li><cite>sudo supervisorctl</cite></li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li><cite>sudo service supervisord [start|stop|restart]</cite></li>
+<li><cite>sudo supervisorctl</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><strong>MySQL</strong></td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>Default MySQL configuration file</td>
+<td><cite>/etc/mysql/my.cnf</cite></td>
+<td><cite>/etc/my.cnf</cite></td>
+</tr>
+<tr class="row-odd"><td>Restarting MySQL</td>
+<td><cite>sudo service mysql [start|stop|restart]</cite></td>
+<td><cite>sudo service mysqld [start|stop|restart]</cite></td>
+</tr>
+<tr class="row-even"><td>Default MySQL log</td>
+<td><cite>/var/log/mysql.log</cite></td>
+<td><cite>/var/log/mysqld.log</cite></td>
+</tr>
+<tr class="row-odd"><td><strong>CamCOPS packages</strong></td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>Installation</td>
+<td><cite>sudo gdebi install camcops_VERSION_all.deb</cite></td>
+<td><cite>sudo yum install camcops_VERSION.noarch.rpm</cite></td>
+</tr>
+<tr class="row-odd"><td>Removal</td>
+<td><cite>sudo dpkg –remove camcops</cite></td>
+<td><cite>sudo yum remove camcops</cite></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="installing-camcops-prerequisites-under-centos-6-5">
+<span id="centos65-prerequisites"></span><h2>18.2. Installing CamCOPS prerequisites under CentOS 6.5<a class="headerlink" href="#installing-camcops-prerequisites-under-centos-6-5" title="Permalink to this headline">¶</a></h2>
+<p>Ensure additional repositories are in use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># RPMForge: see http://www.tecmint.com/install-and-enable-rpmforge-repository-in-rhel-centos-6-5-4/</span>
+<span class="c1"># Use &quot;cat /etc/centos-release&quot; to see CentOS version; use &quot;uname -a&quot; to detect 32-bit/64-bit version.</span>
+<span class="c1"># For example, for 64-bit CentOS 6.5:</span>
+
+sudo rpm -Uvh http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
+
+<span class="c1"># EPEL: see http://fedoraproject.org/wiki/EPEL</span>
+<span class="c1"># For example:</span>
+
+sudo rpm -Uvh https://anorien.csc.warwick.ac.uk/mirrors/epel/6/i386/epel-release-6-8.noarch.rpm
+
+<span class="c1"># Something providing Python 3 in package form (see http://stackoverflow.com/questions/8087184):</span>
+sudo yum install https://centos6.iuscommunity.org/ius-release.rpm
+
+<span class="c1"># We need MySQL 5.5 or higher: http://www.webtatic.com/packages/mysql55/</span>
+sudo rpm -Uvh http://mirror.webtatic.com/yum/el6/latest.rpm
+</pre></div>
+</div>
+<p>Potential prerequisites for what follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo yum install blas-devel lapack-devel libffi-devel libpng-devel links nano openssl-devel python-devel
+</pre></div>
+</div>
+<p>Install Python 3 (which comes with pip and setuptools). <em>Note: CentOS 6.5
+(December 2013) provides Python 2.6 (2009). You can’t just replace it, because
+its system scripts need Python 2.6. CentOS is based on Red Hat Enterprise
+Linux. Fedora 14 (another Red Hat derivative) moved to Python 2.7 in 2010.
+CamCOPS needs Python 3 (e.g. 3.4).</em></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># For Python 3.4L</span>
+sudo yum install python34u
+
+<span class="c1"># For Python 3.5 (with some other helpful things):</span>
+sudo yum install python35u python35u-pip libxml2-devel libxslt-devel python35u-devel gcc
+
+<span class="c1"># Test:</span>
+python3 --version
+pip3 --version
+</pre></div>
+</div>
+<p>Install MySQL:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo yum install mysql55 mysql55-server mysql-devel
+</pre></div>
+</div>
+<p>Install Apache:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo yum install httpd httpd-devel mod_ssl
+</pre></div>
+</div>
+<p>Ensure you have Supervisor:</p>
+<ul>
+<li><p class="first">On CentOS, the default version (via yum installation) is of supervisord==2.1
+(as reported by <cite>pip freeze</cite>), which is too old for the <cite>[include]</cite> directive
+(which came in with version 3.0). To upgrade:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install requests<span class="o">[</span>security<span class="o">]</span>  <span class="c1"># because Python 2.6 doesn&#39;t have SSL otherwise</span>
+pip install <span class="nv">supervisor</span><span class="o">==</span><span class="m">3</span>.2.0
+<span class="c1"># Don&#39;t copy the next line blindly. Do you have an old /etc/supervisord.conf that you want to keep?</span>
+echo_supervisord_conf &gt; /etc/supervisord.conf  <span class="c1"># make a new blank config</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Then add these lines to <cite>/etc/supervisord.conf</cite>:</p>
+<blockquote>
+<div><div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[include]</span>
+<span class="na">files</span> <span class="o">=</span> <span class="s">/etc/supervisor/conf.d/*.conf</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Then ensure supervisord restarts on boot. On Ubuntu, this is automatic. On
+CentOS, run</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo chkconfig --add supervisord
+sudo chkconfig supervisord on  <span class="c1"># default runlevels (--level 2345) are fine</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="setting-up-mysql-under-linux">
+<span id="linux-mysql-setup"></span><h2>18.3. Setting up MySQL under Linux<a class="headerlink" href="#setting-up-mysql-under-linux" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first"><strong>Under Ubuntu, if you are happy to leave the data files at their default
+location, skip this step.</strong> Check/edit the MySQL configuration (see table
+above for filenames). See <a class="reference external" href="http://dev.mysql.com/tech-resources/articles/mysql_intro.html">Getting Started with MySQL</a>. In
+particular:</p>
+<ul>
+<li><p class="first"><cite>datadir</cite> should point to your database files (default often
+<cite>/var/lib/mysql</cite>, but <cite>/srv/mysql</cite> is one alternative).</p>
+</li>
+<li><p class="first">Other options are explained <a class="reference external" href="http://dev.mysql.com/doc/mysql/en/server-system-variables.html">here</a>.</p>
+</li>
+<li><p class="first">If you create a blank directory (such as <cite>/srv/mysql</cite>), you will need to
+use the <cite>mysql_install_db</cite> tool; see <a class="reference external" href="http://dev.mysql.com/doc/refman/5.7/en/postinstallation.html">Postinstallation Setup and Testing</a>; an
+example command is</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo mysql_install_db --user<span class="o">=</span>mysql --basedir<span class="o">=</span>/usr --datadir<span class="o">=</span>/srv/mysql
+</pre></div>
+</div>
+</li>
+<li><p class="first">Manual start: <cite>sudo /usr/bin/mysqld_safe –user=mysql &amp;</cite>. Manual stop:
+<cite>sudo mysqladmin shutdown</cite>.</p>
+</li>
+<li><p class="first">Service start/stop: see table above.</p>
+</li>
+<li><p class="first">If it starts manually but not as a service (in a manner that depends on
+your data directory), you have a challenging problem; an option is to
+return to the default data directory!</p>
+</li>
+<li><p class="first">To log in prior to securing the database: mysql.</p>
+</li>
+<li><p class="first">See also the <a class="reference external" href="http://centoshelp.org/servers/database/installing-configuring-mysql-server/">CentOS MySQL installation guide</a>.</p>
+</li>
+<li><p class="first">Default logfile: <cite>/var/log/mysqld.log</cite> or <cite>/var/log/mysql/…</cite></p>
+</li>
+</ul>
+</li>
+<li><p class="first">Secure your MySQL installation by running <cite>mysql_secure_installation</cite>.</p>
+<ul class="simple">
+<li>Login after securing: <cite>mysql -u root -p</cite>.</li>
+<li>Similar username/password requirements now apply to manual shutdowns.</li>
+</ul>
+</li>
+<li><p class="first"><strong>Ensure that the max_allowed_packet parameter is large enough.</strong></p>
+<ul class="simple">
+<li>This parameter needs to be set large enough that the largest binary large
+objects (BLOBs) can be uploaded. CamCOPS BLOBs are mostly photographs from
+tablets. A high-end tablet in 2014 might have an 8 megapixel (MP) camera,
+with each pixel taking 3 bytes, i.e. 24 Mb. Furthermore, the transfer
+takes more space thanks to somewhat inefficient encoding. The MySQL
+server default value is just 1 Mb <a class="footnote-reference" href="#mysqlmaxallowedpacket" id="id2">[1]</a>.</li>
+<li>You must set this parameter for the server, and for the <cite>mysqldump</cite> tool.</li>
+<li>A suggested value is 32 Mb. Edit <cite>my.cnf</cite> to include <cite>max_allowed_packet</cite>
+values in the <cite>[mysqld]</cite> and <cite>[mysqldump]</cite> sections (creating them if
+necessary).</li>
+<li>Similar editing of the <cite>[client]</cite> section of <cite>my.cnf</cite> is unnecessary,
+firstly because some other MySQL clients may not recognize the option and
+might choke on it, and secondly because CamCOPS uses <a class="reference external" href="http://mysql-python.sourceforge.net/">MySQLdb</a>
+(<a class="reference external" href="http://mysql-python.sourceforge.net/">MySQL-Python</a>), which uses the MySQL C API, which has a default limit of 1
+Gb <a class="footnote-reference" href="#mysqlcapilimits" id="id3">[2]</a>.</li>
+</ul>
+</li>
+<li><p class="first">Set some other MySQL parameters for TEXT-heavy tables; see
+<a class="reference internal" href="../server/server_troubleshooting.html#mysql-row-size-too-large"><span class="std std-ref">Troubleshooting: Row size too large</span></a>.</p>
+</li>
+<li><p class="first">Thus, edit <cite>my.cnf</cite> to include the following:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[mysqld]</span>
+<span class="na">max_allowed_packet</span> <span class="o">=</span> <span class="s">32M</span>
+
+<span class="na">innodb_strict_mode</span> <span class="o">=</span> <span class="s">1</span>
+<span class="na">innodb_file_per_table</span> <span class="o">=</span> <span class="s">1</span>
+<span class="na">innodb_file_format</span> <span class="o">=</span> <span class="s">Barracuda</span>
+
+<span class="c1"># Only for MySQL prior to 5.7.5 (http://dev.mysql.com/doc/relnotes/mysql/5.6/en/news-5-6-20.html):</span>
+<span class="c1"># innodb_log_file_size = 512M</span>
+
+<span class="k">[mysqldump]</span>
+<span class="na">max_allowed_packet</span> <span class="o">=</span> <span class="s">32M</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Ensure MySQL is running as a service (as above).</p>
+</li>
+<li><p class="first"><strong>Create the CamCOPS database.</strong> See <a class="reference internal" href="../server/server_configuration.html#create-database"><span class="std std-ref">create a database</span></a>.</p>
+</li>
+</ol>
+<p class="rubric">Footnotes</p>
+<table class="docutils footnote" frame="void" id="mysqlmaxallowedpacket" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td><a class="reference external" href="http://dev.mysql.com/doc/refman/5.7/en/packet-too-large.html">http://dev.mysql.com/doc/refman/5.7/en/packet-too-large.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="mysqlcapilimits" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td><a class="reference external" href="http://dev.mysql.com/doc/refman/5.7/en/c-api.html">http://dev.mysql.com/doc/refman/5.7/en/c-api.html</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_command_line.html">13. CamCOPS server command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">15. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">16. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">18. Linux flavours</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#common-administrative-commands">18.1. Common administrative commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-camcops-prerequisites-under-centos-6-5">18.2. Installing CamCOPS prerequisites under CentOS 6.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-mysql-under-linux">18.3. Setting up MySQL under Linux</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="design_notes.html">19. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="local_info.html">25. Local configuration information</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tcpip_ports.html"
+                        title="previous chapter">17. Common relevant TCP/IP ports</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design_notes.html"
+                        title="next chapter">19. Design notes</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/misc/linux_flavours.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="design_notes.html" title="19. Design notes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tcpip_ports.html" title="17. Common relevant TCP/IP ports"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

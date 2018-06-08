@@ -1,0 +1,465 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>1.5. Groups &#8212; CamCOPS 2.2.1 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="1.6. About device registration" href="registration.html" />
+    <link rel="prev" title="1.4. Patient/subject identification in CamCOPS" href="patient_identification.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="registration.html" title="1.6. About device registration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="patient_identification.html" title="1.4. Patient/subject identification in CamCOPS"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="introduction.html" accesskey="U">1. Introduction</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="groups">
+<span id="id1"></span><h1>1.5. Groups<a class="headerlink" href="#groups" title="Permalink to this headline">¶</a></h1>
+<p>CamCOPS assigns each uploaded task to one <em>group</em>. Groups have the following
+functions:</p>
+<ul class="simple">
+<li>Groups help to define <em>access control</em>: what information can a user see?</li>
+<li>A group has a pair of <em>ID policies</em>: what information about a subject/patient
+is required to (a) upload to the server, and (b) finalize that upload,
+clearing the data off the tablet?</li>
+</ul>
+<div class="section" id="access-control">
+<span id="group-access-control"></span><h2>1.5.1. Access control<a class="headerlink" href="#access-control" title="Permalink to this headline">¶</a></h2>
+<p>Users may belong to one or several groups. Users can see data from the groups
+they belong to. In addition, each group may also have permission to view other
+groups (and users also gain the permissions of their groups).</p>
+<p>Users upload data to one group at a time (but can change which group that is).</p>
+<p>To make all that concrete, here are some ways that groups can operate. Imagine a
+research-active hospital. Here are some of its users:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="45%" />
+<col width="40%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">User</th>
+<th class="head">Description</th>
+<th class="head">Group(s) to which user belongs</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Smith</td>
+<td>Research associate</td>
+<td>depression_crp_study</td>
+</tr>
+<tr class="row-odd"><td>Jones</td>
+<td>PhD student</td>
+<td>depression_crp_study</td>
+</tr>
+<tr class="row-even"><td>Willis</td>
+<td>Research associate</td>
+<td>depression_ketamine_study</td>
+</tr>
+<tr class="row-odd"><td>Fox</td>
+<td>PhD student</td>
+<td>depression_ketamine_study</td>
+</tr>
+<tr class="row-even"><td>Armstrong</td>
+<td>Research associate</td>
+<td>healthy_development_study</td>
+</tr>
+<tr class="row-odd"><td>Bliss</td>
+<td>PhD student</td>
+<td>healthy_development_study</td>
+</tr>
+<tr class="row-even"><td>Cratchett</td>
+<td>Principal investigator</td>
+<td>depression_crp_study;
+depression_ketamine_study</td>
+</tr>
+<tr class="row-odd"><td>Boxworth</td>
+<td>Principal investigator; consultant</td>
+<td>healthy_development_study;
+clinical</td>
+</tr>
+<tr class="row-even"><td>Amundsen</td>
+<td>SHO</td>
+<td>clinical</td>
+</tr>
+<tr class="row-odd"><td>Richards</td>
+<td>SpR</td>
+<td>clinical</td>
+</tr>
+<tr class="row-even"><td>Dennis</td>
+<td>consultant</td>
+<td>clinical</td>
+</tr>
+</tbody>
+</table>
+<p>Suppose also that we have the following group-to-group permissions:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="45%" />
+<col width="40%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Group</th>
+<th class="head">… can see other group(s)</th>
+<th class="head">&#160;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>clinical</td>
+<td>depression_crp_study;
+depression_ketamine_study</td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<p>Then users would have the following permissions:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="23%" />
+<col width="27%" />
+<col width="27%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">User</th>
+<th class="head">Can see depression CRP study</th>
+<th class="head">Can see depression ketamine study</th>
+<th class="head">Can see healthy development study</th>
+<th class="head">Can see clinical</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Smith</td>
+<td><strong>yes</strong></td>
+<td>no</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr class="row-odd"><td>Jones</td>
+<td><strong>yes</strong></td>
+<td>no</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr class="row-even"><td>Willis</td>
+<td>no</td>
+<td><strong>yes</strong></td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr class="row-odd"><td>Fox</td>
+<td>no</td>
+<td><strong>yes</strong></td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr class="row-even"><td>Armstrong</td>
+<td>no</td>
+<td>no</td>
+<td><strong>yes</strong></td>
+<td>no</td>
+</tr>
+<tr class="row-odd"><td>Bliss</td>
+<td>no</td>
+<td>no</td>
+<td><strong>yes</strong></td>
+<td>no</td>
+</tr>
+<tr class="row-even"><td>Cratchett</td>
+<td><strong>yes</strong></td>
+<td><strong>yes</strong></td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr class="row-odd"><td>Boxworth</td>
+<td><strong>yes</strong></td>
+<td><strong>yes</strong></td>
+<td><strong>yes</strong></td>
+<td><strong>yes</strong></td>
+</tr>
+<tr class="row-even"><td>Amundsen</td>
+<td><strong>yes</strong></td>
+<td><strong>yes</strong></td>
+<td>no</td>
+<td><strong>yes</strong></td>
+</tr>
+<tr class="row-odd"><td>Richards</td>
+<td><strong>yes</strong></td>
+<td><strong>yes</strong></td>
+<td>no</td>
+<td><strong>yes</strong></td>
+</tr>
+<tr class="row-even"><td>Dennis</td>
+<td><strong>yes</strong></td>
+<td><strong>yes</strong></td>
+<td>no</td>
+<td><strong>yes</strong></td>
+</tr>
+</tbody>
+</table>
+<p>This example embodies these specimen principles:</p>
+<ul class="simple">
+<li>Researchers see only the patients consented into their study.</li>
+<li>A researcher may be part of one or several studies.</li>
+<li>Clinicians (members of the “clinical” group) can see all records, including
+research records, for patients consented into clinical research for the
+hospital (in this case: depression_crp_study, depression_ketamine_study).</li>
+<li>There may be some studies that don’t involve patients, so clinicians don’t
+get some sort of superuser status (in this case: healthy_development_study is
+not visible to clinicians in general).</li>
+</ul>
+<p>In this example you would also probably want to ensure that the hospital’s main
+clinical ID number was required for the clinical, depression_crp_study, and
+depression_ketamine_study groups (and it would probably be optional for the
+healthy_development_study group, since that might involve non-patient volunteers
+who aren’t registered with the hospital).</p>
+</div>
+<div class="section" id="identification-policies">
+<h2>1.5.2. Identification policies<a class="headerlink" href="#identification-policies" title="Permalink to this headline">¶</a></h2>
+<p>First, please see <a class="reference internal" href="patient_identification.html#patient-identification"><span class="std std-ref">Patient Identification</span></a>.</p>
+<p>Since different situations may require different identification policies,
+CamCOPS lets you configure this by group. Here are some contrasting scenarios:</p>
+<p><strong>Scenario 1: unitary ID policy</strong></p>
+<p>Imagine an institution that has a single centralized ID system (e.g. a hospital
+that only uses UK NHS numbers). It requires that all data conform to the
+principle that you must always use an NHS number. It also requires that you
+specify forename, surname, date of birth, and sex. You could create an ID
+number type 1 that you call “NHS number”, or “NHS” for short. All CamCOPS
+groups that you create might use these policies:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Upload and finalize:
+
+    forename AND surname AND sex AND dob AND idnum1
+</pre></div>
+</div>
+<p><strong>Scenario 2: multiple pseudonymous studies</strong></p>
+<p>Suppose a University CamCOPS site is hosting multiple independent studies. Its
+ID numbers might look like this:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="61%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">ID number</th>
+<th class="head">Description</th>
+<th class="head">Short description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>MRI of adolescent development study ID</td>
+<td>MRIAD</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>MEG of hallucinations study ID</td>
+<td>MEGHAL</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td>Affective trajectory of painters study ID</td>
+<td>MOODPAINT</td>
+</tr>
+</tbody>
+</table>
+<p>Then a hypothetical mri_ad group might have these policies</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Upload and finalize:
+
+    sex AND idnum1
+</pre></div>
+</div>
+<p>while the meg_hal group has these:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Upload and finalize:
+
+    sex AND idnum2
+</pre></div>
+</div>
+<p>… and so on. Each study requires its own study-specific ID but does not
+require subjects to be identified in other ways.</p>
+<p><strong>Scenario 3: mixture of requirements</strong></p>
+<p>Let’s use the hospital scenario above. We might have the following ID number
+types:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="61%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">ID number</th>
+<th class="head">Description</th>
+<th class="head">Short description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>Hospital number</td>
+<td>H</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>NHS number</td>
+<td>NHS</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td>Research Healthy Development Study number</td>
+<td>ResHealthyDev</td>
+</tr>
+</tbody>
+</table>
+<p>The hospital might want all studies involving patients to have fully
+identifiable information, so the clinical, depression_crp_study, and
+depression_ketamine_study groups might all have the following ID policies:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Upload:
+
+    forename AND surname AND dob AND sex AND (idnum1 OR idnum2)
+
+Finalize:
+
+    forename AND surname AND dob AND sex AND idnum1 AND idnum2
+</pre></div>
+</div>
+<p>The difference between uploading and finalizing allows clinicians some leeway
+by allowing them to fetch NHS numbers later.</p>
+<p>In contrast, the healthy_development_study might involve volunteers who might
+not have a hospital number, and don’t need to know their NHS number, but can
+provide it if they wish and consent to have their research records cross-linked
+to their hospital or other NHS records. That group might have these policies:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Upload:
+
+    sex AND idnum3
+
+Finalize:
+
+    sex AND idnum3
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="introduction.html">1. Introduction</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">1.1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tour.html">1.2. Tour</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html">1.3. Requirements and costs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patient_identification.html">1.4. Patient/subject identification in CamCOPS</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.5. Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="registration.html">1.6. About device registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intellectual_property.html">1.7. Intellectual property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="security_design.html">1.8. Security design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_structure_design.html">1.9. Internal data structure in CamCOPS</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_command_line.html">13. CamCOPS server command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">15. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">16. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">19. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="patient_identification.html"
+                        title="previous chapter">1.4. Patient/subject identification in CamCOPS</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="registration.html"
+                        title="next chapter">1.6. About device registration</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/introduction/groups.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="registration.html" title="1.6. About device registration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="patient_identification.html" title="1.4. Patient/subject identification in CamCOPS"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="introduction.html" >1. Introduction</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

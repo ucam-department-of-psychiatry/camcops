@@ -1,0 +1,886 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>13. CamCOPS server command-line tools &#8212; CamCOPS 2.2.1 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="14. Troubleshooting server problems" href="server_troubleshooting.html" />
+    <link rel="prev" title="12. Web site: admin functions" href="server_front_end_admin.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="server_troubleshooting.html" title="14. Troubleshooting server problems"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="server_front_end_admin.html" title="12. Web site: admin functions"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="camcops-server-command-line-tools">
+<span id="server-command-line-tools"></span><h1>13. CamCOPS server command-line tools<a class="headerlink" href="#camcops-server-command-line-tools" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="camcops">
+<span id="camcops-cli"></span><h2>13.1. camcops<a class="headerlink" href="#camcops" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>camcops</cite> command is the main interface to the CamCOPS server.
+Options as of 2018-04-06 (output from <cite>camcops –allhelp</cite>):</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">fix command-line “camcops docs” option to point to HTML docs</p>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: camcops [-h] [--allhelp] [--version]
+               {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,show_db_title,merge_db,create_db,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,serve_cherrypy,serve_gunicorn}
+               ...
+
+CamCOPS server version 2.2.0, by Rudolf Cardinal.
+Use &#39;camcops &lt;COMMAND&gt; --help&#39; for more detail on each command.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --allhelp             show help for all commands and exit
+  --version             show program&#39;s version number and exit
+
+commands:
+  Valid CamCOPS commands are as follows.
+
+  {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,show_db_title,merge_db,create_db,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,serve_cherrypy,serve_gunicorn}
+                        Specify one command.
+    docs                Launch the main documentation (CamCOPS manual)
+    demo_camcops_config
+                        Print a demo CamCOPS config file
+    demo_supervisor_config
+                        Print a demo &#39;supervisor&#39; config file for CamCOPS
+    demo_apache_config  Print a demo Apache config file section for CamCOPS
+    demo_mysql_create_db
+                        Print demo instructions to create a MySQL database for
+                        CamCOPS
+    demo_mysql_dump_script
+                        Print demo instructions to dump all current MySQL
+                        databases
+    upgrade_db          Upgrade database to most recent version (via Alembic)
+    show_db_title       Show database title
+    merge_db            Merge in data from an old or recent CamCOPS database
+    create_db           Create CamCOPS database from scratch (AVOID; use the
+                        upgrade facility instead)
+    make_superuser      Make superuser, or give superuser status to an
+                        existing user
+    reset_password      Reset a user&#39;s password
+    enable_user         Re-enable a locked user account
+    ddl                 Print database schema (data definition language; DDL)
+    hl7                 Send pending HL7 messages and outbound files
+    show_hl7_queue      View outbound HL7/file queue (without sending)
+    show_tests          Show available self-tests
+    self_test           Test internal code
+    serve_pyramid       Test web server (single-thread, single-process, HTTP-
+                        only, Pyramid; for development use only
+    serve_cherrypy      Start web server (via CherryPy)
+    serve_gunicorn      Start web server (via Gunicorn) (not available under
+                        Windows)
+
+===============================================================================
+Help for command &#39;docs&#39;
+===============================================================================
+usage: camcops docs [-h] [-v]
+
+Launch the main documentation (CamCOPS manual)
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Be verbose (default: False)
+
+===============================================================================
+Help for command &#39;demo_camcops_config&#39;
+===============================================================================
+usage: camcops demo_camcops_config [-h] [-v]
+
+Print a demo CamCOPS config file
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Be verbose (default: False)
+
+===============================================================================
+Help for command &#39;demo_supervisor_config&#39;
+===============================================================================
+usage: camcops demo_supervisor_config [-h] [-v]
+
+Print a demo &#39;supervisor&#39; config file for CamCOPS
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Be verbose (default: False)
+
+===============================================================================
+Help for command &#39;demo_apache_config&#39;
+===============================================================================
+usage: camcops demo_apache_config [-h] [-v]
+
+Print a demo Apache config file section for CamCOPS
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Be verbose (default: False)
+
+===============================================================================
+Help for command &#39;demo_mysql_create_db&#39;
+===============================================================================
+usage: camcops demo_mysql_create_db [-h] [-v]
+
+Print demo instructions to create a MySQL database for CamCOPS
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Be verbose (default: False)
+
+===============================================================================
+Help for command &#39;demo_mysql_dump_script&#39;
+===============================================================================
+usage: camcops demo_mysql_dump_script [-h] [-v]
+
+Print demo instructions to dump all current MySQL databases
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Be verbose (default: False)
+
+===============================================================================
+Help for command &#39;upgrade_db&#39;
+===============================================================================
+usage: camcops upgrade_db [-h] [-v] --config CONFIG
+
+Upgrade database to most recent version (via Alembic)
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -v, --verbose    Be verbose (default: False)
+
+required named arguments:
+  --config CONFIG  Configuration file (default: None)
+
+===============================================================================
+Help for command &#39;show_db_title&#39;
+===============================================================================
+usage: camcops show_db_title [-h] [-v] [--config CONFIG]
+
+Show database title
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -v, --verbose    Be verbose (default: False)
+  --config CONFIG  Configuration file (if not specified, the environment
+                   variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+
+===============================================================================
+Help for command &#39;merge_db&#39;
+===============================================================================
+usage: camcops merge_db [-h] [-v] --config CONFIG
+                        [--report_every REPORT_EVERY] [--echo] [--dummy_run]
+                        [--info_only] [--skip_hl7_logs] [--skip_audit_logs]
+                        [--default_group_id DEFAULT_GROUP_ID]
+                        [--default_group_name DEFAULT_GROUP_NAME] --src SRC
+
+Merge in data from an old or recent CamCOPS database
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Be verbose (default: False)
+  --report_every REPORT_EVERY
+                        Report progress every n rows (default: 10000)
+  --echo                Echo SQL to source database (default: False)
+  --dummy_run           Perform a dummy run only; do not alter destination
+                        database (default: False)
+  --info_only           Show table information only; don&#39;t do any work
+                        (default: False)
+  --skip_hl7_logs       Skip the HL7 message log table (default: False)
+  --skip_audit_logs     Skip the audit log table (default: False)
+  --default_group_id DEFAULT_GROUP_ID
+                        Default group ID (integer) to apply to old records
+                        without one. If none is specified, a new group will be
+                        created for such records. (default: None)
+  --default_group_name DEFAULT_GROUP_NAME
+                        If default_group_id is not specified, use this group
+                        name. The group will be looked up if it exists, and
+                        created if not. (default: None)
+
+required named arguments:
+  --config CONFIG       Configuration file (default: None)
+  --src SRC             Source database (specified as an SQLAlchemy URL). The
+                        contents of this database will be merged into the
+                        database specified in the config file. (default: None)
+
+===============================================================================
+Help for command &#39;create_db&#39;
+===============================================================================
+usage: camcops create_db [-h] [-v] --config CONFIG --confirm_create_db
+
+Create CamCOPS database from scratch (AVOID; use the upgrade facility instead)
+
+optional arguments:
+  -h, --help           show this help message and exit
+  -v, --verbose        Be verbose (default: False)
+
+required named arguments:
+  --config CONFIG      Configuration file (default: None)
+  --confirm_create_db  Must specify this too, as a safety measure (default:
+                       False)
+
+===============================================================================
+Help for command &#39;make_superuser&#39;
+===============================================================================
+usage: camcops make_superuser [-h] [-v] [--config CONFIG]
+                              [--username USERNAME]
+
+Make superuser, or give superuser status to an existing user
+
+optional arguments:
+  -h, --help           show this help message and exit
+  -v, --verbose        Be verbose (default: False)
+  --config CONFIG      Configuration file (if not specified, the environment
+                       variable CAMCOPS_CONFIG_FILE is checked) (default:
+                       None)
+  --username USERNAME  Username of superuser to create/promote (if omitted,
+                       you will be asked to type it in) (default: None)
+
+===============================================================================
+Help for command &#39;reset_password&#39;
+===============================================================================
+usage: camcops reset_password [-h] [-v] [--config CONFIG]
+                              [--username USERNAME]
+
+Reset a user&#39;s password
+
+optional arguments:
+  -h, --help           show this help message and exit
+  -v, --verbose        Be verbose (default: False)
+  --config CONFIG      Configuration file (if not specified, the environment
+                       variable CAMCOPS_CONFIG_FILE is checked) (default:
+                       None)
+  --username USERNAME  Username to change password for (if omitted, you will
+                       be asked to type it in) (default: None)
+
+===============================================================================
+Help for command &#39;enable_user&#39;
+===============================================================================
+usage: camcops enable_user [-h] [-v] [--config CONFIG] [--username USERNAME]
+
+Re-enable a locked user account
+
+optional arguments:
+  -h, --help           show this help message and exit
+  -v, --verbose        Be verbose (default: False)
+  --config CONFIG      Configuration file (if not specified, the environment
+                       variable CAMCOPS_CONFIG_FILE is checked) (default:
+                       None)
+  --username USERNAME  Username to enable (if omitted, you will be asked to
+                       type it in) (default: None)
+
+===============================================================================
+Help for command &#39;ddl&#39;
+===============================================================================
+usage: camcops ddl [-h] [-v] [--config CONFIG] [--dialect DIALECT]
+
+Print database schema (data definition language; DDL)
+
+optional arguments:
+  -h, --help         show this help message and exit
+  -v, --verbose      Be verbose (default: False)
+  --config CONFIG    Configuration file (if not specified, the environment
+                     variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+  --dialect DIALECT  SQL dialect (options: sybase, postgresql, sqlite, mysql,
+                     oracle, mssql, firebird) (default: mysql)
+
+===============================================================================
+Help for command &#39;hl7&#39;
+===============================================================================
+usage: camcops hl7 [-h] [-v] [--config CONFIG]
+
+Send pending HL7 messages and outbound files
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -v, --verbose    Be verbose (default: False)
+  --config CONFIG  Configuration file (if not specified, the environment
+                   variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+
+===============================================================================
+Help for command &#39;show_hl7_queue&#39;
+===============================================================================
+usage: camcops show_hl7_queue [-h] [-v] [--config CONFIG]
+
+View outbound HL7/file queue (without sending)
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -v, --verbose    Be verbose (default: False)
+  --config CONFIG  Configuration file (if not specified, the environment
+                   variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+
+===============================================================================
+Help for command &#39;show_tests&#39;
+===============================================================================
+usage: camcops show_tests [-h] [-v]
+
+Show available self-tests
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Be verbose (default: False)
+
+===============================================================================
+Help for command &#39;self_test&#39;
+===============================================================================
+usage: camcops self_test [-h] [-v]
+
+Test internal code
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Be verbose (default: False)
+
+===============================================================================
+Help for command &#39;serve_pyramid&#39;
+===============================================================================
+usage: camcops serve_pyramid [-h] [-v] [--config CONFIG] [--host HOST]
+                             [--port PORT]
+                             [--trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]]
+                             [--proxy_http_host PROXY_HTTP_HOST]
+                             [--proxy_remote_addr PROXY_REMOTE_ADDR]
+                             [--proxy_script_name PROXY_SCRIPT_NAME]
+                             [--proxy_server_port PROXY_SERVER_PORT]
+                             [--proxy_server_name PROXY_SERVER_NAME]
+                             [--proxy_url_scheme PROXY_URL_SCHEME]
+                             [--proxy_rewrite_path_info]
+                             [--debug_reverse_proxy] [--debug_toolbar]
+
+Test web server (single-thread, single-process, HTTP-only, Pyramid; for
+development use only
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Be verbose (default: False)
+  --config CONFIG       Configuration file (if not specified, the environment
+                        variable CAMCOPS_CONFIG_FILE is checked) (default:
+                        None)
+  --host HOST           Hostname to listen on (default: 127.0.0.1)
+  --port PORT           Port to listen on (default: 8000)
+  --trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]
+                        Trust these WSGI environment variables for when the
+                        server is behind a reverse proxy (e.g. an Apache
+                        front-end web server). Options: [&#39;HTTP_X_HOST&#39;,
+                        &#39;HTTP_X_FORWARDED_HOST&#39;, &#39;HTTP_X_FORWARDED_PORT&#39;,
+                        &#39;HTTP_X_FORWARDED_FOR&#39;, &#39;HTTP_X_REAL_IP&#39;,
+                        &#39;HTTP_X_FORWARDED_PROTO&#39;, &#39;HTTP_X_FORWARDED_PROTOCOL&#39;,
+                        &#39;HTTP_X_FORWARDED_SCHEME&#39;, &#39;HTTP_X_SCHEME&#39;,
+                        &#39;HTTP_X_FORWARDED_HTTPS&#39;, &#39;HTTP_X_FORWARDED_SSL&#39;,
+                        &#39;HTTP_X_HTTPS&#39;, &#39;HTTP_X_SCRIPT_NAME&#39;,
+                        &#39;HTTP_X_FORWARDED_SCRIPT_NAME&#39;,
+                        &#39;HTTP_X_FORWARDED_SERVER&#39;] (default: None)
+  --proxy_http_host PROXY_HTTP_HOST
+                        Option to set the WSGI HTTP host directly. This
+                        affects the WSGI variable HTTP_HOST. If not specified,
+                        trusted variables within [&#39;HTTP_X_HOST&#39;,
+                        &#39;HTTP_X_FORWARDED_HOST&#39;] will be used. (default: None)
+  --proxy_remote_addr PROXY_REMOTE_ADDR
+                        Option to set the WSGI remote address directly. This
+                        affects the WSGI variable REMOTE_ADDR. If not
+                        specified, trusted variables within
+                        [&#39;HTTP_X_FORWARDED_FOR&#39;, &#39;HTTP_X_REAL_IP&#39;] will be
+                        used. (default: None)
+  --proxy_script_name PROXY_SCRIPT_NAME
+                        Path at which this script is mounted. Set this if you
+                        are hosting this CamCOPS instance at a non-root path,
+                        unless you set trusted WSGI headers instead. For
+                        example, if you are running an Apache server and want
+                        this instance of CamCOPS to appear at
+                        /somewhere/camcops, then (a) configure your Apache
+                        instance to proxy requests to /somewhere/camcops/...
+                        to this server (e.g. via an internal TCP/IP port or
+                        UNIX socket) and specify this option. If this option
+                        is not set, then the OS environment variable
+                        SCRIPT_NAME will be checked as well, and if that is
+                        not set, trusted variables within
+                        [&#39;HTTP_X_SCRIPT_NAME&#39;, &#39;HTTP_X_FORWARDED_SCRIPT_NAME&#39;]
+                        will be used. This option affects the WSGI variables
+                        SCRIPT_NAME and PATH_INFO. (default: None)
+  --proxy_server_port PROXY_SERVER_PORT
+                        Option to set the WSGI server port directly. This
+                        affects the WSGI variable SERVER_PORT. If not
+                        specified, trusted variables within
+                        [&#39;HTTP_X_FORWARDED_PORT&#39;] will be used. (default:
+                        None)
+  --proxy_server_name PROXY_SERVER_NAME
+                        Option to set the WSGI server name directly. This
+                        affects the WSGI variable SERVER_NAME. If not
+                        specified, trusted variables within
+                        [&#39;HTTP_X_FORWARDED_SERVER&#39;] will be used. (default:
+                        None)
+  --proxy_url_scheme PROXY_URL_SCHEME
+                        Option to set the WSGI scheme (e.g. http, https)
+                        directly. This affects the WSGI variable
+                        wsgi.url_scheme. If not specified, trusted variables
+                        within [&#39;HTTP_X_FORWARDED_PROTO&#39;,
+                        &#39;HTTP_X_FORWARDED_PROTOCOL&#39;,
+                        &#39;HTTP_X_FORWARDED_SCHEME&#39;, &#39;HTTP_X_SCHEME&#39;,
+                        &#39;HTTP_X_FORWARDED_HTTPS&#39;, &#39;HTTP_X_FORWARDED_SSL&#39;,
+                        &#39;HTTP_X_HTTPS&#39;] will be used. (default: None)
+  --proxy_rewrite_path_info
+                        If SCRIPT_NAME is rewritten, this option causes
+                        PATH_INFO to be rewritten, if it starts with
+                        SCRIPT_NAME, to strip off SCRIPT_NAME. Appropriate for
+                        some front-end web browsers with limited reverse
+                        proxying support (but do not use for Apache with
+                        ProxyPass, because that rewrites incoming URLs
+                        properly). (default: False)
+  --debug_reverse_proxy
+                        For --behind_reverse_proxy: show debugging information
+                        as WSGI variables are rewritten. (default: False)
+  --debug_toolbar       Enable the Pyramid debug toolbar (default: False)
+
+===============================================================================
+Help for command &#39;serve_cherrypy&#39;
+===============================================================================
+usage: camcops serve_cherrypy [-h] [-v] [--config CONFIG] [--serve]
+                              [--host HOST] [--port PORT]
+                              [--unix_domain_socket UNIX_DOMAIN_SOCKET]
+                              [--server_name SERVER_NAME]
+                              [--threads_start THREADS_START]
+                              [--threads_max THREADS_MAX]
+                              [--ssl_certificate SSL_CERTIFICATE]
+                              [--ssl_private_key SSL_PRIVATE_KEY]
+                              [--log_screen] [--no_log_screen]
+                              [--root_path ROOT_PATH]
+                              [--trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]]
+                              [--proxy_http_host PROXY_HTTP_HOST]
+                              [--proxy_remote_addr PROXY_REMOTE_ADDR]
+                              [--proxy_script_name PROXY_SCRIPT_NAME]
+                              [--proxy_server_port PROXY_SERVER_PORT]
+                              [--proxy_server_name PROXY_SERVER_NAME]
+                              [--proxy_url_scheme PROXY_URL_SCHEME]
+                              [--proxy_rewrite_path_info]
+                              [--debug_reverse_proxy] [--debug_toolbar]
+
+Start web server (via CherryPy)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Be verbose (default: False)
+  --config CONFIG       Configuration file (if not specified, the environment
+                        variable CAMCOPS_CONFIG_FILE is checked) (default:
+                        None)
+  --serve
+  --host HOST           hostname to listen on (default: 127.0.0.1)
+  --port PORT           port to listen on (default: 8000)
+  --unix_domain_socket UNIX_DOMAIN_SOCKET
+                        UNIX domain socket to listen on (overrides host/port
+                        if specified) (default: )
+  --server_name SERVER_NAME
+                        CherryPy&#39;s SERVER_NAME environ entry (default:
+                        localhost)
+  --threads_start THREADS_START
+                        Number of threads for server to start with (default:
+                        10)
+  --threads_max THREADS_MAX
+                        Maximum number of threads for server to use (-1 for no
+                        limit) (BEWARE exceeding the permitted number of
+                        database connections) (default: 100)
+  --ssl_certificate SSL_CERTIFICATE
+                        SSL certificate file (e.g. /etc/ssl/certs/ssl-cert-
+                        snakeoil.pem) (default: None)
+  --ssl_private_key SSL_PRIVATE_KEY
+                        SSL private key file (e.g. /etc/ssl/private/ssl-cert-
+                        snakeoil.key) (default: None)
+  --log_screen          Log access requests etc. to terminal (default)
+                        (default: True)
+  --no_log_screen       Don&#39;t log access requests etc. to terminal (default:
+                        True)
+  --root_path ROOT_PATH
+                        Root path to serve CRATE at, WITHIN this CherryPy web
+                        server instance. (There is unlikely to be a reason to
+                        use something other than &#39;/&#39;; do not confuse this with
+                        the mount point within a wider, e.g. Apache,
+                        configuration, which is set instead by the WSGI
+                        variable SCRIPT_NAME; see the --trusted_proxy_headers
+                        and --proxy_script_name options.) (default: /)
+  --trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]
+                        Trust these WSGI environment variables for when the
+                        server is behind a reverse proxy (e.g. an Apache
+                        front-end web server). Options: [&#39;HTTP_X_HOST&#39;,
+                        &#39;HTTP_X_FORWARDED_HOST&#39;, &#39;HTTP_X_FORWARDED_PORT&#39;,
+                        &#39;HTTP_X_FORWARDED_FOR&#39;, &#39;HTTP_X_REAL_IP&#39;,
+                        &#39;HTTP_X_FORWARDED_PROTO&#39;, &#39;HTTP_X_FORWARDED_PROTOCOL&#39;,
+                        &#39;HTTP_X_FORWARDED_SCHEME&#39;, &#39;HTTP_X_SCHEME&#39;,
+                        &#39;HTTP_X_FORWARDED_HTTPS&#39;, &#39;HTTP_X_FORWARDED_SSL&#39;,
+                        &#39;HTTP_X_HTTPS&#39;, &#39;HTTP_X_SCRIPT_NAME&#39;,
+                        &#39;HTTP_X_FORWARDED_SCRIPT_NAME&#39;,
+                        &#39;HTTP_X_FORWARDED_SERVER&#39;] (default: None)
+  --proxy_http_host PROXY_HTTP_HOST
+                        Option to set the WSGI HTTP host directly. This
+                        affects the WSGI variable HTTP_HOST. If not specified,
+                        trusted variables within [&#39;HTTP_X_HOST&#39;,
+                        &#39;HTTP_X_FORWARDED_HOST&#39;] will be used. (default: None)
+  --proxy_remote_addr PROXY_REMOTE_ADDR
+                        Option to set the WSGI remote address directly. This
+                        affects the WSGI variable REMOTE_ADDR. If not
+                        specified, trusted variables within
+                        [&#39;HTTP_X_FORWARDED_FOR&#39;, &#39;HTTP_X_REAL_IP&#39;] will be
+                        used. (default: None)
+  --proxy_script_name PROXY_SCRIPT_NAME
+                        Path at which this script is mounted. Set this if you
+                        are hosting this CamCOPS instance at a non-root path,
+                        unless you set trusted WSGI headers instead. For
+                        example, if you are running an Apache server and want
+                        this instance of CamCOPS to appear at
+                        /somewhere/camcops, then (a) configure your Apache
+                        instance to proxy requests to /somewhere/camcops/...
+                        to this server (e.g. via an internal TCP/IP port or
+                        UNIX socket) and specify this option. If this option
+                        is not set, then the OS environment variable
+                        SCRIPT_NAME will be checked as well, and if that is
+                        not set, trusted variables within
+                        [&#39;HTTP_X_SCRIPT_NAME&#39;, &#39;HTTP_X_FORWARDED_SCRIPT_NAME&#39;]
+                        will be used. This option affects the WSGI variables
+                        SCRIPT_NAME and PATH_INFO. (default: None)
+  --proxy_server_port PROXY_SERVER_PORT
+                        Option to set the WSGI server port directly. This
+                        affects the WSGI variable SERVER_PORT. If not
+                        specified, trusted variables within
+                        [&#39;HTTP_X_FORWARDED_PORT&#39;] will be used. (default:
+                        None)
+  --proxy_server_name PROXY_SERVER_NAME
+                        Option to set the WSGI server name directly. This
+                        affects the WSGI variable SERVER_NAME. If not
+                        specified, trusted variables within
+                        [&#39;HTTP_X_FORWARDED_SERVER&#39;] will be used. (default:
+                        None)
+  --proxy_url_scheme PROXY_URL_SCHEME
+                        Option to set the WSGI scheme (e.g. http, https)
+                        directly. This affects the WSGI variable
+                        wsgi.url_scheme. If not specified, trusted variables
+                        within [&#39;HTTP_X_FORWARDED_PROTO&#39;,
+                        &#39;HTTP_X_FORWARDED_PROTOCOL&#39;,
+                        &#39;HTTP_X_FORWARDED_SCHEME&#39;, &#39;HTTP_X_SCHEME&#39;,
+                        &#39;HTTP_X_FORWARDED_HTTPS&#39;, &#39;HTTP_X_FORWARDED_SSL&#39;,
+                        &#39;HTTP_X_HTTPS&#39;] will be used. (default: None)
+  --proxy_rewrite_path_info
+                        If SCRIPT_NAME is rewritten, this option causes
+                        PATH_INFO to be rewritten, if it starts with
+                        SCRIPT_NAME, to strip off SCRIPT_NAME. Appropriate for
+                        some front-end web browsers with limited reverse
+                        proxying support (but do not use for Apache with
+                        ProxyPass, because that rewrites incoming URLs
+                        properly). (default: False)
+  --debug_reverse_proxy
+                        For --behind_reverse_proxy: show debugging information
+                        as WSGI variables are rewritten. (default: False)
+  --debug_toolbar       Enable the Pyramid debug toolbar (default: False)
+
+===============================================================================
+Help for command &#39;serve_gunicorn&#39;
+===============================================================================
+usage: camcops serve_gunicorn [-h] [-v] [--config CONFIG] [--serve]
+                              [--host HOST] [--port PORT]
+                              [--unix_domain_socket UNIX_DOMAIN_SOCKET]
+                              [--num_workers NUM_WORKERS] [--debug_reload]
+                              [--ssl_certificate SSL_CERTIFICATE]
+                              [--ssl_private_key SSL_PRIVATE_KEY]
+                              [--timeout TIMEOUT]
+                              [--debug_show_gunicorn_options]
+                              [--trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]]
+                              [--proxy_http_host PROXY_HTTP_HOST]
+                              [--proxy_remote_addr PROXY_REMOTE_ADDR]
+                              [--proxy_script_name PROXY_SCRIPT_NAME]
+                              [--proxy_server_port PROXY_SERVER_PORT]
+                              [--proxy_server_name PROXY_SERVER_NAME]
+                              [--proxy_url_scheme PROXY_URL_SCHEME]
+                              [--proxy_rewrite_path_info]
+                              [--debug_reverse_proxy] [--debug_toolbar]
+
+Start web server (via Gunicorn) (not available under Windows)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Be verbose (default: False)
+  --config CONFIG       Configuration file (if not specified, the environment
+                        variable CAMCOPS_CONFIG_FILE is checked) (default:
+                        None)
+  --serve
+  --host HOST           hostname to listen on (default: 127.0.0.1)
+  --port PORT           port to listen on (default: 8000)
+  --unix_domain_socket UNIX_DOMAIN_SOCKET
+                        UNIX domain socket to listen on (overrides host/port
+                        if specified) (default: )
+  --num_workers NUM_WORKERS
+                        Number of worker processes for server to use (default:
+                        16)
+  --debug_reload        Debugging option: reload Gunicorn upon code change
+                        (default: False)
+  --ssl_certificate SSL_CERTIFICATE
+                        SSL certificate file (e.g. /etc/ssl/certs/ssl-cert-
+                        snakeoil.pem) (default: None)
+  --ssl_private_key SSL_PRIVATE_KEY
+                        SSL private key file (e.g. /etc/ssl/private/ssl-cert-
+                        snakeoil.key) (default: None)
+  --timeout TIMEOUT     Gunicorn worker timeout (s) (default: 30)
+  --debug_show_gunicorn_options
+                        Debugging option: show possible Gunicorn settings
+                        (default: False)
+  --trusted_proxy_headers [TRUSTED_PROXY_HEADERS [TRUSTED_PROXY_HEADERS ...]]
+                        Trust these WSGI environment variables for when the
+                        server is behind a reverse proxy (e.g. an Apache
+                        front-end web server). Options: [&#39;HTTP_X_HOST&#39;,
+                        &#39;HTTP_X_FORWARDED_HOST&#39;, &#39;HTTP_X_FORWARDED_PORT&#39;,
+                        &#39;HTTP_X_FORWARDED_FOR&#39;, &#39;HTTP_X_REAL_IP&#39;,
+                        &#39;HTTP_X_FORWARDED_PROTO&#39;, &#39;HTTP_X_FORWARDED_PROTOCOL&#39;,
+                        &#39;HTTP_X_FORWARDED_SCHEME&#39;, &#39;HTTP_X_SCHEME&#39;,
+                        &#39;HTTP_X_FORWARDED_HTTPS&#39;, &#39;HTTP_X_FORWARDED_SSL&#39;,
+                        &#39;HTTP_X_HTTPS&#39;, &#39;HTTP_X_SCRIPT_NAME&#39;,
+                        &#39;HTTP_X_FORWARDED_SCRIPT_NAME&#39;,
+                        &#39;HTTP_X_FORWARDED_SERVER&#39;] (default: None)
+  --proxy_http_host PROXY_HTTP_HOST
+                        Option to set the WSGI HTTP host directly. This
+                        affects the WSGI variable HTTP_HOST. If not specified,
+                        trusted variables within [&#39;HTTP_X_HOST&#39;,
+                        &#39;HTTP_X_FORWARDED_HOST&#39;] will be used. (default: None)
+  --proxy_remote_addr PROXY_REMOTE_ADDR
+                        Option to set the WSGI remote address directly. This
+                        affects the WSGI variable REMOTE_ADDR. If not
+                        specified, trusted variables within
+                        [&#39;HTTP_X_FORWARDED_FOR&#39;, &#39;HTTP_X_REAL_IP&#39;] will be
+                        used. (default: None)
+  --proxy_script_name PROXY_SCRIPT_NAME
+                        Path at which this script is mounted. Set this if you
+                        are hosting this CamCOPS instance at a non-root path,
+                        unless you set trusted WSGI headers instead. For
+                        example, if you are running an Apache server and want
+                        this instance of CamCOPS to appear at
+                        /somewhere/camcops, then (a) configure your Apache
+                        instance to proxy requests to /somewhere/camcops/...
+                        to this server (e.g. via an internal TCP/IP port or
+                        UNIX socket) and specify this option. If this option
+                        is not set, then the OS environment variable
+                        SCRIPT_NAME will be checked as well, and if that is
+                        not set, trusted variables within
+                        [&#39;HTTP_X_SCRIPT_NAME&#39;, &#39;HTTP_X_FORWARDED_SCRIPT_NAME&#39;]
+                        will be used. This option affects the WSGI variables
+                        SCRIPT_NAME and PATH_INFO. (default: None)
+  --proxy_server_port PROXY_SERVER_PORT
+                        Option to set the WSGI server port directly. This
+                        affects the WSGI variable SERVER_PORT. If not
+                        specified, trusted variables within
+                        [&#39;HTTP_X_FORWARDED_PORT&#39;] will be used. (default:
+                        None)
+  --proxy_server_name PROXY_SERVER_NAME
+                        Option to set the WSGI server name directly. This
+                        affects the WSGI variable SERVER_NAME. If not
+                        specified, trusted variables within
+                        [&#39;HTTP_X_FORWARDED_SERVER&#39;] will be used. (default:
+                        None)
+  --proxy_url_scheme PROXY_URL_SCHEME
+                        Option to set the WSGI scheme (e.g. http, https)
+                        directly. This affects the WSGI variable
+                        wsgi.url_scheme. If not specified, trusted variables
+                        within [&#39;HTTP_X_FORWARDED_PROTO&#39;,
+                        &#39;HTTP_X_FORWARDED_PROTOCOL&#39;,
+                        &#39;HTTP_X_FORWARDED_SCHEME&#39;, &#39;HTTP_X_SCHEME&#39;,
+                        &#39;HTTP_X_FORWARDED_HTTPS&#39;, &#39;HTTP_X_FORWARDED_SSL&#39;,
+                        &#39;HTTP_X_HTTPS&#39;] will be used. (default: None)
+  --proxy_rewrite_path_info
+                        If SCRIPT_NAME is rewritten, this option causes
+                        PATH_INFO to be rewritten, if it starts with
+                        SCRIPT_NAME, to strip off SCRIPT_NAME. Appropriate for
+                        some front-end web browsers with limited reverse
+                        proxying support (but do not use for Apache with
+                        ProxyPass, because that rewrites incoming URLs
+                        properly). (default: False)
+  --debug_reverse_proxy
+                        For --behind_reverse_proxy: show debugging information
+                        as WSGI variables are rewritten. (default: False)
+  --debug_toolbar       Enable the Pyramid debug toolbar (default: False)
+</pre></div>
+</div>
+</div>
+<div class="section" id="camcops-meta">
+<span id="id1"></span><h2>13.2. camcops_meta<a class="headerlink" href="#camcops-meta" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>camcops_meta</cite> tool allows you to run CamCOPS over multiple CamCOPS
+configuration files/databases. It’s less useful than it was, because the
+dominant mode of “one database per research group” has been replaced by the
+concept of “a single database with group-level security”.</p>
+<p>Options as of 2017-10-23:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: camcops_meta [-h] --filespecs FILESPECS [FILESPECS ...]
+                    [--ccargs [CCARGS [CCARGS ...]]] [--python PYTHON]
+                    [--camcops CAMCOPS] [-d] [-v]
+                    cc_command
+
+Run commands across multiple CamCOPS databases
+
+positional arguments:
+  cc_command            Main command to pass to CamCOPS
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --filespecs FILESPECS [FILESPECS ...]
+                        List of CamCOPS config files (wildcards OK)
+  --ccargs [CCARGS [CCARGS ...]]
+                        List of CamCOPS arguments, to which &#39;--&#39; will be
+                        prefixed
+  --python PYTHON       Python interpreter (default:
+                        /home/rudolf/dev/venvs/camcops/bin/python3)
+  --camcops CAMCOPS     CamCOPS executable (default:
+                        /home/rudolf/Documents/code/camcops/server/camcops.py)
+  -d, --dummyrun        Dummy run (show filenames only)
+  -v, --verbose         Verbose
+</pre></div>
+</div>
+</div>
+<div class="section" id="camcops-backup-mysql-database">
+<h2>13.3. camcops_backup_mysql_database<a class="headerlink" href="#camcops-backup-mysql-database" title="Permalink to this headline">¶</a></h2>
+<p>This simple tool uses MySQL to dump a MySQL database to a .SQL file (from which
+you can restore it), and names the file according to the name of the database
+plus a timestamp.</p>
+<p>Options as of 2017-10-23:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: camcops_backup_mysql_database [-h]
+                                     [--max_allowed_packet MAX_ALLOWED_PACKET]
+                                     [--mysqldump MYSQLDUMP]
+                                     [--username USERNAME]
+                                     [--password PASSWORD]
+                                     [--with_drop_create_database] [--verbose]
+                                     databases [databases ...]
+
+Back up a specific MySQL database
+
+positional arguments:
+  databases             Database(s) to back up
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --max_allowed_packet MAX_ALLOWED_PACKET
+                        Maximum size of buffer (default: 1GB)
+  --mysqldump MYSQLDUMP
+                        mysqldump executable (default: mysqldump)
+  --username USERNAME   MySQL user (default: root)
+  --password PASSWORD   MySQL password (AVOID THIS OPTION IF POSSIBLE; VERY
+                        INSECURE; VISIBLE TO OTHER PROCESSES; if you don&#39;t use
+                        it, you&#39;ll be prompted for the password) (default:
+                        root)
+  --with_drop_create_database
+                        Include DROP DATABASE and CREATE DATABASE commands
+                        (default: False)
+  --verbose             Verbose output (default: False)
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">13. CamCOPS server command-line tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#camcops">13.1. camcops</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#camcops-meta">13.2. camcops_meta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#camcops-backup-mysql-database">13.3. camcops_backup_mysql_database</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">15. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">16. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">19. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="server_front_end_admin.html"
+                        title="previous chapter">12. Web site: admin functions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="server_troubleshooting.html"
+                        title="next chapter">14. Troubleshooting server problems</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/server/server_command_line.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="server_troubleshooting.html" title="14. Troubleshooting server problems"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="server_front_end_admin.html" title="12. Web site: admin functions"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

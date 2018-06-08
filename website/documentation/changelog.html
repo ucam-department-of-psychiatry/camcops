@@ -1,0 +1,1091 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>20. Change log/history &#8212; CamCOPS 2.2.1 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="21. Known problems: client" href="misc/known_problems.html" />
+    <link rel="prev" title="19. Design notes" href="misc/design_notes.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="misc/known_problems.html" title="21. Known problems: client"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="misc/design_notes.html" title="19. Design notes"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="change-log-history">
+<h1>20. Change log/history<a class="headerlink" href="#change-log-history" title="Permalink to this headline">¶</a></h1>
+<p><em>Both client and server changes are described here.</em></p>
+<div class="section" id="original-titanium-javascript-client-python-server-with-custom-mysql-interface-defunct">
+<h2>20.1. Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)<a class="headerlink" href="#original-titanium-javascript-client-python-server-with-custom-mysql-interface-defunct" title="Permalink to this headline">¶</a></h2>
+<p><strong>Server v1.0, 2013-08-14</strong></p>
+<ul class="simple">
+<li>First version (1.0).</li>
+</ul>
+<p><strong>Client v1.0, 2013-11-13</strong></p>
+<ul class="simple">
+<li>first version</li>
+<li>requires server version 1.0</li>
+</ul>
+<p><strong>Client v1.01, 2013-11-13</strong></p>
+<ul class="simple">
+<li>test of version number increment</li>
+<li>Bugfix: Executive menu had a duff entry in and crashed.</li>
+</ul>
+<p><strong>Server v1.01, 2013-11-20</strong></p>
+<ul class="simple">
+<li>Test of version number increment (1.01).</li>
+<li>Trivial change: ensure empty “*_SUMMARY_TEMP_current*” views
+aren’t created for anonymous tasks.</li>
+</ul>
+<p><strong>Client 1.02, 2013-11-22 onwards</strong></p>
+<ul class="simple">
+<li>A couple of cosmetic changes.</li>
+<li>Analytics yes/no option.</li>
+<li>Changed app “domain” to org.camcops.*, so app is org.camcops.camcops</li>
+<li>Signed APK file.</li>
+<li>QuestionTypedVariables improved in a few respects.</li>
+<li>QuestionDiagnosticCode bugfix (didn’t appear read-only in read-only mode).</li>
+<li>android:allowBackup explicitly set to false</li>
+<li>ID description/policy check on upload.</li>
+<li>Titanium API now 3.2.0.GA</li>
+<li>Page jump in questionnaires when read-only.</li>
+<li>Two CECAQ3 fields used the wrong keyboard/type.</li>
+<li>Text field/cursor colours improved for iOS/Android.</li>
+<li>Bugfix to QuestionCanvas_webview.</li>
+</ul>
+<p><strong>Server v1.02, 2013-11-28</strong></p>
+<ul class="simple">
+<li>Mostly changes on the app side (q.v.).</li>
+<li>Change to DemoQuestionnaire fields.</li>
+<li>DOB task filter.</li>
+<li>Server analytics with yes/no option.</li>
+<li>Fixed layout on old versions of Internet Explorer.</li>
+<li>get_id_info command in the database interface.</li>
+<li>QoL* tasks remain in beta; data structure may change.</li>
+<li>Changes for CentOS, including Python version check and altered shebang.
+Using “#!/usr/bin/env python2.7” is perhaps desirable, but Lintian requires
+e.g. “#!/usr/bin/python2.7”:
+<a class="reference external" href="http://lintian.debian.org/tags/python-script-but-no-python-dep.html">http://lintian.debian.org/tags/python-script-but-no-python-dep.html</a></li>
+<li>Clinical text view.</li>
+</ul>
+<p><strong>Client v1.03, 2014-01-10</strong></p>
+<ul class="simple">
+<li>Requires server version 1.03.</li>
+<li>Fixed Titanium 3.2.0 multiline TextArea regression.</li>
+<li>CGI-SCH task, pending permissions.</li>
+<li>androidtipaint/QuestionCanvas_tipaint improved/fixed for Titanium 3.2.0.</li>
+<li>Questionnaire scrollview made full height (Titanium now capable of it).</li>
+<li>Single-tap/double-tap methods in diagnostic coding, now Titanium bug
+<a class="reference external" href="https://jira.appcelerator.org/browse/TIMOB-15540">https://jira.appcelerator.org/browse/TIMOB-15540</a> fixed.</li>
+<li>Photo rotation bug fixed.</li>
+<li>ListView for diagnostic code search.</li>
+<li>QoL-SG phrasing improved.</li>
+<li>Tested on iOS 7.0.3/7.0.4, Android 4.1.1.</li>
+</ul>
+<p><strong>Server v1.03, 2014-01-10</strong></p>
+<ul class="simple">
+<li>CGI-SCH task.</li>
+</ul>
+<p><strong>Client v1.04, 2014-01-14</strong></p>
+<ul class="simple">
+<li>First beta version.</li>
+<li>Bugfix to Patient.js (re address display crash).</li>
+<li>Changes to SetMenu_Deakin_1.js</li>
+<li>Confirmation of CGI-SCH permissions.</li>
+</ul>
+<p><strong>Client v1.05, 2014-01-14</strong></p>
+<ul class="simple">
+<li>Password entry windows improved: return key now accepts data entry.</li>
+</ul>
+<p><strong>Client v1.06, 2014-01-16</strong></p>
+<ul class="simple">
+<li>Requires server version 1.06.</li>
+<li>CPFT_LPS_Referral, CPFT_LPS_Discharge, CPFT_LPS_ResetStartClock tasks.
+This are IN BETA.</li>
+<li>Batch upload empty tables for speed (big improvement).</li>
+<li>NULL-but-optional indicator in widgets:<ul>
+<li>QuestionDateTime, QuestionPickerInline, QuestionPickerPopup,
+QuestionSlider, ImageGroupVertical.</li>
+</ul>
+</li>
+<li>offerNullButton option in QuestionDateTime, QuestionDiagnosticCode</li>
+<li>Variable column widths in ContainerTable, plus populateVertically option.</li>
+<li>Bugfix in QuestionTypedVariables layout for colWidthPrompt.</li>
+<li>(2014-01-18) Minor layour change in CPFT_LPS_Referral.</li>
+</ul>
+<p><strong>Server v1.06, 2014-01-16</strong></p>
+<ul class="simple">
+<li>REQUIRES DATABASE CHANGE BEFORE INSTALLATION:
+DROP TABLE _dirty_tables;</li>
+<li>CPFT_LPS_Referral, CPFT_LPS_Discharge, CPFT_LPS_ResetStartClock tasks.
+IN BETA; MAY CHANGE.</li>
+<li>QoL* tasks remain in beta; data structure may change.</li>
+<li>Options in man page.</li>
+<li>cc_patient.py / get_id_generic and similar: bugfix to use Unicode</li>
+<li>Clinical text provided by Photo/PhotoSequence.</li>
+<li>Batch upload empty tables.</li>
+<li>rnc_db: skips creation of tables that exist already (removes a warning).</li>
+<li>Joint PK for _dirty_tables, and change from TEXT to VARCHAR(255)
+for the tablenamefield.</li>
+<li>Bugfix to database.pl / flag_deleted_where_clientpk_not: wasn’t
+device-specific! Was used by blob upload on the tablet, i.e.
+dbupload.sendTableRecordwise()</li>
+</ul>
+<p><strong>Server v1.07, 2014-02-14</strong></p>
+<ul class="simple">
+<li>REQUIRES DATABASE CHANGE BEFORE INSTALLATION:
+DROP TABLE _security_webviewer_sessions;</li>
+<li>CPFT* tasks remain in beta; data structure may change.</li>
+<li>QoL* tasks remain in beta; data structure may change.</li>
+<li>Additional content for clinical text views.</li>
+<li>Python virtualenv.</li>
+<li>Dumping/reporting options for suitably privileged users.
+Additional user permissions: may_dump_data, may_run_reports.</li>
+<li>Bugfix to Session class to prevent the (incredibly unlikely)
+event of an IP address hop with an identical session token.</li>
+<li>Security improvement to Session class: change token upon login.</li>
+<li>Speedup to Session design (inc. integer PK).</li>
+<li>Typo in CAPS text, Q24.</li>
+<li>Speedup to LSTRING XML processor.</li>
+<li>Speedup via transaction-based database handling in the Python handler.</li>
+<li>Redirect to destination URL after re-authentication.</li>
+</ul>
+<p><strong>Server v1.08, 2014-07-22</strong></p>
+<ul class="simple">
+<li>REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+camcops –maketables /etc/camcops/MYCONFIGNAME.conf</li>
+<li>Automatic version-based database structure upgrade via the –maketables
+command. (Similarly on the tablet side.)</li>
+<li>Distinct patient reports.</li>
+<li>CPFT* tasks remain in beta; data structure may change.</li>
+<li>QoL* tasks remain in beta; data structure may change.</li>
+<li>Remote IP addresses stored in audit log (additional field: remote_addr).</li>
+<li>Auditing of clinical text views.</li>
+<li>Some string constant code cleanup.</li>
+<li>Some Perl code cleanup and upload audit simplification.</li>
+<li>perltidy for Perl code.</li>
+<li>Trackers/CTVs clearer in their errors when no data found.</li>
+<li>Ability to apply multiple filters simultaneously.</li>
+<li>Option to force password changes periodically/ad hoc.</li>
+<li>PEP8 compliance for core Python code.</li>
+<li>PEP8 compliance for task code.</li>
+<li>Proper multiple inheritance handling for diagnosis.py, pcl.py.</li>
+<li>Disclaimer/acknowledgement recording.</li>
+<li>Audit all login attempts, plus user addition/deletion.</li>
+<li>OptionParser to ArgumentParser.</li>
+<li>Internal URLs for tasks altered slightly.</li>
+<li>Better internal timezone handling.</li>
+<li>Commit during menu-driven administration to prevent database locking.</li>
+<li>Lock user accounts after multiple login failures.</li>
+<li>HL7 message framework. (Validated internally and against HL7 Inspector.)</li>
+<li>File export message framework, with post-export script option.</li>
+<li>Database title, ID descriptions, and policies now have their primary home
+in the configuration file. Copied to database purely for researcher lookup.</li>
+<li>File locking for the regeneration of summary tables.</li>
+<li>XML export (tasks, trackers, CTVs).</li>
+<li>Unit testing framework (and a couple of bugs fixed).</li>
+<li>Shift to unsigned ints for PKs.</li>
+<li>Option to introspect source code.</li>
+<li>Option to view table definitions from webview.</li>
+<li>Basic non-modifying anonymisation system.</li>
+<li>Bugfix: added vignette to ICD10-PD display.</li>
+<li>Bugfix: HAMD-7 maximum is 26, not 23.</li>
+<li>Bugfix: CECAQ3 failed to calculate some summary scores with no siblings,
+and paternal psychological abuse score was sometimes inappropriately blank.</li>
+<li>Bugfix: filter for incomplete tasks only wasn’t working.</li>
+<li>Bugfix: logic bugfix in ICD-10 manic, mixed, schizophrenia.</li>
+<li>Bugfix: categorization text in BMI.</li>
+<li>Bugfix: clinical text for SLUMS reported incorrect maximum.</li>
+<li>BMI thresholds refined in the underweight zone and referenced properly.</li>
+<li>All field comments.</li>
+<li>Manual erasure of individual tasks.</li>
+<li>Manual deletion of entire patients/associated tasks.</li>
+<li>Manual application of special notes.</li>
+<li>CTV is clearer when tasks are incomplete.</li>
+<li>More consistent formatting of null values in HTML. (Note that the quick
+way to view null handling is to specify a nonexistent server PK.) The aim is
+that all user answers should be proceesed via the answer() function, to apply
+typographic indications that the field is null.</li>
+<li>camcopswebview.py renamed to camcops.py.</li>
+<li>Optimization on compile.</li>
+<li>Ensure commit/rollback always occurs, even after exceptions.</li>
+<li>“crash” action to induce a deliberate exception, for testing.</li>
+<li>Configurable save-as filenames for tasks, trackers, and CTVs.</li>
+<li>Server-side validation of fields (field_contents_valid).</li>
+<li>Unit tests prohibit tasks from having summary fields with the same name as
+a main task field.</li>
+<li>Option to disable password autocompletion on the login page.</li>
+<li>Server version number in “office” details.</li>
+<li>Generator function for task list.</li>
+<li>Drop-down lists for filters remember state.</li>
+<li>Basic research dump (likely to be the most useful in practice).</li>
+</ul>
+<p><strong>Client v1.08, 2014-07-23</strong></p>
+<ul class="simple">
+<li>Requires server version 1.08.</li>
+<li>Field renaming within Icd10Schizophrenia to avoid misnomers:
+- tpah_commentary TO hv_commentary
+- tpah_discussing TO hv_discussing
+- tpah_from_body TO hv_from_body</li>
+<li>CPFT* tasks remain in beta.</li>
+<li>Chaining of tasks.</li>
+<li>Page jump within live questionnaires (allowPageJumpDuringEditing).</li>
+<li>Radio buttons allow double-clicks/taps to unset them (particularly applicable
+for potentially loaded questions).</li>
+<li>Bugfix to HAMD-7: Q4 value 4 and Q5 values 3/4 were not offered, and maximum
+is 26, not 23.</li>
+<li>Bugfix to SLUMS: Q9a, Q9b were scored as 1 point each; should be 2.</li>
+<li>Bugfix calling bad afterwardsFunc() after “move” upload.</li>
+<li>BMI thresholds refined in the underweight zone and referenced properly.</li>
+<li>Textual annotation to ICD-10 F90.0, as the actual text gives you no clue that
+it’s a division of hyperkinetic disorders.</li>
+<li>dbcore.js changed to reflect Titanium bugfix.</li>
+<li>Android theme changed to light (with consequent changes to questionnaire
+font size editing screen, etc.).</li>
+</ul>
+<p><strong>Client v1.09, 2014-08-02</strong></p>
+<ul class="simple">
+<li>Requires server version 1.09.</li>
+<li>Sends BLOBs in ways that cannot be confused with (even very bizarre)
+strings.</li>
+<li>PANSS stripped down to data collection tool only, for copyright reasons.</li>
+<li>Not distributed yet.</li>
+</ul>
+<p><strong>Server v1.09, 2014-08-02</strong></p>
+<ul class="simple">
+<li>REQUIRES TABLET CLIENT V1.09.</li>
+<li>Full rewrite of the database upload script to Python.</li>
+<li>Fix MySQL “morning bug” (“MySQL server has gone away”) from the Perl upload
+script.</li>
+<li>Logic change to flag_all_records_deleted(), which was not restricted to
+_current/era=’NOW’ records, but should have been.</li>
+<li>Also rolls back preservation flag changes as part of general rollback.</li>
+<li>BLOB transfer encoding improved; fixes design flaw that was due to the use
+of the Perl CSV module. (Requires tablet client v1.09 as a result.)</li>
+<li>Internal code changes: explicit modules in all cases, removing
+cc_shared.py.</li>
+<li>PANSS stripped down to data collection tool only, for copyright reasons.</li>
+</ul>
+<p><strong>Client v1.10, 2014-08-08</strong></p>
+<ul class="simple">
+<li>Default network timeout changed from 5 s (5000 ms) to 60 s (60000 ms), as
+shorter timeouts were causing large BLOB uploads to fail.</li>
+<li>Minor fix to newline decoding for the mobileweb client.</li>
+<li>Ability to null out dates of birth (for anonymised research use).</li>
+<li>NULL dates now show in the widget as 01 Jan 1900, not the current date (it’s
+impossible to show an actual NULL, and the current date is confusing when you
+have neonates).</li>
+<li>QuestionDateTime widget wouldn’t successfully NULL itself on Android. (So
+now it NULLs itself but doesn’t update its pseudo-date; it just displays the
+NULL icon.)</li>
+<li>First jshint compliance (except for included third-party libraries)…</li>
+<li>… then jslint compliance.</li>
+<li>Unit testing framework.</li>
+<li>Not distributed yet.</li>
+</ul>
+<p><strong>Client v1.12, 2014-09-11</strong></p>
+<ul class="simple">
+<li>Renamed ExpDetThreshold/ExpectationDetection tasks (and tables) to add
+a “[C/c]ardinal_” prefix, as the names were too vague. THEREFORE requires
+server version 1.12 as well.</li>
+<li>Session-based authentication for tablets to improve speed (i.e. no need for
+bcrypt reauthentication within the same session, as for the web front end).</li>
+<li>Whisker interface.</li>
+</ul>
+<p><strong>Client v1.14, 2014-10-15</strong></p>
+<ul class="simple">
+<li>Requires server version 1.14.</li>
+<li>Server can enforce a minimum tablet version, and tablet can specify a minimum
+server version. Version numbers are in common/VERSION.js for the tablet.</li>
+<li>Bugfix: tablet registration crashed if the Patient table hadn’t been created.
+And similar subsequent bug when uploading with no tables.</li>
+<li>CAPE-42 task.</li>
+</ul>
+<p><strong>Server v1.10, 2014-08-16</strong></p>
+<ul class="simple">
+<li>REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+camcops –maketables /etc/camcops/MYCONFIGNAME.conf</li>
+<li>Database upload script could fail to insert but not complain to the tablet.</li>
+<li>Stopped database handler (rnc_db.py) masking any exceptions.</li>
+<li>Improved exception handling in database.py.</li>
+<li>Bug: patient table incorrectly had forename/surname/DOB fields as NOT NULL.
+Sex column also now has that constraint removed (enforced elsewhere but one
+could envisage not enforcing it).</li>
+<li>Tablet-side (webclient) minor fix to newline escaping.</li>
+<li>Removed Unicode from error messages in make_summary_tables(), since they
+also go to the Apache log.</li>
+<li>Bugfix: login failures were redirecting to the page for acknowledging terms
+and conditions. Bug was in login().</li>
+<li>Bugfix: effective deadlock between the process of a mandatory password
+change for new users and acknowledging terms/conditions.</li>
+<li>Make database/username more prominent (bold) in menus. Was easy to ignore.</li>
+<li>pyflakes compliance.</li>
+</ul>
+<p><strong>Server v1.11, 2014-09-06</strong></p>
+<ul class="simple">
+<li>Future necessity to discriminate field types that all use VARCHAR; e.g.
+(and esp.) ISO-8601 dates versus others. So change sqltype to cctype
+internally; see cc_db.add_sqltype().</li>
+<li>Significant simplification of work done in tasks with ancillary tables.
+New cc_task.Ancillary class; q.v.</li>
+<li>Export to CRIS staging database and autocreate draft data dictionary.</li>
+</ul>
+<p><strong>Server v1.12, 2014-09-11</strong></p>
+<ul class="simple">
+<li>REQUIRES TABLET CLIENT V1.12.</li>
+<li>REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+camcops –maketables /etc/camcops/MYCONFIGNAME.conf</li>
+<li>Renamed ExpDetThreshold/ExpectationDetection tasks (and tables) to add
+a “[C/c]ardinal_” prefix, as the names were too vague. THEREFORE requires
+tablet version 1.12 as well.</li>
+<li>Session-based authentication for tablets to improve speed (i.e. no need for
+bcrypt reauthentication within the same session, as for the web front end).</li>
+</ul>
+<p><strong>Server v1.13, 2014-10-02</strong></p>
+<ul class="simple">
+<li>Trivial code changes.</li>
+</ul>
+<p><strong>Server v1.14, 2014-10-15</strong></p>
+<ul class="simple">
+<li>REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+camcops –maketables /etc/camcops/MYCONFIGNAME.conf</li>
+<li>REQUIRES TABLET CLIENT V1.14.</li>
+<li>Server can enforce a minimum tablet version, and tablet can specify a
+minimum server version. Version numbers are in cc_version.py on the server.</li>
+<li>CAPE-42 task.</li>
+</ul>
+<p><strong>Client v1.15, 2014-10-18</strong></p>
+<ul class="simple">
+<li>Requires server version 1.15.</li>
+<li>NHS numbers were being corrupted, i.e. very long (10-digit) numbers.
+- Critical error. Stored correctly in database.
+- SQLite maximum integer is 2^63 - 1 = 9,223,372,036,854,775,807.
+- Javascript safe max is 9,007,199,254,740,991.
+- A valid database was read incorrectly by dbsqlite.js / getAllRows().
+- Ah. Titanium bug: <a class="reference external" href="https://jira.appcelerator.org/browse/TIMOB-3050">https://jira.appcelerator.org/browse/TIMOB-3050</a><ul>
+<li>Workaround is either
+(a) float, which won’t be quoted by the SQLite quote() function, and
+which MySQL will happily accept (rounding); and all numbers are floats
+anyway in Javascript;
+or
+(b) text, with parseInt() when reading from SQLite to Javascript.
+This will send integer values quoted, but MySQL will convert even e.g.
+‘9876543209.999’ (with the quotes) to 9876543210 when inserted into a
+BIGINT field, so that’s OK. The parseInt() function will truncate, which
+is also fine.
+I guess float is slightly more logical. Let’s be quite clear: in
+Javascript, all numbers are floats; they are 64-bit floating point
+values, the largest safe exact integer is Number.MAX_SAFE_INTEGER, or
+9007199254740991.</li>
+<li>So:</li>
+</ul>
+</li>
+<li>QuestionTypedVariables applies +/- Number.MAX_SAFE_INTEGER when no other
+limits are specified (in getValidatedInt).</li>
+<li>No negative ID numbers (in Patient.js).</li>
+<li>Changed columnDefSQL() in dbsqlite.js to use REAL for
+DBCONSTANTS.TYPE_INTEGER and DBCONSTANTS.TYPE_BLOBID. No value conversion
+is required.</li>
+<li>Equivalent change in fieldTypeMatches().</li>
+<li>Removed AUTOINCREMENT tag from PKs (SQLite behaviour doesn’t require this).</li>
+<li>Added changeColumnTypes() function.</li>
+<li>Database upgrade changes type of patient ID numbers in patient table.</li>
+<li>On the server (MySQL) side, the fields were
+- INT: -2,147,483,648 to 2,147,483,647 or 4,294,967,295 unsigned (4-byte)
+- and need to be<ul>
+<li>BIGINT: -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
+or 18,446,744,073,709,551,615 unsigned (8-byte)</li>
+</ul>
+</li>
+</ul>
+<p><strong>Server v1.15, 2014-10-20</strong></p>
+<ul class="simple">
+<li>REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+camcops –maketables /etc/camcops/MYCONFIGNAME.conf</li>
+<li>ID number fields become unsigned BIGINT, not unsigned INT.
+Fixes critical error (inability to represent NHS numbers.)
+See VERSION_TRACKER.txt for the tablet software.</li>
+</ul>
+<p><strong>Client v1.16, 2014-10-26</strong></p>
+<ul class="simple">
+<li>Text-as-button widgets:
+- QuestionBooleanText / props.asTextButton
+- QuestionMultipleResponse / props.asTextButton
+- QuestionMCQ / props.asTextButton</li>
+<li>Reworking of corresponding underlying widget code.</li>
+<li>QuestionDateTime supports text entry (including by default).</li>
+<li>Updated moment.js to 2.8.3</li>
+<li>Minor other code changes and improvement of demo questionnaire.</li>
+</ul>
+<p><strong>Server v1.17, 2014-11-12</strong></p>
+<ul class="simple">
+<li>HAM-D: complained inappropriately about ‘3’ codes (meaning ‘not measured’)
+for weight questions; maximum score adjusted accordingly from 53 to 52;
+comment for Q16B was erroneously labelled Q16A.</li>
+</ul>
+<p><strong>Client v1.17, 2014-11-13</strong></p>
+<ul class="simple">
+<li>HAM-D scoring was wrong for “weight - not measured” option. Fixed. Maximum
+changed from 53 to 52 accordingly.</li>
+</ul>
+<p><strong>Client v1.2, 2014-11-27</strong></p>
+<ul class="simple">
+<li>Requires server version 1.2.</li>
+<li>WEMWBS/SWEMWBS scales.</li>
+<li>QuestionMCQGrid wasn’t centring its buttons properly, because McqGroup wasn’t
+copying its incoming tipropsArray through properly.</li>
+<li>Bugfix to webclient database handling, in:
+- dbwebclient.js / convertResponseToRecordList()
+- netcore.js / parseServerReply()</li>
+<li>Some improvements to MobileWeb, though Titanium bugs remain, e.g.:
+- <a class="reference external" href="https://jira.appcelerator.org/browse/TC-5065">https://jira.appcelerator.org/browse/TC-5065</a>
+- <a class="reference external" href="https://jira.appcelerator.org/browse/TC-5071">https://jira.appcelerator.org/browse/TC-5071</a></li>
+<li>GAF: applies 0-100 input constraint.</li>
+<li>GAF: interprets raw score of zero as “unknown” for total-score purposes.</li>
+</ul>
+<p><strong>Server v1.2, 2014-11-28</strong></p>
+<ul class="simple">
+<li>REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+camcops –maketables /etc/camcops/MYCONFIGNAME.conf</li>
+<li>WEMWBS/SWEMWBS tasks.</li>
+<li>GAF: interprets raw score of zero as “unknown” for total-score purposes.</li>
+<li>CGI: requires full completion for a valid total score.</li>
+<li>BPRS total score was erroneously including Q19/Q20.</li>
+<li>Scoring clarity expanded (e.g. BPRS, BPRS-E, CGI).</li>
+<li>Exclude manually erased tasks from list (unless “include old versions” is
+selected). See
+- cc_task.get_session_candidate_task_pks_whencreated()
+- cc_task.get_all_current_pks()</li>
+<li>Bugfix to cc_task.make_extra_summary_tables().</li>
+</ul>
+<p><strong>Server v1.21, 2014-12-04</strong></p>
+<ul class="simple">
+<li>REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+camcops –maketables /etc/camcops/MYCONFIGNAME.conf</li>
+<li>Draft support for RiO metadata export (for RiO’s batch document upload
+facility). Some information pending, e.g. whether UTF-8 is supported in
+metadata.</li>
+</ul>
+<p><strong>Client v1.21, 2014-12-26</strong></p>
+<ul class="simple">
+<li>Fixes bug found in v1.17.
+Symptom: crash after adding new patient in some circumstances (?when ID check
+failed). Error of “‘undefined’ is not an object (evaluating
+‘this.props.pages[this.currentPage].pageTag’) at Questionnaire.js (line 1)”
+Added getPageTag() function to check for invalid index effects.</li>
+<li>Note in passing: to view iPad-based SQLite files, copy them elsewhere with
+e.g. <a class="reference external" href="http://www.macroplant.com/iexplorer/">http://www.macroplant.com/iexplorer/</a></li>
+<li>Curious crash on loading on an iPad whereas fine under the iOS simulator.
+Occurring in
+- dbinit.js
+- storedvars.databaseVersion.setValue(…)
+- this.dbstore()
+- dbcommon.storeRow()
+- dbsqlite.updateByPK()
+- dbsqlite.getFieldValueArgs()
+Segmentation fault (view console with Xcore &gt; Window &gt; Devices &gt; click the
+tiny up-arrow at the bottom left of the right-hand pane for the device).
+Titanium SDK: 3.5.0.Alpha
+<a class="reference external" href="http://builds.appcelerator.com.s3.amazonaws.com/index.html">http://builds.appcelerator.com.s3.amazonaws.com/index.html</a>
+… upgraded to 3.5.0.RC (install SDK + change tiapp.xml)
+… fixed. So a Titanium bug.</li>
+</ul>
+<p><strong>Server v1.22, 2015-01-07</strong></p>
+<ul class="simple">
+<li>Improved audit search.</li>
+</ul>
+<p><strong>Client v1.30, 2015-01-30</strong></p>
+<ul class="simple">
+<li>Requires server version 1.3.</li>
+<li>IDED3D task.</li>
+<li>Bug related to serialization of moment() objects from webviews.
+Probably introduced in v1.16.
+The moment.js library now includes a moment.toJSON() function, which
+overrides custom work in my json_encoder_replacer() function. However,
+moment.js’s version loses information (specifically, time zone, not to
+mention that it’s hard as the recipient to detect whether the object should
+be reconverted to a moment() object.) Therefore:
+preprocess_moments_for_json_stringify()
+… in conversion.js and taskhtmlcommon.jsx.</li>
+<li>Alerts with large content no longer scroll under iOS 8.
+Apparently this is an Apple bug:
+<a class="reference external" href="https://jira.appcelerator.org/browse/TIMOB-17745">https://jira.appcelerator.org/browse/TIMOB-17745</a></li>
+<li>Raphael.js upgraded from 2.1.0 to 2.1.3.</li>
+<li>Bugfix: if endUpload() failed, the failure wasn’t processed properly.</li>
+</ul>
+<p><strong>Server v1.30, 2015-01-30</strong></p>
+<ul class="simple">
+<li>REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+camcops –maketables /etc/camcops/MYCONFIGNAME.conf</li>
+<li>IDED3D task.</li>
+<li>Cardinal_ExpectationDetection and Cardinal_ExpDetThreshold: ISO-8601 fields
+changed from TEXT to (internal) ISO8601 (i.e. SQL VARCHAR).</li>
+<li>Prohibit manual erasure of non-finalized (live-on-tablet) tasks (for one
+thing, the tablet might re-upload and surprise the erasing user).</li>
+<li>Manually erased records become non-current.</li>
+<li>Fix latent bug by finalizing special notes along with their tasks.</li>
+<li>Forcible finalization/preservation, with _forcibly_preserved flag.</li>
+<li>Option to drop superfluous columns when remaking tables.</li>
+<li>Bugfix: other filters failed if non-current tasks shown
+(get_session_candidate_task_pks_whencreated).</li>
+</ul>
+<p><strong>Client v1.31, 2015-02-10</strong></p>
+<ul class="simple">
+<li>Requires server version 1.31.</li>
+<li>dbsqlite.renameColumns() and dbsqlite.changeColumnTypes() fail more politely
+with non-existing columns (remember that not all tables may exist, even if
+the app has been launched before, so don’t throw an error).</li>
+<li>IDED3D: Minor config text bugfix.</li>
+<li>IDED3D: Save stimulus shapes to database as SVG.</li>
+<li>IDED3D: Occasional missing sounds.
+Reaches “playsound: filename =” message.
+I suspect this is a Titanium bug, but am not certain.</li>
+<li>IDED3D: Correct/incorrect sounds changed to more distinctive chords with
+more similar subjective volumes.</li>
+<li>IDED3D: Change colours for the colour-blind? A/w Annette.</li>
+</ul>
+<p><strong>Server v1.31, 2015-02-10</strong></p>
+<ul class="simple">
+<li>REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+camcops –maketables /etc/camcops/MYCONFIGNAME.conf</li>
+<li>IDED3D task: extra field to store shapes (ided3d.shape_definitions_svg).</li>
+<li>Patient deletion reports tasks that will be deleted.</li>
+<li>Ability to edit patient details, for finalized records.</li>
+<li>HL7 resending triggered by cancelling, not deleting, existing messages
+(in cc_task.Task.delete_from_hl7_message_log(), etc.)</li>
+</ul>
+<p><strong>Server v1.32, 2015-02-15</strong></p>
+<ul class="simple">
+<li>REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+camcops –maketables /etc/camcops/MYCONFIGNAME.conf</li>
+<li>Enforces sensible MySQL engine settings.</li>
+<li>Switches tables to Barracuda format to avoid uploading bug when rows too
+large.</li>
+</ul>
+<p><strong>Server v1.33, 2015-02-19</strong></p>
+<ul class="simple">
+<li>Tweaks to RiO metadata export, based on feedback from Servelec.</li>
+</ul>
+<p><strong>Server v1.34, 2015-03-01</strong></p>
+<ul class="simple">
+<li>Long text (e.g. ProgressNote) crashed PDF generator when in a table.
+Tasks prone to this (ProgressNote, PsychiatricClerking) reworked to avoid
+tables.</li>
+<li>Bug in RecipientDefinition.report_error() fixed.</li>
+</ul>
+<p><strong>Client v1.32, 2015-03-10 to 2015-04-22</strong></p>
+<ul class="simple">
+<li>setRemoteBackup(false) call, to disable back to Apple iCloud; see dbinit.js</li>
+<li>Intermittent crash on Android 4.4.4 (build 23.0.1.A.4.30).
+Relates to database access?<ul>
+<li>Always create all tables at task start. (A crash due to a missing table was
+still possible, and the kind of thing it’s easy to miss on a development
+machine that tends to have everything precreated. Mind you, not sure that
+was the actual bug; see next point.) See ensure_database_ok().</li>
+<li>Explicitly close all recordsets (cursors) opened on all db.execute()
+operations.</li>
+<li>Did not relate to database access in 10k soak test, and crash occurred
+outside updateByPK function. Maybe relating to visual display. Key error:<ul>
+<li>E/BufferQueue(  292): [org.camcops.camcops/org.appcelerator.titanium.TiActivity] dequeueBuffer: can’t dequeue multiple buffers without setting the buffer count</li>
+</ul>
+</li>
+<li>This? <a class="reference external" href="https://code.google.com/p/android/issues/detail?id=63738">https://code.google.com/p/android/issues/detail?id=63738</a>
+Android source is:
+<a class="reference external" href="https://android.googlesource.com/platform/frameworks/native/+/jb-dev/libs/gui/BufferQueue.cpp">https://android.googlesource.com/platform/frameworks/native/+/jb-dev/libs/gui/BufferQueue.cpp</a>
+But crash also occurred inside updateByPK function (unless from a different
+thread).</li>
+<li>No… relates to setBackgroundImage() calls.
+- <a class="reference external" href="https://jira.appcelerator.org/browse/TC-5369">https://jira.appcelerator.org/browse/TC-5369</a></li>
+<li>Attempt at change:<ul>
+<li>Get rid of all setBackgroundImage() calls for situations calling for
+multiple alternative images (e.g. radio buttons). Also
+setBackgroundSelectedImage().</li>
+<li>Replace with method of loading all alternative images at the start, and
+using hide()/show() calls.</li>
+<li>Affects ValidityIndicator; StateRadio; StateCheck.</li>
+<li>setImage() calls also removed from ImageGroupVertical.</li>
+<li>Residual setImage() calls, which may also be suspect if the Android file
+system is duff:<ul>
+<li>QuestionCanvas_*</li>
+<li>QuestionImage</li>
+<li>QuestionPhoto</li>
+</ul>
+</li>
+<li>NOT successful. If anything, crashes more frequent.
+Therefore, most likely a memory problem? E.g. ACE-III “learning address”
+page: 26 x QuestionBooleanText, each with up to 4 potential images loaded,
+each ~3k on disk, would give 312k (when image caching would reduce that
+to 12k); might be larger in memory, and if the “imageref_ashmem create
+failed” message is showing the size – which it is; see
+<a class="reference external" href="https://code.google.com/p/skia/source/browse/trunk/src/images/SkImageRef_ashmem.cpp?spec=svn11558&amp;r=11558">https://code.google.com/p/skia/source/browse/trunk/src/images/SkImageRef_ashmem.cpp?spec=svn11558&amp;r=11558</a>
+… then it’s about 36k per image, i.e. we were using 3.7 Mb for that page.
+That’s then perhaps less surprising.</li>
+</ul>
+</li>
+<li>Reverted.</li>
+<li>New technique<ul>
+<li>imagecache.js</li>
+<li>Cache cleared from questionnaire.js</li>
+<li>Applied to ValidityIndicator, StateRadio, StateCheck
+… except you can’t pass Blobs to Titanium.UI.createButton, only to
+createImageView
+… so ImageView used instead of button for now (which loses the “currently
+being touched” facility). See AS_BUTTONS flag in qcommon.js.</li>
+<li>However, ImageVerticalGroup goes to preloading method for performance
+reasons.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Allow user to specify the number of lines used for fixed-height multiline
+text entry: multilineDefaultNLines.</li>
+</ul>
+<p><strong>Client v1.33, 2015-04-26</strong></p>
+<ul class="simple">
+<li>Bugfix: CGI didn’t offer all options for Question 3 (drug effects)!</li>
+</ul>
+<p><strong>Client v1.34, 2015-04-26</strong></p>
+<ul class="simple">
+<li>Probable bugfix: IDED3D performed its stage failure check before its stage
+success check at the end of trials (should be the other way round).</li>
+</ul>
+<p><strong>Client v1.40, 2015-05-27</strong></p>
+<ul class="simple">
+<li>Requires server version 1.40.</li>
+<li>FROM-LP framework set menu</li>
+<li>O’Brien group set menu 1</li>
+<li>Brief COPE</li>
+<li>CBI-R</li>
+<li>ZBI (data collection tool only with option for institution to supply text)</li>
+<li>HADS (data collection tool only with option for institution to supply text)</li>
+<li>AUDIT-C</li>
+<li>CGI-I</li>
+<li>Patient Satisfaction Scale</li>
+<li>Referrer Satisfaction Scale (generic + specific)</li>
+<li>Friends and Family Test</li>
+<li>IRAC</li>
+<li>MDS-UPDRS (data collection tool only)</li>
+<li>GDS-15</li>
+<li>AUDIT and AUDIT-C corrected to be clinician-colour pages, and instruction
+page added.</li>
+<li>extrastrings framework - at registration, the tablet downloads sets of extra
+strings from its server. This allows the conversion of crippled tasks to
+fully-functional ones, subject to the hosting institution’s right to offer
+the strings up to its tablets (which is a matter for the institution, the
+strings not being distributed with CamCOPS).</li>
+<li>clinician_service field as part of clinician block (and used for service
+feedback); corresponding storedvars.defaultClinicianService variable.</li>
+<li>boldPrompt option to QuestionTypedVariables</li>
+<li>editing_time_s field as standard on all tasks</li>
+</ul>
+<p><strong>Server v1.40, 2016-01-28</strong></p>
+<ul class="simple">
+<li>From May 2015 to 28 Jan 2016.</li>
+<li>REQUIRES COMMAND TO UPGRADE EACH DATABASE:
+camcops –maketables /etc/camcops/MYCONFIGNAME.conf</li>
+<li>NOTE THAT THE camcops_meta command is now available, e.g.
+<cite>camcops_meta –filespecs /etc/camcops/camcops_*.conf –ccargs maketables</cite></li>
+<li>Brief COPE Inventory.</li>
+<li>CBI-R.</li>
+<li>ZBI (data collection tool only with option for institution to supply text).</li>
+<li>HADS (data collection tool only with option for institution to supply
+text).</li>
+<li>AUDIT-C</li>
+<li>CGI-I</li>
+<li>Patient Satisfaction Scale</li>
+<li>Referrer Satisfaction Scale (generic + specific)</li>
+<li>Friends and Family Test</li>
+<li>IRAC</li>
+<li>MDS-UPDRS (data collection tool only)</li>
+<li>GDS-15</li>
+<li>DEMQOL</li>
+<li>DEMQOL-Proxy</li>
+<li>Default “respondent” framework, for DEMQOL-Proxy.</li>
+<li>Bugfix to ProgressNote: get_task_html() crashed because “answer” was not
+imported.</li>
+<li>EXTRA_STRING_FILES system, with “get_extra_strings” command to database
+API.</li>
+<li>PHQ-9 database comment fixed for Q10.</li>
+<li>comment_fmt for HADS fields. Note MySQL: SHOW FULL COLUMNS FROM table.</li>
+<li>IES-R (skeleton only).</li>
+<li>WSAS (skeleton only).</li>
+<li>PDSS (skeleton only).</li>
+<li>PSWQ.</li>
+<li>Y-BOCS, Y-BOCS-SC (skeleton only).</li>
+<li>DAD (skeleton only).</li>
+<li>BADLS (skeleton only).</li>
+<li>NPI-Q (skeleton only).</li>
+<li>FRS.</li>
+<li>INECO Frontal Screening (IFS) (skeleton only).</li>
+<li>Add clinician to GAF.</li>
+<li>Diagnosis reports.</li>
+<li>Device report.</li>
+<li>update_multiple_databases.py script</li>
+<li>Unit tests to ensure no overlap for task longnames/shortnames/tables; see
+cc_task.unit_tests().</li>
+<li>clinician_service field as part of clinician block</li>
+<li>xhtml2pdf &#64;page size changed from “a4” to “A4” in cc_html.py to remove
+“WARNING:xhtml2pdf:Unknown size value for &#64;page”; see
+https://github.com/chrisglass/xhtml2pdf/issues/71 … however, no effect.</li>
+<li>Switch from xhtml2pdf, bypassing Weasyprint, to wkhtmltopdf (via pdfkit) as
+the (default and now only) PDF renderer.</li>
+<li>Abstract base class for PCL tasks wasn’t inheriting from object; now is.</li>
+<li>editing_time_s field for all tasks.</li>
+<li>Indexing of ID number fields in patient table.</li>
+<li>Python package format internally.</li>
+<li>Did not implement SVG logos for PDF generation; made files larger not
+smaller. Stick with PNG.</li>
+<li>Remove delayed imports; bug-prone.
+<a class="reference external" href="http://stackoverflow.com/questions/744373">http://stackoverflow.com/questions/744373</a>
+Except in cc_hl7, which imports phq9 for testing (which imports specific
+things from cc_task, which imports cc_hl7).
+… subsequently revisited; delayed imports now remain only for unit tests,
+where they are more convenient.</li>
+<li>Refresh button for tasks (because browsers keep asking you twice if you hit
+F5).</li>
+<li>EXTRA_STRING_FILES can use globs (in cc_string.py).</li>
+<li>Support MPLCONFIGDIR (default: /var/cache/camcops/matplotlib) to speed up
+matplotlib/pyplot loading.</li>
+<li>Updated to current pythonlib.</li>
+<li>Python build toolchain.</li>
+<li>Moved to Python 3.<ul>
+<li>Of note: comparison of None to int now fails.</li>
+</ul>
+</li>
+<li>Supplied with Gunicorn, to enable front-end web servers like Apache to
+talk to CamCOPS, and have CamCOPS upgrade/restart, without having to (a)
+restart Apache, or (b) integrate a specific Python version into Apache
+with mod_wsgi. The new system runs in a virtual environment, entirely
+separated (in terms of code) from the front-end web server, communicating
+with it via a private port or Unix socket.</li>
+<li>Disable HTTP client-side caching for added security.
+See also <a class="reference external" href="http://codebutler.github.io/firesheep">http://codebutler.github.io/firesheep</a></li>
+<li>Change to relative URL addressing to make that work simply (without having
+to tell CamCOPS where it’s mounted).</li>
+<li>ALLOW_INSECURE_COOKIES debugging option.</li>
+<li>Fix nasty bug in rnc_web using “extraheaders=[]” in function signature,
+allowing headers (e.g. cookies) to accumulate over multiple calls (and leak
+across clients). 2016-01-09.
+(But note what is NOT a bug: multiple Chrome “incognito” tabs share each
+other’s cookies: <a class="reference external" href="https://code.google.com/p/chromium/issues/detail?id=24690">https://code.google.com/p/chromium/issues/detail?id=24690</a>)</li>
+<li>Removed the “Tablet device” filter option for tasks (it generates long
+complex-looking lists of IDs and isn’t helpful for end users). Removal
+done simply by taking the option out of the form, in
+cc_session.get_current_filter_html().</li>
+<li>New server environment variable options (see instructions.txt):
+- MPLCONFIGDIR
+- CAMCOPS_DEBUG_TO_HTTP_CLIENT
+- CAMCOPS_PROFILE
+- CAMCOPS_SERVE_STATIC_FILES</li>
+<li>Changes to config variables:
+- RESOURCES_DIRECTORY – removed
+- INTROSPECTION_DIRECTORY – removed
+- CAMCOPS_LOGO_FILE_ABSOLUTE – added (optional)
+- MAIN_STRING_FILE – added (optional)
+- EXTRA_STRING_FILES – added (optional)</li>
+<li>Added process ID to log output.</li>
+<li>Task counting report.</li>
+<li>Restructure Task/Ancillary classes to be more concise.</li>
+<li>Better unit testing inc. checking for __dict__/fieldname conflicts.</li>
+<li>camcops_meta.py script for e.g. upgrading multiple databases.</li>
+<li>PyMySQL==0.7.1 (upgraded from PyMySQL==0.6.7) to eliminate error on
+inserting BLOBs (“TypeError: can’t use a string pattern on a bytes-like
+object”).</li>
+</ul>
+<p><strong>Server v1.41, 2016-01-29</strong></p>
+<ul class="simple">
+<li>Bugfix to large research data dumps (were timing out due to inefficient
+SQL). Changed cc_task.get_ancillary_items(), with some back-end functions
+in rnc_db too (changed fetch_all_objects_from_db_where(); added
+create_object_from_list() ).</li>
+</ul>
+<p><strong>Server v1.50, 2016-07-29</strong></p>
+<ul class="simple">
+<li>Change _device VARCHAR(255) fields to _device_id INT.</li>
+<li>Change *_user VARCHAR(255) fields to *_user_id INT.</li>
+<li>Note that this leaves only a few “odd” things from the point of standard
+RDBMSs:<ul>
+<li>multiple keys on server side (adding _device_id and _era) to reflect
+multiple devices with write-only access;</li>
+<li>history on server side (adding _current, and forward/backward PK chain)</li>
+<li>the “_era” field is textual (ISO-8601), because
+(a) no database seems to store DATETIME values with milli-/microsecond
+accuracy and proper timezone information (in the sense that you can
+recreate the timezone of origin);
+(b) we can use a non-NULL special value, in our case “NOW”, as it makes
+things simpler for end users to use “a = b” consistently and not have
+to do “a = b OR a IS NULL AND b IS NULL”.</li>
+<li>patient IDs are unchecked and are allowed to be incomplete (to reflect
+our need to operate with incomplete information, and in anonymous as well
+as fully-identified environments), and duplicate patient records are
+allowed (across, but not within, device/era combinations).</li>
+</ul>
+</li>
+<li>Static type checking for server Python code.</li>
+</ul>
+<p><strong>Known problems and bugs at the end of the Titanium client</strong></p>
+<ul class="simple">
+<li>visually disabled elements not yet implemented (starting point only in
+qcommon.js)</li>
+<li>wait class imperfect and may leak</li>
+<li>ti.imagefactory module does not support x86 architecture, just arm</li>
+<li>Titanium iOS re-layout is very slow. Visible e.g. when changing questionnaire
+font sizes, but more important for multiline multiline text areas.
+Bug report: <a class="reference external" href="https://jira.appcelerator.org/browse/TC-3560">https://jira.appcelerator.org/browse/TC-3560</a></li>
+<li>mobileweb edition not yet working</li>
+<li>Alerts with large content no longer scroll under iOS 8.
+Apparently this is an Apple bug:
+<a class="reference external" href="https://jira.appcelerator.org/browse/TIMOB-17745">https://jira.appcelerator.org/browse/TIMOB-17745</a></li>
+</ul>
+<p><strong>Where were version numbers stored in the Titanium client?</strong></p>
+<ol class="arabic simple">
+<li>App version number is stored in tiapp.xml</li>
+<li>Tablet’s minimum server version requirement is in
+Resources/common/VERSION.js</li>
+<li>Server version number is stored in server/cc_modules/cc_version.py
+(as is the server’s minimum tablet version requirement).</li>
+<li>Server changelog is stored in server/changelog.debian</li>
+<li>The web page also has a record of the most recent version, in
+download/index.html</li>
+</ol>
+<p>Indirectly:</p>
+<ul class="simple">
+<li>Tablet app: Resources/common/VERSION.js reads the app version using
+Titanium.App.version, which is determined by tiapp.xml. In turn,
+it exports this as CAMCOPS_VERSION.</li>
+<li>Tablet build: SHIP_ANDROID reads VERSION.js</li>
+<li>Server build: MAKE_PACKAGE reads cc_constants.py</li>
+</ul>
+<p>Human-readable details are shown in this file.</p>
+</div>
+<div class="section" id="current-c-sqlite-client-python-sqlalchemy-server">
+<h2>20.2. Current C++/SQLite client, Python/SQLAlchemy server<a class="headerlink" href="#current-c-sqlite-client-python-sqlalchemy-server" title="Permalink to this headline">¶</a></h2>
+<p><strong>Client v2.0.0 beta</strong></p>
+<ul class="simple">
+<li>Development of C++ version from scratch. Replaces Titanium version.</li>
+<li>Released as beta to Google Play on 2017-07-17.</li>
+</ul>
+<p><strong>Client v2.0.1 beta</strong></p>
+<ul class="simple">
+<li>More const checking.</li>
+<li>Bugfix to stone/pound/ounce conversion.</li>
+<li>Bugfix to raw SQL dump.</li>
+<li>ID numbers generalized so you can have &gt;8 (= table structure change).</li>
+</ul>
+<p><strong>Client v2.0.2 beta</strong></p>
+<ul class="simple">
+<li>Cosmetic bug fixes, mainly for phones, including a re-layout of the ACE-III
+address learning for very small screens.</li>
+<li>Bugfix: deleting a patient didn’t deselect that patient.</li>
+<li>Default software keyboard for date entry changed.</li>
+<li>Bugfix for canvas widget on Android (size was going wrong).</li>
+<li>Automatic adjustment for high-DPI screens as standard in <cite>QuBoolean</cite> (its
+image option), <cite>QuCanvas</cite>, <cite>QuImage</cite>, <cite>QuThermometer</cite>.</li>
+</ul>
+<p><strong>Client v2.0.3 beta, 2017-08-07</strong></p>
+<ul class="simple">
+<li>Trivial type fix to patient_wanted_copy_of_letter (String → Bool) in the
+unused task CPFTLPSDischarge.</li>
+</ul>
+<p><strong>Server v2.1.0 beta, 2017-10-17</strong></p>
+<ul class="simple">
+<li>Major changes, including…</li>
+<li>SQLAlchemy for database work</li>
+<li>Group concept</li>
+<li>HOWEVER, HL7 EXPORT AND ANONYMOUS STAGING DATABASE SUPPORT DISABLED;
+further release pending.</li>
+</ul>
+<p><strong>Client v2.0.4 beta, 2017-10-22</strong></p>
+<ul class="simple">
+<li>Bugfix: BLOB FKs weren’t being set properly from <cite>BlobFieldRef</cite> helper
+functions.</li>
+</ul>
+<p><strong>Client v2.0.5 beta, 2017-10-23</strong></p>
+<ul class="simple">
+<li>Bugfix: if the server’s ID number definitions were consecutively numbered, the
+client got confused and renumbered them from 1.</li>
+</ul>
+<p><strong>Server v2.1.1 beta, 2017-10-23</strong></p>
+<ul class="simple">
+<li>Bugfix: WSAS “is complete?” flag failed to recognize the “retired or work
+irrelevant for other reasons” flag.</li>
+</ul>
+<p><strong>Client v2.2.0 beta, 2018-01-04 to 2018-02-03</strong></p>
+<ul class="simple">
+<li><em>To solve the problem of clients and servers being upgraded independently:</em>
+Reads tables from server during registration (see server v2.2.0). Implemented
+a “minimum server version” option internally for each task (see contemporary
+server changelog). Minimum server version increased from v2.0.0 to v2.2.0.</li>
+<li>Bugfix: adding a new patient from a task list didn’t wipe the task list until
+the patient was re-changed (failure to call <cite>setSelectedPatient</cite> from
+<cite>ChoosePatientMenu::addPatient</cite>; in fact, the patient name details changed
+without changing the underlying patient selection).</li>
+<li>Bugfix: don’t think the patient ID number table was being made routinely (!?).</li>
+<li>New CIS-R task.</li>
+<li>Internal fix to <cite>DynamicQuestionnaire</cite> to defer first-page creation until
+after constructor.</li>
+<li>Menu additions for CPFT Affective Disorders Research Database.</li>
+</ul>
+<p><strong>Server v2.2.0, 2018-01-04 to 2018-04-24</strong></p>
+<ul class="simple">
+<li><em>To solve the problem of clients and servers being upgraded independently:</em>
+Maintains a minimum client (tablet) version per task; during registration,
+offers the client the list of its tables and the minimum number. This allows
+a newer client to recognize that the server is older and has ‘missing’
+tables, and act accordingly. See <cite>ensure_valid_table_name()</cite>. Minimum tablet
+version remains v1.14.0.</li>
+<li>An obvious question: with that mechanism in place, is there any merit to the
+client maintaining a list of minimum server versions for each task? The
+change to the client’s “minimum server version” to 2.2.0 (for client v2.2.0)
+means that future clients will always have the “supported versions”
+information from the server. So, might a client advance mean that it might
+want to refuse old versions of the server, even though the server might be
+happy to accept? (That’s the only situation when a client’s per-table minimum
+server version would come into play.) Well, perhaps it’s possible, even if
+it’s very unlikely (and would probably indicate bad backwards compatibility
+on the client’s part! Let’s implement it for symmetry. Actually, thinking
+further, it might be quite useful: if you upgrade a task and add extra
+fields, using this would potentially allow the client to work with older
+servers unless a specific task is used. Implemented; see client changelog
+above. The default for all tasks is the client-wide minimum server version.</li>
+<li>New report to find patients by ICD-10 or ICD-9-CM diagnosis (inclusion and
+exclusion diagnoses) and age.</li>
+<li>Bugfix where reports would only be produced in HTML format.</li>
+<li>New CIS-R task.</li>
+</ul>
+<p><strong>Server v2.2.1, 2018-04-24 [in progress]</strong></p>
+<ul class="simple">
+<li>Username added to login audit.</li>
+<li>SQLAlchemy <cite>Engine</cite> scope fixed (was per-request; that was wrong and caused
+‘Too many connections’ errors; now per URL across the application, as it
+should be; see <cite>cc_config.py</cite>).</li>
+<li>Links to de-identified versions of tasks.</li>
+<li>Group administrators can now change passwords for other users in their group,
+as long as the other user isn’t a groupadmin or superuser.</li>
+</ul>
+<p><strong>Client v2.2.1 beta, 2018-08-06 [in progress]</strong></p>
+<ul class="simple">
+<li>Background striping for the <cite>QuMcqGrid*</cite> classes.</li>
+<li>Bugfix: <cite>android:allowBackup=”false”</cite> added back to AndroidManifest.xml</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server/server_front_end_general.html">5. Web site: general use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server/server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server/server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server/server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server/server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server/server_command_line.html">13. CamCOPS server command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server/server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client/creating_tasks.html">15. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licences/licences.html">16. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc/design_notes.html">19. Design notes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">20. Change log/history</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#original-titanium-javascript-client-python-server-with-custom-mysql-interface-defunct">20.1. Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#current-c-sqlite-client-python-sqlalchemy-server">20.2. Current C++/SQLite client, Python/SQLAlchemy server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="misc/known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc/known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc/to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc/wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc/local_info.html">25. Local configuration information</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="misc/design_notes.html"
+                        title="previous chapter">19. Design notes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="misc/known_problems.html"
+                        title="next chapter">21. Known problems: client</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/changelog.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="misc/known_problems.html" title="21. Known problems: client"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="misc/design_notes.html" title="19. Design notes"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,428 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>5. Web site: general use &#8212; CamCOPS 2.2.1 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="6. Tasks in CamCOPS by category" href="../tasks/tasks_by_category.html" />
+    <link rel="prev" title="4. Using the client" href="../client/client_using.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../tasks/tasks_by_category.html" title="6. Tasks in CamCOPS by category"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../client/client_using.html" title="4. Using the client"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="web-site-general-use">
+<span id="website-general"></span><h1>5. Web site: general use<a class="headerlink" href="#web-site-general-use" title="Permalink to this headline">¶</a></h1>
+<p>Log into CamCOPS via a web browser.</p>
+<div class="section" id="general-navigation">
+<h2>5.1. General navigation<a class="headerlink" href="#general-navigation" title="Permalink to this headline">¶</a></h2>
+<p>Any time you see the CamCOPS logo (it’s at the top of most pages), you can
+click it to get back to the main menu.</p>
+</div>
+<div class="section" id="task-trackers-and-clinical-text-views">
+<h2>5.2. Task, trackers, and clinical text views<a class="headerlink" href="#task-trackers-and-clinical-text-views" title="Permalink to this headline">¶</a></h2>
+<p>Client devices upload <em>tasks</em>. You can view these individually in a variety of
+formats. You can also view numeric information over time for a patient in a
+tracker, and clinically relevant textual information for a patient in a
+<em>clinical text view</em>.</p>
+</div>
+<div class="section" id="set-task-filters">
+<h2>5.3. Set task filters<a class="headerlink" href="#set-task-filters" title="Permalink to this headline">¶</a></h2>
+<p>You can configure your CamCOPS session to filter tasks according to <em>who</em>,
+<em>what</em>, <em>when</em>, and <em>administrative criteria</em>. By default, no task filters are
+set.</p>
+<p>Under <em>who</em>, you can specify an optional patient forename, surname, date of
+birth, sex, or any form of ID number in use on your server.</p>
+<p>Under <em>what</em>, you can restrict to any subset of task types, and if you wish
+you can restrict to completed tasks. You can also specify text contents. For
+example, type in “paracetamol” to find clerkings that mention paracetamol
+anywhere.</p>
+<p>Under <em>when</em>, you can specify start and/or end dates, to find tasks in that
+date range.</p>
+<p>Under <em>administrative criteria</em>, you can restrict to specific uploading devices
+or users, or the group to which a task belongs.</p>
+<p>As well as a “set filters” button, there is a “clear” button to clear all
+current filters.</p>
+</div>
+<div class="section" id="view-tasks">
+<h2>5.4. View tasks<a class="headerlink" href="#view-tasks" title="Permalink to this headline">¶</a></h2>
+<p>This page shows all tasks meeting your current filter criteria. Each task has
+hyperlinks to an HTML and a PDF version. Sometimes tasks are colour-coded
+(there’s a key at the bottom of the page).</p>
+<p>The HTML view is fastest and has additional viewing options. However, you
+should <strong>not</strong> print the HTML view in a clinical environment, because it won’t
+have patient identifiers on each page. Use the PDF for that instead, or if you
+want to save the task as a single human-readable file.</p>
+<p>When you view a task in HTML mode, there are some additional hyperlinks at the
+bottom:</p>
+<ul class="simple">
+<li><em>View raw data as XML.</em> This shows you the raw structure as XML, including
+stored data and calculated fields such as summary scores. One useful feature
+is that all fields have an associated comment, and these comments are
+displayed in the XML.</li>
+<li><em>View anonymised version (HTML, PDF).</em> This shows you a version with patient
+identification details hidden. It is not guaranteed to be free of identifying
+material, though; it makes no effort to remove patient details from free
+text, for example <a class="footnote-reference" href="#crate" id="id1">[5]</a>.</li>
+<li><em>View PDF.</em> A link to the PDF version.</li>
+</ul>
+<p>(Administrators have additional options; see <a class="reference internal" href="server_front_end_admin.html#task-admin"><span class="std std-ref">administrative options</span></a>.)</p>
+<p>PDF versions include patient identifiers on each page, to meet normal UK
+clinical standards, and if the task involved recording a clinician’s views or
+assessments, the PDF will include a template signature box for on-paper
+authentication by the clinician.</p>
+<p>Specimen tasks in PDF format:</p>
+<ul class="simple">
+<li><a class="reference download internal" href="../_downloads/dummy_task_1.pdf" download=""><code class="xref download docutils literal notranslate"><span class="pre">PHQ-9</span></code></a></li>
+<li><a class="reference download internal" href="../_downloads/dummy_task_2.pdf" download=""><code class="xref download docutils literal notranslate"><span class="pre">Psychiatric</span> <span class="pre">clerking</span></code></a> (albeit not a
+very good one!)</li>
+</ul>
+</div>
+<div class="section" id="trackers-for-numerical-information">
+<h2>5.5. Trackers for numerical information<a class="headerlink" href="#trackers-for-numerical-information" title="Permalink to this headline">¶</a></h2>
+<p>Many tasks produce numerical information, like total scores. Trackers allow you
+to view numerical information from these tasks, or a subset of them, over time.
+The resulting graphs are time-aligned within the tracker, across all tasks
+(i.e. all graphs have the same time axis).</p>
+<p>Not all tasks offer trackers.</p>
+<p>Some tasks offer more than one numerical value, and therefore provide more than
+one graph.</p>
+<p>To configure a tracker, choose a patient by an ID number. You can, optionally,
+specify a start and/or end date, and you can restrict to specific tasks.</p>
+<p>You can view trackers in HTML or PDF mode, or view the data used to generate
+them in XML format.</p>
+<p>Specimen tracker:</p>
+<ul class="simple">
+<li><a class="reference download internal" href="../_downloads/dummy_tracker.pdf" download=""><code class="xref download docutils literal notranslate"><span class="pre">Fictional</span> <span class="pre">tracker</span></code></a></li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Both trackers and CTVs collate information from multiple tasks. They
+therefore perform a <strong>consistency check</strong> to ensure that patient ID
+information is the same across all tasks. (Did someone mis-spell a name,
+for example – or worse, mis-file information by entering the wrong ID
+number?) <strong>Beware</strong> if the consistency check fails; you will need to
+ensure yourself that all the data relates to the same patient.</p>
+</div>
+</div>
+<div class="section" id="clinical-text-views">
+<h2>5.6. Clinical text views<a class="headerlink" href="#clinical-text-views" title="Permalink to this headline">¶</a></h2>
+<p>Like a tracker, a clinical text view (CTV) collects information across many
+tasks for one patient. Like a tracker, a CTV is configured for a patient, and
+can be configured for a date range and/or a subset of tasks. Like a tracker
+(and like a book), a CTV flows from older to newer information. Unlike a
+tracker, a CTV produces text for each task, not numbers. The text is intended
+to be clinically useful. For example, simple questionnaires produce their
+summary information. The ACE-III produces its total but also its subscale
+scores. Clinical clerkings produce their full text. All tasks appear in the
+CTV, but some tasks simply indicate that they have been performed.</p>
+<p>In the HTML view of a CTV, all tasks provide hyperlinks to the full
+representation of each task, so you can delve into more detail for any task of
+interest.</p>
+<p>Specimen CTV:</p>
+<ul class="simple">
+<li><a class="reference download internal" href="../_downloads/dummy_clinicaltextview.pdf" download=""><code class="xref download docutils literal notranslate"><span class="pre">Fictional</span> <span class="pre">CTV</span></code></a></li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Both trackers and CTVs collate information from multiple tasks. They
+therefore perform a <strong>consistency check</strong> to ensure that patient ID
+information is the same across all tasks. (Did someone mis-spell a name,
+for example – or worse, mis-file information by entering the wrong ID
+number?) <strong>Beware</strong> if the consistency check fails; you will need to
+ensure yourself that all the data relates to the same patient.</p>
+</div>
+</div>
+<div class="section" id="research-views">
+<h2>5.7. Research views<a class="headerlink" href="#research-views" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="basic-research-dump-fields-and-summaries">
+<span id="summary-fields"></span><h3>5.7.1. Basic research dump (fields and summaries)<a class="headerlink" href="#basic-research-dump-fields-and-summaries" title="Permalink to this headline">¶</a></h3>
+<p>The basic research dump generates a ZIP file. The ZIP file contains one TSV
+(tab-separated value) file for every current task <a class="footnote-reference" href="#current" id="id2">[1]</a>, and includes raw
+data and summary measures (e.g. total scores).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>For example, the <a class="reference internal" href="../tasks/phq9.html#phq9"><span class="std std-ref">PHQ-9</span></a> stores the answers for 9 symptom
+questions in fields <cite>q1</cite> to <cite>q9</cite>, and one overall impact answer in the
+<cite>q10</cite> field; it also stores information to link the record to the patient
+in question, and some administrative information (relating to record
+history, editing time, etc.)</p>
+<p>However, it doesn’t store summary information on the server
+<a class="footnote-reference" href="#databasenormalization" id="id3">[6]</a>; rather, summary measures are calculated on
+demand. For this task, summary measures include:</p>
+<ul class="simple">
+<li><cite>is_complete</cite> (Boolean): is the task complete (no missing values)?</li>
+<li><cite>total</cite> (integer): total score</li>
+<li><cite>n_core</cite> (integer): number of core depressive symptoms reaching threshold</li>
+<li><cite>n_other</cite> (integer): number of other depressive symptoms reaching
+threshold</li>
+<li><cite>n_total</cite> (integer): total number of symptoms reaching threshold</li>
+<li><cite>is_mds</cite> (Boolean): does this patient meet the PHQ9 criteria for
+major depressive syndrome?</li>
+<li><cite>is_ods</cite> (Boolean): does this patient meet the PHQ9 criteria for
+other depressive syndrome?</li>
+<li><cite>severity</cite> (text): textual description of depressive severity by the
+standard PHQ9 scoring method.</li>
+</ul>
+<p class="last">These summary measures are included in the research dumps.</p>
+</div>
+<p>You can choose to dump everything that you have permission for, or restrict to
+the criteria you’ve set in your current session filter, or specify tasks and/or
+groups manually.</p>
+</div>
+<div class="section" id="dump-table-data-as-sql">
+<h3>5.7.2. Dump table data as SQL<a class="headerlink" href="#dump-table-data-as-sql" title="Permalink to this headline">¶</a></h3>
+<p>This more sophisticated research dump generates a fully structured SQLite binary
+database of the data you select (or, if you prefer, the SQL text to create it).
+By default, BLOBs (binary large objects) are skipped, because they can be very
+large, but if you want, you can choose to include them.</p>
+<p>You can choose the information you want exactly as for the basic research dump.</p>
+<p>Some user information will be provided (e.g. user names), but security
+information (e.g. passwords) is removed prior to the download.</p>
+<p>As for the basic research dump, summary information is added to tables as they
+are created. For example: the internal <a class="reference internal" href="../tasks/phq9.html#phq9"><span class="std std-ref">PHQ9</span></a> table contains scores
+for individual questions, but not the total (which is calculated dynamically).
+When you download the data, the total (amongst other things) is calculated and
+added to the data that you download (within the SQLite table or CSV file).</p>
+</div>
+<div class="section" id="inspect-table-definitions">
+<h3>5.7.3. Inspect table definitions<a class="headerlink" href="#inspect-table-definitions" title="Permalink to this headline">¶</a></h3>
+<p>This option allows you to view the database structure of the CamCOPS server
+database, as data definition language (DDL), meaning the subset of SQL used to
+create tables. In SQL dialects that support it (e.g. MySQL), the DDL contains
+comments for every field, usually in considerable detail, so viewing the DDL
+this is a good way of understanding how CamCOPS tasks store their data.</p>
+</div>
+</div>
+<div class="section" id="reports">
+<h2>5.8. Reports<a class="headerlink" href="#reports" title="Permalink to this headline">¶</a></h2>
+<p>CamCOPS has a set of build-in reports; for example, to count tasks, or list
+client devices, or find patients by diagnostic inclusion/exclusion criteria. You
+can explore and run these from the Reports menu.</p>
+<p>Reports are used in two stages: (1) configure, (2) run.</p>
+<p>The configuration stage provides an interface to select options for the report.
+This generally includes the output format (e.g. HTML, TSV), and sometimes much
+more (e.g. for the reports to find patient by diagnosis). Once you’ve chosen the
+options, click “View Report”. What the configuration stage actually does is to
+generate a URL for the final report.</p>
+<p>The HTML view of the report shows the configuration parameters, the results
+(page by page), and the SQL used to generate the report.</p>
+<p>The TSV option gives you the data in tab-separate values (TSV) format.</p>
+<p>When you view the report in HTML format, you will see that the browser’s URL
+contains your report configuration information. This means that you can save
+this report for later.</p>
+<p>For example, suppose you regularly want to find patients between the ages of 20
+to 65 inclusive, with an ICD-9-CM inclusion diagnosis of depression (e.g. 311)
+<a class="footnote-reference" href="#icd9cm" id="id4">[2]</a>, excluding bipolar affective disorder (e.g. anything starting 296)
+or eating disorders (e.g. 307.1). You could create a report with these age
+restrictions and inclusion and exclusion diagnoses, and view it. The URL would
+look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>https://my.camcops.site/report?diagnoses_inclusion=311%25&amp;age_maximum=65&amp;which_idnum=1&amp;rows_per_page=&amp;viewtype=html&amp;diagnoses_exclusion=296%25&amp;diagnoses_exclusion=307.1%25&amp;age_minimum=20&amp;report_id=diagnoses_finder_icd9cm&amp;page=1
+</pre></div>
+</div>
+<p>If you copy this URL, you can run the report again without having to configure
+it manually. Here’s an approximate ICD-10 equivalent (same age range; include
+F32% and F33%; exclude F30%, F31%, F50%):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>https://my.camcops.site/report?diagnoses_inclusion=F32%25&amp;diagnoses_inclusion=F33%25&amp;age_maximum=65&amp;which_idnum=1&amp;rows_per_page=&amp;viewtype=html&amp;diagnoses_exclusion=F30%25&amp;diagnoses_exclusion=F31%25&amp;diagnoses_exclusion=F50%25&amp;age_minimum=20&amp;report_id=diagnoses_finder_icd10&amp;page=1
+</pre></div>
+</div>
+<p>To view a report’s SQL in a formatted state, paste it into an online SQL
+formatter <a class="footnote-reference" href="#sqlformat" id="id5">[3]</a>.</p>
+</div>
+<div class="section" id="introspection">
+<h2>5.9. Introspection<a class="headerlink" href="#introspection" title="Permalink to this headline">¶</a></h2>
+<p>CamCOPS allows direct introspection of the server’s source code (the version
+that it is running as you use it) and the tablet source code (the version that
+was current when the server was built).</p>
+<p>The server is primarily written in Python (.py files). The client is primarily
+written in C++ (.h and .cpp files). Many tasks keep their string information in
+XML (.xml) files.</p>
+<p>For example, to see how the <a class="reference internal" href="../tasks/phq9.html#phq9"><span class="std std-ref">PHQ-9</span></a> task works, look for <cite>phq9.h</cite>
+and <cite>phq9.cpp</cite> (client), <cite>phq9.py</cite> (server), and <cite>phq9.xml</cite> (strings).</p>
+<p>For the latest source code, see the CamCOPS GitHub repository <a class="footnote-reference" href="#github" id="id6">[4]</a>.</p>
+</div>
+<div class="section" id="help">
+<h2>5.10. Help<a class="headerlink" href="#help" title="Permalink to this headline">¶</a></h2>
+<p>Click “CamCOPS documentation” for this manual.</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">fix main menu “CamCOPS documentation” link</p>
+</div>
+</div>
+<div class="section" id="log-out">
+<h2>5.11. Log out<a class="headerlink" href="#log-out" title="Permalink to this headline">¶</a></h2>
+<p>Click “Log out” to end your CamCOPS session.</p>
+<p class="rubric">Footnotes</p>
+<table class="docutils footnote" frame="void" id="current" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>“Current” means that this download will skip historical versions of
+tasks that have been edited, and just provide the latest version.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="icd9cm" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td>ICD-9-CM diagnostic codes:
+<a class="reference external" href="https://en.wikipedia.org/wiki/List_of_ICD-9_codes_290%E2%80%93319:_mental_disorders">https://en.wikipedia.org/wiki/List_of_ICD-9_codes_290%E2%80%93319:_mental_disorders</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="sqlformat" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[3]</a></td><td>e.g. <a class="reference external" href="https://sqlformat.org/">https://sqlformat.org/</a>;
+<a class="reference external" href="https://www.freeformatter.com/sql-formatter.html">https://www.freeformatter.com/sql-formatter.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="github" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[4]</a></td><td><a class="reference external" href="https://github.com/RudolfCardinal/camcops">https://github.com/RudolfCardinal/camcops</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="crate" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[5]</a></td><td>For a software product that takes de-identification seriously, see e.g.
+CRATE, described in Cardinal RN (2017),
+<a class="reference external" href="https://doi.org/10.1186/s12911-017-0437-1">https://doi.org/10.1186/s12911-017-0437-1</a>, and available at
+<a class="reference external" href="https://github.com/RudolfCardinal/crate">https://github.com/RudolfCardinal/crate</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="databasenormalization" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[6]</a></td><td><a class="reference external" href="https://en.wikipedia.org/wiki/Database_normalization">https://en.wikipedia.org/wiki/Database_normalization</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/download.html">2. Downloading CamCOPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_installation.html">3. Installing and configuring the client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_using.html">4. Using the client</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Web site: general use</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#general-navigation">5.1. General navigation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#task-trackers-and-clinical-text-views">5.2. Task, trackers, and clinical text views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set-task-filters">5.3. Set task filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#view-tasks">5.4. View tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trackers-for-numerical-information">5.5. Trackers for numerical information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#clinical-text-views">5.6. Clinical text views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#research-views">5.7. Research views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reports">5.8. Reports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#introspection">5.9. Introspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#help">5.10. Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#log-out">5.11. Log out</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_by_category.html">6. Tasks in CamCOPS by category</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tasks_all.html">7. All tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/client_troubleshooting.html">8. Troubleshooting client problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_installation.html">9. Installing CamCOPS on the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_configuration.html">10. Configuring the server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_config_file.html">11. The CamCOPS server configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_front_end_admin.html">12. Web site: admin functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_command_line.html">13. CamCOPS server command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_troubleshooting.html">14. Troubleshooting server problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">15. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">16. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">19. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">21. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">22. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">23. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../client/client_using.html"
+                        title="previous chapter">4. Using the client</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../tasks/tasks_by_category.html"
+                        title="next chapter">6. Tasks in CamCOPS by category</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/server/server_front_end_general.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../tasks/tasks_by_category.html" title="6. Tasks in CamCOPS by category"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../client/client_using.html" title="4. Using the client"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2018, Rudolf Cardinal.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>
