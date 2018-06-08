@@ -90,7 +90,7 @@ from camcops_server.cc_modules.cc_alembic import (
 )  # nopep8
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
-    MANUAL_FILENAME_PDF,
+    DOCUMENTATION_INDEX_FILENAME,
 )  # nopep8
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.client_api  # import side effects (register unit test)  # nopep8
@@ -416,7 +416,7 @@ def serve_gunicorn(application: Router,
 # =============================================================================
 
 def launch_manual() -> None:
-    launch_external_file(MANUAL_FILENAME_PDF)
+    launch_external_file(DOCUMENTATION_INDEX_FILENAME)
 
 
 def print_demo_camcops_config() -> None:

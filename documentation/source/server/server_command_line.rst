@@ -30,8 +30,6 @@ camcops
 The `camcops` command is the main interface to the CamCOPS server.
 Options as of 2018-04-06 (output from `camcops --allhelp`):
 
-.. todo:: fix command-line "camcops docs" option to point to HTML docs
-
 .. code-block:: none
 
     usage: camcops [-h] [--allhelp] [--version]

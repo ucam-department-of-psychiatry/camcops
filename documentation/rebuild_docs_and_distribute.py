@@ -31,7 +31,7 @@ THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 CAMCOPS_ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
 BUILD_HTML_DIR = os.path.join(THIS_DIR, "build", "html")
 SERVER_DOCS_DIR = os.path.join(CAMCOPS_ROOT_DIR, "server", "camcops_server",
-                               "documentation_copy")
+                               "static", "documentation_copy")
 WEBSITE_DOCS_DIR = os.path.join(CAMCOPS_ROOT_DIR, "website", "documentation")
 
 DEST_DIRS = [

@@ -291,8 +291,6 @@ Help
 
 Click “CamCOPS documentation” for this manual.
 
-.. todo:: fix main menu “CamCOPS documentation” link
-
 Log out
 -------
 

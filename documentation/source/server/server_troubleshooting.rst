@@ -30,18 +30,6 @@ Web server errors from Apache
   security settings on files in the `DocumentRoot` tree are probably wrong. See
   above.
 
-- **Web server returns nothing informative; Apache error log is full WSGI
-  messages relating to its inability to create socket files.** See above
-  regarding `WSGISocketPrefix`.
-
-  .. include:: include_old_bug_defunct.rst
-
-- **Web server returns nothing informative; Apache error log is full of
-  messages saying “import site failed”.** The mod_wsgi configuration is
-  probably wrong. Run the ldd check above and reinstall mod_wsgi if necessary.
-
-  .. include:: include_old_bug_defunct.rst
-
 - **Operation (e.g. table upload) fails; Apache error log contains the message
   “client denied by server configuration”.** The Apache configuration file
   might be missing a section saying
@@ -63,11 +51,8 @@ Web server errors from Apache
   port 443. Do you have the VirtualHost section configured properly? Do you
   have `LoadModule ssl_module modules/mod_ssl.so`?
 
-- **Other Apache errors.** See /usr/share/camcops/instructions.txt, which has
-  specimen Apache config sections, and lists some other common misconfiguration
-  errors.
-
-.. todo:: **rewrite above**
+- **Other Apache errors.** See :ref:`front-end web server configuration
+  <configure_apache>`, which has specimen Apache config sections.
 
 Web server errors in general
 ----------------------------

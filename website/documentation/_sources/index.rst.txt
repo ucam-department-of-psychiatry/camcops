@@ -69,10 +69,6 @@ securely to your server.
     misc/local_info.rst
 
 
-.. todo:: make this documentation the main camcops.org front page
-
-
-
 Indices and tables
 ==================
 

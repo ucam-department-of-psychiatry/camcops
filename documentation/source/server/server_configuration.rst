@@ -309,6 +309,7 @@ above), by choosing the command you pass to `camcops`. For high-performance
 work under Linux, use Gunicorn, with the `serve_gunicorn` command; see the
 :ref:`options for the camcops command <camcops_cli>`.
 
+.. _configure_apache:
 
 Point the front-end web server to CamCOPS
 -----------------------------------------
