@@ -781,6 +781,7 @@ def set_password_directly(req: "CamcopsRequest",
                           username: str, password: str) -> bool:
     """
     If the user exists, set its password. Returns Boolean success.
+    Used from the command line.
     """
     dbsession = req.dbsession
     user = User.get_user_by_name(dbsession, username)

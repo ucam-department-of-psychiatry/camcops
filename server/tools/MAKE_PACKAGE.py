@@ -181,10 +181,11 @@ WRKDIR = join(TMPDIR, 'debian')
 RPMTOPDIR = join(TMPDIR, 'rpmbuild')
 
 SRCSERVERDIR = join(PROJECT_BASE_DIR, 'server')
+DOCROOTDIR = join(PROJECT_BASE_DIR, 'documentation')
 WEBDOCSDIR = join(PROJECT_BASE_DIR, 'website', 'documentation')
 PACKAGEDIR = join(SRCSERVERDIR, 'packagebuild')
 
-WEB_VERSION_FILES_DIR = join(WEBDOCSDIR, 'version')
+# WEB_VERSION_FILES_DIR = join(WEBDOCSDIR, 'version')
 
 DSTDOCDIR = join('/usr/share/doc', PACKAGE)
 WRKDOCDIR = workpath(WRKDIR, DSTDOCDIR)
@@ -443,7 +444,7 @@ log.info("Copying files")
 copyglob(join(SRCSERVERDIR, 'changelog.Debian'), WRKDOCDIR)
 subprocess.check_call(['gzip', '-n', '-9',
                        join(WRKDOCDIR, 'changelog.Debian')])
-copyglob(join(SRCSERVERDIR, 'changelog.Debian'), WEB_VERSION_FILES_DIR)
+# copyglob(join(SRCSERVERDIR, 'changelog.Debian'), WEB_VERSION_FILES_DIR)
 # ... for the web site
 
 copyglob(join(SRCTOOLDIR, VENVSCRIPT), WRKTOOLDIR)

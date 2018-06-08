@@ -21,7 +21,12 @@
 Design notes
 ============
 
-A few design decisions are documented here.
+A few design decisions are documented here. See also:
+
+- :ref:`Patient/subject identification <patient_identification>`
+
+- :ref:`Security design <security_design>`
+
 
 Client SQLCipher databases
 --------------------------
@@ -33,7 +38,8 @@ and `camcops_sys.sqlite`), stored in the device’s user-specific private area
 of a per-user private area. The ‘data’ database holds user data (patients,
 patient data) and the ‘sys’ database contains configuration information, stored
 strings, and the like. Both are encrypted with AES-256 via SQLCipher. They use
-the same passphrase for user convenience, but different encryption keys [#f1]_.
+the same passphrase for user convenience, but different encryption keys
+[#sqlcipher]_.
 
 The decision to use two databases rather than one is so that, in emergencies,
 the ‘data’ database can be processed (viewed, rescued) without the need to
@@ -64,4 +70,4 @@ https://github.com/RudolfCardinal/crate).
 
 .. rubric:: Footnotes
 
-.. [#f1] See https://www.zetetic.net/sqlcipher/design/
+.. [#sqlcipher] See https://www.zetetic.net/sqlcipher/design/

@@ -20,13 +20,97 @@
 Troubleshooting server problems
 ===============================
 
+.. todo:: **check this file for "see above"**
+
+Web server errors from Apache
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Web server returns “permission denied”-type messages; Apache error log is
+  full of file permission errors.** Ownerships, permissions, or SELinux
+  security settings on files in the `DocumentRoot` tree are probably wrong. See
+  above.
+
+- **Web server returns nothing informative; Apache error log is full WSGI
+  messages relating to its inability to create socket files.** See above
+  regarding `WSGISocketPrefix`.
+
+  .. include:: include_old_bug_defunct.rst
+
+- **Web server returns nothing informative; Apache error log is full of
+  messages saying “import site failed”.** The mod_wsgi configuration is
+  probably wrong. Run the ldd check above and reinstall mod_wsgi if necessary.
+
+  .. include:: include_old_bug_defunct.rst
+
+- **Operation (e.g. table upload) fails; Apache error log contains the message
+  “client denied by server configuration”.** The Apache configuration file
+  might be missing a section saying
+
+  .. code-block:: apacheconf
+
+    <Directory /usr/share/camcops/server>
+        # ...
+        <Files "database.py"> # CGI script for tablets to upload data
+            Allow from all
+        </Files>
+        # ...
+    </Directory>
+
+  .. include:: include_old_bug_defunct.rst
+
+- **SSL not working; Apache log contains “Invalid method in request
+  \x16\x03\x01”.** Misconfigured server; it is speaking unencrypted HTTP on
+  port 443. Do you have the VirtualHost section configured properly? Do you
+  have `LoadModule ssl_module modules/mod_ssl.so`?
+
+- **Other Apache errors.** See /usr/share/camcops/instructions.txt, which has
+  specimen Apache config sections, and lists some other common misconfiguration
+  errors.
+
+.. todo:: **rewrite above**
+
+Web server errors in general
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Web server returns content but says <class 'ConfigParser.NoSectionError'>:
+  No section: 'server'.** Unless the CamCOPS config files are broken, this
+  probably means that the `/etc/camcops/*` configuration files have the wrong
+  ownerships/permissions/SELinux security settings. See the `chown` and `chcon`
+  commands above. It’s also possible that the configuration files have been
+  damaged, or that the Apache configuration file is pointing to a non-existing
+  configuration file.
+
+- **I can log in, but then seem to be logged out again immediately.**
+  Is your browser correctly storing session cookies? Especially, are you trying
+  to run CamCOPS over a non-encrypted (HTTP) link? The session cookies are set
+  to secure and httponly for security reasons, and will not work without HTTPS.
+
+Tablet upload errors
+~~~~~~~~~~~~~~~~~~~~
+
+- **Tablet uploads fails with error including “(2006, 'MySQL server has gone
+  away')”. Apache log contains “OperationalError: (2006, 'MySQL server has gone
+  away')”.** CamCOPS takes care to ping the database connection, so it’s
+  unlikely that a connection has timed out. The probable cause is that the
+  relevant `max_allowed_packet` parameter is set too small; MySQL also generates
+  this error if the query is too big. You will need to edit the MySQL my.cnf
+  configuration file; see above. The most probable time to see this error is
+  when uploading the BLOB table (`blobs`).
+
+- **Tablet BLOB upload fails with error “Read timed out”.** Likely problem:
+  large BLOB (big photo), slow network. For example, in one of our tests a BLOB
+  took more than 17 s to upload, so the tablet needs to wait at least that long
+  after starting to send it. Increase the tablet’s network timeout (e.g. try
+  increasing from 5000 to 60000 ms) in :menuselection:`Settings --> Server
+  settings.`
+
 MySQL: “Too many connections”
 -----------------------------
 
 This error occurs if programs collectively attempt to open more connections to
-MySQL than the configured limit [#f1]_. The easiest way to make it happen in
-CamCOPS is to launch a web server with a very high maximum number of threads,
-in excess of the MySQL limit, and then work the web server hard.
+MySQL than the configured limit [#toomanyconnections]_. The easiest way to make
+it happen in CamCOPS is to launch a web server with a very high maximum number
+of threads, in excess of the MySQL limit, and then work the web server hard.
 
 Fix the problem by limiting the maximum number of threads/processes used by
 CamCOPS or by increasing the MySQL connection limit.
@@ -67,21 +151,22 @@ you can define the character set and collation.
 
 Character sets are supported for these things: *literal*, *column*, *table*,
 *database*, *server* — plus *client*, *connection* (though I think that’s the
-same as ‘literal’), *filesystem*, *results*, *system* [#f2]_. (Some don’t
-change: system, for storing identifiers, always UTF8 [#f3]_. Some we don’t need
-to care about: filesystem, for referring to filenames. The client one is for
-statements arriving from the client. The connection one is used for literals,
-and I have no idea why you might want this to be different from the client
-setting. The results one is the one that the server uses to return result sets
-or error messages. You can inspect some of these settings with `SHOW VARIABLES
-LIKE 'char%'`, and table-specific settings using `SHOW CREATE TABLE
-tablename`.)
+same as ‘literal’), *filesystem*, *results*, *system* [#charset]_. (Some don’t
+change: system, for storing identifiers, always UTF8 [#sysvars]_. Some we don’t
+need to care about: filesystem, for referring to filenames. The client one is
+for statements arriving from the client. The connection one is used for
+literals, and I have no idea why you might want this to be different from the
+client setting. The results one is the one that the server uses to return
+result sets or error messages. You can inspect some of these settings with
+`SHOW VARIABLES LIKE 'char%'`, and table-specific settings using `SHOW CREATE
+TABLE tablename`.)
 
 Collations are supported for the following (from greatest to least precedence):
-*query*, *column*, *table*, *database*, *connection*, *server* [#f4]_. (The
-connection collation is applicable for the comparison of literal strings. You
-can inspect the database/connection/server collations using `SHOW VARIABLES LIKE
-'collation%'`, and table-specific settings using `SHOW CREATE TABLE tablename`.)
+*query*, *column*, *table*, *database*, *connection*, *server* [#collations]_.
+(The connection collation is applicable for the comparison of literal strings.
+You can inspect the database/connection/server collations using `SHOW
+VARIABLES LIKE 'collation%'`, and table-specific settings using `SHOW CREATE
+TABLE tablename`.)
 
 How CamCOPS configures MySQL character sets and collations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,12 +174,13 @@ How CamCOPS configures MySQL character sets and collations
 CamCOPS (via SQLAlchemy) creates all MySQL tables using the ‘utf8mb4’ character
 set. This is MySQL’s “proper” 4-byte UTF8 character set. (The MySQL ‘utf8’
 character set uses up to 3 bytes per character and can’t store all characters
-[#f5]_.)
+[#utf8]_.)
 
 CamCOPS uses the ‘utf8mb4_unicode_ci’ collation, which uses the ‘utf8mb4’
-character set and implements the Unicode standard for sorting [#f6]_. The ‘_ci’
-suffix means “case insensitive”. CamCOPS sets the table collation when it
-creates tables, and then ignores collations for queries/columns.
+character set and implements the Unicode standard for sorting
+[#utf8mb4unicodeci]_. The ‘_ci’ suffix means “case insensitive”. CamCOPS sets
+the table collation when it creates tables, and then ignores collations for
+queries/columns.
 
 You can see what CamCOPS is doing easily from a running CamCOPS server, using
 the “Inspect table definitions” view. You’ll see table definitions like:
@@ -111,7 +197,7 @@ The problem that creates this error
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The underlying reason: a string comparison is occurring between columns with
-different collations and MySQL cannot resolve the conflict [#f7]_.
+different collations and MySQL cannot resolve the conflict [#mixofcollations]_.
 
 The CamCOPS reason: if you have a very old CamCOPS database, it might not have
 the table collations set properly. Pick some tables and use syntax like `SHOW
@@ -158,8 +244,8 @@ However, that doesn’t work, because the old tables and columns both still have
     SHOW TABLE STATUS;
     SHOW FULL COLUMNS FROM patient;
 
-So you have to go through all tables. To automate this [#f8]_, execute the
-following command to generate all the necessary SQL:
+So you have to go through all tables. To automate this [#changecollation]_,
+execute the following command to generate all the necessary SQL:
 
 .. code-block:: sql
 
@@ -187,22 +273,132 @@ This file (`bootstrap.min.css.map`) should be shipped with Deform, but isn’t.
 For now: don’t worry about it.
 
 
+Logo PNG with transparency crashes PDF generator
+------------------------------------------------
+
+.. include:: include_old_bug_defunct.rst
+
+*Problem*
+
+If your institutional logo PNG file contains a transparency layer, it will
+crash the xhtml2pdf PDF generator (as of 2015-02-05). The error looks like:
+
+.. code-block:: none
+
+     /usr/local/lib/python2.7/dist-packages/xhtml2pdf/xhtml2pdf_reportlab.py in getRGBData...
+        426                     self.mode = 'RGB'
+        427                 elif mode not in ('L', 'RGB', 'CMYK'):
+    =>  428                     im = im.convert('RGB')
+        429                     self.mode = 'RGB'
+        430                 self._data = im.tostring()
+    im = <PIL.PngImagePlugin.PngImageFile image mode=P size=590x118>, im.convert = <bound method PngImageFile.convert of <PIL.PngImagePlugin.PngImageFile image mode=P size=590x118>>
+
+     /usr/local/lib/python2.7/dist-packages/PIL/Image.py in convert(self=<PIL.PngImagePlugin.PngImageFile image mode=P size=590x118>, mode='RGB', matrix=None, dither=3, palette=0, colors=256)
+        808         if delete_trns:
+        809             #crash fail if we leave a bytes transparency in an rgb/l mode.
+    =>  810             del(new.info['transparency'])
+        811         if trns is not None:
+        812             if new_im.mode == 'P':
+    global new = <function new>, new.info undefined
+
+    <type 'exceptions.UnboundLocalError'>: local variable 'new' referenced before assignment
+          args = ("local variable 'new' referenced before assignment",)
+          message = "local variable 'new' referenced before assignment"
+
+*Solution 1*
+
+Remove the transparency layer. For example:
+
+- Load the file in GIMP;
+- :menuselection:`Layer --> Transparency --> Remove alpha channel`
+- Resave, e.g. with :menuselection:`File --> Overwrite…`
+
+*Solution 2*
+
+Use a newer version of CamCOPS; from server version 1.40, it uses wkhtmltopdf
+instead, which is also faster.
+
+.. _mysql_row_size_too_large:
+
+Uploading error: Row size too large (>8126)
+-------------------------------------------
+
+.. include:: include_old_bug_defunct.rst
+
+In full, the error was:
+
+.. code-block:: none
+
+    Uploading error: Operational error (1118). Row size too large (> 8126).
+    Changing some columns to TEXT or BLOB may help. In current row format, BLOB
+    prefix of 0 bytes is stored inline.
+
+This is a problem with some TEXT-heavy tables, e.g. `psychiatricclerking`.
+
+Best thing: change the table format.
+
+#. Edit the MySQL config file, e.g. `/etc/my.cnf`. In the `[mysqld]` section,
+   add the lines:
+
+   .. code-block:: none
+
+        innodb_file_per_table
+        innodb_file_format = Barracuda
+
+#. Restart MySQL.
+
+#. At the MySQL command line:
+
+   .. code-block:: sql
+
+        ALTER TABLE psychiatricclerking
+            ENGINE=InnoDB
+            ROW_FORMAT=COMPRESSED
+            KEY_BLOCK_SIZE=8;
+
+Another method to consider for MySQL versions before 5.7.5: making the MySQL
+log file bigger, e.g. 512 Mb.
+
+#. At the MySQL console: `SET GLOBAL innodb_fast_shutdown=0;`
+#. Stop MySQL.
+#. Edit the MySQL config file, e.g. `/etc/my.cnf`, and in the `[mysqld]`
+   section, add the line:
+
+   .. code-block:: none
+
+        innodb_log_file_size = 512M
+
+#. Delete the old log files, e.g. `/var/lib/mysql/ib_logfile0` and
+   `/var/lib/mysql/ib_logfile1`.
+#. Restart MySQL
+
+From CamCOPS v1.32, the server autoconverts tables to Barracuda when using the
+make-tables command, to avoid this problem.
+
+
 .. rubric:: Footnotes
 
-.. [#f1] https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html
+.. [#toomanyconnections]
+    https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html
 
-.. [#f2] https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html
+.. [#charset]
+    https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html
 
-.. [#f3] https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html
+.. [#sysvars]
+    https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html
 
-.. [#f4] https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation
+.. [#collations]
+    https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation
 
-.. [#f5] https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html
+.. [#utf8]
+    https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html
 
-.. [#f6] https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci
+.. [#utf8mb4unicodeci]
+    https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci
 
-.. [#f7] https://stackoverflow.com/questions/3029321/troubleshooting-illegal-mix-of-collations-error-in-mysql
+.. [#mixofcollations]
+    https://stackoverflow.com/questions/3029321/troubleshooting-illegal-mix-of-collations-error-in-mysql
 
-.. [#f8]
+.. [#changecollation]
    https://stackoverflow.com/questions/10859966/how-to-convert-all-tables-in-database-to-one-collation;
    https://stackoverflow.com/questions/1294117/how-to-change-collation-of-database-table-column

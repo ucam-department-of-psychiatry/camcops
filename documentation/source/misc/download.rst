@@ -29,3 +29,28 @@ Client downloads and server distributions are at
 The source code is at
 
 - https://github.com/RudolfCardinal/CamCOPS
+
+
+.. note::
+    If you are downloading the Android package directly to an Android tablet,
+    please be aware of the following browser bug:
+
+    - The default Android browser (“Browser”) may fail to download from
+      password-protected web sites (e.g. restricted CamCOPS downloads).
+      This is a known bug in Android [#androidbug]_.
+
+    - Download using another browser such as Chrome [#chrome]_ instead. Then
+      run File Manager (or similar), find the APK that you just downloaded
+      (try `/sdcard/Download`), and install it (e.g. “Complete action using:
+      Package Installer”).
+
+
+.. rubric:: Footnotes
+
+.. [#androidbug]
+    Android browser bug when using HTTP Basic Authentication:
+    https://code.google.com/p/android/issues/detail?id=1353;
+    http://stackoverflow.com/questions/17601647/apk-download-failure-if-behind-password-protected-site-on-stock-browser
+
+.. [#chrome]
+    https://play.google.com/store/apps/details?id=com.android.chrome

@@ -1490,7 +1490,7 @@ class UserGroupMembershipGroupAdminSchema(CSRFSchema):
     )
     may_run_reports = BooleanNode(  # match ViewParam.MAY_RUN_REPORTS and User attribute  # noqa
         default=False,
-        title="May run administrative reports",
+        title="May run reports",
     )
     may_add_notes = BooleanNode(  # match ViewParam.MAY_ADD_NOTES and User attribute  # noqa
         default=False,

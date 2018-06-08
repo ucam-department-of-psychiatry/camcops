@@ -19,6 +19,8 @@
 
 .. include:: include_tabletdefs.rst
 
+.. _client_using:
+
 Using the client
 ================
 
@@ -267,7 +269,7 @@ Seeing what you’ve uploaded
 ---------------------------
 
 Use any web browser (on a computer or tablet) to browse to your CamCOPS server.
-See the :ref:`web interface instructions <serverfrontend>` for more detail.
+See the :ref:`web interface instructions <website_general>` for more detail.
 
 Help
 ----

@@ -21,15 +21,20 @@
 Troubleshooting client problems
 ===============================
 
-Tablet BLOB upload fails with error “Read timed out”
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tablet upload fails with error “Read timed out”
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Likely problem: slow network, large BLOB (binary large object – e.g. a big photo). For example, in one of our tests a BLOB took more than 17 s to upload, so the tablet needs to wait at least that long after starting to send it. Increase the tablet’s network timeout (e.g. to 60000 ms or more) in Settings → Server settings.
+Likely problem: slow network, large BLOB (binary large object – e.g. a big
+photo). For example, in one of our tests a BLOB took more than 17 s to upload,
+so the tablet needs to wait at least that long after starting to send it.
+Increase the tablet’s network timeout (e.g. to 60000 ms or more) in Settings →
+Server settings.
 
 What if it crashes?
 ~~~~~~~~~~~~~~~~~~~
 
-This shouldn’t happen; please note down any error details and let us know! To forcibly stop and restart the app:
+This shouldn’t happen; please note down any error details and let us know! To
+forcibly stop and restart the app:
 
 *Android 4.3*
 

@@ -25,41 +25,13 @@ Groups
 CamCOPS assigns each uploaded task to one *group*. Groups have the following
 functions:
 
+- Groups help to define *access control*: what information can a user see?
+
 - A group has a pair of *ID policies*: what information about a subject/patient
   is required to (a) upload to the server, and (b) finalize that upload,
   clearing the data off the tablet?
 
-- Groups help to define *access control*: what information can a user see?
-
-Identification policies
------------------------
-
-First, please see :ref:`Patient Identification <patient_identification>`.
-
-Since different situations may require different identification policies,
-CamCOPS lets you configure this by group. Here are some contrasting scenarios:
-
-**Scenario 1: unitary ID policy**
-
-Imagine an institution that has a single centralized ID system (e.g. a hospital
-that only uses UK NHS numbers). It requires that all data conform to the
-principle that you must always use an NHS number. It also requires that you
-specify forename, surname, date of birth, and sex. You could create an ID
-number type 1 that you call “NHS number”, or “NHS” for short. All CamCOPS
-groups that you create might use this policy, both for uploading and finalizing
-information:
-
-.. code-block:: none
-
-    forename AND surname AND sex AND dob AND idnum1
-
-**Scenario 2: multiple pseudonymous studies**
-
-.. todo:: write scenario
-
-**Scenario 3: mixture of requirements**
-
-.. todo:: write scenario
+.. _group_access_control:
 
 Access control
 --------------
@@ -134,3 +106,103 @@ clinical ID number was required for the clinical, depression_crp_study, and
 depression_ketamine_study groups (and it would probably be optional for the
 healthy_development_study group, since that might involve non-patient volunteers
 who aren’t registered with the hospital).
+
+Identification policies
+-----------------------
+
+First, please see :ref:`Patient Identification <patient_identification>`.
+
+Since different situations may require different identification policies,
+CamCOPS lets you configure this by group. Here are some contrasting scenarios:
+
+**Scenario 1: unitary ID policy**
+
+Imagine an institution that has a single centralized ID system (e.g. a hospital
+that only uses UK NHS numbers). It requires that all data conform to the
+principle that you must always use an NHS number. It also requires that you
+specify forename, surname, date of birth, and sex. You could create an ID
+number type 1 that you call “NHS number”, or “NHS” for short. All CamCOPS
+groups that you create might use these policies:
+
+.. code-block:: none
+
+    Upload and finalize:
+
+        forename AND surname AND sex AND dob AND idnum1
+
+**Scenario 2: multiple pseudonymous studies**
+
+Suppose a University CamCOPS site is hosting multiple independent studies. Its
+ID numbers might look like this:
+
+=========   =========================================  =================
+ID number   Description                                Short description
+=========   =========================================  =================
+1           MRI of adolescent development study ID     MRIAD
+2           MEG of hallucinations study ID             MEGHAL
+3           Affective trajectory of painters study ID  MOODPAINT
+=========   =========================================  =================
+
+Then a hypothetical mri_ad group might have these policies
+
+.. code-block:: none
+
+    Upload and finalize:
+
+        sex AND idnum1
+
+while the meg_hal group has these:
+
+.. code-block:: none
+
+    Upload and finalize:
+
+        sex AND idnum2
+
+... and so on. Each study requires its own study-specific ID but does not
+require subjects to be identified in other ways.
+
+**Scenario 3: mixture of requirements**
+
+Let’s use the hospital scenario above. We might have the following ID number
+types:
+
+=========   =========================================  =================
+ID number   Description                                Short description
+=========   =========================================  =================
+1           Hospital number                            H
+2           NHS number                                 NHS
+3           Research Healthy Development Study number  ResHealthyDev
+=========   =========================================  =================
+
+The hospital might want all studies involving patients to have fully
+identifiable information, so the clinical, depression_crp_study, and
+depression_ketamine_study groups might all have the following ID policies:
+
+.. code-block:: none
+
+    Upload:
+
+        forename AND surname AND dob AND sex AND (idnum1 OR idnum2)
+
+    Finalize:
+
+        forename AND surname AND dob AND sex AND idnum1 AND idnum2
+
+The difference between uploading and finalizing allows clinicians some leeway
+by allowing them to fetch NHS numbers later.
+
+In contrast, the healthy_development_study might involve volunteers who might
+not have a hospital number, and don’t need to know their NHS number, but can
+provide it if they wish and consent to have their research records cross-linked
+to their hospital or other NHS records. That group might have these policies:
+
+.. code-block:: none
+
+    Upload:
+
+        sex AND idnum3
+
+    Finalize:
+
+        sex AND idnum3

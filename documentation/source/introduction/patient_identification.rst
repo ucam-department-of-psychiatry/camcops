@@ -116,6 +116,7 @@ might use the following IDs:
 
 =========   =============================   =================
 ID number   Description                     Short description
+=========   =============================   =================
 1           CPFT RiO number                 CPFT RiO
 2           NHS number                      NHS
 3           CPFT M number                   CPFT M
@@ -212,7 +213,7 @@ The tablet’s internal minimum identification policy, which is fixed, is:
 
 .. code-block:: none
 
-    sex and ((forename AND surname AND dob) OR anyidnum)
+    sex AND ((forename AND surname AND dob) OR anyidnum)
 
 This allows either a named (forename, surname, DOB, sex) or an
 anonymous/pseudonym-based system for research (sex plus one ID number), or any

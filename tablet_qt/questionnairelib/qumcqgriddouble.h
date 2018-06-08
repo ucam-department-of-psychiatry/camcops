@@ -52,6 +52,7 @@ public:
     QuMcqGridDouble* setTitle(const QString& title);
     QuMcqGridDouble* setSubtitles(const QVector<McqGridSubtitle>& subtitles);
     QuMcqGridDouble* setExpand(bool expand);
+    QuMcqGridDouble* setStripy(bool stripy);
     QuMcqGridDouble* setStems(const QString& stem1, const QString& stem2);
 protected:
     void setFromFields();
@@ -74,6 +75,7 @@ protected:
     QString m_title;
     QVector<McqGridSubtitle> m_subtitles;
     bool m_expand;
+    bool m_stripy;
     QString m_stem1;
     QString m_stem2;
 

@@ -17,14 +17,20 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _server_command_line_tools:
+
 CamCOPS server command-line tools
 =================================
+
+.. _camcops_cli:
 
 camcops
 -------
 
 The `camcops` command is the main interface to the CamCOPS server.
 Options as of 2018-04-06 (output from `camcops --allhelp`):
+
+.. todo:: fix command-line "camcops docs" option to point to HTML docs
 
 .. code-block:: none
 
@@ -697,6 +703,8 @@ Options as of 2018-04-06 (output from `camcops --allhelp`):
                             as WSGI variables are rewritten. (default: False)
       --debug_toolbar       Enable the Pyramid debug toolbar (default: False)
 
+
+.. _camcops_meta:
 
 camcops_meta
 ------------

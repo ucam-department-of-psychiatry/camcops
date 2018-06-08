@@ -32,7 +32,8 @@ QuMcqGrid::QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
     m_question_field_pairs(question_field_pairs),
     m_options(options),
     m_question_width(-1),
-    m_expand(false)
+    m_expand(false),
+    m_stripy(true)
 {
     m_options.validateOrDie();
     // each QuestionWithOneField will have asserted on construction
@@ -88,6 +89,13 @@ QuMcqGrid* QuMcqGrid::setSubtitles(const QVector<McqGridSubtitle>& subtitles)
 QuMcqGrid* QuMcqGrid::setExpand(const bool expand)
 {
     m_expand = expand;
+    return this;
+}
+
+
+QuMcqGrid* QuMcqGrid::setStripy(const bool stripy)
+{
+    m_stripy = stripy;
     return this;
 }
 
@@ -168,6 +176,10 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
                 }
                 ++row;  // new row after subtitle
             }
+        }
+
+        if (m_stripy) {
+            mcqfunc::addStripeBackground(grid, row, 0, n_cols);
         }
 
         // The question

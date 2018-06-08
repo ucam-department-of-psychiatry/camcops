@@ -55,6 +55,9 @@ Client core
 
 - Think about a web-based client, e.g. via VNC.
 
+- Validator options, e.g. the server says "ID type 72 uses the 'NHS number'
+  validator", so checksums are checked.
+
 Server
 ------
 

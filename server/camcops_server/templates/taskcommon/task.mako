@@ -160,50 +160,90 @@ ${ task.get_task_html(req) }
 
 %if viewtype == ViewArg.HTML:
 
-    ## Link to XML version
-
     <div class="office">
-        <a href="${ req.route_url(
-                        Routes.TASK,
-                        _query={
-                            ViewParam.TABLE_NAME: task.tablename,
-                            ViewParam.SERVER_PK: task._pk,
-                            ViewParam.VIEWTYPE: ViewArg.XML,
-                        }) }">View raw data as XML</a>
-    </div>
 
-    ## Superuser options
-    <div class="superuser">
-        ## check this collapses to zero height with no content!
-        %if req.user.authorized_to_add_special_note(task._group_id):
-            <p><a href="${ req.route_url(
-                        Routes.ADD_SPECIAL_NOTE,
-                        _query={
-                            ViewParam.TABLE_NAME: task.tablename,
-                            ViewParam.SERVER_PK: task._pk,
-                        }) }">Apply special note</a></p>
-        %endif
-        %if req.user.may_administer_group(task._group_id):
-            %if task.has_patient and task.patient and task.patient.is_editable:
-                <p><a href="${ req.route_url(
-                            Routes.EDIT_PATIENT,
-                            _query={
-                                ViewParam.SERVER_PK: task.patient._pk
-                            }) }">Edit patient details</a></p>
-            %endif
-        %endif
-        %if req.user.authorized_to_erase_tasks(task._group_id):
-            %if not task.is_erased() and task._era != ERA_NOW:
-                ## Note: prohibit manual erasure for non-finalized tasks.
-                <p><a href="${ req.route_url(
-                            Routes.ERASE_TASK,
+        ## Link to XML version (which is always identifiable)
+
+        %if not anonymise:
+            <p>
+                <a href="${ req.route_url(
+                            Routes.TASK,
                             _query={
                                 ViewParam.TABLE_NAME: task.tablename,
                                 ViewParam.SERVER_PK: task._pk,
-                            }) }">Erase task instance</a></p>
-            %endif
+                                ViewParam.VIEWTYPE: ViewArg.XML,
+                            }) }">View raw data as XML</a>
+            </p>
         %endif
+
+        ## Link to anonymous version (or back to identifiable):
+
+        <p>
+            %if anonymise:
+                <a href="${ req.route_url(
+                                Routes.TASK,
+                                _query={
+                                    ViewParam.TABLE_NAME: task.tablename,
+                                    ViewParam.SERVER_PK: task._pk,
+                                    ViewParam.VIEWTYPE: ViewArg.HTML,
+                                }) }">View identifiable version</a>
+            %else:
+                View anonymised version:
+                <a href="${ req.route_url(
+                                Routes.TASK,
+                                _query={
+                                    ViewParam.TABLE_NAME: task.tablename,
+                                    ViewParam.SERVER_PK: task._pk,
+                                    ViewParam.VIEWTYPE: ViewArg.HTML,
+                                    ViewParam.ANONYMISE: True,
+                                }) }">HTML</a>
+                |
+                <a href="${ req.route_url(
+                                Routes.TASK,
+                                _query={
+                                    ViewParam.TABLE_NAME: task.tablename,
+                                    ViewParam.SERVER_PK: task._pk,
+                                    ViewParam.VIEWTYPE: ViewArg.PDF,
+                                    ViewParam.ANONYMISE: True,
+                                }) }">PDF</a>
+            %endif
+        </p>
     </div>
+
+    ## Superuser options
+    %if not anonymise:
+        <div class="superuser">
+            ## check this collapses to zero height with no content!
+            %if req.user.authorized_to_add_special_note(task._group_id):
+                <p><a href="${ req.route_url(
+                            Routes.ADD_SPECIAL_NOTE,
+                            _query={
+                                ViewParam.TABLE_NAME: task.tablename,
+                                ViewParam.SERVER_PK: task._pk,
+                            }) }">Apply special note</a></p>
+            %endif
+            %if req.user.may_administer_group(task._group_id):
+                %if task.has_patient and task.patient and task.patient.is_editable:
+                    <p><a href="${ req.route_url(
+                                Routes.EDIT_PATIENT,
+                                _query={
+                                    ViewParam.SERVER_PK: task.patient._pk
+                                }) }">Edit patient details</a></p>
+                %endif
+            %endif
+            %if req.user.authorized_to_erase_tasks(task._group_id):
+                %if not task.is_erased() and task._era != ERA_NOW:
+                    ## Note: prohibit manual erasure for non-finalized tasks.
+                    <p><a href="${ req.route_url(
+                                Routes.ERASE_TASK,
+                                _query={
+                                    ViewParam.TABLE_NAME: task.tablename,
+                                    ViewParam.SERVER_PK: task._pk,
+                                }) }">Erase task instance</a></p>
+                %endif
+            %endif
+        </div>
+    %endif
 
     ## Links to predecessor / successor / PDF
 
@@ -236,15 +276,23 @@ ${ task.get_task_html(req) }
 
         ## Link to PDF version
         <p>
-            <a href="${ req.route_url(
-                Routes.TASK,
-                _query={
-                    ViewParam.TABLE_NAME: task.tablename,
-                    ViewParam.SERVER_PK: task._pk,
-                    ViewParam.VIEWTYPE: ViewArg.PDF,
-                }) }">View PDF for printing/saving</a>
             %if anonymise:
-                (WITH patient identity)
+                <a href="${ req.route_url(
+                    Routes.TASK,
+                    _query={
+                        ViewParam.TABLE_NAME: task.tablename,
+                        ViewParam.SERVER_PK: task._pk,
+                        ViewParam.VIEWTYPE: ViewArg.PDF,
+                        ViewParam.ANONYMISE: True,
+                    }) }">View anonymised PDF</a>
+            %else:
+                <a href="${ req.route_url(
+                    Routes.TASK,
+                    _query={
+                        ViewParam.TABLE_NAME: task.tablename,
+                        ViewParam.SERVER_PK: task._pk,
+                        ViewParam.VIEWTYPE: ViewArg.PDF,
+                    }) }">View PDF for printing/saving</a>
             %endif
         </p>
     </div>

@@ -51,7 +51,6 @@
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
-#include "core/camcopsversion.h"
 #include "core/networkmanager.h"
 #include "crypto/cryptofunc.h"
 #include "db/ancillaryfunc.h"
@@ -83,6 +82,7 @@
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "tasklib/inittasks.h"
+#include "version/camcopsversion.h"
 
 #ifdef USE_SQLCIPHER
 #include "db/sqlcipherdriver.h"

@@ -34,7 +34,6 @@
 #include <QUrlQuery>
 #include "common/varconst.h"
 #include "core/camcopsapp.h"
-#include "core/camcopsversion.h"
 #include "db/dbnestabletransaction.h"
 #include "dbobjects/idnumdescription.h"
 #include "dbobjects/patientidnum.h"
@@ -48,6 +47,7 @@
 #include "lib/uifunc.h"
 #include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
+#include "version/camcopsversion.h"
 
 using dbfunc::delimit;
 

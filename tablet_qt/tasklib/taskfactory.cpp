@@ -22,11 +22,11 @@
 #include "taskfactory.h"
 #include <algorithm>
 #include "core/camcopsapp.h"
-#include "core/camcopsversion.h"
 #include "lib/comparers.h"
 #include "lib/version.h"
 #include "tasklib/task.h"
 #include "tasklib/tasksorter.h"
+#include "version/camcopsversion.h"
 
 
 // ===========================================================================

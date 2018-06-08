@@ -144,9 +144,9 @@ Permissions to Rudolf Cardinal, 2013-08-01.
 
 - Original: Dubois et al. (2000), http://www.ncbi.nlm.nih.gov/pubmed/11113214.
 - Low scores are worse. In patients with early dementia (MMSE > 24), a cutoff
-  score of FAB ≤ 12 [#f1]_ can differentiate frontotemporal dementia from
-  Alzheimer's disease (sensitivity for FTD 77%, specificy 87%; Slachevksy et
-  al. 2004, www.ncbi.nlm.nih.gov/pubmed/15262742).
+  score of FAB ≤ 12 [#fabcutoff]_ can differentiate frontotemporal dementia
+  from Alzheimer's disease (sensitivity for FTD 77%, specificy 87%; Slachevksy
+  et al. 2004, www.ncbi.nlm.nih.gov/pubmed/15262742).
 
 - AAN = American Academy of Neurology. *Neurology* journal published by LWW and
   permissions requests directed to them.
@@ -258,4 +258,5 @@ communication, José Maldonado to Rudolf Cardinal, 2013-08-01).
 
 .. rubric:: Footnotes
 
-.. [#f1] I think: the phrase is "a cutoff of 12", which is somewhat ambiguous!
+.. [#fabcutoff]
+    I think: the phrase is "a cutoff of 12", which is somewhat ambiguous!

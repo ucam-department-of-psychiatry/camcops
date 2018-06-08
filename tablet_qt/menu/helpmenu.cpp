@@ -25,7 +25,6 @@
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/urlconst.h"
-#include "core/camcopsversion.h"
 #include "db/databasemanager.h"
 #include "db/dbfunc.h"
 #include "db/whichdb.h"
@@ -36,6 +35,7 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "tasks/demoquestionnaire.h"
+#include "version/camcopsversion.h"
 
 
 HelpMenu::HelpMenu(CamcopsApp& app) :

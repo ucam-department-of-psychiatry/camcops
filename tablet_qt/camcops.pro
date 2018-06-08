@@ -394,19 +394,21 @@ RESOURCES += \
 SOURCES += main.cpp \
     common/appstrings.cpp \
     common/cssconst.cpp \
+    common/dbconst.cpp \
     common/globals.cpp \
     common/platform.cpp \
     common/textconst.cpp \
     common/uiconst.cpp \
+    common/urlconst.cpp \
     common/varconst.cpp \
     common/widgetconst.cpp \
     core/camcopsapp.cpp \
-    core/camcopsversion.cpp \
     core/networkmanager.cpp \
     crypto/cryptofunc.cpp \
     crypto/secureqbytearray.cpp \
     crypto/secureqstring.cpp \
     db/ancillaryfunc.cpp \
+    db/blobfieldref.cpp \
     db/databasemanager.cpp \
     db/databaseobject.cpp \
     db/databaseworkerthread.cpp \
@@ -417,11 +419,6 @@ SOURCES += main.cpp \
     db/field.cpp \
     db/fieldcreationplan.cpp \
     db/fieldref.cpp \
-    dbobjects/blob.cpp \
-    dbobjects/extrastring.cpp \
-    dbobjects/patient.cpp \
-    dbobjects/patientsorter.cpp \
-    dbobjects/storedvar.cpp \
     db/queryresult.cpp \
     db/sqlargs.cpp \
     db/sqlcachedresult.cpp \
@@ -432,6 +429,15 @@ SOURCES += main.cpp \
     db/threadedqueryrequest.cpp \
     db/whereconditions.cpp \
     db/whichdb.cpp \
+    dbobjects/allowedservertable.cpp \
+    dbobjects/blob.cpp \
+    dbobjects/extrastring.cpp \
+    dbobjects/idnumdescription.cpp \
+    dbobjects/patient.cpp \
+    dbobjects/patientidnum.cpp \
+    dbobjects/patientidnumsorter.cpp \
+    dbobjects/patientsorter.cpp \
+    dbobjects/storedvar.cpp \
     diagnosis/diagnosissortfiltermodel.cpp \
     diagnosis/diagnosticcode.cpp \
     diagnosis/diagnosticcodeset.cpp \
@@ -509,13 +515,6 @@ SOURCES += main.cpp \
     menu/executivemenu.cpp \
     menu/globalmenu.cpp \
     menu/helpmenu.cpp \
-    menulib/choosepatientmenuitem.cpp \
-    menulib/htmlinfowindow.cpp \
-    menulib/htmlmenuitem.cpp \
-    menulib/menuheader.cpp \
-    menulib/menuitem.cpp \
-    menulib/menuwindow.cpp \
-    menulib/taskmenuitem.cpp \
     menu/mainmenu.cpp \
     menu/patientsummarymenu.cpp \
     menu/personalitymenu.cpp \
@@ -531,6 +530,16 @@ SOURCES += main.cpp \
     menu/testmenu.cpp \
     menu/whiskermenu.cpp \
     menu/widgettestmenu.cpp \
+    menulib/choosepatientmenuitem.cpp \
+    menulib/htmlinfowindow.cpp \
+    menulib/htmlmenuitem.cpp \
+    menulib/menuheader.cpp \
+    menulib/menuitem.cpp \
+    menulib/menuwindow.cpp \
+    menulib/taskmenuitem.cpp \
+    menulib/urlmenuitem.cpp \
+    qobjects/cameraframegrabber.cpp \
+    qobjects/debugeventwatcher.cpp \
     qobjects/flickcharm.cpp \
     qobjects/focuswatcher.cpp \
     qobjects/keypresswatcher.cpp \
@@ -604,8 +613,8 @@ SOURCES += main.cpp \
     tasklib/tasksorter.cpp \
     tasks/ace3.cpp \
     tasks/aims.cpp \
-    tasks/auditc.cpp \
     tasks/audit.cpp \
+    tasks/auditc.cpp \
     tasks/badls.cpp \
     tasks/bdi.cpp \
     tasks/bmi.cpp \
@@ -647,11 +656,11 @@ SOURCES += main.cpp \
     tasks/hads.cpp \
     tasks/hadsrespondent.cpp \
     tasks/hama.cpp \
-    tasks/hamd7.cpp \
     tasks/hamd.cpp \
+    tasks/hamd7.cpp \
+    tasks/honos.cpp \
     tasks/honos65.cpp \
     tasks/honosca.cpp \
-    tasks/honos.cpp \
     tasks/icd10depressive.cpp \
     tasks/icd10manic.cpp \
     tasks/icd10mixed.cpp \
@@ -708,16 +717,20 @@ SOURCES += main.cpp \
     taskxtra/pclcommon.cpp \
     taskxtra/photosequencephoto.cpp \
     taskxtra/satisfactioncommon.cpp \
+    version/camcopsversion.cpp \
     widgets/adjustablepie.cpp \
     widgets/aspectratiopixmap.cpp \
     widgets/basewidget.cpp \
     widgets/booleanwidget.cpp \
+    widgets/cameraqcamera.cpp \
+    widgets/cameraqml.cpp \
     widgets/canvaswidget.cpp \
     widgets/clickablelabelnowrap.cpp \
     widgets/clickablelabelwordwrapwide.cpp \
     widgets/diagnosticcodeselector.cpp \
     widgets/fixedareahfwtestwidget.cpp \
     widgets/graphicsrectitemclickable.cpp \
+    widgets/growingplaintextedit.cpp \
     widgets/growingtextedit.cpp \
     widgets/heightforwidthlistwidget.cpp \
     widgets/horizontalline.cpp \
@@ -728,47 +741,36 @@ SOURCES += main.cpp \
     widgets/spacer.cpp \
     widgets/svgwidgetclickable.cpp \
     widgets/tickslider.cpp \
-    widgets/verticalline.cpp \
-    widgets/verticalscrollarea.cpp \
-    widgets/verticalscrollareaviewport.cpp \
-    qobjects/debugeventwatcher.cpp \
-    qobjects/cameraframegrabber.cpp \
-    widgets/cameraqcamera.cpp \
-    widgets/cameraqml.cpp \
-    db/blobfieldref.cpp \
-    dbobjects/patientidnum.cpp \
-    dbobjects/idnumdescription.cpp \
-    common/dbconst.cpp \
-    dbobjects/patientidnumsorter.cpp \
     widgets/treeviewcontroldelegate.cpp \
     widgets/treeviewproxystyle.cpp \
-    widgets/growingplaintextedit.cpp \
-    dbobjects/allowedservertable.cpp \
-    menulib/urlmenuitem.cpp \
-    common/urlconst.cpp
+    widgets/verticalline.cpp \
+    widgets/verticalscrollarea.cpp \
+    widgets/verticalscrollareaviewport.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
     common/aliases_qt.h \
     common/appstrings.h \
+    common/colourdefs.h \
     common/cssconst.h \
+    common/dbconst.h \
     common/design_defines.h \
     common/globals.h \
     common/gui_defines.h \
-    layouts/layouts.h \
     common/platform.h \
     common/textconst.h \
     common/uiconst.h \
+    common/urlconst.h \
     common/varconst.h \
     common/widgetconst.h \
     core/camcopsapp.h \
-    core/camcopsversion.h \
     core/networkmanager.h \
     crypto/cryptofunc.h \
     crypto/secureqbytearray.h \
     crypto/secureqstring.h \
     crypto/zallocator.h \
     db/ancillaryfunc.h \
+    db/blobfieldref.h \
     db/databasemanager.h \
     db/databaseobject.h \
     db/databaseworkerthread.h \
@@ -776,14 +778,9 @@ HEADERS += \
     db/dbnestabletransaction.h \
     db/dbtransaction.h \
     db/dumpsql.h \
-    db/fieldcreationplan.h \
     db/field.h \
+    db/fieldcreationplan.h \
     db/fieldref.h \
-    dbobjects/blob.h \
-    dbobjects/extrastring.h \
-    dbobjects/patient.h \
-    dbobjects/patientsorter.h \
-    dbobjects/storedvar.h \
     db/queryresult.h \
     db/sqlargs.h \
     db/sqlcachedresult.h \
@@ -794,6 +791,15 @@ HEADERS += \
     db/threadedqueryrequest.h \
     db/whereconditions.h \
     db/whichdb.h \
+    dbobjects/allowedservertable.h \
+    dbobjects/blob.h \
+    dbobjects/extrastring.h \
+    dbobjects/idnumdescription.h \
+    dbobjects/patient.h \
+    dbobjects/patientidnum.h \
+    dbobjects/patientidnumsorter.h \
+    dbobjects/patientsorter.h \
+    dbobjects/storedvar.h \
     diagnosis/diagnosissortfiltermodel.h \
     diagnosis/diagnosticcode.h \
     diagnosis/diagnosticcodeset.h \
@@ -823,6 +829,7 @@ HEADERS += \
     layouts/flowlayouthfw.h \
     layouts/gridlayouthfw.h \
     layouts/hboxlayouthfw.h \
+    layouts/layouts.h \
     layouts/qtlayouthelpers.h \
     layouts/vboxlayouthfw.h \
     lib/cloneable.h \
@@ -854,6 +861,7 @@ HEADERS += \
     maths/eigenfunc.h \
     maths/endian.h \
     maths/floatbits.h \
+    maths/floatingpoint.h \
     maths/glm.h \
     maths/ieee754.h \
     maths/linkfunctionfamily.h \
@@ -874,14 +882,6 @@ HEADERS += \
     menu/executivemenu.h \
     menu/globalmenu.h \
     menu/helpmenu.h \
-    menulib/choosepatientmenuitem.h \
-    menulib/htmlinfowindow.h \
-    menulib/htmlmenuitem.h \
-    menulib/menuheader.h \
-    menulib/menuitem.h \
-    menulib/menuproxy.h \
-    menulib/menuwindow.h \
-    menulib/taskmenuitem.h \
     menu/mainmenu.h \
     menu/patientsummarymenu.h \
     menu/personalitymenu.h \
@@ -897,6 +897,17 @@ HEADERS += \
     menu/testmenu.h \
     menu/whiskermenu.h \
     menu/widgettestmenu.h \
+    menulib/choosepatientmenuitem.h \
+    menulib/htmlinfowindow.h \
+    menulib/htmlmenuitem.h \
+    menulib/menuheader.h \
+    menulib/menuitem.h \
+    menulib/menuproxy.h \
+    menulib/menuwindow.h \
+    menulib/taskmenuitem.h \
+    menulib/urlmenuitem.h \
+    qobjects/cameraframegrabber.h \
+    qobjects/debugeventwatcher.h \
     qobjects/flickcharm.h \
     qobjects/focuswatcher.h \
     qobjects/keypresswatcher.h \
@@ -924,8 +935,8 @@ HEADERS += \
     questionnairelib/qudatetime.h \
     questionnairelib/qudiagnosticcode.h \
     questionnairelib/quelement.h \
-    questionnairelib/questionnairefunc.h \
     questionnairelib/questionnaire.h \
+    questionnairelib/questionnairefunc.h \
     questionnairelib/questionnaireheader.h \
     questionnairelib/questionwithonefield.h \
     questionnairelib/questionwithtwofields.h \
@@ -936,18 +947,18 @@ HEADERS += \
     questionnairelib/quhorizontalcontainer.h \
     questionnairelib/quhorizontalline.h \
     questionnairelib/quimage.h \
-    questionnairelib/qulineeditdouble.h \
     questionnairelib/qulineedit.h \
+    questionnairelib/qulineeditdouble.h \
     questionnairelib/qulineeditinteger.h \
     questionnairelib/qulineeditlonglong.h \
     questionnairelib/qulineeditulonglong.h \
+    questionnairelib/qumcq.h \
+    questionnairelib/qumcqgrid.h \
     questionnairelib/qumcqgriddouble.h \
     questionnairelib/qumcqgriddoublesignaller.h \
-    questionnairelib/qumcqgrid.h \
     questionnairelib/qumcqgridsignaller.h \
     questionnairelib/qumcqgridsingleboolean.h \
     questionnairelib/qumcqgridsinglebooleansignaller.h \
-    questionnairelib/qumcq.h \
     questionnairelib/qumultipleresponse.h \
     questionnairelib/qupage.h \
     questionnairelib/quphoto.h \
@@ -957,26 +968,26 @@ HEADERS += \
     questionnairelib/quspacer.h \
     questionnairelib/quspinboxdouble.h \
     questionnairelib/quspinboxinteger.h \
-    questionnairelib/qutextedit.h \
     questionnairelib/qutext.h \
+    questionnairelib/qutextedit.h \
     questionnairelib/quthermometer.h \
     questionnairelib/quthermometeritem.h \
     questionnairelib/quverticalcontainer.h \
     tasklib/inittasks.h \
-    tasklib/taskfactory.h \
     tasklib/task.h \
+    tasklib/taskfactory.h \
     tasklib/taskproxy.h \
     tasklib/taskregistrar.h \
     tasklib/tasksorter.h \
     tasks/ace3.h \
     tasks/aims.h \
-    tasks/auditc.h \
     tasks/audit.h \
+    tasks/auditc.h \
     tasks/badls.h \
     tasks/bdi.h \
     tasks/bmi.h \
-    tasks/bprse.h \
     tasks/bprs.h \
+    tasks/bprse.h \
     tasks/cage.h \
     tasks/cape42.h \
     tasks/caps.h \
@@ -1013,11 +1024,11 @@ HEADERS += \
     tasks/hads.h \
     tasks/hadsrespondent.h \
     tasks/hama.h \
-    tasks/hamd7.h \
     tasks/hamd.h \
+    tasks/hamd7.h \
+    tasks/honos.h \
     tasks/honos65.h \
     tasks/honosca.h \
-    tasks/honos.h \
     tasks/icd10depressive.h \
     tasks/icd10manic.h \
     tasks/icd10mixed.h \
@@ -1062,8 +1073,8 @@ HEADERS += \
     taskxtra/cardinalexpdetcommon.h \
     taskxtra/cardinalexpdetrating.h \
     taskxtra/cardinalexpdetthresholdtrial.h \
-    taskxtra/cardinalexpdettrialgroupspec.h \
     taskxtra/cardinalexpdettrial.h \
+    taskxtra/cardinalexpdettrialgroupspec.h \
     taskxtra/diagnosisicd10item.h \
     taskxtra/diagnosisicd9cmitem.h \
     taskxtra/diagnosisitembase.h \
@@ -1074,16 +1085,20 @@ HEADERS += \
     taskxtra/pclcommon.h \
     taskxtra/photosequencephoto.h \
     taskxtra/satisfactioncommon.h \
+    version/camcopsversion.h \
     widgets/adjustablepie.h \
     widgets/aspectratiopixmap.h \
     widgets/basewidget.h \
     widgets/booleanwidget.h \
+    widgets/cameraqcamera.h \
+    widgets/cameraqml.h \
     widgets/canvaswidget.h \
     widgets/clickablelabelnowrap.h \
     widgets/clickablelabelwordwrapwide.h \
     widgets/diagnosticcodeselector.h \
     widgets/fixedareahfwtestwidget.h \
     widgets/graphicsrectitemclickable.h \
+    widgets/growingplaintextedit.h \
     widgets/growingtextedit.h \
     widgets/heightforwidthlistwidget.h \
     widgets/horizontalline.h \
@@ -1094,39 +1109,25 @@ HEADERS += \
     widgets/spacer.h \
     widgets/svgwidgetclickable.h \
     widgets/tickslider.h \
+    widgets/treeviewcontroldelegate.h \
+    widgets/treeviewproxystyle.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
     widgets/verticalscrollareaviewport.h \
-    qobjects/debugeventwatcher.h \
-    qobjects/cameraframegrabber.h \
-    widgets/cameraqcamera.h \
-    widgets/cameraqml.h \
-    db/blobfieldref.h \
-    maths/floatingpoint.h \
-    dbobjects/patientidnum.h \
-    dbobjects/idnumdescription.h \
-    common/dbconst.h \
-    dbobjects/patientidnumsorter.h \
-    widgets/treeviewcontroldelegate.h \
-    widgets/treeviewproxystyle.h \
-    widgets/growingplaintextedit.h \
-    dbobjects/allowedservertable.h \
-    common/colourdefs.h \
-    menulib/urlmenuitem.h \
-    common/urlconst.h
 
 DISTFILES += \
+    LICENSE.txt \
     android/AndroidManifest.xml \
     android/build.gradle \
-    android/gradlew \
-    android/gradlew.bat \
     android/gradle/wrapper/gradle-wrapper.jar \
     android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew \
+    android/gradlew.bat \
     android/res/drawable-ldpi/icon.png \
     android/res/values/libs.xml \
     images/dt/dt_sel_0.png \
-    images/dt/dt_sel_10.png \
     images/dt/dt_sel_1.png \
+    images/dt/dt_sel_10.png \
     images/dt/dt_sel_2.png \
     images/dt/dt_sel_3.png \
     images/dt/dt_sel_4.png \
@@ -1136,8 +1137,8 @@ DISTFILES += \
     images/dt/dt_sel_8.png \
     images/dt/dt_sel_9.png \
     images/dt/dt_unsel_0.png \
-    images/dt/dt_unsel_10.png \
     images/dt/dt_unsel_1.png \
+    images/dt/dt_unsel_10.png \
     images/dt/dt_unsel_2.png \
     images/dt/dt_unsel_3.png \
     images/dt/dt_unsel_4.png \
@@ -1146,12 +1147,15 @@ DISTFILES += \
     images/dt/dt_unsel_7.png \
     images/dt/dt_unsel_8.png \
     images/dt/dt_unsel_9.png \
-    LICENSE.txt \
+    notes/QT_PROJECT_SETTINGS.txt \
+    notes/blob_handling.txt \
     notes/coding_conventions.txt \
     notes/compilation_android.txt \
     notes/compilation_linux.txt \
     notes/compilation_windows.txt \
     notes/database_performance.txt \
+    notes/hardware.txt \
+    notes/known_problems.txt \
     notes/layout_notes.txt \
     notes/overall_design.txt \
     notes/qt_notes.txt \
@@ -1162,14 +1166,10 @@ DISTFILES += \
     stylesheets/camcops_menu.css \
     stylesheets/camcops_questionnaire.css \
     stylesheets/camera.css \
+    taskinfo/cisr.html \
     tools/build_qt.py \
     tools/chord.py \
     tools/cppclean_all.sh \
-    tools/decrypt_sqlcipher.py \
-    notes/QT_PROJECT_SETTINGS.txt \
-    notes/blob_handling.txt \
-    notes/hardware.txt \
-    notes/known_problems.txt \
-    taskinfo/cisr.html
+    tools/decrypt_sqlcipher.py
 
 message("--- CamCOPS qmake finishing.")

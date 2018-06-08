@@ -35,7 +35,8 @@ QuMcqGridDouble::QuMcqGridDouble(
     m_options1(options1),
     m_options2(options2),
     m_question_width(-1),
-    m_expand(false)
+    m_expand(false),
+    m_stripy(true)
 {
     m_options1.validateOrDie();
     m_options2.validateOrDie();
@@ -102,6 +103,13 @@ QuMcqGridDouble* QuMcqGridDouble::setSubtitles(
 QuMcqGridDouble* QuMcqGridDouble::setExpand(bool expand)
 {
     m_expand = expand;
+    return this;
+}
+
+
+QuMcqGridDouble* QuMcqGridDouble::setStripy(const bool stripy)
+{
+    m_stripy = stripy;
     return this;
 }
 
@@ -223,9 +231,13 @@ QPointer<QWidget> QuMcqGridDouble::makeWidget(Questionnaire* questionnaire)
             }
         }
 
+        if (m_stripy) {
+            mcqfunc::addStripeBackground(grid, row, 0, n_cols);
+        }
+
         // The question
         mcqfunc::addQuestion(grid, row,
-                                 m_questions_with_fields.at(qi).question());
+                             m_questions_with_fields.at(qi).question());
 
         // The response widgets
         for (bool first : {true, false}) {

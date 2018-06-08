@@ -8,6 +8,6 @@
     All use is recorded and monitored.
 </div>
 
-<h1>Please log in to the CamCOPS web portal</h1>
+<h1>Please log in to CamCOPS</h1>
 
 ${form}

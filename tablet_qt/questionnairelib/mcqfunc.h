@@ -41,6 +41,8 @@ void addStem(GridLayout* grid, int row, int firstcol, int colspan,
 void addOption(GridLayout* grid, int row, int col, const QString& option);
 void addOptionBackground(GridLayout* grid, int row,
                          int firstcol, int ncols, int nrows = 1);
+void addStripeBackground(GridLayout* grid, int row,
+                         int firstcol, int ncols, int nrows = 1);
 
 void setResponseWidgets(
         const NameValueOptions& options,

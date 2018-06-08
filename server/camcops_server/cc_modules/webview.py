@@ -621,7 +621,7 @@ def change_own_password(req: CamcopsRequest) -> Response:
 
 
 @view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
-             permission=Permission.SUPERUSER,
+             permission=Permission.GROUPADMIN,
              renderer="change_other_password.mako")
 def change_other_password(req: CamcopsRequest) -> Response:
     """For administrators, to change another's password."""
@@ -635,11 +635,14 @@ def change_other_password(req: CamcopsRequest) -> Response:
             # Change the password
             # -----------------------------------------------------------------
             user_id = appstruct.get(ViewParam.USER_ID)
+            if user_id == req.user_id:
+                return change_own_password(req)
             must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
             new_password = appstruct.get(ViewParam.NEW_PASSWORD)
             user = User.get_user_by_id(req.dbsession, user_id)
             if not user:
                 raise HTTPBadRequest("Missing user for id {}".format(user_id))
+            assert_may_edit_user(req, user)
             user.set_password(req, new_password)
             if must_change_pw:
                 user.force_password_change()
@@ -651,9 +654,12 @@ def change_other_password(req: CamcopsRequest) -> Response:
         if user_id is None:
             raise HTTPBadRequest("Improper user_id of {}".format(
                 repr(user_id)))
+        if user_id == req.user_id:
+            return change_own_password(req)
         user = User.get_user_by_id(req.dbsession, user_id)
         if user is None:
             raise HTTPBadRequest("Missing user for id {}".format(user_id))
+        assert_may_edit_user(req, user)
         username = user.username
         appstruct = {ViewParam.USER_ID: user_id}
         rendered_form = form.render(appstruct)
@@ -1878,6 +1884,10 @@ def view_all_users(req: CamcopsRequest) -> Dict[str, Any]:
 
 
 def assert_may_edit_user(req: CamcopsRequest, user: User) -> None:
+    """
+    Checks that the requesting user (req.user) is allowed to edit the other
+    user (user). Raises HTTPBadRequest otherwise.
+    """
     # LOGIC SHOULD MATCH view_all_users
     if user.username == USER_NAME_FOR_SYSTEM:
         raise HTTPBadRequest("Nobody may edit the system user")

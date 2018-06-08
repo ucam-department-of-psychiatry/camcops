@@ -78,7 +78,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <h3>Help</h3>
 <ul>
-    <li><a href="${request.url_camcops_manual_pdf}">CamCOPS manual</a></li>
+    <li><a href="${request.url_camcops_manual_pdf}">CamCOPS documentation</a></li>
 </ul>
 
 <h3>Log out</h3>

@@ -20,13 +20,30 @@
 Introduction
 ============
 
+A quick sense of CamCOPS:
+
 ..  toctree::
     :maxdepth: 1
 
-    overview
-    tour
-    intellectual_property
-    requirements
-    patient_identification
-    groups
-    registration
+    overview.rst
+    tour.rst
+    requirements.rst
+
+Practical things:
+
+..  toctree::
+    :maxdepth: 1
+
+    patient_identification.rst
+    groups.rst
+    registration.rst
+
+Technical things:
+
+..  toctree::
+    :maxdepth: 1
+
+    intellectual_property.rst
+    security_design.rst
+    data_structure_design.rst
+

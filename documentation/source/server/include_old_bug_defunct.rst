@@ -1,4 +1,4 @@
-..  documentation/source/misc/tcpip_ports.rst
+..  documentation/source/server/include_old_bug_defunct.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,21 +17,6 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _tcpip_ports:
+.. note::
 
-Common relevant TCP/IP ports
-============================
-
-======= =======================================================================
-Port    Default function
-======= =======================================================================
-22      SSH
-80      HTTP
-443     HTTPS
-1433    Microsoft SQL Server
-3306    MySQL
-5432    PostgreSQL
-5672    AMQP (e.g. RabbitMQ)
-8443    Relatively common alternative for HTTPS (e.g. for testing)
-15672   Default internal port for RabbitMQ admin interface
-======= =======================================================================
+    This bug relates to old versions of CamCOPS and should no longer be seen.

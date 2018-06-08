@@ -37,26 +37,36 @@ securely to your server.
     :caption: Contents:
     :glob:
 
-    introduction/introduction
-    misc/download
-    client/client_installation
-    client/client_using
-    tasks/tasks_by_category
-    tasks/tasks_all
-    client/client_troubleshooting
-    server/server_installation
-    server/server_front_end
-    server/server_command_line
-    server/server_troubleshooting
-    client/creating_tasks
-    licences/licences
-    misc/tcpip_ports
-    misc/design_notes
-    misc/change_history
-    misc/known_problems
-    misc/to_do
-    misc/wishlist
-    misc/local_info
+    introduction/introduction.rst
+
+    misc/download.rst
+
+    client/client_installation.rst
+    client/client_using.rst
+    server/server_front_end_general.rst
+
+    tasks/tasks_by_category.rst
+    tasks/tasks_all.rst
+
+    client/client_troubleshooting.rst
+
+    server/server_installation.rst
+    server/server_configuration.rst
+    server/server_config_file.rst
+    server/server_front_end_admin.rst
+    server/server_command_line.rst
+    server/server_troubleshooting.rst
+
+    client/creating_tasks.rst
+    licences/licences.rst
+    misc/tcpip_ports.rst
+    misc/linux_flavours.rst
+    misc/design_notes.rst
+    changelog.rst
+    misc/known_problems.rst
+    misc/to_do.rst
+    misc/wishlist.rst
+    misc/local_info.rst
 
 .. TODO: security model
 .. TODO: configuring the tablet application
@@ -67,6 +77,7 @@ securely to your server.
 .. TODO: routine administration
 
 .. TODO: make this documentation the main camcops.org front page
+
 
 
 Indices and tables

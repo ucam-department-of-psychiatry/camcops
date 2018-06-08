@@ -155,6 +155,17 @@ void addOptionBackground(GridLayout* grid, const int row, const int firstcol,
 }
 
 
+void addStripeBackground(GridLayout* grid, const int row, const int firstcol,
+                         const int ncols, const int nrows)
+{
+    const bool even = row % 2 == 0;
+    QWidget* bg = new QWidget();
+    bg->setObjectName(even ? cssconst::STRIPE_BACKGROUND_EVEN
+                           : cssconst::STRIPE_BACKGROUND_ODD);
+    grid->addWidget(bg, row, firstcol, nrows, ncols);
+}
+
+
 void setResponseWidgets(const NameValueOptions& options,
                         const QVector<QPointer<BooleanWidget>>& question_widgets,
                         const FieldRef* fieldref)

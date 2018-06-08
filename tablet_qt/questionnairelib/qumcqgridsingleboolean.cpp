@@ -37,7 +37,8 @@ QuMcqGridSingleBoolean::QuMcqGridSingleBoolean(
     m_boolean_text(boolean_text),
     m_question_width(-1),
     m_boolean_width(-1),
-    m_expand(false)
+    m_expand(false),
+    m_stripy(true)
 {
     m_mcq_options.validateOrDie();
     // each QuestionWithTwoFields will have asserted on construction
@@ -113,6 +114,13 @@ QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setSubtitles(
 QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setExpand(const bool expand)
 {
     m_expand = expand;
+    return this;
+}
+
+
+QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setStripy(const bool stripy)
+{
+    m_stripy = stripy;
     return this;
 }
 
@@ -194,6 +202,10 @@ QPointer<QWidget> QuMcqGridSingleBoolean::makeWidget(Questionnaire* questionnair
                 }
                 ++row;  // new row after subtitle
             }
+        }
+
+        if (m_stripy) {
+            mcqfunc::addStripeBackground(grid, row, 0, n_cols);
         }
 
         // The question

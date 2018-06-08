@@ -21,7 +21,6 @@
 #include <QObject>
 #include <QVariant>
 #include "core/camcopsapp.h"
-#include "core/camcopsversion.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
@@ -38,6 +37,7 @@
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quspacer.h"
+#include "version/camcopsversion.h"
 #include "widgets/openablewidget.h"
 #include "widgets/screenlikegraphicsview.h"
 
