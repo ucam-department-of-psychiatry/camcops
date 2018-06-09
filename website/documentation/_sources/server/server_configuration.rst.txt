@@ -188,7 +188,7 @@ To create tables and indices, use the command:
     camcops upgrade_db --config CONFIG
 
 where CONFIG is the filename of your configuration file. If your configuration
-file is only readable as `www-data`, you will need to run this with `sudo`:
+file is only readable as `www-data`, you will need to run this with ``sudo``:
 
 .. code-block:: bash
 
@@ -204,8 +204,8 @@ Use the command:
 
     camcops make_superuser --config CONFIG
 
-where CONFIG is the filename of your configuration file. (Again, use `sudo` as
-above if your configuration file requires privileged access to read.)
+where CONFIG is the filename of your configuration file. (Again, use ``sudo``
+as above if your configuration file requires privileged access to read.)
 
 
 Start CamCOPS
@@ -309,6 +309,7 @@ above), by choosing the command you pass to `camcops`. For high-performance
 work under Linux, use Gunicorn, with the `serve_gunicorn` command; see the
 :ref:`options for the camcops command <camcops_cli>`.
 
+.. _configure_apache:
 
 Point the front-end web server to CamCOPS
 -----------------------------------------
@@ -321,8 +322,8 @@ To generate a specimen Apache configuration file for CamCOPS, run the command
 
     camcops demo_apache_config > demo_apache_config_chunk.txt
 
-Here's an example, which you would edit into the Apache config file
-[#linuxflavours]_:
+Here's an example to mount CamCOPS at the URL path `/camcops`, which you would
+edit into the Apache config file [#linuxflavours]_:
 
 .. If you re-paste the demo below, make sure you do it from a copy installed
    to /usr/share/camcops, not your user's home directory, otherwise the paths
@@ -584,13 +585,15 @@ Once you are happy with your Apache config file:
 - Ensure file ownerships/permissions are correct (including, on CentOS, SELinux
   permissions [#selinux]_).
 
-  - On Ubuntu, if you use `/srv/www` as your `DocumentRoot`, you may need to do:
+  - On Ubuntu, if you use `/srv/www` as your `DocumentRoot`, you may need to
+    do:
 
     .. code-block:: bash
 
         sudo chown -R www-data:www-data /srv/www
 
-  - On CentOS, assuming you use `/var/www` as your `DocumentRoot`, you may need to do:
+  - On CentOS, assuming you use `/var/www` as your `DocumentRoot`, you may need
+    to do:
 
     .. code-block:: bash
 
@@ -605,7 +608,7 @@ Once you are happy with your Apache config file:
         sudo chown -R apache:apache /usr/share/camcops/server/static
         sudo chcon -R -h system_u:object_r:httpd_sys_content_t /usr/share/camcops/server/static
 
-- Restart Apache: `sudo apachectl restart`.
+- Restart Apache: ``sudo apachectl restart``.
 
 - Ensure Apache restarts on boot.
 
@@ -652,7 +655,7 @@ but even better is this tool:
 If you use this strategy, you will need to save this script and edit the copy.
 Be sure your copy of the script is readable only by root and the backup user,
 as it contains a password. You can then run your script regularly from
-`/etc/crontab` (see `man cron`, `man crontab`).
+`/etc/crontab` (see ``man cron``, ``man crontab``).
 
 Obviously, you will also need the dumped files to be backed up to a physically
 secure location regularly.
@@ -674,7 +677,7 @@ database and :ref:`groups <groups>` is much better. But if you have to:
   `/etc/camcops/camcops.conf` to `/etc/camcops/camcops2.conf` and editing it to
   point to the new database.
 
-- Run `camcops` from the command line, pointing it to the new configuration
+- Run ``camcops`` from the command line, pointing it to the new configuration
   file, to create the tables and a superuser (as above).
 
 - Add a second instance to the Apache configuration file and restart Apache.

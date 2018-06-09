@@ -19,16 +19,16 @@
 
 .. _server_command_line_tools:
 
-CamCOPS server command-line tools
-=================================
+CamCOPS command-line tools
+==========================
 
 .. _camcops_cli:
 
 camcops
 -------
 
-The `camcops` command is the main interface to the CamCOPS server.
-Options as of 2018-04-06 (output from `camcops --allhelp`):
+The ``camcops`` command is the main interface to the CamCOPS server.
+Options as of 2018-04-06 (output from ``camcops --allhelp``):
 
 .. code-block:: none
 
@@ -707,7 +707,7 @@ Options as of 2018-04-06 (output from `camcops --allhelp`):
 camcops_meta
 ------------
 
-The `camcops_meta` tool allows you to run CamCOPS over multiple CamCOPS
+The ``camcops_meta`` tool allows you to run CamCOPS over multiple CamCOPS
 configuration files/databases. It’s less useful than it was, because the
 dominant mode of “one database per research group” has been replaced by the
 concept of “a single database with group-level security”.

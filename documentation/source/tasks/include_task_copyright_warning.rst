@@ -17,7 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. note::
+.. warning::
     Copyright details (and any special restrictions) are given below on the
     pages pertaining to individual tasks. If you think a task is here in error
     (i.e. that we have erred in our assesment of its copyright status), please

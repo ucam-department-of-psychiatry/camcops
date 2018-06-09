@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>13. CamCOPS server command-line tools &#8212; CamCOPS 2.2.1 documentation</title>
+    <title>13. CamCOPS command-line tools &#8212; CamCOPS 2.2.1 documentation</title>
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/css/camcops_docs.css" type="text/css" />
@@ -40,16 +40,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="camcops-server-command-line-tools">
-<span id="server-command-line-tools"></span><h1>13. CamCOPS server command-line tools<a class="headerlink" href="#camcops-server-command-line-tools" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="camcops-command-line-tools">
+<span id="server-command-line-tools"></span><h1>13. CamCOPS command-line tools<a class="headerlink" href="#camcops-command-line-tools" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="camcops">
 <span id="camcops-cli"></span><h2>13.1. camcops<a class="headerlink" href="#camcops" title="Permalink to this headline">¶</a></h2>
-<p>The <cite>camcops</cite> command is the main interface to the CamCOPS server.
-Options as of 2018-04-06 (output from <cite>camcops –allhelp</cite>):</p>
-<div class="admonition-todo admonition" id="index-0">
-<p class="first admonition-title">Todo</p>
-<p class="last">fix command-line “camcops docs” option to point to HTML docs</p>
-</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">camcops</span></code> command is the main interface to the CamCOPS server.
+Options as of 2018-04-06 (output from <code class="docutils literal notranslate"><span class="pre">camcops</span> <span class="pre">--allhelp</span></code>):</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: camcops [-h] [--allhelp] [--version]
                {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,show_db_title,merge_db,create_db,make_superuser,reset_password,enable_user,ddl,hl7,show_hl7_queue,show_tests,self_test,serve_pyramid,serve_cherrypy,serve_gunicorn}
                ...
@@ -723,7 +719,7 @@ optional arguments:
 </div>
 <div class="section" id="camcops-meta">
 <span id="id1"></span><h2>13.2. camcops_meta<a class="headerlink" href="#camcops-meta" title="Permalink to this headline">¶</a></h2>
-<p>The <cite>camcops_meta</cite> tool allows you to run CamCOPS over multiple CamCOPS
+<p>The <code class="docutils literal notranslate"><span class="pre">camcops_meta</span></code> tool allows you to run CamCOPS over multiple CamCOPS
 configuration files/databases. It’s less useful than it was, because the
 dominant mode of “one database per research group” has been replaced by the
 concept of “a single database with group-level security”.</p>
@@ -814,24 +810,25 @@ optional arguments:
 <li class="toctree-l1"><a class="reference internal" href="server_configuration.html">10. Configuring the server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server_config_file.html">11. The CamCOPS server configuration file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server_front_end_admin.html">12. Web site: admin functions</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">13. CamCOPS server command-line tools</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">13. CamCOPS command-line tools</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#camcops">13.1. camcops</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#camcops-meta">13.2. camcops_meta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#camcops-backup-mysql-database">13.3. camcops_backup_mysql_database</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="server_troubleshooting.html">14. Troubleshooting server problems</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">15. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">16. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">19. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">21. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">22. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">23. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">21. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">22. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">23. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">24. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">25. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">26. Local configuration information</a></li>
 </ul>
 
   <h4>Previous topic</h4>

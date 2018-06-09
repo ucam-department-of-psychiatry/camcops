@@ -166,7 +166,7 @@ by the web server user, such as <cite>www-data</cite> under Ubuntu <a class="foo
 </pre></div>
 </div>
 <p>where CONFIG is the filename of your configuration file. If your configuration
-file is only readable as <cite>www-data</cite>, you will need to run this with <cite>sudo</cite>:</p>
+file is only readable as <cite>www-data</cite>, you will need to run this with <code class="docutils literal notranslate"><span class="pre">sudo</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo -u www-data camcops upgrade_db --config CONFIG
 </pre></div>
 </div>
@@ -177,8 +177,8 @@ file is only readable as <cite>www-data</cite>, you will need to run this with <
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>camcops make_superuser --config CONFIG
 </pre></div>
 </div>
-<p>where CONFIG is the filename of your configuration file. (Again, use <cite>sudo</cite> as
-above if your configuration file requires privileged access to read.)</p>
+<p>where CONFIG is the filename of your configuration file. (Again, use <code class="docutils literal notranslate"><span class="pre">sudo</span></code>
+as above if your configuration file requires privileged access to read.)</p>
 </div>
 <div class="section" id="start-camcops">
 <h2>10.8. Start CamCOPS<a class="headerlink" href="#start-camcops" title="Permalink to this headline">¶</a></h2>
@@ -276,14 +276,14 @@ work under Linux, use Gunicorn, with the <cite>serve_gunicorn</cite> command; se
 <a class="reference internal" href="server_command_line.html#camcops-cli"><span class="std std-ref">options for the camcops command</span></a>.</p>
 </div>
 <div class="section" id="point-the-front-end-web-server-to-camcops">
-<h2>10.9. Point the front-end web server to CamCOPS<a class="headerlink" href="#point-the-front-end-web-server-to-camcops" title="Permalink to this headline">¶</a></h2>
+<span id="configure-apache"></span><h2>10.9. Point the front-end web server to CamCOPS<a class="headerlink" href="#point-the-front-end-web-server-to-camcops" title="Permalink to this headline">¶</a></h2>
 <p>Under Linux, a typicaly front-end web server is <a class="reference external" href="http://httpd.apache.org/">Apache</a>.</p>
 <p>To generate a specimen Apache configuration file for CamCOPS, run the command</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>camcops demo_apache_config &gt; demo_apache_config_chunk.txt
 </pre></div>
 </div>
-<p>Here’s an example, which you would edit into the Apache config file
-<a class="footnote-reference" href="#linuxflavours" id="id7">[1]</a>:</p>
+<p>Here’s an example to mount CamCOPS at the URL path <cite>/camcops</cite>, which you would
+edit into the Apache config file <a class="footnote-reference" href="#linuxflavours" id="id7">[1]</a>:</p>
 <div class="highlight-apacheconf notranslate"><div class="highlight"><pre><span></span>    <span class="c"># Demonstration Apache config file section for CamCOPS.</span>
     <span class="c"># Created by CamCOPS version 2.2.0 at 2018-06-08T19:52:03.221011+01:00.</span>
     <span class="c">#</span>
@@ -539,12 +539,14 @@ work under Linux, use Gunicorn, with the <cite>serve_gunicorn</cite> command; se
 <li><p class="first">Ensure file ownerships/permissions are correct (including, on CentOS, SELinux
 permissions <a class="footnote-reference" href="#selinux" id="id8">[6]</a>).</p>
 <ul>
-<li><p class="first">On Ubuntu, if you use <cite>/srv/www</cite> as your <cite>DocumentRoot</cite>, you may need to do:</p>
+<li><p class="first">On Ubuntu, if you use <cite>/srv/www</cite> as your <cite>DocumentRoot</cite>, you may need to
+do:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo chown -R www-data:www-data /srv/www
 </pre></div>
 </div>
 </li>
-<li><p class="first">On CentOS, assuming you use <cite>/var/www</cite> as your <cite>DocumentRoot</cite>, you may need to do:</p>
+<li><p class="first">On CentOS, assuming you use <cite>/var/www</cite> as your <cite>DocumentRoot</cite>, you may need
+to do:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ls -alZ /var/www <span class="c1"># shows owners and SELinux security context</span>
 
 sudo chown -R apache:apache /var/www
@@ -560,7 +562,7 @@ sudo chcon -R -h system_u:object_r:httpd_sys_content_t /usr/share/camcops/server
 </li>
 </ul>
 </li>
-<li><p class="first">Restart Apache: <cite>sudo apachectl restart</cite>.</p>
+<li><p class="first">Restart Apache: <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apachectl</span> <span class="pre">restart</span></code>.</p>
 </li>
 <li><p class="first">Ensure Apache restarts on boot.</p>
 <ul>
@@ -602,7 +604,7 @@ dump all MySQL databases. A sample script is produced by the command</p>
 <p>If you use this strategy, you will need to save this script and edit the copy.
 Be sure your copy of the script is readable only by root and the backup user,
 as it contains a password. You can then run your script regularly from
-<cite>/etc/crontab</cite> (see <cite>man cron</cite>, <cite>man crontab</cite>).</p>
+<cite>/etc/crontab</cite> (see <code class="docutils literal notranslate"><span class="pre">man</span> <span class="pre">cron</span></code>, <code class="docutils literal notranslate"><span class="pre">man</span> <span class="pre">crontab</span></code>).</p>
 <p>Obviously, you will also need the dumped files to be backed up to a physically
 secure location regularly.</p>
 </div>
@@ -621,7 +623,7 @@ will merely change the password for that (single) user.</li>
 <li>Create a second CamCOPS configuration file, e.g. copying
 <cite>/etc/camcops/camcops.conf</cite> to <cite>/etc/camcops/camcops2.conf</cite> and editing it to
 point to the new database.</li>
-<li>Run <cite>camcops</cite> from the command line, pointing it to the new configuration
+<li>Run <code class="docutils literal notranslate"><span class="pre">camcops</span></code> from the command line, pointing it to the new configuration
 file, to create the tables and a superuser (as above).</li>
 <li>Add a second instance to the Apache configuration file and restart Apache.</li>
 </ul>
@@ -747,19 +749,20 @@ differences between Linux operating systems.</td></tr>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="server_config_file.html">11. The CamCOPS server configuration file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server_front_end_admin.html">12. Web site: admin functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="server_command_line.html">13. CamCOPS server command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server_troubleshooting.html">14. Troubleshooting server problems</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">15. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">16. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">19. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">21. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">22. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">23. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">21. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">22. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">23. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">24. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">25. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">26. Local configuration information</a></li>
 </ul>
 
   <h4>Previous topic</h4>

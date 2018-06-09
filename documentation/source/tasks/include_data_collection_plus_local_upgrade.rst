@@ -20,7 +20,7 @@
 ..  Note: we could use "|name| replace:: text", but that does not allow us
     to replace with e.g. ".. note::"
 
-.. note::
+.. warning::
     **(¶+)** **Reproduction of this task/scale is not permitted (or such
     permission is not clear). This CamCOPS task is a data collection tool
     only, with no scale text (unless configured locally to use externally

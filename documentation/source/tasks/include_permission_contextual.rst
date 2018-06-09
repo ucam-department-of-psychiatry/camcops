@@ -17,7 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. note::
-    **(†)** Free for use in some situations but not all (e.g.: clinical,
+.. warning::
+    **(†)** Permissible for use in some situations but not all (e.g.: clinical,
     research, commercial, educational), enforced by CamCOPS based on the
     user’s replies.

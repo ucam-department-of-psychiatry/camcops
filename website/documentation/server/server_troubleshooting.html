@@ -16,8 +16,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="15. Creating tasks" href="../client/creating_tasks.html" />
-    <link rel="prev" title="13. CamCOPS server command-line tools" href="server_command_line.html" /> 
+    <link rel="next" title="15. Licences" href="../licences/licences.html" />
+    <link rel="prev" title="13. CamCOPS command-line tools" href="server_command_line.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -26,10 +26,10 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../client/creating_tasks.html" title="15. Creating tasks"
+          <a href="../licences/licences.html" title="15. Licences"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="server_command_line.html" title="13. CamCOPS server command-line tools"
+          <a href="server_command_line.html" title="13. CamCOPS command-line tools"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
       </ul>
@@ -54,22 +54,6 @@ full of file permission errors.</strong> Ownerships, permissions, or SELinux
 security settings on files in the <cite>DocumentRoot</cite> tree are probably wrong. See
 above.</p>
 </li>
-<li><p class="first"><strong>Web server returns nothing informative; Apache error log is full WSGI
-messages relating to its inability to create socket files.</strong> See above
-regarding <cite>WSGISocketPrefix</cite>.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This bug relates to old versions of CamCOPS and should no longer be seen.</p>
-</div>
-</li>
-<li><p class="first"><strong>Web server returns nothing informative; Apache error log is full of
-messages saying “import site failed”.</strong> The mod_wsgi configuration is
-probably wrong. Run the ldd check above and reinstall mod_wsgi if necessary.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This bug relates to old versions of CamCOPS and should no longer be seen.</p>
-</div>
-</li>
 <li><p class="first"><strong>Operation (e.g. table upload) fails; Apache error log contains the message
 “client denied by server configuration”.</strong> The Apache configuration file
 might be missing a section saying</p>
@@ -92,15 +76,9 @@ x16x03x01”.</strong> Misconfigured server; it is speaking unencrypted HTTP on
 port 443. Do you have the VirtualHost section configured properly? Do you
 have <cite>LoadModule ssl_module modules/mod_ssl.so</cite>?</p>
 </li>
-<li><p class="first"><strong>Other Apache errors.</strong> See /usr/share/camcops/instructions.txt, which has
-specimen Apache config sections, and lists some other common misconfiguration
-errors.</p>
+<li><p class="first"><strong>Other Apache errors.</strong> See <a class="reference internal" href="server_configuration.html#configure-apache"><span class="std std-ref">front-end web server configuration</span></a>, which has specimen Apache config sections.</p>
 </li>
 </ul>
-<div class="admonition-todo admonition" id="index-1">
-<p class="first admonition-title">Todo</p>
-<p class="last"><strong>rewrite above</strong></p>
-</div>
 </div>
 <div class="section" id="web-server-errors-in-general">
 <h2>14.2. Web server errors in general<a class="headerlink" href="#web-server-errors-in-general" title="Permalink to this headline">¶</a></h2>
@@ -108,10 +86,10 @@ errors.</p>
 <li><strong>Web server returns content but says &lt;class ‘ConfigParser.NoSectionError’&gt;:
 No section: ‘server’.</strong> Unless the CamCOPS config files are broken, this
 probably means that the <cite>/etc/camcops/*</cite> configuration files have the wrong
-ownerships/permissions/SELinux security settings. See the <cite>chown</cite> and <cite>chcon</cite>
-commands above. It’s also possible that the configuration files have been
-damaged, or that the Apache configuration file is pointing to a non-existing
-configuration file.</li>
+ownerships/permissions/SELinux security settings. See the <code class="docutils literal notranslate"><span class="pre">chown</span></code> and
+<code class="docutils literal notranslate"><span class="pre">chcon</span></code> commands <a class="footnote-reference" href="#linuxflavours" id="id1">[9]</a>. It’s also possible that the
+configuration files have been damaged, or that the Apache configuration file
+is pointing to a non-existing configuration file.</li>
 <li><strong>I can log in, but then seem to be logged out again immediately.</strong>
 Is your browser correctly storing session cookies? Especially, are you trying
 to run CamCOPS over a non-encrypted (HTTP) link? The session cookies are set
@@ -176,7 +154,7 @@ innodb_file_format = Barracuda
 <p>Another method to consider for MySQL versions before 5.7.5: making the MySQL
 log file bigger, e.g. 512 Mb.</p>
 <ol class="arabic">
-<li><p class="first">At the MySQL console: <cite>SET GLOBAL innodb_fast_shutdown=0;</cite></p>
+<li><p class="first">At the MySQL console: <code class="docutils literal notranslate"><span class="pre">SET</span> <span class="pre">GLOBAL</span> <span class="pre">innodb_fast_shutdown=0;</span></code></p>
 </li>
 <li><p class="first">Stop MySQL.</p>
 </li>
@@ -199,7 +177,7 @@ make-tables command, to avoid this problem.</p>
 <div class="section" id="mysql-too-many-connections">
 <h2>14.4. MySQL: “Too many connections”<a class="headerlink" href="#mysql-too-many-connections" title="Permalink to this headline">¶</a></h2>
 <p>This error occurs if programs collectively attempt to open more connections to
-MySQL than the configured limit <a class="footnote-reference" href="#toomanyconnections" id="id1">[1]</a>. The easiest way to make
+MySQL than the configured limit <a class="footnote-reference" href="#toomanyconnections" id="id2">[1]</a>. The easiest way to make
 it happen in CamCOPS is to launch a web server with a very high maximum number
 of threads, in excess of the MySQL limit, and then work the web server hard.</p>
 <p>Fix the problem by limiting the maximum number of threads/processes used by
@@ -233,31 +211,31 @@ equal to A, å to be considered equal to Å, and so on.</p>
 you can define the character set and collation.</p>
 <p>Character sets are supported for these things: <em>literal</em>, <em>column</em>, <em>table</em>,
 <em>database</em>, <em>server</em> — plus <em>client</em>, <em>connection</em> (though I think that’s the
-same as ‘literal’), <em>filesystem</em>, <em>results</em>, <em>system</em> <a class="footnote-reference" href="#charset" id="id2">[2]</a>. (Some don’t
-change: system, for storing identifiers, always UTF8 <a class="footnote-reference" href="#sysvars" id="id3">[3]</a>. Some we don’t
+same as ‘literal’), <em>filesystem</em>, <em>results</em>, <em>system</em> <a class="footnote-reference" href="#charset" id="id3">[2]</a>. (Some don’t
+change: system, for storing identifiers, always UTF8 <a class="footnote-reference" href="#sysvars" id="id4">[3]</a>. Some we don’t
 need to care about: filesystem, for referring to filenames. The client one is
 for statements arriving from the client. The connection one is used for
 literals, and I have no idea why you might want this to be different from the
 client setting. The results one is the one that the server uses to return
 result sets or error messages. You can inspect some of these settings with
-<cite>SHOW VARIABLES LIKE ‘char%’</cite>, and table-specific settings using <cite>SHOW CREATE
+<code class="docutils literal notranslate"><span class="pre">SHOW</span> <span class="pre">VARIABLES</span> <span class="pre">LIKE</span> <span class="pre">'char%'</span></code>, and table-specific settings using <cite>SHOW CREATE
 TABLE tablename</cite>.)</p>
 <p>Collations are supported for the following (from greatest to least precedence):
-<em>query</em>, <em>column</em>, <em>table</em>, <em>database</em>, <em>connection</em>, <em>server</em> <a class="footnote-reference" href="#collations" id="id4">[4]</a>.
+<em>query</em>, <em>column</em>, <em>table</em>, <em>database</em>, <em>connection</em>, <em>server</em> <a class="footnote-reference" href="#collations" id="id5">[4]</a>.
 (The connection collation is applicable for the comparison of literal strings.
-You can inspect the database/connection/server collations using <cite>SHOW
-VARIABLES LIKE ‘collation%’</cite>, and table-specific settings using <cite>SHOW CREATE
-TABLE tablename</cite>.)</p>
+You can inspect the database/connection/server collations using <code class="docutils literal notranslate"><span class="pre">SHOW</span>
+<span class="pre">VARIABLES</span> <span class="pre">LIKE</span> <span class="pre">'collation%'</span></code>, and table-specific settings using <code class="docutils literal notranslate"><span class="pre">SHOW</span> <span class="pre">CREATE</span>
+<span class="pre">TABLE</span> <span class="pre">tablename</span></code>.)</p>
 </div>
 <div class="section" id="how-camcops-configures-mysql-character-sets-and-collations">
 <h3>14.5.3. How CamCOPS configures MySQL character sets and collations<a class="headerlink" href="#how-camcops-configures-mysql-character-sets-and-collations" title="Permalink to this headline">¶</a></h3>
 <p>CamCOPS (via SQLAlchemy) creates all MySQL tables using the ‘utf8mb4’ character
 set. This is MySQL’s “proper” 4-byte UTF8 character set. (The MySQL ‘utf8’
 character set uses up to 3 bytes per character and can’t store all characters
-<a class="footnote-reference" href="#utf8" id="id5">[5]</a>.)</p>
+<a class="footnote-reference" href="#utf8" id="id6">[5]</a>.)</p>
 <p>CamCOPS uses the ‘utf8mb4_unicode_ci’ collation, which uses the ‘utf8mb4’
 character set and implements the Unicode standard for sorting
-<a class="footnote-reference" href="#utf8mb4unicodeci" id="id6">[6]</a>. The ‘_ci’ suffix means “case insensitive”. CamCOPS sets
+<a class="footnote-reference" href="#utf8mb4unicodeci" id="id7">[6]</a>. The ‘_ci’ suffix means “case insensitive”. CamCOPS sets
 the table collation when it creates tables, and then ignores collations for
 queries/columns.</p>
 <p>You can see what CamCOPS is doing easily from a running CamCOPS server, using
@@ -273,12 +251,12 @@ the “Inspect table definitions” view. You’ll see table definitions like:</
 <div class="section" id="the-problem-that-creates-this-error">
 <h3>14.5.4. The problem that creates this error<a class="headerlink" href="#the-problem-that-creates-this-error" title="Permalink to this headline">¶</a></h3>
 <p>The underlying reason: a string comparison is occurring between columns with
-different collations and MySQL cannot resolve the conflict <a class="footnote-reference" href="#mixofcollations" id="id7">[7]</a>.</p>
+different collations and MySQL cannot resolve the conflict <a class="footnote-reference" href="#mixofcollations" id="id8">[7]</a>.</p>
 <p>The CamCOPS reason: if you have a very old CamCOPS database, it might not have
-the table collations set properly. Pick some tables and use syntax like <cite>SHOW
-CREATE TABLE phq9 \G</cite>. (The <cite>\G</cite> is a special MySQL console suffix to show the
-results in non-tabular format.) If you don’t see a <cite>COLLATE</cite> command at the end,
-that’s probably the reason for the error.</p>
+the table collations set properly. Pick some tables and use syntax like <code class="docutils literal notranslate"><span class="pre">SHOW</span>
+<span class="pre">CREATE</span> <span class="pre">TABLE</span> <span class="pre">phq9</span> <span class="pre">\\G</span></code>. (The <cite>\G</cite> is a special MySQL console suffix to show
+the results in non-tabular format.) If you don’t see a <cite>COLLATE</cite> command at the
+end, that’s probably the reason for the error.</p>
 </div>
 <div class="section" id="how-to-generate-the-error">
 <h3>14.5.5. How to generate the error<a class="headerlink" href="#how-to-generate-the-error" title="Permalink to this headline">¶</a></h3>
@@ -312,7 +290,7 @@ the database collation (and character set, while we’re at it) like this:</p>
 <span class="k">SHOW</span> <span class="k">FULL</span> <span class="n">COLUMNS</span> <span class="k">FROM</span> <span class="n">patient</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>So you have to go through all tables. To automate this <a class="footnote-reference" href="#changecollation" id="id8">[8]</a>,
+<p>So you have to go through all tables. To automate this <a class="footnote-reference" href="#changecollation" id="id9">[8]</a>,
 execute the following command to generate all the necessary SQL:</p>
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">CONCAT</span><span class="p">(</span>
         <span class="s1">&#39;ALTER TABLE &#39;</span><span class="p">,</span> <span class="n">table_schema</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="k">table_name</span><span class="p">,</span>
@@ -379,50 +357,56 @@ instead, which is also faster.</p>
 <table class="docutils footnote" frame="void" id="toomanyconnections" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html">https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html">https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="charset" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html">https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html">https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="sysvars" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html">https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id4">[3]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html">https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="collations" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation">https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id5">[4]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation">https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="utf8" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[5]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html">https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id6">[5]</a></td><td><a class="reference external" href="https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html">https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="utf8mb4unicodeci" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id6">[6]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci">https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id7">[6]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci">https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="mixofcollations" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id7">[7]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/3029321/troubleshooting-illegal-mix-of-collations-error-in-mysql">https://stackoverflow.com/questions/3029321/troubleshooting-illegal-mix-of-collations-error-in-mysql</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id8">[7]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/3029321/troubleshooting-illegal-mix-of-collations-error-in-mysql">https://stackoverflow.com/questions/3029321/troubleshooting-illegal-mix-of-collations-error-in-mysql</a></td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="changecollation" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id8">[8]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/10859966/how-to-convert-all-tables-in-database-to-one-collation">https://stackoverflow.com/questions/10859966/how-to-convert-all-tables-in-database-to-one-collation</a>;
+<tr><td class="label"><a class="fn-backref" href="#id9">[8]</a></td><td><a class="reference external" href="https://stackoverflow.com/questions/10859966/how-to-convert-all-tables-in-database-to-one-collation">https://stackoverflow.com/questions/10859966/how-to-convert-all-tables-in-database-to-one-collation</a>;
 <a class="reference external" href="https://stackoverflow.com/questions/1294117/how-to-change-collation-of-database-table-column">https://stackoverflow.com/questions/1294117/how-to-change-collation-of-database-table-column</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="linuxflavours" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[9]</a></td><td>See <a class="reference internal" href="../misc/linux_flavours.html#linux-flavours"><span class="std std-ref">Linux flavours</span></a>.</td></tr>
 </tbody>
 </table>
 </div>
@@ -449,7 +433,7 @@ instead, which is also faster.</p>
 <li class="toctree-l1"><a class="reference internal" href="server_configuration.html">10. Configuring the server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server_config_file.html">11. The CamCOPS server configuration file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server_front_end_admin.html">12. Web site: admin functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="server_command_line.html">13. CamCOPS server command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server_command_line.html">13. CamCOPS command-line tools</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">14. Troubleshooting server problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#web-server-errors-from-apache">14.1. Web server errors from Apache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#web-server-errors-in-general">14.2. Web server errors in general</a></li>
@@ -460,25 +444,26 @@ instead, which is also faster.</p>
 <li class="toctree-l2"><a class="reference internal" href="#logo-png-with-transparency-crashes-pdf-generator">14.7. Logo PNG with transparency crashes PDF generator</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">15. Creating tasks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">16. Licences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">17. Common relevant TCP/IP ports</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">18. Linux flavours</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">19. Design notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">20. Change log/history</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">21. Known problems: client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">22. Known problems: server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">23. Things to do</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">24. Wishlist and blue-sky thoughts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">25. Local configuration information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../licences/licences.html">15. Licences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/creating_tasks.html">16. Creating tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/development_command_line.html">17. Development command-line tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/tcpip_ports.html">18. Common relevant TCP/IP ports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/linux_flavours.html">19. Linux flavours</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/design_notes.html">20. Design notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">21. Change log/history</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html">22. Known problems: client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/known_problems.html#known-problems-server">23. Known problems: server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/to_do.html">24. Things to do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/wishlist.html">25. Wishlist and blue-sky thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/local_info.html">26. Local configuration information</a></li>
 </ul>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="server_command_line.html"
-                        title="previous chapter">13. CamCOPS server command-line tools</a></p>
+                        title="previous chapter">13. CamCOPS command-line tools</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../client/creating_tasks.html"
-                        title="next chapter">15. Creating tasks</a></p>
+  <p class="topless"><a href="../licences/licences.html"
+                        title="next chapter">15. Licences</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -509,10 +494,10 @@ instead, which is also faster.</p>
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../client/creating_tasks.html" title="15. Creating tasks"
+          <a href="../licences/licences.html" title="15. Licences"
              >next</a> |</li>
         <li class="right" >
-          <a href="server_command_line.html" title="13. CamCOPS server command-line tools"
+          <a href="server_command_line.html" title="13. CamCOPS command-line tools"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">CamCOPS 2.2.1 documentation</a> &#187;</li> 
       </ul>

@@ -54,7 +54,7 @@ where :code:`VERSION` is the CamCOPS version you're installing.
 
 CamCOPS will now be installed in `/usr/share/camcops`.
 
-You should be able to type `camcops` and see something relevant.
+You should be able to type ``camcops`` and see something relevant.
 
 CentOS installation from RPM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,7 +74,7 @@ First, to get Centos 6.5 to a basic standard, :ref:`see here
     #     to install); use "watch pstree" or "top" to reassure yourself
     #     that progress is indeed happening.
 
-You should be able to type `camcops` and see something relevant.
+You should be able to type ``camcops`` and see something relevant.
 
 Installation for any OS
 ~~~~~~~~~~~~~~~~~~~~~~~

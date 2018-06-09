@@ -57,8 +57,9 @@ securely to your server.
     server/server_command_line.rst
     server/server_troubleshooting.rst
 
-    client/creating_tasks.rst
     licences/licences.rst
+    client/creating_tasks.rst
+    misc/development_command_line.rst
     misc/tcpip_ports.rst
     misc/linux_flavours.rst
     misc/design_notes.rst

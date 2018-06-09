@@ -15,9 +15,23 @@ DEBUG = True
 
 def synth_complex(freq_coefs: List[Tuple[float, float]] = None,
                   duration_s: float = 1.0,
-                  fname: str = "test.wav",
+                  filename: str = "test.wav",
                   frate_hz: float = 44100.00,
                   amp_proportion: float = 1.0) -> None:
+    """
+
+    Args:
+        freq_coefs: list of tuples of (frequency in Hz, intensity)
+        ... where "intensity" is the fraction of the total intensity to give
+            each note. Typically, for 3 notes, use 1/3 per note (etc.).
+        duration_s: overall duration
+        filename: filename to save
+        frate_hz: frame (sampling) rate, Hz
+        amp_proportion: proportion of maximum amplitude (usual range 0-1)
+
+    Returns:
+        None
+    """
     if freq_coefs is None:
         freq_coefs = [(440, 1)]  # type: List[Tuple[float, float]]
     sine_list = []
@@ -34,7 +48,7 @@ def synth_complex(freq_coefs: List[Tuple[float, float]] = None,
             clipped = True
         samp = min(max(samp, -1), 1)
         sine_list.append(samp)
-    wav_file = wave.open(fname, "w")
+    wav_file = wave.open(filename, "w")
     nchannels = 1
     sampwidth = 2
     maxamp = 32760  # as above
@@ -45,7 +59,7 @@ def synth_complex(freq_coefs: List[Tuple[float, float]] = None,
     wav_file.setparams((nchannels, sampwidth, framerate, nframes, comptype,
                         compname))
     ampfactor = amp_proportion * maxamp
-    print("writing", fname)
+    print("writing", filename)
     for s in sine_list:
         wav_file.writeframes(struct.pack('h', int(s * ampfactor)))
     wav_file.close()
@@ -54,6 +68,9 @@ def synth_complex(freq_coefs: List[Tuple[float, float]] = None,
 
 
 def frequency_hz(note: str, octave: int = 4) -> float:
+    """
+    Returns a frequency from a note name.
+    """
     badnote = "bad note"
     if (not note or not isinstance(note, str) or len(note) > 2
             or not isinstance(octave, int)):
@@ -98,6 +115,9 @@ def frequency_hz(note: str, octave: int = 4) -> float:
 
 # noinspection PyPep8Naming
 def ided3d() -> None:
+    """
+    Creates chords for the ID/ED-3D task.
+    """
     A4 = frequency_hz("A", 4)
     # C4 = frequency_hz("C", 4)
     C5 = frequency_hz("C", 5)
@@ -108,9 +128,9 @@ def ided3d() -> None:
     C6 = frequency_hz("C", 6)
 
     synth_complex([(E5, 1 / 3), (G5, 1 / 3), (C6, 1 / 3)],
-                  duration_s=0.164, fname="correct.wav")
+                  duration_s=0.164, filename="correct.wav")
     synth_complex([(A4, 1 / 4), (C5, 1 / 4), (Eb5, 1 / 4), (Fs5, 1 / 4)],
-                  duration_s=0.550, fname="incorrect.wav")
+                  duration_s=0.550, filename="incorrect.wav")
 
 
 if __name__ == '__main__':

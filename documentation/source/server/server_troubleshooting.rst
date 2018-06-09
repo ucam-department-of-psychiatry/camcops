@@ -60,10 +60,10 @@ Web server errors in general
 - **Web server returns content but says <class 'ConfigParser.NoSectionError'>:
   No section: 'server'.** Unless the CamCOPS config files are broken, this
   probably means that the `/etc/camcops/*` configuration files have the wrong
-  ownerships/permissions/SELinux security settings. See the `chown` and `chcon`
-  commands above. It’s also possible that the configuration files have been
-  damaged, or that the Apache configuration file is pointing to a non-existing
-  configuration file.
+  ownerships/permissions/SELinux security settings. See the ``chown`` and
+  ``chcon`` commands [#linuxflavours]_. It’s also possible that the
+  configuration files have been damaged, or that the Apache configuration file
+  is pointing to a non-existing configuration file.
 
 - **I can log in, but then seem to be logged out again immediately.**
   Is your browser correctly storing session cookies? Especially, are you trying
@@ -137,8 +137,10 @@ Best thing: change the table format.
 Another method to consider for MySQL versions before 5.7.5: making the MySQL
 log file bigger, e.g. 512 Mb.
 
-#. At the MySQL console: `SET GLOBAL innodb_fast_shutdown=0;`
+#. At the MySQL console: ``SET GLOBAL innodb_fast_shutdown=0;``
+
 #. Stop MySQL.
+
 #. Edit the MySQL config file, e.g. `/etc/my.cnf`, and in the `[mysqld]`
    section, add the line:
 
@@ -148,6 +150,7 @@ log file bigger, e.g. 512 Mb.
 
 #. Delete the old log files, e.g. `/var/lib/mysql/ib_logfile0` and
    `/var/lib/mysql/ib_logfile1`.
+
 #. Restart MySQL
 
 From CamCOPS v1.32, the server autoconverts tables to Barracuda when using the
@@ -207,15 +210,15 @@ for statements arriving from the client. The connection one is used for
 literals, and I have no idea why you might want this to be different from the
 client setting. The results one is the one that the server uses to return
 result sets or error messages. You can inspect some of these settings with
-`SHOW VARIABLES LIKE 'char%'`, and table-specific settings using `SHOW CREATE
+``SHOW VARIABLES LIKE 'char%'``, and table-specific settings using `SHOW CREATE
 TABLE tablename`.)
 
 Collations are supported for the following (from greatest to least precedence):
 *query*, *column*, *table*, *database*, *connection*, *server* [#collations]_.
 (The connection collation is applicable for the comparison of literal strings.
-You can inspect the database/connection/server collations using `SHOW
-VARIABLES LIKE 'collation%'`, and table-specific settings using `SHOW CREATE
-TABLE tablename`.)
+You can inspect the database/connection/server collations using ``SHOW
+VARIABLES LIKE 'collation%'``, and table-specific settings using ``SHOW CREATE
+TABLE tablename``.)
 
 How CamCOPS configures MySQL character sets and collations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -249,10 +252,10 @@ The underlying reason: a string comparison is occurring between columns with
 different collations and MySQL cannot resolve the conflict [#mixofcollations]_.
 
 The CamCOPS reason: if you have a very old CamCOPS database, it might not have
-the table collations set properly. Pick some tables and use syntax like `SHOW
-CREATE TABLE phq9 \\G`. (The `\\G` is a special MySQL console suffix to show the
-results in non-tabular format.) If you don’t see a `COLLATE` command at the end,
-that’s probably the reason for the error.
+the table collations set properly. Pick some tables and use syntax like ``SHOW
+CREATE TABLE phq9 \\G``. (The `\\G` is a special MySQL console suffix to show
+the results in non-tabular format.) If you don’t see a `COLLATE` command at the
+end, that’s probably the reason for the error.
 
 How to generate the error
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -396,3 +399,6 @@ instead, which is also faster.
 .. [#changecollation]
    https://stackoverflow.com/questions/10859966/how-to-convert-all-tables-in-database-to-one-collation;
    https://stackoverflow.com/questions/1294117/how-to-change-collation-of-database-table-column
+
+.. [#linuxflavours]
+    See :ref:`Linux flavours <linux_flavours>`.

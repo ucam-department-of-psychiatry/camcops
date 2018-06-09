@@ -17,10 +17,10 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. note::
+.. warning::
     **(¶)** **Reproduction of this task/scale is not permitted. This CamCOPS
     task is a data collection tool only, with the actual task/scale not
     included for copyright reasons. Use it only in conjunction with a licensed
     copy of the original task.** (That is, if you own a licensed paper copy of
     the task, feel free to use this data collection tool, but if you don’t, it
-    will probably be useless).
+    will probably be useless.)
