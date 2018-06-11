@@ -55,7 +55,7 @@ div.admonition-todo {
     background-color: #FFB6C1
 }
 cite {
-    /* For inline backtick quotation, typically of syntax. */
+    /* For inline single-backtick quotation. */
     background-color: #eeeeee;
     font-family: monospace, monospace;
     /* https://stackoverflow.com/questions/38781089/font-family-monospace-monospace */

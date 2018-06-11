@@ -75,5 +75,5 @@ from markupsafe import escape
 
 <div class="footnotes">
     Colour in a policy column means that an ID policy is not valid (either
-        syntactically, or because it refers to ID numbers that do not exist).
+    syntactically, or because it refers to ID numbers that do not exist).
 </div>

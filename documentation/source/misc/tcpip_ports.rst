@@ -17,6 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _MySQL: https://www.mysql.com/
+.. _PostgreSQL: https://www.postgresql.org/
+
 .. _tcpip_ports:
 
 Common relevant TCP/IP ports
@@ -28,10 +31,8 @@ Port    Default function
 22      SSH
 80      HTTP
 443     HTTPS
-1433    Microsoft SQL Server
-3306    MySQL
-5432    PostgreSQL
-5672    AMQP (e.g. RabbitMQ)
+1433    `Microsoft SQL Server <https://www.microsoft.com/en-us/sql-server>`_
+3306    MySQL_
+5432    PostgreSQL_
 8443    Relatively common alternative for HTTPS (e.g. for testing)
-15672   Default internal port for RabbitMQ admin interface
 ======= =======================================================================

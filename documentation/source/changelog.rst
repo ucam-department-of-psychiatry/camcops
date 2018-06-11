@@ -976,7 +976,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - New CIS-R task.
 
-**Server v2.2.1, 2018-04-24 [in progress]**
+**Server v2.2.1, 2018-04-24 to 2018-06-11**
 
 - Username added to login audit.
 
@@ -988,6 +988,16 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Group administrators can now change passwords for other users in their group,
   as long as the other user isn't a groupadmin or superuser.
+
+- A released (CPFT) version of 2.2.0 raised a "The resource could not be found"
+  error when using the ``/view_groups`` URL, heading to ``groups_view.mako``.
+  (Not sure why; development version works fine. No files obviously missing.
+  Only that page not working, of all the main menu pages. This was as the
+  superuser. The problem was an exception being raised from the
+  ``template.render_unicode()`` call in
+  ``CamcopsMakoLookupTemplateRenderer.__call__``. Aha -- problem may have been
+  a completely full disk. No; disk was completely full, but that wasn't the
+  problem.)
 
 **Client v2.2.1 beta, 2018-08-06 [in progress]**
 
