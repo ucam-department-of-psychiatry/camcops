@@ -63,7 +63,7 @@ securely to your server.
     misc/tcpip_ports.rst
     misc/linux_flavours.rst
     misc/design_notes.rst
-    autodoc/index.rst
+    autodoc/_index.rst
     changelog.rst
     misc/known_problems.rst
     misc/to_do.rst
