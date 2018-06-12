@@ -1,4 +1,4 @@
-..  documentation/source/misc/tcpip_ports.rst
+..  documentation/source/autodoc/cc_unittest.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,22 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. _MySQL: https://www.mysql.com/
-.. _PostgreSQL: https://www.postgresql.org/
+camcops_server.cc_modules.cc_unittest
+-------------------------------------
 
-.. _tcpip_ports:
+.. automodule:: camcops_server.cc_modules.cc_unittest
+    :members:
 
-Common relevant TCP/IP ports
-============================
-
-======= =======================================================================
-Port    Default function
-======= =======================================================================
-22      SSH
-80      HTTP
-443     HTTPS
-1433    `Microsoft SQL Server <https://www.microsoft.com/en-us/sql-server>`_
-3306    MySQL_
-5432    PostgreSQL_
-8443    Relatively common alternative for HTTPS (e.g. for testing)
-======= =======================================================================

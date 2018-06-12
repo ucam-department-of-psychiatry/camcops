@@ -981,7 +981,7 @@ exclusion diagnoses) and age.</li>
 <li>Bugfix where reports would only be produced in HTML format.</li>
 <li>New CIS-R task.</li>
 </ul>
-<p><strong>Server v2.2.1, 2018-04-24 [in progress]</strong></p>
+<p><strong>Server v2.2.1, 2018-04-24 to 2018-06-11</strong></p>
 <ul class="simple">
 <li>Username added to login audit.</li>
 <li>SQLAlchemy <cite>Engine</cite> scope fixed (was per-request; that was wrong and caused
@@ -990,6 +990,15 @@ should be; see <cite>cc_config.py</cite>).</li>
 <li>Links to de-identified versions of tasks.</li>
 <li>Group administrators can now change passwords for other users in their group,
 as long as the other user isn’t a groupadmin or superuser.</li>
+<li>A released (CPFT) version of 2.2.0 raised a “The resource could not be found”
+error when using the <code class="docutils literal notranslate"><span class="pre">/view_groups</span></code> URL, heading to <code class="docutils literal notranslate"><span class="pre">groups_view.mako</span></code>.
+(Not sure why; development version works fine. No files obviously missing.
+Only that page not working, of all the main menu pages. This was as the
+superuser. The problem was an exception being raised from the
+<code class="docutils literal notranslate"><span class="pre">template.render_unicode()</span></code> call in
+<code class="docutils literal notranslate"><span class="pre">CamcopsMakoLookupTemplateRenderer.__call__</span></code>. Aha – problem may have been
+a completely full disk. No; disk was completely full, but that wasn’t the
+problem.)</li>
 </ul>
 <p><strong>Client v2.2.1 beta, 2018-08-06 [in progress]</strong></p>
 <ul class="simple">

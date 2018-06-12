@@ -76,7 +76,7 @@ class UserGroupMembership(Base):
         "id", Integer, primary_key=True, autoincrement=True,
     )
 
-    # Many-to-many mapping between Uesr and Group
+    # Many-to-many mapping between User and Group
     user_id = Column(
         "user_id", Integer, ForeignKey("_security_users.id")
     )

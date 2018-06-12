@@ -22,7 +22,7 @@
 ===============================================================================
 """
 
-from typing import Any, Dict, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
 from pendulum import Pendulum

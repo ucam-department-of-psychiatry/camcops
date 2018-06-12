@@ -60,7 +60,7 @@ from markupsafe import escape
             <td>${ finalize_tk.find_critical_single_numerical_id_from_req(request) }</td>
 
             <td>
-                ${ (",".join(sorted(u.username for u in group.users))) | h }
+                ${ (", ".join(sorted(u.username for u in group.users))) | h }
             </td>
 
             %if with_edit:

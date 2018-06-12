@@ -991,13 +991,26 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - A released (CPFT) version of 2.2.0 raised a "The resource could not be found"
   error when using the ``/view_groups`` URL, heading to ``groups_view.mako``.
-  (Not sure why; development version works fine. No files obviously missing.
-  Only that page not working, of all the main menu pages. This was as the
-  superuser. The problem was an exception being raised from the
-  ``template.render_unicode()`` call in
-  ``CamcopsMakoLookupTemplateRenderer.__call__``. Aha -- problem may have been
-  a completely full disk. No; disk was completely full, but that wasn't the
-  problem.)
+
+  - Initially: not sure why; development version works fine. No files obviously
+    missing. Only that page not working, of all the main menu pages. This was
+    as the superuser. The problem was an exception being raised from the
+    ``template.render_unicode()`` call in
+    ``CamcopsMakoLookupTemplateRenderer.__call__``. Aha -- problem may have
+    been a completely full disk. No; disk was completely full, but that wasn't
+    the problem.
+
+  - v2.2.1 released just in case I'd missed something.
+
+  - No, it was a problem manifesting in groups_table.mako, which used
+    ``u.username for u in group.users`` giving ``AttributeError: 'NoneType'
+    object has no attribute 'username'``. Now, that is defined in `Group` as
+    ``users = association_proxy("user_group_memberships", "user")``.
+
+  - The problems looks to be in the data: there was an entry in the
+    ``_security_user_group`` table with user_id = NULL (and group_id = 3).
+
+  - **Not yet sure where that duff value came from.**
 
 **Client v2.2.1 beta, 2018-08-06 [in progress]**
 
