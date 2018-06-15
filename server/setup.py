@@ -25,7 +25,7 @@ camcops_server setup file
 
 To use:
 
-    python setup.py sdist
+    python setup.py sdist --extras
 
     twine upload dist/*
 
@@ -46,7 +46,6 @@ from setuptools import setup, find_packages
 import shutil
 import subprocess
 import sys
-import tempfile
 from typing import List
 
 from camcops_server.cc_modules.cc_baseconstants import (

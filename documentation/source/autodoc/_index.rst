@@ -67,6 +67,7 @@ Automatic documentation of core server source code
     cc_pyramid.rst
     cc_recipdef.rst
     cc_report.rst
+    cc_request.rst
     cc_serversettings.rst
     cc_session.rst
     cc_simpleobjects.rst
@@ -93,3 +94,5 @@ Automatic documentation of core server source code
     webview.rst
 
     camcops.rst
+
+    tasks.rst

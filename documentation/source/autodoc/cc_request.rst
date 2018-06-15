@@ -1,4 +1,4 @@
-..  documentation/source/autodoc/tasks.rst
+..  documentation/source/autodoc/cc_request.rst
 
 ..  Copyright (C) 2012-2018 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,13 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-camcops_server.tasks
---------------------
+camcops_server.cc_modules.cc_request
+------------------------------------
 
-Not currently autodocumented in full (rather repetitive!). Here's an example:
-
-ace3
-~~~~
-
-.. automodule:: camcops_server.tasks.ace3
+.. automodule:: camcops_server.cc_modules.cc_request
     :members:
+
